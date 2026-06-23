@@ -1,108 +1,91 @@
 'use client';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { getStudentContext } from '@/lib/storage';
-import { Button } from '@/components/ui/Button';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { ArrowRight, BookOpen, GraduationCap, Layers, Users } from 'lucide-react';
+import { Button } from '@/components/ui/Button';
+import { RoleIcon } from '@/components/RoleIcon';
+import { courseRepo, progressRepo } from '@/lib/data';
+import { Course } from '@/lib/types';
 
-export default function Home() {
-  const router = useRouter();
+export default function HomePage() {
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [enrolled, setEnrolled] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
-    const context = getStudentContext();
-    if (context) {
-      router.push('/dashboard');
-    }
-  }, [router]);
+    const list = courseRepo.list();
+    setCourses(list);
+    const map: Record<string, boolean> = {};
+    list.forEach((c) => {
+      map[c.id] = !!progressRepo.getContext(c.id);
+    });
+    setEnrolled(map);
+  }, []);
 
   return (
-    <div className="space-y-12">
-      <div className="text-center">
-        <div className="mb-6 text-6xl">🔐</div>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Security+ Capstone Lab</h1>
-        <p className="mt-4 text-xl text-gray-600 dark:text-gray-400">
-          A 4-week hands-on security lab with Red, Blue, and GRC roles.
+    <div className="space-y-10">
+      <div className="space-y-3 text-center">
+        <div className="mx-auto inline-flex rounded-2xl bg-blue-50 p-3 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+          <GraduationCap className="h-8 w-8" />
+        </div>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Capstone Lab Platform</h1>
+        <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+          Hands-on, role-based cyber ranges. Choose a course to begin, or open the instructor studio to build one.
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-3">
-        <div className="rounded-lg border border-blue-200 bg-blue-50 p-6 dark:border-blue-800 dark:bg-blue-900/20">
-          <div className="mb-3 text-3xl">🏃</div>
-          <h2 className="font-bold text-gray-900 dark:text-white">Red Team</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Reconnaissance, enumeration, and exploitation tasks.
-          </p>
-        </div>
+      <div className="grid gap-6 md:grid-cols-2">
+        {courses.map((course, i) => (
+          <motion.div
+            key={course.id}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.06 }}
+            className="flex flex-col rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+          >
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{course.title}</h2>
+              {course.isSeed && (
+                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                  Built-in
+                </span>
+              )}
+            </div>
+            <p className="mt-2 flex-1 text-sm text-gray-600 dark:text-gray-400">{course.description}</p>
 
-        <div className="rounded-lg border border-purple-200 bg-purple-50 p-6 dark:border-purple-800 dark:bg-purple-900/20">
-          <div className="mb-3 text-3xl">🛡️</div>
-          <h2 className="font-bold text-gray-900 dark:text-white">Blue Team</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Hardening, detection, and incident response tasks.
-          </p>
-        </div>
+            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+              <span className="inline-flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {course.weeks.length} weeks</span>
+              <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {course.roles.length} roles</span>
+              <span className="flex items-center gap-1">
+                {course.roles.slice(0, 4).map((r) => (
+                  <RoleIcon key={r.id} iconName={r.icon} className="h-4 w-4" color={r.color} />
+                ))}
+              </span>
+            </div>
 
-        <div className="rounded-lg border border-green-200 bg-green-50 p-6 dark:border-green-800 dark:bg-green-900/20">
-          <div className="mb-3 text-3xl">📋</div>
-          <h2 className="font-bold text-gray-900 dark:text-white">GRC</h2>
-          <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Risk assessment, compliance, and reporting tasks.
-          </p>
-        </div>
+            <div className="mt-5 flex gap-3">
+              <Link href={enrolled[course.id] ? `/courses/${course.id}/dashboard` : `/courses/${course.id}/settings`} className="flex-1">
+                <Button className="flex w-full items-center justify-center gap-2">
+                  {enrolled[course.id] ? 'Continue' : 'Enroll'} <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+              <Link href={`/courses/${course.id}/guide`}>
+                <Button variant="secondary" className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4" /> Guide
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      <div className="space-y-4 rounded-lg bg-gray-50 p-8 dark:bg-gray-800">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Get Started</h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          New here? See how the capstone works first, then set up your profile.
-        </p>
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <Link href="/guide">
-            <Button size="lg" className="w-full sm:w-auto">
-              See How It Works
-            </Button>
-          </Link>
-          <Link href="/settings">
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-              Enroll Now
-            </Button>
-          </Link>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Lab Flow</h2>
-        <div className="space-y-3">
-          <div className="flex items-start gap-4">
-            <div className="mt-1 text-2xl font-bold text-blue-600">1</div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Cold Recon (Week 1)</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Build baseline, passive recon, and foundational security.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="mt-1 text-2xl font-bold text-blue-600">2</div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Hard Target (Week 2)</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Authorized vulnerability assessment and detection engineering.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="mt-1 text-2xl font-bold text-blue-600">3</div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">The Breach (Week 3)</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Execute attacks, detect, and preserve evidence.</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-4">
-            <div className="mt-1 text-2xl font-bold text-blue-600">4</div>
-            <div>
-              <h3 className="font-semibold text-gray-900 dark:text-white">Payday (Week 4)</h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Compile findings and present results.</p>
-            </div>
-          </div>
-        </div>
+      <div className="flex flex-col items-center gap-3 rounded-lg bg-gray-50 p-8 text-center dark:bg-gray-800">
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Are you an instructor?</h2>
+        <p className="text-gray-600 dark:text-gray-400">Build and maintain courses, roles, weeks, tasks, and gates.</p>
+        <Link href="/instructor">
+          <Button variant="secondary" size="lg">Open Instructor Studio</Button>
+        </Link>
       </div>
     </div>
   );

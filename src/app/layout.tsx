@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
-import { ShieldCheck, LayoutDashboard, BookOpen, Settings as SettingsIcon } from 'lucide-react';
+import { ShieldCheck, GraduationCap, PencilRuler } from 'lucide-react';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -27,17 +27,13 @@ export default function RootLayout({
                 <span>Capstone Lab</span>
               </Link>
               <div className="flex items-center gap-1 sm:gap-2">
-                <Link href="/dashboard" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                  <LayoutDashboard className="h-4 w-4" />
-                  <span className="hidden sm:inline">Dashboard</span>
+                <Link href="/" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="hidden sm:inline">Courses</span>
                 </Link>
-                <Link href="/guide" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                  <BookOpen className="h-4 w-4" />
-                  <span className="hidden sm:inline">Guide</span>
-                </Link>
-                <Link href="/settings" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                  <SettingsIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">Settings</span>
+                <Link href="/instructor" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
+                  <PencilRuler className="h-4 w-4" />
+                  <span className="hidden sm:inline">Instructor</span>
                 </Link>
               </div>
             </div>

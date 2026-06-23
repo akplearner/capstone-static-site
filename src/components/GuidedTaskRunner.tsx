@@ -15,27 +15,23 @@ import { Button } from './ui/Button';
 import { ChecklistItem, StepDetail } from './TaskComponents';
 import { GuidedStepper, StepperItem } from './GuidedStepper';
 import { Task } from '@/lib/types';
-import { getStepDeliverable } from '@/lib/content-data';
-import {
-  getCompletedStepIds,
-  setTaskCompletion,
-  removeTaskCompletion,
-} from '@/lib/storage';
+import { progressRepo } from '@/lib/data';
 
 interface GuidedTaskRunnerProps {
   task: Task;
+  courseId: string;
   memberId: string;
   /** Called whenever completion changes so parents can refresh progress/gates. */
   onProgressChange?: () => void;
 }
 
-export function GuidedTaskRunner({ task, memberId, onProgressChange }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }: GuidedTaskRunnerProps) {
   const [completed, setCompleted] = useState<Set<string>>(
-    () => new Set(getCompletedStepIds(memberId, task))
+    () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
   const [mode, setMode] = useState<'guided' | 'all'>('guided');
   const [currentIdx, setCurrentIdx] = useState(() => {
-    const done = new Set(getCompletedStepIds(memberId, task));
+    const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));
     return firstIncomplete === -1 ? 0 : firstIncomplete;
   });
@@ -46,14 +42,15 @@ export function GuidedTaskRunner({ task, memberId, onProgressChange }: GuidedTas
 
   const setStep = (stepId: string, done: boolean) => {
     if (done) {
-      setTaskCompletion(memberId, task.id, stepId, {
+      progressRepo.setCompletion({
+        courseId,
         taskId: task.id,
         memberId,
         stepId,
         completedAt: Date.now(),
       });
     } else {
-      removeTaskCompletion(memberId, task.id, stepId);
+      progressRepo.removeCompletion(courseId, memberId, task.id, stepId);
     }
     setCompleted((prev) => {
       const next = new Set(prev);
@@ -189,7 +186,7 @@ export function GuidedTaskRunner({ task, memberId, onProgressChange }: GuidedTas
                   expectedOutput={current.expectedOutput}
                   whatItMeans={current.whatItMeans}
                   frameworks={current.frameworks}
-                  deliverable={getStepDeliverable(current.id)}
+                  deliverable={current.producesDeliverable}
                 />
               )}
             </motion.div>
@@ -253,7 +250,7 @@ export function GuidedTaskRunner({ task, memberId, onProgressChange }: GuidedTas
               isComplete={completed.has(step.id)}
               onToggle={(checked) => setStep(step.id, checked)}
               frameworks={step.frameworks}
-              deliverable={getStepDeliverable(step.id)}
+              deliverable={step.producesDeliverable}
             />
           ))}
         </div>

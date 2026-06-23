@@ -1,17 +1,20 @@
-# Capstone Lab Platform — Phase 1
+# Capstone Lab Platform
 
-A polished, interactive static site for the Security+ Capstone lab. Built with Next.js 14, Tailwind CSS, and Framer Motion.
+A polished, interactive platform for hands-on, role-based cyber ranges. Ships with a
+Security+ capstone course and supports **multiple courses** plus an **instructor studio**
+to author new ones. Built with Next.js 16, Tailwind CSS, and Framer Motion.
 
 ## Features
 
-✅ **4-week lab structure** with role-based tasks (Red/Blue/GRC)  
-✅ **Interactive checklists** with localStorage persistence  
-✅ **Gate system** for progress tracking and week unlock  
-✅ **Framework tags** (NIST CSF, CIS, OWASP, etc.)  
-✅ **Smooth animations** and great UX  
-✅ **Mobile-responsive** design  
-✅ **Dark mode** support  
-✅ **No backend required** for Phase 1  
+✅ **Multi-course** — pick a course from the home page; each is fully self-contained  
+✅ **Instructor Studio** — create/edit courses, roles, weeks, tasks, steps, and gates (no code)  
+✅ **Guided, low-click flow** with step-by-step task runner and progress steppers  
+✅ **Role-based tracks** (e.g. Red/Blue/GRC) with variable role and week counts  
+✅ **Gate system** for progress tracking  
+✅ **Custom SVG diagrams** (lifecycle, role workflow, role interplay)  
+✅ **JSON import/export** of courses; duplicate a course to bootstrap a new one  
+✅ **Mobile-responsive** + **dark mode**  
+✅ **Swappable data layer** — localStorage today, drop-in backend later  
 
 ## Quick Start
 
@@ -61,46 +64,59 @@ npm run build && npm run start
 ## Usage
 
 ### Students
-1. Enroll with name, team (01–03), and role (Red/Blue/GRC)
-2. View **Dashboard** to see your progress
-3. Visit your **role hub** to view tasks
-4. Click checkboxes to mark steps complete — progress saves automatically
-5. Gates unlock when you complete all tasks for the week
+1. From the home page, pick a course
+2. Enroll with name, team, and role (roles come from the course definition)
+3. Use the **Dashboard** to see progress and the lifecycle diagram
+4. Work each week step-by-step in the guided task runner; progress saves automatically
+5. Completing a week’s required tasks advances its gate
+6. Switch courses any time from the home page (progress is tracked per course)
 
 ### Instructors
-- Edit tasks in `src/lib/content-data.ts`
-- Customize weeks, roles, frameworks
-- Deploy via Vercel for instant updates
+Open **/instructor** (passcode-gated) to:
+- Create a course, or **Duplicate** the built-in Security+ course to start from a template
+- Edit details, **roles** (name/mission/color/icon), **weeks**, **tasks + steps**, and **gates**
+- **Export/Import** a course as JSON to share or back up
+- **Preview as student** to test the flow
+
+> The instructor passcode defaults to `instructor`; override with `NEXT_PUBLIC_INSTRUCTOR_PASSCODE`.
+> The passcode gate is a stub to be replaced by real auth when a backend is added.
 
 ## Architecture
 
 ```
 src/
-├── app/              # Pages (layout, dashboard, roles, settings)
-├── components/       # UI (TaskCard, ChecklistItem, GateBadge, etc.)
-├── lib/
-│   ├── types.ts      # TypeScript types
-│   ├── storage.ts    # localStorage hooks
-│   ├── content-data.ts # All tasks & weeks
-│   ├── frameworks.ts # NIST/CIS/OWASP utilities
-│   └── utils.ts      # Helpers
-└── app/globals.css   # Tailwind styles
+├── app/
+│   ├── page.tsx                     # course picker (home)
+│   ├── courses/[courseId]/          # student app (dashboard, roles, week, team, settings, guide)
+│   └── instructor/                  # instructor studio (list + /[courseId] editor)
+├── components/
+│   ├── GuidedTaskRunner, GuidedStepper, RoleIcon, CourseProvider, ...
+│   ├── diagrams/                    # LifecycleFlow, RoleWorkflow, RoleInterplayDiagram (props-driven)
+│   └── instructor/                  # course/roles/weeks/tasks/steps/gates editors
+└── lib/
+    ├── types.ts                     # Course, RoleDef, WeekDef, Task, Step, Gate, Member, ...
+    ├── course-helpers.ts            # pure helpers over a Course
+    ├── useCourse.ts / useMember.ts  # context hooks
+    └── data/                        # the swappable data-access layer
+        ├── types.ts                 # CourseRepository, ProgressRepository interfaces
+        ├── keys.ts                  # course-scoped localStorage key registry
+        ├── localStorageCourseRepo.ts / localStorageProgressRepo.ts
+        └── seed/securityPlus.ts     # built-in Security+ course
 ```
 
 ## Data
 
-- **localStorage** for persistence (per-student, per-browser)
-- **No backend** in Phase 1 — all client-side
-- Data survives refresh, clears with browser cache
+- **localStorage** for persistence, **course-scoped** (`capstone_{courseId}_…`), per browser
+- Built-in courses are seeds shipped in code; instructor-authored courses live in localStorage
+- A one-time migration moves any pre-existing (un-scoped) progress under `security-plus`
 
-## Phase 2 (Future)
+## Swapping in a backend (future)
 
-- Artifact upload → Supabase Storage
-- GRC assembly view + real artifacts
-- Role-cohort collaboration (Discord/built-in)
-- Instructor dashboards
-- LTI 1.3 integration
-- Email notifications
+All reads/writes go through `CourseRepository` and `ProgressRepository`
+(`src/lib/data/`). To get true “access from anywhere,” shared instructor content, and
+multi-tenancy, implement these interfaces against a backend (e.g. Supabase) and export the
+new singletons from `src/lib/data/index.ts` — **no page or component changes required**.
+Add real auth in place of the instructor passcode (`useInstructorAuth`).
 
 ## Customization
 

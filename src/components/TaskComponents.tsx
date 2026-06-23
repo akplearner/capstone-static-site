@@ -119,8 +119,8 @@ interface FrameworkBadgeProps {
 
 export function FrameworkBadge({ framework }: FrameworkBadgeProps) {
   return (
-    <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(framework as any)}`}>
-      {getFrameworkLabel(framework as any)}
+    <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(framework)}`}>
+      {getFrameworkLabel(framework)}
     </span>
   );
 }

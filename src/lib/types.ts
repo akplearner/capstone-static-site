@@ -1,16 +1,37 @@
-// Domain types for the capstone platform
+// Domain types for the multi-course capstone platform.
 
-export type Role = 'red' | 'blue' | 'grc';
-export type WeekNumber = 1 | 2 | 3 | 4;
+// Widened from unions to plain strings/numbers so courses can define any roles,
+// any number of weeks, and their own frameworks. The built-in Security+ seed
+// still uses 'red' | 'blue' | 'grc', weeks 1-4, and the original framework ids.
+export type Role = string;
+export type WeekNumber = number;
 export type GateStatus = 'locked' | 'ready' | 'passed';
-export type Framework = 'NIST_CSF' | 'CIS' | 'OWASP' | 'CVSS' | 'NIST_800_61' | 'NIST_800_115' | 'ISO_27001' | 'STRIDE';
+export type Framework = string;
 
-export interface Member {
-  memberId: string;
-  teamId: string;
-  role: Role;
-  displayName: string;
-  cohort: string;
+// A role/track within a course (e.g. Red, Blue, GRC — or a single "Student" track).
+export interface RoleDef {
+  id: string;        // 'red'
+  name: string;      // 'Red (Runners)'
+  mission: string;   // short description of what this role does
+  color: string;     // hex, e.g. '#dc2626' — drives badges, diagrams (works for N roles)
+  icon: string;      // lucide icon name from the icons whitelist (src/lib/icons.ts)
+  label?: string;    // optional decorated label, e.g. '🏃 Red (Runners)'
+}
+
+export interface WeekDef {
+  number: number;
+  title: string;
+  theme: string;
+  objective: string;
+  runs?: string;
+}
+
+// Optional per-course framework override; falls back to the built-in maps in utils.
+export interface FrameworkDef {
+  id: string;
+  label: string;
+  color: string;        // tailwind class string
+  description?: string;
 }
 
 export interface Step {
@@ -57,7 +78,34 @@ export interface Gate {
   requiredTasks: string[]; // task IDs that must be completed
 }
 
+// A complete course definition. Built-in courses are seeds; instructor-authored
+// courses are stored via the CourseRepository and may override a seed by id.
+export interface Course {
+  id: string;            // 'security-plus'
+  title: string;         // 'Security+ Capstone Lab'
+  slug: string;          // url segment, usually === id
+  description: string;
+  roles: RoleDef[];      // variable count (single-track courses may have one)
+  weeks: WeekDef[];      // variable count
+  gates: Gate[];
+  tasks: Task[];
+  frameworks?: FrameworkDef[];
+  isSeed?: boolean;      // true for built-in courses shipped in code
+  version?: number;      // export/import schema version
+  updatedAt?: number;
+}
+
+export interface Member {
+  memberId: string;
+  courseId: string;
+  teamId: string;
+  role: Role;
+  displayName: string;
+  cohort: string;
+}
+
 export interface TaskCompletion {
+  courseId: string;
   taskId: string;
   memberId: string;
   stepId: string;
@@ -66,6 +114,7 @@ export interface TaskCompletion {
 
 export interface Artifact {
   id: string;
+  courseId: string;
   teamId: string;
   week: WeekNumber;
   role: Role;

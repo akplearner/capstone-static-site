@@ -33,16 +33,21 @@ export const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'STRIDE': 'STRIDE Threat Modeling',
 };
 
+const FRAMEWORK_FALLBACK_COLOR =
+  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+
+// Framework is now an open string (instructors can add their own), so these
+// fall back gracefully when a framework id isn't one of the built-ins.
 export function getFrameworkColor(framework: Framework): string {
-  return FRAMEWORK_COLORS[framework];
+  return FRAMEWORK_COLORS[framework] || FRAMEWORK_FALLBACK_COLOR;
 }
 
 export function getFrameworkLabel(framework: Framework): string {
-  return FRAMEWORK_LABELS[framework];
+  return FRAMEWORK_LABELS[framework] || framework;
 }
 
 export function getFrameworkDescription(framework: Framework): string {
-  return FRAMEWORK_DESCRIPTIONS[framework];
+  return FRAMEWORK_DESCRIPTIONS[framework] || '';
 }
 
 export function formatDate(timestamp: number): string {
@@ -128,6 +133,17 @@ export const ROLE_COLORS: Record<string, RoleColor> = {
 
 export function getRoleColor(role: string): RoleColor {
   return ROLE_COLORS[role] || ROLE_COLORS.blue;
+}
+
+// Inline styles derived from a role's hex color. Used for diagrams and badges so
+// any number of instructor-defined roles render correctly (Tailwind can't
+// generate class names from dynamic colors).
+export function roleTint(hex: string, alpha = '22'): Record<string, string> {
+  return { backgroundColor: `${hex}${alpha}`, borderColor: hex, color: hex };
+}
+
+export function roleAccent(hex: string): Record<string, string> {
+  return { color: hex, borderColor: hex };
 }
 
 export function getWeekTitle(week: number): string {
