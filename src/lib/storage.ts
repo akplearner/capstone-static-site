@@ -1,7 +1,9 @@
 'use client';
 
-import { Member, Role, TaskCompletion, GateStatus } from './types';
+import { Member, Role, TaskCompletion, GateStatus, Gate, Task } from './types';
 import { useEffect, useState } from 'react';
+import { getTasksByRole } from './content-data';
+import { calculateProgress } from './utils';
 
 const STORAGE_PREFIX = 'capstone_';
 
@@ -40,22 +42,46 @@ export function setTaskCompletion(
   localStorage.setItem(key, JSON.stringify(completion));
 }
 
-export function getWeekCompletion(memberId: string, week: number): number {
+export function removeTaskCompletion(
+  memberId: string,
+  taskId: string,
+  stepId: string
+) {
+  if (typeof window === 'undefined') return;
+  const key = `${STORAGE_PREFIX}completion_${memberId}_${taskId}_${stepId}`;
+  localStorage.removeItem(key);
+}
+
+function isStepComplete(memberId: string, taskId: string, stepId: string): boolean {
+  if (typeof window === 'undefined') return false;
+  return !!localStorage.getItem(`${STORAGE_PREFIX}completion_${memberId}_${taskId}_${stepId}`);
+}
+
+// IDs of completed steps for a single task.
+export function getCompletedStepIds(memberId: string, task: Task): string[] {
+  if (typeof window === 'undefined') return [];
+  return task.steps
+    .filter((s) => isStepComplete(memberId, task.id, s.id))
+    .map((s) => s.id);
+}
+
+// Per-task completion percentage (0-100).
+export function getTaskCompletionPercent(memberId: string, task: Task): number {
+  if (task.steps.length === 0) return 0;
+  return calculateProgress(getCompletedStepIds(memberId, task).length, task.steps.length);
+}
+
+// Week completion percentage across all of the member's tasks for that week.
+export function getWeekCompletion(memberId: string, role: Role, week: number): number {
   if (typeof window === 'undefined') return 0;
-  let completed = 0;
-  let total = 0;
-
-  // This would iterate through all tasks for the week
-  // For now, we'll count from localStorage keys
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.includes(`${STORAGE_PREFIX}completion_${memberId}`) && key.includes(`_${week}_`)) {
-      completed++;
-    }
-  }
-
-  // In real implementation, this would be calculated against the task data
-  return completed;
+  const tasks = getTasksByRole(role, week);
+  const total = tasks.reduce((sum, t) => sum + t.steps.length, 0);
+  if (total === 0) return 0;
+  const completed = tasks.reduce(
+    (sum, t) => sum + getCompletedStepIds(memberId, t).length,
+    0
+  );
+  return calculateProgress(completed, total);
 }
 
 // Gate Status
@@ -69,6 +95,34 @@ export function setGateStatus(teamId: string, gateId: number, status: GateStatus
   if (typeof window === 'undefined') return;
   const key = `${STORAGE_PREFIX}gate_${teamId}_${gateId}`;
   localStorage.setItem(key, status);
+}
+
+/**
+ * Derive a gate's status from the current member's progress (pure — safe to call
+ * inside render/loops). In this single-user localStorage build we evaluate the
+ * member's own required task for the gate; cross-role required tasks are noted as
+ * team-dependent in the UI.
+ *
+ * - 'passed'  : the member's required task for this gate is 100% complete
+ * - 'ready'   : the member's required task is started but not finished
+ * - 'locked'  : not started
+ */
+export function deriveGateStatus(memberId: string, role: Role, gate: Gate): GateStatus {
+  if (typeof window === 'undefined') return 'locked';
+  const myTasks = getTasksByRole(role, gate.week).filter((t) =>
+    gate.requiredTasks.includes(t.id)
+  );
+  if (myTasks.length === 0) return 'locked';
+
+  const totalSteps = myTasks.reduce((sum, t) => sum + t.steps.length, 0);
+  const completedSteps = myTasks.reduce(
+    (sum, t) => sum + getCompletedStepIds(memberId, t).length,
+    0
+  );
+
+  if (totalSteps > 0 && completedSteps === totalSteps) return 'passed';
+  if (completedSteps > 0) return 'ready';
+  return 'locked';
 }
 
 // Collaboration Notes (placeholder for Phase 2)
@@ -111,10 +165,16 @@ export function useTaskCompletion(memberId: string, taskId: string, stepId: stri
     setCompletion(completion);
   };
 
+  const markIncomplete = () => {
+    removeTaskCompletion(memberId, taskId, stepId);
+    setCompletion(null);
+  };
+
   return {
     isComplete: !!completion,
     completedAt: completion?.completedAt,
-    markComplete
+    markComplete,
+    markIncomplete
   };
 }
 
@@ -135,14 +195,14 @@ export function useGateStatus(teamId: string, gateId: number) {
   return { status, updateStatus };
 }
 
-export function useWeekCompletion(memberId: string, week: number) {
+export function useWeekCompletion(memberId: string, role: Role, week: number) {
   const [completionPercent, setCompletionPercent] = useState(0);
 
   useEffect(() => {
     if (!memberId) return;
-    const percent = getWeekCompletion(memberId, week);
+    const percent = getWeekCompletion(memberId, role, week);
     setCompletionPercent(percent);
-  }, [memberId, week]);
+  }, [memberId, role, week]);
 
   return { completionPercent };
 }

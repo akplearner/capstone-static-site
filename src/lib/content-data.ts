@@ -597,6 +597,50 @@ const GRC_TASKS: Task[] = [
   }
 ];
 
+// Maps each evidence step to the deliverable file it contributes toward.
+// Used by the guided task runner to show "this step produces <file>".
+export const STEP_DELIVERABLES: Record<string, string> = {
+  // Red
+  'red-w1-s3': 'Recon_Findings.md',
+  'red-w1-s5': 'Asset_List.md',
+  'red-w2-s1': 'Nmap_Scan.txt',
+  'red-w2-s2': 'Nikto_Report.txt',
+  'red-w3-s1': 'SQL_Injection_Proof.txt',
+  'red-w3-s2': 'Brute_Force_Proof.txt',
+  'red-w3-s3': 'Reverse_Shell_Proof.txt',
+  'red-w3-s4': 'Evidence_Photos.zip',
+  // Blue
+  'blue-w1-s3': 'UFW_Status.txt',
+  'blue-w1-s4': 'Hardening_Checklist.txt',
+  'blue-w1-s5': 'Lynis_Report.html',
+  'blue-w2-s1': 'Baseline_Traffic.pcap',
+  'blue-w2-s3': 'Detection_Rules.txt',
+  'blue-w3-s1': 'Attack_Pcap.pcap',
+  'blue-w3-s2': 'Attack_Logs.txt',
+  'blue-w3-s3': 'Incident_Response.txt',
+  // GRC
+  'grc-w1-s2': 'Framework_Mapping.md',
+  'grc-w1-s3': 'Framework_Mapping.md',
+  'grc-w1-s4': 'Lab_Security_Policy_v1.0.md',
+  'grc-w2-s2': 'Risk_Matrix.md',
+  'grc-w2-s3': 'Vulnerability_Assessment.md',
+  'grc-w3-s2': 'Evidence_Log.md',
+  'grc-w3-s3': 'Evidence_Log.md',
+  'grc-w4-s3': 'Final_Report.pdf',
+};
+
+export function getStepDeliverable(stepId: string): string | undefined {
+  return STEP_DELIVERABLES[stepId];
+}
+
+// All deliverable filenames expected from a role for a given week.
+export function getDeliverablesForWeek(role: 'red' | 'blue' | 'grc', week: number): string[] {
+  const tasks = getTasksByRole(role, week);
+  const set = new Set<string>();
+  tasks.forEach((t) => t.deliverables.forEach((d) => set.add(d)));
+  return Array.from(set);
+}
+
 // Export all tasks
 export const ALL_TASKS: Task[] = [...RED_TASKS, ...BLUE_TASKS, ...GRC_TASKS];
 

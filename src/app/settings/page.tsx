@@ -16,12 +16,14 @@ export default function SettingsPage() {
     (currentContext?.role as any) || 'red'
   );
   const [displayName, setDisplayName] = useState(currentContext?.displayName || '');
+  const [nameError, setNameError] = useState<string | null>(null);
 
   const handleSave = () => {
     if (!displayName.trim()) {
-      alert('Please enter your name');
+      setNameError('Please enter your name to continue.');
       return;
     }
+    setNameError(null);
 
     const newContext: Member = {
       memberId: `${cohort}-${team}-${role}-${Date.now()}`,
@@ -63,10 +65,21 @@ export default function SettingsPage() {
               <input
                 type="text"
                 value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
+                onChange={(e) => {
+                  setDisplayName(e.target.value);
+                  if (nameError) setNameError(null);
+                }}
                 placeholder="Your name"
-                className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                aria-invalid={!!nameError}
+                className={`mt-2 w-full rounded-lg border bg-white px-4 py-2 dark:bg-gray-700 dark:text-white ${
+                  nameError
+                    ? 'border-red-500 focus:border-red-500'
+                    : 'border-gray-300 dark:border-gray-600'
+                }`}
               />
+              {nameError && (
+                <p className="mt-1.5 text-sm text-red-600 dark:text-red-400">{nameError}</p>
+              )}
             </div>
 
             <div>

@@ -2,10 +2,18 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Badge } from './ui/Button';
+import {
+  Check,
+  CheckCircle2,
+  ChevronDown,
+  ChevronUp,
+  Lock,
+  AlertTriangle,
+  Copy,
+  FileText,
+} from 'lucide-react';
 import { Task } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
-import Link from 'next/link';
 
 interface TaskCardProps {
   task: Task;
@@ -65,9 +73,9 @@ interface GateBadgeProps {
 
 export function GateBadge({ gateId, status, completionPercent }: GateBadgeProps) {
   const icons = {
-    locked: '🔒',
-    ready: '⚠️',
-    passed: '✅',
+    locked: <Lock className="h-7 w-7" />,
+    ready: <AlertTriangle className="h-7 w-7" />,
+    passed: <CheckCircle2 className="h-7 w-7" />,
   };
 
   const colors = {
@@ -85,12 +93,12 @@ export function GateBadge({ gateId, status, completionPercent }: GateBadgeProps)
         <div>
           <div className="text-sm font-semibold">Gate {gateId}</div>
           <div className="text-xs">
-            {status === 'locked' && 'Complete all tasks to unlock'}
-            {status === 'ready' && 'Ready for review'}
-            {status === 'passed' && 'Passed! 🎉'}
+            {status === 'locked' && 'Complete your tasks to unlock'}
+            {status === 'ready' && 'In progress — keep going'}
+            {status === 'passed' && 'Passed!'}
           </div>
         </div>
-        <div className="text-3xl">{icons[status]}</div>
+        <div>{icons[status]}</div>
       </div>
       <div className="mt-3 h-2 w-full rounded-full bg-gray-300 dark:bg-gray-600">
         <motion.div
@@ -117,26 +125,121 @@ export function FrameworkBadge({ framework }: FrameworkBadgeProps) {
   );
 }
 
+/**
+ * Shared rendering of a step's details: instruction, command, expected output,
+ * what-it-means, the deliverable it produces, and framework tags. Reused by the
+ * ChecklistItem ("show all") view and the GuidedTaskRunner one-step view.
+ */
+export function StepDetail({
+  instruction,
+  description,
+  command,
+  expectedOutput,
+  whatItMeans,
+  frameworks,
+  deliverable,
+}: {
+  instruction?: string;
+  description?: string;
+  command?: string;
+  expectedOutput?: string;
+  whatItMeans: string;
+  frameworks: string[];
+  deliverable?: string;
+}) {
+  return (
+    <div className="space-y-3">
+      {(instruction || description) && (
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            What to do
+          </div>
+          <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+            {instruction || description}
+          </div>
+        </div>
+      )}
+
+      {command && (
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Command
+          </div>
+          <div className="relative mt-1 rounded bg-black p-3 pr-20 font-mono text-sm text-green-400">
+            <div className="absolute right-2 top-2">
+              <CopyButton text={command} />
+            </div>
+            <div className="whitespace-pre-wrap break-words">{command}</div>
+          </div>
+        </div>
+      )}
+
+      {expectedOutput && (
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            You should see
+          </div>
+          <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
+            {expectedOutput}
+          </div>
+        </div>
+      )}
+
+      <div>
+        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          What it means
+        </div>
+        <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">{whatItMeans}</div>
+      </div>
+
+      {deliverable && (
+        <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+          <FileText className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <span className="text-sm text-amber-800 dark:text-amber-300">
+            Save your evidence as <span className="font-mono font-semibold">{deliverable}</span>
+          </span>
+        </div>
+      )}
+
+      {frameworks.length > 0 && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Frameworks
+          </span>
+          {frameworks.map((fw) => (
+            <FrameworkBadge key={fw} framework={fw} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ChecklistItemProps {
   stepId: string;
   title: string;
+  instruction?: string;
+  description?: string;
   command?: string;
   expectedOutput?: string;
   whatItMeans: string;
   isComplete: boolean;
   onToggle: (complete: boolean) => void;
   frameworks: string[];
+  deliverable?: string;
 }
 
 export function ChecklistItem({
-  stepId,
   title,
+  instruction,
+  description,
   command,
   expectedOutput,
   whatItMeans,
   isComplete,
   onToggle,
   frameworks,
+  deliverable,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
@@ -151,21 +254,22 @@ export function ChecklistItem({
           className="mt-1 h-5 w-5 cursor-pointer accent-blue-600"
         />
         <div className="flex-1">
-          <motion.div className="flex items-center justify-between">
+          <motion.div className="flex items-center justify-between gap-2">
             <h4 className={`font-medium ${isComplete ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
               {title}
             </h4>
             <motion.button
               onClick={() => setShowDetails(!showDetails)}
-              className="text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              className="flex shrink-0 items-center gap-1 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
             >
-              {showDetails ? '▲ Hide' : '▼ Details'}
+              {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {showDetails ? 'Hide' : 'Details'}
             </motion.button>
           </motion.div>
 
           {isComplete && (
-            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="mt-1 text-sm text-green-600 dark:text-green-400">
-              ✓ Completed
+            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="mt-1 flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+              <Check className="h-4 w-4" /> Completed
             </motion.div>
           )}
 
@@ -175,39 +279,16 @@ export function ChecklistItem({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 space-y-3 border-t border-gray-200 pt-3 dark:border-gray-600">
-              {command && (
-                <div>
-                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">Command:</div>
-                  <div className="mt-1 rounded bg-black p-2 font-mono text-sm text-green-400">
-                    <CopyButton text={command} />
-                    <div className="whitespace-pre-wrap break-words">{command}</div>
-                  </div>
-                </div>
-              )}
-
-              {expectedOutput && (
-                <div>
-                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">Expected Output:</div>
-                  <div className="mt-1 rounded bg-gray-100 p-2 text-sm dark:bg-gray-600">{expectedOutput}</div>
-                </div>
-              )}
-
-              <div>
-                <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">What it Means:</div>
-                <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">{whatItMeans}</div>
-              </div>
-
-              {frameworks.length > 0 && (
-                <div>
-                  <div className="text-xs font-semibold text-gray-600 dark:text-gray-400">Frameworks:</div>
-                  <div className="mt-2 flex flex-wrap gap-2">
-                    {frameworks.map((fw) => (
-                      <FrameworkBadge key={fw} framework={fw} />
-                    ))}
-                  </div>
-                </div>
-              )}
+            <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-600">
+              <StepDetail
+                instruction={instruction}
+                description={description}
+                command={command}
+                expectedOutput={expectedOutput}
+                whatItMeans={whatItMeans}
+                frameworks={frameworks}
+                deliverable={deliverable}
+              />
             </div>
           </motion.div>
         </div>
@@ -216,11 +297,11 @@ export function ChecklistItem({
   );
 }
 
-function CopyButton({ text }: { text: string }) {
+export function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(text);
+    navigator.clipboard?.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -228,9 +309,10 @@ function CopyButton({ text }: { text: string }) {
   return (
     <button
       onClick={handleCopy}
-      className="mb-2 ml-2 inline-block rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
+      className="inline-flex items-center gap-1 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
     >
-      {copied ? '✓ Copied' : 'Copy'}
+      {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+      {copied ? 'Copied' : 'Copy'}
     </button>
   );
 }

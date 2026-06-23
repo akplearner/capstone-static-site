@@ -2,180 +2,119 @@
 
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { useStudentContext } from '@/lib/storage';
-import { Button, Tabs } from '@/components/ui/Button';
+import { useStudentContext, getTaskCompletionPercent, getWeekCompletion } from '@/lib/storage';
 import { TaskCard } from '@/components/TaskComponents';
+import { RoleWorkflow } from '@/components/diagrams/RoleWorkflow';
 import { getTasksByRole, WEEKS } from '@/lib/content-data';
-import { calculateProgress, getRoleLabel } from '@/lib/utils';
+import { getRoleName, getRoleMission } from '@/lib/utils';
+import { Role } from '@/lib/types';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { Target, Shield, ClipboardList } from 'lucide-react';
+
+function RoleIcon({ role, className }: { role: string; className?: string }) {
+  if (role === 'red') return <Target className={className} />;
+  if (role === 'blue') return <Shield className={className} />;
+  return <ClipboardList className={className} />;
+}
 
 export default function RoleHubPage() {
   const params = useParams();
   const router = useRouter();
-  const role = params.role as 'red' | 'blue' | 'grc';
+  const role = params.role as Role;
   const { context, loading } = useStudentContext();
-  const [activeWeek, setActiveWeek] = useState('1');
-  const [completionStats, setCompletionStats] = useState<Record<number, number>>({});
+  const [activeWeek, setActiveWeek] = useState(1);
+  const [weekStats, setWeekStats] = useState<Record<number, number>>({});
+  const [taskStats, setTaskStats] = useState<Record<string, number>>({});
 
   useEffect(() => {
-    if (!loading && !context) {
-      router.push('/settings');
-    }
+    if (!loading && !context) router.push('/settings');
   }, [context, loading, router]);
 
   useEffect(() => {
-    if (context?.role !== role) {
-      router.push(`/roles/${context?.role || 'red'}`);
-    }
+    if (context && context.role !== role) router.push(`/roles/${context.role}`);
   }, [context, role, router]);
 
   useEffect(() => {
     if (!context) return;
-
-    const stats: Record<number, number> = {};
-    for (let week = 1; week <= 4; week++) {
-      const tasksForWeek = getTasksByRole(role, week as any);
-      const totalSteps = tasksForWeek.reduce((sum, task) => sum + task.steps.length, 0);
-
-      let completedSteps = 0;
-      tasksForWeek.forEach((task) => {
-        task.steps.forEach((step) => {
-          const key = `capstone_completion_${context.memberId}_${task.id}_${step.id}`;
-          if (typeof window !== 'undefined' && localStorage.getItem(key)) {
-            completedSteps++;
-          }
-        });
+    const weeks: Record<number, number> = {};
+    const tasks: Record<string, number> = {};
+    for (let w = 1; w <= 4; w++) {
+      weeks[w] = getWeekCompletion(context.memberId, role, w);
+      getTasksByRole(role, w).forEach((t) => {
+        tasks[t.id] = getTaskCompletionPercent(context.memberId, t);
       });
-
-      stats[week] = totalSteps > 0 ? calculateProgress(completedSteps, totalSteps) : 0;
     }
-    setCompletionStats(stats);
+    setWeekStats(weeks);
+    setTaskStats(tasks);
   }, [context, role]);
 
   if (loading || !context) {
-    return <div>Loading...</div>;
+    return <div className="py-12 text-center text-gray-500">Loading…</div>;
   }
 
-  const tasksForWeek = getTasksByRole(role, parseInt(activeWeek) as any);
-  const weekData = WEEKS[parseInt(activeWeek) as 1 | 2 | 3 | 4];
-
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
+  const tasksForWeek = getTasksByRole(role, activeWeek);
+  const weekData = WEEKS[activeWeek as 1 | 2 | 3 | 4];
 
   return (
-    <motion.div
-      className="space-y-8"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
+    <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
       {/* Header */}
-      <div className="space-y-4">
-        <div className="inline-block text-4xl">
-          {role === 'red' && '🏃'}
-          {role === 'blue' && '🛡️'}
-          {role === 'grc' && '📋'}
+      <div className="flex items-start gap-4">
+        <div className="rounded-lg bg-gray-100 p-3 dark:bg-gray-800">
+          <RoleIcon role={role} className="h-8 w-8 text-blue-600 dark:text-blue-400" />
         </div>
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">
-          {getRoleLabel(role)}
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          Collaborate with other {getRoleLabel(role).split('(')[1]?.split(')')[0] || ''} members across all teams
-        </p>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">{getRoleName(role)}</h1>
+          <p className="mt-1 text-gray-600 dark:text-gray-400">{getRoleMission(role)}</p>
+        </div>
       </div>
 
-      {/* Week Tabs */}
-      <div className="space-y-6">
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
-          {[1, 2, 3, 4].map((week) => (
-            <motion.button
-              key={week}
-              onClick={() => setActiveWeek(week.toString())}
-              whileHover={{ opacity: 0.8 }}
-              className={`px-6 py-3 font-medium transition-colors ${
-                activeWeek === week.toString()
-                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
-              }`}
-            >
-              Week {week}
-            </motion.button>
-          ))}
+      <div className="grid gap-8 lg:grid-cols-[320px_1fr]">
+        {/* Role workflow diagram */}
+        <div className="space-y-3">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Your Workflow</h2>
+          <RoleWorkflow role={role} weekProgress={weekStats} currentWeek={activeWeek} />
         </div>
 
-        {/* Week Content */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }} className="space-y-6">
-          {/* Week Header */}
-          <div className="space-y-2">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {weekData.title}
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400">{weekData.theme}</p>
-            <p className="text-sm text-gray-500 dark:text-gray-500">{weekData.runs}</p>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Week Progress
-              </span>
-              <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                {completionStats[parseInt(activeWeek)] || 0}%
-              </span>
-            </div>
-            <div className="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${completionStats[parseInt(activeWeek)] || 0}%` }}
-                transition={{ duration: 0.5 }}
-                className="h-full rounded-full bg-blue-600"
-              />
-            </div>
-          </div>
-
-          {/* Tasks */}
-          <div className="space-y-4">
-            {tasksForWeek.map((task, idx) => (
-              <motion.div
-                key={task.id}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: idx * 0.1 }}
+        {/* Week tabs + tasks */}
+        <div className="space-y-6">
+          <div className="flex flex-wrap gap-2">
+            {[1, 2, 3, 4].map((w) => (
+              <button
+                key={w}
+                onClick={() => setActiveWeek(w)}
+                className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                  activeWeek === w
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
+                }`}
               >
-                <Link href={`/roles/${role}/week-${activeWeek}#${task.id}`}>
-                  <TaskCard
-                    task={task}
-                    completionPercent={completionStats[parseInt(activeWeek)] || 0}
-                  />
-                </Link>
-              </motion.div>
+                Week {w} · {weekStats[w] ?? 0}%
+              </button>
             ))}
           </div>
-        </motion.div>
-      </div>
 
-      {/* Collaboration Panel Placeholder */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.3 }}
-        className="rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 p-6 dark:border-gray-600 dark:bg-gray-800/50"
-      >
-        <h3 className="font-bold text-gray-900 dark:text-white">Role Cohort Collaboration</h3>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          💡 Phase 2 feature coming soon: Share notes, ask questions, and learn from other {role}s across all teams.
-        </p>
-        <p className="mt-3 text-xs text-gray-500 dark:text-gray-500">
-          This will integrate with your team chat or Discord for seamless collaboration.
-        </p>
-      </motion.div>
+          <div className="space-y-1">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{weekData.title}</h2>
+            <p className="text-gray-600 dark:text-gray-400">{weekData.theme}</p>
+          </div>
+
+          <div className="space-y-4">
+            {tasksForWeek.map((task) => (
+              <Link key={task.id} href={`/roles/${role}/week-${activeWeek}#${task.id}`}>
+                <TaskCard task={task} completionPercent={taskStats[task.id] ?? 0} />
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href={`/roles/${role}/week-${activeWeek}`}
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Open {weekData.title} step-by-step →
+          </Link>
+        </div>
+      </div>
     </motion.div>
   );
 }
