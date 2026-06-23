@@ -55,13 +55,20 @@ export default function Home() {
       <div className="space-y-4 rounded-lg bg-gray-50 p-8 dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Get Started</h2>
         <p className="text-gray-600 dark:text-gray-400">
-          First time here? Set up your profile to begin the capstone.
+          New here? See how the capstone works first, then set up your profile.
         </p>
-        <Link href="/settings">
-          <Button size="lg" className="w-full md:w-auto">
-            Enroll Now
-          </Button>
-        </Link>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link href="/guide">
+            <Button size="lg" className="w-full sm:w-auto">
+              See How It Works
+            </Button>
+          </Link>
+          <Link href="/settings">
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
+              Enroll Now
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <div className="space-y-4">

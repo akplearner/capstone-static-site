@@ -74,6 +74,62 @@ export function getRoleLabel(role: string): string {
   return labels[role] || role;
 }
 
+// Plain (emoji-free) labels — safe inside SVG diagrams, titles, and aria attributes.
+export function getRoleName(role: string): string {
+  const names: Record<string, string> = {
+    'red': 'Red (Runners)',
+    'blue': 'Blue (Wardens)',
+    'grc': 'GRC (Fixers)',
+  };
+  return names[role] || role;
+}
+
+export function getRoleMission(role: string): string {
+  const missions: Record<string, string> = {
+    'red': 'Reconnaissance, enumeration, and exploitation.',
+    'blue': 'Hardening, detection, and incident response.',
+    'grc': 'Governance, risk, compliance, and reporting.',
+  };
+  return missions[role] || '';
+}
+
+// Shared role color tokens (previously duplicated inline across pages).
+export interface RoleColor {
+  text: string;
+  bg: string;
+  border: string;
+  ring: string;
+  hex: string; // for SVG fills/strokes
+}
+
+export const ROLE_COLORS: Record<string, RoleColor> = {
+  red: {
+    text: 'text-red-700 dark:text-red-300',
+    bg: 'bg-red-50 dark:bg-red-900/20',
+    border: 'border-red-200 dark:border-red-800',
+    ring: 'ring-red-500',
+    hex: '#dc2626',
+  },
+  blue: {
+    text: 'text-blue-700 dark:text-blue-300',
+    bg: 'bg-blue-50 dark:bg-blue-900/20',
+    border: 'border-blue-200 dark:border-blue-800',
+    ring: 'ring-blue-500',
+    hex: '#2563eb',
+  },
+  grc: {
+    text: 'text-green-700 dark:text-green-300',
+    bg: 'bg-green-50 dark:bg-green-900/20',
+    border: 'border-green-200 dark:border-green-800',
+    ring: 'ring-green-500',
+    hex: '#16a34a',
+  },
+};
+
+export function getRoleColor(role: string): RoleColor {
+  return ROLE_COLORS[role] || ROLE_COLORS.blue;
+}
+
 export function getWeekTitle(week: number): string {
   const titles: Record<number, string> = {
     1: 'Week 1: Cold Recon',

@@ -17,11 +17,15 @@ export interface Step {
   id: string;
   title: string;
   description: string;
+  /** Explicit, action-oriented instruction ("Do this") shown above the command. */
+  instruction?: string;
   command?: string;
   expectedOutput?: string;
   whatItMeans: string;
   frameworks: Framework[];
   isEvidenceStep?: boolean;
+  /** The deliverable filename this step contributes toward (for evidence steps). */
+  producesDeliverable?: string;
 }
 
 export interface Task {
