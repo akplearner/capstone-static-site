@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Layers, Users } from 'lucide-react';
+import { ArrowRight, BookOpen, GraduationCap, Layers, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { courseRepo, progressRepo } from '@/lib/data';
@@ -42,15 +42,24 @@ export default function HomePage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.06 }}
-            className="flex flex-col rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800"
+            className={`flex flex-col rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800 ${
+              course.locked ? 'opacity-60' : ''
+            }`}
           >
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">{course.title}</h2>
-              {course.isSeed && (
-                <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                  Built-in
-                </span>
-              )}
+              <div className="flex items-center gap-2">
+                {course.locked && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                    <Lock className="h-3 w-3" /> Locked
+                  </span>
+                )}
+                {course.isSeed && (
+                  <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                    Built-in
+                  </span>
+                )}
+              </div>
             </div>
             <p className="mt-2 flex-1 text-sm text-gray-600 dark:text-gray-400">{course.description}</p>
 
@@ -64,18 +73,24 @@ export default function HomePage() {
               </span>
             </div>
 
-            <div className="mt-5 flex gap-3">
-              <Link href={enrolled[course.id] ? `/courses/${course.id}/dashboard` : `/courses/${course.id}/settings`} className="flex-1">
-                <Button className="flex w-full items-center justify-center gap-2">
-                  {enrolled[course.id] ? 'Continue' : 'Enroll'} <ArrowRight className="h-4 w-4" />
-                </Button>
-              </Link>
-              <Link href={`/courses/${course.id}/guide`}>
-                <Button variant="secondary" className="flex items-center gap-2">
-                  <BookOpen className="h-4 w-4" /> Guide
-                </Button>
-              </Link>
-            </div>
+            {course.locked ? (
+              <div className="mt-5 flex items-center gap-2 rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-700/40 dark:text-gray-400">
+                <Lock className="h-4 w-4" /> Locked by instructor
+              </div>
+            ) : (
+              <div className="mt-5 flex gap-3">
+                <Link href={`/courses/${course.id}`} className="flex-1">
+                  <Button className="flex w-full items-center justify-center gap-2">
+                    {enrolled[course.id] ? 'Continue' : 'Start'} <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </Link>
+                <Link href={`/courses/${course.id}/guide`}>
+                  <Button variant="secondary" className="flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" /> Guide
+                  </Button>
+                </Link>
+              </div>
+            )}
           </motion.div>
         ))}
       </div>

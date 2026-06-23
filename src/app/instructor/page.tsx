@@ -175,7 +175,7 @@ export default function InstructorHomePage() {
                   </Button>
                 </>
               )}
-              <Link href={`/courses/${course.id}/dashboard`}>
+              <Link href={`/courses/${course.id}`}>
                 <Button size="sm" variant="ghost">Preview as student</Button>
               </Link>
             </div>

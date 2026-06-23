@@ -84,18 +84,18 @@ export default function CourseGuidePage() {
         {member ? (
           <>
             <p className="text-gray-600 dark:text-gray-400">You’re enrolled. Jump back into your work.</p>
-            <Link href={`/courses/${course.id}/dashboard`}>
+            <Link href={`/courses/${course.id}`}>
               <Button size="lg" className="flex items-center gap-2">
-                Go to Dashboard <ArrowRight className="h-5 w-5" />
+                Go to Course <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
           </>
         ) : (
           <>
-            <p className="text-gray-600 dark:text-gray-400">Ready to start? Set up your profile and pick a role.</p>
-            <Link href={`/courses/${course.id}/settings`}>
+            <p className="text-gray-600 dark:text-gray-400">Ready to start? Open the course to pick a team and role.</p>
+            <Link href={`/courses/${course.id}`}>
               <Button size="lg" className="flex items-center gap-2">
-                Enroll Now <ArrowRight className="h-5 w-5" />
+                Open Course <ArrowRight className="h-5 w-5" />
               </Button>
             </Link>
           </>

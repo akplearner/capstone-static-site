@@ -93,6 +93,42 @@ export function SelectField({
   );
 }
 
+export function Toggle({
+  label,
+  checked,
+  onChange,
+  hint,
+}: {
+  label: string;
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  hint?: string;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-3">
+      <span>
+        <span className={labelClass}>{label}</span>
+        {hint && <span className="block text-xs text-gray-400 dark:text-gray-500">{hint}</span>}
+      </span>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
+          checked ? 'bg-blue-600' : 'bg-gray-300 dark:bg-gray-600'
+        }`}
+      >
+        <span
+          className={`inline-block h-5 w-5 transform rounded-full bg-white transition-transform ${
+            checked ? 'translate-x-5' : 'translate-x-0.5'
+          }`}
+        />
+      </button>
+    </label>
+  );
+}
+
 // Comma-separated list helpers (for frameworks, deliverables).
 export function listToText(list: string[]): string {
   return list.join(', ');
