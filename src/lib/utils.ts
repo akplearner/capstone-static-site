@@ -1,0 +1,118 @@
+import { Framework } from './types';
+
+export const FRAMEWORK_COLORS: Record<Framework, string> = {
+  'NIST_CSF': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
+  'CIS': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
+  'OWASP': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
+  'CVSS': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
+  'NIST_800_61': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
+  'NIST_800_115': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
+  'ISO_27001': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  'STRIDE': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
+};
+
+export const FRAMEWORK_LABELS: Record<Framework, string> = {
+  'NIST_CSF': 'NIST CSF',
+  'CIS': 'CIS',
+  'OWASP': 'OWASP',
+  'CVSS': 'CVSS',
+  'NIST_800_61': 'NIST 800-61',
+  'NIST_800_115': 'NIST 800-115',
+  'ISO_27001': 'ISO 27001',
+  'STRIDE': 'STRIDE',
+};
+
+export const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
+  'NIST_CSF': 'NIST Cybersecurity Framework - Identify, Protect, Detect, Respond, Recover',
+  'CIS': 'CIS Critical Security Controls',
+  'OWASP': 'OWASP Top 10 / Web Security',
+  'CVSS': 'Common Vulnerability Scoring System',
+  'NIST_800_61': 'NIST Guide to Incident Handling',
+  'NIST_800_115': 'NIST Technical Guide to Information Security Testing and Assessment',
+  'ISO_27001': 'ISO/IEC 27001 Information Security',
+  'STRIDE': 'STRIDE Threat Modeling',
+};
+
+export function getFrameworkColor(framework: Framework): string {
+  return FRAMEWORK_COLORS[framework];
+}
+
+export function getFrameworkLabel(framework: Framework): string {
+  return FRAMEWORK_LABELS[framework];
+}
+
+export function getFrameworkDescription(framework: Framework): string {
+  return FRAMEWORK_DESCRIPTIONS[framework];
+}
+
+export function formatDate(timestamp: number): string {
+  return new Date(timestamp).toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
+export function calculateProgress(completed: number, total: number): number {
+  if (total === 0) return 0;
+  return Math.round((completed / total) * 100);
+}
+
+export function formatTeamId(id: string): string {
+  // Format "01" as "Team 01"
+  return `Team ${id.padStart(2, '0')}`;
+}
+
+export function getRoleLabel(role: string): string {
+  const labels: Record<string, string> = {
+    'red': '🏃 Red (Runners)',
+    'blue': '🛡️ Blue (Wardens)',
+    'grc': '📋 GRC (Fixers)',
+  };
+  return labels[role] || role;
+}
+
+export function getWeekTitle(week: number): string {
+  const titles: Record<number, string> = {
+    1: 'Week 1: Cold Recon',
+    2: 'Week 2: Hard Target',
+    3: 'Week 3: The Breach',
+    4: 'Week 4: Payday',
+  };
+  return titles[week] || `Week ${week}`;
+}
+
+export function generateEvidenceFileName(role: string, team: string, tool: string, action: string): string {
+  const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  return `${date}_${team}_${tool}_${action}.png`;
+}
+
+export function validateEvidenceFileName(filename: string): { valid: boolean; message: string } {
+  // Pattern: YYYYMMDD_TeamXX_Tool_Action.ext
+  const pattern = /^\d{8}_Team\d{2}_\w+_\w+\.(png|pdf|txt|log|pcap)$/;
+
+  if (!pattern.test(filename)) {
+    return {
+      valid: false,
+      message: 'File must follow format: YYYYMMDD_TeamXX_Tool_Action.ext (e.g., 20260623_Team01_nmap_scan.txt)'
+    };
+  }
+
+  return { valid: true, message: 'Filename valid' };
+}
+
+// Calculate gate readiness based on completed tasks
+export function canUnlockNextGate(currentGateCompletionPercent: number): boolean {
+  return currentGateCompletionPercent >= 100;
+}
+
+export function getGateStatusLabel(status: string): string {
+  const labels: Record<string, string> = {
+    'locked': '🔒 Locked',
+    'ready': '⚠️  Ready for Review',
+    'passed': '✅ Passed',
+  };
+  return labels[status] || status;
+}

@@ -1,36 +1,139 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Capstone Lab Platform — Phase 1
 
-## Getting Started
+A polished, interactive static site for the Security+ Capstone lab. Built with Next.js 14, Tailwind CSS, and Framer Motion.
 
-First, run the development server:
+## Features
+
+✅ **4-week lab structure** with role-based tasks (Red/Blue/GRC)  
+✅ **Interactive checklists** with localStorage persistence  
+✅ **Gate system** for progress tracking and week unlock  
+✅ **Framework tags** (NIST CSF, CIS, OWASP, etc.)  
+✅ **Smooth animations** and great UX  
+✅ **Mobile-responsive** design  
+✅ **Dark mode** support  
+✅ **No backend required** for Phase 1  
+
+## Quick Start
+
+### Prerequisites
+- Node.js 18+ (and npm)
+- Git
+
+### Local Development
 
 ```bash
+cd capstone-static-site
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit `http://localhost:3000` and enroll to get started.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+### Vercel (Recommended — Auto-Deploy on Push)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Sign up at https://vercel.com
+2. Connect your GitHub repo
+3. Vercel auto-deploys every time you push to `main`
+4. Share the live URL with students
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Netlify
 
-## Deploy on Vercel
+```bash
+npm run build
+# Deploy .next folder to Netlify
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Self-Hosted
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run build && npm run start
+```
+
+## Usage
+
+### Students
+1. Enroll with name, team (01–03), and role (Red/Blue/GRC)
+2. View **Dashboard** to see your progress
+3. Visit your **role hub** to view tasks
+4. Click checkboxes to mark steps complete — progress saves automatically
+5. Gates unlock when you complete all tasks for the week
+
+### Instructors
+- Edit tasks in `src/lib/content-data.ts`
+- Customize weeks, roles, frameworks
+- Deploy via Vercel for instant updates
+
+## Architecture
+
+```
+src/
+├── app/              # Pages (layout, dashboard, roles, settings)
+├── components/       # UI (TaskCard, ChecklistItem, GateBadge, etc.)
+├── lib/
+│   ├── types.ts      # TypeScript types
+│   ├── storage.ts    # localStorage hooks
+│   ├── content-data.ts # All tasks & weeks
+│   ├── frameworks.ts # NIST/CIS/OWASP utilities
+│   └── utils.ts      # Helpers
+└── app/globals.css   # Tailwind styles
+```
+
+## Data
+
+- **localStorage** for persistence (per-student, per-browser)
+- **No backend** in Phase 1 — all client-side
+- Data survives refresh, clears with browser cache
+
+## Phase 2 (Future)
+
+- Artifact upload → Supabase Storage
+- GRC assembly view + real artifacts
+- Role-cohort collaboration (Discord/built-in)
+- Instructor dashboards
+- LTI 1.3 integration
+- Email notifications
+
+## Customization
+
+### Colors
+Edit `tailwind.config.js`
+
+### Animations
+Adjust Framer Motion values in components
+
+### Adding Teams
+Edit `src/app/settings/page.tsx` and update `teamOptions`
+
+## Troubleshooting
+
+**Build fails locally?**
+```bash
+npm install --legacy-peer-deps
+npm run build
+```
+
+**localStorage not working?**
+- Ensure browser allows localStorage (not private mode)
+- Clear browser cache
+
+**Vercel deployment issues?**
+- Test locally: `npm run build` ✓
+- All dependencies in `package.json`? ✓
+- Commit and push again
+
+## Support
+
+Refer to [Next.js docs](https://nextjs.org/docs) or check inline code comments.
+
+---
+
+**Built for UPLIFT WEB STUDIO Security+ Capstone**
