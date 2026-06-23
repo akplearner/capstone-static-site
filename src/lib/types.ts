@@ -93,6 +93,10 @@ export interface Course {
   isSeed?: boolean;      // true for built-in courses shipped in code
   version?: number;      // export/import schema version
   updatedAt?: number;
+  // Enrollment configuration (instructor-controlled, per course/class):
+  locked?: boolean;      // when true, students can't enter the course
+  teamCount?: number;    // number of teams available (default 3)
+  teamCapacity?: number; // max members per team; 0/undefined = unlimited
 }
 
 export interface Member {
@@ -102,6 +106,17 @@ export interface Member {
   role: Role;
   displayName: string;
   cohort: string;
+}
+
+// One student's slot on a team's roster. Lets the join UI enforce team capacity.
+// Stored per-course; backend-ready (today it's localStorage, so per-device).
+export interface RosterEntry {
+  memberId: string;
+  teamId: string;
+  role: Role;
+  displayName: string;
+  cohort: string;
+  joinedAt: number;
 }
 
 export interface TaskCompletion {

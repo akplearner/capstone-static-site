@@ -11,6 +11,7 @@ export const KEYS = {
 
   // Course-scoped
   context: (courseId: string) => `${STORAGE_PREFIX}${courseId}_context`,
+  roster: (courseId: string) => `${STORAGE_PREFIX}${courseId}_roster`,
   completion: (courseId: string, memberId: string, taskId: string, stepId: string) =>
     `${STORAGE_PREFIX}${courseId}_completion_${memberId}_${taskId}_${stepId}`,
   completionPrefix: (courseId: string, memberId: string) =>

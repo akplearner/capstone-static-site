@@ -1,7 +1,7 @@
-import { Course, Gate, GateStatus, Member, Task, TaskCompletion } from '../types';
+import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import { calculateProgress } from '../utils';
 import { getTasksByRole } from '../course-helpers';
-import { ProgressRepository } from './types';
+import { JoinResult, ProgressRepository } from './types';
 import { KEYS, STORAGE_PREFIX } from './keys';
 
 function hasWindow(): boolean {
@@ -69,6 +69,55 @@ export const localStorageProgressRepo: ProgressRepository = {
   setContext(member: Member): void {
     if (!hasWindow()) return;
     localStorage.setItem(KEYS.context(member.courseId), JSON.stringify(member));
+  },
+
+  getRoster(courseId: string): RosterEntry[] {
+    if (!hasWindow()) return [];
+    const raw = localStorage.getItem(KEYS.roster(courseId));
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? (parsed as RosterEntry[]) : [];
+    } catch {
+      return [];
+    }
+  },
+
+  getTeamCounts(courseId: string): Record<string, number> {
+    const counts: Record<string, number> = {};
+    this.getRoster(courseId).forEach((e) => {
+      counts[e.teamId] = (counts[e.teamId] ?? 0) + 1;
+    });
+    return counts;
+  },
+
+  joinTeam(course: Course, member: Member): JoinResult {
+    if (!hasWindow()) return { ok: false };
+    const roster = this.getRoster(course.id);
+    // A student moving teams shouldn't count against their own current slot.
+    const others = roster.filter((e) => e.memberId !== member.memberId);
+    const cap = course.teamCapacity ?? 0;
+    if (cap > 0) {
+      const onTeam = others.filter((e) => e.teamId === member.teamId).length;
+      if (onTeam >= cap) return { ok: false, reason: 'team-full' };
+    }
+    const entry: RosterEntry = {
+      memberId: member.memberId,
+      teamId: member.teamId,
+      role: member.role,
+      displayName: member.displayName,
+      cohort: member.cohort,
+      joinedAt: Date.now(),
+    };
+    localStorage.setItem(KEYS.roster(course.id), JSON.stringify([...others, entry]));
+    this.setContext(member);
+    return { ok: true };
+  },
+
+  leaveTeam(courseId: string, memberId: string): void {
+    if (!hasWindow()) return;
+    const remaining = this.getRoster(courseId).filter((e) => e.memberId !== memberId);
+    localStorage.setItem(KEYS.roster(courseId), JSON.stringify(remaining));
   },
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string> {

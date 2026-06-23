@@ -1,9 +1,14 @@
-import { Course, Gate, GateStatus, Member, Task, TaskCompletion } from '../types';
+import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 
 export interface ImportResult {
   ok: boolean;
   course?: Course;
   error?: string;
+}
+
+export interface JoinResult {
+  ok: boolean;
+  reason?: 'team-full';
 }
 
 // Courses: built-in seeds merged with instructor-authored courses. The only
@@ -24,6 +29,15 @@ export interface CourseRepository {
 export interface ProgressRepository {
   getContext(courseId: string): Member | null;
   setContext(member: Member): void;
+
+  // Roster / team capacity. Backed by localStorage today (per-device); the
+  // interface is shaped so a real backend can enforce caps across students.
+  getRoster(courseId: string): RosterEntry[];
+  getTeamCounts(courseId: string): Record<string, number>;
+  /** Join (or move) a team+role, enforcing the course's teamCapacity. On success
+   *  writes the roster entry and the member context together. */
+  joinTeam(course: Course, member: Member): JoinResult;
+  leaveTeam(courseId: string, memberId: string): void;
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string>;
   isStepComplete(courseId: string, memberId: string, taskId: string, stepId: string, keySet?: Set<string>): boolean;
