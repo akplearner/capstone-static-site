@@ -37,7 +37,7 @@ export default function CourseGuidePage() {
       <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The lifecycle</h2>
         <p className="text-gray-600 dark:text-gray-400">
-          {course.weeks.length} weeks, each ending with a gate you clear before moving on.
+          {course.gates.length} gates across the engagement — clear each week&apos;s required tasks to advance.
         </p>
         <LifecycleFlow weeks={course.weeks} gates={course.gates} currentWeek={course.weeks[0]?.number} />
       </section>

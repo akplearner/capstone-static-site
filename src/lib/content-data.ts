@@ -2,6 +2,13 @@ import { Task, Week, Gate } from './types';
 
 // Week Metadata
 export const WEEKS: Record<number, Week> = {
+  0: {
+    number: 0,
+    title: 'Lab Setup & Rules of Engagement',
+    theme: 'Stand up your environment and agree the rules before any testing',
+    objective: 'Get your tools running, reach your targets, and confirm authorized scope',
+    runs: 'Run 00'
+  },
   1: {
     number: 1,
     title: 'Cold Recon',
@@ -40,7 +47,13 @@ export const GATES: Gate[] = [
     title: 'Gate 1',
     description: 'Case + Scope authored',
     requiredArtifactTypes: ['case_overview', 'scope_document'],
-    requiredTasks: ['red-w1-osint', 'blue-w1-hardening', 'grc-w1-framework']
+    requiredTasks: ['red-w1-osint', 'blue-w1-hardening', 'grc-w1-framework'],
+    handoffs: [
+      { from: 'grc', to: 'red', artifact: 'Rules_of_Engagement.md', label: 'Confirm authorized scope before any scanning' },
+      { from: 'grc', to: 'blue', artifact: 'Hardening_Standard.md', label: 'Issue the hardening standard Blue implements' },
+      { from: 'red', to: 'grc', artifact: 'Recon_Findings.md', label: 'Hand recon to GRC for the asset inventory' },
+      { from: 'blue', to: 'grc', artifact: 'Hardening_Checklist.txt', label: 'Report what was hardened for the policy baseline' },
+    ],
   },
   {
     id: 2,
@@ -48,7 +61,12 @@ export const GATES: Gate[] = [
     title: 'Gate 2',
     description: 'Hardening + Logs in place',
     requiredArtifactTypes: ['hardening_checklist', 'baseline_logs'],
-    requiredTasks: ['blue-w2-baseline', 'red-w2-enumeration', 'grc-w2-risk']
+    requiredTasks: ['blue-w2-baseline', 'red-w2-enumeration', 'grc-w2-risk'],
+    handoffs: [
+      { from: 'grc', to: 'blue', artifact: 'VM_SOP.md', label: 'Issue the vulnerability-management SOP Blue follows' },
+      { from: 'red', to: 'grc', artifact: 'Vulnerability_Summary.md', label: 'Hand findings to GRC for risk scoring' },
+      { from: 'blue', to: 'grc', artifact: 'Detection_Rules.txt', label: 'Report the detections now in place' },
+    ],
   },
   {
     id: 3,
@@ -56,12 +74,70 @@ export const GATES: Gate[] = [
     title: 'Gate 3',
     description: 'Findings + Evidence complete',
     requiredArtifactTypes: ['pcap', 'findings', 'evidence_log'],
-    requiredTasks: ['red-w3-attacks', 'blue-w3-detection', 'grc-w3-custody']
+    requiredTasks: ['red-w3-attacks', 'blue-w3-detection', 'grc-w3-custody'],
+    handoffs: [
+      { from: 'grc', to: 'blue', artifact: 'IR_Runbook.md', label: 'Issue the incident-response runbook Blue follows during the breach' },
+      { from: 'red', to: 'grc', artifact: 'Evidence_Photos.zip', label: 'Submit attack evidence for chain of custody' },
+      { from: 'blue', to: 'grc', artifact: 'Incident_Response.txt', label: 'Submit IR notes and logs for custody' },
+    ],
   }
 ];
 
 // RED (Runners) Tasks
 const RED_TASKS: Task[] = [
+  {
+    id: 'red-w0-setup',
+    role: 'red',
+    week: 0,
+    title: 'Get Kali Ready & Confirm Scope',
+    objective: 'Boot your Kali attack box, reach your company target, and confirm what you are authorized to test.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['Setup_Notes_Red.md'],
+    learn: ['Booting and updating Kali Linux', 'Verifying network reach to a target', 'Reading the Rules of Engagement (authorized scope)'],
+    tools: ['Kali Linux', 'ip / ping', 'apt'],
+    prerequisites: ['Your company target IP (from the instructor)', "GRC's Rules_of_Engagement.md once issued"],
+    definitionOfDone: ['Kali boots and is fully updated', 'You can ping your company target', 'You have read and understood the authorized scope'],
+    handoff: [{ to: 'grc', note: 'Acknowledge the Rules of Engagement so GRC knows scope is understood.' }],
+    steps: [
+      {
+        id: 'red-w0-s1',
+        title: 'Boot & Update Kali',
+        description: 'Start your Kali VM and update its package lists.',
+        command: 'sudo apt update && sudo apt -y upgrade',
+        commandExplanation: '`apt update` refreshes the list of available packages; `apt -y upgrade` installs the newest versions (`-y` auto-confirms).',
+        expectedOutput: 'Packages refreshed and upgraded',
+        outputExplanation: 'You should end on a clean prompt with no errors; a long "upgraded, newly installed" summary is normal the first time.',
+        whatItMeans: 'Your attack tools are current before you begin.',
+        frameworks: ['NIST_CSF'],
+        troubleshooting: 'If apt reports a lock error, another update is running — wait a minute and retry, or reboot the VM.',
+      },
+      {
+        id: 'red-w0-s2',
+        title: 'Verify You Can Reach Your Target',
+        description: 'Confirm network connectivity to your assigned company host.',
+        command: 'ping -c 2 <YOUR_TARGET_IP>',
+        commandExplanation: '`ping -c 2` sends two packets to your target; replies prove you are on the same network and the host is up.',
+        expectedOutput: '2 packets transmitted, 2 received, 0% packet loss',
+        outputExplanation: 'Replies with low time = reachable. "Destination host unreachable" or 100% loss = a network problem to fix before scanning.',
+        whatItMeans: 'You can reach the box you are authorized to test.',
+        frameworks: ['NIST_CSF'],
+        troubleshooting: 'No reply? Check your VM network adapter is on the lab network (as the instructor specified) and the target is powered on.',
+      },
+      {
+        id: 'red-w0-s3',
+        title: 'Confirm Authorized Scope',
+        description: 'Read the Rules of Engagement and note exactly what is in and out of bounds.',
+        instruction: "Open GRC's Rules_of_Engagement.md and write down which host(s) you may test and what is off-limits.",
+        expectedOutput: 'Scope recorded in Setup_Notes_Red.md',
+        outputExplanation: 'Your notes should name only your company target(s) — nothing else is authorized.',
+        whatItMeans: 'You attack only your own company target, within the authorized window and scope.',
+        frameworks: ['NIST_CSF'],
+        producesDeliverable: 'Setup_Notes_Red.md',
+        isEvidenceStep: true,
+        troubleshooting: "No RoE yet? Ask your GRC teammate — do not scan anything until scope is confirmed.",
+      },
+    ],
+  },
   {
     id: 'red-w1-osint',
     role: 'red',
@@ -70,6 +146,11 @@ const RED_TASKS: Task[] = [
     objective: 'Perform open-source intelligence gathering and passive reconnaissance to build an asset list.',
     frameworks: ['NIST_CSF'],
     deliverables: ['Asset_List.md', 'Recon_Findings.md'],
+    prerequisites: ['Kali ready and target reachable (Week 0)', 'Authorized scope (Rules of Engagement)'],
+    definitionOfDone: ['Assets and services identified', 'Asset_List.md and Recon_Findings.md saved'],
+    handoff: [{ to: 'grc', artifact: 'Recon_Findings.md', note: 'Feed recon into the asset inventory and risk mapping.' }],
+    learn: ['OSINT & passive recon', 'DNS / WHOIS enumeration', 'Fingerprinting web tech with Kali'],
+    tools: ['whois / dig', 'whatweb', 'theHarvester'],
     steps: [
       {
         id: 'red-w1-s1',
@@ -161,6 +242,11 @@ const RED_TASKS: Task[] = [
     objective: 'Perform authorized vulnerability enumeration using network and web scanning.',
     frameworks: ['NIST_CSF', 'CIS', 'OWASP'],
     deliverables: ['Nmap_Scan.txt', 'Nikto_Report.txt', 'Vulnerability_Summary.md'],
+    prerequisites: ['Week 1 asset list', 'Scope still valid (Rules of Engagement)'],
+    definitionOfDone: ['All ports & web vulnerabilities enumerated', 'Vulnerability_Summary.md written for GRC'],
+    handoff: [{ to: 'grc', artifact: 'Vulnerability_Summary.md', note: 'Hand findings to GRC for risk scoring.' }],
+    learn: ['Port & service scanning with nmap', 'Web scanning with nikto', 'Summarizing vulnerabilities'],
+    tools: ['nmap', 'nikto'],
     steps: [
       {
         id: 'red-w2-s1',
@@ -222,6 +308,11 @@ const RED_TASKS: Task[] = [
     objective: 'Execute one well-documented exploit chain with complete evidence trail.',
     frameworks: ['OWASP', 'NIST_800_61', 'CVSS'],
     deliverables: ['SQL_Injection_Proof.txt', 'Brute_Force_Proof.txt', 'Reverse_Shell_Proof.txt', 'Evidence_Photos.zip'],
+    prerequisites: ['Confirmed vulnerabilities from Week 2', 'Rules of Engagement (stay in scope)'],
+    definitionOfDone: ['One full exploit chain proven with evidence', 'All *_Proof.txt + Evidence_Photos.zip saved'],
+    handoff: [{ to: 'grc', artifact: 'Evidence_Photos.zip', note: 'Submit attack evidence for chain of custody.' }],
+    learn: ['Exploiting SQL injection', 'Brute-forcing authentication', 'Command injection & reverse shells', 'Capturing court-ready evidence'],
+    tools: ['sqlmap / Burp', 'hydra', 'netcat'],
     steps: [
       {
         id: 'red-w3-s1',
@@ -309,6 +400,11 @@ const RED_TASKS: Task[] = [
     objective: 'Present technical exploits and findings in plain English to stakeholders.',
     frameworks: ['ISO_27001', 'NIST_CSF'],
     deliverables: ['Technical_Explanation.md', 'Briefing_Slides_Part1.pptx'],
+    prerequisites: ['All Week 3 evidence', "GRC's Findings.md"],
+    definitionOfDone: ['Plain-English explanation written', 'Your briefing slides drafted'],
+    handoff: [{ to: 'grc', artifact: 'Technical_Explanation.md', note: 'Feed the technical narrative into the final report.' }],
+    learn: ['Explaining exploits to non-technical stakeholders', 'Building a findings briefing'],
+    tools: ['Markdown', 'Slides'],
     steps: [
       {
         id: 'red-w4-s1',
@@ -347,13 +443,71 @@ const RED_TASKS: Task[] = [
 // BLUE (Wardens) Tasks
 const BLUE_TASKS: Task[] = [
   {
+    id: 'blue-w0-setup',
+    role: 'blue',
+    week: 0,
+    title: 'Reach Your Ubuntu & Windows Targets',
+    objective: 'Connect to both company servers you defend and capture a clean pre-hardening snapshot.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['Setup_Notes_Blue.md'],
+    learn: ['Connecting to Linux (SSH) and Windows (RDP) hosts', 'Taking a baseline snapshot before any change', 'Identifying the two systems you defend'],
+    tools: ['ssh', 'xfreerdp / Remote Desktop', 'VM snapshots'],
+    prerequisites: ['Ubuntu and Windows target IPs + credentials (from the instructor)'],
+    definitionOfDone: ['You can SSH into the Ubuntu target', 'You can RDP into the Windows target', 'A "pre-hardening" snapshot exists for both VMs'],
+    handoff: [{ to: 'grc', note: 'Confirm both targets are reachable so GRC can finalize the hardening standard.' }],
+    steps: [
+      {
+        id: 'blue-w0-s1',
+        title: 'SSH Into the Ubuntu Target',
+        description: 'Open a remote shell on the Linux server you will harden.',
+        command: 'ssh user@<UBUNTU_IP>',
+        commandExplanation: '`ssh user@host` opens an encrypted remote shell on the Ubuntu server using the account the instructor gave you.',
+        expectedOutput: 'A shell prompt on the Ubuntu host',
+        outputExplanation: 'A changed prompt (e.g. `user@ubuntu:~$`) means you are now on the target, not your own machine.',
+        whatItMeans: 'You can administer the Linux system you defend.',
+        frameworks: ['NIST_CSF'],
+        troubleshooting: 'Connection refused? Ensure the Ubuntu VM is up and SSH is running (`sudo systemctl status ssh`).',
+      },
+      {
+        id: 'blue-w0-s2',
+        title: 'RDP Into the Windows Target',
+        description: 'Open a remote desktop on the Windows server you will harden.',
+        command: 'xfreerdp /u:Administrator /v:<WINDOWS_IP>',
+        commandExplanation: '`xfreerdp` is a Linux RDP client; `/u:` is the username and `/v:` is the Windows host to connect to.',
+        expectedOutput: 'The Windows desktop appears',
+        outputExplanation: 'Seeing the Windows desktop confirms Remote Desktop is enabled and reachable.',
+        whatItMeans: 'You can administer the Windows system you defend.',
+        frameworks: ['NIST_CSF'],
+        troubleshooting: 'Blocked? On the Windows host enable Remote Desktop (System > Remote Desktop) and allow it through Windows Firewall.',
+      },
+      {
+        id: 'blue-w0-s3',
+        title: 'Snapshot Before Hardening',
+        description: 'Capture a restore point on both VMs before changing anything.',
+        instruction: 'In your hypervisor, take a snapshot named "pre-hardening" of BOTH the Ubuntu and Windows VMs.',
+        expectedOutput: 'Two "pre-hardening" snapshots',
+        outputExplanation: 'Snapshots let you compare before/after and roll back safely if a change breaks something.',
+        whatItMeans: 'You have a known-good baseline to measure your hardening against.',
+        frameworks: ['NIST_CSF'],
+        producesDeliverable: 'Setup_Notes_Blue.md',
+        isEvidenceStep: true,
+        troubleshooting: 'No snapshot option? Power off the VM first, or use your hypervisor’s "clone" feature as a fallback.',
+      },
+    ],
+  },
+  {
     id: 'blue-w1-hardening',
     role: 'blue',
     week: 1,
-    title: 'Baseline Hardening',
-    objective: 'Harden the DVWA server with essential security controls.',
+    title: 'Baseline Hardening (Ubuntu + Windows)',
+    objective: 'Harden both company servers — the Ubuntu web host and the Windows host — with essential controls.',
     frameworks: ['NIST_CSF', 'CIS'],
-    deliverables: ['Hardening_Checklist.txt', 'UFW_Status.txt', 'Lynis_Report.html'],
+    deliverables: ['Hardening_Checklist.txt', 'UFW_Status.txt', 'Lynis_Report.html', 'Windows_Firewall.txt', 'Defender_Status.txt'],
+    prerequisites: ["GRC's Hardening_Standard.md (what controls to apply)", 'SSH access to Ubuntu and RDP access to Windows (Week 0)'],
+    definitionOfDone: ['Ubuntu: firewall on, fail2ban running, Lynis audited', 'Windows: Firewall on, Defender updated & scanned, SMBv1 disabled', 'Hardening_Checklist.txt reflects both hosts'],
+    handoff: [{ to: 'grc', artifact: 'Hardening_Checklist.txt', note: 'Report what was hardened on both hosts for the policy baseline.' }],
+    learn: ['Linux hardening: UFW, fail2ban, Lynis', 'Windows hardening: Windows Firewall, Defender, disabling SMBv1', 'Working across two operating systems'],
+    tools: ['ufw', 'fail2ban', 'lynis', 'PowerShell', 'Microsoft Defender'],
     steps: [
       {
         id: 'blue-w1-s1',
@@ -436,6 +590,43 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Identifies remaining security gaps and compliance issues.',
         frameworks: ['NIST_CSF'],
         isEvidenceStep: true
+      },
+      {
+        id: 'blue-w1-s6',
+        title: 'Windows: Enable & Export the Firewall',
+        description: 'Turn on Windows Firewall for all profiles and save its state (run in PowerShell as Administrator on the Windows host).',
+        command: 'Set-NetFirewallProfile -All -Enabled True; Get-NetFirewallProfile | Out-File Windows_Firewall.txt',
+        commandExplanation: '`Set-NetFirewallProfile -All -Enabled True` turns the firewall on for the Domain, Private and Public profiles; `Get-NetFirewallProfile | Out-File` saves the resulting state as evidence.',
+        commandFlags: [
+          { flag: 'Set-NetFirewallProfile', meaning: 'Configure the Windows Firewall profiles.' },
+          { flag: '-All -Enabled True', meaning: 'Enable the firewall on every profile.' },
+          { flag: 'Out-File Windows_Firewall.txt', meaning: 'Save the profile state to a file.' },
+        ],
+        expectedOutput: 'All three profiles show Enabled: True',
+        outputExplanation: 'Open Windows_Firewall.txt — Domain/Private/Public should each read `Enabled : True`.',
+        whatItMeans: 'The Windows host now blocks unsolicited inbound traffic, like UFW does on Ubuntu.',
+        frameworks: ['CIS'],
+        isEvidenceStep: true,
+        troubleshooting: '“Access denied”? You must launch PowerShell with “Run as administrator”.',
+      },
+      {
+        id: 'blue-w1-s7',
+        title: 'Windows: Defender Scan & Disable SMBv1',
+        description: 'Update and scan with Microsoft Defender, and remove the legacy SMBv1 protocol.',
+        command: 'Update-MpSignature; Start-MpScan -ScanType QuickScan; Disable-WindowsOptionalFeature -Online -FeatureName SMB1Protocol -NoRestart; Get-MpComputerStatus | Out-File Defender_Status.txt',
+        commandExplanation: '`Update-MpSignature` pulls the latest Defender definitions; `Start-MpScan` runs a quick scan; `Disable-WindowsOptionalFeature … SMB1Protocol` removes the unsafe SMBv1 service; `Get-MpComputerStatus` saves Defender’s state.',
+        commandFlags: [
+          { flag: 'Update-MpSignature', meaning: 'Update Microsoft Defender definitions.' },
+          { flag: 'Start-MpScan -ScanType QuickScan', meaning: 'Run a quick antivirus scan.' },
+          { flag: 'Disable-WindowsOptionalFeature … SMB1Protocol', meaning: 'Remove the legacy, exploitable SMBv1 protocol.' },
+          { flag: 'Get-MpComputerStatus', meaning: 'Report Defender’s real-time status.' },
+        ],
+        expectedOutput: 'Defender_Status.txt shows real-time protection on; SMB1 removed',
+        outputExplanation: '`AMServiceEnabled : True` and `RealTimeProtectionEnabled : True` confirm Defender is active; SMBv1 should no longer be listed as enabled.',
+        whatItMeans: 'Antivirus is current and a classic wormable protocol (SMBv1) is gone.',
+        frameworks: ['CIS', 'NIST_CSF'],
+        isEvidenceStep: true,
+        troubleshooting: 'If SMBv1 is already removed the command is a no-op — that is fine. A reboot may be needed to fully apply.',
       }
     ]
   },
@@ -443,10 +634,15 @@ const BLUE_TASKS: Task[] = [
     id: 'blue-w2-baseline',
     role: 'blue',
     week: 2,
-    title: 'Baseline Capture & Detection Engineering',
-    objective: 'Capture normal traffic and design detection rules for attacks.',
+    title: 'Baseline Capture & Detection Engineering (Linux + Windows)',
+    objective: 'Capture normal traffic, design detection rules, and turn on Windows event logging.',
     frameworks: ['NIST_CSF', 'NIST_800_115'],
-    deliverables: ['Baseline_Traffic.pcap', 'Attack_Traffic.pcap', 'Wireshark_Filters.txt', 'Detection_Rules.txt'],
+    deliverables: ['Baseline_Traffic.pcap', 'Attack_Traffic.pcap', 'Wireshark_Filters.txt', 'Detection_Rules.txt', 'Win_EventLog.txt'],
+    prerequisites: ["GRC's VM_SOP.md (what to monitor and how)", 'Week 1 hardening complete on both hosts'],
+    definitionOfDone: ['A clean baseline.pcap is captured', 'Detection filters written', 'Windows security/PowerShell logging is enabled and exported'],
+    handoff: [{ to: 'grc', artifact: 'Detection_Rules.txt', note: 'Report the detections now in place for the VM SOP.' }],
+    learn: ['Packet capture & baselining with tcpdump/Wireshark', 'Writing detection filters', 'Enabling & reading Windows Event Logs (Sysmon/PowerShell)'],
+    tools: ['tcpdump', 'Wireshark', 'Windows Event Viewer', 'PowerShell (Get-WinEvent)'],
     steps: [
       {
         id: 'blue-w2-s1',
@@ -497,6 +693,25 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Filters enable rapid identification of suspicious activity.',
         frameworks: ['NIST_CSF'],
         isEvidenceStep: true
+      },
+      {
+        id: 'blue-w2-s4',
+        title: 'Windows: Enable & Export Security Logging',
+        description: 'Turn on auditing of logon events and export recent security logs (PowerShell as Administrator on the Windows host).',
+        command: 'auditpol /set /category:"Logon/Logoff" /success:enable /failure:enable; Get-WinEvent -LogName Security -MaxEvents 50 | Format-Table TimeCreated,Id,Message -Auto | Out-File Win_EventLog.txt',
+        commandExplanation: '`auditpol /set` turns on auditing for successful and failed logons; `Get-WinEvent -LogName Security` reads the most recent 50 Security events and `Out-File` saves them as your baseline.',
+        commandFlags: [
+          { flag: 'auditpol /set /category:"Logon/Logoff"', meaning: 'Audit logon successes and failures.' },
+          { flag: 'Get-WinEvent -LogName Security', meaning: 'Read the Windows Security event log.' },
+          { flag: '-MaxEvents 50', meaning: 'Take the 50 most recent events.' },
+          { flag: 'Out-File Win_EventLog.txt', meaning: 'Save the events to a file.' },
+        ],
+        expectedOutput: 'Win_EventLog.txt with recent logon events (Event ID 4624/4625)',
+        outputExplanation: 'Event ID 4624 = successful logon, 4625 = failed logon. Capturing these now means Red’s brute-force attempts will show up next week.',
+        whatItMeans: 'Windows now records who logs in (and who fails), the basis for detection.',
+        frameworks: ['NIST_CSF', 'NIST_800_115'],
+        isEvidenceStep: true,
+        troubleshooting: 'No events? Generate one by logging off/on, then re-run the Get-WinEvent line.',
       }
     ]
   },
@@ -504,10 +719,15 @@ const BLUE_TASKS: Task[] = [
     id: 'blue-w3-detection',
     role: 'blue',
     week: 3,
-    title: 'Live Detection & Response',
-    objective: 'Detect attacks as they happen and respond with containment.',
+    title: 'Live Detection & Response (Linux + Windows)',
+    objective: 'Detect attacks as they happen on both hosts and respond with containment per the IR runbook.',
     frameworks: ['NIST_CSF', 'NIST_800_61'],
-    deliverables: ['Attack_Pcap.pcap', 'Attack_Logs.txt', 'Incident_Response.txt', 'Containment_Actions.txt'],
+    deliverables: ['Attack_Pcap.pcap', 'Attack_Logs.txt', 'Incident_Response.txt', 'Containment_Actions.txt', 'Win_Detection.txt'],
+    prerequisites: ["GRC's IR_Runbook.md (follow it during the breach)", 'Capture/logging from Week 2 running on both hosts'],
+    definitionOfDone: ['Attack traffic captured', 'SQL-injection attempt detected in Linux logs', 'Windows failed-logon spike detected', 'Attacker contained on both hosts'],
+    handoff: [{ to: 'grc', artifact: 'Incident_Response.txt', note: 'Submit IR notes and logs for chain of custody.' }],
+    learn: ['Live triage from packets and logs', 'Detecting brute force on Windows (Event ID 4625)', 'Containment on Linux (UFW) and Windows (firewall rule)'],
+    tools: ['tcpdump', 'tail/grep', 'PowerShell (Get-WinEvent)', 'Windows Firewall'],
     steps: [
       {
         id: 'blue-w3-s1',
@@ -574,6 +794,24 @@ const BLUE_TASKS: Task[] = [
         outputExplanation: '`Rule added` confirms it; `ufw status` now lists a DENY entry for that IP and the attacker requests stop appearing in the logs.',
         whatItMeans: 'Containment action stops ongoing attacks.',
         frameworks: ['NIST_800_61']
+      },
+      {
+        id: 'blue-w3-s5',
+        title: 'Windows: Detect Brute Force & Contain',
+        description: 'Spot the failed-logon spike on Windows and block the source (PowerShell as Administrator).',
+        command: 'Get-WinEvent -FilterHashtable @{LogName="Security";Id=4625} -MaxEvents 20 | Out-File Win_Detection.txt; New-NetFirewallRule -DisplayName "Block Attacker" -Direction Inbound -RemoteAddress <ATTACKER_IP> -Action Block',
+        commandExplanation: '`Get-WinEvent … Id=4625` pulls failed-logon events (the signature of a brute force) and saves them; `New-NetFirewallRule … -Action Block` then drops all traffic from the attacker IP.',
+        commandFlags: [
+          { flag: 'Id=4625', meaning: 'Filter to "failed logon" security events.' },
+          { flag: 'Out-File Win_Detection.txt', meaning: 'Save the detected events as evidence.' },
+          { flag: 'New-NetFirewallRule … -Action Block', meaning: 'Create a firewall rule that blocks the attacker IP.' },
+        ],
+        expectedOutput: 'Win_Detection.txt lists repeated 4625 events; firewall rule created',
+        outputExplanation: 'Many 4625 events from one IP in a short window = a brute-force attempt; the new Block rule stops further attempts from that address.',
+        whatItMeans: 'You detected and contained the attack on the Windows host, mirroring the Linux response.',
+        frameworks: ['NIST_CSF', 'NIST_800_61'],
+        isEvidenceStep: true,
+        troubleshooting: 'No 4625 events? Confirm logon auditing was enabled in Week 2 (blue-w2-s4) and that Red has started the brute force.',
       }
     ]
   },
@@ -585,6 +823,11 @@ const BLUE_TASKS: Task[] = [
     objective: 'Present detection engineering and response actions.',
     frameworks: ['NIST_800_61', 'NIST_CSF'],
     deliverables: ['Detection_Summary.md', 'Response_Timeline.md', 'Briefing_Slides_Part2.pptx'],
+    prerequisites: ['Week 3 detection & response notes', 'IR runbook outcomes'],
+    definitionOfDone: ['Detection summary written', 'Response timeline built', 'Your briefing slides drafted'],
+    handoff: [{ to: 'grc', artifact: 'Detection_Summary.md', note: 'Feed detection/response results into the final report.' }],
+    learn: ['Summarizing detection engineering', 'Building an incident timeline'],
+    tools: ['Markdown', 'Slides'],
     steps: [
       {
         id: 'blue-w4-s1',
@@ -608,13 +851,66 @@ const BLUE_TASKS: Task[] = [
 // GRC (Fixers) Tasks
 const GRC_TASKS: Task[] = [
   {
+    id: 'grc-w0-setup',
+    role: 'grc',
+    week: 0,
+    title: 'Open the Policy Workspace & Authorize the Engagement',
+    objective: 'Set up where your company stores artifacts and put the authorized scope in writing for Red and Blue.',
+    frameworks: ['ISO_27001', 'NIST_CSF'],
+    deliverables: ['Rules_of_Engagement.md'],
+    learn: ['Organizing a shared evidence workspace', 'What an authorization memo / Rules of Engagement is', 'Coordinating Red and Blue as the responsible role'],
+    tools: ['Markdown editor', 'mkdir / shared folder'],
+    prerequisites: ['Authorization + target list (from the instructor)'],
+    definitionOfDone: ['A team-artifacts folder structure exists', 'Authorized scope is written down', 'Red and Blue both received the scope'],
+    handoff: [
+      { to: 'red', artifact: 'Rules_of_Engagement.md', note: 'Send the authorized scope before any scanning.' },
+      { to: 'blue', note: 'Tell Blue which two systems (Ubuntu + Windows) to harden.' },
+    ],
+    steps: [
+      {
+        id: 'grc-w0-s1',
+        title: 'Create the Shared Workspace',
+        description: 'Make the folder structure your company will use all term.',
+        command: 'mkdir -p team-artifacts/{week-1,week-2,week-3,week-4}',
+        commandExplanation: '`mkdir -p` creates the parent and the four week subfolders in one go; the `{…}` expands to four directories.',
+        expectedOutput: 'Folders created (no output on success)',
+        outputExplanation: 'Run `ls team-artifacts/` to confirm week-1…week-4 exist.',
+        whatItMeans: 'A single, predictable place for every artifact your team produces.',
+        frameworks: ['ISO_27001'],
+        troubleshooting: 'Permission denied? Create it under your home directory: `mkdir -p ~/team-artifacts/{week-1,week-2,week-3,week-4}`.',
+      },
+      {
+        id: 'grc-w0-s2',
+        title: 'Draft the Rules of Engagement',
+        description: 'Write the authorized scope that bounds Red and directs Blue.',
+        command: 'cat > Rules_of_Engagement.md << EOF\n# Rules of Engagement\n- Authorized targets: <YOUR COMPANY HOSTS>\n- Off-limits: all other teams and systems\n- Testing window: lab hours only\nEOF',
+        commandExplanation: 'A here-doc writes the scope straight into Rules_of_Engagement.md so it can be shared with Red and Blue.',
+        expectedOutput: 'Rules_of_Engagement.md created',
+        outputExplanation: '`cat Rules_of_Engagement.md` should list ONLY your company hosts as authorized.',
+        whatItMeans: 'Defines exactly what Red may test and what Blue defends — your company, no one else.',
+        frameworks: ['ISO_27001', 'NIST_CSF'],
+        producesDeliverable: 'Rules_of_Engagement.md',
+        isEvidenceStep: true,
+        troubleshooting: 'List only your own company hosts — testing another team’s systems is out of scope and not authorized.',
+      },
+    ],
+  },
+  {
     id: 'grc-w1-framework',
     role: 'grc',
     week: 1,
-    title: 'Framework Mapping & Policy',
-    objective: 'Map baseline findings to security frameworks and draft policy.',
+    title: 'Framework Mapping & Hardening Standard',
+    objective: 'Map findings to frameworks and turn them into a Hardening Standard your Blue team implements.',
     frameworks: ['NIST_CSF', 'CIS', 'STRIDE'],
-    deliverables: ['Framework_Mapping.md', 'Lab_Security_Policy_v1.0.md'],
+    deliverables: ['Framework_Mapping.md', 'Lab_Security_Policy_v1.0.md', 'Hardening_Standard.md'],
+    prerequisites: ["Red's Recon_Findings.md and Blue's Hardening_Checklist.txt", 'Your Rules_of_Engagement.md from Week 0'],
+    definitionOfDone: ['Findings mapped to NIST CSF + CIS', 'Baseline policy drafted', 'Hardening Standard written and handed to Blue'],
+    handoff: [
+      { to: 'blue', artifact: 'Hardening_Standard.md', note: 'The controls Blue must implement on both hosts.' },
+      { to: 'red', artifact: 'Rules_of_Engagement.md', note: 'Reconfirm scope stays within bounds.' },
+    ],
+    learn: ['Turning controls into policy with NIST CSF & CIS', 'Writing an actionable Hardening Standard (SOP)', 'How GRC drives Blue/Red instead of just reporting'],
+    tools: ['NIST CSF', 'CIS Controls', 'Markdown'],
     steps: [
       {
         id: 'grc-w1-s1',
@@ -679,6 +975,24 @@ const GRC_TASKS: Task[] = [
         whatItMeans: 'Formal policy enforces controls and expectations.',
         frameworks: ['ISO_27001'],
         isEvidenceStep: true
+      },
+      {
+        id: 'grc-w1-s5',
+        title: 'Write the Hardening Standard for Blue',
+        description: 'Translate the policy into a concrete, OS-specific checklist Blue follows.',
+        command: 'cat > Hardening_Standard.md << EOF\n# Hardening Standard\n## Ubuntu\n- UFW default-deny; allow only 22/80\n- fail2ban enabled\n## Windows\n- Windows Firewall on (all profiles)\n- Defender updated + quick scan\n- SMBv1 disabled\nEOF',
+        commandExplanation: 'A here-doc writes a Hardening Standard with separate Ubuntu and Windows sections — the exact controls Blue implements in Week 1.',
+        commandFlags: [
+          { flag: 'cat >', meaning: 'Write the following input to a file (overwrites it).' },
+          { flag: '<< EOF … EOF', meaning: 'Here-document: send every line until EOF as input.' },
+        ],
+        expectedOutput: 'Hardening_Standard.md created',
+        outputExplanation: 'Open it — Blue should be able to follow each line as a checklist on the Ubuntu and Windows hosts.',
+        whatItMeans: 'GRC sets the standard; Blue implements it — this is GRC owning the company’s security posture.',
+        frameworks: ['CIS', 'NIST_CSF'],
+        producesDeliverable: 'Hardening_Standard.md',
+        isEvidenceStep: true,
+        troubleshooting: 'Keep it concrete and testable — each line should map to a command Blue can run and a result you can verify.',
       }
     ]
   },
@@ -686,10 +1000,15 @@ const GRC_TASKS: Task[] = [
     id: 'grc-w2-risk',
     role: 'grc',
     week: 2,
-    title: 'Risk Matrix & Assessment',
-    objective: 'Build risk matrix from vulnerability assessment results.',
+    title: 'Risk Assessment & Vulnerability-Management SOP',
+    objective: 'Score the risks and write the Vulnerability-Management SOP your Blue team follows to remediate.',
     frameworks: ['NIST_CSF', 'CVSS'],
-    deliverables: ['Risk_Matrix.md', 'Vulnerability_Assessment.md'],
+    deliverables: ['Risk_Matrix.md', 'Vulnerability_Assessment.md', 'VM_SOP.md'],
+    prerequisites: ["Red's Vulnerability_Summary.md (the findings)", 'Your Week 1 Hardening Standard'],
+    definitionOfDone: ['Risk matrix built', 'CVSS scores assigned', 'VM SOP written and handed to Blue with remediation priorities'],
+    handoff: [{ to: 'blue', artifact: 'VM_SOP.md', note: 'Remediation order and process Blue follows.' }],
+    learn: ['Likelihood × Impact risk scoring', 'CVSS severity', 'Writing a Vulnerability-Management SOP from a framework'],
+    tools: ['CVSS', 'NIST CSF', 'Markdown'],
     steps: [
       {
         id: 'grc-w2-s1',
@@ -737,6 +1056,24 @@ const GRC_TASKS: Task[] = [
         whatItMeans: 'Standardized severity helps prioritization.',
         frameworks: ['CVSS'],
         isEvidenceStep: true
+      },
+      {
+        id: 'grc-w2-s4',
+        title: 'Write the Vulnerability-Management SOP for Blue',
+        description: 'Turn the risk ranking into a step-by-step remediation process Blue executes.',
+        command: 'cat > VM_SOP.md << EOF\n# Vulnerability Management SOP\n1. Triage by CVSS (Critical first)\n2. Remediate per Hardening Standard\n3. Re-scan to verify\n4. Record exceptions / risk acceptance\nEOF',
+        commandExplanation: 'A here-doc writes the SOP: how Blue should triage, fix, verify and document vulnerabilities, ordered by the risk scores you assigned.',
+        commandFlags: [
+          { flag: 'cat >', meaning: 'Write the following input to a file (overwrites it).' },
+          { flag: '<< EOF … EOF', meaning: 'Here-document: send every line until EOF as input.' },
+        ],
+        expectedOutput: 'VM_SOP.md created',
+        outputExplanation: 'Blue should be able to follow the SOP top-to-bottom to close findings in priority order.',
+        whatItMeans: 'GRC defines the remediation process; Blue carries it out.',
+        frameworks: ['NIST_CSF', 'CVSS'],
+        producesDeliverable: 'VM_SOP.md',
+        isEvidenceStep: true,
+        troubleshooting: 'Tie each SOP step to a specific finding and a Hardening Standard control so Blue knows exactly what to do.',
       }
     ]
   },
@@ -744,11 +1081,34 @@ const GRC_TASKS: Task[] = [
     id: 'grc-w3-custody',
     role: 'grc',
     week: 3,
-    title: 'Evidence & Chain of Custody',
-    objective: 'Document and verify evidence integrity.',
+    title: 'Incident-Response Runbook & Chain of Custody',
+    objective: 'Issue the IR runbook your Blue team follows during the breach, then preserve the evidence with chain of custody.',
     frameworks: ['NIST_800_61', 'ISO_27001'],
-    deliverables: ['Evidence_Log.md', 'Chain_of_Custody.txt', 'Findings_Summary.md'],
+    deliverables: ['IR_Runbook.md', 'Evidence_Log.md', 'Chain_of_Custody.txt', 'Findings_Summary.md'],
+    prerequisites: ['Week 2 VM SOP issued', "Blue's detections from Week 2 in place"],
+    definitionOfDone: ['IR runbook handed to Blue before the attack', 'All evidence hashed and logged', 'Chain of custody intact'],
+    handoff: [{ to: 'blue', artifact: 'IR_Runbook.md', note: 'The steps Blue follows the moment an attack is detected.' }],
+    learn: ['Writing an incident-response runbook (NIST 800-61)', 'Evidence hashing & chain of custody', 'Coordinating the company during an incident'],
+    tools: ['NIST 800-61', 'sha256sum', 'Markdown'],
     steps: [
+      {
+        id: 'grc-w3-s5',
+        title: 'Write the IR Runbook for Blue (do this first)',
+        description: 'Give Blue a clear playbook to follow the instant Red attacks.',
+        command: 'cat > IR_Runbook.md << EOF\n# Incident Response Runbook\n1. Detect: watch logs + packet capture\n2. Contain: block attacker IP (UFW / Windows Firewall)\n3. Preserve: do not delete logs; hash everything\n4. Report: note time, action, result\nEOF',
+        commandExplanation: 'A here-doc writes the IR runbook — detect, contain, preserve, report — the sequence Blue executes during the breach.',
+        commandFlags: [
+          { flag: 'cat >', meaning: 'Write the following input to a file (overwrites it).' },
+          { flag: '<< EOF … EOF', meaning: 'Here-document: send every line until EOF as input.' },
+        ],
+        expectedOutput: 'IR_Runbook.md created',
+        outputExplanation: 'Blue should be able to follow it under pressure without improvising.',
+        whatItMeans: 'GRC prepares the response plan; Blue executes it during the attack.',
+        frameworks: ['NIST_800_61'],
+        producesDeliverable: 'IR_Runbook.md',
+        isEvidenceStep: true,
+        troubleshooting: 'Hand this to Blue before Week 3 attacks begin — a runbook written after the breach is too late.',
+      },
       {
         id: 'grc-w3-s1',
         title: 'Receive Artifacts from Team',
@@ -824,6 +1184,14 @@ const GRC_TASKS: Task[] = [
     objective: 'Compile and present all findings, recommendations, and incident response.',
     frameworks: ['ISO_27001', 'NIST_CSF'],
     deliverables: ['Final_Report.pdf', 'Findings.md', 'Recommendations.md', 'Briefing_Slides.pptx'],
+    prerequisites: ["Red's and Blue's Week 4 briefings", 'All prior SOPs, risk register, and evidence'],
+    definitionOfDone: ['Findings + recommendations compiled', 'Final report PDF produced', 'Team slides assembled'],
+    handoff: [
+      { to: 'red', note: 'Confirm the findings are technically accurate.' },
+      { to: 'blue', note: 'Confirm the response timeline is accurate.' },
+    ],
+    learn: ['Compiling a professional security report', 'Synthesizing Red + Blue + GRC work', 'Writing executive recommendations'],
+    tools: ['pandoc', 'Markdown', 'Slides'],
     steps: [
       {
         id: 'grc-w4-s1',
@@ -899,6 +1267,10 @@ export const STEP_DELIVERABLES: Record<string, string> = {
   'blue-w3-s2': 'Attack_Logs.txt',
   'blue-w3-s3': 'Incident_Response.txt',
   'blue-w3-s4': 'Containment_Actions.txt',
+  'blue-w3-s5': 'Win_Detection.txt',
+  'blue-w1-s6': 'Windows_Firewall.txt',
+  'blue-w1-s7': 'Defender_Status.txt',
+  'blue-w2-s4': 'Win_EventLog.txt',
   'blue-w4-s1': 'Detection_Summary.md',
   // GRC
   'grc-w1-s2': 'Framework_Mapping.md',
