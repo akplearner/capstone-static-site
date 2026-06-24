@@ -183,7 +183,9 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
                   instruction={current.instruction}
                   description={current.description}
                   command={current.command}
+                  commandExplanation={current.commandExplanation}
                   expectedOutput={current.expectedOutput}
+                  outputExplanation={current.outputExplanation}
                   whatItMeans={current.whatItMeans}
                   frameworks={current.frameworks}
                   deliverable={current.producesDeliverable}
@@ -245,7 +247,9 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
               instruction={step.instruction}
               description={step.description}
               command={step.command}
+              commandExplanation={step.commandExplanation}
               expectedOutput={step.expectedOutput}
+              outputExplanation={step.outputExplanation}
               whatItMeans={step.whatItMeans}
               isComplete={completed.has(step.id)}
               onToggle={(checked) => setStep(step.id, checked)}

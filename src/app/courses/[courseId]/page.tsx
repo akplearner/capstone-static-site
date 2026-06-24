@@ -154,7 +154,7 @@ function JoinPanel({
 
       <div>
         <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">Team</span>
-        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+        <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
           {teamIds.map((t) => {
             const full = isFull(t);
             const selected = team === t;
@@ -239,7 +239,9 @@ function TaskReference({ task }: { task: Task }) {
               instruction={s.instruction}
               description={s.description}
               command={s.command}
+              commandExplanation={s.commandExplanation}
               expectedOutput={s.expectedOutput}
+              outputExplanation={s.outputExplanation}
               whatItMeans={s.whatItMeans}
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
@@ -384,6 +386,7 @@ export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
   const [refresh, setRefresh] = useState(0);
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [openWeeks, setOpenWeeks] = useState<Set<number>>(
     new Set([course.weeks[0]?.number ?? 1])
@@ -496,13 +499,12 @@ export default function CoursePage() {
   const toggleWeek = toggleSet(setOpenWeeks);
   const toggleRef = toggleSet(setOpenRefs);
 
-  const handleReset = () => {
+  const confirmReset = () => {
     if (!member) return;
-    if (confirm('Reset all your progress for this course? This cannot be undone.')) {
-      progressRepo.resetCourse(course.id, member.memberId);
-      setExpanded(new Set());
-      setRefresh((r) => r + 1);
-    }
+    progressRepo.resetCourse(course.id, member.memberId);
+    setExpanded(new Set());
+    setConfirmingReset(false);
+    setRefresh((r) => r + 1);
   };
 
   const ownRole = member ? getRoleDef(course, member.role) : undefined;
@@ -622,12 +624,30 @@ export default function CoursePage() {
               <BookOpen className="h-4 w-4" /> Guide
             </Button>
           </Link>
-          <button
-            onClick={handleReset}
-            className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-          >
-            <RotateCcw className="h-4 w-4" /> Reset my progress
-          </button>
+          {confirmingReset ? (
+            <span className="ml-auto inline-flex items-center gap-2 text-sm">
+              <span className="text-gray-600 dark:text-gray-300">Reset all progress?</span>
+              <button
+                onClick={confirmReset}
+                className="inline-flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> Reset
+              </button>
+              <button
+                onClick={() => setConfirmingReset(false)}
+                className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+            </span>
+          ) : (
+            <button
+              onClick={() => setConfirmingReset(true)}
+              className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+            >
+              <RotateCcw className="h-4 w-4" /> Reset my progress
+            </button>
+          )}
         </div>
       )}
 

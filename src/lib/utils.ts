@@ -33,6 +33,28 @@ export const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'STRIDE': 'STRIDE Threat Modeling',
 };
 
+// Why each framework matters and the role it plays in the engagement. Surfaced
+// next to the framework tags so students understand *why* a step is mapped to it,
+// not just that it is.
+export const FRAMEWORK_WHY: Record<Framework, string> = {
+  'NIST_CSF':
+    'Organizes all security work into five functions — Identify, Protect, Detect, Respond, Recover. Tagging a step here shows which part of the lifecycle it strengthens and proves you covered the whole picture, not just attack or defense.',
+  'CIS':
+    'A prioritized "do these first" list of safeguards. A CIS tag means this step implements an industry-baseline control that auditors and blue teams immediately recognize.',
+  'OWASP':
+    'Catalogs the most common web-application weaknesses. This tag means the step attacks or defends one of those top risks — the shared language developers use to talk about web security.',
+  'CVSS':
+    'A 0–10 severity score for vulnerabilities. It turns "this is bad" into a consistent number, so stakeholders can rank findings and decide what to fix first.',
+  'NIST_800_61':
+    'The incident-handling playbook: prepare, detect & analyze, contain, eradicate, recover. This tag means the step is part of a defensible, court-ready incident-response process.',
+  'NIST_800_115':
+    'The standard method for security testing and assessment. Following it makes your scanning and exploitation repeatable, authorized, and credible in a report.',
+  'ISO_27001':
+    'The certifiable information-security management standard. This tag means the step produces the documented policy or evidence an ISO 27001 audit expects to see.',
+  'STRIDE':
+    'A threat-modeling lens — Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. It names the *category* of threat this step addresses.',
+};
+
 const FRAMEWORK_FALLBACK_COLOR =
   'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
 
@@ -48,6 +70,10 @@ export function getFrameworkLabel(framework: Framework): string {
 
 export function getFrameworkDescription(framework: Framework): string {
   return FRAMEWORK_DESCRIPTIONS[framework] || '';
+}
+
+export function getFrameworkWhy(framework: Framework): string {
+  return FRAMEWORK_WHY[framework] || '';
 }
 
 export function formatDate(timestamp: number): string {

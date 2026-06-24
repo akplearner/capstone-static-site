@@ -49,7 +49,9 @@ export function StepsEditor({
           </div>
           <TextArea label="Instruction (what to do)" value={s.instruction || ''} onChange={(v) => update(i, { instruction: v })} />
           <TextField label="Command" value={s.command || ''} onChange={(v) => update(i, { command: v })} mono />
+          <TextArea label="Command explanation (what the options do)" value={s.commandExplanation || ''} onChange={(v) => update(i, { commandExplanation: v || undefined })} />
           <TextField label="Expected output" value={s.expectedOutput || ''} onChange={(v) => update(i, { expectedOutput: v })} />
+          <TextArea label="Output explanation (how to read it)" value={s.outputExplanation || ''} onChange={(v) => update(i, { outputExplanation: v || undefined })} />
           <TextArea label="What it means" value={s.whatItMeans} onChange={(v) => update(i, { whatItMeans: v })} />
           <div className="grid gap-2 sm:grid-cols-2">
             <TextField label="Frameworks (comma-separated)" value={listToText(s.frameworks)} onChange={(v) => update(i, { frameworks: textToList(v) })} />

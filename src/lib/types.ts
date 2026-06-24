@@ -41,7 +41,11 @@ export interface Step {
   /** Explicit, action-oriented instruction ("Do this") shown above the command. */
   instruction?: string;
   command?: string;
+  /** Plain-English breakdown of the command and its key options/flags. */
+  commandExplanation?: string;
   expectedOutput?: string;
+  /** How to read the output — what each part tells you and what to look for. */
+  outputExplanation?: string;
   whatItMeans: string;
   frameworks: Framework[];
   isEvidenceStep?: boolean;

@@ -64,6 +64,6 @@ export const SECURITY_PLUS: Course = {
   isSeed: true,
   version: 1,
   locked: false,
-  teamCount: 3,
+  teamCount: 16,
   teamCapacity: 6,
 };
