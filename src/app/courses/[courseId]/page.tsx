@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  ClipboardList,
   Clock,
   Compass,
   FileText,
@@ -39,10 +40,11 @@ import { useMember } from '@/lib/useMember';
 import { progressRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
-import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
+import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
-const COHORTS = ['2026-Spring', '2026-Fall'];
+// Monthly cohorts (YYYY-MM), generated for the next 12 months.
+const COHORTS = getMonthlyCohorts(12);
 
 type CourseStats = {
   weekStats: Record<number, number>;
@@ -734,6 +736,11 @@ export default function CoursePage() {
             <Users className="h-4 w-4" /> Team
           </Link>
         )}
+        {joined && member?.role === 'grc' && (
+          <Link href={`/courses/${course.id}/grc`} className={SUBTAB_LINK}>
+            <ClipboardList className="h-4 w-4" /> GRC Workspace
+          </Link>
+        )}
         <Link href={`/courses/${course.id}/guide`} className={SUBTAB_LINK}>
           <BookOpen className="h-4 w-4" /> Guide
         </Link>
@@ -804,48 +811,46 @@ export default function CoursePage() {
         </motion.div>
       )}
 
-      {/* Pipeline + gates */}
-      <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-center justify-between">
-          <h2 className="flex items-center gap-1.5 text-lg font-bold text-gray-900 dark:text-white">
-            Course pipeline
-            <InfoTip label="Your week-by-week path. Finish a week's required tasks to clear its gate, then move on to the next week." />
-          </h2>
-          <Link
-            href={`/courses/${course.id}/guide`}
-            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-          >
-            <Compass className="h-4 w-4" /> How it works
-          </Link>
-        </div>
-        <LifecycleFlow
-          weeks={course.weeks}
-          gates={course.gates}
-          weekProgress={weekStats}
-          gateStatus={gateStats}
-          currentWeek={activeWeek}
-        />
-        <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
-          <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
-        </div>
-        {joined && course.gates.length > 0 && (
-          <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
-            <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              Gates
-              <InfoTip label="A gate marks the end of a week. Complete the week's required tasks to move it from Locked → In progress → Passed." />
+      {/* Pipeline + gates — collapsed by default once enrolled to keep the dashboard calm. */}
+      <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+        <Collapsible title="Course pipeline & gates" defaultOpen={!joined}>
+          <div className="space-y-4 pb-2">
+            <Link
+              href={`/courses/${course.id}/guide`}
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              <Compass className="h-4 w-4" /> How it works
+            </Link>
+            <LifecycleFlow
+              weeks={course.weeks}
+              gates={course.gates}
+              weekProgress={weekStats}
+              gateStatus={gateStats}
+              currentWeek={activeWeek}
+            />
+            <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
+              <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
             </div>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {course.gates.map((gate) => (
-                <GateBadge
-                  key={gate.id}
-                  gateId={gate.id}
-                  status={gateStats[gate.id] || 'locked'}
-                  completionPercent={weekStats[gate.week] || 0}
-                />
-              ))}
-            </div>
+            {joined && course.gates.length > 0 && (
+              <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
+                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Gates
+                  <InfoTip label="A gate marks the end of a week. Complete the week's required tasks to move it from Locked → In progress → Passed." />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {course.gates.map((gate) => (
+                    <GateBadge
+                      key={gate.id}
+                      gateId={gate.id}
+                      status={gateStats[gate.id] || 'locked'}
+                      completionPercent={weekStats[gate.week] || 0}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </Collapsible>
       </div>
 
       {/* Inline enrollment */}
@@ -930,13 +935,11 @@ export default function CoursePage() {
         </section>
       )}
 
-      {/* Your remaining tasks — at-a-glance jump list across all weeks */}
+      {/* Your remaining tasks — collapsed jump list across all weeks */}
       {joined && member && remainingTasks.length > 0 && (
-        <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            Your remaining tasks ({remainingTasks.length})
-          </h2>
-          <ul className="space-y-2">
+        <section className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title={`Your remaining tasks (${remainingTasks.length})`} defaultOpen={false}>
+          <ul className="space-y-2 pb-2">
             {remainingTasks.map((t) => (
               <li key={t.id}>
                 <button
@@ -957,6 +960,7 @@ export default function CoursePage() {
               </li>
             ))}
           </ul>
+          </Collapsible>
         </section>
       )}
       </motion.div>

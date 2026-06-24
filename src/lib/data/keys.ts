@@ -18,4 +18,6 @@ export const KEYS = {
     `${STORAGE_PREFIX}${courseId}_completion_${memberId}_`,
   gate: (courseId: string, teamId: string, gateId: number) =>
     `${STORAGE_PREFIX}${courseId}_gate_${teamId}_${gateId}`,
+  // GRC Workspace registers, team-scoped (one company's documentation).
+  grc: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_grc_${teamId}`,
 };
