@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { SiteNav } from '@/components/SiteNav';
+import { MotionProvider } from '@/components/MotionProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,8 +27,10 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className={`${inter.className} bg-white dark:bg-gray-900`}>
-        <SiteNav />
-        <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+        <MotionProvider>
+          <SiteNav />
+          <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+        </MotionProvider>
       </body>
     </html>
   );

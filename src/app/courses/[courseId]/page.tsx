@@ -23,7 +23,7 @@ import {
   Wrench,
   X,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, Collapsible } from '@/components/ui/Button';
 import { GateBadge, StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
@@ -761,7 +761,12 @@ export default function CoursePage() {
 
       {/* ───────── Overview tab ───────── */}
       {tab === 'overview' && (
-      <div className="space-y-8">
+      <motion.div
+        className="space-y-8"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
       {/* Role "this week" hero — connects your role to what's left right now */}
       {joined && member && ownRole && (
         <motion.div
@@ -954,12 +959,17 @@ export default function CoursePage() {
           </ul>
         </section>
       )}
-      </div>
+      </motion.div>
       )}
 
       {/* ───────── Weekly Tasks tab ───────── */}
       {tab === 'weeks' && (
-      <div className="space-y-4">
+      <motion.div
+        className="space-y-4"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
       {/* Weekly breakdown */}
       <div className="space-y-3">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Weekly tasks</h2>
@@ -1083,6 +1093,30 @@ export default function CoursePage() {
                     </div>
                   )}
 
+                  {joined &&
+                    member &&
+                    getTasksByRole(course, member.role, w.number).some(
+                      (t) => t.definitionOfDone?.length
+                    ) && (
+                      <div className="rounded-lg border border-gray-200 px-4 dark:border-gray-700">
+                        <Collapsible title="What “done” looks like this week">
+                          <ul className="space-y-1.5">
+                            {getTasksByRole(course, member.role, w.number).flatMap((t) =>
+                              (t.definitionOfDone ?? []).map((d, di) => (
+                                <li
+                                  key={`${t.id}-${di}`}
+                                  className="flex gap-1.5 text-sm text-gray-700 dark:text-gray-300"
+                                >
+                                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                                  {d}
+                                </li>
+                              ))
+                            )}
+                          </ul>
+                        </Collapsible>
+                      </div>
+                    )}
+
                   {joined && gateForWeek && (
                     <WeekGatePanel
                       course={course}
@@ -1195,7 +1229,7 @@ export default function CoursePage() {
           );
         })}
       </div>
-      </div>
+      </motion.div>
       )}
     </motion.div>
   );
