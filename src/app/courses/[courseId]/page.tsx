@@ -12,11 +12,15 @@ import {
   Clock,
   Compass,
   FileText,
+  GraduationCap,
+  ListChecks,
   Lock,
   RotateCcw,
   Search,
+  Send,
   Sparkles,
   Users,
+  Wrench,
   X,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -266,6 +270,7 @@ function TaskReference({ task }: { task: Task }) {
               whatItMeans={s.whatItMeans}
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
+              troubleshooting={s.troubleshooting}
             />
           </div>
         </div>
@@ -570,8 +575,96 @@ export default function CoursePage() {
   const anyMatches = sortedWeeks.some((w) => getWeekTasks(course, w.number).some(matchesQuery));
 
   // Expanded content for a task row (deliverables + the runner or read-only steps).
-  const renderTaskBody = (task: Task, isOwn: boolean) => (
+  const renderTaskBody = (task: Task, isOwn: boolean) => {
+    const hasFlow = !!(
+      task.learn?.length ||
+      task.tools?.length ||
+      task.prerequisites?.length ||
+      task.definitionOfDone?.length ||
+      task.handoff?.length
+    );
+    return (
     <>
+      {hasFlow && (
+        <div className="mb-4 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
+          {task.learn && task.learn.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
+              </div>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
+                {task.learn.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.tools && task.tools.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <Wrench className="h-3.5 w-3.5" /> Tools
+              </span>
+              {task.tools.map((t) => (
+                <span
+                  key={t}
+                  className="rounded bg-white px-2 py-0.5 font-mono text-[11px] text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+          {task.prerequisites && task.prerequisites.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <ListChecks className="h-3.5 w-3.5" /> Before you start
+              </div>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
+                {task.prerequisites.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.definitionOfDone && task.definitionOfDone.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <CheckCircle2 className="h-3.5 w-3.5" /> You&apos;re done when
+              </div>
+              <ul className="mt-1 space-y-0.5 text-sm text-gray-700 dark:text-gray-300">
+                {task.definitionOfDone.map((d) => (
+                  <li key={d} className="flex gap-1.5">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" /> {d}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.handoff && task.handoff.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <Send className="h-3.5 w-3.5" /> Hand off
+              </div>
+              <ul className="mt-1 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                {task.handoff.map((h, i) => {
+                  const toRole = getRoleDef(course, h.to);
+                  return (
+                    <li key={`${h.to}-${i}`} className="flex items-start gap-1.5">
+                      <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
+                      <span>
+                        <span className="font-medium" style={{ color: toRole?.color }}>
+                          {toRole?.name ?? h.to}
+                        </span>
+                        {h.artifact && <span className="font-mono text-xs"> · {h.artifact}</span>} — {h.note}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       {task.deliverables.length > 0 && (
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
           <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
@@ -600,7 +693,8 @@ export default function CoursePage() {
         <TaskReference task={task} />
       )}
     </>
-  );
+    );
+  };
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>

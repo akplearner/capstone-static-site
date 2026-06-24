@@ -190,6 +190,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
                   whatItMeans={current.whatItMeans}
                   frameworks={current.frameworks}
                   deliverable={current.producesDeliverable}
+                  troubleshooting={current.troubleshooting}
                 />
               )}
             </motion.div>
@@ -257,6 +258,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
               onToggle={(checked) => setStep(step.id, checked)}
               frameworks={step.frameworks}
               deliverable={step.producesDeliverable}
+              troubleshooting={step.troubleshooting}
             />
           ))}
         </div>

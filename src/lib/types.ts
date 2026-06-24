@@ -53,6 +53,8 @@ export interface Step {
   isEvidenceStep?: boolean;
   /** The deliverable filename this step contributes toward (for evidence steps). */
   producesDeliverable?: string;
+  /** Common failure + fix shown as an "If it doesn't work…" callout. */
+  troubleshooting?: string;
 }
 
 export interface Task {
@@ -65,6 +67,16 @@ export interface Task {
   frameworks: Framework[];
   deliverables: string[];
   estimatedTime?: string;
+  /** What to have ready before starting (e.g. "Read GRC's Hardening Standard"). */
+  prerequisites?: string[];
+  /** Checklist that defines when the task is truly finished. */
+  definitionOfDone?: string[];
+  /** Artifacts/notes handed to another role at the end of the task. */
+  handoff?: { to: Role; artifact?: string; note: string }[];
+  /** Skills/concepts this task teaches (role + week specific). */
+  learn?: string[];
+  /** Key tools/commands used, shown as a legend. */
+  tools?: string[];
 }
 
 export interface Week {
@@ -82,6 +94,8 @@ export interface Gate {
   description: string;
   requiredArtifactTypes: string[];
   requiredTasks: string[]; // task IDs that must be completed
+  /** End-of-week company-sync hand-offs between roles (self-attested today). */
+  handoffs?: { from: Role; to: Role; artifact?: string; label: string }[];
 }
 
 // A complete course definition. Built-in courses are seeds; instructor-authored

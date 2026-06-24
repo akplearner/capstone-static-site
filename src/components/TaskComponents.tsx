@@ -144,6 +144,7 @@ export function StepDetail({
   whatItMeans,
   frameworks,
   deliverable,
+  troubleshooting,
 }: {
   instruction?: string;
   description?: string;
@@ -155,6 +156,7 @@ export function StepDetail({
   whatItMeans: string;
   frameworks: string[];
   deliverable?: string;
+  troubleshooting?: string;
 }) {
   return (
     <div className="space-y-3">
@@ -252,6 +254,16 @@ export function StepDetail({
         </div>
       )}
 
+      {troubleshooting && (
+        <div className="flex gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-800 dark:bg-rose-900/20">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+          <p className="text-sm text-rose-900 dark:text-rose-200">
+            <span className="font-semibold">If it doesn&apos;t work: </span>
+            {troubleshooting}
+          </p>
+        </div>
+      )}
+
       {frameworks.length > 0 && <FrameworkRationale frameworks={frameworks} />}
     </div>
   );
@@ -316,6 +328,7 @@ interface ChecklistItemProps {
   onToggle: (complete: boolean) => void;
   frameworks: string[];
   deliverable?: string;
+  troubleshooting?: string;
 }
 
 export function ChecklistItem({
@@ -332,6 +345,7 @@ export function ChecklistItem({
   onToggle,
   frameworks,
   deliverable,
+  troubleshooting,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
@@ -383,6 +397,7 @@ export function ChecklistItem({
                 whatItMeans={whatItMeans}
                 frameworks={frameworks}
                 deliverable={deliverable}
+                troubleshooting={troubleshooting}
               />
             </div>
           </motion.div>
