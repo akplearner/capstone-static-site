@@ -1,16 +1,20 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
+  ArrowRight,
   BookOpen,
+  CheckCircle2,
   ChevronDown,
   ChevronRight,
+  Clock,
   Compass,
   FileText,
   Lock,
   RotateCcw,
+  Sparkles,
   Users,
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -18,13 +22,17 @@ import { GateBadge, StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
+import { RoleWorkflow } from '@/components/diagrams/RoleWorkflow';
+import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
+import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { progressRepo } from '@/lib/data';
 import { getRoleDef, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
-import { Course, GateStatus, Member, Task } from '@/lib/types';
+import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
+import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
 const COHORTS = ['2026-Spring', '2026-Fall'];
 
@@ -243,15 +251,149 @@ function TaskReference({ task }: { task: Task }) {
   );
 }
 
+/** A single collapsible task with a rich, scannable header (step progress,
+ *  deliverables, frameworks, estimated time). Expanded content is passed in. */
+function TaskRow({
+  task,
+  isOwn,
+  joined,
+  open,
+  percent,
+  onToggle,
+  children,
+}: {
+  task: Task;
+  isOwn: boolean;
+  joined: boolean;
+  open: boolean;
+  percent: number;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  const canOpen = joined;
+  const steps = task.steps.length;
+  const doneSteps = Math.round((percent / 100) * steps);
+  const showProgress = isOwn && joined;
+
+  return (
+    <div
+      id={`task-${task.id}`}
+      className="scroll-mt-24 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+    >
+      <button
+        type="button"
+        disabled={!canOpen}
+        onClick={() => canOpen && onToggle()}
+        className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${
+          canOpen ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50' : 'cursor-not-allowed opacity-70'
+        }`}
+      >
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-2">
+            <span className="font-medium text-gray-900 dark:text-white">{task.title}</span>
+            {showProgress && percent === 100 && (
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+            )}
+          </span>
+          <span className="mt-0.5 block truncate text-sm text-gray-600 dark:text-gray-400">
+            {task.objective}
+          </span>
+
+          {/* Scannable meta row */}
+          <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+            {showProgress ? (
+              <span className="flex items-center gap-1.5">
+                <span className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                  <span
+                    className="block h-full rounded-full bg-blue-600"
+                    style={{ width: `${percent}%` }}
+                  />
+                </span>
+                <span className="text-gray-500 dark:text-gray-400">
+                  {doneSteps}/{steps} steps
+                </span>
+              </span>
+            ) : (
+              <span className="text-gray-500 dark:text-gray-400">{steps} steps</span>
+            )}
+            {task.estimatedTime && (
+              <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                <Clock className="h-3.5 w-3.5" /> {task.estimatedTime}
+              </span>
+            )}
+            {task.deliverables.length > 0 && (
+              <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+                <FileText className="h-3.5 w-3.5" /> {task.deliverables.length} deliverable
+                {task.deliverables.length > 1 ? 's' : ''}
+              </span>
+            )}
+            {task.frameworks.slice(0, 3).map((fw) => (
+              <span
+                key={fw}
+                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getFrameworkColor(fw)}`}
+              >
+                {getFrameworkLabel(fw)}
+              </span>
+            ))}
+            {task.frameworks.length > 3 && (
+              <span className="text-gray-400">+{task.frameworks.length - 3}</span>
+            )}
+          </span>
+        </span>
+
+        <span className="flex shrink-0 items-center gap-3 pt-0.5">
+          {showProgress && (
+            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{percent}%</span>
+          )}
+          {!canOpen ? (
+            <Lock className="h-4 w-4 text-gray-400" />
+          ) : open ? (
+            <ChevronDown className="h-5 w-5 text-gray-400" />
+          ) : (
+            <ChevronRight className="h-5 w-5 text-gray-400" />
+          )}
+        </span>
+      </button>
+
+      {open && canOpen && (
+        <div className="border-t border-gray-200 p-4 dark:border-gray-700">{children}</div>
+      )}
+    </div>
+  );
+}
+
+/** Header strip for a role group within a week. */
+function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
+  return (
+    <div className="flex items-center gap-2">
+      <RoleIcon iconName={role.icon} className="h-5 w-5" color={role.color} />
+      <span className="font-semibold text-gray-900 dark:text-white">{role.name}</span>
+      {tag === 'own' && (
+        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+          Your role
+        </span>
+      )}
+      {tag === 'reference' && (
+        <span className="text-xs text-gray-400 dark:text-gray-500">reference</span>
+      )}
+    </div>
+  );
+}
+
 export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
   const [refresh, setRefresh] = useState(0);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [openWeeks, setOpenWeeks] = useState<Set<number>>(
+    new Set([course.weeks[0]?.number ?? 1])
+  );
+  const [openRefs, setOpenRefs] = useState<Set<number>>(new Set());
   const [activeWeek, setActiveWeek] = useState(course.weeks[0]?.number ?? 1);
   const [weekStats, setWeekStats] = useState<Record<number, number>>({});
   const [taskStats, setTaskStats] = useState<Record<string, number>>({});
   const [gateStats, setGateStats] = useState<Record<number, GateStatus>>({});
+  const accordionInitedFor = useRef<string | null>(null);
 
   const onProgressChange = useCallback(() => setRefresh((r) => r + 1), []);
 
@@ -284,6 +426,11 @@ export default function CoursePage() {
     setTaskStats(tasks);
     setGateStats(gates);
     setActiveWeek(firstIncomplete);
+    // Auto-open the active week once per member (don't fight later manual toggles).
+    if (accordionInitedFor.current !== member.memberId) {
+      accordionInitedFor.current = member.memberId;
+      setOpenWeeks(new Set([firstIncomplete]));
+    }
   }, [member, course, refresh]);
 
   if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
@@ -313,20 +460,41 @@ export default function CoursePage() {
           : 'upcoming',
   }));
 
-  const scrollToWeek = (n: number) => {
-    setActiveWeek(n);
+  const scrollTo = (elementId: string, block: ScrollLogicalPosition = 'start') => {
     if (typeof document !== 'undefined') {
-      document.getElementById(`week-${n}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(
+        () => document.getElementById(elementId)?.scrollIntoView({ behavior: 'smooth', block }),
+        60
+      );
     }
   };
 
-  const toggle = (id: string) =>
-    setExpanded((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
+  const openAndScrollWeek = (n: number) => {
+    setActiveWeek(n);
+    setOpenWeeks((prev) => new Set(prev).add(n));
+    scrollTo(`week-${n}`);
+  };
+
+  const goToTask = (task: Task) => {
+    setActiveWeek(task.week);
+    setOpenWeeks((prev) => new Set(prev).add(task.week));
+    setExpanded((prev) => new Set(prev).add(task.id));
+    scrollTo(`task-${task.id}`, 'center');
+  };
+
+  const toggleSet =
+    <T,>(setter: React.Dispatch<React.SetStateAction<Set<T>>>) =>
+    (value: T) =>
+      setter((prev) => {
+        const next = new Set(prev);
+        if (next.has(value)) next.delete(value);
+        else next.add(value);
+        return next;
+      });
+
+  const toggle = toggleSet(setExpanded);
+  const toggleWeek = toggleSet(setOpenWeeks);
+  const toggleRef = toggleSet(setOpenRefs);
 
   const handleReset = () => {
     if (!member) return;
@@ -337,10 +505,63 @@ export default function CoursePage() {
     }
   };
 
-  // Own role first, then the rest (read-only reference).
-  const own = member ? course.roles.filter((r) => r.id === member.role) : [];
-  const others = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
-  const orderedRoles = [...own, ...others];
+  const ownRole = member ? getRoleDef(course, member.role) : undefined;
+  const otherRoles = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
+
+  // Overall progress + "your next step" across the student's own tasks.
+  const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
+  const totalSteps = ownTasksAll.reduce((s, t) => s + t.steps.length, 0);
+  const doneSteps = ownTasksAll.reduce(
+    (s, t) => s + Math.round(((taskStats[t.id] ?? 0) / 100) * t.steps.length),
+    0
+  );
+  const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
+  const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
+  let nextTask: Task | undefined;
+  if (member) {
+    for (const w of sortedWeeks) {
+      const t = getTasksByRole(course, member.role, w.number).find(
+        (tk) => (taskStats[tk.id] ?? 0) < 100
+      );
+      if (t) {
+        nextTask = t;
+        break;
+      }
+    }
+  }
+
+  // Expanded content for a task row (deliverables + the runner or read-only steps).
+  const renderTaskBody = (task: Task, isOwn: boolean) => (
+    <>
+      {task.deliverables.length > 0 && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+          <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
+            <FileText className="h-4 w-4" /> Deliverables to produce
+          </div>
+          <ul className="mt-2 flex flex-wrap gap-2">
+            {task.deliverables.map((d) => (
+              <li
+                key={d}
+                className="rounded bg-white px-2 py-1 font-mono text-xs text-amber-800 dark:bg-gray-800 dark:text-amber-300"
+              >
+                {d}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {isOwn && member ? (
+        <GuidedTaskRunner
+          task={task}
+          courseId={course.id}
+          memberId={member.memberId}
+          onProgressChange={onProgressChange}
+        />
+      ) : (
+        <TaskReference task={task} />
+      )}
+    </>
+  );
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -369,7 +590,7 @@ export default function CoursePage() {
           currentWeek={activeWeek}
         />
         <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
-          <GuidedStepper items={stepperItems} onSelect={(i) => scrollToWeek(sortedWeeks[i]?.number ?? 1)} />
+          <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
         </div>
         {joined && course.gates.length > 0 && (
           <div className="grid gap-3 border-t border-gray-100 pt-4 dark:border-gray-700 sm:grid-cols-2 lg:grid-cols-3">
@@ -410,6 +631,70 @@ export default function CoursePage() {
         </div>
       )}
 
+      {/* Progress + your next step (joined) */}
+      {joined && member && (
+        <div className="grid gap-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 md:grid-cols-[1fr_auto] md:items-center">
+          <div>
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-sm font-semibold text-gray-900 dark:text-white">Your progress</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">
+                {tasksComplete} of {ownTasksAll.length} tasks · {overallPercent}%
+              </span>
+            </div>
+            <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <motion.div
+                className="h-full rounded-full bg-blue-600"
+                initial={{ width: 0 }}
+                animate={{ width: `${overallPercent}%` }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+              />
+            </div>
+          </div>
+          {nextTask ? (
+            <Button
+              onClick={() => nextTask && goToTask(nextTask)}
+              className="flex items-center gap-2 md:ml-4"
+            >
+              Continue: {nextTask.title} <ArrowRight className="h-4 w-4" />
+            </Button>
+          ) : (
+            <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300 md:ml-4">
+              <Sparkles className="h-4 w-4" /> All your tasks are complete!
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Big-picture diagrams */}
+      {joined && member ? (
+        <section className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              Your path{ownRole ? ` — ${ownRole.name}` : ''}
+            </h2>
+            <RoleWorkflow
+              course={course}
+              role={member.role}
+              weekProgress={weekStats}
+              currentWeek={activeWeek}
+            />
+          </div>
+          {course.roles.length > 1 && (
+            <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+              <h2 className="text-lg font-bold text-gray-900 dark:text-white">How the roles work together</h2>
+              <RoleInterplayDiagram roles={course.roles} highlightRole={member.role} />
+            </div>
+          )}
+        </section>
+      ) : (
+        course.roles.length > 1 && (
+          <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+            <h2 className="text-lg font-bold text-gray-900 dark:text-white">How the roles work together</h2>
+            <RoleInterplayDiagram roles={course.roles} />
+          </section>
+        )
+      )}
+
       {/* Weekly breakdown */}
       <div className="space-y-3">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Weekly tasks</h2>
@@ -420,127 +705,185 @@ export default function CoursePage() {
         )}
       </div>
 
-      <div className="space-y-10">
+      <div className="space-y-4">
         {sortedWeeks.map((w) => {
           const weekTasks = getWeekTasks(course, w.number);
+          const isWeekOpen = openWeeks.has(w.number);
+          const weekPct = weekStats[w.number] ?? 0;
+          const gateForWeek = course.gates.find((g) => g.week === w.number);
+          const ownTasks = member ? weekTasks.filter((t) => t.role === member.role) : [];
+          const otherTasks = member ? weekTasks.filter((t) => t.role !== member.role) : weekTasks;
+          const refOpen = openRefs.has(w.number);
           return (
-            <section key={w.number} id={`week-${w.number}`} className="scroll-mt-24 space-y-4">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
-                  Week {w.number}: {w.title}
-                </h3>
-                <p className="text-gray-600 dark:text-gray-400">{w.theme}</p>
-              </div>
+            <section
+              key={w.number}
+              id={`week-${w.number}`}
+              className="scroll-mt-24 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+            >
+              <button
+                type="button"
+                onClick={() => toggleWeek(w.number)}
+                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+              >
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                      Week {w.number}: {w.title}
+                    </h3>
+                    {w.number === activeWeek && joined && (
+                      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        Current
+                      </span>
+                    )}
+                  </div>
+                  <p className="truncate text-sm text-gray-600 dark:text-gray-400">{w.theme}</p>
+                </div>
+                <div className="flex shrink-0 items-center gap-3">
+                  {joined && (
+                    <span className="hidden items-center gap-1.5 sm:flex">
+                      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                        <span
+                          className="block h-full rounded-full bg-blue-600"
+                          style={{ width: `${weekPct}%` }}
+                        />
+                      </span>
+                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                        {weekPct}%
+                      </span>
+                    </span>
+                  )}
+                  {gateForWeek && joined && (
+                    <span className="hidden text-xs text-gray-500 dark:text-gray-400 md:inline">
+                      Gate {gateForWeek.id}
+                    </span>
+                  )}
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {weekTasks.length} task{weekTasks.length === 1 ? '' : 's'}
+                  </span>
+                  {isWeekOpen ? (
+                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                  )}
+                </div>
+              </button>
 
-              {weekTasks.length === 0 && (
-                <p className="text-sm text-gray-500 dark:text-gray-400">No tasks for this week yet.</p>
-              )}
+              {isWeekOpen && (
+                <div className="space-y-4 border-t border-gray-200 p-5 dark:border-gray-700">
+                  {weekTasks.length === 0 && (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      No tasks for this week yet.
+                    </p>
+                  )}
 
-              {orderedRoles.map((r) => {
-                const roleTasks = weekTasks.filter((t) => t.role === r.id);
-                if (roleTasks.length === 0) return null;
-                const isOwn = member?.role === r.id;
-                return (
-                  <div
-                    key={r.id}
-                    className="space-y-3 rounded-lg border-l-4 bg-white p-4 shadow-sm dark:bg-gray-800"
-                    style={{ borderLeftColor: r.color }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
-                      <span className="font-semibold text-gray-900 dark:text-white">{r.name}</span>
-                      {isOwn && (
-                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
-                          Your role
-                        </span>
-                      )}
-                      {!isOwn && (
-                        <span className="text-xs text-gray-400 dark:text-gray-500">reference</span>
+                  {joined && gateForWeek && (
+                    <WeekGatePanel
+                      course={course}
+                      week={w.number}
+                      status={gateStats[gateForWeek.id] || 'locked'}
+                      ownRole={member?.role}
+                      taskStats={taskStats}
+                    />
+                  )}
+
+                  {/* Your role's tasks (interactive) */}
+                  {joined && ownRole && ownTasks.length > 0 && (
+                    <div
+                      className="space-y-3 rounded-lg border-l-4 bg-gray-50 p-4 dark:bg-gray-700/30"
+                      style={{ borderLeftColor: ownRole.color }}
+                    >
+                      <RoleGroupHeader role={ownRole} tag="own" />
+                      {ownTasks.map((task) => (
+                        <TaskRow
+                          key={task.id}
+                          task={task}
+                          isOwn
+                          joined={joined}
+                          open={expanded.has(task.id)}
+                          percent={taskStats[task.id] ?? 0}
+                          onToggle={() => toggle(task.id)}
+                        >
+                          {renderTaskBody(task, true)}
+                        </TaskRow>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Other roles — tucked into a reference panel */}
+                  {joined && otherTasks.length > 0 && (
+                    <div className="rounded-lg border border-dashed border-gray-300 p-3 dark:border-gray-600">
+                      <button
+                        type="button"
+                        onClick={() => toggleRef(w.number)}
+                        className="flex w-full items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300"
+                      >
+                        <Users className="h-4 w-4" />
+                        Other roles this week (reference) · {otherTasks.length}
+                        {refOpen ? (
+                          <ChevronDown className="ml-auto h-4 w-4 text-gray-400" />
+                        ) : (
+                          <ChevronRight className="ml-auto h-4 w-4 text-gray-400" />
+                        )}
+                      </button>
+                      {refOpen && (
+                        <div className="mt-3 space-y-4">
+                          {otherRoles.map((r) => {
+                            const roleTasks = otherTasks.filter((t) => t.role === r.id);
+                            if (roleTasks.length === 0) return null;
+                            return (
+                              <div key={r.id} className="space-y-3">
+                                <RoleGroupHeader role={r} tag="reference" />
+                                {roleTasks.map((task) => (
+                                  <TaskRow
+                                    key={task.id}
+                                    task={task}
+                                    isOwn={false}
+                                    joined={joined}
+                                    open={expanded.has(task.id)}
+                                    percent={taskStats[task.id] ?? 0}
+                                    onToggle={() => toggle(task.id)}
+                                  >
+                                    {renderTaskBody(task, false)}
+                                  </TaskRow>
+                                ))}
+                              </div>
+                            );
+                          })}
+                        </div>
                       )}
                     </div>
+                  )}
 
-                    {roleTasks.map((task) => {
-                      const open = expanded.has(task.id);
-                      const canOpen = joined;
+                  {/* Not joined — all roles, locked */}
+                  {!joined &&
+                    course.roles.map((r) => {
+                      const roleTasks = weekTasks.filter((t) => t.role === r.id);
+                      if (roleTasks.length === 0) return null;
                       return (
                         <div
-                          key={task.id}
-                          id={`task-${task.id}`}
-                          className="scroll-mt-24 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+                          key={r.id}
+                          className="space-y-3 rounded-lg border-l-4 bg-gray-50 p-4 dark:bg-gray-700/30"
+                          style={{ borderLeftColor: r.color }}
                         >
-                          <button
-                            type="button"
-                            disabled={!canOpen}
-                            onClick={() => canOpen && toggle(task.id)}
-                            className={`flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition-colors ${
-                              canOpen
-                                ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
-                                : 'cursor-not-allowed opacity-70'
-                            }`}
-                          >
-                            <span className="min-w-0">
-                              <span className="block font-medium text-gray-900 dark:text-white">{task.title}</span>
-                              <span className="block truncate text-sm text-gray-600 dark:text-gray-400">
-                                {task.objective}
-                              </span>
-                            </span>
-                            <span className="flex shrink-0 items-center gap-3">
-                              {isOwn && joined && (
-                                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">
-                                  {taskStats[task.id] ?? 0}%
-                                </span>
-                              )}
-                              <span className="text-xs text-gray-500 dark:text-gray-400">
-                                {task.steps.length} steps
-                              </span>
-                              {!canOpen ? (
-                                <Lock className="h-4 w-4 text-gray-400" />
-                              ) : open ? (
-                                <ChevronDown className="h-5 w-5 text-gray-400" />
-                              ) : (
-                                <ChevronRight className="h-5 w-5 text-gray-400" />
-                              )}
-                            </span>
-                          </button>
-
-                          {open && canOpen && (
-                            <div className="border-t border-gray-200 p-4 dark:border-gray-700">
-                              {task.deliverables.length > 0 && (
-                                <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-                                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
-                                    <FileText className="h-4 w-4" /> Deliverables to produce
-                                  </div>
-                                  <ul className="mt-2 flex flex-wrap gap-2">
-                                    {task.deliverables.map((d) => (
-                                      <li
-                                        key={d}
-                                        className="rounded bg-white px-2 py-1 font-mono text-xs text-amber-800 dark:bg-gray-800 dark:text-amber-300"
-                                      >
-                                        {d}
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
-
-                              {isOwn && member ? (
-                                <GuidedTaskRunner
-                                  task={task}
-                                  courseId={course.id}
-                                  memberId={member.memberId}
-                                  onProgressChange={onProgressChange}
-                                />
-                              ) : (
-                                <TaskReference task={task} />
-                              )}
-                            </div>
-                          )}
+                          <RoleGroupHeader role={r} />
+                          {roleTasks.map((task) => (
+                            <TaskRow
+                              key={task.id}
+                              task={task}
+                              isOwn={false}
+                              joined={false}
+                              open={false}
+                              percent={0}
+                              onToggle={() => undefined}
+                            >
+                              {null}
+                            </TaskRow>
+                          ))}
                         </div>
                       );
                     })}
-                  </div>
-                );
-              })}
+                </div>
+              )}
             </section>
           );
         })}

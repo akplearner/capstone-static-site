@@ -1,0 +1,95 @@
+'use client';
+
+import { CheckCircle2, Circle, Flag, Users } from 'lucide-react';
+import { Course, GateStatus } from '@/lib/types';
+import { getRoleDef, getTaskById } from '@/lib/course-helpers';
+
+const STATUS_PILL: Record<GateStatus, string> = {
+  locked: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  ready: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+  passed: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+};
+
+const STATUS_LABEL: Record<GateStatus, string> = {
+  locked: 'Locked',
+  ready: 'In progress',
+  passed: 'Passed',
+};
+
+interface WeekGatePanelProps {
+  course: Course;
+  week: number;
+  status?: GateStatus;
+  /** The viewer's role — their required tasks show live done/not-done state. */
+  ownRole?: string;
+  taskStats: Record<string, number>;
+}
+
+/**
+ * Compact "how this week's tasks feed the gate" panel. Lists the gate's required
+ * tasks: the viewer's own ones are ticked from their progress; teammates' tasks
+ * are shown as informational "team" items (matches the single-user gate model).
+ */
+export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskStats }: WeekGatePanelProps) {
+  const gate = course.gates.find((g) => g.week === week);
+  if (!gate) return null;
+
+  const items = gate.requiredTasks.map((id) => {
+    const task = getTaskById(course, id);
+    const role = task ? getRoleDef(course, task.role) : undefined;
+    const mine = !!task && !!ownRole && task.role === ownRole;
+    const done = mine ? (taskStats[id] ?? 0) === 100 : false;
+    return { id, task, role, mine, done };
+  });
+
+  return (
+    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Flag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
+          <span className="font-semibold text-gray-900 dark:text-white">
+            Gate {gate.id}: {gate.description}
+          </span>
+        </div>
+        <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_PILL[status]}`}>
+          {STATUS_LABEL[status]}
+        </span>
+      </div>
+      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Required to clear this week:</p>
+      <ul className="mt-2 space-y-1.5">
+        {items.map((it) => (
+          <li key={it.id} className="flex items-center gap-2 text-sm">
+            {it.mine ? (
+              it.done ? (
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+              ) : (
+                <Circle className="h-4 w-4 shrink-0 text-gray-400" />
+              )
+            ) : (
+              <Users className="h-4 w-4 shrink-0 text-gray-400" />
+            )}
+            <span
+              className={
+                it.done
+                  ? 'text-gray-500 line-through dark:text-gray-500'
+                  : 'text-gray-700 dark:text-gray-300'
+              }
+            >
+              {it.task ? it.task.title : it.id}
+            </span>
+            {it.role && (
+              <span className="text-xs font-medium" style={{ color: it.role.color }}>
+                {shortRole(it.role.name)}
+              </span>
+            )}
+            {!it.mine && <span className="text-[11px] text-gray-400">team</span>}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function shortRole(name: string): string {
+  return name.split('(')[0].trim();
+}
