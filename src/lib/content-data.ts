@@ -888,6 +888,7 @@ export const STEP_DELIVERABLES: Record<string, string> = {
   'red-w3-s2': 'Brute_Force_Proof.txt',
   'red-w3-s3': 'Reverse_Shell_Proof.txt',
   'red-w3-s4': 'Evidence_Photos.zip',
+  'red-w4-s2': 'Technical_Explanation.md',
   // Blue
   'blue-w1-s3': 'UFW_Status.txt',
   'blue-w1-s4': 'Hardening_Checklist.txt',
@@ -897,14 +898,18 @@ export const STEP_DELIVERABLES: Record<string, string> = {
   'blue-w3-s1': 'Attack_Pcap.pcap',
   'blue-w3-s2': 'Attack_Logs.txt',
   'blue-w3-s3': 'Incident_Response.txt',
+  'blue-w3-s4': 'Containment_Actions.txt',
+  'blue-w4-s1': 'Detection_Summary.md',
   // GRC
   'grc-w1-s2': 'Framework_Mapping.md',
   'grc-w1-s3': 'Framework_Mapping.md',
   'grc-w1-s4': 'Lab_Security_Policy_v1.0.md',
   'grc-w2-s2': 'Risk_Matrix.md',
   'grc-w2-s3': 'Vulnerability_Assessment.md',
-  'grc-w3-s2': 'Evidence_Log.md',
+  'grc-w3-s2': 'Chain_of_Custody.txt',
   'grc-w3-s3': 'Evidence_Log.md',
+  'grc-w4-s1': 'Findings.md',
+  'grc-w4-s2': 'Recommendations.md',
   'grc-w4-s3': 'Final_Report.pdf',
 };
 
