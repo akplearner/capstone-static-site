@@ -29,6 +29,7 @@ import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleWorkflow } from '@/components/diagrams/RoleWorkflow';
+import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { InfoTip } from '@/components/InfoTip';
 import { RoleIcon } from '@/components/RoleIcon';
@@ -37,7 +38,7 @@ import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { progressRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getRequiredStepCount, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
+import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
@@ -569,6 +570,15 @@ export default function CoursePage() {
     }
   }
 
+  // "This week" context for the role hero.
+  const contentWeeks = sortedWeeks.filter((w) => w.number >= 1);
+  const tasksLeftThisWeek = member
+    ? getTasksByRole(course, member.role, activeWeek).filter((t) => (taskStats[t.id] ?? 0) < 100).length
+    : 0;
+  const remainingTasks = member
+    ? ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) < 100)
+    : [];
+
   // Task search (Weekly Tasks tab). Matches title, objective, or framework; an
   // active query force-opens every week so matches are visible without clicking.
   const q = query.trim().toLowerCase();
@@ -730,7 +740,7 @@ export default function CoursePage() {
         {joined && member && (
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
-              {overallPercent}% complete
+              {activeWeek === 0 ? 'Setup' : `Week ${activeWeek}/${contentWeeks.length}`} · {overallPercent}%
             </span>
             {nextTask ? (
               <Button
@@ -752,6 +762,43 @@ export default function CoursePage() {
       {/* ───────── Overview tab ───────── */}
       {tab === 'overview' && (
       <div className="space-y-8">
+      {/* Role "this week" hero — connects your role to what's left right now */}
+      {joined && member && ownRole && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-lg border border-l-4 border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+          style={{ borderLeftColor: ownRole.color }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <RoleIcon iconName={ownRole.icon} className="h-9 w-9 shrink-0" color={ownRole.color} />
+              <div>
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  You&apos;re {ownRole.name}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {activeWeek === 0 ? 'Setup week' : `Week ${activeWeek} of ${contentWeeks.length}`} ·{' '}
+                  {tasksLeftThisWeek} task{tasksLeftThisWeek === 1 ? '' : 's'} left this week
+                </div>
+              </div>
+            </div>
+            {nextTask ? (
+              <Button onClick={() => nextTask && goToTask(nextTask)} className="flex items-center gap-2">
+                {tasksComplete > 0 ? 'Continue' : 'Start'} <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <span className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
+                <Sparkles className="h-4 w-4" /> All your tasks complete!
+              </span>
+            )}
+          </div>
+          {ownRole.mission && (
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{ownRole.mission}</p>
+          )}
+        </motion.div>
+      )}
+
       {/* Pipeline + gates */}
       <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-center justify-between">
@@ -877,6 +924,36 @@ export default function CoursePage() {
           />
         </section>
       )}
+
+      {/* Your remaining tasks — at-a-glance jump list across all weeks */}
+      {joined && member && remainingTasks.length > 0 && (
+        <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            Your remaining tasks ({remainingTasks.length})
+          </h2>
+          <ul className="space-y-2">
+            {remainingTasks.map((t) => (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => goToTask(t)}
+                  className="flex w-full items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-gray-900 dark:text-white">
+                      {t.title}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {t.week === 0 ? 'Setup' : `Week ${t.week}`} · {taskStats[t.id] ?? 0}%
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-gray-400" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
       </div>
       )}
 
@@ -989,6 +1066,21 @@ export default function CoursePage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       No tasks for this week yet.
                     </p>
+                  )}
+
+                  {joined && member && ownTasks.length > 0 && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+                      <WeekTaskFlow
+                        course={course}
+                        role={member.role}
+                        week={w.number}
+                        taskStats={taskStats}
+                        onTaskClick={(id) => {
+                          const t = getTaskById(course, id);
+                          if (t) goToTask(t);
+                        }}
+                      />
+                    </div>
                   )}
 
                   {joined && gateForWeek && (

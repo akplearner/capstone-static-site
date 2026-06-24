@@ -2,12 +2,11 @@
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { ArrowLeft, FileText, Info } from 'lucide-react';
-import { RoleIcon } from '@/components/RoleIcon';
+import { ArrowLeft, Info } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
+import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
-import { getDeliverablesForWeek } from '@/lib/course-helpers';
 
 export default function TeamSpacePage() {
   const course = useCourse();
@@ -39,7 +38,7 @@ export default function TeamSpacePage() {
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team {teamId} · {course.title}</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
-          The deliverables your team should produce each week, by role.
+          The documents your team should produce each week, by role.
         </p>
       </div>
 
@@ -51,37 +50,8 @@ export default function TeamSpacePage() {
         </p>
       </div>
 
-      <div className="space-y-6">
-        {course.weeks.map((w) => (
-          <div key={w.number} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">Week {w.number}: {w.title}</h2>
-            <div className="mt-4 grid gap-4 md:grid-cols-3">
-              {course.roles.map((r) => {
-                const deliverables = getDeliverablesForWeek(course, r.id, w.number);
-                return (
-                  <div key={r.id} className="rounded-lg border border-gray-100 p-3 dark:border-gray-700">
-                    <div className="flex items-center gap-2">
-                      <RoleIcon iconName={r.icon} className="h-4 w-4" color={r.color} />
-                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{r.name}</span>
-                    </div>
-                    {deliverables.length === 0 ? (
-                      <p className="mt-2 text-xs text-gray-400">No deliverables.</p>
-                    ) : (
-                      <ul className="mt-2 space-y-1">
-                        {deliverables.map((d) => (
-                          <li key={d} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                            <FileText className="h-3 w-3 shrink-0 text-amber-500" />
-                            <span className="font-mono">{d}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+        <DeliverablesMatrix course={course} highlightRole={member?.role} />
       </div>
     </div>
   );

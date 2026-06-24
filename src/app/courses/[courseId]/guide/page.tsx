@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
-import { NetworkDiagram } from '@/components/diagrams/NetworkDiagram';
+import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
+import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
@@ -43,13 +44,22 @@ export default function CourseGuidePage() {
       </section>
 
       <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The lab network</h2>
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The lab architecture</h2>
         <p className="text-gray-600 dark:text-gray-400">
-          Everyone works against one small network: an attacker workstation, the target server and
-          its exposed services, the SOC that watches it, and the governance layer that documents it all.
+          Everyone works against one small environment: an attacker workstation, the defended hosts and
+          their exposed services, the SOC that watches them, and the governance layer that documents it all.
           Your role decides where on this map you operate.
         </p>
-        <NetworkDiagram roles={course.roles} highlightRole={member?.role} week={member ? undefined : 1} />
+        <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
+      </section>
+
+      <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Documentation by week &amp; role</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          Each role produces specific documents each week — these are your evidence for the gates and the
+          final report.
+        </p>
+        <DeliverablesMatrix course={course} highlightRole={member?.role} />
       </section>
 
       <section className="space-y-6">
