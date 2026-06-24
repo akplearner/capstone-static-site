@@ -30,6 +30,9 @@ export default function HomePage() {
         <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">
           Hands-on, role-based cyber ranges. Choose a course to begin, or open the instructor studio to build one.
         </p>
+        <p className="mx-auto max-w-2xl text-sm text-gray-500 dark:text-gray-500">
+          New here? Open a course&apos;s <span className="font-medium">Guide</span> for a 2-minute overview before you start.
+        </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">

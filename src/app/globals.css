@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Class-based dark mode so the theme can be toggled (and persisted) instead of
+   only following the OS. The inline script in app/layout.tsx sets `.dark` on
+   <html> before first paint; ThemeToggle flips it at runtime. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 * {
   @apply scroll-smooth;
 }

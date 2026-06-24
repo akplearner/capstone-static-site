@@ -1,7 +1,8 @@
 'use client';
 
+import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { FileText, Info } from 'lucide-react';
+import { ArrowLeft, FileText, Info } from 'lucide-react';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { useCourse } from '@/lib/useCourse';
@@ -29,6 +30,12 @@ export default function TeamSpacePage() {
 
   return (
     <div className="space-y-8">
+      <Link
+        href={`/courses/${course.id}`}
+        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+      >
+        <ArrowLeft className="h-4 w-4" /> Back to course
+      </Link>
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team {teamId} · {course.title}</h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
