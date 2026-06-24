@@ -43,6 +43,8 @@ export interface Step {
   command?: string;
   /** Plain-English breakdown of the command and its key options/flags. */
   commandExplanation?: string;
+  /** Structured per-flag reference: each flag/operator and what it does. */
+  commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
   /** How to read the output — what each part tells you and what to look for. */
   outputExplanation?: string;

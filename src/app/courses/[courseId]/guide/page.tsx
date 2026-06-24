@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
+import { NetworkDiagram } from '@/components/diagrams/NetworkDiagram';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
+import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
 
 const RHYTHM = [
   { icon: ListChecks, title: '1. Follow the steps', body: 'Work the guided steps one at a time. Each tells you what to run, what you should see, and why it matters.' },
@@ -20,6 +22,10 @@ const RHYTHM = [
 export default function CourseGuidePage() {
   const course = useCourse();
   const { member } = useMember(course.id);
+
+  const frameworkIds = Array.from(
+    new Set(course.tasks.flatMap((t) => t.frameworks))
+  ).sort();
 
   return (
     <div className="space-y-12">
@@ -34,6 +40,16 @@ export default function CourseGuidePage() {
           {course.weeks.length} weeks, each ending with a gate you clear before moving on.
         </p>
         <LifecycleFlow weeks={course.weeks} gates={course.gates} currentWeek={course.weeks[0]?.number} />
+      </section>
+
+      <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The lab network</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          Everyone works against one small network: an attacker workstation, the target server and
+          its exposed services, the SOC that watches it, and the governance layer that documents it all.
+          Your role decides where on this map you operate.
+        </p>
+        <NetworkDiagram roles={course.roles} highlightRole={member?.role} week={member ? undefined : 1} />
       </section>
 
       <section className="space-y-6">
@@ -76,6 +92,33 @@ export default function CourseGuidePage() {
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <RoleInterplayDiagram roles={course.roles} highlightRole={member?.role} />
+          </div>
+        </section>
+      )}
+
+      {frameworkIds.length > 0 && (
+        <section className="space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Frameworks we use & why</h2>
+            <p className="mt-1 text-gray-600 dark:text-gray-400">
+              Every task is mapped to recognized security frameworks. Tags aren’t decoration — they
+              show which standard your work satisfies and how an auditor or employer would read it.
+            </p>
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            {frameworkIds.map((fw) => (
+              <div key={fw} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                <div className="flex items-center gap-2">
+                  <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
+                    {getFrameworkLabel(fw)}
+                  </span>
+                  <span className="text-sm text-gray-600 dark:text-gray-400">{getFrameworkDescription(fw)}</span>
+                </div>
+                {getFrameworkWhy(fw) && (
+                  <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{getFrameworkWhy(fw)}</p>
+                )}
+              </div>
+            ))}
           </div>
         </section>
       )}

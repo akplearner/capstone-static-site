@@ -25,6 +25,7 @@ import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleWorkflow } from '@/components/diagrams/RoleWorkflow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
+import { NetworkDiagram } from '@/components/diagrams/NetworkDiagram';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { useCourse } from '@/lib/useCourse';
@@ -240,6 +241,7 @@ function TaskReference({ task }: { task: Task }) {
               description={s.description}
               command={s.command}
               commandExplanation={s.commandExplanation}
+              commandFlags={s.commandFlags}
               expectedOutput={s.expectedOutput}
               outputExplanation={s.outputExplanation}
               whatItMeans={s.whatItMeans}
@@ -794,6 +796,15 @@ export default function CoursePage() {
                     <p className="text-sm text-gray-500 dark:text-gray-400">
                       No tasks for this week yet.
                     </p>
+                  )}
+
+                  {weekTasks.length > 0 && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+                      <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        How this week fits the network
+                      </div>
+                      <NetworkDiagram roles={course.roles} highlightRole={member?.role} week={w.number} />
+                    </div>
                   )}
 
                   {joined && gateForWeek && (

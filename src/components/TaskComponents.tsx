@@ -138,6 +138,7 @@ export function StepDetail({
   description,
   command,
   commandExplanation,
+  commandFlags,
   expectedOutput,
   outputExplanation,
   whatItMeans,
@@ -148,6 +149,7 @@ export function StepDetail({
   description?: string;
   command?: string;
   commandExplanation?: string;
+  commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
   outputExplanation?: string;
   whatItMeans: string;
@@ -193,6 +195,22 @@ export function StepDetail({
                 <span className="font-semibold">What the command does: </span>
                 {commandExplanation}
               </p>
+            </div>
+          )}
+          {commandFlags && commandFlags.length > 0 && (
+            <div className="mt-1.5 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
+              <table className="w-full text-sm">
+                <tbody>
+                  {commandFlags.map((f, i) => (
+                    <tr key={f.flag} className={i % 2 ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-800'}>
+                      <td className="whitespace-nowrap border-r border-gray-200 px-2.5 py-1.5 align-top font-mono text-xs font-semibold text-emerald-700 dark:border-gray-700 dark:text-emerald-300">
+                        {f.flag}
+                      </td>
+                      <td className="px-2.5 py-1.5 text-gray-700 dark:text-gray-300">{f.meaning}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
         </div>
@@ -290,6 +308,7 @@ interface ChecklistItemProps {
   description?: string;
   command?: string;
   commandExplanation?: string;
+  commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
   outputExplanation?: string;
   whatItMeans: string;
@@ -305,6 +324,7 @@ export function ChecklistItem({
   description,
   command,
   commandExplanation,
+  commandFlags,
   expectedOutput,
   outputExplanation,
   whatItMeans,
@@ -357,6 +377,7 @@ export function ChecklistItem({
                 description={description}
                 command={command}
                 commandExplanation={commandExplanation}
+                commandFlags={commandFlags}
                 expectedOutput={expectedOutput}
                 outputExplanation={outputExplanation}
                 whatItMeans={whatItMeans}
