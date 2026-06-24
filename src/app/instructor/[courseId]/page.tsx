@@ -1,7 +1,7 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Eye, Download, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -12,6 +12,7 @@ import { TasksEditor } from '@/components/instructor/TasksEditor';
 import { GatesEditor } from '@/components/instructor/GatesEditor';
 import { TextField, TextArea, NumberField, Toggle } from '@/components/instructor/fields';
 import { courseRepo } from '@/lib/data';
+import { useClientStore, useHydrated, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 
 type Tab = 'details' | 'roles' | 'weeks' | 'tasks' | 'gates';
@@ -55,16 +56,20 @@ function validate(course: Course): string[] {
 export default function CourseEditorPage() {
   const params = useParams();
   const courseId = params.courseId as string;
+  const source = useClientStore<Course | null>(() => courseRepo.get(courseId) ?? null, null);
+  const hydrated = useHydrated();
   const [draft, setDraft] = useState<Course | null>(null);
-  const [notFound, setNotFound] = useState(false);
+  const [seededId, setSeededId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('details');
   const [saved, setSaved] = useState(false);
 
-  useEffect(() => {
-    const c = courseRepo.get(courseId);
-    if (c) setDraft(JSON.parse(JSON.stringify(c)));
-    else setNotFound(true);
-  }, [courseId]);
+  // Seed the editable draft from the resolved course once per courseId, using the
+  // documented "reset state when a prop changes" render-time pattern (no effect).
+  if (hydrated && seededId !== courseId) {
+    setSeededId(courseId);
+    setDraft(source ? (JSON.parse(JSON.stringify(source)) as Course) : null);
+  }
+  const notFound = hydrated && !source;
 
   const errors = useMemo(() => (draft ? validate(draft) : []), [draft]);
 
@@ -76,6 +81,7 @@ export default function CourseEditorPage() {
   const save = () => {
     if (errors.length > 0) return;
     courseRepo.save(draft);
+    notifyStore();
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
   };

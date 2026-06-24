@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { courseRepo } from '@/lib/data';
+import { useClientStore, EMPTY_ARRAY, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 
 function slugify(s: string): string {
@@ -19,16 +20,13 @@ function uniqueSuffix(): string {
 
 export default function InstructorHomePage() {
   const router = useRouter();
-  const [courses, setCourses] = useState<Course[]>([]);
+  const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [dup, setDup] = useState<{ course: Course; title: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<Course | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const refresh = () => setCourses(courseRepo.list());
-  useEffect(refresh, []);
 
   const handleCreate = () => {
     const title = newTitle.trim();
@@ -64,7 +62,7 @@ export default function InstructorHomePage() {
       if (!res.ok) setError(res.error || 'Import failed.');
       else {
         setError(null);
-        refresh();
+        notifyStore();
       }
     };
     reader.readAsText(file);
@@ -105,7 +103,7 @@ export default function InstructorHomePage() {
     if (!pendingDelete) return;
     courseRepo.delete(pendingDelete.id);
     setPendingDelete(null);
-    refresh();
+    notifyStore();
   };
 
   return (

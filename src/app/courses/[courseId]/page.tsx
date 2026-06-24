@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -31,11 +31,20 @@ import { EmptyState } from '@/components/EmptyState';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { progressRepo } from '@/lib/data';
+import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
 const COHORTS = ['2026-Spring', '2026-Fall'];
+
+type CourseStats = {
+  weekStats: Record<number, number>;
+  taskStats: Record<string, number>;
+  gateStats: Record<number, GateStatus>;
+  activeWeek: number;
+};
+const EMPTY_STATS: CourseStats = { weekStats: {}, taskStats: {}, gateStats: {}, activeWeek: 1 };
 
 /** Inline enrollment: pick a team (capacity-aware) and role without leaving the page. */
 function JoinPanel({
@@ -52,16 +61,15 @@ function JoinPanel({
   const teamIds = Array.from({ length: Math.max(1, teamCount) }, (_, i) => String(i + 1));
 
   const [editing, setEditing] = useState(!member);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  const counts = useClientStore<Record<string, number>>(
+    () => progressRepo.getTeamCounts(course.id),
+    EMPTY_OBJECT
+  );
   const [name, setName] = useState(member?.displayName ?? '');
   const [cohort, setCohort] = useState(member?.cohort ?? COHORTS[0]);
   const [team, setTeam] = useState(member?.teamId ?? teamIds[0]);
   const [role, setRole] = useState(member?.role ?? course.roles[0]?.id ?? '');
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setCounts(progressRepo.getTeamCounts(course.id));
-  }, [course.id, member, editing]);
 
   const usedOf = (t: string) => counts[t] ?? 0;
   // A team is full only for students not already on it.
@@ -87,7 +95,7 @@ function JoinPanel({
           ? 'That team is full — pick another team.'
           : 'Could not join this team. Try again.'
       );
-      setCounts(progressRepo.getTeamCounts(course.id));
+      notifyStore();
       return;
     }
     setError(null);
@@ -387,56 +395,48 @@ function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
 export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
-  const [refresh, setRefresh] = useState(0);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [openWeeks, setOpenWeeks] = useState<Set<number>>(
-    new Set([course.weeks[0]?.number ?? 1])
-  );
+  // null = the student hasn't toggled weeks yet, so the active week shows open by
+  // default; once they interact we track their explicit set.
+  const [openWeeks, setOpenWeeks] = useState<Set<number> | null>(null);
   const [openRefs, setOpenRefs] = useState<Set<number>>(new Set());
-  const [activeWeek, setActiveWeek] = useState(course.weeks[0]?.number ?? 1);
-  const [weekStats, setWeekStats] = useState<Record<number, number>>({});
-  const [taskStats, setTaskStats] = useState<Record<string, number>>({});
-  const [gateStats, setGateStats] = useState<Record<number, GateStatus>>({});
-  const accordionInitedFor = useRef<string | null>(null);
 
-  const onProgressChange = useCallback(() => setRefresh((r) => r + 1), []);
+  // Progress writes broadcast through the store; useClientStore re-reads below.
+  const onProgressChange = useCallback(() => notifyStore(), []);
 
-  useEffect(() => {
-    if (!member) return;
-    // One batched localStorage scan for all derivations below.
-    const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+  // Derived from one batched localStorage scan (week %, task %, gate status, and
+  // the first-incomplete "active" week), kept live via the store subscription.
+  const { weekStats, taskStats, gateStats, activeWeek } = useClientStore<CourseStats>(() => {
     const weeks: Record<number, number> = {};
     const tasks: Record<string, number> = {};
-    let firstIncomplete = course.weeks[0]?.number ?? 1;
-    let found = false;
-    [...course.weeks]
-      .sort((a, b) => a.number - b.number)
-      .forEach((w) => {
-        const pct = progressRepo.getWeekCompletion(course, member.memberId, member.role, w.number, keySet);
-        weeks[w.number] = pct;
-        getTasksByRole(course, member.role, w.number).forEach((t) => {
-          tasks[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
-        });
-        if (!found && pct < 100) {
-          firstIncomplete = w.number;
-          found = true;
-        }
-      });
     const gates: Record<number, GateStatus> = {};
-    course.gates.forEach((g) => {
-      gates[g.id] = progressRepo.deriveGateStatus(course, member.memberId, member.role, g, keySet);
-    });
-    setWeekStats(weeks);
-    setTaskStats(tasks);
-    setGateStats(gates);
-    setActiveWeek(firstIncomplete);
-    // Auto-open the active week once per member (don't fight later manual toggles).
-    if (accordionInitedFor.current !== member.memberId) {
-      accordionInitedFor.current = member.memberId;
-      setOpenWeeks(new Set([firstIncomplete]));
+    let firstIncomplete = course.weeks[0]?.number ?? 1;
+    if (member) {
+      const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+      let found = false;
+      [...course.weeks]
+        .sort((a, b) => a.number - b.number)
+        .forEach((w) => {
+          const pct = progressRepo.getWeekCompletion(course, member.memberId, member.role, w.number, keySet);
+          weeks[w.number] = pct;
+          getTasksByRole(course, member.role, w.number).forEach((t) => {
+            tasks[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
+          });
+          if (!found && pct < 100) {
+            firstIncomplete = w.number;
+            found = true;
+          }
+        });
+      course.gates.forEach((g) => {
+        gates[g.id] = progressRepo.deriveGateStatus(course, member.memberId, member.role, g, keySet);
+      });
     }
-  }, [member, course, refresh]);
+    return { weekStats: weeks, taskStats: tasks, gateStats: gates, activeWeek: firstIncomplete };
+  }, EMPTY_STATS);
+
+  // Active week is open by default until the student toggles weeks themselves.
+  const effectiveOpenWeeks = openWeeks ?? new Set<number>([activeWeek]);
 
   if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
 
@@ -474,15 +474,16 @@ export default function CoursePage() {
     }
   };
 
+  const openWeek = (n: number) =>
+    setOpenWeeks((prev) => new Set(prev ?? [activeWeek]).add(n));
+
   const openAndScrollWeek = (n: number) => {
-    setActiveWeek(n);
-    setOpenWeeks((prev) => new Set(prev).add(n));
+    openWeek(n);
     scrollTo(`week-${n}`);
   };
 
   const goToTask = (task: Task) => {
-    setActiveWeek(task.week);
-    setOpenWeeks((prev) => new Set(prev).add(task.week));
+    openWeek(task.week);
     setExpanded((prev) => new Set(prev).add(task.id));
     scrollTo(`task-${task.id}`, 'center');
   };
@@ -498,15 +499,22 @@ export default function CoursePage() {
       });
 
   const toggle = toggleSet(setExpanded);
-  const toggleWeek = toggleSet(setOpenWeeks);
   const toggleRef = toggleSet(setOpenRefs);
+
+  const toggleWeek = (n: number) =>
+    setOpenWeeks((prev) => {
+      const next = new Set(prev ?? [activeWeek]);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
 
   const confirmReset = () => {
     if (!member) return;
     progressRepo.resetCourse(course.id, member.memberId);
     setExpanded(new Set());
     setConfirmingReset(false);
-    setRefresh((r) => r + 1);
+    notifyStore();
   };
 
   const ownRole = member ? getRoleDef(course, member.role) : undefined;
@@ -730,7 +738,7 @@ export default function CoursePage() {
       <div className="space-y-4">
         {sortedWeeks.map((w) => {
           const weekTasks = getWeekTasks(course, w.number);
-          const isWeekOpen = openWeeks.has(w.number);
+          const isWeekOpen = effectiveOpenWeeks.has(w.number);
           const weekPct = weekStats[w.number] ?? 0;
           const gateForWeek = course.gates.find((g) => g.week === w.number);
           const ownTasks = member ? weekTasks.filter((t) => t.role === member.role) : [];

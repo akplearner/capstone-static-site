@@ -1,25 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { Member } from './types';
 import { progressRepo } from './data';
+import { useClientStore, useHydrated, notifyStore } from './useClientStore';
 
 // Course-scoped student enrollment (replaces the old global useStudentContext).
 export function useMember(courseId: string) {
-  const [member, setMember] = useState<Member | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    setMember(progressRepo.getContext(courseId));
-    setLoading(false);
-  }, [courseId]);
+  const member = useClientStore<Member | null>(() => progressRepo.getContext(courseId), null);
+  const hydrated = useHydrated();
 
   return {
     member,
-    loading,
+    loading: !hydrated,
     setMember: (m: Member) => {
       progressRepo.setContext(m);
-      setMember(m);
+      notifyStore();
     },
   };
 }

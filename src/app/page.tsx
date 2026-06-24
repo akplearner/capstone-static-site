@@ -1,27 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, GraduationCap, Layers, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { courseRepo, progressRepo } from '@/lib/data';
+import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 
 export default function HomePage() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [enrolled, setEnrolled] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    const list = courseRepo.list();
-    setCourses(list);
+  const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
+  const enrolled = useMemo(() => {
     const map: Record<string, boolean> = {};
-    list.forEach((c) => {
+    courses.forEach((c) => {
       map[c.id] = !!progressRepo.getContext(c.id);
     });
-    setEnrolled(map);
-  }, []);
+    return map;
+  }, [courses]);
 
   return (
     <div className="space-y-10">
