@@ -607,6 +607,7 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'The Windows host now blocks unsolicited inbound traffic, like UFW does on Ubuntu.',
         frameworks: ['CIS'],
         isEvidenceStep: true,
+        optional: true,
         troubleshooting: '“Access denied”? You must launch PowerShell with “Run as administrator”.',
       },
       {
@@ -626,6 +627,7 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Antivirus is current and a classic wormable protocol (SMBv1) is gone.',
         frameworks: ['CIS', 'NIST_CSF'],
         isEvidenceStep: true,
+        optional: true,
         troubleshooting: 'If SMBv1 is already removed the command is a no-op — that is fine. A reboot may be needed to fully apply.',
       }
     ]
@@ -711,6 +713,7 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Windows now records who logs in (and who fails), the basis for detection.',
         frameworks: ['NIST_CSF', 'NIST_800_115'],
         isEvidenceStep: true,
+        optional: true,
         troubleshooting: 'No events? Generate one by logging off/on, then re-run the Get-WinEvent line.',
       }
     ]
@@ -811,6 +814,7 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'You detected and contained the attack on the Windows host, mirroring the Linux response.',
         frameworks: ['NIST_CSF', 'NIST_800_61'],
         isEvidenceStep: true,
+        optional: true,
         troubleshooting: 'No 4625 events? Confirm logon auditing was enabled in Week 2 (blue-w2-s4) and that Red has started the brute force.',
       }
     ]

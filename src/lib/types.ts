@@ -55,6 +55,9 @@ export interface Step {
   producesDeliverable?: string;
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
+  /** Optional steps are shown and tracked but excluded from completion %, week
+   *  progress, and gates (e.g. the Windows track alongside the required Linux one). */
+  optional?: boolean;
 }
 
 export interface Task {

@@ -37,7 +37,7 @@ import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { progressRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
+import { getRoleDef, getRequiredStepCount, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
@@ -271,6 +271,7 @@ function TaskReference({ task }: { task: Task }) {
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
               troubleshooting={s.troubleshooting}
+              optional={s.optional}
             />
           </div>
         </div>
@@ -299,7 +300,8 @@ function TaskRow({
   children: React.ReactNode;
 }) {
   const canOpen = joined;
-  const steps = task.steps.length;
+  const steps = getRequiredStepCount(task);
+  const optionalCount = task.steps.length - steps;
   const doneSteps = Math.round((percent / 100) * steps);
   const showProgress = isOwn && joined;
 
@@ -343,6 +345,11 @@ function TaskRow({
               </span>
             ) : (
               <span className="text-gray-500 dark:text-gray-400">{steps} steps</span>
+            )}
+            {optionalCount > 0 && (
+              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                +{optionalCount} optional
+              </span>
             )}
             {task.estimatedTime && (
               <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
@@ -542,9 +549,9 @@ export default function CoursePage() {
 
   // Overall progress + "your next step" across the student's own tasks.
   const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
-  const totalSteps = ownTasksAll.reduce((s, t) => s + t.steps.length, 0);
+  const totalSteps = ownTasksAll.reduce((s, t) => s + getRequiredStepCount(t), 0);
   const doneSteps = ownTasksAll.reduce(
-    (s, t) => s + Math.round(((taskStats[t.id] ?? 0) / 100) * t.steps.length),
+    (s, t) => s + Math.round(((taskStats[t.id] ?? 0) / 100) * getRequiredStepCount(t)),
     0
   );
   const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;

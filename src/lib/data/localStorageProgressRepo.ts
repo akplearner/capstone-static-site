@@ -1,11 +1,25 @@
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import { calculateProgress } from '../utils';
-import { getTasksByRole } from '../course-helpers';
+import { getTasksByRole, getRequiredSteps, getRequiredStepCount } from '../course-helpers';
 import { JoinResult, ProgressRepository } from './types';
 import { KEYS, STORAGE_PREFIX } from './keys';
 
 function hasWindow(): boolean {
   return typeof window !== 'undefined';
+}
+
+// Completed REQUIRED steps for a task, given a resolved completion key set.
+// Optional steps (e.g. the Windows track) are tracked but excluded so they never
+// inflate the numerator past the required total.
+function completedRequiredCount(
+  courseId: string,
+  memberId: string,
+  task: Task,
+  set: Set<string>
+): number {
+  return getRequiredSteps(task).filter((s) =>
+    set.has(KEYS.completion(courseId, memberId, task.id, s.id))
+  ).length;
 }
 
 let migrated = false;
@@ -161,20 +175,19 @@ export const localStorageProgressRepo: ProgressRepository = {
   },
 
   getTaskPercent(courseId, memberId, task: Task, keySet): number {
-    if (task.steps.length === 0) return 0;
-    return calculateProgress(
-      this.getCompletedStepIds(courseId, memberId, task, keySet).length,
-      task.steps.length
-    );
+    const required = getRequiredStepCount(task);
+    if (required === 0) return 0;
+    const set = keySet ?? this.getCompletionKeySet(courseId, memberId);
+    return calculateProgress(completedRequiredCount(courseId, memberId, task, set), required);
   },
 
   getWeekCompletion(course: Course, memberId, role, week, keySet): number {
     const set = keySet ?? this.getCompletionKeySet(course.id, memberId);
     const tasks = getTasksByRole(course, role, week);
-    const total = tasks.reduce((sum, t) => sum + t.steps.length, 0);
+    const total = tasks.reduce((sum, t) => sum + getRequiredStepCount(t), 0);
     if (total === 0) return 0;
     const completed = tasks.reduce(
-      (sum, t) => sum + this.getCompletedStepIds(course.id, memberId, t, set).length,
+      (sum, t) => sum + completedRequiredCount(course.id, memberId, t, set),
       0
     );
     return calculateProgress(completed, total);
@@ -186,9 +199,9 @@ export const localStorageProgressRepo: ProgressRepository = {
       gate.requiredTasks.includes(t.id)
     );
     if (myTasks.length === 0) return 'locked';
-    const totalSteps = myTasks.reduce((sum, t) => sum + t.steps.length, 0);
+    const totalSteps = myTasks.reduce((sum, t) => sum + getRequiredStepCount(t), 0);
     const completedSteps = myTasks.reduce(
-      (sum, t) => sum + this.getCompletedStepIds(course.id, memberId, t, set).length,
+      (sum, t) => sum + completedRequiredCount(course.id, memberId, t, set),
       0
     );
     if (totalSteps > 0 && completedSteps === totalSteps) return 'passed';

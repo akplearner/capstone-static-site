@@ -15,6 +15,7 @@ import { Button } from './ui/Button';
 import { ChecklistItem, StepDetail } from './TaskComponents';
 import { GuidedStepper, StepperItem } from './GuidedStepper';
 import { Task } from '@/lib/types';
+import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { progressRepo } from '@/lib/data';
 
 interface GuidedTaskRunnerProps {
@@ -36,9 +37,19 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
     return firstIncomplete === -1 ? 0 : firstIncomplete;
   });
 
-  const completedCount = completed.size;
   const total = task.steps.length;
+  const completedCount = completed.size;
   const allDone = total > 0 && completedCount === total;
+  // Required-only progress drives the "task complete" state so it matches the
+  // dashboard %/gates (optional steps are tracked but never block completion).
+  const requiredTotal = getRequiredStepCount(task);
+  const optionalTotal = total - requiredTotal;
+  const requiredIds = useMemo(() => new Set(getRequiredSteps(task).map((s) => s.id)), [task]);
+  const requiredDone = useMemo(
+    () => [...completed].filter((id) => requiredIds.has(id)).length,
+    [completed, requiredIds]
+  );
+  const allRequiredDone = requiredTotal > 0 && requiredDone === requiredTotal;
 
   const setStep = (stepId: string, done: boolean) => {
     if (done) {
@@ -96,10 +107,13 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
     <div className="space-y-5">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
           <ListChecks className="h-4 w-4" />
-          {completedCount} of {total} steps done
-          {allDone && (
+          {requiredDone} of {requiredTotal} required done
+          {optionalTotal > 0 && (
+            <span className="text-xs text-gray-400">· {optionalTotal} optional</span>
+          )}
+          {allRequiredDone && (
             <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/40 dark:text-green-300">
               <CheckCircle2 className="h-3 w-3" /> Task complete
             </span>
@@ -164,8 +178,15 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
-                    Step {currentIdx + 1} of {total}
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                      Step {currentIdx + 1} of {total}
+                    </span>
+                    {current?.optional && (
+                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                        Optional
+                      </span>
+                    )}
                   </div>
                   <h4 className="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
                     {current?.title}
@@ -191,6 +212,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
                   frameworks={current.frameworks}
                   deliverable={current.producesDeliverable}
                   troubleshooting={current.troubleshooting}
+                  optional={current.optional}
                 />
               )}
             </motion.div>
@@ -259,6 +281,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
               frameworks={step.frameworks}
               deliverable={step.producesDeliverable}
               troubleshooting={step.troubleshooting}
+              optional={step.optional}
             />
           ))}
         </div>

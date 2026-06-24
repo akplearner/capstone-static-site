@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   Copy,
   FileText,
+  Sparkles,
   Terminal,
   Eye,
 } from 'lucide-react';
@@ -145,6 +146,7 @@ export function StepDetail({
   frameworks,
   deliverable,
   troubleshooting,
+  optional,
 }: {
   instruction?: string;
   description?: string;
@@ -157,9 +159,19 @@ export function StepDetail({
   frameworks: string[];
   deliverable?: string;
   troubleshooting?: string;
+  optional?: boolean;
 }) {
   return (
     <div className="space-y-3">
+      {optional && (
+        <div className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 dark:border-violet-800 dark:bg-violet-900/20">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
+          <p className="text-sm text-violet-900 dark:text-violet-200">
+            <span className="font-semibold">Optional step.</span> Great practice, but it doesn&apos;t
+            count toward your progress or gates — do it to go deeper.
+          </p>
+        </div>
+      )}
       {/* At-a-glance map of this step's flow */}
       <StepFlowDiagram
         hasInstruction={!!(instruction || description)}
@@ -329,6 +341,7 @@ interface ChecklistItemProps {
   frameworks: string[];
   deliverable?: string;
   troubleshooting?: string;
+  optional?: boolean;
 }
 
 export function ChecklistItem({
@@ -346,6 +359,7 @@ export function ChecklistItem({
   frameworks,
   deliverable,
   troubleshooting,
+  optional,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
@@ -361,8 +375,13 @@ export function ChecklistItem({
         />
         <div className="flex-1">
           <motion.div className="flex items-center justify-between gap-2">
-            <h4 className={`font-medium ${isComplete ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+            <h4 className={`flex items-center gap-2 font-medium ${isComplete ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
               {title}
+              {optional && (
+                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
+                  Optional
+                </span>
+              )}
             </h4>
             <motion.button
               onClick={() => setShowDetails(!showDetails)}
@@ -398,6 +417,7 @@ export function ChecklistItem({
                 frameworks={frameworks}
                 deliverable={deliverable}
                 troubleshooting={troubleshooting}
+                optional={optional}
               />
             </div>
           </motion.div>
