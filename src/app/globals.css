@@ -22,6 +22,14 @@
   }
 }
 
+/* Deliverable PDFs are generated in a standalone print window; if a student
+   prints an app page directly, drop the site chrome so the content reads clean. */
+@media print {
+  nav {
+    display: none !important;
+  }
+}
+
 html {
   @apply h-full;
 }

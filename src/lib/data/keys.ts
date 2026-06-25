@@ -20,4 +20,6 @@ export const KEYS = {
     `${STORAGE_PREFIX}${courseId}_gate_${teamId}_${gateId}`,
   // GRC Workspace registers, team-scoped (one company's documentation).
   grc: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_grc_${teamId}`,
+  // Deliverable forms (Master Package), team-scoped: all 8 deliverables for a team.
+  docs: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_docs_${teamId}`,
 };

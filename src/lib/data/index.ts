@@ -3,4 +3,11 @@
 export { localStorageCourseRepo as courseRepo } from './localStorageCourseRepo';
 export { localStorageProgressRepo as progressRepo } from './localStorageProgressRepo';
 export { localStorageGrcRepo as grcRepo } from './localStorageGrcRepo';
-export type { CourseRepository, ProgressRepository, GrcRepository, ImportResult } from './types';
+export { localStorageDocsRepo as docsRepo } from './localStorageDocsRepo';
+export type {
+  CourseRepository,
+  ProgressRepository,
+  GrcRepository,
+  DocsRepository,
+  ImportResult,
+} from './types';

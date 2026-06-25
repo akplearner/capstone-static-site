@@ -736,9 +736,9 @@ export default function CoursePage() {
             <Users className="h-4 w-4" /> Team
           </Link>
         )}
-        {joined && member?.role === 'grc' && (
-          <Link href={`/courses/${course.id}/grc`} className={SUBTAB_LINK}>
-            <ClipboardList className="h-4 w-4" /> GRC Workspace
+        {joined && member && (
+          <Link href={`/courses/${course.id}/docs`} className={SUBTAB_LINK}>
+            <ClipboardList className="h-4 w-4" /> Deliverables
           </Link>
         )}
         <Link href={`/courses/${course.id}/guide`} className={SUBTAB_LINK}>

@@ -1,4 +1,5 @@
 import { Course, Gate, GateStatus, GrcData, Member, RosterEntry, Task, TaskCompletion } from '../types';
+import type { DeliverableData } from '../docs/types';
 
 export interface ImportResult {
   ok: boolean;
@@ -10,6 +11,12 @@ export interface ImportResult {
 export interface GrcRepository {
   get(courseId: string, teamId: string): GrcData | null;
   save(courseId: string, teamId: string, data: GrcData): void;
+}
+
+// Team-scoped deliverable forms (Master Package): map of deliverableId -> data.
+export interface DocsRepository {
+  get(courseId: string, teamId: string): Record<string, DeliverableData> | null;
+  save(courseId: string, teamId: string, data: Record<string, DeliverableData>): void;
 }
 
 export interface JoinResult {
