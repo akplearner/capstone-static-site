@@ -89,9 +89,9 @@ function htmlTable(cols: Column[], rows: Record<string, string>[]): string {
   return `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
 
-/** Standalone, print-ready HTML document (opened in a new window → Save as PDF). */
-export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, meta: DocMeta = {}): string {
-  const sections = def.sections
+/** The body sections (field key/values + group tables) of one deliverable. */
+function renderDeliverableSectionsHTML(def: DeliverableDef, data: DeliverableData): string {
+  return def.sections
     .map((s) => {
       if (s.kind === 'fields') {
         const rows = s.fields
@@ -102,11 +102,10 @@ export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, me
       return `<h2>${esc(s.group.label)}</h2>${htmlTable(s.group.columns, data.groups[s.group.group] ?? [])}`;
     })
     .join('\n');
+}
 
-  const metaLine = [meta.team && `Team ${meta.team}`, meta.cohort, meta.date].filter(Boolean).join(' · ');
-
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(def.file)}</title>
-<style>
+/** Shared print stylesheet for both single-deliverable and role-report docs. */
+const PRINT_CSS = `
   :root { color-scheme: light; }
   body { font: 14px/1.5 -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; color: #111; margin: 40px; }
   .cover { border-bottom: 3px solid #2563eb; padding-bottom: 12px; margin-bottom: 20px; }
@@ -115,14 +114,31 @@ export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, me
   .cover .meta { color: #555; font-size: 12px; margin-top: 4px; }
   .purpose { color: #444; font-style: italic; margin: 0 0 18px; }
   h2 { font-size: 16px; margin: 22px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+  h3 { font-size: 18px; margin: 26px 0 2px; }
   .fields { display: grid; gap: 6px; }
   .kv { display: grid; grid-template-columns: 220px 1fr; gap: 10px; }
   .kv .k { font-weight: 600; color: #333; }
   table { width: 100%; border-collapse: collapse; margin: 6px 0 4px; font-size: 12.5px; }
   th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; vertical-align: top; }
   th { background: #f3f4f6; }
-  @media print { body { margin: 0.6in; } a { color: #111; } }
-</style></head>
+  .toc { color: #333; font-size: 13px; }
+  .toc li { margin: 2px 0; }
+  .deliverable + .deliverable { border-top: 1px dashed #ccc; padding-top: 6px; }
+  .sub { color: #666; font-size: 12px; margin: 0 0 12px; }
+  @media print {
+    body { margin: 0.6in; }
+    a { color: #111; }
+    .deliverable { break-before: page; }
+    .deliverable:first-of-type { break-before: auto; }
+  }`;
+
+/** Standalone, print-ready HTML document (opened in a new window → Save as PDF). */
+export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, meta: DocMeta = {}): string {
+  const sections = renderDeliverableSectionsHTML(def, data);
+  const metaLine = [meta.team && `Team ${meta.team}`, meta.cohort, meta.date].filter(Boolean).join(' · ');
+
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(def.file)}</title>
+<style>${PRINT_CSS}</style></head>
 <body onload="window.print()">
   <div class="cover">
     <h1>${esc(def.title)}</h1>
@@ -131,5 +147,47 @@ export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, me
   </div>
   <p class="purpose">${esc(def.purpose)}</p>
   ${sections}
+</body></html>`;
+}
+
+/**
+ * One audit-grade, print-ready report compiling every deliverable a role owns
+ * (cover → contents → each deliverable as a page-broken section). Red gets a
+ * full pentest report; Blue gets Hardening + Change Log + Incident in one doc.
+ */
+export function toRoleReportHTML(
+  defs: DeliverableDef[],
+  dataById: Record<string, DeliverableData>,
+  meta: DocMeta = {},
+  roleLabel = 'Team Report'
+): string {
+  const metaLine = [meta.team && `Team ${meta.team}`, meta.cohort, meta.date].filter(Boolean).join(' · ');
+  const standards = Array.from(new Set(defs.map((d) => d.standard))).join(' · ');
+
+  const toc = `<ol class="toc">${defs.map((d) => `<li>${esc(d.title)} <span style="color:#888">— ${esc(d.file)}</span></li>`).join('')}</ol>`;
+
+  const body = defs
+    .map((d) => {
+      const data = dataById[d.id] ?? { fields: {}, groups: {} };
+      return `<section class="deliverable">
+    <h3>${esc(d.title)}</h3>
+    <p class="sub">${esc(d.file)} · ${esc(d.standard)}</p>
+    <p class="purpose">${esc(d.purpose)}</p>
+    ${renderDeliverableSectionsHTML(d, data)}
+  </section>`;
+    })
+    .join('\n');
+
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(roleLabel)}</title>
+<style>${PRINT_CSS}</style></head>
+<body onload="window.print()">
+  <div class="cover">
+    <h1>${esc(roleLabel)}</h1>
+    <div class="std">${defs.length} deliverable${defs.length === 1 ? '' : 's'}${standards ? ` · ${esc(standards)}` : ''}</div>
+    ${metaLine ? `<div class="meta">${esc(metaLine)}</div>` : ''}
+  </div>
+  <h2>Contents</h2>
+  ${toc}
+  ${body}
 </body></html>`;
 }
