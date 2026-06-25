@@ -232,6 +232,7 @@ export const DELIVERABLES: DeliverableDef[] = [
     framework: 'NIST_800_115',
     weeks: [2, 3],
     gate: 3,
+    requiresAuth: true,
     kind: 'form',
     exportFormat: 'md',
     purpose: 'Document each finding with proof and a fix, wrapped in an executive summary and methodology.',
@@ -392,6 +393,15 @@ export const DELIVERABLES: DeliverableDef[] = [
 
 export function getDeliverable(id: string): DeliverableDef | undefined {
   return DELIVERABLES.find((d) => d.id === id);
+}
+
+/**
+ * Whether the team's Scope & Rules of Engagement is signed off — the ethics
+ * anchor that unlocks any scanning/testing deliverable. Reads the *saved*
+ * authorization; the seeded example does NOT count as a real sign-off.
+ */
+export function isTeamAuthorized(saved: Record<string, DeliverableData>): boolean {
+  return !!saved['scope_roe']?.fields.authorization?.trim();
 }
 
 export function deliverablesForRole(role: string): DeliverableDef[] {

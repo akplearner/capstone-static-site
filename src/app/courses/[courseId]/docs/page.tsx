@@ -2,18 +2,20 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Circle, FileSpreadsheet, FileText, Info, Printer, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, FileSpreadsheet, FileText, Info, Lock, Printer, Sparkles } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
-import { Collapsible } from '@/components/ui/Button';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
+import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
+import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
+import { ToolsByPhase } from '@/components/docs/ToolsByPhase';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData } from '@/lib/docs/types';
-import { DELIVERABLES, deliverablesForRole, seedDeliverable } from '@/lib/docs/definitions';
+import { DELIVERABLES, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown } from '@/lib/docs/report';
 
 type DocsMap = Record<string, DeliverableData>;
@@ -71,6 +73,7 @@ export default function DeliverablesPage() {
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
   const myDefs = deliverablesForRole(member.role);
   const dueThisWeek = myDefs.filter((d) => d.weeks.includes(selectedWeek));
+  const authorized = isTeamAuthorized(saved);
 
   return (
     <div className="space-y-8">
@@ -87,10 +90,11 @@ export default function DeliverablesPage() {
         </h1>
         <p className="mt-2 text-gray-600 dark:text-gray-400">
           Your graded documents, built from guided forms. Fill them in, then{' '}
-          <strong>Generate → Print / Save as PDF</strong>. One clear flow:{' '}
-          <em>run the tool → read the output → enter what you found, the proof, and why it matters → export.</em>
+          <strong>Generate → Print / Save as PDF</strong>.
         </p>
       </div>
+
+      <WorkflowFlow />
 
       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -100,42 +104,8 @@ export default function DeliverablesPage() {
         </p>
       </div>
 
-      {/* Index of the 8 deliverables */}
-      <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="The 8 deliverables — who owns what, and when" defaultOpen={false}>
-          <div className="overflow-x-auto pb-2">
-            <table className="w-full min-w-[560px] text-sm">
-              <thead>
-                <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
-                  <th className="py-2 pr-3">#</th>
-                  <th className="py-2 pr-3">Deliverable</th>
-                  <th className="py-2 pr-3">Owner</th>
-                  <th className="py-2 pr-3">Week</th>
-                  <th className="py-2 pr-3">Gate</th>
-                  <th className="py-2 pr-3">Standard</th>
-                </tr>
-              </thead>
-              <tbody>
-                {DELIVERABLES.map((d) => (
-                  <tr key={d.id} className="border-b border-gray-100 dark:border-gray-700/60">
-                    <td className="py-1.5 pr-3 text-gray-500">{d.num}</td>
-                    <td className="py-1.5 pr-3 font-medium text-gray-900 dark:text-white">{d.title}</td>
-                    <td className="py-1.5 pr-3 uppercase">{d.owner}</td>
-                    <td className="py-1.5 pr-3">{d.weeks.join(', ')}</td>
-                    <td className="py-1.5 pr-3">{d.gate ?? '—'}</td>
-                    <td className="py-1.5 pr-3 text-gray-500 dark:text-gray-400">{d.standard}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-              Naming: deliverables <span className="font-mono">NN_Name.ext</span>; evidence{' '}
-              <span className="font-mono">YYYYMMDD_TeamXX_Tool_Action.png</span>. Graded on process,
-              documentation, evidence and ethics — not speed.
-            </p>
-          </div>
-        </Collapsible>
-      </div>
+      <DeliverablesIndex collapsible />
+      <ToolsByPhase />
 
       {/* Week selector */}
       <div className="flex flex-wrap items-center gap-2">
@@ -202,6 +172,7 @@ export default function DeliverablesPage() {
         dueThisWeek.map((def) => {
           const isExample = !saved[def.id];
           const data = saved[def.id] ?? seedDeliverable(def);
+          const locked = !!def.requiresAuth && !authorized;
           return (
             <section
               key={def.id}
@@ -213,9 +184,14 @@ export default function DeliverablesPage() {
                     {def.num}. {def.title}
                     {def.framework && <FrameworkBadge framework={def.framework} />}
                     <InfoTip label={def.howTo} />
-                    {isExample && (
+                    {isExample && !locked && (
                       <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                         Example
+                      </span>
+                    )}
+                    {locked && (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-200 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+                        <Lock className="h-3 w-3" /> Locked
                       </span>
                     )}
                   </h2>
@@ -225,6 +201,7 @@ export default function DeliverablesPage() {
                     {def.source ? ` · ${def.source}` : ''}
                   </p>
                 </div>
+                {!locked && (
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
                   {isExample ? (
                     <button
@@ -267,9 +244,26 @@ export default function DeliverablesPage() {
                     </button>
                   )}
                 </div>
+                )}
               </div>
 
-              <DeliverableForm def={def} data={data} onChange={(next) => setDoc(def.id, next)} />
+              {locked ? (
+                <div className="flex items-start gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
+                  <Lock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+                  <div className="text-sm text-amber-800 dark:text-amber-200">
+                    <p className="font-semibold">Locked until scope is authorized</p>
+                    <p className="mt-1">
+                      No scanning or testing begins until your team&apos;s <strong>Scope &amp; Rules of
+                      Engagement</strong> is signed off. Ask your team&apos;s GRC (Fixers) to complete deliverable{' '}
+                      <strong>1. Scope &amp; Rules of Engagement</strong> and fill in the{' '}
+                      <em>Authorization / sign-off</em> field. This form unlocks automatically once that is saved
+                      on this device — staying in scope is the rule that keeps the work ethical and legal.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <DeliverableForm def={def} data={data} onChange={(next) => setDoc(def.id, next)} />
+              )}
             </section>
           );
         })

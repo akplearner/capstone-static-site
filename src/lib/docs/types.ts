@@ -57,6 +57,8 @@ export interface DeliverableDef {
   /** Weeks this deliverable is produced/updated (per spec §4). */
   weeks: number[];
   gate?: number;
+  /** Hard-lock this deliverable until the team's Scope & RoE is signed off (ethics anchor). */
+  requiresAuth?: boolean;
   kind: DeliverableKind;
   /** Primary export format for the file. */
   exportFormat: 'md' | 'csv';

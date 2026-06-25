@@ -9,6 +9,8 @@ import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
+import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
+import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
@@ -60,6 +62,17 @@ export default function CourseGuidePage() {
           final report.
         </p>
         <DeliverablesMatrix course={course} highlightRole={member?.role} />
+      </section>
+
+      <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What you owe, and when</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          The whole engagement comes down to <strong>8 graded deliverables</strong>. Here&apos;s who owns
+          each one, the week it&apos;s due, and the gate it clears — and the single flow every one of them
+          follows.
+        </p>
+        <WorkflowFlow />
+        <DeliverablesIndex />
       </section>
 
       <section className="space-y-6">
