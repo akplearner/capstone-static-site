@@ -41,12 +41,23 @@ export interface Step {
   /** Explicit, action-oriented instruction ("Do this") shown above the command. */
   instruction?: string;
   command?: string;
+  /** Plain-English breakdown of the command and its key options/flags. */
+  commandExplanation?: string;
+  /** Structured per-flag reference: each flag/operator and what it does. */
+  commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
+  /** How to read the output — what each part tells you and what to look for. */
+  outputExplanation?: string;
   whatItMeans: string;
   frameworks: Framework[];
   isEvidenceStep?: boolean;
   /** The deliverable filename this step contributes toward (for evidence steps). */
   producesDeliverable?: string;
+  /** Common failure + fix shown as an "If it doesn't work…" callout. */
+  troubleshooting?: string;
+  /** Optional steps are shown and tracked but excluded from completion %, week
+   *  progress, and gates (e.g. the Windows track alongside the required Linux one). */
+  optional?: boolean;
 }
 
 export interface Task {
@@ -59,6 +70,16 @@ export interface Task {
   frameworks: Framework[];
   deliverables: string[];
   estimatedTime?: string;
+  /** What to have ready before starting (e.g. "Read GRC's Hardening Standard"). */
+  prerequisites?: string[];
+  /** Checklist that defines when the task is truly finished. */
+  definitionOfDone?: string[];
+  /** Artifacts/notes handed to another role at the end of the task. */
+  handoff?: { to: Role; artifact?: string; note: string }[];
+  /** Skills/concepts this task teaches (role + week specific). */
+  learn?: string[];
+  /** Key tools/commands used, shown as a legend. */
+  tools?: string[];
 }
 
 export interface Week {
@@ -76,6 +97,8 @@ export interface Gate {
   description: string;
   requiredArtifactTypes: string[];
   requiredTasks: string[]; // task IDs that must be completed
+  /** End-of-week company-sync hand-offs between roles (self-attested today). */
+  handoffs?: { from: Role; to: Role; artifact?: string; label: string }[];
 }
 
 // A complete course definition. Built-in courses are seeds; instructor-authored
@@ -156,3 +179,9 @@ export interface CollaborationNote {
   createdAt: number;
   type: 'note' | 'pitfall' | 'tip' | 'qa';
 }
+
+// GRC Workspace: team-scoped registers (asset inventory, vulns, CTI, risk,
+// audit). Rows are simple string maps so one generic table renders every
+// register; the column schemas live in src/lib/grc/templates.ts.
+export type RegisterRow = Record<string, string>;
+export type GrcData = Record<string, RegisterRow[]>; // keyed by register id

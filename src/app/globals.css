@@ -1,7 +1,25 @@
 @import "tailwindcss";
 
+/* Class-based dark mode so the theme can be toggled (and persisted) instead of
+   only following the OS. The inline script in app/layout.tsx sets `.dark` on
+   <html> before first paint; ThemeToggle flips it at runtime. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 * {
   @apply scroll-smooth;
+}
+
+/* Respect the OS "reduce motion" setting for CSS transitions/animations.
+   framer-motion is handled separately via <MotionConfig reducedMotion="user">. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 html {

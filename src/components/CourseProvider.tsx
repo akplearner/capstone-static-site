@@ -1,10 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Course } from '@/lib/types';
 import { CourseContext } from '@/lib/useCourse';
 import { courseRepo } from '@/lib/data';
+import { useClientStore, useHydrated } from '@/lib/useClientStore';
 import { Button } from './ui/Button';
 
 // Resolves the course for /courses/[courseId]/* routes. Seeds resolve on first
@@ -18,13 +18,8 @@ export function CourseProvider({
 }) {
   // Resolve only after mount so server and client first render match (authored
   // courses live in localStorage and aren't visible during SSR).
-  const [course, setCourse] = useState<Course | null>(null);
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    setCourse(courseRepo.get(courseId) ?? null);
-    setReady(true);
-  }, [courseId]);
+  const course = useClientStore<Course | null>(() => courseRepo.get(courseId) ?? null, null);
+  const ready = useHydrated();
 
   if (!course) {
     if (!ready) {

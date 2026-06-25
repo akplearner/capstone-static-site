@@ -11,9 +11,13 @@ import {
   AlertTriangle,
   Copy,
   FileText,
+  Sparkles,
+  Terminal,
+  Eye,
 } from 'lucide-react';
 import { Task } from '@/lib/types';
-import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
+import { getFrameworkColor, getFrameworkLabel, getFrameworkWhy } from '@/lib/utils';
+import { StepFlowDiagram } from './diagrams/StepFlowDiagram';
 
 interface TaskCardProps {
   task: Task;
@@ -134,21 +138,48 @@ export function StepDetail({
   instruction,
   description,
   command,
+  commandExplanation,
+  commandFlags,
   expectedOutput,
+  outputExplanation,
   whatItMeans,
   frameworks,
   deliverable,
+  troubleshooting,
+  optional,
 }: {
   instruction?: string;
   description?: string;
   command?: string;
+  commandExplanation?: string;
+  commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
+  outputExplanation?: string;
   whatItMeans: string;
   frameworks: string[];
   deliverable?: string;
+  troubleshooting?: string;
+  optional?: boolean;
 }) {
   return (
     <div className="space-y-3">
+      {optional && (
+        <div className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 dark:border-violet-800 dark:bg-violet-900/20">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
+          <p className="text-sm text-violet-900 dark:text-violet-200">
+            <span className="font-semibold">Optional step.</span> Great practice, but it doesn&apos;t
+            count toward your progress or gates — do it to go deeper.
+          </p>
+        </div>
+      )}
+      {/* At-a-glance map of this step's flow */}
+      <StepFlowDiagram
+        hasInstruction={!!(instruction || description)}
+        hasCommand={!!command}
+        hasOutput={!!expectedOutput}
+        deliverable={deliverable}
+      />
+
       {(instruction || description) && (
         <div>
           <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -171,6 +202,31 @@ export function StepDetail({
             </div>
             <div className="whitespace-pre-wrap break-words">{command}</div>
           </div>
+          {commandExplanation && (
+            <div className="mt-1.5 flex gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-900/20">
+              <Terminal className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+              <p className="text-sm text-emerald-900 dark:text-emerald-200">
+                <span className="font-semibold">What the command does: </span>
+                {commandExplanation}
+              </p>
+            </div>
+          )}
+          {commandFlags && commandFlags.length > 0 && (
+            <div className="mt-1.5 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
+              <table className="w-full text-sm">
+                <tbody>
+                  {commandFlags.map((f, i) => (
+                    <tr key={f.flag} className={i % 2 ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-800'}>
+                      <td className="whitespace-nowrap border-r border-gray-200 px-2.5 py-1.5 align-top font-mono text-xs font-semibold text-emerald-700 dark:border-gray-700 dark:text-emerald-300">
+                        {f.flag}
+                      </td>
+                      <td className="px-2.5 py-1.5 text-gray-700 dark:text-gray-300">{f.meaning}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       )}
 
@@ -182,6 +238,15 @@ export function StepDetail({
           <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
             {expectedOutput}
           </div>
+          {outputExplanation && (
+            <div className="mt-1.5 flex gap-2 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-900/20">
+              <Eye className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
+              <p className="text-sm text-sky-900 dark:text-sky-200">
+                <span className="font-semibold">Reading the output: </span>
+                {outputExplanation}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -201,16 +266,61 @@ export function StepDetail({
         </div>
       )}
 
-      {frameworks.length > 0 && (
-        <div className="flex flex-wrap items-center gap-2">
-          <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Frameworks
-          </span>
-          {frameworks.map((fw) => (
-            <FrameworkBadge key={fw} framework={fw} />
-          ))}
+      {troubleshooting && (
+        <div className="flex gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-800 dark:bg-rose-900/20">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+          <p className="text-sm text-rose-900 dark:text-rose-200">
+            <span className="font-semibold">If it doesn&apos;t work: </span>
+            {troubleshooting}
+          </p>
         </div>
       )}
+
+      {frameworks.length > 0 && <FrameworkRationale frameworks={frameworks} />}
+    </div>
+  );
+}
+
+/**
+ * Framework tags plus an expandable explanation of *why* each one matters and the
+ * role it plays — answering "you defined the framework, but why is it important?".
+ */
+function FrameworkRationale({ frameworks }: { frameworks: string[] }) {
+  const [open, setOpen] = React.useState(false);
+  return (
+    <div>
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          Frameworks
+        </span>
+        {frameworks.map((fw) => (
+          <FrameworkBadge key={fw} framework={fw} />
+        ))}
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+        >
+          {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+          Why it matters
+        </button>
+      </div>
+      <motion.div
+        initial={false}
+        animate={{ height: open ? 'auto' : 0, opacity: open ? 1 : 0 }}
+        transition={{ duration: 0.2 }}
+        className="overflow-hidden"
+      >
+        <ul className="mt-2 space-y-2">
+          {frameworks.map((fw) => (
+            <li key={fw} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+              <span className="shrink-0">
+                <FrameworkBadge framework={fw} />
+              </span>
+              <span>{getFrameworkWhy(fw) || 'A standard this step helps satisfy.'}</span>
+            </li>
+          ))}
+        </ul>
+      </motion.div>
     </div>
   );
 }
@@ -221,12 +331,17 @@ interface ChecklistItemProps {
   instruction?: string;
   description?: string;
   command?: string;
+  commandExplanation?: string;
+  commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
+  outputExplanation?: string;
   whatItMeans: string;
   isComplete: boolean;
   onToggle: (complete: boolean) => void;
   frameworks: string[];
   deliverable?: string;
+  troubleshooting?: string;
+  optional?: boolean;
 }
 
 export function ChecklistItem({
@@ -234,12 +349,17 @@ export function ChecklistItem({
   instruction,
   description,
   command,
+  commandExplanation,
+  commandFlags,
   expectedOutput,
+  outputExplanation,
   whatItMeans,
   isComplete,
   onToggle,
   frameworks,
   deliverable,
+  troubleshooting,
+  optional,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(false);
 
@@ -255,8 +375,13 @@ export function ChecklistItem({
         />
         <div className="flex-1">
           <motion.div className="flex items-center justify-between gap-2">
-            <h4 className={`font-medium ${isComplete ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+            <h4 className={`flex items-center gap-2 font-medium ${isComplete ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
               {title}
+              {optional && (
+                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
+                  Optional
+                </span>
+              )}
             </h4>
             <motion.button
               onClick={() => setShowDetails(!showDetails)}
@@ -284,10 +409,15 @@ export function ChecklistItem({
                 instruction={instruction}
                 description={description}
                 command={command}
+                commandExplanation={commandExplanation}
+                commandFlags={commandFlags}
                 expectedOutput={expectedOutput}
+                outputExplanation={outputExplanation}
                 whatItMeans={whatItMeans}
                 frameworks={frameworks}
                 deliverable={deliverable}
+                troubleshooting={troubleshooting}
+                optional={optional}
               />
             </div>
           </motion.div>

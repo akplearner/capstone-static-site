@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -9,32 +9,60 @@ import {
   CheckCircle2,
   ChevronDown,
   ChevronRight,
+  ClipboardList,
   Clock,
   Compass,
   FileText,
+  GraduationCap,
+  ListChecks,
   Lock,
   RotateCcw,
+  Search,
+  Send,
   Sparkles,
   Users,
+  Wrench,
+  X,
 } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, Collapsible } from '@/components/ui/Button';
 import { GateBadge, StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleWorkflow } from '@/components/diagrams/RoleWorkflow';
-import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
+import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
+import { InfoTip } from '@/components/InfoTip';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { progressRepo } from '@/lib/data';
-import { getRoleDef, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
-import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
+import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
+import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
+import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
-const COHORTS = ['2026-Spring', '2026-Fall'];
+// Monthly cohorts (YYYY-MM), generated for the next 12 months.
+const COHORTS = getMonthlyCohorts(12);
+
+type CourseStats = {
+  weekStats: Record<number, number>;
+  taskStats: Record<string, number>;
+  gateStats: Record<number, GateStatus>;
+  activeWeek: number;
+};
+const EMPTY_STATS: CourseStats = { weekStats: {}, taskStats: {}, gateStats: {}, activeWeek: 1 };
+
+// In-course sub-nav (tab) styling, shared by the tab buttons and the Team/Guide links.
+const SUBTAB_BASE =
+  'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
+const SUBTAB_INACTIVE =
+  'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white';
+const SUBTAB_LINK = `${SUBTAB_BASE} ${SUBTAB_INACTIVE}`;
+function subTabClass(active: boolean): string {
+  return `${SUBTAB_BASE} ${active ? 'bg-blue-600 text-white hover:bg-blue-700' : SUBTAB_INACTIVE}`;
+}
 
 /** Inline enrollment: pick a team (capacity-aware) and role without leaving the page. */
 function JoinPanel({
@@ -51,16 +79,15 @@ function JoinPanel({
   const teamIds = Array.from({ length: Math.max(1, teamCount) }, (_, i) => String(i + 1));
 
   const [editing, setEditing] = useState(!member);
-  const [counts, setCounts] = useState<Record<string, number>>({});
+  const counts = useClientStore<Record<string, number>>(
+    () => progressRepo.getTeamCounts(course.id),
+    EMPTY_OBJECT
+  );
   const [name, setName] = useState(member?.displayName ?? '');
   const [cohort, setCohort] = useState(member?.cohort ?? COHORTS[0]);
   const [team, setTeam] = useState(member?.teamId ?? teamIds[0]);
   const [role, setRole] = useState(member?.role ?? course.roles[0]?.id ?? '');
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setCounts(progressRepo.getTeamCounts(course.id));
-  }, [course.id, member, editing]);
 
   const usedOf = (t: string) => counts[t] ?? 0;
   // A team is full only for students not already on it.
@@ -86,7 +113,7 @@ function JoinPanel({
           ? 'That team is full — pick another team.'
           : 'Could not join this team. Try again.'
       );
-      setCounts(progressRepo.getTeamCounts(course.id));
+      notifyStore();
       return;
     }
     setError(null);
@@ -154,7 +181,7 @@ function JoinPanel({
 
       <div>
         <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">Team</span>
-        <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+        <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
           {teamIds.map((t) => {
             const full = isFull(t);
             const selected = team === t;
@@ -239,10 +266,15 @@ function TaskReference({ task }: { task: Task }) {
               instruction={s.instruction}
               description={s.description}
               command={s.command}
+              commandExplanation={s.commandExplanation}
+              commandFlags={s.commandFlags}
               expectedOutput={s.expectedOutput}
+              outputExplanation={s.outputExplanation}
               whatItMeans={s.whatItMeans}
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
+              troubleshooting={s.troubleshooting}
+              optional={s.optional}
             />
           </div>
         </div>
@@ -271,7 +303,8 @@ function TaskRow({
   children: React.ReactNode;
 }) {
   const canOpen = joined;
-  const steps = task.steps.length;
+  const steps = getRequiredStepCount(task);
+  const optionalCount = task.steps.length - steps;
   const doneSteps = Math.round((percent / 100) * steps);
   const showProgress = isOwn && joined;
 
@@ -315,6 +348,11 @@ function TaskRow({
               </span>
             ) : (
               <span className="text-gray-500 dark:text-gray-400">{steps} steps</span>
+            )}
+            {optionalCount > 0 && (
+              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                +{optionalCount} optional
+              </span>
             )}
             {task.estimatedTime && (
               <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
@@ -383,55 +421,50 @@ function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
 export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
-  const [refresh, setRefresh] = useState(0);
+  const [confirmingReset, setConfirmingReset] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  const [openWeeks, setOpenWeeks] = useState<Set<number>>(
-    new Set([course.weeks[0]?.number ?? 1])
-  );
+  // null = the student hasn't toggled weeks yet, so the active week shows open by
+  // default; once they interact we track their explicit set.
+  const [openWeeks, setOpenWeeks] = useState<Set<number> | null>(null);
   const [openRefs, setOpenRefs] = useState<Set<number>>(new Set());
-  const [activeWeek, setActiveWeek] = useState(course.weeks[0]?.number ?? 1);
-  const [weekStats, setWeekStats] = useState<Record<number, number>>({});
-  const [taskStats, setTaskStats] = useState<Record<string, number>>({});
-  const [gateStats, setGateStats] = useState<Record<number, GateStatus>>({});
-  const accordionInitedFor = useRef<string | null>(null);
+  const [tab, setTab] = useState<'overview' | 'weeks'>('overview');
+  const [query, setQuery] = useState('');
 
-  const onProgressChange = useCallback(() => setRefresh((r) => r + 1), []);
+  // Progress writes broadcast through the store; useClientStore re-reads below.
+  const onProgressChange = useCallback(() => notifyStore(), []);
 
-  useEffect(() => {
-    if (!member) return;
-    // One batched localStorage scan for all derivations below.
-    const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+  // Derived from one batched localStorage scan (week %, task %, gate status, and
+  // the first-incomplete "active" week), kept live via the store subscription.
+  const { weekStats, taskStats, gateStats, activeWeek } = useClientStore<CourseStats>(() => {
     const weeks: Record<number, number> = {};
     const tasks: Record<string, number> = {};
-    let firstIncomplete = course.weeks[0]?.number ?? 1;
-    let found = false;
-    [...course.weeks]
-      .sort((a, b) => a.number - b.number)
-      .forEach((w) => {
-        const pct = progressRepo.getWeekCompletion(course, member.memberId, member.role, w.number, keySet);
-        weeks[w.number] = pct;
-        getTasksByRole(course, member.role, w.number).forEach((t) => {
-          tasks[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
-        });
-        if (!found && pct < 100) {
-          firstIncomplete = w.number;
-          found = true;
-        }
-      });
     const gates: Record<number, GateStatus> = {};
-    course.gates.forEach((g) => {
-      gates[g.id] = progressRepo.deriveGateStatus(course, member.memberId, member.role, g, keySet);
-    });
-    setWeekStats(weeks);
-    setTaskStats(tasks);
-    setGateStats(gates);
-    setActiveWeek(firstIncomplete);
-    // Auto-open the active week once per member (don't fight later manual toggles).
-    if (accordionInitedFor.current !== member.memberId) {
-      accordionInitedFor.current = member.memberId;
-      setOpenWeeks(new Set([firstIncomplete]));
+    let firstIncomplete = course.weeks[0]?.number ?? 1;
+    if (member) {
+      const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+      let found = false;
+      [...course.weeks]
+        .sort((a, b) => a.number - b.number)
+        .forEach((w) => {
+          const pct = progressRepo.getWeekCompletion(course, member.memberId, member.role, w.number, keySet);
+          weeks[w.number] = pct;
+          getTasksByRole(course, member.role, w.number).forEach((t) => {
+            tasks[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
+          });
+          if (!found && pct < 100) {
+            firstIncomplete = w.number;
+            found = true;
+          }
+        });
+      course.gates.forEach((g) => {
+        gates[g.id] = progressRepo.deriveGateStatus(course, member.memberId, member.role, g, keySet);
+      });
     }
-  }, [member, course, refresh]);
+    return { weekStats: weeks, taskStats: tasks, gateStats: gates, activeWeek: firstIncomplete };
+  }, EMPTY_STATS);
+
+  // Active week is open by default until the student toggles weeks themselves.
+  const effectiveOpenWeeks = openWeeks ?? new Set<number>([activeWeek]);
 
   if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
 
@@ -469,15 +502,18 @@ export default function CoursePage() {
     }
   };
 
+  const openWeek = (n: number) =>
+    setOpenWeeks((prev) => new Set(prev ?? [activeWeek]).add(n));
+
   const openAndScrollWeek = (n: number) => {
-    setActiveWeek(n);
-    setOpenWeeks((prev) => new Set(prev).add(n));
+    setTab('weeks');
+    openWeek(n);
     scrollTo(`week-${n}`);
   };
 
   const goToTask = (task: Task) => {
-    setActiveWeek(task.week);
-    setOpenWeeks((prev) => new Set(prev).add(task.week));
+    setTab('weeks');
+    openWeek(task.week);
     setExpanded((prev) => new Set(prev).add(task.id));
     scrollTo(`task-${task.id}`, 'center');
   };
@@ -493,16 +529,22 @@ export default function CoursePage() {
       });
 
   const toggle = toggleSet(setExpanded);
-  const toggleWeek = toggleSet(setOpenWeeks);
   const toggleRef = toggleSet(setOpenRefs);
 
-  const handleReset = () => {
+  const toggleWeek = (n: number) =>
+    setOpenWeeks((prev) => {
+      const next = new Set(prev ?? [activeWeek]);
+      if (next.has(n)) next.delete(n);
+      else next.add(n);
+      return next;
+    });
+
+  const confirmReset = () => {
     if (!member) return;
-    if (confirm('Reset all your progress for this course? This cannot be undone.')) {
-      progressRepo.resetCourse(course.id, member.memberId);
-      setExpanded(new Set());
-      setRefresh((r) => r + 1);
-    }
+    progressRepo.resetCourse(course.id, member.memberId);
+    setExpanded(new Set());
+    setConfirmingReset(false);
+    notifyStore();
   };
 
   const ownRole = member ? getRoleDef(course, member.role) : undefined;
@@ -510,9 +552,9 @@ export default function CoursePage() {
 
   // Overall progress + "your next step" across the student's own tasks.
   const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
-  const totalSteps = ownTasksAll.reduce((s, t) => s + t.steps.length, 0);
+  const totalSteps = ownTasksAll.reduce((s, t) => s + getRequiredStepCount(t), 0);
   const doneSteps = ownTasksAll.reduce(
-    (s, t) => s + Math.round(((taskStats[t.id] ?? 0) / 100) * t.steps.length),
+    (s, t) => s + Math.round(((taskStats[t.id] ?? 0) / 100) * getRequiredStepCount(t)),
     0
   );
   const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
@@ -530,9 +572,118 @@ export default function CoursePage() {
     }
   }
 
+  // "This week" context for the role hero.
+  const contentWeeks = sortedWeeks.filter((w) => w.number >= 1);
+  const tasksLeftThisWeek = member
+    ? getTasksByRole(course, member.role, activeWeek).filter((t) => (taskStats[t.id] ?? 0) < 100).length
+    : 0;
+  const remainingTasks = member
+    ? ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) < 100)
+    : [];
+
+  // Task search (Weekly Tasks tab). Matches title, objective, or framework; an
+  // active query force-opens every week so matches are visible without clicking.
+  const q = query.trim().toLowerCase();
+  const matchesQuery = (task: Task) =>
+    !q ||
+    task.title.toLowerCase().includes(q) ||
+    task.objective.toLowerCase().includes(q) ||
+    task.frameworks.some(
+      (fw) => fw.toLowerCase().includes(q) || getFrameworkLabel(fw).toLowerCase().includes(q)
+    );
+  const anyMatches = sortedWeeks.some((w) => getWeekTasks(course, w.number).some(matchesQuery));
+
   // Expanded content for a task row (deliverables + the runner or read-only steps).
-  const renderTaskBody = (task: Task, isOwn: boolean) => (
+  const renderTaskBody = (task: Task, isOwn: boolean) => {
+    const hasFlow = !!(
+      task.learn?.length ||
+      task.tools?.length ||
+      task.prerequisites?.length ||
+      task.definitionOfDone?.length ||
+      task.handoff?.length
+    );
+    return (
     <>
+      {hasFlow && (
+        <div className="mb-4 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
+          {task.learn && task.learn.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
+              </div>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
+                {task.learn.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.tools && task.tools.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <Wrench className="h-3.5 w-3.5" /> Tools
+              </span>
+              {task.tools.map((t) => (
+                <span
+                  key={t}
+                  className="rounded bg-white px-2 py-0.5 font-mono text-[11px] text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                >
+                  {t}
+                </span>
+              ))}
+            </div>
+          )}
+          {task.prerequisites && task.prerequisites.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <ListChecks className="h-3.5 w-3.5" /> Before you start
+              </div>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
+                {task.prerequisites.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.definitionOfDone && task.definitionOfDone.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <CheckCircle2 className="h-3.5 w-3.5" /> You&apos;re done when
+              </div>
+              <ul className="mt-1 space-y-0.5 text-sm text-gray-700 dark:text-gray-300">
+                {task.definitionOfDone.map((d) => (
+                  <li key={d} className="flex gap-1.5">
+                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" /> {d}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.handoff && task.handoff.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <Send className="h-3.5 w-3.5" /> Hand off
+              </div>
+              <ul className="mt-1 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                {task.handoff.map((h, i) => {
+                  const toRole = getRoleDef(course, h.to);
+                  return (
+                    <li key={`${h.to}-${i}`} className="flex items-start gap-1.5">
+                      <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
+                      <span>
+                        <span className="font-medium" style={{ color: toRole?.color }}>
+                          {toRole?.name ?? h.to}
+                        </span>
+                        {h.artifact && <span className="font-mono text-xs"> · {h.artifact}</span>} — {h.note}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       {task.deliverables.length > 0 && (
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
           <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
@@ -561,7 +712,8 @@ export default function CoursePage() {
         <TaskReference task={task} />
       )}
     </>
-  );
+    );
+  };
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
@@ -571,63 +723,166 @@ export default function CoursePage() {
         <p className="text-lg text-gray-600 dark:text-gray-400">{course.description}</p>
       </div>
 
-      {/* Pipeline + gates */}
-      <div className="space-y-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">Course pipeline</h2>
-          <Link
-            href={`/courses/${course.id}/guide`}
-            className="flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-          >
-            <Compass className="h-4 w-4" /> How it works
+      {/* Sticky course sub-nav: tabs + at-a-glance progress / Continue */}
+      <div className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-gray-200 bg-white/95 px-4 py-2 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
+        <button type="button" onClick={() => setTab('overview')} className={subTabClass(tab === 'overview')}>
+          Overview
+        </button>
+        <button type="button" onClick={() => setTab('weeks')} className={subTabClass(tab === 'weeks')}>
+          Weekly Tasks
+        </button>
+        {joined && member && (
+          <Link href={`/courses/${course.id}/team/${member.teamId}`} className={SUBTAB_LINK}>
+            <Users className="h-4 w-4" /> Team
           </Link>
-        </div>
-        <LifecycleFlow
-          weeks={course.weeks}
-          gates={course.gates}
-          weekProgress={weekStats}
-          gateStatus={gateStats}
-          currentWeek={activeWeek}
-        />
-        <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
-          <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
-        </div>
-        {joined && course.gates.length > 0 && (
-          <div className="grid gap-3 border-t border-gray-100 pt-4 dark:border-gray-700 sm:grid-cols-2 lg:grid-cols-3">
-            {course.gates.map((gate) => (
-              <GateBadge
-                key={gate.id}
-                gateId={gate.id}
-                status={gateStats[gate.id] || 'locked'}
-                completionPercent={weekStats[gate.week] || 0}
-              />
-            ))}
+        )}
+        {joined && member?.role === 'grc' && (
+          <Link href={`/courses/${course.id}/grc`} className={SUBTAB_LINK}>
+            <ClipboardList className="h-4 w-4" /> GRC Workspace
+          </Link>
+        )}
+        <Link href={`/courses/${course.id}/guide`} className={SUBTAB_LINK}>
+          <BookOpen className="h-4 w-4" /> Guide
+        </Link>
+        {joined && member && (
+          <div className="ml-auto flex items-center gap-2">
+            <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
+              {activeWeek === 0 ? 'Setup' : `Week ${activeWeek}/${contentWeeks.length}`} · {overallPercent}%
+            </span>
+            {nextTask ? (
+              <Button
+                onClick={() => nextTask && goToTask(nextTask)}
+                size="sm"
+                className="flex items-center gap-1.5"
+              >
+                Continue <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <span className="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
+                <Sparkles className="h-4 w-4" /> All done
+              </span>
+            )}
           </div>
         )}
+      </div>
+
+      {/* ───────── Overview tab ───────── */}
+      {tab === 'overview' && (
+      <motion.div
+        className="space-y-8"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
+      {/* Role "this week" hero — connects your role to what's left right now */}
+      {joined && member && ownRole && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-lg border border-l-4 border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+          style={{ borderLeftColor: ownRole.color }}
+        >
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <RoleIcon iconName={ownRole.icon} className="h-9 w-9 shrink-0" color={ownRole.color} />
+              <div>
+                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                  You&apos;re {ownRole.name}
+                </div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">
+                  {activeWeek === 0 ? 'Setup week' : `Week ${activeWeek} of ${contentWeeks.length}`} ·{' '}
+                  {tasksLeftThisWeek} task{tasksLeftThisWeek === 1 ? '' : 's'} left this week
+                </div>
+              </div>
+            </div>
+            {nextTask ? (
+              <Button onClick={() => nextTask && goToTask(nextTask)} className="flex items-center gap-2">
+                {tasksComplete > 0 ? 'Continue' : 'Start'} <ArrowRight className="h-4 w-4" />
+              </Button>
+            ) : (
+              <span className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
+                <Sparkles className="h-4 w-4" /> All your tasks complete!
+              </span>
+            )}
+          </div>
+          {ownRole.mission && (
+            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{ownRole.mission}</p>
+          )}
+        </motion.div>
+      )}
+
+      {/* Pipeline + gates — collapsed by default once enrolled to keep the dashboard calm. */}
+      <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+        <Collapsible title="Course pipeline & gates" defaultOpen={!joined}>
+          <div className="space-y-4 pb-2">
+            <Link
+              href={`/courses/${course.id}/guide`}
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              <Compass className="h-4 w-4" /> How it works
+            </Link>
+            <LifecycleFlow
+              weeks={course.weeks}
+              gates={course.gates}
+              weekProgress={weekStats}
+              gateStatus={gateStats}
+              currentWeek={activeWeek}
+            />
+            <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
+              <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
+            </div>
+            {joined && course.gates.length > 0 && (
+              <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
+                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Gates
+                  <InfoTip label="A gate marks the end of a week. Complete the week's required tasks to move it from Locked → In progress → Passed." />
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {course.gates.map((gate) => (
+                    <GateBadge
+                      key={gate.id}
+                      gateId={gate.id}
+                      status={gateStats[gate.id] || 'locked'}
+                      completionPercent={weekStats[gate.week] || 0}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Collapsible>
       </div>
 
       {/* Inline enrollment */}
       <JoinPanel course={course} member={member} onJoined={(m) => setMember(m)} />
 
-      {/* Quick links + reset (once joined) */}
+      {/* Reset (once joined) */}
       {joined && member && (
         <div className="flex flex-wrap items-center gap-3">
-          <Link href={`/courses/${course.id}/team/${member.teamId}`}>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <Users className="h-4 w-4" /> Team Space
-            </Button>
-          </Link>
-          <Link href={`/courses/${course.id}/guide`}>
-            <Button variant="secondary" className="flex items-center gap-2">
-              <BookOpen className="h-4 w-4" /> Guide
-            </Button>
-          </Link>
-          <button
-            onClick={handleReset}
-            className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-          >
-            <RotateCcw className="h-4 w-4" /> Reset my progress
-          </button>
+          {confirmingReset ? (
+            <span className="ml-auto inline-flex items-center gap-2 text-sm">
+              <span className="text-gray-600 dark:text-gray-300">Reset all progress?</span>
+              <button
+                onClick={confirmReset}
+                className="inline-flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
+              >
+                <RotateCcw className="h-3.5 w-3.5" /> Reset
+              </button>
+              <button
+                onClick={() => setConfirmingReset(false)}
+                className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              >
+                Cancel
+              </button>
+            </span>
+          ) : (
+            <button
+              onClick={() => setConfirmingReset(true)}
+              className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+            >
+              <RotateCcw className="h-4 w-4" /> Reset my progress
+            </button>
+          )}
         </div>
       )}
 
@@ -665,55 +920,106 @@ export default function CoursePage() {
         </div>
       )}
 
-      {/* Big-picture diagrams */}
-      {joined && member ? (
-        <section className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 lg:col-span-2">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-              Your path{ownRole ? ` — ${ownRole.name}` : ''}
-            </h2>
-            <RoleWorkflow
-              course={course}
-              role={member.role}
-              weekProgress={weekStats}
-              currentWeek={activeWeek}
-            />
-          </div>
-          {course.roles.length > 1 && (
-            <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">How the roles work together</h2>
-              <RoleInterplayDiagram roles={course.roles} highlightRole={member.role} />
-            </div>
-          )}
+      {/* Your path — one focused diagram; the conceptual diagrams live on the Guide. */}
+      {joined && member && (
+        <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            Your path{ownRole ? ` — ${ownRole.name}` : ''}
+          </h2>
+          <RoleWorkflow
+            course={course}
+            role={member.role}
+            weekProgress={weekStats}
+            currentWeek={activeWeek}
+          />
         </section>
-      ) : (
-        course.roles.length > 1 && (
-          <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">How the roles work together</h2>
-            <RoleInterplayDiagram roles={course.roles} />
-          </section>
-        )
       )}
 
+      {/* Your remaining tasks — collapsed jump list across all weeks */}
+      {joined && member && remainingTasks.length > 0 && (
+        <section className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title={`Your remaining tasks (${remainingTasks.length})`} defaultOpen={false}>
+          <ul className="space-y-2 pb-2">
+            {remainingTasks.map((t) => (
+              <li key={t.id}>
+                <button
+                  type="button"
+                  onClick={() => goToTask(t)}
+                  className="flex w-full items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
+                >
+                  <span className="min-w-0">
+                    <span className="block truncate text-sm font-medium text-gray-900 dark:text-white">
+                      {t.title}
+                    </span>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                      {t.week === 0 ? 'Setup' : `Week ${t.week}`} · {taskStats[t.id] ?? 0}%
+                    </span>
+                  </span>
+                  <ArrowRight className="h-4 w-4 shrink-0 text-gray-400" />
+                </button>
+              </li>
+            ))}
+          </ul>
+          </Collapsible>
+        </section>
+      )}
+      </motion.div>
+      )}
+
+      {/* ───────── Weekly Tasks tab ───────── */}
+      {tab === 'weeks' && (
+      <motion.div
+        className="space-y-4"
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
       {/* Weekly breakdown */}
       <div className="space-y-3">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Weekly tasks</h2>
         {!joined && (
           <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-            <Lock className="h-4 w-4 shrink-0" /> Join a team & role above to unlock and track these tasks.
+            <Lock className="h-4 w-4 shrink-0" /> Join a team &amp; role on the <strong>Overview</strong> tab to unlock and track these tasks.
           </div>
+        )}
+        <div className="relative">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+          <input
+            type="text"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Search tasks by name, objective, or framework…"
+            aria-label="Search tasks"
+            className="w-full pl-9 pr-9"
+          />
+          {query && (
+            <button
+              type="button"
+              onClick={() => setQuery('')}
+              aria-label="Clear search"
+              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
+        </div>
+        {q && !anyMatches && (
+          <p className="text-sm text-gray-500 dark:text-gray-400">No tasks match “{query}”.</p>
         )}
       </div>
 
       <div className="space-y-4">
         {sortedWeeks.map((w) => {
           const weekTasks = getWeekTasks(course, w.number);
-          const isWeekOpen = openWeeks.has(w.number);
+          const shownTasks = q ? weekTasks.filter(matchesQuery) : weekTasks;
+          if (q && shownTasks.length === 0) return null;
+          const isWeekOpen = q ? true : effectiveOpenWeeks.has(w.number);
           const weekPct = weekStats[w.number] ?? 0;
           const gateForWeek = course.gates.find((g) => g.week === w.number);
-          const ownTasks = member ? weekTasks.filter((t) => t.role === member.role) : [];
-          const otherTasks = member ? weekTasks.filter((t) => t.role !== member.role) : weekTasks;
-          const refOpen = openRefs.has(w.number);
+          const ownTasks = member ? shownTasks.filter((t) => t.role === member.role) : [];
+          const otherTasks = member ? shownTasks.filter((t) => t.role !== member.role) : shownTasks;
+          const refOpen = q ? true : openRefs.has(w.number);
+          const displayCount = q ? shownTasks.length : weekTasks.length;
           return (
             <section
               key={w.number}
@@ -758,7 +1064,7 @@ export default function CoursePage() {
                     </span>
                   )}
                   <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {weekTasks.length} task{weekTasks.length === 1 ? '' : 's'}
+                    {displayCount} task{displayCount === 1 ? '' : 's'}
                   </span>
                   {isWeekOpen ? (
                     <ChevronDown className="h-5 w-5 text-gray-400" />
@@ -775,6 +1081,45 @@ export default function CoursePage() {
                       No tasks for this week yet.
                     </p>
                   )}
+
+                  {joined && member && ownTasks.length > 0 && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+                      <WeekTaskFlow
+                        course={course}
+                        role={member.role}
+                        week={w.number}
+                        taskStats={taskStats}
+                        onTaskClick={(id) => {
+                          const t = getTaskById(course, id);
+                          if (t) goToTask(t);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {joined &&
+                    member &&
+                    getTasksByRole(course, member.role, w.number).some(
+                      (t) => t.definitionOfDone?.length
+                    ) && (
+                      <div className="rounded-lg border border-gray-200 px-4 dark:border-gray-700">
+                        <Collapsible title="What “done” looks like this week">
+                          <ul className="space-y-1.5">
+                            {getTasksByRole(course, member.role, w.number).flatMap((t) =>
+                              (t.definitionOfDone ?? []).map((d, di) => (
+                                <li
+                                  key={`${t.id}-${di}`}
+                                  className="flex gap-1.5 text-sm text-gray-700 dark:text-gray-300"
+                                >
+                                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                                  {d}
+                                </li>
+                              ))
+                            )}
+                          </ul>
+                        </Collapsible>
+                      </div>
+                    )}
 
                   {joined && gateForWeek && (
                     <WeekGatePanel
@@ -857,7 +1202,7 @@ export default function CoursePage() {
                   {/* Not joined — all roles, locked */}
                   {!joined &&
                     course.roles.map((r) => {
-                      const roleTasks = weekTasks.filter((t) => t.role === r.id);
+                      const roleTasks = shownTasks.filter((t) => t.role === r.id);
                       if (roleTasks.length === 0) return null;
                       return (
                         <div
@@ -888,6 +1233,8 @@ export default function CoursePage() {
           );
         })}
       </div>
+      </motion.div>
+      )}
     </motion.div>
   );
 }

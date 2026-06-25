@@ -1,9 +1,15 @@
-import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
+import { Course, Gate, GateStatus, GrcData, Member, RosterEntry, Task, TaskCompletion } from '../types';
 
 export interface ImportResult {
   ok: boolean;
   course?: Course;
   error?: string;
+}
+
+// Team-scoped GRC Workspace registers. localStorage today; backend-ready.
+export interface GrcRepository {
+  get(courseId: string, teamId: string): GrcData | null;
+  save(courseId: string, teamId: string, data: GrcData): void;
 }
 
 export interface JoinResult {

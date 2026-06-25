@@ -1,8 +1,18 @@
-import { Course, RoleDef, Task, WeekDef } from './types';
+import { Course, RoleDef, Step, Task, WeekDef } from './types';
 
 // Pure helpers that operate on a resolved Course object. These replace the old
 // module-level helpers in content-data.ts so the app is no longer tied to a
 // single hardcoded course.
+
+// Required steps drive completion %, week progress, and gates. Optional steps
+// (e.g. the Windows track) are still shown and tracked, but never gate progress.
+export function getRequiredSteps(task: Task): Step[] {
+  return task.steps.filter((s) => !s.optional);
+}
+
+export function getRequiredStepCount(task: Task): number {
+  return getRequiredSteps(task).length;
+}
 
 export function getTasksByRole(course: Course, role: string, week?: number): Task[] {
   let tasks = course.tasks.filter((t) => t.role === role);

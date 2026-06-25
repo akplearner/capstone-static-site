@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle2, Circle, Flag, Users } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Circle, Flag, Users } from 'lucide-react';
 import { Course, GateStatus } from '@/lib/types';
 import { getRoleDef, getTaskById } from '@/lib/course-helpers';
 
@@ -86,6 +86,38 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
           </li>
         ))}
       </ul>
+
+      {gate.handoffs && gate.handoffs.length > 0 && (
+        <div className="mt-4 border-t border-gray-200 pt-3 dark:border-gray-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            End-of-week company sync
+          </p>
+          <p className="mt-0.5 text-[11px] text-gray-400">
+            Confirm these hand-offs together before moving on (shared tracking arrives with the backend).
+          </p>
+          <ul className="mt-2 space-y-1.5">
+            {gate.handoffs.map((h, i) => {
+              const from = getRoleDef(course, h.from);
+              const to = getRoleDef(course, h.to);
+              return (
+                <li key={`${h.from}-${h.to}-${i}`} className="flex items-start gap-2 text-sm">
+                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                  <span className="text-gray-700 dark:text-gray-300">
+                    <span className="font-medium" style={{ color: from?.color }}>
+                      {shortRole(from?.name ?? h.from)}
+                    </span>{' '}
+                    →{' '}
+                    <span className="font-medium" style={{ color: to?.color }}>
+                      {shortRole(to?.name ?? h.to)}
+                    </span>
+                    {h.artifact && <span className="font-mono text-xs"> · {h.artifact}</span>} — {h.label}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

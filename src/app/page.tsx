@@ -1,27 +1,24 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowRight, BookOpen, GraduationCap, Layers, Lock, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { courseRepo, progressRepo } from '@/lib/data';
+import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 
 export default function HomePage() {
-  const [courses, setCourses] = useState<Course[]>([]);
-  const [enrolled, setEnrolled] = useState<Record<string, boolean>>({});
-
-  useEffect(() => {
-    const list = courseRepo.list();
-    setCourses(list);
+  const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
+  const enrolled = useMemo(() => {
     const map: Record<string, boolean> = {};
-    list.forEach((c) => {
+    courses.forEach((c) => {
       map[c.id] = !!progressRepo.getContext(c.id);
     });
-    setEnrolled(map);
-  }, []);
+    return map;
+  }, [courses]);
 
   return (
     <div className="space-y-10">
@@ -32,6 +29,9 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">Capstone Lab Platform</h1>
         <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">
           Hands-on, role-based cyber ranges. Choose a course to begin, or open the instructor studio to build one.
+        </p>
+        <p className="mx-auto max-w-2xl text-sm text-gray-500 dark:text-gray-500">
+          New here? Open a course&apos;s <span className="font-medium">Guide</span> for a 2-minute overview before you start.
         </p>
       </div>
 

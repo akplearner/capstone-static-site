@@ -2,4 +2,5 @@
 // backend) without touching any page or component.
 export { localStorageCourseRepo as courseRepo } from './localStorageCourseRepo';
 export { localStorageProgressRepo as progressRepo } from './localStorageProgressRepo';
-export type { CourseRepository, ProgressRepository, ImportResult } from './types';
+export { localStorageGrcRepo as grcRepo } from './localStorageGrcRepo';
+export type { CourseRepository, ProgressRepository, GrcRepository, ImportResult } from './types';

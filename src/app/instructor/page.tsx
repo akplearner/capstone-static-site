@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { courseRepo } from '@/lib/data';
+import { useClientStore, EMPTY_ARRAY, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 
 function slugify(s: string): string {
@@ -19,14 +20,13 @@ function uniqueSuffix(): string {
 
 export default function InstructorHomePage() {
   const router = useRouter();
-  const [courses, setCourses] = useState<Course[]>([]);
+  const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
   const [creating, setCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
+  const [dup, setDup] = useState<{ course: Course; title: string } | null>(null);
+  const [pendingDelete, setPendingDelete] = useState<Course | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
-
-  const refresh = () => setCourses(courseRepo.list());
-  useEffect(refresh, []);
 
   const handleCreate = () => {
     const title = newTitle.trim();
@@ -62,7 +62,7 @@ export default function InstructorHomePage() {
       if (!res.ok) setError(res.error || 'Import failed.');
       else {
         setError(null);
-        refresh();
+        notifyStore();
       }
     };
     reader.readAsText(file);
@@ -80,20 +80,30 @@ export default function InstructorHomePage() {
     URL.revokeObjectURL(url);
   };
 
-  const handleDuplicate = (course: Course) => {
-    const title = prompt('New course title?', `${course.title} (copy)`);
-    if (!title) return;
-    let id = slugify(title);
-    if (courseRepo.get(id)) id = `${id}-${uniqueSuffix()}`;
-    const dup = courseRepo.duplicate(course.id, id, title);
-    if (dup) router.push(`/instructor/${dup.id}`);
+  const startDuplicate = (course: Course) => {
+    setError(null);
+    setDup({ course, title: `${course.title} (copy)` });
   };
 
-  const handleDelete = (course: Course) => {
-    if (confirm(`Delete “${course.title}”? This cannot be undone.`)) {
-      courseRepo.delete(course.id);
-      refresh();
+  const confirmDuplicate = () => {
+    if (!dup) return;
+    const title = dup.title.trim();
+    if (!title) {
+      setError('Enter a course title.');
+      return;
     }
+    let id = slugify(title);
+    if (!id) id = `course-${uniqueSuffix()}`;
+    if (courseRepo.get(id)) id = `${id}-${uniqueSuffix()}`;
+    const created = courseRepo.duplicate(dup.course.id, id, title);
+    if (created) router.push(`/instructor/${created.id}`);
+  };
+
+  const confirmDelete = () => {
+    if (!pendingDelete) return;
+    courseRepo.delete(pendingDelete.id);
+    setPendingDelete(null);
+    notifyStore();
   };
 
   return (
@@ -131,6 +141,38 @@ export default function InstructorHomePage() {
         </div>
       )}
 
+      {dup && (
+        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">New course title</label>
+            <input
+              autoFocus
+              value={dup.title}
+              onChange={(e) => setDup({ ...dup, title: e.target.value })}
+              onKeyDown={(e) => e.key === 'Enter' && confirmDuplicate()}
+              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            />
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Duplicating “{dup.course.title}” into an editable copy.
+            </p>
+          </div>
+          <Button onClick={confirmDuplicate}>Create copy</Button>
+          <Button variant="secondary" onClick={() => setDup(null)}>Cancel</Button>
+        </div>
+      )}
+
+      {pendingDelete && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <p className="text-sm text-red-800 dark:text-red-300">
+            Delete “{pendingDelete.title}”? This cannot be undone.
+          </p>
+          <div className="flex gap-2">
+            <Button variant="destructive" size="sm" onClick={confirmDelete}>Delete</Button>
+            <Button variant="secondary" size="sm" onClick={() => setPendingDelete(null)}>Cancel</Button>
+          </div>
+        </div>
+      )}
+
       <div className="grid gap-4 md:grid-cols-2">
         {courses.map((course) => (
           <div key={course.id} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
@@ -152,7 +194,7 @@ export default function InstructorHomePage() {
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
               {course.isSeed ? (
-                <Button size="sm" onClick={() => handleDuplicate(course)} className="flex items-center gap-1">
+                <Button size="sm" onClick={() => startDuplicate(course)} className="flex items-center gap-1">
                   <Copy className="h-3.5 w-3.5" /> Duplicate to edit
                 </Button>
               ) : (
@@ -167,10 +209,10 @@ export default function InstructorHomePage() {
               </Button>
               {!course.isSeed && (
                 <>
-                  <Button size="sm" variant="secondary" onClick={() => handleDuplicate(course)} className="flex items-center gap-1">
+                  <Button size="sm" variant="secondary" onClick={() => startDuplicate(course)} className="flex items-center gap-1">
                     <Copy className="h-3.5 w-3.5" /> Duplicate
                   </Button>
-                  <Button size="sm" variant="destructive" onClick={() => handleDelete(course)} className="flex items-center gap-1">
+                  <Button size="sm" variant="destructive" onClick={() => setPendingDelete(course)} className="flex items-center gap-1">
                     <Trash2 className="h-3.5 w-3.5" /> Delete
                   </Button>
                 </>
