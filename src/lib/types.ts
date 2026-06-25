@@ -179,3 +179,9 @@ export interface CollaborationNote {
   createdAt: number;
   type: 'note' | 'pitfall' | 'tip' | 'qa';
 }
+
+// GRC Workspace: team-scoped registers (asset inventory, vulns, CTI, risk,
+// audit). Rows are simple string maps so one generic table renders every
+// register; the column schemas live in src/lib/grc/templates.ts.
+export type RegisterRow = Record<string, string>;
+export type GrcData = Record<string, RegisterRow[]>; // keyed by register id

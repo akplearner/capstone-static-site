@@ -13,6 +13,8 @@ const nextConfig: NextConfig = {
       { source: "/settings", destination: `/courses/${SEED}`, permanent: false },
       { source: "/team/:teamId", destination: `/courses/${SEED}/team/:teamId`, permanent: false },
       { source: "/roles/:path*", destination: `/courses/${SEED}`, permanent: false },
+      // GRC Workspace was generalized into the role-aware Deliverables page.
+      { source: "/courses/:courseId/grc", destination: "/courses/:courseId/docs", permanent: false },
     ];
   },
 };

@@ -252,7 +252,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w2-s1',
         title: 'Network Scan - All Ports',
         description: 'Scan all TCP ports with version detection.',
-        command: 'nmap -sV -p- 10.10.10.5 > nmap_full.txt',
+        command: 'nmap -sV -p- 10.10.10.X > nmap_full.txt',
         commandExplanation: '`nmap` scans for open ports; `-sV` probes each one to detect the service and version; `-p-` scans all 65,535 TCP ports; `> nmap_full.txt` saves the result to a file.',
         commandFlags: [
           { flag: 'nmap', meaning: 'Network port scanner.' },
@@ -270,7 +270,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w2-s2',
         title: 'Web Vulnerability Scan',
         description: 'Run automated web scanner against target.',
-        command: 'nikto -h http://10.10.10.5 -o nikto_report.txt',
+        command: 'nikto -h http://10.10.10.X -o nikto_report.txt',
         commandExplanation: '`nikto` is a web-server scanner; `-h` sets the host URL to test and `-o` writes the findings to a report file.',
         commandFlags: [
           { flag: 'nikto', meaning: 'Automated web-server vulnerability scanner.' },
@@ -287,7 +287,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w2-s3',
         title: 'SSH Auth Methods',
         description: 'Identify authentication methods on SSH.',
-        command: 'nmap --script ssh-auth-methods 10.10.10.5',
+        command: 'nmap --script ssh-auth-methods 10.10.10.X',
         commandExplanation: '`nmap --script ssh-auth-methods` runs an NSE script that connects to SSH and asks which authentication methods the server will accept.',
         commandFlags: [
           { flag: '--script ssh-auth-methods', meaning: 'Run the NSE script that lists accepted SSH auth methods.' },
@@ -318,7 +318,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w3-s1',
         title: 'SQL Injection Attack',
         description: 'Exploit SQL injection vulnerability in DVWA.',
-        command: 'sqlmap -u http://10.10.10.5/DVWA/vulnerabilities/sqli/ --auth-creds=admin:password --dbs',
+        command: 'sqlmap -u http://10.10.10.X/DVWA/vulnerabilities/sqli/ --auth-creds=admin:password --dbs',
         commandExplanation: '`sqlmap` automates SQL-injection testing; `-u` is the vulnerable URL, `--auth-creds` supplies a login so it can reach the page, and `--dbs` tells it to enumerate database names once injection works.',
         commandFlags: [
           { flag: 'sqlmap', meaning: 'Automated SQL-injection testing tool.' },
@@ -336,7 +336,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w3-s2',
         title: 'Brute Force Attack',
         description: 'Attack login form with hydra.',
-        command: 'hydra -l admin -P /usr/share/wordlists/rockyou.txt http-post-form://10.10.10.5/login.php:username=^USER^&password=^PASS^:S=Welcome',
+        command: 'hydra -l admin -P /usr/share/wordlists/rockyou.txt http-post-form://10.10.10.X/login.php:username=^USER^&password=^PASS^:S=Welcome',
         commandExplanation: '`hydra` brute-forces logins; `-l admin` fixes the username, `-P` points to the rockyou password list, and the `http-post-form` string defines the URL, the field layout (`^USER^`/`^PASS^`), and `S=Welcome` as the success marker.',
         commandFlags: [
           { flag: 'hydra', meaning: 'Parallel login brute-forcer.' },

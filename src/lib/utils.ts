@@ -214,3 +214,17 @@ export function getGateStatusLabel(status: string): string {
   };
   return labels[status] || status;
 }
+
+// Monthly cohorts as `YYYY-MM`, starting from `base`'s month (default: now).
+// Replaces the old seasonal cohorts so classes are tracked by month.
+export function getMonthlyCohorts(count = 12, base: Date = new Date()): string[] {
+  const out: string[] = [];
+  const year = base.getFullYear();
+  const month = base.getMonth();
+  for (let i = 0; i < count; i++) {
+    const d = new Date(year, month + i, 1);
+    out.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
+  }
+  return out;
+}
+
