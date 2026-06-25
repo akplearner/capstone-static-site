@@ -2,12 +2,15 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Circle, FileSpreadsheet, FileText, Info, Lock, Printer, Sparkles } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, FileSpreadsheet, FileText, Info, Lock, Package, Printer, Sparkles } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
+import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
+import { FolderTree } from '@/components/docs/FolderTree';
+import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
 import { ToolsByPhase } from '@/components/docs/ToolsByPhase';
 import { useCourse } from '@/lib/useCourse';
@@ -17,11 +20,22 @@ import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore'
 import { DeliverableData, emptyData } from '@/lib/docs/types';
 import { DELIVERABLES, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown } from '@/lib/docs/report';
+import { buildTeamPackage, packageFileName } from '@/lib/docs/package';
 
 type DocsMap = Record<string, DeliverableData>;
 
 function download(filename: string, text: string) {
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadBytes(filename: string, bytes: Uint8Array, type: string) {
+  const blob = new Blob([bytes as BlobPart], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -96,6 +110,23 @@ export default function DeliverablesPage() {
 
       <WorkflowFlow />
 
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <div className="flex items-start gap-2 text-sm text-blue-900 dark:text-blue-200">
+          <Package className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
+          <p>
+            <strong>Download team package</strong> — bundles all 8 deliverables into one zip, in the
+            submission folder structure (<span className="font-mono text-xs">{packageFileName(meta)}</span>).
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => downloadBytes(packageFileName(meta), buildTeamPackage(saved, meta), 'application/zip')}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          <Package className="h-4 w-4" /> Download team package (.zip)
+        </button>
+      </div>
+
       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
         <p>
@@ -105,7 +136,10 @@ export default function DeliverablesPage() {
       </div>
 
       <DeliverablesIndex collapsible />
+      <DocsReductionTable collapsible />
       <ToolsByPhase />
+      <QuickReferenceCard />
+      <FolderTree />
 
       {/* Week selector */}
       <div className="flex flex-wrap items-center gap-2">

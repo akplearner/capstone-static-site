@@ -15,11 +15,16 @@ function csvEscape(v: string): string {
   return /[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v;
 }
 
+/** Keep multi-line / pipe-containing cell content from breaking an MD table. */
+function mdCell(v: string): string {
+  return (v || ' ').replace(/\|/g, '\\|').replace(/\r?\n/g, '<br>');
+}
+
 function mdTable(cols: Column[], rows: Record<string, string>[]): string {
   const header = `| ${cols.map((c) => c.label).join(' | ')} |`;
   const divider = `| ${cols.map(() => '---').join(' | ')} |`;
   const body = (rows.length ? rows : [{}])
-    .map((r) => `| ${cols.map((c) => cellValue(c, r) || ' ').join(' | ')} |`)
+    .map((r) => `| ${cols.map((c) => mdCell(cellValue(c, r))).join(' | ')} |`)
     .join('\n');
   return `${header}\n${divider}\n${body}`;
 }
@@ -71,10 +76,15 @@ function esc(v: string): string {
   return v.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
+/** Escape for HTML and preserve line breaks inside table/field cells. */
+function escMultiline(v: string): string {
+  return esc(v).replace(/\r?\n/g, '<br>');
+}
+
 function htmlTable(cols: Column[], rows: Record<string, string>[]): string {
   const head = `<tr>${cols.map((c) => `<th>${esc(c.label)}</th>`).join('')}</tr>`;
   const body = (rows.length ? rows : [])
-    .map((r) => `<tr>${cols.map((c) => `<td>${esc(cellValue(c, r))}</td>`).join('')}</tr>`)
+    .map((r) => `<tr>${cols.map((c) => `<td>${escMultiline(cellValue(c, r))}</td>`).join('')}</tr>`)
     .join('');
   return `<table><thead>${head}</thead><tbody>${body}</tbody></table>`;
 }
@@ -85,7 +95,7 @@ export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, me
     .map((s) => {
       if (s.kind === 'fields') {
         const rows = s.fields
-          .map((f) => `<div class="kv"><div class="k">${esc(f.label)}</div><div class="v">${esc(fieldValue(f, data.fields)) || '—'}</div></div>`)
+          .map((f) => `<div class="kv"><div class="k">${esc(f.label)}</div><div class="v">${escMultiline(fieldValue(f, data.fields)) || '—'}</div></div>`)
           .join('');
         return `${s.title ? `<h2>${esc(s.title)}</h2>` : ''}<div class="fields">${rows}</div>`;
       }

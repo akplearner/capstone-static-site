@@ -82,9 +82,17 @@ export function RegisterTable({
                           </option>
                         ))}
                       </select>
+                    ) : c.type === 'area' ? (
+                      <textarea
+                        value={row[c.field] ?? ''}
+                        placeholder={c.placeholder}
+                        rows={2}
+                        onChange={(e) => update(i, c.field, e.target.value)}
+                        className={`${inputClass} min-w-[12rem] resize-y`}
+                      />
                     ) : (
                       <input
-                        type={c.type === 'number' ? 'number' : 'text'}
+                        type={c.type === 'number' ? 'number' : c.type === 'date' ? 'date' : 'text'}
                         value={row[c.field] ?? ''}
                         placeholder={c.placeholder}
                         onChange={(e) => update(i, c.field, e.target.value)}
