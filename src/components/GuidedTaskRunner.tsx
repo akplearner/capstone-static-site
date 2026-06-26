@@ -30,7 +30,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
-  const [mode, setMode] = useState<'guided' | 'all'>('guided');
+  const [mode, setMode] = useState<'guided' | 'all'>('all');
   const [currentIdx, setCurrentIdx] = useState(() => {
     const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));

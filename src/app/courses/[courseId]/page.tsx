@@ -426,6 +426,9 @@ export default function CoursePage() {
   const { member, loading, setMember } = useMember(course.id);
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  // false until the student expands/collapses a task themselves; until then the
+  // next unfinished task in the active week shows open by default (fewer clicks).
+  const [expandedTouched, setExpandedTouched] = useState(false);
   // null = the student hasn't toggled weeks yet, so the active week shows open by
   // default; once they interact we track their explicit set.
   const [openWeeks, setOpenWeeks] = useState<Set<number> | null>(null);
@@ -537,7 +540,11 @@ export default function CoursePage() {
         return next;
       });
 
-  const toggle = toggleSet(setExpanded);
+  const toggleExpanded = toggleSet(setExpanded);
+  const toggle = (id: string) => {
+    setExpandedTouched(true);
+    toggleExpanded(id);
+  };
   const toggleRef = toggleSet(setOpenRefs);
 
   const toggleWeek = (n: number) =>
@@ -1121,17 +1128,19 @@ export default function CoursePage() {
                   )}
 
                   {joined && member && ownTasks.length > 0 && (
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
-                      <WeekTaskFlow
-                        course={course}
-                        role={member.role}
-                        week={w.number}
-                        taskStats={taskStats}
-                        onTaskClick={(id) => {
-                          const t = getTaskById(course, id);
-                          if (t) goToTask(t);
-                        }}
-                      />
+                    <div className="rounded-lg border border-gray-200 px-4 dark:border-gray-700">
+                      <Collapsible title="Week at a glance — flow & hand-offs" defaultOpen={false}>
+                        <WeekTaskFlow
+                          course={course}
+                          role={member.role}
+                          week={w.number}
+                          taskStats={taskStats}
+                          onTaskClick={(id) => {
+                            const t = getTaskById(course, id);
+                            if (t) goToTask(t);
+                          }}
+                        />
+                      </Collapsible>
                     </div>
                   )}
 
@@ -1182,7 +1191,7 @@ export default function CoursePage() {
                           task={task}
                           isOwn
                           joined={joined}
-                          open={expanded.has(task.id)}
+                          open={expanded.has(task.id) || (!expandedTouched && task.id === nextTask?.id)}
                           percent={taskStats[task.id] ?? 0}
                           onToggle={() => toggle(task.id)}
                         >
