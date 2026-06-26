@@ -7,14 +7,8 @@ import { EmptyState } from '@/components/EmptyState';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
-import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
-import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
-import { FolderTree } from '@/components/docs/FolderTree';
-import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
-import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
-import { ToolsByPhase } from '@/components/docs/ToolsByPhase';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { docsRepo } from '@/lib/data';
@@ -260,12 +254,12 @@ export default function DeliverablesPage() {
         </p>
       </div>
 
-      <DeliverablesIndex collapsible />
-      <WeeklyFlow course={course} collapsible />
-      <DocsReductionTable collapsible />
-      <ToolsByPhase />
-      <QuickReferenceCard />
-      <FolderTree />
+      <p className="text-sm text-gray-500 dark:text-gray-400">
+        Need the reference tables (the 8 deliverables, weekly flow, folder layout, tools)?{' '}
+        <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+          See the Guide →
+        </Link>
+      </p>
 
       {/* Week selector */}
       <div className="flex flex-wrap items-center gap-2">

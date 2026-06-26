@@ -35,9 +35,11 @@ import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { InfoTip } from '@/components/InfoTip';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
+import { QuickstartChecklist, QuickstartStep } from '@/components/QuickstartChecklist';
+import { TourGuide, TOUR_EVENT, TourStep } from '@/components/TourGuide';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
-import { progressRepo } from '@/lib/data';
+import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -467,6 +469,12 @@ export default function CoursePage() {
   // Active week is open by default until the student toggles weeks themselves.
   const effectiveOpenWeeks = openWeeks ?? new Set<number>([activeWeek]);
 
+  // Has the team saved any deliverable yet? (drives the Start-here checklist).
+  const hasDeliverable = useClientStore<boolean>(
+    () => (member ? Object.keys(docsRepo.get(course.id, member.teamId) ?? {}).length > 0 : false),
+    false
+  );
+
   if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
 
   if (course.locked) {
@@ -581,6 +589,24 @@ export default function CoursePage() {
   const remainingTasks = member
     ? ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) < 100)
     : [];
+
+  // ── Guided onboarding: the core loop as a live "Start here" checklist + tour ──
+  const thisWeekDone = !!member && (weekStats[activeWeek] ?? 0) >= 100;
+  const gatePassed = course.gates.length === 0 || Object.values(gateStats).includes('passed');
+  const quickstartSteps: QuickstartStep[] = [
+    { label: 'Join a team & role', how: 'Pick your team and role below to unlock the work.', done: joined },
+    { label: 'Do this week’s tasks', how: 'Open Weekly Tasks and work the guided steps.', done: thisWeekDone, onAction: () => setTab('weeks'), cta: 'Tasks' },
+    { label: 'Fill your deliverable & save the PDF', how: 'Open Deliverables, fill the form, then Generate PDF.', done: hasDeliverable, href: `/courses/${course.id}/docs`, cta: 'Open' },
+    { label: 'Clear the week’s gate', how: 'Finish the week’s required tasks to pass the gate.', done: gatePassed, onAction: () => setTab('weeks'), cta: 'Tasks' },
+  ];
+  const tourSteps: TourStep[] = [
+    { target: 'quickstart', title: 'Start here', body: 'This checklist is your path through the whole course: join, do the week’s tasks, fill the deliverable, clear the gate.' },
+    { target: 'tab-weeks', title: 'Weekly Tasks', body: 'Your actual work — guided, step-by-step tasks for each week: run the tool, capture the evidence.' },
+    { target: 'tab-deliverables', title: 'Deliverables', body: 'Fill the report forms here; they auto-format your document and export a PDF.' },
+    { target: 'continue-btn', title: 'Continue', body: 'This always jumps you to your next unfinished task.' },
+    { title: 'That’s the loop', body: 'Tasks → deliverable → PDF → gate, one week at a time. Replay this tour anytime from “Start here”.' },
+  ];
+  const startTour = () => window.dispatchEvent(new Event(TOUR_EVENT));
 
   // Task search (Weekly Tasks tab). Matches title, objective, or framework; an
   // active query force-opens every week so matches are visible without clicking.
@@ -723,6 +749,7 @@ export default function CoursePage() {
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      <TourGuide steps={tourSteps} storageKey="capstone_tour_v1_seen" />
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
@@ -734,7 +761,7 @@ export default function CoursePage() {
         <button type="button" onClick={() => setTab('overview')} className={subTabClass(tab === 'overview')}>
           Overview
         </button>
-        <button type="button" onClick={() => setTab('weeks')} className={subTabClass(tab === 'weeks')}>
+        <button type="button" data-tour="tab-weeks" onClick={() => setTab('weeks')} className={subTabClass(tab === 'weeks')}>
           Weekly Tasks
         </button>
         {joined && member && (
@@ -743,7 +770,7 @@ export default function CoursePage() {
           </Link>
         )}
         {joined && member && (
-          <Link href={`/courses/${course.id}/docs`} className={SUBTAB_LINK}>
+          <Link href={`/courses/${course.id}/docs`} data-tour="tab-deliverables" className={SUBTAB_LINK}>
             <ClipboardList className="h-4 w-4" /> Deliverables
           </Link>
         )}
@@ -759,6 +786,7 @@ export default function CoursePage() {
               <Button
                 onClick={() => nextTask && goToTask(nextTask)}
                 size="sm"
+                data-tour="continue-btn"
                 className="flex items-center gap-1.5"
               >
                 Continue <ArrowRight className="h-4 w-4" />
@@ -780,6 +808,8 @@ export default function CoursePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
+      <QuickstartChecklist steps={quickstartSteps} onTakeTour={startTour} />
+
       {/* Role "this week" hero — connects your role to what's left right now */}
       {joined && member && ownRole && (
         <motion.div

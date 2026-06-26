@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ListChecks, FileText, ShieldCheck, Presentation, ArrowRight } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
+import { Button, Collapsible } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
@@ -77,10 +77,16 @@ export default function CourseGuidePage() {
         </p>
         <WorkflowFlow />
         <DeliverablesIndex />
-        <WeeklyFlow course={course} />
-        <DocsReductionTable />
-        <FolderTree />
-        <QuickReferenceCard />
+        <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="More reference — weekly flow, folder layout & cheat sheet" defaultOpen={false}>
+            <div className="space-y-4 pb-2">
+              <WeeklyFlow course={course} />
+              <DocsReductionTable />
+              <FolderTree />
+              <QuickReferenceCard />
+            </div>
+          </Collapsible>
+        </div>
       </section>
 
       <section className="space-y-6">
