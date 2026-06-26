@@ -4,7 +4,7 @@ import type { RegisterRow, GrcData } from '../types';
 // Column schema for the generic RegisterTable. `derived` columns are computed
 // (read-only) from the other fields, so students don't hand-calculate severity
 // or risk level.
-export type ColumnType = 'text' | 'number' | 'select';
+export type ColumnType = 'text' | 'number' | 'select' | 'area' | 'date';
 export interface Column {
   field: string;
   label: string;

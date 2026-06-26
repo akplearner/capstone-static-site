@@ -273,6 +273,7 @@ function TaskReference({ task }: { task: Task }) {
               whatItMeans={s.whatItMeans}
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
+              usesForm={s.usesForm}
               troubleshooting={s.troubleshooting}
               optional={s.optional}
             />
@@ -769,17 +770,19 @@ export default function CoursePage() {
       {/* ───────── Overview tab ───────── */}
       {tab === 'overview' && (
       <motion.div
-        className="space-y-8"
+        className="space-y-6"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.25 }}
       >
       {/* Role "this week" hero — connects your role to what's left right now */}
       {joined && member && ownRole && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-lg border border-l-4 border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+          transition={{ delay: 0.05 }}
+          whileHover={{ y: -2 }}
+          className="rounded-lg border border-l-4 border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
           style={{ borderLeftColor: ownRole.color }}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -812,7 +815,7 @@ export default function CoursePage() {
       )}
 
       {/* Pipeline + gates — collapsed by default once enrolled to keep the dashboard calm. */}
-      <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-lg border border-gray-200 bg-white px-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="Course pipeline & gates" defaultOpen={!joined}>
           <div className="space-y-4 pb-2">
             <Link
@@ -888,7 +891,7 @@ export default function CoursePage() {
 
       {/* Progress + your next step (joined) */}
       {joined && member && (
-        <div className="grid gap-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800 md:grid-cols-[1fr_auto] md:items-center">
+        <div className="grid gap-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <div className="flex items-baseline justify-between gap-2">
               <span className="text-sm font-semibold text-gray-900 dark:text-white">Your progress</span>
@@ -922,7 +925,7 @@ export default function CoursePage() {
 
       {/* Your path — one focused diagram; the conceptual diagrams live on the Guide. */}
       {joined && member && (
-        <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+        <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">
             Your path{ownRole ? ` — ${ownRole.name}` : ''}
           </h2>

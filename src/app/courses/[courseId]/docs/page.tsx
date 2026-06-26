@@ -1,13 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, CheckCircle2, Circle, FileSpreadsheet, FileText, Info, Lock, Printer, Sparkles } from 'lucide-react';
+import { AlertCircle, ArrowLeft, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Info, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
+import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
+import { FolderTree } from '@/components/docs/FolderTree';
+import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
+import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
+import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
 import { ToolsByPhase } from '@/components/docs/ToolsByPhase';
 import { useCourse } from '@/lib/useCourse';
@@ -16,12 +21,24 @@ import { docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData } from '@/lib/docs/types';
 import { DELIVERABLES, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
-import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown } from '@/lib/docs/report';
+import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
+import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
+import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
 
 type DocsMap = Record<string, DeliverableData>;
 
 function download(filename: string, text: string) {
   const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function downloadBytes(filename: string, bytes: Uint8Array, type: string) {
+  const blob = new Blob([bytes as BlobPart], { type });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -49,6 +66,9 @@ export default function DeliverablesPage() {
   const [week, setWeek] = useState<number | null>(null);
   const selectedWeek = week ?? roleDefaultWeek;
 
+  const importInputRef = useRef<HTMLInputElement>(null);
+  const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
   if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
   if (!member) {
     return (
@@ -74,6 +94,25 @@ export default function DeliverablesPage() {
   const myDefs = deliverablesForRole(member.role);
   const dueThisWeek = myDefs.filter((d) => d.weeks.includes(selectedWeek));
   const authorized = isTeamAuthorized(saved);
+  const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role.toUpperCase();
+
+  const handleExportMyWork = () => {
+    const json = exportTeamData(saved, { ...meta, course: course.id }, member.role);
+    download(`${packageRoot(meta)}_${member.role}.json`, json);
+  };
+
+  const handleImportFile = async (file: File) => {
+    try {
+      const incoming = parseTeamData(await file.text());
+      const current = docsRepo.get(course.id, teamId) ?? {};
+      docsRepo.save(course.id, teamId, mergeTeamData(current, incoming));
+      notifyStore();
+      const n = Object.keys(incoming).length;
+      setImportMsg({ ok: true, text: `Merged ${n} deliverable${n === 1 ? '' : 's'} from ${file.name}.` });
+    } catch (err) {
+      setImportMsg({ ok: false, text: err instanceof Error ? err.message : 'Could not read that file.' });
+    }
+  };
 
   return (
     <div className="space-y-8">
@@ -95,6 +134,92 @@ export default function DeliverablesPage() {
       </div>
 
       <WorkflowFlow />
+      <RoleExtractionGuide role={member.role} roleLabel={roleName} />
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <div className="flex items-start gap-2 text-sm text-blue-900 dark:text-blue-200">
+          <Package className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
+          <p>
+            <strong>Download team package</strong> — bundles all 8 deliverables into one zip, in the
+            submission folder structure (<span className="font-mono text-xs">{packageFileName(meta)}</span>).
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => downloadBytes(packageFileName(meta), buildTeamPackage(saved, meta), 'application/zip')}
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+        >
+          <Package className="h-4 w-4" /> Download team package (.zip)
+        </button>
+      </div>
+
+      {/* Cross-role handoff: each role works on their own device, so hand off a
+          JSON file that GRC gathers before building the complete team package. */}
+      <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <div className="flex items-start gap-2">
+          <Users className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
+          <div>
+            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+              Team handoff &amp; your report
+            </h2>
+            <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+              Everyone fills their own deliverables on their own device. <strong>Export your work</strong>{' '}
+              and send it to your team&apos;s GRC, who <strong>imports each teammate&apos;s file</strong> here
+              and then downloads the complete package above.
+            </p>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => printHTML(toRoleReportHTML(myDefs, saved, meta, `${roleName} — Full Report`))}
+            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+          >
+            <FileDown className="h-4 w-4" /> Generate my full report (PDF)
+          </button>
+          <button
+            type="button"
+            onClick={handleExportMyWork}
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            <Download className="h-4 w-4" /> Export my work (.json)
+          </button>
+          <button
+            type="button"
+            onClick={() => importInputRef.current?.click()}
+            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+          >
+            <Upload className="h-4 w-4" /> Import teammate file (GRC)
+          </button>
+          <input
+            ref={importInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              if (file) handleImportFile(file);
+              e.target.value = '';
+            }}
+          />
+        </div>
+        {importMsg && (
+          <div
+            className={`flex items-start gap-2 rounded-md border p-2.5 text-sm ${
+              importMsg.ok
+                ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300'
+                : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'
+            }`}
+          >
+            {importMsg.ok ? (
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+            ) : (
+              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+            )}
+            <span>{importMsg.text}</span>
+          </div>
+        )}
+      </div>
 
       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -105,7 +230,11 @@ export default function DeliverablesPage() {
       </div>
 
       <DeliverablesIndex collapsible />
+      <WeeklyFlow course={course} collapsible />
+      <DocsReductionTable collapsible />
       <ToolsByPhase />
+      <QuickReferenceCard />
+      <FolderTree />
 
       {/* Week selector */}
       <div className="flex flex-wrap items-center gap-2">

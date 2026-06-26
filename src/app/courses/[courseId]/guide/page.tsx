@@ -10,7 +10,11 @@ import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
+import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
+import { FolderTree } from '@/components/docs/FolderTree';
+import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
+import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
@@ -73,6 +77,10 @@ export default function CourseGuidePage() {
         </p>
         <WorkflowFlow />
         <DeliverablesIndex />
+        <WeeklyFlow course={course} />
+        <DocsReductionTable />
+        <FolderTree />
+        <QuickReferenceCard />
       </section>
 
       <section className="space-y-6">

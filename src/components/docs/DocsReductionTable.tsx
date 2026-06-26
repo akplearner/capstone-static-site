@@ -1,0 +1,89 @@
+'use client';
+
+import { ArrowRight } from 'lucide-react';
+import { Collapsible } from '@/components/ui/Button';
+import { DELIVERABLES, getDeliverable } from '@/lib/docs/definitions';
+
+/**
+ * Spec §1 — the old course produced 17 loose working files; this platform
+ * consolidates them into 8 graded deliverables (+ 2 admin files). Showing the
+ * mapping is what makes the "17 → 8" change legible to returning students.
+ */
+const MAP: { id: string; old: string[] }[] = [
+  { id: 'scope_roe', old: ['Case_Overview', 'Scope_and_Rules'] },
+  { id: 'asset_inventory', old: ['Asset_List.csv'] },
+  { id: 'risk_register', old: ['Simple_Risk_List.csv', 'Threat_Notes'] },
+  { id: 'hardening_baseline', old: ['Hardening_Checklist', 'Firewall_Notes', 'Logging_Notes'] },
+  { id: 'change_log', old: ['Change_Log'] },
+  { id: 'pentest_report', old: ['Scan_Results', 'Exploit_Notes', 'Findings_Summary'] },
+  { id: 'incident_report', old: ['IR_Awareness_Notes'] },
+  { id: 'final_report', old: ['Final_Presentation', 'Recommendations'] },
+];
+
+const ADMIN = ['Team_Roles', 'README'];
+
+function Table() {
+  const oldCount = MAP.reduce((n, m) => n + m.old.length, 0) + ADMIN.length;
+  return (
+    <div className="overflow-x-auto pb-2">
+      <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+        The old course produced <strong>{oldCount} loose files</strong>. They now consolidate into{' '}
+        <strong>{DELIVERABLES.length} graded deliverables</strong> (plus a README and Team_Roles) — same
+        work, one clear set of documents.
+      </p>
+      <table className="w-full min-w-[560px] text-sm">
+        <thead>
+          <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <th className="py-2 pr-3">Old working files</th>
+            <th className="py-2 pr-3" />
+            <th className="py-2 pr-3">New deliverable</th>
+          </tr>
+        </thead>
+        <tbody>
+          {MAP.map((m) => {
+            const def = getDeliverable(m.id);
+            return (
+              <tr key={m.id} className="border-b border-gray-100 align-top dark:border-gray-700/60">
+                <td className="py-1.5 pr-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+                  {m.old.join(' · ')}
+                </td>
+                <td className="py-1.5 pr-3 text-gray-300 dark:text-gray-600">
+                  <ArrowRight className="h-4 w-4" />
+                </td>
+                <td className="py-1.5 pr-3 font-medium text-gray-900 dark:text-white">
+                  {def?.num}. {def?.title}{' '}
+                  <span className="font-mono text-xs font-normal text-gray-400">{def?.file}</span>
+                </td>
+              </tr>
+            );
+          })}
+          <tr className="align-top">
+            <td className="py-1.5 pr-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+              {ADMIN.join(' · ')}
+            </td>
+            <td className="py-1.5 pr-3 text-gray-300 dark:text-gray-600">
+              <ArrowRight className="h-4 w-4" />
+            </td>
+            <td className="py-1.5 pr-3 text-gray-600 dark:text-gray-400">
+              Admin files — kept as <span className="font-mono text-xs">README.md</span> &amp;{' '}
+              <span className="font-mono text-xs">Team_Roles.md</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+export function DocsReductionTable({ collapsible = false }: { collapsible?: boolean }) {
+  if (collapsible) {
+    return (
+      <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+        <Collapsible title="From 17 files to 8 deliverables" defaultOpen={false}>
+          <Table />
+        </Collapsible>
+      </div>
+    );
+  }
+  return <Table />;
+}

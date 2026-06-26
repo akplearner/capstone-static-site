@@ -96,6 +96,7 @@ function buildCrumbs(segments: string[], courseTitle: string): Crumb[] {
     const courseHref = `/courses/${id}`;
     const crumbs: Crumb[] = [home, { label: courseTitle, href: sub ? courseHref : undefined }];
     if (sub === 'guide') crumbs.push({ label: 'Guide' });
+    else if (sub === 'docs') crumbs.push({ label: 'Deliverables' });
     else if (sub === 'team') crumbs.push({ label: `Team ${teamId ?? ''}`.trim() });
     return crumbs;
   }

@@ -53,6 +53,10 @@ export interface Step {
   isEvidenceStep?: boolean;
   /** The deliverable filename this step contributes toward (for evidence steps). */
   producesDeliverable?: string;
+  /** If set, this step's document is produced by filling a website form (one of
+   *  the 8 deliverable forms, named by title) on the Deliverables page — not by a
+   *  terminal command. Renders a "fill the form" callout instead of a command. */
+  usesForm?: string;
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
   /** Optional steps are shown and tracked but excluded from completion %, week

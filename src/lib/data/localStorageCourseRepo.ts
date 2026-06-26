@@ -2,10 +2,11 @@ import { Course } from '../types';
 import { CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { SECURITY_PLUS } from './seed/securityPlus';
+import { CYSA_PLUS } from './seed/cysa';
 
 // Built-in courses shipped in code. They are never written to localStorage so
 // they stay upgradeable; an authored course with the same id overrides a seed.
-const SEEDS: Course[] = [SECURITY_PLUS];
+const SEEDS: Course[] = [SECURITY_PLUS, CYSA_PLUS];
 
 function hasWindow(): boolean {
   return typeof window !== 'undefined';

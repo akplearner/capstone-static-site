@@ -1,17 +1,18 @@
 'use client';
 
 import { Collapsible } from '@/components/ui/Button';
-import { DELIVERABLES } from '@/lib/docs/definitions';
+import { DELIVERABLES, buildLabel } from '@/lib/docs/definitions';
 
 function IndexTable() {
   return (
     <div className="overflow-x-auto pb-2">
-      <table className="w-full min-w-[640px] text-sm">
+      <table className="w-full min-w-[760px] text-sm">
         <thead>
           <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
             <th className="py-2 pr-3">#</th>
             <th className="py-2 pr-3">Deliverable</th>
             <th className="py-2 pr-3">Owner</th>
+            <th className="py-2 pr-3">How it&apos;s built</th>
             <th className="py-2 pr-3">Folder</th>
             <th className="py-2 pr-3">Week</th>
             <th className="py-2 pr-3">Gate</th>
@@ -24,6 +25,7 @@ function IndexTable() {
               <td className="py-1.5 pr-3 text-gray-500">{d.num}</td>
               <td className="py-1.5 pr-3 font-medium text-gray-900 dark:text-white">{d.title}</td>
               <td className="py-1.5 pr-3 uppercase">{d.owner}</td>
+              <td className="py-1.5 pr-3 text-gray-600 dark:text-gray-300">{buildLabel(d)}</td>
               <td className="py-1.5 pr-3 font-mono text-xs text-gray-500 dark:text-gray-400">{d.folder}</td>
               <td className="py-1.5 pr-3">{d.weeks.join(', ')}</td>
               <td className="py-1.5 pr-3">{d.gate ?? '—'}</td>

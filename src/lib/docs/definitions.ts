@@ -80,10 +80,11 @@ export const DELIVERABLES: DeliverableDef[] = [
             c('os', 'OS', 'text', { placeholder: 'Ubuntu 20.04' }),
             c('role', 'Role / purpose', 'text', { placeholder: 'DVWA web target' }),
             c('discovered_by', 'Discovered by / how', 'text', { placeholder: 'Red / nmap' }),
+            c('evidence', 'Evidence (scan output)', 'text', { placeholder: 'Nmap_Scan.txt' }),
             c('notes', 'Notes', 'text', { placeholder: 'default install' }),
           ],
           seed: [
-            { hostname: 'dvwa-vm', ip: '10.10.10.15', service: '80/tcp HTTP', version: 'Apache 2.4.41', os: 'Ubuntu 20.04', role: 'DVWA web target', discovered_by: 'Red / nmap', notes: 'default install' },
+            { hostname: 'dvwa-vm', ip: '10.10.10.15', service: '80/tcp HTTP', version: 'Apache 2.4.41', os: 'Ubuntu 20.04', role: 'DVWA web target', discovered_by: 'Red / nmap', evidence: 'Nmap_Scan.txt', notes: 'default install' },
           ],
         },
       },
@@ -119,13 +120,14 @@ export const DELIVERABLES: DeliverableDef[] = [
             c('asset', 'Asset affected', 'text', { placeholder: 'DVWA web app' }),
             c('threat', 'Threat (STRIDE / actor)', 'text', { placeholder: 'Tampering / external attacker' }),
             c('vulnerability', 'Vulnerability', 'text', { placeholder: 'SQL injection in login' }),
+            c('evidence', 'Evidence / proof', 'text', { placeholder: 'SQL_Injection_Proof.txt' }),
             c('likelihood', 'Likelihood', 'select', { options: LMH }),
             c('impact', 'Impact', 'select', { options: LMH }),
             c('rating', 'Risk rating', 'text', { derived: (r) => riskLevel(r.likelihood ?? '', r.impact ?? '') }),
             c('treatment', 'Treatment', 'select', { options: ['Mitigate', 'Accept', 'Transfer', 'Avoid'] }),
             c('owner', 'Owner', 'text', { placeholder: 'Blue team' }),
             c('status', 'Status', 'select', { options: ['Open', 'In progress', 'Closed'] }),
-            c('target_date', 'Target date', 'text', { placeholder: '2026-02-21' }),
+            c('target_date', 'Target date', 'date'),
           ],
           seed: [
             { risk_id: 'R-01', asset: 'DVWA web app', threat: 'Tampering / external attacker', vulnerability: 'SQL injection in login', likelihood: 'High', impact: 'High', treatment: 'Mitigate', owner: 'Blue team', status: 'Open', target_date: '2026-02-21' },
@@ -167,7 +169,7 @@ export const DELIVERABLES: DeliverableDef[] = [
           ],
           seed: [
             { control: 'Firewall: default-deny inbound (UFW)', done: 'Yes', evidence: 'UFW_Status.txt', cis: 'CIS 4 Secure configuration' },
-            { control: 'Logging enabled & reviewed', done: 'Partial', evidence: 'Win_EventLog.txt', cis: 'CIS 8 Audit log management' },
+            { control: 'Logging enabled & reviewed', done: 'Yes', evidence: 'Win_EventLog.txt', cis: 'CIS 8 Audit log management' },
           ],
         },
       },
@@ -206,7 +208,7 @@ export const DELIVERABLES: DeliverableDef[] = [
           group: 'changes',
           label: 'Changes',
           columns: [
-            c('date', 'Date', 'text', { placeholder: '2026-02-05' }),
+            c('date', 'Date', 'date'),
             c('change', 'Change made', 'text', { placeholder: 'Enabled UFW (allow 22,80)' }),
             c('who', 'Who', 'text', { placeholder: 'Blue team' }),
             c('reason', 'Reason', 'text', { placeholder: 'network protection' }),
@@ -262,10 +264,10 @@ export const DELIVERABLES: DeliverableDef[] = [
             c('target', 'Affected target', 'text', { placeholder: '10.10.10.15 / DVWA' }),
             c('tool', 'Tool used', 'text', { placeholder: 'sqlmap' }),
             c('command', 'Command run', 'text', { placeholder: 'sqlmap -u ... --dump' }),
-            c('evidence', 'Evidence (output)', 'text', { placeholder: 'dumped users table' }),
+            c('evidence', 'Evidence (output)', 'area', { placeholder: 'dumped users table' }),
             c('screenshot', 'Screenshot', 'text', { placeholder: '20260217_Team01_sqlmap_dump.png' }),
-            c('impact', 'Impact', 'text', { placeholder: 'unauthorized DB access' }),
-            c('remediation', 'Remediation', 'text', { placeholder: 'parameterized queries' }),
+            c('impact', 'Impact', 'area', { placeholder: 'unauthorized DB access' }),
+            c('remediation', 'Remediation', 'area', { placeholder: 'parameterized queries' }),
             c('reference', 'Reference', 'text', { placeholder: 'OWASP A03 Injection' }),
             c('cvss', 'CVSS', 'number', { placeholder: '9.8' }),
           ],
@@ -406,6 +408,17 @@ export function isTeamAuthorized(saved: Record<string, DeliverableData>): boolea
 
 export function deliverablesForRole(role: string): DeliverableDef[] {
   return DELIVERABLES.filter((d) => d.owner === role);
+}
+
+/** Human label for how a deliverable is built (spec §2 "How it's built"). */
+export function buildLabel(def: DeliverableDef): string {
+  const hasGroup = def.sections.some((s) => s.kind === 'group');
+  const hasFields = def.sections.some((s) => s.kind === 'fields');
+  if (def.kind === 'checklist') return 'Checklist (multi-row)';
+  if (def.kind === 'template') return 'Type-in template';
+  if (hasGroup && hasFields) return 'Form + wrapper';
+  if (hasGroup) return 'Form (multi-row)';
+  return 'Form';
 }
 
 /** Build a deliverable's starting data from its seed (example) rows/fields. */
