@@ -125,12 +125,59 @@ const PRINT_CSS = `
   .toc li { margin: 2px 0; }
   .deliverable + .deliverable { border-top: 1px dashed #ccc; padding-top: 6px; }
   .sub { color: #666; font-size: 12px; margin: 0 0 12px; }
+  .metrics { border: 1px solid #e5e7eb; border-radius: 8px; padding: 12px 14px; margin: 0 0 18px; background: #fafafa; }
+  .metrics-h { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: #374151; margin-bottom: 8px; }
+  .sevrow { display: flex; flex-wrap: wrap; gap: 6px; }
+  .sev { font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; border: 1px solid #d1d5db; color: #374151; }
+  .sev-critical { background: #fee2e2; border-color: #fecaca; color: #991b1b; }
+  .sev-high { background: #ffedd5; border-color: #fed7aa; color: #9a3412; }
+  .sev-medium { background: #fef9c3; border-color: #fde68a; color: #854d0e; }
+  .sev-low { background: #dcfce7; border-color: #bbf7d0; color: #166534; }
+  .sev-info { background: #e0f2fe; border-color: #bae6fd; color: #075985; }
+  .metrics-sub { margin-top: 8px; font-size: 12px; color: #555; }
   @media print {
     body { margin: 0.6in; }
     a { color: #111; }
     .deliverable { break-before: page; }
     .deliverable:first-of-type { break-before: auto; }
   }`;
+
+const SEVERITY_ORDER = ['Critical', 'High', 'Medium', 'Low', 'Info'];
+
+/** Collect rows from any group that has a 'severity' column (i.e. findings). */
+function collectFindings(defs: DeliverableDef[], dataById: Record<string, DeliverableData>): Record<string, string>[] {
+  const rows: Record<string, string>[] = [];
+  for (const d of defs) {
+    const data = dataById[d.id];
+    if (!data) continue;
+    for (const s of d.sections) {
+      if (s.kind === 'group' && s.group.columns.some((col) => col.field === 'severity')) {
+        rows.push(...(data.groups[s.group.group] ?? []));
+      }
+    }
+  }
+  return rows;
+}
+
+/** "Findings at a glance" — industry-report metrics: counts by severity + CVSS. */
+function findingsSummaryHTML(defs: DeliverableDef[], dataById: Record<string, DeliverableData>): string {
+  const rows = collectFindings(defs, dataById);
+  if (rows.length === 0) return '';
+  const counts: Record<string, number> = Object.fromEntries(SEVERITY_ORDER.map((s) => [s, 0]));
+  rows.forEach((r) => {
+    const s = (r.severity ?? '').trim();
+    if (s in counts) counts[s] += 1;
+  });
+  const cvss = rows.map((r) => parseFloat(r.cvss ?? '')).filter((n) => !Number.isNaN(n));
+  const maxC = cvss.length ? Math.max(...cvss).toFixed(1) : '—';
+  const avgC = cvss.length ? (cvss.reduce((a, b) => a + b, 0) / cvss.length).toFixed(1) : '—';
+  const chips = SEVERITY_ORDER.map((s) => `<span class="sev sev-${s.toLowerCase()}">${s}: ${counts[s]}</span>`).join('');
+  return `<div class="metrics">
+    <div class="metrics-h">Findings at a glance</div>
+    <div class="sevrow">${chips}</div>
+    <div class="metrics-sub">Total findings: ${rows.length} · Highest CVSS: ${maxC} · Average CVSS: ${avgC}</div>
+  </div>`;
+}
 
 /** Standalone, print-ready HTML document (opened in a new window → Save as PDF). */
 export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, meta: DocMeta = {}): string {
@@ -139,13 +186,14 @@ export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, me
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(def.file)}</title>
 <style>${PRINT_CSS}</style></head>
-<body onload="window.print()">
+<body>
   <div class="cover">
     <h1>${esc(def.title)}</h1>
     <div class="std">${esc(def.file)} · ${esc(def.standard)}</div>
     ${metaLine ? `<div class="meta">${esc(metaLine)}</div>` : ''}
   </div>
   <p class="purpose">${esc(def.purpose)}</p>
+  ${findingsSummaryHTML([def], { [def.id]: data })}
   ${sections}
 </body></html>`;
 }
@@ -180,12 +228,13 @@ export function toRoleReportHTML(
 
   return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(roleLabel)}</title>
 <style>${PRINT_CSS}</style></head>
-<body onload="window.print()">
+<body>
   <div class="cover">
     <h1>${esc(roleLabel)}</h1>
     <div class="std">${defs.length} deliverable${defs.length === 1 ? '' : 's'}${standards ? ` · ${esc(standards)}` : ''}</div>
     ${metaLine ? `<div class="meta">${esc(metaLine)}</div>` : ''}
   </div>
+  ${findingsSummaryHTML(defs, dataById)}
   <h2>Contents</h2>
   ${toc}
   ${body}

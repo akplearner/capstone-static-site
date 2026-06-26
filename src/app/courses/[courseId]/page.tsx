@@ -600,11 +600,39 @@ export default function CoursePage() {
       task.learn?.length ||
       task.tools?.length ||
       task.prerequisites?.length ||
-      task.definitionOfDone?.length ||
-      task.handoff?.length
+      task.definitionOfDone?.length
     );
     return (
     <>
+      {task.handoff && task.handoff.length > 0 && (
+        <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
+          <div className="flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-200">
+            <Send className="h-4 w-4" /> Coordinate with your team
+          </div>
+          <p className="mt-1 text-xs text-indigo-700 dark:text-indigo-300">
+            This task feeds a teammate — message them and share the file the moment you finish.
+          </p>
+          <ul className="mt-2 space-y-1 text-sm text-indigo-900 dark:text-indigo-200">
+            {task.handoff.map((h, i) => {
+              const toRole = getRoleDef(course, h.to);
+              return (
+                <li key={`${h.to}-${i}`} className="flex items-start gap-1.5">
+                  <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-500" />
+                  <span>
+                    When done, send{' '}
+                    {h.artifact && <span className="font-mono text-xs">{h.artifact} </span>}
+                    to{' '}
+                    <span className="font-semibold" style={{ color: toRole?.color }}>
+                      {toRole?.name ?? h.to}
+                    </span>{' '}
+                    — {h.note}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       {hasFlow && (
         <div className="mb-4 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
           {task.learn && task.learn.length > 0 && (
@@ -657,29 +685,6 @@ export default function CoursePage() {
                     <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" /> {d}
                   </li>
                 ))}
-              </ul>
-            </div>
-          )}
-          {task.handoff && task.handoff.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <Send className="h-3.5 w-3.5" /> Hand off
-              </div>
-              <ul className="mt-1 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-                {task.handoff.map((h, i) => {
-                  const toRole = getRoleDef(course, h.to);
-                  return (
-                    <li key={`${h.to}-${i}`} className="flex items-start gap-1.5">
-                      <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
-                      <span>
-                        <span className="font-medium" style={{ color: toRole?.color }}>
-                          {toRole?.name ?? h.to}
-                        </span>
-                        {h.artifact && <span className="font-mono text-xs"> · {h.artifact}</span>} — {h.note}
-                      </span>
-                    </li>
-                  );
-                })}
               </ul>
             </div>
           )}

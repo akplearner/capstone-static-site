@@ -47,11 +47,41 @@ function downloadBytes(filename: string, bytes: Uint8Array, type: string) {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Print a standalone HTML document via a hidden, same-origin iframe. This is
+ * popup-blocker proof and fires print reliably once the iframe has loaded —
+ * unlike window.open()+document.write(), where the blank window's load event
+ * has already passed so an inline onload="window.print()" never runs.
+ */
 function printHTML(html: string) {
-  const w = window.open('', '_blank');
-  if (!w) return;
-  w.document.write(html);
-  w.document.close();
+  const iframe = document.createElement('iframe');
+  iframe.setAttribute('aria-hidden', 'true');
+  iframe.style.position = 'fixed';
+  iframe.style.right = '0';
+  iframe.style.bottom = '0';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = '0';
+  iframe.onload = () => {
+    const win = iframe.contentWindow;
+    if (!win) return;
+    win.focus();
+    win.print();
+    // Remove after the print dialog has had time to open (it blocks the
+    // afterprint cleanup in some browsers, so use a timeout fallback).
+    const cleanup = () => setTimeout(() => iframe.remove(), 500);
+    win.addEventListener('afterprint', cleanup, { once: true });
+    setTimeout(cleanup, 60000);
+  };
+  document.body.appendChild(iframe);
+  const doc = iframe.contentWindow?.document;
+  if (!doc) {
+    iframe.remove();
+    return;
+  }
+  doc.open();
+  doc.write(html);
+  doc.close();
 }
 
 export default function DeliverablesPage() {
@@ -164,8 +194,9 @@ export default function DeliverablesPage() {
             </h2>
             <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
               Everyone fills their own deliverables on their own device. <strong>Export your work</strong>{' '}
-              and send it to your team&apos;s GRC, who <strong>imports each teammate&apos;s file</strong> here
-              and then downloads the complete package above.
+              as a <span className="font-mono text-xs">.json</span> backup, then <strong>Restore from file</strong>{' '}
+              to repopulate the forms on another device — or send it to your team&apos;s GRC, who restores each
+              teammate&apos;s file and downloads the complete package above.
             </p>
           </div>
         </div>
@@ -189,7 +220,7 @@ export default function DeliverablesPage() {
             onClick={() => importInputRef.current?.click()}
             className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
           >
-            <Upload className="h-4 w-4" /> Import teammate file (GRC)
+            <Upload className="h-4 w-4" /> Restore from file (.json)
           </button>
           <input
             ref={importInputRef}
