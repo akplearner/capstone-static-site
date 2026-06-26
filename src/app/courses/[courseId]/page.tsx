@@ -273,6 +273,7 @@ function TaskReference({ task }: { task: Task }) {
               whatItMeans={s.whatItMeans}
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
+              usesForm={s.usesForm}
               troubleshooting={s.troubleshooting}
               optional={s.optional}
             />

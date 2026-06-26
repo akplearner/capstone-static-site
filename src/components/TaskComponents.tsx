@@ -1,6 +1,8 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
 import { motion } from 'framer-motion';
 import {
   Check,
@@ -12,6 +14,7 @@ import {
   Copy,
   FileText,
   Sparkles,
+  SquarePen,
   Terminal,
   Eye,
 } from 'lucide-react';
@@ -145,6 +148,7 @@ export function StepDetail({
   whatItMeans,
   frameworks,
   deliverable,
+  usesForm,
   troubleshooting,
   optional,
 }: {
@@ -158,9 +162,12 @@ export function StepDetail({
   whatItMeans: string;
   frameworks: string[];
   deliverable?: string;
+  usesForm?: string;
   troubleshooting?: string;
   optional?: boolean;
 }) {
+  const params = useParams();
+  const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   return (
     <div className="space-y-3">
       {optional && (
@@ -178,6 +185,7 @@ export function StepDetail({
         hasCommand={!!command}
         hasOutput={!!expectedOutput}
         deliverable={deliverable}
+        usesForm={usesForm}
       />
 
       {(instruction || description) && (
@@ -189,6 +197,21 @@ export function StepDetail({
             {instruction || description}
           </div>
         </div>
+      )}
+
+      {usesForm && (
+        <Link
+          href={`/courses/${courseId}/docs`}
+          className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 transition-colors hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"
+        >
+          <SquarePen className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
+          <p className="text-sm text-violet-900 dark:text-violet-200">
+            <span className="font-semibold">No terminal needed — fill this in the website form.</span>{' '}
+            Open the <span className="font-semibold">{usesForm}</span> form on the Deliverables page and
+            enter your data; it generates the formatted document for you.{' '}
+            <span className="underline">Go to Deliverables →</span>
+          </p>
+        </Link>
       )}
 
       {command && (
@@ -340,6 +363,7 @@ interface ChecklistItemProps {
   onToggle: (complete: boolean) => void;
   frameworks: string[];
   deliverable?: string;
+  usesForm?: string;
   troubleshooting?: string;
   optional?: boolean;
 }
@@ -358,6 +382,7 @@ export function ChecklistItem({
   onToggle,
   frameworks,
   deliverable,
+  usesForm,
   troubleshooting,
   optional,
 }: ChecklistItemProps) {
@@ -416,6 +441,7 @@ export function ChecklistItem({
                 whatItMeans={whatItMeans}
                 frameworks={frameworks}
                 deliverable={deliverable}
+                usesForm={usesForm}
                 troubleshooting={troubleshooting}
                 optional={optional}
               />

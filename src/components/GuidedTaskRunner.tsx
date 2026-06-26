@@ -211,6 +211,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
                   whatItMeans={current.whatItMeans}
                   frameworks={current.frameworks}
                   deliverable={current.producesDeliverable}
+                  usesForm={current.usesForm}
                   troubleshooting={current.troubleshooting}
                   optional={current.optional}
                 />
@@ -280,6 +281,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
               onToggle={(checked) => setStep(step.id, checked)}
               frameworks={step.frameworks}
               deliverable={step.producesDeliverable}
+              usesForm={step.usesForm}
               troubleshooting={step.troubleshooting}
               optional={step.optional}
             />

@@ -1,11 +1,17 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { FileText } from 'lucide-react';
+import { FileText, SquarePen } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { getDeliverablesForWeek, getWeekDef } from '@/lib/course-helpers';
+import { DELIVERABLES } from '@/lib/docs/definitions';
 import { RoleIcon } from '../RoleIcon';
 import { DiagramFrame } from './DiagramFrame';
+
+/** The form-generated documents a role produces in a given week (the 8 forms). */
+function documentsForWeek(role: string, week: number): string[] {
+  return DELIVERABLES.filter((d) => d.owner === role && d.weeks.includes(week)).map((d) => d.title);
+}
 
 interface DeliverablesMatrixProps {
   course: Course;
@@ -27,8 +33,8 @@ export function DeliverablesMatrix({ course, week, highlightRole }: Deliverables
   return (
     <DiagramFrame
       title="Documentation by week & role"
-      subtitle="The artifacts each role saves each week — your evidence for the gates and final report."
-      howToRead="Rows are weeks, columns are roles. Each cell lists the files that role should produce that week. Your role's column is highlighted."
+      subtitle="Each cell shows the Document (filled in a website form) and the raw Evidence (captured in the terminal) for that role and week."
+      howToRead="Rows are weeks, columns are roles. The violet Document is produced by filling that form on the Deliverables page; the amber Evidence files are raw tool output that back it up. Your role's column is highlighted."
     >
       <div className="min-w-[560px]">
         {/* Header */}
@@ -66,23 +72,42 @@ export function DeliverablesMatrix({ course, week, highlightRole }: Deliverables
                 {wd && <div className="text-[11px] text-gray-400">{wd.title}</div>}
               </div>
               {roles.map((r) => {
-                const docs = getDeliverablesForWeek(course, r.id, w);
+                const documents = documentsForWeek(r.id, w);
+                const evidence = getDeliverablesForWeek(course, r.id, w);
+                const empty = documents.length === 0 && evidence.length === 0;
                 return (
                   <div
                     key={r.id}
                     className={`px-3 py-3 ${highlightRole === r.id ? 'bg-gray-50 dark:bg-gray-700/30' : ''}`}
                   >
-                    {docs.length === 0 ? (
+                    {empty ? (
                       <span className="text-xs text-gray-300 dark:text-gray-600">—</span>
                     ) : (
-                      <ul className="space-y-1">
-                        {docs.map((d) => (
-                          <li key={d} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-gray-400">
-                            <FileText className="h-3 w-3 shrink-0 text-amber-500" />
-                            <span className="truncate font-mono">{d}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="space-y-2">
+                        {documents.length > 0 && (
+                          <ul className="space-y-1">
+                            {documents.map((d) => (
+                              <li key={d} className="flex items-start gap-1.5 text-xs font-medium text-violet-700 dark:text-violet-300">
+                                <SquarePen className="mt-0.5 h-3 w-3 shrink-0" />
+                                <span>{d} <span className="font-normal text-violet-400 dark:text-violet-500">· form</span></span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                        {evidence.length > 0 && (
+                          <div>
+                            <div className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Evidence</div>
+                            <ul className="mt-0.5 space-y-0.5">
+                              {evidence.map((d) => (
+                                <li key={d} className="flex items-center gap-1.5 text-[11px] text-gray-500 dark:text-gray-400">
+                                  <FileText className="h-2.5 w-2.5 shrink-0 text-amber-500" />
+                                  <span className="truncate font-mono">{d}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
                     )}
                   </div>
                 );

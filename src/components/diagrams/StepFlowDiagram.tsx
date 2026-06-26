@@ -8,6 +8,8 @@ interface StepFlowDiagramProps {
   hasCommand?: boolean;
   hasOutput?: boolean;
   deliverable?: string;
+  /** When set, the step's output is a website-form document, not a captured file. */
+  usesForm?: string;
 }
 
 type Node = {
@@ -28,6 +30,7 @@ export function StepFlowDiagram({
   hasCommand,
   hasOutput,
   deliverable,
+  usesForm,
 }: StepFlowDiagramProps) {
   const nodes: Node[] = [];
   if (hasInstruction)
@@ -37,7 +40,9 @@ export function StepFlowDiagram({
   if (hasOutput)
     nodes.push({ key: 'observe', label: 'Observe', Icon: Eye, tone: 'text-sky-600 dark:text-sky-400 border-sky-300 dark:border-sky-700 bg-sky-50 dark:bg-sky-900/20' });
   nodes.push({ key: 'understand', label: 'Understand', Icon: Lightbulb, tone: 'text-amber-600 dark:text-amber-400 border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20' });
-  if (deliverable)
+  if (usesForm)
+    nodes.push({ key: 'document', label: 'Document (form)', Icon: FileCheck2, tone: 'text-violet-600 dark:text-violet-400 border-violet-300 dark:border-violet-700 bg-violet-50 dark:bg-violet-900/20' });
+  else if (deliverable)
     nodes.push({ key: 'evidence', label: 'Evidence', Icon: FileCheck2, tone: 'text-rose-600 dark:text-rose-400 border-rose-300 dark:border-rose-700 bg-rose-50 dark:bg-rose-900/20' });
 
   return (
