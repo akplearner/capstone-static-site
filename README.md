@@ -4,6 +4,17 @@ A polished, interactive platform for hands-on, role-based cyber ranges. Ships wi
 Security+ capstone course and supports **multiple courses** plus an **instructor studio**
 to author new ones. Built with Next.js 16, Tailwind CSS, and Framer Motion.
 
+## Vision & roadmap
+
+Where this is headed and how we get there incrementally:
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — the north star (event-sourced, ontology-anchored,
+  validator-proven behavioral data; the seven value layers).
+- [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) — honest as-is map of today's code vs the target.
+- [`docs/ROADMAP.md`](docs/ROADMAP.md) — the staged path (MVP → foundations → ground truth → dual-use).
+- [`docs/OPERATIONS.md`](docs/OPERATIONS.md) — **what's needed from you** to run a fully functional app.
+- [`docs/adr/`](docs/adr/) — decision records for the load-bearing, build-now-or-regret-it choices.
+
 ## Features
 
 ✅ **Multi-course** — pick a course from the home page; each is fully self-contained  
