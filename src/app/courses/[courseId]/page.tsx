@@ -38,6 +38,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { QuickstartChecklist, QuickstartStep } from '@/components/QuickstartChecklist';
 import { TourGuide, TOUR_EVENT, TourStep } from '@/components/TourGuide';
 import { SignInPanel } from '@/components/auth/SignInPanel';
+import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useAuth } from '@/lib/useAuth';
@@ -924,6 +925,9 @@ export default function CoursePage() {
           </div>
         </Collapsible>
       </div>
+
+      {/* One-time migration of this device's local progress into the account */}
+      <ImportPrompt course={course} />
 
       {/* Inline enrollment */}
       <JoinPanel
