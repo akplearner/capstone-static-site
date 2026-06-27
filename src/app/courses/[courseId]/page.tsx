@@ -37,8 +37,12 @@ import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { QuickstartChecklist, QuickstartStep } from '@/components/QuickstartChecklist';
 import { TourGuide, TOUR_EVENT, TourStep } from '@/components/TourGuide';
+import { SignInPanel } from '@/components/auth/SignInPanel';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
+import { useAuth } from '@/lib/useAuth';
+import { useSupabaseSync } from '@/lib/useSupabaseSync';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
@@ -70,10 +74,16 @@ function subTabClass(active: boolean): string {
 function JoinPanel({
   course,
   member,
+  userId,
+  requireAuth,
   onJoined,
 }: {
   course: Course;
   member: Member | null;
+  /** Supabase auth user id (null when signed out). Becomes the member id. */
+  userId: string | null;
+  /** When true (Supabase configured), joining requires sign-in first. */
+  requireAuth: boolean;
   onJoined: (m: Member) => void;
 }) {
   const teamCount = course.teamCount ?? 3;
@@ -100,8 +110,11 @@ function JoinPanel({
       setError('Please enter your name to continue.');
       return;
     }
+    // When auth is on, the Supabase user id IS the member id (stable across devices);
+    // otherwise fall back to the local synthesized id.
     const newMember: Member = {
-      memberId: member?.memberId ?? `${course.id}-${cohort}-${team}-${role}-${Date.now()}`,
+      memberId:
+        userId ?? member?.memberId ?? `${course.id}-${cohort}-${team}-${role}-${Date.now()}`,
       courseId: course.id,
       teamId: team,
       role,
@@ -122,6 +135,17 @@ function JoinPanel({
     setEditing(false);
     onJoined(newMember);
   };
+
+  // Auth gate: when Supabase is on, you must sign in before joining a team so your
+  // progress is tied to your account and visible to teammates.
+  if (requireAuth && !userId) {
+    return (
+      <SignInPanel
+        title="Sign in to join a team"
+        subtitle="Joining a team saves your progress to your account and lets your teammates see your work. Sign in to continue — you can keep browsing the course either way."
+      />
+    );
+  }
 
   // Compact summary once enrolled.
   if (member && !editing) {
@@ -424,6 +448,9 @@ function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
 export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
+  const { user } = useAuth();
+  useSupabaseSync(course.id);
+  const requireAuth = isSupabaseConfigured();
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   // false until the student expands/collapses a task themselves; until then the
@@ -899,7 +926,13 @@ export default function CoursePage() {
       </div>
 
       {/* Inline enrollment */}
-      <JoinPanel course={course} member={member} onJoined={(m) => setMember(m)} />
+      <JoinPanel
+        course={course}
+        member={member}
+        userId={user?.id ?? null}
+        requireAuth={requireAuth}
+        onJoined={(m) => setMember(m)}
+      />
 
       {/* Reset (once joined) */}
       {joined && member && (
