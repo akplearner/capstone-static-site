@@ -1,6 +1,7 @@
 import { DeliverableData, emptyData } from './types';
 import { DELIVERABLES } from './definitions';
 import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
+import { CUSTODY_RULES, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
 
 /** Root folder name for a team's package, e.g. "Capstone_Team01". */
@@ -34,8 +35,13 @@ function readme(root: string, meta: DocMeta): string {
   }
   lines.push(
     '',
-    'Evidence (screenshots, captures, hashes) belongs in',
+    '## Evidence & chain of custody',
+    '',
+    'Evidence (screenshots, captures, hashes) stays on your machine in',
     '`04_Testing_and_Findings/Evidence/`, named `YYYYMMDD_TeamXX_Tool_Action.png`.',
+    'Record every artifact and hand-off in `Evidence/CHAIN_OF_CUSTODY.md`. Handling rules:',
+    '',
+    ...CUSTODY_RULES.map((r) => `- ${r}`),
     ''
   );
   return lines.filter((l) => l !== undefined).join('\n');
@@ -79,11 +85,11 @@ export function buildTeamPackage(saved: Record<string, DeliverableData>, meta: D
 
   entries.push({ name: `${root}/README.md`, data: enc.encode(readme(root, meta)) });
   entries.push({ name: `${root}/Team_Roles.md`, data: enc.encode(teamRoles(meta)) });
-  // Keep the Evidence folder in the tree even when empty.
-  entries.push({
-    name: `${root}/04_Testing_and_Findings/Evidence/.gitkeep`,
-    data: enc.encode(''),
-  });
+  // Seed the Evidence folder with a ready-to-fill chain-of-custody log (MD + CSV),
+  // so the team documents artifacts like a real case instead of an empty folder.
+  const evidenceDir = `${root}/04_Testing_and_Findings/Evidence`;
+  entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.md`, data: enc.encode(custodyLogMarkdown(meta)) });
+  entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.csv`, data: enc.encode(custodyLogCSV()) });
 
   return makeZip(entries);
 }

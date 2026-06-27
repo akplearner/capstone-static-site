@@ -167,7 +167,11 @@ export default function DeliverablesPage() {
           <Package className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
           <p>
             <strong>Download team package</strong> — bundles all 8 deliverables into one zip, in the
-            submission folder structure (<span className="font-mono text-xs">{packageFileName(meta)}</span>).
+            submission folder structure (<span className="font-mono text-xs">{packageFileName(meta)}</span>),
+            with a ready-to-fill chain-of-custody log in <span className="font-mono text-xs">Evidence/</span>.{' '}
+            <Link href={`/courses/${course.id}/guide`} className="font-medium underline">
+              Evidence handling &amp; chain of custody →
+            </Link>
           </p>
         </div>
         <button

@@ -1,6 +1,7 @@
 'use client';
 
-import { CheckCircle2, Circle, Server } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight, CheckCircle2, Circle, Server } from 'lucide-react';
 import { Collapsible } from './ui/Button';
 import { LAB_CHECKS, LAB_FIELDS, getLabAccess, saveLabAccess, useLabAccess } from '@/lib/labAccess';
 
@@ -36,10 +37,17 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
         <div className="space-y-4 pb-2">
           <p className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
             <Server className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
-            Enter the IPs your instructor gave you. They&apos;re filled into the commands below
+            Enter the IPs from your lab. They&apos;re filled into the commands below
             automatically (e.g. <span className="font-mono text-xs">&lt;YOUR_TARGET_IP&gt;</span> becomes your
             value), and saved on this device only.
           </p>
+
+          <Link
+            href={`/courses/${courseId}/guide`}
+            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            New here? See Lab requirements &amp; setup in the Guide <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {LAB_FIELDS.map((f) => (
