@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, GraduationCap, PencilRuler, ShieldCheck } from 'lucide-react';
+import { ChevronRight, GraduationCap, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { courseRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
+import { useAuth } from '@/lib/useAuth';
 
 type Crumb = { label: string; href?: string };
 
@@ -57,6 +58,7 @@ export function SiteNav() {
               <span>Instructor</span>
             </Link>
             <ThemeToggle />
+            <AuthControl />
           </div>
         </div>
 
@@ -84,6 +86,24 @@ export function SiteNav() {
         )}
       </div>
     </nav>
+  );
+}
+
+/** Signed-in indicator + sign-out. Renders nothing when signed out (sign-in is
+ *  offered contextually where saving is required) or when Supabase is unconfigured. */
+function AuthControl() {
+  const { user, signOut } = useAuth();
+  if (!user) return null;
+  const label = user.email ?? 'Account';
+  return (
+    <button
+      onClick={() => signOut()}
+      title={`Signed in as ${label} — sign out`}
+      className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+    >
+      <LogOut className="h-4 w-4" />
+      <span className="hidden max-w-[10rem] truncate sm:inline">{label}</span>
+    </button>
   );
 }
 

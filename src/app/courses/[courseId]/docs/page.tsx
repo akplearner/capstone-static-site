@@ -11,6 +11,7 @@ import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
+import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData } from '@/lib/docs/types';
@@ -80,6 +81,7 @@ function printHTML(html: string) {
 
 export default function DeliverablesPage() {
   const course = useCourse();
+  useSupabaseSync(course.id);
   const { member, loading } = useMember(course.id);
   const saved = useClientStore<DocsMap>(
     () => (member ? docsRepo.get(course.id, member.teamId) ?? EMPTY_OBJECT : EMPTY_OBJECT),
