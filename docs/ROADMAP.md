@@ -112,6 +112,22 @@ posture report and a reusable benchmark.
 
 ---
 
+## Integration track (CertHatch & other platforms)
+
+Runs alongside the phases — see [`INTEGRATION_CERTHATCH.md`](./INTEGRATION_CERTHATCH.md) and
+[`adr/0008`](./adr/0008-shared-kernel-integration.md). The kernel reuses Phase-1 work, so the
+integration is mostly *publishing* what we already build, not new infrastructure.
+
+- **Build now (with Phase 1):** publish the **competency ontology** as a versioned package both platforms
+  consume; point both at **one OIDC issuer**; emit the **xAPI** event shape (to a simple statement store
+  first); add **ACL stubs** behind the data seam.
+- **Defer:** the full **LRS + event bus + live remediation loop** (turn on once both sides emit clean
+  competency-tagged events and the ontology is stable); **auto-provisioning** labs (start with *recommend*);
+  curated `deepensInto` per-item links.
+
+**Acceptance:** CertHatch can emit `CompetencyWeaknessDetected` for a shared competency ID and capstone-labs
+recommends a matching scenario to the same OIDC subject — coupled only by shared IDs + events, no shared DB.
+
 ## Phase dependency map
 
 ```

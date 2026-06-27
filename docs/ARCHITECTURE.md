@@ -167,6 +167,11 @@ carry **no authority** — they're rebuildable from events.
 ontology + xAPI. **Do not build the MCP/agent gateway now** — design so it stays a small addition, not a
 rewrite.
 
+**Cross-platform interop:** the **competency ontology is the interlingua** shared with other platforms (e.g.
+CertHatch) via a small shared kernel — see [`INTEGRATION_CERTHATCH.md`](./INTEGRATION_CERTHATCH.md). The same
+xAPI events and OIDC identity carry across that boundary; only competency-level conclusions cross, never raw
+data.
+
 ---
 
 ## 7. The MSP / business bridge (dual-use is the unlock)

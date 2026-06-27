@@ -77,6 +77,23 @@ network. (Phase 4 could add cloud labs — deferred.)
 
 ---
 
+## C2. For CertHatch (and other-platform) integration
+
+See [`INTEGRATION_CERTHATCH.md`](./INTEGRATION_CERTHATCH.md). To wire the two platforms together, **you
+decide / provide:**
+- **Competency-ontology home:** where the shared ontology package lives (a separate repo / private npm
+  registry) and **who owns its versioning** (semver, additive-only). Both platforms pin a version.
+- **Shared OIDC issuer:** one identity provider both CertHatch and capstone-labs trust, so `subjectId` is the
+  same person in both (can be the same Supabase/Auth issuer).
+- **LRS host:** who runs the shared xAPI Learning Record Store (managed LRS or a simple statement store to
+  start).
+- **Consent wording:** sign-off on the `share-cross-platform` consent text and the data-processing roles
+  between the two entities.
+- **CertHatch side:** CertHatch must emit `CompetencyWeaknessDetected` (and xAPI statements) tagged with the
+  shared competency IDs — that's work on the CertHatch repo, not this one.
+
+> None of this blocks the capstone-labs MVP; it turns on once both platforms speak the shared kernel.
+
 ## D. Decisions still open (quick answers unblock me)
 
 1. **Merge to `main` now?** (A1) — yes/no.

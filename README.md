@@ -13,6 +13,8 @@ Where this is headed and how we get there incrementally:
 - [`docs/CURRENT_STATE.md`](docs/CURRENT_STATE.md) — honest as-is map of today's code vs the target.
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — the staged path (MVP → foundations → ground truth → dual-use).
 - [`docs/OPERATIONS.md`](docs/OPERATIONS.md) — **what's needed from you** to run a fully functional app.
+- [`docs/INTEGRATION_CERTHATCH.md`](docs/INTEGRATION_CERTHATCH.md) — interop with CertHatch & other platforms
+  via a shared competency-ontology kernel (no shared database).
 - [`docs/adr/`](docs/adr/) — decision records for the load-bearing, build-now-or-regret-it choices.
 
 ## Features
