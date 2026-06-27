@@ -104,8 +104,10 @@ const RED_TASKS: Task[] = [
         title: 'Boot & Update Kali',
         description: 'Boot your Kali VM and refresh then upgrade all packages.',
         instruction: 'Start the Kali VM, open a terminal, and run the update command.',
-        command: 'sudo apt update && sudo apt -y upgrade',
-        commandExplanation: '`apt update` refreshes the package list and `apt -y upgrade` installs the newest versions, auto-confirming with `-y`.',
+        commands: [
+          { cmd: 'sudo apt update', explain: 'Refresh the package list so you install the newest versions.' },
+          { cmd: 'sudo apt -y upgrade', explain: 'Install all available updates (-y auto-confirms).' },
+        ],
         expectedOutput: 'Packages refreshed and upgraded',
         outputExplanation: 'A clean prompt with no errors means your tools are current; a long "upgraded, newly installed" summary is normal the first run.',
         whatItMeans: 'Your attack tools are patched and current before you begin.',
@@ -154,7 +156,10 @@ const RED_TASKS: Task[] = [
         title: 'Verify Connectivity',
         description: 'List your own IP and ping the target to confirm you share a subnet.',
         instruction: 'Run the command and note your eth0 address and the ping reply.',
-        command: 'ip a && ping -c 1 10.10.10.1',
+        commands: [
+          { cmd: 'ip a', explain: 'List your network interfaces and IP addresses.' },
+          { cmd: 'ping -c 1 10.10.10.1', explain: 'Send one packet to the target to confirm it answers.' },
+        ],
         commandExplanation: '`ip a` lists every network interface and its assigned address; `ping -c 1` sends a single ICMP echo (the `-c 1` caps it at one packet) to confirm the target answers.',
         commandFlags: [
           { flag: 'ip a', meaning: 'Show all network interfaces and their IP addresses.' },
@@ -172,7 +177,11 @@ const RED_TASKS: Task[] = [
         title: 'WHOIS & DNS Enumeration',
         description: 'Query registration and DNS records to map the target domain.',
         instruction: 'Run the WHOIS and DNS lookups and note the registrar, name servers, and mail servers.',
-        command: 'whois target.local && dig ANY target.local && nslookup -type=mx target.local',
+        commands: [
+          { cmd: 'whois target.local', explain: 'Query domain registration / ownership records.' },
+          { cmd: 'dig ANY target.local', explain: 'Ask DNS for every record type for the domain.' },
+          { cmd: 'nslookup -type=mx target.local', explain: 'Look up only mail-exchanger (mail server) records.' },
+        ],
         commandExplanation: '`whois` pulls registration/ownership records; `dig ANY` asks DNS for every record type at once; `nslookup -type=mx` narrows the query to just mail-exchanger records.',
         commandFlags: [
           { flag: 'whois', meaning: 'Query domain registration / ownership records.' },
@@ -189,7 +198,10 @@ const RED_TASKS: Task[] = [
         title: 'Web Tech Discovery',
         description: 'Fingerprint the target web stack and save the results to Recon_Findings.md.',
         instruction: 'Run whatweb and tee its output into the canonical recon file.',
-        command: 'mkdir -p ~/team-artifacts/week-1 && whatweb http://10.10.10.x | tee ~/team-artifacts/week-1/Recon_Findings.md',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-1', explain: 'Create the week-1 artifacts folder (no error if it exists).' },
+          { cmd: 'whatweb http://10.10.10.x | tee ~/team-artifacts/week-1/Recon_Findings.md', explain: 'Fingerprint the web stack and save the output to your recon file.' },
+        ],
         commandExplanation: '`whatweb` fingerprints the server, language and frameworks behind the URL, and `tee` both prints them and saves them to Recon_Findings.md.',
         commandFlags: [
           { flag: 'whatweb', meaning: 'Fingerprint a website’s server, language and frameworks.' },
@@ -246,7 +258,10 @@ const RED_TASKS: Task[] = [
         id: 'red-w2-s1',
         title: 'Network Scan - All Ports',
         description: 'Scan all TCP ports with version detection.',
-        command: 'mkdir -p ~/team-artifacts/week-2 && nmap -sV -p- 10.10.10.X > ~/team-artifacts/week-2/Nmap_Scan.txt',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
+          { cmd: 'nmap -sV -p- 10.10.10.X > ~/team-artifacts/week-2/Nmap_Scan.txt', explain: 'Scan all 65,535 ports with service/version detection; save to your scan file.' },
+        ],
         commandExplanation: '`nmap` scans for open ports; `-sV` probes each one to detect the service and version; `-p-` scans all 65,535 TCP ports; `> ~/team-artifacts/week-2/Nmap_Scan.txt` saves the result to the canonical file.',
         commandFlags: [
           { flag: 'nmap', meaning: 'Network port scanner.' },
@@ -265,7 +280,10 @@ const RED_TASKS: Task[] = [
         id: 'red-w2-s2',
         title: 'Web Vulnerability Scan',
         description: 'Run automated web scanner against target.',
-        command: 'mkdir -p ~/team-artifacts/week-2 && nikto -h http://10.10.10.X -o ~/team-artifacts/week-2/Nikto_Report.txt',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
+          { cmd: 'nikto -h http://10.10.10.X -o ~/team-artifacts/week-2/Nikto_Report.txt', explain: 'Run the Nikto web scanner against the target and write the report.' },
+        ],
         commandExplanation: '`nikto` is a web-server scanner; `-h` sets the host URL to test and `-o` writes the findings to a report file.',
         commandFlags: [
           { flag: 'nikto', meaning: 'Automated web-server vulnerability scanner.' },
@@ -323,7 +341,10 @@ const RED_TASKS: Task[] = [
         id: 'red-w3-s1',
         title: 'SQL Injection Attack',
         description: 'Exploit SQL injection vulnerability in DVWA.',
-        command: 'mkdir -p ~/team-artifacts/week-3 && sqlmap -u http://10.10.10.X/DVWA/vulnerabilities/sqli/ --auth-creds=admin:password --dbs | tee ~/team-artifacts/week-3/SQL_Injection_Proof.txt',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Create the week-3 artifacts folder.' },
+          { cmd: 'sqlmap -u http://10.10.10.X/DVWA/vulnerabilities/sqli/ --auth-creds=admin:password --dbs | tee ~/team-artifacts/week-3/SQL_Injection_Proof.txt', explain: 'Test the DVWA SQLi page (logging in first) and enumerate databases; save the proof.' },
+        ],
         commandExplanation: '`sqlmap` automates SQL-injection testing; `-u` is the vulnerable URL, `--auth-creds` supplies a login so it can reach the page, and `--dbs` tells it to enumerate database names once injection works.',
         commandFlags: [
           { flag: 'sqlmap', meaning: 'Automated SQL-injection testing tool.' },
@@ -342,7 +363,10 @@ const RED_TASKS: Task[] = [
         id: 'red-w3-s2',
         title: 'Brute Force Attack',
         description: 'Attack login form with hydra.',
-        command: 'mkdir -p ~/team-artifacts/week-3 && hydra -l admin -P /usr/share/wordlists/rockyou.txt http-post-form://10.10.10.X/login.php:username=^USER^&password=^PASS^:S=Welcome | tee ~/team-artifacts/week-3/Brute_Force_Proof.txt',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Create the week-3 artifacts folder.' },
+          { cmd: 'hydra -l admin -P /usr/share/wordlists/rockyou.txt http-post-form://10.10.10.X/login.php:username=^USER^&password=^PASS^:S=Welcome | tee ~/team-artifacts/week-3/Brute_Force_Proof.txt', explain: 'Brute-force the login form with the rockyou wordlist; save any successful credentials.' },
+        ],
         commandExplanation: '`hydra` brute-forces logins; `-l admin` fixes the username, `-P` points to the rockyou password list, and the `http-post-form` string defines the URL, the field layout (`^USER^`/`^PASS^`), and `S=Welcome` as the success marker.',
         commandFlags: [
           { flag: 'hydra', meaning: 'Parallel login brute-forcer.' },
@@ -513,7 +537,12 @@ const BLUE_TASKS: Task[] = [
         title: 'Run the DVWA Target (Docker)',
         description: 'Start Docker on the Ubuntu host and run DVWA — the vulnerable web app Red will attack.',
         instruction: 'On the Ubuntu host, install and start Docker, run the DVWA image on port 80, then confirm it answers.',
-        command: 'sudo apt install -y docker.io && sudo systemctl enable --now docker && sudo docker run -d --restart unless-stopped -p 80:80 vulnerables/web-dvwa && curl -I http://localhost/',
+        commands: [
+          { cmd: 'sudo apt install -y docker.io', explain: 'Install the Docker engine.' },
+          { cmd: 'sudo systemctl enable --now docker', explain: 'Start Docker now and on every boot.' },
+          { cmd: 'sudo docker run -d --restart unless-stopped -p 80:80 vulnerables/web-dvwa', explain: 'Run DVWA in the background on host port 80, auto-restarting after reboot.' },
+          { cmd: 'curl -I http://localhost/', explain: 'Fetch the headers to confirm DVWA responds.' },
+        ],
         commandExplanation: 'Installs Docker and starts it, runs the DVWA image as a background container mapping host port 80 to the app, then curls the host to confirm DVWA responds.',
         commandFlags: [
           { flag: 'apt install -y docker.io', meaning: 'Install the Docker engine.' },
@@ -565,7 +594,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w1-s2',
         title: 'Update System',
         description: 'Apply latest security patches.',
-        command: 'sudo apt update && sudo apt upgrade -y',
+        commands: [
+          { cmd: 'sudo apt update', explain: 'Refresh the list of available packages.' },
+          { cmd: 'sudo apt upgrade -y', explain: 'Install all available updates (-y auto-confirms).' },
+        ],
         commandExplanation: '`apt update` refreshes the package index; `apt upgrade -y` then installs all available updates with `-y` auto-confirming the prompts. `sudo` runs both as root.',
         commandFlags: [
           { flag: 'sudo', meaning: 'Run as root (required to change the system).' },
@@ -582,7 +614,14 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w1-s3',
         title: 'Configure Firewall',
         description: 'Enable UFW and allow only SSH and HTTP.',
-        command: 'sudo ufw default deny incoming && sudo ufw allow 22 && sudo ufw allow 80 && sudo ufw --force enable && mkdir -p ~/team-artifacts/week-1 && sudo ufw status verbose > ~/team-artifacts/week-1/UFW_Status.txt',
+        commands: [
+          { cmd: 'sudo ufw default deny incoming', explain: 'Block all inbound traffic by default.' },
+          { cmd: 'sudo ufw allow 22', explain: 'Permit SSH.' },
+          { cmd: 'sudo ufw allow 80', explain: 'Permit HTTP.' },
+          { cmd: 'sudo ufw --force enable', explain: 'Turn the firewall on without a prompt.' },
+          { cmd: 'mkdir -p ~/team-artifacts/week-1', explain: 'Create the week-1 artifacts folder.' },
+          { cmd: 'sudo ufw status verbose > ~/team-artifacts/week-1/UFW_Status.txt', explain: 'Save the active ruleset as evidence.' },
+        ],
         commandExplanation: 'Builds a default-deny firewall: `default deny incoming` blocks all inbound traffic, `allow 22`/`allow 80` open SSH and HTTP, and `enable` activates the ruleset.',
         commandFlags: [
           { flag: 'default deny incoming', meaning: 'Block all inbound traffic by default.' },
@@ -602,7 +641,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w1-s4',
         title: 'Install Fail2Ban',
         description: 'Protect against brute force attacks.',
-        command: 'sudo apt install -y fail2ban && sudo systemctl enable --now fail2ban',
+        commands: [
+          { cmd: 'sudo apt install -y fail2ban', explain: 'Install fail2ban (bans IPs after repeated failed logins).' },
+          { cmd: 'sudo systemctl enable --now fail2ban', explain: 'Start it now and on every boot.' },
+        ],
         commandExplanation: '`apt install fail2ban` installs the intrusion-prevention tool; `systemctl enable` sets it to start automatically at every boot.',
         commandFlags: [
           { flag: 'apt install fail2ban', meaning: 'Install the brute-force protection tool.' },
@@ -619,7 +661,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w1-s5',
         title: 'System Audit with Lynis',
         description: 'Run comprehensive security audit.',
-        command: 'mkdir -p ~/team-artifacts/week-1 && sudo lynis audit system | tee ~/team-artifacts/week-1/Lynis_Report.txt',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-1', explain: 'Create the week-1 artifacts folder.' },
+          { cmd: 'sudo lynis audit system | tee ~/team-artifacts/week-1/Lynis_Report.txt', explain: 'Run the full Lynis hardening audit and save the report.' },
+        ],
         commandExplanation: '`lynis audit system` runs a comprehensive local security audit across files, services and config; `| tee ~/team-artifacts/week-1/Lynis_Report.txt` shows and saves the full output for review.',
         commandFlags: [
           { flag: 'lynis audit system', meaning: 'Run a full local security audit.' },
@@ -693,7 +738,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w2-s1',
         title: 'Capture Normal Traffic',
         description: 'Record baseline traffic while accessing application normally.',
-        command: 'mkdir -p ~/team-artifacts/week-2 && sudo tcpdump -i eth0 -w ~/team-artifacts/week-2/Baseline_Traffic.pcap',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
+          { cmd: 'sudo tcpdump -i eth0 -w ~/team-artifacts/week-2/Baseline_Traffic.pcap', explain: 'Capture traffic on eth0 to a pcap for your baseline (Ctrl-C to stop).' },
+        ],
         commandExplanation: '`tcpdump` captures network packets; `-i eth0` selects the interface to sniff and `-w baseline.pcap` writes raw packets to a file (instead of printing them) for later analysis.',
         commandFlags: [
           { flag: 'tcpdump', meaning: 'Capture network packets.' },
@@ -711,7 +759,11 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w2-s2',
         title: 'Analyze Baseline in Wireshark',
         description: 'Study normal traffic patterns and timing.',
-        command: 'mkdir -p ~/team-artifacts/week-2 && printf "http.request\\ntcp.flags.syn==1 && tcp.flags.ack==0\\n" > ~/team-artifacts/week-2/Wireshark_Filters.txt && wireshark ~/team-artifacts/week-2/Baseline_Traffic.pcap &',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
+          { cmd: 'printf "http.request\\ntcp.flags.syn==1 && tcp.flags.ack==0\\n" > ~/team-artifacts/week-2/Wireshark_Filters.txt', explain: 'Save two display filters (HTTP requests; lone-SYN scan packets) to a file.' },
+          { cmd: 'wireshark ~/team-artifacts/week-2/Baseline_Traffic.pcap &', explain: 'Open the capture in Wireshark in the background.' },
+        ],
         commandExplanation: 'Opens the capture in the Wireshark GUI (the `&` frees your terminal); typing `http.request` in the display-filter bar shows only outbound HTTP requests.',
         commandFlags: [
           { flag: 'wireshark baseline.pcap', meaning: 'Open the capture in the GUI analyzer.' },
@@ -769,7 +821,10 @@ const BLUE_TASKS: Task[] = [
         title: 'Capture a Labeled Attack Sample',
         description: 'Record a short capture while generating scan/login noise, to keep alongside the baseline.',
         instruction: 'Start a capture, run a quick nmap/login against your own host, then let it stop.',
-        command: 'mkdir -p ~/team-artifacts/week-2 && sudo tcpdump -i eth0 -c 200 -w ~/team-artifacts/week-2/Attack_Traffic.pcap',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
+          { cmd: 'sudo tcpdump -i eth0 -c 200 -w ~/team-artifacts/week-2/Attack_Traffic.pcap', explain: 'Capture 200 packets of attack traffic to a pcap, then stop.' },
+        ],
         commandExplanation: '`tcpdump -c 200` captures 200 packets to Attack_Traffic.pcap so you have an abnormal sample to compare against the baseline.',
         commandFlags: [
           { flag: '-c 200', meaning: 'Capture 200 packets then stop automatically.' },
@@ -802,7 +857,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w3-s1',
         title: 'Start Live Packet Capture',
         description: 'Begin recording before Red starts attacks.',
-        command: 'mkdir -p ~/team-artifacts/week-3 && sudo tcpdump -i eth0 -w ~/team-artifacts/week-3/Attack_Pcap.pcap',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Create the week-3 artifacts folder.' },
+          { cmd: 'sudo tcpdump -i eth0 -w ~/team-artifacts/week-3/Attack_Pcap.pcap', explain: 'Start capturing attack traffic to a pcap before Red begins.' },
+        ],
         commandExplanation: 'Same packet capture as the baseline, started *before* the Red team attacks so every malicious packet is recorded to `attack_capture.pcap`.',
         commandFlags: [
           { flag: 'tcpdump', meaning: 'Capture network packets.' },
@@ -820,7 +878,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w3-s2',
         title: 'Monitor Logs in Real Time',
         description: 'Watch system and web server logs.',
-        command: 'mkdir -p ~/team-artifacts/week-3 && tail -n 200 /var/log/apache2/access.log | tee ~/team-artifacts/week-3/Attack_Logs.txt',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Create the week-3 artifacts folder.' },
+          { cmd: 'tail -n 200 /var/log/apache2/access.log | tee ~/team-artifacts/week-3/Attack_Logs.txt', explain: 'Save the last 200 web-server log lines as evidence.' },
+        ],
         commandExplanation: '`tail -f` prints the end of the Apache access log and then *follows* it, streaming each new request live as it is written.',
         commandFlags: [
           { flag: 'tail', meaning: 'Show the end of a file.' },
@@ -856,7 +917,10 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w3-s4',
         title: 'Block Attacker IP',
         description: 'Use firewall to deny further traffic from attacker.',
-        command: 'sudo ufw deny from 10.10.10.x && echo "$(date +%F\\ %T) Blocked 10.10.10.x via UFW after SQLi/brute force" >> ~/team-artifacts/week-3/Containment_Actions.txt',
+        commands: [
+          { cmd: 'sudo ufw deny from 10.10.10.x', explain: 'Block all traffic from the attacker IP at the firewall.' },
+          { cmd: 'echo "$(date +%F\\ %T) Blocked 10.10.10.x via UFW after SQLi/brute force" >> ~/team-artifacts/week-3/Containment_Actions.txt', explain: 'Append a timestamped containment note to your action log.' },
+        ],
         commandExplanation: '`ufw deny from <ip>` inserts a firewall rule that drops all traffic from the attacker address — an immediate containment action.',
         commandFlags: [
           { flag: 'ufw deny from', meaning: 'Add a rule that drops all traffic from an address.' },
@@ -1124,7 +1188,10 @@ const GRC_TASKS: Task[] = [
         id: 'grc-w3-s2',
         title: 'Hash Evidence Files',
         description: 'Create SHA256 hashes for integrity verification.',
-        command: 'cd ~/team-artifacts/week-3 && sha256sum Attack_Pcap.pcap Attack_Logs.txt SQL_Injection_Proof.txt Brute_Force_Proof.txt Reverse_Shell_Proof.txt Evidence_Photos.zip > Evidence_Hashes.txt',
+        commands: [
+          { cmd: 'cd ~/team-artifacts/week-3', explain: 'Move into the week-3 evidence folder.' },
+          { cmd: 'sha256sum Attack_Pcap.pcap Attack_Logs.txt SQL_Injection_Proof.txt Brute_Force_Proof.txt Reverse_Shell_Proof.txt Evidence_Photos.zip > Evidence_Hashes.txt', explain: 'Hash every artifact to lock chain of custody; save the digests.' },
+        ],
         commandExplanation: '`sha256sum` fingerprints each real attack artifact; `> Evidence_Hashes.txt` stores the hashes so any later change is detectable.',
         commandFlags: [
           { flag: 'sha256sum', meaning: 'Compute a SHA-256 fingerprint of each file.' },

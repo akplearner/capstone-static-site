@@ -204,6 +204,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
                   instruction={current.instruction}
                   description={current.description}
                   command={current.command}
+                  commands={current.commands}
                   commandExplanation={current.commandExplanation}
                   commandFlags={current.commandFlags}
                   expectedOutput={current.expectedOutput}
@@ -272,6 +273,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
               instruction={step.instruction}
               description={step.description}
               command={step.command}
+              commands={step.commands}
               commandExplanation={step.commandExplanation}
               commandFlags={step.commandFlags}
               expectedOutput={step.expectedOutput}

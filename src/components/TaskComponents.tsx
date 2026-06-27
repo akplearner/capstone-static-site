@@ -12,6 +12,7 @@ import {
   Lock,
   AlertTriangle,
   Copy,
+  CornerDownRight,
   FileText,
   Sparkles,
   SquarePen,
@@ -141,6 +142,7 @@ export function StepDetail({
   instruction,
   description,
   command,
+  commands,
   commandExplanation,
   commandFlags,
   expectedOutput,
@@ -155,6 +157,7 @@ export function StepDetail({
   instruction?: string;
   description?: string;
   command?: string;
+  commands?: { cmd: string; explain?: string }[];
   commandExplanation?: string;
   commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
@@ -168,12 +171,14 @@ export function StepDetail({
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
+  // When per-statement commands are supplied, their inline explanations replace the
+  // combined commandExplanation/commandFlags, so we don't repeat them in "Explain".
+  const usingStructured = !!(commands && commands.length > 0);
+  const showCmdExplain = !usingStructured && !!commandExplanation;
+  const showCmdFlags = !usingStructured && !!commandFlags && commandFlags.length > 0;
+  const hasCommand = usingStructured || !!command;
   const hasExplain =
-    !!commandExplanation ||
-    (!!commandFlags && commandFlags.length > 0) ||
-    !!outputExplanation ||
-    !!troubleshooting ||
-    frameworks.length > 0;
+    showCmdExplain || showCmdFlags || !!outputExplanation || !!troubleshooting || frameworks.length > 0;
   return (
     <div className="space-y-3">
       {optional && (
@@ -183,17 +188,6 @@ export function StepDetail({
             <span className="font-semibold">Optional step.</span> Great practice, but it doesn&apos;t
             count toward your progress or gates — do it to go deeper.
           </p>
-        </div>
-      )}
-
-      {(instruction || description) && (
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            What to do
-          </div>
-          <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-            {instruction || description}
-          </div>
         </div>
       )}
 
@@ -212,36 +206,40 @@ export function StepDetail({
         </Link>
       )}
 
-      {command && (
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Command
-          </div>
-          <div className="relative mt-1 rounded bg-black p-3 pr-20 font-mono text-sm text-green-400">
-            <div className="absolute right-2 top-2">
-              <CopyButton text={command} />
+      {/* Essentials in two columns on desktop: left = do + command(s), right = see + meaning. */}
+      <div className="grid gap-3 md:grid-cols-2">
+        <div className="space-y-3">
+          {(instruction || description) && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                What to do
+              </div>
+              <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                {instruction || description}
+              </div>
             </div>
-            <div className="whitespace-pre-wrap break-words">{command}</div>
-          </div>
+          )}
+          {hasCommand && <CommandBlock command={command} commands={commands} />}
         </div>
-      )}
 
-      {expectedOutput && (
-        <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            You should see
-          </div>
-          <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
-            {expectedOutput}
+        <div className="space-y-3">
+          {expectedOutput && (
+            <div>
+              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                You should see
+              </div>
+              <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
+                {expectedOutput}
+              </div>
+            </div>
+          )}
+          <div>
+            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              What it means
+            </div>
+            <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">{whatItMeans}</div>
           </div>
         </div>
-      )}
-
-      <div>
-        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          What it means
-        </div>
-        <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">{whatItMeans}</div>
       </div>
 
       {deliverable && (
@@ -258,7 +256,7 @@ export function StepDetail({
         <div className="rounded-md border border-gray-200 px-4 dark:border-gray-700">
           <Collapsible title="Explain — command, output & why" defaultOpen={false}>
             <div className="space-y-3 pb-1">
-              {commandExplanation && (
+              {showCmdExplain && (
                 <div className="flex gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-900/20">
                   <Terminal className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
                   <p className="text-sm text-emerald-900 dark:text-emerald-200">
@@ -267,7 +265,7 @@ export function StepDetail({
                   </p>
                 </div>
               )}
-              {commandFlags && commandFlags.length > 0 && (
+              {showCmdFlags && commandFlags && (
                 <div className="overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
                   <table className="w-full text-sm">
                     <tbody>
@@ -337,6 +335,7 @@ interface ChecklistItemProps {
   instruction?: string;
   description?: string;
   command?: string;
+  commands?: { cmd: string; explain?: string }[];
   commandExplanation?: string;
   commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
@@ -356,6 +355,7 @@ export function ChecklistItem({
   instruction,
   description,
   command,
+  commands,
   commandExplanation,
   commandFlags,
   expectedOutput,
@@ -417,6 +417,7 @@ export function ChecklistItem({
                 instruction={instruction}
                 description={description}
                 command={command}
+                commands={commands}
                 commandExplanation={commandExplanation}
                 commandFlags={commandFlags}
                 expectedOutput={expectedOutput}
@@ -436,7 +437,101 @@ export function ChecklistItem({
   );
 }
 
-export function CopyButton({ text }: { text: string }) {
+/**
+ * Split a single command string into its top-level statements, breaking on `&&`
+ * and newlines but NOT on pipes (`|` is one pipeline) and never inside quotes.
+ * Used as a visual fallback for un-migrated multi-statement `command` strings.
+ */
+function splitCommand(cmd: string): string[] {
+  const parts: string[] = [];
+  let buf = '';
+  let quote: string | null = null;
+  for (let i = 0; i < cmd.length; i++) {
+    const ch = cmd[i];
+    if (quote) {
+      buf += ch;
+      if (ch === quote) quote = null;
+      continue;
+    }
+    if (ch === '"' || ch === "'") {
+      quote = ch;
+      buf += ch;
+      continue;
+    }
+    if (ch === '\n') {
+      if (buf.trim()) parts.push(buf.trim());
+      buf = '';
+      continue;
+    }
+    if (ch === '&' && cmd[i + 1] === '&') {
+      if (buf.trim()) parts.push(buf.trim());
+      buf = '';
+      i++;
+      continue;
+    }
+    buf += ch;
+  }
+  if (buf.trim()) parts.push(buf.trim());
+  return parts.length ? parts : [cmd];
+}
+
+/**
+ * Renders a step's command(s). With structured `commands` (preferred), each shell
+ * statement gets its own copyable line + a one-line explanation; a single `command`
+ * string is auto-split for visual clarity. A "Copy all" appears for multi-statement
+ * commands so students can still paste the whole sequence at once.
+ */
+export function CommandBlock({
+  command,
+  commands,
+}: {
+  command?: string;
+  commands?: { cmd: string; explain?: string }[];
+}) {
+  const list =
+    commands && commands.length > 0
+      ? commands
+      : command
+        ? splitCommand(command).map((c) => ({ cmd: c, explain: undefined as string | undefined }))
+        : [];
+  if (list.length === 0) return null;
+  const multi = list.length > 1;
+  const allText = list.map((c) => c.cmd).join('\n');
+
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2">
+        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          {multi ? `Commands · run in order` : 'Command'}
+        </div>
+        {multi && <CopyButton text={allText} label="Copy all" />}
+      </div>
+      <div className="mt-1 space-y-2">
+        {list.map((c, i) => (
+          <div key={i}>
+            <div className="relative rounded bg-black p-3 pr-20 font-mono text-sm text-green-400">
+              <div className="absolute right-2 top-2">
+                <CopyButton text={c.cmd} />
+              </div>
+              {multi && (
+                <span className="mr-2 select-none text-gray-500">{i + 1}</span>
+              )}
+              <span className="whitespace-pre-wrap break-words">{c.cmd}</span>
+            </div>
+            {c.explain && (
+              <p className="mt-1 flex gap-1.5 pl-1 text-xs text-gray-600 dark:text-gray-400">
+                <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <span>{c.explain}</span>
+              </p>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
   const [copied, setCopied] = React.useState(false);
 
   const handleCopy = () => {
@@ -451,7 +546,7 @@ export function CopyButton({ text }: { text: string }) {
       className="inline-flex items-center gap-1 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
     >
       {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-      {copied ? 'Copied' : 'Copy'}
+      {copied ? 'Copied' : label}
     </button>
   );
 }

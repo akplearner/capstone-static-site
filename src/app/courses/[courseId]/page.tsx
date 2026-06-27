@@ -293,6 +293,7 @@ function TaskReference({ task }: { task: Task }) {
               instruction={s.instruction}
               description={s.description}
               command={s.command}
+              commands={s.commands}
               commandExplanation={s.commandExplanation}
               commandFlags={s.commandFlags}
               expectedOutput={s.expectedOutput}
@@ -663,10 +664,15 @@ export default function CoursePage() {
       task.prerequisites?.length ||
       task.definitionOfDone?.length
     );
+    const hasBrief = !!(task.handoff?.length || hasFlow || task.deliverables.length);
     return (
     <>
+      {hasBrief && (
+        <div className="mb-4 rounded-lg border border-gray-200 px-4 dark:border-gray-700">
+          <Collapsible title="Task brief — learn, tools, prerequisites, hand-offs & deliverables" defaultOpen={false}>
+            <div className="space-y-3 py-2">
       {task.handoff && task.handoff.length > 0 && (
-        <div className="mb-4 rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
+        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
           <div className="flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-200">
             <Send className="h-4 w-4" /> Coordinate with your team
           </div>
@@ -695,7 +701,7 @@ export default function CoursePage() {
         </div>
       )}
       {hasFlow && (
-        <div className="mb-4 space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
+        <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
           {task.learn && task.learn.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -752,7 +758,7 @@ export default function CoursePage() {
         </div>
       )}
       {task.deliverables.length > 0 && (
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
+        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
           <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
             <FileText className="h-4 w-4" /> Deliverables to produce
           </div>
@@ -766,6 +772,10 @@ export default function CoursePage() {
               </li>
             ))}
           </ul>
+        </div>
+      )}
+            </div>
+          </Collapsible>
         </div>
       )}
       {isOwn && member ? (
