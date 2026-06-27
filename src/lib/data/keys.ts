@@ -22,4 +22,6 @@ export const KEYS = {
   grc: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_grc_${teamId}`,
   // Deliverable forms (Master Package), team-scoped: all 8 deliverables for a team.
   docs: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_docs_${teamId}`,
+  // Personal lab access (target IPs/credentials + reachability checklist), per device.
+  labAccess: (courseId: string) => `${STORAGE_PREFIX}${courseId}_lab_access`,
 };

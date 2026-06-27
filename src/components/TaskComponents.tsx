@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { Task } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel, getFrameworkWhy } from '@/lib/utils';
+import { useLabAccess, fillPlaceholders } from '@/lib/labAccess';
 import { Collapsible } from './ui/Button';
 
 interface TaskCardProps {
@@ -488,13 +489,19 @@ export function CommandBlock({
   command?: string;
   commands?: { cmd: string; explain?: string }[];
 }) {
-  const list =
+  const params = useParams();
+  const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
+  const lab = useLabAccess(courseId);
+
+  const raw =
     commands && commands.length > 0
       ? commands
       : command
         ? splitCommand(command).map((c) => ({ cmd: c, explain: undefined as string | undefined }))
         : [];
-  if (list.length === 0) return null;
+  if (raw.length === 0) return null;
+  // Substitute the student's lab values (target IPs, etc.) into the commands.
+  const list = raw.map((c) => ({ ...c, cmd: fillPlaceholders(c.cmd, lab.values) }));
   const multi = list.length > 1;
   const allText = list.map((c) => c.cmd).join('\n');
 

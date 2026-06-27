@@ -39,9 +39,11 @@ import { QuickstartChecklist, QuickstartStep } from '@/components/QuickstartChec
 import { TourGuide, TOUR_EVENT, TourStep } from '@/components/TourGuide';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
+import { LabAccessPanel } from '@/components/LabAccessPanel';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useAuth } from '@/lib/useAuth';
+import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, docsRepo } from '@/lib/data';
@@ -451,6 +453,7 @@ export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
   const { user } = useAuth();
+  const { unlocked: instructorOverride } = useInstructorAuth();
   useSupabaseSync(course.id);
   const requireAuth = isSupabaseConfigured();
   const [confirmingReset, setConfirmingReset] = useState(false);
@@ -522,6 +525,18 @@ export default function CoursePage() {
 
   const joined = !!member;
   const sortedWeeks = [...course.weeks].sort((a, b) => a.number - b.number);
+
+  // Gate sequencing: a week stays locked until the previous week's gate is passed,
+  // so students work in order. Instructors (or local dev passcode) bypass it.
+  const priorGateForWeek = (weekNum: number) => course.gates.find((g) => g.week === weekNum - 1);
+  const weekLocked = (weekNum: number): boolean => {
+    if (!joined || instructorOverride) return false;
+    const pg = priorGateForWeek(weekNum);
+    return !!pg && (gateStats[pg.id] || 'locked') !== 'passed';
+  };
+  // Whole-course completion: joined, every gate passed, and all own tasks done.
+  const allGatesPassed =
+    joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
 
   const stepperItems: StepperItem[] = sortedWeeks.map((w) => ({
     label: `Week ${w.number}`,
@@ -853,6 +868,48 @@ export default function CoursePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
+      {allGatesPassed && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 dark:border-green-800 dark:from-green-900/20 dark:to-emerald-900/10"
+        >
+          <div className="flex items-start gap-3">
+            <div className="rounded-full bg-green-100 p-2 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+              <CheckCircle2 className="h-6 w-6" />
+            </div>
+            <div className="flex-1">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                Engagement complete — all {course.gates.length} gates passed 🎉
+              </h2>
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                You&apos;ve finished {tasksComplete} of {ownTasksAll.length} tasks across every week as{' '}
+                {ownRole?.name ?? member?.role}. Compile your deliverables into the final package and
+                hand it in.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {member && (
+                  <Link
+                    href={`/courses/${course.id}/docs`}
+                    className="inline-flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+                  >
+                    <FileText className="h-4 w-4" /> Build your final package
+                  </Link>
+                )}
+                {member && (
+                  <Link
+                    href={`/courses/${course.id}/team/${member.teamId}`}
+                    className="inline-flex items-center gap-1.5 rounded-md border border-green-300 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900/30"
+                  >
+                    <Users className="h-4 w-4" /> Review team progress
+                  </Link>
+                )}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+      )}
+
       <QuickstartChecklist steps={quickstartSteps} onTakeTour={startTour} />
 
       {/* Role "this week" hero — connects your role to what's left right now */}
@@ -1100,6 +1157,8 @@ export default function CoursePage() {
         )}
       </div>
 
+      {joined && <LabAccessPanel courseId={course.id} />}
+
       <div className="space-y-4">
         {sortedWeeks.map((w) => {
           const weekTasks = getWeekTasks(course, w.number);
@@ -1112,6 +1171,8 @@ export default function CoursePage() {
           const otherTasks = member ? shownTasks.filter((t) => t.role !== member.role) : shownTasks;
           const refOpen = q ? true : openRefs.has(w.number);
           const displayCount = q ? shownTasks.length : weekTasks.length;
+          const locked = weekLocked(w.number);
+          const lockGate = priorGateForWeek(w.number);
           return (
             <section
               key={w.number}
@@ -1155,6 +1216,11 @@ export default function CoursePage() {
                       Gate {gateForWeek.id}
                     </span>
                   )}
+                  {locked && (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                      <Lock className="h-3 w-3" /> Locked
+                    </span>
+                  )}
                   <span className="text-xs text-gray-500 dark:text-gray-400">
                     {displayCount} task{displayCount === 1 ? '' : 's'}
                   </span>
@@ -1166,7 +1232,33 @@ export default function CoursePage() {
                 </div>
               </button>
 
-              {isWeekOpen && (
+              {isWeekOpen && locked && (
+                <div className="border-t border-gray-200 p-5 dark:border-gray-700">
+                  <div className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+                    <Lock className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+                    <div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                        Locked until you clear Gate {lockGate?.id}.
+                      </p>
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        Finish Week {(lockGate?.week ?? w.number - 1)} required tasks to pass Gate{' '}
+                        {lockGate?.id} and unlock this week — the engagement runs in order.
+                      </p>
+                      {lockGate && (
+                        <button
+                          type="button"
+                          onClick={() => openAndScrollWeek(lockGate.week)}
+                          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                        >
+                          Go to Week {lockGate.week} <ArrowRight className="h-3.5 w-3.5" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {isWeekOpen && !locked && (
                 <div className="space-y-4 border-t border-gray-200 p-5 dark:border-gray-700">
                   {weekTasks.length === 0 && (
                     <p className="text-sm text-gray-500 dark:text-gray-400">
