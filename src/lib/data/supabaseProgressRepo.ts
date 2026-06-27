@@ -93,9 +93,7 @@ export const supabaseProgressRepo: ProgressRepository = {
   },
 
   leaveTeam(courseId: string, memberId: string): void {
-    const remaining = cache.roster(courseId).filter((e) => e.memberId !== memberId);
-    // Replace roster wholesale via the cache helper.
-    remaining.forEach((e) => cache.upsertRosterEntry(courseId, e));
+    cache.removeRosterEntry(courseId, memberId);
     cache.setContext(null, courseId);
     notifyStore();
     const supabase = db();

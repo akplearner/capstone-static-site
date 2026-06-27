@@ -84,6 +84,9 @@ export const cache = {
     list.push(entry);
     rosterByCourse.set(courseId, list);
   },
+  removeRosterEntry(courseId: string, memberId: string) {
+    rosterByCourse.set(courseId, (rosterByCourse.get(courseId) ?? []).filter((e) => e.memberId !== memberId));
+  },
 };
 
 // ---- hydration -------------------------------------------------------------
