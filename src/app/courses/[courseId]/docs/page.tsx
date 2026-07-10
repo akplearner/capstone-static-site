@@ -198,6 +198,13 @@ export default function DeliverablesPage() {
               to repopulate the forms on another device — or send it to your team&apos;s GRC, who restores each
               teammate&apos;s file and downloads the complete package above.
             </p>
+            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+              <span className="rounded-full bg-red-100 px-2 py-0.5 font-medium text-red-700 dark:bg-red-900/40 dark:text-red-300">Red</span>
+              <span aria-hidden>+</span>
+              <span className="rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Blue</span>
+              <span aria-hidden>→ export .json →</span>
+              <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">GRC restores &amp; downloads the package</span>
+            </p>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2">

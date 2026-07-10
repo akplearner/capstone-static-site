@@ -67,15 +67,31 @@ export function RoleInterplayDiagram({ roles, highlightRole }: RoleInterplayDiag
                 stroke={role.color}
                 strokeWidth={highlightRole === role.id ? 4 : 2.5}
               />
-              <text x={p.x} y={p.y - 4} textAnchor="middle" fontSize="14" fontWeight="700" fill={role.color}>
+              <text x={p.x} y={p.y - 8} textAnchor="middle" fontSize="14" fontWeight="700" fill={role.color}>
                 {shortName(role.name)}
               </text>
-              <text x={p.x} y={p.y + 14} textAnchor="middle" fontSize="8.5" className="fill-gray-600 dark:fill-gray-300">
-                {truncate(role.mission, 22)}
-              </text>
+              {wrapText(role.mission, 18, 3).map((line, li) => (
+                <text
+                  key={li}
+                  x={p.x}
+                  y={p.y + 8 + li * 10}
+                  textAnchor="middle"
+                  fontSize="8"
+                  className="fill-gray-600 dark:fill-gray-300"
+                >
+                  {line}
+                </text>
+              ))}
             </motion.g>
           );
         })}
+
+        {/* center hub label */}
+        {roles.length > 1 && (
+          <text x={cx} y={cy + 18} textAnchor="middle" fontSize="8" className="fill-gray-400 dark:fill-gray-500">
+            hand-offs
+          </text>
+        )}
       </svg>
     </div>
   );
@@ -85,6 +101,29 @@ function shortName(name: string): string {
   return name.split('(')[0].trim();
 }
 
-function truncate(s: string, n: number): string {
-  return s.length > n ? `${s.slice(0, n - 1)}…` : s;
+/** Wrap a string into up to `maxLines` lines of ~`perLine` chars, packing whole
+ *  words; the last line gets an ellipsis if text remains. */
+function wrapText(s: string, perLine: number, maxLines: number): string[] {
+  const words = s.split(/\s+/);
+  const lines: string[] = [];
+  let cur = '';
+  for (const w of words) {
+    if (!cur) cur = w;
+    else if ((cur + ' ' + w).length <= perLine) cur += ' ' + w;
+    else {
+      lines.push(cur);
+      cur = w;
+      if (lines.length === maxLines - 1) break;
+    }
+  }
+  const used = lines.join(' ').split(/\s+/).filter(Boolean).length;
+  const remaining = words.slice(used);
+  if (remaining.length) {
+    let last = remaining.join(' ');
+    if (last.length > perLine) last = `${last.slice(0, perLine - 1)}…`;
+    lines.push(last);
+  } else if (cur) {
+    lines.push(cur);
+  }
+  return lines.slice(0, maxLines);
 }

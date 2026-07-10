@@ -42,10 +42,12 @@ export interface Step {
   instruction?: string;
   command?: string;
   /** Structured multi-statement command: one entry per shell statement, each with
-   *  its own plain-English explanation. When set, the UI renders each statement on
-   *  its own copyable line (plus a Copy-all) instead of one opaque block — clearer
-   *  than a single `&&`-chained string. Use `command` for single-statement steps. */
-  commands?: { cmd: string; explain?: string }[];
+   *  its own plain-English explanation and optional per-flag breakdown. When set, the
+   *  UI renders each statement on its own copyable line (plus a Copy-all) instead of
+   *  one opaque block — clearer than a single `&&`-chained string, and lets beginners
+   *  see what each flag does right under the command. Use `command` for single-statement
+   *  steps. `flags` reuses the same `{flag, meaning}` shape as step-level `commandFlags`. */
+  commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
   /** Plain-English breakdown of the command and its key options/flags. */
   commandExplanation?: string;
   /** Structured per-flag reference: each flag/operator and what it does. */

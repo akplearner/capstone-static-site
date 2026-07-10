@@ -323,6 +323,7 @@ function TaskRow({
   open,
   percent,
   onToggle,
+  isNext,
   children,
 }: {
   task: Task;
@@ -331,6 +332,7 @@ function TaskRow({
   open: boolean;
   percent: number;
   onToggle: () => void;
+  isNext?: boolean;
   children: React.ReactNode;
 }) {
   const canOpen = joined;
@@ -357,6 +359,11 @@ function TaskRow({
             <span className="font-medium text-gray-900 dark:text-white">{task.title}</span>
             {showProgress && percent === 100 && (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+            )}
+            {isNext && percent < 100 && (
+              <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                Next
+              </span>
             )}
           </span>
           <span className="mt-0.5 block truncate text-sm text-gray-600 dark:text-gray-400">
@@ -458,9 +465,6 @@ export default function CoursePage() {
   const requireAuth = isSupabaseConfigured();
   const [confirmingReset, setConfirmingReset] = useState(false);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  // false until the student expands/collapses a task themselves; until then the
-  // next unfinished task in the active week shows open by default (fewer clicks).
-  const [expandedTouched, setExpandedTouched] = useState(false);
   // null = the student hasn't toggled weeks yet, so the active week shows open by
   // default; once they interact we track their explicit set.
   const [openWeeks, setOpenWeeks] = useState<Set<number> | null>(null);
@@ -584,11 +588,7 @@ export default function CoursePage() {
         return next;
       });
 
-  const toggleExpanded = toggleSet(setExpanded);
-  const toggle = (id: string) => {
-    setExpandedTouched(true);
-    toggleExpanded(id);
-  };
+  const toggle = toggleSet(setExpanded);
   const toggleRef = toggleSet(setOpenRefs);
 
   const toggleWeek = (n: number) =>
@@ -1169,6 +1169,11 @@ export default function CoursePage() {
           const gateForWeek = course.gates.find((g) => g.week === w.number);
           const ownTasks = member ? shownTasks.filter((t) => t.role === member.role) : [];
           const otherTasks = member ? shownTasks.filter((t) => t.role !== member.role) : shownTasks;
+          const weekDod = member
+            ? getTasksByRole(course, member.role, w.number).flatMap((t) =>
+                (t.definitionOfDone ?? []).map((d, di) => ({ key: `${t.id}-${di}`, text: d }))
+              )
+            : [];
           const refOpen = q ? true : openRefs.has(w.number);
           const displayCount = q ? shownTasks.length : weekTasks.length;
           const locked = weekLocked(w.number);
@@ -1266,55 +1271,91 @@ export default function CoursePage() {
                     </p>
                   )}
 
-                  {joined && member && ownTasks.length > 0 && (
-                    <div className="rounded-lg border border-gray-200 px-4 dark:border-gray-700">
-                      <Collapsible title="Week at a glance — flow & hand-offs" defaultOpen={false}>
-                        <WeekTaskFlow
-                          course={course}
-                          role={member.role}
-                          week={w.number}
-                          taskStats={taskStats}
-                          onTaskClick={(id) => {
-                            const t = getTaskById(course, id);
-                            if (t) goToTask(t);
-                          }}
-                        />
-                      </Collapsible>
-                    </div>
-                  )}
+                  {/* One compact "Week at a glance" card: objective + status chips +
+                      what-done-looks-like, with the flow diagram and gate checklist
+                      tucked behind a toggle. */}
+                  {joined && member && (
+                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/40">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                        Week at a glance
+                      </div>
+                      {w.objective && (
+                        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{w.objective}</p>
+                      )}
 
-                  {joined &&
-                    member &&
-                    getTasksByRole(course, member.role, w.number).some(
-                      (t) => t.definitionOfDone?.length
-                    ) && (
-                      <div className="rounded-lg border border-gray-200 px-4 dark:border-gray-700">
-                        <Collapsible title="What “done” looks like this week">
-                          <ul className="space-y-1.5">
-                            {getTasksByRole(course, member.role, w.number).flatMap((t) =>
-                              (t.definitionOfDone ?? []).map((d, di) => (
-                                <li
-                                  key={`${t.id}-${di}`}
-                                  className="flex gap-1.5 text-sm text-gray-700 dark:text-gray-300"
-                                >
-                                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-                                  {d}
-                                </li>
-                              ))
+                      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700">
+                          {weekPct}% complete
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700">
+                          {ownTasks.length} task{ownTasks.length === 1 ? '' : 's'}
+                        </span>
+                        {gateForWeek &&
+                          (() => {
+                            const s = gateStats[gateForWeek.id] || 'locked';
+                            const meta =
+                              s === 'passed'
+                                ? { label: 'Gate passed', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:ring-emerald-800' }
+                                : s === 'ready'
+                                  ? { label: 'Gate ready', cls: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-800' }
+                                  : { label: 'Gate in progress', cls: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600' };
+                            return (
+                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ring-1 ${meta.cls}`}>
+                                {gateForWeek.id} · {meta.label}
+                              </span>
+                            );
+                          })()}
+                      </div>
+
+                      {weekDod.length > 0 && (
+                        <div className="mt-3">
+                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                            What “done” looks like
+                          </div>
+                          <ul className="mt-1 space-y-1">
+                            {weekDod.slice(0, 5).map((d) => (
+                              <li key={d.key} className="flex gap-1.5 text-sm text-gray-700 dark:text-gray-300">
+                                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                                {d.text}
+                              </li>
+                            ))}
+                            {weekDod.length > 5 && (
+                              <li className="pl-5 text-xs text-gray-500 dark:text-gray-400">
+                                +{weekDod.length - 5} more — see the gate checklist below.
+                              </li>
                             )}
                           </ul>
+                        </div>
+                      )}
+
+                      <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 dark:border-gray-700 dark:bg-gray-800">
+                        <Collapsible title="Week flow & gate checklist" defaultOpen={false}>
+                          <div className="space-y-3 pb-1">
+                            {ownTasks.length > 0 && (
+                              <WeekTaskFlow
+                                course={course}
+                                role={member.role}
+                                week={w.number}
+                                taskStats={taskStats}
+                                onTaskClick={(id) => {
+                                  const t = getTaskById(course, id);
+                                  if (t) goToTask(t);
+                                }}
+                              />
+                            )}
+                            {gateForWeek && (
+                              <WeekGatePanel
+                                course={course}
+                                week={w.number}
+                                status={gateStats[gateForWeek.id] || 'locked'}
+                                ownRole={member?.role}
+                                taskStats={taskStats}
+                              />
+                            )}
+                          </div>
                         </Collapsible>
                       </div>
-                    )}
-
-                  {joined && gateForWeek && (
-                    <WeekGatePanel
-                      course={course}
-                      week={w.number}
-                      status={gateStats[gateForWeek.id] || 'locked'}
-                      ownRole={member?.role}
-                      taskStats={taskStats}
-                    />
+                    </div>
                   )}
 
                   {/* Your role's tasks (interactive) */}
@@ -1330,7 +1371,8 @@ export default function CoursePage() {
                           task={task}
                           isOwn
                           joined={joined}
-                          open={expanded.has(task.id) || (!expandedTouched && task.id === nextTask?.id)}
+                          open={expanded.has(task.id)}
+                          isNext={task.id === nextTask?.id}
                           percent={taskStats[task.id] ?? 0}
                           onToggle={() => toggle(task.id)}
                         >

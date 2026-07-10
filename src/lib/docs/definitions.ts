@@ -46,7 +46,10 @@ export const DELIVERABLES: DeliverableDef[] = [
         ],
       },
     ],
-    dod: [{ label: 'Scope, network range and authorization are filled in', test: (d) => !!(d.fields.client && d.fields.network_scope && d.fields.authorization) }],
+    dod: [
+      { label: 'Scope, network range and authorization are filled in', test: (d) => !!(d.fields.client && d.fields.network_scope && d.fields.authorization) },
+      { label: 'Engagement start date is set', test: (d) => !!d.fields.start_date },
+    ],
   },
 
   // 2 ─────────────────────────────────────────────────────────────────────
@@ -74,7 +77,7 @@ export const DELIVERABLES: DeliverableDef[] = [
           label: 'Assets',
           columns: [
             c('hostname', 'Hostname', 'text', { placeholder: 'dvwa-vm' }),
-            c('ip', 'IP address', 'text', { placeholder: '10.10.10.15' }),
+            c('ip', 'IP address', 'text', { placeholder: '10.10.10.5' }),
             c('service', 'Service / port', 'text', { placeholder: '80/tcp HTTP' }),
             c('version', 'Version', 'text', { placeholder: 'Apache 2.4.41' }),
             c('os', 'OS', 'text', { placeholder: 'Ubuntu 20.04' }),
@@ -84,12 +87,15 @@ export const DELIVERABLES: DeliverableDef[] = [
             c('notes', 'Notes', 'text', { placeholder: 'default install' }),
           ],
           seed: [
-            { hostname: 'dvwa-vm', ip: '10.10.10.15', service: '80/tcp HTTP', version: 'Apache 2.4.41', os: 'Ubuntu 20.04', role: 'DVWA web target', discovered_by: 'Red / nmap', evidence: 'Nmap_Scan.txt', notes: 'default install' },
+            { hostname: 'dvwa-vm', ip: '10.10.10.5', service: '80/tcp HTTP', version: 'Apache 2.4.41', os: 'Ubuntu 20.04', role: 'DVWA web target', discovered_by: 'Red / nmap', evidence: 'Nmap_Scan.txt', notes: 'default install' },
           ],
         },
       },
     ],
-    dod: [{ label: 'At least one asset recorded', test: (d) => (d.groups.assets?.length ?? 0) >= 1 }],
+    dod: [
+      { label: 'At least one asset recorded', test: (d) => (d.groups.assets?.length ?? 0) >= 1 },
+      { label: 'Every asset has an IP and hostname', test: (d) => (d.groups.assets?.length ?? 0) >= 1 && (d.groups.assets ?? []).every((a) => !!a.ip && !!a.hostname) },
+    ],
   },
 
   // 3 ─────────────────────────────────────────────────────────────────────
@@ -135,7 +141,10 @@ export const DELIVERABLES: DeliverableDef[] = [
         },
       },
     ],
-    dod: [{ label: 'At least one risk recorded', test: (d) => (d.groups.risks?.length ?? 0) >= 1 }],
+    dod: [
+      { label: 'At least one risk recorded', test: (d) => (d.groups.risks?.length ?? 0) >= 1 },
+      { label: 'Every risk has likelihood, impact and a treatment decision', test: (d) => (d.groups.risks?.length ?? 0) >= 1 && (d.groups.risks ?? []).every((r) => !!r.likelihood && !!r.impact && !!r.treatment) },
+    ],
   },
 
   // 4 ─────────────────────────────────────────────────────────────────────
@@ -183,6 +192,10 @@ export const DELIVERABLES: DeliverableDef[] = [
           return ok('firewall') && ok('log');
         },
       },
+      {
+        label: 'At least 3 controls marked Done with evidence',
+        test: (d) => (d.groups.controls ?? []).filter((r) => r.done === 'Yes' && !!r.evidence).length >= 3,
+      },
     ],
   },
 
@@ -219,6 +232,9 @@ export const DELIVERABLES: DeliverableDef[] = [
           ],
         },
       },
+    ],
+    dod: [
+      { label: 'At least one change logged with date and evidence', test: (d) => (d.groups.changes ?? []).some((r) => !!r.date && !!r.change && !!r.evidence) },
     ],
   },
 
@@ -261,7 +277,7 @@ export const DELIVERABLES: DeliverableDef[] = [
           columns: [
             c('title', 'Finding title', 'text', { placeholder: 'SQL injection — auth bypass' }),
             c('severity', 'Severity', 'select', { options: ['Critical', 'High', 'Medium', 'Low', 'Info'] }),
-            c('target', 'Affected target', 'text', { placeholder: '10.10.10.15 / DVWA' }),
+            c('target', 'Affected target', 'text', { placeholder: '10.10.10.5 / DVWA' }),
             c('tool', 'Tool used', 'text', { placeholder: 'sqlmap' }),
             c('command', 'Command run', 'text', { placeholder: 'sqlmap -u ... --dump' }),
             c('evidence', 'Evidence (output)', 'area', { placeholder: 'dumped users table' }),
@@ -273,7 +289,7 @@ export const DELIVERABLES: DeliverableDef[] = [
             c('cvss', 'CVSS', 'number', { placeholder: '9.8' }),
           ],
           seed: [
-            { title: 'SQL injection — auth bypass', severity: 'Critical', target: '10.10.10.15 / DVWA', tool: 'sqlmap', command: 'sqlmap -u "http://10.10.10.15/login" --dump', evidence: 'dumped users table', screenshot: '20260217_Team01_sqlmap_dump.png', impact: 'unauthorized DB access', remediation: 'parameterized queries / WAF', detection: 'UNION/SELECT strings in Apache access.log; spike of 500s on /login', reference: 'OWASP A03 Injection', cvss: '9.8' },
+            { title: 'SQL injection — auth bypass', severity: 'Critical', target: '10.10.10.5 / DVWA', tool: 'sqlmap', command: 'sqlmap -u "http://10.10.10.5/login" --dump', evidence: 'dumped users table', screenshot: '20260217_Team01_sqlmap_dump.png', impact: 'unauthorized DB access', remediation: 'parameterized queries / WAF', detection: 'UNION/SELECT strings in Apache access.log; spike of 500s on /login', reference: 'OWASP A03 Injection', cvss: '9.8' },
           ],
         },
       },
@@ -282,6 +298,10 @@ export const DELIVERABLES: DeliverableDef[] = [
       {
         label: 'At least one fully documented finding (title, severity, evidence, screenshot)',
         test: (d) => (d.groups.findings ?? []).some((f) => f.title && f.severity && f.evidence && f.screenshot),
+      },
+      {
+        label: 'Executive summary written and every finding has a remediation',
+        test: (d) => !!d.fields.exec_summary && (d.groups.findings ?? []).length >= 1 && (d.groups.findings ?? []).every((f) => !!f.remediation),
       },
     ],
   },
@@ -358,6 +378,10 @@ export const DELIVERABLES: DeliverableDef[] = [
         label: 'IoC table and evidence log each have a row with a SHA256',
         test: (d) => (d.groups.iocs?.length ?? 0) >= 1 && (d.groups.evidence ?? []).some((e) => !!e.sha256),
       },
+      {
+        label: 'What happened and containment are described',
+        test: (d) => !!d.fields.what_happened && !!d.fields.containment,
+      },
     ],
   },
 
@@ -390,6 +414,9 @@ export const DELIVERABLES: DeliverableDef[] = [
           { field: 'slides_outline', label: 'Slides outline', type: 'area', placeholder: 'title → exec → findings → fixes → Q&A' },
         ],
       },
+    ],
+    dod: [
+      { label: 'Executive summary, key findings and remediation roadmap are filled in', test: (d) => !!(d.fields.exec_summary && d.fields.key_findings && d.fields.remediation_roadmap) },
     ],
   },
 ];

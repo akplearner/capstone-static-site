@@ -158,7 +158,7 @@ export function StepDetail({
   instruction?: string;
   description?: string;
   command?: string;
-  commands?: { cmd: string; explain?: string }[];
+  commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
   commandExplanation?: string;
   commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
@@ -173,10 +173,13 @@ export function StepDetail({
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   // When per-statement commands are supplied, their inline explanations replace the
-  // combined commandExplanation/commandFlags, so we don't repeat them in "Explain".
+  // combined commandExplanation. Step-level flags are only suppressed when the
+  // structured commands carry their OWN per-command flags — otherwise we still show
+  // the step-level flag table so no flag help is ever lost.
   const usingStructured = !!(commands && commands.length > 0);
+  const structuredHasFlags = usingStructured && commands!.some((c) => c.flags && c.flags.length > 0);
   const showCmdExplain = !usingStructured && !!commandExplanation;
-  const showCmdFlags = !usingStructured && !!commandFlags && commandFlags.length > 0;
+  const showCmdFlags = !structuredHasFlags && !!commandFlags && commandFlags.length > 0;
   const hasCommand = usingStructured || !!command;
   const hasExplain =
     showCmdExplain || showCmdFlags || !!outputExplanation || !!troubleshooting || frameworks.length > 0;
@@ -439,14 +442,17 @@ export function ChecklistItem({
 }
 
 /**
- * Split a single command string into its top-level statements, breaking on `&&`
- * and newlines but NOT on pipes (`|` is one pipeline) and never inside quotes.
- * Used as a visual fallback for un-migrated multi-statement `command` strings.
+ * Split a single command string into its top-level statements, breaking on `&&`,
+ * `;`, and newlines but NOT on pipes (`|` is one pipeline), never inside quotes,
+ * and never inside braces (`;` inside a PowerShell `@{...}` hashtable is not a
+ * statement separator). Used as a visual fallback for un-migrated multi-statement
+ * `command` strings.
  */
 function splitCommand(cmd: string): string[] {
   const parts: string[] = [];
   let buf = '';
   let quote: string | null = null;
+  let depth = 0;
   for (let i = 0; i < cmd.length; i++) {
     const ch = cmd[i];
     if (quote) {
@@ -459,15 +465,22 @@ function splitCommand(cmd: string): string[] {
       buf += ch;
       continue;
     }
+    if (ch === '{' || ch === '(') depth++;
+    if (ch === '}' || ch === ')') depth = Math.max(0, depth - 1);
     if (ch === '\n') {
       if (buf.trim()) parts.push(buf.trim());
       buf = '';
       continue;
     }
-    if (ch === '&' && cmd[i + 1] === '&') {
+    if (depth === 0 && ch === '&' && cmd[i + 1] === '&') {
       if (buf.trim()) parts.push(buf.trim());
       buf = '';
       i++;
+      continue;
+    }
+    if (depth === 0 && ch === ';') {
+      if (buf.trim()) parts.push(buf.trim());
+      buf = '';
       continue;
     }
     buf += ch;
@@ -482,22 +495,24 @@ function splitCommand(cmd: string): string[] {
  * string is auto-split for visual clarity. A "Copy all" appears for multi-statement
  * commands so students can still paste the whole sequence at once.
  */
+type CommandEntry = { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] };
+
 export function CommandBlock({
   command,
   commands,
 }: {
   command?: string;
-  commands?: { cmd: string; explain?: string }[];
+  commands?: CommandEntry[];
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   const lab = useLabAccess(courseId);
 
-  const raw =
+  const raw: CommandEntry[] =
     commands && commands.length > 0
       ? commands
       : command
-        ? splitCommand(command).map((c) => ({ cmd: c, explain: undefined as string | undefined }))
+        ? splitCommand(command).map((c) => ({ cmd: c }))
         : [];
   if (raw.length === 0) return null;
   // Substitute the student's lab values (target IPs, etc.) into the commands.
@@ -509,7 +524,7 @@ export function CommandBlock({
     <div>
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          {multi ? `Commands · run in order` : 'Command'}
+          {multi ? `Commands · run one at a time` : 'Command'}
         </div>
         {multi && <CopyButton text={allText} label="Copy all" />}
       </div>
@@ -530,6 +545,18 @@ export function CommandBlock({
                 <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
                 <span>{c.explain}</span>
               </p>
+            )}
+            {c.flags && c.flags.length > 0 && (
+              <ul className="mt-1 space-y-0.5 pl-6">
+                {c.flags.map((f) => (
+                  <li key={f.flag} className="flex gap-2 text-xs text-gray-600 dark:text-gray-400">
+                    <code className="shrink-0 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
+                      {f.flag}
+                    </code>
+                    <span>{f.meaning}</span>
+                  </li>
+                ))}
+              </ul>
             )}
           </div>
         ))}
