@@ -68,12 +68,12 @@ function SingleField({
   );
 }
 
-/** Warn if any screenshot cell in a group breaks the naming convention. */
+/** Warn if any screenshot/filename cell in a group breaks the naming convention. */
 function NamingWarnings({ group, rows }: { group: FieldGroup; rows: Record<string, string>[] }) {
-  const hasScreenshot = group.columns.some((col) => col.field === 'screenshot');
-  if (!hasScreenshot) return null;
+  const nameCols = group.columns.filter((col) => col.field === 'screenshot' || col.field === 'filename');
+  if (nameCols.length === 0) return null;
   const bad = rows
-    .map((r) => r.screenshot)
+    .flatMap((r) => nameCols.map((c) => r[c.field]))
     .filter((v) => v && !validateEvidenceFileName(v).valid);
   if (bad.length === 0) return null;
   return (

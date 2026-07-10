@@ -155,7 +155,7 @@ export default function DeliverablesPage() {
       const addedText = added.length ? `Added: ${added.join(', ')}.` : 'No new deliverables in that file.';
       const missingText = missing.length
         ? ` Still needed for a complete package: ${missing.join('; ')}.`
-        : ' All 8 deliverables are now present — ready to download the package.';
+        : ' All deliverables are now present — ready to download the package.';
       setImportMsg({ ok: true, text: addedText + missingText });
     } catch (err) {
       setImportMsg({ ok: false, text: err instanceof Error ? err.message : 'Could not read that file.' });
@@ -234,7 +234,7 @@ export default function DeliverablesPage() {
         <div className="flex items-start gap-2 text-sm text-blue-900 dark:text-blue-200">
           <Package className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
           <p>
-            <strong>Download team package</strong> — bundles all 8 deliverables into one zip, in the
+            <strong>Download team package</strong> — bundles every deliverable into one zip, in the
             submission folder structure (<span className="font-mono text-xs">{packageFileName(meta)}</span>),
             with a ready-to-fill chain-of-custody log in <span className="font-mono text-xs">Evidence/</span>.{' '}
             <Link href={`/courses/${course.id}/guide`} className="font-medium underline">
@@ -339,7 +339,7 @@ export default function DeliverablesPage() {
       </div>
 
       <p className="text-sm text-gray-500 dark:text-gray-400">
-        Need the reference tables (the 8 deliverables, weekly flow, folder layout, tools)?{' '}
+        Need the reference tables (all deliverables, weekly flow, folder layout, tools)?{' '}
         <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
           See the Guide →
         </Link>

@@ -12,7 +12,7 @@ export function QuickReferenceCard() {
   const panels = [
     {
       icon: FileStack,
-      title: '8 FILES',
+      title: `${DELIVERABLES.length} FILES`,
       body: (
         <ol className="space-y-0.5">
           {DELIVERABLES.map((d) => (

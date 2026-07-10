@@ -260,8 +260,9 @@ export function StepDetail({
       )}
 
       {/* Troubleshooting is its own always-visible "Stuck?" toggle (not buried in
-          Explain) so a student who hit an error finds the fix in one click. */}
-      {hasCommand && (
+          Explain) so a student who hit an error finds the fix in one click. Shown
+          for command steps and for any step that carries its own troubleshooting. */}
+      {(hasCommand || !!troubleshooting) && (
         <div className="rounded-md border border-rose-200 bg-rose-50/60 px-4 dark:border-rose-900 dark:bg-rose-900/10">
           <Collapsible title="Stuck? If it doesn't work" defaultOpen={false}>
             <div className="space-y-2 pb-1 text-sm">
@@ -271,13 +272,15 @@ export function StepDetail({
                   <span>{troubleshooting}</span>
                 </p>
               )}
-              <p className="text-gray-600 dark:text-gray-400">
-                Common errors (command not found, permission denied, connection refused, unfilled
-                <span className="font-mono"> 10.10.10.X</span>) and how to fix them:{' '}
-                <Link href={`/courses/${courseId}/guide#command-help`} className="font-medium text-blue-600 underline dark:text-blue-400">
-                  Terminal basics &amp; common fixes →
-                </Link>
-              </p>
+              {hasCommand && (
+                <p className="text-gray-600 dark:text-gray-400">
+                  Common errors (command not found, permission denied, connection refused, unfilled
+                  <span className="font-mono"> 10.10.10.X</span>) and how to fix them:{' '}
+                  <Link href={`/courses/${courseId}/guide#command-help`} className="font-medium text-blue-600 underline dark:text-blue-400">
+                    Terminal basics &amp; common fixes →
+                  </Link>
+                </p>
+              )}
             </div>
           </Collapsible>
         </div>

@@ -113,7 +113,7 @@ export function TeamProgressTable({
       <div>
         <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Team deliverables</h3>
         <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-          The 8 graded documents and whether your team has filled them in.
+          The graded documents and whether your team has filled them in.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {deliverables.map((d) => {

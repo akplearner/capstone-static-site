@@ -23,7 +23,7 @@ export const CUSTODY_RULES: string[] = [
   'Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.',
   'Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.',
   'Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).',
-  'Keep this log beside the evidence in one canonical `Evidence/` folder; back it up and keep originals read-only.',
+  'Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.',
   'One custodian holds the evidence at a time; record each transfer so the chain is unbroken.',
 ];
 
@@ -32,7 +32,7 @@ const EXAMPLE_ROW: Record<(typeof CUSTODY_COLUMNS)[number], string> = {
   Description: '20260627_Team01_sqlmap_dbdump.png',
   'Collected by': 'Red',
   'Date/Time': '2026-06-27 14:22',
-  'Location (path)': '~/team-artifacts/week-3/Evidence/',
+  'Location (path)': '~/team-artifacts/week-3/',
   'SHA-256': 'c5b9… (from sha256sum)',
   'Transferred to': 'GRC',
   'Transferred (date/time)': '2026-06-27 15:05',

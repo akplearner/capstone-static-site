@@ -19,9 +19,8 @@ function readme(root: string, meta: DocMeta): string {
   const lines = [
     `# ${root}`,
     '',
-    'The team capstone package — all 8 graded deliverables, assembled into one',
-    'submission. The 17 working files from the old course consolidate into these',
-    '8 deliverables (plus this README and Team_Roles).',
+    `The team capstone package — all ${DELIVERABLES.length} graded deliverables, assembled into one`,
+    'submission (plus this README and Team_Roles).',
     '',
     meta.team ? `- Team: ${meta.team}` : '',
     meta.cohort ? `- Cohort: ${meta.cohort}` : '',

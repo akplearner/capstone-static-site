@@ -179,7 +179,8 @@ const RED_TASKS: Task[] = [
         expectedOutput: 'eth0 inet 10.10.10.x, ping reply from target',
         outputExplanation: 'The `eth0` `inet` line in the 10.10.10.x range is your IP, and a "1 received, 0% packet loss" line proves the target answers.',
         whatItMeans: 'Your Kali box and the target sit on the same subnet, so scanning will work.',
-        frameworks: ['NIST_CSF']
+        frameworks: ['NIST_CSF'],
+        troubleshooting: 'No ping reply? Confirm the target VM is on and on the same lab network, and that .1 is your gateway (yours may differ — use the address from Lab access). "Network is unreachable"? Your Kali NIC may be on the wrong adapter — check ip a shows a 10.10.10.x address.',
       },
       {
         id: 'red-w1-s2',
@@ -200,7 +201,8 @@ const RED_TASKS: Task[] = [
         expectedOutput: 'Domain info, A/MX/NS records',
         outputExplanation: 'The `whois` block shows the registrar and contacts; `dig` lists A, NS and MX records, with the MX names revealing where the target receives email.',
         whatItMeans: 'You now know the target owner, mail servers, and DNS structure.',
-        frameworks: ['NIST_CSF', 'CIS']
+        frameworks: ['NIST_CSF', 'CIS'],
+        troubleshooting: 'No records / "connection timed out; no servers could be reached"? The lab domain may not resolve on your DNS — point dig at the lab DNS server (dig @<UBUNTU_IP> ANY target.local) or use the target IP directly. whois may return nothing for a private lab domain — that is expected.',
       },
       {
         id: 'red-w1-s3',
@@ -229,16 +231,22 @@ const RED_TASKS: Task[] = [
         title: 'Email/Host Discovery',
         description: 'Harvest emails, subdomains, and hosts for the target domain.',
         instruction: 'Run theHarvester against the target domain and note candidate usernames and subdomains.',
-        command: 'theHarvester -d target.local -b all',
-        commandExplanation: '`theHarvester` collects OSINT for a domain; `-d` sets the target domain and `-b all` queries every available source (search engines, certificate logs, etc.).',
-        commandFlags: [
-          { flag: '-d target.local', meaning: 'The domain to gather intelligence about.' },
-          { flag: '-b all', meaning: 'Use every available data source (search engines, certs, etc.).' },
+        commands: [
+          {
+            cmd: 'theHarvester -d target.local -b all',
+            explain: 'Gather public info (emails, subdomains, hosts) about the domain from many sources at once.',
+            flags: [
+              { flag: 'theHarvester', meaning: 'An OSINT tool that collects domain intelligence.' },
+              { flag: '-d target.local', meaning: 'The domain to gather information about.' },
+              { flag: '-b all', meaning: 'Use every available data source (search engines, certs, etc.).' },
+            ],
+          },
         ],
         expectedOutput: 'Email list, subdomains, hosts',
         outputExplanation: 'Results are grouped into emails, hosts and subdomains — the email addresses become candidate usernames and the subdomains reveal extra attack surface.',
         whatItMeans: 'You have candidate usernames and additional infrastructure to target.',
-        frameworks: ['NIST_CSF']
+        frameworks: ['NIST_CSF'],
+        troubleshooting: '"command not found"? sudo apt install theharvester. A single source erroring or rate-limiting is normal — try one source instead of all, e.g. -b bing. In an offline lab most public sources return nothing; that is expected.',
       },
       {
         id: 'red-w1-s5',
@@ -317,16 +325,22 @@ const RED_TASKS: Task[] = [
         id: 'red-w2-s3',
         title: 'SSH Auth Methods',
         description: 'Identify authentication methods on SSH.',
-        command: 'nmap --script ssh-auth-methods 10.10.10.X',
-        commandExplanation: '`nmap --script ssh-auth-methods` runs an NSE script that connects to SSH and asks which authentication methods the server will accept.',
-        commandFlags: [
-          { flag: '--script ssh-auth-methods', meaning: 'Run the NSE script that lists accepted SSH auth methods.' },
-          { flag: '10.10.10.5', meaning: 'The SSH host to query.' },
+        commands: [
+          {
+            cmd: 'nmap --script ssh-auth-methods 10.10.10.X',
+            explain: 'Ask the SSH server which login methods it accepts (password vs key).',
+            flags: [
+              { flag: 'nmap', meaning: 'The scanner (also runs helper scripts).' },
+              { flag: '--script ssh-auth-methods', meaning: 'Run the NSE script that lists accepted SSH auth methods.' },
+              { flag: '10.10.10.X', meaning: 'The SSH host to query — your target IP.' },
+            ],
+          },
         ],
         expectedOutput: 'SSH allows password auth',
         outputExplanation: 'The script lists supported methods; seeing `password` means logins can be brute-forced, whereas `publickey` only would be far safer.',
         whatItMeans: 'Password auth enabled = brute force risk; SSH key only would be better.',
-        frameworks: ['CIS']
+        frameworks: ['CIS'],
+        troubleshooting: '"Host seems down"? Add -Pn. No SSH result? Confirm port 22 is open (from the earlier nmap scan) and the target is reachable. "Failed to resolve"? Use the numeric IP, not a hostname.',
       },
       {
         id: 'red-w2-s4',
@@ -423,32 +437,26 @@ const RED_TASKS: Task[] = [
           { flag: '&', meaning: 'Run the listener in the background.' },
         ],
         expectedOutput: 'Reverse shell connection established; id command shows www-data',
-        outputExplanation: 'When the victim connects you get a shell prompt; running `id` returns `uid=33(www-data)`, confirming remote code execution as the web-server user.',
+        outputExplanation: 'The `&` puts the listener in the background, so your prompt returns immediately — that is normal. When the victim connects, the listener prints "connect to …" and you get a shell; running `id` returns `uid=33(www-data)`, confirming remote code execution as the web-server user.',
         whatItMeans: 'Demonstrates RCE and full system compromise.',
         frameworks: ['OWASP'],
         producesDeliverable: 'Reverse_Shell_Proof.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'No connection back? Use YOUR Kali IP (not 127.0.0.1) in the payload, and confirm nothing already uses port 4444 (try another, e.g. 4445). "Address already in use"? A previous listener is still running — find it with jobs, stop it with kill %1, then re-run. Bring the backgrounded listener to the foreground with fg to see the shell.',
       },
       {
         id: 'red-w3-s4',
         title: 'Screenshot Evidence',
         description: 'Capture proof of successful exploitation.',
-        instruction: 'Save your screenshots, then zip them into the canonical evidence bundle: `zip ~/team-artifacts/week-3/Evidence_Photos.zip *.png`.',
-        command: 'screenshot named YYYYMMDD_TeamXX_Tool_Action.png',
-        commandExplanation: 'This is a naming convention, not a binary: capture the screen and save it as `YYYYMMDD_TeamXX_Tool_Action.png` so every artifact is dated, attributed and self-describing.',
-        commandFlags: [
-          { flag: 'YYYYMMDD', meaning: 'Date the evidence was captured.' },
-          { flag: 'TeamXX', meaning: 'Your team number, for attribution.' },
-          { flag: 'Tool', meaning: 'Tool used (e.g. sqlmap, hydra).' },
-          { flag: 'Action', meaning: 'What the screenshot proves.' },
-        ],
-        expectedOutput: 'Evidence file created with naming convention',
-        outputExplanation: 'A correctly named PNG (e.g. `20260624_Team01_sqlmap_dbdump.png`) should appear in your evidence folder, ready for the chain-of-custody log.',
+        instruction: 'For each exploit, take a screenshot and save it as YYYYMMDD_TeamXX_Tool_Action.png (e.g. 20260624_Team01_sqlmap_dbdump.png) in ~/team-artifacts/week-3/ — dated, attributed, and self-describing. Then bundle them: zip ~/team-artifacts/week-3/Evidence_Photos.zip ~/team-artifacts/week-3/*.png',
+        expectedOutput: 'Correctly-named PNGs in your Evidence folder, zipped into Evidence_Photos.zip',
+        outputExplanation: 'Each filename should read date_team_tool_action.png so anyone can tell what it proves without opening it; the zip is the bundle you hand to GRC.',
         whatItMeans: 'Documented proof required by GRC for compliance and reporting. Attach these to the Penetration Test Report form.',
         frameworks: ['NIST_800_61'],
         usesForm: 'Penetration Test Report',
         producesDeliverable: 'Evidence_Photos.zip',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Screenshot tool on Kali: use the PrintScreen key or run flameshot gui (sudo apt install flameshot). Name mismatch warnings later? Match the pattern exactly: 8-digit date, Team then two digits, then Tool and Action, .png.',
       }
     ]
   },
@@ -479,7 +487,8 @@ const RED_TASKS: Task[] = [
         expectedOutput: 'Clear sequence of events',
         outputExplanation: 'You should see your timestamped events in order; gaps or out-of-order entries are your cue to tidy the narrative before briefing.',
         whatItMeans: 'Tells the story of how the compromise occurred.',
-        frameworks: ['ISO_27001']
+        frameworks: ['ISO_27001'],
+        troubleshooting: '"cat: timeline.txt: No such file or directory"? You haven\'t created it yet — timeline.txt is your own notes; make it (e.g. nano ~/team-artifacts/week-3/timeline.txt) listing each action with a timestamp, then cat it. Run cat from the folder that holds the file, or give the full path.',
       },
       {
         id: 'red-w4-s2',
@@ -621,16 +630,21 @@ const BLUE_TASKS: Task[] = [
         id: 'blue-w1-s1',
         title: 'SSH Into Target',
         description: 'Establish secure connection to target server.',
-        command: 'ssh user@10.10.10.5',
-        commandExplanation: '`ssh user@host` opens an encrypted remote shell to the server as the named user, prompting for that account password.',
-        commandFlags: [
-          { flag: 'ssh', meaning: 'Open an encrypted remote shell.' },
-          { flag: 'user@10.10.10.5', meaning: 'Log in as “user” on the target host.' },
+        commands: [
+          {
+            cmd: 'ssh user@10.10.10.5',
+            explain: 'Open an encrypted remote terminal on the Ubuntu server as the "user" account (it asks for that account\'s password). Replace user/IP with yours.',
+            flags: [
+              { flag: 'ssh', meaning: 'Open an encrypted remote shell (Secure Shell).' },
+              { flag: 'user@10.10.10.5', meaning: 'Log in as "user" on this host — swap in your username and target IP.' },
+            ],
+          },
         ],
         expectedOutput: 'Shell prompt; whoami shows non-root user',
         outputExplanation: 'A changed prompt (e.g. `user@target:~$`) means you are in; `whoami` returning a non-root name confirms least-privilege access.',
         whatItMeans: 'You are connected as non-root (good security), can now apply hardening.',
-        frameworks: ['NIST_CSF']
+        frameworks: ['NIST_CSF'],
+        troubleshooting: '"Connection refused"? SSH isn\'t running on the target — start it: sudo systemctl start ssh (on the Ubuntu VM). "Permission denied"? Wrong username/password. First-connection "authenticity" prompt? Type yes. "No route to host"? Check the IP and that the target is on the lab network (ping it).',
       },
       {
         id: 'blue-w1-s2',
@@ -650,7 +664,8 @@ const BLUE_TASKS: Task[] = [
         expectedOutput: 'Packages updated',
         outputExplanation: 'Watch the summary line — "X upgraded, Y newly installed" — and make sure it finishes without errors, meaning known-vulnerable packages are now patched.',
         whatItMeans: 'Patches known vulnerabilities in OS and applications.',
-        frameworks: ['CIS']
+        frameworks: ['CIS'],
+        troubleshooting: '"Could not get lock /var/lib/dpkg/lock"? Another update is running — wait a minute and retry, or reboot. "Permission denied"? You forgot sudo. No network in the lab? apt update may fail to reach mirrors — that is expected offline; note it and continue.',
       },
       {
         id: 'blue-w1-s3',
@@ -671,7 +686,8 @@ const BLUE_TASKS: Task[] = [
         frameworks: ['CIS'],
         usesForm: 'Change Log',
         producesDeliverable: 'UFW_Status.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Locked yourself out over SSH? Always allow 22 BEFORE enabling — if stranded, fix it from the VM console. "ufw: command not found"? sudo apt install ufw. Status shows inactive? Re-run sudo ufw --force enable. Order matters: set default-deny and allow 22 first.',
       },
       {
         id: 'blue-w1-s4',
@@ -691,7 +707,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Automatically blocks repeated failed login attempts. Record your hardening in the Hardening Baseline form.',
         frameworks: ['CIS'],
         usesForm: 'Hardening Baseline',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"Unit fail2ban.service not found" right after install? The package may still be finishing — wait, then re-run the enable line. Check it with sudo systemctl status fail2ban (expect active (running)) and sudo fail2ban-client status for active jails.',
       },
       {
         id: 'blue-w1-s5',
@@ -711,7 +728,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Identifies remaining security gaps and compliance issues.',
         frameworks: ['NIST_CSF'],
         producesDeliverable: 'Lynis_Report.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"lynis: command not found"? sudo apt install lynis. Run it with sudo so it can read protected config. The run is long — let it finish before reading the score. Report file empty? Check the ~/team-artifacts/week-1 folder exists (the mkdir line above creates it).',
       },
       {
         id: 'blue-w1-s6',
@@ -852,7 +870,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Understand what normal looks like to detect anomalies.',
         frameworks: ['NIST_CSF'],
         producesDeliverable: 'Wireshark_Filters.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"wireshark: command not found"? sudo apt install wireshark. Running as root warns you — that is fine in a lab. No packets shown? Confirm you opened the right .pcap and cleared any display filter. The & returns your prompt immediately; that is expected.',
       },
       {
         id: 'blue-w2-s3',
@@ -865,12 +884,13 @@ const BLUE_TASKS: Task[] = [
           { flag: 'tcp.flags.ack==0', meaning: '…and the ACK flag clear — a lone SYN means a scan.' },
           { flag: '> ~/team-artifacts/week-2/Detection_Rules.txt', meaning: 'Save the detection rule to the canonical file.' },
         ],
-        expectedOutput: 'List of Wireshark filters',
-        outputExplanation: 'No screen output; `cat ~/team-artifacts/week-2/Detection_Rules.txt` confirms the rule is saved, ready to paste into Wireshark during an attack.',
+        expectedOutput: 'No screen output — the filter is written to Detection_Rules.txt',
+        outputExplanation: 'Because of the `>` redirect the terminal prints nothing; run `cat ~/team-artifacts/week-2/Detection_Rules.txt` to confirm the rule is saved, ready to paste into Wireshark during an attack.',
         whatItMeans: 'Filters enable rapid identification of suspicious activity.',
         frameworks: ['NIST_CSF'],
         producesDeliverable: 'Detection_Rules.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Nothing happened? That is correct — `>` sends the text to the file, not the screen. If cat shows nothing, the folder may be missing (run the mkdir step first) or you used a single `>` twice and overwrote it — use `>>` to append more filters.',
       },
       {
         id: 'blue-w2-s4',
@@ -925,7 +945,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Gives you an abnormal-traffic reference so detection filters can be validated before the real attack.',
         frameworks: ['NIST_800_115'],
         producesDeliverable: 'Attack_Traffic.pcap',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Capture stops instantly with 0 packets? Nothing was flowing — start your nmap/login against the host right after you press Enter. Wrong interface? Use the name from ip a (ens33/enp0s3). Needs sudo.',
       }
     ]
   },
@@ -962,7 +983,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Forensic evidence collection; chain of custody begins.',
         frameworks: ['NIST_800_61'],
         producesDeliverable: 'Attack_Pcap.pcap',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Start this BEFORE Red attacks, or you miss the evidence. Needs sudo. Leave it running in its own terminal; the file grows as packets arrive — do not Ctrl+C until the attack window is over. Wrong interface? Use the name from ip a.',
       },
       {
         id: 'blue-w3-s2',
@@ -983,7 +1005,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Real-time visibility into attacker activity.',
         frameworks: ['NIST_CSF'],
         producesDeliverable: 'Attack_Logs.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"No such file or directory"? DVWA in Docker logs elsewhere — try /var/log/apache2/access.log inside the container (sudo docker logs dvwa) or the host path you mapped. Permission denied? Use sudo. Nothing new appearing? Generate a request (browse the site) to produce a log line.',
       },
       {
         id: 'blue-w3-s3',
@@ -1001,7 +1024,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Confirms SQL injection attack attempt. Write up the incident in the Incident Report form.',
         frameworks: ['OWASP', 'NIST_800_61'],
         usesForm: 'Incident Report',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'No matches? The attack may not have run yet, the keywords may be URL-encoded (try grep -iE "union|select|%27|0x"), or the log path differs (see the previous step). Case matters — keep -i. Escape the pipe as \\| inside quotes.',
       },
       {
         id: 'blue-w3-s4',
@@ -1021,7 +1045,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Containment action stops ongoing attacks.',
         frameworks: ['NIST_800_61'],
         producesDeliverable: 'Containment_Actions.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Use the REAL attacker IP you found in the logs (not the literal 10.10.10.x). "ERROR: Bad source address"? Check the IP format. Rule not taking effect? Confirm UFW is enabled (sudo ufw status). To undo later: sudo ufw delete deny from <ip>.',
       },
       {
         id: 'blue-w3-s5',
@@ -1141,7 +1166,7 @@ const GRC_TASKS: Task[] = [
         id: 'grc-w0-s2',
         title: 'Draft the Rules of Engagement',
         description: 'Put the authorized scope in writing.',
-        instruction: 'Write the authorized scope in the Scope and Rules of Engagement form, then share it with Red and Blue.',
+        instruction: 'Write the authorized scope in the Scope and Rules of Engagement form (it exports as 01_Scope_and_RoE.md — that file IS your Rules of Engagement), then share it with Red and Blue.',
         whatItMeans: 'Sets the legal boundary Red may attack and Blue must defend.',
         frameworks: ['ISO_27001', 'NIST_CSF'],
         usesForm: 'Scope & Rules of Engagement',
@@ -1155,7 +1180,7 @@ const GRC_TASKS: Task[] = [
     title: 'Framework Mapping & Hardening Standard',
     objective: 'Log Week 1 artifacts into the chain-of-custody register, map them to NIST CSF + CIS, and issue a Hardening Standard to Blue.',
     frameworks: ['NIST_CSF', 'CIS', 'STRIDE'],
-    deliverables: ['02_Asset_Inventory.csv', 'Hardening_Standard.md'],
+    deliverables: ['02_Asset_Inventory.csv', '09_Framework_Mapping.md', '10_Lab_Security_Policy.md', '11_Hardening_Standard.md'],
     prerequisites: ["Red's Asset_List.md and Recon_Findings.md", "Blue's Hardening_Checklist.txt and UFW_Status.txt", 'Your Rules_of_Engagement.md from Week 0'],
     definitionOfDone: ['All four Week 1 files logged + hashed in Artifact_Register.md', 'Findings mapped to NIST CSF + CIS in Framework_Mapping.md', 'Lab_Security_Policy_v1.0.md drafted', 'Hardening_Standard.md handed to Blue'],
     handoff: [
@@ -1178,33 +1203,37 @@ const GRC_TASKS: Task[] = [
         id: 'grc-w1-s2',
         title: 'Map findings to NIST CSF',
         description: 'Map findings to NIST CSF controls.',
-        instruction: 'Note which NIST CSF control each finding satisfies — you will cite these in the Risk Register and Final Report.',
+        instruction: 'Add each finding to the Framework Mapping form and tag its NIST CSF function + control — you will cite these in the Risk Register and Final Report.',
         whatItMeans: 'Turns raw findings into a control-by-control audit trail.',
         frameworks: ['NIST_CSF'],
+        usesForm: 'Framework Mapping',
       },
       {
         id: 'grc-w1-s3',
         title: 'Append CIS Control rows',
         description: 'Map findings to CIS Controls.',
-        instruction: 'Add the matching CIS Controls to your notes so coverage gaps are obvious.',
+        instruction: 'In the same Framework Mapping form, fill the CIS control for each row so coverage gaps are obvious.',
         whatItMeans: 'Cross-references the same evidence against a second framework.',
         frameworks: ['CIS'],
+        usesForm: 'Framework Mapping',
       },
       {
         id: 'grc-w1-s4',
         title: 'Draft Security Policy v1.0',
         description: 'Set the baseline policy.',
-        instruction: 'Capture your baseline rules (no root SSH, firewall on, logging) — they anchor the Scope and Final Report.',
+        instruction: 'Capture your baseline rules (no root SSH, firewall on, logging) in the Lab Security Policy form — they anchor the Scope and Final Report.',
         whatItMeans: 'Converts the framework mapping into enforceable rules every host must meet.',
         frameworks: ['ISO_27001'],
+        usesForm: 'Lab Security Policy',
       },
       {
         id: 'grc-w1-s5',
         title: 'Write the Hardening Standard for Blue',
         description: 'Tell Blue which controls to apply.',
-        instruction: 'Tell Blue exactly which controls to apply — Blue records them in the Hardening Baseline form.',
+        instruction: 'List the exact controls Blue must apply in the Hardening Standard form; Blue then implements them and records the result in the Hardening Baseline form.',
         whatItMeans: 'GRC sets the standard; Blue implements it.',
         frameworks: ['CIS', 'NIST_CSF'],
+        usesForm: 'Hardening Standard',
       }
     ]
   },
@@ -1215,7 +1244,7 @@ const GRC_TASKS: Task[] = [
     title: 'Risk Assessment & Vulnerability-Management SOP',
     objective: 'Score the risks and write the Vulnerability-Management SOP your Blue team follows to remediate.',
     frameworks: ['NIST_CSF', 'CVSS'],
-    deliverables: ['03_Risk_Register.csv', 'VM_SOP.md'],
+    deliverables: ['03_Risk_Register.csv', '12_VM_SOP.md'],
     prerequisites: ["Red's Vulnerability_Summary.md (the findings)", 'Your Week 1 Hardening Standard'],
     definitionOfDone: ['Risk matrix built', 'CVSS scores assigned', 'VM SOP written and handed to Blue with remediation priorities'],
     handoff: [{ to: 'blue', artifact: 'VM_SOP.md', note: 'Remediation order and process Blue follows.' }],
@@ -1253,9 +1282,10 @@ const GRC_TASKS: Task[] = [
         id: 'grc-w2-s4',
         title: 'Write the Vulnerability-Management SOP for Blue',
         description: 'Hand Blue the remediation order.',
-        instruction: 'Give Blue the remediation order (highest risk first) so they know what to fix and when.',
+        instruction: 'Fill the Vulnerability-Management SOP form — the priority rule (highest risk first) and the ordered steps Blue follows to fix and verify.',
         whatItMeans: 'GRC defines the remediation process; Blue carries it out.',
         frameworks: ['NIST_CSF', 'CVSS'],
+        usesForm: 'Vulnerability-Management SOP',
       }
     ]
   },
@@ -1266,7 +1296,7 @@ const GRC_TASKS: Task[] = [
     title: 'Incident-Response Runbook & Chain of Custody',
     objective: 'Issue the IR runbook your Blue team follows during the breach, then preserve the evidence with chain of custody.',
     frameworks: ['NIST_800_61', 'ISO_27001'],
-    deliverables: ['Evidence_Hashes.txt'],
+    deliverables: ['13_IR_Runbook.md', '14_Evidence_Log.csv', 'Evidence_Hashes.txt'],
     prerequisites: ['Week 2 VM SOP issued', "Blue's detections from Week 2 in place"],
     definitionOfDone: ['IR runbook handed to Blue before the attack', 'All evidence hashed and logged', 'Chain of custody intact'],
     handoff: [{ to: 'blue', artifact: 'IR_Runbook.md', note: 'The steps Blue follows the moment an attack is detected.' }],
@@ -1277,9 +1307,10 @@ const GRC_TASKS: Task[] = [
         id: 'grc-w3-s5',
         title: 'Write the IR Runbook for Blue (do this first)',
         description: 'Give Blue the incident-response steps.',
-        instruction: 'Give Blue the incident-response steps to follow during the attack (detect, contain, preserve, report).',
+        instruction: 'Fill the Incident-Response Runbook form — the detect → contain → eradicate → recover → report steps Blue follows during the attack. Hand it over before Red begins.',
         whatItMeans: 'GRC prepares the response plan; Blue executes it during the attack.',
         frameworks: ['NIST_800_61'],
+        usesForm: 'Incident-Response Runbook',
       },
       {
         id: 'grc-w3-s1',
@@ -1308,25 +1339,26 @@ const GRC_TASKS: Task[] = [
         whatItMeans: 'Proves evidence has not been tampered with.',
         frameworks: ['NIST_800_61'],
         producesDeliverable: 'Evidence_Hashes.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"No such file or directory"? cd into the folder that holds the evidence first (the filenames must exist there), or hash the whole folder: sha256sum ~/team-artifacts/week-3/Evidence/*. Verify later with sha256sum -c Evidence_Hashes.txt — every line must say OK.',
       },
       {
         id: 'grc-w3-s3',
         title: 'Create Evidence Log',
         description: 'Log each piece of evidence.',
-        instruction: 'Record each artifact (who collected it, when, and its hash) in the Incident Report evidence log.',
+        instruction: 'Record each artifact (filename, who collected it, when, its path, and its SHA-256 hash) in the Evidence Log form.',
         whatItMeans: 'A defensible chain of custody for forensics.',
         frameworks: ['NIST_800_61'],
-        usesForm: 'Incident Report',
+        usesForm: 'Evidence Log',
       },
       {
         id: 'grc-w3-s4',
         title: 'Sign the Chain of Custody',
         description: 'Confirm the chain of custody.',
-        instruction: 'Confirm the chain of custody in the Incident Report form — hashes plus who held the evidence.',
+        instruction: 'In the Evidence Log form, fill the Transferred-to / Transferred-at columns for each hand-off so the chain is unbroken.',
         whatItMeans: 'Completes the chain of custody so the evidence holds up under scrutiny.',
         frameworks: ['ISO_27001', 'NIST_800_61'],
-        usesForm: 'Incident Report',
+        usesForm: 'Evidence Log',
       },
       {
         id: 'grc-w3-s6',

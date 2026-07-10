@@ -187,14 +187,15 @@ export function generateEvidenceFileName(role: string, team: string, tool: strin
   return `${date}_${team}_${tool}_${action}.png`;
 }
 
+/** Accepted evidence file extensions (see EVIDENCE_FILE_TYPES in evidence.ts). */
+const EVIDENCE_EXT = /^\d{8}_Team\d{2}_\w+_\w+\.(png|jpg|jpeg|pdf|txt|log|pcap|mp4)$/;
+
 export function validateEvidenceFileName(filename: string): { valid: boolean; message: string } {
   // Pattern: YYYYMMDD_TeamXX_Tool_Action.ext
-  const pattern = /^\d{8}_Team\d{2}_\w+_\w+\.(png|pdf|txt|log|pcap)$/;
-
-  if (!pattern.test(filename)) {
+  if (!EVIDENCE_EXT.test(filename)) {
     return {
       valid: false,
-      message: 'File must follow format: YYYYMMDD_TeamXX_Tool_Action.ext (e.g., 20260623_Team01_nmap_scan.txt)'
+      message: 'File must follow format: YYYYMMDD_TeamXX_Tool_Action.ext (png/jpg/pdf/txt/log/pcap/mp4), e.g. 20260623_Team01_nmap_scan.txt'
     };
   }
 

@@ -1,5 +1,6 @@
 import { Column, riskLevel } from '../grc/templates';
 import { DeliverableData, DeliverableDef } from './types';
+import { CUSTODY_RULES } from './custodyTemplate';
 
 // Small helpers to keep the schema readable.
 const c = (
@@ -11,7 +12,9 @@ const c = (
 
 const LMH = ['Low', 'Medium', 'High'];
 
-/** The 8 graded deliverables (Master Package §2 & §6). */
+/** The graded deliverables (Master Package §2 & §6): the 8 core reports plus the
+ *  GRC SOP/policy forms (Framework Mapping, Security Policy, Hardening Standard,
+ *  VM SOP, IR Runbook) and the team Evidence Log. */
 export const DELIVERABLES: DeliverableDef[] = [
   // 1 ─────────────────────────────────────────────────────────────────────
   {
@@ -417,6 +420,289 @@ export const DELIVERABLES: DeliverableDef[] = [
     ],
     dod: [
       { label: 'Executive summary, key findings and remediation roadmap are filled in', test: (d) => !!(d.fields.exec_summary && d.fields.key_findings && d.fields.remediation_roadmap) },
+    ],
+  },
+
+  // 9 ── Framework Mapping (GRC) ───────────────────────────────────────────
+  {
+    id: 'framework_mapping',
+    num: 9,
+    file: '09_Framework_Mapping.md',
+    title: 'Framework Mapping',
+    owner: 'grc',
+    folder: '02_Assets_and_Risk',
+    standard: 'NIST CSF + CIS Controls',
+    framework: 'NIST_CSF',
+    weeks: [1],
+    kind: 'form',
+    exportFormat: 'md',
+    purpose: 'Map each finding/control to the published framework codes so coverage is auditable — the join key auditors reuse.',
+    howTo: 'One row per finding or control. Pick the NIST CSF function and cite the specific NIST + CIS codes it satisfies.',
+    source: 'From Red’s Recon/scan findings and Blue’s hardening.',
+    sections: [
+      {
+        kind: 'group',
+        group: {
+          group: 'mappings',
+          label: 'Framework mappings',
+          help: 'NIST CSF functions: Identify (ID), Protect (PR), Detect (DE), Respond (RS), Recover (RC).',
+          columns: [
+            c('finding', 'Finding / control', 'text', { placeholder: 'SQL injection on /login' }),
+            c('nist_function', 'NIST CSF function', 'select', { options: ['Identify', 'Protect', 'Detect', 'Respond', 'Recover'] }),
+            c('nist_control', 'NIST control', 'text', { placeholder: 'PR.IP-1 / DE.CM-7' }),
+            c('cis_control', 'CIS control', 'text', { placeholder: 'CIS 16 Application Software Security' }),
+            c('status', 'Status', 'select', { options: ['Open', 'Mitigated', 'Accepted'] }),
+          ],
+          seed: [
+            { finding: 'SQL injection on /login', nist_function: 'Protect', nist_control: 'PR.IP-1', cis_control: 'CIS 16 Application Software Security', status: 'Open' },
+            { finding: 'No inbound firewall (pre-hardening)', nist_function: 'Protect', nist_control: 'PR.AC-5', cis_control: 'CIS 4 Secure Configuration', status: 'Mitigated' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'At least 2 findings mapped to NIST + CIS codes', test: (d) => (d.groups.mappings?.length ?? 0) >= 2 && (d.groups.mappings ?? []).every((r) => !!r.nist_control && !!r.cis_control) },
+    ],
+  },
+
+  // 10 ── Lab Security Policy (GRC) ────────────────────────────────────────
+  {
+    id: 'security_policy',
+    num: 10,
+    file: '10_Lab_Security_Policy.md',
+    title: 'Lab Security Policy',
+    owner: 'grc',
+    folder: '01_Case_and_Scope',
+    standard: 'ISO 27001 policy',
+    framework: 'ISO_27001',
+    weeks: [1],
+    kind: 'template',
+    exportFormat: 'md',
+    purpose: 'The baseline rules every host in the engagement must meet — the standard Blue implements and the Final Report cites.',
+    howTo: 'Set the version/owner, then add one row per rule with its rationale. Keep rules testable (a control can pass/fail it).',
+    sections: [
+      {
+        kind: 'fields',
+        fields: [
+          { field: 'version', label: 'Version', type: 'text', placeholder: '1.0', required: true },
+          { field: 'owner', label: 'Policy owner', type: 'text', placeholder: 'GRC lead' },
+          { field: 'effective_date', label: 'Effective date', type: 'date' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'policies',
+          label: 'Policy statements',
+          columns: [
+            c('area', 'Area', 'text', { placeholder: 'Access control' }),
+            c('rule', 'Rule', 'text', { placeholder: 'No direct root SSH; key-based auth only' }),
+            c('rationale', 'Rationale', 'text', { placeholder: 'Limits brute-force and lateral movement' }),
+          ],
+          seed: [
+            { area: 'Access control', rule: 'No direct root SSH; key-based auth only', rationale: 'Limits brute-force and lateral movement' },
+            { area: 'Network', rule: 'Default-deny inbound firewall; only required ports open', rationale: 'Reduces attack surface' },
+            { area: 'Logging', rule: 'Security/auth logging enabled and retained', rationale: 'Enables detection and forensics' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'Version set and at least 3 policy statements', test: (d) => !!d.fields.version && (d.groups.policies?.length ?? 0) >= 3 },
+    ],
+  },
+
+  // 11 ── Hardening Standard (GRC → Blue) ──────────────────────────────────
+  {
+    id: 'hardening_standard',
+    num: 11,
+    file: '11_Hardening_Standard.md',
+    title: 'Hardening Standard',
+    owner: 'grc',
+    folder: '03_Security_Setup',
+    standard: 'CIS Benchmark',
+    framework: 'CIS',
+    weeks: [1],
+    gate: 2,
+    kind: 'checklist',
+    exportFormat: 'md',
+    purpose: 'The specific controls GRC ISSUES to Blue to implement (distinct from Blue’s Hardening Baseline, which records what was done).',
+    howTo: 'List each required control, which OS it applies to, the exact setting, and the CIS reference. Blue implements these and reports back in the Hardening Baseline.',
+    source: 'Derived from the Lab Security Policy + CIS Benchmarks.',
+    sections: [
+      {
+        kind: 'fields',
+        fields: [
+          { field: 'purpose', label: 'Purpose', type: 'area', placeholder: 'Minimum controls both company hosts must meet before testing.', help: 'One or two lines on what this standard enforces and who must follow it.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'controls',
+          label: 'Required controls',
+          columns: [
+            c('control', 'Control', 'text', { placeholder: 'Enable host firewall (default deny)' }),
+            c('os', 'Applies to', 'select', { options: ['Ubuntu', 'Windows', 'Both'] }),
+            c('setting', 'Required setting', 'text', { placeholder: 'UFW default deny incoming; allow 22,80' }),
+            c('cis_ref', 'CIS reference', 'text', { placeholder: 'CIS 4 Secure Configuration' }),
+          ],
+          seed: [
+            { control: 'Host firewall enabled (default deny)', os: 'Both', setting: 'UFW default deny incoming; allow 22,80 / Windows Firewall on', cis_ref: 'CIS 4' },
+            { control: 'Disable legacy SMBv1', os: 'Windows', setting: 'Remove SMB1Protocol feature', cis_ref: 'CIS 4' },
+            { control: 'Brute-force protection', os: 'Ubuntu', setting: 'fail2ban running & enabled', cis_ref: 'CIS 5' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'Purpose set and at least 3 required controls with CIS refs', test: (d) => !!d.fields.purpose && (d.groups.controls?.length ?? 0) >= 3 && (d.groups.controls ?? []).every((r) => !!r.setting) },
+    ],
+  },
+
+  // 12 ── Vulnerability-Management SOP (GRC → Blue) ─────────────────────────
+  {
+    id: 'vm_sop',
+    num: 12,
+    file: '12_VM_SOP.md',
+    title: 'Vulnerability-Management SOP',
+    owner: 'grc',
+    folder: '03_Security_Setup',
+    standard: 'NIST SP 800-40',
+    framework: 'NIST_CSF',
+    weeks: [2],
+    kind: 'template',
+    exportFormat: 'md',
+    purpose: 'The repeatable process Blue follows to triage and remediate vulnerabilities, with a priority rule tied to severity.',
+    howTo: 'State purpose/scope and the priority rule, then list the ordered process steps with an owner and target time (SLA).',
+    source: 'From the Risk Register severities + Red’s findings.',
+    sections: [
+      {
+        kind: 'fields',
+        fields: [
+          { field: 'purpose', label: 'Purpose', type: 'area', placeholder: 'How vulnerabilities are found, ranked, fixed and verified.', help: 'One or two lines: what this SOP governs.' },
+          { field: 'scope', label: 'Scope', type: 'text', placeholder: 'Both company hosts (Ubuntu + Windows)' },
+          { field: 'priority_rule', label: 'Priority rule', type: 'area', placeholder: 'Critical: fix in 24h · High: 3 days · Medium: 1 week', help: 'How severity maps to a fix deadline.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'steps',
+          label: 'Process steps',
+          columns: [
+            c('step_no', 'Step', 'text', { placeholder: '1' }),
+            c('action', 'Action', 'text', { placeholder: 'Confirm the finding and assign a severity' }),
+            c('owner', 'Owner', 'text', { placeholder: 'Blue' }),
+            c('sla', 'Target time', 'text', { placeholder: '24h for Critical' }),
+          ],
+          seed: [
+            { step_no: '1', action: 'Confirm the finding from Red’s report and assign a severity', owner: 'Blue', sla: 'same day' },
+            { step_no: '2', action: 'Apply the fix (patch/config) and record it in the Change Log', owner: 'Blue', sla: 'per priority rule' },
+            { step_no: '3', action: 'Re-test to verify the vulnerability is closed', owner: 'Blue', sla: 'after fix' },
+            { step_no: '4', action: 'Update the Risk Register status to Mitigated', owner: 'GRC', sla: 'weekly' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'Purpose + priority rule set and at least 3 process steps', test: (d) => !!d.fields.purpose && !!d.fields.priority_rule && (d.groups.steps?.length ?? 0) >= 3 },
+    ],
+  },
+
+  // 13 ── Incident-Response Runbook (GRC → Blue) ───────────────────────────
+  {
+    id: 'ir_runbook',
+    num: 13,
+    file: '13_IR_Runbook.md',
+    title: 'Incident-Response Runbook',
+    owner: 'grc',
+    folder: '04_Testing_and_Findings',
+    standard: 'NIST SP 800-61',
+    framework: 'NIST_800_61',
+    weeks: [3],
+    kind: 'template',
+    exportFormat: 'md',
+    purpose: 'The step-by-step actions Blue follows the moment an attack is detected — issued before the breach, not after.',
+    howTo: 'Add one row per action, tagged to a NIST 800-61 phase (Detect → Contain → Eradicate → Recover → Report), with an owner.',
+    source: 'From NIST 800-61 + your detections and containment plan.',
+    sections: [
+      {
+        kind: 'fields',
+        fields: [
+          { field: 'purpose', label: 'Purpose', type: 'area', placeholder: 'The playbook Blue runs during an incident.', help: 'One line on when this runbook is triggered.' },
+          { field: 'roles', label: 'Who does what', type: 'area', placeholder: 'Blue = detect/contain; GRC = evidence/custody; Red = stand down', help: 'The responder roles during an incident.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'steps',
+          label: 'Runbook steps',
+          columns: [
+            c('phase', 'Phase', 'select', { options: ['Detect', 'Contain', 'Eradicate', 'Recover', 'Report'] }),
+            c('action', 'Action', 'text', { placeholder: 'Grep logs for UNION/SELECT; confirm attacker IP' }),
+            c('owner', 'Owner', 'text', { placeholder: 'Blue' }),
+          ],
+          seed: [
+            { phase: 'Detect', action: 'Spot the attack in logs/pcap (e.g. UNION/SELECT, 4625 spike); note attacker IP + time', owner: 'Blue' },
+            { phase: 'Contain', action: 'Block the attacker IP (ufw deny / Windows firewall rule); preserve the capture', owner: 'Blue' },
+            { phase: 'Eradicate', action: 'Fix the exploited weakness (patch/config); remove any dropped files', owner: 'Blue' },
+            { phase: 'Recover', action: 'Restore normal service and confirm monitoring is back on', owner: 'Blue' },
+            { phase: 'Report', action: 'Hash + log all evidence; write the Incident Report', owner: 'GRC' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'Purpose set and steps cover Detect, Contain and Report', test: (d) => !!d.fields.purpose && ['Detect', 'Contain', 'Report'].every((p) => (d.groups.steps ?? []).some((r) => r.phase === p)) },
+    ],
+  },
+
+  // 14 ── Evidence Log / Chain of Custody (team) ───────────────────────────
+  {
+    id: 'evidence_log',
+    num: 14,
+    file: '14_Evidence_Log.csv',
+    title: 'Evidence Log',
+    owner: 'grc',
+    folder: '04_Testing_and_Findings',
+    standard: 'NIST SP 800-61 / ISO 27037',
+    framework: 'NIST_800_61',
+    weeks: [3, 4],
+    gate: 3,
+    kind: 'form',
+    exportFormat: 'csv',
+    purpose: 'The team’s chain of custody — every artifact hashed, logged, and its hand-offs recorded so the evidence holds up.',
+    howTo: CUSTODY_RULES.join(' '),
+    source: 'From Red’s and Blue’s captured artifacts (screenshots, pcaps, proofs).',
+    sections: [
+      {
+        kind: 'group',
+        group: {
+          group: 'evidence',
+          label: 'Evidence log (chain of custody)',
+          help: 'Keep artifacts in ~/team-artifacts/week-N/. Name them YYYYMMDD_TeamXX_Tool_Action.ext and hash with sha256sum. Log every hand-off.',
+          columns: [
+            c('evidence_id', 'Evidence ID', 'text', { placeholder: 'E-01' }),
+            c('filename', 'Filename', 'text', { placeholder: '20260627_Team01_sqlmap_dbdump.png' }),
+            c('description', 'What it proves', 'text', { placeholder: 'SQLi dumped users table' }),
+            c('collected_by', 'Collected by', 'text', { placeholder: 'Red' }),
+            c('datetime', 'Date/time', 'text', { placeholder: '2026-06-27 14:22' }),
+            c('location', 'Location (path)', 'text', { placeholder: '~/team-artifacts/week-3/' }),
+            c('sha256', 'SHA-256', 'text', { placeholder: 'c5b9… (from sha256sum)' }),
+            c('transferred_to', 'Transferred to', 'text', { placeholder: 'GRC' }),
+            c('transferred_at', 'Transferred (date/time)', 'text', { placeholder: '2026-06-27 15:05' }),
+            c('notes', 'Notes', 'text', { placeholder: 'handed to GRC for the report' }),
+          ],
+          seed: [
+            { evidence_id: 'E-01', filename: '20260627_Team01_sqlmap_dbdump.png', description: 'SQLi dumped users table', collected_by: 'Red', datetime: '2026-06-27 14:22', location: '~/team-artifacts/week-3/', sha256: 'c5b9…', transferred_to: 'GRC', transferred_at: '2026-06-27 15:05', notes: 'handed to GRC for the report' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'At least one artifact logged with a filename and SHA-256', test: (d) => (d.groups.evidence ?? []).some((e) => !!e.filename && !!e.sha256) },
     ],
   },
 ];

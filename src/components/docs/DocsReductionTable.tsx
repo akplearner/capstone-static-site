@@ -6,8 +6,9 @@ import { DELIVERABLES, getDeliverable } from '@/lib/docs/definitions';
 
 /**
  * Spec §1 — the old course produced 17 loose working files; this platform
- * consolidates them into 8 graded deliverables (+ 2 admin files). Showing the
- * mapping is what makes the "17 → 8" change legible to returning students.
+ * consolidates them into graded deliverables (the core reports; GRC also adds
+ * SOP/policy forms + an evidence log). Showing the mapping makes the change
+ * legible to returning students.
  */
 const MAP: { id: string; old: string[] }[] = [
   { id: 'scope_roe', old: ['Case_Overview', 'Scope_and_Rules'] },
@@ -79,7 +80,7 @@ export function DocsReductionTable({ collapsible = false }: { collapsible?: bool
   if (collapsible) {
     return (
       <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="From 17 files to 8 deliverables" defaultOpen={false}>
+        <Collapsible title="From 17 loose files to graded deliverables" defaultOpen={false}>
           <Table />
         </Collapsible>
       </div>

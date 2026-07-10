@@ -53,7 +53,7 @@ export function DeliverablesIndex({ collapsible = false }: { collapsible?: boole
   if (collapsible) {
     return (
       <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="The 8 deliverables — who owns what, and when" defaultOpen={false}>
+        <Collapsible title={`The ${DELIVERABLES.length} deliverables — who owns what, and when`} defaultOpen={false}>
           <IndexTable />
         </Collapsible>
       </div>
