@@ -1,6 +1,7 @@
 import { DeliverableData } from '../docs/types';
 import { DocsRepository } from './types';
 import { KEYS } from './keys';
+import { safeSetItem } from './safeStorage';
 
 function hasWindow(): boolean {
   return typeof window !== 'undefined';
@@ -21,6 +22,6 @@ export const localStorageDocsRepo: DocsRepository = {
   },
   save(courseId, teamId, data): void {
     if (!hasWindow()) return;
-    localStorage.setItem(KEYS.docs(courseId, teamId), JSON.stringify(data));
+    safeSetItem(KEYS.docs(courseId, teamId), JSON.stringify(data));
   },
 };

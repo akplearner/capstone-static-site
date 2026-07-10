@@ -84,25 +84,54 @@ interface TabsProps {
 }
 
 export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
+  // Arrow-key navigation across the tablist (WAI-ARIA tabs pattern).
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    const idx = tabs.findIndex((t) => t.value === activeTab);
+    if (idx < 0) return;
+    let next = idx;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (idx + 1) % tabs.length;
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (idx - 1 + tabs.length) % tabs.length;
+    else if (e.key === 'Home') next = 0;
+    else if (e.key === 'End') next = tabs.length - 1;
+    else return;
+    e.preventDefault();
+    onTabChange(tabs[next].value);
+  };
   return (
     <div>
-      <div className="flex border-b border-gray-200 dark:border-gray-700">
-        {tabs.map((tab) => (
-          <motion.button
-            key={tab.value}
-            onClick={() => onTabChange(tab.value)}
-            whileHover={{ opacity: 0.8 }}
-            className={`px-4 py-2 font-medium transition-colors ${
-              activeTab === tab.value
-                ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
-            }`}
-          >
-            {tab.label}
-          </motion.button>
-        ))}
+      <div role="tablist" className="flex border-b border-gray-200 dark:border-gray-700" onKeyDown={onKeyDown}>
+        {tabs.map((tab) => {
+          const selected = activeTab === tab.value;
+          return (
+            <motion.button
+              key={tab.value}
+              role="tab"
+              id={`tab-${tab.value}`}
+              aria-selected={selected}
+              aria-controls={`tabpanel-${tab.value}`}
+              tabIndex={selected ? 0 : -1}
+              onClick={() => onTabChange(tab.value)}
+              whileHover={{ opacity: 0.8 }}
+              className={`px-4 py-2 font-medium transition-colors ${
+                selected
+                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
+                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
+              }`}
+            >
+              {tab.label}
+            </motion.button>
+          );
+        })}
       </div>
-      <motion.div key={activeTab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+      <motion.div
+        key={activeTab}
+        role="tabpanel"
+        id={`tabpanel-${activeTab}`}
+        aria-labelledby={`tab-${activeTab}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.2 }}
+      >
         {children}
       </motion.div>
     </div>
@@ -117,23 +146,29 @@ interface CollapsibleProps {
 
 export function Collapsible({ title, children, defaultOpen = false }: CollapsibleProps) {
   const [isOpen, setIsOpen] = React.useState(defaultOpen);
+  const panelId = React.useId();
 
   return (
     <div className="border-b border-gray-200 dark:border-gray-700">
       <motion.button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
+        aria-expanded={isOpen}
+        aria-controls={panelId}
         className="flex w-full items-center justify-between py-3 text-left font-medium hover:text-blue-600 dark:hover:text-blue-400"
       >
         {title}
-        <motion.span animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
+        <motion.span aria-hidden animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
           ▼
         </motion.span>
       </motion.button>
       <motion.div
+        id={panelId}
         initial={false}
         animate={{ height: isOpen ? 'auto' : 0 }}
         transition={{ duration: 0.2 }}
         className="overflow-hidden"
+        hidden={!isOpen}
       >
         <div className="pb-3 pl-4">{children}</div>
       </motion.div>

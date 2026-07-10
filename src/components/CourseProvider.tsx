@@ -6,6 +6,7 @@ import { CourseContext } from '@/lib/useCourse';
 import { courseRepo } from '@/lib/data';
 import { useClientStore, useHydrated } from '@/lib/useClientStore';
 import { Button } from './ui/Button';
+import { LoadingBlock } from './ui/Spinner';
 
 // Resolves the course for /courses/[courseId]/* routes. Seeds resolve on first
 // render; instructor-authored (localStorage) courses resolve after mount.
@@ -23,7 +24,7 @@ export function CourseProvider({
 
   if (!course) {
     if (!ready) {
-      return <div className="py-12 text-center text-gray-500">Loading course…</div>;
+      return <LoadingBlock label="Loading course…" />;
     }
     return (
       <div className="mx-auto max-w-md space-y-4 py-16 text-center">

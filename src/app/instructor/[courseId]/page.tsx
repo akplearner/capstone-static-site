@@ -5,6 +5,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Eye, Download, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { LoadingBlock } from '@/components/ui/Spinner';
+import { toast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/EmptyState';
 import { RolesEditor } from '@/components/instructor/RolesEditor';
 import { WeeksEditor } from '@/components/instructor/WeeksEditor';
@@ -76,13 +78,14 @@ export default function CourseEditorPage() {
   if (notFound) {
     return <EmptyState title="Course not found" message="This course doesn’t exist." href="/instructor" cta="Back to studio" />;
   }
-  if (!draft) return <div className="py-12 text-center text-gray-500">Loading…</div>;
+  if (!draft) return <LoadingBlock />;
 
   const save = () => {
     if (errors.length > 0) return;
     courseRepo.save(draft);
     notifyStore();
     setSaved(true);
+    toast({ message: 'Course saved', variant: 'success' });
     setTimeout(() => setSaved(false), 2500);
   };
 

@@ -8,6 +8,21 @@ import { notifyStore } from '../useClientStore';
 import { JoinResult, ProgressRepository } from './types';
 import { KEYS } from './keys';
 import { cache } from './supabaseCache';
+import { toast } from '@/lib/toastBus';
+
+/**
+ * Central handler for the optimistic write-through upserts. On failure the local
+ * cache and the server have diverged; we log it and warn the user once so a lost
+ * save isn't silent. `notify` gates the toast so high-frequency writes (each step
+ * completion) log quietly while user-initiated actions (join, gate, reset) toast.
+ */
+function onWriteError(what: string, error: { message: string } | null, notify = true): void {
+  if (!error) return;
+  console.error(`Supabase ${what} failed:`, error.message);
+  if (notify) {
+    toast({ message: 'Couldn’t sync a change to the cloud — it’s saved locally and will retry on reload.', variant: 'warning', duration: 6000 });
+  }
+}
 
 // Supabase-backed ProgressRepository. Reads are synchronous off the in-memory cache
 // (hydrated by useSupabaseSync); writes update the cache + notifyStore immediately
@@ -84,10 +99,12 @@ export const supabaseProgressRepo: ProgressRepository = {
           },
           { onConflict: 'user_id,course_id' }
         )
-        .then(({ error }) => {
-          if (error) console.error('joinTeam upsert failed', error.message);
-        });
-      void supabase.from('profiles').update({ display_name: member.displayName }).eq('id', member.memberId);
+        .then(({ error }) => onWriteError('joinTeam', error));
+      void supabase
+        .from('profiles')
+        .update({ display_name: member.displayName })
+        .eq('id', member.memberId)
+        .then(({ error }) => onWriteError('profile update', error, false));
     }
     return { ok: true };
   },
@@ -98,7 +115,12 @@ export const supabaseProgressRepo: ProgressRepository = {
     notifyStore();
     const supabase = db();
     if (supabase) {
-      void supabase.from('memberships').delete().eq('user_id', memberId).eq('course_id', courseId);
+      void supabase
+        .from('memberships')
+        .delete()
+        .eq('user_id', memberId)
+        .eq('course_id', courseId)
+        .then(({ error }) => onWriteError('leaveTeam', error));
     }
   },
 
@@ -135,9 +157,7 @@ export const supabaseProgressRepo: ProgressRepository = {
           },
           { onConflict: 'user_id,course_id,task_id,step_id' }
         )
-        .then(({ error }) => {
-          if (error) console.error('setCompletion failed', error.message);
-        });
+        .then(({ error }) => onWriteError('setCompletion', error, false));
     }
   },
 
@@ -152,7 +172,8 @@ export const supabaseProgressRepo: ProgressRepository = {
         .eq('user_id', memberId)
         .eq('course_id', courseId)
         .eq('task_id', taskId)
-        .eq('step_id', stepId);
+        .eq('step_id', stepId)
+        .then(({ error }) => onWriteError('removeCompletion', error, false));
     }
   },
 
@@ -204,7 +225,8 @@ export const supabaseProgressRepo: ProgressRepository = {
         .upsert(
           { course_id: courseId, team_id: teamId, gate_id: gateId, status },
           { onConflict: 'course_id,team_id,gate_id' }
-        );
+        )
+        .then(({ error }) => onWriteError('setGateStatus', error));
     }
   },
 
@@ -216,7 +238,12 @@ export const supabaseProgressRepo: ProgressRepository = {
     notifyStore();
     const supabase = db();
     if (supabase) {
-      void supabase.from('step_completions').delete().eq('user_id', memberId).eq('course_id', courseId);
+      void supabase
+        .from('step_completions')
+        .delete()
+        .eq('user_id', memberId)
+        .eq('course_id', courseId)
+        .then(({ error }) => onWriteError('resetCourse', error));
     }
   },
 };

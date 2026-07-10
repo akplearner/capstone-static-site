@@ -3,11 +3,14 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { AlertCircle, ArrowLeft, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Info, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
 import { Collapsible } from '@/components/ui/Button';
+import { LoadingBlock } from '@/components/ui/Spinner';
+import { toast } from '@/components/ui/Toast';
+import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
@@ -109,7 +112,7 @@ export default function DeliverablesPage() {
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [formParam, selectedWeek]);
 
-  if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
+  if (loading) return <LoadingBlock />;
   if (!member) {
     return (
       <EmptyState
@@ -157,8 +160,11 @@ export default function DeliverablesPage() {
         ? ` Still needed for a complete package: ${missing.join('; ')}.`
         : ' All deliverables are now present — ready to download the package.';
       setImportMsg({ ok: true, text: addedText + missingText });
+      toast({ message: added.length ? `Restored ${added.length} deliverable${added.length === 1 ? '' : 's'}.` : 'Nothing new in that file.', variant: 'success' });
     } catch (err) {
-      setImportMsg({ ok: false, text: err instanceof Error ? err.message : 'Could not read that file.' });
+      const text = err instanceof Error ? err.message : 'Could not read that file.';
+      setImportMsg({ ok: false, text });
+      toast({ message: text, variant: 'error', duration: 6000 });
     }
   };
 
@@ -310,33 +316,17 @@ export default function DeliverablesPage() {
           />
         </div>
         {importMsg && (
-          <div
-            className={`flex items-start gap-2 rounded-md border p-2.5 text-sm ${
-              importMsg.ok
-                ? 'border-green-200 bg-green-50 text-green-800 dark:border-green-800 dark:bg-green-900/20 dark:text-green-300'
-                : 'border-red-200 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300'
-            }`}
-          >
-            {importMsg.ok ? (
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-            ) : (
-              <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-            )}
-            <span>{importMsg.text}</span>
-          </div>
+          <Alert variant={importMsg.ok ? 'success' : 'error'}>{importMsg.text}</Alert>
         )}
       </div>
           </div>
         </Collapsible>
       </div>
 
-      <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-        <Info className="mt-0.5 h-4 w-4 shrink-0" />
-        <p>
-          Your entries are saved in <strong>this browser</strong> only. Generate and save the PDF as soon
-          as a deliverable is done — shared, multi-device storage arrives with accounts.
-        </p>
-      </div>
+      <Alert variant="warning">
+        Your entries are saved in <strong>this browser</strong> only. Generate and save the PDF as soon
+        as a deliverable is done — shared, multi-device storage arrives with accounts.
+      </Alert>
 
       <p className="text-sm text-gray-500 dark:text-gray-400">
         Need the reference tables (all deliverables, weekly flow, folder layout, tools)?{' '}

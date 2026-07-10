@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import './globals.css';
 import { SiteNav } from '@/components/SiteNav';
 import { MotionProvider } from '@/components/MotionProvider';
+import { ToastProvider } from '@/components/ui/Toast';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -28,8 +29,10 @@ export default function RootLayout({
       </head>
       <body className={`${inter.className} bg-white dark:bg-gray-900`}>
         <MotionProvider>
-          <SiteNav />
-          <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+          <ToastProvider>
+            <SiteNav />
+            <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+          </ToastProvider>
         </MotionProvider>
       </body>
     </html>

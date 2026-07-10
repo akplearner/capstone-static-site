@@ -3,6 +3,7 @@ import { calculateProgress } from '../utils';
 import { getTasksByRole, getRequiredSteps, getRequiredStepCount } from '../course-helpers';
 import { JoinResult, ProgressRepository } from './types';
 import { KEYS, STORAGE_PREFIX } from './keys';
+import { safeSetItem } from './safeStorage';
 
 function hasWindow(): boolean {
   return typeof window !== 'undefined';
@@ -62,9 +63,9 @@ function ensureMigrated(): void {
     }
   }
   writes.forEach(([k, v]) => {
-    if (localStorage.getItem(k) == null) localStorage.setItem(k, v);
+    if (localStorage.getItem(k) == null) safeSetItem(k, v);
   });
-  localStorage.setItem(KEYS.migratedV2, '1');
+  safeSetItem(KEYS.migratedV2, '1');
 }
 
 export const localStorageProgressRepo: ProgressRepository = {
@@ -82,7 +83,7 @@ export const localStorageProgressRepo: ProgressRepository = {
 
   setContext(member: Member): void {
     if (!hasWindow()) return;
-    localStorage.setItem(KEYS.context(member.courseId), JSON.stringify(member));
+    safeSetItem(KEYS.context(member.courseId), JSON.stringify(member));
   },
 
   getRoster(courseId: string): RosterEntry[] {
@@ -123,7 +124,7 @@ export const localStorageProgressRepo: ProgressRepository = {
       cohort: member.cohort,
       joinedAt: Date.now(),
     };
-    localStorage.setItem(KEYS.roster(course.id), JSON.stringify([...others, entry]));
+    safeSetItem(KEYS.roster(course.id), JSON.stringify([...others, entry]));
     this.setContext(member);
     return { ok: true };
   },
@@ -131,7 +132,7 @@ export const localStorageProgressRepo: ProgressRepository = {
   leaveTeam(courseId: string, memberId: string): void {
     if (!hasWindow()) return;
     const remaining = this.getRoster(courseId).filter((e) => e.memberId !== memberId);
-    localStorage.setItem(KEYS.roster(courseId), JSON.stringify(remaining));
+    safeSetItem(KEYS.roster(courseId), JSON.stringify(remaining));
   },
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string> {
@@ -156,7 +157,7 @@ export const localStorageProgressRepo: ProgressRepository = {
   setCompletion(completion: TaskCompletion): void {
     if (!hasWindow()) return;
     const { courseId, memberId, taskId, stepId } = completion;
-    localStorage.setItem(
+    safeSetItem(
       KEYS.completion(courseId, memberId, taskId, stepId),
       JSON.stringify(completion)
     );
@@ -216,7 +217,7 @@ export const localStorageProgressRepo: ProgressRepository = {
 
   setGateStatus(courseId, teamId, gateId, status): void {
     if (!hasWindow()) return;
-    localStorage.setItem(KEYS.gate(courseId, teamId, gateId), status);
+    safeSetItem(KEYS.gate(courseId, teamId, gateId), status);
   },
 
   resetCourse(courseId, memberId): void {

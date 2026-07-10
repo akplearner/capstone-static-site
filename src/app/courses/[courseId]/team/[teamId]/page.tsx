@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { TeamProgressTable, MemberProgress, DeliverableStatus } from '@/components/TeamProgressTable';
 import { TeamHandoffChecklist } from '@/components/TeamHandoffChecklist';
+import { LoadingBlock } from '@/components/ui/Spinner';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -64,7 +65,7 @@ export default function TeamSpacePage() {
     });
   }, EMPTY_ARRAY);
 
-  if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
+  if (loading) return <LoadingBlock />;
 
   // Teammates of the same team can view it; others can't (RLS also enforces this
   // server-side, so a non-member's queries simply return nothing).

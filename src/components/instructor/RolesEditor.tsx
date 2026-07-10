@@ -30,8 +30,8 @@ export function RolesEditor({ course, onChange }: { course: Course; onChange: (c
           <div className="flex items-center gap-2">
             <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
             <span className="font-medium text-gray-900 dark:text-white">{r.name || r.id}</span>
-            <button onClick={() => setRoles(course.roles.filter((_, idx) => idx !== i))} className="ml-auto text-gray-400 hover:text-red-600">
-              <Trash2 className="h-4 w-4" />
+            <button type="button" aria-label={`Remove role ${r.name || r.id}`} onClick={() => setRoles(course.roles.filter((_, idx) => idx !== i))} className="ml-auto text-gray-400 hover:text-red-600">
+              <Trash2 className="h-4 w-4" aria-hidden />
             </button>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">

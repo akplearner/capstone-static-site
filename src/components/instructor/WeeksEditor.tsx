@@ -29,8 +29,8 @@ export function WeeksEditor({ course, onChange }: { course: Course; onChange: (c
           <div key={i} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
             <div className="flex items-center justify-between">
               <span className="font-medium text-gray-900 dark:text-white">Week {w.number}: {w.title}</span>
-              <button onClick={() => setWeeks(course.weeks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
-                <Trash2 className="h-4 w-4" />
+              <button type="button" aria-label={`Remove week ${w.number}`} onClick={() => setWeeks(course.weeks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+                <Trash2 className="h-4 w-4" aria-hidden />
               </button>
             </div>
             <div className="grid gap-3 sm:grid-cols-3">

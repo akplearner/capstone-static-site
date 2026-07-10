@@ -9,6 +9,32 @@
 export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 export const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '';
 
+let warned = false;
+function isValidUrl(u: string): boolean {
+  try {
+    const parsed = new URL(u);
+    return parsed.protocol === 'https:' || parsed.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * The switch the data seam, auth hook and proxy consult before touching Supabase.
+ * Requires BOTH env vars AND a well-formed URL — a malformed NEXT_PUBLIC_SUPABASE_URL
+ * would otherwise throw late inside createBrowserClient with no nearby boundary. When
+ * the URL is malformed we fall back to localStorage mode and warn once.
+ */
 export function isSupabaseConfigured(): boolean {
-  return SUPABASE_URL.length > 0 && SUPABASE_ANON_KEY.length > 0;
+  if (SUPABASE_URL.length === 0 || SUPABASE_ANON_KEY.length < 10) return false;
+  if (!isValidUrl(SUPABASE_URL)) {
+    if (!warned) {
+      warned = true;
+      console.warn(
+        'NEXT_PUBLIC_SUPABASE_URL is not a valid URL — running in localStorage mode. Fix it to enable accounts.'
+      );
+    }
+    return false;
+  }
+  return true;
 }

@@ -1,6 +1,7 @@
 import { Course } from '../types';
 import { CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
+import { safeSetItem } from './safeStorage';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 
@@ -26,19 +27,49 @@ function readAuthored(): Course[] {
 
 function writeAuthored(courses: Course[]): void {
   if (!hasWindow()) return;
-  localStorage.setItem(KEYS.courses, JSON.stringify(courses));
+  safeSetItem(KEYS.courses, JSON.stringify(courses));
 }
 
-function isValidCourse(c: unknown): c is Course {
-  if (!c || typeof c !== 'object') return false;
-  const o = c as Record<string, unknown>;
-  return (
-    typeof o.id === 'string' &&
-    typeof o.title === 'string' &&
-    Array.isArray(o.roles) &&
-    Array.isArray(o.weeks) &&
-    Array.isArray(o.tasks)
-  );
+const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object';
+const str = (v: unknown): v is string => typeof v === 'string';
+
+/**
+ * Validate the *shape* of an imported course, not just that the arrays exist —
+ * a malformed task/step array would otherwise import cleanly and then crash the
+ * course page render. Returns a specific reason so the import UI can explain it.
+ * (Mirrors the deep-validation model in docs/handoff.ts.)
+ */
+function validateCourse(c: unknown): { ok: true } | { ok: false; error: string } {
+  if (!isObj(c)) return { ok: false, error: 'JSON is not a course object.' };
+  if (!str(c.id) || !c.id.trim()) return { ok: false, error: 'Course is missing a string "id".' };
+  if (!str(c.title)) return { ok: false, error: 'Course is missing a string "title".' };
+  if (!Array.isArray(c.roles) || !Array.isArray(c.weeks) || !Array.isArray(c.tasks)) {
+    return { ok: false, error: 'Course needs "roles", "weeks" and "tasks" arrays.' };
+  }
+  for (const r of c.roles) {
+    if (!isObj(r) || !str(r.id) || !str(r.name)) {
+      return { ok: false, error: 'Every role needs a string "id" and "name".' };
+    }
+  }
+  for (const w of c.weeks) {
+    if (!isObj(w) || typeof w.number !== 'number' || !str(w.title)) {
+      return { ok: false, error: 'Every week needs a numeric "number" and a string "title".' };
+    }
+  }
+  for (const t of c.tasks) {
+    if (!isObj(t) || !str(t.id) || !str(t.role) || typeof t.week !== 'number' || !str(t.title)) {
+      return { ok: false, error: 'Every task needs "id", "role", numeric "week" and "title".' };
+    }
+    if (!Array.isArray(t.steps)) {
+      return { ok: false, error: `Task "${t.id}" is missing a "steps" array.` };
+    }
+    for (const s of t.steps) {
+      if (!isObj(s) || !str(s.id) || !str(s.title)) {
+        return { ok: false, error: `A step in task "${t.id}" is missing "id" or "title".` };
+      }
+    }
+  }
+  return { ok: true };
 }
 
 export const localStorageCourseRepo: CourseRepository = {
@@ -82,8 +113,9 @@ export const localStorageCourseRepo: CourseRepository = {
     } catch {
       return { ok: false, error: 'File is not valid JSON.' };
     }
-    if (!isValidCourse(parsed)) {
-      return { ok: false, error: 'JSON is not a valid course (needs id, title, roles, weeks, tasks).' };
+    const valid = validateCourse(parsed);
+    if (!valid.ok) {
+      return { ok: false, error: valid.error };
     }
     const course = parsed as Course;
     // Avoid clobbering an existing course id.

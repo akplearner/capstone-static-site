@@ -5,6 +5,7 @@ import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { DocsRepository } from './types';
 import { cache, getCurrentUserId } from './supabaseCache';
+import { toast } from '@/lib/toastBus';
 
 // Supabase-backed DocsRepository. Deliverable forms are team-scoped, so every member
 // of a team reads and writes the same rows (RLS enforces team-only access). Reads are
@@ -34,7 +35,10 @@ export const supabaseDocsRepo: DocsRepository = {
       .from('deliverables')
       .upsert(rows, { onConflict: 'course_id,team_id,deliverable_id' })
       .then(({ error }) => {
-        if (error) console.error('docs save failed', error.message);
+        if (error) {
+          console.error('docs save failed', error.message);
+          toast({ message: 'Couldn’t sync your form to the cloud — it’s saved locally and will retry on reload.', variant: 'warning', duration: 6000 });
+        }
       });
   },
 };

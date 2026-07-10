@@ -39,8 +39,8 @@ export function StepsEditor({
         <div key={i} className="space-y-2 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/40">
           <div className="flex items-center justify-between">
             <span className="text-xs text-gray-500">Step {i + 1}</span>
-            <button onClick={() => onChange(steps.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
-              <Trash2 className="h-3.5 w-3.5" />
+            <button type="button" aria-label={`Remove step ${i + 1}`} onClick={() => onChange(steps.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+              <Trash2 className="h-3.5 w-3.5" aria-hidden />
             </button>
           </div>
           <div className="grid gap-2 sm:grid-cols-2">
@@ -102,8 +102,8 @@ function FlagsEditor({
             placeholder="what this flag does"
             className="flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
           />
-          <button onClick={() => onChange(flags.filter((_, idx) => idx !== i))} className="mt-1 text-gray-400 hover:text-red-600">
-            <Trash2 className="h-3.5 w-3.5" />
+          <button type="button" aria-label={`Remove flag ${i + 1}`} onClick={() => onChange(flags.filter((_, idx) => idx !== i))} className="mt-1 text-gray-400 hover:text-red-600">
+            <Trash2 className="h-3.5 w-3.5" aria-hidden />
           </button>
         </div>
       ))}

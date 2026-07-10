@@ -25,6 +25,9 @@ import {
   X,
 } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
+import { LoadingBlock } from '@/components/ui/Spinner';
+import { ConfirmDialog } from '@/components/ui/Dialog';
+import { toast } from '@/components/ui/Toast';
 import { GateBadge, StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
@@ -518,7 +521,7 @@ export default function CoursePage() {
     false
   );
 
-  if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
+  if (loading) return <LoadingBlock />;
 
   if (course.locked) {
     return (
@@ -609,6 +612,7 @@ export default function CoursePage() {
     setExpanded(new Set());
     setConfirmingReset(false);
     notifyStore();
+    toast({ message: 'Your progress was reset.', variant: 'success' });
   };
 
   const ownRole = member ? getRoleDef(course, member.role) : undefined;
@@ -1057,30 +1061,20 @@ export default function CoursePage() {
       {/* Reset (once joined) */}
       {joined && member && (
         <div className="flex flex-wrap items-center gap-3">
-          {confirmingReset ? (
-            <span className="ml-auto inline-flex items-center gap-2 text-sm">
-              <span className="text-gray-600 dark:text-gray-300">Reset all progress?</span>
-              <button
-                onClick={confirmReset}
-                className="inline-flex items-center gap-1 rounded-md bg-red-600 px-2 py-1 text-xs font-medium text-white hover:bg-red-700"
-              >
-                <RotateCcw className="h-3.5 w-3.5" /> Reset
-              </button>
-              <button
-                onClick={() => setConfirmingReset(false)}
-                className="rounded-md border border-gray-300 px-2 py-1 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-              >
-                Cancel
-              </button>
-            </span>
-          ) : (
-            <button
-              onClick={() => setConfirmingReset(true)}
-              className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
-            >
-              <RotateCcw className="h-4 w-4" /> Reset my progress
-            </button>
-          )}
+          <button
+            onClick={() => setConfirmingReset(true)}
+            className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+          >
+            <RotateCcw className="h-4 w-4" /> Reset my progress
+          </button>
+          <ConfirmDialog
+            open={confirmingReset}
+            onClose={() => setConfirmingReset(false)}
+            onConfirm={confirmReset}
+            title="Reset your progress?"
+            message="This clears all your completed steps for this course on this device. This cannot be undone."
+            confirmLabel="Reset progress"
+          />
         </div>
       )}
 

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { ConfirmDialog } from '@/components/ui/Dialog';
+import { toast } from '@/components/ui/Toast';
 import { courseRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
@@ -59,10 +61,12 @@ export default function InstructorHomePage() {
     const reader = new FileReader();
     reader.onload = () => {
       const res = courseRepo.importJSON(String(reader.result));
-      if (!res.ok) setError(res.error || 'Import failed.');
-      else {
+      if (!res.ok) {
+        toast({ message: res.error || 'Import failed.', variant: 'error', duration: 6000 });
+      } else {
         setError(null);
         notifyStore();
+        toast({ message: 'Course imported.', variant: 'success' });
       }
     };
     reader.readAsText(file);
@@ -101,9 +105,11 @@ export default function InstructorHomePage() {
 
   const confirmDelete = () => {
     if (!pendingDelete) return;
+    const title = pendingDelete.title;
     courseRepo.delete(pendingDelete.id);
     setPendingDelete(null);
     notifyStore();
+    toast({ message: `Deleted “${title}”.`, variant: 'success' });
   };
 
   return (
@@ -161,17 +167,14 @@ export default function InstructorHomePage() {
         </div>
       )}
 
-      {pendingDelete && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
-          <p className="text-sm text-red-800 dark:text-red-300">
-            Delete “{pendingDelete.title}”? This cannot be undone.
-          </p>
-          <div className="flex gap-2">
-            <Button variant="destructive" size="sm" onClick={confirmDelete}>Delete</Button>
-            <Button variant="secondary" size="sm" onClick={() => setPendingDelete(null)}>Cancel</Button>
-          </div>
-        </div>
-      )}
+      <ConfirmDialog
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        onConfirm={confirmDelete}
+        title="Delete course?"
+        message={<>Delete “{pendingDelete?.title}”? This cannot be undone.</>}
+        confirmLabel="Delete"
+      />
 
       <div className="grid gap-4 md:grid-cols-2">
         {courses.map((course) => (

@@ -54,13 +54,13 @@ export function TasksEditor({ course, onChange }: { course: Course; onChange: (c
         return (
           <div key={i} className="rounded-lg border border-gray-200 dark:border-gray-700">
             <div className="flex items-center justify-between gap-2 p-4">
-              <button onClick={() => setOpen(isOpen ? null : t.id)} className="flex flex-1 items-center gap-2 text-left">
-                {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : t.id)} className="flex flex-1 items-center gap-2 text-left">
+                {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden /> : <ChevronDown className="h-4 w-4" aria-hidden />}
                 <span className="font-medium text-gray-900 dark:text-white">{t.title}</span>
                 <span className="text-xs text-gray-500">({t.role} · week {t.week} · {t.steps.length} steps)</span>
               </button>
-              <button onClick={() => setTasks(course.tasks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
-                <Trash2 className="h-4 w-4" />
+              <button type="button" aria-label={`Remove task ${t.title}`} onClick={() => setTasks(course.tasks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+                <Trash2 className="h-4 w-4" aria-hidden />
               </button>
             </div>
             {isOpen && (
