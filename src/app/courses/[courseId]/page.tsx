@@ -49,6 +49,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
+import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 
@@ -253,10 +254,13 @@ function JoinPanel({
                     : 'border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-700'
                 }`}
               >
-                <RoleIcon iconName={r.icon} className="h-5 w-5 shrink-0" color={r.color} />
+                <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                 <span>
                   <span className="block font-medium text-gray-900 dark:text-white">{r.name}</span>
-                  <span className="block text-xs text-gray-600 dark:text-gray-400">{r.mission}</span>
+                  <span className="block text-xs text-gray-600 dark:text-gray-400">{roleGuide(r.id).blurb}</span>
+                  <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-500">
+                    {worksLabel(roleGuide(r.id).works)}
+                  </span>
                 </span>
               </button>
             ))}
@@ -650,7 +654,11 @@ export default function CoursePage() {
     { label: 'Fill your deliverable & save the PDF', how: 'Open Deliverables, fill the form, then Generate PDF.', done: hasDeliverable, href: `/courses/${course.id}/docs`, cta: 'Open' },
     { label: 'Clear the week’s gate', how: 'Finish the week’s required tasks to pass the gate.', done: gatePassed, onAction: () => setTab('weeks'), cta: 'Tasks' },
   ];
+  const roleArc = member ? roleGuide(member.role) : null;
   const tourSteps: TourStep[] = [
+    ...(roleArc
+      ? [{ title: `Your role: ${ownRole?.name ?? member!.role.toUpperCase()}`, body: `${roleArc.blurb} ${worksLabel(roleArc.works)} Your arc: ${roleArc.arc}` }]
+      : []),
     { target: 'quickstart', title: 'Start here', body: 'This checklist is your path through the whole course: join, do the week’s tasks, fill the deliverable, clear the gate.' },
     { target: 'tab-weeks', title: 'Weekly Tasks', body: 'Your actual work — guided, step-by-step tasks for each week: run the tool, capture the evidence.' },
     { target: 'tab-deliverables', title: 'Deliverables', body: 'Fill the report forms here; they auto-format your document and export a PDF.' },
@@ -680,8 +688,39 @@ export default function CoursePage() {
       task.definitionOfDone?.length
     );
     const hasBrief = !!(task.handoff?.length || hasFlow || task.deliverables.length);
+    const hasHandoffStrip = !!(task.handoff?.length || task.prerequisites?.length);
     return (
     <>
+      {/* Always-visible hand-off strip: what you're waiting on, and what you owe a
+          teammate — lifted out of the collapsed brief so dependencies are obvious. */}
+      {hasHandoffStrip && (
+        <div className="mb-3 flex flex-col gap-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs dark:border-gray-700 dark:bg-gray-800">
+          {task.prerequisites && task.prerequisites.length > 0 && (
+            <p className="flex items-start gap-1.5 text-amber-800 dark:text-amber-300">
+              <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 rotate-180 text-amber-500" />
+              <span>
+                <span className="font-semibold">You need first: </span>
+                {task.prerequisites.join(' · ')}
+              </span>
+            </p>
+          )}
+          {(task.handoff ?? []).map((h, i) => {
+            const toRole = getRoleDef(course, h.to);
+            return (
+              <p key={`hs-${h.to}-${i}`} className="flex items-start gap-1.5 text-indigo-800 dark:text-indigo-300">
+                <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-500" />
+                <span>
+                  <span className="font-semibold">Hand off when done: </span>
+                  {h.artifact && <span className="font-mono">{h.artifact} </span>}→{' '}
+                  <span className="font-semibold" style={{ color: toRole?.color }}>
+                    {toRole?.name ?? h.to}
+                  </span>
+                </span>
+              </p>
+            );
+          })}
+        </div>
+      )}
       {hasBrief && (
         <div className="mb-4 rounded-lg border border-gray-200 px-4 dark:border-gray-700">
           <Collapsible title="Task brief — learn, tools, prerequisites, hand-offs & deliverables" defaultOpen={false}>
@@ -945,8 +984,18 @@ export default function CoursePage() {
               </span>
             )}
           </div>
-          {ownRole.mission && (
-            <p className="mt-3 text-sm text-gray-600 dark:text-gray-400">{ownRole.mission}</p>
+          {member && (
+            <div className="mt-3 rounded-md border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
+              <p className="text-sm text-gray-700 dark:text-gray-300">{roleGuide(member.role).blurb}</p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                <span className="font-semibold">Your arc: </span>
+                {roleGuide(member.role).arc}
+              </p>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                You hand off to <span className="font-medium">{roleGuide(member.role).handsOffTo}</span>; you rely on{' '}
+                <span className="font-medium">{roleGuide(member.role).waitsOnFrom}</span>.
+              </p>
+            </div>
           )}
         </motion.div>
       )}

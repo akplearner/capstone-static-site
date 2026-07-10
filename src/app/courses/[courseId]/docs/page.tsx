@@ -1,11 +1,13 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { AlertCircle, ArrowLeft, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Info, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
+import { Collapsible } from '@/components/ui/Button';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
@@ -90,10 +92,22 @@ export default function DeliverablesPage() {
 
   const roleDefaultWeek = member ? deliverablesForRole(member.role)[0]?.weeks[0] ?? 1 : 1;
   const [week, setWeek] = useState<number | null>(null);
-  const selectedWeek = week ?? roleDefaultWeek;
+  const searchParams = useSearchParams();
+  const formParam = searchParams.get('form');
+  const formWeek = formParam ? DELIVERABLES.find((d) => d.id === formParam)?.weeks[0] : undefined;
+  // A ?form= deep-link picks that form's week (until the user changes the week).
+  const selectedWeek = week ?? formWeek ?? roleDefaultWeek;
 
   const importInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // Deep-link from a task step (/docs?form=<id>): the week is derived above so the
+  // form is on-screen; this effect only performs the DOM scroll (no state writes).
+  useEffect(() => {
+    if (!formParam) return;
+    const el = document.getElementById(`form-${formParam}`);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [formParam, selectedWeek]);
 
   if (loading) return <div className="py-12 text-center text-gray-500">Loading…</div>;
   if (!member) {
@@ -131,10 +145,18 @@ export default function DeliverablesPage() {
     try {
       const incoming = parseTeamData(await file.text());
       const current = docsRepo.get(course.id, teamId) ?? {};
-      docsRepo.save(course.id, teamId, mergeTeamData(current, incoming));
+      const merged = mergeTeamData(current, incoming);
+      docsRepo.save(course.id, teamId, merged);
       notifyStore();
-      const n = Object.keys(incoming).length;
-      setImportMsg({ ok: true, text: `Merged ${n} deliverable${n === 1 ? '' : 's'} from ${file.name}.` });
+      const added = Object.keys(incoming)
+        .map((id) => DELIVERABLES.find((d) => d.id === id)?.title ?? id)
+        .sort();
+      const missing = DELIVERABLES.filter((d) => !merged[d.id]).map((d) => `${d.num}. ${d.title}`);
+      const addedText = added.length ? `Added: ${added.join(', ')}.` : 'No new deliverables in that file.';
+      const missingText = missing.length
+        ? ` Still needed for a complete package: ${missing.join('; ')}.`
+        : ' All 8 deliverables are now present — ready to download the package.';
+      setImportMsg({ ok: true, text: addedText + missingText });
     } catch (err) {
       setImportMsg({ ok: false, text: err instanceof Error ? err.message : 'Could not read that file.' });
     }
@@ -159,9 +181,55 @@ export default function DeliverablesPage() {
         </p>
       </div>
 
-      <WorkflowFlow />
-      <RoleExtractionGuide role={member.role} roleLabel={roleName} />
+      {/* Do now — the single clearest thing: which forms this role fills this week. */}
+      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
+        <h2 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
+          This week, you ({roleName}) fill {dueThisWeek.length} form{dueThisWeek.length === 1 ? '' : 's'}
+        </h2>
+        {dueThisWeek.length === 0 ? (
+          <p className="mt-1 text-sm text-blue-800 dark:text-blue-200">
+            Nothing graded for your role in {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`}. Your work this
+            week feeds your teammates&apos; deliverables — check the course tasks. Change the week below to see other
+            forms.
+          </p>
+        ) : (
+          <ul className="mt-2 space-y-1">
+            {dueThisWeek.map((def) => {
+              const done = (def.dod ?? []).length > 0 && (def.dod ?? []).every((c) => c.test(saved[def.id] ?? emptyData()));
+              return (
+                <li key={def.id} className="flex items-center gap-2 text-sm">
+                  {done ? (
+                    <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                  ) : (
+                    <Circle className="h-4 w-4 shrink-0 text-blue-400" />
+                  )}
+                  <a href={`#form-${def.id}`} className="font-medium text-blue-800 underline dark:text-blue-200">
+                    {def.num}. {def.title}
+                  </a>
+                  {def.requiresAuth && !authorized && (
+                    <span className="inline-flex items-center gap-0.5 text-xs text-amber-700 dark:text-amber-400">
+                      <Lock className="h-3 w-3" /> needs scope sign-off
+                    </span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
 
+      <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+        <Collapsible title="New here? How documentation works" defaultOpen={false}>
+          <div className="space-y-4 pb-2">
+            <WorkflowFlow />
+            <RoleExtractionGuide role={member.role} roleLabel={roleName} />
+          </div>
+        </Collapsible>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+        <Collapsible title="Team tools — download package, hand-off & export" defaultOpen={false}>
+          <div className="space-y-3 pb-2">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
         <div className="flex items-start gap-2 text-sm text-blue-900 dark:text-blue-200">
           <Package className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
@@ -258,6 +326,9 @@ export default function DeliverablesPage() {
           </div>
         )}
       </div>
+          </div>
+        </Collapsible>
+      </div>
 
       <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
         <Info className="mt-0.5 h-4 w-4 shrink-0" />
@@ -343,7 +414,12 @@ export default function DeliverablesPage() {
           return (
             <section
               key={def.id}
-              className="space-y-4 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800"
+              id={`form-${def.id}`}
+              className={`scroll-mt-24 space-y-4 rounded-lg border bg-white p-5 transition-colors dark:bg-gray-800 ${
+                formParam === def.id
+                  ? 'border-blue-400 ring-2 ring-blue-300 dark:border-blue-500 dark:ring-blue-700'
+                  : 'border-gray-200 dark:border-gray-700'
+              }`}
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">

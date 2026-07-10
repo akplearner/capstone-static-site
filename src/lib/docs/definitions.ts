@@ -263,9 +263,9 @@ export const DELIVERABLES: DeliverableDef[] = [
         fields: [
           { field: 'team', label: 'Team', type: 'text', placeholder: 'Team01' },
           { field: 'date', label: 'Date', type: 'date' },
-          { field: 'exec_summary', label: 'Executive summary', type: 'area', placeholder: '1 critical, 2 high; auth bypass possible' },
+          { field: 'exec_summary', label: 'Executive summary', type: 'area', placeholder: '1 critical, 2 high; auth bypass possible', help: 'Non-technical, 3–4 sentences: how many findings and how serious, plus the one thing leadership should care about.' },
           { field: 'scope_recap', label: 'Scope recap', type: 'text', placeholder: 'DVWA + Ubuntu, 10.10.10.0/24' },
-          { field: 'methodology', label: 'Methodology', type: 'area', placeholder: 'Recon → scan → exploit (PTES)' },
+          { field: 'methodology', label: 'Methodology', type: 'area', placeholder: 'Recon → scan → exploit (PTES)', help: 'The approach you followed in order, e.g. "Recon → scanning → exploitation (PTES)". One or two lines.' },
         ],
       },
       {
@@ -330,10 +330,10 @@ export const DELIVERABLES: DeliverableDef[] = [
           { field: 'title', label: 'Incident title', type: 'text', placeholder: 'SQLi against DVWA' },
           { field: 'detected_at', label: 'Detected (date/time)', type: 'text', placeholder: '2026-02-17 14:22' },
           { field: 'detected_by', label: 'Detected by / method', type: 'text', placeholder: 'Blue / Apache log analysis' },
-          { field: 'what_happened', label: 'What happened', type: 'area', placeholder: 'attacker dumped users table' },
-          { field: 'containment', label: 'Containment', type: 'area', placeholder: 'ufw deny from 10.10.10.5' },
-          { field: 'recovery', label: 'Recovery', type: 'area', placeholder: 'patched query, restarted Apache' },
-          { field: 'lessons', label: 'Lessons learned', type: 'area', placeholder: 'add WAF, alert on UNION' },
+          { field: 'what_happened', label: 'What happened', type: 'area', placeholder: 'attacker dumped users table', help: 'Tell the story in plain English: what the attacker did, step by step, and what they achieved.' },
+          { field: 'containment', label: 'Containment', type: 'area', placeholder: 'ufw deny from 10.10.10.5', help: 'What you did to STOP it (e.g. blocked the IP, disabled the account). Include the exact command if you have it.' },
+          { field: 'recovery', label: 'Recovery', type: 'area', placeholder: 'patched query, restarted Apache', help: 'How you returned to normal — patched the bug, restarted the service, restored from backup.' },
+          { field: 'lessons', label: 'Lessons learned', type: 'area', placeholder: 'add WAF, alert on UNION', help: 'What would prevent this next time (e.g. add a WAF, alert on UNION in logs, enforce account lockout).' },
         ],
       },
       {
@@ -405,12 +405,12 @@ export const DELIVERABLES: DeliverableDef[] = [
       {
         kind: 'fields',
         fields: [
-          { field: 'exec_summary', label: 'Executive summary', type: 'area', placeholder: '1 critical, 2 high; auth bypass possible' },
+          { field: 'exec_summary', label: 'Executive summary', type: 'area', placeholder: '1 critical, 2 high; auth bypass possible', help: 'Non-technical, 3–4 sentences: how many findings and how serious, plus the one thing leadership should care about.' },
           { field: 'scope_recap', label: 'Scope recap', type: 'text', placeholder: 'DVWA + Ubuntu, 10.10.10.0/24' },
-          { field: 'key_findings', label: 'Key findings', type: 'area', placeholder: 'SQLi, HTTP-only, open SSH' },
-          { field: 'risk_overview', label: 'Risk overview', type: 'area', placeholder: '1 Critical, 2 High, 1 Medium' },
-          { field: 'remediation_roadmap', label: 'Remediation roadmap', type: 'area', placeholder: 'SQLi (wk1), HTTPS (wk2), SSH (wk2)' },
-          { field: 'detection_response', label: 'Detection & response', type: 'area', placeholder: 'logs + Fail2Ban; NIST 800-61' },
+          { field: 'key_findings', label: 'Key findings', type: 'area', placeholder: 'SQLi, HTTP-only, open SSH', help: 'The top issues as a short list, pulled from the Pentest Report — most serious first.' },
+          { field: 'risk_overview', label: 'Risk overview', type: 'area', placeholder: '1 Critical, 2 High, 1 Medium', help: 'A count by severity from your Risk Register, e.g. "1 Critical, 2 High, 1 Medium".' },
+          { field: 'remediation_roadmap', label: 'Remediation roadmap', type: 'area', placeholder: 'SQLi (wk1), HTTPS (wk2), SSH (wk2)', help: 'The fixes in priority order with rough timing, e.g. "SQLi now, HTTPS this week, SSH keys next".' },
+          { field: 'detection_response', label: 'Detection & response', type: 'area', placeholder: 'logs + Fail2Ban; NIST 800-61', help: 'How the team detected and responded, and what monitoring stays in place (map to NIST 800-61).' },
           { field: 'slides_outline', label: 'Slides outline', type: 'area', placeholder: 'title → exec → findings → fixes → Q&A' },
         ],
       },
@@ -436,6 +436,13 @@ export function isTeamAuthorized(saved: Record<string, DeliverableData>): boolea
 
 export function deliverablesForRole(role: string): DeliverableDef[] {
   return DELIVERABLES.filter((d) => d.owner === role);
+}
+
+/** Resolve a deliverable by its title (used to turn a step's `usesForm` title
+ *  into the deliverable `id` for a deep-link to the form on the Deliverables page). */
+export function deliverableIdByTitle(title: string): string | undefined {
+  const t = title.trim().toLowerCase();
+  return DELIVERABLES.find((d) => d.title.toLowerCase() === t)?.id;
 }
 
 /** Human label for how a deliverable is built (spec §2 "How it's built"). */

@@ -16,6 +16,7 @@ import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
 import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
+import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
 import { EvidenceGuide } from '@/components/docs/EvidenceGuide';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
@@ -68,6 +69,15 @@ export default function CourseGuidePage() {
           how to run the DVWA target.
         </p>
         <LabSetupGuide />
+      </section>
+
+      <section id="command-help" className="scroll-mt-24 space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
+        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Running commands &amp; getting unstuck</h2>
+        <p className="text-gray-600 dark:text-gray-400">
+          How to use a terminal, and what to do when a command errors out — the fixes for the problems almost
+          every beginner hits.
+        </p>
+        <CommandTroubleshooting />
       </section>
 
       <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">

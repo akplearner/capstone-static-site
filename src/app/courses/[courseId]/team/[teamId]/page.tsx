@@ -6,6 +6,7 @@ import { ArrowLeft, Info, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { TeamProgressTable, MemberProgress, DeliverableStatus } from '@/components/TeamProgressTable';
+import { TeamHandoffChecklist } from '@/components/TeamHandoffChecklist';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -107,6 +108,11 @@ export default function TeamSpacePage() {
           </div>
         )}
         <TeamProgressTable course={course} rows={rows} deliverables={deliverables} />
+      </section>
+
+      <section className="space-y-3">
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Hand-offs — who owes whom</h2>
+        <TeamHandoffChecklist course={course} teamId={teamId} />
       </section>
 
       <section className="space-y-3">

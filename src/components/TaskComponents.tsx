@@ -21,7 +21,8 @@ import {
 } from 'lucide-react';
 import { Task } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel, getFrameworkWhy } from '@/lib/utils';
-import { useLabAccess, fillPlaceholders } from '@/lib/labAccess';
+import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
+import { deliverableIdByTitle } from '@/lib/docs/definitions';
 import { Collapsible } from './ui/Button';
 
 interface TaskCardProps {
@@ -182,7 +183,7 @@ export function StepDetail({
   const showCmdFlags = !structuredHasFlags && !!commandFlags && commandFlags.length > 0;
   const hasCommand = usingStructured || !!command;
   const hasExplain =
-    showCmdExplain || showCmdFlags || !!outputExplanation || !!troubleshooting || frameworks.length > 0;
+    showCmdExplain || showCmdFlags || !!outputExplanation || frameworks.length > 0;
   return (
     <div className="space-y-3">
       {optional && (
@@ -197,7 +198,10 @@ export function StepDetail({
 
       {usesForm && (
         <Link
-          href={`/courses/${courseId}/docs`}
+          href={`/courses/${courseId}/docs${(() => {
+            const id = deliverableIdByTitle(usesForm);
+            return id ? `?form=${id}` : '';
+          })()}`}
           className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 transition-colors hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"
         >
           <SquarePen className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
@@ -255,6 +259,30 @@ export function StepDetail({
         </div>
       )}
 
+      {/* Troubleshooting is its own always-visible "Stuck?" toggle (not buried in
+          Explain) so a student who hit an error finds the fix in one click. */}
+      {hasCommand && (
+        <div className="rounded-md border border-rose-200 bg-rose-50/60 px-4 dark:border-rose-900 dark:bg-rose-900/10">
+          <Collapsible title="Stuck? If it doesn't work" defaultOpen={false}>
+            <div className="space-y-2 pb-1 text-sm">
+              {troubleshooting && (
+                <p className="flex gap-2 text-rose-900 dark:text-rose-200">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                  <span>{troubleshooting}</span>
+                </p>
+              )}
+              <p className="text-gray-600 dark:text-gray-400">
+                Common errors (command not found, permission denied, connection refused, unfilled
+                <span className="font-mono"> 10.10.10.X</span>) and how to fix them:{' '}
+                <Link href={`/courses/${courseId}/guide#command-help`} className="font-medium text-blue-600 underline dark:text-blue-400">
+                  Terminal basics &amp; common fixes →
+                </Link>
+              </p>
+            </div>
+          </Collapsible>
+        </div>
+      )}
+
       {/* Everything secondary — the "why" — lives behind one toggle to keep steps compact. */}
       {hasExplain && (
         <div className="rounded-md border border-gray-200 px-4 dark:border-gray-700">
@@ -291,15 +319,6 @@ export function StepDetail({
                   <p className="text-sm text-sky-900 dark:text-sky-200">
                     <span className="font-semibold">Reading the output: </span>
                     {outputExplanation}
-                  </p>
-                </div>
-              )}
-              {troubleshooting && (
-                <div className="flex gap-2 rounded-md border border-rose-200 bg-rose-50 px-3 py-2 dark:border-rose-800 dark:bg-rose-900/20">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
-                  <p className="text-sm text-rose-900 dark:text-rose-200">
-                    <span className="font-semibold">If it doesn&apos;t work: </span>
-                    {troubleshooting}
                   </p>
                 </div>
               )}
@@ -519,6 +538,10 @@ export function CommandBlock({
   const list = raw.map((c) => ({ ...c, cmd: fillPlaceholders(c.cmd, lab.values) }));
   const multi = list.length > 1;
   const allText = list.map((c) => c.cmd).join('\n');
+  // Warn when a command still carries an unfilled placeholder (e.g. <YOUR_TARGET_IP>,
+  // 10.10.10.X) — a beginner would otherwise copy the literal token and hit a
+  // confusing failure. Points them at the Lab access panel that fills it in.
+  const stillUnfilled = list.some((c) => hasUnfilled(c.cmd));
 
   return (
     <div>
@@ -528,6 +551,18 @@ export function CommandBlock({
         </div>
         {multi && <CopyButton text={allText} label="Copy all" />}
       </div>
+      {stillUnfilled && (
+        <Link
+          href={`/courses/${courseId}#lab-access`}
+          className="mt-1 flex items-start gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/40"
+        >
+          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+          <span>
+            This still shows a placeholder like <span className="font-mono">10.10.10.X</span>. Set your target IP
+            in <span className="font-semibold underline">Lab access</span> and it fills in automatically.
+          </span>
+        </Link>
+      )}
       <div className="mt-1 space-y-2">
         {list.map((c, i) => (
           <div key={i}>

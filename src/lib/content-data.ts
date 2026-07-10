@@ -221,7 +221,8 @@ const RED_TASKS: Task[] = [
         whatItMeans: 'You have a saved record of the exact software versions that may be exploitable.',
         frameworks: ['CIS', 'OWASP'],
         producesDeliverable: 'Recon_Findings.md',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"whatweb: command not found"? Install it: sudo apt install whatweb. No output? Use the full URL with http:// and confirm the site loads in a browser first.',
       },
       {
         id: 'red-w1-s4',
@@ -285,7 +286,8 @@ const RED_TASKS: Task[] = [
         whatItMeans: 'Discovers all listening network services and their versions.',
         frameworks: ['CIS'],
         producesDeliverable: 'Nmap_Scan.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"Host seems down"? Add -Pn to skip the ping check. No open ports or a hang? Confirm the target is up (ping it) and that you used the right IP from Lab access. An all-port scan is slow — give it a minute.',
       },
       {
         id: 'red-w2-s2',
@@ -308,7 +310,8 @@ const RED_TASKS: Task[] = [
         whatItMeans: 'Identifies common web misconfigurations and known web vulnerabilities.',
         frameworks: ['OWASP'],
         producesDeliverable: 'Nikto_Report.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"0 host(s) tested" or connection error? The web server isn\'t reachable — open http://<target>/ in a browser first, check the IP, and make sure DVWA/Apache is running. Use the full URL including http://.',
       },
       {
         id: 'red-w2-s3',
@@ -373,7 +376,8 @@ const RED_TASKS: Task[] = [
         whatItMeans: 'Demonstrates data exfiltration risk from SQL injection.',
         frameworks: ['OWASP'],
         producesDeliverable: 'SQL_Injection_Proof.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: '"unable to connect" — check the URL/IP and that DVWA is up. "not injectable"? Set DVWA Security to Low (setup earlier) and make sure --auth-creds=admin:password is correct. If it asks about a redirect/CSRF, answer Y to continue.',
       },
       {
         id: 'red-w3-s2',
@@ -400,7 +404,8 @@ const RED_TASKS: Task[] = [
         whatItMeans: 'Shows weak password vulnerability and lack of account lockout.',
         frameworks: ['CIS', 'OWASP'],
         producesDeliverable: 'Brute_Force_Proof.txt',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'rockyou.txt "No such file"? It ships gzipped — run: sudo gunzip /usr/share/wordlists/rockyou.txt.gz once. No password ever found? The success marker (S=Welcome) or the form fields may differ — open the login page, check the exact field names and the text shown on a good login, and adjust.',
       },
       {
         id: 'red-w3-s3',
@@ -824,7 +829,8 @@ const BLUE_TASKS: Task[] = [
         whatItMeans: 'Establishes pattern of legitimate traffic for comparison.',
         frameworks: ['NIST_800_115'],
         producesDeliverable: 'Baseline_Traffic.pcap',
-        isEvidenceStep: true
+        isEvidenceStep: true,
+        troubleshooting: 'Permission error? tcpdump needs sudo. "eth0: No such device"? List your interfaces with ip a and use the right name (it may be ens33, enp0s3, etc.). Empty capture? Generate some traffic (ping/curl the target) while it runs, then press Ctrl+C to stop.',
       },
       {
         id: 'blue-w2-s2',
@@ -1108,7 +1114,7 @@ const GRC_TASKS: Task[] = [
     title: 'Open the Policy Workspace & Authorize the Engagement',
     objective: 'Set up where your company stores artifacts and put the authorized scope in writing for Red and Blue.',
     frameworks: ['ISO_27001', 'NIST_CSF'],
-    deliverables: [],
+    deliverables: ['01_Scope_and_RoE.md'],
     learn: ['Organizing a shared evidence workspace', 'What an authorization memo / Rules of Engagement is', 'Coordinating Red and Blue as the responsible role'],
     tools: ['Markdown editor', 'mkdir / shared folder'],
     prerequisites: ['Authorization + target list (from the instructor)'],
@@ -1149,7 +1155,7 @@ const GRC_TASKS: Task[] = [
     title: 'Framework Mapping & Hardening Standard',
     objective: 'Log Week 1 artifacts into the chain-of-custody register, map them to NIST CSF + CIS, and issue a Hardening Standard to Blue.',
     frameworks: ['NIST_CSF', 'CIS', 'STRIDE'],
-    deliverables: [],
+    deliverables: ['02_Asset_Inventory.csv', 'Hardening_Standard.md'],
     prerequisites: ["Red's Asset_List.md and Recon_Findings.md", "Blue's Hardening_Checklist.txt and UFW_Status.txt", 'Your Rules_of_Engagement.md from Week 0'],
     definitionOfDone: ['All four Week 1 files logged + hashed in Artifact_Register.md', 'Findings mapped to NIST CSF + CIS in Framework_Mapping.md', 'Lab_Security_Policy_v1.0.md drafted', 'Hardening_Standard.md handed to Blue'],
     handoff: [
@@ -1209,7 +1215,7 @@ const GRC_TASKS: Task[] = [
     title: 'Risk Assessment & Vulnerability-Management SOP',
     objective: 'Score the risks and write the Vulnerability-Management SOP your Blue team follows to remediate.',
     frameworks: ['NIST_CSF', 'CVSS'],
-    deliverables: [],
+    deliverables: ['03_Risk_Register.csv', 'VM_SOP.md'],
     prerequisites: ["Red's Vulnerability_Summary.md (the findings)", 'Your Week 1 Hardening Standard'],
     definitionOfDone: ['Risk matrix built', 'CVSS scores assigned', 'VM SOP written and handed to Blue with remediation priorities'],
     handoff: [{ to: 'blue', artifact: 'VM_SOP.md', note: 'Remediation order and process Blue follows.' }],
@@ -1339,7 +1345,7 @@ const GRC_TASKS: Task[] = [
     title: 'Final Report & Presentation',
     objective: 'Compile and present all findings, recommendations, and incident response.',
     frameworks: ['ISO_27001', 'NIST_CSF'],
-    deliverables: [],
+    deliverables: ['08_Final_Report_and_Briefing.md'],
     prerequisites: ["Red's and Blue's Week 4 briefings", 'All prior SOPs, risk register, and evidence'],
     definitionOfDone: ['Findings + recommendations compiled', 'Final report PDF produced', 'Team slides assembled'],
     handoff: [

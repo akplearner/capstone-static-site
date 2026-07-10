@@ -29,7 +29,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
   const checkCount = LAB_CHECKS.filter((c) => lab.checks[c.key]).length;
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+    <div id="lab-access" className="scroll-mt-24 rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
       <Collapsible
         title={`Lab access — your targets & reachability  (${filledCount}/${LAB_FIELDS.length} set · ${checkCount}/${LAB_CHECKS.length} checked)`}
         defaultOpen={filledCount === 0}
@@ -42,12 +42,20 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
             value), and saved on this device only.
           </p>
 
-          <Link
-            href={`/courses/${courseId}/guide`}
-            className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-          >
-            New here? See Lab requirements &amp; setup in the Guide <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
+          <div className="flex flex-col gap-1">
+            <Link
+              href={`/courses/${courseId}/guide`}
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              New here? See Lab requirements &amp; setup in the Guide <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+            <Link
+              href={`/courses/${courseId}/guide#command-help`}
+              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+            >
+              A command won&apos;t run? Terminal basics &amp; common fixes <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             {LAB_FIELDS.map((f) => (
