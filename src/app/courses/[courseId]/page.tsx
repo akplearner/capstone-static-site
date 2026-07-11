@@ -14,11 +14,9 @@ import {
   Compass,
   FileText,
   GraduationCap,
-  ListChecks,
   Lock,
   RotateCcw,
   Search,
-  Send,
   Sparkles,
   Users,
   Wrench,
@@ -685,13 +683,10 @@ export default function CoursePage() {
 
   // Expanded content for a task row (deliverables + the runner or read-only steps).
   const renderTaskBody = (task: Task, isOwn: boolean) => {
-    const hasFlow = !!(
-      task.learn?.length ||
-      task.tools?.length ||
-      task.prerequisites?.length ||
-      task.definitionOfDone?.length
-    );
-    const hasBrief = !!(task.handoff?.length || hasFlow || task.deliverables.length);
+    // The brief now holds only orientation (learn / tools / done-when). Hand-offs,
+    // prerequisites and deliverables are shown once elsewhere (the always-visible
+    // strip below + the per-step "save evidence as" callout), not repeated here.
+    const hasBrief = !!(task.learn?.length || task.tools?.length || task.definitionOfDone?.length);
     const hasHandoffStrip = !!(task.handoff?.length || task.prerequisites?.length);
     return (
     <>
@@ -727,38 +722,8 @@ export default function CoursePage() {
       )}
       {hasBrief && (
         <div className="mb-4 rounded-lg border border-gray-200 px-4 dark:border-gray-700">
-          <Collapsible title="Task brief — learn, tools, prerequisites, hand-offs & deliverables" defaultOpen={false}>
+          <Collapsible title="Task brief — learn, tools & done criteria" defaultOpen={false}>
             <div className="space-y-3 py-2">
-      {task.handoff && task.handoff.length > 0 && (
-        <div className="rounded-lg border border-indigo-200 bg-indigo-50 p-3 dark:border-indigo-800 dark:bg-indigo-900/20">
-          <div className="flex items-center gap-2 text-sm font-semibold text-indigo-800 dark:text-indigo-200">
-            <Send className="h-4 w-4" /> Coordinate with your team
-          </div>
-          <p className="mt-1 text-xs text-indigo-700 dark:text-indigo-300">
-            This task feeds a teammate — message them and share the file the moment you finish.
-          </p>
-          <ul className="mt-2 space-y-1 text-sm text-indigo-900 dark:text-indigo-200">
-            {task.handoff.map((h, i) => {
-              const toRole = getRoleDef(course, h.to);
-              return (
-                <li key={`${h.to}-${i}`} className="flex items-start gap-1.5">
-                  <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-500" />
-                  <span>
-                    When done, send{' '}
-                    {h.artifact && <span className="font-mono text-xs">{h.artifact} </span>}
-                    to{' '}
-                    <span className="font-semibold" style={{ color: toRole?.color }}>
-                      {toRole?.name ?? h.to}
-                    </span>{' '}
-                    — {h.note}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      )}
-      {hasFlow && (
         <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
           {task.learn && task.learn.length > 0 && (
             <div>
@@ -787,18 +752,6 @@ export default function CoursePage() {
               ))}
             </div>
           )}
-          {task.prerequisites && task.prerequisites.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <ListChecks className="h-3.5 w-3.5" /> Before you start
-              </div>
-              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
-                {task.prerequisites.map((p) => (
-                  <li key={p}>{p}</li>
-                ))}
-              </ul>
-            </div>
-          )}
           {task.definitionOfDone && task.definitionOfDone.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
@@ -814,24 +767,6 @@ export default function CoursePage() {
             </div>
           )}
         </div>
-      )}
-      {task.deliverables.length > 0 && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-900/20">
-          <div className="flex items-center gap-2 text-sm font-semibold text-amber-800 dark:text-amber-300">
-            <FileText className="h-4 w-4" /> Deliverables to produce
-          </div>
-          <ul className="mt-2 flex flex-wrap gap-2">
-            {task.deliverables.map((d) => (
-              <li
-                key={d}
-                className="rounded bg-white px-2 py-1 font-mono text-xs text-amber-800 dark:bg-gray-800 dark:text-amber-300"
-              >
-                {d}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
             </div>
           </Collapsible>
         </div>
@@ -989,16 +924,20 @@ export default function CoursePage() {
             )}
           </div>
           {member && (
-            <div className="mt-3 rounded-md border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
-              <p className="text-sm text-gray-700 dark:text-gray-300">{roleGuide(member.role).blurb}</p>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                <span className="font-semibold">Your arc: </span>
-                {roleGuide(member.role).arc}
-              </p>
-              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                You hand off to <span className="font-medium">{roleGuide(member.role).handsOffTo}</span>; you rely on{' '}
-                <span className="font-medium">{roleGuide(member.role).waitsOnFrom}</span>.
-              </p>
+            <div className="mt-3 rounded-md border border-gray-100 bg-gray-50 px-3 dark:border-gray-700 dark:bg-gray-900/40">
+              <Collapsible title="What's my role?" defaultOpen={false}>
+                <div className="space-y-1 pb-2">
+                  <p className="text-sm text-gray-700 dark:text-gray-300">{roleGuide(member.role).blurb}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <span className="font-semibold">Your arc: </span>
+                    {roleGuide(member.role).arc}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    You hand off to <span className="font-medium">{roleGuide(member.role).handsOffTo}</span>; you rely on{' '}
+                    <span className="font-medium">{roleGuide(member.role).waitsOnFrom}</span>.
+                  </p>
+                </div>
+              </Collapsible>
             </div>
           )}
         </motion.div>
@@ -1078,52 +1017,20 @@ export default function CoursePage() {
         </div>
       )}
 
-      {/* Progress + your next step (joined) */}
+      {/* Your path — one focused diagram, collapsed by default (the sticky bar already
+          carries progress + Continue; the conceptual diagrams live on the Guide). */}
       {joined && member && (
-        <div className="grid gap-4 rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800 md:grid-cols-[1fr_auto] md:items-center">
-          <div>
-            <div className="flex items-baseline justify-between gap-2">
-              <span className="text-sm font-semibold text-gray-900 dark:text-white">Your progress</span>
-              <span className="text-sm text-gray-500 dark:text-gray-400">
-                {tasksComplete} of {ownTasksAll.length} tasks · {overallPercent}%
-              </span>
-            </div>
-            <div className="mt-2 h-2.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
-              <motion.div
-                className="h-full rounded-full bg-blue-600"
-                initial={{ width: 0 }}
-                animate={{ width: `${overallPercent}%` }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
+        <section className="rounded-lg border border-gray-200 bg-white px-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title={`Your path${ownRole ? ` — ${ownRole.name}` : ''}`} defaultOpen={false}>
+            <div className="pb-2">
+              <RoleWorkflow
+                course={course}
+                role={member.role}
+                weekProgress={weekStats}
+                currentWeek={activeWeek}
               />
             </div>
-          </div>
-          {nextTask ? (
-            <Button
-              onClick={() => nextTask && goToTask(nextTask)}
-              className="flex items-center gap-2 md:ml-4"
-            >
-              Continue: {nextTask.title} <ArrowRight className="h-4 w-4" />
-            </Button>
-          ) : (
-            <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300 md:ml-4">
-              <Sparkles className="h-4 w-4" /> All your tasks are complete!
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Your path — one focused diagram; the conceptual diagrams live on the Guide. */}
-      {joined && member && (
-        <section className="space-y-3 rounded-lg border border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-white">
-            Your path{ownRole ? ` — ${ownRole.name}` : ''}
-          </h2>
-          <RoleWorkflow
-            course={course}
-            role={member.role}
-            weekProgress={weekStats}
-            currentWeek={activeWeek}
-          />
+          </Collapsible>
         </section>
       )}
 

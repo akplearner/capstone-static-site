@@ -13,7 +13,6 @@ import { toast } from '@/components/ui/Toast';
 import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
-import { WorkflowFlow } from '@/components/docs/WorkflowFlow';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -227,8 +226,14 @@ export default function DeliverablesPage() {
       <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="New here? How documentation works" defaultOpen={false}>
           <div className="space-y-4 pb-2">
-            <WorkflowFlow />
             <RoleExtractionGuide role={member.role} roleLabel={roleName} />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              See the full weekly flow (task → evidence → form → report) on the{' '}
+              <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                Guide
+              </Link>
+              .
+            </p>
           </div>
         </Collapsible>
       </div>

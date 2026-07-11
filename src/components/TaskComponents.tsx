@@ -16,11 +16,9 @@ import {
   FileText,
   Sparkles,
   SquarePen,
-  Terminal,
-  Eye,
 } from 'lucide-react';
 import { Task } from '@/lib/types';
-import { getFrameworkColor, getFrameworkLabel, getFrameworkWhy } from '@/lib/utils';
+import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle } from '@/lib/docs/definitions';
 import { splitCommand } from '@/lib/commands';
@@ -152,7 +150,6 @@ export function StepDetail({
   expectedOutput,
   outputExplanation,
   whatItMeans,
-  frameworks,
   deliverable,
   usesForm,
   troubleshooting,
@@ -175,17 +172,15 @@ export function StepDetail({
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
-  // When per-statement commands are supplied, their inline explanations replace the
-  // combined commandExplanation. Step-level flags are only suppressed when the
-  // structured commands carry their OWN per-command flags — otherwise we still show
-  // the step-level flag table so no flag help is ever lost.
   const usingStructured = !!(commands && commands.length > 0);
-  const structuredHasFlags = usingStructured && commands!.some((c) => c.flags && c.flags.length > 0);
-  const showCmdExplain = !usingStructured && !!commandExplanation;
-  const showCmdFlags = !structuredHasFlags && !!commandFlags && commandFlags.length > 0;
   const hasCommand = usingStructured || !!command;
-  const hasExplain =
-    showCmdExplain || showCmdFlags || !!outputExplanation || frameworks.length > 0;
+  // For a legacy single-command step, fold its explanation + flags INTO the command
+  // block so the help shows inline — no separate "Explain" panel to open.
+  const cmdList: CommandEntry[] | undefined = usingStructured
+    ? commands
+    : command
+      ? [{ cmd: command, explain: commandExplanation, flags: commandFlags }]
+      : undefined;
   return (
     <div className="space-y-3">
       {optional && (
@@ -229,26 +224,31 @@ export function StepDetail({
               </div>
             </div>
           )}
-          {hasCommand && <CommandBlock command={command} commands={commands} />}
+          {hasCommand && <CommandBlock commands={cmdList} />}
         </div>
 
-        <div className="space-y-3">
-          {expectedOutput && (
+        <div className="space-y-2">
+          {(expectedOutput || outputExplanation) && (
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                You should see
+                What you should see
               </div>
-              <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
-                {expectedOutput}
-              </div>
+              {expectedOutput && (
+                <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
+                  {expectedOutput}
+                </div>
+              )}
+              {outputExplanation && (
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{outputExplanation}</p>
+              )}
             </div>
           )}
-          <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-              What it means
-            </div>
-            <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">{whatItMeans}</div>
-          </div>
+          {whatItMeans && (
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              <span className="font-semibold text-gray-700 dark:text-gray-300">Why: </span>
+              {whatItMeans}
+            </p>
+          )}
         </div>
       </div>
 
@@ -288,71 +288,6 @@ export function StepDetail({
         </div>
       )}
 
-      {/* Everything secondary — the "why" — lives behind one toggle to keep steps compact. */}
-      {hasExplain && (
-        <div className="rounded-md border border-gray-200 px-4 dark:border-gray-700">
-          <Collapsible title="Explain — command, output & why" defaultOpen={false}>
-            <div className="space-y-3 pb-1">
-              {showCmdExplain && (
-                <div className="flex gap-2 rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 dark:border-emerald-800 dark:bg-emerald-900/20">
-                  <Terminal className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                  <p className="text-sm text-emerald-900 dark:text-emerald-200">
-                    <span className="font-semibold">What the command does: </span>
-                    {commandExplanation}
-                  </p>
-                </div>
-              )}
-              {showCmdFlags && commandFlags && (
-                <div className="overflow-hidden rounded-md border border-gray-200 dark:border-gray-700">
-                  <table className="w-full text-sm">
-                    <tbody>
-                      {commandFlags.map((f, i) => (
-                        <tr key={f.flag} className={i % 2 ? 'bg-gray-50 dark:bg-gray-800/50' : 'bg-white dark:bg-gray-800'}>
-                          <td className="whitespace-nowrap border-r border-gray-200 px-2.5 py-1.5 align-top font-mono text-xs font-semibold text-emerald-700 dark:border-gray-700 dark:text-emerald-300">
-                            {f.flag}
-                          </td>
-                          <td className="px-2.5 py-1.5 text-gray-700 dark:text-gray-300">{f.meaning}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {outputExplanation && (
-                <div className="flex gap-2 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-900/20">
-                  <Eye className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
-                  <p className="text-sm text-sky-900 dark:text-sky-200">
-                    <span className="font-semibold">Reading the output: </span>
-                    {outputExplanation}
-                  </p>
-                </div>
-              )}
-              {frameworks.length > 0 && (
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                      Frameworks
-                    </span>
-                    {frameworks.map((fw) => (
-                      <FrameworkBadge key={fw} framework={fw} />
-                    ))}
-                  </div>
-                  <ul className="mt-2 space-y-2">
-                    {frameworks.map((fw) => (
-                      <li key={fw} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
-                        <span className="shrink-0">
-                          <FrameworkBadge framework={fw} />
-                        </span>
-                        <span>{getFrameworkWhy(fw) || 'A standard this step helps satisfy.'}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-          </Collapsible>
-        </div>
-      )}
     </div>
   );
 }
