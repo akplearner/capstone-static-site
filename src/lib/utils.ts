@@ -8,6 +8,7 @@ export const FRAMEWORK_COLORS: Record<Framework, string> = {
   'NIST_800_61': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
   'NIST_800_115': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
   'ISO_27001': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+  'SOC_2': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
   'STRIDE': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
 };
 
@@ -19,6 +20,7 @@ export const FRAMEWORK_LABELS: Record<Framework, string> = {
   'NIST_800_61': 'NIST 800-61',
   'NIST_800_115': 'NIST 800-115',
   'ISO_27001': 'ISO 27001',
+  'SOC_2': 'SOC 2',
   'STRIDE': 'STRIDE',
 };
 
@@ -30,6 +32,7 @@ export const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'NIST_800_61': 'NIST Guide to Incident Handling',
   'NIST_800_115': 'NIST Technical Guide to Information Security Testing and Assessment',
   'ISO_27001': 'ISO/IEC 27001 Information Security',
+  'SOC_2': 'SOC 2 — AICPA Trust Services Criteria',
   'STRIDE': 'STRIDE Threat Modeling',
 };
 
@@ -51,6 +54,8 @@ export const FRAMEWORK_WHY: Record<Framework, string> = {
     'The standard method for security testing and assessment. Following it makes your scanning and exploitation repeatable, authorized, and credible in a report.',
   'ISO_27001':
     'The certifiable information-security management standard. This tag means the step produces the documented policy or evidence an ISO 27001 audit expects to see.',
+  'SOC_2':
+    'The AICPA attestation standard built on the Trust Services Criteria (Security = CC1–CC9, plus Availability/Confidentiality/etc.). This tag means the step produces a control or the evidence a SOC 2 Type I/II examiner samples.',
   'STRIDE':
     'A threat-modeling lens — Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. It names the *category* of threat this step addresses.',
 };

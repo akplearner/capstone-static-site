@@ -111,14 +111,14 @@ export default function CourseGuidePage() {
           The whole engagement comes down to a set of <strong>graded deliverables</strong> — who owns each one,
           the week it&apos;s due, and the gate it clears.
         </p>
-        <DeliverablesIndex />
+        <DeliverablesIndex courseId={course.id} />
         <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
           <Collapsible title="More reference — weekly flow, folder layout & cheat sheet" defaultOpen={false}>
             <div className="space-y-4 pb-2">
               <WeeklyFlow course={course} />
-              <DocsReductionTable />
-              <FolderTree />
-              <QuickReferenceCard />
+              {course.id === 'security-plus' && <DocsReductionTable />}
+              <FolderTree courseId={course.id} />
+              {course.id === 'security-plus' && <QuickReferenceCard />}
             </div>
           </Collapsible>
         </div>

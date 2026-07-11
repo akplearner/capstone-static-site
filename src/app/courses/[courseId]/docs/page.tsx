@@ -19,7 +19,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData } from '@/lib/docs/types';
-import { DELIVERABLES, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
+import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
@@ -92,11 +92,12 @@ export default function DeliverablesPage() {
     EMPTY_OBJECT
   );
 
-  const roleDefaultWeek = member ? deliverablesForRole(member.role)[0]?.weeks[0] ?? 1 : 1;
+  const courseDefs = deliverablesForCourse(course.id);
+  const roleDefaultWeek = member ? deliverablesForRole(member.role, course.id)[0]?.weeks[0] ?? 1 : 1;
   const [week, setWeek] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const formParam = searchParams.get('form');
-  const formWeek = formParam ? DELIVERABLES.find((d) => d.id === formParam)?.weeks[0] : undefined;
+  const formWeek = formParam ? courseDefs.find((d) => d.id === formParam)?.weeks[0] : undefined;
   // A ?form= deep-link picks that form's week (until the user changes the week).
   const selectedWeek = week ?? formWeek ?? roleDefaultWeek;
 
@@ -124,7 +125,7 @@ export default function DeliverablesPage() {
   }
 
   const teamId = member.teamId;
-  const meta = { team: teamId, cohort: member.cohort, date: new Date().toISOString().slice(0, 10) };
+  const meta = { team: teamId, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };
 
   const setDoc = (id: string, data: DeliverableData) => {
     const current = docsRepo.get(course.id, teamId) ?? {};
@@ -133,7 +134,7 @@ export default function DeliverablesPage() {
   };
 
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
-  const myDefs = deliverablesForRole(member.role);
+  const myDefs = deliverablesForRole(member.role, course.id);
   const dueThisWeek = myDefs.filter((d) => d.weeks.includes(selectedWeek));
   const authorized = isTeamAuthorized(saved);
   const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role.toUpperCase();
@@ -151,9 +152,9 @@ export default function DeliverablesPage() {
       docsRepo.save(course.id, teamId, merged);
       notifyStore();
       const added = Object.keys(incoming)
-        .map((id) => DELIVERABLES.find((d) => d.id === id)?.title ?? id)
+        .map((id) => courseDefs.find((d) => d.id === id)?.title ?? id)
         .sort();
-      const missing = DELIVERABLES.filter((d) => !merged[d.id]).map((d) => `${d.num}. ${d.title}`);
+      const missing = courseDefs.filter((d) => !merged[d.id]).map((d) => `${d.num}. ${d.title}`);
       const addedText = added.length ? `Added: ${added.join(', ')}.` : 'No new deliverables in that file.';
       const missingText = missing.length
         ? ` Still needed for a complete package: ${missing.join('; ')}.`
@@ -226,7 +227,7 @@ export default function DeliverablesPage() {
       <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="New here? How documentation works" defaultOpen={false}>
           <div className="space-y-4 pb-2">
-            <RoleExtractionGuide role={member.role} roleLabel={roleName} />
+            <RoleExtractionGuide role={member.role} roleLabel={roleName} courseId={course.id} />
             <p className="text-sm text-gray-500 dark:text-gray-400">
               See the full weekly flow (task → evidence → form → report) on the{' '}
               <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
@@ -361,7 +362,7 @@ export default function DeliverablesPage() {
 
       {(() => {
         const gate = course.gates.find((g) => g.week === selectedWeek);
-        const gateDefs = gate ? DELIVERABLES.filter((d) => d.gate === gate.id && d.dod?.length) : [];
+        const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
         if (!gate || gateDefs.length === 0) return null;
         return (
           <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">

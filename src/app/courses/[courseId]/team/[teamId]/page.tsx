@@ -14,7 +14,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { getRequiredStepCount, getTasksByRole } from '@/lib/course-helpers';
-import { DELIVERABLES } from '@/lib/docs/definitions';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { emptyData } from '@/lib/docs/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 
@@ -51,7 +51,7 @@ export default function TeamSpacePage() {
   // Team deliverable completeness (DoD checks where defined; else any saved data).
   const deliverables = useClientStore<DeliverableStatus[]>(() => {
     const saved = docsRepo.get(course.id, teamId) ?? {};
-    return DELIVERABLES.map((d) => {
+    return deliverablesForCourse(course.id).map((d) => {
       const data = saved[d.id];
       let complete = false;
       if (d.dod && d.dod.length > 0) {

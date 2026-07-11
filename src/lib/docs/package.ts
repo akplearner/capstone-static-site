@@ -1,5 +1,5 @@
 import { DeliverableData, emptyData } from './types';
-import { DELIVERABLES } from './definitions';
+import { deliverablesForCourse } from './definitions';
 import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
 import { CUSTODY_RULES, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
@@ -16,10 +16,11 @@ export function packageFileName(meta: DocMeta): string {
 }
 
 function readme(root: string, meta: DocMeta): string {
+  const defs = deliverablesForCourse(meta.courseId ?? 'security-plus');
   const lines = [
     `# ${root}`,
     '',
-    `The team capstone package — all ${DELIVERABLES.length} graded deliverables, assembled into one`,
+    `The team capstone package — all ${defs.length} graded deliverables, assembled into one`,
     'submission (plus this README and Team_Roles).',
     '',
     meta.team ? `- Team: ${meta.team}` : '',
@@ -29,7 +30,7 @@ function readme(root: string, meta: DocMeta): string {
     '## Contents',
     '',
   ];
-  for (const def of DELIVERABLES) {
+  for (const def of defs) {
     lines.push(`- \`${def.folder}/${def.file}\` — ${def.title} (${def.owner.toUpperCase()}, ${def.standard})`);
   }
   lines.push(
@@ -87,7 +88,7 @@ export function buildTeamPackage(saved: Record<string, DeliverableData>, meta: D
   const root = packageRoot(meta);
   const entries: ZipEntry[] = [];
 
-  for (const def of DELIVERABLES) {
+  for (const def of deliverablesForCourse(meta.courseId ?? 'security-plus')) {
     const data = saved[def.id] ?? emptyData();
     const content =
       def.exportFormat === 'csv'

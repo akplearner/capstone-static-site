@@ -1,9 +1,10 @@
 'use client';
 
 import { Collapsible } from '@/components/ui/Button';
-import { DELIVERABLES, buildLabel } from '@/lib/docs/definitions';
+import { deliverablesForCourse, buildLabel } from '@/lib/docs/definitions';
 
-function IndexTable() {
+function IndexTable({ courseId }: { courseId: string }) {
+  const defs = deliverablesForCourse(courseId);
   return (
     <div className="overflow-x-auto pb-2">
       <table className="w-full min-w-[760px] text-sm">
@@ -20,7 +21,7 @@ function IndexTable() {
           </tr>
         </thead>
         <tbody>
-          {DELIVERABLES.map((d) => (
+          {defs.map((d) => (
             <tr key={d.id} className="border-b border-gray-100 dark:border-gray-700/60">
               <td className="py-1.5 pr-3 text-gray-500">{d.num}</td>
               <td className="py-1.5 pr-3 font-medium text-gray-900 dark:text-white">{d.title}</td>
@@ -49,15 +50,22 @@ function IndexTable() {
  * on the public Guide as an always-open section, so students always know what
  * they owe and when (spec §9.8).
  */
-export function DeliverablesIndex({ collapsible = false }: { collapsible?: boolean }) {
+export function DeliverablesIndex({
+  collapsible = false,
+  courseId = 'security-plus',
+}: {
+  collapsible?: boolean;
+  courseId?: string;
+}) {
+  const count = deliverablesForCourse(courseId).length;
   if (collapsible) {
     return (
       <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title={`The ${DELIVERABLES.length} deliverables — who owns what, and when`} defaultOpen={false}>
-          <IndexTable />
+        <Collapsible title={`The ${count} deliverables — who owns what, and when`} defaultOpen={false}>
+          <IndexTable courseId={courseId} />
         </Collapsible>
       </div>
     );
   }
-  return <IndexTable />;
+  return <IndexTable courseId={courseId} />;
 }

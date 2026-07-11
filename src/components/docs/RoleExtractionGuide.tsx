@@ -20,8 +20,16 @@ function captureLabels(def: DeliverableDef): string[] {
  * fields your extraction feeds. Complements the universal WorkflowFlow by
  * making the per-role path concrete (spec §9 clarity).
  */
-export function RoleExtractionGuide({ role, roleLabel }: { role: string; roleLabel?: string }) {
-  const defs = deliverablesForRole(role);
+export function RoleExtractionGuide({
+  role,
+  roleLabel,
+  courseId = 'security-plus',
+}: {
+  role: string;
+  roleLabel?: string;
+  courseId?: string;
+}) {
+  const defs = deliverablesForRole(role, courseId);
   if (defs.length === 0) return null;
   const label = roleLabel ?? role.toUpperCase();
 

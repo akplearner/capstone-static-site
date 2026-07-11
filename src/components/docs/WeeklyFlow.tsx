@@ -2,10 +2,11 @@
 
 import { Collapsible } from '@/components/ui/Button';
 import { Course } from '@/lib/types';
-import { DELIVERABLES } from '@/lib/docs/definitions';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 
 function WeeklyTable({ course }: { course: Course }) {
   const weeks = [...course.weeks].sort((a, b) => a.number - b.number);
+  const courseDefs = deliverablesForCourse(course.id);
   return (
     <div className="overflow-x-auto pb-2">
       <table className="w-full min-w-[720px] text-sm">
@@ -19,7 +20,7 @@ function WeeklyTable({ course }: { course: Course }) {
         </thead>
         <tbody>
           {weeks.map((w) => {
-            const produced = DELIVERABLES.filter((d) => d.weeks.includes(w.number));
+            const produced = courseDefs.filter((d) => d.weeks.includes(w.number));
             const gate = course.gates.find((g) => g.week === w.number);
             return (
               <tr key={w.number} className="border-b border-gray-100 align-top dark:border-gray-700/60">

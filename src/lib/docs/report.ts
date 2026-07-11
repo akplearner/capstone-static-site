@@ -5,6 +5,9 @@ export interface DocMeta {
   team?: string;
   cohort?: string;
   date?: string;
+  /** Course this package belongs to; scopes which deliverables the ZIP/README
+   *  include. Defaults to 'security-plus' when absent. */
+  courseId?: string;
 }
 
 function fieldValue(f: Field, fields: Record<string, string>): string {

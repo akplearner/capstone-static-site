@@ -1,7 +1,7 @@
 'use client';
 
 import { Folder, FileText, FileSpreadsheet, Image as ImageIcon, BookText } from 'lucide-react';
-import { DELIVERABLES } from '@/lib/docs/definitions';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { Role } from '@/lib/types';
 
 /**
@@ -25,9 +25,9 @@ const ROLE_TEXT: Record<string, string> = {
   grc: 'text-green-600 dark:text-green-400',
 };
 
-function buildTree(): Node {
+function buildTree(courseId: string): Node {
   const byFolder = new Map<string, { file: string; owner: Role; format: 'md' | 'csv' }[]>();
-  for (const d of DELIVERABLES) {
+  for (const d of deliverablesForCourse(courseId)) {
     const list = byFolder.get(d.folder) ?? [];
     list.push({ file: d.file, owner: d.owner, format: d.exportFormat });
     byFolder.set(d.folder, list);
@@ -103,8 +103,8 @@ function TreeNode({ node, depth = 0 }: { node: Node; depth?: number }) {
   );
 }
 
-export function FolderTree() {
-  const tree = buildTree();
+export function FolderTree({ courseId = 'security-plus' }: { courseId?: string }) {
+  const tree = buildTree(courseId);
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
       <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Submission folder structure</h3>

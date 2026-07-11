@@ -4,16 +4,26 @@ import {
   seedDeliverable,
   deliverableIdByTitle,
   deliverablesForRole,
+  deliverablesForCourse,
+  courseIdOf,
   getDeliverable,
 } from './definitions';
 import { emptyData } from './types';
 
 describe('DELIVERABLES integrity', () => {
-  it('has unique ids and numbers', () => {
+  it('has globally-unique ids and per-course-unique numbers', () => {
     const ids = DELIVERABLES.map((d) => d.id);
-    const nums = DELIVERABLES.map((d) => d.num);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(new Set(nums).size).toBe(nums.length);
+    // Numbers are the display ordinal within a course, so they only need to be
+    // unique per course (Security+ 1..14, MSSP 1..8, …).
+    const byCourse = new Map<string, number[]>();
+    for (const d of DELIVERABLES) {
+      const key = courseIdOf(d);
+      byCourse.set(key, [...(byCourse.get(key) ?? []), d.num]);
+    }
+    for (const [course, nums] of byCourse) {
+      expect(new Set(nums).size, course).toBe(nums.length);
+    }
   });
 
   it('every deliverable has an owner, file and at least one week', () => {
@@ -56,10 +66,20 @@ describe('lookup helpers', () => {
     expect(deliverableIdByTitle('no such form')).toBeUndefined();
   });
 
-  it('deliverablesForRole returns only that role and matches getDeliverable', () => {
-    const grc = deliverablesForRole('grc');
+  it('deliverablesForRole returns only that role+course and matches getDeliverable', () => {
+    const grc = deliverablesForRole('grc', 'security-plus');
     expect(grc.length).toBeGreaterThan(0);
     expect(grc.every((d) => d.owner === 'grc')).toBe(true);
+    expect(grc.every((d) => courseIdOf(d) === 'security-plus')).toBe(true);
     expect(getDeliverable(grc[0].id)).toEqual(grc[0]);
+  });
+
+  it('deliverablesForCourse isolates each course (no cross-course leak)', () => {
+    const sp = deliverablesForCourse('security-plus');
+    const mssp = deliverablesForCourse('mssp');
+    expect(sp.length).toBeGreaterThan(0);
+    expect(mssp.length).toBeGreaterThan(0);
+    expect(sp.some((d) => mssp.includes(d))).toBe(false);
+    expect(sp.length + mssp.length).toBe(DELIVERABLES.length);
   });
 });

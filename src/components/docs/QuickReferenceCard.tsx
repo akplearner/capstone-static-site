@@ -1,21 +1,22 @@
 'use client';
 
 import { FileStack, ClipboardList, Wrench, Tag, GraduationCap } from 'lucide-react';
-import { DELIVERABLES } from '@/lib/docs/definitions';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 
 /**
  * Spec §10 — the one-screen cheat sheet. Five panels students can glance at:
- * the 8 files, the universal form flow, the tools, the naming rules, and what
- * the grade is actually based on.
+ * the files, the universal form flow, the tools, the naming rules, and what
+ * the grade is actually based on. (Security+ course reference.)
  */
-export function QuickReferenceCard() {
+export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: string }) {
+  const defs = deliverablesForCourse(courseId);
   const panels = [
     {
       icon: FileStack,
-      title: `${DELIVERABLES.length} FILES`,
+      title: `${defs.length} FILES`,
       body: (
         <ol className="space-y-0.5">
-          {DELIVERABLES.map((d) => (
+          {defs.map((d) => (
             <li key={d.id}>
               <span className="text-gray-400">{d.num}.</span> {d.title}
             </li>

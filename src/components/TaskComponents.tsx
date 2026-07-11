@@ -196,7 +196,7 @@ export function StepDetail({
       {usesForm && (
         <Link
           href={`/courses/${courseId}/docs${(() => {
-            const id = deliverableIdByTitle(usesForm);
+            const id = deliverableIdByTitle(usesForm, courseId);
             return id ? `?form=${id}` : '';
           })()}`}
           className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 transition-colors hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"

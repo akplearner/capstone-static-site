@@ -1,6 +1,7 @@
 import { Column, riskLevel } from '../grc/templates';
 import { DeliverableData, DeliverableDef } from './types';
 import { CUSTODY_RULES } from './custodyTemplate';
+import { MSSP_DELIVERABLES } from './msspDeliverables';
 
 // Small helpers to keep the schema readable.
 const c = (
@@ -12,10 +13,11 @@ const c = (
 
 const LMH = ['Low', 'Medium', 'High'];
 
-/** The graded deliverables (Master Package §2 & §6): the 8 core reports plus the
- *  GRC SOP/policy forms (Framework Mapping, Security Policy, Hardening Standard,
- *  VM SOP, IR Runbook) and the team Evidence Log. */
-export const DELIVERABLES: DeliverableDef[] = [
+/** The Security+ graded deliverables (Master Package §2 & §6): the 8 core reports
+ *  plus the GRC SOP/policy forms (Framework Mapping, Security Policy, Hardening
+ *  Standard, VM SOP, IR Runbook) and the team Evidence Log. These carry no explicit
+ *  `courseId` (defaulting to 'security-plus'); other courses tag theirs explicitly. */
+const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 1 ─────────────────────────────────────────────────────────────────────
   {
     id: 'scope_roe',
@@ -707,6 +709,25 @@ export const DELIVERABLES: DeliverableDef[] = [
   },
 ];
 
+/** All deliverables across every course. Security+ first, then any additional
+ *  courses (e.g. the MSSP / SOC 2 + ISO 27001 track). Consumers that render a
+ *  single course MUST scope with `deliverablesForCourse` / `deliverablesForRole`
+ *  so one course's forms never surface on another course's pages or ZIP. */
+export const DELIVERABLES: DeliverableDef[] = [
+  ...SECURITY_PLUS_DELIVERABLES,
+  ...MSSP_DELIVERABLES,
+];
+
+/** The course a deliverable belongs to (defaults to 'security-plus'). */
+export function courseIdOf(d: DeliverableDef): string {
+  return d.courseId ?? 'security-plus';
+}
+
+/** Every deliverable for one course. */
+export function deliverablesForCourse(courseId: string): DeliverableDef[] {
+  return DELIVERABLES.filter((d) => courseIdOf(d) === courseId);
+}
+
 export function getDeliverable(id: string): DeliverableDef | undefined {
   return DELIVERABLES.find((d) => d.id === id);
 }
@@ -720,15 +741,18 @@ export function isTeamAuthorized(saved: Record<string, DeliverableData>): boolea
   return !!saved['scope_roe']?.fields.authorization?.trim();
 }
 
-export function deliverablesForRole(role: string): DeliverableDef[] {
-  return DELIVERABLES.filter((d) => d.owner === role);
+export function deliverablesForRole(role: string, courseId: string): DeliverableDef[] {
+  return DELIVERABLES.filter((d) => d.owner === role && courseIdOf(d) === courseId);
 }
 
 /** Resolve a deliverable by its title (used to turn a step's `usesForm` title
- *  into the deliverable `id` for a deep-link to the form on the Deliverables page). */
-export function deliverableIdByTitle(title: string): string | undefined {
+ *  into the deliverable `id` for a deep-link to the form on the Deliverables page).
+ *  Scope to a course when known so identically-titled forms don't cross courses. */
+export function deliverableIdByTitle(title: string, courseId?: string): string | undefined {
   const t = title.trim().toLowerCase();
-  return DELIVERABLES.find((d) => d.title.toLowerCase() === t)?.id;
+  return DELIVERABLES.find(
+    (d) => d.title.toLowerCase() === t && (!courseId || courseIdOf(d) === courseId)
+  )?.id;
 }
 
 /** Human label for how a deliverable is built (spec §2 "How it's built"). */

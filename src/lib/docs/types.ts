@@ -50,6 +50,10 @@ export interface DeliverableDef {
   num: number; // 1..8
   file: string; // '02_Asset_Inventory.csv'
   title: string;
+  /** Which course this deliverable belongs to. Omitted = 'security-plus'
+   *  (the original single-course set). Used to scope the docs subsystem so a
+   *  second course's forms never leak into another course's pages/ZIP. */
+  courseId?: string;
   owner: Role; // 'red' | 'blue' | 'grc'
   folder: string;
   standard: string;

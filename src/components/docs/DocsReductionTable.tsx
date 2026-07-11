@@ -2,7 +2,7 @@
 
 import { ArrowRight } from 'lucide-react';
 import { Collapsible } from '@/components/ui/Button';
-import { DELIVERABLES, getDeliverable } from '@/lib/docs/definitions';
+import { deliverablesForCourse, getDeliverable } from '@/lib/docs/definitions';
 
 /**
  * Spec §1 — the old course produced 17 loose working files; this platform
@@ -25,11 +25,12 @@ const ADMIN = ['Team_Roles', 'README'];
 
 function Table() {
   const oldCount = MAP.reduce((n, m) => n + m.old.length, 0) + ADMIN.length;
+  const newCount = deliverablesForCourse('security-plus').length;
   return (
     <div className="overflow-x-auto pb-2">
       <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
         The old course produced <strong>{oldCount} loose files</strong>. They now consolidate into{' '}
-        <strong>{DELIVERABLES.length} graded deliverables</strong> (plus a README and Team_Roles) — same
+        <strong>{newCount} graded deliverables</strong> (plus a README and Team_Roles) — same
         work, one clear set of documents.
       </p>
       <table className="w-full min-w-[560px] text-sm">

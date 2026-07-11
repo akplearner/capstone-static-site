@@ -4,13 +4,15 @@ import { motion } from 'framer-motion';
 import { FileText, SquarePen } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { getDeliverablesForWeek, getWeekDef } from '@/lib/course-helpers';
-import { DELIVERABLES } from '@/lib/docs/definitions';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { RoleIcon } from '../RoleIcon';
 import { DiagramFrame } from './DiagramFrame';
 
-/** The form-generated documents a role produces in a given week (the 8 forms). */
-function documentsForWeek(role: string, week: number): string[] {
-  return DELIVERABLES.filter((d) => d.owner === role && d.weeks.includes(week)).map((d) => d.title);
+/** The form-generated documents a role produces in a given week, scoped to the course. */
+function documentsForWeek(courseId: string, role: string, week: number): string[] {
+  return deliverablesForCourse(courseId)
+    .filter((d) => d.owner === role && d.weeks.includes(week))
+    .map((d) => d.title);
 }
 
 interface DeliverablesMatrixProps {
@@ -72,7 +74,7 @@ export function DeliverablesMatrix({ course, week, highlightRole }: Deliverables
                 {wd && <div className="text-[11px] text-gray-400">{wd.title}</div>}
               </div>
               {roles.map((r) => {
-                const documents = documentsForWeek(r.id, w);
+                const documents = documentsForWeek(course.id, r.id, w);
                 const evidence = getDeliverablesForWeek(course, r.id, w);
                 const empty = documents.length === 0 && evidence.length === 0;
                 return (
