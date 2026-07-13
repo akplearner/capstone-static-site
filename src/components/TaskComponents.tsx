@@ -140,6 +140,52 @@ export function FrameworkBadge({ framework }: FrameworkBadgeProps) {
  * what-it-means, the deliverable it produces, and framework tags. Reused by the
  * ChecklistItem ("show all") view and the GuidedTaskRunner one-step view.
  */
+/**
+ * Real-tool self-verification: the student pastes their ACTUAL command output and
+ * the step turns green only when every expected token is present. Turns a static
+ * "what you should see" block into a check you actually run against real output.
+ */
+function OutputVerify({ verify }: { verify: string[] }) {
+  const [text, setText] = React.useState('');
+  const touched = text.trim().length > 0;
+  const norm = text.toLowerCase();
+  const results = verify.map((tok) => ({ tok, ok: norm.includes(tok.toLowerCase()) }));
+  const allOk = touched && results.every((r) => r.ok);
+  return (
+    <div className="rounded-md border border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
+      <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        Verify — paste your actual output
+      </label>
+      <textarea
+        value={text}
+        onChange={(e) => setText(e.target.value)}
+        rows={2}
+        spellCheck={false}
+        placeholder="Paste what your terminal printed…"
+        className="mt-1 w-full rounded border border-gray-300 bg-gray-50 p-2 font-mono text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+      />
+      {touched && (
+        <div className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium ${allOk ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+          {allOk ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+          {allOk ? 'Verified — your output matches.' : 'Not matching yet — check the command ran on the right target.'}
+        </div>
+      )}
+      {touched && !allOk && (
+        <div className="mt-1 flex flex-wrap gap-1">
+          {results.map((r) => (
+            <span
+              key={r.tok}
+              className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${r.ok ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}
+            >
+              {r.ok ? '✓' : '○'} {r.tok}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function StepDetail({
   instruction,
   description,
@@ -153,6 +199,7 @@ export function StepDetail({
   deliverable,
   usesForm,
   troubleshooting,
+  verify,
   optional,
 }: {
   instruction?: string;
@@ -168,6 +215,7 @@ export function StepDetail({
   deliverable?: string;
   usesForm?: string;
   troubleshooting?: string;
+  verify?: string[];
   optional?: boolean;
 }) {
   const params = useParams();
@@ -249,6 +297,7 @@ export function StepDetail({
               {whatItMeans}
             </p>
           )}
+          {hasCommand && verify && verify.length > 0 && <OutputVerify verify={verify} />}
         </div>
       </div>
 
@@ -310,6 +359,7 @@ interface ChecklistItemProps {
   deliverable?: string;
   usesForm?: string;
   troubleshooting?: string;
+  verify?: string[];
   optional?: boolean;
 }
 
@@ -330,6 +380,7 @@ export function ChecklistItem({
   deliverable,
   usesForm,
   troubleshooting,
+  verify,
   optional,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(true);
@@ -390,6 +441,7 @@ export function ChecklistItem({
                 deliverable={deliverable}
                 usesForm={usesForm}
                 troubleshooting={troubleshooting}
+                verify={verify}
                 optional={optional}
               />
             </div>

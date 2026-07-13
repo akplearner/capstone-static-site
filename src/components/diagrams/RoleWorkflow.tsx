@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { CheckCircle2, Circle, MapPin } from 'lucide-react';
 import { Course } from '@/lib/types';
-import { getRoleDef, getTasksByRole } from '@/lib/course-helpers';
+import { getRoleDef, getTasksByRole, phaseTag } from '@/lib/course-helpers';
 import { roleTint } from '@/lib/utils';
 
 interface RoleWorkflowProps {
@@ -59,7 +59,7 @@ export function RoleWorkflow({ course, role, weekProgress = {}, currentWeek }: R
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Week {week.number} · {week.title}
+                  {phaseTag(course, week.number)} · {week.title}
                 </span>
                 <span className="text-xs font-bold text-gray-600 dark:text-gray-300">{pct}%</span>
               </div>

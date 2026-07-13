@@ -49,7 +49,8 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks } from '@/lib/course-helpers';
+import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
+import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
@@ -310,6 +311,7 @@ function TaskReference({ task }: { task: Task }) {
               deliverable={s.producesDeliverable}
               usesForm={s.usesForm}
               troubleshooting={s.troubleshooting}
+              verify={s.verify}
               optional={s.optional}
             />
           </div>
@@ -548,7 +550,7 @@ export default function CoursePage() {
     joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
 
   const stepperItems: StepperItem[] = sortedWeeks.map((w) => ({
-    label: `Week ${w.number}`,
+    label: phaseTag(course, w.number),
     sublabel: joined ? `${weekStats[w.number] ?? 0}%` : undefined,
     status:
       joined && (weekStats[w.number] ?? 0) === 100
@@ -818,7 +820,7 @@ export default function CoursePage() {
         {joined && member && (
           <div className="ml-auto flex items-center gap-2">
             <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
-              {activeWeek === 0 ? 'Setup' : `Week ${activeWeek}/${contentWeeks.length}`} · {overallPercent}%
+              {phaseTag(course, activeWeek)} · {overallPercent}%
             </span>
             {nextTask ? (
               <Button
@@ -890,6 +892,11 @@ export default function CoursePage() {
 
       <QuickstartChecklist steps={quickstartSteps} onTakeTour={startTour} />
 
+      {/* Engagement banner — client + scope + phase for engagement-framed courses */}
+      {joined && member && isEngagement(course) && (
+        <EngagementBanner courseId={course.id} teamId={member.teamId} phase={phaseTag(course, activeWeek)} />
+      )}
+
       {/* Role "this week" hero — connects your role to what's left right now */}
       {joined && member && ownRole && (
         <motion.div
@@ -908,8 +915,8 @@ export default function CoursePage() {
                   You&apos;re {ownRole.name}
                 </div>
                 <div className="text-sm text-gray-600 dark:text-gray-400">
-                  {activeWeek === 0 ? 'Setup week' : `Week ${activeWeek} of ${contentWeeks.length}`} ·{' '}
-                  {tasksLeftThisWeek} task{tasksLeftThisWeek === 1 ? '' : 's'} left this week
+                  {phaseTag(course, activeWeek)} of {contentWeeks.length} ·{' '}
+                  {tasksLeftThisWeek} task{tasksLeftThisWeek === 1 ? '' : 's'} left this {unitWord(course).toLowerCase()}
                 </div>
               </div>
             </div>
@@ -959,6 +966,7 @@ export default function CoursePage() {
               weekProgress={weekStats}
               gateStatus={gateStats}
               currentWeek={activeWeek}
+              engagement={isEngagement(course)}
             />
             <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
               <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
@@ -1051,7 +1059,7 @@ export default function CoursePage() {
                       {t.title}
                     </span>
                     <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {t.week === 0 ? 'Setup' : `Week ${t.week}`} · {taskStats[t.id] ?? 0}%
+                      {phaseTag(course, t.week)} · {taskStats[t.id] ?? 0}%
                     </span>
                   </span>
                   <ArrowRight className="h-4 w-4 shrink-0 text-gray-400" />
@@ -1142,7 +1150,7 @@ export default function CoursePage() {
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      Week {w.number}: {w.title}
+                      {phaseTitle(course, w.number)}
                     </h3>
                     {w.number === activeWeek && joined && (
                       <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">

@@ -9,6 +9,8 @@ interface LifecycleFlowProps {
   weekProgress?: Record<number, number>;
   gateStatus?: Record<number, GateStatus>;
   currentWeek?: number;
+  /** Engagement-framed courses label nodes by phase (Week.runs) instead of "WEEK N". */
+  engagement?: boolean;
 }
 
 const gateFill: Record<GateStatus, string> = {
@@ -30,6 +32,7 @@ export function LifecycleFlow({
   weekProgress = {},
   gateStatus = {},
   currentWeek,
+  engagement = false,
 }: LifecycleFlowProps) {
   const ordered = [...weeks].sort((a, b) => a.number - b.number);
 
@@ -127,7 +130,7 @@ export function LifecycleFlow({
                 transition={{ duration: 0.5, delay: i * 0.05 }}
               />
               <text x={cx} y={y + 22} textAnchor="middle" fontSize="11" fontWeight="700" className="fill-blue-600 dark:fill-blue-400">
-                WEEK {w.number}
+                {engagement && w.runs ? w.runs.toUpperCase() : `WEEK ${w.number}`}
               </text>
               <text x={cx} y={y + 40} textAnchor="middle" fontSize="12" fontWeight="600" className="fill-gray-900 dark:fill-white">
                 {truncate(w.title, 18)}

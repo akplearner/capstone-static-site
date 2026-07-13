@@ -4,6 +4,33 @@ import { Course, RoleDef, Step, Task, WeekDef } from './types';
 // module-level helpers in content-data.ts so the app is no longer tied to a
 // single hardcoded course.
 
+/** True for courses framed as a real engagement (phases + engagement banner). */
+export function isEngagement(course: Course): boolean {
+  return course.framing === 'engagement';
+}
+
+/** The time-unit word: "Phase" for engagement courses, else "Week". */
+export function unitWord(course: Course): string {
+  return isEngagement(course) ? 'Phase' : 'Week';
+}
+
+/** Short label for a week/phase, e.g. "Phase P1" (engagement, from Week.runs),
+ *  "Setup" (course week 0), or "Week 3". Used across the course shell so an
+ *  engagement course never reads as "Week N". */
+export function phaseTag(course: Course, weekNumber: number): string {
+  const w = course.weeks.find((x) => x.number === weekNumber);
+  if (isEngagement(course)) return w?.runs?.trim() || `Phase ${weekNumber}`;
+  return weekNumber === 0 ? 'Setup' : `Week ${weekNumber}`;
+}
+
+/** "Phase P1 · Gap Assessment" (engagement) or "Week 3: Recon" (course). */
+export function phaseTitle(course: Course, weekNumber: number): string {
+  const w = course.weeks.find((x) => x.number === weekNumber);
+  const tag = phaseTag(course, weekNumber);
+  if (!w) return tag;
+  return isEngagement(course) ? `${tag} · ${w.title}` : `${tag}: ${w.title}`;
+}
+
 // Required steps drive completion %, week progress, and gates. Optional steps
 // (e.g. the Windows track) are still shown and tracked, but never gate progress.
 export function getRequiredSteps(task: Task): Step[] {

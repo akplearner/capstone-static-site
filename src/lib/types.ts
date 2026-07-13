@@ -66,6 +66,11 @@ export interface Step {
   usesForm?: string;
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
+  /** Substrings that should appear in the student's REAL command output. When set
+   *  (and the step has a command), the UI shows a "paste your output to verify" box
+   *  that turns the step green only when every token is present — real-tool
+   *  self-verification instead of a static expected-output block. */
+  verify?: string[];
   /** Optional steps are shown and tracked but excluded from completion %, week
    *  progress, and gates (e.g. the Windows track alongside the required Linux one). */
   optional?: boolean;
@@ -124,6 +129,10 @@ export interface Course {
   gates: Gate[];
   tasks: Task[];
   frameworks?: FrameworkDef[];
+  /** How the shell frames the course. 'engagement' renders phase labels (from
+   *  Week.runs) + an engagement banner and drops class/cohort language — used by
+   *  the MSSP course. Defaults to 'course' (Week N / cohort). */
+  framing?: 'course' | 'engagement';
   isSeed?: boolean;      // true for built-in courses shipped in code
   version?: number;      // export/import schema version
   updatedAt?: number;

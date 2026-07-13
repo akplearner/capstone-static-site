@@ -13,6 +13,7 @@ import { toast } from '@/components/ui/Toast';
 import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
+import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -262,6 +263,8 @@ export default function DeliverablesPage() {
           <Package className="h-4 w-4" /> Download team package (.zip)
         </button>
       </div>
+
+      <EvidenceHasher />
 
       {/* Cross-role handoff: each role works on their own device, so hand off a
           JSON file that GRC gathers before building the complete team package. */}

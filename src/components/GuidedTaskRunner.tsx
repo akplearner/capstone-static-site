@@ -214,6 +214,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
                   deliverable={current.producesDeliverable}
                   usesForm={current.usesForm}
                   troubleshooting={current.troubleshooting}
+                  verify={current.verify}
                   optional={current.optional}
                 />
               )}
@@ -285,6 +286,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
               deliverable={step.producesDeliverable}
               usesForm={step.usesForm}
               troubleshooting={step.troubleshooting}
+              verify={step.verify}
               optional={step.optional}
             />
           ))}
