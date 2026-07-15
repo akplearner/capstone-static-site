@@ -43,6 +43,7 @@ export const CYSA_PLUS: Course = {
   id: 'cysa-plus',
   title: 'CySA+ Capstone Lab',
   slug: 'cysa-plus',
+  audience: 'Blue-team analyst track — threat intel, monitoring, detection engineering, and IR.',
   description:
     'A blue-team-focused analyst engagement — threat intelligence, continuous monitoring, detection engineering, and incident response. Coming soon.',
   roles,

@@ -16,6 +16,8 @@ import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
 import { EvidenceGuide } from '@/components/docs/EvidenceGuide';
+import { CourseSubNav } from '@/components/CourseSubNav';
+import { isEngagement, unitWord } from '@/lib/course-helpers';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
@@ -31,6 +33,7 @@ export default function CourseGuidePage() {
 
   return (
     <div className="space-y-12">
+      <CourseSubNav courseId={course.id} active="guide" teamId={member?.teamId ?? null} />
       <div className="space-y-3 text-center">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">How {course.title} Works</h1>
         <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">{course.description}</p>
@@ -40,7 +43,8 @@ export default function CourseGuidePage() {
         <Collapsible title="The lifecycle" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <p className="text-gray-600 dark:text-gray-400">
-              {course.gates.length} gates across the engagement — clear each week&apos;s required tasks to advance.
+              {course.gates.length} gates across the {isEngagement(course) ? 'engagement' : 'course'} — clear each{' '}
+              {unitWord(course).toLowerCase()}&apos;s required tasks to advance.
             </p>
             <LifecycleFlow weeks={course.weeks} gates={course.gates} currentWeek={course.weeks[0]?.number} />
           </div>
@@ -51,26 +55,28 @@ export default function CourseGuidePage() {
         <Collapsible title="The lab architecture" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <p className="text-gray-600 dark:text-gray-400">
-              Everyone works against one small environment: an attacker workstation, the defended hosts and
-              their exposed services, the SOC that watches them, and the governance layer that documents it all.
-              Your role decides where on this map you operate.
+              Everyone works against one shared environment — the systems in scope, their exposed services, the
+              monitoring that watches them, and the governance layer that documents it all. Your role decides
+              where on this map you operate.
             </p>
             <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
           </div>
         </Collapsible>
       </section>
 
-      <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Lab requirements & setup" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
-            <p className="text-gray-600 dark:text-gray-400">
-              Build the small VM lab you&apos;ll work against — what machines to create, how to network them, and
-              how to run the DVWA target.
-            </p>
-            <LabSetupGuide />
-          </div>
-        </Collapsible>
-      </section>
+      {course.id === 'security-plus' && (
+        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="Lab requirements & setup" defaultOpen={false}>
+            <div className="space-y-4 pb-2">
+              <p className="text-gray-600 dark:text-gray-400">
+                Build the small VM lab you&apos;ll work against — what machines to create, how to network them, and
+                how to run the DVWA target.
+              </p>
+              <LabSetupGuide />
+            </div>
+          </Collapsible>
+        </section>
+      )}
 
       <section id="command-help" className="scroll-mt-24 space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Running commands &amp; getting unstuck</h2>
@@ -108,8 +114,9 @@ export default function CourseGuidePage() {
       <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What you owe, and when</h2>
         <p className="text-gray-600 dark:text-gray-400">
-          The whole engagement comes down to a set of <strong>graded deliverables</strong> — who owns each one,
-          the week it&apos;s due, and the gate it clears.
+          The whole {isEngagement(course) ? 'engagement' : 'course'} comes down to a set of{' '}
+          <strong>graded deliverables</strong> — who owns each one, the {unitWord(course).toLowerCase()} it&apos;s due,
+          and the gate it clears.
         </p>
         <DeliverablesIndex courseId={course.id} />
         <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">

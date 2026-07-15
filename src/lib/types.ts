@@ -129,6 +129,9 @@ export interface Course {
   gates: Gate[];
   tasks: Task[];
   frameworks?: FrameworkDef[];
+  /** One-line "who this is for / what you'll do" tagline shown on the home card to
+   *  differentiate courses at a glance. */
+  audience?: string;
   /** How the shell frames the course. 'engagement' renders phase labels (from
    *  Week.runs) + an engagement banner and drops class/cohort language — used by
    *  the MSSP course. Defaults to 'course' (Week N / cohort). */

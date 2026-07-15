@@ -1,15 +1,13 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   ArrowRight,
-  BookOpen,
   CheckCircle2,
   ChevronDown,
   ChevronRight,
-  ClipboardList,
   Clock,
   Compass,
   FileText,
@@ -26,14 +24,13 @@ import { Button, Collapsible } from '@/components/ui/Button';
 import { LoadingBlock } from '@/components/ui/Spinner';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
-import { GateBadge, StepDetail } from '@/components/TaskComponents';
+import { StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
+import { CourseSubNav } from '@/components/CourseSubNav';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
-import { RoleWorkflow } from '@/components/diagrams/RoleWorkflow';
 import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
-import { InfoTip } from '@/components/InfoTip';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { QuickstartChecklist, QuickstartStep } from '@/components/QuickstartChecklist';
@@ -65,16 +62,6 @@ type CourseStats = {
   activeWeek: number;
 };
 const EMPTY_STATS: CourseStats = { weekStats: {}, taskStats: {}, gateStats: {}, activeWeek: 1 };
-
-// In-course sub-nav (tab) styling, shared by the tab buttons and the Team/Guide links.
-const SUBTAB_BASE =
-  'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
-const SUBTAB_INACTIVE =
-  'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white';
-const SUBTAB_LINK = `${SUBTAB_BASE} ${SUBTAB_INACTIVE}`;
-function subTabClass(active: boolean): string {
-  return `${SUBTAB_BASE} ${active ? 'bg-blue-600 text-white hover:bg-blue-700' : SUBTAB_INACTIVE}`;
-}
 
 /** Inline enrollment: pick a team (capacity-aware) and role without leaving the page. */
 function JoinPanel({
@@ -477,6 +464,15 @@ export default function CoursePage() {
   const [openWeeks, setOpenWeeks] = useState<Set<number> | null>(null);
   const [openRefs, setOpenRefs] = useState<Set<number>>(new Set());
   const [tab, setTab] = useState<'overview' | 'weeks'>('overview');
+  // Honor a ?tab=weeks deep-link (used by the shared nav on sub-pages). Done in an
+  // effect (not a lazy initializer) so server and client first render match — avoids
+  // a hydration mismatch; the one-shot sync on mount is intentional.
+  useEffect(() => {
+    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === 'weeks') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setTab('weeks');
+    }
+  }, []);
   const [query, setQuery] = useState('');
 
   // Progress writes broadcast through the store; useClientStore re-reads below.
@@ -598,6 +594,13 @@ export default function CoursePage() {
   const toggle = toggleSet(setExpanded);
   const toggleRef = toggleSet(setOpenRefs);
 
+  // Expanding a task pins its week open, so finishing the task (which advances
+  // activeWeek) doesn't auto-collapse the week and hide the "Next task →" CTA.
+  const toggleTask = (task: Task) => {
+    openWeek(task.week);
+    toggle(task.id);
+  };
+
   const toggleWeek = (n: number) =>
     setOpenWeeks((prev) => {
       const next = new Set(prev ?? [activeWeek]);
@@ -645,18 +648,19 @@ export default function CoursePage() {
   const tasksLeftThisWeek = member
     ? getTasksByRole(course, member.role, activeWeek).filter((t) => (taskStats[t.id] ?? 0) < 100).length
     : 0;
-  const remainingTasks = member
-    ? ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) < 100)
-    : [];
-
   // ── Guided onboarding: the core loop as a live "Start here" checklist + tour ──
   const thisWeekDone = !!member && (weekStats[activeWeek] ?? 0) >= 100;
-  const gatePassed = course.gates.length === 0 || Object.values(gateStats).includes('passed');
+  // The gate that governs the CURRENT week (latest gate at or before activeWeek),
+  // so "Clear the week's gate" reflects where the student actually is — not any gate.
+  const currentGate = [...course.gates]
+    .filter((g) => g.week <= activeWeek)
+    .sort((a, b) => b.week - a.week)[0];
+  const gatePassed = !currentGate || (gateStats[currentGate.id] || 'locked') === 'passed';
   const quickstartSteps: QuickstartStep[] = [
-    { label: 'Join a team & role', how: 'Pick your team and role below to unlock the work.', done: joined },
-    { label: 'Do this week’s tasks', how: 'Open Weekly Tasks and work the guided steps.', done: thisWeekDone, onAction: () => setTab('weeks'), cta: 'Tasks' },
+    { label: 'Join a team & role', how: 'Pick your team and role below to unlock the work.', done: joined, onAction: () => scrollTo('join-panel', 'center'), cta: 'Join' },
+    { label: 'Do this week’s tasks', how: 'Open Weekly Tasks and work the guided steps.', done: thisWeekDone, onAction: () => (nextTask ? goToTask(nextTask) : setTab('weeks')), cta: 'Tasks' },
     { label: 'Fill your deliverable & save the PDF', how: 'Open Deliverables, fill the form, then Generate PDF.', done: hasDeliverable, href: `/courses/${course.id}/docs`, cta: 'Open' },
-    { label: 'Clear the week’s gate', how: 'Finish the week’s required tasks to pass the gate.', done: gatePassed, onAction: () => setTab('weeks'), cta: 'Tasks' },
+    { label: 'Clear the week’s gate', how: 'Finish the week’s required tasks to pass the gate.', done: gatePassed, onAction: () => (nextTask ? goToTask(nextTask) : setTab('weeks')), cta: 'Tasks' },
   ];
   const roleArc = member ? roleGuide(member.role) : null;
   const tourSteps: TourStep[] = [
@@ -774,12 +778,40 @@ export default function CoursePage() {
         </div>
       )}
       {isOwn && member ? (
-        <GuidedTaskRunner
-          task={task}
-          courseId={course.id}
-          memberId={member.memberId}
-          onProgressChange={onProgressChange}
-        />
+        (() => {
+          // The next incomplete task for this role, ordered by week, excluding this one.
+          let following: Task | undefined;
+          for (const w of sortedWeeks) {
+            const t = getTasksByRole(course, member.role, w.number).find(
+              (tk) => tk.id !== task.id && (taskStats[tk.id] ?? 0) < 100
+            );
+            if (t) { following = t; break; }
+          }
+          return (
+            <GuidedTaskRunner
+              task={task}
+              courseId={course.id}
+              memberId={member.memberId}
+              onProgressChange={onProgressChange}
+              nextLabel={following ? 'Next task →' : 'Review & finish →'}
+              onNext={() => {
+                setExpanded((prev) => {
+                  const n = new Set(prev);
+                  n.delete(task.id);
+                  return n;
+                });
+                if (following) {
+                  goToTask(following);
+                } else {
+                  setTab('overview');
+                  if (typeof window !== 'undefined') {
+                    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 60);
+                  }
+                }
+              }}
+            />
+          );
+        })()
       ) : (
         <TaskReference task={task} />
       )}
@@ -789,56 +821,52 @@ export default function CoursePage() {
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <TourGuide steps={tourSteps} storageKey="capstone_tour_v1_seen" />
+      <TourGuide steps={tourSteps} storageKey="capstone_tour_v1_seen" autoStart={joined} />
       {/* Header */}
       <div className="space-y-2">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
         <p className="text-lg text-gray-600 dark:text-gray-400">{course.description}</p>
       </div>
 
-      {/* Sticky course sub-nav: tabs + at-a-glance progress / Continue */}
-      <div className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-gray-200 bg-white/95 px-4 py-2 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95">
-        <button type="button" onClick={() => setTab('overview')} className={subTabClass(tab === 'overview')}>
-          Overview
-        </button>
-        <button type="button" data-tour="tab-weeks" onClick={() => setTab('weeks')} className={subTabClass(tab === 'weeks')}>
-          Weekly Tasks
-        </button>
-        {joined && member && (
-          <Link href={`/courses/${course.id}/team/${member.teamId}`} className={SUBTAB_LINK}>
-            <Users className="h-4 w-4" /> Team
-          </Link>
-        )}
-        {joined && member && (
-          <Link href={`/courses/${course.id}/docs`} data-tour="tab-deliverables" className={SUBTAB_LINK}>
-            <ClipboardList className="h-4 w-4" /> Deliverables
-          </Link>
-        )}
-        <Link href={`/courses/${course.id}/guide`} className={SUBTAB_LINK}>
-          <BookOpen className="h-4 w-4" /> Guide
-        </Link>
-        {joined && member && (
-          <div className="ml-auto flex items-center gap-2">
-            <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
-              {phaseTag(course, activeWeek)} · {overallPercent}%
-            </span>
-            {nextTask ? (
-              <Button
-                onClick={() => nextTask && goToTask(nextTask)}
-                size="sm"
-                data-tour="continue-btn"
-                className="flex items-center gap-1.5"
-              >
-                Continue <ArrowRight className="h-4 w-4" />
-              </Button>
-            ) : (
-              <span className="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
-                <Sparkles className="h-4 w-4" /> All done
+      {/* Sticky course sub-nav — shared component, persists on every in-course page */}
+      <CourseSubNav
+        courseId={course.id}
+        active={tab === 'weeks' ? 'weeks' : 'overview'}
+        teamId={joined && member ? member.teamId : null}
+        onSelectTab={setTab}
+        trailing={
+          joined && member ? (
+            <>
+              <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
+                {phaseTag(course, activeWeek)} · {overallPercent}%
               </span>
-            )}
-          </div>
-        )}
-      </div>
+              {nextTask ? (
+                <Button
+                  onClick={() => nextTask && goToTask(nextTask)}
+                  size="sm"
+                  data-tour="continue-btn"
+                  className="flex items-center gap-1.5"
+                >
+                  Continue <ArrowRight className="h-4 w-4" />
+                </Button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setTab('overview');
+                    if (typeof window !== 'undefined') {
+                      setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 60);
+                    }
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/40"
+                >
+                  <Sparkles className="h-4 w-4" /> All done — review
+                </button>
+              )}
+            </>
+          ) : undefined
+        }
+      />
 
       {/* ───────── Overview tab ───────── */}
       {tab === 'overview' && (
@@ -920,39 +948,33 @@ export default function CoursePage() {
                 </div>
               </div>
             </div>
-            {nextTask ? (
-              <Button onClick={() => nextTask && goToTask(nextTask)} className="flex items-center gap-2">
-                {tasksComplete > 0 ? 'Continue' : 'Start'} <ArrowRight className="h-4 w-4" />
-              </Button>
-            ) : (
+            {/* Next-action lives in the always-visible sticky bar; the hero only
+                confirms the done state to avoid a second competing Continue. */}
+            {!nextTask && (
               <span className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
                 <Sparkles className="h-4 w-4" /> All your tasks complete!
               </span>
             )}
           </div>
-          {member && (
-            <div className="mt-3 rounded-md border border-gray-100 bg-gray-50 px-3 dark:border-gray-700 dark:bg-gray-900/40">
-              <Collapsible title="What's my role?" defaultOpen={false}>
-                <div className="space-y-1 pb-2">
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{roleGuide(member.role).blurb}</p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    <span className="font-semibold">Your arc: </span>
-                    {roleGuide(member.role).arc}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    You hand off to <span className="font-medium">{roleGuide(member.role).handsOffTo}</span>; you rely on{' '}
-                    <span className="font-medium">{roleGuide(member.role).waitsOnFrom}</span>.
-                  </p>
-                </div>
-              </Collapsible>
-            </div>
-          )}
         </motion.div>
       )}
 
-      {/* Pipeline + gates — collapsed by default once enrolled to keep the dashboard calm. */}
+      {/* Join front-and-center for newcomers — the first action, above everything else. */}
+      {!joined && (
+        <div id="join-panel">
+          <JoinPanel
+            course={course}
+            member={member}
+            userId={user?.id ?? null}
+            requireAuth={requireAuth}
+            onJoined={(m) => setMember(m)}
+          />
+        </div>
+      )}
+
+      {/* Pipeline — collapsed by default (calm dashboard); the Guide explains it in depth. */}
       <div className="rounded-lg border border-gray-200 bg-white px-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Course pipeline & gates" defaultOpen={!joined}>
+        <Collapsible title="Course pipeline & gates" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <Link
               href={`/courses/${course.id}/guide`}
@@ -971,24 +993,6 @@ export default function CoursePage() {
             <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
               <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
             </div>
-            {joined && course.gates.length > 0 && (
-              <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
-                <div className="mb-2 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                  Gates
-                  <InfoTip label="A gate marks the end of a week. Complete the week's required tasks to move it from Locked → In progress → Passed." />
-                </div>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {course.gates.map((gate) => (
-                    <GateBadge
-                      key={gate.id}
-                      gateId={gate.id}
-                      status={gateStats[gate.id] || 'locked'}
-                      completionPercent={weekStats[gate.week] || 0}
-                    />
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
         </Collapsible>
       </div>
@@ -996,14 +1000,18 @@ export default function CoursePage() {
       {/* One-time migration of this device's local progress into the account */}
       <ImportPrompt course={course} />
 
-      {/* Inline enrollment */}
-      <JoinPanel
-        course={course}
-        member={member}
-        userId={user?.id ?? null}
-        requireAuth={requireAuth}
-        onJoined={(m) => setMember(m)}
-      />
+      {/* Enrollment summary once joined (edit team/role here) */}
+      {joined && (
+        <div id="join-panel">
+          <JoinPanel
+            course={course}
+            member={member}
+            userId={user?.id ?? null}
+            requireAuth={requireAuth}
+            onJoined={(m) => setMember(m)}
+          />
+        </div>
+      )}
 
       {/* Reset (once joined) */}
       {joined && member && (
@@ -1025,51 +1033,6 @@ export default function CoursePage() {
         </div>
       )}
 
-      {/* Your path — one focused diagram, collapsed by default (the sticky bar already
-          carries progress + Continue; the conceptual diagrams live on the Guide). */}
-      {joined && member && (
-        <section className="rounded-lg border border-gray-200 bg-white px-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title={`Your path${ownRole ? ` — ${ownRole.name}` : ''}`} defaultOpen={false}>
-            <div className="pb-2">
-              <RoleWorkflow
-                course={course}
-                role={member.role}
-                weekProgress={weekStats}
-                currentWeek={activeWeek}
-              />
-            </div>
-          </Collapsible>
-        </section>
-      )}
-
-      {/* Your remaining tasks — collapsed jump list across all weeks */}
-      {joined && member && remainingTasks.length > 0 && (
-        <section className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title={`Your remaining tasks (${remainingTasks.length})`} defaultOpen={false}>
-          <ul className="space-y-2 pb-2">
-            {remainingTasks.map((t) => (
-              <li key={t.id}>
-                <button
-                  type="button"
-                  onClick={() => goToTask(t)}
-                  className="flex w-full items-center justify-between gap-3 rounded-lg border border-gray-200 px-3 py-2 text-left transition-colors hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/50"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate text-sm font-medium text-gray-900 dark:text-white">
-                      {t.title}
-                    </span>
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      {phaseTag(course, t.week)} · {taskStats[t.id] ?? 0}%
-                    </span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-gray-400" />
-                </button>
-              </li>
-            ))}
-          </ul>
-          </Collapsible>
-        </section>
-      )}
       </motion.div>
       )}
 
@@ -1127,11 +1090,6 @@ export default function CoursePage() {
           const gateForWeek = course.gates.find((g) => g.week === w.number);
           const ownTasks = member ? shownTasks.filter((t) => t.role === member.role) : [];
           const otherTasks = member ? shownTasks.filter((t) => t.role !== member.role) : shownTasks;
-          const weekDod = member
-            ? getTasksByRole(course, member.role, w.number).flatMap((t) =>
-                (t.definitionOfDone ?? []).map((d, di) => ({ key: `${t.id}-${di}`, text: d }))
-              )
-            : [];
           const refOpen = q ? true : openRefs.has(w.number);
           const displayCount = q ? shownTasks.length : weekTasks.length;
           const locked = weekLocked(w.number);
@@ -1265,27 +1223,6 @@ export default function CoursePage() {
                           })()}
                       </div>
 
-                      {weekDod.length > 0 && (
-                        <div className="mt-3">
-                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                            What “done” looks like
-                          </div>
-                          <ul className="mt-1 space-y-1">
-                            {weekDod.slice(0, 5).map((d) => (
-                              <li key={d.key} className="flex gap-1.5 text-sm text-gray-700 dark:text-gray-300">
-                                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-                                {d.text}
-                              </li>
-                            ))}
-                            {weekDod.length > 5 && (
-                              <li className="pl-5 text-xs text-gray-500 dark:text-gray-400">
-                                +{weekDod.length - 5} more — see the gate checklist below.
-                              </li>
-                            )}
-                          </ul>
-                        </div>
-                      )}
-
                       <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 dark:border-gray-700 dark:bg-gray-800">
                         <Collapsible title="Week flow & gate checklist" defaultOpen={false}>
                           <div className="space-y-3 pb-1">
@@ -1332,7 +1269,7 @@ export default function CoursePage() {
                           open={expanded.has(task.id)}
                           isNext={task.id === nextTask?.id}
                           percent={taskStats[task.id] ?? 0}
-                          onToggle={() => toggle(task.id)}
+                          onToggle={() => toggleTask(task)}
                         >
                           {renderTaskBody(task, true)}
                         </TaskRow>
@@ -1372,7 +1309,7 @@ export default function CoursePage() {
                                     joined={joined}
                                     open={expanded.has(task.id)}
                                     percent={taskStats[task.id] ?? 0}
-                                    onToggle={() => toggle(task.id)}
+                                    onToggle={() => toggleTask(task)}
                                   >
                                     {renderTaskBody(task, false)}
                                   </TaskRow>

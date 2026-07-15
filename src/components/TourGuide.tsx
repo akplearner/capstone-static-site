@@ -22,7 +22,17 @@ type Rect = { top: number; left: number; width: number; height: number };
  * isn't present it falls back to a centered tooltip, so it never blocks the app.
  * Shown once (localStorage), and replayable via the TOUR_EVENT window event.
  */
-export function TourGuide({ steps, storageKey }: { steps: TourStep[]; storageKey: string }) {
+export function TourGuide({
+  steps,
+  storageKey,
+  autoStart = true,
+}: {
+  steps: TourStep[];
+  storageKey: string;
+  /** When false the tour won't auto-open on first visit (replay via TOUR_EVENT still works).
+   *  Used to hold the tour until the student has joined, so its steps have on-screen targets. */
+  autoStart?: boolean;
+}) {
   const hydrated = useHydrated();
   const [active, setActive] = useState(false);
   const [idx, setIdx] = useState(0);
@@ -49,13 +59,13 @@ export function TourGuide({ steps, storageKey }: { steps: TourStep[]; storageKey
       setActive(true);
     };
     let startId: number | undefined;
-    if (!seen && steps.length > 0) startId = window.setTimeout(start, 50);
+    if (autoStart && !seen && steps.length > 0) startId = window.setTimeout(start, 50);
     window.addEventListener(TOUR_EVENT, start);
     return () => {
       if (startId) window.clearTimeout(startId);
       window.removeEventListener(TOUR_EVENT, start);
     };
-  }, [hydrated, storageKey, steps.length]);
+  }, [hydrated, storageKey, steps.length, autoStart]);
 
   // Position the spotlight on the current step's target.
   const measure = useCallback(() => {

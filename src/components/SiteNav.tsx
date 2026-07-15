@@ -99,6 +99,7 @@ function AuthControl() {
     <button
       onClick={() => signOut()}
       title={`Signed in as ${label} — sign out`}
+      aria-label={`Signed in as ${label} — sign out`}
       className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
     >
       <LogOut className="h-4 w-4" />

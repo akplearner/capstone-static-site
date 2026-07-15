@@ -24,13 +24,17 @@ interface GuidedTaskRunnerProps {
   memberId: string;
   /** Called whenever completion changes so parents can refresh progress/gates. */
   onProgressChange?: () => void;
+  /** Called from the prominent advance button once the task is complete. */
+  onNext?: () => void;
+  /** Label for the advance button, e.g. "Next task →" or "Review & finish →". */
+  nextLabel?: string;
 }
 
-export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel }: GuidedTaskRunnerProps) {
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
-  const [mode, setMode] = useState<'guided' | 'all'>('all');
+  const [mode, setMode] = useState<'guided' | 'all'>('guided');
   const [currentIdx, setCurrentIdx] = useState(() => {
     const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));
@@ -291,6 +295,22 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange }:
             />
           ))}
         </div>
+      )}
+
+      {/* One obvious next action once the task is done — no dead-end. */}
+      {allRequiredDone && onNext && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-900/20"
+        >
+          <span className="flex items-center gap-2 text-sm font-medium text-green-800 dark:text-green-300">
+            <CheckCircle2 className="h-4 w-4" /> Task complete — nice work.
+          </span>
+          <Button size="sm" onClick={onNext} className="flex items-center gap-1">
+            {nextLabel ?? 'Next'} <ArrowRight className="h-4 w-4" />
+          </Button>
+        </motion.div>
       )}
     </div>
   );

@@ -3,8 +3,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { ArrowLeft, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
+import { CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
+import { CourseSubNav } from '@/components/CourseSubNav';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { InfoTip } from '@/components/InfoTip';
 import { Collapsible } from '@/components/ui/Button';
@@ -171,12 +172,7 @@ export default function DeliverablesPage() {
 
   return (
     <div className="space-y-8">
-      <Link
-        href={`/courses/${course.id}`}
-        className="inline-flex items-center gap-1.5 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-      >
-        <ArrowLeft className="h-4 w-4" /> Back to course
-      </Link>
+      <CourseSubNav courseId={course.id} active="deliverables" teamId={teamId} />
 
       <div>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
@@ -196,8 +192,11 @@ export default function DeliverablesPage() {
         {dueThisWeek.length === 0 ? (
           <p className="mt-1 text-sm text-blue-800 dark:text-blue-200">
             Nothing graded for your role in {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`}. Your work this
-            week feeds your teammates&apos; deliverables — check the course tasks. Change the week below to see other
-            forms.
+            week feeds your teammates&apos; deliverables —{' '}
+            <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium underline">
+              go to this week&apos;s tasks
+            </Link>
+            . Change the week below to see other forms.
           </p>
         ) : (
           <ul className="mt-2 space-y-1">
@@ -352,6 +351,7 @@ export default function DeliverablesPage() {
             key={w}
             type="button"
             onClick={() => setWeek(w)}
+            aria-current={w === selectedWeek ? 'true' : undefined}
             className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               w === selectedWeek
                 ? 'bg-blue-600 text-white'
@@ -403,7 +403,11 @@ export default function DeliverablesPage() {
         <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
           Nothing graded for <strong>{member.role.toUpperCase()}</strong> in{' '}
           {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`}. Your work this week feeds your
-          teammates&apos; deliverables — check the course tasks.
+          teammates&apos; deliverables —{' '}
+          <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium text-blue-600 underline dark:text-blue-400">
+            go to this week&apos;s tasks
+          </Link>
+          .
         </div>
       ) : (
         dueThisWeek.map((def) => {

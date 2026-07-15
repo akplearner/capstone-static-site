@@ -7,10 +7,13 @@ import { ArrowRight, BookOpen, GraduationCap, Layers, Lock, Users } from 'lucide
 import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { courseRepo, progressRepo } from '@/lib/data';
-import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
+import { useClientStore, useHydrated, EMPTY_ARRAY } from '@/lib/useClientStore';
+import { EmptyState } from '@/components/EmptyState';
+import { Skeleton } from '@/components/ui/Spinner';
 import { Course } from '@/lib/types';
 
 export default function HomePage() {
+  const hydrated = useHydrated();
   const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
   const enrolled = useMemo(() => {
     const map: Record<string, boolean> = {};
@@ -31,10 +34,26 @@ export default function HomePage() {
           Hands-on, role-based cyber ranges. Choose a course to begin, or open the instructor studio to build one.
         </p>
         <p className="mx-auto max-w-2xl text-sm text-gray-500 dark:text-gray-500">
-          New here? Open a course&apos;s <span className="font-medium">Guide</span> for a 2-minute overview before you start.
+          New here? Just press <span className="font-medium">Start</span> — the course opens with a
+          step-by-step checklist. The <span className="font-medium">Guide</span> is a deep reference for
+          whenever you want it.
         </p>
       </div>
 
+      {!hydrated ? (
+        <div className="grid gap-6 md:grid-cols-2">
+          {[0, 1].map((i) => (
+            <Skeleton key={i} className="h-52 w-full" />
+          ))}
+        </div>
+      ) : courses.length === 0 ? (
+        <EmptyState
+          title="No courses yet"
+          message="No courses are available right now. If you're an instructor, open the studio to build one."
+          href="/instructor"
+          cta="Open Instructor Studio"
+        />
+      ) : (
       <div className="grid gap-6 md:grid-cols-2">
         {courses.map((course, i) => (
           <motion.div
@@ -61,6 +80,9 @@ export default function HomePage() {
                 )}
               </div>
             </div>
+            {course.audience && (
+              <p className="mt-1 text-sm font-semibold text-blue-700 dark:text-blue-300">{course.audience}</p>
+            )}
             <p className="mt-2 flex-1 text-sm text-gray-600 dark:text-gray-400">{course.description}</p>
 
             <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
@@ -94,6 +116,7 @@ export default function HomePage() {
           </motion.div>
         ))}
       </div>
+      )}
 
       <div className="flex flex-col items-center gap-3 rounded-lg bg-gray-50 p-8 text-center dark:bg-gray-800">
         <h2 className="text-xl font-bold text-gray-900 dark:text-white">Are you an instructor?</h2>
