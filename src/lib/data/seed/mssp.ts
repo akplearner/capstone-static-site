@@ -515,7 +515,9 @@ export const MSSP: Course = {
   framing: 'engagement',
   isSeed: true,
   version: 1,
-  locked: false,
+  // Hidden from students for now — shows as a locked card (like CySA+); flip to
+  // false to re-enable. The course data stays intact.
+  locked: true,
   teamCount: 16,
   teamCapacity: 6,
 };

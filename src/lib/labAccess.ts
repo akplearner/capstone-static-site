@@ -20,7 +20,7 @@ const EMPTY: LabAccess = { values: {}, checks: {}, notes: '' };
 
 // Fields the student fills; `tokens` are the placeholders replaced in commands.
 export const LAB_FIELDS: { key: string; label: string; placeholder: string; tokens: string[] }[] = [
-  { key: 'YOUR_TARGET_IP', label: 'Your target IP', placeholder: 'e.g. 10.10.10.5', tokens: ['<YOUR_TARGET_IP>', '10.10.100.X', '10.10.100.X'] },
+  { key: 'YOUR_TARGET_IP', label: 'Your target IP', placeholder: 'e.g. 10.10.100.5', tokens: ['<YOUR_TARGET_IP>', '10.10.100.X', '10.10.100.x'] },
   { key: 'UBUNTU_IP', label: 'Ubuntu host IP', placeholder: 'e.g. 10.10.10.5', tokens: ['<UBUNTU_IP>'] },
   { key: 'WINDOWS_IP', label: 'Windows host IP', placeholder: 'e.g. 10.10.10.6', tokens: ['<WINDOWS_IP>'] },
   { key: 'ATTACKER_IP', label: 'Your Kali (attacker) IP', placeholder: 'e.g. 10.10.10.10', tokens: ['<ATTACKER_IP>'] },
@@ -65,7 +65,13 @@ export function fillPlaceholders(text: string, values: Record<string, string>): 
   return out;
 }
 
-/** True if any lab value contains an unfilled placeholder for the given text. */
+/** True if the text still carries any known lab placeholder. Derived from
+ *  LAB_FIELDS so it can never drift from the actual tokens (e.g. a subnet rename
+ *  like 10.10.10.X → 10.10.100.X): any <UPPER_TOKEN> angle-token, or any literal
+ *  sample token declared on a field. */
 export function hasUnfilled(text: string): boolean {
-  return /<[A-Z_]+>|10\.10\.10\.[Xx]\b/.test(text);
+  if (/<[A-Z_]+>/.test(text)) return true;
+  return LAB_FIELDS.some((f) =>
+    f.tokens.some((tok) => !tok.startsWith('<') && text.includes(tok))
+  );
 }

