@@ -41,7 +41,7 @@ const COMMON_ERRORS: { symptom: string; meaning: string; fix: string }[] = [
     fix: 'Run pwd to see where you are and cd ~ to go home. For hydra, rockyou is gzipped by default — unzip it once: sudo gunzip /usr/share/wordlists/rockyou.txt.gz',
   },
   {
-    symptom: 'The command still shows 10.10.10.X or <YOUR_TARGET_IP>',
+    symptom: 'The command still shows 10.10.100.X or <YOUR_TARGET_IP>',
     meaning: 'That’s a placeholder, not a real address — you copied it literally.',
     fix: 'Open the Lab access panel (Week 0) and enter your target IP; the site then fills it into every command automatically.',
   },

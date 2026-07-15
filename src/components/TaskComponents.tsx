@@ -326,7 +326,7 @@ export function StepDetail({
               {hasCommand && (
                 <p className="text-gray-600 dark:text-gray-400">
                   Common errors (command not found, permission denied, connection refused, unfilled
-                  <span className="font-mono"> 10.10.10.X</span>) and how to fix them:{' '}
+                  <span className="font-mono"> 10.10.100.X</span>) and how to fix them:{' '}
                   <Link href={`/courses/${courseId}/guide#command-help`} className="font-medium text-blue-600 underline dark:text-blue-400">
                     Terminal basics &amp; common fixes →
                   </Link>
@@ -483,7 +483,7 @@ export function CommandBlock({
   const multi = list.length > 1;
   const allText = list.map((c) => c.cmd).join('\n');
   // Warn when a command still carries an unfilled placeholder (e.g. <YOUR_TARGET_IP>,
-  // 10.10.10.X) — a beginner would otherwise copy the literal token and hit a
+  // 10.10.100.X) — a beginner would otherwise copy the literal token and hit a
   // confusing failure. Points them at the Lab access panel that fills it in.
   const stillUnfilled = list.some((c) => hasUnfilled(c.cmd));
 
@@ -502,7 +502,7 @@ export function CommandBlock({
         >
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            This still shows a placeholder like <span className="font-mono">10.10.10.X</span>. Set your target IP
+            This still shows a placeholder like <span className="font-mono">10.10.100.X</span>. Set your target IP
             in <span className="font-semibold underline">Lab access</span> and it fills in automatically.
           </span>
         </Link>

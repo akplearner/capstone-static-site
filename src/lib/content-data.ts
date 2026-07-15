@@ -164,7 +164,7 @@ const RED_TASKS: Task[] = [
         id: 'red-w1-s1',
         title: 'Verify Connectivity',
         description: 'List your own IP and ping the target to confirm you share a subnet.',
-        instruction: 'Run the command and note your eth0 address and the ping reply.',
+        instruction: 'Run the command and note your ens18 address and the ping reply.',
         commands: [
           { cmd: 'ip a', explain: 'List your network interfaces and IP addresses.' },
           { cmd: 'ping -c 1 10.10.10.1', explain: 'Send one packet to the target to confirm it answers.' },
@@ -176,11 +176,11 @@ const RED_TASKS: Task[] = [
           { flag: '-c 1', meaning: 'Stop after 1 packet instead of pinging forever.' },
           { flag: '10.10.10.1', meaning: 'The host being pinged (the gateway/target).' },
         ],
-        expectedOutput: 'eth0 inet 10.10.10.x, ping reply from target',
-        outputExplanation: 'The `eth0` `inet` line in the 10.10.10.x range is your IP, and a "1 received, 0% packet loss" line proves the target answers.',
+        expectedOutput: 'ens18 inet 10.10.100.X, ping reply from target',
+        outputExplanation: 'The `ens18` `inet` line in the 10.10.100.X range is your IP, and a "1 received, 0% packet loss" line proves the target answers.',
         whatItMeans: 'Your Kali box and the target sit on the same subnet, so scanning will work.',
         frameworks: ['NIST_CSF'],
-        troubleshooting: 'No ping reply? Confirm the target VM is on and on the same lab network, and that .1 is your gateway (yours may differ — use the address from Lab access). "Network is unreachable"? Your Kali NIC may be on the wrong adapter — check ip a shows a 10.10.10.x address.',
+        troubleshooting: 'No ping reply? Confirm the target VM is on and on the same lab network, and that .1 is your gateway (yours may differ — use the address from Lab access). "Network is unreachable"? Your Kali NIC may be on the wrong adapter — check ip a shows a 10.10.100.X address.',
       },
       {
         id: 'red-w1-s2',
@@ -211,12 +211,12 @@ const RED_TASKS: Task[] = [
         instruction: 'Run whatweb and tee its output into the canonical recon file.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-1', explain: 'Create the week-1 artifacts folder (no error if it exists).' },
-          { cmd: 'whatweb http://10.10.10.x | tee ~/team-artifacts/week-1/Recon_Findings.md', explain: 'Fingerprint the web stack and save the output to your recon file.' },
+          { cmd: 'whatweb http://10.10.100.X | tee ~/team-artifacts/week-1/Recon_Findings.md', explain: 'Fingerprint the web stack and save the output to your recon file.' },
         ],
         commandExplanation: '`whatweb` fingerprints the server, language and frameworks behind the URL, and `tee` both prints them and saves them to Recon_Findings.md.',
         commandFlags: [
           { flag: 'whatweb', meaning: 'Fingerprint a website’s server, language and frameworks.' },
-          { flag: 'http://10.10.10.x', meaning: 'The target URL to fingerprint.' },
+          { flag: 'http://10.10.100.X', meaning: 'The target URL to fingerprint.' },
         ],
         expectedOutput: 'Detected technologies printed and saved to Recon_Findings.md',
         outputExplanation: 'Each `[name version]` tag is a detected technology; record exact versions (e.g. Apache 2.4.x, PHP 5.x) because old versions map to known CVEs.',
@@ -279,8 +279,8 @@ const RED_TASKS: Task[] = [
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Make the week-2 folder to save your scan into. -p means "create parents and don’t error if it already exists".' },
           {
-            cmd: 'nmap -sV -p- 10.10.10.X > ~/team-artifacts/week-2/Nmap_Scan.txt',
-            explain: 'Scan every port on the target and save the results. Replace 10.10.10.X with your target IP (or set it once in the Lab access panel and it auto-fills).',
+            cmd: 'nmap -sV -p- 10.10.100.X > ~/team-artifacts/week-2/Nmap_Scan.txt',
+            explain: 'Scan every port on the target and save the results. Replace 10.10.100.X with your target IP (or set it once in the Lab access panel and it auto-fills).',
             flags: [
               { flag: 'nmap', meaning: 'The network port-scanner tool.' },
               { flag: '-sV', meaning: 'Probe each open port to identify the service and its version.' },
@@ -304,11 +304,11 @@ const RED_TASKS: Task[] = [
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Make the week-2 folder to save your report into (safe to run again).' },
           {
-            cmd: 'nikto -h http://10.10.10.X -o ~/team-artifacts/week-2/Nikto_Report.txt',
+            cmd: 'nikto -h http://10.10.100.X -o ~/team-artifacts/week-2/Nikto_Report.txt',
             explain: 'Scan the target web server for known issues and misconfigurations, saving the report to a file.',
             flags: [
               { flag: 'nikto', meaning: 'An automated web-server vulnerability scanner.' },
-              { flag: '-h http://10.10.10.X', meaning: 'The host (URL) to scan.' },
+              { flag: '-h http://10.10.100.X', meaning: 'The host (URL) to scan.' },
               { flag: '-o …Nikto_Report.txt', meaning: 'Write the findings to this report file (-o = output).' },
             ],
           },
@@ -327,12 +327,12 @@ const RED_TASKS: Task[] = [
         description: 'Identify authentication methods on SSH.',
         commands: [
           {
-            cmd: 'nmap --script ssh-auth-methods 10.10.10.X',
+            cmd: 'nmap --script ssh-auth-methods 10.10.100.X',
             explain: 'Ask the SSH server which login methods it accepts (password vs key).',
             flags: [
               { flag: 'nmap', meaning: 'The scanner (also runs helper scripts).' },
               { flag: '--script ssh-auth-methods', meaning: 'Run the NSE script that lists accepted SSH auth methods.' },
-              { flag: '10.10.10.X', meaning: 'The SSH host to query — your target IP.' },
+              { flag: '10.10.100.X', meaning: 'The SSH host to query — your target IP.' },
             ],
           },
         ],
@@ -866,21 +866,21 @@ const BLUE_TASKS: Task[] = [
         description: 'Record baseline traffic while accessing application normally.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
-          { cmd: 'sudo tcpdump -i eth0 -w ~/team-artifacts/week-2/Baseline_Traffic.pcap', explain: 'Capture traffic on eth0 to a pcap for your baseline (Ctrl-C to stop).' },
+          { cmd: 'sudo tcpdump -i ens18 -w ~/team-artifacts/week-2/Baseline_Traffic.pcap', explain: 'Capture traffic on ens18 to a pcap for your baseline (Ctrl-C to stop).' },
         ],
-        commandExplanation: '`tcpdump` captures network packets; `-i eth0` selects the interface to sniff and `-w baseline.pcap` writes raw packets to a file (instead of printing them) for later analysis.',
+        commandExplanation: '`tcpdump` captures network packets; `-i ens18` selects the interface to sniff and `-w baseline.pcap` writes raw packets to a file (instead of printing them) for later analysis.',
         commandFlags: [
           { flag: 'tcpdump', meaning: 'Capture network packets.' },
-          { flag: '-i eth0', meaning: 'Capture on the eth0 interface.' },
+          { flag: '-i ens18', meaning: 'Capture on the ens18 interface.' },
           { flag: '-w ~/team-artifacts/week-2/Baseline_Traffic.pcap', meaning: 'Write raw packets to the canonical baseline file.' },
         ],
         expectedOutput: 'PCAP file with normal HTTP requests',
-        outputExplanation: 'It prints `listening on eth0...` and a rising packet count; stop with Ctrl-C — the resulting `baseline.pcap` holds your normal-traffic sample.',
+        outputExplanation: 'It prints `listening on ens18...` and a rising packet count; stop with Ctrl-C — the resulting `baseline.pcap` holds your normal-traffic sample.',
         whatItMeans: 'Establishes pattern of legitimate traffic for comparison.',
         frameworks: ['NIST_800_115'],
         producesDeliverable: 'Baseline_Traffic.pcap',
         isEvidenceStep: true,
-        troubleshooting: 'Permission error? tcpdump needs sudo. "eth0: No such device"? List your interfaces with ip a and use the right name (it may be ens33, enp0s3, etc.). Empty capture? Generate some traffic (ping/curl the target) while it runs, then press Ctrl+C to stop.',
+        troubleshooting: 'Permission error? tcpdump needs sudo. "ens18: No such device"? List your interfaces with ip a and use the right name (it may be ens33, enp0s3, etc.). Empty capture? Generate some traffic (ping/curl the target) while it runs, then press Ctrl+C to stop.',
       },
       {
         id: 'blue-w2-s2',
@@ -965,7 +965,7 @@ const BLUE_TASKS: Task[] = [
         instruction: 'Start a capture, run a quick nmap/login against your own host, then let it stop.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-2', explain: 'Create the week-2 artifacts folder.' },
-          { cmd: 'sudo tcpdump -i eth0 -c 200 -w ~/team-artifacts/week-2/Attack_Traffic.pcap', explain: 'Capture 200 packets of attack traffic to a pcap, then stop.' },
+          { cmd: 'sudo tcpdump -i ens18 -c 200 -w ~/team-artifacts/week-2/Attack_Traffic.pcap', explain: 'Capture 200 packets of attack traffic to a pcap, then stop.' },
         ],
         commandExplanation: '`tcpdump -c 200` captures 200 packets to Attack_Traffic.pcap so you have an abnormal sample to compare against the baseline.',
         commandFlags: [
@@ -1002,16 +1002,16 @@ const BLUE_TASKS: Task[] = [
         description: 'Begin recording before Red starts attacks.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Create the week-3 artifacts folder.' },
-          { cmd: 'sudo tcpdump -i eth0 -w ~/team-artifacts/week-3/Attack_Pcap.pcap', explain: 'Start capturing attack traffic to a pcap before Red begins.' },
+          { cmd: 'sudo tcpdump -i ens18 -w ~/team-artifacts/week-3/Attack_Pcap.pcap', explain: 'Start capturing attack traffic to a pcap before Red begins.' },
         ],
         commandExplanation: 'Same packet capture as the baseline, started *before* the Red team attacks so every malicious packet is recorded to `attack_capture.pcap`.',
         commandFlags: [
           { flag: 'tcpdump', meaning: 'Capture network packets.' },
-          { flag: '-i eth0', meaning: 'Capture on the eth0 interface.' },
+          { flag: '-i ens18', meaning: 'Capture on the ens18 interface.' },
           { flag: '-w ~/team-artifacts/week-3/Attack_Pcap.pcap', meaning: 'Write packets to the canonical attack-capture file.' },
         ],
         expectedOutput: 'Capture running, file growing',
-        outputExplanation: '`listening on eth0` plus a climbing packet count means it is recording; verify the `.pcap` file size grows as traffic arrives.',
+        outputExplanation: '`listening on ens18` plus a climbing packet count means it is recording; verify the `.pcap` file size grows as traffic arrives.',
         whatItMeans: 'Forensic evidence collection; chain of custody begins.',
         frameworks: ['NIST_800_61'],
         producesDeliverable: 'Attack_Pcap.pcap',
@@ -1064,13 +1064,13 @@ const BLUE_TASKS: Task[] = [
         title: 'Block Attacker IP',
         description: 'Use firewall to deny further traffic from attacker.',
         commands: [
-          { cmd: 'sudo ufw deny from 10.10.10.x', explain: 'Block all traffic from the attacker IP at the firewall.' },
-          { cmd: 'echo "$(date +%F\\ %T) Blocked 10.10.10.x via UFW after SQLi/brute force" >> ~/team-artifacts/week-3/Containment_Actions.txt', explain: 'Append a timestamped containment note to your action log.' },
+          { cmd: 'sudo ufw deny from 10.10.100.X', explain: 'Block all traffic from the attacker IP at the firewall.' },
+          { cmd: 'echo "$(date +%F\\ %T) Blocked 10.10.100.X via UFW after SQLi/brute force" >> ~/team-artifacts/week-3/Containment_Actions.txt', explain: 'Append a timestamped containment note to your action log.' },
         ],
         commandExplanation: '`ufw deny from <ip>` inserts a firewall rule that drops all traffic from the attacker address — an immediate containment action.',
         commandFlags: [
           { flag: 'ufw deny from', meaning: 'Add a rule that drops all traffic from an address.' },
-          { flag: '10.10.10.x', meaning: 'The attacker IP to block.' },
+          { flag: '10.10.100.X', meaning: 'The attacker IP to block.' },
         ],
         expectedOutput: 'UFW rule added',
         outputExplanation: '`Rule added` confirms it; `ufw status` now lists a DENY entry for that IP and the attacker requests stop appearing in the logs.',
@@ -1078,7 +1078,7 @@ const BLUE_TASKS: Task[] = [
         frameworks: ['NIST_800_61'],
         producesDeliverable: 'Containment_Actions.txt',
         isEvidenceStep: true,
-        troubleshooting: 'Use the REAL attacker IP you found in the logs (not the literal 10.10.10.x). "ERROR: Bad source address"? Check the IP format. Rule not taking effect? Confirm UFW is enabled (sudo ufw status). To undo later: sudo ufw delete deny from <ip>.',
+        troubleshooting: 'Use the REAL attacker IP you found in the logs (not the literal 10.10.100.X). "ERROR: Bad source address"? Check the IP format. Rule not taking effect? Confirm UFW is enabled (sudo ufw status). To undo later: sudo ufw delete deny from <ip>.',
       },
       {
         id: 'blue-w3-s5',
