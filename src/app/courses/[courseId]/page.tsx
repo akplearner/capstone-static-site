@@ -246,9 +246,9 @@ function JoinPanel({
                 <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                 <span>
                   <span className="block font-medium text-gray-900 dark:text-white">{r.name}</span>
-                  <span className="block text-xs text-gray-600 dark:text-gray-400">{roleGuide(r.id).blurb}</span>
+                  <span className="block text-xs text-gray-600 dark:text-gray-400">{roleGuide(r.id, course.id).blurb}</span>
                   <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-500">
-                    {worksLabel(roleGuide(r.id).works)}
+                    {worksLabel(roleGuide(r.id, course.id).works)}
                   </span>
                 </span>
               </button>
@@ -662,7 +662,7 @@ export default function CoursePage() {
     { label: 'Fill your deliverable & save the PDF', how: 'Open Deliverables, fill the form, then Generate PDF.', done: hasDeliverable, href: `/courses/${course.id}/docs`, cta: 'Open' },
     { label: 'Clear the week’s gate', how: 'Finish the week’s required tasks to pass the gate.', done: gatePassed, onAction: () => (nextTask ? goToTask(nextTask) : setTab('weeks')), cta: 'Tasks' },
   ];
-  const roleArc = member ? roleGuide(member.role) : null;
+  const roleArc = member ? roleGuide(member.role, course.id) : null;
   const tourSteps: TourStep[] = [
     ...(roleArc
       ? [{ title: `Your role: ${ownRole?.name ?? member!.role.toUpperCase()}`, body: `${roleArc.blurb} ${worksLabel(roleArc.works)} Your arc: ${roleArc.arc}` }]

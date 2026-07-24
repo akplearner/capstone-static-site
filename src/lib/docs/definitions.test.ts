@@ -77,9 +77,14 @@ describe('lookup helpers', () => {
   it('deliverablesForCourse isolates each course (no cross-course leak)', () => {
     const sp = deliverablesForCourse('security-plus');
     const mssp = deliverablesForCourse('mssp');
+    const cysa = deliverablesForCourse('cysa-plus');
     expect(sp.length).toBeGreaterThan(0);
     expect(mssp.length).toBeGreaterThan(0);
-    expect(sp.some((d) => mssp.includes(d))).toBe(false);
-    expect(sp.length + mssp.length).toBe(DELIVERABLES.length);
+    expect(cysa.length).toBeGreaterThan(0);
+    // No form appears in more than one course's set.
+    expect(sp.some((d) => mssp.includes(d) || cysa.includes(d))).toBe(false);
+    expect(mssp.some((d) => cysa.includes(d))).toBe(false);
+    // The per-course sets partition the full list (every form belongs to exactly one course).
+    expect(sp.length + mssp.length + cysa.length).toBe(DELIVERABLES.length);
   });
 });

@@ -50,7 +50,60 @@ const FALLBACK: RoleGuide = {
   waitsOnFrom: 'your teammates',
 };
 
-export function roleGuide(roleId: string): RoleGuide {
+// Per-course overrides. The default GUIDES describe the Security+ Red/Blue/GRC
+// engagement; other courses reuse the same role ids with different meaning, so
+// give them their own blurbs (keyed by courseId → roleId).
+const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
+  'cysa-plus': {
+    blue: {
+      blurb: 'Tier 1 · SOC Analyst — you watch the alerts and decide what’s real, what’s noise, and what to escalate.',
+      works: 'both',
+      arc: 'Wk1 stand up monitoring & baseline → Wk2 triage the alerts → Wk3 read the known vulnerabilities → Wk4 find the incident and mark its start.',
+      handsOffTo: 'the Threat Hunter (the alerts worth investigating)',
+      waitsOnFrom: 'the Incident Responder (both agents deployed)',
+    },
+    grc: {
+      blurb: 'Tier 2 · Threat Hunter — you dig into the suspicious activity in logs and packets and prove what actually happened.',
+      works: 'both',
+      arc: 'Wk1 confirm every data source reports → Wk2 investigate & capture packets → Wk3 scan to confirm the weaknesses → Wk4 rebuild the attack timeline.',
+      handsOffTo: 'the Incident Responder (indicators & the timeline)',
+      waitsOnFrom: 'the SOC Analyst (the alerts to chase)',
+    },
+    red: {
+      blurb: 'Tier 3 · Incident Responder — you contain the attack, keep the evidence clean, and write the report leadership reads.',
+      works: 'both',
+      arc: 'Wk1 deploy the agents → Wk2 turn findings into indicators → Wk3 rank the risk & fix plan → Wk4 contain, preserve evidence, and report.',
+      handsOffTo: 'leadership (the incident report & executive summary)',
+      waitsOnFrom: 'the SOC Analyst & Threat Hunter (alerts, indicators, timeline)',
+    },
+  },
+  mssp: {
+    red: {
+      blurb: 'Offensive Security — you test the in-scope systems and feed the gaps to GRC.',
+      works: 'commands',
+      arc: 'Scope → attack-surface & validation testing → retest the fixes → evidence for the audit.',
+      handsOffTo: 'GRC (findings & retest results)',
+      waitsOnFrom: 'GRC (the signed scope)',
+    },
+    blue: {
+      blurb: 'MDR / Detection & Response — you stand up detections and prove they work with real metrics.',
+      works: 'both',
+      arc: 'Baseline → implement controls & detections → validate & measure (MTTD/MTTR) → detection evidence.',
+      handsOffTo: 'GRC (control & detection evidence)',
+      waitsOnFrom: 'GRC (the Statement of Applicability)',
+    },
+    grc: {
+      blurb: 'GRC / vCISO — you own scope, risk, controls, and the audit-evidence spine.',
+      works: 'documents',
+      arc: 'Engagement & SoA → control matrix → internal audit → assemble the evidence package.',
+      handsOffTo: 'Red & Blue (scope & controls) and the auditor (the evidence)',
+      waitsOnFrom: 'Red & Blue (findings & control evidence)',
+    },
+  },
+};
+
+export function roleGuide(roleId: string, courseId?: string): RoleGuide {
+  if (courseId && BY_COURSE[courseId]?.[roleId]) return BY_COURSE[courseId][roleId];
   return GUIDES[roleId] ?? FALLBACK;
 }
 

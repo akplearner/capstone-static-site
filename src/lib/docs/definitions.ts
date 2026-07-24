@@ -2,6 +2,7 @@ import { Column, riskLevel } from '../grc/templates';
 import { DeliverableData, DeliverableDef } from './types';
 import { CUSTODY_RULES } from './custodyTemplate';
 import { MSSP_DELIVERABLES } from './msspDeliverables';
+import { CYSA_DELIVERABLES } from './cysaDeliverables';
 
 // Small helpers to keep the schema readable.
 const c = (
@@ -716,6 +717,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
 export const DELIVERABLES: DeliverableDef[] = [
   ...SECURITY_PLUS_DELIVERABLES,
   ...MSSP_DELIVERABLES,
+  ...CYSA_DELIVERABLES,
 ];
 
 /** The course a deliverable belongs to (defaults to 'security-plus'). */
