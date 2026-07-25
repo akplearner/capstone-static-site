@@ -81,6 +81,12 @@ export interface Step {
    *  entries: even indices are node keys (see StepFlow's NODES), odd indices are
    *  the arrow labels between them — e.g. ['you','ssh + paste','ubuntu','reports in','soc']. */
   path?: string[];
+  /** Files/downloads/configs this step needs before it will work — the missing
+   *  pre-setup that otherwise makes a step silently fail. Each entry names the
+   *  artifact, why it's needed, and (optionally) where to get it: a shell command
+   *  (rendered as a copyable line), a URL, or a plain instruction. Renders as a
+   *  "Files you'll need" callout above the command. */
+  files?: { name: string; purpose: string; source?: string }[];
 }
 
 export interface Task {

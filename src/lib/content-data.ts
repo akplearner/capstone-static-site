@@ -393,6 +393,10 @@ const RED_TASKS: Task[] = [
         outputExplanation: 'sqlmap confirms the id parameter is injectable, then prints the users table with each password hash — hard proof that unsanitized input let you read the database.',
         whatItMeans: 'Demonstrates data exfiltration risk from SQL injection.',
         frameworks: ['OWASP'],
+        files: [
+          { name: 'sqlmap', purpose: 'the SQL-injection tool (pre-installed on Kali)', source: 'sudo apt install -y sqlmap' },
+          { name: 'DVWA on the target', purpose: 'must be up on :8080 with Security = Low, and the SQLi page opened once so the id parameter exists' },
+        ],
         producesDeliverable: 'SQL_Injection_Proof.txt',
         isEvidenceStep: true,
         verify: ['users'],
@@ -425,6 +429,11 @@ const RED_TASKS: Task[] = [
         outputExplanation: 'Hydra prints the PLAINTEXT password it found (for DVWA admin that is "password") — this is the actual login password, not a hash. Weak credential + no lockout, proven.',
         whatItMeans: 'Shows weak password vulnerability and lack of account lockout.',
         frameworks: ['CIS', 'OWASP'],
+        files: [
+          { name: 'hydra', purpose: 'the login brute-forcer (pre-installed on Kali)', source: 'sudo apt install -y hydra' },
+          { name: 'rockyou.txt wordlist', purpose: 'the password list hydra tries — ships gzipped on Kali, so unzip it first', source: 'sudo gunzip /usr/share/wordlists/rockyou.txt.gz' },
+          { name: 'Your DVWA PHPSESSID cookie', purpose: 'hydra must send your logged-in session; copy it from DevTools → Application → Cookies' },
+        ],
         producesDeliverable: 'Brute_Force_Proof.txt',
         isEvidenceStep: true,
         verify: ['login: admin'],

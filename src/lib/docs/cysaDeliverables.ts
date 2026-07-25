@@ -1,5 +1,6 @@
 import { Column, riskLevel } from '../grc/templates';
 import { DeliverableDef } from './types';
+import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 
 // Deliverable forms for the CySA+ SOC Capstone (CS0-003). Course-scoped
 // (`courseId: 'cysa-plus'`) so they never surface on the Security+ or MSSP
@@ -111,10 +112,16 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           { field: 'request_quote', label: 'The exact request the attacker sent', type: 'area', required: true, placeholder: "GET /vulnerabilities/sqli/?id=1' UNION SELECT user,password-- ...", help: 'Quote it verbatim from Follow → HTTP Stream, and say what it tried to do.' },
         ],
       },
+      custodySection({
+        seed: [
+          { evidence_id: 'E-01', description: 'week2.pcap', collected_by: 'Threat Hunter', collected_at: '2026-07-25 11:10', location: '~/team-artifacts/week-2/', sha256: 'from sha256sum week2.pcap', transferred_to: 'GRC', transferred_at: '2026-07-25 11:30', notes: 'port-scan + SQLi capture' },
+        ],
+      }),
     ],
     dod: [
       { label: 'A pcap and its SHA-256 are recorded', test: (d) => !!(d.fields.pcap_file && d.fields.pcap_sha256) },
       { label: 'The attacker request is quoted with a Wireshark screenshot', test: (d) => !!(d.fields.request_quote && d.fields.wireshark_shot) },
+      { label: 'Every logged artifact has a SHA-256 (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
     ],
   },
 
@@ -171,10 +178,17 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           ],
         },
       },
+      custodySection({
+        label: 'Chain of custody — scan output & screenshots',
+        seed: [
+          { evidence_id: 'E-01', description: '20260726_Team07_wazuh_vulns.png', collected_by: 'Red', collected_at: '2026-07-26 10:15', location: '~/team-artifacts/week-3/', sha256: 'from sha256sum <file>', transferred_to: 'GRC', transferred_at: '2026-07-26 10:40', notes: 'Wazuh vulnerabilities screenshot' },
+        ],
+      }),
     ],
     dod: [
       { label: 'Every finding has a CVE with a score or a written reason', test: (d) => (d.groups.findings ?? []).length > 0 && (d.groups.findings ?? []).every((r) => !!r.cve || !!r.cvss) },
       { label: 'Every finding has a likelihood, impact, fix and owner', test: (d) => (d.groups.findings ?? []).length > 0 && (d.groups.findings ?? []).every((r) => !!r.likelihood && !!r.impact && !!r.fix && !!r.owner) },
+      { label: 'Every logged artifact has a SHA-256 (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
     ],
   },
 
@@ -232,28 +246,16 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           ],
         },
       },
-      {
-        kind: 'group',
-        group: {
-          group: 'evidence',
-          label: 'Evidence log (with hashes)',
-          help: 'Hash every artifact with sha256sum the moment you collect it.',
-          columns: [
-            c('evidence_id', 'Evidence ID', 'text', { placeholder: 'E-01' }),
-            c('artifact', 'Artifact', 'text', { placeholder: 'access.log' }),
-            c('collected_at', 'Collected (date/time)', 'text', { placeholder: '2026-07-31 14:45' }),
-            c('sha256', 'SHA-256', 'text', { placeholder: 'from sha256sum access.log' }),
-          ],
-          seed: [
-            { evidence_id: 'E-01', artifact: 'access.log', collected_at: '2026-07-31 14:45', sha256: 'c5b9…' },
-            { evidence_id: 'E-02', artifact: 'week4.pcap', collected_at: '2026-07-31 14:47', sha256: 'a1f0…' },
-          ],
-        },
-      },
+      custodySection({
+        seed: [
+          { evidence_id: 'E-01', description: 'access.log', collected_by: 'Red', collected_at: '2026-07-31 14:45', location: '~/team-artifacts/week-4/', sha256: 'c5b9…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'malicious request source' },
+          { evidence_id: 'E-02', description: 'week4.pcap', collected_by: 'Red', collected_at: '2026-07-31 14:47', location: '~/team-artifacts/week-4/', sha256: 'a1f0…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'exploit traffic capture' },
+        ],
+      }),
     ],
     dod: [
       { label: 'Executive summary and attacker IP are filled in', test: (d) => !!(d.fields.exec_summary && d.fields.attacker_ip) },
-      { label: 'Timeline has rows and every evidence item is hashed', test: (d) => (d.groups.timeline ?? []).length >= 1 && (d.groups.evidence ?? []).length >= 1 && (d.groups.evidence ?? []).every((e) => !!e.sha256) },
+      { label: 'Timeline has rows and every evidence item is hashed with a full custody entry', test: (d) => (d.groups.timeline ?? []).length >= 1 && everyEvidenceHashed()(d) },
     ],
   },
 

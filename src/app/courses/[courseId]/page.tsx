@@ -300,6 +300,7 @@ function TaskReference({ task }: { task: Task }) {
               optional={s.optional}
               where={s.where}
               path={s.path}
+              files={s.files}
             />
           </div>
         </div>

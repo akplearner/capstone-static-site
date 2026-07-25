@@ -222,6 +222,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   optional={current.optional}
                   where={current.where}
                   path={current.path}
+                  files={current.files}
                 />
               )}
             </motion.div>
@@ -296,6 +297,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               optional={step.optional}
               where={step.where}
               path={step.path}
+              files={step.files}
             />
           ))}
         </div>

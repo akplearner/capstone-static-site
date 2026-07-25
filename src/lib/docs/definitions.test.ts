@@ -3,6 +3,7 @@ import {
   DELIVERABLES,
   seedDeliverable,
   deliverableIdByTitle,
+  deliverableIdByFile,
   deliverablesForRole,
   deliverablesForCourse,
   courseIdOf,
@@ -64,6 +65,13 @@ describe('lookup helpers', () => {
     expect(deliverableIdByTitle(d.title)).toBe(d.id);
     expect(deliverableIdByTitle(d.title.toUpperCase())).toBe(d.id);
     expect(deliverableIdByTitle('no such form')).toBeUndefined();
+  });
+
+  it('deliverableIdByFile resolves output filenames case-insensitively', () => {
+    const d = DELIVERABLES[0];
+    expect(deliverableIdByFile(d.file)).toBe(d.id);
+    expect(deliverableIdByFile(d.file.toUpperCase())).toBe(d.id);
+    expect(deliverableIdByFile('99_no_such_file.md')).toBeUndefined();
   });
 
   it('deliverablesForRole returns only that role+course and matches getDeliverable', () => {

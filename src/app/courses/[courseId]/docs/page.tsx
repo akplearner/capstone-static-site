@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, Sparkles, Upload, Users } from 'lucide-react';
+import { CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { FrameworkBadge } from '@/components/TaskComponents';
@@ -25,6 +25,7 @@ import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliv
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
+import { CUSTODY_RULES } from '@/lib/docs/custodyTemplate';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -99,6 +100,7 @@ export default function DeliverablesPage() {
   const [week, setWeek] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const formParam = searchParams.get('form');
+  const toolParam = searchParams.get('tool');
   const formWeek = formParam ? courseDefs.find((d) => d.id === formParam)?.weeks[0] : undefined;
   // A ?form= deep-link picks that form's week (until the user changes the week).
   const selectedWeek = week ?? formWeek ?? roleDefaultWeek;
@@ -113,6 +115,14 @@ export default function DeliverablesPage() {
     const el = document.getElementById(`form-${formParam}`);
     if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [formParam, selectedWeek]);
+
+  // Deep-link from an evidence step (/docs?tool=evidence): scroll to the always-
+  // visible hash & chain-of-custody tool. DOM-only, mirrors the ?form= effect.
+  useEffect(() => {
+    if (toolParam !== 'evidence') return;
+    const el = document.getElementById('evidence-tool');
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [toolParam]);
 
   if (loading) return <LoadingBlock />;
   if (!member) {
@@ -224,6 +234,48 @@ export default function DeliverablesPage() {
         )}
       </div>
 
+      {/* Evidence & chain of custody — a stable, always-visible deep-link target
+          (?tool=evidence, linked from every evidence step). Hash a file locally,
+          then log it with the handling rules in view. */}
+      <section
+        id="evidence-tool"
+        className={`scroll-mt-24 rounded-lg border p-4 transition-shadow ${
+          toolParam === 'evidence'
+            ? 'border-indigo-400 ring-2 ring-indigo-400/60 dark:border-indigo-500'
+            : 'border-gray-200 dark:border-gray-700'
+        } bg-white dark:bg-gray-800`}
+      >
+        <h2 className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
+          <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
+          Evidence &amp; chain of custody
+        </h2>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          Handle evidence like a real case: hash every artifact on collection, log it, and record each
+          hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
+          <strong>ISO/IEC 27037</strong>.
+        </p>
+        <div className="mt-3">
+          <EvidenceHasher />
+        </div>
+        <div className="mt-3 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            Handling rules
+          </div>
+          <ul className="mt-1.5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+            {CUSTODY_RULES.map((r, i) => (
+              <li key={i} className="flex gap-1.5">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                <span>{r}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            The team package includes a ready-to-fill chain-of-custody log in{' '}
+            <span className="font-mono">Evidence/</span>; the forms below carry the same custody columns.
+          </p>
+        </div>
+      </section>
+
       <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="New here? How documentation works" defaultOpen={false}>
           <div className="space-y-4 pb-2">
@@ -233,7 +285,11 @@ export default function DeliverablesPage() {
               <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
                 Guide
               </Link>
-              .
+              . Hash evidence and log the chain of custody in the{' '}
+              <a href="#evidence-tool" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
+                Evidence &amp; chain of custody
+              </a>{' '}
+              tool above.
             </p>
           </div>
         </Collapsible>
@@ -262,8 +318,6 @@ export default function DeliverablesPage() {
           <Package className="h-4 w-4" /> Download team package (.zip)
         </button>
       </div>
-
-      <EvidenceHasher />
 
       {/* Cross-role handoff: each role works on their own device, so hand off a
           JSON file that GRC gathers before building the complete team package. */}

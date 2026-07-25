@@ -1,4 +1,6 @@
 import { DocMeta } from './report';
+import type { Section } from './types';
+import type { Column } from '../grc/templates';
 
 // A ready-to-fill Chain-of-Custody log, generated locally. Students keep evidence
 // on their own machine (no upload) and document it like a real case: every artifact
@@ -75,6 +77,48 @@ export function custodyLogMarkdown(meta?: DocMeta, blankRows = 12): string {
     '_Aligned with NIST SP 800-61 (incident handling) and ISO/IEC 27037 (digital evidence)._',
     '',
   ].join('\n');
+}
+
+/** The in-form chain-of-custody columns — the same nine facts as CUSTODY_COLUMNS
+ *  and the offline `custodyLog*` exporters, so the website form, the ZIP log and
+ *  a printed report all carry an identical, unbroken chain. The `sha256` field is
+ *  what the Evidence & chain-of-custody hasher fills. */
+export function custodyColumns(): Column[] {
+  return [
+    { field: 'evidence_id', label: 'Evidence ID', type: 'text', placeholder: 'E-01' },
+    { field: 'description', label: 'Description / artifact', type: 'text', placeholder: '20260731_Team07_first_alert.png' },
+    { field: 'collected_by', label: 'Collected by', type: 'text', placeholder: 'Blue' },
+    { field: 'collected_at', label: 'Collected (date/time)', type: 'text', placeholder: '2026-07-31 14:45' },
+    { field: 'location', label: 'Location (path)', type: 'text', placeholder: '~/team-artifacts/week-4/' },
+    { field: 'sha256', label: 'SHA-256', type: 'text', placeholder: 'from sha256sum <file>' },
+    { field: 'transferred_to', label: 'Transferred to', type: 'text', placeholder: 'GRC' },
+    { field: 'transferred_at', label: 'Transferred (date/time)', type: 'text', placeholder: '2026-07-31 15:05' },
+    { field: 'notes', label: 'Notes', type: 'text', placeholder: 'handed to GRC for the report' },
+  ];
+}
+
+/** A ready-to-use chain-of-custody `Section` for a deliverable form. Reuses the
+ *  custody columns above and cites the hash step, so evidence forms carry a full,
+ *  compliant custody log instead of an ad-hoc evidence table. */
+export function custodySection(opts?: { group?: string; label?: string; seed?: Record<string, string>[] }): Section {
+  return {
+    kind: 'group',
+    group: {
+      group: opts?.group ?? 'evidence',
+      label: opts?.label ?? 'Chain of custody — hash & log every artifact',
+      help: 'Hash every artifact with `sha256sum` the moment you collect it, then log it here and record each hand-off. Use the "Evidence & chain of custody" tool at the top of this page to compute the SHA-256.',
+      columns: custodyColumns(),
+      seed: opts?.seed,
+    },
+  };
+}
+
+/** A DoD check: the custody log has at least one row and every row is hashed. */
+export function everyEvidenceHashed(group = 'evidence') {
+  return (d: { groups: Record<string, Record<string, string>[]> }) => {
+    const rows = d.groups[group] ?? [];
+    return rows.length >= 1 && rows.every((e) => !!e.sha256);
+  };
 }
 
 /** CSV chain-of-custody log: header + a worked example + blank rows. */

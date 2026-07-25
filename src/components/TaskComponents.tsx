@@ -13,6 +13,8 @@ import {
   AlertTriangle,
   Copy,
   CornerDownRight,
+  Download,
+  FileCheck2,
   FileText,
   Sparkles,
   SquarePen,
@@ -20,11 +22,23 @@ import {
 import { Task } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
-import { deliverableIdByTitle } from '@/lib/docs/definitions';
+import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
 import { splitCommand } from '@/lib/commands';
 import { Collapsible } from './ui/Button';
 import { toast } from './ui/Toast';
 import { StepFlow } from './diagrams/StepFlow';
+
+/** A file `source` that reads as a shell command (so we render a copyable line)
+ *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
+function isCommandLike(source: string): boolean {
+  return /^(git|sudo|curl|wget|apt|apt-get|dnf|yum|docker|python3?|pip3?|npm|ssh|scp|tar|unzip|chmod|mkdir|cd|cp|mv|cat|echo|bash|sh|powershell|msiexec|choco|Invoke-)\b/.test(
+    source.trim()
+  );
+}
+
+function isUrl(source: string): boolean {
+  return /^https?:\/\//i.test(source.trim());
+}
 
 interface TaskCardProps {
   task: Task;
@@ -204,6 +218,7 @@ export function StepDetail({
   optional,
   where,
   path,
+  files,
 }: {
   instruction?: string;
   description?: string;
@@ -222,6 +237,7 @@ export function StepDetail({
   optional?: boolean;
   where?: string;
   path?: string[];
+  files?: { name: string; purpose: string; source?: string }[];
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
@@ -262,6 +278,43 @@ export function StepDetail({
             <span className="underline">Go to Deliverables →</span>
           </p>
         </Link>
+      )}
+
+      {/* Pre-setup the step silently depends on: the files/downloads/configs that
+          have to exist first, so a missing one is a visible prerequisite, not a
+          confusing failure. A `source` that looks like a shell command is copyable. */}
+      {files && files.length > 0 && (
+        <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-900/20">
+          <div className="flex items-center gap-2 text-sm font-semibold text-sky-900 dark:text-sky-200">
+            <Download className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
+            Files you&apos;ll need first
+          </div>
+          <ul className="mt-1.5 space-y-1.5">
+            {files.map((f) => (
+              <li key={f.name} className="text-sm text-sky-900 dark:text-sky-200">
+                <span className="font-semibold">{f.name}</span>
+                <span className="text-sky-800 dark:text-sky-300"> — {f.purpose}</span>
+                {f.source &&
+                  (isCommandLike(f.source) ? (
+                    <div className="mt-1">
+                      <CopyButton text={f.source} label={f.source} />
+                    </div>
+                  ) : isUrl(f.source) ? (
+                    <a
+                      href={f.source}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-0.5 block break-all text-xs font-medium text-sky-700 underline dark:text-sky-400"
+                    >
+                      {f.source}
+                    </a>
+                  ) : (
+                    <div className="mt-0.5 text-xs text-sky-700 dark:text-sky-400">{f.source}</div>
+                  ))}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* A tiny node→arrow→node "follow the path" for this step, when authored. */}
@@ -317,11 +370,33 @@ export function StepDetail({
       </div>
 
       {deliverable && (
-        <div className="flex items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
-          <FileText className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-          <span className="text-sm text-amber-800 dark:text-amber-300">
-            Save your evidence as <span className="font-mono font-semibold">{deliverable}</span>
-          </span>
+        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+          <div className="flex items-start gap-2">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+            <span className="text-sm text-amber-800 dark:text-amber-300">
+              Save your evidence as <span className="font-mono font-semibold">{deliverable}</span>,
+              then hash it for chain of custody and log it in your report.
+            </span>
+          </div>
+          <div className="mt-2 flex flex-wrap gap-2 pl-6">
+            <Link
+              href={`/courses/${courseId}/docs?tool=evidence`}
+              className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+            >
+              <FileCheck2 className="h-3.5 w-3.5" /> Hash &amp; log this evidence →
+            </Link>
+            {(() => {
+              const formId = deliverableIdByFile(deliverable, courseId);
+              return formId ? (
+                <Link
+                  href={`/courses/${courseId}/docs?form=${formId}`}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+                >
+                  <SquarePen className="h-3.5 w-3.5" /> Open the form →
+                </Link>
+              ) : null;
+            })()}
+          </div>
         </div>
       )}
 
@@ -378,6 +453,7 @@ interface ChecklistItemProps {
   optional?: boolean;
   where?: string;
   path?: string[];
+  files?: { name: string; purpose: string; source?: string }[];
 }
 
 export function ChecklistItem({
@@ -401,6 +477,7 @@ export function ChecklistItem({
   optional,
   where,
   path,
+  files,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(true);
 
@@ -464,6 +541,7 @@ export function ChecklistItem({
                 optional={optional}
                 where={where}
                 path={path}
+                files={files}
               />
             </div>
           </motion.div>

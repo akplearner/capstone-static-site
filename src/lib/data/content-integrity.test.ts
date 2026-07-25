@@ -1,0 +1,82 @@
+import { describe, it, expect } from 'vitest';
+import { SECURITY_PLUS } from './seed/securityPlus';
+import { CYSA_PLUS } from './seed/cysa';
+import { MSSP } from './seed/mssp';
+import { Course, Step, Task } from '../types';
+import { deliverableIdByTitle, deliverableIdByFile, deliverablesForCourse } from '../docs/definitions';
+
+// Guards the "sometimes a step just doesn't work" class of bug: a step that names
+// a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
+// deliverable actually provides would render a dead link. These tests fail fast if
+// a step ever points at a form/file that isn't registered for its course.
+
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP];
+
+function allSteps(course: Course): { task: Task; step: Step }[] {
+  return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));
+}
+
+describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s', (courseId, course) => {
+  it('has at least one deliverable', () => {
+    expect(deliverablesForCourse(courseId).length).toBeGreaterThan(0);
+  });
+
+  it('every step `usesForm` resolves to a real form in this course', () => {
+    for (const { task, step } of allSteps(course)) {
+      if (!step.usesForm) continue;
+      const id = deliverableIdByTitle(step.usesForm, courseId);
+      expect(id, `${task.id}/${step.id} → usesForm "${step.usesForm}"`).toBeTruthy();
+    }
+  });
+
+  // `producesDeliverable` is the evidence *artifact* a step saves (e.g. week2.pcap,
+  // Nmap_Scan.txt) — sometimes that's a deliverable-form file, sometimes a raw
+  // capture. It must at least be a real, extensioned filename so the "save your
+  // evidence as X" callout and the hash tool have something concrete to point at.
+  it('every step `producesDeliverable` is a concrete filename', () => {
+    for (const { task, step } of allSteps(course)) {
+      if (!step.producesDeliverable) continue;
+      expect(step.producesDeliverable, `${task.id}/${step.id}`).toMatch(/\.\w+$/);
+    }
+  });
+
+  // Where an evidence artifact IS named after a deliverable form (the CySA style),
+  // the step's "open the form →" shortcut must land on a real form.
+  it('any `producesDeliverable` that looks like a form file resolves to one', () => {
+    for (const { task, step } of allSteps(course)) {
+      const file = step.producesDeliverable;
+      if (!file || !/^\d/.test(file)) continue; // form files are numbered (01_…, 02_…)
+      const id = deliverableIdByFile(file, courseId);
+      expect(id, `${task.id}/${step.id} → producesDeliverable "${file}"`).toBeTruthy();
+    }
+  });
+
+  it('every step `files[]` entry names an artifact and why it is needed', () => {
+    for (const { task, step } of allSteps(course)) {
+      for (const f of step.files ?? []) {
+        expect(f.name?.trim(), `${task.id}/${step.id} file.name`).toBeTruthy();
+        expect(f.purpose?.trim(), `${task.id}/${step.id} file.purpose`).toBeTruthy();
+      }
+    }
+  });
+
+  it('every task references a week that exists in the course', () => {
+    const weekNums = new Set(course.weeks.map((w) => w.number));
+    for (const task of course.tasks) {
+      expect(weekNums.has(task.week), `${task.id} week ${task.week}`).toBe(true);
+    }
+  });
+
+  it('every gate references a week that exists in the course', () => {
+    const weekNums = new Set(course.weeks.map((w) => w.number));
+    for (const gate of course.gates) {
+      expect(weekNums.has(gate.week), `gate ${gate.id} week ${gate.week}`).toBe(true);
+    }
+  });
+
+  it('step ids are unique within the course', () => {
+    const ids = allSteps(course).map(({ step }) => step.id);
+    const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
+    expect(dupes, `duplicate step ids: ${[...new Set(dupes)].join(', ')}`).toHaveLength(0);
+  });
+});

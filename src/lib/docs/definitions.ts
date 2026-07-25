@@ -757,6 +757,16 @@ export function deliverableIdByTitle(title: string, courseId?: string): string |
   )?.id;
 }
 
+/** Resolve a deliverable by its output filename (used to turn a step's
+ *  `producesDeliverable` filename into the deliverable `id` for a deep-link from
+ *  an evidence step to the form it feeds). Scope to a course when known. */
+export function deliverableIdByFile(file: string, courseId?: string): string | undefined {
+  const f = file.trim().toLowerCase();
+  return DELIVERABLES.find(
+    (d) => d.file.toLowerCase() === f && (!courseId || courseIdOf(d) === courseId)
+  )?.id;
+}
+
 /** Human label for how a deliverable is built (spec §2 "How it's built"). */
 export function buildLabel(def: DeliverableDef): string {
   const hasGroup = def.sections.some((s) => s.kind === 'group');
