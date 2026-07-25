@@ -9,7 +9,6 @@ import {
   ChevronDown,
   ChevronRight,
   Clock,
-  Compass,
   FileText,
   GraduationCap,
   Lock,
@@ -27,8 +26,6 @@ import { toast } from '@/components/ui/Toast';
 import { StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { CourseSubNav } from '@/components/CourseSubNav';
-import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
-import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
@@ -36,8 +33,6 @@ import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
-import { QuickstartChecklist, QuickstartStep } from '@/components/QuickstartChecklist';
-import { TourGuide, TOUR_EVENT, TourStep } from '@/components/TourGuide';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { LabAccessPanel } from '@/components/LabAccessPanel';
@@ -47,7 +42,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { progressRepo, docsRepo } from '@/lib/data';
+import { progressRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
 import { EngagementBanner } from '@/components/EngagementBanner';
@@ -516,12 +511,6 @@ export default function CoursePage() {
   // Active week is open by default until the student toggles weeks themselves.
   const effectiveOpenWeeks = openWeeks ?? new Set<number>([activeWeek]);
 
-  // Has the team saved any deliverable yet? (drives the Start-here checklist).
-  const hasDeliverable = useClientStore<boolean>(
-    () => (member ? Object.keys(docsRepo.get(course.id, member.teamId) ?? {}).length > 0 : false),
-    false
-  );
-
   if (loading) return <LoadingBlock />;
 
   if (course.locked) {
@@ -549,17 +538,6 @@ export default function CoursePage() {
   // Whole-course completion: joined, every gate passed, and all own tasks done.
   const allGatesPassed =
     joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
-
-  const stepperItems: StepperItem[] = sortedWeeks.map((w) => ({
-    label: phaseTag(course, w.number),
-    sublabel: joined ? `${weekStats[w.number] ?? 0}%` : undefined,
-    status:
-      joined && (weekStats[w.number] ?? 0) === 100
-        ? 'done'
-        : w.number === activeWeek
-          ? 'current'
-          : 'upcoming',
-  }));
 
   const scrollTo = (elementId: string, block: ScrollLogicalPosition = 'start') => {
     if (typeof document !== 'undefined') {
@@ -653,33 +631,6 @@ export default function CoursePage() {
   const tasksLeftThisWeek = member
     ? getTasksByRole(course, member.role, activeWeek).filter((t) => (taskStats[t.id] ?? 0) < 100).length
     : 0;
-  // ── Guided onboarding: the core loop as a live "Start here" checklist + tour ──
-  const thisWeekDone = !!member && (weekStats[activeWeek] ?? 0) >= 100;
-  // The gate that governs the CURRENT week (latest gate at or before activeWeek),
-  // so "Clear the week's gate" reflects where the student actually is — not any gate.
-  const currentGate = [...course.gates]
-    .filter((g) => g.week <= activeWeek)
-    .sort((a, b) => b.week - a.week)[0];
-  const gatePassed = !currentGate || (gateStats[currentGate.id] || 'locked') === 'passed';
-  const quickstartSteps: QuickstartStep[] = [
-    { label: 'Join a team & role', how: 'Pick your team and role below to unlock the work.', done: joined, onAction: () => scrollTo('join-panel', 'center'), cta: 'Join' },
-    { label: 'Do this week’s tasks', how: 'Open Weekly Tasks and work the guided steps.', done: thisWeekDone, onAction: () => (nextTask ? goToTask(nextTask) : setTab('weeks')), cta: 'Tasks' },
-    { label: 'Fill your deliverable & save the PDF', how: 'Open Deliverables, fill the form, then Generate PDF.', done: hasDeliverable, href: `/courses/${course.id}/docs`, cta: 'Open' },
-    { label: 'Clear the week’s gate', how: 'Finish the week’s required tasks to pass the gate.', done: gatePassed, onAction: () => (nextTask ? goToTask(nextTask) : setTab('weeks')), cta: 'Tasks' },
-  ];
-  const roleArc = member ? roleGuide(member.role, course.id) : null;
-  const tourSteps: TourStep[] = [
-    ...(roleArc
-      ? [{ title: `Your role: ${ownRole?.name ?? member!.role.toUpperCase()}`, body: `${roleArc.blurb} ${worksLabel(roleArc.works)} Your arc: ${roleArc.arc}` }]
-      : []),
-    { target: 'quickstart', title: 'Start here', body: 'This checklist is your path through the whole course: join, do the week’s tasks, fill the deliverable, clear the gate.' },
-    { target: 'tab-weeks', title: 'Weekly Tasks', body: 'Your actual work — guided, step-by-step tasks for each week: run the tool, capture the evidence.' },
-    { target: 'tab-deliverables', title: 'Deliverables', body: 'Fill the report forms here; they auto-format your document and export a PDF.' },
-    { target: 'continue-btn', title: 'Continue', body: 'This always jumps you to your next unfinished task.' },
-    { title: 'That’s the loop', body: 'Tasks → deliverable → PDF → gate, one week at a time. Replay this tour anytime from “Start here”.' },
-  ];
-  const startTour = () => window.dispatchEvent(new Event(TOUR_EVENT));
-
   // Task search (Weekly Tasks tab). Matches title, objective, or framework; an
   // active query force-opens every week so matches are visible without clicking.
   const q = query.trim().toLowerCase();
@@ -826,7 +777,6 @@ export default function CoursePage() {
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      <TourGuide steps={tourSteps} storageKey="capstone_tour_v1_seen" autoStart={joined} />
       {/* Header */}
       <div className="space-y-2">
         {course.audience && <p className="eyebrow">{course.audience}</p>}
@@ -924,8 +874,6 @@ export default function CoursePage() {
         </motion.div>
       )}
 
-      <QuickstartChecklist steps={quickstartSteps} onTakeTour={startTour} />
-
       {/* Engagement banner — client + scope + phase for engagement-framed courses */}
       {joined && member && isEngagement(course) && (
         <EngagementBanner courseId={course.id} teamId={member.teamId} phase={phaseTag(course, activeWeek)} />
@@ -1018,30 +966,6 @@ export default function CoursePage() {
         </section>
       )}
 
-      {/* Pipeline — collapsed by default (calm dashboard); the Guide explains it in depth. */}
-      <div className="rounded-[var(--radius-card)] border border-line bg-panel px-5 shadow-[var(--shadow-card)]">
-        <Collapsible title="Course pipeline & gates" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
-            <Link
-              href={`/courses/${course.id}/guide`}
-              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
-            >
-              <Compass className="h-4 w-4" /> How it works
-            </Link>
-            <LifecycleFlow
-              weeks={course.weeks}
-              gates={course.gates}
-              weekProgress={weekStats}
-              gateStatus={gateStats}
-              currentWeek={activeWeek}
-              engagement={isEngagement(course)}
-            />
-            <div className="border-t border-gray-100 pt-4 dark:border-gray-700">
-              <GuidedStepper items={stepperItems} onSelect={(i) => openAndScrollWeek(sortedWeeks[i]?.number ?? 1)} />
-            </div>
-          </div>
-        </Collapsible>
-      </div>
 
       {/* One-time migration of this device's local progress into the account */}
       <ImportPrompt course={course} />
