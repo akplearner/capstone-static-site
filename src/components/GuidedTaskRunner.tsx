@@ -220,6 +220,8 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   troubleshooting={current.troubleshooting}
                   verify={current.verify}
                   optional={current.optional}
+                  where={current.where}
+                  path={current.path}
                 />
               )}
             </motion.div>
@@ -292,6 +294,8 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               troubleshooting={step.troubleshooting}
               verify={step.verify}
               optional={step.optional}
+              where={step.where}
+              path={step.path}
             />
           ))}
         </div>

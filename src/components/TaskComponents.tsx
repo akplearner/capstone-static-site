@@ -24,6 +24,7 @@ import { deliverableIdByTitle } from '@/lib/docs/definitions';
 import { splitCommand } from '@/lib/commands';
 import { Collapsible } from './ui/Button';
 import { toast } from './ui/Toast';
+import { StepFlow } from './diagrams/StepFlow';
 
 interface TaskCardProps {
   task: Task;
@@ -201,6 +202,8 @@ export function StepDetail({
   troubleshooting,
   verify,
   optional,
+  where,
+  path,
 }: {
   instruction?: string;
   description?: string;
@@ -217,6 +220,8 @@ export function StepDetail({
   troubleshooting?: string;
   verify?: string[];
   optional?: boolean;
+  where?: string;
+  path?: string[];
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
@@ -259,17 +264,27 @@ export function StepDetail({
         </Link>
       )}
 
+      {/* A tiny node→arrow→node "follow the path" for this step, when authored. */}
+      {path && path.length > 0 && <StepFlow path={path} />}
+
       {/* Essentials in two columns on desktop: left = do + command(s), right = see + meaning. */}
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-3">
-          {(instruction || description) && (
+          {(instruction || description || where) && (
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 What to do
               </div>
-              <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
-                {instruction || description}
-              </div>
+              {where && (
+                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-line bg-panel-2 px-2 py-1 font-mono text-[10.5px] text-muted">
+                  <span className="font-semibold text-accent">WHERE</span> {where}
+                </div>
+              )}
+              {(instruction || description) && (
+                <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                  {instruction || description}
+                </div>
+              )}
             </div>
           )}
           {hasCommand && <CommandBlock commands={cmdList} />}
@@ -361,6 +376,8 @@ interface ChecklistItemProps {
   troubleshooting?: string;
   verify?: string[];
   optional?: boolean;
+  where?: string;
+  path?: string[];
 }
 
 export function ChecklistItem({
@@ -382,6 +399,8 @@ export function ChecklistItem({
   troubleshooting,
   verify,
   optional,
+  where,
+  path,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(true);
 
@@ -443,6 +462,8 @@ export function ChecklistItem({
                 troubleshooting={troubleshooting}
                 verify={verify}
                 optional={optional}
+                where={where}
+                path={path}
               />
             </div>
           </motion.div>
@@ -459,6 +480,47 @@ export function ChecklistItem({
  * commands so students can still paste the whole sequence at once.
  */
 type CommandEntry = { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] };
+
+// IP-like tokens (incl. lab placeholders such as 10.10.100.N / .X / .<#>).
+const IP_TOKEN = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.[0-9A-Za-z<>#/.N-]*)/g;
+const IP_ONE = /^\d{1,3}\.\d{1,3}\.\d{1,3}\.[0-9A-Za-z<>#/.N-]*$/;
+
+/** Terminal syntax highlight matching the course-overview look: comment lines
+ *  (starting with #) are dimmed, IP addresses are tinted. Everything else is the
+ *  base terminal green. Purely visual; the copied text is always the raw command. */
+function HighlightedCommand({ cmd }: { cmd: string }) {
+  const lines = cmd.split('\n');
+  return (
+    <span className="whitespace-pre-wrap break-words">
+      {lines.map((line, li) => {
+        const prefix = li > 0 ? '\n' : '';
+        if (line.trimStart().startsWith('#')) {
+          return (
+            <span key={li} style={{ color: 'var(--color-term-dim)' }}>
+              {prefix}
+              {line}
+            </span>
+          );
+        }
+        const parts = line.split(IP_TOKEN);
+        return (
+          <span key={li}>
+            {prefix}
+            {parts.map((part, pi) =>
+              IP_ONE.test(part) ? (
+                <span key={pi} style={{ color: 'var(--color-term-ip)' }}>
+                  {part}
+                </span>
+              ) : (
+                <span key={pi}>{part}</span>
+              )
+            )}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
 
 export function CommandBlock({
   command,
@@ -510,14 +572,17 @@ export function CommandBlock({
       <div className="mt-1 space-y-2">
         {list.map((c, i) => (
           <div key={i}>
-            <div className="relative rounded bg-black p-3 pr-20 font-mono text-sm text-green-400">
+            <div
+              className="relative rounded-lg p-3 pr-20 font-mono text-sm"
+              style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
+            >
               <div className="absolute right-2 top-2">
                 <CopyButton text={c.cmd} />
               </div>
               {multi && (
-                <span className="mr-2 select-none text-gray-500">{i + 1}</span>
+                <span className="mr-2 select-none" style={{ color: 'var(--color-term-dim)' }}>{i + 1}</span>
               )}
-              <span className="whitespace-pre-wrap break-words">{c.cmd}</span>
+              <HighlightedCommand cmd={c.cmd} />
             </div>
             {c.explain && (
               <p className="mt-1 flex gap-1.5 pl-1 text-xs text-gray-600 dark:text-gray-400">

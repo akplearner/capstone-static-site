@@ -108,6 +108,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cr-w0-s1',
+        where: 'Proxmox web console',
+        path: ['build', 'create + clone', 'soc'],
         title: 'Make the virtual machines in Proxmox',
         description: 'Create the SOC, one Ubuntu pod, one Windows pod, and Kali.',
         instruction: 'On the Proxmox web console. Give each VM a static IP so addresses never change.',
@@ -118,6 +120,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s2',
+        where: 'SOC VM (10.10.100.100), over SSH',
+        path: ['build', 'run installer', 'soc'],
         title: 'Install the entire SOC with one command',
         description: 'Wazuh all-in-one on the SOC VM.',
         instruction: 'On the SOC VM (10.10.100.100), over SSH.',
@@ -131,6 +135,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s3',
+        where: 'SOC VM',
+        path: ['build', 'read passwords', 'soc'],
         title: 'Save the admin password',
         description: 'Recover every generated password from the install bundle.',
         instruction: 'On the SOC VM.',
@@ -144,6 +150,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s4',
+        where: 'SOC VM',
+        path: ['build', 'disable updates', 'soc'],
         title: 'Freeze the Wazuh version',
         description: 'Stop an apt upgrade from swapping in a new version mid-term.',
         instruction: 'On the SOC VM.',
@@ -158,6 +166,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s5',
+        where: 'SOC VM',
+        path: ['build', 'health check', 'soc'],
         title: 'Check the services and ports are up',
         description: 'Confirm the SOC is healthy before adding agents.',
         instruction: 'On the SOC VM.',
@@ -173,6 +183,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s6',
+        where: 'The one Ubuntu template VM',
+        path: ['build', 'install DVWA + Suricata', 'ubuntu'],
         title: 'Build the Ubuntu pod: DVWA + Suricata + a student login',
         description: 'The vulnerable web app, the network IDS, and the account analysts SSH into.',
         instruction: 'On the one Ubuntu template VM. Afterwards open http://<UBUNTU_IP>/dvwa/setup.php, click Create/Reset Database, and set DVWA Security = Low.',
@@ -191,6 +203,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s7',
+        where: 'The Ubuntu template VM',
+        path: ['build', 'set capture NIC', 'ubuntu'],
         title: 'Point Suricata at the right network card',
         description: 'The #1 gotcha — Proxmox NICs are ens18, not eth0.',
         instruction: 'On the Ubuntu template VM.',
@@ -209,6 +223,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s8',
+        where: 'The Ubuntu template VM',
+        path: ['ubuntu', 'forwards alerts', 'soc'],
         title: 'Forward Suricata alerts to the SOC',
         description: 'Make the agent read Suricata\u2019s alert file.',
         instruction: 'Add this block inside <ossec_config> in /var/ossec/etc/ossec.conf on the Ubuntu template, then restart the agent.',
@@ -223,6 +239,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s9',
+        where: 'The one Windows 11 template VM',
+        path: ['build', 'install Sysmon', 'win'],
         title: 'Build the Windows pod: Sysmon + the agent',
         description: 'Rich Windows logging shipped to the SOC.',
         instruction: 'On the one Windows 11 template VM. Install Sysmon with a standard config, then add this to C:\\Program Files (x86)\\ossec-agent\\ossec.conf.',
@@ -236,6 +254,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s10',
+        where: 'Proxmox + Kali',
+        path: ['kali', 'attacks', 'ubuntu', 'alerts', 'soc'],
         title: 'Clone both pods ×16 and prep the attacks',
         description: 'One pod per team, plus the Week 3/4 attacks staged on Kali.',
         instruction: 'On Proxmox, set each clone\u2019s IP to its team number (Team 7 Ubuntu = 10.10.100.7, Windows = 10.10.20.7). On Kali, stage the recon + incident.',
@@ -269,6 +289,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cr-w1-s1',
+        where: 'Wazuh dashboard',
+        path: ['dash', 'build command', 'you'],
         title: 'Generate the install commands',
         description: 'Let the Wazuh wizard write the command for you.',
         instruction: 'In the dashboard: Agents › Deploy new agent. (If you don\u2019t see Agents, look for Endpoints — the name varies by version.)',
@@ -278,6 +300,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w1-s2',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['you', 'ssh + paste', 'ubuntu', 'reports', 'soc'],
         title: 'Install on your Ubuntu server',
         description: 'SSH in and run the wizard\u2019s command.',
         instruction: 'On your Ubuntu server — SSH in first, then paste the wizard\u2019s command and start the service.',
@@ -294,6 +318,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w1-s3',
+        where: 'Your Windows 11 PC',
+        path: ['you', 'run installer', 'win', 'reports', 'soc'],
         title: 'Install on your Windows PC',
         description: 'Run the wizard\u2019s Windows command as Administrator.',
         instruction: 'On your Windows 11 PC: open PowerShell as Administrator, paste the wizard\u2019s Windows command, then start the service.',
@@ -306,6 +332,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w1-s4',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'both active', 'soc'],
         title: 'Confirm both agents check in',
         description: 'The step that matters most in Week 1.',
         instruction: 'In the dashboard: Agents.',
@@ -333,6 +361,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cb-w1-s1',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'events', 'dash'],
         title: 'Open your Ubuntu server\u2019s events',
         description: 'Your alert feed for one machine.',
         instruction: 'In the dashboard: Agents › Team<#>-ubuntu › Security events. Set the time filter to Last 24 hours.',
@@ -342,6 +372,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w1-s2',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['you', 'log in + out', 'ubuntu', 'event', 'dash'],
         title: 'Prove the feed is live',
         description: 'Make an event and watch it arrive.',
         instruction: 'On your Ubuntu server — SSH in and straight back out.',
@@ -355,6 +387,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w1-s3',
+        where: 'Your notes',
+        path: ['dash', 'you note normal', 'report'],
         title: 'Write the baseline',
         description: 'Record what normal looks like now, while nothing is wrong.',
         instruction: 'Fill the SOC Monitoring Report: 3 alert types that fire routinely, a rough events-per-hour number, and the services running.',
@@ -382,6 +416,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cg-w1-s1',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'modules', 'dash'],
         title: 'Check each module has data',
         description: 'Each module is a separate data source.',
         instruction: 'In the dashboard: Agents › your agent › Integrity monitoring / SCA / Vulnerabilities.',
@@ -391,6 +427,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w1-s2',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['ubuntu', 'Suricata alerts', 'soc'],
         title: 'Confirm the network (Suricata) alerts arrive',
         description: 'Suricata watches your server\u2019s own traffic.',
         instruction: 'On your Ubuntu server — SSH in.',
@@ -404,6 +442,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w1-s3',
+        where: 'Your notes',
+        path: ['dash', 'you record gaps', 'report'],
         title: 'Write up any gap',
         description: 'A source you expect but can\u2019t find is a finding.',
         instruction: 'Your notes: a short table — each source checked, and whether data was present.',
@@ -430,6 +470,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cb-w2-s1',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'alerts', 'dash'],
         title: 'See the alerts grouped',
         description: 'Read the summary by rule and level instead of scrolling.',
         instruction: 'In the dashboard: Agents › your agent › Security events.',
@@ -439,6 +481,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w2-s2',
+        where: 'Wazuh dashboard search bar',
+        path: ['dash', 'filter', 'you'],
         title: 'Focus on the important ones',
         description: 'Filter to the alerts that usually matter.',
         instruction: 'In the dashboard search bar, enter the query below.',
@@ -451,6 +495,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w2-s3',
+        where: 'Your notes',
+        path: ['you', 'decide', 'report'],
         title: 'Give each a verdict with a reason',
         description: 'A verdict needs a reason.',
         instruction: 'Your notes: every alert type gets a verdict and a one-line reason.',
@@ -476,6 +522,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cg-w2-s1',
+        where: 'Wazuh dashboard search bar',
+        path: ['dash', 'search by IP', 'you'],
         title: 'Pull everything from the suspicious source',
         description: 'See everything that host touched.',
         instruction: 'In the dashboard search bar, search by the suspicious source IP.',
@@ -488,6 +536,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w2-s2',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['ubuntu', 'capture', 'you'],
         title: 'Capture the traffic for a closer look',
         description: 'Capture on the machine being hit, and hash it.',
         instruction: 'On your Ubuntu server — SSH in. Press Ctrl+C to stop the capture, then hash it.',
@@ -503,6 +553,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w2-s3',
+        where: 'Your workstation (open the pcap)',
+        path: ['you', 'follow stream', 'report'],
         title: 'Read it in Wireshark',
         description: 'Follow the stream to see the request in plain text.',
         instruction: 'On your workstation, open the pcap. In Wireshark: right-click a packet → Follow → HTTP Stream. Useful filters below.',
@@ -534,6 +586,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cr-w2-s1',
+        where: 'Your notes',
+        path: ['report', 'one row each', 'report'],
         title: 'Build the IOC table',
         description: 'One row per indicator.',
         instruction: 'Fill the IOC Database: type (IP, domain, URL, hash), value, where you first saw it, timestamp.',
@@ -546,6 +600,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w2-s2',
+        where: 'Threat-intel sites in your browser',
+        path: ['you', 'look up', 'report'],
         title: 'Look each one up',
         description: 'Record what public sources say about each indicator.',
         instruction: 'On threat-intel sites in your browser, look up each indicator and record a verdict.',
@@ -556,6 +612,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w2-s3',
+        where: 'Wazuh dashboard',
+        path: ['dash', 'ATT&CK', 'report'],
         title: 'Use the ATT&CK mapping Wazuh gives you',
         description: 'Confirm the technique the SOC already tagged.',
         instruction: 'In the dashboard: MITRE ATT&CK.',
@@ -581,6 +639,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cb-w3-s1',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'known CVEs', 'dash'],
         title: 'Read the built-in vulnerability list',
         description: 'Wazuh checks installed software against CVE lists.',
         instruction: 'In the dashboard: Agents › your agent › Vulnerabilities.',
@@ -590,6 +650,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w3-s2',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'config score', 'dash'],
         title: 'Run the configuration check',
         description: 'SCA scores the server against hardening rules.',
         instruction: 'In the dashboard: Agents › your agent › SCA.',
@@ -599,6 +661,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w3-s3',
+        where: 'Wazuh dashboard',
+        path: ['kali', 'scan', 'soc'],
         title: 'Watch the SOC while the Hunter scans',
         description: 'See whether your monitoring catches recon.',
         instruction: 'In the dashboard, watch the alerts while Tier 2 runs the Kali scan.',
@@ -623,6 +687,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cg-w3-s1',
+        where: 'Kali',
+        path: ['kali', 'nmap', 'ubuntu'],
         title: 'Scan ports and versions',
         description: 'Ask each open port what it runs.',
         instruction: 'On Kali.',
@@ -638,6 +704,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w3-s2',
+        where: 'Kali',
+        path: ['kali', 'nikto', 'ubuntu'],
         title: 'Scan the web app',
         description: 'Check the web server for known issues.',
         instruction: 'On Kali.',
@@ -652,6 +720,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w3-s3',
+        where: 'Your notes',
+        path: ['report', 'compare', 'report'],
         title: 'Compare with the SOC\u2019s list',
         description: 'Where scan and SOC disagree, one is wrong.',
         instruction: 'Your notes: a comparison table with a note on each difference.',
@@ -676,6 +746,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cr-w3-s1',
+        where: 'Your notes',
+        path: ['report', 'CVE lookup', 'report'],
         title: 'Record each finding with its CVE and severity',
         description: 'CVEs from Wazuh, versions from the scan.',
         instruction: 'Fill the Vulnerability Assessment: each finding with a CVE + score, or a written reason where there is no CVE.',
@@ -688,6 +760,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w3-s2',
+        where: 'Your notes',
+        path: ['report', 'likelihood × impact', 'report'],
         title: 'Build the risk matrix',
         description: 'Severity is the flaw; risk is your setup.',
         instruction: 'Your notes: plot every finding by likelihood × impact.',
@@ -697,6 +771,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w3-s3',
+        where: 'Your notes',
+        path: ['report', 'fix plan', 'report'],
         title: 'Write the fixes with an owner and a date',
         description: 'Turn findings into an actionable plan.',
         instruction: 'Your notes: each row has a fix, an owner, and a target date (SCA gives fix text for config findings).',
@@ -723,6 +799,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cb-w4-s1',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'first alert', 'dash'],
         title: 'Find the first alert',
         description: 'The earliest related alert is your start time.',
         instruction: 'In the dashboard: Agents › your agent › Security events. Sort oldest-first.',
@@ -737,6 +815,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w4-s2',
+        where: 'Wazuh dashboard search bar',
+        path: ['dash', 'search attacker IP', 'you'],
         title: 'Check how far it spread',
         description: 'Did the attacker hit other teams too?',
         instruction: 'In the dashboard search bar, search the attacker IP without picking an agent.',
@@ -749,6 +829,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cb-w4-s3',
+        where: 'Your notes',
+        path: ['you', 'handoff', 'report'],
         title: 'Hand the Hunter a clean start',
         description: 'Give them what they need to just start.',
         instruction: 'Your notes: the first alert, the attacker IP, and the affected machines.',
@@ -774,6 +856,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cg-w4-s1',
+        where: 'Wazuh dashboard search bar',
+        path: ['dash', 'sort by time', 'report'],
         title: 'Pull every event from the attacker',
         description: 'Sort by time to get the attack sequence.',
         instruction: 'In the dashboard search bar, search the attacker IP and sort by time.',
@@ -786,6 +870,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w4-s2',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['ubuntu', 'access log', 'report'],
         title: 'Read the web server\u2019s own log',
         description: 'The exact request the attacker sent.',
         instruction: 'On your Ubuntu server — SSH in.',
@@ -802,6 +888,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w4-s3',
+        where: 'Wazuh dashboard',
+        path: ['ubuntu', 'file changes', 'dash'],
         title: 'Check the endpoint to see if it worked',
         description: 'A changed file shows the attack succeeded.',
         instruction: 'In the dashboard: your agent › Integrity monitoring.',
@@ -811,6 +899,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cg-w4-s4',
+        where: 'Your notes',
+        path: ['report', 'time · event · source', 'report'],
         title: 'Write the timeline',
         description: 'One row per step.',
         instruction: 'Your notes: time · event · source · tool · note, one row per step.',
@@ -836,6 +926,8 @@ const tasks: Task[] = [
     steps: [
       {
         id: 'cr-w4-s1',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['you', 'block attacker', 'ubuntu'],
         title: 'Contain it, and log what you did and when',
         description: 'Stop the attack; record the action and its time.',
         instruction: 'On your Ubuntu server — SSH in.',
@@ -852,6 +944,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w4-s2',
+        where: 'Your Ubuntu server — SSH in',
+        path: ['ubuntu', 'copy + hash', 'report'],
         title: 'Save the evidence with a hash',
         description: 'Prove the file hasn\u2019t changed since collection.',
         instruction: 'On your Ubuntu server — SSH in.',
@@ -869,6 +963,8 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w4-s3',
+        where: 'Your notes',
+        path: ['report', 'write up', 'report'],
         title: 'Write the report and a plain summary',
         description: 'The report leadership reads.',
         instruction: 'Fill the Incident Response Report: timeline, evidence, root cause, fixes — and a 5-sentence manager summary.',
@@ -887,6 +983,7 @@ export const CYSA_PLUS: Course = {
   id: 'cysa-plus',
   title: 'CySA+ SOC Capstone',
   slug: 'cysa-plus',
+  lifecyclePath: ['Detect', 'Triage', 'Investigate', 'Threat Intel', 'Scope', 'Contain', 'Recover', 'Report'],
   audience: 'Run a SOC — monitor, detect, investigate, and respond on a live Wazuh stack (CS0-003).',
   description:
     'A 4-week Security Operations simulation (CS0-003): deploy monitoring, detect and investigate threats, assess vulnerabilities and risk, then run the incident-response lifecycle — across three rotating SOC tiers on a shared Wazuh SOC.',

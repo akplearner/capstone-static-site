@@ -74,6 +74,13 @@ export interface Step {
   /** Optional steps are shown and tracked but excluded from completion %, week
    *  progress, and gates (e.g. the Windows track alongside the required Linux one). */
   optional?: boolean;
+  /** Where the step is performed (e.g. "Your Ubuntu server — SSH in"). Renders as
+   *  a "WHERE" chip in the step header. */
+  where?: string;
+  /** A tiny node→arrow→node "follow the path" diagram for this step. Alternating
+   *  entries: even indices are node keys (see StepFlow's NODES), odd indices are
+   *  the arrow labels between them — e.g. ['you','ssh + paste','ubuntu','reports in','soc']. */
+  path?: string[];
 }
 
 export interface Task {
@@ -132,6 +139,9 @@ export interface Course {
   /** One-line "who this is for / what you'll do" tagline shown on the home card to
    *  differentiate courses at a glance. */
   audience?: string;
+  /** The repeating case/engagement lifecycle stages ("every case follows the same
+   *  path": Detect → Triage → … → Report), rendered as a chain on the overview. */
+  lifecyclePath?: string[];
   /** How the shell frames the course. 'engagement' renders phase labels (from
    *  Week.runs) + an engagement banner and drops class/cohort language — used by
    *  the MSSP course. Defaults to 'course' (Week N / cohort). */

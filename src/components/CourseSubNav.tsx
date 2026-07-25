@@ -8,9 +8,8 @@ export type CourseTab = 'overview' | 'weeks' | 'team' | 'deliverables' | 'guide'
 
 const BASE =
   'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
-const INACTIVE =
-  'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white';
-const ACTIVE = 'bg-blue-600 text-white hover:bg-blue-700';
+const INACTIVE = 'text-muted hover:bg-panel-2 hover:text-ink';
+const ACTIVE = 'bg-accent text-white hover:bg-accent-strong';
 const cls = (active: boolean) => `${BASE} ${active ? ACTIVE : INACTIVE}`;
 
 interface CourseSubNavProps {
@@ -36,7 +35,7 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
   return (
     <nav
       aria-label="Course sections"
-      className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-gray-200 bg-white/95 px-4 py-2 backdrop-blur dark:border-gray-700 dark:bg-gray-900/95"
+      className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
     >
       {onSelectTab ? (
         <button type="button" aria-current={cur('overview')} onClick={() => onSelectTab('overview')} className={cls(active === 'overview')}>

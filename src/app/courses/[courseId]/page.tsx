@@ -30,6 +30,9 @@ import { CourseSubNav } from '@/components/CourseSubNav';
 import { GuidedStepper, StepperItem } from '@/components/GuidedStepper';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
+import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
+import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
+import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
@@ -300,6 +303,8 @@ function TaskReference({ task }: { task: Task }) {
               troubleshooting={s.troubleshooting}
               verify={s.verify}
               optional={s.optional}
+              where={s.where}
+              path={s.path}
             />
           </div>
         </div>
@@ -824,8 +829,9 @@ export default function CoursePage() {
       <TourGuide steps={tourSteps} storageKey="capstone_tour_v1_seen" autoStart={joined} />
       {/* Header */}
       <div className="space-y-2">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">{course.title}</h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">{course.description}</p>
+        {course.audience && <p className="eyebrow">{course.audience}</p>}
+        <h1 className="text-4xl font-bold tracking-tight text-ink">{course.title}</h1>
+        <p className="text-lg text-muted">{course.description}</p>
       </div>
 
       {/* Sticky course sub-nav — shared component, persists on every in-course page */}
@@ -932,17 +938,17 @@ export default function CoursePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
           whileHover={{ y: -2 }}
-          className="rounded-lg border border-l-4 border-gray-200 bg-white p-5 shadow-sm transition-shadow hover:shadow-md dark:border-gray-700 dark:bg-gray-800"
+          className="rounded-[var(--radius-card)] border border-l-4 border-line bg-panel p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-md"
           style={{ borderLeftColor: ownRole.color }}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <RoleIcon iconName={ownRole.icon} className="h-9 w-9 shrink-0" color={ownRole.color} />
               <div>
-                <div className="text-lg font-bold text-gray-900 dark:text-white">
+                <div className="text-lg font-bold text-ink">
                   You&apos;re {ownRole.name}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+                <div className="text-sm text-muted">
                   {phaseTag(course, activeWeek)} of {contentWeeks.length} ·{' '}
                   {tasksLeftThisWeek} task{tasksLeftThisWeek === 1 ? '' : 's'} left this {unitWord(course).toLowerCase()}
                 </div>
@@ -972,8 +978,48 @@ export default function CoursePage() {
         </div>
       )}
 
+      {/* ── Team & workflow: role cards + the "every case follows the same path" chain ── */}
+      {(course.roles.length > 0 || course.lifecyclePath) && (
+        <section className="space-y-4">
+          <div className="shead">
+            <span className="num">01</span>
+            <h2 className="text-2xl font-bold tracking-tight text-ink">Your team &amp; the workflow</h2>
+          </div>
+          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
+            {course.roles.map((r) => (
+              <div key={r.id} className="rounded-[var(--radius-card)] border border-line bg-panel p-4 shadow-[var(--shadow-card)]">
+                <h3 className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+                  <RoleIcon iconName={r.icon} className="h-4.5 w-4.5" color={r.color} />
+                  {r.name}
+                </h3>
+                <p className="mt-1.5 text-[13.5px] text-muted">{r.mission}</p>
+              </div>
+            ))}
+          </div>
+          {course.lifecyclePath && course.lifecyclePath.length > 0 && (
+            <CaseLifecycleChain stages={course.lifecyclePath} />
+          )}
+        </section>
+      )}
+
+      {/* ── The lab in one picture: the SOC network topology (course-aware) ── */}
+      {socTopology(course.id) && (
+        <section className="space-y-4">
+          <div className="shead">
+            <span className="num">02</span>
+            <h2 className="text-2xl font-bold tracking-tight text-ink">The lab — one picture</h2>
+          </div>
+          <p className="max-w-3xl text-sm text-muted">
+            Every machine is a VM on one host, all on the same flat network. Each team gets a{' '}
+            <b className="text-ink">pod</b> — one Ubuntu web server and one Windows PC — and both report to the single{' '}
+            <b className="text-ink">Wazuh SOC</b> you open in a browser.
+          </p>
+          <SocTopologyDiagram topo={socTopology(course.id)!} />
+        </section>
+      )}
+
       {/* Pipeline — collapsed by default (calm dashboard); the Guide explains it in depth. */}
-      <div className="rounded-lg border border-gray-200 bg-white px-5 shadow-sm dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-[var(--radius-card)] border border-line bg-panel px-5 shadow-[var(--shadow-card)]">
         <Collapsible title="Course pipeline & gates" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <Link

@@ -33,19 +33,23 @@ export function SiteNav() {
   const linkClass = (active: boolean) =>
     `flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium ${
       active
-        ? 'bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-        : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+        ? 'bg-accent-soft text-accent-ink'
+        : 'text-muted hover:bg-panel-2 hover:text-ink'
     }`;
 
   return (
-    <nav className="border-b border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
+    <nav className="border-b border-line bg-panel/90 shadow-[var(--shadow-card)] backdrop-blur">
       <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="flex items-center justify-between gap-3">
           <Link
             href="/"
-            className="flex items-center gap-2 font-bold text-gray-900 dark:text-white"
+            className="flex items-center gap-2 font-bold text-ink"
           >
-            <ShieldCheck className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent opacity-60" />
+              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
+            </span>
+            <ShieldCheck className="h-6 w-6 text-accent" />
             <span>Capstone Lab</span>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
@@ -65,20 +69,20 @@ export function SiteNav() {
         {crumbs.length > 0 && (
           <nav
             aria-label="Breadcrumb"
-            className="mt-3 flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400"
+            className="mt-3 flex flex-wrap items-center gap-1 text-sm text-muted"
           >
             {crumbs.map((c, i) => (
               <span key={`${c.label}-${i}`} className="flex items-center gap-1">
-                {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-gray-300 dark:text-gray-600" />}
+                {i > 0 && <ChevronRight className="h-3.5 w-3.5 text-line" />}
                 {c.href ? (
                   <Link
                     href={c.href}
-                    className="hover:text-gray-900 hover:underline dark:hover:text-white"
+                    className="hover:text-ink hover:underline"
                   >
                     {c.label}
                   </Link>
                 ) : (
-                  <span className="font-medium text-gray-700 dark:text-gray-200">{c.label}</span>
+                  <span className="font-medium text-ink">{c.label}</span>
                 )}
               </span>
             ))}
@@ -100,7 +104,7 @@ function AuthControl() {
       onClick={() => signOut()}
       title={`Signed in as ${label} — sign out`}
       aria-label={`Signed in as ${label} — sign out`}
-      className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+      className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted hover:bg-panel-2 hover:text-ink"
     >
       <LogOut className="h-4 w-4" />
       <span className="hidden max-w-[10rem] truncate sm:inline">{label}</span>

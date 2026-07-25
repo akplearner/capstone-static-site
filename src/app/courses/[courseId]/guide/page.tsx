@@ -7,6 +7,8 @@ import { RoleIcon } from '@/components/RoleIcon';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
+import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
+import { socTopology } from '@/lib/labTopology';
 import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
 import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
@@ -59,7 +61,11 @@ export default function CourseGuidePage() {
               monitoring that watches them, and the governance layer that documents it all. Your role decides
               where on this map you operate.
             </p>
-            <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
+            {socTopology(course.id) ? (
+              <SocTopologyDiagram topo={socTopology(course.id)!} />
+            ) : (
+              <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
+            )}
           </div>
         </Collapsible>
       </section>

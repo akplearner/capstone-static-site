@@ -9,10 +9,10 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
 }
 
 const variantStyles = {
-  default: 'bg-blue-600 text-white hover:bg-blue-700 active:bg-blue-800',
-  secondary: 'bg-gray-200 text-gray-900 hover:bg-gray-300 dark:bg-gray-700 dark:text-white dark:hover:bg-gray-600',
-  ghost: 'text-blue-600 hover:bg-blue-50 dark:text-blue-400 dark:hover:bg-blue-900/20',
-  destructive: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800',
+  default: 'bg-accent text-white hover:bg-accent-strong active:bg-accent-strong',
+  secondary: 'bg-panel-2 text-ink border border-line hover:bg-surface',
+  ghost: 'text-accent hover:bg-accent-soft',
+  destructive: 'bg-danger text-white hover:opacity-90 active:opacity-80',
 };
 
 const sizeStyles = {
@@ -50,7 +50,7 @@ export function Card({ children, className = '', ...props }: CardProps) {
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className={`rounded-lg border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-700 dark:bg-gray-800 ${className}`}
+      className={`rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)] ${className}`}
       {...props}
     >
       {children}
@@ -64,13 +64,13 @@ interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
 
 export function Badge({ variant = 'default', className = '', children, ...props }: BadgeProps) {
   const variantClasses = {
-    default: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-    secondary: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
-    outline: 'border border-gray-300 text-gray-700 dark:border-gray-600 dark:text-gray-300',
+    default: 'bg-accent-soft text-accent-ink',
+    secondary: 'bg-panel-2 text-muted',
+    outline: 'border border-line text-muted',
   };
 
   return (
-    <span className={`inline-block rounded-full px-3 py-1 text-sm font-medium ${variantClasses[variant]} ${className}`} {...props}>
+    <span className={`inline-block rounded-full px-3 py-1 font-mono text-sm font-medium ${variantClasses[variant]} ${className}`} {...props}>
       {children}
     </span>
   );
@@ -99,7 +99,7 @@ export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
   };
   return (
     <div>
-      <div role="tablist" className="flex border-b border-gray-200 dark:border-gray-700" onKeyDown={onKeyDown}>
+      <div role="tablist" className="flex border-b border-line" onKeyDown={onKeyDown}>
         {tabs.map((tab) => {
           const selected = activeTab === tab.value;
           return (
@@ -114,8 +114,8 @@ export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
               whileHover={{ opacity: 0.8 }}
               className={`px-4 py-2 font-medium transition-colors ${
                 selected
-                  ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                  : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-300'
+                  ? 'border-b-2 border-accent text-accent'
+                  : 'text-muted hover:text-ink'
               }`}
             >
               {tab.label}
@@ -149,13 +149,13 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
   const panelId = React.useId();
 
   return (
-    <div className="border-b border-gray-200 dark:border-gray-700">
+    <div className="border-b border-line">
       <motion.button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         aria-expanded={isOpen}
         aria-controls={panelId}
-        className="flex w-full items-center justify-between py-3 text-left font-medium hover:text-blue-600 dark:hover:text-blue-400"
+        className="flex w-full items-center justify-between py-3 text-left font-medium hover:text-accent"
       >
         {title}
         <motion.span aria-hidden animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
