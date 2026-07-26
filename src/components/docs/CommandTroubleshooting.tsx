@@ -57,27 +57,35 @@ const COMMON_ERRORS: { symptom: string; meaning: string; fix: string }[] = [
   },
 ];
 
+/** The "terminal basics" reference on its own — reused inline on command steps
+ *  (a collapsed "New to the terminal?" toggle) as well as here on the Guide. */
+export function TerminalBasics() {
+  return (
+    <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+        <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Terminal basics
+      </h3>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        New to the command line? These are the only things you need to know to run every command in this course.
+      </p>
+      <dl className="mt-3 grid gap-3 sm:grid-cols-2">
+        {TERMINAL_BASICS.map((b) => (
+          <div key={b.label} className="rounded-md border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
+            <dt className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 dark:text-gray-200">
+              <ClipboardPaste className="h-3.5 w-3.5 text-blue-500" /> {b.label}
+            </dt>
+            <dd className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{b.body}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
 export function CommandTroubleshooting() {
   return (
     <div className="space-y-4">
-      <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
-          <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Terminal basics
-        </h3>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          New to the command line? These are the only things you need to know to run every command in this course.
-        </p>
-        <dl className="mt-3 grid gap-3 sm:grid-cols-2">
-          {TERMINAL_BASICS.map((b) => (
-            <div key={b.label} className="rounded-md border border-gray-100 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
-              <dt className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 dark:text-gray-200">
-                <ClipboardPaste className="h-3.5 w-3.5 text-blue-500" /> {b.label}
-              </dt>
-              <dd className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{b.body}</dd>
-            </div>
-          ))}
-        </dl>
-      </div>
+      <TerminalBasics />
 
       <div className="rounded-lg border border-rose-200 bg-rose-50/50 p-5 dark:border-rose-900 dark:bg-rose-900/10">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">

@@ -308,4 +308,210 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       { label: 'Every IOC has a verdict', test: (d) => (d.groups.iocs ?? []).length > 0 && (d.groups.iocs ?? []).every((r) => !!r.verdict) },
     ],
   },
+
+  // 6 — Coverage Validation Report (W1, Tier 2 Threat Hunter) ────────────────
+  {
+    id: 'cysa_coverage_validation',
+    courseId: 'cysa-plus',
+    num: 6,
+    file: '06_Coverage_Validation.md',
+    title: 'Coverage Validation Report',
+    owner: 'grc',
+    folder: '01_Monitoring',
+    standard: 'NIST CSF (Detect)',
+    framework: 'NIST_CSF',
+    weeks: [1],
+    gate: 1,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'Prove the SOC can actually see what it should. Every expected data source is checked for real data — a source you expect but cannot find is a blind spot, and a blind spot is a finding.',
+    howTo:
+      'List each data source you expect (agent, Suricata, FIM, SCA, Windows/Sysmon), mark whether real data is arriving, attach a screenshot, and note any gap. Finish with a one-line summary of your coverage.',
+    source: "The SOC Analyst's deployed agents + the dashboard modules.",
+    sections: [
+      {
+        kind: 'group',
+        group: {
+          group: 'sources',
+          label: 'Data sources checked',
+          help: 'One row per source. “Present” means you actually saw recent data, not just that the module exists.',
+          columns: [
+            c('source', 'Data source', 'text', { placeholder: 'Suricata (network IDS)' }),
+            c('host', 'On which host', 'text', { placeholder: 'Ubuntu pod 10.10.100.7' }),
+            c('present', 'Data arriving?', 'select', { options: ['Yes', 'Partial', 'No'] }),
+            c('evidence', 'Evidence (screenshot)', 'text', { placeholder: '20260718_Team07_suricata_data.png' }),
+            c('note', 'Gap / note', 'text', { placeholder: 'FIM empty — not enabled on Windows yet' }),
+          ],
+          seed: [
+            { source: 'Wazuh agent (Ubuntu)', host: '10.10.100.7', present: 'Yes', evidence: '20260718_Team07_agent_active.png', note: '' },
+            { source: 'Suricata (network IDS)', host: '10.10.100.7', present: 'Yes', evidence: '', note: '' },
+            { source: 'Sysmon (Windows)', host: '10.10.20.7', present: 'No', evidence: '', note: 'Agent active but no Sysmon events — config missing' },
+          ],
+        },
+      },
+      {
+        kind: 'fields',
+        title: 'Summary',
+        fields: [
+          { field: 'summary', label: 'Coverage summary (1–2 sentences)', type: 'area', required: true, placeholder: '4 of 5 expected sources reporting; Windows Sysmon is the one gap, raised to the builder.' },
+        ],
+      },
+    ],
+    dod: [
+      { label: 'At least three sources checked, each with a Yes/Partial/No verdict', test: (d) => (d.groups.sources ?? []).filter((r) => !!r.source && !!r.present).length >= 3 },
+      { label: 'A coverage summary is written', test: (d) => !!d.fields.summary },
+    ],
+  },
+
+  // 7 — Alert Triage Report (W2, Tier 1 SOC Analyst) ────────────────────────
+  {
+    id: 'cysa_alert_triage',
+    courseId: 'cysa-plus',
+    num: 7,
+    file: '07_Alert_Triage_Report.md',
+    title: 'Alert Triage Report',
+    owner: 'blue',
+    folder: '01_Monitoring',
+    standard: 'NIST SP 800-61 (Detection & Analysis)',
+    framework: 'NIST_800_61',
+    weeks: [2],
+    gate: 2,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'Sort the week’s alerts into real vs noise and say why. Triage is the core SOC-analyst skill: decide what is a true positive, what is noise, and what to escalate to the Threat Hunter.',
+    howTo:
+      'Add one row per alert you reviewed: what fired, how often, your verdict (true/false positive or needs review), the reason in plain words, and whether you escalated it. Escalate the ones worth chasing.',
+    source: 'The Wazuh dashboard alerts for your pod.',
+    sections: [
+      {
+        kind: 'group',
+        group: {
+          group: 'alerts',
+          label: 'Alerts triaged',
+          help: 'A verdict with a one-line reason beats a long list with none. Escalate what the Hunter should investigate.',
+          columns: [
+            c('alert', 'Alert', 'text', { placeholder: 'Multiple failed logins from 10.10.100.66' }),
+            c('count', 'Count / severity', 'text', { placeholder: '48 in 2 min · high' }),
+            c('verdict', 'Verdict', 'select', { options: ['True positive', 'False positive', 'Needs review'] }),
+            c('reason', 'Reason', 'text', { placeholder: 'Brute force — far above the baseline of ~2/hour' }),
+            c('escalated', 'Escalated?', 'select', { options: ['Yes', 'No'] }),
+            c('evidence', 'Evidence (screenshot)', 'text', { placeholder: '20260725_Team07_bruteforce.png' }),
+          ],
+          seed: [
+            { alert: 'Multiple failed logins from 10.10.100.66', count: '48 in 2 min · high', verdict: 'True positive', reason: 'Brute force — well above baseline', escalated: 'Yes', evidence: '20260725_Team07_bruteforce.png' },
+            { alert: 'Package manager ran overnight', count: '1 · low', verdict: 'False positive', reason: 'Scheduled apt update — expected', escalated: 'No', evidence: '' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'At least three alerts triaged', test: (d) => (d.groups.alerts ?? []).filter((r) => !!r.alert).length >= 3 },
+      { label: 'Every alert has a verdict and a reason', test: (d) => (d.groups.alerts ?? []).length > 0 && (d.groups.alerts ?? []).every((r) => !!r.verdict && !!r.reason) },
+      { label: 'At least one alert is escalated to the Hunter', test: (d) => (d.groups.alerts ?? []).some((r) => r.escalated === 'Yes') },
+    ],
+  },
+
+  // 8 — Detection Record (W4, Tier 1 SOC Analyst) ───────────────────────────
+  {
+    id: 'cysa_detection_record',
+    courseId: 'cysa-plus',
+    num: 8,
+    file: '08_Detection_Record.md',
+    title: 'Detection Record',
+    owner: 'blue',
+    folder: '04_Response',
+    standard: 'NIST SP 800-61 (Detection & Analysis)',
+    framework: 'NIST_800_61',
+    weeks: [4],
+    gate: 4,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'The first page of the incident: what tipped you off, the earliest related alert, the attacker’s IP, and how far it spread. This is the hand-off that starts the Incident Response Report.',
+    howTo:
+      'Capture the first alert and its exact time (this becomes the incident start), the attacker IP, what made you sure it was real, which hosts were touched, and who you handed it to.',
+    source: 'Your Week-4 dashboard search around the attack window.',
+    sections: [
+      {
+        kind: 'fields',
+        title: 'Detection',
+        fields: [
+          { field: 'first_alert', label: 'First related alert (screenshot)', type: 'fileref', placeholder: '20260731_Team07_first_alert.png' },
+          { field: 'first_alert_time', label: 'First alert time (incident start)', type: 'text', required: true, placeholder: '2026-07-31 14:22' },
+          { field: 'attacker_ip', label: 'Attacker IP', type: 'text', required: true, placeholder: '10.10.100.66' },
+          { field: 'what_tipped', label: 'What tipped you off', type: 'area', placeholder: 'A spike of SQLi alerts on the web pod, far above baseline.' },
+          { field: 'affected_hosts', label: 'Hosts affected (initial scope)', type: 'text', placeholder: 'Ubuntu pod 10.10.100.7 (web + DB)' },
+          { field: 'escalated_to', label: 'Escalated to', type: 'text', placeholder: 'Threat Hunter (Tier 2) at 14:30' },
+        ],
+      },
+    ],
+    dod: [
+      { label: 'First-alert time and attacker IP are recorded', test: (d) => !!(d.fields.first_alert_time && d.fields.attacker_ip) },
+      { label: 'What tipped you off and the initial scope are described', test: (d) => !!(d.fields.what_tipped && d.fields.affected_hosts) },
+    ],
+  },
+
+  // 9 — Executive Debrief & Lessons Learned (W4 capstone, Tier 2) ────────────
+  {
+    id: 'cysa_exec_debrief',
+    courseId: 'cysa-plus',
+    num: 9,
+    file: '09_Executive_Debrief.md',
+    title: 'Executive Debrief & Lessons Learned',
+    owner: 'grc',
+    folder: '06_Debrief',
+    standard: 'NIST CSF (Recover) · NIST SP 800-61 (Post-Incident)',
+    framework: 'NIST_CSF',
+    weeks: [4],
+    gate: 5,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'The wrap-up leadership actually reads: across the four weeks, what happened, how fast the team detected and responded, what was fixed, and what to improve next time. Built from every role’s work.',
+    howTo:
+      'Write a short executive summary a non-technical manager can act on, fill the headline metrics, then list the concrete lessons learned and recommendations. Pull the numbers from your weekly reports.',
+    source: 'All four weekly reports + the Incident Response Report.',
+    sections: [
+      {
+        kind: 'fields',
+        title: 'Executive summary',
+        fields: [
+          { field: 'exec_summary', label: 'Executive summary (5–7 sentences)', type: 'area', required: true, placeholder: 'Over four weeks the team stood up monitoring, detected and investigated a live attack, ranked the risks, and ran the incident to closure. The key incident was a SQL injection that led to a web shell; it was detected in ~9 minutes and contained in ~19. Three high risks remain open with owners and dates.', help: 'Plain words a manager can act on: what happened, how bad, what you did, what’s left.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'metrics',
+          label: 'Headline metrics',
+          help: 'The few numbers leadership samples. Estimate from your reports if exact figures aren’t available.',
+          columns: [
+            c('metric', 'Metric', 'text', { placeholder: 'MTTD (detect)' }),
+            c('value', 'Value', 'text', { placeholder: '~9 min' }),
+            c('note', 'How measured', 'text', { placeholder: 'First alert 14:22 → escalation 14:31' }),
+          ],
+          seed: [
+            { metric: 'MTTD (time to detect)', value: '~9 min', note: 'First alert → escalation' },
+            { metric: 'MTTR (time to contain)', value: '~19 min', note: 'First alert → firewall block' },
+            { metric: 'High risks remaining', value: '3', note: 'From the Vulnerability Assessment' },
+          ],
+        },
+      },
+      {
+        kind: 'fields',
+        title: 'Lessons & recommendations',
+        fields: [
+          { field: 'lessons', label: 'Lessons learned (what to keep / change)', type: 'area', required: true, placeholder: 'Baseline made triage fast. Windows Sysmon coverage was late — enable it in the build next time.' },
+          { field: 'recommendations', label: 'Recommendations (next steps, with owners)', type: 'area', placeholder: 'Parameterise DVWA queries (Blue, 2 wks); add a WAF (Blue); tune the SQLi rule to cut noise (Analyst).' },
+        ],
+      },
+    ],
+    dod: [
+      { label: 'An executive summary is written', test: (d) => !!d.fields.exec_summary },
+      { label: 'Lessons learned are captured', test: (d) => !!d.fields.lessons },
+      { label: 'At least two headline metrics are filled', test: (d) => (d.groups.metrics ?? []).filter((r) => !!r.metric && !!r.value).length >= 2 },
+    ],
+  },
 ];

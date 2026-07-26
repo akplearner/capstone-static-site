@@ -8,8 +8,17 @@ import { deliverablesForCourse } from '@/lib/docs/definitions';
  * the files, the universal form flow, the tools, the naming rules, and what
  * the grade is actually based on. (Security+ course reference.)
  */
+// The tool set differs per course; fall back to the Security+ toolkit.
+const COURSE_TOOLS: Record<string, string> = {
+  'security-plus':
+    'whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum',
+  'cysa-plus':
+    'Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum',
+};
+
 export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: string }) {
   const defs = deliverablesForCourse(courseId);
+  const tools = COURSE_TOOLS[courseId] ?? COURSE_TOOLS['security-plus'];
   const panels = [
     {
       icon: FileStack,
@@ -37,12 +46,7 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
     {
       icon: Wrench,
       title: 'EVERY TOOL',
-      body: (
-        <p className="font-mono text-[11px] leading-relaxed">
-          whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep ·
-          fail2ban · Event Viewer · sha256sum
-        </p>
-      ),
+      body: <p className="font-mono text-[11px] leading-relaxed">{tools}</p>,
     },
     {
       icon: Tag,

@@ -11,6 +11,7 @@ import {
   Clock,
   FileText,
   GraduationCap,
+  Lightbulb,
   Lock,
   RotateCcw,
   Search,
@@ -1168,6 +1169,15 @@ export default function CoursePage() {
                       </div>
                       {w.objective && (
                         <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{w.objective}</p>
+                      )}
+                      {w.plain && (
+                        <div className="mt-2 flex items-start gap-2 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-900/20">
+                          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
+                          <p className="text-sm text-sky-900 dark:text-sky-200">
+                            <span className="font-semibold">In plain words: </span>
+                            {w.plain}
+                          </p>
+                        </div>
                       )}
 
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">

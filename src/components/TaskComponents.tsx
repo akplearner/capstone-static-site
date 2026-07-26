@@ -27,6 +27,8 @@ import { splitCommand } from '@/lib/commands';
 import { Collapsible } from './ui/Button';
 import { toast } from './ui/Toast';
 import { StepFlow } from './diagrams/StepFlow';
+import { GlossaryText } from './GlossaryText';
+import { TerminalBasics } from './docs/CommandTroubleshooting';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -362,7 +364,7 @@ export function StepDetail({
           {whatItMeans && (
             <p className="text-sm text-gray-600 dark:text-gray-400">
               <span className="font-semibold text-gray-700 dark:text-gray-300">Why: </span>
-              {whatItMeans}
+              <GlossaryText text={whatItMeans} />
             </p>
           )}
           {hasCommand && verify && verify.length > 0 && <OutputVerify verify={verify} />}
@@ -397,6 +399,18 @@ export function StepDetail({
               ) : null;
             })()}
           </div>
+        </div>
+      )}
+
+      {/* Point-of-need terminal help for beginners: the same basics as the Guide,
+          collapsed so it's there when needed without cluttering the step. */}
+      {hasCommand && (
+        <div className="rounded-md border border-blue-200 bg-blue-50/50 px-4 dark:border-blue-900 dark:bg-blue-900/10">
+          <Collapsible title="New to the terminal? Read the basics" defaultOpen={false}>
+            <div className="pb-1">
+              <TerminalBasics />
+            </div>
+          </Collapsible>
         </div>
       )}
 

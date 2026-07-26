@@ -15,6 +15,7 @@ import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
+import { GlossaryText } from '@/components/GlossaryText';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -495,7 +496,7 @@ export default function DeliverablesPage() {
                       </span>
                     )}
                   </h2>
-                  <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{def.purpose}</p>
+                  <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400"><GlossaryText text={def.purpose} /></p>
                   <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-500">
                     <span className="font-mono">{def.folder}/{def.file}</span> · {def.standard}
                     {def.source ? ` · ${def.source}` : ''}

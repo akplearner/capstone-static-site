@@ -16,6 +16,7 @@ import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
+import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
 import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
 import { EvidenceGuide } from '@/components/docs/EvidenceGuide';
 import { CourseSubNav } from '@/components/CourseSubNav';
@@ -84,6 +85,20 @@ export default function CourseGuidePage() {
         </section>
       )}
 
+      {course.id === 'cysa-plus' && (
+        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="Lab requirements & setup" defaultOpen={false}>
+            <div className="space-y-4 pb-2">
+              <p className="text-gray-600 dark:text-gray-400">
+                The shared Wazuh SOC and your team&apos;s pods — what each machine is, its address, and how to
+                confirm you&apos;re ready before Week 1.
+              </p>
+              <CysaLabSetup courseId={course.id} />
+            </div>
+          </Collapsible>
+        </section>
+      )}
+
       <section id="command-help" className="scroll-mt-24 space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Running commands &amp; getting unstuck</h2>
         <p className="text-gray-600 dark:text-gray-400">
@@ -131,7 +146,9 @@ export default function CourseGuidePage() {
               <WeeklyFlow course={course} />
               {course.id === 'security-plus' && <DocsReductionTable />}
               <FolderTree courseId={course.id} />
-              {course.id === 'security-plus' && <QuickReferenceCard />}
+              {(course.id === 'security-plus' || course.id === 'cysa-plus') && (
+                <QuickReferenceCard courseId={course.id} />
+              )}
             </div>
           </Collapsible>
         </div>

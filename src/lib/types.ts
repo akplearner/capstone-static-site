@@ -24,6 +24,10 @@ export interface WeekDef {
   theme: string;
   objective: string;
   runs?: string;
+  /** Plain-language "here's what you're really doing this week and why it matters,
+   *  like a real analyst" — 1–2 sentences with a light analogy, for non-technical
+   *  students. Rendered as a callout above the week's tasks. */
+  plain?: string;
 }
 
 // Optional per-course framework override; falls back to the built-in maps in utils.
