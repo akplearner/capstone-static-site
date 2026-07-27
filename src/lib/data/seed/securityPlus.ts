@@ -39,6 +39,7 @@ const weeks: WeekDef[] = Object.values(WEEKS)
     theme: w.theme,
     objective: w.objective,
     runs: w.runs,
+    plain: w.plain,
   }))
   .sort((a, b) => a.number - b.number);
 

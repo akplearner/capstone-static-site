@@ -146,7 +146,7 @@ export default function CourseGuidePage() {
               <WeeklyFlow course={course} />
               {course.id === 'security-plus' && <DocsReductionTable />}
               <FolderTree courseId={course.id} />
-              {(course.id === 'security-plus' || course.id === 'cysa-plus') && (
+              {['security-plus', 'cysa-plus', 'mssp'].includes(course.id) && (
                 <QuickReferenceCard courseId={course.id} />
               )}
             </div>

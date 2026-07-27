@@ -121,6 +121,9 @@ export interface Week {
   theme: string;
   objective: string;
   runs: string;
+  /** Plain-language "what you're really doing this week, and why" for non-technical
+   *  students (mirrors WeekDef.plain). Rendered as a callout above the week's tasks. */
+  plain?: string;
 }
 
 export interface Gate {
