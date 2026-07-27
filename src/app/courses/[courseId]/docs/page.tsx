@@ -15,6 +15,7 @@ import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
+import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
 import { GlossaryText } from '@/components/GlossaryText';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
@@ -569,6 +570,10 @@ export default function DeliverablesPage() {
           );
         })
       )}
+
+      {/* Package THIS week: filled form(s) + attached evidence → one zip with a
+          populated chain-of-custody log. */}
+      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} />
     </div>
   );
 }

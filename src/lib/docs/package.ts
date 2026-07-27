@@ -1,8 +1,16 @@
 import { DeliverableData, emptyData } from './types';
 import { deliverablesForCourse } from './definitions';
 import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
-import { CUSTODY_RULES, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
+import { CUSTODY_RULES, CustodyRow, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
+
+/** An evidence file a student attached for a week's package: raw bytes + its hash. */
+export interface WeekAttachment {
+  name: string;
+  bytes: Uint8Array;
+  sha256: string;
+  size: number;
+}
 
 /** Root folder name for a team's package, e.g. "Capstone_Team01". */
 export function packageRoot(meta: DocMeta): string {
@@ -104,6 +112,84 @@ export function buildTeamPackage(saved: Record<string, DeliverableData>, meta: D
   const evidenceDir = `${root}/04_Testing_and_Findings/Evidence`;
   entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.md`, data: enc.encode(custodyLogMarkdown(meta)) });
   entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.csv`, data: enc.encode(custodyLogCSV()) });
+
+  return makeZip(entries);
+}
+
+/** Download file name for a single week's evidence package. */
+export function weekPackageFileName(meta: DocMeta, week: number): string {
+  return `${packageRoot(meta)}_Week${week}.zip`;
+}
+
+/** Turn attachments into populated chain-of-custody rows (one per file, hashed). */
+function attachmentCustodyRows(attachments: WeekAttachment[], meta: DocMeta): CustodyRow[] {
+  return attachments.map((a, i) => ({
+    'Evidence ID': `E-${String(i + 1).padStart(2, '0')}`,
+    Description: a.name,
+    'Collected by': meta.team ? `Team ${meta.team}` : '',
+    'Date/Time': meta.date ?? '',
+    'Location (path)': `Evidence/${a.name}`,
+    'SHA-256': a.sha256,
+    Notes: `${(a.size / 1024).toFixed(1)} KB`,
+  }));
+}
+
+function weekReadme(root: string, meta: DocMeta, week: number, defTitles: string[], attachments: WeekAttachment[]): string {
+  return [
+    `# ${root}`,
+    '',
+    `Week ${week} evidence package for ${meta.team ? `Team ${meta.team}` : 'your team'}.`,
+    meta.date ? `Generated: ${meta.date}` : '',
+    '',
+    '## This week’s deliverable(s)',
+    '',
+    ...(defTitles.length ? defTitles.map((t) => `- ${t}`) : ['- (none graded this week)']),
+    '',
+    '## Evidence',
+    '',
+    attachments.length
+      ? `${attachments.length} file(s) in \`Evidence/\`, each hashed and logged in \`Evidence/CHAIN_OF_CUSTODY.md\`.`
+      : 'No files attached — add screenshots/captures before generating, and they’ll be hashed and logged here.',
+    '',
+    '_Chain of custody aligned with NIST SP 800-61 and ISO/IEC 27037._',
+    '',
+  ].filter((l) => l !== undefined).join('\n');
+}
+
+/**
+ * Assemble ONE week's deliverable(s) plus the student's attached evidence into a
+ * zip: each filled form under its folder, every attachment under `Evidence/`, and
+ * a chain-of-custody log (MD + CSV) populated from the attachments' SHA-256 hashes.
+ * Pure + client-side — attachments are passed in from in-memory React state.
+ */
+export function buildWeekPackage(
+  saved: Record<string, DeliverableData>,
+  meta: DocMeta,
+  courseId: string,
+  week: number,
+  attachments: WeekAttachment[] = []
+): Uint8Array {
+  const enc = new TextEncoder();
+  const root = `${packageRoot(meta)}_Week${week}`;
+  const entries: ZipEntry[] = [];
+
+  const defs = deliverablesForCourse(courseId).filter((d) => d.weeks.includes(week));
+  for (const def of defs) {
+    const data = saved[def.id] ?? emptyData();
+    const content =
+      def.exportFormat === 'csv' ? toDeliverableCSV(def, data) : toDeliverableMarkdown(def, data, meta);
+    entries.push({ name: `${root}/${def.folder}/${def.file}`, data: enc.encode(content) });
+  }
+
+  const evidenceDir = `${root}/Evidence`;
+  for (const a of attachments) {
+    entries.push({ name: `${evidenceDir}/${a.name}`, data: a.bytes });
+  }
+  const rows = attachmentCustodyRows(attachments, meta);
+  entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.md`, data: enc.encode(custodyLogMarkdown(meta, rows)) });
+  entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.csv`, data: enc.encode(custodyLogCSV(rows)) });
+
+  entries.push({ name: `${root}/README.md`, data: enc.encode(weekReadme(root, meta, week, defs.map((d) => d.title), attachments)) });
 
   return makeZip(entries);
 }

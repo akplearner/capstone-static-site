@@ -6,6 +6,7 @@ import { Button, Collapsible } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
+import { RoleSupportFlow } from '@/components/diagrams/RoleSupportFlow';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { socTopology } from '@/lib/labTopology';
@@ -172,6 +173,19 @@ export default function CourseGuidePage() {
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <RoleInterplayDiagram roles={course.roles} highlightRole={member?.role} />
+          </div>
+
+          <div>
+            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+              Week by week — who does what, and how you support each other
+            </h3>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              Each week every role has one task and produces evidence; the arrows show the hand-offs that let the
+              next role start. Your role is highlighted.
+            </p>
+            <div className="mt-3">
+              <RoleSupportFlow course={course} highlightRole={member?.role} />
+            </div>
           </div>
         </section>
       )}

@@ -49,12 +49,21 @@ function stamp(meta?: DocMeta): string[] {
   return out;
 }
 
-/** Markdown chain-of-custody log: rules header + a worked example + blank rows. */
-export function custodyLogMarkdown(meta?: DocMeta, blankRows = 12): string {
+/** A single custody-log row, keyed by CUSTODY_COLUMNS names (any subset). */
+export type CustodyRow = Partial<Record<(typeof CUSTODY_COLUMNS)[number], string>>;
+
+const mdCell = (v: string) => (v ?? '').replace(/\|/g, '\\|').replace(/\n/g, ' ').trim() || ' ';
+
+/** Markdown chain-of-custody log. With `rows`, emits those real entries; otherwise
+ *  falls back to a worked example. Always appends a few blank rows to fill by hand. */
+export function custodyLogMarkdown(meta?: DocMeta, rows?: CustodyRow[], blankRows = 12): string {
   const cols = [...CUSTODY_COLUMNS];
   const header = `| ${cols.join(' | ')} |`;
   const sep = `| ${cols.map(() => '---').join(' | ')} |`;
-  const example = `| ${cols.map((c) => EXAMPLE_ROW[c]).join(' | ')} |`;
+  const dataRows =
+    rows && rows.length > 0
+      ? rows.map((r) => `| ${cols.map((c) => mdCell(r[c] ?? '')).join(' | ')} |`)
+      : [`| ${cols.map((c) => EXAMPLE_ROW[c]).join(' | ')} |`];
   const blanks = Array.from({ length: blankRows }, () => `| ${cols.map(() => ' ').join(' | ')} |`);
   return [
     '# Chain of Custody Log',
@@ -71,7 +80,7 @@ export function custodyLogMarkdown(meta?: DocMeta, blankRows = 12): string {
     '',
     header,
     sep,
-    example,
+    ...dataRows,
     ...blanks,
     '',
     '_Aligned with NIST SP 800-61 (incident handling) and ISO/IEC 27037 (digital evidence)._',
@@ -121,14 +130,19 @@ export function everyEvidenceHashed(group = 'evidence') {
   };
 }
 
-/** CSV chain-of-custody log: header + a worked example + blank rows. */
-export function custodyLogCSV(blankRows = 12): string {
+/** CSV chain-of-custody log. With `rows`, emits those real entries; otherwise a
+ *  worked example. Always appends blank rows to fill by hand. */
+export function custodyLogCSV(rows?: CustodyRow[], blankRows = 12): string {
   const esc = (v: string) => (/[",\n]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
   const cols = [...CUSTODY_COLUMNS];
-  const rows = [
+  const dataRows =
+    rows && rows.length > 0
+      ? rows.map((r) => cols.map((c) => esc(r[c] ?? '')).join(','))
+      : [cols.map((c) => esc(EXAMPLE_ROW[c])).join(',')];
+  const out = [
     cols.join(','),
-    cols.map((c) => esc(EXAMPLE_ROW[c])).join(','),
+    ...dataRows,
     ...Array.from({ length: blankRows }, () => cols.map(() => '').join(',')),
   ];
-  return rows.join('\n') + '\n';
+  return out.join('\n') + '\n';
 }
