@@ -38,6 +38,8 @@ export const GLOSSARY: Record<string, string> = {
   MTTD: 'Mean Time To Detect — the average time from an attack starting to it being noticed.',
   MTTR: 'Mean Time To Respond — the average time from detecting an attack to containing it.',
   'rule.level': 'Wazuh scores every alert 0–15 by severity; searching rule.level:>=7 keeps the ones that usually matter.',
+  'rule.groups': 'The category tags Wazuh puts on an alert (e.g. authentication_failed, ids, web) — handy for filtering by attack type.',
+  'agent.name': 'The Wazuh field naming which machine an alert came from (e.g. Team07-ubuntu) — use it to filter to one host.',
   'event channel': 'A named Windows log stream — Sysmon writes to Microsoft-Windows-Sysmon/Operational, which the agent forwards.',
   'Emerging Threats ruleset': "The community alert rules Suricata downloads with suricata-update — without them it sees traffic but raises nothing.",
 };

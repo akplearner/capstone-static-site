@@ -10,6 +10,18 @@ import { ExternalLink, LayoutDashboard, Network, MonitorCheck } from 'lucide-rea
 
 type Ref = { label: string; href: string };
 type Row = { k: string; v: string };
+type Signature = { behaviour: string; query: string; tell: string };
+
+// Week-2 "how to filter / what to look for" — behaviour → search query → the tell.
+const SIGNATURES: Signature[] = [
+  { behaviour: 'Port scan', query: 'rule.groups:ids', tell: 'One data.srcip hitting many data.dstport in seconds (Suricata alerts).' },
+  { behaviour: 'SSH brute force', query: 'rule.groups:authentication_failed', tell: 'Repeated failed logins from one IP, then maybe a success.' },
+  { behaviour: 'Web attack (SQLi/XSS)', query: 'full_log:*union*  ·  rule.groups:web', tell: 'Attack strings (union, ../, <script) in the request URL.' },
+  { behaviour: 'One machine only', query: 'agent.name:Team07-ubuntu', tell: 'Separate Ubuntu vs Windows when both are noisy.' },
+  { behaviour: 'Windows process activity', query: 'data.win.system.channel:"Microsoft-Windows-Sysmon/Operational"', tell: 'Sysmon process (ID 1), network (3) and file (11) events.' },
+];
+
+const FILTER_FIELDS = 'rule.level · rule.groups · rule.description · data.srcip · data.dstport · data.url · agent.name · full_log';
 type Panel = {
   icon: typeof LayoutDashboard;
   name: string;
@@ -28,13 +40,15 @@ const PANELS: Panel[] = [
     where: 'http://10.10.100.100 · both pods',
     what: 'The web SIEM every role shares. Agents ship their logs here and you read, search and prove everything from the browser.',
     config:
-      'No config for students — sign in with student / @Pass@2026. Left menu: Agents (which machines report, and their status), Security events (one agent’s alert feed), and the modules: Vulnerabilities, SCA, Integrity monitoring (FIM) and MITRE ATT&CK. The search bar takes field:value queries.',
+      'No config for students — sign in with student / @Pass@2026. Each machine runs a Wazuh agent that forwards its logs to 10.10.100.100 over port 1514 (Linux: /var/log; Windows: the Application/Security/System event channels), plus the Suricata and Sysmon blocks you add. Confirm a machine is actually connected with the "Connected to the server" line in its ossec.log. Left menu: Agents (which machines report + status), Security events (one agent’s feed), and the modules Vulnerabilities, SCA, Integrity monitoring (FIM) and MITRE ATT&CK. The search bar takes field:value queries.',
     rowsTitle: 'Searches you reuse',
     rows: [
       { k: 'rule.level:>=7', v: 'Cut to alerts that usually matter (levels run 0–15; higher = more severe).' },
       { k: 'rule.level:>=10', v: 'Just the high-severity alerts — where an incident shows up.' },
       { k: 'data.srcip:<ip>', v: 'Everything one source did, across agents — the shape of the behaviour.' },
+      { k: 'agent.name:<Team07-ubuntu>', v: 'Limit to one machine when both agents are noisy.' },
       { k: 'sort by Time', v: 'Order the events to read an attack as a sequence.' },
+      { k: 'Connected to the server', v: 'The ossec.log line that proves an agent is talking to the SOC.' },
     ],
     refs: [
       { label: 'Using the Wazuh dashboard', href: 'https://documentation.wazuh.com/current/user-manual/wazuh-dashboard/index.html' },
@@ -147,6 +161,43 @@ export function CysaToolGuide() {
             </div>
           );
         })}
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Filtering &amp; what to look for (Week 2)</h3>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          In Security events, type a <code className="rounded bg-gray-100 px-1 font-mono text-xs dark:bg-gray-900">field:value</code>{' '}
+          query in the search bar. Start with <code className="rounded bg-gray-100 px-1 font-mono text-xs dark:bg-gray-900">rule.level:&gt;=7</code>{' '}
+          to cut the noise, then match the shape of the attack:
+        </p>
+        <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                <th className="px-3 py-2">Looks like…</th>
+                <th className="px-3 py-2">Search</th>
+                <th className="px-3 py-2">The tell</th>
+              </tr>
+            </thead>
+            <tbody>
+              {SIGNATURES.map((s) => (
+                <tr key={s.behaviour} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                  <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">{s.behaviour}</td>
+                  <td className="px-3 py-2">
+                    <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                      {s.query}
+                    </code>
+                  </td>
+                  <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{s.tell}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+          <span className="font-semibold">Fields you filter on:</span>{' '}
+          <code className="rounded bg-gray-100 px-1 font-mono text-[11px] text-gray-700 dark:bg-gray-900 dark:text-gray-300">{FILTER_FIELDS}</code>
+        </p>
       </div>
     </div>
   );
