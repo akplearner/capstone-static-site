@@ -17,6 +17,7 @@ import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
+import { CysaToolGuide } from '@/components/docs/CysaToolGuide';
 import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
@@ -166,6 +167,20 @@ export default function CourseGuidePage() {
                   </div>
                 ))}
               </div>
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                Want the deeper how-to — dashboard searches, Suricata rules, Sysmon event IDs? See{' '}
+                <span className="font-medium text-gray-700 dark:text-gray-300">Using the tools — Wazuh, Suricata &amp; Sysmon</span> below.
+              </p>
+            </div>
+          </Collapsible>
+        </section>
+      )}
+
+      {course.id === 'cysa-plus' && (
+        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="Using the tools — Wazuh, Suricata & Sysmon" defaultOpen={false}>
+            <div className="pb-2">
+              <CysaToolGuide />
             </div>
           </Collapsible>
         </section>

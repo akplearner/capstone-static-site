@@ -249,7 +249,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       custodySection({
         seed: [
           { evidence_id: 'E-01', description: 'access.log', collected_by: 'Red', collected_at: '2026-07-31 14:45', location: '~/team-artifacts/week-4/', sha256: 'c5b9…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'malicious request source' },
-          { evidence_id: 'E-02', description: 'week4.pcap', collected_by: 'Red', collected_at: '2026-07-31 14:47', location: '~/team-artifacts/week-4/', sha256: 'a1f0…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'exploit traffic capture' },
+          { evidence_id: 'E-02', description: 'week4_attacker_events.png', collected_by: 'Red', collected_at: '2026-07-31 14:47', location: '~/team-artifacts/week-4/', sha256: 'a1f0…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'Wazuh export of the attacker’s events' },
         ],
       }),
     ],
@@ -465,7 +465,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     standard: 'NIST CSF (Recover) · NIST SP 800-61 (Post-Incident)',
     framework: 'NIST_CSF',
     weeks: [4],
-    gate: 5,
+    gate: 4,
     kind: 'form',
     exportFormat: 'md',
     purpose:
