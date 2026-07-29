@@ -10,27 +10,27 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 const roles: RoleDef[] = [
   {
     id: 'blue',
-    name: 'Tier 1 · SOC Analyst',
+    name: 'SOC Analyst',
     mission: 'Watch the alerts — decide what is real, what is noise, and what to escalate.',
     color: '#1f5aa8',
     icon: 'Eye',
-    label: '🖥️ Tier 1 · SOC Analyst',
+    label: '🖥️ SOC Analyst',
   },
   {
     id: 'grc',
-    name: 'Tier 2 · Threat Hunter',
+    name: 'Threat Hunter',
     mission: 'Dig into the suspicious activity in logs and packets, and prove what happened.',
     color: '#0d9488',
     icon: 'Search',
-    label: '🔎 Tier 2 · Threat Hunter',
+    label: '🔎 Threat Hunter',
   },
   {
     id: 'red',
-    name: 'Tier 3 · Incident Responder',
+    name: 'Incident Responder',
     mission: 'Stop the attack, keep the evidence clean, and write the report leadership reads.',
     color: '#b22222',
     icon: 'ShieldAlert',
-    label: '🛡️ Tier 3 · Incident Responder',
+    label: '🛡️ Incident Responder',
   },
 ];
 
@@ -1204,7 +1204,17 @@ export const CYSA_PLUS: Course = {
   id: 'cysa-plus',
   title: 'CySA+ SOC Capstone',
   slug: 'cysa-plus',
-  lifecyclePath: ['Detect', 'Triage', 'Investigate', 'Threat Intel', 'Scope', 'Contain', 'Recover', 'Report'],
+  lifecyclePath: [
+    { label: 'Detect', detail: 'An alert fires in the SOC — something looks off.' },
+    { label: 'Triage', detail: 'SOC Analyst: real threat or noise? Escalate the real ones.' },
+    { label: 'Investigate', detail: 'Threat Hunter: prove what happened in the logs and packets.' },
+    { label: 'Threat Intel', detail: 'Look up the indicators (IPs, files, hashes) against known threats.' },
+    { label: 'Scope', detail: 'How far did it spread? Which machines and accounts are hit?' },
+    { label: 'Contain', detail: 'Stop the attack — block the attacker, isolate the host.' },
+    { label: 'Recover', detail: 'Clean up, restore service, and close the hole that let it in.' },
+    { label: 'Report', detail: 'Incident Responder: timeline, evidence, and a plain summary leadership can act on.' },
+  ],
+  noGatekeeping: true,
   audience: 'Run a SOC — monitor, detect, investigate, and respond on a live Wazuh stack (CS0-003).',
   description:
     'A 4-week Security Operations simulation (CS0-003): deploy monitoring, detect and investigate threats, assess vulnerabilities and risk, then run the incident-response lifecycle — across three rotating SOC tiers on a shared Wazuh SOC.',

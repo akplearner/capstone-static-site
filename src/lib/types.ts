@@ -153,12 +153,18 @@ export interface Course {
    *  differentiate courses at a glance. */
   audience?: string;
   /** The repeating case/engagement lifecycle stages ("every case follows the same
-   *  path": Detect → Triage → … → Report), rendered as a chain on the overview. */
-  lifecyclePath?: string[];
+   *  path": Detect → Triage → … → Report), rendered as a chain on the overview.
+   *  Each stage is a plain label, or `{label, detail}` to show a one-line
+   *  explanation under it. */
+  lifecyclePath?: (string | { label: string; detail?: string })[];
   /** How the shell frames the course. 'engagement' renders phase labels (from
    *  Week.runs) + an engagement banner and drops class/cohort language — used by
    *  the MSSP course. Defaults to 'course' (Week N / cohort). */
   framing?: 'course' | 'engagement';
+  /** When true, weeks never lock and the gate chips/checklists are hidden — every
+   *  week is open from the start and hand-offs between roles are shown as guidance,
+   *  not requirements. Used by CySA+ to keep the flow simple for beginners. */
+  noGatekeeping?: boolean;
   isSeed?: boolean;      // true for built-in courses shipped in code
   version?: number;      // export/import schema version
   updatedAt?: number;

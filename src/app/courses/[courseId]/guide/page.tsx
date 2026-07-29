@@ -10,7 +10,6 @@ import { RoleSupportFlow } from '@/components/diagrams/RoleSupportFlow';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { socTopology } from '@/lib/labTopology';
-import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
 import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
 import { FolderTree } from '@/components/docs/FolderTree';
@@ -19,7 +18,6 @@ import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
 import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
-import { EvidenceGuide } from '@/components/docs/EvidenceGuide';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
 import { useCourse } from '@/lib/useCourse';
@@ -105,35 +103,14 @@ export default function CourseGuidePage() {
         </section>
       )}
 
-      <section id="command-help" className="scroll-mt-24 space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Running commands &amp; getting unstuck</h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          How to use a terminal, and what to do when a command errors out — the fixes for the problems almost
-          every beginner hits.
-        </p>
-        <CommandTroubleshooting />
-      </section>
-
-      <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Evidence handling & chain of custody" defaultOpen={false}>
+      <section id="command-help" className="scroll-mt-24 rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
+        <Collapsible title="Running commands & getting unstuck" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <p className="text-gray-600 dark:text-gray-400">
-              Keep your proof on your machine and document it like a real case — naming, hashing, and a custody
-              log you can download and fill in.
+              How to use a terminal, and what to do when a command errors out — the fixes for the problems almost
+              every beginner hits.
             </p>
-            <EvidenceGuide />
-          </div>
-        </Collapsible>
-      </section>
-
-      <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Documentation by week & role" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
-            <p className="text-gray-600 dark:text-gray-400">
-              Each role produces specific documents each week — these are your evidence for the gates and the
-              final report.
-            </p>
-            <DeliverablesMatrix course={course} highlightRole={member?.role} />
+            <CommandTroubleshooting />
           </div>
         </Collapsible>
       </section>
@@ -143,9 +120,15 @@ export default function CourseGuidePage() {
         <p className="text-gray-600 dark:text-gray-400">
           The whole {isEngagement(course) ? 'engagement' : 'course'} comes down to a set of{' '}
           <strong>graded deliverables</strong> — who owns each one, the {unitWord(course).toLowerCase()} it&apos;s due,
-          and the gate it clears.
+          and the gate it clears. Each role fills <strong>one form per week</strong>.
         </p>
-        <DeliverablesIndex courseId={course.id} />
+        <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="See every deliverable — who owns what, and when" defaultOpen={false}>
+            <div className="pb-2">
+              <DeliverablesIndex courseId={course.id} roles={course.roles} />
+            </div>
+          </Collapsible>
+        </div>
         <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
           <Collapsible title="More reference — weekly flow, folder layout & cheat sheet" defaultOpen={false}>
             <div className="space-y-4 pb-2">
@@ -180,45 +163,45 @@ export default function CourseGuidePage() {
             <RoleInterplayDiagram roles={course.roles} highlightRole={member?.role} />
           </div>
 
-          <div>
-            <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-              Week by week — who does what, and how you support each other
-            </h3>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-              Each week every role has one task and produces evidence; the arrows show the hand-offs that let the
-              next role start. Your role is highlighted.
-            </p>
-            <div className="mt-3">
-              <RoleSupportFlow course={course} highlightRole={member?.role} />
-            </div>
+          <div className="lg:col-span-2 rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+            <Collapsible title="Week by week — who does what, and how you support each other" defaultOpen={false}>
+              <div className="pb-2">
+                <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+                  Each week every role has one task and produces evidence; the arrows show the hand-offs that help the
+                  next role — they&apos;re guidance, not gates. Your role is highlighted.
+                </p>
+                <RoleSupportFlow course={course} highlightRole={member?.role} />
+              </div>
+            </Collapsible>
           </div>
         </section>
       )}
 
       {frameworkIds.length > 0 && (
-        <section className="space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Frameworks we use & why</h2>
-            <p className="mt-1 text-gray-600 dark:text-gray-400">
+        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="Frameworks we use & why" defaultOpen={false}>
+          <div className="space-y-4 pb-2">
+            <p className="text-gray-600 dark:text-gray-400">
               Every task is mapped to recognized security frameworks. Tags aren’t decoration — they
               show which standard your work satisfies and how an auditor or employer would read it.
             </p>
-          </div>
-          <div className="grid gap-3 md:grid-cols-2">
-            {frameworkIds.map((fw) => (
-              <div key={fw} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                <div className="flex items-center gap-2">
-                  <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
-                    {getFrameworkLabel(fw)}
-                  </span>
-                  <span className="text-sm text-gray-600 dark:text-gray-400">{getFrameworkDescription(fw)}</span>
+            <div className="grid gap-3 md:grid-cols-2">
+              {frameworkIds.map((fw) => (
+                <div key={fw} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
+                      {getFrameworkLabel(fw)}
+                    </span>
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{getFrameworkDescription(fw)}</span>
+                  </div>
+                  {getFrameworkWhy(fw) && (
+                    <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{getFrameworkWhy(fw)}</p>
+                  )}
                 </div>
-                {getFrameworkWhy(fw) && (
-                  <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{getFrameworkWhy(fw)}</p>
-                )}
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
+          </Collapsible>
         </section>
       )}
 

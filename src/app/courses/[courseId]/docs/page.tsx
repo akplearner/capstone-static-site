@@ -298,7 +298,7 @@ export default function DeliverablesPage() {
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Team tools — download package, hand-off & export" defaultOpen={false}>
+        <Collapsible title="Advanced — whole-course export & team hand-off" defaultOpen={false}>
           <div className="space-y-3 pb-2">
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
         <div className="flex items-start gap-2 text-sm text-blue-900 dark:text-blue-200">
@@ -337,11 +337,15 @@ export default function DeliverablesPage() {
               teammate&apos;s file and downloads the complete package above.
             </p>
             <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-              <span className="rounded-full bg-red-100 px-2 py-0.5 font-medium text-red-700 dark:bg-red-900/40 dark:text-red-300">Red</span>
-              <span aria-hidden>+</span>
-              <span className="rounded-full bg-blue-100 px-2 py-0.5 font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Blue</span>
-              <span aria-hidden>→ export .json →</span>
-              <span className="rounded-full bg-green-100 px-2 py-0.5 font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">GRC restores &amp; downloads the package</span>
+              {course.roles.map((r, i) => (
+                <span key={r.id} className="flex items-center gap-1.5">
+                  {i > 0 && <span aria-hidden>+</span>}
+                  <span className="rounded-full px-2 py-0.5 font-medium" style={{ backgroundColor: `${r.color}22`, color: r.color }}>
+                    {r.name}
+                  </span>
+                </span>
+              ))}
+              <span aria-hidden>→ export .json → one teammate restores all &amp; downloads the package</span>
             </p>
           </div>
         </div>
@@ -420,6 +424,7 @@ export default function DeliverablesPage() {
       </div>
 
       {(() => {
+        if (course.noGatekeeping) return null;
         const gate = course.gates.find((g) => g.week === selectedWeek);
         const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
         if (!gate || gateDefs.length === 0) return null;
@@ -457,7 +462,7 @@ export default function DeliverablesPage() {
 
       {dueThisWeek.length === 0 ? (
         <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-          Nothing graded for <strong>{member.role.toUpperCase()}</strong> in{' '}
+          Nothing graded for <strong>{roleName}</strong> in{' '}
           {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`}. Your work this week feeds your
           teammates&apos; deliverables —{' '}
           <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium text-blue-600 underline dark:text-blue-400">
@@ -469,7 +474,7 @@ export default function DeliverablesPage() {
         dueThisWeek.map((def) => {
           const isExample = !saved[def.id];
           const data = saved[def.id] ?? seedDeliverable(def);
-          const locked = !!def.requiresAuth && !authorized;
+          const locked = !course.noGatekeeping && !!def.requiresAuth && !authorized;
           return (
             <section
               key={def.id}
@@ -573,7 +578,7 @@ export default function DeliverablesPage() {
 
       {/* Package THIS week: filled form(s) + attached evidence → one zip with a
           populated chain-of-custody log. */}
-      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} />
+      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} roles={course.roles} />
     </div>
   );
 }

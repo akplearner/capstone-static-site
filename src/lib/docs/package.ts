@@ -3,6 +3,13 @@ import { deliverablesForCourse } from './definitions';
 import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
 import { CUSTODY_RULES, CustodyRow, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
+import { RoleDef } from '../types';
+
+/** A filesystem-safe folder name for a role (e.g. "SOC Analyst" → "SOC_Analyst"). */
+function roleFolder(owner: string, roles?: RoleDef[]): string {
+  const name = roles?.find((r) => r.id === owner)?.name ?? owner;
+  return name.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+}
 
 /** An evidence file a student attached for a week's package: raw bytes + its hash. */
 export interface WeekAttachment {
@@ -167,18 +174,21 @@ export function buildWeekPackage(
   meta: DocMeta,
   courseId: string,
   week: number,
-  attachments: WeekAttachment[] = []
+  attachments: WeekAttachment[] = [],
+  roles?: RoleDef[]
 ): Uint8Array {
   const enc = new TextEncoder();
   const root = `${packageRoot(meta)}_Week${week}`;
   const entries: ZipEntry[] = [];
 
+  // Group each week's deliverable(s) under a per-role subfolder so the zip reads
+  // as "Week N → the role that owns this doc → the file".
   const defs = deliverablesForCourse(courseId).filter((d) => d.weeks.includes(week));
   for (const def of defs) {
     const data = saved[def.id] ?? emptyData();
     const content =
       def.exportFormat === 'csv' ? toDeliverableCSV(def, data) : toDeliverableMarkdown(def, data, meta);
-    entries.push({ name: `${root}/${def.folder}/${def.file}`, data: enc.encode(content) });
+    entries.push({ name: `${root}/${roleFolder(def.owner, roles)}/${def.file}`, data: enc.encode(content) });
   }
 
   const evidenceDir = `${root}/Evidence`;

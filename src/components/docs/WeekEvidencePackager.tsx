@@ -7,6 +7,7 @@ import { toast } from '@/lib/toastBus';
 import { buildWeekPackage, weekPackageFileName, WeekAttachment } from '@/lib/docs/package';
 import { DeliverableData } from '@/lib/docs/types';
 import { DocMeta } from '@/lib/docs/report';
+import { RoleDef } from '@/lib/types';
 
 async function sha256Hex(buf: ArrayBuffer): Promise<string> {
   const digest = await crypto.subtle.digest('SHA-256', buf);
@@ -38,11 +39,13 @@ export function WeekEvidencePackager({
   courseId,
   saved,
   meta,
+  roles,
 }: {
   week: number;
   courseId: string;
   saved: Record<string, DeliverableData>;
   meta: DocMeta;
+  roles?: RoleDef[];
 }) {
   const [items, setItems] = useState<Attached[]>([]);
   const [busy, setBusy] = useState(false);
@@ -78,7 +81,8 @@ export function WeekEvidencePackager({
         meta,
         courseId,
         week,
-        items.map(({ name, bytes, sha256, size }) => ({ name, bytes, sha256, size }))
+        items.map(({ name, bytes, sha256, size }) => ({ name, bytes, sha256, size })),
+        roles
       );
       const blob = new Blob([bytes as BlobPart], { type: 'application/zip' });
       const url = URL.createObjectURL(blob);

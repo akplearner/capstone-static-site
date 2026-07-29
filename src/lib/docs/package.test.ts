@@ -53,4 +53,16 @@ describe('buildWeekPackage', () => {
     const saved = { cysa_soc_monitoring: emptyData() };
     expect(() => buildWeekPackage(saved, meta, 'cysa-plus', 1, [])).not.toThrow();
   });
+
+  it('groups each deliverable under a per-role subfolder using the role name', () => {
+    const roles = [
+      { id: 'blue', name: 'SOC Analyst', mission: '', color: '#1', icon: 'shield' },
+      { id: 'grc', name: 'Threat Hunter', mission: '', color: '#2', icon: 'search' },
+      { id: 'red', name: 'Incident Responder', mission: '', color: '#3', icon: 'flame' },
+    ];
+    const zip = buildWeekPackage({}, meta, 'cysa-plus', 1, [], roles);
+    const names = entryNames(zip);
+    // Week 1 SOC Monitoring is owned by the SOC Analyst (blue) → sanitized folder.
+    expect(names.some((n) => n.includes('/SOC_Analyst/01_SOC_Monitoring_Report.md'))).toBe(true);
+  });
 });

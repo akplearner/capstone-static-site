@@ -131,9 +131,9 @@ export function TeamProgressTable({
                 <span className={`flex-1 text-sm ${d.complete ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
                   {d.title}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] uppercase text-gray-400">
+                <span className="flex items-center gap-1 text-[11px] text-gray-400">
                   <RoleIcon iconName={rd?.icon} className="h-3 w-3" color={rd?.color} />
-                  {d.owner}
+                  {rd?.name ?? d.owner}
                 </span>
               </div>
             );

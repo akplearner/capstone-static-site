@@ -259,7 +259,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     ],
   },
 
-  // 5 — IOC Database (all weeks, Tier 3 Incident Responder) ─────────────────
+  // 5 — IOC Database (Week 2, Incident Responder) ───────────────────────────
   {
     id: 'cysa_ioc_database',
     courseId: 'cysa-plus',
@@ -270,7 +270,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     folder: '05_Intel',
     standard: 'MITRE ATT&CK · threat intel',
     framework: 'NIST_CSF',
-    weeks: [2, 3, 4],
+    weeks: [2],
     gate: 2,
     kind: 'form',
     exportFormat: 'csv',

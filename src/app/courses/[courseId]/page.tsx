@@ -542,13 +542,17 @@ export default function CoursePage() {
   // so students work in order. Instructors (or local dev passcode) bypass it.
   const priorGateForWeek = (weekNum: number) => course.gates.find((g) => g.week === weekNum - 1);
   const weekLocked = (weekNum: number): boolean => {
-    if (!joined || instructorOverride) return false;
+    if (!joined || instructorOverride || course.noGatekeeping) return false;
     const pg = priorGateForWeek(weekNum);
     return !!pg && (gateStats[pg.id] || 'locked') !== 'passed';
   };
-  // Whole-course completion: joined, every gate passed, and all own tasks done.
-  const allGatesPassed =
-    joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
+  // Whole-course completion. With gatekeeping, every gate must be passed. With
+  // no gatekeeping (CySA), it's simply every week at 100% for your role.
+  const allWeeksComplete =
+    joined && course.weeks.length > 0 && course.weeks.every((w) => (weekStats[w.number] ?? 0) >= 100);
+  const allGatesPassed = course.noGatekeeping
+    ? allWeeksComplete
+    : joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
 
   const scrollTo = (elementId: string, block: ScrollLogicalPosition = 'start') => {
     if (typeof document !== 'undefined') {
@@ -872,7 +876,9 @@ export default function CoursePage() {
             </div>
             <div className="flex-1">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white">
-                Engagement complete — all {course.gates.length} gates passed 🎉
+                {course.noGatekeeping
+                  ? 'Course complete — every week finished 🎉'
+                  : `Engagement complete — all ${course.gates.length} gates passed 🎉`}
               </h2>
               <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
                 You&apos;ve finished {tasksComplete} of {ownTasksAll.length} tasks across every week as{' '}
@@ -1130,7 +1136,7 @@ export default function CoursePage() {
                       </span>
                     </span>
                   )}
-                  {gateForWeek && joined && (
+                  {gateForWeek && joined && !course.noGatekeeping && (
                     <span className="hidden text-xs text-gray-500 dark:text-gray-400 md:inline">
                       Gate {gateForWeek.id}
                     </span>
@@ -1226,7 +1232,7 @@ export default function CoursePage() {
                         <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700">
                           {ownTasks.length} task{ownTasks.length === 1 ? '' : 's'}
                         </span>
-                        {gateForWeek &&
+                        {gateForWeek && !course.noGatekeeping &&
                           (() => {
                             const s = gateStats[gateForWeek.id] || 'locked';
                             const meta =
@@ -1243,33 +1249,37 @@ export default function CoursePage() {
                           })()}
                       </div>
 
-                      <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 dark:border-gray-700 dark:bg-gray-800">
-                        <Collapsible title="Week flow & gate checklist" defaultOpen={false}>
-                          <div className="space-y-3 pb-1">
-                            {ownTasks.length > 0 && (
-                              <WeekTaskFlow
-                                course={course}
-                                role={member.role}
-                                week={w.number}
-                                taskStats={taskStats}
-                                onTaskClick={(id) => {
-                                  const t = getTaskById(course, id);
-                                  if (t) goToTask(t);
-                                }}
-                              />
-                            )}
-                            {gateForWeek && (
-                              <WeekGatePanel
-                                course={course}
-                                week={w.number}
-                                status={gateStats[gateForWeek.id] || 'locked'}
-                                ownRole={member?.role}
-                                taskStats={taskStats}
-                              />
-                            )}
-                          </div>
-                        </Collapsible>
-                      </div>
+                      {/* Gatekeeping courses show a flow + gate checklist here; with
+                          no gatekeeping (CySA) the week is simply open, so we skip it. */}
+                      {!course.noGatekeeping && (
+                        <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 dark:border-gray-700 dark:bg-gray-800">
+                          <Collapsible title="Week flow & gate checklist" defaultOpen={false}>
+                            <div className="space-y-3 pb-1">
+                              {ownTasks.length > 0 && (
+                                <WeekTaskFlow
+                                  course={course}
+                                  role={member.role}
+                                  week={w.number}
+                                  taskStats={taskStats}
+                                  onTaskClick={(id) => {
+                                    const t = getTaskById(course, id);
+                                    if (t) goToTask(t);
+                                  }}
+                                />
+                              )}
+                              {gateForWeek && (
+                                <WeekGatePanel
+                                  course={course}
+                                  week={w.number}
+                                  status={gateStats[gateForWeek.id] || 'locked'}
+                                  ownRole={member?.role}
+                                  taskStats={taskStats}
+                                />
+                              )}
+                            </div>
+                          </Collapsible>
+                        </div>
+                      )}
                     </div>
                   )}
 

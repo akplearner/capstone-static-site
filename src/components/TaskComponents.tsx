@@ -24,11 +24,9 @@ import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
 import { splitCommand } from '@/lib/commands';
-import { Collapsible } from './ui/Button';
 import { toast } from './ui/Toast';
 import { StepFlow } from './diagrams/StepFlow';
 import { GlossaryText } from './GlossaryText';
-import { TerminalBasics } from './docs/CommandTroubleshooting';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -402,42 +400,14 @@ export function StepDetail({
         </div>
       )}
 
-      {/* Point-of-need terminal help for beginners: the same basics as the Guide,
-          collapsed so it's there when needed without cluttering the step. */}
-      {hasCommand && (
-        <div className="rounded-md border border-blue-200 bg-blue-50/50 px-4 dark:border-blue-900 dark:bg-blue-900/10">
-          <Collapsible title="New to the terminal? Read the basics" defaultOpen={false}>
-            <div className="pb-1">
-              <TerminalBasics />
-            </div>
-          </Collapsible>
-        </div>
-      )}
-
-      {/* Troubleshooting is its own always-visible "Stuck?" toggle (not buried in
-          Explain) so a student who hit an error finds the fix in one click. Shown
-          for command steps and for any step that carries its own troubleshooting. */}
-      {(hasCommand || !!troubleshooting) && (
-        <div className="rounded-md border border-rose-200 bg-rose-50/60 px-4 dark:border-rose-900 dark:bg-rose-900/10">
-          <Collapsible title="Stuck? If it doesn't work" defaultOpen={false}>
-            <div className="space-y-2 pb-1 text-sm">
-              {troubleshooting && (
-                <p className="flex gap-2 text-rose-900 dark:text-rose-200">
-                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
-                  <span>{troubleshooting}</span>
-                </p>
-              )}
-              {hasCommand && (
-                <p className="text-gray-600 dark:text-gray-400">
-                  Common errors (command not found, permission denied, connection refused, unfilled
-                  <span className="font-mono"> 10.10.100.X</span>) and how to fix them:{' '}
-                  <Link href={`/courses/${courseId}/guide#command-help`} className="font-medium text-blue-600 underline dark:text-blue-400">
-                    Terminal basics &amp; common fixes →
-                  </Link>
-                </p>
-              )}
-            </div>
-          </Collapsible>
+      {/* The step's own authored "if it doesn't work" note, shown as a plain,
+          always-visible fix — no generic terminal scaffolding. */}
+      {troubleshooting && (
+        <div className="rounded-md border border-rose-200 bg-rose-50/60 px-4 py-3 dark:border-rose-900 dark:bg-rose-900/10">
+          <p className="flex gap-2 text-sm text-rose-900 dark:text-rose-200">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+            <span><span className="font-medium">If it doesn&apos;t work:</span> {troubleshooting}</span>
+          </p>
         </div>
       )}
 

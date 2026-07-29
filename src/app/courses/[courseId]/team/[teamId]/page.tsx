@@ -107,7 +107,7 @@ export default function TeamSpacePage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Hand-offs — who owes whom</h2>
+        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">How your work connects</h2>
         <TeamHandoffChecklist course={course} teamId={teamId} />
       </section>
 
