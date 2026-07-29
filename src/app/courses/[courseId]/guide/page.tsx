@@ -103,6 +103,74 @@ export default function CourseGuidePage() {
         </section>
       )}
 
+      {course.id === 'cysa-plus' && (
+        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
+          <Collapsible title="Week 1 — install & verify your sensors" defaultOpen={false}>
+            <div className="space-y-4 pb-2">
+              <p className="text-gray-600 dark:text-gray-400">
+                Week 1 is about standing up the three sensors that feed the SOC. Here&apos;s what each one is, the one
+                command that proves it&apos;s working, and the official guide — the step-by-step commands live in each
+                role&apos;s Week-1 task.
+              </p>
+              <div className="grid gap-3 md:grid-cols-3">
+                {[
+                  {
+                    tool: 'Suricata',
+                    where: 'Ubuntu server',
+                    what: 'Network IDS — watches your server’s traffic and raises alerts.',
+                    verify: 'sudo systemctl status suricata',
+                    expect: 'active (running)',
+                    href: 'https://docs.suricata.io/en/latest/quickstart.html',
+                    guide: 'Suricata quickstart',
+                  },
+                  {
+                    tool: 'Sysmon',
+                    where: 'Windows PC',
+                    what: 'Rich Windows telemetry — process starts, network connections, file changes.',
+                    verify: 'Get-Service Sysmon',
+                    expect: 'Status: Running',
+                    href: 'https://learn.microsoft.com/sysinternals/downloads/sysmon',
+                    guide: 'Sysmon (Sysinternals)',
+                  },
+                  {
+                    tool: 'Wazuh agent',
+                    where: 'Both machines',
+                    what: 'Ships each machine’s logs (and Suricata/Sysmon events) to the SOC at 10.10.100.100.',
+                    verify: 'Dashboard › Agents',
+                    expect: 'Active, recent check-in',
+                    href: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html',
+                    guide: 'Wazuh agent guide',
+                  },
+                ].map((s) => (
+                  <div key={s.tool} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <span className="font-semibold text-gray-900 dark:text-white">{s.tool}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{s.where}</span>
+                    </div>
+                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{s.what}</p>
+                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">Verify it:</div>
+                    <code className="mt-1 block rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                      {s.verify}
+                    </code>
+                    <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                      Expect: <span className="font-medium text-gray-700 dark:text-gray-300">{s.expect}</span>
+                    </div>
+                    <a
+                      href={s.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:underline dark:text-sky-400"
+                    >
+                      {s.guide} <ArrowRight className="h-3 w-3" />
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Collapsible>
+        </section>
+      )}
+
       <section id="command-help" className="scroll-mt-24 rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="Running commands & getting unstuck" defaultOpen={false}>
           <div className="space-y-4 pb-2">
