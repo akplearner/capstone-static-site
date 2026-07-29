@@ -14,7 +14,7 @@ const VMS: { name: string; role: string; addr: string; notes: string }[] = [
 ];
 
 const PREFLIGHT = [
-  'You can open the Wazuh dashboard at https://10.10.100.100 and log in with your account',
+  'The classroom SOC is already running — open http://10.10.100.100 and sign in with student / @Pass@2026',
   'Both of your pods (Ubuntu 10.10.100.N and Windows 10.10.20.N) show as Active agents',
   'You can SSH into your Ubuntu pod as the student user',
   'Your pod numbers are recorded in the Lab access panel (Weekly Tasks); Rules of Engagement read',

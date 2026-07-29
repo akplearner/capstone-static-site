@@ -44,6 +44,7 @@ import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo } from '@/lib/data';
+import { KEYS } from '@/lib/data/keys';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
 import { EngagementBanner } from '@/components/EngagementBanner';
@@ -460,6 +461,14 @@ export default function CoursePage() {
   useSupabaseSync(course.id);
   const requireAuth = isSupabaseConfigured();
   const [confirmingReset, setConfirmingReset] = useState(false);
+  // The Week-0 build task is only for students setting up their own lab from home;
+  // the classroom SOC is already built. Gate its expansion behind a confirmation
+  // (persisted per device) so students don't do the build work they don't need.
+  const [homeBuildDialog, setHomeBuildDialog] = useState(false);
+  const homeBuildAck = useClientStore<boolean>(
+    () => (typeof window !== 'undefined' ? localStorage.getItem(KEYS.homeBuildAck(course.id)) === '1' : false),
+    false
+  );
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   // null = the student hasn't toggled weeks yet, so the active week shows open by
   // default; once they interact we track their explicit set.
@@ -582,8 +591,25 @@ export default function CoursePage() {
   // Expanding a task pins its week open, so finishing the task (which advances
   // activeWeek) doesn't auto-collapse the week and hide the "Next task →" CTA.
   const toggleTask = (task: Task) => {
+    // Week-0 build is home-lab-only: confirm before revealing it (once per device).
+    if (task.id === 'cr-w0' && !homeBuildAck && !expanded.has(task.id)) {
+      setHomeBuildDialog(true);
+      return;
+    }
     openWeek(task.week);
     toggle(task.id);
+  };
+
+  const confirmHomeBuild = () => {
+    try {
+      localStorage.setItem(KEYS.homeBuildAck(course.id), '1');
+    } catch {
+      /* storage may be unavailable; the task still opens for this session */
+    }
+    notifyStore();
+    setHomeBuildDialog(false);
+    openWeek(0);
+    toggle('cr-w0');
   };
 
   const toggleWeek = (n: number) =>
@@ -1159,6 +1185,19 @@ export default function CoursePage() {
                     </p>
                   )}
 
+                  {/* Setup week: the classroom lab is already built — the build task
+                      is home-build-only and confirms before it expands. */}
+                  {w.number === 0 && (
+                    <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm dark:border-sky-800 dark:bg-sky-900/20">
+                      <p className="text-sky-900 dark:text-sky-200">
+                        <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}
+                        <span className="font-mono text-xs">http://10.10.100.100</span> (student / @Pass@2026) and
+                        start at <span className="font-semibold">Week 1</span>. The build steps here are only for
+                        students setting up their own lab at home — opening them asks you to confirm first.
+                      </p>
+                    </div>
+                  )}
+
                   {/* One compact "Week at a glance" card: objective + status chips +
                       what-done-looks-like, with the flow diagram and gate checklist
                       tucked behind a toggle. */}
@@ -1339,6 +1378,19 @@ export default function CoursePage() {
       </div>
       </motion.div>
       )}
+
+      {/* Home-build gate for the Week-0 build task — mounted regardless of tab so it
+          opens when a student tries to expand the build steps on the Weekly tab. */}
+      <ConfirmDialog
+        open={homeBuildDialog}
+        onClose={() => setHomeBuildDialog(false)}
+        onConfirm={confirmHomeBuild}
+        destructive={false}
+        title="Only if you're building your own lab at home"
+        message="The classroom SOC is already built and running at http://10.10.100.100 (sign in: student / @Pass@2026). You don't need these build steps — start at Week 1. Open them only if you're setting up your own lab at home."
+        confirmLabel="Yes, I'm building from home"
+        cancelLabel="Back"
+      />
     </motion.div>
   );
 }

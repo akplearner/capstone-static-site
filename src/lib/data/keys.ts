@@ -24,4 +24,6 @@ export const KEYS = {
   docs: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_docs_${teamId}`,
   // Personal lab access (target IPs/credentials + reachability checklist), per device.
   labAccess: (courseId: string) => `${STORAGE_PREFIX}${courseId}_lab_access`,
+  // Per-device ack: "I'm building my own lab from home" — unlocks the Week-0 build task.
+  homeBuildAck: (courseId: string) => `${STORAGE_PREFIX}${courseId}_home_build_ack`,
 };
