@@ -520,10 +520,11 @@ const tasks: Task[] = [
         path: ['you', 'install Sysmon', 'win', 'rich logging'],
         title: 'Install Sysmon on your Windows PC',
         description: 'Sysmon records process starts, network connections and file changes — far more than Windows logs on their own.',
-        instruction: 'On your Windows 11 PC: open PowerShell as Administrator. Download Sysmon (Sysinternals) and the SwiftOnSecurity sysmonconfig.xml into the SAME folder, cd into it, then install. (New to these tools? See "Using the tools — Wazuh, Suricata & Sysmon" on the Guide.)',
+        instruction: 'On your Windows 11 PC: open PowerShell as Administrator. Then Download Sysmon (Sysinternals) from link and the sysmonconfig.xml from github link into the SAME folder (C:\\Users\\Apena\\Downloads\\wazuh-agent-folder) . Then run the install command below to install Sysmon as a service with the config.',
         commands: [
           { cmd: '# Put sysmon.exe and sysmonconfig.xml (from the two links below) in the same folder, then cd into it', explain: 'Sysmon logs almost nothing without the config — you need both files together.' },
           { cmd: 'sysmon -accepteula -i sysmonconfig.xml', explain: 'Install Sysmon as a service using the SwiftOnSecurity config.' },
+          { cmd: '.\\Sysmon64.exe -i .\\sysmonconfig.xml', explain: '(OPTIONAL - ONLY if first doesn\'t work) means device requres specific instructions on which file and which config. ' },
           { cmd: 'Get-Service Sysmon', explain: 'Confirm the Sysmon service is installed and Running.' },
         ],
         whatItMeans: 'Sysmon is the rich Windows event source your agent will forward in the next step.',
