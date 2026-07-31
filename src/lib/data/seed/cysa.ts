@@ -35,7 +35,7 @@ const roles: RoleDef[] = [
 ];
 
 const weeks: WeekDef[] = [
-  { number: 0, title: 'Lab & SOC build', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
+  { number: 0, title: 'Lab & SOC build (OPTIONAL)', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
     plain: 'Setup week: get your bearings and your access. Like a new hire on day one — find your desk, log in, and learn who does what — before any real work starts.' },
   { number: 1, title: 'Set up monitoring & baseline', theme: 'DEPLOY', objective: 'Get both machines reporting, then record what normal looks like.',
     plain: 'You turn on the security cameras (the agents) so the SOC can see your machines, then write down what a quiet, normal day looks like. Next week you can only spot “weird” because you wrote down “normal” now.' },
@@ -522,7 +522,7 @@ const tasks: Task[] = [
         description: 'Sysmon records process starts, network connections and file changes — far more than Windows logs on their own.',
         instruction: 'On your Windows 11 PC: open PowerShell as Administrator. Then Download Sysmon (Sysinternals) from link and the sysmonconfig.xml from github link into the SAME folder (C:\\Users\\Apena\\Downloads\\wazuh-agent-folder) . Then run the install command below to install Sysmon as a service with the config.',
         commands: [
-          { cmd: '# Put sysmon.exe and sysmonconfig.xml (from the two links below) in the same folder, then cd into it', explain: 'Sysmon logs almost nothing without the config — you need both files together.' },
+          { cmd: '# IMPORTANT: Put (sysmon64.exe) and (sysmonconfig.xml) in the same folder, then cd into it and run below command', explain: 'Sysmon logs almost nothing without the config — you need both files together.' },
           { cmd: 'sysmon -accepteula -i sysmonconfig.xml', explain: 'Install Sysmon as a service using the SwiftOnSecurity config.' },
           { cmd: '.\\Sysmon64.exe -i .\\sysmonconfig.xml', explain: '(OPTIONAL - ONLY if first doesn\'t work) means device requres specific instructions on which file and which config. ' },
           { cmd: 'Get-Service Sysmon', explain: 'Confirm the Sysmon service is installed and Running.' },
@@ -545,21 +545,23 @@ const tasks: Task[] = [
         description: 'Install the agent pointed at the SOC, tell it to read Sysmon\u2019s events, then start the service.',
         instruction: 'On your Windows 11 PC (PowerShell as Administrator): download the agent MSI from the guide below, install it pointed at 10.10.100.100, add the Sysmon block to ossec.conf, then start it.',
         commands: [
-          { cmd: 'msiexec.exe /i wazuh-agent-4.x.msi /q WAZUH_MANAGER="10.10.100.100" WAZUH_AGENT_NAME="Team<#>-win"', explain: 'Install the agent silently, pointed at your SOC and named for your team.' },
-          { cmd: '# Add this block inside <ossec_config> in C:\\Program Files (x86)\\ossec-agent\\ossec.conf:', explain: 'This is what makes Sysmon\u2019s events reach the SOC.' },
-          { cmd: '<localfile>\n  <location>Microsoft-Windows-Sysmon/Operational</location>\n  <log_format>eventchannel</log_format>\n</localfile>', explain: 'The agent ships Sysmon\u2019s events to the SOC.' },
+          { cmd: '# Make sure that before you run below commands, that you are inside the folder (C:\\Users\\<USER>\\Downloads\\wazuh-agent-folder) with the MSI and config files in powershell.', explain: 'Scripts requires the working directory to be set correctly.' },
+          { cmd: 'msiexec.exe /i wazuh-agent-4.x.msi /q WAZUH_MANAGER="10.10.100.100" WAZUH_AGENT_NAME="Team<#>-win"', explain: 'Install the agent silently, pointed at your SOC and named for your team. \n #(OPTIONAL) if this does not work, try the next command. then do below command.' },
+          { cmd: 'msiexec.exe /i wazuh-agent-4.14.7-1.msi /q WAZUH_MANAGER="10.10.100.100" WAZUH_AGENT_NAME="Team<#>-win"', explain: 'Install the agent by being specific, pointed at your SOC and named for your team.' },
+          { cmd: '# Add below code block inside <ossec_config file> so go and open (C:\\Program Files (x86)\\ossec-agent\\ossec.conf file)', explain: 'This is what makes Sysmon\u2019s events reach the SOC.' },
+          { cmd: '\n<localfile>\n  <location>Microsoft-Windows-Sysmon/Operational</location>\n  <log_format>eventchannel</log_format>\n</localfile>', explain: 'The agent ships Sysmon\u2019s events to the SOC.' },
           { cmd: 'NET START WazuhSvc', explain: 'Start the Wazuh service after the installer and config edit.' },
           { cmd: "Get-Content 'C:\\Program Files (x86)\\ossec-agent\\ossec.log' -Tail 20", explain: 'The proof it worked: look for "Connected to the server" — the agent has reached 10.10.100.100 over port 1514.' },
         ],
-        whatItMeans: 'Out of the box the agent already forwards the Windows Application, Security and System event logs; the Sysmon block adds rich process, network and file telemetry. Windows logs now land in the same dashboard as your Ubuntu logs and Suricata alerts.',
-        expectedOutput: 'Windows Services shows Wazuh as Running (or `Get-Service WazuhSvc` prints Running), and ossec.log shows "Connected to the server". No firewall step here — Windows Defender Firewall is already on; UFW is Linux-only.',
+        whatItMeans: 'Out of the box the agent already forwards the Windows Application, Security and System event logs; Here the Sysmon block adds rich process, network and file telemetry. Windows logs now land in the same dashboard as your Ubuntu logs and Suricata alerts.',
+        expectedOutput: 'Windows Services shows Wazuh as Running (or `Get-Service WazuhSvc` prints Running), and ossec.log shows "Connected to the server". NOTE: No firewall step here — Windows Defender Firewall is already on; UFW is Linux-only.',
         verify: ['Running', 'Connected to the server'],
         files: [
           { name: 'Official Wazuh agent guide (Windows)', purpose: 'download the MSI and see the exact msiexec install line', source: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-windows.html' },
           { name: 'ossec.conf (agent)', purpose: 'add the Sysmon <localfile> block so events reach the SOC', source: 'C:\\Program Files (x86)\\ossec-agent\\ossec.conf' },
         ],
         frameworks: ['NIST_CSF'],
-        troubleshooting: 'No "Connected to the server" in ossec.log? Two agents with the same name is the most common cause — make the name unique (Team<#>-win). Also confirm the PC can reach 10.10.100.100 on ports 1514 (data) and 1515 (enrolment) and that WazuhSvc is Running (NET START WazuhSvc).',
+        troubleshooting: '#1 confirm the ossec.conf pointing to 10.10.100.100 on ports 1514 (data) and 1515 (enrolment) . #2 No "Connected to the server" in ossec.log? Two agents with the same name is the most common cause — make the name unique (Team<#>-win). #3Also that WazuhSvc is Running (NET START WazuhSvc).',
       },
     ],
   },
