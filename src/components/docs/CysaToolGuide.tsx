@@ -11,17 +11,32 @@ import { ExternalLink, LayoutDashboard, Network, MonitorCheck } from 'lucide-rea
 type Ref = { label: string; href: string };
 type Row = { k: string; v: string };
 type Signature = { behaviour: string; query: string; tell: string };
+type HowTo = { action: string; how: string; ref?: Ref };
 
 // Week-2 "how to filter / what to look for" — behaviour → search query → the tell.
 const SIGNATURES: Signature[] = [
   { behaviour: 'Port scan', query: 'rule.groups:(ids or suricata) and data.event_type:alert', tell: 'One data.src_ip hitting many data.dest_port in seconds (Suricata uses underscore fields).' },
   { behaviour: 'SSH brute force', query: 'rule.groups:authentication_failed', tell: 'Repeated failed logins from one IP, then maybe a success.' },
-  { behaviour: 'Web attack (SQLi/XSS)', query: 'data.alert.signature:*SQL*', tell: 'Suricata signature name flags the injection; data.url:*union* if Apache logs are ingested.' },
+  { behaviour: 'Web attack (SQLi/XSS)', query: 'data.alert.signature:SQL*', tell: 'Suricata signature name flags the injection (no leading *). rule.groups:web if Apache logs are ingested.' },
   { behaviour: 'One machine only', query: 'agent.name:Team<#>-ubuntu', tell: 'Separate Ubuntu vs Windows when both are noisy.' },
   { behaviour: 'Windows process activity', query: 'data.win.system.channel:"Microsoft-Windows-Sysmon/Operational"', tell: 'Sysmon process (ID 1), network (3) and file (11) events.' },
 ];
 
 const FILTER_FIELDS = 'rule.level · rule.groups · rule.description · data.src_ip · data.dest_port · data.alert.signature · data.url · agent.name';
+
+// "Driving the dashboard" — action → how (click-path) → doc. Used across Weeks 2–4.
+const DASHBOARD_HOWTO: HowTo[] = [
+  { action: 'Open the alerts', how: 'Left menu → Security events → Events sub-tab (raw rows) or Dashboard sub-tab (charts + counts).', ref: { label: 'Wazuh dashboard', href: 'https://documentation.wazuh.com/current/user-manual/wazuh-dashboard/index.html' } },
+  { action: 'Set the time range', how: 'Time picker, top-right → e.g. Last 24 hours, or Absolute for an exact attack window. #1 reason a query looks empty.' },
+  { action: 'Search (DQL)', how: 'Search bar → field:value, e.g. data.src_ip:10.10.100.66; combine with and / or. Enter to apply.', ref: { label: 'Query language (DQL)', href: 'https://documentation.wazuh.com/current/user-manual/wazuh-dashboard/queries.html' } },
+  { action: 'Add columns', how: 'In Events, hover a field in the left field list → click the + (Add). Now it is a column you can sort.' },
+  { action: 'Save a search', how: 'Top bar → Save → name it (e.g. "Team07 attacker") → reopen from Open.' },
+  { action: 'Visualize a field', how: 'Expand a field in the list → Visualize → pick a chart (bar/pie). Save it to reuse.', ref: { label: 'Create a visualization', href: 'https://opensearch.org/docs/latest/dashboards/visualize/viz-index/' } },
+  { action: 'Build a dashboard', how: 'Left menu → Dashboards → Create → Add → drop in your saved visualizations → Save.', ref: { label: 'Build a dashboard', href: 'https://opensearch.org/docs/latest/dashboards/dashboard/index/' } },
+  { action: 'Vulnerabilities', how: 'Agents → your agent → Vulnerabilities → filter Severity = Critical/High → Export or screenshot.', ref: { label: 'Vulnerability detection', href: 'https://documentation.wazuh.com/current/user-manual/capabilities/vulnerability-detection/index.html' } },
+  { action: 'SCA (hardening)', how: 'Agents → your agent → SCA → filter Result = Failed → open a check for its Remediation text.', ref: { label: 'Configuration assessment', href: 'https://documentation.wazuh.com/current/user-manual/capabilities/sec-config-assessment/index.html' } },
+  { action: 'File changes (FIM)', how: 'Agents → your agent → Integrity monitoring → Events → read syscheck.path / added·modified. Fallback search: rule.groups:syscheck.', ref: { label: 'File integrity monitoring', href: 'https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html' } },
+];
 type Panel = {
   icon: typeof LayoutDashboard;
   name: string;
@@ -198,6 +213,45 @@ export function CysaToolGuide() {
           <span className="font-semibold">Fields you filter on:</span>{' '}
           <code className="rounded bg-gray-100 px-1 font-mono text-[11px] text-gray-700 dark:bg-gray-900 dark:text-gray-300">{FILTER_FIELDS}</code>
         </p>
+      </div>
+
+      <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Driving the dashboard — search, read, build</h3>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          The clicks behind the tasks: find alerts, filter and read them, then turn a useful search into a saved
+          visualization and your own dashboard. Used across Weeks 2–4.
+        </p>
+        <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+                <th className="px-3 py-2">To…</th>
+                <th className="px-3 py-2">Do this</th>
+                <th className="px-3 py-2">Docs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {DASHBOARD_HOWTO.map((h) => (
+                <tr key={h.action} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                  <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">{h.action}</td>
+                  <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{h.how}</td>
+                  <td className="px-3 py-2">
+                    {h.ref && (
+                      <a
+                        href={h.ref.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:underline dark:text-sky-400"
+                      >
+                        {h.ref.label} <ExternalLink className="h-3 w-3 shrink-0" />
+                      </a>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
