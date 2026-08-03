@@ -14,7 +14,7 @@ import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
 import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
 import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
-import { WeeklyFlow } from '@/components/docs/WeeklyFlow';
+import { WeekGoals } from '@/components/docs/WeekGoals';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
 import { CysaToolGuide } from '@/components/docs/CysaToolGuide';
@@ -42,14 +42,31 @@ export default function CourseGuidePage() {
         <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">{course.description}</p>
       </div>
 
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What each week is about</h2>
+          <p className="mt-1 text-gray-600 dark:text-gray-400">
+            The goal of each {unitWord(course).toLowerCase()} in plain words — what you&apos;ll actually do, and why
+            it matters.
+          </p>
+        </div>
+        <WeekGoals weeks={course.weeks} />
+      </section>
+
       <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="The lifecycle" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <p className="text-gray-600 dark:text-gray-400">
-              {course.gates.length} gates across the {isEngagement(course) ? 'engagement' : 'course'} — clear each{' '}
-              {unitWord(course).toLowerCase()}&apos;s required tasks to advance.
+              {course.noGatekeeping
+                ? `Every ${unitWord(course).toLowerCase()} is open from the start — the flow below shows the arc of the ${isEngagement(course) ? 'engagement' : 'course'}, not locks.`
+                : `${course.gates.length} gates across the ${isEngagement(course) ? 'engagement' : 'course'} — clear each ${unitWord(course).toLowerCase()}'s required tasks to advance.`}
             </p>
-            <LifecycleFlow weeks={course.weeks} gates={course.gates} currentWeek={course.weeks[0]?.number} />
+            <LifecycleFlow
+              weeks={course.weeks}
+              gates={course.gates}
+              currentWeek={course.weeks[0]?.number}
+              noGatekeeping={course.noGatekeeping}
+            />
           </div>
         </Collapsible>
       </section>
@@ -213,9 +230,8 @@ export default function CourseGuidePage() {
           </Collapsible>
         </div>
         <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="More reference — weekly flow, folder layout & cheat sheet" defaultOpen={false}>
+          <Collapsible title="More reference — folder layout & cheat sheet" defaultOpen={false}>
             <div className="space-y-4 pb-2">
-              <WeeklyFlow course={course} />
               {course.id === 'security-plus' && <DocsReductionTable />}
               <FolderTree courseId={course.id} />
               {['security-plus', 'cysa-plus', 'mssp'].includes(course.id) && (

@@ -284,25 +284,29 @@ export default function DeliverablesPage() {
           hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
           <strong>ISO/IEC 27037</strong>.
         </p>
-        <div className="mt-3">
-          <EvidenceHasher />
-        </div>
-        <div className="mt-3 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-            Handling rules
-          </div>
-          <ul className="mt-1.5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
-            {CUSTODY_RULES.map((r, i) => (
-              <li key={i} className="flex gap-1.5">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-                <span>{r}</span>
-              </li>
-            ))}
-          </ul>
-          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
-            The team package includes a ready-to-fill chain-of-custody log in{' '}
-            <span className="font-mono">Evidence/</span>; the forms below carry the same custody columns.
-          </p>
+        <div className="mt-2 border-t border-gray-200 dark:border-gray-700">
+          <Collapsible title="Open the file hasher & handling rules" defaultOpen={toolParam === 'evidence'}>
+            <div className="space-y-3 pb-2">
+              <EvidenceHasher />
+              <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
+                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                  Handling rules
+                </div>
+                <ul className="mt-1.5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                  {CUSTODY_RULES.map((r, i) => (
+                    <li key={i} className="flex gap-1.5">
+                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                      <span>{r}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                  The team package includes a ready-to-fill chain-of-custody log in{' '}
+                  <span className="font-mono">Evidence/</span>; the forms below carry the same custody columns.
+                </p>
+              </div>
+            </div>
+          </Collapsible>
         </div>
       </section>
 
@@ -500,9 +504,13 @@ export default function DeliverablesPage() {
         </div>
       ) : (
         dueThisWeek.map((def) => {
-          const isExample = !saved[def.id];
+          // A form only has a "worked example" when a group carries seed rows;
+          // field-only forms (e.g. Detection Record) have none, so no badge/toggle.
+          const hasExample = def.sections.some((s) => s.kind === 'group' && (s.group.seed?.length ?? 0) > 0);
+          const isExample = hasExample && !saved[def.id];
           const data = saved[def.id] ?? seedDeliverable(def);
           const locked = !course.noGatekeeping && !!def.requiresAuth && !authorized;
+          const hasGuidance = !!(def.buildSteps || def.meaning || def.useIt || def.pitfalls);
           return (
             <section
               key={def.id}
@@ -538,7 +546,7 @@ export default function DeliverablesPage() {
                 </div>
                 {!locked && (
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  {isExample ? (
+                  {hasExample && (isExample ? (
                     <button
                       type="button"
                       onClick={() => setDoc(def.id, emptyData())}
@@ -554,7 +562,7 @@ export default function DeliverablesPage() {
                     >
                       <Sparkles className="h-3.5 w-3.5" /> Restore example
                     </button>
-                  )}
+                  ))}
                   <button
                     type="button"
                     onClick={() => printHTML(toDeliverableHTML(def, data, meta))}
@@ -581,6 +589,44 @@ export default function DeliverablesPage() {
                 </div>
                 )}
               </div>
+
+              {!locked && hasGuidance && (
+                <div className="rounded-lg border border-gray-200 bg-gray-50/60 px-4 dark:border-gray-700 dark:bg-gray-900/30">
+                  <Collapsible title="How to build this — and what it means" defaultOpen={false}>
+                    <div className="space-y-3 pb-2 text-sm text-gray-700 dark:text-gray-300">
+                      <p><GlossaryText text={def.howTo} /></p>
+                      {def.buildSteps && (
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Build it — where each value comes from</div>
+                          <ol className="mt-1 list-decimal space-y-1 pl-5">
+                            {def.buildSteps.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
+                          </ol>
+                        </div>
+                      )}
+                      {def.meaning && (
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">What it means &amp; what a good one looks like</div>
+                          <p className="mt-1"><GlossaryText text={def.meaning} /></p>
+                        </div>
+                      )}
+                      {def.useIt && (
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">What it feeds next</div>
+                          <p className="mt-1"><GlossaryText text={def.useIt} /></p>
+                        </div>
+                      )}
+                      {def.pitfalls && (
+                        <div>
+                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Common mistakes to avoid</div>
+                          <ul className="mt-1 list-disc space-y-1 pl-5">
+                            {def.pitfalls.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </Collapsible>
+                </div>
+              )}
 
               {locked ? (
                 <div className="flex items-start gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">

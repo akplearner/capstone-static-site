@@ -70,6 +70,13 @@ export interface DeliverableDef {
   howTo: string;
   /** Which Red/Blue/other input this is built from. */
   source?: string;
+  /** Optional richer "how to build this — and what it means" guidance, shown in a
+   *  collapsible on the Deliverables page. All optional so other courses are
+   *  unaffected. */
+  buildSteps?: string[]; // ordered how-to: where each value comes from
+  meaning?: string; // what it means & what a good one looks like
+  useIt?: string; // who receives it / what it feeds next
+  pitfalls?: string[]; // common mistakes to avoid
   sections: Section[];
   /** Objective Definition-of-Done checks (spec §8). */
   dod?: DodCheck[];

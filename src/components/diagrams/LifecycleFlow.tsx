@@ -11,6 +11,10 @@ interface LifecycleFlowProps {
   currentWeek?: number;
   /** Engagement-framed courses label nodes by phase (Week.runs) instead of "WEEK N". */
   engagement?: boolean;
+  /** Courses with no gatekeeping (all weeks open) have no locks or gate progress —
+   *  hide the gate diamonds and the "% complete / Locked" text so the diagram
+   *  doesn't show a misleading "Locked / 0%" for an always-open course. */
+  noGatekeeping?: boolean;
 }
 
 const gateFill: Record<GateStatus, string> = {
@@ -33,12 +37,14 @@ export function LifecycleFlow({
   gateStatus = {},
   currentWeek,
   engagement = false,
+  noGatekeeping = false,
 }: LifecycleFlowProps) {
   const ordered = [...weeks].sort((a, b) => a.number - b.number);
 
   const slots: Slot[] = [];
   ordered.forEach((w, i) => {
     slots.push({ type: 'week', week: w });
+    if (noGatekeeping) return; // no gates when the course is fully open
     const gate = gates.find((g) => g.week === w.number);
     if (gate && i < ordered.length - 1) slots.push({ type: 'gate', gate });
   });
@@ -118,26 +124,32 @@ export function LifecycleFlow({
                 transition={{ delay: i * 0.05 }}
               />
               {isCurrent && <rect x={x} y={y} width={nodeW} height={nodeH} rx={12} fill="none" stroke="#2563eb" strokeWidth={2.5} />}
-              <rect x={x + 12} y={y + nodeH - 18} width={nodeW - 24} height={6} rx={3} className="fill-gray-200 dark:fill-gray-700" />
-              <motion.rect
-                x={x + 12}
-                y={y + nodeH - 18}
-                height={6}
-                rx={3}
-                fill={pct === 100 ? '#16a34a' : '#2563eb'}
-                initial={{ width: 0 }}
-                animate={{ width: ((nodeW - 24) * pct) / 100 }}
-                transition={{ duration: 0.5, delay: i * 0.05 }}
-              />
+              {!noGatekeeping && (
+                <>
+                  <rect x={x + 12} y={y + nodeH - 18} width={nodeW - 24} height={6} rx={3} className="fill-gray-200 dark:fill-gray-700" />
+                  <motion.rect
+                    x={x + 12}
+                    y={y + nodeH - 18}
+                    height={6}
+                    rx={3}
+                    fill={pct === 100 ? '#16a34a' : '#2563eb'}
+                    initial={{ width: 0 }}
+                    animate={{ width: ((nodeW - 24) * pct) / 100 }}
+                    transition={{ duration: 0.5, delay: i * 0.05 }}
+                  />
+                </>
+              )}
               <text x={cx} y={y + 22} textAnchor="middle" fontSize="11" fontWeight="700" className="fill-blue-600 dark:fill-blue-400">
                 {engagement && w.runs ? w.runs.toUpperCase() : `WEEK ${w.number}`}
               </text>
               <text x={cx} y={y + 40} textAnchor="middle" fontSize="12" fontWeight="600" className="fill-gray-900 dark:fill-white">
                 {truncate(w.title, 18)}
               </text>
-              <text x={cx} y={y + 56} textAnchor="middle" fontSize="10" className="fill-gray-500 dark:fill-gray-400">
-                {pct}% complete
-              </text>
+              {!noGatekeeping && (
+                <text x={cx} y={y + 56} textAnchor="middle" fontSize="10" className="fill-gray-500 dark:fill-gray-400">
+                  {pct}% complete
+                </text>
+              )}
             </g>
           );
         })}

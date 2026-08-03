@@ -115,7 +115,7 @@ export function custodySection(opts?: { group?: string; label?: string; seed?: R
     group: {
       group: opts?.group ?? 'evidence',
       label: opts?.label ?? 'Chain of custody — hash & log every artifact',
-      help: 'Hash every artifact with `sha256sum` the moment you collect it, then log it here and record each hand-off. Use the "Evidence & chain of custody" tool at the top of this page to compute the SHA-256.',
+      help: 'Hash every artifact with `sha256sum` the moment you collect it, then log it here and record each hand-off. Open the "Evidence & chain of custody" tool near the top of this page (expand "Open the file hasher & handling rules") to compute the SHA-256.',
       columns: custodyColumns(),
       seed: opts?.seed,
     },
