@@ -91,6 +91,20 @@ export interface Step {
    *  (rendered as a copyable line), a URL, or a plain instruction. Renders as a
    *  "Files you'll need" callout above the command. */
   files?: { name: string; purpose: string; source?: string }[];
+  /** An example of the files/folders this step should produce on disk, shown as a
+   *  small directory tree so students can see what "done" looks like (e.g. the
+   *  hashed capture under ~/team-artifacts/week-2/). Rendered by FolderTree's
+   *  generic TreeNode. */
+  tree?: FolderNode;
+}
+
+/** A node in a small illustrative directory tree (see Step.tree / FolderTree). */
+export interface FolderNode {
+  label: string;
+  kind: 'root' | 'folder' | 'file';
+  owner?: Role;
+  format?: 'md' | 'csv' | 'img';
+  children?: FolderNode[];
 }
 
 export interface Task {

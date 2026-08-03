@@ -1,11 +1,15 @@
 'use client';
 
+import { motion } from 'framer-motion';
+
 /**
  * A per-step "follow the path" mini-diagram: node → (labelled arrow) → node.
  * Fed by `Step.path`, an alternating array of node keys (even indices) and arrow
  * labels (odd indices), e.g. ['you','ssh + paste','ubuntu','reports in','soc'].
  * Node keys resolve against NODES; unknown keys render as a plain slate node.
- * Colors use theme tokens so the diagram adapts to light/dark.
+ * Colors use theme tokens so the diagram adapts to light/dark. Nodes/arrows fade
+ * in left-to-right (house `delay: i*0.05` stagger); reduce-motion is honoured
+ * globally via <MotionConfig reducedMotion="user">.
  */
 
 type NodeColor = 'teal' | 'blue' | 'red' | 'slate';
@@ -33,11 +37,16 @@ export function StepFlow({ path }: { path: string[] }) {
 
   const items: React.ReactNode[] = [];
   for (let i = 0; i < path.length; i++) {
+    const delay = Math.min(i * 0.05, 0.5);
     if (i % 2 === 0) {
       const n = NODES[path[i]] ?? { t: path[i], s: '', c: 'slate' as NodeColor };
       items.push(
-        <div
+        <motion.div
           key={`n-${i}`}
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay, duration: 0.2 }}
+          whileHover={{ scale: 1.03 }}
           className="flex min-w-[92px] flex-col justify-center rounded-lg border border-line bg-panel px-2.5 py-1.5"
         >
           <span className="flex items-center gap-1.5 text-xs font-semibold leading-tight text-ink">
@@ -45,14 +54,20 @@ export function StepFlow({ path }: { path: string[] }) {
             {n.t}
           </span>
           {n.s && <span className="mt-0.5 font-mono text-[10px] text-muted">{n.s}</span>}
-        </div>
+        </motion.div>
       );
     } else {
       items.push(
-        <div key={`a-${i}`} className="flex min-w-[52px] flex-col items-center justify-center px-0.5">
+        <motion.div
+          key={`a-${i}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay, duration: 0.2 }}
+          className="flex min-w-[52px] flex-col items-center justify-center px-0.5"
+        >
           <span className="text-center font-mono text-[9px] leading-tight text-muted">{path[i]}</span>
           <span className="text-[15px] font-bold leading-none text-accent" aria-hidden>→</span>
-        </div>
+        </motion.div>
       );
     }
   }

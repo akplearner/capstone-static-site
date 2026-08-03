@@ -11,6 +11,16 @@
 export const EVIDENCE_WORKING_DIR = '~/team-artifacts/week-N/';
 export const EVIDENCE_PACKAGE_DIR = '04_Testing_and_Findings/Evidence/';
 
+/**
+ * Where the team package gathers evidence, per course. Security+ nests it under
+ * its testing folder; other courses (e.g. CySA+, whose folders are 01_Monitoring…
+ * 06_Debrief) keep an Evidence/ folder at the package root — matching the per-week
+ * package layout. Returns the path WITHOUT a trailing slash.
+ */
+export function evidencePackageDir(courseId?: string): string {
+  return courseId === 'security-plus' ? '04_Testing_and_Findings/Evidence' : 'Evidence';
+}
+
 /** The one-line canonical rule quoted everywhere. */
 export const EVIDENCE_LOCATION_RULE =
   'Save every artifact for a week in ~/team-artifacts/week-N/ while you work; the team package gathers them into 04_Testing_and_Findings/Evidence/.';

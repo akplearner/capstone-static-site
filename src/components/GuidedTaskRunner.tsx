@@ -223,6 +223,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   where={current.where}
                   path={current.path}
                   files={current.files}
+                  tree={current.tree}
                 />
               )}
             </motion.div>
@@ -298,6 +299,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               where={step.where}
               path={step.path}
               files={step.files}
+              tree={step.tree}
             />
           ))}
         </div>

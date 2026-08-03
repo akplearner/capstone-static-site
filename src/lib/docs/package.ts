@@ -4,9 +4,10 @@ import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
 import { CUSTODY_RULES, CustodyRow, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
 import { RoleDef } from '../types';
+import { evidencePackageDir } from '../evidence';
 
 /** A filesystem-safe folder name for a role (e.g. "SOC Analyst" → "SOC_Analyst"). */
-function roleFolder(owner: string, roles?: RoleDef[]): string {
+export function roleFolder(owner: string, roles?: RoleDef[]): string {
   const name = roles?.find((r) => r.id === owner)?.name ?? owner;
   return name.replace(/[^A-Za-z0-9]+/g, '_').replace(/^_+|_+$/g, '');
 }
@@ -116,7 +117,7 @@ export function buildTeamPackage(saved: Record<string, DeliverableData>, meta: D
   entries.push({ name: `${root}/Team_Roles.md`, data: enc.encode(teamRoles(meta)) });
   // Seed the Evidence folder with a ready-to-fill chain-of-custody log (MD + CSV),
   // so the team documents artifacts like a real case instead of an empty folder.
-  const evidenceDir = `${root}/04_Testing_and_Findings/Evidence`;
+  const evidenceDir = `${root}/${evidencePackageDir(meta.courseId)}`;
   entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.md`, data: enc.encode(custodyLogMarkdown(meta)) });
   entries.push({ name: `${evidenceDir}/CHAIN_OF_CUSTODY.csv`, data: enc.encode(custodyLogCSV()) });
 

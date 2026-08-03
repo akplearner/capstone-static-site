@@ -19,13 +19,14 @@ import {
   Sparkles,
   SquarePen,
 } from 'lucide-react';
-import { Task } from '@/lib/types';
+import { Task, FolderNode } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
 import { splitCommand } from '@/lib/commands';
 import { toast } from './ui/Toast';
 import { StepFlow } from './diagrams/StepFlow';
+import { TreeNode } from './docs/FolderTree';
 import { GlossaryText } from './GlossaryText';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
@@ -219,6 +220,7 @@ export function StepDetail({
   where,
   path,
   files,
+  tree,
 }: {
   instruction?: string;
   description?: string;
@@ -238,6 +240,7 @@ export function StepDetail({
   where?: string;
   path?: string[];
   files?: { name: string; purpose: string; source?: string }[];
+  tree?: FolderNode;
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
@@ -320,6 +323,18 @@ export function StepDetail({
       {/* A tiny node→arrow→node "follow the path" for this step, when authored. */}
       {path && path.length > 0 && <StepFlow path={path} />}
 
+      {/* What the step should leave on disk — a small example directory tree. */}
+      {tree && (
+        <div>
+          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            What your files should look like
+          </div>
+          <ul className="mt-1.5 space-y-1 rounded-md border border-line bg-panel-2 p-3">
+            <TreeNode node={tree} />
+          </ul>
+        </div>
+      )}
+
       {/* Essentials in two columns on desktop: left = do + command(s), right = see + meaning. */}
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-3">
@@ -349,11 +364,7 @@ export function StepDetail({
               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 What you should see
               </div>
-              {expectedOutput && (
-                <div className="mt-1 rounded bg-gray-100 p-2 text-sm text-gray-800 dark:bg-gray-600 dark:text-gray-100">
-                  {expectedOutput}
-                </div>
-              )}
+              {expectedOutput && <TerminalOutput text={expectedOutput} />}
               {outputExplanation && (
                 <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{outputExplanation}</p>
               )}
@@ -438,6 +449,7 @@ interface ChecklistItemProps {
   where?: string;
   path?: string[];
   files?: { name: string; purpose: string; source?: string }[];
+  tree?: FolderNode;
 }
 
 export function ChecklistItem({
@@ -462,6 +474,7 @@ export function ChecklistItem({
   where,
   path,
   files,
+  tree,
 }: ChecklistItemProps) {
   const [showDetails, setShowDetails] = React.useState(true);
 
@@ -526,6 +539,7 @@ export function ChecklistItem({
                 where={where}
                 path={path}
                 files={files}
+                tree={tree}
               />
             </div>
           </motion.div>
@@ -667,6 +681,35 @@ export function CommandBlock({
           </div>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Renders a step's expected output in terminal chrome (matching CommandBlock),
+ * so "what you should see" reads like a real console instead of a plain grey box.
+ * Reuses the terminal palette tokens and the IP/comment highlighter. Purely
+ * visual — the copied text is the raw output.
+ */
+export function TerminalOutput({ text }: { text: string }) {
+  const lines = text.split('\n');
+  return (
+    <div
+      className="relative mt-1 overflow-x-auto rounded-lg p-3 pr-16 font-mono text-sm"
+      style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
+    >
+      <div className="absolute right-2 top-2">
+        <CopyButton text={text} />
+      </div>
+      <div className="mb-1 select-none text-[10px] uppercase tracking-wide" style={{ color: 'var(--color-term-dim)' }}>
+        expected output
+      </div>
+      {lines.map((ln, i) => (
+        <div key={i} className="whitespace-pre-wrap break-words leading-relaxed">
+          <HighlightedCommand cmd={ln} />
+          {i === lines.length - 1 && <span className="term-caret" aria-hidden="true" />}
+        </div>
+      ))}
     </div>
   );
 }

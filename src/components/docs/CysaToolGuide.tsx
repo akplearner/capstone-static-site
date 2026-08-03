@@ -14,14 +14,14 @@ type Signature = { behaviour: string; query: string; tell: string };
 
 // Week-2 "how to filter / what to look for" — behaviour → search query → the tell.
 const SIGNATURES: Signature[] = [
-  { behaviour: 'Port scan', query: 'rule.groups:ids', tell: 'One data.srcip hitting many data.dstport in seconds (Suricata alerts).' },
+  { behaviour: 'Port scan', query: 'rule.groups:(ids or suricata) and data.event_type:alert', tell: 'One data.src_ip hitting many data.dest_port in seconds (Suricata uses underscore fields).' },
   { behaviour: 'SSH brute force', query: 'rule.groups:authentication_failed', tell: 'Repeated failed logins from one IP, then maybe a success.' },
-  { behaviour: 'Web attack (SQLi/XSS)', query: 'full_log:*union*  ·  rule.groups:web', tell: 'Attack strings (union, ../, <script) in the request URL.' },
-  { behaviour: 'One machine only', query: 'agent.name:Team07-ubuntu', tell: 'Separate Ubuntu vs Windows when both are noisy.' },
+  { behaviour: 'Web attack (SQLi/XSS)', query: 'data.alert.signature:*SQL*', tell: 'Suricata signature name flags the injection; data.url:*union* if Apache logs are ingested.' },
+  { behaviour: 'One machine only', query: 'agent.name:Team<#>-ubuntu', tell: 'Separate Ubuntu vs Windows when both are noisy.' },
   { behaviour: 'Windows process activity', query: 'data.win.system.channel:"Microsoft-Windows-Sysmon/Operational"', tell: 'Sysmon process (ID 1), network (3) and file (11) events.' },
 ];
 
-const FILTER_FIELDS = 'rule.level · rule.groups · rule.description · data.srcip · data.dstport · data.url · agent.name · full_log';
+const FILTER_FIELDS = 'rule.level · rule.groups · rule.description · data.src_ip · data.dest_port · data.alert.signature · data.url · agent.name';
 type Panel = {
   icon: typeof LayoutDashboard;
   name: string;
@@ -45,7 +45,7 @@ const PANELS: Panel[] = [
     rows: [
       { k: 'rule.level:>=7', v: 'Cut to alerts that usually matter (levels run 0–15; higher = more severe).' },
       { k: 'rule.level:>=10', v: 'Just the high-severity alerts — where an incident shows up.' },
-      { k: 'data.srcip:<ip>', v: 'Everything one source did, across agents — the shape of the behaviour.' },
+      { k: 'data.srcip:<ip> or data.src_ip:<ip>', v: 'Everything one source did. Auth logs use data.srcip; Suricata uses data.src_ip — search both.' },
       { k: 'agent.name:<Team07-ubuntu>', v: 'Limit to one machine when both agents are noisy.' },
       { k: 'sort by Time', v: 'Order the events to read an attack as a sequence.' },
       { k: 'Connected to the server', v: 'The ossec.log line that proves an agent is talking to the SOC.' },

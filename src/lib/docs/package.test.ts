@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildWeekPackage, weekPackageFileName, WeekAttachment } from './package';
+import { buildWeekPackage, buildTeamPackage, weekPackageFileName, WeekAttachment } from './package';
 import { emptyData } from './types';
 
 // A zip's central directory stores each entry name as UTF-8 bytes; we can find the
@@ -52,6 +52,20 @@ describe('buildWeekPackage', () => {
   it('handles a week with saved form data without throwing', () => {
     const saved = { cysa_soc_monitoring: emptyData() };
     expect(() => buildWeekPackage(saved, meta, 'cysa-plus', 1, [])).not.toThrow();
+  });
+
+  it('puts the whole-course Evidence folder at the package root for CySA (not the Security+ testing folder)', () => {
+    const zip = buildTeamPackage({}, { team: '7', cohort: '2026-07', date: '2026-07-31', courseId: 'cysa-plus' });
+    const names = entryNames(zip);
+    expect(names.some((n) => n.endsWith('Capstone_Team7/Evidence/CHAIN_OF_CUSTODY.md'))).toBe(true);
+    // The Security+-only folder must NOT leak into a CySA package.
+    expect(names.some((n) => n.includes('04_Testing_and_Findings'))).toBe(false);
+  });
+
+  it('keeps the Security+ Evidence folder nested under its testing folder', () => {
+    const zip = buildTeamPackage({}, { team: '1', cohort: '2026-07', date: '2026-07-31', courseId: 'security-plus' });
+    const names = entryNames(zip);
+    expect(names.some((n) => n.endsWith('04_Testing_and_Findings/Evidence/CHAIN_OF_CUSTODY.md'))).toBe(true);
   });
 
   it('groups each deliverable under a per-role subfolder using the role name', () => {

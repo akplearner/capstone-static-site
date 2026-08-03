@@ -16,7 +16,9 @@ import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
+import { FolderTree } from '@/components/docs/FolderTree';
 import { GlossaryText } from '@/components/GlossaryText';
+import { EVIDENCE_NAMING } from '@/lib/evidence';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -211,28 +213,54 @@ export default function DeliverablesPage() {
             . Change the week below to see other forms.
           </p>
         ) : (
-          <ul className="mt-2 space-y-1">
+          <ul className="mt-2 space-y-3">
             {dueThisWeek.map((def) => {
               const done = (def.dod ?? []).length > 0 && (def.dod ?? []).every((c) => c.test(saved[def.id] ?? emptyData()));
+              const evName = def.sections
+                .flatMap((s) => (s.kind === 'fields' ? s.fields : []))
+                .find((f) => f.type === 'fileref' && f.placeholder)?.placeholder;
               return (
-                <li key={def.id} className="flex items-center gap-2 text-sm">
-                  {done ? (
-                    <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
-                  ) : (
-                    <Circle className="h-4 w-4 shrink-0 text-blue-400" />
-                  )}
-                  <a href={`#form-${def.id}`} className="font-medium text-blue-800 underline dark:text-blue-200">
-                    {def.num}. {def.title}
-                  </a>
-                  {def.requiresAuth && !authorized && (
-                    <span className="inline-flex items-center gap-0.5 text-xs text-amber-700 dark:text-amber-400">
-                      <Lock className="h-3 w-3" /> needs scope sign-off
+                <li key={def.id} className="text-sm">
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    {done ? (
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                    ) : (
+                      <Circle className="h-4 w-4 shrink-0 text-blue-400" />
+                    )}
+                    <a href={`#form-${def.id}`} className="font-medium text-blue-800 underline dark:text-blue-200">
+                      {def.num}. {def.title}
+                    </a>
+                    <span className="font-mono text-[11px] text-blue-700/80 dark:text-blue-300/80">
+                      {def.folder}/{def.file}
                     </span>
+                    {def.requiresAuth && !authorized && (
+                      <span className="inline-flex items-center gap-0.5 text-xs text-amber-700 dark:text-amber-400">
+                        <Lock className="h-3 w-3" /> needs scope sign-off
+                      </span>
+                    )}
+                  </div>
+                  <p className="ml-6 mt-0.5 text-[13px] text-blue-800/90 dark:text-blue-200/90">{def.howTo}</p>
+                  {evName && (
+                    <p className="ml-6 mt-0.5 text-[11px] text-blue-700/70 dark:text-blue-300/70">
+                      Evidence to attach, e.g. <span className="font-mono">{evName}</span>
+                    </p>
                   )}
                 </li>
               );
             })}
           </ul>
+        )}
+        {courseDefs.some((d) => d.weeks.includes(selectedWeek)) && (
+          <div className="mt-4 border-t border-blue-200 pt-3 dark:border-blue-800">
+            <p className="text-[12px] text-blue-800 dark:text-blue-200">
+              Name evidence <span className="font-mono">{EVIDENCE_NAMING}</span> and keep it in{' '}
+              <span className="font-mono">~/team-artifacts/week-{selectedWeek}/</span> while you work. Your
+              submission zip for this week will look like this:
+            </p>
+            <div className="mt-2">
+              <FolderTree courseId={course.id} variant="week" week={selectedWeek} roles={course.roles} />
+            </div>
+          </div>
         )}
       </div>
 

@@ -303,6 +303,7 @@ function TaskReference({ task }: { task: Task }) {
               where={s.where}
               path={s.path}
               files={s.files}
+              tree={s.tree}
             />
           </div>
         </div>
