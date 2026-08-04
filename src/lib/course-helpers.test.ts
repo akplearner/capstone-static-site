@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { SECURITY_PLUS } from './data/seed/securityPlus';
-import { getTasksByRole, getRequiredSteps, getRequiredStepCount, getWeekNumbers } from './course-helpers';
+import { CYSA_PLUS } from './data/seed/cysa';
+import { MSSP } from './data/seed/mssp';
+import {
+  getTasksByRole,
+  getRequiredSteps,
+  getRequiredStepCount,
+  getProgressSteps,
+  getProgressStepCount,
+  getWeekNumbers,
+  isSetupWeek,
+} from './course-helpers';
 
 describe('course-helpers on the Security+ seed', () => {
   it('getTasksByRole filters by role (and optionally week)', () => {
@@ -27,5 +37,56 @@ describe('course-helpers on the Security+ seed', () => {
     const weeks = getWeekNumbers(SECURITY_PLUS);
     expect(weeks).toEqual([...weeks].sort((a, b) => a - b));
     expect(new Set(weeks).size).toBe(weeks.length);
+  });
+});
+
+describe('progress denominator never collapses to zero', () => {
+  const ALL = [SECURITY_PLUS, CYSA_PLUS, MSSP];
+
+  it('every task with steps has a non-zero progress denominator', () => {
+    // The bug this guards: a task built entirely from optional steps had a 0/0
+    // denominator, reported 0% forever, and so permanently became "the week
+    // you're on" — pinning the page open on Week 0 and the Continue button on
+    // the lab build.
+    for (const course of ALL) {
+      for (const t of course.tasks) {
+        if (t.steps.length === 0) continue;
+        expect(getProgressStepCount(t), `${course.id}/${t.id}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('falls back to all steps only when every step is optional', () => {
+    for (const course of ALL) {
+      for (const t of course.tasks) {
+        const required = getRequiredStepCount(t);
+        if (required > 0) {
+          expect(getProgressSteps(t)).toEqual(getRequiredSteps(t));
+        } else {
+          expect(getProgressSteps(t)).toEqual(t.steps);
+        }
+      }
+    }
+  });
+
+  it('the CySA all-optional lab build is the case that regressed', () => {
+    const crW0 = CYSA_PLUS.tasks.find((t) => t.id === 'cr-w0');
+    expect(crW0).toBeDefined();
+    expect(crW0!.steps.every((s) => s.optional)).toBe(true);
+    expect(getRequiredStepCount(crW0!)).toBe(0);
+    expect(getProgressStepCount(crW0!)).toBe(crW0!.steps.length);
+    // ...and it must be flagged so it is never offered as "your next task".
+    expect(crW0!.homeLabOnly).toBe(true);
+  });
+});
+
+describe('setup weeks', () => {
+  it('week 0 is setup in every course, later weeks are not', () => {
+    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP]) {
+      expect(isSetupWeek(course, 0), course.id).toBe(true);
+      for (const w of course.weeks.filter((x) => x.number > 0)) {
+        expect(isSetupWeek(course, w.number), `${course.id}/w${w.number}`).toBe(false);
+      }
+    }
   });
 });

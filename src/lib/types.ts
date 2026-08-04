@@ -28,6 +28,19 @@ export interface WeekDef {
    *  like a real analyst" — 1–2 sentences with a light analogy, for non-technical
    *  students. Rendered as a callout above the week's tasks. */
   plain?: string;
+  /** Lab/course setup rather than graded work. Setup weeks start collapsed and
+   *  are skipped when resolving where a student left off, so an opt-in build
+   *  track never presents itself as "the week you're on". Defaults to week 0. */
+  setup?: boolean;
+  /** How hard this week is, 1 (gentlest) to 4 (hardest). Rendered as stars in
+   *  the week milestone header so students can pace themselves. */
+  difficulty?: 1 | 2 | 3 | 4;
+  /** The one-line completion test: "you have cleared this week when …".
+   *  This is the week's milestone, stated in student-facing language. */
+  milestone?: string;
+  /** Ordered, short labels for how the week's work flows, e.g.
+   *  ['Install', 'Enroll', 'Verify', 'Prove']. Rendered as a chain. */
+  flow?: string[];
 }
 
 // Optional per-course framework override; falls back to the built-in maps in utils.
@@ -96,6 +109,35 @@ export interface Step {
    *  hashed capture under ~/team-artifacts/week-2/). Rendered by FolderTree's
    *  generic TreeNode. */
   tree?: FolderNode;
+  /** An annotated, code-drawn walkthrough of a tool's UI (no external image) —
+   *  a simplified mock of the screen with numbered callout markers, so a beginner
+   *  can see *where* to click before doing it. `screen` picks a layout preset in
+   *  WazuhWalkthrough; `markers` are the numbered captions overlaid on it. Renders
+   *  above the command block. Used mainly for the Wazuh dashboard. */
+  walkthrough?: {
+    screen:
+      | 'agents'
+      | 'security-events'
+      | 'deploy-agent'
+      | 'vuln-sca'
+      | 'mitre'
+      | 'ossec-conf'
+      | 'wireshark'
+      | 'generic';
+    title?: string;
+    markers: { n: number; label: string }[];
+  };
+  /** Real screenshot slots for a step. Each entry is a figure with alt text and an
+   *  optional caption. When `placeholder` is true (or the asset isn't in place yet)
+   *  the UI renders a labelled dashed box naming the file to drop into
+   *  public/screenshots/ — so slots render cleanly before real images exist. */
+  images?: { src: string; alt: string; caption?: string; placeholder?: boolean }[];
+  /** Which parts of `expectedOutput` actually matter, and why. Each `text` is a
+   *  literal substring of the expected output; the UI highlights it in place and
+   *  numbers it, so students see *which component of the output* they're looking
+   *  for rather than a wall of sample text with a paragraph underneath. Tokens in
+   *  `verify` are highlighted automatically; use this to add the explanation. */
+  outputHighlights?: { text: string; label: string }[];
 }
 
 /** A node in a small illustrative directory tree (see Step.tree / FolderTree). */
@@ -127,6 +169,10 @@ export interface Task {
   learn?: string[];
   /** Key tools/commands used, shown as a legend. */
   tools?: string[];
+  /** This task only applies to students building the lab at home — in class the
+   *  SOC already exists. Expanding it asks for confirmation first, and it is
+   *  never offered as "your next task". Replaces a hardcoded 'cr-w0' check. */
+  homeLabOnly?: boolean;
 }
 
 export interface Week {

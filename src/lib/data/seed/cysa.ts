@@ -110,6 +110,7 @@ const tasks: Task[] = [
     frameworks: ['NIST_CSF'],
     deliverables: [],
     estimatedTime: 'One-time setup (instructor / builder)',
+    homeLabOnly: true,
     learn: ['Wazuh all-in-one install', 'Suricata on each server', 'Sysmon on Windows', 'cloning pods'],
     tools: ['Proxmox', 'Wazuh', 'Suricata', 'Sysmon', 'DVWA'],
     steps: [

@@ -16,6 +16,7 @@ import { ChecklistItem, StepDetail } from './TaskComponents';
 import { GuidedStepper, StepperItem } from './GuidedStepper';
 import { Task } from '@/lib/types';
 import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
+import { recordResume } from '@/lib/resume';
 import { progressRepo } from '@/lib/data';
 
 interface GuidedTaskRunnerProps {
@@ -64,6 +65,10 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
         stepId,
         completedAt: Date.now(),
       });
+      // Remember this as the place to reopen on the next visit. Only ticking
+      // moves the pointer — un-ticking an old step shouldn't drag the student
+      // backwards through the course.
+      recordResume(courseId, memberId, { week: task.week, taskId: task.id, stepId });
     } else {
       progressRepo.removeCompletion(courseId, memberId, task.id, stepId);
     }

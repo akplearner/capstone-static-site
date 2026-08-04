@@ -26,4 +26,12 @@ export const KEYS = {
   labAccess: (courseId: string) => `${STORAGE_PREFIX}${courseId}_lab_access`,
   // Per-device ack: "I'm building my own lab from home" — unlocks the Week-0 build task.
   homeBuildAck: (courseId: string) => `${STORAGE_PREFIX}${courseId}_home_build_ack`,
+  // Where this student last ticked a checkbox, so the page reopens there instead
+  // of expanding everything. Purely a UI convenience: it is derived from actions
+  // the student already took, is safe to lose (we fall back to the first
+  // incomplete week), and is written identically whichever progress backend is
+  // active — the Supabase cache only keeps completion *keys*, not the
+  // `completedAt` values, so this pointer cannot be derived there.
+  resume: (courseId: string, memberId: string) =>
+    `${STORAGE_PREFIX}${courseId}_resume_${memberId}`,
 };

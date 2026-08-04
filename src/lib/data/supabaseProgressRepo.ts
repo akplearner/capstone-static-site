@@ -2,7 +2,13 @@
 
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import { calculateProgress } from '../utils';
-import { getTasksByRole, getRequiredSteps, getRequiredStepCount } from '../course-helpers';
+import {
+  getTasksByRole,
+  getRequiredSteps,
+  getRequiredStepCount,
+  getProgressSteps,
+  getProgressStepCount,
+} from '../course-helpers';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { JoinResult, ProgressRepository } from './types';
@@ -32,6 +38,12 @@ function onWriteError(what: string, error: { message: string } | null, notify = 
 
 function completedRequiredCount(courseId: string, memberId: string, task: Task, set: Set<string>): number {
   return getRequiredSteps(task).filter((s) => set.has(KEYS.completion(courseId, memberId, task.id, s.id))).length;
+}
+
+// Progress denominator falls back to all steps for an all-optional task, so an
+// opt-in track can still reach 100%. Gates keep using completedRequiredCount.
+function completedProgressCount(courseId: string, memberId: string, task: Task, set: Set<string>): number {
+  return getProgressSteps(task).filter((s) => set.has(KEYS.completion(courseId, memberId, task.id, s.id))).length;
 }
 
 function db() {
@@ -185,18 +197,18 @@ export const supabaseProgressRepo: ProgressRepository = {
   },
 
   getTaskPercent(courseId, memberId, task: Task, keySet): number {
-    const required = getRequiredStepCount(task);
-    if (required === 0) return 0;
+    const total = getProgressStepCount(task);
+    if (total === 0) return 0;
     const set = keySet ?? this.getCompletionKeySet(courseId, memberId);
-    return calculateProgress(completedRequiredCount(courseId, memberId, task, set), required);
+    return calculateProgress(completedProgressCount(courseId, memberId, task, set), total);
   },
 
   getWeekCompletion(course: Course, memberId, role, week, keySet): number {
     const set = keySet ?? this.getCompletionKeySet(course.id, memberId);
     const tasks = getTasksByRole(course, role, week);
-    const total = tasks.reduce((sum, t) => sum + getRequiredStepCount(t), 0);
+    const total = tasks.reduce((sum, t) => sum + getProgressStepCount(t), 0);
     if (total === 0) return 0;
-    const completed = tasks.reduce((sum, t) => sum + completedRequiredCount(course.id, memberId, t, set), 0);
+    const completed = tasks.reduce((sum, t) => sum + completedProgressCount(course.id, memberId, t, set), 0);
     return calculateProgress(completed, total);
   },
 

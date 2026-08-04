@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -46,7 +46,8 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo } from '@/lib/data';
 import { KEYS } from '@/lib/data/keys';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
+import { hasNoProgress, readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -59,9 +60,19 @@ type CourseStats = {
   weekStats: Record<number, number>;
   taskStats: Record<string, number>;
   gateStats: Record<number, GateStatus>;
+  /** The week to open on load — where the student stopped, else the first
+   *  incomplete non-setup week. See src/lib/resume.ts. */
   activeWeek: number;
+  /** The exact checkbox the student last ticked, if we still have it. */
+  resume: ResumePoint | null;
 };
-const EMPTY_STATS: CourseStats = { weekStats: {}, taskStats: {}, gateStats: {}, activeWeek: 1 };
+const EMPTY_STATS: CourseStats = {
+  weekStats: {},
+  taskStats: {},
+  gateStats: {},
+  activeWeek: 1,
+  resume: null,
+};
 
 /** Inline enrollment: pick a team (capacity-aware) and role without leaving the page. */
 function JoinPanel({
@@ -466,6 +477,7 @@ export default function CoursePage() {
   // the classroom SOC is already built. Gate its expansion behind a confirmation
   // (persisted per device) so students don't do the build work they don't need.
   const [homeBuildDialog, setHomeBuildDialog] = useState(false);
+  const [pendingHomeBuild, setPendingHomeBuild] = useState<Task | null>(null);
   const homeBuildAck = useClientStore<boolean>(
     () => (typeof window !== 'undefined' ? localStorage.getItem(KEYS.homeBuildAck(course.id)) === '1' : false),
     false
@@ -492,36 +504,79 @@ export default function CoursePage() {
 
   // Derived from one batched localStorage scan (week %, task %, gate status, and
   // the first-incomplete "active" week), kept live via the store subscription.
-  const { weekStats, taskStats, gateStats, activeWeek } = useClientStore<CourseStats>(() => {
+  const { weekStats, taskStats, gateStats, activeWeek, resume } = useClientStore<CourseStats>(() => {
     const weeks: Record<number, number> = {};
     const tasks: Record<string, number> = {};
     const gates: Record<number, GateStatus> = {};
-    let firstIncomplete = course.weeks[0]?.number ?? 1;
+    let resumePoint: ResumePoint | null = null;
     if (member) {
       const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
-      let found = false;
       [...course.weeks]
         .sort((a, b) => a.number - b.number)
         .forEach((w) => {
-          const pct = progressRepo.getWeekCompletion(course, member.memberId, member.role, w.number, keySet);
-          weeks[w.number] = pct;
+          weeks[w.number] = progressRepo.getWeekCompletion(
+            course, member.memberId, member.role, w.number, keySet
+          );
           getTasksByRole(course, member.role, w.number).forEach((t) => {
             tasks[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
           });
-          if (!found && pct < 100) {
-            firstIncomplete = w.number;
-            found = true;
-          }
         });
       course.gates.forEach((g) => {
         gates[g.id] = progressRepo.deriveGateStatus(course, member.memberId, member.role, g, keySet);
       });
+      resumePoint = readResume(course, member.memberId);
     }
-    return { weekStats: weeks, taskStats: tasks, gateStats: gates, activeWeek: firstIncomplete };
+    return {
+      weekStats: weeks,
+      taskStats: tasks,
+      gateStats: gates,
+      activeWeek: resolveActiveWeek(course, member?.role ?? '', weeks, resumePoint),
+      resume: resumePoint,
+    };
   }, EMPTY_STATS);
 
-  // Active week is open by default until the student toggles weeks themselves.
-  const effectiveOpenWeeks = openWeeks ?? new Set<number>([activeWeek]);
+  // Exactly one week opens by default: the one the student stopped in. Everything
+  // else — including the setup week — stays collapsed until they click it, which
+  // is why `openWeeks` starts null (untouched) rather than pre-populated.
+  // A brand-new student with no progress at all gets the setup week too, since
+  // that genuinely is their next action.
+  const showSetupByDefault =
+    !resume && hasNoProgress(weekStats) && course.weeks.some((w) => isSetupWeek(course, w.number));
+  const defaultOpenWeeks = useMemo(() => {
+    const s = new Set<number>([activeWeek]);
+    if (showSetupByDefault) {
+      const setupWeek = course.weeks.find((w) => isSetupWeek(course, w.number));
+      if (setupWeek) s.add(setupWeek.number);
+    }
+    return s;
+  }, [activeWeek, showSetupByDefault, course]);
+  const effectiveOpenWeeks = openWeeks ?? defaultOpenWeeks;
+
+  // Open the task the student stopped in, exactly once, after progress has been
+  // read on the client. Progress is client-only, so this can't be a lazy state
+  // initializer without a hydration mismatch — the server would render a
+  // different set of open panels than the client. The ref makes it one-shot so
+  // it never fights a manual collapse later in the session. Must sit above the
+  // early returns below to keep hook order stable.
+  const resumeApplied = useRef(false);
+  useEffect(() => {
+    if (resumeApplied.current || !resume) return;
+    resumeApplied.current = true;
+    const taskId = resume.taskId;
+    setExpanded((prev) => new Set(prev).add(taskId));
+    if (
+      typeof window !== 'undefined' &&
+      new URLSearchParams(window.location.search).get('tab') === 'weeks'
+    ) {
+      setTimeout(
+        () =>
+          document
+            .getElementById(`task-${taskId}`)
+            ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+        60
+      );
+    }
+  }, [resume]);
 
   if (loading) return <LoadingBlock />;
 
@@ -596,8 +651,9 @@ export default function CoursePage() {
   // Expanding a task pins its week open, so finishing the task (which advances
   // activeWeek) doesn't auto-collapse the week and hide the "Next task →" CTA.
   const toggleTask = (task: Task) => {
-    // Week-0 build is home-lab-only: confirm before revealing it (once per device).
-    if (task.id === 'cr-w0' && !homeBuildAck && !expanded.has(task.id)) {
+    // Home-lab-only build tasks confirm before revealing (once per device).
+    if (task.homeLabOnly && !homeBuildAck && !expanded.has(task.id)) {
+      setPendingHomeBuild(task);
       setHomeBuildDialog(true);
       return;
     }
@@ -613,8 +669,11 @@ export default function CoursePage() {
     }
     notifyStore();
     setHomeBuildDialog(false);
-    openWeek(0);
-    toggle('cr-w0');
+    if (pendingHomeBuild) {
+      openWeek(pendingHomeBuild.week);
+      toggle(pendingHomeBuild.id);
+      setPendingHomeBuild(null);
+    }
   };
 
   const toggleWeek = (n: number) =>
@@ -646,11 +705,15 @@ export default function CoursePage() {
   );
   const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
+  // "Continue" points at real coursework. Setup weeks and home-lab-only build
+  // tasks are opt-in, so an untouched Week 0 must not hold the CTA hostage —
+  // that was the old behaviour and it never advanced.
   let nextTask: Task | undefined;
   if (member) {
     for (const w of sortedWeeks) {
+      if (isSetupWeek(course, w.number)) continue;
       const t = getTasksByRole(course, member.role, w.number).find(
-        (tk) => (taskStats[tk.id] ?? 0) < 100
+        (tk) => !tk.homeLabOnly && (taskStats[tk.id] ?? 0) < 100
       );
       if (t) {
         nextTask = t;

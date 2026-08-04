@@ -450,6 +450,9 @@ interface ChecklistItemProps {
   path?: string[];
   files?: { name: string; purpose: string; source?: string }[];
   tree?: FolderNode;
+  /** Force the detail panel open/closed. Defaults to open only while the step is
+   *  still incomplete, so a finished week reads as a short list of ticks. */
+  defaultOpen?: boolean;
 }
 
 export function ChecklistItem({
@@ -475,8 +478,11 @@ export function ChecklistItem({
   path,
   files,
   tree,
+  defaultOpen,
 }: ChecklistItemProps) {
-  const [showDetails, setShowDetails] = React.useState(true);
+  // Steps you've already finished collapse; the one you're on stays open. Opening
+  // every step at once was what made a week look like an undifferentiated wall.
+  const [showDetails, setShowDetails] = React.useState(defaultOpen ?? !isComplete);
 
   return (
     <motion.div layout className="border-l-4 border-blue-200 bg-gray-50 p-4 dark:border-blue-800 dark:bg-gray-700/50">

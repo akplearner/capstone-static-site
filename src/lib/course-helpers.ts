@@ -41,6 +41,32 @@ export function getRequiredStepCount(task: Task): number {
   return getRequiredSteps(task).length;
 }
 
+/** The steps that actually drive this task's progress bar.
+ *
+ *  Normally that's the required steps. But a task can legitimately be built
+ *  entirely from optional steps — the CySA Week-0 lab build (`cr-w0`) is 11
+ *  optional steps, because the whole track is opt-in. Counting only required
+ *  steps there gives a 0/0 denominator, so the task reported 0% no matter how
+ *  much of it you finished, which pinned "first incomplete week" (and the
+ *  Continue button) to Week 0 forever. When there are no required steps, fall
+ *  back to all of them so finishing the work actually reads as finished. */
+export function getProgressSteps(task: Task): Step[] {
+  const required = getRequiredSteps(task);
+  return required.length > 0 ? required : task.steps;
+}
+
+export function getProgressStepCount(task: Task): number {
+  return getProgressSteps(task).length;
+}
+
+/** True when a week is lab/course setup rather than graded work. Setup weeks
+ *  stay collapsed and are skipped when resolving "where did the student stop".
+ *  Prefer the authored `WeekDef.setup` flag; week 0 is the historical default. */
+export function isSetupWeek(course: Course, weekNumber: number): boolean {
+  const w = getWeekDef(course, weekNumber);
+  return w?.setup ?? weekNumber === 0;
+}
+
 export function getTasksByRole(course: Course, role: string, week?: number): Task[] {
   let tasks = course.tasks.filter((t) => t.role === role);
   if (week != null) tasks = tasks.filter((t) => t.week === week);
