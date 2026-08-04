@@ -10,6 +10,9 @@ import {
   getProgressStepCount,
   getWeekNumbers,
   isSetupWeek,
+  weekSummary,
+  parseEstimatedMinutes,
+  formatMinutes,
 } from './course-helpers';
 
 describe('course-helpers on the Security+ seed', () => {
@@ -77,6 +80,59 @@ describe('progress denominator never collapses to zero', () => {
     expect(getProgressStepCount(crW0!)).toBe(crW0!.steps.length);
     // ...and it must be flagged so it is never offered as "your next task".
     expect(crW0!.homeLabOnly).toBe(true);
+  });
+});
+
+describe('week summary aggregation', () => {
+  it('parses the free-text estimatedTime formats actually used', () => {
+    expect(parseEstimatedMinutes('90 min')).toBe(90);
+    expect(parseEstimatedMinutes('60 min')).toBe(60);
+    expect(parseEstimatedMinutes('2 h')).toBe(120);
+    expect(parseEstimatedMinutes('1.5 hours')).toBe(90);
+    // Prose with no duration must not be guessed at.
+    expect(parseEstimatedMinutes('One-time setup (instructor / builder)')).toBeNull();
+    expect(parseEstimatedMinutes(undefined)).toBeNull();
+    expect(parseEstimatedMinutes('')).toBeNull();
+  });
+
+  it('formats a duration the way a student reads it', () => {
+    expect(formatMinutes(45)).toBe('45 min');
+    expect(formatMinutes(120)).toBe('2 h');
+    expect(formatMinutes(90)).toBe('1 h 30 min');
+  });
+
+  it('aggregates tools and step counts from the week`s tasks', () => {
+    const s = weekSummary(CYSA_PLUS, 'blue', 1);
+    expect(s.taskCount).toBeGreaterThan(0);
+    expect(s.stepCount).toBeGreaterThan(0);
+    expect(new Set(s.tools).size).toBe(s.tools.length); // de-duplicated
+    expect(s.minutes).toBeGreaterThan(0);
+    expect(s.milestone).toBeTruthy();
+    expect(s.difficulty).toBe(2);
+  });
+
+  it('falls back to task titles when a week authors no flow', () => {
+    const s = weekSummary(CYSA_PLUS, 'blue', 1);
+    expect(s.flow.length).toBeGreaterThan(0);
+    const noFlow = { ...CYSA_PLUS, weeks: CYSA_PLUS.weeks.map((w) => ({ ...w, flow: undefined })) };
+    const t = weekSummary(noFlow, 'blue', 1);
+    expect(t.flow).toEqual(t.tasks.map((x) => x.title));
+  });
+
+  it('returns an empty summary for a week the role has no tasks in', () => {
+    const s = weekSummary(CYSA_PLUS, 'blue', 99);
+    expect(s.taskCount).toBe(0);
+    expect(s.tools).toEqual([]);
+    expect(s.minutes).toBeNull();
+  });
+
+  it('every non-setup week in every course states a milestone', () => {
+    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP]) {
+      for (const w of course.weeks) {
+        expect(w.milestone, `${course.id} week ${w.number}`).toBeTruthy();
+        expect(w.difficulty, `${course.id} week ${w.number}`).toBeDefined();
+      }
+    }
   });
 });
 

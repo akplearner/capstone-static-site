@@ -32,15 +32,11 @@ const roles: RoleDef[] = [
   },
 ];
 
+// `Week` is now `WeekDef & { runs: string }`, so a spread carries every field —
+// including ones added later. The old hand-copied field list silently dropped
+// anything new from this course.
 const weeks: WeekDef[] = Object.values(WEEKS)
-  .map((w) => ({
-    number: w.number,
-    title: w.title,
-    theme: w.theme,
-    objective: w.objective,
-    runs: w.runs,
-    plain: w.plain,
-  }))
+  .map((w) => ({ ...w }))
   .sort((a, b) => a.number - b.number);
 
 // Fold the STEP_DELIVERABLES side map into each step's producesDeliverable.

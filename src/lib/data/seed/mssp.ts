@@ -39,14 +39,24 @@ const roles: RoleDef[] = [
 
 const weeks: WeekDef[] = [
   { number: 0, title: 'Onboarding & Scoping', theme: 'Agree the boundary', objective: 'Sign the engagement and define the system / ISMS scope.', runs: 'Phase P0',
+    setup: true, difficulty: 1, flow: ['Sign the engagement', 'Define the scope'],
+    milestone: 'The engagement letter is signed and the system / ISMS boundary is written down and agreed.',
     plain: 'Agree exactly what the audit covers and put it in writing before anything else — like a builder and client signing off the plans and property line before work starts.' },
   { number: 1, title: 'Gap Assessment', theme: 'Know the gaps', objective: 'Assess current state vs SOC 2 + ISO 27001 and pick the controls.', runs: 'Phase P1',
+    difficulty: 2, flow: ['Assess current state', 'List the gaps', 'Select controls'],
+    milestone: 'Every SOC 2 and ISO 27001 requirement is marked met or gap, and the SoA names the selected controls.',
     plain: 'Compare how the client runs today against what the standards require, and list the gaps — a home inspection that produces a punch-list of what’s missing or not up to code.' },
   { number: 2, title: 'Control Implementation', theme: 'Build the controls', objective: 'Stand up the missing controls and write the control matrix.', runs: 'Phase P2',
+    difficulty: 3, flow: ['Implement controls', 'Map to requirements', 'Assign owners'],
+    milestone: 'Each gap has a control in place, and the matrix says which requirement it satisfies and who owns it.',
     plain: 'Fix the gaps: put the missing safeguards in place and record, in one matrix, which control meets which requirement and who owns it. Doing the work, then documenting it.' },
   { number: 3, title: 'Validation & Testing', theme: 'Prove it works', objective: 'Pentest, detect, and evidence that the controls operate.', runs: 'Phase P3',
+    difficulty: 3, flow: ['Pentest', 'Detect', 'Evidence the controls'],
+    milestone: 'Testing is complete and every control has evidence that it actually operates, not just that it exists.',
     plain: 'Prove the controls actually work, not just that they exist — test them, watch them catch a real attack, and keep the evidence. Saying "the smoke alarm works" only after you’ve tested it.' },
   { number: 4, title: 'Audit Readiness', theme: 'Get audit-ready', objective: 'Internal audit and assemble the evidence package (Type I / Stage 1).', runs: 'Phase P4',
+    difficulty: 2, flow: ['Assemble evidence', 'Readiness review', 'Report'],
+    milestone: 'The Type I readiness package is assembled and the client has the findings report.',
     plain: 'Do your own dry-run audit and package every piece of evidence so an outside auditor can check it fast — like tidying and labelling all your receipts before the accountant arrives.' },
 ];
 

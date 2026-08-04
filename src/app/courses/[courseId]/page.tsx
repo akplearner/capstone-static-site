@@ -32,6 +32,7 @@ import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
+import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { SignInPanel } from '@/components/auth/SignInPanel';
@@ -1284,12 +1285,20 @@ export default function CoursePage() {
                         </div>
                       )}
 
+                      {/* How hard, how long, what you'll use, the shape of the
+                          work, and the one line that says when it's finished. */}
+                      <div className="mt-2.5">
+                        <WeekMilestoneHeader
+                          course={course}
+                          role={member.role}
+                          week={w.number}
+                          percent={weekPct}
+                        />
+                      </div>
+
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                         <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700">
                           {weekPct}% complete
-                        </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700">
-                          {ownTasks.length} task{ownTasks.length === 1 ? '' : 's'}
                         </span>
                         {gateForWeek && !course.noGatekeeping &&
                           (() => {

@@ -36,14 +36,24 @@ const roles: RoleDef[] = [
 
 const weeks: WeekDef[] = [
   { number: 0, title: 'Lab & SOC build (OPTIONAL)', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
+    setup: true, difficulty: 4, flow: ['Build SOC', 'Build pods', 'Install sensors', 'Clone'],
+    milestone: 'Skip this unless you are building your own lab. Cleared when 10.10.100.100 loads and your pods are cloned.',
     plain: 'Setup week: get your bearings and your access. Like a new hire on day one — find your desk, log in, and learn who does what — before any real work starts.' },
   { number: 1, title: 'Set up monitoring & baseline', theme: 'DEPLOY', objective: 'Get both machines reporting, then record what normal looks like.',
+    difficulty: 2, flow: ['Install sensors', 'Enroll agents', 'Prove the feed', 'Record normal'],
+    milestone: 'Both machines show Active in Agents, a fresh event from each arrives, and your baseline names 3 normal alert types.',
     plain: 'You turn on the security cameras (the agents) so the SOC can see your machines, then write down what a quiet, normal day looks like. Next week you can only spot “weird” because you wrote down “normal” now.' },
   { number: 2, title: 'Find & investigate threats', theme: 'DETECT', objective: 'Spot suspicious activity and prove what happened.',
+    difficulty: 3, flow: ['Generate traffic', 'Triage alerts', 'Pivot on the source', 'Capture evidence'],
+    milestone: 'You can name the attacker IP, what it did, and point at the alert and packet capture that prove it.',
     plain: 'Something looks off. This week you play detective: follow one suspicious visitor through the logs and network capture and prove exactly what they did — evidence, not a hunch.' },
   { number: 3, title: 'Vulnerabilities & risk', theme: 'ASSESS', objective: 'Find the weak spots and say which ones matter most.',
+    difficulty: 2, flow: ['Read the CVE list', 'Run the config check', 'Scan from Kali', 'Rank by risk'],
+    milestone: 'Your findings are ranked by likelihood and impact, and the top item names its CVE and its fix.',
     plain: 'You check the building for unlocked doors and windows (weaknesses), then rank them — a wide-open front door matters more than a stiff window on the third floor. The output is a fix-it plan, ordered by real risk.' },
   { number: 4, title: 'Incident response & forensics', theme: 'RESPOND', objective: 'Handle a real attack: find it, prove it, stop it, report it.',
+    difficulty: 3, flow: ['Contain', 'Build the timeline', 'Hash the evidence', 'Report & debrief'],
+    milestone: 'The attacker is blocked, every artifact is hashed and logged, and the incident report has a start-to-finish timeline.',
     plain: 'The real thing happens. You detect the break-in, rebuild the timeline of what the attacker touched, stop them, keep the evidence clean, and write the short report a manager actually reads.' },
 ];
 

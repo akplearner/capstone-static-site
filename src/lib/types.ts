@@ -180,16 +180,11 @@ export interface Task {
   homeLabOnly?: boolean;
 }
 
-export interface Week {
-  number: WeekNumber;
-  title: string;
-  theme: string;
-  objective: string;
-  runs: string;
-  /** Plain-language "what you're really doing this week, and why" for non-technical
-   *  students (mirrors WeekDef.plain). Rendered as a callout above the week's tasks. */
-  plain?: string;
-}
+/** The legacy shape used by `content-data.ts` (Security+). It was a hand-copied
+ *  duplicate of `WeekDef`, so every field added to one had to be added to the
+ *  other or the older course silently couldn't use it. It is now the same type
+ *  with `runs` required — `securityPlus.ts` still remaps it field-by-field. */
+export type Week = WeekDef & { runs: string };
 
 export interface Gate {
   id: number;

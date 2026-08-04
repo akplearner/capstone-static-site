@@ -101,3 +101,71 @@ export function getDeliverablesForWeek(course: Course, role: string, week: numbe
 export function getWeekNumbers(course: Course): number[] {
   return course.weeks.map((w) => w.number).sort((a, b) => a - b);
 }
+
+/** Everything the week header needs to state up front: how hard, how long, what
+ *  you'll use, and what "done" means. */
+export interface WeekSummary {
+  tasks: Task[];
+  taskCount: number;
+  stepCount: number;
+  /** Steps that count toward progress (see getProgressSteps). */
+  requiredStepCount: number;
+  /** Distinct tools across the week's tasks, in first-seen order. */
+  tools: string[];
+  /** Ordered short labels for the shape of the week. Authored `WeekDef.flow`
+   *  wins; otherwise the task titles stand in. */
+  flow: string[];
+  /** Summed `Task.estimatedTime` in minutes, or null if none are authored. */
+  minutes: number | null;
+  deliverables: string[];
+  difficulty?: 1 | 2 | 3 | 4;
+  milestone?: string;
+}
+
+/** Parse the free-text `Task.estimatedTime` ("90 min", "2 h", "1.5 hours").
+ *  Returns null for prose like "One-time setup (instructor / builder)". */
+export function parseEstimatedMinutes(text?: string): number | null {
+  if (!text) return null;
+  const m = text.match(/(\d+(?:\.\d+)?)\s*(h|hr|hrs|hour|hours|m|min|mins|minute|minutes)\b/i);
+  if (!m) return null;
+  const n = parseFloat(m[1]);
+  if (!Number.isFinite(n)) return null;
+  return /^h/i.test(m[2]) ? Math.round(n * 60) : Math.round(n);
+}
+
+export function weekSummary(course: Course, role: string, week: number): WeekSummary {
+  const def = getWeekDef(course, week);
+  const tasks = getTasksByRole(course, role, week);
+
+  const tools: string[] = [];
+  tasks.forEach((t) =>
+    (t.tools ?? []).forEach((tool) => {
+      if (!tools.includes(tool)) tools.push(tool);
+    })
+  );
+
+  const mins = tasks.map((t) => parseEstimatedMinutes(t.estimatedTime));
+  const known = mins.filter((m): m is number => m != null);
+
+  return {
+    tasks,
+    taskCount: tasks.length,
+    stepCount: tasks.reduce((n, t) => n + t.steps.length, 0),
+    requiredStepCount: tasks.reduce((n, t) => n + getProgressStepCount(t), 0),
+    tools,
+    flow: def?.flow?.length ? def.flow : tasks.map((t) => t.title),
+    minutes: known.length ? known.reduce((a, b) => a + b, 0) : null,
+    deliverables: getDeliverablesForWeek(course, role, week),
+    difficulty: def?.difficulty,
+    milestone: def?.milestone,
+  };
+}
+
+/** "1 h 30 min" / "45 min". */
+export function formatMinutes(total: number): string {
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h && m) return `${h} h ${m} min`;
+  if (h) return `${h} h`;
+  return `${m} min`;
+}
