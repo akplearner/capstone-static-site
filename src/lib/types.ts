@@ -138,6 +138,11 @@ export interface Step {
    *  for rather than a wall of sample text with a paragraph underneath. Tokens in
    *  `verify` are highlighted automatically; use this to add the explanation. */
   outputHighlights?: { text: string; label: string }[];
+  /** Override how `expectedOutput` is rendered. 'console' = text the student
+   *  captured off a terminal, shown in terminal chrome with the targeted tokens
+   *  marked; 'result' = a described outcome, shown as plain readable prose.
+   *  Omit to let the renderer decide (multi-line ⇒ console, one line ⇒ result). */
+  outputKind?: 'console' | 'result';
 }
 
 /** A node in a small illustrative directory tree (see Step.tree / FolderTree). */

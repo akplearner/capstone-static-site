@@ -88,4 +88,49 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);
     expect(dupes, `duplicate step ids: ${[...new Set(dupes)].join(', ')}`).toHaveLength(0);
   });
+
+  // The visual "what you should see" fields fail silently when mis-authored: a
+  // highlight whose text isn't in the output simply never renders a marker, and
+  // a duplicate marker number produces two badges that look identical.
+  it('every outputHighlights entry is a real substring of that step`s expectedOutput', () => {
+    for (const { step } of allSteps(course)) {
+      if (!step.outputHighlights?.length) continue;
+      const output = (step.expectedOutput ?? '').toLowerCase();
+      expect(output, `${step.id} has outputHighlights but no expectedOutput`).not.toBe('');
+      for (const h of step.outputHighlights) {
+        expect(
+          output.includes(h.text.toLowerCase()),
+          `${step.id}: highlight "${h.text}" is not in expectedOutput`
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('every walkthrough has unique, positive marker numbers', () => {
+    for (const { step } of allSteps(course)) {
+      const markers = step.walkthrough?.markers;
+      if (!markers?.length) continue;
+      const ns = markers.map((m) => m.n);
+      expect(new Set(ns).size, `${step.id}: duplicate marker numbers`).toBe(ns.length);
+      for (const n of ns) {
+        expect(Number.isInteger(n) && n > 0, `${step.id}: bad marker number ${n}`).toBe(true);
+      }
+    }
+  });
+
+  it('every screenshot points into public/screenshots/', () => {
+    for (const { step } of allSteps(course)) {
+      for (const img of step.images ?? []) {
+        expect(img.src.startsWith('/screenshots/'), `${step.id}: ${img.src}`).toBe(true);
+        expect(img.alt.trim().length, `${step.id}: ${img.src} needs alt text`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('every authored week difficulty is 1-4', () => {
+    for (const w of course.weeks) {
+      if (w.difficulty == null) continue;
+      expect([1, 2, 3, 4], `week ${w.number}`).toContain(w.difficulty);
+    }
+  });
 });

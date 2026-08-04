@@ -229,6 +229,10 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   path={current.path}
                   files={current.files}
                   tree={current.tree}
+                  walkthrough={current.walkthrough}
+                  images={current.images}
+                  outputHighlights={current.outputHighlights}
+                  outputKind={current.outputKind}
                 />
               )}
             </motion.div>
@@ -305,6 +309,10 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               path={step.path}
               files={step.files}
               tree={step.tree}
+              walkthrough={step.walkthrough}
+              images={step.images}
+              outputHighlights={step.outputHighlights}
+              outputKind={step.outputKind}
             />
           ))}
         </div>

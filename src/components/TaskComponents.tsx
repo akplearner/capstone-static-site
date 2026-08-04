@@ -19,7 +19,7 @@ import {
   Sparkles,
   SquarePen,
 } from 'lucide-react';
-import { Task, FolderNode } from '@/lib/types';
+import { Task, FolderNode, Step } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
@@ -28,6 +28,9 @@ import { toast } from './ui/Toast';
 import { StepFlow } from './diagrams/StepFlow';
 import { TreeNode } from './docs/FolderTree';
 import { GlossaryText } from './GlossaryText';
+import { WazuhWalkthrough } from './diagrams/WazuhWalkthrough';
+import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
+import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -186,18 +189,28 @@ function OutputVerify({ verify }: { verify: string[] }) {
           {allOk ? 'Verified — your output matches.' : 'Not matching yet — check the command ran on the right target.'}
         </div>
       )}
-      {touched && !allOk && (
-        <div className="mt-1 flex flex-wrap gap-1">
+      {/* The tokens are shown up front, not only after a failed paste: they are
+          what the student is looking for, so hiding them until they get it wrong
+          withheld exactly the information that makes the check doable. */}
+      <div className="mt-1.5">
+        <div className="mb-1 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+          {touched ? 'Looking for:' : 'Your output must contain:'}
+        </div>
+        <div className="flex flex-wrap gap-1">
           {results.map((r) => (
             <span
               key={r.tok}
-              className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${r.ok ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'}`}
+              className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${
+                touched && r.ok
+                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                  : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+              }`}
             >
-              {r.ok ? '✓' : '○'} {r.tok}
+              {touched ? (r.ok ? '✓' : '○') : '•'} {r.tok}
             </span>
           ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -221,6 +234,10 @@ export function StepDetail({
   path,
   files,
   tree,
+  walkthrough,
+  images,
+  outputHighlights,
+  outputKind,
 }: {
   instruction?: string;
   description?: string;
@@ -241,6 +258,10 @@ export function StepDetail({
   path?: string[];
   files?: { name: string; purpose: string; source?: string }[];
   tree?: FolderNode;
+  walkthrough?: Step['walkthrough'];
+  images?: Step['images'];
+  outputHighlights?: Step['outputHighlights'];
+  outputKind?: Step['outputKind'];
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
@@ -253,6 +274,16 @@ export function StepDetail({
     : command
       ? [{ cmd: command, explain: commandExplanation, flags: commandFlags }]
       : undefined;
+  // The tokens worth pointing at inside the expected output. `verify` already
+  // names the substrings that prove the step worked, so they're targets for
+  // free; outputHighlights supplies the wording (and any extra tokens).
+  const outputTargets = React.useMemo(
+    () => buildTargets(verify, outputHighlights),
+    [verify, outputHighlights]
+  );
+  const isConsole = outputKind
+    ? outputKind === 'console'
+    : !!expectedOutput && looksLikeConsoleOutput(expectedOutput);
   return (
     <div className="space-y-3">
       {optional && (
@@ -359,14 +390,36 @@ export function StepDetail({
         </div>
 
         <div className="space-y-2">
-          {(expectedOutput || outputExplanation) && (
+          {(expectedOutput || outputExplanation || walkthrough || images) && (
             <div>
               <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                 What you should see
               </div>
-              {expectedOutput && <TerminalOutput text={expectedOutput} />}
-              {outputExplanation && (
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{outputExplanation}</p>
+              {/* A GUI step shows the screen itself, with the thing to click or
+                  read called out by number — that beats describing it in words. */}
+              {walkthrough && <WazuhWalkthrough data={walkthrough} />}
+              {images && <StepImages images={images} />}
+              {expectedOutput &&
+                (isConsole ? (
+                  <>
+                    <AnnotatedTerminal text={expectedOutput} targets={outputTargets} />
+                    {outputExplanation && (
+                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                        <GlossaryText text={outputExplanation} />
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <OutcomeCard
+                    text={expectedOutput}
+                    targets={outputTargets}
+                    explanation={outputExplanation}
+                  />
+                ))}
+              {!expectedOutput && outputExplanation && (
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  <GlossaryText text={outputExplanation} />
+                </p>
               )}
             </div>
           )}
@@ -376,7 +429,9 @@ export function StepDetail({
               <GlossaryText text={whatItMeans} />
             </p>
           )}
-          {hasCommand && verify && verify.length > 0 && <OutputVerify verify={verify} />}
+          {/* No `hasCommand` guard: a dashboard step has verify tokens too, and
+              gating on a command silently hid the check on every GUI step. */}
+          {verify && verify.length > 0 && <OutputVerify verify={verify} />}
         </div>
       </div>
 
@@ -450,6 +505,10 @@ interface ChecklistItemProps {
   path?: string[];
   files?: { name: string; purpose: string; source?: string }[];
   tree?: FolderNode;
+  walkthrough?: Step['walkthrough'];
+  images?: Step['images'];
+  outputHighlights?: Step['outputHighlights'];
+  outputKind?: Step['outputKind'];
   /** Force the detail panel open/closed. Defaults to open only while the step is
    *  still incomplete, so a finished week reads as a short list of ticks. */
   defaultOpen?: boolean;
@@ -478,6 +537,10 @@ export function ChecklistItem({
   path,
   files,
   tree,
+  walkthrough,
+  images,
+  outputHighlights,
+  outputKind,
   defaultOpen,
 }: ChecklistItemProps) {
   // Steps you've already finished collapse; the one you're on stays open. Opening
@@ -546,6 +609,10 @@ export function ChecklistItem({
                 path={path}
                 files={files}
                 tree={tree}
+                walkthrough={walkthrough}
+                images={images}
+                outputHighlights={outputHighlights}
+                outputKind={outputKind}
               />
             </div>
           </motion.div>
@@ -691,34 +758,10 @@ export function CommandBlock({
   );
 }
 
-/**
- * Renders a step's expected output in terminal chrome (matching CommandBlock),
- * so "what you should see" reads like a real console instead of a plain grey box.
- * Reuses the terminal palette tokens and the IP/comment highlighter. Purely
- * visual — the copied text is the raw output.
- */
-export function TerminalOutput({ text }: { text: string }) {
-  const lines = text.split('\n');
-  return (
-    <div
-      className="relative mt-1 overflow-x-auto rounded-lg p-3 pr-16 font-mono text-sm"
-      style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
-    >
-      <div className="absolute right-2 top-2">
-        <CopyButton text={text} />
-      </div>
-      <div className="mb-1 select-none text-[10px] uppercase tracking-wide" style={{ color: 'var(--color-term-dim)' }}>
-        expected output
-      </div>
-      {lines.map((ln, i) => (
-        <div key={i} className="whitespace-pre-wrap break-words leading-relaxed">
-          <HighlightedCommand cmd={ln} />
-          {i === lines.length - 1 && <span className="term-caret" aria-hidden="true" />}
-        </div>
-      ))}
-    </div>
-  );
-}
+// `TerminalOutput` used to live here, rendering expectedOutput in the exact same
+// chrome as CommandBlock — same palette, same highlighter, same Copy button — so
+// a described result read as one more thing to paste. Expected output is now
+// rendered by kind in StepOutcome.tsx (AnnotatedTerminal / OutcomeCard).
 
 export function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
   const [copied, setCopied] = React.useState(false);

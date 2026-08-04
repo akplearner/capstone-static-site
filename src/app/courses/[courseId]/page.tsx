@@ -315,6 +315,10 @@ function TaskReference({ task }: { task: Task }) {
               path={s.path}
               files={s.files}
               tree={s.tree}
+              walkthrough={s.walkthrough}
+              images={s.images}
+              outputHighlights={s.outputHighlights}
+              outputKind={s.outputKind}
             />
           </div>
         </div>
