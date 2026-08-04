@@ -47,7 +47,7 @@ import { progressRepo } from '@/lib/data';
 import { KEYS } from '@/lib/data/keys';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
-import { hasNoProgress, readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
+import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -540,20 +540,11 @@ export default function CoursePage() {
   }, EMPTY_STATS);
 
   // Exactly one week opens by default: the one the student stopped in. Everything
-  // else — including the setup week — stays collapsed until they click it, which
-  // is why `openWeeks` starts null (untouched) rather than pre-populated.
-  // A brand-new student with no progress at all gets the setup week too, since
-  // that genuinely is their next action.
-  const showSetupByDefault =
-    !resume && hasNoProgress(weekStats) && course.weeks.some((w) => isSetupWeek(course, w.number));
-  const defaultOpenWeeks = useMemo(() => {
-    const s = new Set<number>([activeWeek]);
-    if (showSetupByDefault) {
-      const setupWeek = course.weeks.find((w) => isSetupWeek(course, w.number));
-      if (setupWeek) s.add(setupWeek.number);
-    }
-    return s;
-  }, [activeWeek, showSetupByDefault, course]);
+  // else stays collapsed until they click it, which is why `openWeeks` starts
+  // null (untouched) rather than pre-populated. The setup week is never opened
+  // automatically — in class the lab already exists, so leading with the build
+  // steps sends students to work they don't need to do.
+  const defaultOpenWeeks = useMemo(() => new Set<number>([activeWeek]), [activeWeek]);
   const effectiveOpenWeeks = openWeeks ?? defaultOpenWeeks;
 
   // Open the task the student stopped in, exactly once, after progress has been

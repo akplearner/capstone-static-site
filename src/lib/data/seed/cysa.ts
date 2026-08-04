@@ -454,6 +454,19 @@ const tasks: Task[] = [
         instruction: 'In the dashboard: Agents › Deploy new agent. (If you don\u2019t see Agents, look for Endpoints — the name varies by version.)',
         whatItMeans: 'The wizard fills in the SOC address and your team name for you — you don\u2019t figure anything out.',
         expectedOutput: 'The generated command contains 10.10.100.100 and your team name.',
+        verify: ['10.10.100.100'],
+        outputHighlights: [
+          { text: '10.10.100.100', label: 'the SOC address baked into the install command \u2014 if this is missing or different, the agent installs but never reports' },
+        ],
+        walkthrough: {
+          screen: 'deploy-agent',
+          title: 'Deploy new agent \u2014 what the wizard is actually giving you',
+          markers: [
+            { n: 1, label: 'Agents \u2192 Deploy new agent. The wizard only writes a command for you; it does not touch the machine.' },
+            { n: 2, label: 'Server address must be 10.10.100.100 \u2014 this is the value that ends up in the agent config.' },
+            { n: 3, label: 'The generated command at the bottom. Copy this; it is what you run on the endpoint.' },
+          ],
+        },
         optional: true,
         frameworks: ['NIST_CSF'],
       },
@@ -510,6 +523,19 @@ const tasks: Task[] = [
         ],
         whatItMeans: 'Out of the box the agent already forwards this server’s system logs (/var/log/auth.log, /var/log/syslog) to the SOC; the Suricata block adds the network alerts to the same feed. "active (running)" means the service is up; "Connected to the server" means it actually reached 10.10.100.100.',
         expectedOutput: 'Status says active (running), and ossec.log shows "Connected to the server". If it says failed, check you can reach the SOC: ping 10.10.100.100.',
+        outputHighlights: [
+          { text: 'active (running)', label: 'systemctl \u2014 the agent process is up on this machine' },
+          { text: 'Connected to the server', label: 'the ossec.log line proving the agent actually reached the SOC. Up but not connected is the common half-failure.' },
+        ],
+        walkthrough: {
+          screen: 'ossec-conf',
+          title: 'Where the <localfile> block goes in ossec.conf',
+          markers: [
+            { n: 1, label: 'Before: the file already has a <client> block. Do not remove or duplicate it.' },
+            { n: 2, label: 'After: your new <localfile> block sits INSIDE <ossec_config>, above the closing tag. Outside it, the agent ignores it.' },
+            { n: 3, label: 'Save, then restart the agent \u2014 it only re-reads the config on restart.' },
+          ],
+        },
         verify: ['active (running)', 'Connected to the server'],
         files: [
           { name: 'Official Wazuh agent guide (Linux)', purpose: 'the vendor step-by-step reference for the commands above', source: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html' },
@@ -559,6 +585,19 @@ const tasks: Task[] = [
         ],
         whatItMeans: 'Out of the box the agent already forwards the Windows Application, Security and System event logs; the Sysmon block adds rich process, network and file telemetry. Windows logs now land in the same dashboard as your Ubuntu logs and Suricata alerts.',
         expectedOutput: 'Windows Services shows Wazuh as Running (or `Get-Service WazuhSvc` prints Running), and ossec.log shows "Connected to the server". No firewall step here — Windows Defender Firewall is already on; UFW is Linux-only.',
+        outputHighlights: [
+          { text: 'Running', label: 'the Windows service state \u2014 the agent process is alive' },
+          { text: 'Connected to the server', label: 'the ossec.log line proving it reached 10.10.100.100. Running without this means installed but blind.' },
+        ],
+        walkthrough: {
+          screen: 'ossec-conf',
+          title: 'The Sysmon block in the Windows ossec.conf',
+          markers: [
+            { n: 1, label: 'Before: C:\\Program Files (x86)\\ossec-agent\\ossec.conf as installed.' },
+            { n: 2, label: 'After: the Sysmon <localfile> eventchannel block, inside <ossec_config>. This adds process/network telemetry on top of the default event logs.' },
+            { n: 3, label: 'Notepad must be run as Administrator to save into Program Files, then restart the service.' },
+          ],
+        },
         verify: ['Running', 'Connected to the server'],
         files: [
           { name: 'Official Wazuh agent guide (Windows)', purpose: 'download the MSI and see the exact msiexec install line', source: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-windows.html' },
@@ -593,6 +632,19 @@ const tasks: Task[] = [
         instruction: 'In the dashboard: Agents (or Endpoints). Confirm BOTH Team<#>-ubuntu AND Team<#>-win show Active, each with a recent "Last keep alive" (within the last few minutes). Click an agent to see its exact last check-in time. Screenshot the agents list.',
         whatItMeans: 'Green/Active means the agent is reporting. "Disconnected" or "Never connected" means the SOC has a blind spot on that machine \u2014 first checks: is the agent service running, can the machine reach 10.10.100.100 on ports 1514/1515, and is the agent name unique (duplicate names are the #1 cause of a missing agent)?',
         expectedOutput: 'Both Team<#>-ubuntu and Team<#>-win show Active with a recent check-in, captured in a screenshot.',
+        verify: ['Active'],
+        outputHighlights: [
+          { text: 'Active', label: 'the Status column must read this for BOTH machines \u2014 anything else means the SOC is blind to that host' },
+        ],
+        walkthrough: {
+          screen: 'agents',
+          title: 'Agents \u2014 what a healthy check-in looks like',
+          markers: [
+            { n: 1, label: 'Left nav \u2192 Agents (called Endpoints in some builds). This is the list you are looking at.' },
+            { n: 2, label: 'Status Active plus a Last keep alive of seconds/minutes ago \u2014 this row is healthy.' },
+            { n: 3, label: 'Disconnected, or never \u2014 this machine is NOT reporting. Fix it now: service running, ports 1514/1515 reachable, agent name unique.' },
+          ],
+        },
         producesDeliverable: '01_SOC_Monitoring_Report.md',
         isEvidenceStep: true,
         frameworks: ['NIST_CSF'],
@@ -607,6 +659,18 @@ const tasks: Task[] = [
         instruction: 'In the dashboard: Agents › Team<#>-ubuntu › Security events. Set the time filter to Last 24 hours.',
         whatItMeans: 'This is where you will spend Weeks 2–4 — one machine\u2019s alerts.',
         expectedOutput: 'The events table has rows and the time filter is set to Last 24 hours.',
+        outputHighlights: [
+          { text: 'Last 24 hours', label: 'the time picker, top right \u2014 if this is narrower than your activity the table looks empty even when the feed is fine' },
+        ],
+        walkthrough: {
+          screen: 'security-events',
+          title: 'Security events \u2014 the three controls you will use all course',
+          markers: [
+            { n: 1, label: 'Events tab (not Dashboard). Events is the raw table of alerts, one row per alert.' },
+            { n: 2, label: 'The search bar. Queries like rule.level:>=7 go here, one at a time.' },
+            { n: 3, label: 'The time picker. Set it to Last 24 hours \u2014 this is the #1 reason a working feed looks empty.' },
+          ],
+        },
         verify: ['Last 24 hours'],
         frameworks: ['NIST_CSF'],
       },
@@ -885,6 +949,15 @@ const tasks: Task[] = [
         ],
         whatItMeans: 'Following the stream shows the attacker\u2019s request and the server\u2019s reply as plain text.',
         expectedOutput: 'You can quote the exact request the attacker sent, with a screenshot.',
+        walkthrough: {
+          screen: 'wireshark',
+          title: 'Wireshark \u2014 from a packet list to the actual request',
+          markers: [
+            { n: 1, label: 'Display filter: type http and press Enter. This hides everything that is not web traffic.' },
+            { n: 2, label: 'The Info column shows the request line. This is the row worth quoting.' },
+            { n: 3, label: 'Right-click that packet \u2192 Follow \u2192 HTTP Stream to read the whole request and response as text.' },
+          ],
+        },
         files: [
           { name: 'Wireshark', purpose: 'to open week2.pcap and follow the HTTP stream (pre-installed on Kali; download for your own PC)', source: 'https://www.wireshark.org/download.html' },
           { name: 'week2.pcap', purpose: 'the capture you made in the previous step — copy it to your workstation', source: 'scp student@<UBUNTU_IP>:/tmp/week2.pcap .' },
@@ -952,6 +1025,18 @@ const tasks: Task[] = [
         instruction: 'In the dashboard: MITRE ATT&CK. Open a tagged alert to see its technique ID and confirm it matches what your team ran — the SSH brute force maps to T1110 (Brute Force), the SQLi to T1190 (Exploit Public-Facing Application). Add the technique to the ATT&CK column of your IOC Database.',
         whatItMeans: 'Wazuh already tags many alerts with an ATT&CK technique — your job is to confirm it fits and record it against the indicator.',
         expectedOutput: 'Your IOC Database names at least two ATT&CK techniques (e.g. T1110, T1190) and the alert behind each.',
+        outputHighlights: [
+          { text: 'T1110', label: 'Brute Force \u2014 the technique ID you copy into the IOC Database, not the description' },
+        ],
+        walkthrough: {
+          screen: 'mitre',
+          title: 'MITRE ATT&CK module \u2014 turning alerts into technique IDs',
+          markers: [
+            { n: 1, label: 'Modules \u2192 MITRE ATT&CK. Wazuh has already tagged your alerts; you are reading its work, not mapping by hand.' },
+            { n: 2, label: 'The technique name and its ID. The ID (T1110) is what goes in your IOC table.' },
+            { n: 3, label: 'Click a technique to see the alerts behind it \u2014 that is your evidence for naming it.' },
+          ],
+        },
         usesForm: 'IOC Database',
         producesDeliverable: '05_IOC_Database.csv',
         isEvidenceStep: true,
@@ -988,6 +1073,15 @@ const tasks: Task[] = [
         instruction: 'In the dashboard: Agents › your agent › Vulnerabilities. Filter Severity to Critical + High, then screenshot the list and name it like 20260726_Team07_wazuh_vulns.png — hand it to the Incident Responder for the Vulnerability Assessment.',
         whatItMeans: 'You get a vulnerability list without scanning anything.',
         expectedOutput: 'A screenshot of the Critical/High CVEs for your Ubuntu server, named and handed over.',
+        walkthrough: {
+          screen: 'vuln-sca',
+          title: 'Vulnerabilities \u2014 filtering to what actually matters',
+          markers: [
+            { n: 1, label: 'Modules \u2192 Vulnerabilities, with your Ubuntu agent selected.' },
+            { n: 2, label: 'Filter Severity to Critical and High. The unfiltered list is too long to act on.' },
+            { n: 3, label: 'Click a CVE row to open the drawer with the affected package version and the fix.' },
+          ],
+        },
         files: [
           { name: 'Wazuh vulnerability detection (docs)', purpose: 'how the module builds the CVE list, and what to do if it is empty', source: 'https://documentation.wazuh.com/current/user-manual/capabilities/vulnerability-detection/index.html' },
         ],

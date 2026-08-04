@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { CYSA_PLUS } from './data/seed/cysa';
 import { SECURITY_PLUS } from './data/seed/securityPlus';
-import { resolveActiveWeek, hasNoProgress, type ResumePoint } from './resume';
+import { resolveActiveWeek, type ResumePoint } from './resume';
 
 const point = (week: number, taskId: string, stepId: string): ResumePoint => ({
   week,
@@ -46,14 +46,5 @@ describe('resolveActiveWeek', () => {
     for (const pct of cases) {
       expect(numbers.has(resolveActiveWeek(CYSA_PLUS, 'grc', pct, null))).toBe(true);
     }
-  });
-});
-
-describe('hasNoProgress', () => {
-  it('is true only when nothing anywhere has been started', () => {
-    expect(hasNoProgress({})).toBe(true);
-    expect(hasNoProgress({ 0: 0, 1: 0 })).toBe(true);
-    expect(hasNoProgress({ 0: 0, 1: 5 })).toBe(false);
-    expect(hasNoProgress({ 0: 100 })).toBe(false);
   });
 });

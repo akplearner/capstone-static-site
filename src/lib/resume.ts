@@ -105,9 +105,3 @@ export function resolveActiveWeek(
 
   return graded[0]?.number ?? weeks[0]?.number ?? 1;
 }
-
-/** True when the student has never ticked anything in this course. Used to decide
- *  whether the setup week is worth opening for a genuinely new student. */
-export function hasNoProgress(weekPercent: Record<number, number>): boolean {
-  return Object.values(weekPercent).every((p) => !p);
-}
