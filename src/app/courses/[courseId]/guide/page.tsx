@@ -112,7 +112,7 @@ export default function CourseGuidePage() {
               </p>
               <div className="rounded-md border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-200">
                 <span className="font-semibold">Already built for you.</span> The classroom SOC is running at{' '}
-                <span className="font-mono text-xs">http://10.10.100.100</span> (student / @Pass@2026). The build
+                <span className="font-mono text-xs">https://10.10.100.100</span> (student / @Pass@2026). The build
                 steps below are only if you&apos;re setting up your own lab at home.
               </div>
               <CysaLabSetup courseId={course.id} />

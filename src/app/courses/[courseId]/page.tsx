@@ -1291,7 +1291,7 @@ export default function CoursePage() {
                     <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm dark:border-sky-800 dark:bg-sky-900/20">
                       <p className="text-sky-900 dark:text-sky-200">
                         <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}
-                        <span className="font-mono text-xs">http://10.10.100.100</span> (student / @Pass@2026) and
+                        <span className="font-mono text-xs">https://10.10.100.100</span> (student / @Pass@2026) and
                         start at <span className="font-semibold">Week 1</span>. The build steps here are only for
                         students setting up their own lab at home — opening them asks you to confirm first.
                       </p>
@@ -1499,7 +1499,7 @@ export default function CoursePage() {
         onConfirm={confirmHomeBuild}
         destructive={false}
         title="Only if you're building your own lab at home"
-        message="The classroom SOC is already built and running at http://10.10.100.100 (sign in: student / @Pass@2026). You don't need these build steps — start at Week 1. Open them only if you're setting up your own lab at home."
+        message="The classroom SOC is already built and running at https://10.10.100.100 (sign in: student / @Pass@2026). You don't need these build steps — start at Week 1. Open them only if you're setting up your own lab at home."
         confirmLabel="Yes, I'm building from home"
         cancelLabel="Back"
       />
