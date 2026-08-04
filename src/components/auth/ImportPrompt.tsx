@@ -2,10 +2,13 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Upload, X, Loader2, CheckCircle2 } from 'lucide-react';
+import { Upload, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Course, Member, TaskCompletion } from '@/lib/types';
 import type { DeliverableData } from '@/lib/docs/types';
-import { progressRepo, docsRepo } from '@/lib/data';
+import { progressRepo, docsRepo, grcRepo, userStateRepo, labAccessRepo } from '@/lib/data';
+import type { GrcData } from '@/lib/types';
+import type { LabAccessData, UserCourseState } from '@/lib/data';
+import { getBrowserClient } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/useAuth';
 import { useMember } from '@/lib/useMember';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
@@ -15,6 +18,12 @@ import { useClientStore } from '@/lib/useClientStore';
 // First-sign-in migration: if this device has localStorage progress for the course
 // but the account hasn't joined in the cloud yet, offer to import it once. Runs only
 // in Supabase mode; the marker (per-account, per-course) prevents re-prompting.
+
+/** Fallback timestamp for legacy completions stored before `completedAt` existed.
+ *  Module scope keeps the impure clock read out of component render scope. */
+function fallbackCompletedAt(): number {
+  return Date.now();
+}
 
 function readLocal<T>(key: string): T | null {
   if (typeof window === 'undefined') return null;
@@ -33,6 +42,7 @@ export function ImportPrompt({ course }: { course: Course }) {
   const [dismissed, setDismissed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const marker = user ? `${KEYS.context(course.id)}_imported_${user.id}` : '';
   const alreadyImported = useClientStore<boolean>(
@@ -63,6 +73,7 @@ export function ImportPrompt({ course }: { course: Course }) {
 
   const runImport = async () => {
     setBusy(true);
+    setFailed(false);
     const oldId = localCtx.memberId;
     const member: Member = { ...localCtx, memberId: user.id, courseId: course.id };
 
@@ -71,17 +82,19 @@ export function ImportPrompt({ course }: { course: Course }) {
 
     // 2. Step completions (parse values to get task/step ids reliably).
     const prefix = KEYS.completionPrefix(course.id, oldId);
+    let expected = 0;
     for (let i = 0; i < window.localStorage.length; i++) {
       const key = window.localStorage.key(i);
       if (!key || !key.startsWith(prefix)) continue;
       const c = readLocal<TaskCompletion>(key);
       if (c) {
+        expected++;
         progressRepo.setCompletion({
           courseId: course.id,
           taskId: c.taskId,
           stepId: c.stepId,
           memberId: user.id,
-          completedAt: c.completedAt ?? Date.now(),
+          completedAt: c.completedAt ?? fallbackCompletedAt(),
         });
       }
     }
@@ -90,9 +103,64 @@ export function ImportPrompt({ course }: { course: Course }) {
     const localDocs = readLocal<Record<string, DeliverableData>>(KEYS.docs(course.id, localCtx.teamId));
     if (localDocs) docsRepo.save(course.id, localCtx.teamId, localDocs);
 
-    setMarker();
+    // 4. GRC registers, lab access, and the resume pointer + Week-0 ack. These
+    //    also live in the cloud now, so an import that skipped them would silently
+    //    drop a returning student's work the moment they signed in.
+    const localGrc = readLocal<GrcData>(KEYS.grc(course.id, localCtx.teamId));
+    if (localGrc) grcRepo.save(course.id, localCtx.teamId, localGrc);
+
+    const localLab = readLocal<LabAccessData>(KEYS.labAccess(course.id));
+    if (localLab) labAccessRepo.save(course.id, user.id, localLab);
+
+    const localResume = readLocal<NonNullable<UserCourseState['resume']>>(
+      KEYS.resume(course.id, oldId)
+    );
+    const localAck = window.localStorage.getItem(KEYS.homeBuildAck(course.id)) === '1';
+    if (localResume || localAck) {
+      userStateRepo.save(course.id, user.id, {
+        ...(localResume ? { resume: localResume } : {}),
+        ...(localAck ? { homeBuildAck: true } : {}),
+      });
+    }
+
+    // The repo writes are optimistic and fire-and-forget, so "no exception" does
+    // NOT mean the server accepted them. Confirm against the database before
+    // marking this course imported — otherwise a network blip would set the
+    // marker, the prompt would never reappear, and the work would be gone.
+    const ok = await verifyLanded(expected);
     setBusy(false);
+    if (!ok) {
+      setFailed(true);
+      return;
+    }
+    setMarker();
     setDone(true);
+  };
+
+  /** Read back what we just wrote. Returns false if the server is missing rows. */
+  const verifyLanded = async (expectedCompletions: number): Promise<boolean> => {
+    const supabase = getBrowserClient();
+    if (!supabase) return false;
+    try {
+      const [membership, completions] = await Promise.all([
+        supabase
+          .from('memberships')
+          .select('user_id')
+          .eq('course_id', course.id)
+          .eq('user_id', user.id)
+          .maybeSingle(),
+        supabase
+          .from('step_completions')
+          .select('step_id', { count: 'exact', head: true })
+          .eq('course_id', course.id)
+          .eq('user_id', user.id),
+      ]);
+      if (membership.error || !membership.data) return false;
+      if (completions.error) return false;
+      return (completions.count ?? 0) >= expectedCompletions;
+    } catch {
+      return false;
+    }
   };
 
   const dismiss = () => {
@@ -116,6 +184,15 @@ export function ImportPrompt({ course }: { course: Course }) {
             We found progress saved on this device (Team {localCtx.teamId} · {localCtx.role}). Import it
             into your account so it syncs across devices and to your team.
           </p>
+          {/* The import is only marked done once the server confirms it, so this
+              message means the local data is still intact and safe to retry. */}
+          {failed && (
+            <p className="mt-1.5 flex items-start gap-1.5 text-sm text-rose-700 dark:text-rose-300">
+              <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              The import didn’t finish, so nothing was marked as done. Your progress on this device is
+              untouched — check your connection and try again.
+            </p>
+          )}
         </div>
       </div>
       <div className="flex shrink-0 items-center gap-2">
@@ -125,7 +202,7 @@ export function ImportPrompt({ course }: { course: Course }) {
           className="inline-flex items-center gap-1.5 rounded-md bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700 disabled:opacity-60"
         >
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
-          Import
+          {failed ? 'Try again' : 'Import'}
         </button>
         <button
           onClick={dismiss}

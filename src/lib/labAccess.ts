@@ -1,14 +1,17 @@
 'use client';
 
 import { useClientStore, notifyStore } from './useClientStore';
-import { KEYS } from './data/keys';
+import { labAccessRepo, progressRepo } from './data';
 
 // Personal lab access: the target IPs/credentials each student gets from their
-// instructor, plus a quick reachability checklist. Stored per-device (localStorage);
-// values are substituted into command placeholders so copy-paste "just works".
+// instructor, plus a quick reachability checklist. Values are substituted into
+// command placeholders so copy-paste "just works".
 //
-// Kept deliberately outside the repo interfaces — it's personal scratch data, not
-// graded progress — so it needs no Supabase backend to be useful offline.
+// This is saved to the student's ACCOUNT when signed in, so their lab details
+// follow them between devices, and to localStorage otherwise. It is the only
+// student data that is owner-only in the database — not teammates, not
+// instructors — because the notes field is where lab passwords end up. See
+// supabase/migrations/0002_student_state.sql.
 
 export interface LabAccess {
   values: Record<string, string>;
@@ -33,19 +36,25 @@ export const LAB_CHECKS: { key: string; label: string }[] = [
   { key: 'scope', label: 'Read the Rules of Engagement (authorized scope)' },
 ];
 
+/** The member this data belongs to. Derived here rather than threaded through
+ *  every caller, so the public API stays `getLabAccess(courseId)` and no call
+ *  site changed when this moved off localStorage. Both repo implementations
+ *  expose the same context, and the Supabase one ignores the id in favour of the
+ *  authenticated session. */
+function memberIdFor(courseId: string): string {
+  return progressRepo.getContext(courseId)?.memberId ?? 'guest';
+}
+
 export function getLabAccess(courseId: string): LabAccess {
   if (typeof window === 'undefined') return EMPTY;
-  try {
-    const raw = localStorage.getItem(KEYS.labAccess(courseId));
-    return raw ? { ...EMPTY, ...(JSON.parse(raw) as Partial<LabAccess>) } : EMPTY;
-  } catch {
-    return EMPTY;
-  }
+  const stored = labAccessRepo.get(courseId, memberIdFor(courseId));
+  // Spread over EMPTY so a row written before a field existed still parses.
+  return stored ? { ...EMPTY, ...stored } : EMPTY;
 }
 
 export function saveLabAccess(courseId: string, data: LabAccess): void {
   if (typeof window === 'undefined') return;
-  localStorage.setItem(KEYS.labAccess(courseId), JSON.stringify(data));
+  labAccessRepo.save(courseId, memberIdFor(courseId), data);
   notifyStore();
 }
 

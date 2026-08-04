@@ -21,6 +21,7 @@ import { GlossaryText } from '@/components/GlossaryText';
 import { EVIDENCE_NAMING } from '@/lib/evidence';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
+import { useRequireAuth } from '@/lib/useRequireAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
@@ -94,6 +95,7 @@ export default function DeliverablesPage() {
   const course = useCourse();
   useSupabaseSync(course.id);
   const { member, loading } = useMember(course.id);
+  const { guard } = useRequireAuth();
   const saved = useClientStore<DocsMap>(
     () => (member ? docsRepo.get(course.id, member.teamId) ?? EMPTY_OBJECT : EMPTY_OBJECT),
     EMPTY_OBJECT
@@ -144,9 +146,13 @@ export default function DeliverablesPage() {
   const meta = { team: teamId, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };
 
   const setDoc = (id: string, data: DeliverableData) => {
-    const current = docsRepo.get(course.id, teamId) ?? {};
-    docsRepo.save(course.id, teamId, { ...current, [id]: data });
-    notifyStore();
+    // Deliverables are the team's shared documents — they have to belong to an
+    // account or a teammate can never see them.
+    guard('save your team’s deliverables', () => {
+      const current = docsRepo.get(course.id, teamId) ?? {};
+      docsRepo.save(course.id, teamId, { ...current, [id]: data });
+      notifyStore();
+    });
   };
 
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);

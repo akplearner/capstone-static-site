@@ -1,6 +1,5 @@
 import { Course } from './types';
-import { KEYS } from './data/keys';
-import { safeSetItem } from './data/safeStorage';
+import { userStateRepo } from './data';
 import { getTasksByRole, getTaskById, isSetupWeek } from './course-helpers';
 
 /**
@@ -12,9 +11,14 @@ import { getTasksByRole, getTaskById, isSetupWeek } from './course-helpers';
  * top of a week rather than on the checkbox they actually stopped at.
  *
  * So we record the last checkbox ticked. This is a *UI convenience pointer*, not
- * progress data — progress remains the completion key set. It is device-local
- * and safe to lose: with no pointer we fall back to the first incomplete
- * non-setup week, which is the old behaviour.
+ * progress data — progress remains the completion key set. It now travels with
+ * the student's account (so switching device resumes in the right place) and
+ * falls back to localStorage when signed out. It is still safe to lose: with no
+ * pointer we fall back to the first incomplete non-setup week.
+ *
+ * Reads stay SYNCHRONOUS — `readResume` is called inside a `useClientStore`
+ * selector during render — which is why it goes through the repo's in-memory
+ * cache rather than awaiting the network.
  */
 
 export interface ResumePoint {
@@ -37,38 +41,34 @@ export function recordResume(
   point: Omit<ResumePoint, 'at'>
 ): void {
   if (!hasWindow()) return;
-  const value: ResumePoint = { ...point, at: Date.now() };
-  safeSetItem(KEYS.resume(courseId, memberId), JSON.stringify(value));
+  const existing = userStateRepo.get(courseId, memberId) ?? {};
+  userStateRepo.save(courseId, memberId, { ...existing, resume: { ...point, at: Date.now() } });
 }
 
 /** Read the stored pointer, discarding anything that no longer resolves against
  *  the current course content (steps get renamed and split between rounds). */
 export function readResume(course: Course, memberId: string): ResumePoint | null {
   if (!hasWindow()) return null;
-  const raw = localStorage.getItem(KEYS.resume(course.id, memberId));
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw) as Partial<ResumePoint>;
-    if (!parsed || typeof parsed.taskId !== 'string' || typeof parsed.stepId !== 'string') {
-      return null;
-    }
-    const task = getTaskById(course, parsed.taskId);
-    if (!task) return null;
-    if (!task.steps.some((s) => s.id === parsed.stepId)) return null;
-    return {
-      week: task.week,
-      taskId: task.id,
-      stepId: parsed.stepId,
-      at: typeof parsed.at === 'number' ? parsed.at : 0,
-    };
-  } catch {
+  const parsed = userStateRepo.get(course.id, memberId)?.resume;
+  if (!parsed || typeof parsed.taskId !== 'string' || typeof parsed.stepId !== 'string') {
     return null;
   }
+  const task = getTaskById(course, parsed.taskId);
+  if (!task) return null;
+  if (!task.steps.some((s) => s.id === parsed.stepId)) return null;
+  return {
+    week: task.week,
+    taskId: task.id,
+    stepId: parsed.stepId,
+    at: typeof parsed.at === 'number' ? parsed.at : 0,
+  };
 }
 
 export function clearResume(courseId: string, memberId: string): void {
   if (!hasWindow()) return;
-  localStorage.removeItem(KEYS.resume(courseId, memberId));
+  const existing = userStateRepo.get(courseId, memberId);
+  if (!existing) return;
+  userStateRepo.save(courseId, memberId, { ...existing, resume: undefined });
 }
 
 /**

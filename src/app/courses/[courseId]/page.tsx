@@ -44,8 +44,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { progressRepo } from '@/lib/data';
-import { KEYS } from '@/lib/data/keys';
+import { progressRepo, userStateRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
@@ -487,7 +486,7 @@ export default function CoursePage() {
   const [homeBuildDialog, setHomeBuildDialog] = useState(false);
   const [pendingHomeBuild, setPendingHomeBuild] = useState<Task | null>(null);
   const homeBuildAck = useClientStore<boolean>(
-    () => (typeof window !== 'undefined' ? localStorage.getItem(KEYS.homeBuildAck(course.id)) === '1' : false),
+    () => (member ? userStateRepo.get(course.id, member.memberId)?.homeBuildAck === true : false),
     false
   );
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
@@ -661,10 +660,9 @@ export default function CoursePage() {
   };
 
   const confirmHomeBuild = () => {
-    try {
-      localStorage.setItem(KEYS.homeBuildAck(course.id), '1');
-    } catch {
-      /* storage may be unavailable; the task still opens for this session */
+    if (member) {
+      const existing = userStateRepo.get(course.id, member.memberId) ?? {};
+      userStateRepo.save(course.id, member.memberId, { ...existing, homeBuildAck: true });
     }
     notifyStore();
     setHomeBuildDialog(false);

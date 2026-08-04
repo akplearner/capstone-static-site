@@ -3,6 +3,7 @@
 import { useSyncExternalStore } from 'react';
 import type { User } from '@supabase/supabase-js';
 import { getBrowserClient } from './supabase/client';
+import { setCurrentUserId } from './data/supabaseCache';
 
 // Auth state as a module-level external store (same pattern as useClientStore):
 // one Supabase auth listener is shared app-wide, and useSyncExternalStore keeps it
@@ -77,6 +78,11 @@ export function useAuth() {
     signOut: async () => {
       const supabase = getBrowserClient();
       await supabase?.auth.signOut();
+      // Drop the cached rows immediately rather than waiting for a course page to
+      // remount and run useSupabaseSync. On a shared classroom machine, signing
+      // out from anywhere but a course page previously left the next student
+      // briefly looking at the previous student's cached progress.
+      setCurrentUserId(null);
     },
   };
 }

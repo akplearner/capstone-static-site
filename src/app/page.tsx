@@ -9,6 +9,7 @@ import { RoleIcon } from '@/components/RoleIcon';
 import { courseRepo, progressRepo } from '@/lib/data';
 import { useClientStore, useHydrated, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { EmptyState } from '@/components/EmptyState';
+import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
 import { Skeleton } from '@/components/ui/Spinner';
 import { Course } from '@/lib/types';
 
@@ -25,6 +26,9 @@ export default function HomePage() {
 
   return (
     <div className="space-y-10">
+      {/* Sign-in failures redirect here; without this the student just appears
+          signed out with no idea why. */}
+      <AuthErrorBanner />
       <div className="space-y-3 text-center">
         <div className="mx-auto inline-flex rounded-2xl bg-accent-soft p-3 text-accent">
           <GraduationCap className="h-8 w-8" />

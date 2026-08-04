@@ -4,25 +4,37 @@ import Link from 'next/link';
 import { ArrowRight, CheckCircle2, Circle, Server } from 'lucide-react';
 import { Collapsible } from './ui/Button';
 import { LAB_CHECKS, LAB_FIELDS, getLabAccess, saveLabAccess, useLabAccess } from '@/lib/labAccess';
+import { useRequireAuth } from '@/lib/useRequireAuth';
 
 // Week-0 "Lab access" card: the student stores the target IPs/credentials their
 // instructor gave them and ticks a reachability checklist. The IPs are substituted
 // into command placeholders elsewhere (CommandBlock), so copied commands target the
 // student's own machines instead of <YOUR_TARGET_IP>.
+//
+// This saves to the student's account (owner-only — see
+// supabase/migrations/0002_student_state.sql), so the details follow them between
+// devices without ever being visible to teammates or instructors.
 export function LabAccessPanel({ courseId }: { courseId: string }) {
   const lab = useLabAccess(courseId);
+  const { guard } = useRequireAuth();
 
   const setValue = (key: string, value: string) => {
-    const cur = getLabAccess(courseId);
-    saveLabAccess(courseId, { ...cur, values: { ...cur.values, [key]: value } });
+    guard('save your lab details', () => {
+      const cur = getLabAccess(courseId);
+      saveLabAccess(courseId, { ...cur, values: { ...cur.values, [key]: value } });
+    });
   };
   const toggleCheck = (key: string) => {
-    const cur = getLabAccess(courseId);
-    saveLabAccess(courseId, { ...cur, checks: { ...cur.checks, [key]: !cur.checks[key] } });
+    guard('save your lab checklist', () => {
+      const cur = getLabAccess(courseId);
+      saveLabAccess(courseId, { ...cur, checks: { ...cur.checks, [key]: !cur.checks[key] } });
+    });
   };
   const setNotes = (notes: string) => {
-    const cur = getLabAccess(courseId);
-    saveLabAccess(courseId, { ...cur, notes });
+    guard('save your lab notes', () => {
+      const cur = getLabAccess(courseId);
+      saveLabAccess(courseId, { ...cur, notes });
+    });
   };
 
   const filledCount = LAB_FIELDS.filter((f) => lab.values[f.key]?.trim()).length;
@@ -39,7 +51,8 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
             <Server className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
             Enter the IPs from your lab. They&apos;re filled into the commands below
             automatically (e.g. <span className="font-mono text-xs">&lt;YOUR_TARGET_IP&gt;</span> becomes your
-            value), and saved on this device only.
+            value). Saved to your account and visible only to you — not to your teammates or your
+            instructor — so your lab details follow you between devices.
           </p>
 
           <div className="flex flex-col gap-1">
@@ -104,7 +117,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
               value={lab.notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              placeholder="e.g. ubuntu user: student / pass: ••• ; RDP admin: ••• — kept on this device only"
+              placeholder="e.g. ubuntu user: student / pass: ••• ; RDP admin: ••• — visible only to you"
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
           </label>

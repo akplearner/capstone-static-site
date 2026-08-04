@@ -17,7 +17,15 @@ import { GuidedStepper, StepperItem } from './GuidedStepper';
 import { Task } from '@/lib/types';
 import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
+import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo } from '@/lib/data';
+
+/** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
+ *  inside a component-body function as render work, even when it only runs from
+ *  an event handler. */
+function nowMs(): number {
+  return Date.now();
+}
 
 interface GuidedTaskRunnerProps {
   task: Task;
@@ -35,6 +43,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
+  const { guard } = useRequireAuth();
   const [mode, setMode] = useState<'guided' | 'all'>('all');
   const [currentIdx, setCurrentIdx] = useState(() => {
     const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
@@ -57,13 +66,19 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   const allRequiredDone = requiredTotal > 0 && requiredDone === requiredTotal;
 
   const setStep = (stepId: string, done: boolean) => {
+    // Ticking a step is a write. In cloud mode it must belong to an account, or
+    // it is lost on the next device and never reaches the team page.
+    if (!guard('save your progress', () => applyStep(stepId, done))) return;
+  };
+
+  const applyStep = (stepId: string, done: boolean) => {
     if (done) {
       progressRepo.setCompletion({
         courseId,
         taskId: task.id,
         memberId,
         stepId,
-        completedAt: Date.now(),
+        completedAt: nowMs(),
       });
       // Remember this as the place to reopen on the next visit. Only ticking
       // moves the pointer — un-ticking an old step shouldn't drag the student
@@ -91,13 +106,17 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     else if (currentIdx < total - 1) setCurrentIdx(currentIdx + 1);
   };
 
+  // Guarded once for the whole batch: routing each step through setStep would
+  // raise one toast per step, which is a wall of identical warnings.
   const markAll = () => {
-    task.steps.forEach((s) => setStep(s.id, true));
+    guard('save your progress', () => task.steps.forEach((s) => applyStep(s.id, true)));
   };
 
   const undoAll = () => {
-    task.steps.forEach((s) => setStep(s.id, false));
-    setCurrentIdx(0);
+    guard('change your progress', () => {
+      task.steps.forEach((s) => applyStep(s.id, false));
+      setCurrentIdx(0);
+    });
   };
 
   const stepperItems: StepperItem[] = useMemo(

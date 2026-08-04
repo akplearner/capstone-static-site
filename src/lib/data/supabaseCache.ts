@@ -1,8 +1,9 @@
 'use client';
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { Member, RosterEntry } from '../types';
+import { GrcData, Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
+import type { LabAccessData, UserCourseState } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { KEYS } from './keys';
@@ -25,6 +26,12 @@ const rosterByCourse = new Map<string, RosterEntry[]>();
 const contextByCourse = new Map<string, Member | null>();
 const docsByTeam = new Map<string, Record<string, DeliverableData>>(); // `${courseId}::${teamId}`
 const gateByKey = new Map<string, string>(); // KEYS.gate(...) -> status
+const grcByTeam = new Map<string, GrcData>(); // `${courseId}::${teamId}`
+// The next two are the CURRENT USER's rows only — RLS gives no one else's, and
+// for lab_access that is deliberate (it holds credentials). Keyed by courseId
+// alone because the user is implicit.
+const labAccessByCourse = new Map<string, LabAccessData>();
+const userStateByCourse = new Map<string, UserCourseState>();
 
 const hydratedCourses = new Set<string>();
 const channels = new Map<string, RealtimeChannel>();
@@ -43,6 +50,9 @@ export function setCurrentUserId(id: string | null) {
     contextByCourse.clear();
     docsByTeam.clear();
     gateByKey.clear();
+    grcByTeam.clear();
+    labAccessByCourse.clear();
+    userStateByCourse.clear();
     hydratedCourses.clear();
     channels.forEach((ch) => ch.unsubscribe());
     channels.clear();
@@ -79,6 +89,24 @@ export const cache = {
   setGate(key: string, status: string) {
     gateByKey.set(key, status);
   },
+  grc(courseId: string, teamId: string): GrcData | null {
+    return grcByTeam.get(teamKey(courseId, teamId)) ?? null;
+  },
+  setGrc(courseId: string, teamId: string, data: GrcData) {
+    grcByTeam.set(teamKey(courseId, teamId), data);
+  },
+  labAccess(courseId: string): LabAccessData | null {
+    return labAccessByCourse.get(courseId) ?? null;
+  },
+  setLabAccess(courseId: string, data: LabAccessData) {
+    labAccessByCourse.set(courseId, data);
+  },
+  userState(courseId: string): UserCourseState | null {
+    return userStateByCourse.get(courseId) ?? null;
+  },
+  setUserState(courseId: string, data: UserCourseState) {
+    userStateByCourse.set(courseId, data);
+  },
   upsertRosterEntry(courseId: string, entry: RosterEntry) {
     const list = (rosterByCourse.get(courseId) ?? []).filter((e) => e.memberId !== entry.memberId);
     list.push(entry);
@@ -107,12 +135,18 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, deliverables, gates] = await Promise.all([
-    supabase.from('memberships').select('*').eq('course_id', courseId),
-    supabase.from('step_completions').select('*').eq('course_id', courseId),
-    supabase.from('deliverables').select('*').eq('course_id', courseId),
-    supabase.from('gate_status').select('*').eq('course_id', courseId),
-  ]);
+  const [memberships, completions, deliverables, gates, grc, labAccess, userState] =
+    await Promise.all([
+      supabase.from('memberships').select('*').eq('course_id', courseId),
+      supabase.from('step_completions').select('*').eq('course_id', courseId),
+      supabase.from('deliverables').select('*').eq('course_id', courseId),
+      supabase.from('gate_status').select('*').eq('course_id', courseId),
+      supabase.from('grc_registers').select('*').eq('course_id', courseId),
+      // These two are single-row-per-user; RLS already restricts them to the
+      // caller, so no user_id filter is needed (or would add anything).
+      supabase.from('lab_access').select('*').eq('course_id', courseId).maybeSingle(),
+      supabase.from('user_course_state').select('*').eq('course_id', courseId).maybeSingle(),
+    ]);
 
   if (memberships.data) {
     const list = memberships.data.map(rosterFromRow);
@@ -160,6 +194,21 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     );
   }
 
+  if (grc.data) {
+    grc.data.forEach((g) => {
+      grcByTeam.set(teamKey(courseId, String(g.team_id)), (g.data ?? {}) as GrcData);
+    });
+  }
+
+  // `.maybeSingle()` yields null (not an error) when the student has no row yet,
+  // which is the normal state before they first fill either panel.
+  if (labAccess.data?.data) {
+    labAccessByCourse.set(courseId, labAccess.data.data as LabAccessData);
+  }
+  if (userState.data?.data) {
+    userStateByCourse.set(courseId, userState.data.data as UserCourseState);
+  }
+
   hydratedCourses.add(courseId);
   notifyStore();
 
@@ -182,6 +231,13 @@ function subscribeRealtime(courseId: string) {
       void hydrateCourse(courseId);
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gate_status', filter: `course_id=eq.${courseId}` }, () => {
+      void hydrateCourse(courseId);
+    })
+    // GRC registers are team-shared, so a teammate's edit must reach this client.
+    // lab_access and user_course_state are single-user and deliberately NOT
+    // subscribed — there is no second party to notify, and putting credentials on
+    // a realtime channel would be a cost with no benefit.
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'grc_registers', filter: `course_id=eq.${courseId}` }, () => {
       void hydrateCourse(courseId);
     })
     .subscribe();
