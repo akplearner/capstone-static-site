@@ -1,83 +1,84 @@
 import { describe, it, expect } from 'vitest';
 import { CYSA_PLUS } from './data/seed/cysa';
 import { getTasksByRole } from './course-helpers';
-import { deriveGameState, levelForXp, XP_PER_STEP, XP_WEEK_CLEARED } from './game';
+import { deriveCrewProgress } from './game';
+import { deriveStoneStage, STONE_STAGES } from './quarry';
 
-describe('levelForXp', () => {
-  it('starts at level 1 with no XP', () => {
-    const l = levelForXp(0);
-    expect(l.level).toBe(1);
-    expect(l.into).toBe(0);
-    expect(l.percent).toBe(0);
-    expect(l.atMax).toBe(false);
+// The stone replaced XP deliberately: a point score can drift from the work, and
+// students can't check it. Everything here is derived from completion data, so
+// these tests are really asserting "the stone cannot flatter you".
+
+describe('deriveStoneStage', () => {
+  it('starts uncut and advances one stage per week cleared', () => {
+    expect(deriveStoneStage(0, 4)).toBe(0);
+    expect(deriveStoneStage(1, 4)).toBe(1);
+    expect(deriveStoneStage(2, 4)).toBe(2);
+    expect(deriveStoneStage(3, 4)).toBe(3);
   });
 
-  it('never goes backwards as XP increases', () => {
-    let last = 0;
-    for (let xp = 0; xp <= 3000; xp += 25) {
-      const l = levelForXp(xp);
-      expect(l.level).toBeGreaterThanOrEqual(last);
-      last = l.level;
+  it('reaches Master only when every week is cleared', () => {
+    expect(deriveStoneStage(3, 4)).toBe(3);
+    expect(deriveStoneStage(4, 4)).toBe(5);
+  });
+
+  it('never exceeds the defined stages, however many weeks are cleared', () => {
+    for (const cleared of [0, 1, 5, 12, 99]) {
+      const stage = deriveStoneStage(cleared, 4);
+      expect(stage).toBeLessThanOrEqual(STONE_STAGES.length - 1);
+      expect(stage).toBeGreaterThanOrEqual(0);
     }
   });
 
-  it('reports progress within the current level, not overall', () => {
-    const l = levelForXp(60); // level 1 spans 0-120
-    expect(l.level).toBe(1);
-    expect(l.into).toBe(60);
-    expect(l.span).toBe(120);
-    expect(l.percent).toBe(50);
-  });
-
-  it('caps cleanly at the top level instead of overflowing', () => {
-    const l = levelForXp(999999);
-    expect(l.atMax).toBe(true);
-    expect(l.span).toBeNull();
-    expect(l.percent).toBe(100);
+  it('stays uncut when there are no weeks to clear', () => {
+    expect(deriveStoneStage(0, 0)).toBe(0);
   });
 });
 
-describe('deriveGameState', () => {
-  const noProgress = { weeks: {} as Record<number, number>, tasks: {} as Record<string, number> };
+describe('deriveCrewProgress', () => {
+  const none: Record<number, number> = {};
 
-  it('is all-zero and badge-free before anything is done', () => {
-    const g = deriveGameState(CYSA_PLUS, 'blue', noProgress.weeks, noProgress.tasks);
-    expect(g.xp).toBe(0);
-    expect(g.level.level).toBe(1);
-    expect(g.weeksCleared).toBe(0);
-    expect(g.badges.every((b) => !b.earned)).toBe(true);
+  it('is uncut with no milestones before any work', () => {
+    const c = deriveCrewProgress(CYSA_PLUS, 'blue', none, {});
+    expect(c.stage).toBe(0);
+    expect(c.stepsDone).toBe(0);
+    expect(c.weeksCleared).toBe(0);
+    expect(c.milestones.every((m) => !m.earned)).toBe(true);
   });
 
-  it('pays per completed step and a bonus for clearing a week', () => {
+  it('counts a finished task as an operational service', () => {
     const task = getTasksByRole(CYSA_PLUS, 'blue', 1)[0];
-    const withOneTask = deriveGameState(CYSA_PLUS, 'blue', { 1: 100 }, { [task.id]: 100 });
-    // Every step of that task, plus the week-cleared bonus.
-    expect(withOneTask.xp).toBeGreaterThanOrEqual(XP_PER_STEP + XP_WEEK_CLEARED);
-    expect(withOneTask.weeksCleared).toBe(1);
+    const c = deriveCrewProgress(CYSA_PLUS, 'blue', none, { [task.id]: 100 });
+    expect(c.stepsDone).toBe(task.steps.length);
+    expect(c.milestones.find((m) => m.id === 'surveyed')?.earned).toBe(true);
+    expect(c.milestones.find((m) => m.id === 'first-service')?.earned).toBe(true);
+    // A task is not a week, so the stone has not been cut yet.
+    expect(c.stage).toBe(0);
   });
 
-  it('excludes the setup week from the weeks-cleared count', () => {
-    // Week 0 at 100% must not count toward clearing the course.
-    const g = deriveGameState(CYSA_PLUS, 'blue', { 0: 100 }, {});
-    expect(g.weeksCleared).toBe(0);
-    expect(g.weeksTotal).toBeGreaterThan(0);
-    expect(g.badges.find((b) => b.id === 'capstone')?.earned).toBe(false);
+  it('does not let the setup week cut the stone', () => {
+    // Week 0 at 100% must not advance the capstone: it is opt-in lab building.
+    const c = deriveCrewProgress(CYSA_PLUS, 'blue', { 0: 100 }, {});
+    expect(c.weeksCleared).toBe(0);
+    expect(c.stage).toBe(0);
+    expect(c.milestones.find((m) => m.id === 'capstone')?.earned).toBe(false);
   });
 
-  it('awards the capstone badge only when every graded week is cleared', () => {
+  it('reaches Master Capstone only when every graded week is cleared', () => {
     const all: Record<number, number> = {};
     CYSA_PLUS.weeks.forEach((w) => {
       all[w.number] = 100;
     });
-    const g = deriveGameState(CYSA_PLUS, 'blue', all, {});
-    expect(g.weeksCleared).toBe(g.weeksTotal);
-    expect(g.badges.find((b) => b.id === 'capstone')?.earned).toBe(true);
-    expect(g.badges.find((b) => b.id === 'halfway')?.earned).toBe(true);
+    const c = deriveCrewProgress(CYSA_PLUS, 'blue', all, {});
+    expect(c.weeksCleared).toBe(c.weeksTotal);
+    expect(c.stage).toBe(5);
+    expect(c.milestones.find((m) => m.id === 'capstone')?.earned).toBe(true);
+    expect(c.milestones.find((m) => m.id === 'halfway')?.earned).toBe(true);
   });
 
-  it('never awards a badge for a role with no tasks at all', () => {
-    const g = deriveGameState(CYSA_PLUS, 'nobody', { 1: 100, 2: 100 }, {});
-    expect(g.weeksTotal).toBe(0);
-    expect(g.badges.find((b) => b.id === 'capstone')?.earned).toBe(false);
+  it('awards nothing to a role with no tasks at all', () => {
+    const c = deriveCrewProgress(CYSA_PLUS, 'nobody', { 1: 100, 2: 100 }, {});
+    expect(c.weeksTotal).toBe(0);
+    expect(c.stepsTotal).toBe(0);
+    expect(c.milestones.find((m) => m.id === 'capstone')?.earned).toBe(false);
   });
 });

@@ -48,8 +48,10 @@ import { progressRepo, userStateRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
-import { deriveGameState } from '@/lib/game';
-import { XPBar, BadgeRail, PixelBadge } from '@/components/ui/Pixel';
+import { deriveCrewProgress } from '@/lib/game';
+import { StepTally, MilestoneRail, PixelBadge } from '@/components/ui/Pixel';
+import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
+import { regionFor } from '@/lib/quarry';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
@@ -360,7 +362,9 @@ function TaskRow({
   return (
     <div
       id={`task-${task.id}`}
-      className="scroll-mt-24 overflow-hidden rounded-lg border border-gray-200 dark:border-gray-700"
+      // Stratum 2: a task is cut *into* the week, so it sits inset and a shade
+      // darker rather than repeating the week's card treatment.
+      className="stratum-task scroll-mt-24 overflow-hidden"
     >
       <button
         type="button"
@@ -702,8 +706,9 @@ export default function CoursePage() {
   );
   const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
-  // XP / level / badges, derived from the percentages computed above.
-  const game = deriveGameState(course, member?.role ?? '', weekStats, taskStats);
+  // Crew progress: the Capstone Stone's stage plus professional milestones, all
+  // derived from the percentages computed above — no points, no stored score.
+  const crew = deriveCrewProgress(course, member?.role ?? '', weekStats, taskStats);
 
   // "Continue" points at real coursework. Setup weeks and home-lab-only build
   // tasks are opt-in, so an untouched Week 0 must not hold the CTA hostage —
@@ -885,9 +890,22 @@ export default function CoursePage() {
           )}
         </div>
         <p className="text-lg text-muted">{course.description}</p>
+        {/* Where you are working, and what you are cutting. */}
+        <p className="text-sm text-muted">
+          <span className="font-semibold text-ink">{regionFor(course).name}</span>
+          {' · '}
+          {regionFor(course).mineral}
+          {' — '}
+          {regionFor(course).terrain}
+        </p>
         {joined && member && (
-          <div className="pt-1">
-            <BadgeRail badges={game.badges} />
+          <div className="space-y-3 pt-2">
+            {/* The Capstone Stone: one object showing the whole project's state,
+                cut only by weeks that are genuinely finished. */}
+            <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4 text-left">
+              <CapstoneStonePanel stage={crew.stage} />
+            </div>
+            <MilestoneRail milestones={crew.milestones} />
           </div>
         )}
       </div>
@@ -903,7 +921,7 @@ export default function CoursePage() {
             <>
               {/* The game layer, derived from the same progress scan as the
                   percentages beside it — no separate source of truth. */}
-              <XPBar level={game.level} xp={game.xp} className="hidden md:flex" />
+              <StepTally done={crew.stepsDone} total={crew.stepsTotal} className="hidden md:flex" />
               <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
                 {phaseTag(course, activeWeek)} · {overallPercent}%
               </span>
@@ -1181,7 +1199,10 @@ export default function CoursePage() {
             <section
               key={w.number}
               id={`week-${w.number}`}
-              className="scroll-mt-24 overflow-hidden rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800"
+              // Stratum 1: the week is the bedrock band. The accent-weighted
+              // left edge is what makes one week visibly end and the next begin.
+              className="stratum-week scroll-mt-24 overflow-hidden"
+              data-open={isWeekOpen ? 'true' : 'false'}
             >
               <button
                 type="button"

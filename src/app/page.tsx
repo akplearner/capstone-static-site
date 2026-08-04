@@ -33,10 +33,10 @@ export default function HomePage() {
         <div className="mx-auto inline-flex rounded-2xl bg-accent-soft p-3 text-accent">
           <GraduationCap className="h-8 w-8" />
         </div>
-        <p className="eyebrow">Hands-on · role-based cyber ranges</p>
-        <h1 className="text-4xl font-bold tracking-tight text-ink">Capstone Lab Platform</h1>
+        <p className="eyebrow">Build the environment · Work the process · Prove the skill</p>
+        <h1 className="text-4xl font-bold tracking-tight text-ink">Capstone Quarry</h1>
         <p className="mx-auto max-w-2xl text-lg text-muted">
-          Hands-on, role-based cyber ranges. Choose a course to begin, or open the instructor studio to build one.
+          Every vendor is its own region, and every crew cuts one capstone stone. Pick a region to begin, or open the instructor studio to build one.
         </p>
         <p className="mx-auto max-w-2xl text-sm text-muted">
           New here? Just press <span className="font-medium text-ink">Start</span> — the course opens with a

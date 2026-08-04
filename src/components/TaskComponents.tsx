@@ -548,7 +548,14 @@ export function ChecklistItem({
   const [showDetails, setShowDetails] = React.useState(defaultOpen ?? !isComplete);
 
   return (
-    <motion.div layout className="border-l-4 border-blue-200 bg-gray-50 p-4 dark:border-blue-800 dark:bg-gray-700/50">
+    // Stratum 3: a step gets a seam line, not a third nested box. Stacking a
+    // third border inside week -> task -> step is what made a week read as an
+    // undifferentiated wall.
+    <motion.div
+      layout
+      data-done={isComplete ? 'true' : 'false'}
+      className="stratum-step py-3"
+    >
       <div className="flex items-start gap-4">
         <motion.input
           type="checkbox"

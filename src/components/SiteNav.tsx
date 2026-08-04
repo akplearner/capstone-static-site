@@ -50,7 +50,7 @@ export function SiteNav() {
               <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-accent" />
             </span>
             <ShieldCheck className="h-6 w-6 text-accent" />
-            <span>Capstone Lab</span>
+            <span>Capstone Quarry</span>
           </Link>
           <div className="flex items-center gap-1 sm:gap-2">
             <Link href="/" className={linkClass(coursesActive)}>

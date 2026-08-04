@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Course } from '@/lib/types';
 import { CourseContext } from '@/lib/useCourse';
 import { courseRepo } from '@/lib/data';
-import { courseTheme } from '@/lib/courseTheme';
+import { regionFor, seamFor } from '@/lib/quarry';
 import { useClientStore, useHydrated } from '@/lib/useClientStore';
 import { Button } from './ui/Button';
 import { LoadingBlock } from './ui/Spinner';
@@ -40,13 +40,17 @@ export function CourseProvider({
     );
   }
 
-  // `data-course` is what re-themes the whole subtree: globals.css re-declares
-  // the accent tokens under this selector, so every bg-accent / .eyebrow / .ip /
-  // progress bar / diagram picks up the course's colours without a single
-  // component knowing about it. See src/lib/courseTheme.ts.
+  // `data-region` (the rock) and `data-seam` (the vein within it) re-theme the
+  // whole subtree: globals.css re-declares the accent and mineral tokens under
+  // these selectors, so every bg-accent / .eyebrow / .ip / progress bar / stone
+  // picks up the region's mineral without a single component knowing about it.
+  // Two courses from one vendor share a region and differ only by seam.
+  // See src/lib/quarry.ts.
   return (
     <CourseContext.Provider value={course}>
-      <div data-course={courseTheme(course).key}>{children}</div>
+      <div data-region={regionFor(course).key} data-seam={seamFor(course)}>
+        {children}
+      </div>
     </CourseContext.Provider>
   );
 }

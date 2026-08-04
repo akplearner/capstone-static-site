@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import clsx from 'clsx';
-import type { Badge as BadgeInfo, LevelInfo } from '@/lib/game';
+import type { Milestone } from '@/lib/quarry';
 
 /**
  * The arcade primitives.
@@ -59,56 +59,52 @@ export function PixelBadge({
 }
 
 /**
- * A stepped XP meter. The fill is a solid accent bar overlaid with the
- * `.pixel-meter` gutter pattern, which cuts it into discrete blocks — so it
- * reads as a game meter rather than a percentage bar, without needing to know
- * how many segments to draw.
+ * Work done, stated as work — "34 of 60 steps cut" rather than a point score.
+ * The bar is stepped so it reads as a game meter, but the number underneath is
+ * always the real count, so it can be checked against the checklist.
  */
-export function XPBar({
-  level,
-  xp,
+export function StepTally({
+  done,
+  total,
   className,
 }: {
-  level: LevelInfo;
-  xp: number;
+  done: number;
+  total: number;
   className?: string;
 }) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   return (
     <div className={clsx('flex items-center gap-2', className)}>
-      <PixelBadge tone="accent" title={`Level ${level.level}`}>
-        LV{level.level}
-      </PixelBadge>
       <div
         className="relative h-3 w-24 border-2 border-line bg-panel-2"
         role="progressbar"
-        aria-valuenow={level.percent}
+        aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`Level ${level.level} progress`}
+        aria-label={`${done} of ${total} steps complete`}
       >
         <motion.div
           className="absolute inset-y-0 left-0"
           style={{ background: 'var(--color-accent)' }}
           initial={{ width: 0 }}
-          animate={{ width: `${level.percent}%` }}
+          animate={{ width: `${pct}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         />
-        {/* Gutters sit above the fill so the bar looks segmented. */}
         <div className="pixel-meter absolute inset-0" aria-hidden />
       </div>
-      <span className="pixel text-[9px] text-muted" title={`${xp} XP total`}>
-        {xp} XP
+      <span className="pixel text-[9px] text-muted" title={`${done} of ${total} steps`}>
+        {done}/{total}
       </span>
     </div>
   );
 }
 
-/** The earned/unearned badge rail. Unearned badges stay visible but dimmed, so
- *  a student can see what there is to aim at. */
-export function BadgeRail({ badges }: { badges: BadgeInfo[] }) {
+/** Professional milestones. Unearned ones stay visible but dimmed, so the rail
+ *  doubles as a checklist of what is still to prove. */
+export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {badges.map((b, i) => (
+      {milestones.map((b, i) => (
         <motion.span
           key={b.id}
           initial={{ opacity: 0, scale: 0.9 }}

@@ -88,87 +88,113 @@
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* ── Per-course identity ────────────────────────────────────────────────────
-   Each course layout sets `data-course` on its wrapper; these blocks re-declare
-   the accent tokens beneath it. Because every component already styles itself
-   from `--color-accent*` and `--color-w1..w4`, a course re-themes with zero
-   component changes and no dynamic Tailwind class names (which don't exist).
+/* ── Quarry regions ─────────────────────────────────────────────────────────
+   Every vendor is a geographic region with its own mineral, and the mineral IS
+   the palette — so identity and theme are one decision instead of two that can
+   drift. The course layout sets `data-region` (the rock) and `data-seam` (the
+   vein within it); these blocks re-declare the accent tokens beneath them, so
+   every existing bg-accent / .eyebrow / .ip / progress bar re-themes with no
+   component changes and no dynamic Tailwind class names.
 
-   Light and dark for a course sit next to each other rather than being spread
-   across two big theme blocks, so a colour can be judged in both at once.
-   Keys are defined in src/lib/courseTheme.ts; a course with no block here keeps
-   the default SOC teal above. ───────────────────────────────────────────── */
+   Two courses from the same vendor share a region and differ only by seam —
+   Security+ and CySA+ are both cut from the Foundation Quarry's iron quartz,
+   but from a red vein and a steel vein respectively. Keys come from
+   src/lib/quarry.ts. ────────────────────────────────────────────────────── */
 
-/* CompTIA Security+ — CompTIA red, the vendor's own identity. */
-[data-course='security-plus'] {
-  --color-accent: #b3202c;
-  --color-accent-strong: #8f1922;
-  --color-accent-ink: #7a151d;
-  --color-accent-soft: #fbe9ea;
-  --color-w1: #b3202c;
-  --color-w2: #a63a1e;
-  --color-w3: #8f5a12;
-  --color-w4: #6d2740;
+/* THE FOUNDATION QUARRY — iron quartz. Charcoal and silver rock, mineral veins
+   running through it. Practical, industrial, unglamorous ground. */
+[data-region='comptia'] {
+  --stone-rock: #3f434b;
+  --stone-rock-dark: #2b2e34;
+  --stone-vein: #d8dce3;
 }
-.dark [data-course='security-plus'] {
-  --color-accent: #f2727c;
+[data-seam='security-plus'] {
+  --color-accent: #a8202c;          /* iron-red vein */
+  --color-accent-strong: #85161f;
+  --color-accent-ink: #6f1219;
+  --color-accent-soft: #fae9ea;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #d4444f;
+  --color-w1: #8a5a2b;
+  --color-w2: #a8202c;
+  --color-w3: #7a4b6b;
+  --color-w4: #52606e;
+}
+.dark [data-seam='security-plus'] {
+  --color-accent: #ef7078;
   --color-accent-strong: #ff8a92;
-  --color-accent-ink: #ffd7da;
-  --color-accent-soft: #3d1418;
-  --color-w1: #f2727c;
-  --color-w2: #e8895f;
-  --color-w3: #dCA75a;
-  --color-w4: #d18aa6;
-  --color-accent-contrast: #2b0a0d;
+  --color-accent-ink: #ffd9dc;
+  --color-accent-soft: #3a1216;
+  --color-accent-contrast: #2a0a0e;
+  --stone-crystal: #ff7c86;
+  --color-w1: #d69a63;
+  --color-w2: #ef7078;
+  --color-w3: #c98ab5;
+  --color-w4: #93a4b5;
 }
-
-/* CompTIA CySA+ — same vendor family, shifted to a blue-violet so the two
-   CompTIA courses are never mistaken for each other. */
-[data-course='cysa-plus'] {
-  --color-accent: #4338a8;
-  --color-accent-strong: #362c8c;
-  --color-accent-ink: #2e2578;
-  --color-accent-soft: #eae8f8;
+[data-seam='cysa-plus'] {
+  --color-accent: #2d5f8a;          /* steel vein, same rock */
+  --color-accent-strong: #234b6e;
+  --color-accent-ink: #1d3e5c;
+  --color-accent-soft: #e6eff6;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #4d90c8;
   --color-w1: #1f7a5a;
-  --color-w2: #4338a8;
-  --color-w3: #9a5b09;
-  --color-w4: #a32749;
+  --color-w2: #2d5f8a;
+  --color-w3: #8a5a2b;
+  --color-w4: #6b3f6e;
 }
-.dark [data-course='cysa-plus'] {
-  --color-accent: #9b8cf5;
-  --color-accent-strong: #b0a4ff;
-  --color-accent-ink: #ddd7ff;
-  --color-accent-soft: #221d47;
+.dark [data-seam='cysa-plus'] {
+  --color-accent: #6fb2e8;
+  --color-accent-strong: #8bc4f5;
+  --color-accent-ink: #d3ebff;
+  --color-accent-soft: #10293d;
+  --color-accent-contrast: #08202f;
+  --stone-crystal: #7cc2f7;
   --color-w1: #45c69b;
-  --color-w2: #9b8cf5;
-  --color-w3: #e0a95f;
-  --color-w4: #f07fa0;
-  --color-accent-contrast: #160f33;
+  --color-w2: #6fb2e8;
+  --color-w3: #d9a463;
+  --color-w4: #b48ad0;
 }
 
-/* MSSP — not a certification but a client audit engagement, so a colder,
-   more corporate blue than either CompTIA course. */
-[data-course='mssp'] {
-  --color-accent: #14607f;
-  --color-accent-strong: #0f4d66;
-  --color-accent-ink: #0c3f54;
-  --color-accent-soft: #e4eff4;
-  --color-w1: #14607f;
-  --color-w2: #196b6b;
-  --color-w3: #7a5a17;
-  --color-w4: #43507f;
+/* THE OBSIDIAN AUDIT VAULT — black glass. Evidence, control, traceability. */
+[data-region='engagement'] {
+  --stone-rock: #2a2733;
+  --stone-rock-dark: #1a1822;
+  --stone-vein: #cfc9de;
 }
-.dark [data-course='mssp'] {
-  --color-accent: #4ab8dd;
-  --color-accent-strong: #6bc9e8;
-  --color-accent-ink: #cbecf7;
-  --color-accent-soft: #10303d;
-  --color-w1: #4ab8dd;
-  --color-w2: #4cc0bc;
-  --color-w3: #d6b45f;
-  --color-w4: #8f9ce0;
-  --color-accent-contrast: #062430;
+[data-seam='mssp'] {
+  --color-accent: #4a3f8f;
+  --color-accent-strong: #3a3173;
+  --color-accent-ink: #2f2760;
+  --color-accent-soft: #ecebf7;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #7d6fd4;
+  --color-w1: #4a3f8f;
+  --color-w2: #3f5f8f;
+  --color-w3: #7a5a2b;
+  --color-w4: #6b3f6e;
 }
+.dark [data-seam='mssp'] {
+  --color-accent: #a596f5;
+  --color-accent-strong: #b9adff;
+  --color-accent-ink: #e2ddff;
+  --color-accent-soft: #221d3d;
+  --color-accent-contrast: #150f2b;
+  --stone-crystal: #b3a5ff;
+  --color-w1: #a596f5;
+  --color-w2: #7fa8e0;
+  --color-w3: #d9a463;
+  --color-w4: #c98ad0;
+}
+
+/* Regions with no course yet. Declared now so adding an AWS or Cisco capstone is
+   a data change, not a CSS change. */
+[data-region='aws']       { --stone-rock: #4a3524; --stone-rock-dark: #2e2016; --stone-vein: #ffd9a3; }
+[data-region='microsoft'] { --stone-rock: #27384a; --stone-rock-dark: #172431; --stone-vein: #cfe6ff; }
+[data-region='cisco']     { --stone-rock: #3a3a44; --stone-rock-dark: #24242c; --stone-vein: #e0b48a; }
+[data-region='isc2']      { --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee; }
+[data-region='linux']     { --stone-rock: #23342b; --stone-rock-dark: #14201a; --stone-vein: #b6e8c9; }
 
 * {
   @apply scroll-smooth;
@@ -298,6 +324,77 @@ select {
    live console waiting for input, but this block shows output the student should
    compare against, and most of it is a described result rather than console text.
    Expected output now renders via StepOutcome.tsx. */
+
+/* ── Strata: making nesting depth visible ───────────────────────────────────
+   The original complaint was that everything looked flat — "too plain and hard
+   to see between sections and flow". The cause was that a week, a task inside
+   it, and a step inside that all used the same panel treatment, so three levels
+   of nesting read as one undifferentiated wall.
+
+   Rock is layered, so the fix is too: each level down is a distinct stratum,
+   separated by tone and an edge rather than by more boxes. Depth is legible at
+   a glance without adding chrome. ─────────────────────────────────────────── */
+
+/* Level 1 — a week. The bedrock band. */
+.stratum-week {
+  background: var(--color-panel);
+  border: 1px solid var(--color-line);
+  border-left: 4px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-radius: var(--radius-card);
+}
+.stratum-week[data-open='true'] {
+  border-left-color: var(--color-accent);
+  box-shadow: var(--shadow-card);
+}
+
+/* Level 2 — a task within the week. Inset and slightly darker, so it reads as
+   cut *into* the week rather than sitting beside it. */
+.stratum-task {
+  background: color-mix(in srgb, var(--color-panel-2) 70%, var(--color-panel));
+  border: 1px solid var(--color-line);
+  border-radius: 10px;
+}
+
+/* Level 3 — a step. No box at all: a seam line down the left edge. A third
+   nested border is what made this feel like a wall. */
+.stratum-step {
+  border-left: 2px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-line));
+  background: transparent;
+  padding-left: 0.875rem;
+}
+.stratum-step[data-done='true'] {
+  border-left-color: color-mix(in srgb, var(--color-ok) 55%, transparent);
+  opacity: 0.72;
+}
+
+/* A section heading that separates without a full divider — a short accent rule
+   under a label, which reads as a stratum boundary rather than a table rule. */
+.seam-heading {
+  position: relative;
+  padding-bottom: 0.5rem;
+}
+.seam-heading::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 2.5rem;
+  height: 2px;
+  background: var(--color-accent);
+  opacity: 0.7;
+}
+
+/* The connective tissue between weeks: a vertical seam showing the expedition is
+   one continuous cut rather than four unrelated cards. */
+.seam-rail {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--color-accent) 35%, transparent) 12%,
+    color-mix(in srgb, var(--color-accent) 35%, transparent) 88%,
+    transparent
+  );
+}
 
 /* ── The game layer ─────────────────────────────────────────────────────────
    Arcade styling for *short* strings and containers only. The rule that keeps
