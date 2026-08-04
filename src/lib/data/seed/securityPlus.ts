@@ -52,6 +52,8 @@ export const SECURITY_PLUS: Course = {
   id: 'security-plus',
   title: 'Security+ Capstone Lab',
   slug: 'security-plus',
+  vendor: 'CompTIA',
+  certification: 'Security+',
   audience: 'Hands-on offensive + defensive lab — you play Red, Blue, or GRC on a live range.',
   description:
     'A 4-week, industry-style security engagement (plus a Week 0 lab setup) with Red, Blue, and GRC roles — recon, hardening, breach, and final reporting.',

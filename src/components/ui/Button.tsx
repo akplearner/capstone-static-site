@@ -9,7 +9,10 @@ interface ButtonProps extends HTMLMotionProps<'button'> {
 }
 
 const variantStyles = {
-  default: 'bg-accent text-white hover:bg-accent-strong active:bg-accent-strong',
+  // text-accent-contrast, not text-white: the dark themes lighten the accent
+  // for legibility against a dark page, which makes white label text fail
+  // contrast. The token flips to near-black there.
+  default: 'bg-accent text-accent-contrast hover:bg-accent-strong active:bg-accent-strong',
   secondary: 'bg-panel-2 text-ink border border-line hover:bg-surface',
   ghost: 'text-accent hover:bg-accent-soft',
   destructive: 'bg-danger text-white hover:opacity-90 active:opacity-80',

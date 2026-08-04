@@ -9,7 +9,9 @@ export type CourseTab = 'overview' | 'weeks' | 'team' | 'deliverables' | 'guide'
 const BASE =
   'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
 const INACTIVE = 'text-muted hover:bg-panel-2 hover:text-ink';
-const ACTIVE = 'bg-accent text-white hover:bg-accent-strong';
+// text-accent-contrast so the active tab label stays legible when a dark theme
+// lightens the accent (see --color-accent-contrast in globals.css).
+const ACTIVE = 'bg-accent text-accent-contrast hover:bg-accent-strong';
 const cls = (active: boolean) => `${BASE} ${active ? ACTIVE : INACTIVE}`;
 
 interface CourseSubNavProps {

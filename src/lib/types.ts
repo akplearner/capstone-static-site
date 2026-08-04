@@ -209,6 +209,13 @@ export interface Course {
   gates: Gate[];
   tasks: Task[];
   frameworks?: FrameworkDef[];
+  /** Who awards/owns this credential, e.g. 'CompTIA'. Drives the base colour of
+   *  the course theme so a student can tell at a glance which product they're
+   *  in. Omitted for engagement-framed courses that aren't a certification. */
+  vendor?: string;
+  /** The specific credential, e.g. 'Security+' or 'CySA+ (CS0-003)'. Two certs
+   *  from the same vendor share a family but get distinct accents. */
+  certification?: string;
   /** One-line "who this is for / what you'll do" tagline shown on the home card to
    *  differentiate courses at a glance. */
   audience?: string;

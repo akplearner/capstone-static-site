@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Course } from '@/lib/types';
 import { CourseContext } from '@/lib/useCourse';
 import { courseRepo } from '@/lib/data';
+import { courseTheme } from '@/lib/courseTheme';
 import { useClientStore, useHydrated } from '@/lib/useClientStore';
 import { Button } from './ui/Button';
 import { LoadingBlock } from './ui/Spinner';
@@ -39,5 +40,13 @@ export function CourseProvider({
     );
   }
 
-  return <CourseContext.Provider value={course}>{children}</CourseContext.Provider>;
+  // `data-course` is what re-themes the whole subtree: globals.css re-declares
+  // the accent tokens under this selector, so every bg-accent / .eyebrow / .ip /
+  // progress bar / diagram picks up the course's colours without a single
+  // component knowing about it. See src/lib/courseTheme.ts.
+  return (
+    <CourseContext.Provider value={course}>
+      <div data-course={courseTheme(course).key}>{children}</div>
+    </CourseContext.Provider>
+  );
 }

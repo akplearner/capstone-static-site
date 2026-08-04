@@ -1525,6 +1525,8 @@ export const CYSA_PLUS: Course = {
   id: 'cysa-plus',
   title: 'CySA+ SOC Capstone',
   slug: 'cysa-plus',
+  vendor: 'CompTIA',
+  certification: 'CySA+ (CS0-003)',
   lifecyclePath: [
     { label: 'Detect', detail: 'An alert fires in the SOC — something looks off.' },
     { label: 'Triage', detail: 'SOC Analyst: real threat or noise? Escalate the real ones.' },

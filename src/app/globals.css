@@ -33,6 +33,11 @@
   --color-accent-strong: #0c5d74;
   --color-accent-ink: #0c4a5e;   /* accent text on light chips */
   --color-accent-soft: #e6edf3;  /* accent chip fill (IP pills) */
+  /* Text/icon colour that sits ON a solid --color-accent fill. Light themes use
+     a dark-on-light accent so this is white; the dark themes below lighten the
+     accent for legibility against a dark page, which makes white text fail
+     contrast — so they flip this to near-black. */
+  --color-accent-contrast: #ffffff;
 
   /* Per-week phase accents (k1–k4 in the source) */
   --color-w1: #158066;
@@ -69,6 +74,7 @@
   --color-accent-strong: #1fb6d6;
   --color-accent-ink: #bfeefc;
   --color-accent-soft: #14313d;
+  --color-accent-contrast: #08222b;
 
   --color-w1: #38b28f;
   --color-w2: #5f93d6;
@@ -80,6 +86,88 @@
   --color-danger: #ef6b6b;
 
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+/* ── Per-course identity ────────────────────────────────────────────────────
+   Each course layout sets `data-course` on its wrapper; these blocks re-declare
+   the accent tokens beneath it. Because every component already styles itself
+   from `--color-accent*` and `--color-w1..w4`, a course re-themes with zero
+   component changes and no dynamic Tailwind class names (which don't exist).
+
+   Light and dark for a course sit next to each other rather than being spread
+   across two big theme blocks, so a colour can be judged in both at once.
+   Keys are defined in src/lib/courseTheme.ts; a course with no block here keeps
+   the default SOC teal above. ───────────────────────────────────────────── */
+
+/* CompTIA Security+ — CompTIA red, the vendor's own identity. */
+[data-course='security-plus'] {
+  --color-accent: #b3202c;
+  --color-accent-strong: #8f1922;
+  --color-accent-ink: #7a151d;
+  --color-accent-soft: #fbe9ea;
+  --color-w1: #b3202c;
+  --color-w2: #a63a1e;
+  --color-w3: #8f5a12;
+  --color-w4: #6d2740;
+}
+.dark [data-course='security-plus'] {
+  --color-accent: #f2727c;
+  --color-accent-strong: #ff8a92;
+  --color-accent-ink: #ffd7da;
+  --color-accent-soft: #3d1418;
+  --color-w1: #f2727c;
+  --color-w2: #e8895f;
+  --color-w3: #dCA75a;
+  --color-w4: #d18aa6;
+  --color-accent-contrast: #2b0a0d;
+}
+
+/* CompTIA CySA+ — same vendor family, shifted to a blue-violet so the two
+   CompTIA courses are never mistaken for each other. */
+[data-course='cysa-plus'] {
+  --color-accent: #4338a8;
+  --color-accent-strong: #362c8c;
+  --color-accent-ink: #2e2578;
+  --color-accent-soft: #eae8f8;
+  --color-w1: #1f7a5a;
+  --color-w2: #4338a8;
+  --color-w3: #9a5b09;
+  --color-w4: #a32749;
+}
+.dark [data-course='cysa-plus'] {
+  --color-accent: #9b8cf5;
+  --color-accent-strong: #b0a4ff;
+  --color-accent-ink: #ddd7ff;
+  --color-accent-soft: #221d47;
+  --color-w1: #45c69b;
+  --color-w2: #9b8cf5;
+  --color-w3: #e0a95f;
+  --color-w4: #f07fa0;
+  --color-accent-contrast: #160f33;
+}
+
+/* MSSP — not a certification but a client audit engagement, so a colder,
+   more corporate blue than either CompTIA course. */
+[data-course='mssp'] {
+  --color-accent: #14607f;
+  --color-accent-strong: #0f4d66;
+  --color-accent-ink: #0c3f54;
+  --color-accent-soft: #e4eff4;
+  --color-w1: #14607f;
+  --color-w2: #196b6b;
+  --color-w3: #7a5a17;
+  --color-w4: #43507f;
+}
+.dark [data-course='mssp'] {
+  --color-accent: #4ab8dd;
+  --color-accent-strong: #6bc9e8;
+  --color-accent-ink: #cbecf7;
+  --color-accent-soft: #10303d;
+  --color-w1: #4ab8dd;
+  --color-w2: #4cc0bc;
+  --color-w3: #d6b45f;
+  --color-w4: #8f9ce0;
+  --color-accent-contrast: #062430;
 }
 
 * {
@@ -210,3 +298,64 @@ select {
    live console waiting for input, but this block shows output the student should
    compare against, and most of it is a described result rather than console text.
    Expected output now renders via StepOutcome.tsx. */
+
+/* ── The game layer ─────────────────────────────────────────────────────────
+   Arcade styling for *short* strings and containers only. The rule that keeps
+   this usable: the pixel face never touches step prose, commands, terminal
+   output or troubleshooting text — those stay IBM Plex. See fonts/README.md. */
+
+/* The pixel face. `--font-pixel-face` is set on <body> by next/font/local in
+   app/layout.tsx and is referenced directly here rather than through a Tailwind
+   `@theme` entry: a --font-* theme var that no generated utility references gets
+   tree-shaken away, which silently left this rendering as IBM Plex.
+
+   Letter-spacing is widened because the 8x8 glyphs run tight. */
+.pixel {
+  font-family: var(--font-pixel-face), ui-sans-serif, system-ui, sans-serif;
+  letter-spacing: 0.06em;
+  line-height: 1.6;
+  /* Bitmap outlines stay crisp rather than being smoothed into mush. */
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+}
+
+/* Chunky container: square corners, a hard border and an offset block shadow
+   instead of a soft blur — the shape does most of the retro work, which is why
+   this still reads correctly when the pixel font fails to load. */
+.pixel-panel {
+  border-radius: 0;
+  border-width: 2px;
+  border-style: solid;
+  border-color: var(--color-line);
+  box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--color-ink) 16%, transparent);
+}
+.pixel-panel-accent {
+  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-line));
+  box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--color-accent) 30%, transparent);
+}
+
+/* A stepped progress bar: discrete blocks, like a health/XP meter, rather than
+   a continuous fill. The segment count comes from the gradient stop size. */
+.pixel-meter {
+  border-radius: 0;
+  image-rendering: pixelated;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0,
+    transparent 6px,
+    var(--color-panel) 6px,
+    var(--color-panel) 8px
+  );
+}
+
+/* Faint scanlines for the arcade header strip. Kept very low contrast so it
+   never interferes with text legibility. */
+.pixel-scanlines {
+  background-image: repeating-linear-gradient(
+    0deg,
+    color-mix(in srgb, var(--color-ink) 5%, transparent) 0,
+    color-mix(in srgb, var(--color-ink) 5%, transparent) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+}

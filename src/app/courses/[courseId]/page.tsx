@@ -47,8 +47,11 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo } from '@/lib/data';
 import { KEYS } from '@/lib/data/keys';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, phaseTitle, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
+import { deriveGameState } from '@/lib/game';
+import { XPBar, BadgeRail, PixelBadge } from '@/components/ui/Pixel';
+import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -701,6 +704,9 @@ export default function CoursePage() {
   );
   const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
+  // XP / level / badges, derived from the percentages computed above.
+  const game = deriveGameState(course, member?.role ?? '', weekStats, taskStats);
+
   // "Continue" points at real coursework. Setup weeks and home-lab-only build
   // tasks are opt-in, so an untouched Week 0 must not hold the CTA hostage —
   // that was the old behaviour and it never advanced.
@@ -872,8 +878,20 @@ export default function CoursePage() {
       {/* Header */}
       <div className="space-y-2">
         {course.audience && <p className="eyebrow">{course.audience}</p>}
-        <h1 className="text-4xl font-bold tracking-tight text-ink">{course.title}</h1>
+        <div className="flex flex-wrap items-center gap-3">
+          <h1 className="text-4xl font-bold tracking-tight text-ink">{course.title}</h1>
+          {/* Vendor + credential, in the course's own accent — the fastest way
+              to tell which product you're looking at. */}
+          {courseIdentityLabel(course) && (
+            <PixelBadge tone="accent">{courseIdentityLabel(course)}</PixelBadge>
+          )}
+        </div>
         <p className="text-lg text-muted">{course.description}</p>
+        {joined && member && (
+          <div className="pt-1">
+            <BadgeRail badges={game.badges} />
+          </div>
+        )}
       </div>
 
       {/* Sticky course sub-nav — shared component, persists on every in-course page */}
@@ -885,6 +903,9 @@ export default function CoursePage() {
         trailing={
           joined && member ? (
             <>
+              {/* The game layer, derived from the same progress scan as the
+                  percentages beside it — no separate source of truth. */}
+              <XPBar level={game.level} xp={game.xp} className="hidden md:flex" />
               <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
                 {phaseTag(course, activeWeek)} · {overallPercent}%
               </span>
@@ -1170,12 +1191,22 @@ export default function CoursePage() {
                 className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
               >
                 <div className="min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {/* The week tag in the arcade face — short enough to stay
+                        legible, and it makes a week read as a level. */}
+                    <PixelBadge tone={weekPct >= 100 ? 'accent' : 'neutral'}>
+                      {phaseTag(course, w.number)}
+                    </PixelBadge>
                     <h3 className="text-lg font-bold text-gray-900 dark:text-white">
-                      {phaseTitle(course, w.number)}
+                      {w.title}
                     </h3>
-                    {w.number === activeWeek && joined && (
-                      <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                    {weekPct >= 100 && joined && (
+                      <PixelBadge tone="accent" title="Every required step in this week is done">
+                        Cleared
+                      </PixelBadge>
+                    )}
+                    {w.number === activeWeek && joined && weekPct < 100 && (
+                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
                         Current
                       </span>
                     )}
@@ -1185,11 +1216,14 @@ export default function CoursePage() {
                 <div className="flex shrink-0 items-center gap-3">
                   {joined && (
                     <span className="hidden items-center gap-1.5 sm:flex">
-                      <span className="h-1.5 w-16 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      {/* Stepped, not smooth — a game meter, and it now takes the
+                          course's accent instead of a hardcoded blue. */}
+                      <span className="relative h-2.5 w-16 border border-line bg-panel-2">
                         <span
-                          className="block h-full rounded-full bg-blue-600"
-                          style={{ width: `${weekPct}%` }}
+                          className="absolute inset-y-0 left-0"
+                          style={{ width: `${weekPct}%`, background: 'var(--color-accent)' }}
                         />
+                        <span className="pixel-meter absolute inset-0" aria-hidden />
                       </span>
                       <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
                         {weekPct}%
