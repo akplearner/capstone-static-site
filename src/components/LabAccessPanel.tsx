@@ -47,12 +47,13 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
         defaultOpen={filledCount === 0}
       >
         <div className="space-y-4 pb-2">
+          {/* One sentence. This was a 44-word paragraph covering placeholder
+              substitution and the privacy model; the notes field's own
+              placeholder already says "visible only to you". */}
           <p className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
             <Server className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
-            Enter the IPs from your lab. They&apos;re filled into the commands below
-            automatically (e.g. <span className="font-mono text-xs">&lt;YOUR_TARGET_IP&gt;</span> becomes your
-            value). Saved to your account and visible only to you — not to your teammates or your
-            instructor — so your lab details follow you between devices.
+            Enter your lab&apos;s IPs and every command below fills them in for you. Saved to your
+            account, visible only to you.
           </p>
 
           <div className="flex flex-col gap-1">

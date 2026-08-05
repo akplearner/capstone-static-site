@@ -198,10 +198,13 @@ export function CapstoneStonePanel({
           <div className="pixel text-[11px] uppercase tracking-wide text-accent">
             {def.name}
           </div>
-          <p className="mt-1.5 text-sm text-muted">{def.means}</p>
+          {/* `means` is deliberately not rendered as body text. It said the same
+              thing as the stage name in a longer form, and it is still carried
+              by the SVG's aria-label and each rail diamond's tooltip — so the
+              explanation is a hover away and screen readers keep it in full. */}
           {next && (
-            <p className="mt-1 text-xs text-muted">
-              <span className="font-semibold text-ink">Next cut:</span> {next.name}
+            <p className="mt-1.5 text-sm text-muted">
+              <span className="font-semibold text-ink">Next:</span> {next.name}
               {nextPhase ? ` — ${nextPhase}` : ''}
             </p>
           )}

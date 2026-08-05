@@ -49,7 +49,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, userStateRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, MilestoneRail, PixelBadge } from '@/components/ui/Pixel';
@@ -813,14 +813,10 @@ export default function CoursePage() {
   const ownRole = member ? getRoleDef(course, member.role) : undefined;
   const otherRoles = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
 
-  // Overall progress + "your next step" across the student's own tasks.
+  // "Your next step" across the student's own tasks. The course-level step
+  // total that used to live here is gone with the duplicate percentage it fed —
+  // `crew.stepsDone / stepsTotal` is the single source for that now.
   const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
-  const totalSteps = ownTasksAll.reduce((s, t) => s + getRequiredStepCount(t), 0);
-  const doneSteps = ownTasksAll.reduce(
-    (s, t) => s + Math.round(((taskStats[t.id] ?? 0) / 100) * getRequiredStepCount(t)),
-    0
-  );
-  const overallPercent = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
   // Crew progress: the Capstone Stone's stage plus professional milestones, all
   // derived from the percentages computed above — no points, no stored score.
@@ -1004,39 +1000,24 @@ export default function CoursePage() {
 
   return (
     <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      {/* Header */}
+      {/* Header — title, credential, one sentence.
+          This block sits above the sub-nav, so whatever is here renders on
+          every tab. It used to carry the audience line, the description, the
+          region's terrain paragraph, the Capstone Stone and the milestone rail:
+          114 words of identity repeated above Weekly Tasks, Team, Deliverables
+          and the Guide, where none of it is what the student came for. The
+          identity now lives once, on Overview. */}
       <div className="space-y-2">
-        {course.audience && <p className="eyebrow">{course.audience}</p>}
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-4xl font-bold tracking-tight text-ink">{course.title}</h1>
           {/* Vendor + credential, in the course's own accent — the fastest way
-              to tell which product you're looking at. */}
+              to tell which product you're looking at. Also the only place the
+              certification code belongs; it used to appear three times. */}
           {courseIdentityLabel(course) && (
             <PixelBadge tone="accent">{courseIdentityLabel(course)}</PixelBadge>
           )}
         </div>
         <p className="text-lg text-muted">{course.description}</p>
-        {/* Where you are working, and what you are cutting. */}
-        <p className="text-sm text-muted">
-          <span className="font-semibold text-ink">{regionFor(course).name}</span>
-          {' · '}
-          {regionFor(course).mineral}
-          {' — '}
-          {regionFor(course).terrain}
-        </p>
-        {joined && member && (
-          <div className="space-y-3 pt-2">
-            {/* The Capstone Stone: one object showing the whole project's state,
-                cut only by weeks that are genuinely finished. */}
-            <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4 text-left">
-              <CapstoneStonePanel
-                stage={crew.stage}
-                nextPhase={phaseForWeek(course, activeWeek)}
-              />
-            </div>
-            <MilestoneRail milestones={crew.milestones} />
-          </div>
-        )}
       </div>
 
       {/* Sticky course sub-nav — shared component, persists on every in-course page */}
@@ -1050,9 +1031,12 @@ export default function CoursePage() {
             <>
               {/* The game layer, derived from the same progress scan as the
                   percentages beside it — no separate source of truth. */}
+              {/* One course-level readout, not two. `StepTally` already shows a
+                  filled bar plus the real count, so the percentage beside it was
+                  the same fact rounded differently. */}
               <StepTally done={crew.stepsDone} total={crew.stepsTotal} className="hidden md:flex" />
               <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
-                {phaseTag(course, activeWeek)} · {overallPercent}%
+                {phaseTag(course, activeWeek)}
               </span>
               {nextTask ? (
                 <Button
@@ -1090,6 +1074,23 @@ export default function CoursePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
+      {/* Where you're working and what you've cut so far. This is the course's
+          identity, so it belongs on the course's overview — not repeated above
+          every other tab. The region's terrain description is deliberately not
+          here: it is scene-setting, and it was costing 30 words on five tabs. */}
+      {joined && member && (
+        <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
+          <p className="mb-3 text-sm text-muted">
+            <span className="font-semibold text-ink">{regionFor(course).name}</span>
+            {' · '}
+            {regionFor(course).mineral}
+          </p>
+          <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
+          <div className="mt-3">
+            <MilestoneRail milestones={crew.milestones} />
+          </div>
+        </div>
+      )}
       {allGatesPassed && (
         <motion.div
           initial={{ opacity: 0, y: 8 }}
@@ -1282,9 +1283,24 @@ export default function CoursePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
       >
-      {/* Weekly breakdown */}
+      {/* Weekly breakdown.
+          The "Weekly tasks" heading that used to be here repeated the tab label
+          two rows above it. In its place: the one line that answers "what am I
+          meant to be doing", built from values this page already computes. */}
       <div className="space-y-3">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Weekly tasks</h2>
+        {joined && member && ownRole && (
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+            <h2 className="text-2xl font-bold text-ink">
+              {phaseTag(course, activeWeek)}
+            </h2>
+            <span className="text-sm text-muted">
+              {ownRole.name} ·{' '}
+              {tasksLeftThisWeek === 0
+                ? 'nothing left this week'
+                : `${tasksLeftThisWeek} task${tasksLeftThisWeek === 1 ? '' : 's'} left`}
+            </span>
+          </div>
+        )}
         {!joined && (
           <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
             <Lock className="h-4 w-4 shrink-0" /> Join a team &amp; role on the <strong>Overview</strong> tab to unlock and track these tasks.
@@ -1476,38 +1492,35 @@ export default function CoursePage() {
                       what-done-looks-like, with the flow diagram and gate checklist
                       tucked behind a toggle. */}
                   {joined && member && (
-                    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-800/40">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                        Week at a glance
-                      </div>
-                      {w.objective && (
-                        <p className="mt-1 text-sm text-gray-700 dark:text-gray-300">{w.objective}</p>
-                      )}
+                    <div className="space-y-2.5">
+                      {/* One description of the week, not three. It used to
+                          state `objective`, then restate it as "In plain
+                          words", then restate it again as "Done when". `plain`
+                          is the one written for these students; `objective` is
+                          instructor phrasing and still renders on the Guide. */}
                       {w.plain && (
-                        <div className="mt-2 flex items-start gap-2 rounded-md border border-sky-200 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-900/20">
-                          <Lightbulb className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
-                          <p className="text-sm text-sky-900 dark:text-sky-200">
-                            <span className="font-semibold">In plain words: </span>
-                            {w.plain}
-                          </p>
-                        </div>
+                        <p className="text-sm text-ink">
+                          <Lightbulb
+                            className="mr-1.5 inline h-4 w-4 -translate-y-px text-accent"
+                            aria-hidden
+                          />
+                          {w.plain}
+                        </p>
                       )}
 
                       {/* How hard, how long, what you'll use, the shape of the
-                          work, and the one line that says when it's finished. */}
-                      <div className="mt-2.5">
-                        <WeekMilestoneHeader
-                          course={course}
-                          role={member.role}
-                          week={w.number}
-                          percent={weekPct}
-                        />
-                      </div>
+                          work, what you hand in, and when it's finished. */}
+                      <WeekMilestoneHeader
+                        course={course}
+                        role={member.role}
+                        week={w.number}
+                        percent={weekPct}
+                      />
 
+                      {/* The "{weekPct}% complete" pill that used to sit here is
+                          gone: the week's own header button renders the same
+                          percentage next to a progress bar a few pixels above. */}
                       <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 font-medium text-gray-700 ring-1 ring-gray-200 dark:bg-gray-900 dark:text-gray-200 dark:ring-gray-700">
-                          {weekPct}% complete
-                        </span>
                         {gateForWeek && !course.noGatekeeping &&
                           (() => {
                             const s = gateStats[gateForWeek.id] || 'locked';

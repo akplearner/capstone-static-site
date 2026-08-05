@@ -533,7 +533,7 @@ export const MSSP: Course = {
   certification: 'SOC 2 + ISO 27001',
   audience: 'Run a real client engagement — SOC 2 + ISO 27001 compliance as an MSSP analyst.',
   description:
-    'Run a real Managed Security Service Provider engagement: scope a client, assess gaps, implement controls, validate them, and assemble the audit evidence — mapped to SOC 2 and ISO/IEC 27001, across Offensive Security, MDR, and GRC roles.',
+    'A full client engagement: scope the work, assess the gaps, implement and test controls, then assemble the audit evidence package. Three roles, mapped to SOC 2 and ISO/IEC 27001.',
   roles,
   weeks,
   gates,

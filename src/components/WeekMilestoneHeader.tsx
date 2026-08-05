@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ChevronRight, Clock, Flag, ListChecks, Wrench } from 'lucide-react';
+import { ChevronRight, Clock, FileText, Flag, ListChecks, Wrench } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { formatMinutes, weekSummary } from '@/lib/course-helpers';
 import { GlossaryText } from './GlossaryText';
@@ -36,7 +36,11 @@ export function WeekMilestoneHeader({
   const cleared = percent >= 100;
 
   return (
-    <div className="rounded-lg border border-line bg-panel-2 px-4 py-3">
+    // No border of its own. This used to be a bordered card nested inside the
+    // week's bordered "at a glance" card inside the week's own bordered
+    // section — three frames around one week, which is what made the page read
+    // as a wall of boxes.
+    <div>
       {/* Facts row: difficulty · time · size */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {s.difficulty && <Difficulty level={s.difficulty} />}
@@ -89,6 +93,22 @@ export function WeekMilestoneHeader({
                 <ChevronRight className="h-3 w-3 text-muted" aria-hidden />
               )}
             </motion.span>
+          ))}
+        </div>
+      )}
+
+      {/* What you hand in. `weekSummary` has always computed this and nothing
+          ever rendered it, so a week never plainly stated what it was due. */}
+      {s.deliverables.length > 0 && (
+        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+          <FileText className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+          <span className="text-xs text-muted">You hand in:</span>
+          {s.deliverables.map((d, i) => (
+            <span key={d} className="font-mono text-[11px] text-ink">
+              {d}
+              {/* Separator, or two filenames read as one. */}
+              {i < s.deliverables.length - 1 && <span className="text-muted">,</span>}
+            </span>
           ))}
         </div>
       )}

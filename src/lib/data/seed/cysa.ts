@@ -1579,7 +1579,7 @@ export const CYSA_PLUS: Course = {
   noGatekeeping: true,
   audience: 'Run a SOC — monitor, detect, investigate, and respond on a live Wazuh stack (CS0-003).',
   description:
-    'A 4-week Security Operations simulation (CS0-003): deploy monitoring, detect and investigate threats, assess vulnerabilities and risk, then run the incident-response lifecycle — across three rotating SOC tiers on a shared Wazuh SOC.',
+    'Four weeks running a live SOC: deploy monitoring, investigate real attacks, assess risk, and handle an incident end to end. Three rotating analyst roles on a shared Wazuh stack.',
   roles,
   weeks,
   gates,

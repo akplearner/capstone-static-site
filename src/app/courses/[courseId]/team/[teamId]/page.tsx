@@ -4,7 +4,6 @@ import { useParams } from 'next/navigation';
 import { Info, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { CourseSubNav } from '@/components/CourseSubNav';
-import { DeliverablesMatrix } from '@/components/diagrams/DeliverablesMatrix';
 import { TeamProgressTable, MemberProgress, DeliverableStatus } from '@/components/TeamProgressTable';
 import { TeamHandoffChecklist } from '@/components/TeamHandoffChecklist';
 import { LoadingBlock } from '@/components/ui/Spinner';
@@ -109,13 +108,6 @@ export default function TeamSpacePage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">How your work connects</h2>
         <TeamHandoffChecklist course={course} teamId={teamId} />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Documents by week &amp; role</h2>
-        <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-          <DeliverablesMatrix course={course} highlightRole={member?.role} />
-        </div>
       </section>
     </div>
   );

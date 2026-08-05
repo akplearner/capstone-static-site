@@ -6,11 +6,9 @@ import { Button, Collapsible } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/RoleIcon';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
-import { RoleSupportFlow } from '@/components/diagrams/RoleSupportFlow';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { socTopology } from '@/lib/labTopology';
-import { DeliverablesIndex } from '@/components/docs/DeliverablesIndex';
 import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
 import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
@@ -54,8 +52,9 @@ export default function CourseGuidePage() {
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="The lifecycle" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
+        <Collapsible title="The lab — architecture, setup and the arc" defaultOpen={false}>
+          <div className="space-y-6 pb-2">
+            <div className="space-y-4">
             <p className="text-gray-600 dark:text-gray-400">
               {course.noGatekeeping
                 ? `Every ${unitWord(course).toLowerCase()} is open from the start — the flow below shows the arc of the ${isEngagement(course) ? 'engagement' : 'course'}, not locks.`
@@ -67,13 +66,9 @@ export default function CourseGuidePage() {
               currentWeek={course.weeks[0]?.number}
               noGatekeeping={course.noGatekeeping}
             />
-          </div>
-        </Collapsible>
-      </section>
+            </div>
 
-      <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="The lab architecture" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
+            <div className="space-y-4">
             <p className="text-gray-600 dark:text-gray-400">
               Everyone works against one shared environment — the systems in scope, their exposed services, the
               monitoring that watches them, and the governance layer that documents it all. Your role decides
@@ -84,28 +79,20 @@ export default function CourseGuidePage() {
             ) : (
               <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
             )}
-          </div>
-        </Collapsible>
-      </section>
+            </div>
 
-      {course.id === 'security-plus' && (
-        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="Lab requirements & setup" defaultOpen={false}>
-            <div className="space-y-4 pb-2">
+            {course.id === 'security-plus' && (
+            <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-400">
                 Build the small VM lab you&apos;ll work against — what machines to create, how to network them, and
                 how to run the DVWA target.
               </p>
               <LabSetupGuide />
             </div>
-          </Collapsible>
-        </section>
-      )}
+            )}
 
-      {course.id === 'cysa-plus' && (
-        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="Lab requirements & setup" defaultOpen={false}>
-            <div className="space-y-4 pb-2">
+            {course.id === 'cysa-plus' && (
+            <div className="space-y-4">
               <p className="text-gray-600 dark:text-gray-400">
                 The shared Wazuh SOC and your team&apos;s pods — what each machine is, its address, and how to
                 confirm you&apos;re ready before Week 1.
@@ -117,9 +104,10 @@ export default function CourseGuidePage() {
               </div>
               <CysaLabSetup courseId={course.id} />
             </div>
-          </Collapsible>
-        </section>
-      )}
+            )}
+          </div>
+        </Collapsible>
+      </section>
 
       {course.id === 'cysa-plus' && (
         <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
@@ -219,16 +207,10 @@ export default function CourseGuidePage() {
         <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What you owe, and when</h2>
         <p className="text-gray-600 dark:text-gray-400">
           The whole {isEngagement(course) ? 'engagement' : 'course'} comes down to a set of{' '}
-          <strong>graded deliverables</strong> — who owns each one, the {unitWord(course).toLowerCase()} it&apos;s due,
-          and the gate it clears. Each role fills <strong>one form per week</strong>.
+          <strong>graded deliverables</strong>. Each role fills <strong>one form per week</strong>; the{' '}
+          <strong>Deliverables</strong> tab lists them all with who owns each and when it is due, and the
+          Overview shows how each one feeds the next.
         </p>
-        <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="See every deliverable — who owns what, and when" defaultOpen={false}>
-            <div className="pb-2">
-              <DeliverablesIndex courseId={course.id} roles={course.roles} />
-            </div>
-          </Collapsible>
-        </div>
         <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
           <Collapsible title="More reference — folder layout & cheat sheet" defaultOpen={false}>
             <div className="space-y-4 pb-2">
@@ -260,18 +242,6 @@ export default function CourseGuidePage() {
           </div>
           <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
             <RoleInterplayDiagram roles={course.roles} highlightRole={member?.role} />
-          </div>
-
-          <div className="lg:col-span-2 rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-            <Collapsible title="Week by week — who does what, and how you support each other" defaultOpen={false}>
-              <div className="pb-2">
-                <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
-                  Each week every role has one task and produces evidence; the arrows show the hand-offs that help the
-                  next role — they&apos;re guidance, not gates. Your role is highlighted.
-                </p>
-                <RoleSupportFlow course={course} highlightRole={member?.role} />
-              </div>
-            </Collapsible>
           </div>
         </section>
       )}
