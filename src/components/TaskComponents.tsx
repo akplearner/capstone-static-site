@@ -31,6 +31,8 @@ import { GlossaryText } from './GlossaryText';
 import { WazuhWalkthrough } from './diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
+import { Collapsible } from './ui/Button';
+import { TerminalBasics } from './docs/CommandTroubleshooting';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -373,12 +375,6 @@ export function StepDetail({
               )}
             </div>
           )}
-          {whatItMeans && (
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              <span className="font-semibold text-gray-700 dark:text-gray-300">Why: </span>
-              <GlossaryText text={whatItMeans} />
-            </p>
-          )}
           {/* No `hasCommand` guard: a dashboard step has verify tokens too, and
               gating on a command silently hid the check on every GUI step. */}
           {verify && verify.length > 0 && <OutputVerify verify={verify} />}
@@ -416,14 +412,46 @@ export function StepDetail({
         </div>
       )}
 
-      {/* The step's own authored "if it doesn't work" note, shown as a plain,
-          always-visible fix — no generic terminal scaffolding. */}
-      {troubleshooting && (
-        <div className="rounded-md border border-rose-200 bg-rose-50/60 px-4 py-3 dark:border-rose-900 dark:bg-rose-900/10">
-          <p className="flex gap-2 text-sm text-rose-900 dark:text-rose-200">
-            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
-            <span><span className="font-medium">If it doesn&apos;t work:</span> {troubleshooting}</span>
-          </p>
+      {/* Go deeper — the reasoning and the "if it doesn't work" fix, one tap away.
+          Core above is the do → see → verify loop a beginner needs to finish the
+          step; a student who wants to understand *why*, or who is stuck, opens
+          this. Nothing is removed — it's the same content, just not in the way of
+          getting the step done. */}
+      {(whatItMeans || troubleshooting) && (
+        <div className="rounded-md border border-line bg-panel-2/50">
+          <div className="px-3">
+            <Collapsible title="Why this works & if you get stuck">
+              <div className="space-y-2 pr-2">
+                {whatItMeans && (
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-semibold text-gray-700 dark:text-gray-300">Why: </span>
+                    <GlossaryText text={whatItMeans} />
+                  </p>
+                )}
+                {troubleshooting && (
+                  <p className="flex gap-2 text-sm text-rose-900 dark:text-rose-200">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                    <span><span className="font-medium">If it doesn&apos;t work:</span> {troubleshooting}</span>
+                  </p>
+                )}
+              </div>
+            </Collapsible>
+          </div>
+        </div>
+      )}
+
+      {/* Absolute-beginner help at point of need: the terminal basics reference
+          (open a terminal, paste, run, sudo) collapsed right on the step, instead
+          of only on the Guide tab. Only on steps that actually have a command. */}
+      {hasCommand && (
+        <div className="rounded-md border border-line bg-panel-2/50">
+          <div className="px-3">
+            <Collapsible title="New to the terminal?">
+              <div className="pr-2">
+                <TerminalBasics />
+              </div>
+            </Collapsible>
+          </div>
         </div>
       )}
 
@@ -677,40 +705,64 @@ export function CommandBlock({
       )}
       <div className="mt-1 space-y-2">
         {list.map((c, i) => (
-          <div key={i}>
-            <div
-              className="relative rounded-lg p-3 pr-20 font-mono text-sm"
-              style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
-            >
-              <div className="absolute right-2 top-2">
-                <CopyButton text={c.cmd} />
-              </div>
-              {multi && (
-                <span className="mr-2 select-none" style={{ color: 'var(--color-term-dim)' }}>{i + 1}</span>
-              )}
-              <HighlightedCommand cmd={c.cmd} />
-            </div>
-            {c.explain && (
-              <p className="mt-1 flex gap-1.5 pl-1 text-xs text-gray-600 dark:text-gray-400">
-                <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
-                <span>{c.explain}</span>
-              </p>
-            )}
-            {c.flags && c.flags.length > 0 && (
-              <ul className="mt-1 space-y-0.5 pl-6">
-                {c.flags.map((f) => (
-                  <li key={f.flag} className="flex gap-2 text-xs text-gray-600 dark:text-gray-400">
-                    <code className="shrink-0 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
-                      {f.flag}
-                    </code>
-                    <span>{f.meaning}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <CommandRow key={i} c={c} index={i} multi={multi} />
         ))}
       </div>
+    </div>
+  );
+}
+
+/** One command: the copyable line + its one-line `explain` (both Core), with the
+ *  flag-by-flag breakdown tucked behind a "what each part means" toggle so a
+ *  command-heavy step stays short by default but every flag is one tap away. */
+function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi: boolean }) {
+  const [showFlags, setShowFlags] = React.useState(false);
+  const hasFlags = !!(c.flags && c.flags.length > 0);
+  return (
+    <div>
+      <div
+        className="relative rounded-lg p-3 pr-20 font-mono text-sm"
+        style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
+      >
+        <div className="absolute right-2 top-2">
+          <CopyButton text={c.cmd} />
+        </div>
+        {multi && (
+          <span className="mr-2 select-none" style={{ color: 'var(--color-term-dim)' }}>{index + 1}</span>
+        )}
+        <HighlightedCommand cmd={c.cmd} />
+      </div>
+      {c.explain && (
+        <p className="mt-1 flex gap-1.5 pl-1 text-xs text-gray-600 dark:text-gray-400">
+          <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <span>{c.explain}</span>
+        </p>
+      )}
+      {hasFlags && (
+        <div className="mt-1 pl-6">
+          <button
+            type="button"
+            onClick={() => setShowFlags((v) => !v)}
+            aria-expanded={showFlags}
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+          >
+            {showFlags ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+            {showFlags ? 'Hide the parts' : 'What each part means'}
+          </button>
+          {showFlags && (
+            <ul className="mt-1 space-y-0.5">
+              {c.flags!.map((f) => (
+                <li key={f.flag} className="flex gap-2 text-xs text-gray-600 dark:text-gray-400">
+                  <code className="shrink-0 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
+                    {f.flag}
+                  </code>
+                  <span>{f.meaning}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }

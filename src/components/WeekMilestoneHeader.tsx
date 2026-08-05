@@ -130,7 +130,7 @@ export function WeekMilestoneHeader({
           />
           <p className="text-sm text-ink">
             <span className="font-semibold">
-              {cleared ? 'Week cleared — ' : 'Done when: '}
+              {cleared ? `You've completed Week ${week} — ` : 'Done when: '}
             </span>
             <GlossaryText text={s.milestone} />
           </p>

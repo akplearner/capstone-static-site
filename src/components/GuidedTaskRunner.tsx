@@ -44,7 +44,11 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
   const { guard } = useRequireAuth();
-  const [mode, setMode] = useState<'guided' | 'all'>('all');
+  // CySA+ is the beginner course (no gatekeeping): default it to Guided so a
+  // non-technical student faces one step at a time, not a scroll of them. The
+  // "Show all" toggle stays for anyone who prefers the full list. Other courses
+  // keep the show-all default until this pilot is confirmed.
+  const [mode, setMode] = useState<'guided' | 'all'>(courseId === 'cysa-plus' ? 'guided' : 'all');
   const [currentIdx, setCurrentIdx] = useState(() => {
     const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));
