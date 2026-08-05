@@ -216,7 +216,20 @@ const tasks: Task[] = [
           { cmd: "sudo ss -lntp | grep -E '1514|1515|55000|443'", explain: 'Confirm the ports are listening. 55000 = the manager API (already open locally).' },
         ],
         whatItMeans: 'If a student agent will not connect later, it is almost always a closed port — open them here first, then check the services.',
-        expectedOutput: 'ufw confirms the rules were added, all three services say active (running), and the ports are listening.',
+        expectedOutput: `● wazuh-manager.service   Active: active (running)
+● wazuh-indexer.service   Active: active (running)
+● wazuh-dashboard.service Active: active (running)
+
+$ sudo ss -lntp | grep -E '1514|1515|55000|443'
+LISTEN 0  128  0.0.0.0:1514   0.0.0.0:*  users:(("wazuh-remoted"))
+LISTEN 0  128  0.0.0.0:1515   0.0.0.0:*  users:(("wazuh-authd"))
+LISTEN 0  128  0.0.0.0:443    0.0.0.0:*  users:(("node"))
+LISTEN 0  128  127.0.0.1:55000 0.0.0.0:* users:(("wazuh-apid"))`,
+        outputHighlights: [
+          { text: 'active (running)', label: 'all three core services must read this. Any one showing "failed" means the SOC is not fully up, and student agents will fail to connect against it later.' },
+          { text: '0.0.0.0:1514', label: 'the agent-data port, listening on all interfaces. If it is missing here, no machine can send logs in — the single most common reason an agent never appears.' },
+          { text: '127.0.0.1:55000', label: 'the manager API, correctly bound to localhost only. It should NOT be 0.0.0.0 — that would expose the API to the whole network.' },
+        ],
         verify: ['active (running)'],
         frameworks: ['NIST_CSF'],
         optional: true,
@@ -262,8 +275,19 @@ const tasks: Task[] = [
           { cmd: 'sudo systemctl restart suricata' },
         ],
         whatItMeans: 'Suricata sniffs one network card. Its default config says eth0 — if you skip this, Suricata runs but sees nothing.',
-        expectedOutput: 'systemctl status suricata says active, and after browsing to DVWA new lines appear in eve.json.',
-        verify: ['active'],
+        expectedOutput: `$ ip -br addr
+lo               UNKNOWN        127.0.0.1/8
+ens18            UP             10.10.100.7/24
+
+$ sudo systemctl status suricata --no-pager
+     Active: active (running) since Wed 2026-08-05 08:40:03 UTC; 12s ago
+     Notice: This is Suricata version 6.0.10 RELEASE running in SYSTEM mode`,
+        outputHighlights: [
+          { text: 'ens18            UP', label: 'the real network card, and the name Suricata must be told to watch. If the config still says eth0, Suricata runs but inspects nothing.' },
+          { text: 'active (running)', label: 'the engine is up. Combined with the correct interface above, this is what makes alerts actually appear in eve.json.' },
+          { text: 'SYSTEM mode', label: 'confirms it loaded a working config. A config error would drop it out of SYSTEM mode or refuse to start at all.' },
+        ],
+        verify: ['active (running)'],
         files: [
           { name: '/etc/suricata/suricata.yaml', purpose: 'the capture interface lives here — it must name your real NIC, not eth0', source: 'ip -br addr  # find your card (usually ens18 on Proxmox)' },
           { name: 'Emerging Threats ruleset', purpose: 'without rules Suricata sees traffic but raises no alerts', source: 'sudo suricata-update' },
@@ -513,8 +537,21 @@ const tasks: Task[] = [
           { cmd: 'sudo systemctl status suricata --no-pager', explain: 'Confirm it is running.' },
         ],
         whatItMeans: 'Suricata sniffs one network card and matches traffic against rules — this is how the SOC sees scans and web attacks.',
-        expectedOutput: 'Status says active, and after browsing to DVWA new lines appear in /var/log/suricata/eve.json.',
-        verify: ['active'],
+        expectedOutput: `● suricata.service - Suricata IDS/IDP daemon
+     Loaded: loaded (/lib/systemd/system/suricata.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-08-05 09:02:11 UTC; 6s ago
+   Main PID: 4412 (Suricata-Main)
+      Tasks: 8 (limit: 4915)
+
+student@team07-ubuntu:~$ ls -l /var/log/suricata/eve.json
+-rw-r----- 1 root root 18452 Aug  5 09:04 /var/log/suricata/eve.json`,
+        outputHighlights: [
+          { text: 'active (running)', label: 'Suricata is up and watching the card. If this reads "inactive (dead)" or "failed", nothing is being inspected — fix it before moving on.' },
+          { text: 'Main PID', label: 'a real process id means it started cleanly rather than crashing on a bad config file.' },
+          { text: '/var/log/suricata/eve.json', label: 'the alert file Suricata writes — this is what the Wazuh agent ships to the SOC in the next step.' },
+          { text: '18452', label: 'any non-zero size means traffic is actually being recorded. 0 bytes means Suricata is running but sniffing the wrong card.' },
+        ],
+        verify: ['active (running)'],
         files: [
           { name: 'Suricata quickstart (official)', purpose: 'the vendor step-by-step for installing and starting Suricata', source: 'https://docs.suricata.io/en/latest/quickstart.html' },
           { name: '/etc/suricata/suricata.yaml', purpose: 'the capture interface lives here — it must name your real NIC, not eth0', source: 'ip -br addr  # find your card (usually ens18 on Proxmox)' },
@@ -547,10 +584,20 @@ const tasks: Task[] = [
           { cmd: 'sudo tail -n 20 /var/ossec/logs/ossec.log', explain: 'The proof it worked: look for the line "Connected to the server" — that means your logs are now reaching 10.10.100.100 over port 1514.' },
         ],
         whatItMeans: 'Out of the box the agent already forwards this server’s system logs (/var/log/auth.log, /var/log/syslog) to the SOC; the Suricata block adds the network alerts to the same feed. "active (running)" means the service is up; "Connected to the server" means it actually reached 10.10.100.100.',
-        expectedOutput: 'Status says active (running), and ossec.log shows "Connected to the server". If it says failed, check you can reach the SOC: ping 10.10.100.100.',
+        expectedOutput: `\u25cf wazuh-agent.service - Wazuh agent
+     Loaded: loaded (/lib/systemd/system/wazuh-agent.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-08-05 09:11:40 UTC; 5s ago
+
+root@team07-ubuntu:~# tail -n 20 /var/ossec/logs/ossec.log
+2026/08/05 09:11:41 wazuh-agentd: INFO: Requesting a key from server: 10.10.100.100
+2026/08/05 09:11:42 wazuh-agentd: INFO: Valid key received
+2026/08/05 09:11:44 wazuh-agentd: INFO: Connected to the server (10.10.100.100:1514/tcp).
+2026/08/05 09:11:45 wazuh-modulesd: INFO: Started module 'syscollector'.`,
         outputHighlights: [
-          { text: 'active (running)', label: 'systemctl \u2014 the agent process is up on this machine' },
-          { text: 'Connected to the server', label: 'the ossec.log line proving the agent actually reached the SOC. Up but not connected is the common half-failure.' },
+          { text: 'active (running)', label: 'the agent process is up on this machine. Necessary, but on its own it does not mean the SOC can hear you.' },
+          { text: 'Valid key received', label: 'enrolment on port 1515 worked \u2014 the SOC issued this agent its identity.' },
+          { text: 'Connected to the server', label: 'the line that actually proves it worked. Running but never connected is the common half-failure, and it looks fine until you go looking for logs that never arrived.' },
+          { text: '10.10.100.100:1514/tcp', label: 'the SOC address and the data port. A different address here means the agent enrolled against the wrong manager.' },
         ],
         walkthrough: {
           screen: 'ossec-conf',
@@ -581,10 +628,27 @@ const tasks: Task[] = [
           { cmd: 'Invoke-WebRequest https://raw.githubusercontent.com/SwiftOnSecurity/sysmon-config/master/sysmonconfig-export.xml -OutFile sysmonconfig.xml', explain: 'Download the SwiftOnSecurity config as sysmonconfig.xml — Sysmon logs almost nothing without one.' },
           { cmd: 'Get-ChildItem Sysmon64.exe, sysmonconfig.xml', explain: 'Confirm BOTH files are in the folder before you install. If either is missing, re-run its download line above.' },
           { cmd: '.\\Sysmon64.exe -accepteula -i .\\sysmonconfig.xml', explain: 'Install Sysmon as a service using the config. Run it from the folder (the leading .\\ is why it works even though Sysmon isn’t on PATH).' },
-          { cmd: 'Get-Service Sysmon', explain: 'Confirm the Sysmon service is installed and Running.' },
+          { cmd: 'Get-Service Sysmon*', explain: 'Confirm the Sysmon service is installed and Running. Note the wildcard: installing the 64-bit binary registers the service as Sysmon64, so a bare `Get-Service Sysmon` reports "cannot find any service" even on a healthy install.' },
         ],
         whatItMeans: 'Sysmon is the rich Windows event source your agent will forward in the next step.',
-        expectedOutput: 'Get-Service Sysmon shows Status: Running, and the Microsoft-Windows-Sysmon/Operational log has events.',
+        expectedOutput: `PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-ChildItem Sysmon64.exe, sysmonconfig.xml
+
+    Directory: C:\\Users\\student\\Downloads\\wazuh-lab
+
+Mode      LastWriteTime       Length Name
+----      -------------       ------ ----
+-a---     8/5/2026   9:20 AM 4479456 Sysmon64.exe
+-a---     8/5/2026   9:20 AM  131072 sysmonconfig.xml
+
+PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-Service Sysmon*
+
+Status   Name       DisplayName
+------   ----       -----------
+Running  Sysmon64   Sysmon64`,
+        outputHighlights: [
+          { text: 'Sysmon64.exe', label: 'both files must be listed here before you install. A missing one means its download line failed — re-run it rather than pressing on.' },
+          { text: 'Running', label: 'Sysmon is recording process starts, network connections and file changes. Note the service lists as Sysmon64, not Sysmon — that is why the check above uses a wildcard.' },
+        ],
         verify: ['Running'],
         files: [
           { name: 'Sysmon (Sysinternals)', purpose: 'the rich Windows event source the agent forwards', source: 'https://learn.microsoft.com/sysinternals/downloads/sysmon' },
@@ -612,10 +676,22 @@ const tasks: Task[] = [
           { cmd: "Get-Content 'C:\\Program Files (x86)\\ossec-agent\\ossec.log' -Tail 20", explain: 'The proof it worked: look for "Connected to the server" — the agent reached 10.10.100.100 over port 1514.' },
         ],
         whatItMeans: 'Out of the box the agent already forwards the Windows Application, Security and System event logs; the Sysmon block adds rich process, network and file telemetry. Windows logs now land in the same dashboard as your Ubuntu logs and Suricata alerts.',
-        expectedOutput: 'Windows Services shows Wazuh as Running (or `Get-Service WazuhSvc` prints Running), and ossec.log shows "Connected to the server". No firewall step here — Windows Defender Firewall is already on; UFW is Linux-only.',
+        expectedOutput: `PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-Service WazuhSvc
+
+Status   Name       DisplayName
+------   ----       -----------
+Running  WazuhSvc   Wazuh
+
+PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-Content 'C:\\Program Files (x86)\\ossec-agent\\ossec.log' -Tail 20
+2026/08/05 09:31:02 wazuh-agent: INFO: Requesting a key from server: 10.10.100.100
+2026/08/05 09:31:03 wazuh-agent: INFO: Valid key received
+2026/08/05 09:31:05 wazuh-agent: INFO: Connected to the server (10.10.100.100:1514/tcp).
+2026/08/05 09:31:06 wazuh-agent: INFO: Started module 'logcollector'.`,
         outputHighlights: [
-          { text: 'Running', label: 'the Windows service state \u2014 the agent process is alive' },
-          { text: 'Connected to the server', label: 'the ossec.log line proving it reached 10.10.100.100. Running without this means installed but blind.' },
+          { text: 'Running', label: 'the Windows service is alive. No firewall step is needed here \u2014 Defender Firewall is already on, and UFW is Linux-only.' },
+          { text: 'Valid key received', label: 'enrolment worked. If this line is absent the agent never got an identity from the SOC \u2014 usually a duplicate agent name.' },
+          { text: 'Connected to the server', label: 'the line that proves it. Running without this means installed but blind, which is exactly how a Windows machine ends up silently missing from the dashboard.' },
+          { text: "Started module 'logcollector'", label: 'the component that reads the Sysmon event channel you just added to ossec.conf.' },
         ],
         walkthrough: {
           screen: 'ossec-conf',
@@ -717,9 +793,23 @@ const tasks: Task[] = [
           { cmd: 'whoami', explain: 'On Windows PowerShell — running any command makes a Sysmon process-create (Event ID 1) event.' },
         ],
         whatItMeans: 'If a brand-new event from each machine shows up in the SOC, both pipelines work end to end — not just "the agent says Active".',
-        expectedOutput: 'Within about a minute: the Ubuntu login appears (Agents › Team<#>-ubuntu › Security events), and the Windows whoami appears when you search Team<#>-win for data.win.system.channel:"Microsoft-Windows-Sysmon/Operational".',
+        expectedOutput: 'Within about a minute both events land. Under Agents › Team<#>-ubuntu › Security events a new row reads sshd: Authentication success. Searching Team<#>-win for data.win.system.channel:"Microsoft-Windows-Sysmon/Operational" returns a process-create row for whoami.exe.',
+        outputHighlights: [
+          { text: 'sshd: Authentication success', label: 'the Ubuntu half. This row is your own login arriving from the agent — proof the Linux pipeline runs end to end.' },
+          { text: 'Microsoft-Windows-Sysmon/Operational', label: 'the Windows half. Events on this channel only exist because Sysmon is installed and the agent was told to read it.' },
+          { text: 'whoami.exe', label: 'the process you just started. Matching your own action to a row is the whole point — it rules out stale data.' },
+        ],
+        walkthrough: {
+          screen: 'security-events',
+          title: 'Finding your two test events',
+          markers: [
+            { n: 1, label: 'Time picker — set Last 15 minutes. Agents batch-send, so give it a minute before deciding it failed.' },
+            { n: 2, label: 'Search bar — one query at a time. Use the Sysmon channel query to isolate the Windows event.' },
+            { n: 3, label: 'The rows themselves. You want one row you can tie to the SSH login and one to the whoami you ran.' },
+          ],
+        },
         verify: ['Microsoft-Windows-Sysmon/Operational'],
-        troubleshooting: 'Event not showing? Widen the time picker to Last 15 minutes and give it a minute — agents batch-send. Windows one missing? Confirm Sysmon is Running (Get-Service Sysmon) and the agent forwarded it (Week-1 setup).',
+        troubleshooting: 'Event not showing? Widen the time picker to Last 15 minutes and give it a minute — agents batch-send. Windows one missing? Confirm Sysmon is Running (`Get-Service Sysmon*`) and the agent forwarded it (Week-1 setup).',
         frameworks: ['NIST_CSF'],
       },
       {
@@ -732,6 +822,11 @@ const tasks: Task[] = [
         usesForm: 'SOC Monitoring Report',
         whatItMeans: 'Next week you can only spot "weird" if you wrote down "normal" this week. "Normal" here = the handful of rule types that fire all the time and roughly how often.',
         expectedOutput: 'Three routine alert types named with a rough count each, an events/hour figure, and a screenshot of the Alerts-evolution graph.',
+        outputHighlights: [
+          { text: 'Three routine alert types', label: 'write the actual rule.description text, not a category. "sshd: authentication success" is usable next week; "login stuff" is not.' },
+          { text: 'events/hour figure', label: 'the single number you will compare against in Week 2. Without it you can only say traffic "looks higher", which proves nothing.' },
+          { text: 'screenshot of the Alerts-evolution graph', label: 'your dated proof of what normal looked like. Once the attack runs you cannot go back and capture this.' },
+        ],
         producesDeliverable: '01_SOC_Monitoring_Report.md',
         isEvidenceStep: true,
         troubleshooting: 'Alerts-evolution graph flat or empty? Widen the time picker to Last 24 hours (top-right). No rule.description column? Open any event row, find the rule.description field and click the "+" / Toggle column button to add it to the table.',
@@ -764,6 +859,10 @@ const tasks: Task[] = [
         instruction: 'In the dashboard: Agents › your agent › open Integrity monitoring, then SCA, then Vulnerabilities. A module "has data" when its table shows rows — Integrity monitoring lists watched files, SCA shows a score with pass/fail checks, Vulnerabilities lists CVEs. Empty is not always a fault: SCA and Vulnerabilities run on a schedule, so a brand-new agent can need one scan cycle (often 15–60 min) before they fill.',
         whatItMeans: 'An empty module is a blind spot to note, not to ignore — but check the scan-cycle warning above before you call it a gap.',
         expectedOutput: 'You can say which of the three modules show rows and which are still empty (and whether "empty" is just waiting for the first scan cycle).',
+        outputHighlights: [
+          { text: 'which of the three modules show rows', label: 'rows are the test. Integrity monitoring lists watched files, SCA shows a score with pass/fail checks, Vulnerabilities lists CVEs.' },
+          { text: 'waiting for the first scan cycle', label: 'the distinction that matters. A module empty because it has not run yet is not a coverage gap — reporting it as one is a wrong finding.' },
+        ],
         frameworks: ['NIST_CSF'],
       },
       {
@@ -778,8 +877,16 @@ const tasks: Task[] = [
           { cmd: 'rule.groups:ids', explain: 'In the dashboard search bar — this is how Suricata network alerts are tagged. (Fallback: location:"/var/log/suricata/eve.json".) A quick nmap from Kali is an easy way to make one appear.' },
         ],
         whatItMeans: 'Suricata\u2019s alerts reach the SOC through the agent — confirm the file is being written.',
-        expectedOutput: 'eve.json is being written to, and rule.groups:ids returns Suricata alerts for your agent in the dashboard.',
-        verify: ['eve.json'],
+        expectedOutput: `student@team07-ubuntu:~$ sudo tail -n 20 /var/log/suricata/eve.json
+{"timestamp":"2026-08-05T09:44:02.118374+0000","event_type":"stats","stats":{"uptime":412}}
+{"timestamp":"2026-08-05T09:44:19.402881+0000","flow_id":1885329447,"event_type":"alert","src_ip":"10.10.20.7","src_port":51422,"dest_ip":"10.10.100.7","dest_port":80,"proto":"TCP","alert":{"signature":"ET SCAN Nmap Scripting Engine User-Agent Detected","category":"Web Application Attack","severity":2}}`,
+        outputHighlights: [
+          { text: '"event_type":"alert"', label: 'the field that separates a real detection from the routine "stats" lines. If every line says stats, Suricata is running but has matched nothing yet — generate some traffic.' },
+          { text: '"src_ip":"10.10.20.7"', label: 'who caused it. This is the field you pivot on in Week 2, where it is written data.src_ip in the dashboard search bar.' },
+          { text: '"signature":"ET SCAN Nmap Scripting Engine User-Agent Detected"', label: 'the Emerging Threats rule that fired. No signature names at all means suricata-update never ran, so there are no rules to match against.' },
+          { text: '"severity":2', label: 'Suricata’s own severity. It is not the same scale as Wazuh’s rule.level, so do not compare the two numbers directly.' },
+        ],
+        verify: ['event_type'],
         frameworks: ['NIST_CSF'],
       },
       {
@@ -790,7 +897,21 @@ const tasks: Task[] = [
         description: 'Sysmon is your rich Windows telemetry — process starts, network connections, file changes.',
         instruction: 'In the dashboard: pick Team<#>-win, then search for its Sysmon channel — enter data.win.system.channel: "Microsoft-Windows-Sysmon/Operational" in the search bar (or open the Windows agent’s events and filter for Sysmon).',
         whatItMeans: 'If Sysmon events show up here, the Windows half of your coverage is live — this is where you’ll spot suspicious process activity in later weeks.',
-        expectedOutput: 'Sysmon process-create (and related) events are visible for Team<#>-win.',
+        expectedOutput: 'Rows appear for Team<#>-win. Each carries the channel Microsoft-Windows-Sysmon/Operational, a rule.description of "Sysmon - Event 1: Process creation", and a data.win.eventdata.image field naming the program that ran — for example C:\\Windows\\System32\\whoami.exe.',
+        outputHighlights: [
+          { text: 'Microsoft-Windows-Sysmon/Operational', label: 'the channel. Events only appear here because Sysmon is installed and the agent was told to read this channel — plain Windows logging does not produce them.' },
+          { text: 'Sysmon - Event 1: Process creation', label: 'the process-create event. This is the backbone of Windows hunting: every program that starts leaves one.' },
+          { text: 'data.win.eventdata.image', label: 'the field naming the executable. Remember it — this is what you search on when you are chasing a suspicious process in Week 4.' },
+        ],
+        walkthrough: {
+          screen: 'security-events',
+          title: 'Isolating the Windows agent’s Sysmon events',
+          markers: [
+            { n: 1, label: 'Pick Team<#>-win first, so you are not reading the Ubuntu server’s events by mistake.' },
+            { n: 2, label: 'Search bar — paste the channel query. It is the cleanest way to prove Sysmon specifically is arriving.' },
+            { n: 3, label: 'Open one row and read data.win.eventdata.image to see which program the event describes.' },
+          ],
+        },
         verify: ['Microsoft-Windows-Sysmon/Operational'],
         frameworks: ['NIST_CSF'],
         troubleshooting: 'No Sysmon events? Confirm the Sysmon service is Running on the PC, that the <localfile> Sysmon block is in the agent’s ossec.conf, and that the Wazuh agent was restarted after the edit.',
@@ -805,6 +926,10 @@ const tasks: Task[] = [
         instruction: 'Fill the Coverage Validation Report (it already has the columns and a worked example row to copy): one row per feed — host agent, Suricata (network), Sysmon (Windows) — with whether data was present, where you checked it, and any gap you found.',
         whatItMeans: 'A missing source is worth marks — write it up rather than ignore it.',
         expectedOutput: 'A short table: each of the three feeds checked, whether data was present, and any gap noted.',
+        outputHighlights: [
+          { text: 'each of the three feeds checked', label: 'host agent, Suricata network alerts, Sysmon Windows events — one row each. A feed you did not check is not the same as a feed with no data.' },
+          { text: 'any gap noted', label: 'the part that earns marks. A missing source written up is a finding; a missing source left blank just looks like you did not look.' },
+        ],
         producesDeliverable: '06_Coverage_Validation.md',
         isEvidenceStep: true,
         frameworks: ['NIST_CSF'],
@@ -858,7 +983,16 @@ const tasks: Task[] = [
           { cmd: 'data.alert.signature:SQL*', explain: 'A SQL-injection web attack, by Suricata’s signature name. (Avoid a leading * — it is slow and often disabled. If Apache logs are ingested, rule.groups:web also works.)' },
         ],
         whatItMeans: 'The severity cut shortens the auth/web list; the group and signature queries tell a port scan from a brute force from a web attack instead of guessing. Note Suricata uses data.src_ip / data.dest_port (underscores), not data.srcip.',
-        expectedOutput: 'For the attack window, you can say which of the three shapes (scan / brute force / web attack) you actually see, each backed by a query.',
+        expectedOutput: `Run one at a time, reading the hit count in the top-right:
+
+rule.groups:authentication_failed              412 hits   → brute force
+rule.groups:(ids or suricata) and data.event_type:alert   1,204 hits → port scan
+data.alert.signature:SQL*                        3 hits   → web attack (SQLi)`,
+        outputHighlights: [
+          { text: 'rule.groups:authentication_failed', label: 'the brute-force query. A high count from a single data.srcip in a short window is the signature of someone guessing SSH passwords.' },
+          { text: '1,204 hits', label: 'the scan. A big number spread across many data.dest_port values in seconds is a port sweep, not normal traffic.' },
+          { text: 'data.alert.signature:SQL*', label: 'the web attack. Even 3 hits matter here — one successful SQL injection is worse than a thousand blocked scan packets.' },
+        ],
         verify: ['rule.groups'],
         troubleshooting: 'Query returns nothing? 90% of the time it is the time picker — widen it to cover when your team ran the attack. Also confirm you are on the Security events search bar (DQL), not the Agents list (WQL, which wants rule.level>=7 with no colon), and that the field exists by expanding one document.',
         files: [
@@ -914,7 +1048,24 @@ const tasks: Task[] = [
           { cmd: 'curl "http://<UBUNTU_IP>/dvwa/vulnerabilities/sqli/?id=1%27+UNION+SELECT+user,password+FROM+users--&Submit=Submit"', explain: 'SQL-injection web attack → Suricata/Apache web alerts.' },
         ],
         whatItMeans: 'Week 2 is a detection exercise — you first create the signal, then hunt it. Scanning your own pod is standard SOC self-testing and stays inside the Rules of Engagement.',
-        expectedOutput: 'Within a minute the SOC shows new alerts from the Kali IP: a port-scan burst, repeated SSH failures, and a web-attack hit. Write down the Kali IP and the time.',
+        expectedOutput: `┌──(kali㉿kali)-[~]
+└─$ nmap -sS -p- 10.10.100.7
+Nmap scan report for 10.10.100.7
+PORT     STATE SERVICE
+22/tcp   open  ssh
+80/tcp   open  http
+3306/tcp open  mysql
+
+┌──(kali㉿kali)-[~]
+└─$ hydra -l student -P /usr/share/wordlists/rockyou.txt ssh://10.10.100.7 -t 4
+[DATA] attacking ssh://10.10.100.7:22/
+[STATUS] 284.00 tries/min, 284 tries in 00:01h
+^C   (Ctrl+C after ~20s — you do not need it to finish)`,
+        outputHighlights: [
+          { text: 'open', label: 'the scan reached your pod. This burst of connections is what fires the Suricata port-scan alerts you are about to hunt.' },
+          { text: '284.00 tries/min', label: 'hydra is hammering SSH. Each failed try becomes one authentication_failed alert at the SOC — this is what a brute force looks like from the attacker side.' },
+          { text: '^C', label: 'stop it after ~20 seconds. You only need enough failures to make a clear signal, not a completed crack.' },
+        ],
         verify: ['open'],
         files: [
           { name: 'nmap', purpose: 'the port scanner (pre-installed on Kali)', source: 'sudo apt install -y nmap' },
@@ -953,7 +1104,19 @@ const tasks: Task[] = [
           { cmd: 'sha256sum -c /tmp/week2.pcap.sha256', explain: 'Verify the hash the moment you make it \u2014 it should print week2.pcap: OK.' },
         ],
         whatItMeans: 'Hashing at capture time is what makes the packet file trustworthy evidence.',
-        expectedOutput: 'A .pcap file and its .sha256 both exist, the check prints week2.pcap: OK, and the pcap is more than a few KB.',
+        expectedOutput: `student@team07-ubuntu:~$ sudo tcpdump -i ens18 -nn not port 22 -w /tmp/week2.pcap
+tcpdump: listening on ens18, link-type EN10MB (Ethernet), snapshot length 262144 bytes
+^C
+1487 packets captured
+1502 packets received by filter
+0 packets dropped by kernel
+student@team07-ubuntu:~$ sha256sum -c /tmp/week2.pcap.sha256
+/tmp/week2.pcap: OK`,
+        outputHighlights: [
+          { text: '1487 packets captured', label: 'a non-trivial count means the attack was actually flowing while you captured. Single digits mean you stopped too early, or the attack was not running — re-run it, then stop the capture.' },
+          { text: '0 packets dropped by kernel', label: 'nothing was lost, so the pcap is a complete record of the window. Dropped packets mean gaps the defence lawyer would point at.' },
+          { text: 'OK', label: 'the pcap still matches the hash you took at capture time. That match is what makes the packet file admissible rather than just "a file you have".' },
+        ],
         producesDeliverable: 'week2.pcap',
         isEvidenceStep: true,
         verify: ['OK'],
@@ -1031,6 +1194,10 @@ const tasks: Task[] = [
         usesForm: 'IOC Database',
         whatItMeans: 'The IOC table is the running record every later week adds to. Every row must trace back to something you actually saw — an alert, a packet, or a file hash — not a guess.',
         expectedOutput: 'At least five rows, each traceable to a specific alert or packet (e.g. attacker IP, the SQLi URL, the attacker User-Agent, the week2.pcap hash).',
+        outputHighlights: [
+          { text: 'At least five rows', label: 'the count the grade checks. Four indicators drawn from real evidence beats ten guessed ones, but you do need the five.' },
+          { text: 'traceable to a specific alert or packet', label: 'the real test. Every row must point back to something you actually saw — an alert, a packet, a hash — not something you assumed an attacker "probably" did.' },
+        ],
         producesDeliverable: '05_IOC_Database.csv',
         isEvidenceStep: true,
         troubleshooting: 'Can’t find five? Widen the time picker and re-run the pivot query — and remember the week2.pcap SHA-256 and the attacker’s User-Agent count as indicators too, not just IPs.',
@@ -1189,7 +1356,26 @@ const tasks: Task[] = [
           { cmd: 'scp nmap_<team>.txt student@<UBUNTU_IP>:~/team-artifacts/week-3/', explain: 'Copy the output to your team folder so it goes in the Vulnerability Assessment.' },
         ],
         whatItMeans: 'The version behind each open port is what maps to a known CVE.',
-        expectedOutput: 'A list of open ports with service names and versions, saved to nmap_<team>.txt, and copied into ~/team-artifacts/week-3/ on the server.',
+        expectedOutput: `Starting Nmap 7.94 ( https://nmap.org ) at 2026-08-05 10:02 UTC
+Nmap scan report for 10.10.100.7
+Host is up (0.00042s latency).
+Not shown: 65531 closed tcp ports (reset)
+
+PORT     STATE SERVICE VERSION
+22/tcp   open  ssh     OpenSSH 8.9p1 Ubuntu 3ubuntu0.4 (Ubuntu Linux; protocol 2.0)
+80/tcp   open  http    Apache httpd 2.4.52 ((Ubuntu))
+3306/tcp open  mysql   MySQL 8.0.35-0ubuntu0.22.04.1
+1514/tcp open  unknown
+
+Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 94.28 seconds`,
+        outputHighlights: [
+          { text: 'open', label: 'the state you care about. "closed" and "filtered" ports are not attack surface; only open ones are.' },
+          { text: 'PORT     STATE SERVICE VERSION', label: 'the header of the table you are actually after. Everything above it is scan bookkeeping.' },
+          { text: 'OpenSSH 8.9p1 Ubuntu 3ubuntu0.4', label: 'a version string. This exact text is what you paste into NVD next week — "SSH is open" cannot be matched to a CVE, but this can.' },
+          { text: 'Apache httpd 2.4.52', label: 'the web server behind DVWA. Cross-check it against what the Wazuh vulnerability module reported; disagreement between the two is itself a finding.' },
+          { text: '1514/tcp open  unknown', label: 'your own Wazuh agent port. Recognising your monitoring as monitoring — rather than reporting it as a mystery service — is part of the job.' },
+          { text: '1 IP address (1 host up)', label: 'confirms you scanned exactly one host. More than one means you strayed outside your own pod, which breaks the scope rule.' },
+        ],
         verify: ['open'],
         files: [
           { name: 'nmap', purpose: 'the port/version scanner (pre-installed on Kali)', source: 'sudo apt install -y nmap' },
@@ -1211,7 +1397,25 @@ const tasks: Task[] = [
           { cmd: 'nikto -h http://<UBUNTU_IP> -o nikto_<team>.txt -Format txt', explain: 'Checks for known dangerous files and outdated software; -o saves the findings to a file.' },
         ],
         whatItMeans: 'Nikto turns the web server\u2019s exposure into a list with reference IDs.',
-        expectedOutput: 'Nikto prints "+ Server:" then a list of findings (each line starts with "+"), saved to nikto_<team>.txt.',
+        expectedOutput: `- Nikto v2.5.0
+---------------------------------------------------------------------------
++ Target IP:          10.10.100.7
++ Target Port:        80
++ Start Time:         2026-08-05 10:14:33 (GMT0)
+---------------------------------------------------------------------------
++ Server: Apache/2.4.52 (Ubuntu)
++ /: The anti-clickjacking X-Frame-Options header is not present.
++ /: The X-Content-Type-Options header is not set.
++ /dvwa/: Directory indexing found.
++ /dvwa/config/: Directory indexing found.
++ 8 host(s) tested`,
+        outputHighlights: [
+          { text: '+ Server', label: 'every finding line starts with a "+". This first one is the banner — proof Nikto reached the web server rather than failing to connect.' },
+          { text: 'Apache/2.4.52 (Ubuntu)', label: 'the same version nmap reported. Two tools agreeing is worth stating in the assessment — it is corroboration, not duplication.' },
+          { text: 'X-Frame-Options header is not present', label: 'a missing security header. Low severity on its own, but it is a real finding with a fix, so it belongs in the report.' },
+          { text: '/dvwa/config/: Directory indexing found', label: 'the serious one. A browsable config directory can expose database credentials — rank this above the header findings.' },
+          { text: '+ 8 host(s) tested', label: 'the scan finished rather than timing out. A truncated run means your finding list is incomplete.' },
+        ],
         verify: ['+ Server'],
         files: [
           { name: 'nikto', purpose: 'the web-server scanner (pre-installed on Kali; install it if missing)', source: 'sudo apt install -y nikto' },
@@ -1314,8 +1518,17 @@ const tasks: Task[] = [
           { cmd: 'rule.level:>=7', explain: 'Cut to real activity. Web/SQLi and Suricata alerts sit around 5–7, so >=7 keeps them; >=10 would hide the incident.' },
         ],
         whatItMeans: 'Everything else in the incident is measured from this timestamp.',
-        expectedOutput: 'One timestamp written down, with the alert that produced it.',
-        verify: ['rule.level'],
+        expectedOutput: `Security events — sorted Time ascending, filter rule.level:>=7
+
+Time (UTC)            rule.level  rule.description                         data.srcip
+2026-08-05 11:02:14   5           Apache: client sent malformed request    10.10.20.7
+2026-08-05 11:02:41   10          Multiple web attack attempts (SQLi)      10.10.20.7
+2026-08-05 11:03:02   7           SQL injection attempt in URL             10.10.20.7`,
+        outputHighlights: [
+          { text: '2026-08-05 11:02:14', label: 'the earliest row, and therefore your incident start time. Copy it exactly — every duration in the report is measured from here.' },
+          { text: 'rule.level', label: 'the column you filtered on. Keep it at >=7: SQLi and Suricata alerts sit around 5–7, so >=10 would hide the very first events.' },
+          { text: '10.10.20.7', label: 'the attacker address, the same on every row. This is the IP you hand the Hunter and search on in the next step.' },
+        ],
         troubleshooting: 'Nothing shows? 90% of the time it is the time picker — widen it to cover when the instructor ran the attack.',
         producesDeliverable: '08_Detection_Record.md',
         isEvidenceStep: true,
@@ -1394,8 +1607,15 @@ const tasks: Task[] = [
           { cmd: 'sudo grep -iE "union|select|\\.\\./|<script" /var/log/apache2/access.log | tail -40', explain: 'Pull the injection/traversal attempts straight from the access log.' },
         ],
         whatItMeans: 'You read the injection instead of guessing it.',
-        expectedOutput: 'You can quote the malicious request and say what it tried to do.',
-        verify: ['union'],
+        expectedOutput: `student@team07-ubuntu:~$ sudo grep -iE "union|select|\\.\\./|<script" /var/log/apache2/access.log | tail -40
+10.10.20.7 - - [05/Aug/2026:11:03:02 +0000] "GET /dvwa/vulnerabilities/sqli/?id=1'+UNION+SELECT+user,password+FROM+users--&Submit=Submit HTTP/1.1" 200 4821 "-" "Mozilla/5.0"
+10.10.20.7 - - [05/Aug/2026:11:03:05 +0000] "GET /dvwa/vulnerabilities/sqli/?id=1'+OR+'1'='1&Submit=Submit HTTP/1.1" 200 1136 "-" "Mozilla/5.0"`,
+        outputHighlights: [
+          { text: 'UNION+SELECT+user,password+FROM+users', label: 'the payload itself. Quote this in the report — it names exactly what the attacker tried to read (the users table, with passwords).' },
+          { text: '200', label: 'the HTTP status. 200 means the server answered the injected request rather than rejecting it — a strong sign the injection was processed, not blocked.' },
+          { text: '10.10.20.7', label: 'the source, matching the attacker IP from the detection record. Same address on both lines ties the log evidence back to your timeline.' },
+        ],
+        verify: ['UNION'],
         producesDeliverable: '04_Incident_Response_Report.md',
         isEvidenceStep: true,
         frameworks: ['NIST_800_61'],
@@ -1505,7 +1725,20 @@ const tasks: Task[] = [
           { cmd: 'sudo systemctl stop apache2', explain: 'If the web app is the way in, take it offline.' },
         ],
         whatItMeans: 'An untimed action can\u2019t be defended later — the log of it matters as much as the action.',
-        expectedOutput: 'ufw status shows DENY as rule #1, and no new Apache/auth alerts from that attacker after your containment time.',
+        expectedOutput: `student@team07-ubuntu:~$ sudo ufw status numbered
+Status: active
+
+     To                         Action      From
+     --                         ------      ----
+[ 1] Anywhere                   DENY IN     10.10.20.7
+[ 2] 22/tcp                     ALLOW IN    Anywhere
+[ 3] 80/tcp                     ALLOW IN    Anywhere`,
+        outputHighlights: [
+          { text: 'DENY', label: 'the block itself. UFW stops at the first rule that matches, which is why this has to sit above the ALLOW rules rather than below them.' },
+          { text: '[ 1]', label: 'the position, and it must be 1. A plain `ufw deny` appends to the end, lands under the ALLOW on line 2, and silently never fires.' },
+          { text: '10.10.20.7', label: 'the attacker you are blocking. Check it against the source IP in your alerts — blocking the wrong address contains nothing.' },
+          { text: '22/tcp                     ALLOW IN', label: 'SSH is still open. Confirm this before you walk away; a containment rule that locks you out of the machine is its own incident.' },
+        ],
         verify: ['DENY'],
         troubleshooting: 'Still seeing Suricata alerts from the attacker? That is expected — Suricata reads the wire before the firewall drops the packet. What should stop is new Apache/authentication alerts. Record your containment timestamp either way.',
         producesDeliverable: '04_Incident_Response_Report.md',
@@ -1527,7 +1760,16 @@ const tasks: Task[] = [
           { cmd: 'sha256sum -c ~/team-artifacts/week-4/access.log.sha256', explain: 'Verify the hash — it should print access.log: OK.' },
         ],
         whatItMeans: 'A hash proves the file hasn’t changed since you took it.',
-        expectedOutput: 'The check prints access.log: OK, and the hash goes in your evidence log.',
+        expectedOutput: `student@team07-ubuntu:~$ sha256sum ~/team-artifacts/week-4/access.log > ~/team-artifacts/week-4/access.log.sha256
+student@team07-ubuntu:~$ cat ~/team-artifacts/week-4/access.log.sha256
+9f2c4e1a7b83d05f6c1e94a2b7d8e30f5a6c1b9d4e2f70a8c3b5d1e6f9a2c4b7  /home/student/team-artifacts/week-4/access.log
+student@team07-ubuntu:~$ sha256sum -c ~/team-artifacts/week-4/access.log.sha256
+/home/student/team-artifacts/week-4/access.log: OK`,
+        outputHighlights: [
+          { text: '9f2c4e1a7b83d05f6c1e94a2b7d8e30f5a6c1b9d4e2f70a8c3b5d1e6f9a2c4b7', label: 'the hash. Copy this exact string into your chain-of-custody log — yours will differ, and a hash recorded later than collection proves nothing.' },
+          { text: 'OK', label: 'the file still matches the hash you took. This is the line that makes the evidence defensible; FAILED means it changed after collection and can no longer be relied on.' },
+          { text: '/home/student/team-artifacts/week-4/access.log', label: 'your copy, not the live log. Never hash a file the server is still writing to — the hash is stale the moment you take it.' },
+        ],
         verify: ['OK'],
         producesDeliverable: '04_Incident_Response_Report.md',
         isEvidenceStep: true,

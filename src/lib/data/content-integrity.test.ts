@@ -4,6 +4,7 @@ import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, deliverablesForCourse } from '../docs/definitions';
+import { looksLikeConsoleOutput } from '../stepOutcome';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -106,11 +107,32 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
+  // A console block with no markers is the exact "unhelpful — code section with a
+  // sentence" state this course kept slipping back into. If the outcome renders as
+  // an annotated terminal, it must have something to annotate (a verify token or an
+  // authored highlight); otherwise it should be authored as prose (outputKind).
+  it('every console-style output has at least one target to mark', () => {
+    for (const { step } of allSteps(course)) {
+      const output = step.expectedOutput ?? '';
+      if (!output.trim()) continue;
+      const rendersAsConsole =
+        step.outputKind === 'console' ||
+        (step.outputKind == null && looksLikeConsoleOutput(output));
+      if (!rendersAsConsole) continue;
+      const targets = (step.verify?.length ?? 0) + (step.outputHighlights?.length ?? 0);
+      expect(
+        targets,
+        `${step.id}: renders as a terminal block but has no verify/outputHighlights to mark`
+      ).toBeGreaterThan(0);
+    }
+  });
+
   it('every walkthrough has unique, positive marker numbers', () => {
     for (const { step } of allSteps(course)) {
       const markers = step.walkthrough?.markers;
       if (!markers?.length) continue;
       const ns = markers.map((m) => m.n);
+      expect(ns.length, `${step.id}: walkthrough has no markers`).toBeGreaterThan(0);
       expect(new Set(ns).size, `${step.id}: duplicate marker numbers`).toBe(ns.length);
       for (const n of ns) {
         expect(Number.isInteger(n) && n > 0, `${step.id}: bad marker number ${n}`).toBe(true);

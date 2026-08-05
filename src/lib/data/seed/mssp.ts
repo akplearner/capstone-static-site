@@ -182,8 +182,17 @@ const tasks: Task[] = [
         title: 'Enable and centralize auditing',
         description: 'Turn on host auditing and confirm logs flow.',
         command: 'sudo systemctl enable --now auditd && sudo ausearch -m USER_LOGIN -ts today',
-        expectedOutput: 'auditd active; a list of today’s login events.',
-        outputExplanation: 'If login events appear, host auditing is on and feeding your log pipeline.',
+        expectedOutput: `$ sudo ausearch -m USER_LOGIN -ts today
+----
+time->Mon Aug  5 09:12:44 2026
+type=USER_LOGIN msg=audit(1754384: pid=1442 uid=0 auid=1000
+ msg='op=login id=1000 exe="/usr/sbin/sshd" hostname=10.10.100.5
+ res=success'`,
+        outputHighlights: [
+          { text: 'type=USER_LOGIN', label: 'a real audit record. Its presence proves auditd is not just running but actually recording — an active service with no events is a silent gap.' },
+          { text: 'res=success', label: 'the outcome field. Auditing both success and failure is what SOC 2 CC7 and ISO A.8.15 expect — a failed-login record would read res=failed here.' },
+          { text: 'exe="/usr/sbin/sshd"', label: 'what caused the event. Tying an event to the program behind it is the difference between a log and evidence an auditor will accept.' },
+        ],
         whatItMeans: 'Central, tamper-evident logging is the foundation of SOC 2 CC7 monitoring and ISO A.8.15 — you cannot detect or evidence what you do not log.',
         frameworks: ['SOC_2', 'ISO_27001'],
         troubleshooting: 'No output → auditd may not be installed: `sudo apt install auditd`. On a container, use journald: `journalctl -u ssh --since today`.',
@@ -248,12 +257,24 @@ const tasks: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'A table of open ports with service and version.',
-        outputExplanation: 'Unexpected open services or old versions are attack-surface gaps to record.',
+        expectedOutput: `Nmap scan report for 10.10.100.30
+Host is up (0.00051s latency).
+
+PORT    STATE SERVICE VERSION
+22/tcp  open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.7
+443/tcp open  ssl/http nginx 1.14.0 (Ubuntu)
+3389/tcp open ms-wbt-server Microsoft Terminal Services
+
+Service detection performed. Nmap done: 1 IP address (1 host up)`,
+        outputHighlights: [
+          { text: 'OpenSSH 7.6p1', label: 'an old SSH version. In a gap assessment the exact version is the finding — it maps to specific advisories the client must patch.' },
+          { text: '3389/tcp open ms-wbt-server', label: 'RDP exposed to the network. Remote Desktop reachable externally is a classic high-risk gap that goes straight into the risk assessment.' },
+          { text: '1 host up', label: 'you scanned exactly the one authorised host. Anything more would be outside the agreed scope and window.' },
+        ],
         whatItMeans: 'A repeatable, authorized scan (NIST 800-115) is the credible basis for the “technical vulnerability” side of the gap assessment.',
         frameworks: ['NIST_800_115'],
         troubleshooting: '“Host seems down” → keep `-Pn`. No permission/blocked → confirm the host is in the authorized scope and window.',
-        verify: ['PORT', 'open'],
+        verify: ['open'],
       },
     ],
   },
@@ -277,8 +298,19 @@ const tasks: Task[] = [
         title: 'Run a hardening audit',
         description: 'Scan the host against a CIS-style baseline.',
         command: 'sudo lynis audit system --quick',
-        expectedOutput: 'A hardening index and a list of suggestions/warnings.',
-        outputExplanation: 'The suggestions are your control gaps — note the highest-impact ones to fix in Week 2.',
+        expectedOutput: `[+] Results
+  Warnings (1):
+  ! SSH root login is permitted [SSH-7412]
+  Suggestions (14):
+  * Set a password on GRUB bootloader [BOOT-5122]
+  * Disable core dumps for setuid programs [KRNL-5820]
+
+  Hardening index : 58 [###########         ]`,
+        outputHighlights: [
+          { text: 'Hardening index : 58', label: 'the baseline score. Its whole value is the before/after pair — record it now so Week 2’s fixes have something to be measured against.' },
+          { text: 'SSH root login is permitted', label: 'a warning, and warnings are your priority gaps. This one maps directly to SOC 2 CC6 access controls.' },
+          { text: 'SSH-7412', label: 'the test ID. Quoting it makes the gap traceable in the control matrix — an auditor can look up exactly what was checked.' },
+        ],
         whatItMeans: 'Gaps against CIS map directly to SOC 2 CC6 and ISO A.8 controls, turning “harden the box” into auditable control work.',
         frameworks: ['CIS'],
         troubleshooting: '`lynis: command not found` → `sudo apt install lynis` (or run from a cloned copy).',
@@ -338,8 +370,18 @@ const tasks: Task[] = [
           { cmd: 'sudo ufw allow 22/tcp', explain: 'Permit only the services you intend to expose.' },
           { cmd: 'sudo ufw --force enable', explain: 'Turn the firewall on.' },
         ],
-        expectedOutput: 'Firewall is active with a default-deny policy and an explicit allow-list.',
-        outputExplanation: 'A default-deny posture with a justified allow-list is exactly what CC6.6 / A.8.20 expect.',
+        expectedOutput: `$ sudo ufw status verbose
+Status: active
+Default: deny (incoming), allow (outgoing), disabled (routed)
+
+To         Action      From
+--         ------      ----
+22/tcp     ALLOW IN    Anywhere`,
+        outputHighlights: [
+          { text: 'Status: active', label: 'the control is actually enforcing. An "inactive" firewall with correct rules is a control that exists on paper but not in operation — the exact thing an auditor tests for.' },
+          { text: 'deny (incoming)', label: 'the default-deny posture CC6.6 and ISO A.8.20 expect. Everything is blocked unless explicitly allowed below.' },
+          { text: '22/tcp     ALLOW IN', label: 'the one justified exception. A short, reasoned allow-list is the evidence — a long one undermines the default-deny claim.' },
+        ],
         whatItMeans: 'This is a control implementation, not just a config — record it so it becomes sampled evidence in the matrix and packet.',
         frameworks: ['CIS', 'SOC_2'],
         troubleshooting: 'Locked out of SSH? Always `ufw allow 22/tcp` BEFORE enabling. On a remote box, keep an open session while you test.',
@@ -404,8 +446,13 @@ const tasks: Task[] = [
         title: 'Spot the attack in the logs',
         description: 'Confirm the attack is visible in your log source.',
         command: "grep -Ei 'union.*select|or 1=1' /var/log/apache2/access.log",
-        expectedOutput: 'Matching request lines from the attacker’s IP during the test window.',
-        outputExplanation: 'Matches confirm the detection has data to fire on; note the attacker IP and time for the metrics.',
+        expectedOutput: `10.10.100.40 - - [05/Aug/2026:14:22:10 +0000] "GET /login?u=1' OR 1=1-- HTTP/1.1" 200 512
+10.10.100.40 - - [05/Aug/2026:14:22:14 +0000] "GET /search?q=1 UNION SELECT null,version()-- HTTP/1.1" 200 743`,
+        outputHighlights: [
+          { text: 'OR 1=1', label: 'a classic injection probe in a URL. Real users never send this — a match is what proves your detection has genuine attack data to fire on, not a hypothetical.' },
+          { text: '10.10.100.40', label: 'the attacker’s IP during the test window. Record it and the timestamp — these become the metrics that show the detection actually caught Red’s activity.' },
+          { text: 'UNION SELECT null,version()', label: 'a second, different technique. Two distinct payloads landing lets you map more than one ATT&CK id to real evidence.' },
+        ],
         whatItMeans: 'Seeing the attack in the logs is the difference between a theoretical rule and a validated detection.',
         frameworks: ['NIST_CSF'],
         troubleshooting: 'No matches → check the correct log path (`/var/log/nginx/access.log`) and that the test actually hit this host.',
