@@ -285,14 +285,16 @@ export default function DeliverablesPage() {
           <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           Evidence &amp; chain of custody
         </h2>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Handle evidence like a real case: hash every artifact on collection, log it, and record each
-          hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
-          <strong>ISO/IEC 27037</strong>.
-        </p>
         <div className="mt-2 border-t border-gray-200 dark:border-gray-700">
           <Collapsible title="Open the file hasher & handling rules" defaultOpen={toolParam === 'evidence'}>
             <div className="space-y-3 pb-2">
+              {/* The "why" lives inside the tool now, not as always-visible theory
+                  above it — the page opens on what to do, not on custody doctrine. */}
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Handle evidence like a real case: hash every artifact on collection, log it, and record each
+                hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
+                <strong>ISO/IEC 27037</strong>.
+              </p>
               <EvidenceHasher />
               <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
                 <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">

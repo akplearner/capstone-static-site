@@ -17,8 +17,8 @@ import {
   RotateCcw,
   Search,
   Sparkles,
+  Tag,
   Users,
-  Wrench,
   X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -30,12 +30,9 @@ import { StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
-import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
-import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
-import { Difficulty } from '@/components/ui/Difficulty';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { SignInPanel } from '@/components/auth/SignInPanel';
@@ -52,11 +49,10 @@ import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore'
 import { getRoleDef, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
-import { StepTally, MilestoneRail, PixelBadge } from '@/components/ui/Pixel';
+import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
 import { regionFor, phaseForWeek } from '@/lib/quarry';
-import { buildDeliverableChain, isCapstoneFiled } from '@/lib/deliverableChain';
-import { DeliverableChainDiagram } from '@/components/quarry/DeliverableChain';
+import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
@@ -431,13 +427,11 @@ function TaskRow({
             {task.objective}
           </span>
 
-          {/* Scannable meta row */}
+          {/* Scannable meta row. Difficulty lives on the week header above (a task's
+              difficulty is the week's), deliverable filenames on the "You produce"
+              strip when open, and framework tags inside the Task brief — so the card
+              shows only what's specific to this task: progress, time, hand-off. */}
           <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
-            {card.difficulty && (
-              <span className="flex items-center">
-                <Difficulty level={card.difficulty} compact />
-              </span>
-            )}
             {showProgress ? (
               <span className="flex items-center gap-1.5">
                 <span className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
@@ -463,12 +457,6 @@ function TaskRow({
                 <Clock className="h-3.5 w-3.5" /> {task.estimatedTime}
               </span>
             )}
-            {card.produces.length > 0 && (
-              <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                <FileText className="h-3.5 w-3.5" /> {card.produces.length} deliverable
-                {card.produces.length > 1 ? 's' : ''}
-              </span>
-            )}
             {card.handoff.length > 0 && (
               <span
                 className="flex items-center gap-1"
@@ -477,17 +465,6 @@ function TaskRow({
               >
                 <ArrowRight className="h-3.5 w-3.5" /> {roleName(card.handoff[0].to)}
               </span>
-            )}
-            {task.frameworks.slice(0, 3).map((fw) => (
-              <span
-                key={fw}
-                className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getFrameworkColor(fw)}`}
-              >
-                {getFrameworkLabel(fw)}
-              </span>
-            ))}
-            {task.frameworks.length > 3 && (
-              <span className="text-gray-400">+{task.frameworks.length - 3}</span>
             )}
           </span>
         </span>
@@ -830,7 +807,6 @@ export default function CoursePage() {
     taskStats,
     isCapstoneFiled(course.id, savedDocs)
   );
-  const chain = buildDeliverableChain(course, savedDocs);
 
   // "Continue" points at real coursework. Setup weeks and home-lab-only build
   // tasks are opt-in, so an untouched Week 0 must not hold the CTA hostage —
@@ -868,46 +844,19 @@ export default function CoursePage() {
 
   // Expanded content for a task row (deliverables + the runner or read-only steps).
   const renderTaskBody = (task: Task, isOwn: boolean) => {
-    // The brief now holds only orientation (learn / tools / done-when). Hand-offs,
-    // prerequisites and deliverables are shown once elsewhere (the always-visible
-    // strip below + the per-step "save evidence as" callout), not repeated here.
-    const hasBrief = !!(task.learn?.length || task.tools?.length || task.definitionOfDone?.length);
-    const hasHandoffStrip = !!(task.handoff?.length || task.prerequisites?.length);
+    // Prerequisites, produced files and hand-offs are shown once — in the
+    // 3-column identity strip at the top of the open task (TaskRow, above). The
+    // brief holds only orientation: what you'll learn, the frameworks it maps to,
+    // and the done-criteria. An earlier amber strip repeated the prereq/hand-off
+    // pair here; it was a strict subset of the identity strip, so it's gone.
+    const hasBrief = !!(
+      task.learn?.length || task.definitionOfDone?.length || task.frameworks?.length
+    );
     return (
     <>
-      {/* Always-visible hand-off strip: what you're waiting on, and what you owe a
-          teammate — lifted out of the collapsed brief so dependencies are obvious. */}
-      {hasHandoffStrip && (
-        <div className="mb-3 flex flex-col gap-1 rounded-md border border-gray-200 bg-white px-3 py-2 text-xs dark:border-gray-700 dark:bg-gray-800">
-          {task.prerequisites && task.prerequisites.length > 0 && (
-            <p className="flex items-start gap-1.5 text-amber-800 dark:text-amber-300">
-              <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 rotate-180 text-amber-500" />
-              <span>
-                <span className="font-semibold">You need first: </span>
-                {task.prerequisites.join(' · ')}
-              </span>
-            </p>
-          )}
-          {(task.handoff ?? []).map((h, i) => {
-            const toRole = getRoleDef(course, h.to);
-            return (
-              <p key={`hs-${h.to}-${i}`} className="flex items-start gap-1.5 text-indigo-800 dark:text-indigo-300">
-                <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-indigo-500" />
-                <span>
-                  <span className="font-semibold">Hand off when done: </span>
-                  {h.artifact && <span className="font-mono">{h.artifact} </span>}→{' '}
-                  <span className="font-semibold" style={{ color: toRole?.color }}>
-                    {toRole?.name ?? h.to}
-                  </span>
-                </span>
-              </p>
-            );
-          })}
-        </div>
-      )}
       {hasBrief && (
         <div className="mb-4 rounded-lg border border-gray-200 px-4 dark:border-gray-700">
-          <Collapsible title="Task brief — learn, tools & done criteria" defaultOpen={false}>
+          <Collapsible title="Task brief — learn, frameworks & done criteria" defaultOpen={false}>
             <div className="space-y-3 py-2">
         <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
           {task.learn && task.learn.length > 0 && (
@@ -922,17 +871,20 @@ export default function CoursePage() {
               </ul>
             </div>
           )}
-          {task.tools && task.tools.length > 0 && (
+          {/* Framework mappings live here, not on the card: they matter for cert
+              alignment but aren't something a beginner acts on step to step, and a
+              row of rainbow tags was a big share of the card's on-screen colour. */}
+          {task.frameworks.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <Wrench className="h-3.5 w-3.5" /> Tools
+                <Tag className="h-3.5 w-3.5" /> Frameworks
               </span>
-              {task.tools.map((t) => (
+              {task.frameworks.map((fw) => (
                 <span
-                  key={t}
-                  className="rounded bg-white px-2 py-0.5 font-mono text-[11px] text-gray-700 dark:bg-gray-800 dark:text-gray-300"
+                  key={fw}
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getFrameworkColor(fw)}`}
                 >
-                  {t}
+                  {getFrameworkLabel(fw)}
                 </span>
               ))}
             </div>
@@ -1086,9 +1038,6 @@ export default function CoursePage() {
             {regionFor(course).mineral}
           </p>
           <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
-          <div className="mt-3">
-            <MilestoneRail milestones={crew.milestones} />
-          </div>
         </div>
       )}
       {allGatesPassed && (
@@ -1187,12 +1136,16 @@ export default function CoursePage() {
         </div>
       )}
 
-      {/* ── Team & workflow: role cards + the "every case follows the same path" chain ── */}
-      {(course.roles.length > 0 || course.lifecyclePath) && (
+      {/* ── Your team: who's in the crew and what each one owns ──
+          The "how a case moves" (lifecycle) and "how the paperwork moves"
+          (deliverable chain) diagrams that used to sit here duplicated the
+          Guide's role diagram and the Team page's hand-off checklist, so they
+          now live once, there. This tab just introduces the roles. */}
+      {course.roles.length > 0 && (
         <section className="space-y-4">
           <div className="shead">
             <span className="num">01</span>
-            <h2 className="text-2xl font-bold tracking-tight text-ink">Your team &amp; the workflow</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-ink">Your team</h2>
           </div>
           <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
             {course.roles.map((r) => (
@@ -1205,21 +1158,13 @@ export default function CoursePage() {
               </div>
             ))}
           </div>
-          {course.lifecyclePath && course.lifecyclePath.length > 0 && (
-            <CaseLifecycleChain stages={course.lifecyclePath} />
-          )}
-          {/* Where the roles above actually meet: what each one hands over, and
-              who is waiting on it. The lifecycle chain says how a case moves;
-              this says how the crew's paperwork moves. */}
-          <DeliverableChainDiagram
-            course={course}
-            chain={chain}
-            highlightRole={member?.role}
-          />
         </section>
       )}
 
-      {/* ── The lab in one picture: the SOC network topology (course-aware) ── */}
+      {/* ── The lab in one picture ──
+          The full SOC topology diagram lives on the Guide (its lab-architecture
+          section); here we keep the plain-language description and point to it,
+          rather than render the same diagram on two tabs. */}
       {socTopology(course.id) && (
         <section className="space-y-4">
           <div className="shead">
@@ -1231,7 +1176,12 @@ export default function CoursePage() {
             <b className="text-ink">pod</b> — one Ubuntu web server and one Windows PC — and both report to the single{' '}
             <b className="text-ink">Wazuh SOC</b> you open in a browser.
           </p>
-          <SocTopologyDiagram topo={socTopology(course.id)!} />
+          <Link
+            href={`/courses/${course.id}/guide`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+          >
+            See the full lab diagram &amp; setup in the Guide <ArrowRight className="h-4 w-4" />
+          </Link>
         </section>
       )}
 

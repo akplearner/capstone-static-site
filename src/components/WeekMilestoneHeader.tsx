@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { ChevronRight, Clock, FileText, Flag, ListChecks, Wrench } from 'lucide-react';
+import { ChevronRight, Clock, Flag, ListChecks, Wrench } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { formatMinutes, weekSummary } from '@/lib/course-helpers';
 import { GlossaryText } from './GlossaryText';
@@ -97,21 +97,9 @@ export function WeekMilestoneHeader({
         </div>
       )}
 
-      {/* What you hand in. `weekSummary` has always computed this and nothing
-          ever rendered it, so a week never plainly stated what it was due. */}
-      {s.deliverables.length > 0 && (
-        <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
-          <FileText className="h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
-          <span className="text-xs text-muted">You hand in:</span>
-          {s.deliverables.map((d, i) => (
-            <span key={d} className="font-mono text-[11px] text-ink">
-              {d}
-              {/* Separator, or two filenames read as one. */}
-              {i < s.deliverables.length - 1 && <span className="text-muted">,</span>}
-            </span>
-          ))}
-        </div>
-      )}
+      {/* "You hand in" (the aggregated deliverable filenames) used to render here,
+          but it repeated each task card's "You produce" strip directly below this
+          header. The task cards are the single home for produced filenames now. */}
 
       {/* The milestone: one sentence saying when the week is actually done. */}
       {s.milestone && (
