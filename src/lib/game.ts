@@ -1,6 +1,6 @@
 import { Course } from './types';
 import { getTasksByRole, isSetupWeek } from './course-helpers';
-import { deriveStoneStage, type Milestone, type StoneStage } from './quarry';
+import { deriveStoneStage, stageForWeek, type Milestone, type StoneStage } from './quarry';
 
 /**
  * Crew progress — derived entirely from work actually completed.
@@ -33,7 +33,12 @@ export function deriveCrewProgress(
   course: Course,
   role: string,
   weekPercent: Record<number, number>,
-  taskPercent: Record<string, number>
+  taskPercent: Record<string, number>,
+  /** The course's capstone deliverable has been filled in. Master is the one
+   *  stage a week cannot grant — the work has to be handed over. Defaults to
+   *  false so a caller that hasn't wired the docs repo yet under-reports rather
+   *  than awarding a stage nobody earned. */
+  capstoneFiled = false
 ): CrewProgress {
   const tasks = getTasksByRole(course, role);
 
@@ -50,9 +55,17 @@ export function deriveCrewProgress(
   const gradedWeeks = course.weeks.filter(
     (w) => !isSetupWeek(course, w.number) && getTasksByRole(course, role, w.number).length > 0
   );
-  const weeksCleared = gradedWeeks.filter((w) => (weekPercent[w.number] ?? 0) >= 100).length;
+  const clearedWeeks = gradedWeeks
+    .filter((w) => (weekPercent[w.number] ?? 0) >= 100)
+    .map((w) => w.number);
+  const weeksCleared = clearedWeeks.length;
   const weeksTotal = gradedWeeks.length;
-  const stage = deriveStoneStage(weeksCleared, weeksTotal);
+  const stage = deriveStoneStage({
+    clearedWeeks,
+    totalWeeks: weeksTotal,
+    capstoneFiled,
+    stageOf: (n) => stageForWeek(course, n),
+  });
 
   const anyTaskComplete = tasks.some((t) => (taskPercent[t.id] ?? 0) >= 100);
 
@@ -84,8 +97,10 @@ export function deriveCrewProgress(
     {
       id: 'capstone',
       label: 'Capstone defended',
-      hint: 'Cleared every week: built, secured, validated and handed off.',
-      earned: weeksTotal > 0 && weeksCleared >= weeksTotal,
+      // "Defended" has to mean handed over, not just finished — so this tracks
+      // the stone's Master rule rather than week completion alone.
+      hint: 'Cleared every week and filed the capstone document: built, secured, validated and handed off.',
+      earned: weeksTotal > 0 && weeksCleared >= weeksTotal && capstoneFiled,
     },
   ];
 

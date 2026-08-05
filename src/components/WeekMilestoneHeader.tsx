@@ -5,6 +5,7 @@ import { ChevronRight, Clock, Flag, ListChecks, Wrench } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { formatMinutes, weekSummary } from '@/lib/course-helpers';
 import { GlossaryText } from './GlossaryText';
+import { Difficulty } from './ui/Difficulty';
 
 /**
  * The "what am I in for this week" banner.
@@ -16,40 +17,6 @@ import { GlossaryText } from './GlossaryText';
  * (`tools`, `estimatedTime`, step counts), so this adds a view, not a second
  * copy of the content.
  */
-
-const DIFFICULTY_LABEL: Record<number, string> = {
-  1: 'Gentle',
-  2: 'Steady',
-  3: 'Demanding',
-  4: 'Heavy build',
-};
-
-/** Filled/empty blocks rather than stars — reads at a glance and stays legible
- *  in both themes without relying on colour alone. */
-function Difficulty({ level }: { level: 1 | 2 | 3 | 4 }) {
-  return (
-    <span
-      className="inline-flex items-center gap-1.5"
-      title={`Difficulty ${level} of 4 — ${DIFFICULTY_LABEL[level]}`}
-    >
-      <span className="flex gap-[3px]" aria-hidden>
-        {[1, 2, 3, 4].map((n) => (
-          <span
-            key={n}
-            className="h-3 w-2 rounded-[1px]"
-            style={{
-              background: n <= level ? 'var(--color-accent)' : 'var(--color-line)',
-            }}
-          />
-        ))}
-      </span>
-      <span className="text-xs font-medium text-muted">
-        {DIFFICULTY_LABEL[level]}
-        <span className="sr-only"> — difficulty {level} of 4</span>
-      </span>
-    </span>
-  );
-}
 
 export function WeekMilestoneHeader({
   course,

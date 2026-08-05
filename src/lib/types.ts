@@ -41,6 +41,19 @@ export interface WeekDef {
   /** Ordered, short labels for how the week's work flows, e.g.
    *  ['Install', 'Enroll', 'Verify', 'Prove']. Rendered as a chain. */
   flow?: string[];
+  /** Which cut of the Capstone Stone finishing this week produces (see
+   *  src/lib/quarry.ts). Authoring this makes the expedition arc explicit
+   *  instead of inferring it from how many weeks happen to be cleared — which
+   *  is what left one stage permanently unreachable. Stage 5 (Master) is never
+   *  authored here: it additionally requires the capstone deliverable to be
+   *  filed, so it is derived rather than granted by a week. */
+  stage?: 0 | 1 | 2 | 3 | 4 | 5;
+  /** The expedition verb for this week — "Survey & Deploy", "Respond & Defend".
+   *  Defaults to the phase of the stage above, which suits a build-shaped
+   *  capstone. Override it when a course's domain has its own arc: a SOC
+   *  operations course detects and responds, it does not "build & establish",
+   *  and mislabelling the work to fit a template helps nobody. */
+  phase?: string;
 }
 
 // Optional per-course framework override; falls back to the built-in maps in utils.
@@ -170,6 +183,16 @@ export interface Task {
   definitionOfDone?: string[];
   /** Artifacts/notes handed to another role at the end of the task. */
   handoff?: { to: Role; artifact?: string; note: string }[];
+  /** The mirror of `handoff`: what this task needs handed *to* it, and by whom.
+   *  Without it the crew graph only points forward — a student could see who
+   *  they hand to but never who they are waiting on, which is the half that
+   *  actually blocks people. `from` is a role id; the receiving role is this
+   *  task's own `role`. */
+  consumes?: { from: Role; artifact?: string; note: string }[];
+  /** How hard this specific task is, 1-4. Falls back to the week's difficulty,
+   *  which is often too coarse — one week can hold a 20-minute check and a
+   *  90-minute build. */
+  difficulty?: 1 | 2 | 3 | 4;
   /** Skills/concepts this task teaches (role + week specific). */
   learn?: string[];
   /** Key tools/commands used, shown as a legend. */

@@ -19,7 +19,7 @@ import {
   Sparkles,
   SquarePen,
 } from 'lucide-react';
-import { Task, FolderNode, Step } from '@/lib/types';
+import { FolderNode, Step } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
@@ -42,56 +42,6 @@ function isCommandLike(source: string): boolean {
 
 function isUrl(source: string): boolean {
   return /^https?:\/\//i.test(source.trim());
-}
-
-interface TaskCardProps {
-  task: Task;
-  completionPercent: number;
-  onClick?: () => void;
-}
-
-export function TaskCard({ task, completionPercent, onClick }: TaskCardProps) {
-  return (
-    <motion.div whileHover={{ y: -2 }} className="cursor-pointer" onClick={onClick}>
-      <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="font-semibold text-gray-900 dark:text-white">{task.title}</h3>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{task.objective}</p>
-            <div className="mt-3 flex flex-wrap gap-2">
-              {task.frameworks.slice(0, 3).map((fw) => (
-                <span
-                  key={fw}
-                  className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}
-                >
-                  {getFrameworkLabel(fw)}
-                </span>
-              ))}
-              {task.frameworks.length > 3 && (
-                <span className="text-xs text-gray-600 dark:text-gray-400">
-                  +{task.frameworks.length - 3} more
-                </span>
-              )}
-            </div>
-          </div>
-          <div className="ml-4 text-right">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{completionPercent}%</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {task.steps.length} steps
-            </div>
-          </div>
-        </div>
-        <div className="mt-4 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-          <motion.div
-            initial={{ width: 0 }}
-            animate={{ width: `${completionPercent}%` }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="h-full rounded-full bg-blue-600"
-          />
-        </div>
-      </div>
-    </motion.div>
-  );
 }
 
 interface GateBadgeProps {

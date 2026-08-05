@@ -177,16 +177,6 @@ export function roleAccent(hex: string): Record<string, string> {
   return { color: hex, borderColor: hex };
 }
 
-export function getWeekTitle(week: number): string {
-  const titles: Record<number, string> = {
-    1: 'Week 1: Cold Recon',
-    2: 'Week 2: Hard Target',
-    3: 'Week 3: The Breach',
-    4: 'Week 4: Payday',
-  };
-  return titles[week] || `Week ${week}`;
-}
-
 export function generateEvidenceFileName(role: string, team: string, tool: string, action: string): string {
   const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
   return `${date}_${team}_${tool}_${action}.png`;

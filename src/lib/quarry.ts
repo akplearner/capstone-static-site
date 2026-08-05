@@ -139,6 +139,10 @@ export interface StoneStageDef {
 /**
  * Six stages, cut in order. The names are the artefact, not a score — a student
  * reading "Structured Capstone" should be able to say what they built to get it.
+ *
+ * The `phase` verbs are the *default* expedition arc, shaped for a course that
+ * builds an environment. A week may override it (`WeekDef.phase`) when its
+ * domain runs a different arc.
  */
 export const STONE_STAGES: StoneStageDef[] = [
   {
@@ -151,31 +155,33 @@ export const STONE_STAGES: StoneStageDef[] = [
     stage: 1,
     name: 'Surveyed Capstone',
     means: 'Requirements read, domains mapped, roles assigned, design agreed.',
-    phase: 'Survey & design',
+    phase: 'Survey & Design',
   },
   {
     stage: 2,
     name: 'Structured Capstone',
     means: 'Environment stood up and core services configured.',
-    phase: 'Build & establish',
+    phase: 'Build & Establish',
   },
   {
     stage: 3,
     name: 'Operational Capstone',
     means: 'Systems integrated, workflows running end to end, monitoring live.',
-    phase: 'Integrate',
+    phase: 'Integrate & Connect',
   },
   {
     stage: 4,
     name: 'Secured Capstone',
     means: 'Controls in place, testing done, failures found and repaired, evidence collected.',
-    phase: 'Secure & troubleshoot',
+    phase: 'Secure & Validate',
   },
   {
     stage: 5,
     name: 'Master Capstone',
     means: 'Validated, documented, handed off and defended.',
-    phase: 'Validate & defend',
+    // Stage 5 is the only one a week cannot grant on its own — it is the act of
+    // handing the work over, so its verb is the handover.
+    phase: 'Transfer & Defend',
   },
 ];
 
@@ -183,17 +189,71 @@ export function stoneStage(stage: StoneStage): StoneStageDef {
   return STONE_STAGES[stage] ?? STONE_STAGES[0];
 }
 
+/** The cut a given week produces, if the course authored one. */
+export function stageForWeek(course: Course, weekNumber: number): StoneStage | undefined {
+  return course.weeks.find((w) => w.number === weekNumber)?.stage;
+}
+
+/**
+ * The expedition verb for a week: the course's own wording if it authored one,
+ * otherwise the default verb of the stage that week cuts. Returns null for a
+ * week with neither, so callers render nothing rather than a placeholder.
+ */
+export function phaseForWeek(course: Course, weekNumber: number): string | null {
+  const w = course.weeks.find((x) => x.number === weekNumber);
+  if (!w) return null;
+  if (w.phase) return w.phase;
+  return w.stage != null ? stoneStage(w.stage).phase : null;
+}
+
+export interface StageInput {
+  /** Week numbers the student has finished, in any order. */
+  clearedWeeks: number[];
+  /** Graded weeks that have work for this student. */
+  totalWeeks: number;
+  /** The course's capstone deliverable has been filled in. */
+  capstoneFiled: boolean;
+  /** Authored week→stage map, when the course has one. */
+  stageOf?: (weekNumber: number) => StoneStage | undefined;
+}
+
 /**
  * Derive the stone's stage from work actually completed.
  *
- * A week only counts once it is *finished*, so the stone never advances on
- * good intentions. Setup weeks are excluded — they're opt-in and shouldn't cut
- * the stone. The stage is `weeksCleared`, capped at the final stage, which maps
- * the 4-week arc onto stages 1-4 and reserves 5 for the completed capstone.
+ * A week only counts once it is *finished*, so the stone never advances on good
+ * intentions. Setup weeks are excluded by the caller — they're opt-in and
+ * shouldn't cut the stone.
+ *
+ * The stage is the **highest cut among the weeks cleared**, read from the
+ * course's authored arc. That matters: the previous version derived the stage
+ * from the *count* of cleared weeks and jumped straight to 5 the moment the
+ * last one landed, so a four-week course produced stages 0,1,2,3,5 and "Secured
+ * Capstone" could never be cut at all. Authoring the arc means the ladder has
+ * as many rungs as the course has weeks, by construction.
+ *
+ * Master (5) is deliberately not something a week can grant. It requires every
+ * graded week cleared *and* the capstone deliverable filed — the work has to be
+ * handed over, not merely finished.
  */
-export function deriveStoneStage(weeksCleared: number, weeksTotal: number): StoneStage {
-  if (weeksTotal > 0 && weeksCleared >= weeksTotal) return 5;
-  return Math.min(4, Math.max(0, weeksCleared)) as StoneStage;
+export function deriveStoneStage({
+  clearedWeeks,
+  totalWeeks,
+  capstoneFiled,
+  stageOf,
+}: StageInput): StoneStage {
+  const allCleared = totalWeeks > 0 && clearedWeeks.length >= totalWeeks;
+  if (allCleared && capstoneFiled) return 5;
+
+  let highest = 0;
+  for (const week of clearedWeeks) {
+    // Fall back to positional order for a course with no authored arc (an
+    // instructor-built one), so it still advances rather than sitting at Uncut.
+    const authored = stageOf?.(week);
+    const cut = authored ?? Math.min(4, week);
+    if (cut > highest) highest = cut;
+  }
+  // A week must never award Master; that is the capstone's to give.
+  return Math.min(4, highest) as StoneStage;
 }
 
 // ── Milestones ───────────────────────────────────────────────────────────────

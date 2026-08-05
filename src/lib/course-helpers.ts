@@ -1,4 +1,4 @@
-import { Course, RoleDef, Step, Task, WeekDef } from './types';
+import { Course, Role, RoleDef, Step, Task, WeekDef } from './types';
 
 // Pure helpers that operate on a resolved Course object. These replace the old
 // module-level helpers in content-data.ts so the app is no longer tied to a
@@ -158,6 +158,82 @@ export function weekSummary(course: Course, role: string, week: number): WeekSum
     deliverables: getDeliverablesForWeek(course, role, week),
     difficulty: def?.difficulty,
     milestone: def?.milestone,
+  };
+}
+
+/**
+ * Everything a task card states, resolved in one place.
+ *
+ * The card previously showed a title, an objective and a *count* of
+ * deliverables — while the seed data carried the filenames, who the work is
+ * handed to and why, what it teaches, and what "done" means. A student could
+ * not see what they were producing or who was waiting on it without expanding
+ * the task and reading three separate blocks.
+ *
+ * Every field is optional-by-omission: a course that never authored `learn` or
+ * `consumes` simply has fewer rows, so Security+ and MSSP degrade cleanly
+ * instead of rendering empty headings. Pure, so the shape is unit-tested rather
+ * than eyeballed in a browser.
+ */
+export interface TaskCard {
+  /** 1 */ code: string;
+  /** 2 */ title: string;
+  /** 3 */ role: RoleDef | undefined;
+  /** 4 */ week: number;
+  /** 5 */ difficulty?: 1 | 2 | 3 | 4;
+  /** 6 */ minutes: number | null;
+  /** 7 */ objective: string;
+  /** 8 */ inputs: { from?: Role; label: string }[];
+  /** 9 */ tools: string[];
+  /** 10 */ teaches: string[];
+  /** 11 */ steps: { done: number; total: number; optional: number };
+  /** 12 */ doneWhen: string[];
+  /** 13 */ produces: string[];
+  /** 14 */ handoff: { to: Role; artifact?: string; note: string }[];
+  /** 15 */ domains: string[];
+  /** 16 */ status: 'not-started' | 'in-progress' | 'cleared';
+  /** Setup/home-lab-only work, which is opt-in rather than assigned. */
+  optional: boolean;
+}
+
+export function taskCard(course: Course, task: Task, percent = 0): TaskCard {
+  const total = getProgressStepCount(task);
+  const week = getWeekDef(course, task.week);
+
+  // Prerequisites are free text with no stated author; `consumes` names one.
+  // Both are "what has to exist before you start", so they render as one list.
+  const inputs: { from?: Role; label: string }[] = [
+    ...(task.consumes ?? []).map((c) => ({
+      from: c.from,
+      label: c.artifact ? `${c.artifact} — ${c.note}` : c.note,
+    })),
+    ...(task.prerequisites ?? []).map((p) => ({ label: p })),
+  ];
+
+  return {
+    code: task.id,
+    title: task.title,
+    role: getRoleDef(course, task.role),
+    week: task.week,
+    // Week difficulty is often too coarse — one week can hold a 20-minute check
+    // and a 90-minute build — so the task's own value wins when authored.
+    difficulty: task.difficulty ?? week?.difficulty,
+    minutes: parseEstimatedMinutes(task.estimatedTime),
+    objective: task.objective,
+    inputs,
+    tools: task.tools ?? [],
+    teaches: task.learn ?? [],
+    steps: {
+      done: Math.round((percent / 100) * total),
+      total,
+      optional: task.steps.length - total,
+    },
+    doneWhen: task.definitionOfDone ?? [],
+    produces: task.deliverables ?? [],
+    handoff: task.handoff ?? [],
+    domains: task.frameworks ?? [],
+    status: percent >= 100 ? 'cleared' : percent > 0 ? 'in-progress' : 'not-started',
+    optional: !!task.homeLabOnly || isSetupWeek(course, task.week),
   };
 }
 

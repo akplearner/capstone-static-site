@@ -11,6 +11,7 @@ import {
   Clock,
   FileText,
   GraduationCap,
+  Inbox,
   Lightbulb,
   Lock,
   RotateCcw,
@@ -20,6 +21,7 @@ import {
   Wrench,
   X,
 } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
 import { LoadingBlock } from '@/components/ui/Spinner';
 import { ConfirmDialog } from '@/components/ui/Dialog';
@@ -33,6 +35,7 @@ import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
+import { Difficulty } from '@/components/ui/Difficulty';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { SignInPanel } from '@/components/auth/SignInPanel';
@@ -44,14 +47,16 @@ import { useAuth } from '@/lib/useAuth';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { progressRepo, userStateRepo } from '@/lib/data';
+import { progressRepo, userStateRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getRequiredStepCount, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, MilestoneRail, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
-import { regionFor } from '@/lib/quarry';
+import { regionFor, phaseForWeek } from '@/lib/quarry';
+import { buildDeliverableChain, isCapstoneFiled } from '@/lib/deliverableChain';
+import { DeliverableChainDiagram } from '@/components/quarry/DeliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
@@ -332,9 +337,42 @@ function TaskReference({ task }: { task: Task }) {
   );
 }
 
-/** A single collapsible task with a rich, scannable header (step progress,
- *  deliverables, frameworks, estimated time). Expanded content is passed in. */
+/** One row of the card: a label and its content, omitted entirely when there is
+ *  nothing to show. Keeping the omission here is what lets a course that never
+ *  authored `learn` or `consumes` render a shorter card rather than a card full
+ *  of empty headings. */
+function CardRow({
+  icon: Icon,
+  label,
+  children,
+}: {
+  icon: LucideIcon;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex gap-2">
+      <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+      <div className="min-w-0 flex-1">
+        <span className="font-mono text-[10px] uppercase tracking-wide text-muted">{label}</span>
+        <div className="mt-0.5 text-[13px] text-ink">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * A single collapsible task, stating everything it is.
+ *
+ * The header stays scannable — title, status, size, time — and the detail rows
+ * underneath answer the questions a student actually has before starting: what
+ * do I need first and from whom, what will I produce, and who is waiting on it.
+ * Those three were all authored in the seed data and none of them were rendered:
+ * deliverables appeared only as a count, `handoff[].note` was dropped, and
+ * nothing showed inputs at all.
+ */
 function TaskRow({
+  course,
   task,
   isOwn,
   joined,
@@ -344,6 +382,7 @@ function TaskRow({
   isNext,
   children,
 }: {
+  course: Course;
   task: Task;
   isOwn: boolean;
   joined: boolean;
@@ -354,10 +393,12 @@ function TaskRow({
   children: React.ReactNode;
 }) {
   const canOpen = joined;
-  const steps = getRequiredStepCount(task);
-  const optionalCount = task.steps.length - steps;
-  const doneSteps = Math.round((percent / 100) * steps);
+  const card = taskCard(course, task, percent);
+  const steps = card.steps.total;
+  const optionalCount = card.steps.optional;
+  const doneSteps = card.steps.done;
   const showProgress = isOwn && joined;
+  const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
 
   return (
     <div
@@ -392,6 +433,11 @@ function TaskRow({
 
           {/* Scannable meta row */}
           <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
+            {card.difficulty && (
+              <span className="flex items-center">
+                <Difficulty level={card.difficulty} compact />
+              </span>
+            )}
             {showProgress ? (
               <span className="flex items-center gap-1.5">
                 <span className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
@@ -417,10 +463,19 @@ function TaskRow({
                 <Clock className="h-3.5 w-3.5" /> {task.estimatedTime}
               </span>
             )}
-            {task.deliverables.length > 0 && (
+            {card.produces.length > 0 && (
               <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                <FileText className="h-3.5 w-3.5" /> {task.deliverables.length} deliverable
-                {task.deliverables.length > 1 ? 's' : ''}
+                <FileText className="h-3.5 w-3.5" /> {card.produces.length} deliverable
+                {card.produces.length > 1 ? 's' : ''}
+              </span>
+            )}
+            {card.handoff.length > 0 && (
+              <span
+                className="flex items-center gap-1"
+                style={{ color: getRoleDef(course, card.handoff[0].to)?.color }}
+                title={card.handoff.map((h) => `${h.artifact ?? 'Output'} → ${roleName(h.to)}`).join(' · ')}
+              >
+                <ArrowRight className="h-3.5 w-3.5" /> {roleName(card.handoff[0].to)}
               </span>
             )}
             {task.frameworks.slice(0, 3).map((fw) => (
@@ -452,7 +507,68 @@ function TaskRow({
       </button>
 
       {open && canOpen && (
-        <div className="border-t border-gray-200 p-4 dark:border-gray-700">{children}</div>
+        <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+          {/* The task's identity card: what it needs, what it makes, where it
+              goes. Rendered above the steps because these are the questions you
+              have *before* you start, not after. */}
+          {(card.inputs.length > 0 || card.produces.length > 0 || card.handoff.length > 0) && (
+            <div className="mb-4 grid gap-3 rounded-lg border border-line bg-panel px-3.5 py-3 sm:grid-cols-3">
+              {card.inputs.length > 0 && (
+                <CardRow icon={Inbox} label="You need first">
+                  <ul className="space-y-0.5">
+                    {card.inputs.map((i, n) => (
+                      <li key={`${i.label}-${n}`}>
+                        {i.from && (
+                          <span
+                            className="font-semibold"
+                            style={{ color: getRoleDef(course, i.from)?.color }}
+                          >
+                            {roleName(i.from)}:{' '}
+                          </span>
+                        )}
+                        {i.label}
+                      </li>
+                    ))}
+                  </ul>
+                </CardRow>
+              )}
+              {card.produces.length > 0 && (
+                <CardRow icon={FileText} label="You produce">
+                  <ul className="space-y-0.5">
+                    {/* The filenames, not a count — this is what the student
+                        actually has to create and hand in. */}
+                    {card.produces.map((d) => (
+                      <li key={d} className="break-all font-mono text-[11.5px]">
+                        {d}
+                      </li>
+                    ))}
+                  </ul>
+                </CardRow>
+              )}
+              {card.handoff.length > 0 && (
+                <CardRow icon={ArrowRight} label="Hand off to">
+                  <ul className="space-y-0.5">
+                    {card.handoff.map((h, n) => (
+                      <li key={`${h.to}-${n}`}>
+                        <span
+                          className="font-semibold"
+                          style={{ color: getRoleDef(course, h.to)?.color }}
+                        >
+                          {roleName(h.to)}
+                        </span>
+                        {h.artifact ? ` — ${h.artifact}` : ''}
+                        {/* h.note was authored on every handoff and rendered
+                            nowhere; it is the sentence that says *why*. */}
+                        <span className="text-muted"> · {h.note}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardRow>
+              )}
+            </div>
+          )}
+          {children}
+        </div>
       )}
     </div>
   );
@@ -708,7 +824,17 @@ export default function CoursePage() {
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
   // Crew progress: the Capstone Stone's stage plus professional milestones, all
   // derived from the percentages computed above — no points, no stored score.
-  const crew = deriveCrewProgress(course, member?.role ?? '', weekStats, taskStats);
+  // The final stage additionally needs the capstone document filed, because
+  // "defended" has to mean handed over rather than merely finished.
+  const savedDocs = member ? docsRepo.get(course.id, member.teamId) : null;
+  const crew = deriveCrewProgress(
+    course,
+    member?.role ?? '',
+    weekStats,
+    taskStats,
+    isCapstoneFiled(course.id, savedDocs)
+  );
+  const chain = buildDeliverableChain(course, savedDocs);
 
   // "Continue" points at real coursework. Setup weeks and home-lab-only build
   // tasks are opt-in, so an untouched Week 0 must not hold the CTA hostage —
@@ -903,7 +1029,10 @@ export default function CoursePage() {
             {/* The Capstone Stone: one object showing the whole project's state,
                 cut only by weeks that are genuinely finished. */}
             <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4 text-left">
-              <CapstoneStonePanel stage={crew.stage} />
+              <CapstoneStonePanel
+                stage={crew.stage}
+                nextPhase={phaseForWeek(course, activeWeek)}
+              />
             </div>
             <MilestoneRail milestones={crew.milestones} />
           </div>
@@ -1078,6 +1207,14 @@ export default function CoursePage() {
           {course.lifecyclePath && course.lifecyclePath.length > 0 && (
             <CaseLifecycleChain stages={course.lifecyclePath} />
           )}
+          {/* Where the roles above actually meet: what each one hands over, and
+              who is waiting on it. The lifecycle chain says how a case moves;
+              this says how the crew's paperwork moves. */}
+          <DeliverableChainDiagram
+            course={course}
+            chain={chain}
+            highlightRole={member?.role}
+          />
         </section>
       )}
 
@@ -1210,6 +1347,19 @@ export default function CoursePage() {
                 className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
               >
                 <div className="min-w-0">
+                  {/* The expedition phase, above everything. It answers "what
+                      kind of work is this week" before the title says what the
+                      work is about, and it's the one line that makes four weeks
+                      read as one arc. Tinted with the per-week phase token so
+                      each stage of the expedition has its own colour. */}
+                  {phaseForWeek(course, w.number) && (
+                    <div
+                      className="pixel mb-1 text-[9px] uppercase leading-none tracking-wider"
+                      style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
+                    >
+                      {phaseForWeek(course, w.number)}
+                    </div>
+                  )}
                   <div className="flex flex-wrap items-center gap-2">
                     {/* The week tag in the arcade face — short enough to stay
                         legible, and it makes a week read as a level. */}
@@ -1230,7 +1380,12 @@ export default function CoursePage() {
                       </span>
                     )}
                   </div>
-                  <p className="truncate text-sm text-gray-600 dark:text-gray-400">{w.theme}</p>
+                  {/* The theme only earns its line when there is no phase. With
+                      both, week 0 read "ARRIVE & EQUIP / SETUP / SETUP" — the
+                      phase already says what kind of work this is. */}
+                  {!phaseForWeek(course, w.number) && (
+                    <p className="truncate text-sm text-gray-600 dark:text-gray-400">{w.theme}</p>
+                  )}
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   {joined && (
@@ -1407,13 +1562,15 @@ export default function CoursePage() {
                   {/* Your role's tasks (interactive) */}
                   {joined && ownRole && ownTasks.length > 0 && (
                     <div
-                      className="space-y-3 rounded-lg border-l-4 bg-gray-50 p-4 dark:bg-gray-700/30"
-                      style={{ borderLeftColor: ownRole.color }}
+                      className="lane space-y-3 py-3 pr-3"
+                      data-own="true"
+                      style={{ '--lane-color': ownRole.color } as React.CSSProperties}
                     >
                       <RoleGroupHeader role={ownRole} tag="own" />
                       {ownTasks.map((task) => (
                         <TaskRow
                           key={task.id}
+                          course={course}
                           task={task}
                           isOwn
                           joined={joined}
@@ -1450,11 +1607,16 @@ export default function CoursePage() {
                             const roleTasks = otherTasks.filter((t) => t.role === r.id);
                             if (roleTasks.length === 0) return null;
                             return (
-                              <div key={r.id} className="space-y-3">
+                              <div
+                                key={r.id}
+                                className="lane space-y-3 py-3 pr-3"
+                                style={{ '--lane-color': r.color } as React.CSSProperties}
+                              >
                                 <RoleGroupHeader role={r} tag="reference" />
                                 {roleTasks.map((task) => (
                                   <TaskRow
                                     key={task.id}
+                                    course={course}
                                     task={task}
                                     isOwn={false}
                                     joined={joined}
@@ -1481,13 +1643,14 @@ export default function CoursePage() {
                       return (
                         <div
                           key={r.id}
-                          className="space-y-3 rounded-lg border-l-4 bg-gray-50 p-4 dark:bg-gray-700/30"
-                          style={{ borderLeftColor: r.color }}
+                          className="lane space-y-3 py-3 pr-3"
+                          style={{ '--lane-color': r.color } as React.CSSProperties}
                         >
                           <RoleGroupHeader role={r} />
                           {roleTasks.map((task) => (
                             <TaskRow
                               key={task.id}
+                              course={course}
                               task={task}
                               isOwn={false}
                               joined={false}

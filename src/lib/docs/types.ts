@@ -77,6 +77,17 @@ export interface DeliverableDef {
   meaning?: string; // what it means & what a good one looks like
   useIt?: string; // who receives it / what it feeds next
   pitfalls?: string[]; // common mistakes to avoid
+  /** Deliverable ids this document feeds into — the real dependency edges.
+   *
+   *  The chain was previously expressed only in the `source` / `useIt` prose
+   *  above, which reads well but no code can follow. These are the same edges
+   *  the prose already describes, written so the app can draw them. Ids must
+   *  resolve within the same course (asserted by content-integrity.test.ts). */
+  feeds?: string[];
+  /** The course's final artefact — the one that is defended rather than merely
+   *  filed. Exactly one deliverable per course carries this, and filing it is
+   *  what completes the Capstone Stone. */
+  capstone?: boolean;
   sections: Section[];
   /** Objective Definition-of-Done checks (spec §8). */
   dod?: DodCheck[];

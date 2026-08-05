@@ -133,4 +133,77 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
       expect([1, 2, 3, 4], `week ${w.number}`).toContain(w.difficulty);
     }
   });
+
+  it('every authored task difficulty is 1-4', () => {
+    for (const t of course.tasks) {
+      if (t.difficulty == null) continue;
+      expect([1, 2, 3, 4], `task ${t.id}`).toContain(t.difficulty);
+    }
+  });
+
+  // ── The expedition arc ────────────────────────────────────────────────────
+  // The stone's stage is read off these, so a gap or a repeat here is a stage
+  // that can never be cut — the exact bug the arc was authored to fix.
+
+  it('the week arc is in range and never goes backwards', () => {
+    const staged = course.weeks
+      .filter((w) => w.stage != null)
+      .sort((a, b) => a.number - b.number);
+    let previous = -1;
+    for (const w of staged) {
+      expect([0, 1, 2, 3, 4], `week ${w.number} stage`).toContain(w.stage);
+      expect(w.stage!, `week ${w.number} stage must not go backwards`).toBeGreaterThanOrEqual(
+        previous
+      );
+      previous = w.stage!;
+    }
+  });
+
+  it('no two graded weeks cut the same stage, so no stage is unreachable', () => {
+    const graded = course.weeks.filter((w) => !w.setup && w.stage != null);
+    const stages = graded.map((w) => w.stage);
+    expect(new Set(stages).size, `duplicate stages: ${stages.join(',')}`).toBe(stages.length);
+  });
+
+  it('every graded week carries a stage and a phase', () => {
+    for (const w of course.weeks) {
+      if (w.setup) continue;
+      expect(w.stage, `week ${w.number} has no stage`).not.toBeUndefined();
+      expect((w.phase ?? '').trim().length, `week ${w.number} has no phase`).toBeGreaterThan(0);
+    }
+  });
+
+  // ── The deliverable chain ─────────────────────────────────────────────────
+
+  it('exactly one deliverable is the capstone', () => {
+    const capstones = deliverablesForCourse(courseId).filter((d) => d.capstone);
+    expect(capstones.map((d) => d.id)).toHaveLength(1);
+  });
+
+  it('every `feeds` id resolves to a deliverable in the same course', () => {
+    const defs = deliverablesForCourse(courseId);
+    const ids = new Set(defs.map((d) => d.id));
+    for (const d of defs) {
+      for (const target of d.feeds ?? []) {
+        expect(ids.has(target), `${d.id} feeds unknown deliverable "${target}"`).toBe(true);
+        expect(target, `${d.id} feeds itself`).not.toBe(d.id);
+      }
+    }
+  });
+
+  it('the capstone is the end of the chain — it feeds nothing', () => {
+    const capstone = deliverablesForCourse(courseId).find((d) => d.capstone);
+    expect(capstone?.feeds ?? []).toHaveLength(0);
+  });
+
+  it('every `consumes[].from` names a real role in this course', () => {
+    const roles = new Set(course.roles.map((r) => r.id));
+    for (const t of course.tasks) {
+      for (const c of t.consumes ?? []) {
+        expect(roles.has(c.from), `task ${t.id} consumes from unknown role "${c.from}"`).toBe(true);
+        expect(c.from, `task ${t.id} consumes from its own role`).not.toBe(t.role);
+        expect(c.note.trim().length, `task ${t.id} consumes with no note`).toBeGreaterThan(0);
+      }
+    }
+  });
 });

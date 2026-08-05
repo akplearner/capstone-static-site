@@ -22,6 +22,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 1 ─────────────────────────────────────────────────────────────────────
   {
     id: 'scope_roe',
+    // Authorized scope is what every later document is bounded by.
+    feeds: ['framework_mapping', 'security_policy'],
     num: 1,
     file: '01_Scope_and_RoE.md',
     title: 'Scope & Rules of Engagement',
@@ -61,6 +63,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 2 ─────────────────────────────────────────────────────────────────────
   {
     id: 'asset_inventory',
+    // Risk is assessed per asset.
+    feeds: ['risk_register'],
     num: 2,
     file: '02_Asset_Inventory.csv',
     title: 'Asset Inventory',
@@ -107,6 +111,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 3 ─────────────────────────────────────────────────────────────────────
   {
     id: 'risk_register',
+    // Severities drive the remediation SOP and the final report.
+    feeds: ['vm_sop', 'final_report'],
     num: 3,
     file: '03_Risk_Register.csv',
     title: 'Risk Register',
@@ -156,6 +162,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 4 ─────────────────────────────────────────────────────────────────────
   {
     id: 'hardening_baseline',
+    // Applied controls lower the residual risk.
+    feeds: ['change_log', 'risk_register'],
     num: 4,
     file: '04_Hardening_Baseline.md',
     title: 'Hardening Baseline',
@@ -247,6 +255,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 6 ─────────────────────────────────────────────────────────────────────
   {
     id: 'pentest_report',
+    // Red's findings drive the risk ratings, the incident and the write-up.
+    feeds: ['risk_register', 'incident_report', 'final_report'],
     num: 6,
     file: '06_Pentest_Report.md',
     title: 'Penetration Test Report',
@@ -315,6 +325,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 7 ─────────────────────────────────────────────────────────────────────
   {
     id: 'incident_report',
+    // The live incident is what the runbook is written from.
+    feeds: ['final_report', 'ir_runbook'],
     num: 7,
     file: '07_Incident_Report.md',
     title: 'Incident Report',
@@ -394,6 +406,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 8 ─────────────────────────────────────────────────────────────────────
   {
     id: 'final_report',
+    capstone: true,
     num: 8,
     file: '08_Final_Report_and_Briefing.md',
     title: 'Final Report & Briefing',
@@ -429,6 +442,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 9 ── Framework Mapping (GRC) ───────────────────────────────────────────
   {
     id: 'framework_mapping',
+    // Control coverage informs the register.
+    feeds: ['risk_register'],
     num: 9,
     file: '09_Framework_Mapping.md',
     title: 'Framework Mapping',
@@ -471,6 +486,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 10 ── Lab Security Policy (GRC) ────────────────────────────────────────
   {
     id: 'security_policy',
+    // The standard is derived from the policy.
+    feeds: ['hardening_standard'],
     num: 10,
     file: '10_Lab_Security_Policy.md',
     title: 'Lab Security Policy',
@@ -518,6 +535,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 11 ── Hardening Standard (GRC → Blue) ──────────────────────────────────
   {
     id: 'hardening_standard',
+    // The baseline implements the standard.
+    feeds: ['hardening_baseline'],
     num: 11,
     file: '11_Hardening_Standard.md',
     title: 'Hardening Standard',
@@ -665,6 +684,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 14 ── Evidence Log / Chain of Custody (team) ───────────────────────────
   {
     id: 'evidence_log',
+    // Custody-tracked artefacts back the report's claims.
+    feeds: ['final_report'],
     num: 14,
     file: '14_Evidence_Log.csv',
     title: 'Evidence Log',

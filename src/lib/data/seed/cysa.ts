@@ -34,25 +34,35 @@ const roles: RoleDef[] = [
   },
 ];
 
+/**
+ * The expedition arc.
+ *
+ * `stage` is the cut of the Capstone Stone each week produces, and `phase` is
+ * the verb shown above the week title. The default Quarry arc is shaped for a
+ * course that builds an environment (Survey → Build → Integrate → Secure);
+ * CySA+ is a security *operations* course, so it runs its own arc — you do not
+ * "build & establish" a threat investigation. The shape is the same and it
+ * still lands on Defend; only the wording matches the actual work.
+ */
 const weeks: WeekDef[] = [
-  { number: 0, title: 'Lab & SOC build (OPTIONAL)', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
-    setup: true, difficulty: 4, flow: ['Build SOC', 'Build pods', 'Install sensors', 'Clone'],
+  { number: 0, title: 'Make camp: build the lab (optional)', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
+    setup: true, stage: 0, phase: 'Arrive & Equip', difficulty: 4, flow: ['Build SOC', 'Build pods', 'Install sensors', 'Clone'],
     milestone: 'Skip this unless you are building your own lab. Cleared when 10.10.100.100 loads and your pods are cloned.',
     plain: 'Setup week: get your bearings and your access. Like a new hire on day one — find your desk, log in, and learn who does what — before any real work starts.' },
-  { number: 1, title: 'Set up monitoring & baseline', theme: 'DEPLOY', objective: 'Get both machines reporting, then record what normal looks like.',
-    difficulty: 2, flow: ['Install sensors', 'Enroll agents', 'Prove the feed', 'Record normal'],
+  { number: 1, title: 'See everything: sensors & baseline', theme: 'DEPLOY', objective: 'Get both machines reporting, then record what normal looks like.',
+    stage: 1, phase: 'Survey & Deploy', difficulty: 2, flow: ['Install sensors', 'Enroll agents', 'Prove the feed', 'Record normal'],
     milestone: 'Both machines show Active in Agents, a fresh event from each arrives, and your baseline names 3 normal alert types.',
     plain: 'You turn on the security cameras (the agents) so the SOC can see your machines, then write down what a quiet, normal day looks like. Next week you can only spot “weird” because you wrote down “normal” now.' },
-  { number: 2, title: 'Find & investigate threats', theme: 'DETECT', objective: 'Spot suspicious activity and prove what happened.',
-    difficulty: 3, flow: ['Generate traffic', 'Triage alerts', 'Pivot on the source', 'Capture evidence'],
+  { number: 2, title: 'Prove it: hunt & evidence', theme: 'DETECT', objective: 'Spot suspicious activity and prove what happened.',
+    stage: 2, phase: 'Detect & Investigate', difficulty: 3, flow: ['Generate traffic', 'Triage alerts', 'Pivot on the source', 'Capture evidence'],
     milestone: 'You can name the attacker IP, what it did, and point at the alert and packet capture that prove it.',
     plain: 'Something looks off. This week you play detective: follow one suspicious visitor through the logs and network capture and prove exactly what they did — evidence, not a hunch.' },
-  { number: 3, title: 'Vulnerabilities & risk', theme: 'ASSESS', objective: 'Find the weak spots and say which ones matter most.',
-    difficulty: 2, flow: ['Read the CVE list', 'Run the config check', 'Scan from Kali', 'Rank by risk'],
+  { number: 3, title: 'Close the gaps: vulns & risk', theme: 'ASSESS', objective: 'Find the weak spots and say which ones matter most.',
+    stage: 3, phase: 'Assess & Harden', difficulty: 2, flow: ['Read the CVE list', 'Run the config check', 'Scan from Kali', 'Rank by risk'],
     milestone: 'Your findings are ranked by likelihood and impact, and the top item names its CVE and its fix.',
     plain: 'You check the building for unlocked doors and windows (weaknesses), then rank them — a wide-open front door matters more than a stiff window on the third floor. The output is a fix-it plan, ordered by real risk.' },
-  { number: 4, title: 'Incident response & forensics', theme: 'RESPOND', objective: 'Handle a real attack: find it, prove it, stop it, report it.',
-    difficulty: 3, flow: ['Contain', 'Build the timeline', 'Hash the evidence', 'Report & debrief'],
+  { number: 4, title: 'Hold the line: respond & report', theme: 'RESPOND', objective: 'Handle a real attack: find it, prove it, stop it, report it.',
+    stage: 4, phase: 'Respond & Defend', difficulty: 3, flow: ['Contain', 'Build the timeline', 'Hash the evidence', 'Report & debrief'],
     milestone: 'The attacker is blocked, every artifact is hashed and logged, and the incident report has a start-to-finish timeline.',
     plain: 'The real thing happens. You detect the break-in, rebuild the timeline of what the attacker touched, stop them, keep the evidence clean, and write the short report a manager actually reads.' },
 ];
@@ -113,6 +123,7 @@ const tasks: Task[] = [
   // ─────────────────────────── WEEK 0 · Lab & SOC build (builder) ───────────────────────────
   {
     id: 'cr-w0',
+    difficulty: 4,
     role: 'red',
     week: 0,
     title: 'Environment build — Wazuh SOC + team pods (set up first)',
@@ -346,6 +357,7 @@ const tasks: Task[] = [
   // instructor/builder's). No commands — just orientation so nobody starts Week 1 lost.
   {
     id: 'cb-w0',
+    difficulty: 1,
     role: 'blue',
     week: 0,
     title: 'Get oriented — Tier 1 SOC Analyst',
@@ -393,6 +405,7 @@ const tasks: Task[] = [
   },
   {
     id: 'cg-w0',
+    difficulty: 1,
     role: 'grc',
     week: 0,
     title: 'Get oriented — Tier 2 Threat Hunter',
@@ -443,6 +456,7 @@ const tasks: Task[] = [
   // ─────────────────────────── WEEK 1 · DEPLOY ───────────────────────────
   {
     id: 'cr-w1',
+    difficulty: 4,
     role: 'red',
     week: 1,
     title: 'Deploy your team\u2019s sensors & agents',
@@ -624,6 +638,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cb-w1',
+    difficulty: 2,
+    consumes: [{ from: 'red', artifact: 'Sensors + both agents deployed', note: 'You cannot confirm check-in until the Responder has deployed.' }],
     role: 'blue',
     week: 1,
     title: 'Confirm both agents check in, then write the baseline',
@@ -725,6 +741,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cg-w1',
+    difficulty: 2,
+    consumes: [{ from: 'red', artifact: 'Deployed sensors', note: 'Coverage can only be validated against what is actually deployed.' }],
     role: 'grc',
     week: 1,
     title: 'Validate coverage: agent, network & Windows',
@@ -797,6 +815,7 @@ const tasks: Task[] = [
   // ─────────────────────────── WEEK 2 · DETECT ───────────────────────────
   {
     id: 'cb-w2',
+    difficulty: 2,
     role: 'blue',
     week: 2,
     title: 'Triage the alerts',
@@ -866,6 +885,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cg-w2',
+    difficulty: 3,
+    consumes: [{ from: 'blue', artifact: 'Escalated alerts + baseline', note: 'The Analyst says which alerts are real, and what normal looked like.' }],
     role: 'grc',
     week: 2,
     title: 'Investigate & prove it',
@@ -986,6 +1007,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cr-w2',
+    difficulty: 2,
+    consumes: [{ from: 'grc', artifact: 'Findings', note: 'You index the Hunter\u2019s findings as IOC rows.' }],
     role: 'red',
     week: 2,
     title: 'Turn findings into indicators',
@@ -1065,6 +1088,7 @@ const tasks: Task[] = [
   // ─────────────────────────── WEEK 3 · ASSESS ───────────────────────────
   {
     id: 'cb-w3',
+    difficulty: 2,
     role: 'blue',
     week: 3,
     title: 'Read what the SOC already knows',
@@ -1136,6 +1160,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cg-w3',
+    difficulty: 3,
+    consumes: [{ from: 'blue', artifact: 'SOC vulnerability list', note: 'You cross-check the SOC list against your own Kali scan.' }],
     role: 'grc',
     week: 3,
     title: 'Scan from the attacker\u2019s side',
@@ -1210,6 +1236,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cr-w3',
+    difficulty: 2,
+    consumes: [{ from: 'grc', artifact: 'Confirmed vulns', note: 'You rank what the Hunter confirmed by likelihood and impact.' }],
     role: 'red',
     week: 3,
     title: 'Rank the risk & write the fix plan',
@@ -1261,6 +1289,7 @@ const tasks: Task[] = [
   // ─────────────────────────── WEEK 4 · RESPOND ───────────────────────────
   {
     id: 'cb-w4',
+    difficulty: 2,
     role: 'blue',
     week: 4,
     title: 'Find the incident',
@@ -1324,6 +1353,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cg-w4',
+    difficulty: 3,
+    consumes: [{ from: 'blue', artifact: 'Detection record', note: 'The first alert and attacker IP are where the timeline starts.' }],
     role: 'grc',
     week: 4,
     title: 'Rebuild the attack',
@@ -1402,6 +1433,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cg-w4b',
+    difficulty: 2,
+    consumes: [{ from: 'red', artifact: 'Incident report', note: 'The debrief pulls its MTTD/MTTR figures from the closed incident.' }],
     role: 'grc',
     week: 4,
     title: 'Debrief the team (capstone)',
@@ -1444,6 +1477,8 @@ const tasks: Task[] = [
   },
   {
     id: 'cr-w4',
+    difficulty: 3,
+    consumes: [{ from: 'grc', artifact: 'Timeline', note: 'You contain and report from the Hunter\u2019s rebuilt timeline.' }],
     role: 'red',
     week: 4,
     title: 'Contain, preserve & report',

@@ -23,6 +23,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 1 — SOC Monitoring Report (W1, Tier 1 SOC Analyst) ──────────────────────
   {
     id: 'cysa_soc_monitoring',
+    // The baseline is what makes a Week-2 alert readable as normal or not.
+    feeds: ['cysa_alert_triage'],
     courseId: 'cysa-plus',
     num: 1,
     file: '01_SOC_Monitoring_Report.md',
@@ -93,6 +95,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 2 — Threat Investigation Report (W2, Tier 2 Threat Hunter) ──────────────
   {
     id: 'cysa_threat_investigation',
+    // The Responder indexes the findings as IOC rows.
+    feeds: ['cysa_ioc_database'],
     courseId: 'cysa-plus',
     num: 2,
     file: '02_Threat_Investigation_Report.md',
@@ -155,6 +159,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 3 — Vulnerability Assessment (W3, Tier 3 Incident Responder) ────────────
   {
     id: 'cysa_vulnerability_assessment',
+    // The fixes feed the report; the open High/Critical count feeds the debrief.
+    feeds: ['cysa_incident_response', 'cysa_exec_debrief'],
     courseId: 'cysa-plus',
     num: 3,
     file: '03_Vulnerability_Assessment.md',
@@ -235,6 +241,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 4 — Incident Response Report (W4, Tier 3 Incident Responder) ────────────
   {
     id: 'cysa_incident_response',
+    // The debrief pulls detection and containment times for MTTD/MTTR.
+    feeds: ['cysa_exec_debrief'],
     courseId: 'cysa-plus',
     num: 4,
     file: '04_Incident_Response_Report.md',
@@ -315,6 +323,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 5 — IOC Database (Week 2, Incident Responder) ───────────────────────────
   {
     id: 'cysa_ioc_database',
+    // The techniques become the ATT&CK mapping in the incident report.
+    feeds: ['cysa_incident_response'],
     courseId: 'cysa-plus',
     num: 5,
     file: '05_IOC_Database.csv',
@@ -378,6 +388,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 6 — Coverage Validation Report (W1, Tier 2 Threat Hunter) ────────────────
   {
     id: 'cysa_coverage_validation',
+    // Coverage decides what Week-2 triage can even see. Inferred: the prose sends the gaps to a person, not a named document.
+    feeds: ['cysa_alert_triage'],
     courseId: 'cysa-plus',
     num: 6,
     file: '06_Coverage_Validation.md',
@@ -444,6 +456,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 7 — Alert Triage Report (W2, Tier 1 SOC Analyst) ────────────────────────
   {
     id: 'cysa_alert_triage',
+    // The escalated rows are the Threat Hunter's starting point.
+    feeds: ['cysa_threat_investigation'],
     courseId: 'cysa-plus',
     num: 7,
     file: '07_Alert_Triage_Report.md',
@@ -505,6 +519,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   // 8 — Detection Record (W4, Tier 1 SOC Analyst) ───────────────────────────
   {
     id: 'cysa_detection_record',
+    // Feeds the report's wrapper and the MTTD figure in the debrief.
+    feeds: ['cysa_incident_response', 'cysa_exec_debrief'],
     courseId: 'cysa-plus',
     num: 8,
     file: '08_Detection_Record.md',
@@ -558,6 +574,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
   {
     id: 'cysa_exec_debrief',
     courseId: 'cysa-plus',
+    // The course's final artefact — filing it is what completes the stone.
+    capstone: true,
     num: 9,
     file: '09_Executive_Debrief.md',
     title: 'Executive Debrief & Lessons Learned',

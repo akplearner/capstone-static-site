@@ -21,6 +21,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 1 — Engagement agreement & system boundary (P0) ─────────────────────────
   {
     id: 'mssp_engagement',
+    // Scope decides which controls are even applicable.
+    feeds: ['mssp_soa'],
     courseId: 'mssp',
     num: 1,
     file: '01_Engagement_and_Scope.md',
@@ -62,6 +64,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 2 — Statement of Applicability (P1) ─────────────────────────────────────
   {
     id: 'mssp_soa',
+    // The matrix implements the controls the SoA selected.
+    feeds: ['mssp_control_matrix'],
     courseId: 'mssp',
     num: 2,
     file: '02_Statement_of_Applicability.csv',
@@ -111,6 +115,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 3 — Control Matrix (P2) ─────────────────────────────────────────────────
   {
     id: 'mssp_control_matrix',
+    // The audit and the packet are both built from the matrix.
+    feeds: ['mssp_internal_audit', 'mssp_evidence_packet'],
     courseId: 'mssp',
     num: 3,
     file: '03_Control_Matrix.csv',
@@ -159,6 +165,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 4 — Retest & Remediation-Validation Report (P3) ─────────────────────────
   {
     id: 'mssp_retest',
+    // Retest results evidence that remediation actually worked.
+    feeds: ['mssp_internal_audit', 'mssp_evidence_packet'],
     courseId: 'mssp',
     num: 4,
     file: '04_Retest_and_Validation.md',
@@ -211,6 +219,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 5 — Detection Rules (P3) ────────────────────────────────────────────────
   {
     id: 'mssp_detection_rules',
+    // Rules produce the metrics and the operating evidence.
+    feeds: ['mssp_metrics', 'mssp_evidence_packet'],
     courseId: 'mssp',
     num: 5,
     file: '05_Detection_Rules.csv',
@@ -257,6 +267,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 6 — Detection & Response Metrics (P4) ───────────────────────────────────
   {
     id: 'mssp_metrics',
+    // Operating metrics are audit evidence that controls run.
+    feeds: ['mssp_internal_audit'],
     courseId: 'mssp',
     num: 6,
     file: '06_Detection_and_Response_Metrics.md',
@@ -296,6 +308,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   // 7 — Internal Audit Report (P4) ──────────────────────────────────────────
   {
     id: 'mssp_internal_audit',
+    // Audit findings go into the readiness packet.
+    feeds: ['mssp_evidence_packet'],
     courseId: 'mssp',
     num: 7,
     file: '07_Internal_Audit_Report.md',
@@ -350,6 +364,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   {
     id: 'mssp_evidence_packet',
     courseId: 'mssp',
+    capstone: true,
     num: 8,
     file: '08_Audit_Evidence_Packet.csv',
     title: 'Audit Evidence Packet',

@@ -177,12 +177,18 @@ export function CapstoneStone({
  */
 export function CapstoneStonePanel({
   stage,
+  nextPhase,
   className,
 }: {
   stage: StoneStage;
+  /** The expedition phase the student is working through now — what the week
+   *  they're in will actually earn. Without it the stone says where you've been
+   *  but never where you're going. */
+  nextPhase?: string | null;
   className?: string;
 }) {
   const def = stoneStage(stage);
+  const next = stage < 5 ? stoneStage((stage + 1) as StoneStage) : null;
 
   return (
     <div className={className}>
@@ -193,6 +199,12 @@ export function CapstoneStonePanel({
             {def.name}
           </div>
           <p className="mt-1.5 text-sm text-muted">{def.means}</p>
+          {next && (
+            <p className="mt-1 text-xs text-muted">
+              <span className="font-semibold text-ink">Next cut:</span> {next.name}
+              {nextPhase ? ` — ${nextPhase}` : ''}
+            </p>
+          )}
 
           {/* The arc. Cut stages are solid; the rest are outlines waiting. */}
           <div className="mt-3 flex flex-wrap items-center gap-1">

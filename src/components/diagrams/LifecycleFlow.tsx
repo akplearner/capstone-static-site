@@ -142,8 +142,13 @@ export function LifecycleFlow({
               <text x={cx} y={y + 22} textAnchor="middle" fontSize="11" fontWeight="700" className="fill-blue-600 dark:fill-blue-400">
                 {engagement && w.runs ? w.runs.toUpperCase() : `WEEK ${w.number}`}
               </text>
+              {/* The expedition phase, not the title: this is a fixed-width SVG
+                  column, and a phase verb is written to be short whereas a week
+                  title is written to be descriptive and would only ever clip.
+                  The full title stays reachable as the node's tooltip. */}
               <text x={cx} y={y + 40} textAnchor="middle" fontSize="12" fontWeight="600" className="fill-gray-900 dark:fill-white">
-                {truncate(w.title, 18)}
+                <title>{w.title}</title>
+                {truncate(w.phase ?? w.title, 18)}
               </text>
               {!noGatekeeping && (
                 <text x={cx} y={y + 56} textAnchor="middle" fontSize="10" className="fill-gray-500 dark:fill-gray-400">

@@ -21,8 +21,8 @@ export function RoleSupportFlow({ course, highlightRole }: { course: Course; hig
         const gate = course.gates.find((g) => g.week === w);
         const handoffs = gate?.handoffs ?? [];
         return (
-          <div key={w} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-            <div className="text-sm font-semibold text-gray-900 dark:text-white">{phaseTitle(course, w)}</div>
+          <div key={w} className="rounded-lg border border-line bg-panel p-4">
+            <div className="text-sm font-semibold text-ink">{phaseTitle(course, w)}</div>
 
             {/* One card per role: their task + the evidence they produce. */}
             <div className="mt-3 grid gap-3 sm:grid-cols-3">
@@ -33,26 +33,26 @@ export function RoleSupportFlow({ course, highlightRole }: { course: Course; hig
                 return (
                   <div
                     key={role.id}
-                    className={`rounded-md border-l-4 bg-gray-50 p-3 dark:bg-gray-900/40 ${dim ? 'opacity-50' : ''}`}
-                    style={{ borderLeftColor: role.color }}
+                    className={`lane rounded-md py-2.5 pr-3 ${dim ? 'opacity-50' : ''}`}
+                    style={{ '--lane-color': role.color } as React.CSSProperties}
                   >
                     <div className="text-sm font-semibold" style={{ color: role.color }}>
                       {role.name}
                     </div>
                     {tasks.length > 0 ? (
-                      <ul className="mt-1 space-y-0.5 text-sm text-gray-700 dark:text-gray-300">
+                      <ul className="mt-1 space-y-0.5 text-sm text-ink">
                         {tasks.map((t) => (
                           <li key={t.id}>{t.title}</li>
                         ))}
                       </ul>
                     ) : (
-                      <div className="mt-1 text-sm italic text-gray-400 dark:text-gray-500">— nothing this week</div>
+                      <div className="mt-1 text-sm italic text-muted">— nothing this week</div>
                     )}
                     {produces.length > 0 && (
                       <div className="mt-2 space-y-0.5">
                         {produces.map((d) => (
-                          <div key={d} className="flex items-start gap-1 text-xs text-gray-500 dark:text-gray-400">
-                            <FileText className="mt-0.5 h-3 w-3 shrink-0 text-amber-500" />
+                          <div key={d} className="flex items-start gap-1 text-xs text-muted">
+                            <FileText className="mt-0.5 h-3 w-3 shrink-0 text-accent" />
                             <span className="break-all">{d}</span>
                           </div>
                         ))}
@@ -65,8 +65,8 @@ export function RoleSupportFlow({ course, highlightRole }: { course: Course; hig
 
             {/* How the roles support each other this week (the gate hand-offs). */}
             {handoffs.length > 0 && (
-              <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-700/60">
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="mt-3 border-t border-line pt-3">
+                <div className="font-mono text-[10px] font-semibold uppercase tracking-wide text-muted">
                   How the team supports each other this week
                 </div>
                 <ul className="mt-1.5 space-y-1.5">
@@ -78,16 +78,16 @@ export function RoleSupportFlow({ course, highlightRole }: { course: Course; hig
                         <span className="font-semibold" style={{ color: from?.color }}>
                           {from?.name ?? h.from}
                         </span>
-                        <ArrowRight className="h-3.5 w-3.5 text-gray-400" />
+                        <ArrowRight className="h-3.5 w-3.5 text-muted" />
                         <span className="font-semibold" style={{ color: to?.color }}>
                           {to?.name ?? h.to}
                         </span>
                         {h.artifact && (
-                          <span className="rounded bg-white px-1.5 py-0.5 font-mono text-[11px] text-gray-600 ring-1 ring-gray-200 dark:bg-gray-800 dark:text-gray-300 dark:ring-gray-700">
+                          <span className="rounded bg-panel-2 px-1.5 py-0.5 font-mono text-[11px] text-ink ring-1 ring-line">
                             {h.artifact}
                           </span>
                         )}
-                        <span className="text-gray-500 dark:text-gray-400">— {h.label}</span>
+                        <span className="text-muted">— {h.label}</span>
                       </li>
                     );
                   })}
