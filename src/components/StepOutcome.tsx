@@ -15,7 +15,7 @@ import type { Step } from '@/lib/types';
  * dark terminal chrome as the command block — same palette, same highlighter,
  * same Copy button in the same corner — so it read as *another thing to paste*.
  * It was also wrong most of the time: the majority of authored `expectedOutput`
- * is an English sentence describing a result ("Both agents show Active"), not
+ * is an English sentence describing a result ("Your agent shows Active"), not
  * captured console text, and a sentence in green monospace with a blinking
  * caret is just noise.
  *

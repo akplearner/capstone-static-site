@@ -42,7 +42,7 @@ export const GLOSSARY: Record<string, string> = {
   'agent.name': 'The Wazuh field naming which machine an alert came from (e.g. Team07-ubuntu) — use it to filter to one host.',
   'event channel': 'A named Windows log stream — Sysmon writes to Microsoft-Windows-Sysmon/Operational, which the agent forwards.',
   'Emerging Threats ruleset': "The community alert rules Suricata downloads with suricata-update — without them it sees traffic but raises nothing.",
-  DQL: 'Dashboard Query Language — the field:value search syntax in the Wazuh/OpenSearch search bar (e.g. data.src_ip:10.10.100.66).',
+  DQL: 'Dashboard Query Language — the field:value search syntax in the Wazuh/OpenSearch search bar (e.g. data.src_ip:10.10.30.7).',
   Discover: 'The Wazuh/OpenSearch view that lists raw events in a table you can search, add columns to, and save.',
   'time picker': 'The date/time control (top-right) that sets which window of events you see — the #1 reason a correct search looks empty.',
   visualization: 'A saved chart (bar, pie, table) built from a search — the building block you drop onto a dashboard.',

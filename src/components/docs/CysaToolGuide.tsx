@@ -28,7 +28,7 @@ const FILTER_FIELDS = 'rule.level · rule.groups · rule.description · data.src
 const DASHBOARD_HOWTO: HowTo[] = [
   { action: 'Open the alerts', how: 'Left menu → Security events → Events sub-tab (raw rows) or Dashboard sub-tab (charts + counts).', ref: { label: 'Wazuh dashboard', href: 'https://documentation.wazuh.com/current/user-manual/wazuh-dashboard/index.html' } },
   { action: 'Set the time range', how: 'Time picker, top-right → e.g. Last 24 hours, or Absolute for an exact attack window. #1 reason a query looks empty.' },
-  { action: 'Search (DQL)', how: 'Search bar → field:value, e.g. data.src_ip:10.10.100.66; combine with and / or. Enter to apply.', ref: { label: 'Query language (DQL)', href: 'https://documentation.wazuh.com/current/user-manual/wazuh-dashboard/queries.html' } },
+  { action: 'Search (DQL)', how: 'Search bar → field:value, e.g. data.src_ip:10.10.30.7; combine with and / or. Enter to apply.', ref: { label: 'Query language (DQL)', href: 'https://documentation.wazuh.com/current/user-manual/wazuh-dashboard/queries.html' } },
   { action: 'Add columns', how: 'In Events, hover a field in the left field list → click the + (Add). Now it is a column you can sort.' },
   { action: 'Save a search', how: 'Top bar → Save → name it (e.g. "Team07 attacker") → reopen from Open.' },
   { action: 'Visualize a field', how: 'Expand a field in the list → Visualize → pick a chart (bar/pie). Save it to reuse.', ref: { label: 'Create a visualization', href: 'https://opensearch.org/docs/latest/dashboards/visualize/viz-index/' } },
@@ -61,7 +61,7 @@ const PANELS: Panel[] = [
       { k: 'rule.level:>=7', v: 'Cut to alerts that usually matter (levels run 0–15; higher = more severe).' },
       { k: 'rule.level:>=10', v: 'Just the high-severity alerts — where an incident shows up.' },
       { k: 'data.srcip:<ip> or data.src_ip:<ip>', v: 'Everything one source did. Auth logs use data.srcip; Suricata uses data.src_ip — search both.' },
-      { k: 'agent.name:<Team07-ubuntu>', v: 'Limit to one machine when both agents are noisy.' },
+      { k: 'agent.name:Team07-ubuntu', v: 'Limit the view to one machine when several agents are noisy.' },
       { k: 'sort by Time', v: 'Order the events to read an attack as a sequence.' },
       { k: 'Connected to the server', v: 'The ossec.log line that proves an agent is talking to the SOC.' },
     ],
@@ -100,7 +100,7 @@ const PANELS: Panel[] = [
     where: 'your Windows 11 PC',
     what: 'Rich Windows telemetry — process starts, network connections and file changes that the built-in Windows log does not capture.',
     config:
-      'Install with a config or it logs almost nothing: sysmon -accepteula -i sysmonconfig.xml (the SwiftOnSecurity config is a sane default). Sysmon writes to the Microsoft-Windows-Sysmon/Operational event channel, and the Wazuh agent’s <localfile> eventchannel block forwards it to the SOC.',
+      'Install with a config or it logs almost nothing: .\\Sysmon64.exe -accepteula -i .\\sysmonconfig.xml (the SwiftOnSecurity config is a sane default). Sysmon writes to the Microsoft-Windows-Sysmon/Operational event channel, and the Wazuh agent’s <localfile> eventchannel block forwards it to the SOC.',
     rowsTitle: 'Event IDs you’ll see',
     rows: [
       { k: 'Event ID 1', v: 'Process created — what ran, with its full command line.' },

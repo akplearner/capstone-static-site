@@ -70,6 +70,12 @@ export interface Step {
   description: string;
   /** Explicit, action-oriented instruction ("Do this") shown above the command. */
   instruction?: string;
+  /** The instruction as discrete actions, rendered as a numbered list. Prefer this
+   *  over a long `instruction` whenever the prose is really a sequence or a set of
+   *  sources/criteria — a 100-word paragraph in a half-width column is the single
+   *  biggest readability problem a step can have. When both are set, `instruction`
+   *  is the one-line lead and this is the breakdown under it. */
+  instructionList?: string[];
   command?: string;
   /** Structured multi-statement command: one entry per shell statement, each with
    *  its own plain-English explanation and optional per-flag breakdown. When set, the
@@ -96,6 +102,10 @@ export interface Step {
   usesForm?: string;
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
+  /** Several independent failure modes, each with its own fix. Prefer this over a
+   *  `troubleshooting` paragraph that packs three symptoms into one run-on: a
+   *  student scanning for their symptom needs to find it, not read a paragraph. */
+  fixes?: { symptom: string; fix: string }[];
   /** Substrings that should appear in the student's REAL command output. When set
    *  (and the step has a command), the UI shows a "paste your output to verify" box
    *  that turns the step green only when every token is present — real-tool

@@ -24,7 +24,7 @@ export const GENERIC_VERIFY_LABEL =
  * a sentence the author wrote describing the result.
  *
  * Multi-line content is something that was captured. A single line is almost
- * always a summary ("Both agents show Active with a recent check-in") — and
+ * always a summary ("Your agent shows Active with a recent check-in") — and
  * wrapping that in green monospace with a copy button was the original problem.
  * `Step.outputKind` overrides this when the guess is wrong.
  */

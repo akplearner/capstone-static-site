@@ -60,7 +60,7 @@ const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
       works: 'both',
       arc: 'Wk1 stand up monitoring & baseline → Wk2 triage the alerts → Wk3 read the known vulnerabilities → Wk4 find the incident and mark its start.',
       handsOffTo: 'the Threat Hunter (the alerts worth investigating)',
-      waitsOnFrom: 'the Incident Responder (both agents deployed)',
+      waitsOnFrom: 'nobody \u2014 you install and verify your own Ubuntu sensor',
     },
     grc: {
       blurb: 'Tier 2 · Threat Hunter — you dig into the suspicious activity in logs and packets and prove what actually happened.',

@@ -40,11 +40,11 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     purpose:
       'Prove monitoring is live and record what "normal" looks like. Next week you can only spot "weird" if you wrote down "normal" this week.',
     howTo:
-      'Attach the screenshot showing both agents Active, fill in the baseline fields, then list at least three alert types that fire routinely with a rough count.',
+      'Attach the screenshot showing your agent Active, fill in the baseline fields, then list at least three alert types that fire routinely with a rough count.',
     source: 'Your own host agent + your dashboard review.',
     buildSteps: [
-      'Agents view → screenshot both Team<#>-ubuntu and Team<#>-win showing Active → attach as the baseline evidence.',
-      'Security events › Dashboard sub-tab → read "Top 5 rule groups" for the routine alert types.',
+      'Agents view → screenshot your Team<#>-ubuntu agent showing Active → attach as the baseline evidence.',
+      'Security events › Dashboard sub-tab → add rule.description as a column (or open a row and toggle it in) to read the routine alert types by name.',
       'Alerts evolution graph → hover a bar, or take the 24-hour total ÷ 24, for a rough events/hour.',
       'Add at least three routine alert types with their level and rough rate (copy the example rows and edit).',
     ],
@@ -60,9 +60,10 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         kind: 'fields',
         title: 'Baseline',
         fields: [
-          { field: 'agents_active', label: 'Both agents Active (screenshot)', type: 'fileref', required: true, placeholder: '20260724_Team07_agents_active.png', help: 'Agents view showing Team<#>-ubuntu and Team<#>-win both Active with a recent check-in.' },
-          { field: 'events_per_hour', label: 'Rough events per hour', type: 'text', placeholder: '~400/hr on Ubuntu, ~120/hr on Windows' },
-          { field: 'services', label: 'Services running / data sources', type: 'area', placeholder: 'Apache, MariaDB, SSH on Ubuntu; Sysmon on Windows; Suricata alerts arriving.' },
+          { field: 'agents_active', label: 'Your agent Active (screenshot)', type: 'fileref', required: true, placeholder: '20260722_Team07_agent_active.png', help: 'Agents view showing your Team<#>-ubuntu agent Active with a recent check-in.' },
+          { field: 'alerts_evolution', label: 'Alerts-evolution graph (screenshot)', type: 'fileref', placeholder: '20260722_Team07_alerts_evolution.png', help: 'Your dated proof of what normal looked like. Once an attack runs you cannot go back and capture this.' },
+          { field: 'events_per_hour', label: 'Rough events per hour', type: 'text', placeholder: '~400/hr on Ubuntu' },
+          { field: 'services', label: 'Services running / data sources', type: 'area', placeholder: 'Apache, MariaDB and SSH on Ubuntu; Suricata network alerts arriving.' },
         ],
       },
       {
@@ -81,14 +82,14 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           seed: [
             { alert_type: 'sshd authentication success', level: '3', per_hour: '~20/hr', screenshot: '20260724_Team07_ssh_auth.png', notes: 'expected — the student login' },
             { alert_type: 'Apache 200/304 web access', level: '3', per_hour: '~150/hr', screenshot: '20260724_Team07_apache.png', notes: 'normal DVWA browsing' },
-            { alert_type: 'Sysmon process create', level: '3', per_hour: '~60/hr', screenshot: '20260724_Team07_sysmon.png', notes: 'routine Windows processes' },
+            { alert_type: 'sudo command executed', level: '3', per_hour: '~10/hr', screenshot: '', notes: 'expected — your own admin commands' },
           ],
         },
       },
     ],
     dod: [
-      { label: 'Both-agents-Active screenshot attached', test: (d) => !!d.fields.agents_active },
-      { label: 'At least three routine alert types, each with a screenshot', test: (d) => (d.groups.baseline ?? []).filter((r) => !!r.alert_type && !!r.screenshot).length >= 3 },
+      { label: 'Agent-Active screenshot attached', test: (d) => !!d.fields.agents_active },
+      { label: 'At least three routine alert types, each with a rough rate', test: (d) => (d.groups.baseline ?? []).filter((r) => !!r.alert_type && !!r.per_hour).length >= 3 },
     ],
   },
 
@@ -133,8 +134,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         kind: 'fields',
         title: 'Investigation',
         fields: [
-          { field: 'suspicious_ip', label: 'Suspicious source IP', type: 'text', required: true, placeholder: '10.10.100.66' },
-          { field: 'search_query', label: 'Dashboard search you ran', type: 'text', placeholder: 'data.srcip:10.10.100.66' },
+          { field: 'suspicious_ip', label: 'Suspicious source IP', type: 'text', required: true, placeholder: '10.10.30.7' },
+          { field: 'search_query', label: 'Dashboard search you ran', type: 'text', placeholder: 'data.srcip:10.10.30.7' },
           { field: 'grouped_alerts', label: 'Grouped alerts (screenshot)', type: 'fileref', placeholder: '20260725_Team07_grouped_alerts.png' },
           { field: 'ports_or_urls', label: 'How many ports / URLs the source hit', type: 'text', placeholder: '900 ports in 40s (port scan)' },
           { field: 'pcap_file', label: 'Capture filename', type: 'text', placeholder: 'week2.pcap' },
@@ -279,9 +280,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         title: 'Incident wrapper',
         fields: [
           { field: 'first_alert', label: 'First alert (screenshot)', type: 'fileref', placeholder: '20260731_Team07_first_alert.png', help: 'The earliest related alert — this timestamp is your incident start.' },
-          { field: 'attacker_ip', label: 'Attacker IP', type: 'text', required: true, placeholder: '10.10.100.66' },
-          { field: 'access_log_line', label: 'Malicious request (from access.log)', type: 'area', placeholder: "10.10.100.66 - - [31/Jul/2026:14:22:07] \"GET /vulnerabilities/sqli/?id=1' UNION SELECT ...\"" },
-          { field: 'containment', label: 'Containment (what you did)', type: 'area', placeholder: 'ufw deny from 10.10.100.66; stopped apache2.' },
+          { field: 'attacker_ip', label: 'Attacker IP', type: 'text', required: true, placeholder: '10.10.30.7' },
+          { field: 'access_log_line', label: 'Malicious request (from access.log)', type: 'area', placeholder: "10.10.30.7 - - [31/Jul/2026:14:22:07] \"GET /vulnerabilities/sqli/?id=1' UNION SELECT ...\"" },
+          { field: 'containment', label: 'Containment (what you did)', type: 'area', placeholder: 'ufw deny from 10.10.30.7; stopped apache2.' },
           { field: 'containment_time', label: 'Containment time', type: 'text', placeholder: '2026-07-31 14:41' },
           { field: 'root_cause', label: 'Root cause', type: 'area', placeholder: 'DVWA security set to Low allowed unsanitised input on the sqli page.' },
           { field: 'exec_summary', label: 'Executive summary (5 sentences)', type: 'area', required: true, placeholder: 'What happened, what was hit, what you did, the impact, what you need.', help: 'Five sentences a manager can act on. Someone outside your team should be able to read it and explain the incident back to you.' },
@@ -364,7 +365,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           help: 'At least five rows, each traceable to a specific alert or packet.',
           columns: [
             c('type', 'Type', 'select', { options: ['IP', 'Domain', 'URL', 'Hash', 'User-Agent', 'Other'] }),
-            c('value', 'Value', 'text', { placeholder: '10.10.100.66' }),
+            c('value', 'Value', 'text', { placeholder: '10.10.30.7' }),
             c('first_seen', 'Where first seen', 'text', { placeholder: 'Suricata alert / week2.pcap' }),
             c('timestamp', 'Timestamp', 'text', { placeholder: '2026-07-25 14:22' }),
             c('source', 'Intel source', 'text', { placeholder: 'AbuseIPDB / VirusTotal' }),
@@ -372,7 +373,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
             c('attack', 'ATT&CK technique', 'text', { placeholder: 'T1190 Exploit Public-Facing App' }),
           ],
           seed: [
-            { type: 'IP', value: '10.10.100.66', first_seen: 'Suricata port-scan alert', timestamp: '2026-07-25 14:20', source: 'lab attacker', verdict: 'Malicious', attack: 'T1046 Network Service Discovery' },
+            { type: 'IP', value: '10.10.30.7', first_seen: 'Suricata port-scan alert', timestamp: '2026-07-25 14:20', source: 'lab attacker', verdict: 'Malicious', attack: 'T1046 Network Service Discovery' },
             { type: 'URL', value: "/vulnerabilities/sqli/?id=1' UNION SELECT", first_seen: 'Apache access.log', timestamp: '2026-07-25 14:22', source: 'OWASP A03', verdict: 'Malicious', attack: 'T1190 Exploit Public-Facing App' },
             { type: 'Hash', value: 'sha256 of shell.php', first_seen: 'FIM / Integrity monitoring', timestamp: '2026-07-25 14:31', source: 'VirusTotal', verdict: 'Suspicious', attack: 'T1505.003 Web Shell' },
           ],
@@ -495,7 +496,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           label: 'Alerts triaged',
           help: 'A verdict with a one-line reason beats a long list with none. Escalate what needs deeper investigation.',
           columns: [
-            c('alert', 'Alert', 'text', { placeholder: 'Multiple failed logins from 10.10.100.66' }),
+            c('alert', 'Alert', 'text', { placeholder: 'Multiple failed logins from 10.10.30.7' }),
             c('count', 'Count / severity', 'text', { placeholder: '48 in 2 min · high' }),
             c('verdict', 'Verdict', 'select', { options: ['True positive', 'False positive', 'Needs review'] }),
             c('reason', 'Reason', 'text', { placeholder: 'Brute force — far above the baseline of ~2/hour' }),
@@ -503,7 +504,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
             c('evidence', 'Evidence (screenshot)', 'text', { placeholder: '20260725_Team07_bruteforce.png' }),
           ],
           seed: [
-            { alert: 'Multiple failed logins from 10.10.100.66', count: '48 in 2 min · high', verdict: 'True positive', reason: 'Brute force — well above baseline', escalated: 'Yes', evidence: '20260725_Team07_bruteforce.png' },
+            { alert: 'Multiple failed logins from 10.10.30.7', count: '48 in 2 min · high', verdict: 'True positive', reason: 'Brute force — well above baseline', escalated: 'Yes', evidence: '20260725_Team07_bruteforce.png' },
             { alert: 'Package manager ran overnight', count: '1 · low', verdict: 'False positive', reason: 'Scheduled apt update — expected', escalated: 'No', evidence: '' },
           ],
         },
@@ -557,7 +558,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         fields: [
           { field: 'first_alert', label: 'First related alert (screenshot)', type: 'fileref', placeholder: '20260731_Team07_first_alert.png' },
           { field: 'first_alert_time', label: 'First alert time (incident start)', type: 'text', required: true, placeholder: '2026-07-31 14:22' },
-          { field: 'attacker_ip', label: 'Attacker IP', type: 'text', required: true, placeholder: '10.10.100.66' },
+          { field: 'attacker_ip', label: 'Attacker IP', type: 'text', required: true, placeholder: '10.10.30.7' },
           { field: 'what_tipped', label: 'What tipped you off', type: 'area', placeholder: 'A spike of SQLi alerts on the web pod, far above baseline.' },
           { field: 'affected_hosts', label: 'Hosts affected (initial scope)', type: 'text', placeholder: 'Ubuntu pod 10.10.100.7 (web + DB)' },
           { field: 'escalated_to', label: 'Escalated to', type: 'text', placeholder: 'Threat Hunter (Tier 2) at 14:30' },

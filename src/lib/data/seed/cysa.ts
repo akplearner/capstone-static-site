@@ -46,13 +46,13 @@ const roles: RoleDef[] = [
  */
 const weeks: WeekDef[] = [
   { number: 0, title: 'Lab setup: build the environment (optional)', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
-    setup: true, stage: 0, phase: 'Lab Setup', difficulty: 4, flow: ['Build SOC', 'Build pods', 'Install sensors', 'Clone'],
+    setup: true, stage: 0, phase: 'Lab Setup', difficulty: 4, flow: ['Build SOC', 'Build pods', 'Clone', 'Hand out access'],
     milestone: 'Skip this unless you are building your own lab. Cleared when 10.10.100.100 loads and your pods are cloned.',
     plain: 'Setup week: get your bearings and your access. Like a new hire on day one — find your desk, log in, and learn who does what — before any real work starts.' },
-  { number: 1, title: 'See everything: sensors & baseline', theme: 'DEPLOY', objective: 'Get both machines reporting, then record what normal looks like.',
-    stage: 1, phase: 'Deploy & Baseline', difficulty: 2, flow: ['Install sensors', 'Enroll agents', 'Prove the feed', 'Record normal'],
-    milestone: 'Both machines show Active in Agents, a fresh event from each arrives, and your baseline names 3 normal alert types.',
-    plain: 'You turn on the security cameras (the agents) so the SOC can see your machines, then write down what a quiet, normal day looks like. Next week you can only spot “weird” because you wrote down “normal” now.' },
+  { number: 1, title: 'See everything: sensors & baseline', theme: 'DEPLOY', objective: 'Install the sensor you own, prove its events reach the SOC, then record what normal looks like.',
+    stage: 1, phase: 'Deploy & Baseline', difficulty: 2, flow: ['Install your sensor', 'Enrol with the SOC', 'Prove the feed', 'Record normal'],
+    milestone: 'The sensor you own is Active in the SOC, a fresh event from it arrives, and your Week-1 report is filled in.',
+    plain: 'You turn on the security camera you are responsible for so the SOC can see it, then write down what a quiet, normal day looks like. Next week you can only spot “weird” because you wrote down “normal” now.' },
   { number: 2, title: 'Prove it: hunt & evidence', theme: 'DETECT', objective: 'Spot suspicious activity and prove what happened.',
     stage: 2, phase: 'Detect & Investigate', difficulty: 3, flow: ['Generate traffic', 'Triage alerts', 'Pivot on the source', 'Capture evidence'],
     milestone: 'You can name the attacker IP, what it did, and point at the alert and packet capture that prove it.',
@@ -72,12 +72,12 @@ const gates: Gate[] = [
     id: 1,
     week: 1,
     title: 'Monitoring live',
-    description: 'Both agents report to the SOC, the team has written its baseline of "normal", and coverage is validated.',
+    description: 'Each role’s own sensor reports to the SOC, the baseline of "normal" is written, and coverage is validated.',
     requiredArtifactTypes: ['01_SOC_Monitoring_Report.md', '06_Coverage_Validation.md'],
     requiredTasks: ['cr-w1', 'cb-w1', 'cg-w1'],
     handoffs: [
-      { from: 'red', to: 'blue', artifact: 'Agents deployed', label: 'Responder → Analyst: both agents Active' },
-      { from: 'blue', to: 'grc', artifact: 'Baseline', label: 'Analyst → Hunter: what normal looks like' },
+      { from: 'red', to: 'blue', artifact: 'Windows lane live', label: 'Optional: compare the Windows and Ubuntu feeds' },
+      { from: 'blue', to: 'grc', artifact: 'Baseline', label: 'Optional: share what normal looks like' },
     ],
   },
   {
@@ -224,11 +224,11 @@ $ sudo ss -lntp | grep -E '1514|1515|55000|443'
 LISTEN 0  128  0.0.0.0:1514   0.0.0.0:*  users:(("wazuh-remoted"))
 LISTEN 0  128  0.0.0.0:1515   0.0.0.0:*  users:(("wazuh-authd"))
 LISTEN 0  128  0.0.0.0:443    0.0.0.0:*  users:(("node"))
-LISTEN 0  128  127.0.0.1:55000 0.0.0.0:* users:(("wazuh-apid"))`,
+LISTEN 0  128  0.0.0.0:55000   0.0.0.0:* users:(("wazuh-apid"))`,
         outputHighlights: [
           { text: 'active (running)', label: 'all three core services must read this. Any one showing "failed" means the SOC is not fully up, and student agents will fail to connect against it later.' },
           { text: '0.0.0.0:1514', label: 'the agent-data port, listening on all interfaces. If it is missing here, no machine can send logs in — the single most common reason an agent never appears.' },
-          { text: '127.0.0.1:55000', label: 'the manager API, correctly bound to localhost only. It should NOT be 0.0.0.0 — that would expose the API to the whole network.' },
+          { text: '0.0.0.0:55000', label: 'the manager API. Wazuh binds this on all interfaces by default, so this is expected \u2014 it is why the SOC lives on an isolated lab network rather than the open internet.' },
         ],
         verify: ['active (running)'],
         frameworks: ['NIST_CSF'],
@@ -353,7 +353,7 @@ $ sudo systemctl status suricata --no-pager
           { name: 'sysmonconfig.xml', purpose: 'a sane default config — Sysmon logs almost nothing without one', source: 'https://github.com/SwiftOnSecurity/sysmon-config' },
           { name: 'ossec.conf (agent)', purpose: 'add the Sysmon <localfile> block so events reach the SOC', source: 'C:\\Program Files (x86)\\ossec-agent\\ossec.conf' },
         ],
-        troubleshooting: 'No Sysmon events at the SOC? Install with the config (`sysmon -accepteula -i sysmonconfig.xml`), confirm the “Sysmon” service is running, and make sure the <localfile> block was added to ossec.conf and the Wazuh agent restarted.',
+        troubleshooting: 'No Sysmon events at the SOC? Install with the config (`.\\Sysmon64.exe -accepteula -i sysmonconfig.xml`), confirm the “Sysmon” service is running, and make sure the <localfile> block was added to ossec.conf and the Wazuh agent restarted.',
         frameworks: ['NIST_CSF'],
         optional: true,
       },
@@ -363,7 +363,7 @@ $ sudo systemctl status suricata --no-pager
         path: ['kali', 'attacks', 'ubuntu', 'alerts', 'soc'],
         title: 'Clone both pods ×16 and prep the attacks',
         description: 'One pod per team, plus the Week 3/4 attacks staged on Kali.',
-        instruction: 'On Proxmox, set each clone\u2019s IP to its team number (Team 7 Ubuntu = 10.10.100.7, Windows = 10.10.20.7). On Kali, stage the recon + incident.',
+        instruction: 'On Proxmox, set each clone\u2019s IP to its team number (Team 7 Ubuntu = 10.10.100.7, Windows = 10.10.20.7, Kali = 10.10.30.7). On Kali, stage the recon + incident.',
         commands: [
           { cmd: 'nmap -sV -p- 10.10.100.<#>', explain: 'Week 3 — the noisy scan students should detect.' },
           { cmd: 'nikto -h http://10.10.100.<#>', explain: 'Week 3 — web recon.' },
@@ -480,19 +480,19 @@ $ sudo systemctl status suricata --no-pager
   // ─────────────────────────── WEEK 1 · DEPLOY ───────────────────────────
   {
     id: 'cr-w1',
-    difficulty: 4,
+    difficulty: 3,
     role: 'red',
     week: 1,
-    title: 'Deploy your team\u2019s sensors & agents',
-    objective: 'Install Suricata + the Wazuh agent on your Ubuntu server and Sysmon + the Wazuh agent on your Windows PC — all reporting to the SOC at 10.10.100.100.',
+    title: 'Deploy the Windows endpoint sensor',
+    objective: 'Install Sysmon + the Wazuh agent on your Windows PC so its process and network activity reaches the SOC at 10.10.100.100.',
     frameworks: ['NIST_CSF'],
-    deliverables: ['Agent deployment report'],
-    prerequisites: ['The SOC is up at https://10.10.100.100 (sign in: student / @Pass@2026)', 'Your Ubuntu server and Windows PC already exist (DVWA + the OS were set up for you)', 'You can SSH into your Ubuntu pod as the `student` user', 'Your team\u2019s pod IPs (set them in the Lab access panel)'],
-    estimatedTime: '90 min',
-    learn: ['Suricata (network IDS)', 'Wazuh agent deployment', 'Sysmon (Windows telemetry)', 'pointing sensors at the SOC'],
-    tools: ['Suricata', 'Wazuh agent', 'Sysmon'],
-    definitionOfDone: ['Suricata is active on Ubuntu', 'The Wazuh agent is Active on both Ubuntu and Windows', 'Both agents point to 10.10.100.100'],
-    handoff: [{ to: 'blue', artifact: 'Agent names + manager IP', note: 'Optional: share your agent names so a teammate can cross-check coverage — each role verifies its own lane independently.' }],
+    deliverables: ['06_Coverage_Validation.md'],
+    prerequisites: ['The SOC is up at https://10.10.100.100 (sign in: student / @Pass@2026)', 'Your Windows 11 PC already exists (the OS was set up for you)', 'You can sign in to Windows as an administrator', 'Your pod IPs (set them in the Lab access panel)'],
+    estimatedTime: '60 min',
+    learn: ['Sysmon (Windows telemetry)', 'Wazuh agent deployment', 'pointing a sensor at the SOC'],
+    tools: ['Sysmon', 'Wazuh agent'],
+    definitionOfDone: ['Sysmon is Running on Windows', 'The Wazuh agent is Active on Windows and points to 10.10.100.100', 'Sysmon events appear in the SOC for your Windows agent'],
+    handoff: [{ to: 'grc', artifact: 'Windows agent name', note: 'Optional: share your Windows agent name so a teammate can cross-check coverage \u2014 each role verifies its own lane independently.' }],
     steps: [
       {
         id: 'cr-w1-s1',
@@ -518,102 +518,6 @@ $ sudo systemctl status suricata --no-pager
         },
         optional: true,
         frameworks: ['NIST_CSF'],
-      },
-      {
-        id: 'cr-w1-s2',
-        where: 'Your Ubuntu server — SSH in',
-        path: ['you', 'ssh + install', 'ubuntu', 'watches network', 'soc'],
-        title: 'Install Suricata on your Ubuntu server',
-        description: 'Suricata is your network IDS — it watches your server\u2019s own traffic and raises alerts.',
-        instruction: 'On your Ubuntu server — SSH in, install Suricata, point it at your real network card, pull the rules, and start it. (DVWA and the OS are already on the box — you\u2019re only adding the sensor.)',
-        commands: [
-          { cmd: 'ssh student@<UBUNTU_IP>' },
-          { cmd: 'sudo apt update', explain: 'Refresh the package list first.' },
-          { cmd: 'sudo apt install -y suricata', explain: 'Install the Suricata network intrusion-detection engine.' },
-          { cmd: 'ip -br addr', explain: 'Find your network card name — on Proxmox it is usually ens18, not eth0.' },
-          { cmd: "sudo sed -i 's/  - interface: eth0/  - interface: ens18/' /etc/suricata/suricata.yaml", explain: 'Point Suricata at your real NIC. Swap ens18 if yours differs — this is the #1 gotcha.' },
-          { cmd: 'sudo suricata-update', explain: 'Download the Emerging Threats ruleset — without rules Suricata sees traffic but raises no alerts.' },
-          { cmd: 'sudo systemctl enable --now suricata', explain: 'Start Suricata now and on every boot.' },
-          { cmd: 'sudo systemctl status suricata --no-pager', explain: 'Confirm it is running.' },
-        ],
-        whatItMeans: 'Suricata sniffs one network card and matches traffic against rules — this is how the SOC sees scans and web attacks.',
-        expectedOutput: `● suricata.service - Suricata IDS/IDP daemon
-     Loaded: loaded (/lib/systemd/system/suricata.service; enabled; preset: enabled)
-     Active: active (running) since Wed 2026-08-05 09:02:11 UTC; 6s ago
-   Main PID: 4412 (Suricata-Main)
-      Tasks: 8 (limit: 4915)
-
-student@team07-ubuntu:~$ ls -l /var/log/suricata/eve.json
--rw-r----- 1 root root 18452 Aug  5 09:04 /var/log/suricata/eve.json`,
-        outputHighlights: [
-          { text: 'active (running)', label: 'Suricata is up and watching the card. If this reads "inactive (dead)" or "failed", nothing is being inspected — fix it before moving on.' },
-          { text: 'Main PID', label: 'a real process id means it started cleanly rather than crashing on a bad config file.' },
-          { text: '/var/log/suricata/eve.json', label: 'the alert file Suricata writes — this is what the Wazuh agent ships to the SOC in the next step.' },
-          { text: '18452', label: 'any non-zero size means traffic is actually being recorded. 0 bytes means Suricata is running but sniffing the wrong card.' },
-        ],
-        verify: ['active (running)'],
-        files: [
-          { name: 'Suricata quickstart (official)', purpose: 'the vendor step-by-step for installing and starting Suricata', source: 'https://docs.suricata.io/en/latest/quickstart.html' },
-          { name: '/etc/suricata/suricata.yaml', purpose: 'the capture interface lives here — it must name your real NIC, not eth0', source: 'ip -br addr  # find your card (usually ens18 on Proxmox)' },
-        ],
-        frameworks: ['NIST_CSF'],
-        troubleshooting: 'Suricata active but no alerts in eve.json? The interface is wrong — Proxmox NICs are ens18, not eth0. Confirm with `ip -br addr`, fix the `interface:` line in suricata.yaml, run `sudo suricata-update`, then restart. Still nothing? Make sure you actually browsed to DVWA to generate traffic.',
-      },
-      {
-        id: 'cr-w1-s3',
-        where: 'Your Ubuntu server — SSH in',
-        path: ['you', 'ssh + paste', 'ubuntu', 'reports', 'soc'],
-        title: 'Install the Wazuh agent on Ubuntu & forward Suricata\u2019s alerts',
-        description: 'The official Wazuh agent install, pointed at your SOC — then tell it to ship Suricata\u2019s alerts too.',
-        instruction: 'Still on your Ubuntu server: install the agent pointed at 10.10.100.100, add the Suricata log block to ossec.conf, then start the service.',
-        commands: [
-          { cmd: 'sudo -i', explain: 'Become root - the install commands below run as root.' },
-          { cmd: 'apt-get install -y gnupg apt-transport-https', explain: 'Tools apt needs to add a signed third-party repo.' },
-          { cmd: 'curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg', explain: 'Install the GPG key. Trust the Wazuh signing key so packages verify.' },
-          { cmd: 'echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee -a /etc/apt/sources.list.d/wazuh.list' , explain: 'Add the repository.' },
-          { cmd: 'apt-get update', explain: 'Refresh the package list so wazuh-agent is found.' },
-          { cmd: 'WAZUH_MANAGER="10.10.100.100" apt-get install -y wazuh-agent', explain: 'Install the agent and point it at your SOC (10.10.100.100) in one line.' },
-          { cmd: '<localfile>\n  <log_format>json</log_format>\n  <location>/var/log/suricata/eve.json</location>\n</localfile>', explain: 'Open the config with `sudo nano /var/ossec/etc/ossec.conf` \u2014 the sudo matters, without it nano opens the file read-only and you cannot save. Paste this block INSIDE <ossec_config>, just above the closing tag; outside it the agent ignores it. Save with Ctrl+O, Enter, then Ctrl+X.' },
-          { cmd: 'systemctl daemon-reload', explain: 'Pick up the new service.' },
-          { cmd: 'systemctl enable wazuh-agent', explain: 'Start the agent automatically on every boot.' },
-          { cmd: 'systemctl start wazuh-agent', explain: 'Start it now.' },
-          { cmd: 'ufw allow 22/tcp', explain: 'Keep SSH open BEFORE turning the firewall on, so you do not lock yourself out.' },
-          { cmd: 'ufw --force enable', explain: 'Turn the firewall on. Outbound to the SOC stays allowed by default.' },
-          { cmd: 'ufw status', explain: 'Confirm the firewall is active and that 22/tcp is ALLOW — the safety check that you did not just lock yourself out of SSH.' },
-          { cmd: 'systemctl status wazuh-agent --no-pager', explain: 'Confirm the agent is running.' },
-          { cmd: 'sudo tail -n 20 /var/ossec/logs/ossec.log', explain: 'The proof it worked: look for the line "Connected to the server" — that means your logs are now reaching 10.10.100.100 over port 1514.' },
-        ],
-        whatItMeans: 'Out of the box the agent already forwards this server’s system logs (/var/log/auth.log, /var/log/syslog) to the SOC; the Suricata block adds the network alerts to the same feed. "active (running)" means the service is up; "Connected to the server" means it actually reached 10.10.100.100.',
-        expectedOutput: `\u25cf wazuh-agent.service - Wazuh agent
-     Loaded: loaded (/lib/systemd/system/wazuh-agent.service; enabled; preset: enabled)
-     Active: active (running) since Wed 2026-08-05 09:11:40 UTC; 5s ago
-
-root@team07-ubuntu:~# tail -n 20 /var/ossec/logs/ossec.log
-2026/08/05 09:11:41 wazuh-agentd: INFO: Requesting a key from server: 10.10.100.100
-2026/08/05 09:11:42 wazuh-agentd: INFO: Valid key received
-2026/08/05 09:11:44 wazuh-agentd: INFO: Connected to the server (10.10.100.100:1514/tcp).
-2026/08/05 09:11:45 wazuh-modulesd: INFO: Started module 'syscollector'.`,
-        outputHighlights: [
-          { text: 'active (running)', label: 'the agent process is up on this machine. Necessary, but on its own it does not mean the SOC can hear you.' },
-          { text: 'Valid key received', label: 'enrolment on port 1515 worked \u2014 the SOC issued this agent its identity.' },
-          { text: 'Connected to the server', label: 'the line that actually proves it worked. Running but never connected is the common half-failure, and it looks fine until you go looking for logs that never arrived.' },
-          { text: '10.10.100.100:1514/tcp', label: 'the SOC address and the data port. A different address here means the agent enrolled against the wrong manager.' },
-        ],
-        walkthrough: {
-          screen: 'ossec-conf',
-          title: 'Where the <localfile> block goes in ossec.conf',
-          markers: [
-            { n: 1, label: 'Before: the file already has a <client> block. Do not remove or duplicate it.' },
-            { n: 2, label: 'After: your new <localfile> block sits INSIDE <ossec_config>, above the closing tag. Outside it, the agent ignores it.' },
-            { n: 3, label: 'Save, then restart the agent \u2014 it only re-reads the config on restart.' },
-          ],
-        },
-        verify: ['active (running)', 'Connected to the server'],
-        files: [
-          { name: 'Official Wazuh agent guide (Linux)', purpose: 'the vendor step-by-step reference for the commands above', source: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html' },
-        ],
-        frameworks: ['NIST_CSF'],
-        troubleshooting: 'No "Connected to the server" in ossec.log? The agent installed but can’t reach the manager — confirm the pod can ping 10.10.100.100 and that ports 1514 (data) and 1515 (enrolment) are open on the SOC. If you missed the manager IP at install time, set <address>10.10.100.100</address> in /var/ossec/etc/ossec.conf and restart the agent. Two agents with the same name is the most common reason one never appears.',
       },
       {
         id: 'cr-w1-s4',
@@ -717,17 +621,70 @@ PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-Content 'C:\\Program Files (x86
     difficulty: 2,
     role: 'blue',
     week: 1,
-    title: 'Confirm your agent checks in, then write the baseline',
-    objective: 'Confirm your Ubuntu host is reporting and its feed is live, then describe what normal looks like.',
+    title: 'Deploy your Ubuntu sensor, prove the feed, write the baseline',
+    objective: 'Install the Wazuh agent on your Ubuntu host, confirm it reports, prove the feed is live, then describe what normal looks like.',
     frameworks: ['NIST_CSF'],
     deliverables: ['01_SOC_Monitoring_Report.md', 'Baseline analysis'],
-    prerequisites: ['Your Ubuntu host agent is reporting to the shared SOC (install it yourself from the setup guide, or it may be pre-provisioned)', 'You can log into the Wazuh dashboard with your account'],
-    estimatedTime: '60 min',
-    learn: ['confirming agent check-in', 'log collection', 'baselining'],
-    tools: ['Wazuh dashboard'],
-    definitionOfDone: ['Your Ubuntu agent confirmed Active in the dashboard', 'Baseline names 3 routine alert types and a rough events/hour'],
+    prerequisites: ['You can SSH into your Ubuntu pod as the `student` user', 'You can log into the Wazuh dashboard with your account', 'Your pod IPs (set them in the Lab access panel)'],
+    estimatedTime: '90 min',
+    learn: ['Wazuh agent deployment', 'confirming agent check-in', 'log collection', 'baselining'],
+    tools: ['Wazuh agent', 'Wazuh dashboard'],
+    definitionOfDone: ['Your Ubuntu agent is Active in the dashboard', 'A fresh event from your host arrives in Security events', 'Baseline names 3 routine alert types and a rough events/hour'],
     handoff: [{ to: 'grc', artifact: 'Baseline', note: 'Optional: share your baseline so a teammate can compare — they can build their own too; it is not a prerequisite.' }],
     steps: [
+      {
+        id: 'cb-w1-s0',
+        where: 'Your Ubuntu server \u2014 SSH in',
+        path: ['you', 'ssh + install', 'ubuntu', 'reports', 'soc'],
+        title: 'Install the Wazuh agent on your Ubuntu server',
+        description: 'The official agent install, pointed at your SOC and named so you can find it.',
+        instruction: 'SSH in and install the Wazuh agent, pointed at 10.10.100.100 and named for your team.',
+        instructionList: [
+          'Become root, then add the Wazuh package repository.',
+          'Install the agent with BOTH the manager address and an agent name set \u2014 an unnamed agent enrols under the machine hostname and you will not find it in the Agents list.',
+          'Open SSH (22) and the web port (80) in the firewall BEFORE enabling it, then turn it on.',
+          'Start the service and read ossec.log for the line that proves it reached the SOC.',
+        ],
+        commands: [
+          { cmd: 'sudo -i', explain: 'Become root \u2014 every command below runs as root, so none of them need their own sudo.' },
+          { cmd: 'apt-get install -y gnupg apt-transport-https', explain: 'Tools apt needs to add a signed third-party repo.' },
+          { cmd: 'curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg', explain: 'Trust the Wazuh signing key so packages verify.' },
+          { cmd: 'echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list', explain: 'Add the repository.' },
+          { cmd: 'apt-get update', explain: 'Refresh the package list so wazuh-agent is found.' },
+          { cmd: 'WAZUH_MANAGER="10.10.100.100" WAZUH_AGENT_NAME="Team<#>-ubuntu" apt-get install -y wazuh-agent', explain: 'Install the agent, point it at the SOC, and give it the exact name you will search for in the dashboard. Replace <#> with your team number.' },
+          { cmd: 'systemctl daemon-reload && systemctl enable --now wazuh-agent', explain: 'Start the agent now and on every boot.' },
+          { cmd: 'ufw allow 22/tcp', explain: 'Keep SSH open BEFORE turning the firewall on, so you do not lock yourself out.' },
+          { cmd: 'ufw allow 80/tcp', explain: 'DVWA is served on port 80. Without this rule the web attacks in Weeks 2\u20134 cannot reach the box.' },
+          { cmd: 'ufw --force enable', explain: 'Turn the firewall on. Outbound to the SOC stays allowed by default.' },
+          { cmd: 'systemctl status wazuh-agent --no-pager', explain: 'Confirm the agent is running.' },
+          { cmd: 'tail -n 20 /var/ossec/logs/ossec.log', explain: 'The proof it worked: look for "Connected to the server".' },
+        ],
+        whatItMeans: 'Out of the box the agent forwards this server\u2019s system logs (/var/log/auth.log, /var/log/syslog) to the SOC. "active (running)" means the service is up; "Connected to the server" means it actually reached 10.10.100.100.',
+        expectedOutput: `\u25cf wazuh-agent.service - Wazuh agent
+     Loaded: loaded (/lib/systemd/system/wazuh-agent.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-07-22 09:11:40 UTC; 5s ago
+
+root@team07-ubuntu:~# tail -n 20 /var/ossec/logs/ossec.log
+2026/07/22 09:11:41 wazuh-agentd: INFO: Requesting a key from server: 10.10.100.100
+2026/07/22 09:11:42 wazuh-agentd: INFO: Valid key received
+2026/07/22 09:11:44 wazuh-agentd: INFO: Connected to the server (10.10.100.100:1514/tcp).`,
+        outputHighlights: [
+          { text: 'active (running)', label: 'the agent process is up on this machine. Necessary, but on its own it does not mean the SOC can hear you.' },
+          { text: 'Valid key received', label: 'enrolment on port 1515 worked \u2014 the SOC issued this agent its identity.' },
+          { text: 'Connected to the server', label: 'the line that actually proves it worked. Running but never connected is the common half-failure, and it looks fine until you go looking for logs that never arrived.' },
+          { text: '10.10.100.100:1514/tcp', label: 'the SOC address and the data port. A different address here means the agent enrolled against the wrong manager.' },
+        ],
+        verify: ['active (running)', 'Connected to the server'],
+        files: [
+          { name: 'Official Wazuh agent guide (Linux)', purpose: 'the vendor step-by-step reference for the commands above', source: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html' },
+        ],
+        frameworks: ['NIST_CSF'],
+        fixes: [
+          { symptom: 'No "Connected to the server" in ossec.log?', fix: 'The agent installed but cannot reach the manager. Check the pod can ping 10.10.100.100 and that ports 1514 (data) and 1515 (enrolment) are open on the SOC.' },
+          { symptom: 'Missed the manager address at install time?', fix: 'Set <address>10.10.100.100</address> in /var/ossec/etc/ossec.conf, then restart the agent.' },
+          { symptom: 'Agent never appears in the Agents list?', fix: 'Two agents sharing a name collide and only one shows. Make yours unique (Team<#>-ubuntu) and restart.' },
+        ],
+      },
       {
         id: 'cb-w1-s1',
         where: 'Wazuh dashboard',
@@ -835,16 +792,75 @@ PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-Content 'C:\\Program Files (x86
     difficulty: 2,
     role: 'grc',
     week: 1,
-    title: 'Validate coverage: agent, network & Windows',
+    title: 'Deploy the network sensor, then validate coverage',
     objective: 'Make sure every data source you rely on is reporting — host agent, Suricata network alerts, and Sysmon Windows events. A source you expect but can’t find is itself a finding.',
     frameworks: ['NIST_CSF'],
-    deliverables: ['Coverage validation', 'Data source table'],
-    prerequisites: ['You can open each module for your pod in the shared dashboard', 'You can SSH to your Ubuntu host to confirm Suricata is writing eve.json'],
-    estimatedTime: '45 min',
-    learn: ['data-source coverage', 'endpoint telemetry', 'gap analysis'],
-    tools: ['Wazuh dashboard', 'Suricata', 'Sysmon'],
-    definitionOfDone: ['A table of each source checked (host, network, Windows) and whether data was present'],
+    deliverables: ['06_Coverage_Validation.md'],
+    prerequisites: ['You can SSH into your Ubuntu pod as the `student` user', 'You can open each module for your pod in the shared dashboard'],
+    estimatedTime: '75 min',
+    learn: ['Suricata (network IDS)', 'data-source coverage', 'endpoint telemetry', 'gap analysis'],
+    tools: ['Suricata', 'Wazuh dashboard'],
+    definitionOfDone: ['Suricata is running and writing eve.json', 'Every expected source is checked and recorded as present or missing', 'Each missing source is written up as a coverage finding'],
     steps: [
+      {
+        id: 'cg-w1-s0',
+        where: 'Your Ubuntu server \u2014 SSH in',
+        path: ['you', 'ssh + install', 'ubuntu', 'watches network', 'soc'],
+        title: 'Install Suricata and forward its alerts',
+        description: 'Suricata is the network IDS \u2014 it watches the server\u2019s traffic and raises alerts.',
+        instruction: 'Install Suricata, point it at the real network card, pull the rules, start it, then tell the Wazuh agent to ship its alert file.',
+        instructionList: [
+          'Install Suricata on the Ubuntu server.',
+          'Run `ip -br addr` and note your real card name \u2014 on Proxmox it is usually ens18, not eth0. This is the single most common mistake.',
+          'Open /etc/suricata/suricata.yaml and set the `interface:` line under af-packet to that card name.',
+          'Download the rules, then start Suricata and confirm it is running and writing eve.json.',
+          'Add the <localfile> block below to /var/ossec/etc/ossec.conf so the agent forwards the alerts, then restart the agent.',
+        ],
+        commands: [
+          { cmd: 'ssh student@<UBUNTU_IP>' },
+          { cmd: 'sudo apt update && sudo apt install -y suricata', explain: 'Install the Suricata network intrusion-detection engine.' },
+          { cmd: 'ip -br addr', explain: 'Find your network card name. Whatever this prints is what the next step must use.' },
+          { cmd: 'sudo nano /etc/suricata/suricata.yaml', explain: 'Find the af-packet section and set `interface:` to the card you just saw. Editing by hand is deliberate \u2014 a blind find-and-replace fails whenever the card is not named ens18.' },
+          { cmd: 'sudo suricata-update', explain: 'Download the Emerging Threats ruleset \u2014 without rules Suricata sees traffic but raises no alerts.' },
+          { cmd: 'sudo systemctl enable --now suricata', explain: 'Start Suricata now and on every boot.' },
+          { cmd: 'sudo systemctl status suricata --no-pager', explain: 'Confirm it is running.' },
+          { cmd: '<localfile>\n  <log_format>json</log_format>\n  <location>/var/log/suricata/eve.json</location>\n</localfile>', explain: 'Paste this INSIDE <ossec_config> in /var/ossec/etc/ossec.conf (use sudo nano), just above the closing tag \u2014 outside it the agent ignores it. Then `sudo systemctl restart wazuh-agent`; the agent only re-reads its config on restart.' },
+        ],
+        whatItMeans: 'Suricata sniffs one network card and matches traffic against rules; the <localfile> block is what carries those alerts to the SOC. If the agent is not installed on this box yet, Suricata still runs and writes eve.json locally \u2014 record that as a coverage gap and move on.',
+        expectedOutput: `\u25cf suricata.service - Suricata IDS/IDP daemon
+     Loaded: loaded (/lib/systemd/system/suricata.service; enabled; preset: enabled)
+     Active: active (running) since Wed 2026-07-22 09:02:11 UTC; 6s ago
+   Main PID: 4412 (Suricata-Main)
+
+student@team07-ubuntu:~$ ls -l /var/log/suricata/eve.json
+-rw-r----- 1 root root 18452 Jul 22 09:04 /var/log/suricata/eve.json`,
+        outputHighlights: [
+          { text: 'active (running)', label: 'Suricata is up and watching the card. If this reads "inactive (dead)" or "failed", nothing is being inspected \u2014 fix it before moving on.' },
+          { text: 'Main PID', label: 'a real process id means it started cleanly rather than crashing on a bad config file.' },
+          { text: '/var/log/suricata/eve.json', label: 'the alert file Suricata writes \u2014 this is what the Wazuh agent ships to the SOC.' },
+          { text: '18452', label: 'any non-zero size means traffic is actually being recorded. 0 bytes means Suricata is running but sniffing the wrong card.' },
+        ],
+        walkthrough: {
+          screen: 'ossec-conf',
+          title: 'Where the <localfile> block goes in ossec.conf',
+          markers: [
+            { n: 1, label: 'Before: the file already has a <client> block. Do not remove or duplicate it.' },
+            { n: 2, label: 'After: your new <localfile> block sits INSIDE <ossec_config>, above the closing tag. Outside it, the agent ignores it.' },
+            { n: 3, label: 'Save, then restart the agent \u2014 it only re-reads the config on restart.' },
+          ],
+        },
+        verify: ['active (running)'],
+        files: [
+          { name: 'Suricata quickstart (official)', purpose: 'the vendor step-by-step for installing and starting Suricata', source: 'https://docs.suricata.io/en/latest/quickstart.html' },
+          { name: '/etc/suricata/suricata.yaml', purpose: 'the capture interface lives here \u2014 it must name your real NIC, not eth0', source: 'ip -br addr  # find your card (usually ens18 on Proxmox)' },
+        ],
+        frameworks: ['NIST_CSF'],
+        fixes: [
+          { symptom: 'Suricata running but eve.json stays 0 bytes?', fix: 'The interface is wrong. Re-check `ip -br addr`, fix the `interface:` line in suricata.yaml, then restart Suricata.' },
+          { symptom: 'eve.json fills but nothing reaches the SOC?', fix: 'The <localfile> block is missing, outside <ossec_config>, or the agent was not restarted after the edit.' },
+          { symptom: 'No alerts at all, even with traffic?', fix: 'Run `sudo suricata-update` \u2014 with no ruleset Suricata inspects traffic but has nothing to match against.' },
+        ],
+      },
       {
         id: 'cg-w1-s1',
         where: 'Wazuh dashboard',
@@ -874,10 +890,10 @@ PS C:\\Users\\student\\Downloads\\wazuh-lab> Get-Content 'C:\\Program Files (x86
         whatItMeans: 'Suricata\u2019s alerts reach the SOC through the agent — confirm the file is being written.',
         expectedOutput: `student@team07-ubuntu:~$ sudo tail -n 20 /var/log/suricata/eve.json
 {"timestamp":"2026-08-05T09:44:02.118374+0000","event_type":"stats","stats":{"uptime":412}}
-{"timestamp":"2026-08-05T09:44:19.402881+0000","flow_id":1885329447,"event_type":"alert","src_ip":"10.10.20.7","src_port":51422,"dest_ip":"10.10.100.7","dest_port":80,"proto":"TCP","alert":{"signature":"ET SCAN Nmap Scripting Engine User-Agent Detected","category":"Web Application Attack","severity":2}}`,
+{"timestamp":"2026-08-05T09:44:19.402881+0000","flow_id":1885329447,"event_type":"alert","src_ip":"10.10.30.7","src_port":51422,"dest_ip":"10.10.100.7","dest_port":80,"proto":"TCP","alert":{"signature":"ET SCAN Nmap Scripting Engine User-Agent Detected","category":"Web Application Attack","severity":2}}`,
         outputHighlights: [
           { text: '"event_type":"alert"', label: 'the field that separates a real detection from the routine "stats" lines. If every line says stats, Suricata is running but has matched nothing yet — generate some traffic.' },
-          { text: '"src_ip":"10.10.20.7"', label: 'who caused it. This is the field you pivot on in Week 2, where it is written data.src_ip in the dashboard search bar.' },
+          { text: '"src_ip":"10.10.30.7"', label: 'who caused it. This is the field you pivot on in Week 2, where it is written data.src_ip in the dashboard search bar.' },
           { text: '"signature":"ET SCAN Nmap Scripting Engine User-Agent Detected"', label: 'the Emerging Threats rule that fired. No signature names at all means suricata-update never ran, so there are no rules to match against.' },
           { text: '"severity":2', label: 'Suricata’s own severity. It is not the same scale as Wazuh’s rule.level, so do not compare the two numbers directly.' },
         ],
@@ -1036,14 +1052,14 @@ data.alert.signature:SQL*                        3 hits   → web attack (SQLi)`
         description: 'Make real alerts to investigate by safely attacking your own team’s Ubuntu server.',
         instruction: 'From Kali, run these against your OWN Ubuntu pod only — this is allowed: you are testing your own team’s detection, never another team. Note the start time so the SOC Analyst can filter to it. Give each a minute, then watch the SOC light up.',
         commands: [
-          { cmd: 'nmap -sS -p- <UBUNTU_IP>', explain: 'Port scan → Suricata network alerts (rule.groups ids/suricata).' },
+          { cmd: 'sudo nmap -sS -p- <UBUNTU_IP>', explain: 'Port scan → Suricata network alerts (rule.groups ids/suricata).' },
           { cmd: 'sudo gunzip -k /usr/share/wordlists/rockyou.txt.gz', explain: 'One-time: unzip the wordlist hydra needs. Skip if rockyou.txt already exists.' },
           { cmd: 'hydra -l student -P /usr/share/wordlists/rockyou.txt ssh://<UBUNTU_IP> -t 4', explain: 'SSH brute force → many authentication_failed alerts. Ctrl+C after ~20 seconds; you do not need it to finish.' },
           { cmd: 'curl "http://<UBUNTU_IP>/dvwa/vulnerabilities/sqli/?id=1%27+UNION+SELECT+user,password+FROM+users--&Submit=Submit"', explain: 'SQL-injection web attack → Suricata/Apache web alerts.' },
         ],
         whatItMeans: 'Week 2 is a detection exercise — you first create the signal, then hunt it. Scanning your own pod is standard SOC self-testing and stays inside the Rules of Engagement.',
         expectedOutput: `┌──(kali㉿kali)-[~]
-└─$ nmap -sS -p- 10.10.100.7
+└─$ sudo nmap -sS -p- 10.10.100.7
 Nmap scan report for 10.10.100.7
 PORT     STATE SERVICE
 22/tcp   open  ssh
@@ -1092,13 +1108,13 @@ PORT     STATE SERVICE
         instruction: 'On your Ubuntu server — SSH in and start the capture, then re-run the Kali attack (step 1) so there is traffic to record. Press Ctrl+C to stop, take ownership of the file, then hash it.',
         commands: [
           { cmd: 'sudo apt install -y tcpdump', explain: 'The packet capture tool — install it once if the pod does not have it yet.' },
-          { cmd: 'sudo tcpdump -i ens18 -nn not port 22 -w /tmp/week2.pcap', explain: 'Capture on the real NIC (ens18), excluding your own SSH (port 22) so the file is the attack, not your shell.' },
+          { cmd: 'sudo tcpdump -i "$(ip -br addr | awk \'/UP/{print $1; exit}\')" -nn -w /tmp/week2.pcap', explain: 'Capture on your real card, discovered rather than hardcoded. Nothing is filtered out \u2014 the SSH brute force IS part of the attack you are evidencing.' },
           { cmd: 'sudo chown student:student /tmp/week2.pcap', explain: 'tcpdump writes as root — take ownership so you can copy it off with scp in the next step.' },
           { cmd: 'sha256sum /tmp/week2.pcap > /tmp/week2.pcap.sha256', explain: 'Hash it right away so you can prove it wasn\u2019t changed.' },
           { cmd: 'sha256sum -c /tmp/week2.pcap.sha256', explain: 'Verify the hash the moment you make it \u2014 it should print week2.pcap: OK.' },
         ],
         whatItMeans: 'Hashing at capture time is what makes the packet file trustworthy evidence.',
-        expectedOutput: `student@team07-ubuntu:~$ sudo tcpdump -i ens18 -nn not port 22 -w /tmp/week2.pcap
+        expectedOutput: `student@team07-ubuntu:~$ sudo tcpdump -i ens18 -nn -w /tmp/week2.pcap
 tcpdump: listening on ens18, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 ^C
 1487 packets captured
@@ -1400,13 +1416,13 @@ Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 94.2
 + /: The X-Content-Type-Options header is not set.
 + /dvwa/: Directory indexing found.
 + /dvwa/config/: Directory indexing found.
-+ 8 host(s) tested`,
++ 1 host(s) tested`,
         outputHighlights: [
           { text: '+ Server', label: 'every finding line starts with a "+". This first one is the banner — proof Nikto reached the web server rather than failing to connect.' },
           { text: 'Apache/2.4.52 (Ubuntu)', label: 'the same version nmap reported. Two tools agreeing is worth stating in the assessment — it is corroboration, not duplication.' },
           { text: 'X-Frame-Options header is not present', label: 'a missing security header. Low severity on its own, but it is a real finding with a fix, so it belongs in the report.' },
           { text: '/dvwa/config/: Directory indexing found', label: 'the serious one. A browsable config directory can expose database credentials — rank this above the header findings.' },
-          { text: '+ 8 host(s) tested', label: 'the scan finished rather than timing out. A truncated run means your finding list is incomplete.' },
+          { text: '+ 1 host(s) tested', label: 'the scan finished rather than timing out. A truncated run means your finding list is incomplete.' },
         ],
         verify: ['+ Server'],
         files: [
@@ -1506,21 +1522,21 @@ Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 94.2
         description: 'The earliest related alert is your start time.',
         instruction: 'In the dashboard: Agents › your agent › Security events. Set the time picker to the incident window, then sort by Time oldest-first and read down to the first attacker event.',
         commands: [
-          { cmd: 'rule.level:>=7', explain: 'Cut to real activity. Web/SQLi and Suricata alerts sit around 5–7, so >=7 keeps them; >=10 would hide the incident.' },
+          { cmd: 'rule.level:>=5', explain: 'Cut the routine noise but keep the early, low-severity signs. First contact is often a level-5 event, so filtering at >=7 would hide your real incident start.' },
         ],
         whatItMeans: 'Everything else in the incident is measured from this timestamp.',
-        expectedOutput: `Security events — sorted Time ascending, filter rule.level:>=7
+        expectedOutput: `Security events — sorted Time ascending, filter rule.level:>=5
 
 Time (UTC)            rule.level  rule.description                         data.srcip
-2026-08-05 11:02:14   5           Apache: client sent malformed request    10.10.20.7
-2026-08-05 11:02:41   10          Multiple web attack attempts (SQLi)      10.10.20.7
-2026-08-05 11:03:02   7           SQL injection attempt in URL             10.10.20.7`,
+2026-08-05 11:02:14   5           Apache: client sent malformed request    10.10.30.7
+2026-08-05 11:02:41   10          Multiple web attack attempts (SQLi)      10.10.30.7
+2026-08-05 11:03:02   7           SQL injection attempt in URL             10.10.30.7`,
         outputHighlights: [
           { text: '2026-08-05 11:02:14', label: 'the earliest row, and therefore your incident start time. Copy it exactly — every duration in the report is measured from here.' },
-          { text: 'rule.level', label: 'the column you filtered on. Keep it at >=7: SQLi and Suricata alerts sit around 5–7, so >=10 would hide the very first events.' },
-          { text: '10.10.20.7', label: 'the attacker address, the same on every row. This is the IP you hand the Hunter and search on in the next step.' },
+          { text: 'rule.level', label: 'the column you filtered on. Keep it at >=5: the level-5 malformed request above is the attacker’s first contact, and >=7 would have hidden it.' },
+          { text: '10.10.30.7', label: 'the attacker address, the same on every row. This is the IP you hand the Hunter and search on in the next step.' },
         ],
-        troubleshooting: 'Nothing shows? 90% of the time it is the time picker — widen it to cover when the instructor ran the attack.',
+        troubleshooting: 'Nothing shows? 90% of the time it is the time picker — widen it to cover when the attack ran.',
         producesDeliverable: '08_Detection_Record.md',
         isEvidenceStep: true,
         frameworks: ['NIST_800_61'],
@@ -1598,12 +1614,12 @@ Time (UTC)            rule.level  rule.description                         data.
         ],
         whatItMeans: 'You read the injection instead of guessing it.',
         expectedOutput: `student@team07-ubuntu:~$ sudo grep -iE "union|select|\\.\\./|<script" /var/log/apache2/access.log | tail -40
-10.10.20.7 - - [05/Aug/2026:11:03:02 +0000] "GET /dvwa/vulnerabilities/sqli/?id=1'+UNION+SELECT+user,password+FROM+users--&Submit=Submit HTTP/1.1" 200 4821 "-" "Mozilla/5.0"
-10.10.20.7 - - [05/Aug/2026:11:03:05 +0000] "GET /dvwa/vulnerabilities/sqli/?id=1'+OR+'1'='1&Submit=Submit HTTP/1.1" 200 1136 "-" "Mozilla/5.0"`,
+10.10.30.7 - - [05/Aug/2026:11:03:02 +0000] "GET /dvwa/vulnerabilities/sqli/?id=1'+UNION+SELECT+user,password+FROM+users--&Submit=Submit HTTP/1.1" 200 4821 "-" "Mozilla/5.0"
+10.10.30.7 - - [05/Aug/2026:11:03:05 +0000] "GET /dvwa/vulnerabilities/sqli/?id=1'+OR+'1'='1&Submit=Submit HTTP/1.1" 200 1136 "-" "Mozilla/5.0"`,
         outputHighlights: [
           { text: 'UNION+SELECT+user,password+FROM+users', label: 'the payload itself. Quote this in the report — it names exactly what the attacker tried to read (the users table, with passwords).' },
           { text: '200', label: 'the HTTP status. 200 means the server answered the injected request rather than rejecting it — a strong sign the injection was processed, not blocked.' },
-          { text: '10.10.20.7', label: 'the source, matching the attacker IP from the detection record. Same address on both lines ties the log evidence back to your timeline.' },
+          { text: '10.10.30.7', label: 'the source, matching the attacker IP from the detection record. Same address on both lines ties the log evidence back to your timeline.' },
         ],
         verify: ['UNION'],
         producesDeliverable: '04_Incident_Response_Report.md',
@@ -1718,13 +1734,13 @@ Status: active
 
      To                         Action      From
      --                         ------      ----
-[ 1] Anywhere                   DENY IN     10.10.20.7
+[ 1] Anywhere                   DENY IN     10.10.30.7
 [ 2] 22/tcp                     ALLOW IN    Anywhere
 [ 3] 80/tcp                     ALLOW IN    Anywhere`,
         outputHighlights: [
           { text: 'DENY', label: 'the block itself. UFW stops at the first rule that matches, which is why this has to sit above the ALLOW rules rather than below them.' },
           { text: '[ 1]', label: 'the position, and it must be 1. A plain `ufw deny` appends to the end, lands under the ALLOW on line 2, and silently never fires.' },
-          { text: '10.10.20.7', label: 'the attacker you are blocking. Check it against the source IP in your alerts — blocking the wrong address contains nothing.' },
+          { text: '10.10.30.7', label: 'the attacker you are blocking. Check it against the source IP in your alerts — blocking the wrong address contains nothing.' },
           { text: '22/tcp                     ALLOW IN', label: 'SSH is still open. Confirm this before you walk away; a containment rule that locks you out of the machine is its own incident.' },
         ],
         verify: ['DENY'],

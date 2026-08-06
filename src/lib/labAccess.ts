@@ -23,10 +23,13 @@ const EMPTY: LabAccess = { values: {}, checks: {}, notes: '' };
 
 // Fields the student fills; `tokens` are the placeholders replaced in commands.
 export const LAB_FIELDS: { key: string; label: string; placeholder: string; tokens: string[] }[] = [
-  { key: 'YOUR_TARGET_IP', label: 'Your target IP', placeholder: 'e.g. 10.10.100.5', tokens: ['<YOUR_TARGET_IP>', '10.10.100.X', '10.10.100.x'] },
-  { key: 'UBUNTU_IP', label: 'Ubuntu host IP', placeholder: 'e.g. 10.10.10.5', tokens: ['<UBUNTU_IP>'] },
-  { key: 'WINDOWS_IP', label: 'Windows host IP', placeholder: 'e.g. 10.10.10.6', tokens: ['<WINDOWS_IP>'] },
-  { key: 'ATTACKER_IP', label: 'Your Kali (attacker) IP', placeholder: 'e.g. 10.10.10.10', tokens: ['<ATTACKER_IP>'] },
+  { key: 'YOUR_TARGET_IP', label: 'Your target IP', placeholder: 'e.g. 10.10.100.7', tokens: ['<YOUR_TARGET_IP>', '10.10.100.X', '10.10.100.x'] },
+  { key: 'UBUNTU_IP', label: 'Ubuntu host IP', placeholder: 'e.g. 10.10.100.7', tokens: ['<UBUNTU_IP>'] },
+  { key: 'WINDOWS_IP', label: 'Windows host IP', placeholder: 'e.g. 10.10.20.7', tokens: ['<WINDOWS_IP>'] },
+  // The attacker is always Kali. The lowercase spellings are the ones the course
+  // prose actually uses, and they were silently never substituted before.
+  { key: 'ATTACKER_IP', label: 'Your Kali (attacker) IP', placeholder: 'e.g. 10.10.30.7', tokens: ['<ATTACKER_IP>', '<kali-ip>', '<attacker-ip>'] },
+  { key: 'TEAM_NUM', label: 'Your team number', placeholder: 'e.g. 7', tokens: ['<#>', '<team>'] },
 ];
 
 export const LAB_CHECKS: { key: string; label: string }[] = [
@@ -79,7 +82,9 @@ export function fillPlaceholders(text: string, values: Record<string, string>): 
  *  like 10.10.10.X → 10.10.100.X): any <UPPER_TOKEN> angle-token, or any literal
  *  sample token declared on a field. */
 export function hasUnfilled(text: string): boolean {
-  if (/<[A-Z_]+>/.test(text)) return true;
+  // Case-insensitive, and allows the hyphenated lowercase spellings (<kali-ip>)
+  // the content uses — the old /<[A-Z_]+>/ silently ignored every one of them.
+  if (/<[A-Za-z_#][A-Za-z0-9_-]*>/.test(text)) return true;
   return LAB_FIELDS.some((f) =>
     f.tokens.some((tok) => !tok.startsWith('<') && text.includes(tok))
   );

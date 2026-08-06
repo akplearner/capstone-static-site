@@ -169,6 +169,7 @@ function OutputVerify({ verify }: { verify: string[] }) {
 
 export function StepDetail({
   instruction,
+  instructionList,
   description,
   command,
   commands,
@@ -180,6 +181,7 @@ export function StepDetail({
   deliverable,
   usesForm,
   troubleshooting,
+  fixes,
   verify,
   optional,
   where,
@@ -192,6 +194,7 @@ export function StepDetail({
   outputKind,
 }: {
   instruction?: string;
+  instructionList?: string[];
   description?: string;
   command?: string;
   commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
@@ -204,6 +207,7 @@ export function StepDetail({
   deliverable?: string;
   usesForm?: string;
   troubleshooting?: string;
+  fixes?: { symptom: string; fix: string }[];
   verify?: string[];
   optional?: boolean;
   where?: string;
@@ -336,6 +340,20 @@ export function StepDetail({
                   {instruction || description}
                 </div>
               )}
+              {/* The discrete actions. A step whose instruction is really a
+                  sequence reads as a list, not a paragraph in a half-width column. */}
+              {instructionList && instructionList.length > 0 && (
+                <ol className="mt-2 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                  {instructionList.map((item, i) => (
+                    <li key={i} className="flex gap-2">
+                      <span className="mt-px shrink-0 font-mono text-xs font-semibold text-accent">
+                        {i + 1}.
+                      </span>
+                      <span><GlossaryText text={item} /></span>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
           )}
           {hasCommand && <CommandBlock commands={cmdList} />}
@@ -417,7 +435,7 @@ export function StepDetail({
           step; a student who wants to understand *why*, or who is stuck, opens
           this. Nothing is removed — it's the same content, just not in the way of
           getting the step done. */}
-      {(whatItMeans || troubleshooting) && (
+      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0)) && (
         <div className="rounded-md border border-line bg-panel-2/50">
           <div className="px-3">
             <Collapsible title="Why this works & if you get stuck">
@@ -433,6 +451,26 @@ export function StepDetail({
                     <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
                     <span><span className="font-medium">If it doesn&apos;t work:</span> {troubleshooting}</span>
                   </p>
+                )}
+                {/* Independent failure modes, one row each — a student scanning
+                    for their symptom has to be able to find it. */}
+                {fixes && fixes.length > 0 && (
+                  <div className="space-y-1.5">
+                    <div className="flex items-center gap-2 text-sm font-medium text-rose-900 dark:text-rose-200">
+                      <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                      If it doesn&apos;t work
+                    </div>
+                    <ul className="space-y-1.5">
+                      {fixes.map((f, i) => (
+                        <li key={i} className="text-sm text-rose-900 dark:text-rose-200">
+                          <span className="font-medium">{f.symptom}</span>{' '}
+                          <span className="text-rose-800/90 dark:text-rose-200/80">
+                            <GlossaryText text={f.fix} />
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
               </div>
             </Collapsible>
@@ -463,6 +501,7 @@ interface ChecklistItemProps {
   stepId: string;
   title: string;
   instruction?: string;
+  instructionList?: string[];
   description?: string;
   command?: string;
   commands?: { cmd: string; explain?: string }[];
@@ -477,6 +516,7 @@ interface ChecklistItemProps {
   deliverable?: string;
   usesForm?: string;
   troubleshooting?: string;
+  fixes?: { symptom: string; fix: string }[];
   verify?: string[];
   optional?: boolean;
   where?: string;
@@ -495,6 +535,7 @@ interface ChecklistItemProps {
 export function ChecklistItem({
   title,
   instruction,
+  instructionList,
   description,
   command,
   commands,
@@ -509,6 +550,7 @@ export function ChecklistItem({
   deliverable,
   usesForm,
   troubleshooting,
+  fixes,
   verify,
   optional,
   where,
@@ -576,6 +618,7 @@ export function ChecklistItem({
             <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-600">
               <StepDetail
                 instruction={instruction}
+                instructionList={instructionList}
                 description={description}
                 command={command}
                 commands={commands}
@@ -588,6 +631,7 @@ export function ChecklistItem({
                 deliverable={deliverable}
                 usesForm={usesForm}
                 troubleshooting={troubleshooting}
+                fixes={fixes}
                 verify={verify}
                 optional={optional}
                 where={where}

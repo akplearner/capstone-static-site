@@ -253,6 +253,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               {current && (
                 <StepDetail
                   instruction={current.instruction}
+                  instructionList={current.instructionList}
                   description={current.description}
                   command={current.command}
                   commands={current.commands}
@@ -265,6 +266,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   deliverable={current.producesDeliverable}
                   usesForm={current.usesForm}
                   troubleshooting={current.troubleshooting}
+                  fixes={current.fixes}
                   verify={current.verify}
                   optional={current.optional}
                   where={current.where}
@@ -331,6 +333,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               stepId={step.id}
               title={step.title}
               instruction={step.instruction}
+              instructionList={step.instructionList}
               description={step.description}
               command={step.command}
               commands={step.commands}
@@ -345,6 +348,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               deliverable={step.producesDeliverable}
               usesForm={step.usesForm}
               troubleshooting={step.troubleshooting}
+              fixes={step.fixes}
               verify={step.verify}
               optional={step.optional}
               where={step.where}

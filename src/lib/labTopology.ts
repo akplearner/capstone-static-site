@@ -92,7 +92,7 @@ export const SOC_TOPOLOGY_BY_COURSE: Record<string, SocTopology> = {
       { component: 'Wazuh SOC', address: '10.10.100.100', runs: 'Wazuh manager + indexer + dashboard', who: 'Everyone, in a browser' },
       { component: 'Ubuntu server', address: '10.10.100.N', runs: 'DVWA web app · Suricata (network IDS) · Wazuh agent', who: 'Your team' },
       { component: 'Windows 11 PC', address: '10.10.20.N', runs: 'Sysmon · Wazuh agent', who: 'Your team' },
-      { component: 'Kali Linux', address: 'on the network', runs: 'Nmap · Nikto · attack tools', who: 'Builder (drives attacks)' },
+      { component: 'Kali Linux', address: '10.10.30.N', runs: 'Nmap · Nikto · Hydra · attack tools', who: 'Your team (you drive the attacks)' },
       { component: 'Proxmox host', address: '10.10.10.45', runs: 'Runs all the VMs above', who: 'Builder only' },
     ],
   },
