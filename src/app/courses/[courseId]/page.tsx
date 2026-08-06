@@ -1468,11 +1468,16 @@ export default function CoursePage() {
                           })()}
                       </div>
 
-                      {/* Gatekeeping courses show a flow + gate checklist here; with
-                          no gatekeeping (CySA) the week is simply open, so we skip it. */}
-                      {!course.noGatekeeping && (
+                      {/* The week's task flow is worth seeing in every course — it was
+                          previously gated behind !noGatekeeping, which meant CySA (the
+                          one course that sets it) had no week diagram at all. Only the
+                          gate checklist is gatekeeping-specific now. */}
+                      {(ownTasks.length > 0 || (gateForWeek && !course.noGatekeeping)) && (
                         <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 dark:border-gray-700 dark:bg-gray-800">
-                          <Collapsible title="Week flow & gate checklist" defaultOpen={false}>
+                          <Collapsible
+                            title={course.noGatekeeping ? 'This week’s task flow' : 'Week flow & gate checklist'}
+                            defaultOpen={false}
+                          >
                             <div className="space-y-3 pb-1">
                               {ownTasks.length > 0 && (
                                 <WeekTaskFlow
@@ -1486,7 +1491,7 @@ export default function CoursePage() {
                                   }}
                                 />
                               )}
-                              {gateForWeek && (
+                              {gateForWeek && !course.noGatekeeping && (
                                 <WeekGatePanel
                                   course={course}
                                   week={w.number}

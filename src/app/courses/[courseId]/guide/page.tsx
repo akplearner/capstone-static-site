@@ -13,6 +13,7 @@ import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
 import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WeekGoals } from '@/components/docs/WeekGoals';
+import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
 import { CysaToolGuide } from '@/components/docs/CysaToolGuide';
@@ -21,6 +22,7 @@ import { CourseSubNav } from '@/components/CourseSubNav';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
+import { readResume } from '@/lib/resume';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
 
 
@@ -49,6 +51,9 @@ export default function CourseGuidePage() {
           </p>
         </div>
         <WeekGoals weeks={course.weeks} />
+        {course.lifecyclePath && course.lifecyclePath.length > 0 && (
+          <CaseLifecycleChain stages={course.lifecyclePath} />
+        )}
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
@@ -63,7 +68,7 @@ export default function CourseGuidePage() {
             <LifecycleFlow
               weeks={course.weeks}
               gates={course.gates}
-              currentWeek={course.weeks[0]?.number}
+              currentWeek={member ? readResume(course, member.memberId)?.week : undefined}
               noGatekeeping={course.noGatekeeping}
             />
             </div>

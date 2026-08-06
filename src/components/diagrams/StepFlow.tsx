@@ -23,6 +23,11 @@ const NODES: Record<string, { t: string; s: string; c: NodeColor }> = {
   dash: { t: 'Wazuh dashboard', s: 'in your browser', c: 'teal' },
   kali: { t: 'Kali', s: 'attacker', c: 'red' },
   report: { t: 'Your report', s: 'written up', c: 'slate' },
+  // Role nodes, so a hand-off step draws the actual roles instead of falling
+  // through to the raw id and rendering a box literally labelled "blue".
+  analyst: { t: 'SOC Analyst', s: 'triage', c: 'blue' },
+  hunter: { t: 'Threat Hunter', s: 'investigate', c: 'teal' },
+  responder: { t: 'Incident Responder', s: 'contain & report', c: 'red' },
 };
 
 const DOT: Record<NodeColor, string> = {

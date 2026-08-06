@@ -417,7 +417,7 @@ $ sudo systemctl status suricata --no-pager
       {
         id: 'cb-w0-s3',
         where: 'This course',
-        path: ['blue', 'escalate', 'grc'],
+        path: ['analyst', 'escalate', 'hunter'],
         title: 'Learn your role and hand-offs',
         description: 'Tier 1 watches the alerts and decides what to escalate.',
         instruction: 'Read your Tier 1 mission on the course overview: you triage alerts and escalate the real ones to the Threat Hunter (Tier 2). Note who your teammates are.',
@@ -466,7 +466,7 @@ $ sudo systemctl status suricata --no-pager
       {
         id: 'cg-w0-s3',
         where: 'This course',
-        path: ['blue', 'escalate', 'grc'],
+        path: ['analyst', 'escalate', 'hunter'],
         title: 'Learn your role and hand-offs',
         description: 'Tier 2 investigates the alerts the Analyst escalates and proves what happened.',
         instruction: 'Read your Tier 2 mission on the course overview: the SOC Analyst escalates alerts to you; you investigate, prove it in the logs and packets, and hand findings to the Incident Responder (Tier 3).',

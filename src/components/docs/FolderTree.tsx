@@ -23,6 +23,11 @@ import { DeliverableDef } from '@/lib/docs/types';
 // it without importing this component. `Node` is kept as a local alias.
 export type Node = FolderNode;
 
+/** The course's own name for a role id — never a hardcoded Red/Blue/GRC. */
+function ownerLabel(owner: string, roles?: RoleDef[]): string {
+  return roles?.find((r) => r.id === owner)?.name ?? owner;
+}
+
 const ROLE_TEXT: Record<string, string> = {
   red: 'text-red-600 dark:text-red-400',
   blue: 'text-blue-600 dark:text-blue-400',
@@ -124,7 +129,7 @@ export function NodeIcon({ node }: { node: Node }) {
   return <FileText className={`${cls} text-sky-500`} />;
 }
 
-export function TreeNode({ node, depth = 0, index = 0 }: { node: Node; depth?: number; index?: number }) {
+export function TreeNode({ node, depth = 0, index = 0, roles }: { node: Node; depth?: number; index?: number; roles?: RoleDef[] }) {
   const textCls =
     node.kind === 'root'
       ? 'font-semibold text-gray-900 dark:text-white'
@@ -141,15 +146,15 @@ export function TreeNode({ node, depth = 0, index = 0 }: { node: Node; depth?: n
         <NodeIcon node={node} />
         <span className={`font-mono text-xs ${textCls}`}>{node.label}</span>
         {node.owner && (
-          <span className="rounded bg-gray-100 px-1 text-[10px] uppercase text-gray-500 dark:bg-gray-700 dark:text-gray-400">
-            {node.owner}
+          <span className="rounded bg-panel-2 px-1 text-[11px] text-muted">
+            {ownerLabel(node.owner, roles)}
           </span>
         )}
       </span>
       {node.children && (
         <ul className="ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-700">
           {node.children.map((c, i) => (
-            <TreeNode key={c.label} node={c} depth={depth + 1} index={i} />
+            <TreeNode key={c.label} node={c} depth={depth + 1} index={i} roles={roles} />
           ))}
         </ul>
       )}
@@ -186,12 +191,17 @@ export function FolderTree({
         )}
       </p>
       <ul className="mt-3 space-y-1">
-        <TreeNode node={tree} />
+        <TreeNode node={tree} roles={roles} />
       </ul>
       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-gray-500 dark:text-gray-400">
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-red-500" /> Red</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-blue-500" /> Blue</span>
-        <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-green-500" /> GRC</span>
+        {/* Role names come from the course, not a hardcoded Red/Blue/GRC — those
+            are Security+ labels and mean nothing in a course whose roles are
+            SOC Analyst / Threat Hunter / Incident Responder. */}
+        {(roles ?? []).map((r) => (
+          <span key={r.id} className="flex items-center gap-1">
+            <span className="h-2 w-2 rounded-full" style={{ background: r.color }} /> {r.name}
+          </span>
+        ))}
         <span className="flex items-center gap-1"><FileText className="h-3 w-3 text-sky-500" /> .md</span>
         <span className="flex items-center gap-1"><FileSpreadsheet className="h-3 w-3 text-emerald-500" /> .csv</span>
         <span className="flex items-center gap-1"><ImageIcon className="h-3 w-3 text-violet-500" /> evidence</span>
