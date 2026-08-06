@@ -3,14 +3,16 @@ import { DeliverableData, DeliverableDef } from './docs/types';
 import { deliverablesForCourse } from './docs/definitions';
 
 /**
- * The deliverable chain — who produces what, and where it goes next.
+ * How the deliverables connect — who produces what, and where it can enrich
+ * other work.
  *
- * A capstone is a relay: the Analyst's baseline is what makes the Hunter's
- * "weird" mean anything, and the Hunter's timeline is what the Responder writes
- * the report from. That relay was real in the content but invisible in the app —
- * it existed only as English in each deliverable's `source` / `useIt` prose,
- * which reads well and no code can follow. `DeliverableDef.feeds` makes the same
- * edges machine-readable so they can be drawn.
+ * Each role finishes their own files independently; none waits on a teammate.
+ * But findings do connect: an Analyst's baseline makes a Hunter's "weird" mean
+ * more, and a Hunter's timeline can save a Responder time on the report. Those
+ * connections were real in the content but invisible in the app — they lived only
+ * as English in each deliverable's `source` / `useIt` prose, which reads well and
+ * no code can follow. `DeliverableDef.feeds` makes the same optional links
+ * machine-readable so they can be drawn.
  *
  * Everything here is pure: the layout is computed, not measured, so it can be
  * unit-tested. (vitest collects `*.test.ts` only, so logic that lives in a
@@ -193,9 +195,9 @@ export function describeChain(chain: DeliverableChain, roleName: (id: Role) => s
     const to = byId.get(e.to);
     if (!from || !to) return [];
     return e.sameRole
-      ? [`${roleName(from.owner)} carries ${from.short} forward into ${to.short}.`]
+      ? [`${roleName(from.owner)}'s ${from.short} continues into ${to.short}.`]
       : [
-          `${roleName(from.owner)} hands ${from.short} to ${roleName(to.owner)} for ${to.short}.`,
+          `${roleName(from.owner)}'s ${from.short} can enrich ${roleName(to.owner)}'s ${to.short}.`,
         ];
   });
 }

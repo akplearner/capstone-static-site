@@ -5,18 +5,17 @@ import clsx from 'clsx';
 import type { Milestone } from '@/lib/quarry';
 
 /**
- * The arcade primitives.
+ * Small label + progress primitives.
  *
- * These are deliberately thin: the retro look lives in the `.pixel*` utility
- * classes in globals.css, which are driven by the same accent tokens as
- * everything else — so a pixel badge in the CySA course is CySA-coloured with
- * no per-course code here.
- *
- * The pixel *font* is only ever applied to short strings. Nothing in this file
- * accepts a paragraph.
+ * These were the old "arcade" primitives; the retro bitmap treatment has been
+ * retired in favour of the professional IBM Plex Mono kicker (`.eyebrow`) and a
+ * smooth accent meter. The component names are kept so call sites don't churn,
+ * but nothing here renders a game/pixel aesthetic any more — the content reads
+ * as a professional technical UI, and each piece still takes the course's accent
+ * token so it stays course-coloured with no per-course code here.
  */
 
-/** A short label in the arcade face. Titles, chips, counters — never prose. */
+/** A short mono, uppercase, letter-spaced kicker. Titles, chips, counters — never prose. */
 export function PixelHeading({
   children,
   className,
@@ -26,10 +25,10 @@ export function PixelHeading({
   className?: string;
   as?: 'span' | 'h2' | 'h3' | 'div';
 }) {
-  return <Tag className={clsx('pixel', className)}>{children}</Tag>;
+  return <Tag className={clsx('eyebrow', className)}>{children}</Tag>;
 }
 
-/** Chunky square chip. `tone` picks accent vs neutral vs earned-badge styling. */
+/** A clean mono chip. `tone` picks accent vs neutral vs muted styling. */
 export function PixelBadge({
   children,
   tone = 'neutral',
@@ -45,13 +44,12 @@ export function PixelBadge({
     <span
       title={title}
       className={clsx(
-        'pixel inline-flex items-center gap-1 border-2 px-1.5 py-0.5 text-[9px] uppercase leading-none',
-        tone === 'accent' && 'border-accent bg-accent-soft text-accent-ink',
+        'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider',
+        tone === 'accent' && 'border-accent/40 bg-accent-soft text-accent-ink',
         tone === 'neutral' && 'border-line bg-panel text-ink',
-        tone === 'muted' && 'border-line bg-panel-2 text-muted opacity-60',
+        tone === 'muted' && 'border-line bg-panel-2 text-muted',
         className
       )}
-      style={{ borderRadius: 0 }}
     >
       {children}
     </span>
@@ -59,9 +57,8 @@ export function PixelBadge({
 }
 
 /**
- * Work done, stated as work — "34 of 60 steps cut" rather than a point score.
- * The bar is stepped so it reads as a game meter, but the number underneath is
- * always the real count, so it can be checked against the checklist.
+ * Work done, stated as work — "34 of 60 steps" rather than a point score, over a
+ * smooth accent meter (no stepped/blocky fill).
  */
 export function StepTally({
   done,
@@ -76,7 +73,7 @@ export function StepTally({
   return (
     <div className={clsx('flex items-center gap-2', className)}>
       <div
-        className="relative h-3 w-24 border-2 border-line bg-panel-2"
+        className="relative h-2 w-24 overflow-hidden rounded-full bg-panel-2"
         role="progressbar"
         aria-valuenow={pct}
         aria-valuemin={0}
@@ -84,23 +81,22 @@ export function StepTally({
         aria-label={`${done} of ${total} steps complete`}
       >
         <motion.div
-          className="absolute inset-y-0 left-0"
+          className="absolute inset-y-0 left-0 rounded-full"
           style={{ background: 'var(--color-accent)' }}
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
         />
-        <div className="pixel-meter absolute inset-0" aria-hidden />
       </div>
-      <span className="pixel text-[9px] text-muted" title={`${done} of ${total} steps`}>
+      <span className="font-mono text-[11px] text-muted" title={`${done} of ${total} steps`}>
         {done}/{total}
       </span>
     </div>
   );
 }
 
-/** Professional milestones. Unearned ones stay visible but dimmed, so the rail
- *  doubles as a checklist of what is still to prove. */
+/** Milestones. Unearned ones stay visible but dimmed, so the rail doubles as a
+ *  checklist of what is still to prove. */
 export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
@@ -111,7 +107,7 @@ export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: i * 0.05, duration: 0.2 }}
         >
-          <PixelBadge tone={b.earned ? 'accent' : 'muted'} title={b.hint}>
+          <PixelBadge tone={b.earned ? 'accent' : 'muted'} title={b.hint} className={b.earned ? '' : 'opacity-60'}>
             {b.label}
           </PixelBadge>
         </motion.span>

@@ -416,63 +416,8 @@ select {
   );
 }
 
-/* ── The game layer ─────────────────────────────────────────────────────────
-   Arcade styling for *short* strings and containers only. The rule that keeps
-   this usable: the pixel face never touches step prose, commands, terminal
-   output or troubleshooting text — those stay IBM Plex. See fonts/README.md. */
-
-/* The pixel face. `--font-pixel-face` is set on <body> by next/font/local in
-   app/layout.tsx and is referenced directly here rather than through a Tailwind
-   `@theme` entry: a --font-* theme var that no generated utility references gets
-   tree-shaken away, which silently left this rendering as IBM Plex.
-
-   Letter-spacing is widened because the 8x8 glyphs run tight. */
-.pixel {
-  font-family: var(--font-pixel-face), ui-sans-serif, system-ui, sans-serif;
-  letter-spacing: 0.06em;
-  line-height: 1.6;
-  /* Bitmap outlines stay crisp rather than being smoothed into mush. */
-  -webkit-font-smoothing: none;
-  -moz-osx-font-smoothing: unset;
-}
-
-/* Chunky container: square corners, a hard border and an offset block shadow
-   instead of a soft blur — the shape does most of the retro work, which is why
-   this still reads correctly when the pixel font fails to load. */
-.pixel-panel {
-  border-radius: 0;
-  border-width: 2px;
-  border-style: solid;
-  border-color: var(--color-line);
-  box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--color-ink) 16%, transparent);
-}
-.pixel-panel-accent {
-  border-color: color-mix(in srgb, var(--color-accent) 55%, var(--color-line));
-  box-shadow: 3px 3px 0 0 color-mix(in srgb, var(--color-accent) 30%, transparent);
-}
-
-/* A stepped progress bar: discrete blocks, like a health/XP meter, rather than
-   a continuous fill. The segment count comes from the gradient stop size. */
-.pixel-meter {
-  border-radius: 0;
-  image-rendering: pixelated;
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent 0,
-    transparent 6px,
-    var(--color-panel) 6px,
-    var(--color-panel) 8px
-  );
-}
-
-/* Faint scanlines for the arcade header strip. Kept very low contrast so it
-   never interferes with text legibility. */
-.pixel-scanlines {
-  background-image: repeating-linear-gradient(
-    0deg,
-    color-mix(in srgb, var(--color-ink) 5%, transparent) 0,
-    color-mix(in srgb, var(--color-ink) 5%, transparent) 1px,
-    transparent 1px,
-    transparent 3px
-  );
-}
+/* The retro "game layer" (Press Start 2P bitmap face, chunky panels, stepped
+   meters and scanlines) has been retired: the content type system is IBM Plex
+   throughout, with `.eyebrow` (Plex Mono, uppercase, tracked) as the one
+   professional kicker treatment. The only place the mining metaphor survives is
+   the small QuarryMiner completion animation, which is pure SVG. */

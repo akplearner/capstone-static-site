@@ -361,13 +361,13 @@ export default function DeliverablesPage() {
           <Users className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
           <div>
             <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
-              Team handoff &amp; your report
+              Combine your work (optional)
             </h2>
             <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
-              Everyone fills their own deliverables on their own device. <strong>Export your work</strong>{' '}
-              as a <span className="font-mono text-xs">.json</span> backup, then <strong>Restore from file</strong>{' '}
-              to repopulate the forms on another device — or send it to your team&apos;s GRC, who restores each
-              teammate&apos;s file and downloads the complete package above.
+              Everyone fills their own deliverables on their own device — you never need a teammate to finish
+              yours. <strong>Export your work</strong> as a <span className="font-mono text-xs">.json</span>{' '}
+              backup, then <strong>Restore from file</strong> to repopulate the forms on another device — or, if
+              you&apos;re working as a team, send it to whoever is assembling the combined package above.
             </p>
             <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
               {course.roles.map((r, i) => (

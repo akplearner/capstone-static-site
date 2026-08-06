@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
-import localFont from 'next/font/local';
 import './globals.css';
 import { SiteNav } from '@/components/SiteNav';
 import { MotionProvider } from '@/components/MotionProvider';
@@ -19,24 +18,6 @@ const plexMono = IBM_Plex_Mono({
   subsets: ['latin'],
   weight: ['400', '500', '600'],
   variable: '--font-plex-mono',
-});
-// The arcade face for the game layer — week/difficulty badges, XP, headings.
-// Vendored (see fonts/README.md) rather than fetched from Google so the build
-// is deterministic and works offline. Restricted to short strings by the
-// `.pixel` class; body copy and commands stay IBM Plex, because an 8x8 bitmap
-// face at paragraph length is materially harder to read and these students are
-// following technical instructions.
-const pixel = localFont({
-  src: './fonts/PressStart2P-latin.woff2',
-  weight: '400',
-  style: 'normal',
-  display: 'swap',
-  // Named *-face because `--font-pixel` is the Tailwind theme entry that wraps
-  // this with its fallback chain (see @theme inline in globals.css).
-  variable: '--font-pixel-face',
-  // Fall back to the UI sans rather than a serif if the file ever fails.
-  fallback: ['ui-sans-serif', 'system-ui', 'sans-serif'],
-  adjustFontFallback: false,
 });
 
 export const metadata: Metadata = {
@@ -59,7 +40,7 @@ export default function RootLayout({
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
-      <body className={`${plexSans.variable} ${plexMono.variable} ${pixel.variable} bg-surface`}>
+      <body className={`${plexSans.variable} ${plexMono.variable} bg-surface`}>
         <MotionProvider>
           <ToastProvider>
             <SiteNav />

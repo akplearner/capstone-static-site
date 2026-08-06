@@ -4,25 +4,17 @@ import { motion } from 'framer-motion';
 import { STONE_STAGES, type StoneStage, stoneStage } from '@/lib/quarry';
 
 /**
- * The Capstone Stone — one evolving object representing the whole project.
+ * Capstone progress emblem — one evolving abstract mark for the whole project.
  *
- * This replaces the XP bar. XP told a student a number; the stone tells them
- * what they have actually cut. It advances only when a week is genuinely
- * finished, so it can't flatter someone who hasn't done the work.
- *
- * Drawn as inline SVG rather than an image so it inherits the region's mineral
- * colours (`--stone-rock`, `--stone-crystal`, `--stone-vein`) — the same stone
- * looks like iron quartz in the Foundation Quarry and obsidian in the Audit
- * Vault, with no extra assets.
+ * A quiet, professional progress indicator rather than an XP bar: it advances
+ * only when a week is genuinely finished, so it can't flatter someone who hasn't
+ * done the work. Drawn as inline SVG so it inherits the course's accent tokens
+ * (`--stone-*` are just colour variables) and stays crisp at any size — no game
+ * or pixel styling, and its labels are the professional programme phases.
  *
  * Each stage adds geometry rather than swapping art, so the progression reads as
- * one rock being worked, not six unrelated pictures:
- *   0 raw        — rough silhouette, dim core
- *   1 surveyed   — chalk survey marks
- *   2 structured — cut facets, defined edges
- *   3 operational— internal seams light up
- *   4 secured    — reinforcing bands
- *   5 master     — full crystal, mounted
+ * one mark being completed, not six unrelated pictures (0 not started → 5
+ * delivered).
  */
 
 export function CapstoneStone({
@@ -195,9 +187,8 @@ export function CapstoneStonePanel({
       <div className="flex items-start gap-4">
         <CapstoneStone stage={stage} size={84} className="shrink-0" />
         <div className="min-w-0 flex-1">
-          <div className="pixel text-[11px] uppercase tracking-wide text-accent">
-            {def.name}
-          </div>
+          <div className="eyebrow">Capstone progress</div>
+          <div className="mt-0.5 text-base font-semibold text-ink">{def.name}</div>
           {/* `means` is deliberately not rendered as body text. It said the same
               thing as the stage name in a longer form, and it is still carried
               by the SVG's aria-label and each rail diamond's tooltip — so the
@@ -221,7 +212,7 @@ export function CapstoneStonePanel({
                 >
                   <span
                     aria-hidden
-                    className="h-2.5 w-2.5 rotate-45 border-2"
+                    className="h-2.5 w-2.5 rounded-full border-2"
                     style={{
                       borderColor: 'var(--color-accent)',
                       background: done ? 'var(--color-accent)' : 'transparent',

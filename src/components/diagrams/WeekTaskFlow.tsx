@@ -35,7 +35,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
   return (
     <DiagramFrame
       title={`This week's task flow — ${roleDef?.name ?? role}`}
-      howToRead="Work the tasks left to right. Each card shows its required steps and the documents it produces. Hand-offs below are what you pass to teammates to clear the week."
+      howToRead="Work the tasks left to right — each card shows its required steps and the documents it produces, and you can finish them all on your own. The optional shares below are where your work can enrich a teammate's."
     >
       <div className="flex items-stretch gap-2 pb-1">
         {tasks.map((task, i) => {
@@ -91,7 +91,11 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
       </div>
 
       {handoffs.length > 0 && (
-        <ul className="mt-3 space-y-1.5 border-t border-gray-100 pt-3 dark:border-gray-700">
+        <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-700">
+          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+            Optional — share to enrich a teammate&apos;s work
+          </div>
+        <ul className="space-y-1.5">
           {handoffs.map((h, i) => {
             const to = getRoleDef(course, h.to);
             return (
@@ -109,6 +113,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
             );
           })}
         </ul>
+        </div>
       )}
     </DiagramFrame>
   );

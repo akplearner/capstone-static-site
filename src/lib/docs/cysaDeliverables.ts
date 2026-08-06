@@ -41,7 +41,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'Prove monitoring is live and record what "normal" looks like. Next week you can only spot "weird" if you wrote down "normal" this week.',
     howTo:
       'Attach the screenshot showing both agents Active, fill in the baseline fields, then list at least three alert types that fire routinely with a rough count.',
-    source: "The Responder's agent deployment + your own dashboard review.",
+    source: 'Your own host agent + your dashboard review.',
     buildSteps: [
       'Agents view → screenshot both Team<#>-ubuntu and Team<#>-win showing Active → attach as the baseline evidence.',
       'Security events › Dashboard sub-tab → read "Top 5 rule groups" for the routine alert types.',
@@ -113,7 +113,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'Turn a suspicious alert into proof: pivot on the source in the logs, capture the traffic, and quote the exact request the attacker sent.',
     howTo:
       'Record the suspicious source and the search you ran, attach the grouped-alerts and Wireshark screenshots, log the pcap + its SHA-256, then paste the attacker request you followed in the HTTP stream.',
-    source: "The SOC Analyst's escalated alerts.",
+    source: 'Your own attack traffic in the SOC (plus any alerts a teammate escalated).',
     buildSteps: [
       'Pivot on the escalated source: data.srcip:<ip> or data.src_ip:<ip> in Security events.',
       'Read data.dest_port / data.alert.signature to size up what it did; screenshot the grouped alerts.',
@@ -122,7 +122,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     ],
     meaning:
       'Proof, not suspicion: the quoted request plus the hashed capture show exactly what the attacker sent, so no one has to take your word for it.',
-    useIt: 'The Incident Responder turns these findings into IOC rows; the capture + hash become chain-of-custody evidence.',
+    useIt: 'These findings become IOC rows, and the capture + hash become chain-of-custody evidence (a teammate can reuse them too).',
     pitfalls: [
       'Quoting the request from memory instead of the packet.',
       'Forgetting to chown the pcap — scp then fails with Permission denied.',
@@ -177,7 +177,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'Confirm the weaknesses two ways — what the SOC already knows and what a scan proves — then rank them by real risk and write a fix plan someone could follow.',
     howTo:
       'Attach the Wazuh Vulnerabilities + SCA screenshots and paste your nmap/nikto output, then add one row per finding with a CVE + score (or a written reason), its likelihood × impact risk, and a fix with an owner and date.',
-    source: "The Threat Hunter's Kali scan + the SOC's built-in vulnerability list.",
+    source: "Your own Kali scan and/or the SOC's built-in vulnerability list.",
     buildSteps: [
       'Attach the Wazuh Vulnerabilities (Critical/High) and SCA screenshots; paste your nmap -sV and nikto output.',
       'For each finding, look the package+version or nmap banner up on NVD and copy its CVSS score (or write a reason if there is no CVE).',
@@ -259,10 +259,10 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'Close the incident: rebuild the timeline, contain the attack, hash the evidence, and write the five-sentence summary leadership reads.',
     howTo:
       'Fill the wrapper (first alert, attacker IP, containment, root cause, exec summary), then build the timeline one row per step and log every artifact with its SHA-256.',
-    source: "The SOC Analyst's detection record + the Threat Hunter's timeline.",
+    source: "The SOC (attacker IP, access.log) — plus a teammate's detection record or timeline if shared.",
     buildSteps: [
       'Fill the wrapper: first-alert screenshot + time (the incident start), attacker IP, the malicious access.log line, containment action + time.',
-      'The Threat Hunter builds the timeline table — one row per step, each citing the search or log line it came from.',
+      'Build the timeline table — one row per step, each citing the search or log line it came from (the form seeds example rows to start from).',
       'Trace the timeline back to the first successful step to state the root cause; list the fixes (from the Vulnerability Assessment) that address it.',
       'Write the 5-sentence executive summary; log every artifact (access.log, screenshots) with its SHA-256.',
     ],
@@ -341,7 +341,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'The running record of indicators — one row per IOC, each traceable to a specific alert or packet and looked up against public threat intel.',
     howTo:
       'Add a row per indicator: its type and value, where you first saw it and when, the source you checked, and a verdict. Nothing found is still a result — mark it Unknown.',
-    source: "The Threat Hunter's investigation + threat-intel lookups.",
+    source: 'Your own SOC pivots and packet capture + threat-intel lookups.',
     buildSteps: [
       'Re-run data.src_ip:<kali-ip> or data.srcip:<kali-ip> for the attacker IP.',
       'Open week2.pcap in Wireshark for the malicious URL/URI and the attacker User-Agent; use the pcap SHA-256 for the Hash row.',
@@ -406,7 +406,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'Prove the SOC can actually see what it should. Every expected data source is checked for real data — a source you expect but cannot find is a blind spot, and a blind spot is a finding.',
     howTo:
       'List each data source you expect (agent, Suricata, FIM, SCA, Windows/Sysmon), mark whether real data is arriving, attach a screenshot, and note any gap. Finish with a one-line summary of your coverage.',
-    source: "The SOC Analyst's deployed agents + the dashboard modules.",
+    source: 'The dashboard modules for your pod.',
     buildSteps: [
       'Check each expected source for real recent data: host agent, Suricata (rule.groups:ids), FIM, SCA, and Windows/Sysmon.',
       'Mark each Yes / Partial / No, attach a screenshot, and note any gap.',
@@ -414,7 +414,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     ],
     meaning:
       'Proof the SOC can see what it should. A source you expect but cannot find is a blind spot — and a blind spot is a finding worth marks, not something to hide.',
-    useIt: 'Gaps go to the builder/Incident Responder to fix before Week 2’s detection work.',
+    useIt: 'Note gaps as findings; share them if a teammate is fixing coverage — either way they’re yours to record.',
     pitfalls: [
       'Marking a source "Yes" because the module exists — "Yes" means you actually saw recent data.',
     ],
@@ -482,7 +482,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     ],
     meaning:
       'Real vs noise, with a reason. A good report escalates the handful worth chasing and says in one line why each is real — "one IP hit 900 ports in 40s", not "looks bad".',
-    useIt: 'The escalated rows are the Threat Hunter’s Week-2 starting point.',
+    useIt: 'The escalated rows connect to the Week-2 investigation — your own, or a teammate’s if you compare notes.',
     pitfalls: [
       'A verdict with no reason.',
       'Escalating everything (or nothing) — triage is about the cut.',
@@ -493,7 +493,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         group: {
           group: 'alerts',
           label: 'Alerts triaged',
-          help: 'A verdict with a one-line reason beats a long list with none. Escalate what the Hunter should investigate.',
+          help: 'A verdict with a one-line reason beats a long list with none. Escalate what needs deeper investigation.',
           columns: [
             c('alert', 'Alert', 'text', { placeholder: 'Multiple failed logins from 10.10.100.66' }),
             c('count', 'Count / severity', 'text', { placeholder: '48 in 2 min · high' }),
@@ -512,7 +512,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
     dod: [
       { label: 'At least three alerts triaged', test: (d) => (d.groups.alerts ?? []).filter((r) => !!r.alert).length >= 3 },
       { label: 'Every alert has a verdict and a reason', test: (d) => (d.groups.alerts ?? []).length > 0 && (d.groups.alerts ?? []).every((r) => !!r.verdict && !!r.reason) },
-      { label: 'At least one alert is escalated to the Hunter', test: (d) => (d.groups.alerts ?? []).some((r) => r.escalated === 'Yes') },
+      { label: 'At least one alert is escalated for investigation', test: (d) => (d.groups.alerts ?? []).some((r) => r.escalated === 'Yes') },
     ],
   },
 
@@ -544,7 +544,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'Note what tipped you off (the rule that fired), the affected hosts, and who you escalated to.',
     ],
     meaning:
-      'The clean hand-off that starts the incident. A good one lets the Threat Hunter begin without a single follow-up question.',
+      'The clean record that starts the incident. A good one lets whoever investigates next — you, or a teammate — begin without a single follow-up question.',
     useIt: 'Feeds the Incident Response Report’s wrapper and the MTTD figure in the Executive Debrief.',
     pitfalls: [
       'Recording the alert you noticed first instead of the earliest one — sort by time.',
@@ -591,7 +591,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       'The wrap-up leadership actually reads: across the four weeks, what happened, how fast the team detected and responded, what was fixed, and what to improve next time. Built from every role’s work.',
     howTo:
       'Write a short executive summary a non-technical manager can act on, fill the headline metrics, then list the concrete lessons learned and recommendations. Pull the numbers from your weekly reports.',
-    source: 'All four weekly reports + the Incident Response Report.',
+    source: "Your four weekly reports + the Incident Response Report (your own, or a teammate's if shared; use the seeded figures if one is missing).",
     buildSteps: [
       'Pull the numbers from your reports: detection time (Detection Record 08), containment time (Incident Response Report 04), open High/Critical risks (Vulnerability Assessment 03).',
       'Compute MTTD = first-alert − attack-start and MTTR = containment − first-alert; write each as a duration.',

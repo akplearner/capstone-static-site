@@ -28,6 +28,7 @@ import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
+import { TaskThisWeek } from '@/components/TaskThisWeek';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
 import { socTopology } from '@/lib/labTopology';
@@ -51,7 +52,7 @@ import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
-import { regionFor, phaseForWeek } from '@/lib/quarry';
+import { phaseForWeek } from '@/lib/quarry';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
@@ -849,14 +850,16 @@ export default function CoursePage() {
     // brief holds only orientation: what you'll learn, the frameworks it maps to,
     // and the done-criteria. An earlier amber strip repeated the prereq/hand-off
     // pair here; it was a strict subset of the identity strip, so it's gone.
-    const hasBrief = !!(
-      task.learn?.length || task.definitionOfDone?.length || task.frameworks?.length
-    );
+    // The concrete plan (the ordered steps) and the done-criteria are always
+    // visible above the brief now — a student shouldn't have to open anything to
+    // learn what they're doing this week or what "finished" means.
+    const hasBrief = !!(task.learn?.length || task.frameworks?.length);
     return (
     <>
+      <TaskThisWeek task={task} />
       {hasBrief && (
         <div className="mb-4 rounded-lg border border-gray-200 px-4 dark:border-gray-700">
-          <Collapsible title="Task brief — learn, frameworks & done criteria" defaultOpen={false}>
+          <Collapsible title="Task brief — what you'll learn & frameworks" defaultOpen={false}>
             <div className="space-y-3 py-2">
         <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
           {task.learn && task.learn.length > 0 && (
@@ -887,20 +890,6 @@ export default function CoursePage() {
                   {getFrameworkLabel(fw)}
                 </span>
               ))}
-            </div>
-          )}
-          {task.definitionOfDone && task.definitionOfDone.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-                <CheckCircle2 className="h-3.5 w-3.5" /> You&apos;re done when
-              </div>
-              <ul className="mt-1 space-y-0.5 text-sm text-gray-700 dark:text-gray-300">
-                {task.definitionOfDone.map((d) => (
-                  <li key={d} className="flex gap-1.5">
-                    <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" /> {d}
-                  </li>
-                ))}
-              </ul>
             </div>
           )}
         </div>
@@ -1026,17 +1015,10 @@ export default function CoursePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-      {/* Where you're working and what you've cut so far. This is the course's
-          identity, so it belongs on the course's overview — not repeated above
-          every other tab. The region's terrain description is deliberately not
-          here: it is scene-setting, and it was costing 30 words on five tabs. */}
+      {/* The capstone's overall progress — where the whole project stands, on the
+          overview only, not repeated above every tab. */}
       {joined && member && (
         <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
-          <p className="mb-3 text-sm text-muted">
-            <span className="font-semibold text-ink">{regionFor(course).name}</span>
-            {' · '}
-            {regionFor(course).mineral}
-          </p>
           <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
         </div>
       )}
@@ -1317,10 +1299,10 @@ export default function CoursePage() {
                       kind of work is this week" before the title says what the
                       work is about, and it's the one line that makes four weeks
                       read as one arc. Tinted with the per-week phase token so
-                      each stage of the expedition has its own colour. */}
+                      each stage of the lifecycle has its own colour. */}
                   {phaseForWeek(course, w.number) && (
                     <div
-                      className="pixel mb-1 text-[9px] uppercase leading-none tracking-wider"
+                      className="mb-1 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
                       style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
                     >
                       {phaseForWeek(course, w.number)}
@@ -1356,14 +1338,12 @@ export default function CoursePage() {
                 <div className="flex shrink-0 items-center gap-3">
                   {joined && (
                     <span className="hidden items-center gap-1.5 sm:flex">
-                      {/* Stepped, not smooth — a game meter, and it now takes the
-                          course's accent instead of a hardcoded blue. */}
-                      <span className="relative h-2.5 w-16 border border-line bg-panel-2">
+                      {/* A smooth accent meter, taking the course's accent. */}
+                      <span className="relative h-2 w-16 overflow-hidden rounded-full bg-panel-2">
                         <span
-                          className="absolute inset-y-0 left-0"
+                          className="absolute inset-y-0 left-0 rounded-full"
                           style={{ width: `${weekPct}%`, background: 'var(--color-accent)' }}
                         />
-                        <span className="pixel-meter absolute inset-0" aria-hidden />
                       </span>
                       <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
                         {weekPct}%

@@ -165,7 +165,7 @@ describe('describeChain', () => {
     const chain = buildDeliverableChain(CYSA_PLUS);
     const lines = describeChain(chain, (id) => CYSA_PLUS.roles.find((r) => r.id === id)?.name ?? id);
     expect(lines).toHaveLength(chain.edges.length);
-    expect(lines.some((l) => l.includes('hands'))).toBe(true);
+    expect(lines.some((l) => l.includes('can enrich'))).toBe(true);
     expect(lines.every((l) => l.endsWith('.'))).toBe(true);
   });
 });

@@ -23,7 +23,7 @@ export function WeekGoals({ weeks }: { weeks: WeekDef[] }) {
               </span>
               {phase && (
                 <span
-                  className="pixel text-[9px] uppercase leading-none tracking-wider"
+                  className="font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
                   style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
                 >
                   {phase}

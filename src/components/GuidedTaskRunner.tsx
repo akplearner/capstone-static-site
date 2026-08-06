@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
+  FileText,
   ListChecks,
   Rows3,
   RotateCcw,
@@ -199,6 +200,16 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           )}
         </div>
       </div>
+
+      {/* The target, kept in view while stepping so the end goal is never out of
+          sight — you always know which file this task is building toward. */}
+      {task.deliverables?.[0] && (
+        <div className="flex items-center gap-1.5 text-xs text-muted">
+          <FileText className="h-3.5 w-3.5 shrink-0" />
+          <span>Goal: produce</span>
+          <span className="font-mono text-ink">{task.deliverables[0]}</span>
+        </div>
+      )}
 
       {mode === 'guided' ? (
         <div className="space-y-5">

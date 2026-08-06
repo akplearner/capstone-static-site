@@ -11,20 +11,19 @@ import type { DeliverableDef } from '@/lib/docs/types';
 import { DiagramFrame } from '@/components/diagrams/DiagramFrame';
 
 /**
- * The deliverable chain — the whole capstone as one relay you can inspect.
+ * How your work connects — each role's files, and the optional links between them.
  *
- * A three-person crew only works if each person's output is the next person's
- * input, but that relay is easy to lose sight of: a student sees the task in
- * front of them and never that someone is waiting on it. This draws it — role
- * lanes down the side, weeks across the top, and each **file** sitting where its
- * owner produces it, with arrows to the files it feeds.
+ * Every role completes their own files start to finish on their own; nothing
+ * here waits on a teammate. The arrows are optional connections: they show where
+ * one file's findings can enrich another (yours or a teammate's) when people
+ * collaborate. This draws it — role lanes down the side, weeks across the top,
+ * and each **file** sitting where its owner produces it.
  *
- * The node face shows the real filename the student saves and hands off (e.g.
+ * The node face shows the real filename the student saves (e.g.
  * `05_IOC_Database.csv`) — the technical anchor, not a paraphrase. Hovering or
  * focusing a file opens a plain, technical read-out beneath the diagram: who
- * produces it, what it's built from, and where it goes next. That read-out is
- * where the old "how your work connects" hand-off list now lives, attached to
- * the thing it describes instead of floating in a separate paragraph.
+ * produces it, what it's built from, and what it connects to. That read-out is
+ * attached to the file it describes instead of floating in a separate paragraph.
  *
  * Reduced motion is handled globally by `<MotionConfig reducedMotion="user">`;
  * no guard is needed here.
@@ -90,14 +89,14 @@ export function DeliverableChainDiagram({
 
   return (
     <DiagramFrame
-      title="The deliverable chain"
-      subtitle="Every file is someone else's starting point"
-      howToRead="Each box is a file one crew member produces; an arrow means the file on the left feeds the one on the right. A solid arrow hands a file to another role; a dashed arrow carries your own work forward. Hover, tap, or focus a file to see who produces it and where it goes."
+      title="How your work connects"
+      subtitle="You complete your own files alone — arrows show where they can enrich other work (optional)"
+      howToRead="Each box is a file you produce and finish on your own — nothing here waits on a teammate. The arrows are optional: they show where one file's findings can enrich another, yours or a teammate's, when you collaborate. Hover, tap, or focus a file for details."
       legend={[
-        { label: 'Produced', color: 'var(--stone-crystal, #7aa2c8)' },
-        { label: 'Still owed', color: 'var(--color-line)', dashed: true },
-        { label: 'Feeds another role', color: 'var(--color-accent)' },
-        { label: 'Carried forward', color: 'var(--color-muted)', dashed: true },
+        { label: 'Filed', color: 'var(--stone-crystal, #7aa2c8)' },
+        { label: 'Not yet filed', color: 'var(--color-line)', dashed: true },
+        { label: 'Connects to another role', color: 'var(--color-accent)' },
+        { label: 'Continues your own work', color: 'var(--color-muted)', dashed: true },
       ]}
     >
       <svg
@@ -105,7 +104,7 @@ export function DeliverableChainDiagram({
         width={width}
         height={height}
         role="img"
-        aria-label={`Deliverable chain for ${course.title}: ${sentences.length} handoffs across ${chain.columns.length} weeks.`}
+        aria-label={`How your work connects for ${course.title}: ${sentences.length} optional connections across ${chain.columns.length} weeks.`}
         className="max-w-none"
       >
         <defs>
@@ -349,7 +348,7 @@ export function DeliverableChainDiagram({
                   <dd className="text-muted">{activeDef.source}</dd>
                 </>
               )}
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Feeds</dt>
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Connects to</dt>
               <dd className="text-muted">
                 {activeDownstream.length > 0 ? (
                   <span className="flex flex-wrap items-center gap-x-1 gap-y-1">

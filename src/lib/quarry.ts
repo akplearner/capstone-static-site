@@ -1,38 +1,35 @@
 import { Course } from './types';
 
 /**
- * Capstone Quarry — the world model.
+ * Course progress + colour model.
  *
- * "Build the environment. Work the process. Prove the skill."
+ * Two responsibilities:
  *
- * Two ideas carry the whole theme, and everything here exists to serve them:
+ *  1. **Per-vendor colour keys.** Each vendor maps to a CSS `key` (and each
+ *     course to a `seam`) that select the accent/phase colour tokens in
+ *     globals.css, so a course's identity and its palette are one decision.
+ *     (The region `name`/`mineral`/`terrain` strings are legacy scene-setting
+ *     and are no longer surfaced anywhere — only `key` is used.)
  *
- *  1. **Every vendor is a geographic region with its own mineral.** A course
- *     isn't a colour, it's a place — CompTIA's Foundation Quarry, AWS's Ember
- *     Cloud Range. The mineral drives the palette, so the theme and the identity
- *     are the same decision rather than two that can drift apart.
+ *  2. **Capstone progress phases.** Progress is a professional programme phase
+ *     (Not started → Planned → Deployed → Operational → Hardened → Delivered),
+ *     *derived* from work actually completed, so it can never flatter a student
+ *     who hasn't done anything.
  *
- *  2. **Every team shapes one evolving Capstone Stone.** Progress is not points;
- *     it's a rock getting cut. The stage is *derived* from work actually
- *     completed, so it can never flatter a student who hasn't done anything.
- *
- * Regions are keyed by vendor rather than by course, because two CompTIA courses
- * belong to the same geography. They're separated by a *seam* — a vein colour
- * within the same rock — so Security+ and CySA+ stay tellable apart without
- * pretending to be different places.
+ * Regions are keyed by vendor rather than by course (two CompTIA courses share a
+ * vendor), separated by a `seam` so Security+ and CySA+ keep distinct accents.
  */
 
-// ── Regions ──────────────────────────────────────────────────────────────────
+// ── Region colour keys ─────────────────────────────────────────────────────────
 
 export interface QuarryRegion {
   /** CSS key; must match a `[data-region=...]` block in globals.css. */
   key: string;
-  /** "The Foundation Quarry" — the place students are working in. */
+  /** Legacy, no longer rendered — kept so existing REGIONS entries type-check. */
   name: string;
-  /** "Iron quartz" — what they're cutting. */
+  /** Legacy, no longer rendered. */
   mineral: string;
-  /** One line of place-setting for the course header. Not marketing filler:
-   *  it should tell a student what kind of work this region involves. */
+  /** Legacy, no longer rendered. */
   terrain: string;
 }
 
@@ -147,41 +144,41 @@ export interface StoneStageDef {
 export const STONE_STAGES: StoneStageDef[] = [
   {
     stage: 0,
-    name: 'Uncut Capstone',
-    means: 'Project assigned and crew formed. Nothing surveyed, nothing built.',
-    phase: 'Arrive',
+    name: 'Not started',
+    means: 'Project assigned and team formed. Nothing scoped, nothing built.',
+    phase: 'Plan',
   },
   {
     stage: 1,
-    name: 'Surveyed Capstone',
-    means: 'Requirements read, domains mapped, roles assigned, design agreed.',
-    phase: 'Survey & Design',
+    name: 'Planned',
+    means: 'Requirements read, scope agreed, roles assigned, design set.',
+    phase: 'Plan & Scope',
   },
   {
     stage: 2,
-    name: 'Structured Capstone',
+    name: 'Deployed',
     means: 'Environment stood up and core services configured.',
-    phase: 'Build & Establish',
+    phase: 'Deploy & Baseline',
   },
   {
     stage: 3,
-    name: 'Operational Capstone',
+    name: 'Operational',
     means: 'Systems integrated, workflows running end to end, monitoring live.',
-    phase: 'Integrate & Connect',
+    phase: 'Detect & Investigate',
   },
   {
     stage: 4,
-    name: 'Secured Capstone',
-    means: 'Controls in place, testing done, failures found and repaired, evidence collected.',
-    phase: 'Secure & Validate',
+    name: 'Hardened',
+    means: 'Weaknesses found and remediated, controls in place and validated, evidence collected.',
+    phase: 'Assess & Harden',
   },
   {
     stage: 5,
-    name: 'Master Capstone',
+    name: 'Delivered',
     means: 'Validated, documented, handed off and defended.',
     // Stage 5 is the only one a week cannot grant on its own — it is the act of
     // handing the work over, so its verb is the handover.
-    phase: 'Transfer & Defend',
+    phase: 'Respond & Report',
   },
 ];
 

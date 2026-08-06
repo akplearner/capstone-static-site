@@ -21,11 +21,11 @@ describe('deriveStoneStage', () => {
     expect(run([1, 2, 3])).toBe(3);
   });
 
-  it('reaches Secured on the last week — the stage the old count-based math skipped', () => {
+  it('reaches Hardened on the last week — the stage the old count-based math skipped', () => {
     // Regression: deriving the stage from the *number* of cleared weeks jumped
-    // straight to Master here, so stage 4 could never be cut on a 4-week course.
+    // straight to the final stage here, so stage 4 could never be cut on a 4-week course.
     expect(run([1, 2, 3, 4])).toBe(4);
-    expect(STONE_STAGES[4].name).toBe('Secured Capstone');
+    expect(STONE_STAGES[4].name).toBe('Hardened');
   });
 
   it('gives Master only when every week is cleared AND the capstone is filed', () => {
