@@ -35,6 +35,27 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
       );
     }
 
+    // Local/dev passcode mode with no passcode configured → the studio is
+    // sealed, not open. There is nothing to type; the author enables it by
+    // setting the env var (or by connecting Supabase for account-based access).
+    if (!auth.passcodeSet) {
+      return (
+        <div className="mx-auto max-w-md space-y-5 py-16 text-center">
+          <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            <Lock className="h-6 w-6" />
+          </div>
+          <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Instructor Studio</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            The studio is locked. To enable it, set{' '}
+            <code className="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-gray-800">
+              NEXT_PUBLIC_INSTRUCTOR_PASSCODE
+            </code>{' '}
+            for local use, or connect Supabase for account-based instructor access.
+          </p>
+        </div>
+      );
+    }
+
     // Local/dev passcode mode.
     return (
       <div className="mx-auto max-w-sm space-y-5 py-16">

@@ -5,7 +5,7 @@ import { Info, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { TeamProgressTable, MemberProgress, DeliverableStatus } from '@/components/TeamProgressTable';
-import { TeamHandoffChecklist } from '@/components/TeamHandoffChecklist';
+import { DeliverableChainDiagram } from '@/components/quarry/DeliverableChain';
 import { LoadingBlock } from '@/components/ui/Spinner';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
@@ -14,6 +14,7 @@ import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { getRequiredStepCount, getTasksByRole } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
+import { buildDeliverableChain } from '@/lib/deliverableChain';
 import { emptyData } from '@/lib/docs/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 
@@ -64,6 +65,13 @@ export default function TeamSpacePage() {
     });
   }, EMPTY_ARRAY);
 
+  // The deliverable chain, with filed status recomputed whenever docs change,
+  // so the diagram reads as a live status board rather than a static plan.
+  const chain = useClientStore(
+    () => buildDeliverableChain(course, docsRepo.get(course.id, teamId) ?? {}),
+    buildDeliverableChain(course, {})
+  );
+
   if (loading) return <LoadingBlock />;
 
   // Teammates of the same team can view it; others can't (RLS also enforces this
@@ -107,7 +115,7 @@ export default function TeamSpacePage() {
 
       <section className="space-y-3">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">How your work connects</h2>
-        <TeamHandoffChecklist course={course} teamId={teamId} />
+        <DeliverableChainDiagram course={course} chain={chain} highlightRole={member?.role} />
       </section>
     </div>
   );

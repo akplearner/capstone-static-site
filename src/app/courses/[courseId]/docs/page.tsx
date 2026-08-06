@@ -7,7 +7,6 @@ import { CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lo
 import { EmptyState } from '@/components/EmptyState';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { FrameworkBadge } from '@/components/TaskComponents';
-import { InfoTip } from '@/components/InfoTip';
 import { Collapsible } from '@/components/ui/Button';
 import { LoadingBlock } from '@/components/ui/Spinner';
 import { toast } from '@/components/ui/Toast';
@@ -16,7 +15,6 @@ import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
-import { FolderTree } from '@/components/docs/FolderTree';
 import { GlossaryText } from '@/components/GlossaryText';
 import { EVIDENCE_NAMING } from '@/lib/evidence';
 import { useCourse } from '@/lib/useCourse';
@@ -257,16 +255,11 @@ export default function DeliverablesPage() {
           </ul>
         )}
         {courseDefs.some((d) => d.weeks.includes(selectedWeek)) && (
-          <div className="mt-4 border-t border-blue-200 pt-3 dark:border-blue-800">
-            <p className="text-[12px] text-blue-800 dark:text-blue-200">
-              Name evidence <span className="font-mono">{EVIDENCE_NAMING}</span> and keep it in{' '}
-              <span className="font-mono">~/team-artifacts/week-{selectedWeek}/</span> while you work. Your
-              submission zip for this week will look like this:
-            </p>
-            <div className="mt-2">
-              <FolderTree courseId={course.id} variant="week" week={selectedWeek} roles={course.roles} />
-            </div>
-          </div>
+          <p className="mt-4 border-t border-blue-200 pt-3 text-[12px] text-blue-800 dark:border-blue-800 dark:text-blue-200">
+            Name evidence <span className="font-mono">{EVIDENCE_NAMING}</span> and keep it in{' '}
+            <span className="font-mono">~/team-artifacts/week-{selectedWeek}/</span> while you work. The
+            week&apos;s submission zip is built for you at the bottom of this page.
+          </p>
         )}
       </div>
 
@@ -310,7 +303,7 @@ export default function DeliverablesPage() {
                 </ul>
                 <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
                   The team package includes a ready-to-fill chain-of-custody log in{' '}
-                  <span className="font-mono">Evidence/</span>; the forms below carry the same custody columns.
+                  <span className="font-mono">Evidence/</span>.
                 </p>
               </div>
             </div>
@@ -534,7 +527,6 @@ export default function DeliverablesPage() {
                   <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
                     {def.num}. {def.title}
                     {def.framework && <FrameworkBadge framework={def.framework} />}
-                    <InfoTip label={def.howTo} />
                     {isExample && !locked && (
                       <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                         Example

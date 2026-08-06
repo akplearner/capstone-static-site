@@ -1,24 +1,30 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowRight, FileText } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { getRoleDef } from '@/lib/course-helpers';
-import { describeChain, type DeliverableChain } from '@/lib/deliverableChain';
+import { describeChain, downstreamOf, type DeliverableChain } from '@/lib/deliverableChain';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
+import type { DeliverableDef } from '@/lib/docs/types';
 import { DiagramFrame } from '@/components/diagrams/DiagramFrame';
 
 /**
- * The deliverable chain — the whole capstone as one relay.
+ * The deliverable chain — the whole capstone as one relay you can inspect.
  *
  * A three-person crew only works if each person's output is the next person's
- * input, but until now that relay was invisible: a student could see the task
- * in front of them and never the fact that someone is waiting on it. This draws
- * it — role lanes down the side, weeks across the top, and an artefact
- * travelling each edge from the crew member who produces it to the one who
- * needs it.
+ * input, but that relay is easy to lose sight of: a student sees the task in
+ * front of them and never that someone is waiting on it. This draws it — role
+ * lanes down the side, weeks across the top, and each **file** sitting where its
+ * owner produces it, with arrows to the files it feeds.
  *
- * Nodes fill with the region's mineral once the document is actually filed, so
- * the picture is a status board rather than a plan: an unfilled node in week 1
- * with three edges leaving it is visibly the thing blocking everyone.
+ * The node face shows the real filename the student saves and hands off (e.g.
+ * `05_IOC_Database.csv`) — the technical anchor, not a paraphrase. Hovering or
+ * focusing a file opens a plain, technical read-out beneath the diagram: who
+ * produces it, what it's built from, and where it goes next. That read-out is
+ * where the old "how your work connects" hand-off list now lives, attached to
+ * the thing it describes instead of floating in a separate paragraph.
  *
  * Reduced motion is handled globally by `<MotionConfig reducedMotion="user">`;
  * no guard is needed here.
@@ -28,8 +34,12 @@ const LANE_H = 78;
 const COL_W = 190;
 const PAD_X = 116; // room for the role labels down the left
 const PAD_Y = 34; // room for the week headers across the top
-const NODE_W = 150;
+const NODE_W = 152;
 const NODE_H = 40;
+
+function truncate(s: string, max: number) {
+  return s.length > max ? `${s.slice(0, max - 1)}…` : s;
+}
 
 export function DeliverableChainDiagram({
   course,
@@ -41,6 +51,16 @@ export function DeliverableChainDiagram({
   /** The student's own role — their lane stays full strength, others dim. */
   highlightRole?: string;
 }) {
+  const [active, setActive] = useState<string | null>(null);
+
+  // The definitions carry the prose the diagram can't ("built from", "feeds"),
+  // keyed by id so the detail card can look one up in O(1).
+  const defById = useMemo(() => {
+    const m = new Map<string, DeliverableDef>();
+    for (const d of deliverablesForCourse(course.id)) m.set(d.id, d);
+    return m;
+  }, [course.id]);
+
   // A chain with no edges is not a chain — it is a grid of disconnected boxes,
   // which reads as broken rather than as "this course has no dependencies".
   // Render nothing rather than something misleading.
@@ -59,15 +79,25 @@ export function DeliverableChainDiagram({
 
   const sentences = describeChain(chain, roleName);
 
+  // The focused file's full detail: node (position/status) + def (the prose).
+  const activeNode = active ? byId.get(active) : undefined;
+  const activeDef = active ? defById.get(active) : undefined;
+  const activeDownstream = activeNode
+    ? downstreamOf(chain, activeNode.id)
+        .map((id) => byId.get(id))
+        .filter((n): n is NonNullable<typeof n> => !!n)
+    : [];
+
   return (
     <DiagramFrame
       title="The deliverable chain"
-      subtitle="Every document is someone else's starting point"
-      howToRead="Each row is a role, each column a week. A filled stone means the document is written; an arrow means it feeds the next one. Follow the arrows out of your own row to see who is waiting on you."
+      subtitle="Every file is someone else's starting point"
+      howToRead="Each box is a file one crew member produces; an arrow means the file on the left feeds the one on the right. A solid arrow hands a file to another role; a dashed arrow carries your own work forward. Hover, tap, or focus a file to see who produces it and where it goes."
       legend={[
-        { label: 'Filed', color: 'var(--stone-crystal, #7aa2c8)' },
+        { label: 'Produced', color: 'var(--stone-crystal, #7aa2c8)' },
         { label: 'Still owed', color: 'var(--color-line)', dashed: true },
-        { label: 'Handed to another role', color: 'var(--color-accent)' },
+        { label: 'Feeds another role', color: 'var(--color-accent)' },
+        { label: 'Carried forward', color: 'var(--color-muted)', dashed: true },
       ]}
     >
       <svg
@@ -177,6 +207,9 @@ export function DeliverableChainDiagram({
             const mid = x1 + (x2 - x1) / 2;
             d = `M${x1} ${y1} C${mid} ${y1}, ${mid} ${y2}, ${x2} ${y2}`;
           }
+          // An edge touching the focused file is the thing the detail card is
+          // talking about — lift it so "where it goes" is visible on the diagram.
+          const touchesActive = !!active && (e.from === active || e.to === active);
           const delay = Math.min(i * 0.05, 0.5);
           return (
             <g key={`${e.from}->${e.to}`}>
@@ -184,11 +217,14 @@ export function DeliverableChainDiagram({
                 d={d}
                 fill="none"
                 stroke={e.sameRole ? 'var(--color-muted)' : 'var(--color-accent)'}
-                strokeWidth={e.sameRole ? 1.25 : 1.75}
+                strokeWidth={touchesActive ? (e.sameRole ? 2 : 2.75) : e.sameRole ? 1.25 : 1.75}
                 strokeDasharray={e.sameRole ? '4 3' : undefined}
                 markerEnd="url(#chain-arrow)"
                 initial={{ pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: e.sameRole ? 0.5 : 0.85 }}
+                animate={{
+                  pathLength: 1,
+                  opacity: touchesActive ? 1 : e.sameRole ? 0.5 : 0.85,
+                }}
                 transition={{ duration: 0.7, delay, ease: 'easeOut' }}
               />
               {/* The transfer itself: an artefact travelling the edge. Only for
@@ -215,44 +251,139 @@ export function DeliverableChainDiagram({
           );
         })}
 
-        {/* Nodes. */}
-        {chain.nodes.map((n, i) => (
-          <motion.g
-            key={n.id}
-            opacity={dim(n.owner)}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: dim(n.owner), y: 0 }}
-            transition={{ delay: Math.min(i * 0.05, 0.5), duration: 0.25 }}
-          >
-            <title>
-              {n.title} — {n.file}
-              {n.filed ? ' (filed)' : ' (not yet filed)'}
-            </title>
-            <rect
-              x={cx(n)}
-              y={cy(n)}
-              width={NODE_W}
-              height={NODE_H}
-              rx={4}
-              fill={n.filed ? 'var(--stone-crystal, #7aa2c8)' : 'var(--color-panel)'}
-              fillOpacity={n.filed ? 0.22 : 1}
-              stroke={n.capstone ? 'var(--color-accent)' : roleColor(n.owner)}
-              strokeWidth={n.capstone ? 2 : 1.25}
-              strokeDasharray={n.filed ? undefined : '3 2'}
-            />
-            <text
-              x={cx(n) + NODE_W / 2}
-              y={cy(n) + NODE_H / 2 + 4}
-              textAnchor="middle"
-              fontSize="10"
-              fontWeight="600"
-              className="fill-[var(--color-ink)]"
+        {/* Nodes — each an interactive, focusable file. */}
+        {chain.nodes.map((n, i) => {
+          const isActive = active === n.id;
+          return (
+            <motion.g
+              key={n.id}
+              opacity={dim(n.owner)}
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: dim(n.owner), y: 0 }}
+              transition={{ delay: Math.min(i * 0.05, 0.5), duration: 0.25 }}
+              tabIndex={0}
+              role="button"
+              aria-label={`${n.file}, produced by ${roleName(n.owner)}${n.filed ? ', filed' : ', not yet filed'}. Show details.`}
+              style={{ cursor: 'pointer', outline: 'none' }}
+              onMouseEnter={() => setActive(n.id)}
+              onFocus={() => setActive(n.id)}
             >
-              {n.short.length > 22 ? `${n.short.slice(0, 21)}…` : n.short}
-            </text>
-          </motion.g>
-        ))}
+              <title>
+                {n.file} — {n.title}
+                {n.filed ? ' (filed)' : ' (not yet filed)'}
+              </title>
+              {/* Focus/hover ring so keyboard users can see where they are. */}
+              {isActive && (
+                <rect
+                  x={cx(n) - 3}
+                  y={cy(n) - 3}
+                  width={NODE_W + 6}
+                  height={NODE_H + 6}
+                  rx={6}
+                  fill="none"
+                  stroke="var(--color-accent)"
+                  strokeWidth={2}
+                />
+              )}
+              <rect
+                x={cx(n)}
+                y={cy(n)}
+                width={NODE_W}
+                height={NODE_H}
+                rx={4}
+                fill={n.filed ? 'var(--stone-crystal, #7aa2c8)' : 'var(--color-panel)'}
+                fillOpacity={n.filed ? 0.22 : 1}
+                stroke={n.capstone ? 'var(--color-accent)' : roleColor(n.owner)}
+                strokeWidth={n.capstone ? 2 : 1.25}
+                strokeDasharray={n.filed ? undefined : '3 2'}
+              />
+              {/* The real filename the student saves and hands off. */}
+              <text
+                x={cx(n) + NODE_W / 2}
+                y={cy(n) + NODE_H / 2 + 3.5}
+                textAnchor="middle"
+                fontSize="9.5"
+                fontWeight="600"
+                className="fill-[var(--color-ink)]"
+                style={{ fontFamily: 'var(--font-mono, ui-monospace), monospace' }}
+              >
+                {truncate(n.file, 24)}
+              </text>
+            </motion.g>
+          );
+        })}
       </svg>
+
+      {/* The technical read-out for the focused file — the "how your work
+          connects" detail, attached to the file it describes. */}
+      <div className="mt-3 min-h-[4.5rem] rounded-lg border border-line bg-panel-2 p-3 text-sm">
+        {activeNode ? (
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <FileText className="h-4 w-4 shrink-0 text-muted" />
+              <code className="font-mono text-[13px] font-semibold text-ink">{activeNode.file}</code>
+              <span
+                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                  activeNode.filed
+                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                    : 'bg-panel text-muted'
+                }`}
+              >
+                {activeNode.filed ? 'Filed' : 'Not yet filed'}
+              </span>
+              {activeNode.capstone && (
+                <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
+                  Final artefact
+                </span>
+              )}
+            </div>
+            <p className="font-medium text-ink">{activeNode.title}</p>
+            <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Produced by</dt>
+              <dd style={{ color: roleColor(activeNode.owner) }} className="font-medium">
+                {roleName(activeNode.owner)}
+              </dd>
+              {activeDef?.source && (
+                <>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Built from</dt>
+                  <dd className="text-muted">{activeDef.source}</dd>
+                </>
+              )}
+              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Feeds</dt>
+              <dd className="text-muted">
+                {activeDownstream.length > 0 ? (
+                  <span className="flex flex-wrap items-center gap-x-1 gap-y-1">
+                    {activeDownstream.map((d, idx) => (
+                      <span key={d.id} className="inline-flex items-center gap-1">
+                        {idx > 0 && <span className="text-line">·</span>}
+                        <ArrowRight className="h-3 w-3 text-muted" />
+                        <code className="font-mono text-[12px] text-ink">{d.file}</code>
+                        <span className="text-xs" style={{ color: roleColor(d.owner) }}>
+                          ({roleName(d.owner)})
+                        </span>
+                      </span>
+                    ))}
+                  </span>
+                ) : (
+                  'Nothing downstream — this is an endpoint.'
+                )}
+              </dd>
+              {activeDef?.useIt && (
+                <>
+                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Why</dt>
+                  <dd className="text-muted">{activeDef.useIt}</dd>
+                </>
+              )}
+            </dl>
+          </div>
+        ) : (
+          <p className="flex items-center gap-2 text-muted">
+            <FileText className="h-4 w-4 shrink-0" />
+            Hover, tap, or focus a file above to see who produces it, what it&apos;s built from, and
+            where it goes next.
+          </p>
+        )}
+      </div>
 
       {/* The same information as prose. An arrow between two boxes conveys
           nothing to a screen reader, and this is not a diagram anyone should

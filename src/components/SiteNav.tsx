@@ -7,6 +7,7 @@ import { ThemeToggle } from './ThemeToggle';
 import { courseRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
+import { useInstructorAuth } from '@/lib/useInstructorAuth';
 
 type Crumb = { label: string; href?: string };
 
@@ -27,6 +28,12 @@ export function SiteNav() {
 
   const coursesActive = pathname === '/' || pathname.startsWith('/courses');
   const instructorActive = pathname.startsWith('/instructor');
+
+  // Students should never see the studio exists. The link appears only once a
+  // visitor is actually an instructor — an unlocked passcode (local) or an
+  // account with the instructor flag (Supabase). The author reaches the studio
+  // by URL, unlocks it, and the link then persists.
+  const { unlocked: isInstructor } = useInstructorAuth();
 
   const crumbs = buildCrumbs(segments, courseTitle);
 
@@ -57,10 +64,12 @@ export function SiteNav() {
               <GraduationCap className="h-4 w-4" />
               <span>Courses</span>
             </Link>
-            <Link href="/instructor" className={linkClass(instructorActive)}>
-              <PencilRuler className="h-4 w-4" />
-              <span>Instructor</span>
-            </Link>
+            {isInstructor && (
+              <Link href="/instructor" className={linkClass(instructorActive)}>
+                <PencilRuler className="h-4 w-4" />
+                <span>Instructor</span>
+              </Link>
+            )}
             <ThemeToggle />
             <AuthControl />
           </div>

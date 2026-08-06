@@ -87,14 +87,17 @@ npm run build && npm run start
 6. Switch courses any time from the home page (progress is tracked per course)
 
 ### Instructors
-Open **/instructor** (passcode-gated) to:
+Open **/instructor** (gated) to:
 - Create a course, or **Duplicate** the built-in Security+ course to start from a template
 - Edit details, **roles** (name/mission/color/icon), **weeks**, **tasks + steps**, and **gates**
 - **Export/Import** a course as JSON to share or back up
 - **Preview as student** to test the flow
 
-> The instructor passcode defaults to `instructor`; override with `NEXT_PUBLIC_INSTRUCTOR_PASSCODE`.
-> The passcode gate is a stub to be replaced by real auth when a backend is added.
+> Access: with Supabase connected, instructor access comes from the account's
+> `profiles.is_instructor` flag. Offline, set `NEXT_PUBLIC_INSTRUCTOR_PASSCODE`
+> to a non-obvious value to enable the local passcode gate — there is **no
+> default**, so an unset passcode leaves the studio locked and its nav link
+> hidden. The passcode path is a local convenience, not a security control.
 
 ## Architecture
 
