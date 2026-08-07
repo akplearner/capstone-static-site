@@ -89,7 +89,7 @@ export function RoleInterplayDiagram({ roles, highlightRole }: RoleInterplayDiag
         {/* center hub label */}
         {roles.length > 1 && (
           <text x={cx} y={cy + 18} textAnchor="middle" fontSize="8" className="fill-gray-400 dark:fill-gray-500">
-            hand-offs
+            shared work
           </text>
         )}
       </svg>

@@ -101,11 +101,12 @@ export function DeliverableChainDiagram({
     >
       <svg
         viewBox={`0 0 ${width} ${height}`}
-        width={width}
-        height={height}
+        // No fixed width: the viewBox scales the drawing to the container, so it
+        // shrinks on a phone instead of forcing a horizontal scroll forever.
+        style={{ width: '100%', maxWidth: width, height: 'auto' }}
         role="img"
         aria-label={`How your work connects for ${course.title}: ${sentences.length} optional connections across ${chain.columns.length} weeks.`}
-        className="max-w-none"
+        className="block"
       >
         <defs>
           <marker

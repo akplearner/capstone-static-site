@@ -611,7 +611,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         kind: 'fields',
         title: 'Executive summary',
         fields: [
-          { field: 'exec_summary', label: 'Executive summary (5–7 sentences)', type: 'area', required: true, placeholder: 'Over four weeks the team stood up monitoring, detected and investigated a live attack, ranked the risks, and ran the incident to closure. The key incident was a SQL injection that led to a web shell; it was detected in ~9 minutes and contained in ~19. Three high risks remain open with owners and dates.', help: 'Plain words a manager can act on: what happened, how bad, what you did, what’s left.' },
+          { field: 'exec_summary', label: 'Executive summary (5–7 sentences)', type: 'area', required: true, placeholder: 'Over four weeks the team stood up monitoring, detected and investigated a live attack, ranked the risks, and ran the incident to closure. The key incident was a SQL injection that led to a web shell; it was detected in ~9 minutes and contained in ~12. Three high risks remain open with owners and dates.', help: 'Plain words a manager can act on: what happened, how bad, what you did, what’s left.' },
         ],
       },
       {
@@ -627,7 +627,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           ],
           seed: [
             { metric: 'MTTD (time to detect)', value: '~9 min', note: 'Attack start → first alert' },
-            { metric: 'MTTR (time to contain)', value: '~19 min', note: 'First alert → firewall block' },
+            { metric: 'MTTR (time to contain)', value: '~12 min', note: 'First alert → firewall block' },
             { metric: 'High risks remaining', value: '3', note: 'From the Vulnerability Assessment' },
           ],
         },

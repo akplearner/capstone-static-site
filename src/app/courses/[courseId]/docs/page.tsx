@@ -16,6 +16,9 @@ import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
 import { GlossaryText } from '@/components/GlossaryText';
+import { TriageDecisionTree } from '@/components/diagrams/TriageDecisionTree';
+import { RiskMatrix } from '@/components/diagrams/RiskMatrix';
+import { IncidentTimelineDiagram } from '@/components/diagrams/IncidentTimelineDiagram';
 import { EVIDENCE_NAMING } from '@/lib/evidence';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
@@ -262,6 +265,18 @@ export default function DeliverablesPage() {
           </p>
         )}
       </div>
+
+      {/* The shape of this week's answer. Deliverables previously had no visual
+          at all, and these three forms are the ones whose *structure* was only
+          ever explained in a long paragraph. Shown for the selected week so it
+          sits beside the form it describes. */}
+      {(selectedWeek === 2 || selectedWeek === 3 || selectedWeek === 4) && (
+        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+          {selectedWeek === 2 && <TriageDecisionTree />}
+          {selectedWeek === 3 && <RiskMatrix />}
+          {selectedWeek === 4 && <IncidentTimelineDiagram />}
+        </div>
+      )}
 
       {/* Evidence & chain of custody — a stable, always-visible deep-link target
           (?tool=evidence, linked from every evidence step). Hash a file locally,

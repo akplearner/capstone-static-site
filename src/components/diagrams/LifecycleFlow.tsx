@@ -18,9 +18,9 @@ interface LifecycleFlowProps {
 }
 
 const gateFill: Record<GateStatus, string> = {
-  locked: '#9ca3af',
-  ready: '#f59e0b',
-  passed: '#16a34a',
+  locked: 'var(--color-muted)',
+  ready: 'var(--color-w4)',
+  passed: 'var(--color-w3)',
 };
 
 type Slot = { type: 'week'; week: WeekDef } | { type: 'gate'; gate: Gate };
@@ -94,7 +94,7 @@ export function LifecycleFlow({
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ delay: 0.2 + i * 0.05 }}
                 />
-                <text x={cx} y={midY + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill="#fff">
+                <text x={cx} y={midY + 1} textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="700" fill="var(--color-panel)">
                   G{slot.gate.id}
                 </text>
                 <text x={cx} y={midY + 34} textAnchor="middle" fontSize="10" className="fill-gray-500 dark:fill-gray-400">
@@ -123,7 +123,7 @@ export function LifecycleFlow({
                 animate={{ opacity: 1, y }}
                 transition={{ delay: i * 0.05 }}
               />
-              {isCurrent && <rect x={x} y={y} width={nodeW} height={nodeH} rx={12} fill="none" stroke="#2563eb" strokeWidth={2.5} />}
+              {isCurrent && <rect x={x} y={y} width={nodeW} height={nodeH} rx={12} fill="none" stroke="var(--color-accent)" strokeWidth={2.5} />}
               {!noGatekeeping && (
                 <>
                   <rect x={x + 12} y={y + nodeH - 18} width={nodeW - 24} height={6} rx={3} className="fill-gray-200 dark:fill-gray-700" />
@@ -132,7 +132,7 @@ export function LifecycleFlow({
                     y={y + nodeH - 18}
                     height={6}
                     rx={3}
-                    fill={pct === 100 ? '#16a34a' : '#2563eb'}
+                    fill={pct === 100 ? 'var(--color-w3)' : '#2563eb'}
                     initial={{ width: 0 }}
                     animate={{ width: ((nodeW - 24) * pct) / 100 }}
                     transition={{ duration: 0.5, delay: i * 0.05 }}

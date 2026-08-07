@@ -14,6 +14,8 @@ import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { WeekGoals } from '@/components/docs/WeekGoals';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
+import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
+import { AttackPathDiagram } from '@/components/diagrams/AttackPathDiagram';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
 import { CysaToolGuide } from '@/components/docs/CysaToolGuide';
@@ -54,6 +56,8 @@ export default function CourseGuidePage() {
         {course.lifecyclePath && course.lifecyclePath.length > 0 && (
           <CaseLifecycleChain stages={course.lifecyclePath} />
         )}
+        {/* Weeks 2-4 describe this chain over and over but never drew it. */}
+        {course.id === 'cysa-plus' && <AttackPathDiagram />}
       </section>
 
       <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
@@ -117,6 +121,10 @@ export default function CourseGuidePage() {
       {course.id === 'cysa-plus' && (
         <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
           <Collapsible title="Week 1 — install & verify your sensors" defaultOpen={false}>
+            {/* The model behind almost every "why is there no data?" question. */}
+            <div className="pb-4">
+              <LogPipelineDiagram />
+            </div>
             <div className="space-y-4 pb-2">
               <p className="text-gray-600 dark:text-gray-400">
                 Week 1 is about standing up the three sensors that feed the SOC. Here&apos;s what each one is, the one
