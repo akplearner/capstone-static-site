@@ -190,7 +190,7 @@ function JoinPanel({
 
       <div className="grid gap-5 md:grid-cols-2">
         <label className="block">
-          <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">Name</span>
+          <span className="block text-sm font-medium text-body">Name</span>
           <input
             type="text"
             value={name}
@@ -203,7 +203,7 @@ function JoinPanel({
           />
         </label>
         <label className="block">
-          <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">Cohort</span>
+          <span className="block text-sm font-medium text-body">Cohort</span>
           <select
             value={cohort}
             onChange={(e) => setCohort(e.target.value)}
@@ -217,7 +217,7 @@ function JoinPanel({
       </div>
 
       <div>
-        <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">Team</span>
+        <span className="block text-sm font-medium text-body">Team</span>
         <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
           {teamIds.map((t) => {
             const full = isFull(t);
@@ -248,7 +248,7 @@ function JoinPanel({
 
       {course.roles.length > 0 && (
         <div>
-          <span className="block text-sm font-medium text-gray-700 dark:text-gray-300">Role</span>
+          <span className="block text-sm font-medium text-body">Role</span>
           <div className="mt-2 space-y-2">
             {course.roles.map((r) => (
               <button
@@ -867,7 +867,7 @@ export default function CoursePage() {
               <div className="flex items-center gap-1.5 eyebrow-muted">
                 <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
               </div>
-              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-body">
                 {task.learn.map((l) => (
                   <li key={l}>{l}</li>
                 ))}

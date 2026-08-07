@@ -62,7 +62,7 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
             <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-gray-200 p-2 dark:border-gray-700">
               {course.tasks.length === 0 && <p className="text-xs text-gray-400">No tasks yet.</p>}
               {course.tasks.map((t) => (
-                <label key={t.id} className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+                <label key={t.id} className="flex items-center gap-2 text-sm text-body">
                   <input type="checkbox" checked={g.requiredTasks.includes(t.id)} onChange={() => toggleTask(i, t.id)} className="h-4 w-4 accent-blue-600" />
                   <span className="font-mono text-xs">{t.id}</span>
                   <span className="text-xs text-gray-500">— {t.title}</span>

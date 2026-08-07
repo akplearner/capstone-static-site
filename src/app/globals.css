@@ -25,6 +25,7 @@
   --color-panel: #ffffff;     /* cards / panels */
   --color-panel-2: #f3f6fa;   /* raised strips, tab bars, inset fills */
   --color-ink: #161c26;       /* primary text */
+  --color-body: #374151;      /* body copy / form labels — one step lighter than ink */
   --color-muted: #5a6472;     /* secondary text */
   --color-line: #d7dde6;      /* borders / hairlines */
 
@@ -67,6 +68,7 @@
   --color-panel: #141b26;
   --color-panel-2: #1a2230;
   --color-ink: #e6edf5;
+  --color-body: #d1d5db;
   --color-muted: #9fb0c4;
   --color-line: #26303f;
 

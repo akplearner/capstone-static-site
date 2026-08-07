@@ -65,19 +65,19 @@ export function RoleExtractionGuide({
                 <span className="flex items-center gap-1.5 eyebrow-muted">
                   <Terminal className="h-3.5 w-3.5" /> Built from
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-body">
                   {def.source ?? 'Your own work for this role.'}
                 </span>
 
                 <span className="eyebrow-muted">
                   How
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">{def.howTo}</span>
+                <span className="text-body">{def.howTo}</span>
 
                 <span className="flex items-center gap-1.5 eyebrow-muted">
                   <ArrowRight className="h-3.5 w-3.5" /> Feeds
                 </span>
-                <span className="text-gray-700 dark:text-gray-300">
+                <span className="text-body">
                   {shown.join(' · ')}
                   {more > 0 && <span className="text-gray-400"> · +{more} more</span>}
                 </span>

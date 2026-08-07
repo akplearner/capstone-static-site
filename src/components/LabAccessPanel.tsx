@@ -74,7 +74,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           <div className="grid gap-3 sm:grid-cols-2">
             {LAB_FIELDS.map((f) => (
               <label key={f.key} className="block">
-                <span className="block text-xs font-medium text-gray-700 dark:text-gray-300">{f.label}</span>
+                <span className="block text-xs font-medium text-body">{f.label}</span>
                 <input
                   type="text"
                   value={lab.values[f.key] ?? ''}
@@ -96,7 +96,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                   <button
                     type="button"
                     onClick={() => toggleCheck(c.key)}
-                    className="flex items-center gap-2 text-left text-sm text-gray-700 dark:text-gray-300"
+                    className="flex items-center gap-2 text-left text-sm text-body"
                   >
                     {lab.checks[c.key] ? (
                       <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
@@ -113,7 +113,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           </div>
 
           <label className="block">
-            <span className="block text-xs font-medium text-gray-700 dark:text-gray-300">Notes (credentials, hostnames…)</span>
+            <span className="block text-xs font-medium text-body">Notes (credentials, hostnames…)</span>
             <textarea
               value={lab.notes}
               onChange={(e) => setNotes(e.target.value)}

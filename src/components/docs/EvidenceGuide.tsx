@@ -42,7 +42,7 @@ export function EvidenceGuide() {
         <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
           {EVIDENCE_FILE_TYPES.map((t) => (
             <li key={t.ext}>
-              <span className="font-mono text-gray-700 dark:text-gray-300">{t.ext}</span> — {t.use}
+              <span className="font-mono text-body">{t.ext}</span> — {t.use}
             </li>
           ))}
         </ul>
@@ -88,7 +88,7 @@ export function EvidenceGuide() {
         <h3 className="text-sm font-semibold text-ink">Handling rules</h3>
         <ul className="mt-2 space-y-1.5">
           {CUSTODY_RULES.map((r) => (
-            <li key={r} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <li key={r} className="flex gap-2 text-sm text-body">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
               <span>{r}</span>
             </li>
@@ -103,7 +103,7 @@ export function EvidenceGuide() {
         <h3 className="text-sm font-semibold text-ink">Redaction, large captures &amp; recordings</h3>
         <ul className="mt-2 space-y-1.5">
           {EVIDENCE_HANDLING.map((r) => (
-            <li key={r} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <li key={r} className="flex gap-2 text-sm text-body">
               <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
               <span>{r}</span>
             </li>

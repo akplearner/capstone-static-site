@@ -282,33 +282,64 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
 // A step renders in a half-width column, so a 100-word run-on paragraph is the
 // single biggest readability problem a step can have — and every one of them was
 // really a hidden list. `instructionList` and `fixes` exist to carry that shape.
-// This guard keeps the long-paragraph habit from creeping back.
-//
-// Scoped to CySA+ deliberately: it is the course that has had the pass. Security+
-// still has 4 long instructions and 19 long troubleshooting notes, and widening
-// the guard before doing that content work would just fail the build.
+// This guard keeps the long-paragraph habit from creeping back, in every course.
 const WORD_BUDGET = 40;
 const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
 
-describe('reading length — cysa-plus', () => {
+describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (_id, course) => {
   it('no `instruction` runs long without an `instructionList` to carry the list', () => {
-    const over = allSteps(CYSA_PLUS)
+    const over = allSteps(course)
       .filter(({ step }) => !step.instructionList?.length && words(step.instruction ?? '') >= WORD_BUDGET)
       .map(({ step }) => `${step.id} (${words(step.instruction ?? '')}w)`);
     expect(over, `split these into instructionList: ${over.join(', ')}`).toHaveLength(0);
   });
 
   it('no `troubleshooting` runs long without `fixes` rows to split the symptoms', () => {
-    const over = allSteps(CYSA_PLUS)
+    const over = allSteps(course)
       .filter(({ step }) => !step.fixes?.length && words(step.troubleshooting ?? '') >= WORD_BUDGET)
       .map(({ step }) => `${step.id} (${words(step.troubleshooting ?? '')}w)`);
     expect(over, `split these into fixes rows: ${over.join(', ')}`).toHaveLength(0);
   });
 
   it('no `whatItMeans` runs long', () => {
-    const over = allSteps(CYSA_PLUS)
+    const over = allSteps(course)
       .filter(({ step }) => words(step.whatItMeans ?? '') >= WORD_BUDGET)
       .map(({ step }) => `${step.id} (${words(step.whatItMeans ?? '')}w)`);
     expect(over, `tighten these: ${over.join(', ')}`).toHaveLength(0);
+  });
+});
+
+// ── Role-week ownership ─────────────────────────────────────────────────────
+//
+// The course promises three independent roles. A role whose week produces
+// nothing it owns is dependent by construction — its work only becomes visible
+// inside a teammate's form, which is exactly the state Week 1 (Responder) and
+// Week 3 (Analyst and Hunter) were in before round 24. This asserts the grid.
+describe('role-week ownership — cysa-plus', () => {
+  const graded = CYSA_PLUS.weeks.filter((w) => !w.setup).map((w) => w.number);
+
+  it('every role owns exactly one deliverable in every graded week', () => {
+    const defs = deliverablesForCourse(CYSA_PLUS.id);
+    const holes: string[] = [];
+    for (const week of graded) {
+      for (const role of CYSA_PLUS.roles) {
+        const owned = defs.filter((d) => d.owner === role.id && d.weeks.includes(week));
+        if (owned.length !== 1) {
+          holes.push(`W${week} ${role.name}: ${owned.length === 0 ? 'owns nothing' : `owns ${owned.length}`}`);
+        }
+      }
+    }
+    expect(holes, holes.join(' · ')).toHaveLength(0);
+  });
+
+  it('every owned deliverable is produced by a step of that role in that week', () => {
+    const orphans: string[] = [];
+    for (const def of deliverablesForCourse(CYSA_PLUS.id)) {
+      const produced = CYSA_PLUS.tasks.some(
+        (t) => t.role === def.owner && def.weeks.includes(t.week) && t.steps.some((s) => s.producesDeliverable === def.file)
+      );
+      if (!produced) orphans.push(`${def.file} (${def.owner})`);
+    }
+    expect(orphans, `no step files these: ${orphans.join(', ')}`).toHaveLength(0);
   });
 });

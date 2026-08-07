@@ -84,7 +84,7 @@ export function EngagementBanner({
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
             <div className="min-w-0">
               <div className="eyebrow-muted">Attestation scope</div>
-              <div className="text-sm text-gray-700 dark:text-gray-300">{trust}</div>
+              <div className="text-sm text-body">{trust}</div>
             </div>
           </div>
         )}
@@ -93,7 +93,7 @@ export function EngagementBanner({
             <Target className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
             <div className="min-w-0">
               <div className="eyebrow-muted">System boundary</div>
-              <div className="line-clamp-2 text-sm text-gray-700 dark:text-gray-300">{scope}</div>
+              <div className="line-clamp-2 text-sm text-body">{scope}</div>
             </div>
           </div>
         )}

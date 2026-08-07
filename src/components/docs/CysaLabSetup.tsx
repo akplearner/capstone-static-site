@@ -48,8 +48,8 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
               {VMS.map((vm) => (
                 <tr key={vm.name} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
                   <td className="px-3 py-2 font-medium text-ink">{vm.name}</td>
-                  <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{vm.role}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">{vm.addr}</td>
+                  <td className="px-3 py-2 text-body">{vm.role}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-body">{vm.addr}</td>
                   <td className="px-3 py-2 text-muted">{vm.notes}</td>
                 </tr>
               ))}
@@ -79,7 +79,7 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
         </h3>
         <ul className="mt-2 space-y-1.5">
           {PREFLIGHT.map((p) => (
-            <li key={p} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <li key={p} className="flex items-start gap-2 text-sm text-body">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" /> {p}
             </li>
           ))}

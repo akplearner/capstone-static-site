@@ -647,4 +647,258 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       { label: 'At least two headline metrics are filled', test: (d) => (d.groups.metrics ?? []).filter((r) => !!r.metric && !!r.value).length >= 2 },
     ],
   },
+
+  // 10 — Sensor Deployment Record (W1, Incident Responder) ──────────────────
+  // Closes a real hole: the Responder ran the heaviest install task in the
+  // course and owned no artifact for it, so their week only became visible
+  // inside the Analyst's monitoring report. Now they file their own proof.
+  {
+    id: 'cysa_sensor_deployment',
+    // Coverage validation is the check that every feed this record claims is
+    // actually arriving at the SOC.
+    feeds: ['cysa_coverage_validation'],
+    courseId: 'cysa-plus',
+    num: 10,
+    file: '10_Sensor_Deployment_Record.md',
+    title: 'Sensor Deployment Record',
+    owner: 'red',
+    folder: '01_Monitoring',
+    standard: 'NIST CSF (DE.CM-1)',
+    framework: 'NIST_CSF',
+    weeks: [1],
+    gate: 1,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'Record what you installed, where it points, and the line that proves it is reporting. If a feed goes quiet in Week 3, this is the document that says what it was supposed to be doing.',
+    howTo:
+      'One row per sensor you installed. For each, give the host, the version, the manager address you set, and the proof — the service state plus the log line or screenshot that shows it reached the SOC.',
+    source: 'Your own Windows pod: the Sysmon install and the Wazuh agent you deployed.',
+    buildSteps: [
+      'For each sensor: record the host it runs on, the exact version you installed, and the manager address you configured (10.10.100.100).',
+      'Paste the proof — `Get-Service Sysmon*` / the agent service state, and the `Connected to the server` line from ossec.log.',
+      'Confirm the Sysmon <localfile> eventchannel block is inside <ossec_config> and the service was restarted after the edit.',
+      'Screenshot your agent showing Active in the Agents view and attach it.',
+      'Note anything you had to fix — a wrong version filename, a duplicate agent name, a blocked port.',
+    ],
+    meaning:
+      'A deployment record is what an incident responder reads at 2am to answer "should this host be sending me data?". Version and manager address matter because a sensor that installed cleanly but points at the wrong manager looks identical to one that is working.',
+    useIt:
+      'The Threat Hunter cross-checks this against what actually arrives when they validate coverage — a sensor listed here with no data in the dashboard is a finding, not a mistake.',
+    pitfalls: [
+      'Writing "latest" as the version — record the actual number, because that is what a CVE lookup needs in Week 3.',
+      'Claiming a sensor is live without the `Connected to the server` line. A running service only proves the process started, not that it reached the SOC.',
+    ],
+    sections: [
+      {
+        kind: 'fields',
+        title: 'Proof it reached the SOC',
+        fields: [
+          { field: 'agent_active_shot', label: 'Your agent Active (screenshot)', type: 'fileref', required: true, placeholder: '20260722_Team07_win_agent_active.png', help: 'Agents view showing your Team<#>-win agent Active with a recent check-in.' },
+          { field: 'connected_line', label: 'The "Connected to the server" line', type: 'paste', required: true, placeholder: '2026/07/22 09:14:30 wazuh-agentd: INFO: Connected to the server (10.10.100.100:1514)', help: 'From the agent’s ossec.log. This line, not the service state, is what proves your logs are reaching the SOC.' },
+          { field: 'localfile_confirmed', label: 'Sysmon <localfile> block in place?', type: 'select', options: ['Yes — inside <ossec_config>, agent restarted', 'Not yet'], placeholder: 'Yes — inside <ossec_config>, agent restarted' },
+          { field: 'fixes_hit', label: 'Anything you had to fix', type: 'area', placeholder: 'MSI filename did not match the docs — used the version I actually downloaded. Agent name collided with a teammate’s until I made it Team07-win.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'sensors',
+          label: 'Sensors deployed',
+          help: 'One row per sensor. The manager address is what makes it a SOC feed rather than a local log.',
+          columns: [
+            c('host', 'Host', 'text', { placeholder: 'Team07-win (10.10.20.7)' }),
+            c('sensor', 'Sensor', 'text', { placeholder: 'Wazuh agent' }),
+            c('version', 'Version', 'text', { placeholder: '4.14.7' }),
+            c('manager', 'Points at', 'text', { placeholder: '10.10.100.100' }),
+            c('state', 'Service state', 'text', { placeholder: 'Running' }),
+            c('proof', 'Proof', 'text', { placeholder: 'ossec.log: Connected to the server' }),
+          ],
+          seed: [
+            { host: 'Team07-win (10.10.20.7)', sensor: 'Sysmon', version: '15.15', manager: 'n/a — feeds the agent', state: 'Running', proof: 'Get-Service Sysmon* → Running' },
+            { host: 'Team07-win (10.10.20.7)', sensor: 'Wazuh agent', version: '4.14.7', manager: '10.10.100.100', state: 'Running', proof: 'ossec.log: Connected to the server' },
+          ],
+        },
+      },
+      custodySection({
+        seed: [
+          { evidence_id: 'E-01', description: '20260722_Team07_win_agent_active.png', collected_by: 'Incident Responder', collected_at: '2026-07-22 09:20', location: '~/team-artifacts/week-1/', sha256: 'from sha256sum <file>', transferred_to: 'Incident Responder', transferred_at: '2026-07-22 09:30', notes: 'agent Active in the Agents view' },
+        ],
+      }),
+    ],
+    dod: [
+      { label: 'Agent-Active screenshot attached', test: (d) => !!d.fields.agent_active_shot },
+      { label: 'The "Connected to the server" line is pasted', test: (d) => /connected to the server/i.test(d.fields.connected_line ?? '') },
+      { label: 'At least two sensors recorded with a version and a manager address', test: (d) => (d.groups.sensors ?? []).filter((r) => !!r.sensor && !!r.version && !!r.manager).length >= 2 },
+    ],
+  },
+
+  // 11 — SOC Findings Record (W3, SOC Analyst) ──────────────────────────────
+  // Week 3 used to have one form, owned by the Responder, with the Analyst and
+  // the Hunter filing evidence into it. This is the Analyst's own half.
+  {
+    id: 'cysa_soc_findings',
+    // What the SOC already knows is one of the two inputs the ranked
+    // assessment is built from.
+    feeds: ['cysa_vulnerability_assessment'],
+    courseId: 'cysa-plus',
+    num: 11,
+    file: '11_SOC_Findings_Record.md',
+    title: 'SOC Findings Record',
+    owner: 'blue',
+    folder: '03_Assessment',
+    standard: 'CIS Controls / CVSS',
+    framework: 'CIS',
+    weeks: [3],
+    gate: 3,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'Capture what the SOC already knows about your own weaknesses — before anyone scans anything. The dashboard has been building this list since Week 1.',
+    howTo:
+      'List the Critical and High CVEs from the Vulnerabilities module, the failed SCA checks with their Remediation text, and answer whether the SOC actually caught the recon scan.',
+    source: 'Wazuh Vulnerabilities + SCA on your own agent, and your Security events search during the scan.',
+    buildSteps: [
+      'Agents › your agent › Vulnerabilities → filter Severity to Critical + High → screenshot, then copy the top rows in (package, version, CVE, severity).',
+      'Agents › your agent › SCA → filter Result to Failed → open a check and copy its Remediation text, which is the exact fix.',
+      'Run a quick nmap against your own pod, set the time picker to Last 15 minutes, and search the Kali IP.',
+      'Answer honestly: which parts of the recon did the SOC alert on, and which were silent? Silence is a finding.',
+    ],
+    meaning:
+      'Two different lenses on the same host. Vulnerabilities is "software with a known CVE"; SCA is "configured against best practice". A host can be fully patched and still fail a dozen SCA checks — and the SCA failures usually have the cheaper fix.',
+    useIt:
+      'Feeds the Vulnerability Assessment, where findings get ranked and given owners. The detection-coverage answer is what tells the team whether they would even see an attack on this host.',
+    pitfalls: [
+      'Screenshotting the unfiltered vulnerability list — it is too long to act on, which is why the Severity filter exists.',
+      'Recording an SCA failure without its Remediation text. The remediation is the whole value of the check.',
+      'Reporting "the SOC caught it" when only some of the recon alerted. Name what was silent.',
+    ],
+    sections: [
+      {
+        kind: 'fields',
+        title: 'Evidence & detection coverage',
+        fields: [
+          { field: 'vulns_shot', label: 'Vulnerabilities, filtered to Critical/High (screenshot)', type: 'fileref', required: true, placeholder: '20260726_Team07_wazuh_vulns.png' },
+          { field: 'sca_score', label: 'SCA score', type: 'text', placeholder: '61% pass — 3 failed checks named' },
+          { field: 'recon_detected', label: 'Did the SOC alert on your recon scan?', type: 'select', options: ['Yes — alerts fired', 'Partly — some of it was silent', 'No — nothing fired'], required: true },
+          { field: 'recon_gap', label: 'What was silent, and what that means', type: 'area', required: true, placeholder: 'The full TCP connect scan raised Suricata alerts. A single-port check did not — so slow, targeted probing would not be seen.', help: 'Silence is a real finding: it tells you where an attacker could work unobserved.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'known',
+          label: 'What the SOC already knows',
+          help: 'Critical/High CVEs from Vulnerabilities, and failed checks from SCA. Keep the source column honest — the two modules find different things.',
+          columns: [
+            c('source', 'Source', 'select', { options: ['Vulnerabilities', 'SCA'] }),
+            c('finding', 'Finding', 'text', { placeholder: 'openssl 1.1.1f — CVE-2022-0778' }),
+            c('severity', 'Severity / result', 'text', { placeholder: 'High' }),
+            c('remediation', 'Fix as stated by the module', 'text', { placeholder: 'apt upgrade openssl' }),
+          ],
+          seed: [
+            { source: 'Vulnerabilities', finding: 'openssl 1.1.1f — CVE-2022-0778', severity: 'High', remediation: 'apt upgrade openssl' },
+            { source: 'Vulnerabilities', finding: 'apache2 2.4.52 — CVE-2023-25690', severity: 'Critical', remediation: 'apt upgrade apache2' },
+            { source: 'SCA', finding: 'SSH root login is permitted', severity: 'Failed', remediation: 'Set PermitRootLogin no in /etc/ssh/sshd_config, then restart sshd' },
+          ],
+        },
+      },
+      custodySection({
+        seed: [
+          { evidence_id: 'E-01', description: '20260726_Team07_wazuh_vulns.png', collected_by: 'SOC Analyst', collected_at: '2026-07-26 10:15', location: '~/team-artifacts/week-3/', sha256: 'from sha256sum <file>', transferred_to: 'SOC Analyst', transferred_at: '2026-07-26 10:40', notes: 'Critical/High CVE list' },
+        ],
+      }),
+    ],
+    dod: [
+      { label: 'Critical/High vulnerability screenshot attached', test: (d) => !!d.fields.vulns_shot },
+      { label: 'At least three findings recorded, each with the fix the module states', test: (d) => (d.groups.known ?? []).filter((r) => !!r.finding && !!r.remediation).length >= 3 },
+      { label: 'The detection-coverage question is answered, including what was silent', test: (d) => !!(d.fields.recon_detected && d.fields.recon_gap) },
+    ],
+  },
+
+  // 12 — Scan Validation Report (W3, Threat Hunter) ─────────────────────────
+  // The six-column comparison table this form carries was already fully
+  // specified in prose inside cg-w3-s3, because no form existed to hold it.
+  {
+    id: 'cysa_scan_validation',
+    feeds: ['cysa_vulnerability_assessment'],
+    courseId: 'cysa-plus',
+    num: 12,
+    file: '12_Scan_Validation_Report.md',
+    title: 'Scan Validation Report',
+    owner: 'grc',
+    folder: '03_Assessment',
+    standard: 'NIST SP 800-115',
+    framework: 'NIST_800_115',
+    weeks: [3],
+    gate: 3,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'Scan the host yourself and compare what you see from outside against what the SOC believes from inside. Where the two disagree is where your monitoring has a blind spot.',
+    howTo:
+      'One row per service: the version nmap read off the live banner, the version Wazuh reports for the installed package, whether they agree, which you trust, and why.',
+    source: 'Your own nmap -sV and nikto output from Kali, against your own pod.',
+    buildSteps: [
+      'From Kali, run `sudo nmap -sV -oN nmap_<team>.txt <UBUNTU_IP>` against your OWN pod, then nikto against the web service.',
+      'Copy the scan output in, and hash the saved files for the custody log.',
+      'For each service, put the nmap banner version beside the Wazuh package version.',
+      'Mark agree or disagree, then say which source you trust for that row and why.',
+      'Where they disagree, that is the finding — a banner can be stale, and a package version can be patched without the service restarting.',
+    ],
+    meaning:
+      'The two sources measure different things: Wazuh reads the installed package version from the system, nmap reads whatever the running service announces. A disagreement usually means a package was upgraded but the service was never restarted — which is exactly the state where you believe you are patched and you are not.',
+    useIt:
+      'Feeds the Vulnerability Assessment. A confirmed-from-outside finding ranks higher than one the SOC only inferred, because you have proven it is reachable.',
+    pitfalls: [
+      'Scanning anything but your own team’s pod. The Rules of Engagement are not negotiable.',
+      'Recording "agree" without comparing versions properly — 2.4.41 and 2.4.41-4ubuntu3 agree; 2.4.41 and 2.4.52 do not.',
+      'Leaving the why column blank. The reasoning is the deliverable; the table is just its shape.',
+    ],
+    sections: [
+      {
+        kind: 'fields',
+        title: 'Scan evidence',
+        fields: [
+          { field: 'nmap_file', label: 'nmap output filename', type: 'text', required: true, placeholder: 'nmap_team07.txt' },
+          { field: 'nmap_sha256', label: 'nmap output SHA-256', type: 'text', required: true, placeholder: 'from sha256sum nmap_team07.txt' },
+          { field: 'nikto_file', label: 'nikto output filename', type: 'text', placeholder: 'nikto_team07.txt' },
+          { field: 'scan_output', label: 'Key lines from the scan', type: 'paste', placeholder: 'PORT   STATE SERVICE VERSION\n22/tcp open  ssh     OpenSSH 8.9p1 Ubuntu\n80/tcp open  http    Apache httpd 2.4.52' },
+          { field: 'verdict', label: 'Overall verdict', type: 'area', required: true, placeholder: 'Three services compared. Apache agreed; OpenSSH disagreed — the package was upgraded but sshd had not been restarted, so the live banner was still the old version.', help: 'If every source agreed, say so explicitly — that is a valid and useful result.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'comparison',
+          label: 'Outside view vs the SOC’s view',
+          help: 'One row per service. nmap reads the live service banner; Wazuh reads the installed package version.',
+          columns: [
+            c('service', 'Service / port', 'text', { placeholder: '80/http' }),
+            c('nmap_version', 'nmap version (live banner)', 'text', { placeholder: 'Apache httpd 2.4.52' }),
+            c('wazuh_version', 'Wazuh package version', 'text', { placeholder: 'apache2 2.4.52-1ubuntu4' }),
+            c('agree', 'Agree?', 'select', { options: ['Yes', 'No'] }),
+            c('trust', 'Which source you trust', 'text', { placeholder: 'either' }),
+            c('why', 'Why', 'text', { placeholder: 'versions match' }),
+          ],
+          seed: [
+            { service: '80/http', nmap_version: 'Apache httpd 2.4.52', wazuh_version: 'apache2 2.4.52-1ubuntu4', agree: 'Yes', trust: 'either', why: 'versions match' },
+            { service: '22/ssh', nmap_version: 'OpenSSH 8.2p1', wazuh_version: 'openssh-server 8.9p1-3ubuntu0.4', agree: 'No', trust: 'nmap', why: 'package upgraded but sshd never restarted — the live service is still the old build' },
+            { service: '3306/mysql', nmap_version: 'not reachable', wazuh_version: 'mariadb-server 10.6.12', agree: 'No', trust: 'nmap', why: 'installed but bound to localhost, so not exposed — lower real risk' },
+          ],
+        },
+      },
+      custodySection({
+        seed: [
+          { evidence_id: 'E-01', description: 'nmap_team07.txt', collected_by: 'Threat Hunter', collected_at: '2026-07-26 13:05', location: '~/team-artifacts/week-3/', sha256: 'from sha256sum nmap_team07.txt', transferred_to: 'Threat Hunter', transferred_at: '2026-07-26 13:20', notes: 'service/version scan of our own pod' },
+        ],
+      }),
+    ],
+    dod: [
+      { label: 'The nmap output is saved and hashed', test: (d) => !!(d.fields.nmap_file && d.fields.nmap_sha256) },
+      { label: 'At least three services compared, each with a reason', test: (d) => (d.groups.comparison ?? []).filter((r) => !!r.service && !!r.agree && !!r.why).length >= 3 },
+      { label: 'A verdict is written', test: (d) => !!d.fields.verdict },
+      { label: 'Every logged artifact has a SHA-256 (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
+    ],
+  },
 ];

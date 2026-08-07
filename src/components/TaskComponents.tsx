@@ -336,14 +336,14 @@ export function StepDetail({
                 </div>
               )}
               {(instruction || description) && (
-                <div className="mt-1 text-sm text-gray-700 dark:text-gray-300">
+                <div className="mt-1 text-sm text-body">
                   {instruction || description}
                 </div>
               )}
               {/* The discrete actions. A step whose instruction is really a
                   sequence reads as a list, not a paragraph in a half-width column. */}
               {instructionList && instructionList.length > 0 && (
-                <ol className="mt-2 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+                <ol className="mt-2 space-y-1.5 text-sm text-body">
                   {instructionList.map((item, i) => (
                     <li key={i} className="flex gap-2">
                       <span className="mt-px shrink-0 font-mono text-xs font-semibold text-accent">
@@ -442,7 +442,7 @@ export function StepDetail({
               <div className="space-y-2 pr-2">
                 {whatItMeans && (
                   <p className="text-sm text-muted">
-                    <span className="font-semibold text-gray-700 dark:text-gray-300">Why: </span>
+                    <span className="font-semibold text-body">Why: </span>
                     <GlossaryText text={whatItMeans} />
                   </p>
                 )}

@@ -135,7 +135,7 @@ export default function InstructorHomePage() {
       {creating && (
         <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Course title</label>
+            <label className="block text-sm font-medium text-body">Course title</label>
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
@@ -150,7 +150,7 @@ export default function InstructorHomePage() {
       {dup && (
         <div className="flex flex-wrap items-end gap-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">New course title</label>
+            <label className="block text-sm font-medium text-body">New course title</label>
             <input
               autoFocus
               value={dup.title}

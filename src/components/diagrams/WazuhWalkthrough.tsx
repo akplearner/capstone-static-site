@@ -321,7 +321,7 @@ export function WazuhWalkthrough({ data }: { data: WalkthroughData }) {
           {[...data.markers]
             .sort((a, b) => a.n - b.n)
             .map((m) => (
-              <li key={m.n} className="flex items-start gap-2 text-xs text-gray-700 dark:text-gray-300">
+              <li key={m.n} className="flex items-start gap-2 text-xs text-body">
                 <span
                   className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white"
                   style={{ background: 'var(--color-danger)' }}

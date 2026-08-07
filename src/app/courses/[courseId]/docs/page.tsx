@@ -309,7 +309,7 @@ export default function DeliverablesPage() {
                 <div className="eyebrow-muted">
                   Handling rules
                 </div>
-                <ul className="mt-1.5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
+                <ul className="mt-1.5 space-y-1 text-sm text-body">
                   {CUSTODY_RULES.map((r, i) => (
                     <li key={i} className="flex gap-1.5">
                       <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
@@ -493,7 +493,7 @@ export default function DeliverablesPage() {
                       ) : (
                         <Circle className="mt-0.5 h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
                       )}
-                      <span className={pass ? 'text-gray-500 line-through dark:text-gray-500' : 'text-gray-700 dark:text-gray-300'}>
+                      <span className={pass ? 'text-gray-500 line-through dark:text-gray-500' : 'text-body'}>
                         {check.label}
                       </span>
                       <span className="text-[11px] uppercase text-gray-400">{d.owner}</span>
@@ -609,7 +609,7 @@ export default function DeliverablesPage() {
               {!locked && hasGuidance && (
                 <div className="rounded-lg border border-gray-200 bg-gray-50/60 px-4 dark:border-gray-700 dark:bg-gray-900/30">
                   <Collapsible title="How to build this — and what it means" defaultOpen={false}>
-                    <div className="space-y-3 pb-2 text-sm text-gray-700 dark:text-gray-300">
+                    <div className="space-y-3 pb-2 text-sm text-body">
                       <p><GlossaryText text={def.howTo} /></p>
                       {def.buildSteps && (
                         <div>

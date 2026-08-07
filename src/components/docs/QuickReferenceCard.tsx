@@ -81,7 +81,7 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
               <p.icon className="h-4 w-4" />
               {p.title}
             </div>
-            <div className="mt-2 text-sm text-gray-700 dark:text-gray-300">{p.body}</div>
+            <div className="mt-2 text-sm text-body">{p.body}</div>
           </div>
         ))}
       </div>

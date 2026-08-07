@@ -54,8 +54,8 @@ export function LabSetupGuide() {
               {VMS.map((vm) => (
                 <tr key={vm.name} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
                   <td className="px-3 py-2 font-medium text-ink">{vm.name}</td>
-                  <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{vm.role}</td>
-                  <td className="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">{vm.specs}</td>
+                  <td className="px-3 py-2 text-body">{vm.role}</td>
+                  <td className="px-3 py-2 font-mono text-xs text-body">{vm.specs}</td>
                   <td className="px-3 py-2 text-muted">{vm.notes}</td>
                 </tr>
               ))}
@@ -72,7 +72,7 @@ export function LabSetupGuide() {
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
           <Network className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Network
         </h3>
-        <ul className="mt-2 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
+        <ul className="mt-2 space-y-1.5 text-sm text-body">
           <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /> Put every VM on ONE isolated network — VirtualBox <span className="font-mono text-xs">Host-Only</span> or <span className="font-mono text-xs">Internal</span>, VMware <span className="font-mono text-xs">Host-Only</span>. Avoid Bridged so the lab never touches your home/work LAN.</li>
           <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /> Use one subnet, e.g. <span className="font-mono text-xs">10.10.10.0/24</span>, with static IPs (Kali .10, Ubuntu .5, Windows .6) — then record them in Lab access.</li>
           <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /> Confirm reachability: from Kali, <span className="font-mono text-xs">ping &lt;UBUNTU_IP&gt;</span> must reply before Week 1.</li>
@@ -107,7 +107,7 @@ export function LabSetupGuide() {
         <h3 className="text-sm font-semibold text-ink">Pre-flight checklist</h3>
         <ul className="mt-2 space-y-1.5">
           {PREFLIGHT.map((p) => (
-            <li key={p} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+            <li key={p} className="flex items-start gap-2 text-sm text-body">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" /> {p}
             </li>
           ))}

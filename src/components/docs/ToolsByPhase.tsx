@@ -30,7 +30,7 @@ export function ToolsByPhase() {
               {PHASES.map((p) => (
                 <tr key={p.phase} className="border-b border-gray-100 dark:border-gray-700/60">
                   <td className="py-1.5 pr-3 font-medium text-ink">{p.phase}</td>
-                  <td className="py-1.5 pr-3 font-mono text-xs text-gray-700 dark:text-gray-300">{p.tools}</td>
+                  <td className="py-1.5 pr-3 font-mono text-xs text-body">{p.tools}</td>
                   <td className="py-1.5 pr-3 text-muted">{p.note}</td>
                 </tr>
               ))}

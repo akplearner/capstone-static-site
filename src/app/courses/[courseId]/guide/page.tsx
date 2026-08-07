@@ -174,7 +174,7 @@ export default function CourseGuidePage() {
                       {s.verify}
                     </code>
                     <div className="mt-1 text-xs text-muted">
-                      Expect: <span className="font-medium text-gray-700 dark:text-gray-300">{s.expect}</span>
+                      Expect: <span className="font-medium text-body">{s.expect}</span>
                     </div>
                     <a
                       href={s.href}
@@ -189,7 +189,7 @@ export default function CourseGuidePage() {
               </div>
               <p className="text-sm text-muted">
                 Want the deeper how-to — dashboard searches, Suricata rules, Sysmon event IDs? See{' '}
-                <span className="font-medium text-gray-700 dark:text-gray-300">Using the tools — Wazuh, Suricata &amp; Sysmon</span> below.
+                <span className="font-medium text-body">Using the tools — Wazuh, Suricata &amp; Sysmon</span> below.
               </p>
             </div>
           </Collapsible>
@@ -279,7 +279,7 @@ export default function CourseGuidePage() {
                     <span className="text-sm text-muted">{getFrameworkDescription(fw)}</span>
                   </div>
                   {getFrameworkWhy(fw) && (
-                    <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{getFrameworkWhy(fw)}</p>
+                    <p className="mt-2 text-sm text-body">{getFrameworkWhy(fw)}</p>
                   )}
                 </div>
               ))}

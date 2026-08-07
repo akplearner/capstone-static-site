@@ -72,7 +72,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
               className={
                 it.done
                   ? 'text-gray-500 line-through dark:text-gray-500'
-                  : 'text-gray-700 dark:text-gray-300'
+                  : 'text-body'
               }
             >
               {it.task ? it.task.title : it.id}
@@ -102,7 +102,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
               return (
                 <li key={`${h.from}-${h.to}-${i}`} className="flex items-start gap-2 text-sm">
                   <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
-                  <span className="text-gray-700 dark:text-gray-300">
+                  <span className="text-body">
                     <span className="font-medium" style={{ color: from?.color }}>
                       {shortRole(from?.name ?? h.from)}
                     </span>{' '}

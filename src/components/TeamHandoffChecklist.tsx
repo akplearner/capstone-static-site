@@ -58,7 +58,7 @@ export function TeamHandoffChecklist({ course }: { course: Course; teamId?: stri
                   const from = getRoleDef(course, r.from);
                   const to = getRoleDef(course, r.to);
                   return (
-                    <li key={r.key} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <li key={r.key} className="flex items-start gap-2 text-sm text-body">
                       <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
                       <span>
                         <span className="font-semibold" style={{ color: from?.color }}>{from?.name ?? r.from}</span>

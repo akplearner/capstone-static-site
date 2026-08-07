@@ -58,7 +58,7 @@ export function StepsEditor({
             <TextField label="Frameworks (comma-separated)" value={listToText(s.frameworks)} onChange={(v) => update(i, { frameworks: textToList(v) })} />
             <TextField label="Produces deliverable" value={s.producesDeliverable || ''} onChange={(v) => update(i, { producesDeliverable: v || undefined })} mono />
           </div>
-          <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300">
+          <label className="flex items-center gap-2 text-sm text-body">
             <input type="checkbox" checked={!!s.isEvidenceStep} onChange={(e) => update(i, { isEvidenceStep: e.target.checked })} className="h-4 w-4 accent-blue-600" />
             Evidence step
           </label>

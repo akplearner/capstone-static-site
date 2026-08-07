@@ -80,7 +80,7 @@ export function EvidenceHasher() {
 
       <label className="mt-3 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 px-4 py-6 text-center transition-colors hover:border-indigo-400 hover:bg-indigo-50/50 dark:border-gray-600 dark:bg-gray-900/40 dark:hover:border-indigo-500">
         <FileCheck2 className="h-6 w-6 text-gray-400" />
-        <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <span className="text-sm font-medium text-body">
           {busy ? 'Hashing…' : 'Choose or drop evidence files'}
         </span>
         <span className="text-xs text-muted">Hashed in-browser · nothing uploaded</span>

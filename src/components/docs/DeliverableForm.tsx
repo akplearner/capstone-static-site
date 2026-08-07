@@ -23,7 +23,7 @@ function SingleField({
 
   return (
     <label className="block">
-      <span className="flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-300">
+      <span className="flex items-center gap-1 text-sm font-medium text-body">
         {f.label}
         {f.required && <span className="text-red-500">*</span>}
       </span>
