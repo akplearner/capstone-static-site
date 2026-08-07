@@ -17,22 +17,22 @@ type Level = (typeof LEVELS)[number];
 
 // Row = impact (high at the top so the grid reads like every risk matrix);
 // column = likelihood.
-const CELL: Record<Level, Record<Level, { label: string; tone: string }>> = {
-  High: {
-    Low: { label: 'Medium', tone: 'var(--color-w3)' },
-    Medium: { label: 'High', tone: 'var(--color-w4)' },
-    High: { label: 'Critical', tone: 'var(--color-accent)' },
-  },
-  Medium: {
-    Low: { label: 'Low', tone: 'var(--color-w1)' },
-    Medium: { label: 'Medium', tone: 'var(--color-w3)' },
-    High: { label: 'High', tone: 'var(--color-w4)' },
-  },
-  Low: {
-    Low: { label: 'Low', tone: 'var(--color-w1)' },
-    Medium: { label: 'Low', tone: 'var(--color-w1)' },
-    High: { label: 'Medium', tone: 'var(--color-w3)' },
-  },
+type Severity = 'Low' | 'Medium' | 'High' | 'Critical';
+
+/** A deliberate severity ramp — green → amber → orange → red. The per-week phase
+ *  tokens are arbitrary hues, so using them made "Critical" render calmer than
+ *  "High", which is exactly backwards for a risk grid. */
+const SEVERITY: Record<Severity, string> = {
+  Low: '#059669',
+  Medium: '#d97706',
+  High: '#ea580c',
+  Critical: '#dc2626',
+};
+
+const CELL: Record<Level, Record<Level, Severity>> = {
+  High: { Low: 'Medium', Medium: 'High', High: 'Critical' },
+  Medium: { Low: 'Low', Medium: 'Medium', High: 'High' },
+  Low: { Low: 'Low', Medium: 'Low', High: 'Medium' },
 };
 
 const LIKELIHOOD_MEANS: Record<Level, string> = {
@@ -52,12 +52,10 @@ export function RiskMatrix() {
       title="Ranking a finding: likelihood × impact"
       subtitle="Rate each axis, read the cell — that is the priority you write in the assessment"
       howToRead="Pick the likelihood column using how reachable the flaw is, then the impact row using what an attacker would get. Where they meet is the rating. Two findings with the same CVSS can land in different cells, and the cell is what decides fix order."
-      legend={[
-        { label: 'Low', color: 'var(--color-w1)' },
-        { label: 'Medium', color: 'var(--color-w3)' },
-        { label: 'High', color: 'var(--color-w4)' },
-        { label: 'Critical', color: 'var(--color-accent)' },
-      ]}
+      legend={(['Low', 'Medium', 'High', 'Critical'] as Severity[]).map((k) => ({
+        label: k,
+        color: SEVERITY[k],
+      }))}
     >
       <div className="min-w-[440px]">
         <div className="grid grid-cols-[92px_repeat(3,1fr)] gap-1.5">
@@ -73,17 +71,17 @@ export function RiskMatrix() {
                 {impact}
               </div>
               {LEVELS.map((likelihood, i) => {
-                const cell = CELL[impact][likelihood];
+                const sev = CELL[impact][likelihood];
                 return (
                   <motion.div
                     key={likelihood}
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
                     transition={{ delay: i * 0.03, duration: 0.2 }}
-                    className="rounded-md px-2 py-3 text-center text-xs font-semibold"
-                    style={{ background: cell.tone, color: 'var(--color-surface)' }}
+                    className="rounded-md px-2 py-3 text-center text-xs font-semibold text-white"
+                    style={{ background: SEVERITY[sev] }}
                   >
-                    {cell.label}
+                    {sev}
                   </motion.div>
                 );
               })}
@@ -120,7 +118,7 @@ export function RiskMatrix() {
         {[...LEVELS].reverse().map((impact) =>
           LEVELS.map((likelihood) => (
             <li key={`${impact}-${likelihood}`}>
-              Impact {impact} with likelihood {likelihood} rates {CELL[impact][likelihood].label}.
+              Impact {impact} with likelihood {likelihood} rates {CELL[impact][likelihood]}.
             </li>
           ))
         )}

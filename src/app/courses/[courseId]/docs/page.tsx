@@ -212,12 +212,12 @@ export default function DeliverablesPage() {
         </h2>
         {dueThisWeek.length === 0 ? (
           <p className="mt-1 text-sm text-blue-800 dark:text-blue-200">
-            Nothing graded for your role in {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`}. Your work this
-            week feeds your teammates&apos; deliverables —{' '}
+            No form of your own in {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`} — this week your work is
+            evidence: screenshots and findings you collect and file with your week package below.{' '}
             <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium underline">
-              go to this week&apos;s tasks
+              Go to this week&apos;s tasks
             </Link>
-            . Change the week below to see other forms.
+            , or change the week to see another form.
           </p>
         ) : (
           <ul className="mt-2 space-y-3">
