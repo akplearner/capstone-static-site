@@ -246,7 +246,8 @@ export default function DeliverablesPage() {
                       </span>
                     )}
                   </div>
-                  <p className="ml-6 mt-0.5 text-[13px] text-blue-800/90 dark:text-blue-200/90">{def.howTo}</p>
+                  {/* `howTo` is deliberately NOT repeated here — it renders in full inside each
+                      form's "How to build this" panel below. This list is the week's checklist. */}
                   {evName && (
                     <p className="ml-6 mt-0.5 text-[11px] text-blue-700/70 dark:text-blue-300/70">
                       Evidence to attach, e.g. <span className="font-mono">{evName}</span>

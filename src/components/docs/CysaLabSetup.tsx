@@ -10,7 +10,7 @@ const VMS: { name: string; role: string; addr: string; notes: string }[] = [
   { name: 'Wazuh SOC', role: 'The dashboard everyone shares', addr: '10.10.100.100', notes: 'Wazuh manager + indexer + dashboard (all-in-one). You log in here in a browser.' },
   { name: 'Ubuntu pod', role: 'Your team’s target', addr: '10.10.100.N', notes: 'DVWA web app + Suricata IDS + the Wazuh agent. N = your team number.' },
   { name: 'Windows 11 pod', role: 'Your team’s target', addr: '10.10.20.N', notes: 'Sysmon + the Wazuh agent for rich Windows logging.' },
-  { name: 'Kali Linux', role: 'Attacker (instructor-driven)', addr: 'on the lab network', notes: 'Runs the Week 3 scans and the Week 4 attack you respond to.' },
+  { name: 'Kali Linux', role: 'Your team’s attacker box', addr: '10.10.30.N', notes: 'You drive it yourself: the Week 2 traffic, the Week 3 scans and the Week 4 attack all start here — against your own pods only.' },
 ];
 
 const PREFLIGHT = [

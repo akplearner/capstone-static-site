@@ -5,6 +5,7 @@ import { MSSP } from './seed/mssp';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
+import { LAB_FIELDS } from '../labAccess';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -57,6 +58,52 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
       for (const f of step.files ?? []) {
         expect(f.name?.trim(), `${task.id}/${step.id} file.name`).toBeTruthy();
         expect(f.purpose?.trim(), `${task.id}/${step.id} file.purpose`).toBeTruthy();
+      }
+    }
+  });
+
+  // A task's `deliverables[]` is rendered as "You produce: <file>" on the task card
+  // and cross-checked against the gate. Prose entries ("Baseline analysis", "Risk
+  // matrix") make the card and the gate disagree about what was actually handed in.
+  it('every task `deliverables[]` entry is a concrete filename', () => {
+    for (const task of course.tasks) {
+      for (const d of task.deliverables ?? []) {
+        expect(d, `${task.id} deliverable "${d}"`).toMatch(/\.\w+$/);
+      }
+    }
+  });
+
+  // `verify` drives the paste-your-output self-check, which lowercases both sides
+  // (TaskComponents.tsx). A token that appears nowhere in the step's own sample
+  // output can never go green, so the student is asked to match something we never
+  // showed them.
+  it('every `verify` token appears in that step`s expectedOutput', () => {
+    for (const { step } of allSteps(course)) {
+      if (!step.verify?.length || !step.expectedOutput) continue;
+      const output = step.expectedOutput.toLowerCase();
+      for (const token of step.verify) {
+        expect(
+          output.includes(token.toLowerCase()),
+          `${step.id}: verify token "${token}" is not in expectedOutput`
+        ).toBe(true);
+      }
+    }
+  });
+
+  // Lowercase <angle-bracket> placeholders are substituted from the Lab access
+  // panel at render time. One that isn't a registered token silently ships to the
+  // student as literal "<kali_ip>" text — so every such token must be either a real
+  // lab-access token or an XML/HTML element the content is legitimately quoting.
+  it('every lowercase <placeholder> is a real lab-access token', () => {
+    const known = new Set(LAB_FIELDS.flatMap((f) => f.tokens).map((t) => t.toLowerCase()));
+    for (const { step } of allSteps(course)) {
+      const prose = [step.instruction, ...(step.instructionList ?? []), step.expectedOutput]
+        .filter(Boolean)
+        .join(' ');
+      for (const match of prose.match(/<[a-z][a-z0-9_-]*>/g) ?? []) {
+        // `<ossec_config>`, `<localfile>` and friends are XML the student edits.
+        if (!match.includes('-')) continue;
+        expect(known.has(match), `${step.id}: "${match}" is not a lab-access token`).toBe(true);
       }
     }
   });
@@ -227,5 +274,41 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
         expect(c.note.trim().length, `task ${t.id} consumes with no note`).toBeGreaterThan(0);
       }
     }
+  });
+});
+
+// ── Reading length ──────────────────────────────────────────────────────────
+//
+// A step renders in a half-width column, so a 100-word run-on paragraph is the
+// single biggest readability problem a step can have — and every one of them was
+// really a hidden list. `instructionList` and `fixes` exist to carry that shape.
+// This guard keeps the long-paragraph habit from creeping back.
+//
+// Scoped to CySA+ deliberately: it is the course that has had the pass. Security+
+// still has 4 long instructions and 19 long troubleshooting notes, and widening
+// the guard before doing that content work would just fail the build.
+const WORD_BUDGET = 40;
+const words = (s: string) => s.split(/\s+/).filter(Boolean).length;
+
+describe('reading length — cysa-plus', () => {
+  it('no `instruction` runs long without an `instructionList` to carry the list', () => {
+    const over = allSteps(CYSA_PLUS)
+      .filter(({ step }) => !step.instructionList?.length && words(step.instruction ?? '') >= WORD_BUDGET)
+      .map(({ step }) => `${step.id} (${words(step.instruction ?? '')}w)`);
+    expect(over, `split these into instructionList: ${over.join(', ')}`).toHaveLength(0);
+  });
+
+  it('no `troubleshooting` runs long without `fixes` rows to split the symptoms', () => {
+    const over = allSteps(CYSA_PLUS)
+      .filter(({ step }) => !step.fixes?.length && words(step.troubleshooting ?? '') >= WORD_BUDGET)
+      .map(({ step }) => `${step.id} (${words(step.troubleshooting ?? '')}w)`);
+    expect(over, `split these into fixes rows: ${over.join(', ')}`).toHaveLength(0);
+  });
+
+  it('no `whatItMeans` runs long', () => {
+    const over = allSteps(CYSA_PLUS)
+      .filter(({ step }) => words(step.whatItMeans ?? '') >= WORD_BUDGET)
+      .map(({ step }) => `${step.id} (${words(step.whatItMeans ?? '')}w)`);
+    expect(over, `tighten these: ${over.join(', ')}`).toHaveLength(0);
   });
 });

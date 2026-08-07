@@ -46,10 +46,10 @@ export default function CourseGuidePage() {
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What each week is about</h2>
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The shape of the course</h2>
           <p className="mt-1 text-gray-600 dark:text-gray-400">
-            The goal of each {unitWord(course).toLowerCase()} in plain words — what you&apos;ll actually do, and why
-            it matters.
+            Where each {unitWord(course).toLowerCase()} sits in the arc. The plain-words goal for the{' '}
+            {unitWord(course).toLowerCase()} you&apos;re on is on the Weekly Tasks tab, above its tasks.
           </p>
         </div>
         <WeekGoals weeks={course.weeks} />
@@ -106,10 +106,12 @@ export default function CourseGuidePage() {
                 The shared Wazuh SOC and your team&apos;s pods — what each machine is, its address, and how to
                 confirm you&apos;re ready before Week 1.
               </p>
+              {/* The address and credentials live once, in CysaLabSetup's pre-flight list
+                  directly below. This box only carries the thing that list doesn't: why the
+                  build steps exist at all. */}
               <div className="rounded-md border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-200">
-                <span className="font-semibold">Already built for you.</span> The classroom SOC is running at{' '}
-                <span className="font-mono text-xs">https://10.10.100.100</span> (student / @Pass@2026). The build
-                steps below are only if you&apos;re setting up your own lab at home.
+                <span className="font-semibold">Already built for you.</span> The build steps below are only for
+                students setting up their own lab at home.
               </div>
               <CysaLabSetup courseId={course.id} />
             </div>
