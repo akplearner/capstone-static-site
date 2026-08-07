@@ -142,7 +142,7 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
         )}
       </svg>
       {flow && (
-        <p className="mt-2 text-center text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-center text-xs text-muted">
           <span className="font-semibold text-gray-700 dark:text-gray-300">This week: </span>
           {flow.focus}
         </p>

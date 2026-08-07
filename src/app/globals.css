@@ -283,14 +283,25 @@ select {
 
 /* ── Recurring HTML motifs, as reusable classes ─────────────────────────── */
 
-/* Mono, uppercase, letter-spaced kicker above a headline/section. */
-.eyebrow {
+/* Mono, uppercase, letter-spaced kicker above a headline/section.
+   Two colours, one typography: `.eyebrow` for the accent kicker that opens a
+   surface, `.eyebrow-muted` for the many small labels *inside* one ("You need
+   first", "Tools", "What to look for"). Those were written out longhand in ~20
+   places as `text-xs font-semibold uppercase tracking-wide text-gray-500
+   dark:text-gray-400`, which drifted into five near-identical variants. */
+.eyebrow,
+.eyebrow-muted {
   font-family: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
   font-size: 12px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   font-weight: 600;
+}
+.eyebrow {
   color: var(--color-accent);
+}
+.eyebrow-muted {
+  color: var(--color-muted);
 }
 
 /* Inline IP / address chip. */

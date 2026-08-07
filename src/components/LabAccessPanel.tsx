@@ -50,7 +50,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           {/* One sentence. This was a 44-word paragraph covering placeholder
               substitution and the privacy model; the notes field's own
               placeholder already says "visible only to you". */}
-          <p className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+          <p className="flex items-start gap-2 text-sm text-muted">
             <Server className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
             Enter your lab&apos;s IPs and every command below fills them in for you. Saved to your
             account, visible only to you.
@@ -87,7 +87,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           </div>
 
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <div className="eyebrow-muted">
               Reachability check
             </div>
             <ul className="mt-2 space-y-1.5">

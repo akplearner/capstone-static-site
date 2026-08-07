@@ -20,7 +20,7 @@ export function ToolsByPhase() {
         <div className="overflow-x-auto pb-2">
           <table className="w-full min-w-[480px] text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
                 <th className="py-2 pr-3">Phase</th>
                 <th className="py-2 pr-3">Tools</th>
                 <th className="py-2 pr-3">Why</th>
@@ -29,9 +29,9 @@ export function ToolsByPhase() {
             <tbody>
               {PHASES.map((p) => (
                 <tr key={p.phase} className="border-b border-gray-100 dark:border-gray-700/60">
-                  <td className="py-1.5 pr-3 font-medium text-gray-900 dark:text-white">{p.phase}</td>
+                  <td className="py-1.5 pr-3 font-medium text-ink">{p.phase}</td>
                   <td className="py-1.5 pr-3 font-mono text-xs text-gray-700 dark:text-gray-300">{p.tools}</td>
-                  <td className="py-1.5 pr-3 text-gray-500 dark:text-gray-400">{p.note}</td>
+                  <td className="py-1.5 pr-3 text-muted">{p.note}</td>
                 </tr>
               ))}
             </tbody>

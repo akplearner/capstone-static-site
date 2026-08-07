@@ -25,10 +25,10 @@ const THREE_THINGS = [
 export function WorkflowFlow() {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+      <h2 className="text-sm font-semibold text-ink">
         Every deliverable follows the same flow
       </h2>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-1 text-sm text-muted">
         Don&apos;t memorise eight different documents — memorise these six moves. They apply to all of them.
       </p>
 
@@ -44,11 +44,11 @@ export function WorkflowFlow() {
             >
               <s.icon
                 className={`h-4 w-4 ${
-                  s.highlight ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'
+                  s.highlight ? 'text-blue-600 dark:text-blue-400' : 'text-muted'
                 }`}
               />
-              <span className="mt-1.5 text-xs font-semibold text-gray-900 dark:text-white">{s.label}</span>
-              <span className="mt-0.5 text-[11px] text-gray-500 dark:text-gray-400">{s.hint}</span>
+              <span className="mt-1.5 text-xs font-semibold text-ink">{s.label}</span>
+              <span className="mt-0.5 text-[11px] text-muted">{s.hint}</span>
             </div>
             {i < STEPS.length - 1 && (
               <span className="hidden self-center text-gray-300 dark:text-gray-600 sm:inline" aria-hidden>
@@ -70,8 +70,8 @@ export function WorkflowFlow() {
                 {t.n}
               </span>
               <div>
-                <div className="text-sm font-medium text-gray-900 dark:text-white">{t.label}</div>
-                <div className="text-xs text-gray-600 dark:text-gray-400">{t.desc}</div>
+                <div className="text-sm font-medium text-ink">{t.label}</div>
+                <div className="text-xs text-muted">{t.desc}</div>
               </div>
             </div>
           ))}

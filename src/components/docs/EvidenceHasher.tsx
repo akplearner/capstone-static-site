@@ -68,11 +68,11 @@ export function EvidenceHasher() {
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="flex items-center gap-2 text-sm font-semibold text-gray-900 dark:text-white">
+      <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
         <FileCheck2 className="h-4 w-4 text-indigo-600 dark:text-indigo-400" />
         Hash &amp; log evidence
       </h3>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-1 text-sm text-muted">
         Drop a screenshot, log or capture below. Your browser computes its{' '}
         <span className="font-mono text-xs">SHA-256</span> locally — <strong>the file never leaves your
         device</strong> — then copy the row into your Evidence Log. This is the real chain-of-custody hash step.
@@ -83,7 +83,7 @@ export function EvidenceHasher() {
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {busy ? 'Hashing…' : 'Choose or drop evidence files'}
         </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">Hashed in-browser · nothing uploaded</span>
+        <span className="text-xs text-muted">Hashed in-browser · nothing uploaded</span>
         <input
           type="file"
           multiple
@@ -113,7 +113,7 @@ export function EvidenceHasher() {
                   <Copy className="h-3 w-3" /> Copy row
                 </button>
               </div>
-              <div className="mt-1 break-all font-mono text-[11px] text-gray-500 dark:text-gray-400">
+              <div className="mt-1 break-all font-mono text-[11px] text-muted">
                 SHA-256: {it.sha256}
               </div>
               {!it.nameOk && (

@@ -116,8 +116,8 @@ export default function InstructorHomePage() {
     <div className="space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Instructor Studio</h1>
-          <p className="mt-1 text-gray-600 dark:text-gray-400">Create and maintain courses and lab content.</p>
+          <h1 className="text-3xl font-bold text-ink">Instructor Studio</h1>
+          <p className="mt-1 text-muted">Create and maintain courses and lab content.</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => setCreating((v) => !v)} className="flex items-center gap-1">
@@ -158,7 +158,7 @@ export default function InstructorHomePage() {
               onKeyDown={(e) => e.key === 'Enter' && confirmDuplicate()}
               className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
             />
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1 text-xs text-muted">
               Duplicating “{dup.course.title}” into an editable copy.
             </p>
           </div>
@@ -181,8 +181,8 @@ export default function InstructorHomePage() {
           <div key={course.id} className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
             <div className="flex items-start justify-between gap-2">
               <div>
-                <h2 className="font-bold text-gray-900 dark:text-white">{course.title}</h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{course.id}</p>
+                <h2 className="font-bold text-ink">{course.title}</h2>
+                <p className="text-xs text-muted">{course.id}</p>
               </div>
               {course.isSeed && (
                 <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
@@ -190,7 +190,7 @@ export default function InstructorHomePage() {
                 </span>
               )}
             </div>
-            <div className="mt-3 flex flex-wrap gap-3 text-xs text-gray-500 dark:text-gray-400">
+            <div className="mt-3 flex flex-wrap gap-3 text-xs text-muted">
               <span className="inline-flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {course.weeks.length} weeks</span>
               <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {course.roles.length} roles</span>
               <span>{course.tasks.length} tasks</span>

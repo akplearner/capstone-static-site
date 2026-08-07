@@ -96,7 +96,7 @@ export function AnnotatedTerminal({
 
       {(hits.length > 0 || missing.length > 0) && (
         <figcaption className="mt-2">
-          <div className="mb-1 flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <div className="mb-1 flex items-center gap-1.5 eyebrow-muted">
             <Target className="h-3.5 w-3.5" /> What to look for
           </div>
           <ol className="space-y-1">
@@ -106,7 +106,7 @@ export function AnnotatedTerminal({
                 initial={{ opacity: 0, x: -4 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: i * 0.05, duration: 0.2 }}
-                className="flex gap-2 text-sm text-gray-600 dark:text-gray-400"
+                className="flex gap-2 text-sm text-muted"
               >
                 <MarkerBadge n={h.n} />
                 <span>
@@ -122,7 +122,7 @@ export function AnnotatedTerminal({
             {missing.map((m) => (
               <li
                 key={m.text}
-                className="flex gap-2 text-sm text-gray-600 dark:text-gray-400"
+                className="flex gap-2 text-sm text-muted"
               >
                 <span aria-hidden className="mt-0.5 text-gray-400">
                   •

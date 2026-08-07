@@ -30,20 +30,20 @@ const PREFLIGHT = [
 export function LabSetupGuide() {
   return (
     <div className="space-y-6">
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-sm text-muted">
         You run a small isolated lab of 2–3 VMs. Build them once, put them on one private network, and
         record their IPs in the <span className="font-medium">Lab access</span> panel (Weekly Tasks).
       </p>
 
       {/* VMs */}
       <div>
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
           <Cpu className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Virtual machines
         </h3>
         <div className="mt-2 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
                 <th className="px-3 py-2">VM</th>
                 <th className="px-3 py-2">Role</th>
                 <th className="px-3 py-2">Suggested specs</th>
@@ -53,23 +53,23 @@ export function LabSetupGuide() {
             <tbody>
               {VMS.map((vm) => (
                 <tr key={vm.name} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
-                  <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">{vm.name}</td>
+                  <td className="px-3 py-2 font-medium text-ink">{vm.name}</td>
                   <td className="px-3 py-2 text-gray-700 dark:text-gray-300">{vm.role}</td>
                   <td className="px-3 py-2 font-mono text-xs text-gray-700 dark:text-gray-300">{vm.specs}</td>
-                  <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{vm.notes}</td>
+                  <td className="px-3 py-2 text-muted">{vm.notes}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-2 text-xs text-muted">
           Hypervisor options: {HYPERVISORS.join(' · ')}.
         </p>
       </div>
 
       {/* Network */}
       <div>
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
           <Network className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Network
         </h3>
         <ul className="mt-2 space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
@@ -81,10 +81,10 @@ export function LabSetupGuide() {
 
       {/* DVWA lifecycle */}
       <div>
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
           <Server className="h-4 w-4 text-blue-600 dark:text-blue-400" /> DVWA target (Docker) — quick reference
         </h3>
-        <p className="mt-1 mb-2 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-1 mb-2 text-sm text-muted">
           On the Ubuntu host. Run it once (named <span className="font-mono text-xs">dvwa</span>), then start/stop
           it as needed. First run: open <span className="font-mono text-xs">/setup.php</span> → “Create / Reset
           Database”, then set Security = Low at <span className="font-mono text-xs">/security.php</span>. Login{' '}
@@ -104,7 +104,7 @@ export function LabSetupGuide() {
 
       {/* Pre-flight */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Pre-flight checklist</h3>
+        <h3 className="text-sm font-semibold text-ink">Pre-flight checklist</h3>
         <ul className="mt-2 space-y-1.5">
           {PREFLIGHT.map((p) => (
             <li key={p} className="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">

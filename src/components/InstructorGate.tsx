@@ -23,8 +23,8 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
             <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
               <ShieldAlert className="h-6 w-6" />
             </div>
-            <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Instructor Studio</h1>
-            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+            <h1 className="mt-3 text-2xl font-bold text-ink">Instructor Studio</h1>
+            <p className="mt-1 text-sm text-muted">
               {auth.signedIn
                 ? 'Your account doesn’t have instructor access. Ask an administrator to enable it for you.'
                 : 'Sign in with an instructor account to continue.'}
@@ -44,8 +44,8 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
           <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
             <Lock className="h-6 w-6" />
           </div>
-          <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Instructor Studio</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="mt-3 text-2xl font-bold text-ink">Instructor Studio</h1>
+          <p className="mt-1 text-sm text-muted">
             The studio is locked. To enable it, set{' '}
             <code className="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-gray-800">
               NEXT_PUBLIC_INSTRUCTOR_PASSCODE
@@ -63,8 +63,8 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
           <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
             <Lock className="h-6 w-6" />
           </div>
-          <h1 className="mt-3 text-2xl font-bold text-gray-900 dark:text-white">Instructor Studio</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Enter the instructor passcode to continue.</p>
+          <h1 className="mt-3 text-2xl font-bold text-ink">Instructor Studio</h1>
+          <p className="mt-1 text-sm text-muted">Enter the instructor passcode to continue.</p>
         </div>
         <form
           onSubmit={(e) => {

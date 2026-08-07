@@ -88,8 +88,8 @@ export function SignInPanel({
       animate={{ opacity: 1, y: 0 }}
       className="rounded-lg border border-blue-200 bg-blue-50/60 p-5 dark:border-blue-800 dark:bg-blue-900/15"
     >
-      <h3 className="text-base font-semibold text-gray-900 dark:text-white">{title}</h3>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
+      <h3 className="text-base font-semibold text-ink">{title}</h3>
+      <p className="mt-1 text-sm text-muted">{subtitle}</p>
 
       <div className="mt-4">
         <button

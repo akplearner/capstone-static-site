@@ -2,7 +2,7 @@
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white';
-const labelClass = 'block text-xs font-medium text-gray-600 dark:text-gray-300';
+const labelClass = 'block text-xs font-medium text-muted';
 
 export function TextField({
   label,

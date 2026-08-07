@@ -21,7 +21,7 @@ function downloadText(filename: string, text: string, type = 'text/plain;charset
 export function EvidenceGuide() {
   return (
     <div className="space-y-5">
-      <p className="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
+      <p className="flex items-start gap-2 text-sm text-muted">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
         Your proof stays on your machine — handle it like a real case so it would hold up under scrutiny.
         Hash it, log every artifact and hand-off, and keep it in one place.
@@ -33,13 +33,13 @@ export function EvidenceGuide() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">1. Name it consistently</h3>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h3 className="text-sm font-semibold text-ink">1. Name it consistently</h3>
+        <p className="mt-1 text-sm text-muted">
           Every artifact: <span className="font-mono text-xs">YYYYMMDD_TeamXX_Tool_Action.ext</span> — e.g.{' '}
           <span className="font-mono text-xs">20260627_Team01_sqlmap_dbdump.png</span>. Dated, attributed,
           self-describing.
         </p>
-        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
+        <ul className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
           {EVIDENCE_FILE_TYPES.map((t) => (
             <li key={t.ext}>
               <span className="font-mono text-gray-700 dark:text-gray-300">{t.ext}</span> — {t.use}
@@ -49,8 +49,8 @@ export function EvidenceGuide() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">2. Hash on collection, verify on receipt</h3>
-        <p className="mt-1 mb-2 text-sm text-gray-600 dark:text-gray-400">
+        <h3 className="text-sm font-semibold text-ink">2. Hash on collection, verify on receipt</h3>
+        <p className="mt-1 mb-2 text-sm text-muted">
           A SHA-256 fingerprint proves nothing changed. Create hashes when you collect; re-verify before you
           report or after a hand-off.
         </p>
@@ -63,8 +63,8 @@ export function EvidenceGuide() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">3. Log every artifact &amp; hand-off</h3>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h3 className="text-sm font-semibold text-ink">3. Log every artifact &amp; hand-off</h3>
+        <p className="mt-1 text-sm text-muted">
           Record one row per artifact in a chain-of-custody log, and a line for each transfer (Red/Blue → GRC).
           Columns: {CUSTODY_COLUMNS.join(' · ')}.
         </p>
@@ -85,7 +85,7 @@ export function EvidenceGuide() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Handling rules</h3>
+        <h3 className="text-sm font-semibold text-ink">Handling rules</h3>
         <ul className="mt-2 space-y-1.5">
           {CUSTODY_RULES.map((r) => (
             <li key={r} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">
@@ -100,7 +100,7 @@ export function EvidenceGuide() {
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Redaction, large captures &amp; recordings</h3>
+        <h3 className="text-sm font-semibold text-ink">Redaction, large captures &amp; recordings</h3>
         <ul className="mt-2 space-y-1.5">
           {EVIDENCE_HANDLING.map((r) => (
             <li key={r} className="flex gap-2 text-sm text-gray-700 dark:text-gray-300">

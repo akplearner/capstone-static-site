@@ -70,8 +70,8 @@ export function StepFlow({ path }: { path: string[] }) {
           transition={{ delay, duration: 0.2 }}
           className="flex min-w-[52px] flex-col items-center justify-center px-0.5"
         >
-          <span className="text-center font-mono text-[9px] leading-tight text-muted">{path[i]}</span>
-          <span className="text-[15px] font-bold leading-none text-accent" aria-hidden>→</span>
+          <span className="text-center font-mono text-[10px] leading-tight text-muted">{path[i]}</span>
+          <span className="text-base font-bold leading-none text-accent" aria-hidden>→</span>
         </motion.div>
       );
     }

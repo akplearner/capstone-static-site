@@ -32,7 +32,7 @@ export function StepsEditor({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Steps ({steps.length})</span>
+        <span className="eyebrow-muted">Steps ({steps.length})</span>
         <Button size="sm" variant="secondary" onClick={add} className="flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add step</Button>
       </div>
       {steps.map((s, i) => (
@@ -81,7 +81,7 @@ function FlagsEditor({
   return (
     <div className="space-y-2 rounded-md border border-dashed border-gray-300 p-2 dark:border-gray-600">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <span className="eyebrow-muted">
           Flag breakdown ({flags.length})
         </span>
         <Button size="sm" variant="secondary" onClick={() => onChange([...flags, { flag: '', meaning: '' }])} className="flex items-center gap-1">

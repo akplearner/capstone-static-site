@@ -40,14 +40,14 @@ export default function CourseGuidePage() {
     <div className="space-y-12">
       <CourseSubNav courseId={course.id} active="guide" teamId={member?.teamId ?? null} />
       <div className="space-y-3 text-center">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white">How {course.title} Works</h1>
-        <p className="mx-auto max-w-2xl text-lg text-gray-600 dark:text-gray-400">{course.description}</p>
+        <h1 className="text-4xl font-bold text-ink">How {course.title} Works</h1>
+        <p className="mx-auto max-w-2xl text-lg text-muted">{course.description}</p>
       </div>
 
       <section className="space-y-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The shape of the course</h2>
-          <p className="mt-1 text-gray-600 dark:text-gray-400">
+          <h2 className="text-2xl font-bold text-ink">The shape of the course</h2>
+          <p className="mt-1 text-muted">
             Where each {unitWord(course).toLowerCase()} sits in the arc. The plain-words goal for the{' '}
             {unitWord(course).toLowerCase()} you&apos;re on is on the Weekly Tasks tab, above its tasks.
           </p>
@@ -64,7 +64,7 @@ export default function CourseGuidePage() {
         <Collapsible title="The lab — architecture, setup and the arc" defaultOpen={false}>
           <div className="space-y-6 pb-2">
             <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted">
               {course.noGatekeeping
                 ? `Every ${unitWord(course).toLowerCase()} is open from the start — the flow below shows the arc of the ${isEngagement(course) ? 'engagement' : 'course'}, not locks.`
                 : `${course.gates.length} gates across the ${isEngagement(course) ? 'engagement' : 'course'} — clear each ${unitWord(course).toLowerCase()}'s required tasks to advance.`}
@@ -78,7 +78,7 @@ export default function CourseGuidePage() {
             </div>
 
             <div className="space-y-4">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted">
               Everyone works against one shared environment — the systems in scope, their exposed services, the
               monitoring that watches them, and the governance layer that documents it all. Your role decides
               where on this map you operate.
@@ -92,7 +92,7 @@ export default function CourseGuidePage() {
 
             {course.id === 'security-plus' && (
             <div className="space-y-4">
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted">
                 Build the small VM lab you&apos;ll work against — what machines to create, how to network them, and
                 how to run the DVWA target.
               </p>
@@ -102,7 +102,7 @@ export default function CourseGuidePage() {
 
             {course.id === 'cysa-plus' && (
             <div className="space-y-4">
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted">
                 The shared Wazuh SOC and your team&apos;s pods — what each machine is, its address, and how to
                 confirm you&apos;re ready before Week 1.
               </p>
@@ -128,7 +128,7 @@ export default function CourseGuidePage() {
               <LogPipelineDiagram />
             </div>
             <div className="space-y-4 pb-2">
-              <p className="text-gray-600 dark:text-gray-400">
+              <p className="text-muted">
                 Week 1 is about standing up the three sensors that feed the SOC. Here&apos;s what each one is, the one
                 command that proves it&apos;s working, and the official guide — the step-by-step commands live in each
                 role&apos;s Week-1 task.
@@ -165,15 +165,15 @@ export default function CourseGuidePage() {
                 ].map((s) => (
                   <div key={s.tool} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
                     <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-semibold text-gray-900 dark:text-white">{s.tool}</span>
-                      <span className="text-xs text-gray-500 dark:text-gray-400">{s.where}</span>
+                      <span className="font-semibold text-ink">{s.tool}</span>
+                      <span className="text-xs text-muted">{s.where}</span>
                     </div>
-                    <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{s.what}</p>
-                    <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">Verify it:</div>
+                    <p className="mt-1 text-sm text-muted">{s.what}</p>
+                    <div className="mt-3 text-xs text-muted">Verify it:</div>
                     <code className="mt-1 block rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
                       {s.verify}
                     </code>
-                    <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="mt-1 text-xs text-muted">
                       Expect: <span className="font-medium text-gray-700 dark:text-gray-300">{s.expect}</span>
                     </div>
                     <a
@@ -187,7 +187,7 @@ export default function CourseGuidePage() {
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              <p className="text-sm text-muted">
                 Want the deeper how-to — dashboard searches, Suricata rules, Sysmon event IDs? See{' '}
                 <span className="font-medium text-gray-700 dark:text-gray-300">Using the tools — Wazuh, Suricata &amp; Sysmon</span> below.
               </p>
@@ -209,7 +209,7 @@ export default function CourseGuidePage() {
       <section id="command-help" className="scroll-mt-24 rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
         <Collapsible title="Running commands & getting unstuck" defaultOpen={false}>
           <div className="space-y-4 pb-2">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted">
               How to use a terminal, and what to do when a command errors out — the fixes for the problems almost
               every beginner hits.
             </p>
@@ -219,8 +219,8 @@ export default function CourseGuidePage() {
       </section>
 
       <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">What you owe, and when</h2>
-        <p className="text-gray-600 dark:text-gray-400">
+        <h2 className="text-2xl font-bold text-ink">What you owe, and when</h2>
+        <p className="text-muted">
           The whole {isEngagement(course) ? 'engagement' : 'course'} comes down to a set of{' '}
           <strong>graded deliverables</strong>. Each role fills <strong>one form per week</strong>; the{' '}
           <strong>Deliverables</strong> tab lists them all with who owns each and when it is due, and the
@@ -242,14 +242,14 @@ export default function CourseGuidePage() {
       {course.roles.length > 0 && (
         <section className="grid gap-8 lg:grid-cols-2 lg:items-center">
           <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">The roles</h2>
+            <h2 className="text-2xl font-bold text-ink">The roles</h2>
             <div className="space-y-3">
               {course.roles.map((r) => (
                 <div key={r.id} className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
                   <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                   <div>
-                    <div className="font-semibold text-gray-900 dark:text-white">{r.name}</div>
-                    <div className="text-sm text-gray-600 dark:text-gray-400">{r.mission}</div>
+                    <div className="font-semibold text-ink">{r.name}</div>
+                    <div className="text-sm text-muted">{r.mission}</div>
                   </div>
                 </div>
               ))}
@@ -265,7 +265,7 @@ export default function CourseGuidePage() {
         <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
           <Collapsible title="Frameworks we use & why" defaultOpen={false}>
           <div className="space-y-4 pb-2">
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="text-muted">
               Every task is mapped to recognized security frameworks. Tags aren’t decoration — they
               show which standard your work satisfies and how an auditor or employer would read it.
             </p>
@@ -276,7 +276,7 @@ export default function CourseGuidePage() {
                     <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
                       {getFrameworkLabel(fw)}
                     </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">{getFrameworkDescription(fw)}</span>
+                    <span className="text-sm text-muted">{getFrameworkDescription(fw)}</span>
                   </div>
                   {getFrameworkWhy(fw) && (
                     <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">{getFrameworkWhy(fw)}</p>
@@ -292,7 +292,7 @@ export default function CourseGuidePage() {
       <section className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 p-8 text-center dark:bg-gray-800">
         {member ? (
           <>
-            <p className="text-gray-600 dark:text-gray-400">You’re enrolled. Jump back into your work.</p>
+            <p className="text-muted">You’re enrolled. Jump back into your work.</p>
             <Link href={`/courses/${course.id}`}>
               <Button size="lg" className="flex items-center gap-2">
                 Go to Course <ArrowRight className="h-5 w-5" />
@@ -301,7 +301,7 @@ export default function CourseGuidePage() {
           </>
         ) : (
           <>
-            <p className="text-gray-600 dark:text-gray-400">Ready to start? Open the course to pick a team and role.</p>
+            <p className="text-muted">Ready to start? Open the course to pick a team and role.</p>
             <Link href={`/courses/${course.id}`}>
               <Button size="lg" className="flex items-center gap-2">
                 Open Course <ArrowRight className="h-5 w-5" />

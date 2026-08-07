@@ -21,7 +21,7 @@ export function TaskThisWeek({ task }: { task: Task }) {
     <div className="mb-4 grid gap-4 rounded-lg border border-line bg-panel-2 p-4 sm:grid-cols-2">
       {steps.length > 0 && (
         <div>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+          <div className="flex items-center gap-1.5 eyebrow-muted">
             <ListChecks className="h-3.5 w-3.5" /> This week you will
           </div>
           <ol className="mt-1.5 space-y-1 text-sm text-ink">
@@ -36,7 +36,7 @@ export function TaskThisWeek({ task }: { task: Task }) {
       )}
       {done.length > 0 && (
         <div>
-          <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+          <div className="flex items-center gap-1.5 eyebrow-muted">
             <CheckCircle2 className="h-3.5 w-3.5" /> Done when
           </div>
           <ul className="mt-1.5 space-y-1 text-sm text-ink">

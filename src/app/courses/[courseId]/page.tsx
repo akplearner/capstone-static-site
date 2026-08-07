@@ -166,8 +166,8 @@ function JoinPanel({
         <div className="flex items-center gap-3">
           <RoleIcon iconName={rd?.icon} className="h-7 w-7" color={rd?.color} />
           <div>
-            <div className="font-semibold text-gray-900 dark:text-white">{member.displayName}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="font-semibold text-ink">{member.displayName}</div>
+            <div className="text-sm text-muted">
               Team {member.teamId} · {rd?.name ?? member.role} · {member.cohort}
             </div>
           </div>
@@ -182,8 +182,8 @@ function JoinPanel({
   return (
     <div className="space-y-5 rounded-lg border-2 border-blue-200 bg-blue-50/50 p-6 dark:border-blue-800 dark:bg-blue-900/10">
       <div>
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Join this course</h2>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h2 className="text-xl font-bold text-ink">Join this course</h2>
+        <p className="mt-1 text-sm text-muted">
           Pick a team and a role to unlock the weekly tasks below.
         </p>
       </div>
@@ -263,8 +263,8 @@ function JoinPanel({
               >
                 <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                 <span>
-                  <span className="block font-medium text-gray-900 dark:text-white">{r.name}</span>
-                  <span className="block text-xs text-gray-600 dark:text-gray-400">{roleGuide(r.id, course.id).blurb}</span>
+                  <span className="block font-medium text-ink">{r.name}</span>
+                  <span className="block text-xs text-muted">{roleGuide(r.id, course.id).blurb}</span>
                   <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-500">
                     {worksLabel(roleGuide(r.id, course.id).works)}
                   </span>
@@ -297,10 +297,10 @@ function TaskReference({ task }: { task: Task }) {
     <div className="space-y-3">
       {task.steps.map((s, i) => (
         <div key={s.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/40">
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <div className="eyebrow-muted">
             Step {i + 1}
           </div>
-          <h4 className="mt-0.5 font-semibold text-gray-900 dark:text-white">{s.title}</h4>
+          <h4 className="mt-0.5 font-semibold text-ink">{s.title}</h4>
           <div className="mt-3">
             <StepDetail
               instruction={s.instruction}
@@ -352,7 +352,7 @@ function CardRow({
       <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
       <div className="min-w-0 flex-1">
         <span className="font-mono text-[10px] uppercase tracking-wide text-muted">{label}</span>
-        <div className="mt-0.5 text-[13px] text-ink">{children}</div>
+        <div className="mt-0.5 text-sm text-ink">{children}</div>
       </div>
     </div>
   );
@@ -414,7 +414,7 @@ function TaskRow({
       >
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
-            <span className="font-medium text-gray-900 dark:text-white">{task.title}</span>
+            <span className="font-medium text-ink">{task.title}</span>
             {showProgress && percent === 100 && (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
             )}
@@ -424,7 +424,7 @@ function TaskRow({
               </span>
             )}
           </span>
-          <span className="mt-0.5 block truncate text-sm text-gray-600 dark:text-gray-400">
+          <span className="mt-0.5 block truncate text-sm text-muted">
             {task.objective}
           </span>
 
@@ -441,12 +441,12 @@ function TaskRow({
                     style={{ width: `${percent}%` }}
                   />
                 </span>
-                <span className="text-gray-500 dark:text-gray-400">
+                <span className="text-muted">
                   {doneSteps}/{steps} steps
                 </span>
               </span>
             ) : (
-              <span className="text-gray-500 dark:text-gray-400">{steps} steps</span>
+              <span className="text-muted">{steps} steps</span>
             )}
             {optionalCount > 0 && (
               <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
@@ -454,7 +454,7 @@ function TaskRow({
               </span>
             )}
             {task.estimatedTime && (
-              <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
+              <span className="flex items-center gap-1 text-muted">
                 <Clock className="h-3.5 w-3.5" /> {task.estimatedTime}
               </span>
             )}
@@ -516,7 +516,7 @@ function TaskRow({
                     {/* The filenames, not a count — this is what the student
                         actually has to create and hand in. */}
                     {card.produces.map((d) => (
-                      <li key={d} className="break-all font-mono text-[11.5px]">
+                      <li key={d} className="break-all font-mono text-[11px]">
                         {d}
                       </li>
                     ))}
@@ -557,7 +557,7 @@ function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
   return (
     <div className="flex items-center gap-2">
       <RoleIcon iconName={role.icon} className="h-5 w-5" color={role.color} />
-      <span className="font-semibold text-gray-900 dark:text-white">{role.name}</span>
+      <span className="font-semibold text-ink">{role.name}</span>
       {tag === 'own' && (
         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
           Your role
@@ -864,7 +864,7 @@ export default function CoursePage() {
         <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
           {task.learn && task.learn.length > 0 && (
             <div>
-              <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-1.5 eyebrow-muted">
                 <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
               </div>
               <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-gray-700 dark:text-gray-300">
@@ -879,7 +879,7 @@ export default function CoursePage() {
               row of rainbow tags was a big share of the card's on-screen colour. */}
           {task.frameworks.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="flex items-center gap-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <span className="flex items-center gap-1 eyebrow-muted">
                 <Tag className="h-3.5 w-3.5" /> Frameworks
               </span>
               {task.frameworks.map((fw) => (
@@ -976,7 +976,7 @@ export default function CoursePage() {
                   filled bar plus the real count, so the percentage beside it was
                   the same fact rounded differently. */}
               <StepTally done={crew.stepsDone} total={crew.stepsTotal} className="hidden md:flex" />
-              <span className="hidden text-sm text-gray-500 dark:text-gray-400 sm:inline">
+              <span className="hidden text-sm text-muted sm:inline">
                 {phaseTag(course, activeWeek)}
               </span>
               {nextTask ? (
@@ -1033,12 +1033,12 @@ export default function CoursePage() {
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+              <h2 className="text-xl font-bold text-ink">
                 {course.noGatekeeping
                   ? 'Course complete — every week finished 🎉'
                   : `Engagement complete — all ${course.gates.length} gates passed 🎉`}
               </h2>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p className="mt-1 text-sm text-muted">
                 You&apos;ve finished {tasksComplete} of {ownTasksAll.length} tasks across every week as{' '}
                 {ownRole?.name ?? member?.role}. Compile your deliverables into the final package and
                 hand it in.
@@ -1132,11 +1132,11 @@ export default function CoursePage() {
           <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
             {course.roles.map((r) => (
               <div key={r.id} className="rounded-[var(--radius-card)] border border-line bg-panel p-4 shadow-[var(--shadow-card)]">
-                <h3 className="flex items-center gap-2 text-[15px] font-semibold text-ink">
+                <h3 className="flex items-center gap-2 text-base font-semibold text-ink">
                   <RoleIcon iconName={r.icon} className="h-4.5 w-4.5" color={r.color} />
                   {r.name}
                 </h3>
-                <p className="mt-1.5 text-[13.5px] text-muted">{r.mission}</p>
+                <p className="mt-1.5 text-sm text-muted">{r.mission}</p>
               </div>
             ))}
           </div>
@@ -1260,7 +1260,7 @@ export default function CoursePage() {
           )}
         </div>
         {q && !anyMatches && (
-          <p className="text-sm text-gray-500 dark:text-gray-400">No tasks match “{query}”.</p>
+          <p className="text-sm text-muted">No tasks match “{query}”.</p>
         )}
       </div>
 
@@ -1314,7 +1314,7 @@ export default function CoursePage() {
                     <PixelBadge tone={weekPct >= 100 ? 'accent' : 'neutral'}>
                       {phaseTag(course, w.number)}
                     </PixelBadge>
-                    <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    <h3 className="text-lg font-bold text-ink">
                       {w.title}
                     </h3>
                     {weekPct >= 100 && joined && (
@@ -1332,7 +1332,7 @@ export default function CoursePage() {
                       both, week 0 read "ARRIVE & EQUIP / SETUP / SETUP" — the
                       phase already says what kind of work this is. */}
                   {!phaseForWeek(course, w.number) && (
-                    <p className="truncate text-sm text-gray-600 dark:text-gray-400">{w.theme}</p>
+                    <p className="truncate text-sm text-muted">{w.theme}</p>
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
@@ -1345,13 +1345,13 @@ export default function CoursePage() {
                           style={{ width: `${weekPct}%`, background: 'var(--color-accent)' }}
                         />
                       </span>
-                      <span className="text-sm font-semibold text-gray-600 dark:text-gray-300">
+                      <span className="text-sm font-semibold text-muted">
                         {weekPct}%
                       </span>
                     </span>
                   )}
                   {gateForWeek && joined && !course.noGatekeeping && (
-                    <span className="hidden text-xs text-gray-500 dark:text-gray-400 md:inline">
+                    <span className="hidden text-xs text-muted md:inline">
                       Gate {gateForWeek.id}
                     </span>
                   )}
@@ -1360,7 +1360,7 @@ export default function CoursePage() {
                       <Lock className="h-3 w-3" /> Locked
                     </span>
                   )}
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                  <span className="text-xs text-muted">
                     {displayCount} task{displayCount === 1 ? '' : 's'}
                   </span>
                   {isWeekOpen ? (
@@ -1376,10 +1376,10 @@ export default function CoursePage() {
                   <div className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
                     <Lock className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">
+                      <p className="text-sm font-medium text-ink">
                         Locked until you clear Gate {lockGate?.id}.
                       </p>
-                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mt-1 text-sm text-muted">
                         Finish Week {(lockGate?.week ?? w.number - 1)} required tasks to pass Gate{' '}
                         {lockGate?.id} and unlock this week — the engagement runs in order.
                       </p>
@@ -1400,7 +1400,7 @@ export default function CoursePage() {
               {isWeekOpen && !locked && (
                 <div className="space-y-4 border-t border-gray-200 p-5 dark:border-gray-700">
                   {weekTasks.length === 0 && (
-                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                    <p className="text-sm text-muted">
                       No tasks for this week yet.
                     </p>
                   )}
@@ -1539,7 +1539,7 @@ export default function CoursePage() {
                       <button
                         type="button"
                         onClick={() => toggleRef(w.number)}
-                        className="flex w-full items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-300"
+                        className="flex w-full items-center gap-2 text-sm font-medium text-muted"
                       >
                         <Users className="h-4 w-4" />
                         Other roles this week (reference) · {otherTasks.length}

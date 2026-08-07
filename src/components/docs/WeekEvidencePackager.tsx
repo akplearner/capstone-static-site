@@ -99,11 +99,11 @@ export function WeekEvidencePackager({
 
   return (
     <section className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-      <h2 className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
+      <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
         <Package className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
         This week&apos;s evidence package
       </h2>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-1 text-sm text-muted">
         Fill your form(s) above, then attach your screenshots and captures here. Each file is hashed in your
         browser (<span className="font-mono text-xs">SHA-256</span>). <strong>Download this week&apos;s package</strong>{' '}
         bundles the filled report, your evidence, and a chain-of-custody log into one zip — a clean, week-numbered
@@ -115,7 +115,7 @@ export function WeekEvidencePackager({
         <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
           {busy ? 'Hashing…' : 'Choose or drop this week’s evidence files'}
         </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">Hashed in-browser · nothing is uploaded</span>
+        <span className="text-xs text-muted">Hashed in-browser · nothing is uploaded</span>
         <input type="file" multiple className="hidden" onChange={(e) => onFiles(e.target.files)} />
       </label>
 
@@ -140,7 +140,7 @@ export function WeekEvidencePackager({
                   <Trash2 className="h-3 w-3" /> Remove
                 </button>
               </div>
-              <div className="mt-1 break-all font-mono text-[11px] text-gray-500 dark:text-gray-400">
+              <div className="mt-1 break-all font-mono text-[11px] text-muted">
                 SHA-256: {it.sha256}
               </div>
               {!it.nameOk && <div className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">{it.nameMsg}</div>}
@@ -157,7 +157,7 @@ export function WeekEvidencePackager({
         >
           <Package className="h-4 w-4" /> Download this week&apos;s package (.zip)
         </button>
-        <span className="text-xs text-gray-500 dark:text-gray-400">
+        <span className="text-xs text-muted">
           {items.length > 0
             ? `${items.length} file(s) attached`
             : 'You can download now (form only) and re-download after attaching evidence.'}

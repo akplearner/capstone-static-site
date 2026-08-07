@@ -63,7 +63,7 @@ export function GuidedStepper({ items, onSelect, className = '' }: GuidedStepper
                   className={`truncate text-xs font-medium ${
                     item.status === 'current'
                       ? 'text-blue-600 dark:text-blue-400'
-                      : 'text-gray-600 dark:text-gray-400'
+                      : 'text-muted'
                   }`}
                   title={item.label}
                 >

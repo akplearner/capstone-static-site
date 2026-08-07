@@ -28,14 +28,14 @@ function Table() {
   const newCount = deliverablesForCourse('security-plus').length;
   return (
     <div className="overflow-x-auto pb-2">
-      <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mb-3 text-sm text-muted">
         The old course produced <strong>{oldCount} loose files</strong>. They now consolidate into{' '}
         <strong>{newCount} graded deliverables</strong> (plus a README and Team_Roles) — same
         work, one clear set of documents.
       </p>
       <table className="w-full min-w-[560px] text-sm">
         <thead>
-          <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+          <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
             <th className="py-2 pr-3">Old working files</th>
             <th className="py-2 pr-3" />
             <th className="py-2 pr-3">New deliverable</th>
@@ -46,13 +46,13 @@ function Table() {
             const def = getDeliverable(m.id);
             return (
               <tr key={m.id} className="border-b border-gray-100 align-top dark:border-gray-700/60">
-                <td className="py-1.5 pr-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+                <td className="py-1.5 pr-3 font-mono text-xs text-muted">
                   {m.old.join(' · ')}
                 </td>
                 <td className="py-1.5 pr-3 text-gray-300 dark:text-gray-600">
                   <ArrowRight className="h-4 w-4" />
                 </td>
-                <td className="py-1.5 pr-3 font-medium text-gray-900 dark:text-white">
+                <td className="py-1.5 pr-3 font-medium text-ink">
                   {def?.num}. {def?.title}{' '}
                   <span className="font-mono text-xs font-normal text-gray-400">{def?.file}</span>
                 </td>
@@ -60,13 +60,13 @@ function Table() {
             );
           })}
           <tr className="align-top">
-            <td className="py-1.5 pr-3 font-mono text-xs text-gray-500 dark:text-gray-400">
+            <td className="py-1.5 pr-3 font-mono text-xs text-muted">
               {ADMIN.join(' · ')}
             </td>
             <td className="py-1.5 pr-3 text-gray-300 dark:text-gray-600">
               <ArrowRight className="h-4 w-4" />
             </td>
-            <td className="py-1.5 pr-3 text-gray-600 dark:text-gray-400">
+            <td className="py-1.5 pr-3 text-muted">
               Admin files — kept as <span className="font-mono text-xs">README.md</span> &amp;{' '}
               <span className="font-mono text-xs">Team_Roles.md</span>
             </td>

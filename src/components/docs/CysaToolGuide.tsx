@@ -118,7 +118,7 @@ const PANELS: Panel[] = [
 export function CysaToolGuide() {
   return (
     <div className="space-y-4">
-      <p className="text-sm text-gray-600 dark:text-gray-400">
+      <p className="text-sm text-muted">
         The three tools behind the whole course, as components: what each one is, how it&apos;s configured, where
         its data lands in the dashboard, and the exact searches or event IDs you&apos;ll reuse. The step-by-step
         install commands live in each week&apos;s task — this is the reference you come back to.
@@ -129,20 +129,20 @@ export function CysaToolGuide() {
           return (
             <div key={p.name} className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
               <div className="flex items-baseline justify-between gap-2">
-                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+                <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                   <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" /> {p.name}
                 </h3>
-                <span className="text-[11px] text-gray-500 dark:text-gray-400">{p.where}</span>
+                <span className="text-[11px] text-muted">{p.where}</span>
               </div>
 
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">{p.what}</p>
+              <p className="mt-2 text-sm text-muted">{p.what}</p>
 
-              <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="mt-3 eyebrow-muted">
                 Config
               </div>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{p.config}</p>
+              <p className="mt-1 text-sm text-muted">{p.config}</p>
 
-              <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="mt-3 eyebrow-muted">
                 {p.rowsTitle}
               </div>
               <ul className="mt-1 space-y-1.5">
@@ -151,12 +151,12 @@ export function CysaToolGuide() {
                     <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
                       {r.k}
                     </code>
-                    <span className="mt-0.5 block text-gray-600 dark:text-gray-400">{r.v}</span>
+                    <span className="mt-0.5 block text-muted">{r.v}</span>
                   </li>
                 ))}
               </ul>
 
-              <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="mt-3 eyebrow-muted">
                 Documentation
               </div>
               <ul className="mt-1 space-y-1">
@@ -179,8 +179,8 @@ export function CysaToolGuide() {
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Filtering &amp; what to look for (Week 2)</h3>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h3 className="text-sm font-semibold text-ink">Filtering &amp; what to look for (Week 2)</h3>
+        <p className="mt-1 text-sm text-muted">
           In Security events, type a <code className="rounded bg-gray-100 px-1 font-mono text-xs dark:bg-gray-900">field:value</code>{' '}
           query in the search bar. Start with <code className="rounded bg-gray-100 px-1 font-mono text-xs dark:bg-gray-900">rule.level:&gt;=7</code>{' '}
           to cut the noise, then match the shape of the attack:
@@ -188,7 +188,7 @@ export function CysaToolGuide() {
         <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
                 <th className="px-3 py-2">Looks like…</th>
                 <th className="px-3 py-2">Search</th>
                 <th className="px-3 py-2">The tell</th>
@@ -197,34 +197,34 @@ export function CysaToolGuide() {
             <tbody>
               {SIGNATURES.map((s) => (
                 <tr key={s.behaviour} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
-                  <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">{s.behaviour}</td>
+                  <td className="px-3 py-2 font-medium text-ink">{s.behaviour}</td>
                   <td className="px-3 py-2">
                     <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
                       {s.query}
                     </code>
                   </td>
-                  <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{s.tell}</td>
+                  <td className="px-3 py-2 text-muted">{s.tell}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
-        <p className="mt-3 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-3 text-xs text-muted">
           <span className="font-semibold">Fields you filter on:</span>{' '}
           <code className="rounded bg-gray-100 px-1 font-mono text-[11px] text-gray-700 dark:bg-gray-900 dark:text-gray-300">{FILTER_FIELDS}</code>
         </p>
       </div>
 
       <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Driving the dashboard — search, read, build</h3>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <h3 className="text-sm font-semibold text-ink">Driving the dashboard — search, read, build</h3>
+        <p className="mt-1 text-sm text-muted">
           The clicks behind the tasks: find alerts, filter and read them, then turn a useful search into a saved
           visualization and your own dashboard. Used across Weeks 2–4.
         </p>
         <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
                 <th className="px-3 py-2">To…</th>
                 <th className="px-3 py-2">Do this</th>
                 <th className="px-3 py-2">Docs</th>
@@ -233,8 +233,8 @@ export function CysaToolGuide() {
             <tbody>
               {DASHBOARD_HOWTO.map((h) => (
                 <tr key={h.action} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
-                  <td className="px-3 py-2 font-medium text-gray-900 dark:text-white">{h.action}</td>
-                  <td className="px-3 py-2 text-gray-600 dark:text-gray-400">{h.how}</td>
+                  <td className="px-3 py-2 font-medium text-ink">{h.action}</td>
+                  <td className="px-3 py-2 text-muted">{h.how}</td>
                   <td className="px-3 py-2">
                     {h.ref && (
                       <a

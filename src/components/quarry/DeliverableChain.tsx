@@ -321,7 +321,7 @@ export function DeliverableChainDiagram({
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">
               <FileText className="h-4 w-4 shrink-0 text-muted" />
-              <code className="font-mono text-[13px] font-semibold text-ink">{activeNode.file}</code>
+              <code className="font-mono text-sm font-semibold text-ink">{activeNode.file}</code>
               <span
                 className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                   activeNode.filed
@@ -339,17 +339,17 @@ export function DeliverableChainDiagram({
             </div>
             <p className="font-medium text-ink">{activeNode.title}</p>
             <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Produced by</dt>
+              <dt className="eyebrow-muted">Produced by</dt>
               <dd style={{ color: roleColor(activeNode.owner) }} className="font-medium">
                 {roleName(activeNode.owner)}
               </dd>
               {activeDef?.source && (
                 <>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Built from</dt>
+                  <dt className="eyebrow-muted">Built from</dt>
                   <dd className="text-muted">{activeDef.source}</dd>
                 </>
               )}
-              <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Connects to</dt>
+              <dt className="eyebrow-muted">Connects to</dt>
               <dd className="text-muted">
                 {activeDownstream.length > 0 ? (
                   <span className="flex flex-wrap items-center gap-x-1 gap-y-1">
@@ -357,7 +357,7 @@ export function DeliverableChainDiagram({
                       <span key={d.id} className="inline-flex items-center gap-1">
                         {idx > 0 && <span className="text-line">·</span>}
                         <ArrowRight className="h-3 w-3 text-muted" />
-                        <code className="font-mono text-[12px] text-ink">{d.file}</code>
+                        <code className="font-mono text-xs text-ink">{d.file}</code>
                         <span className="text-xs" style={{ color: roleColor(d.owner) }}>
                           ({roleName(d.owner)})
                         </span>
@@ -370,7 +370,7 @@ export function DeliverableChainDiagram({
               </dd>
               {activeDef?.useIt && (
                 <>
-                  <dt className="text-xs font-semibold uppercase tracking-wide text-muted">Why</dt>
+                  <dt className="eyebrow-muted">Why</dt>
                   <dd className="text-muted">{activeDef.useIt}</dd>
                 </>
               )}

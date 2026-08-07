@@ -180,7 +180,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
             <div className="flex items-center gap-1.5 rounded border border-line p-1.5" style={{ borderColor: OK }}>
               <Marker n={3} present={present} />
               <span className="text-muted">Copy the generated command →</span>
-              <span className="font-mono text-[9px]">WAZUH_MANAGER=…</span>
+              <span className="font-mono text-[10px]">WAZUH_MANAGER=…</span>
             </div>
           </div>
         </Chrome>
@@ -237,7 +237,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
               <div className="flex items-center gap-1.5 border-b border-line bg-panel-2 px-2 py-1 text-[10px] font-semibold text-muted">
                 <Marker n={1} present={present} /> BEFORE — ossec.conf
               </div>
-              <pre className="whitespace-pre-wrap p-2 font-mono text-[9.5px] leading-snug text-muted">{`<ossec_config>
+              <pre className="whitespace-pre-wrap p-2 font-mono text-[10px] leading-snug text-muted">{`<ossec_config>
   <client>
     <server>…</server>
   </client>
@@ -248,7 +248,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
               <div className="flex items-center gap-1.5 border-b border-line bg-panel-2 px-2 py-1 text-[10px] font-semibold text-muted">
                 <Marker n={2} present={present} /> AFTER — block pasted inside
               </div>
-              <pre className="whitespace-pre-wrap p-2 font-mono text-[9.5px] leading-snug text-ink">{`<ossec_config>
+              <pre className="whitespace-pre-wrap p-2 font-mono text-[10px] leading-snug text-ink">{`<ossec_config>
   <client>
     <server>…</server>
   </client>

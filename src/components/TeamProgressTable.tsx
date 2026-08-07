@@ -45,7 +45,7 @@ export function TeamProgressTable({
       <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500 dark:border-gray-700 dark:text-gray-400">
+            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
               <th className="px-4 py-2.5">Member</th>
               <th className="px-4 py-2.5">Overall</th>
               {weeks.map((w) => (
@@ -56,7 +56,7 @@ export function TeamProgressTable({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={2 + weeks.length} className="px-4 py-6 text-center text-gray-500 dark:text-gray-400">
+                <td colSpan={2 + weeks.length} className="px-4 py-6 text-center text-muted">
                   No teammates yet. As people join this team they&apos;ll appear here.
                 </td>
               </tr>
@@ -68,21 +68,21 @@ export function TeamProgressTable({
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <RoleIcon iconName={rd?.icon} className="h-4 w-4 shrink-0" color={rd?.color} />
-                      <span className="font-medium text-gray-900 dark:text-white">{m.displayName || 'Unnamed'}</span>
+                      <span className="font-medium text-ink">{m.displayName || 'Unnamed'}</span>
                       {m.isYou && (
                         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
                           You
                         </span>
                       )}
                     </div>
-                    <div className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{rd?.name ?? m.role}</div>
+                    <div className="mt-0.5 text-xs text-muted">{rd?.name ?? m.role}</div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                         <div className={`h-full rounded-full ${pctColor(m.overall)}`} style={{ width: `${m.overall}%` }} />
                       </div>
-                      <span className="tabular-nums text-xs text-gray-600 dark:text-gray-400">{m.overall}%</span>
+                      <span className="tabular-nums text-xs text-muted">{m.overall}%</span>
                     </div>
                   </td>
                   {weeks.map((w) => {
@@ -111,8 +111,8 @@ export function TeamProgressTable({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Team deliverables</h3>
-        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+        <h3 className="text-sm font-semibold text-ink">Team deliverables</h3>
+        <p className="mt-0.5 text-xs text-muted">
           The graded documents and whether your team has filled them in.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -128,7 +128,7 @@ export function TeamProgressTable({
                 ) : (
                   <Circle className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
                 )}
-                <span className={`flex-1 text-sm ${d.complete ? 'text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+                <span className={`flex-1 text-sm ${d.complete ? 'text-muted' : 'text-ink'}`}>
                   {d.title}
                 </span>
                 <span className="flex items-center gap-1 text-[11px] text-gray-400">

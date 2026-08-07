@@ -19,7 +19,7 @@ export function WeeksEditor({ course, onChange }: { course: Course; onChange: (c
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600 dark:text-gray-400">Define the weeks/phases of the course.</p>
+        <p className="text-sm text-muted">Define the weeks/phases of the course.</p>
         <Button size="sm" onClick={add} className="flex items-center gap-1"><Plus className="h-4 w-4" /> Add week</Button>
       </div>
       {[...course.weeks]
@@ -28,7 +28,7 @@ export function WeeksEditor({ course, onChange }: { course: Course; onChange: (c
         .map(({ w, i }) => (
           <div key={i} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
             <div className="flex items-center justify-between">
-              <span className="font-medium text-gray-900 dark:text-white">Week {w.number}: {w.title}</span>
+              <span className="font-medium text-ink">Week {w.number}: {w.title}</span>
               <button type="button" aria-label={`Remove week ${w.number}`} onClick={() => setWeeks(course.weeks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
                 <Trash2 className="h-4 w-4" aria-hidden />
               </button>

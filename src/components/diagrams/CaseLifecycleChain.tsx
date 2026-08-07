@@ -36,10 +36,10 @@ export function CaseLifecycleChain({
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04 }}
               className={`rounded-md border border-line bg-panel-2 px-2.5 py-1.5 ${
-                stage.detail ? 'flex w-40 flex-col gap-1' : 'whitespace-nowrap font-mono text-[11.5px] font-semibold text-ink'
+                stage.detail ? 'flex w-40 flex-col gap-1' : 'whitespace-nowrap font-mono text-[11px] font-semibold text-ink'
               }`}
             >
-              <span className="font-mono text-[11.5px] font-semibold text-ink">{stage.label}</span>
+              <span className="font-mono text-[11px] font-semibold text-ink">{stage.label}</span>
               {stage.detail && <span className="text-[11px] leading-snug text-muted">{stage.detail}</span>}
             </motion.span>
           </span>

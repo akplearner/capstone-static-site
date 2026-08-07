@@ -196,10 +196,10 @@ export default function DeliverablesPage() {
       <CourseSubNav courseId={course.id} active="deliverables" teamId={teamId} />
 
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+        <h1 className="text-3xl font-bold text-ink">
           Deliverables · Team {teamId}
         </h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <p className="mt-2 text-muted">
           Your graded documents, built from guided forms. Fill them in, then{' '}
           <strong>Generate → Print / Save as PDF</strong>.
         </p>
@@ -259,7 +259,7 @@ export default function DeliverablesPage() {
           </ul>
         )}
         {courseDefs.some((d) => d.weeks.includes(selectedWeek)) && (
-          <p className="mt-4 border-t border-blue-200 pt-3 text-[12px] text-blue-800 dark:border-blue-800 dark:text-blue-200">
+          <p className="mt-4 border-t border-blue-200 pt-3 text-xs text-blue-800 dark:border-blue-800 dark:text-blue-200">
             Name evidence <span className="font-mono">{EVIDENCE_NAMING}</span> and keep it in{' '}
             <span className="font-mono">~/team-artifacts/week-{selectedWeek}/</span> while you work. The
             week&apos;s submission zip is built for you at the bottom of this page.
@@ -290,7 +290,7 @@ export default function DeliverablesPage() {
             : 'border-gray-200 dark:border-gray-700'
         } bg-white dark:bg-gray-800`}
       >
-        <h2 className="flex items-center gap-2 text-base font-semibold text-gray-900 dark:text-white">
+        <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
           <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
           Evidence &amp; chain of custody
         </h2>
@@ -299,14 +299,14 @@ export default function DeliverablesPage() {
             <div className="space-y-3 pb-2">
               {/* The "why" lives inside the tool now, not as always-visible theory
                   above it — the page opens on what to do, not on custody doctrine. */}
-              <p className="text-sm text-gray-600 dark:text-gray-400">
+              <p className="text-sm text-muted">
                 Handle evidence like a real case: hash every artifact on collection, log it, and record each
                 hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
                 <strong>ISO/IEC 27037</strong>.
               </p>
               <EvidenceHasher />
               <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
-                <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                <div className="eyebrow-muted">
                   Handling rules
                 </div>
                 <ul className="mt-1.5 space-y-1 text-sm text-gray-700 dark:text-gray-300">
@@ -317,7 +317,7 @@ export default function DeliverablesPage() {
                     </li>
                   ))}
                 </ul>
-                <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                <p className="mt-2 text-xs text-muted">
                   The team package includes a ready-to-fill chain-of-custody log in{' '}
                   <span className="font-mono">Evidence/</span>.
                 </p>
@@ -331,7 +331,7 @@ export default function DeliverablesPage() {
         <Collapsible title="New here? How documentation works" defaultOpen={false}>
           <div className="space-y-4 pb-2">
             <RoleExtractionGuide role={member.role} roleLabel={roleName} courseId={course.id} />
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted">
               See the full weekly flow (task → evidence → form → report) on the{' '}
               <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
                 Guide
@@ -376,16 +376,16 @@ export default function DeliverablesPage() {
         <div className="flex items-start gap-2">
           <Users className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
           <div>
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-semibold text-ink">
               Combine your work (optional)
             </h2>
-            <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+            <p className="mt-0.5 text-sm text-muted">
               Everyone fills their own deliverables on their own device — you never need a teammate to finish
               yours. <strong>Export your work</strong> as a <span className="font-mono text-xs">.json</span>{' '}
               backup, then <strong>Restore from file</strong> to repopulate the forms on another device — or, if
               you&apos;re working as a team, send it to whoever is assembling the combined package above.
             </p>
-            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
+            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-muted">
               {course.roles.map((r, i) => (
                 <span key={r.id} className="flex items-center gap-1.5">
                   {i > 0 && <span aria-hidden>+</span>}
@@ -445,7 +445,7 @@ export default function DeliverablesPage() {
         as a deliverable is done — shared, multi-device storage arrives with accounts.
       </Alert>
 
-      <p className="text-sm text-gray-500 dark:text-gray-400">
+      <p className="text-sm text-muted">
         Need the reference tables (all deliverables, weekly flow, folder layout, tools)?{' '}
         <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
           See the Guide →
@@ -454,7 +454,7 @@ export default function DeliverablesPage() {
 
       {/* Week selector */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Week:</span>
+        <span className="text-sm font-medium text-muted">Week:</span>
         {weeks.map((w) => (
           <button
             key={w}
@@ -479,7 +479,7 @@ export default function DeliverablesPage() {
         if (!gate || gateDefs.length === 0) return null;
         return (
           <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-sm font-semibold text-ink">
               Gate {gate.id} readiness — what this week is graded on
             </h2>
             <ul className="mt-3 space-y-2">
@@ -540,7 +540,7 @@ export default function DeliverablesPage() {
             >
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-gray-900 dark:text-white">
+                  <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">
                     {def.num}. {def.title}
                     {def.framework && <FrameworkBadge framework={def.framework} />}
                     {isExample && !locked && (
@@ -554,7 +554,7 @@ export default function DeliverablesPage() {
                       </span>
                     )}
                   </h2>
-                  <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400"><GlossaryText text={def.purpose} /></p>
+                  <p className="mt-0.5 text-sm text-muted"><GlossaryText text={def.purpose} /></p>
                   <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-500">
                     <span className="font-mono">{def.folder}/{def.file}</span> · {def.standard}
                     {def.source ? ` · ${def.source}` : ''}
@@ -613,7 +613,7 @@ export default function DeliverablesPage() {
                       <p><GlossaryText text={def.howTo} /></p>
                       {def.buildSteps && (
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Build it — where each value comes from</div>
+                          <div className="eyebrow-muted">Build it — where each value comes from</div>
                           <ol className="mt-1 list-decimal space-y-1 pl-5">
                             {def.buildSteps.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
                           </ol>
@@ -621,19 +621,19 @@ export default function DeliverablesPage() {
                       )}
                       {def.meaning && (
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">What it means &amp; what a good one looks like</div>
+                          <div className="eyebrow-muted">What it means &amp; what a good one looks like</div>
                           <p className="mt-1"><GlossaryText text={def.meaning} /></p>
                         </div>
                       )}
                       {def.useIt && (
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">What it feeds next</div>
+                          <div className="eyebrow-muted">What it feeds next</div>
                           <p className="mt-1"><GlossaryText text={def.useIt} /></p>
                         </div>
                       )}
                       {def.pitfalls && (
                         <div>
-                          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Common mistakes to avoid</div>
+                          <div className="eyebrow-muted">Common mistakes to avoid</div>
                           <ul className="mt-1 list-disc space-y-1 pl-5">
                             {def.pitfalls.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
                           </ul>

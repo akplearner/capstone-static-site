@@ -35,17 +35,17 @@ export function DiagramFrame({
       {(title || subtitle) && (
         <div>
           {title && (
-            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+            <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
               {title}
               {howToRead && <InfoTip label={howToRead} />}
             </h3>
           )}
-          {subtitle && <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{subtitle}</p>}
+          {subtitle && <p className="mt-0.5 text-xs text-muted">{subtitle}</p>}
         </div>
       )}
       <div className={scroll ? 'overflow-x-auto' : ''}>{children}</div>
       {legend && legend.length > 0 && (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-gray-600 dark:text-gray-400">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted">
           {legend.map((l) => (
             <span key={l.label} className="inline-flex items-center gap-1.5">
               <span

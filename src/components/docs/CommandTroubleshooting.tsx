@@ -62,10 +62,10 @@ const COMMON_ERRORS: { symptom: string; meaning: string; fix: string }[] = [
 export function TerminalBasics() {
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+      <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
         <Terminal className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Terminal basics
       </h3>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-1 text-sm text-muted">
         New to the command line? These are the only things you need to know to run every command in this course.
       </p>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
@@ -74,7 +74,7 @@ export function TerminalBasics() {
             <dt className="flex items-center gap-1.5 text-sm font-semibold text-gray-800 dark:text-gray-200">
               <ClipboardPaste className="h-3.5 w-3.5 text-blue-500" /> {b.label}
             </dt>
-            <dd className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{b.body}</dd>
+            <dd className="mt-0.5 text-sm text-muted">{b.body}</dd>
           </div>
         ))}
       </dl>
@@ -88,17 +88,17 @@ export function CommandTroubleshooting() {
       <TerminalBasics />
 
       <div className="rounded-lg border border-rose-200 bg-rose-50/50 p-5 dark:border-rose-900 dark:bg-rose-900/10">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
           <AlertTriangle className="h-4 w-4 text-rose-600 dark:text-rose-400" /> When a command won’t run
         </h3>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+        <p className="mt-1 text-sm text-muted">
           The errors almost everyone hits, and the one-line fix for each. Match the message you see to a row.
         </p>
         <ul className="mt-3 space-y-2.5">
           {COMMON_ERRORS.map((e) => (
             <li key={e.symptom} className="rounded-md border border-rose-100 bg-white p-3 dark:border-rose-900/50 dark:bg-gray-800">
               <p className="font-mono text-xs font-semibold text-rose-700 dark:text-rose-300">{e.symptom}</p>
-              <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">{e.meaning}</p>
+              <p className="mt-0.5 text-sm text-muted">{e.meaning}</p>
               <p className="mt-1 text-sm text-gray-800 dark:text-gray-200">
                 <span className="font-semibold">Fix: </span>
                 {e.fix}

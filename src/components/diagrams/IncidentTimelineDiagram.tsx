@@ -100,7 +100,7 @@ export function IncidentTimelineDiagram() {
             >
               <span className="font-mono text-[11px] text-ink">{e.t}</span>
               <span className="h-2.5 w-2.5 rounded-full" style={{ background: TONE[e.kind] }} aria-hidden />
-              <span className="text-[13px] text-ink">{e.label}</span>
+              <span className="text-sm text-ink">{e.label}</span>
               <span className="font-mono text-[11px] text-muted">{e.source}</span>
             </motion.li>
           ))}

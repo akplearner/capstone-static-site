@@ -46,8 +46,8 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
     <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <Flag className="h-4 w-4 text-gray-500 dark:text-gray-400" />
-          <span className="font-semibold text-gray-900 dark:text-white">
+          <Flag className="h-4 w-4 text-muted" />
+          <span className="font-semibold text-ink">
             Gate {gate.id}: {gate.description}
           </span>
         </div>
@@ -55,7 +55,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
           {STATUS_LABEL[status]}
         </span>
       </div>
-      <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Required to clear this week:</p>
+      <p className="mt-1 text-xs text-muted">Required to clear this week:</p>
       <ul className="mt-2 space-y-1.5">
         {items.map((it) => (
           <li key={it.id} className="flex items-center gap-2 text-sm">
@@ -89,7 +89,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
 
       {gate.handoffs && gate.handoffs.length > 0 && (
         <div className="mt-4 border-t border-gray-200 pt-3 dark:border-gray-600">
-          <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <p className="eyebrow-muted">
             End-of-week company sync
           </p>
           <p className="mt-0.5 text-[11px] text-gray-400">

@@ -92,7 +92,7 @@ export function Dialog({
             className="relative z-10 w-full max-w-md rounded-lg border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-800"
           >
             <div className="mb-2 flex items-start justify-between gap-4">
-              <h2 id={labelledBy} className="text-lg font-semibold text-gray-900 dark:text-white">
+              <h2 id={labelledBy} className="text-lg font-semibold text-ink">
                 {title}
               </h2>
               <button
@@ -134,7 +134,7 @@ export function ConfirmDialog({
 }) {
   return (
     <Dialog open={open} onClose={onClose} title={title}>
-      <div className="text-sm text-gray-600 dark:text-gray-400">{message}</div>
+      <div className="text-sm text-muted">{message}</div>
       <div className="mt-5 flex justify-end gap-2">
         <Button variant="secondary" size="sm" onClick={onClose}>
           {cancelLabel}

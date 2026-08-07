@@ -111,7 +111,7 @@ export function DeliverableForm({
         s.kind === 'fields' ? (
           <div key={i} className="space-y-3">
             {s.title && (
-              <h4 className="text-sm font-semibold text-gray-900 dark:text-white">{s.title}</h4>
+              <h4 className="text-sm font-semibold text-ink">{s.title}</h4>
             )}
             <div className="grid gap-4 md:grid-cols-2">
               {s.fields.map((f) => (
@@ -121,8 +121,8 @@ export function DeliverableForm({
           </div>
         ) : (
           <div key={i} className="space-y-1">
-            <div className="text-sm font-semibold text-gray-900 dark:text-white">{s.group.label}</div>
-            {s.group.help && <p className="text-xs text-gray-500 dark:text-gray-400">{s.group.help}</p>}
+            <div className="text-sm font-semibold text-ink">{s.group.label}</div>
+            {s.group.help && <p className="text-xs text-muted">{s.group.help}</p>}
             <RegisterTable
               columns={s.group.columns}
               rows={data.groups[s.group.group] ?? []}

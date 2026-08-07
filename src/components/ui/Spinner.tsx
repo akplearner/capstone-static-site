@@ -13,7 +13,7 @@ export function Spinner({
   className?: string;
 }) {
   return (
-    <span role="status" className={`inline-flex items-center gap-2 text-gray-500 dark:text-gray-400 ${className}`}>
+    <span role="status" className={`inline-flex items-center gap-2 text-muted ${className}`}>
       <Loader2 className="animate-spin motion-reduce:animate-none" style={{ width: size, height: size }} aria-hidden />
       <span className="sr-only">{label}</span>
     </span>
@@ -23,7 +23,7 @@ export function Spinner({
 /** Centered full-section loading state, used by route loading.tsx and in-page waits. */
 export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex items-center justify-center gap-2 py-12 text-gray-500 dark:text-gray-400">
+    <div className="flex items-center justify-center gap-2 py-12 text-muted">
       <Spinner label={label} />
       <span>{label}</span>
     </div>

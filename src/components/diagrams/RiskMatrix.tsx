@@ -95,7 +95,7 @@ export function RiskMatrix() {
           </div>
         </div>
 
-        <dl className="mt-3 grid gap-x-6 gap-y-1 text-[12px] sm:grid-cols-2">
+        <dl className="mt-3 grid gap-x-6 gap-y-1 text-xs sm:grid-cols-2">
           <div>
             <dt className="font-semibold text-ink">Likelihood</dt>
             {LEVELS.map((l) => (

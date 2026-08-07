@@ -62,7 +62,7 @@ export function EngagementBanner({
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-100 px-4 py-2.5 dark:border-indigo-900/60">
         <div className="flex items-center gap-2 min-w-0">
           <Building2 className="h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-300" />
-          <span className="truncate text-sm font-semibold text-gray-900 dark:text-white">{client}</span>
+          <span className="truncate text-sm font-semibold text-ink">{client}</span>
           {type && (
             <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-medium text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
               {type}
@@ -83,7 +83,7 @@ export function EngagementBanner({
           <div className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
             <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">Attestation scope</div>
+              <div className="eyebrow-muted">Attestation scope</div>
               <div className="text-sm text-gray-700 dark:text-gray-300">{trust}</div>
             </div>
           </div>
@@ -92,7 +92,7 @@ export function EngagementBanner({
           <div className="flex items-start gap-2">
             <Target className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
             <div className="min-w-0">
-              <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">System boundary</div>
+              <div className="eyebrow-muted">System boundary</div>
               <div className="line-clamp-2 text-sm text-gray-700 dark:text-gray-300">{scope}</div>
             </div>
           </div>

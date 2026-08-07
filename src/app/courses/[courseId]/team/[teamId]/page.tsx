@@ -91,14 +91,14 @@ export default function TeamSpacePage() {
     <div className="space-y-8">
       <CourseSubNav courseId={course.id} active="team" teamId={teamId} />
       <div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Team {teamId} · {course.title}</h1>
-        <p className="mt-2 text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold text-ink">Team {teamId} · {course.title}</h1>
+        <p className="mt-2 text-muted">
           Your team&apos;s roster, each member&apos;s progress, and the documents you produce together.
         </p>
       </div>
 
       <section className="space-y-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-white">
+        <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
           <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" /> Team progress
         </h2>
         {!isSupabaseConfigured() && (
@@ -114,7 +114,7 @@ export default function TeamSpacePage() {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white">How your work connects</h2>
+        <h2 className="text-lg font-semibold text-ink">How your work connects</h2>
         <DeliverableChainDiagram course={course} chain={chain} highlightRole={member?.role} />
       </section>
     </div>

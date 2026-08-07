@@ -177,10 +177,10 @@ export function ImportPrompt({ course }: { course: Course }) {
       <div className="flex items-start gap-2">
         <Upload className="mt-0.5 h-5 w-5 shrink-0 text-violet-600 dark:text-violet-400" />
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+          <h3 className="text-sm font-semibold text-ink">
             Import your saved progress?
           </h3>
-          <p className="mt-0.5 text-sm text-gray-600 dark:text-gray-400">
+          <p className="mt-0.5 text-sm text-muted">
             We found progress saved on this device (Team {localCtx.teamId} · {localCtx.role}). Import it
             into your account so it syncs across devices and to your team.
           </p>

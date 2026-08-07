@@ -106,7 +106,7 @@ export default function CourseEditorPage() {
           <Link href="/instructor" className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400">
             <ArrowLeft className="h-4 w-4" /> All courses
           </Link>
-          <h1 className="mt-1 text-2xl font-bold text-gray-900 dark:text-white">{draft.title || 'Untitled course'}</h1>
+          <h1 className="mt-1 text-2xl font-bold text-ink">{draft.title || 'Untitled course'}</h1>
         </div>
         <div className="flex items-center gap-2">
           {saved && (
@@ -161,7 +161,7 @@ export default function CourseEditorPage() {
             <TextArea label="Description" value={draft.description} onChange={(v) => setDraft({ ...draft, description: v })} rows={3} />
 
             <div className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Enrollment</h3>
+              <h3 className="text-sm font-semibold text-ink">Enrollment</h3>
               <Toggle
                 label={draft.locked ? 'Locked' : 'Open'}
                 hint="Locked courses are greyed out and can't be entered by students."

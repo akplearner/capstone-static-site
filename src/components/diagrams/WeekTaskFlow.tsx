@@ -55,7 +55,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
                 style={accent ? { borderLeftColor: accent, borderLeftWidth: 3 } : undefined}
               >
                 <div className="flex items-center justify-between gap-1">
-                  <span className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+                  <span className="eyebrow-muted">
                     Task {i + 1}
                   </span>
                   {taskStats && (
@@ -68,10 +68,10 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
                     </span>
                   )}
                 </div>
-                <span className="mt-1 line-clamp-2 text-sm font-medium text-gray-900 dark:text-white">
+                <span className="mt-1 line-clamp-2 text-sm font-medium text-ink">
                   {task.title}
                 </span>
-                <span className="mt-2 flex items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+                <span className="mt-2 flex items-center gap-2 text-[11px] text-muted">
                   <span>{steps} steps</span>
                   {task.deliverables.length > 0 && (
                     <span className="inline-flex items-center gap-1">
@@ -92,14 +92,14 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
 
       {handoffs.length > 0 && (
         <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-700">
-          <div className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-gray-400">
+          <div className="mb-1.5 eyebrow-muted">
             Optional — share to enrich a teammate&apos;s work
           </div>
         <ul className="space-y-1.5">
           {handoffs.map((h, i) => {
             const to = getRoleDef(course, h.to);
             return (
-              <li key={`${h.to}-${i}`} className="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300">
+              <li key={`${h.to}-${i}`} className="flex items-start gap-2 text-xs text-muted">
                 <Send className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
                 <span className="inline-flex items-center gap-1">
                   <RoleIcon iconName={to?.icon} className="h-3.5 w-3.5" color={to?.color} />

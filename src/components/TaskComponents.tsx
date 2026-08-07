@@ -124,7 +124,7 @@ function OutputVerify({ verify }: { verify: string[] }) {
   const allOk = touched && results.every((r) => r.ok);
   return (
     <div className="rounded-md border border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
-      <label className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+      <label className="eyebrow-muted">
         Verify — paste your actual output
       </label>
       <textarea
@@ -145,7 +145,7 @@ function OutputVerify({ verify }: { verify: string[] }) {
           what the student is looking for, so hiding them until they get it wrong
           withheld exactly the information that makes the check doable. */}
       <div className="mt-1.5">
-        <div className="mb-1 text-[11px] font-medium text-gray-500 dark:text-gray-400">
+        <div className="mb-1 text-[11px] font-medium text-muted">
           {touched ? 'Looking for:' : 'Your output must contain:'}
         </div>
         <div className="flex flex-wrap gap-1">
@@ -313,7 +313,7 @@ export function StepDetail({
       {/* What the step should leave on disk — a small example directory tree. */}
       {tree && (
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+          <div className="eyebrow-muted">
             What your files should look like
           </div>
           <ul className="mt-1.5 space-y-1 rounded-md border border-line bg-panel-2 p-3">
@@ -327,11 +327,11 @@ export function StepDetail({
         <div className="space-y-3">
           {(instruction || description || where) && (
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="eyebrow-muted">
                 What to do
               </div>
               {where && (
-                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-line bg-panel-2 px-2 py-1 font-mono text-[10.5px] text-muted">
+                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-line bg-panel-2 px-2 py-1 font-mono text-[10px] text-muted">
                   <span className="font-semibold text-accent">WHERE</span> {where}
                 </div>
               )}
@@ -362,7 +362,7 @@ export function StepDetail({
         <div className="space-y-2">
           {(expectedOutput || outputExplanation || walkthrough || images) && (
             <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              <div className="eyebrow-muted">
                 What you should see
               </div>
               {/* A GUI step shows the screen itself, with the thing to click or
@@ -374,7 +374,7 @@ export function StepDetail({
                   <>
                     <AnnotatedTerminal text={expectedOutput} targets={outputTargets} />
                     {outputExplanation && (
-                      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                      <p className="mt-1 text-sm text-muted">
                         <GlossaryText text={outputExplanation} />
                       </p>
                     )}
@@ -387,7 +387,7 @@ export function StepDetail({
                   />
                 ))}
               {!expectedOutput && outputExplanation && (
-                <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                <p className="mt-1 text-sm text-muted">
                   <GlossaryText text={outputExplanation} />
                 </p>
               )}
@@ -441,7 +441,7 @@ export function StepDetail({
             <Collapsible title="Why this works & if you get stuck">
               <div className="space-y-2 pr-2">
                 {whatItMeans && (
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                  <p className="text-sm text-muted">
                     <span className="font-semibold text-gray-700 dark:text-gray-300">Why: </span>
                     <GlossaryText text={whatItMeans} />
                   </p>
@@ -586,7 +586,7 @@ export function ChecklistItem({
         />
         <div className="flex-1">
           <motion.div className="flex items-center justify-between gap-2">
-            <h4 className={`flex items-center gap-2 font-medium ${isComplete ? 'line-through text-gray-500 dark:text-gray-400' : 'text-gray-900 dark:text-white'}`}>
+            <h4 className={`flex items-center gap-2 font-medium ${isComplete ? 'line-through text-muted' : 'text-ink'}`}>
               {title}
               {optional && (
                 <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
@@ -730,7 +730,7 @@ export function CommandBlock({
   return (
     <div>
       <div className="flex items-center justify-between gap-2">
-        <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <div className="eyebrow-muted">
           {multi ? `Commands · run one at a time` : 'Command'}
         </div>
         {multi && <CopyButton text={allText} label="Copy all" />}
@@ -777,7 +777,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
         <HighlightedCommand cmd={c.cmd} />
       </div>
       {c.explain && (
-        <p className="mt-1 flex gap-1.5 pl-1 text-xs text-gray-600 dark:text-gray-400">
+        <p className="mt-1 flex gap-1.5 pl-1 text-xs text-muted">
           <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <span>{c.explain}</span>
         </p>
@@ -796,7 +796,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
           {showFlags && (
             <ul className="mt-1 space-y-0.5">
               {c.flags!.map((f) => (
-                <li key={f.flag} className="flex gap-2 text-xs text-gray-600 dark:text-gray-400">
+                <li key={f.flag} className="flex gap-2 text-xs text-muted">
                   <code className="shrink-0 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
                     {f.flag}
                   </code>

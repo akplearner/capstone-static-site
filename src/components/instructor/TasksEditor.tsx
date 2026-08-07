@@ -40,7 +40,7 @@ export function TasksEditor({ course, onChange }: { course: Course; onChange: (c
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600 dark:text-gray-400">Define tasks and their step-by-step instructions.</p>
+        <p className="text-sm text-muted">Define tasks and their step-by-step instructions.</p>
         <Button size="sm" onClick={add} className="flex items-center gap-1" disabled={course.roles.length === 0 || course.weeks.length === 0}>
           <Plus className="h-4 w-4" /> Add task
         </Button>
@@ -56,7 +56,7 @@ export function TasksEditor({ course, onChange }: { course: Course; onChange: (c
             <div className="flex items-center justify-between gap-2 p-4">
               <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : t.id)} className="flex flex-1 items-center gap-2 text-left">
                 {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden /> : <ChevronDown className="h-4 w-4" aria-hidden />}
-                <span className="font-medium text-gray-900 dark:text-white">{t.title}</span>
+                <span className="font-medium text-ink">{t.title}</span>
                 <span className="text-xs text-gray-500">({t.role} · week {t.week} · {t.steps.length} steps)</span>
               </button>
               <button type="button" aria-label={`Remove task ${t.title}`} onClick={() => setTasks(course.tasks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">

@@ -132,10 +132,10 @@ export function NodeIcon({ node }: { node: Node }) {
 export function TreeNode({ node, depth = 0, index = 0, roles }: { node: Node; depth?: number; index?: number; roles?: RoleDef[] }) {
   const textCls =
     node.kind === 'root'
-      ? 'font-semibold text-gray-900 dark:text-white'
+      ? 'font-semibold text-ink'
       : node.owner
-        ? ROLE_TEXT[node.owner] ?? 'text-gray-600 dark:text-gray-400'
-        : 'text-gray-600 dark:text-gray-400';
+        ? ROLE_TEXT[node.owner] ?? 'text-muted'
+        : 'text-muted';
   return (
     <motion.li
       initial={{ opacity: 0, x: -6 }}
@@ -177,10 +177,10 @@ export function FolderTree({
   const tree = isWeek ? buildWeekTree(courseId, week!, roles) : buildCourseTree(courseId);
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-white">
+      <h3 className="text-sm font-semibold text-ink">
         {isWeek ? `Week ${week} submission — what your zip contains` : 'Submission folder structure'}
       </h3>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-1 text-sm text-muted">
         {isWeek ? (
           <>This is exactly what <strong>Download this week&apos;s package</strong> produces — role folders plus an{' '}
           <span className="font-mono">Evidence/</span> folder. Name screenshots{' '}
@@ -193,7 +193,7 @@ export function FolderTree({
       <ul className="mt-3 space-y-1">
         <TreeNode node={tree} roles={roles} />
       </ul>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-gray-500 dark:text-gray-400">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
         {/* Role names come from the course, not a hardcoded Red/Blue/GRC — those
             are Security+ labels and mean nothing in a course whose roles are
             SOC Analyst / Threat Hunter / Incident Responder. */}

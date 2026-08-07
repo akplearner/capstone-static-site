@@ -146,7 +146,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     <div className="space-y-5">
       {/* Toolbar */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400">
+        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
           <ListChecks className="h-4 w-4" />
           {requiredDone} of {requiredTotal} required done
           {optionalTotal > 0 && (
@@ -239,7 +239,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                       </span>
                     )}
                   </div>
-                  <h4 className="mt-1 text-lg font-semibold text-gray-900 dark:text-white">
+                  <h4 className="mt-1 text-lg font-semibold text-ink">
                     {current?.title}
                   </h4>
                 </div>

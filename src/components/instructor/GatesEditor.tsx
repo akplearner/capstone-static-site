@@ -37,13 +37,13 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-600 dark:text-gray-400">Gates mark the end of a phase. A gate passes when its required tasks are complete.</p>
+        <p className="text-sm text-muted">Gates mark the end of a phase. A gate passes when its required tasks are complete.</p>
         <Button size="sm" onClick={add} className="flex items-center gap-1"><Plus className="h-4 w-4" /> Add gate</Button>
       </div>
       {course.gates.map((g, i) => (
         <div key={i} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <span className="font-medium text-gray-900 dark:text-white">{g.title}</span>
+            <span className="font-medium text-ink">{g.title}</span>
             <button type="button" aria-label={`Remove gate ${g.title}`} onClick={() => setGates(course.gates.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
               <Trash2 className="h-4 w-4" aria-hidden />
             </button>
@@ -58,7 +58,7 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
           <TextArea label="Description" value={g.description} onChange={(v) => update(i, { description: v })} />
           <TextField label="Required artifact types (comma-separated)" value={listToText(g.requiredArtifactTypes)} onChange={(v) => update(i, { requiredArtifactTypes: textToList(v) })} />
           <div>
-            <span className="block text-xs font-medium text-gray-600 dark:text-gray-300">Required tasks</span>
+            <span className="block text-xs font-medium text-muted">Required tasks</span>
             <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-gray-200 p-2 dark:border-gray-700">
               {course.tasks.length === 0 && <p className="text-xs text-gray-400">No tasks yet.</p>}
               {course.tasks.map((t) => (

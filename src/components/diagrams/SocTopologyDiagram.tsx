@@ -17,7 +17,7 @@ export function SocTopologyDiagram({ topo }: { topo: SocTopology }) {
   return (
     <div className="space-y-3">
       <div className="rounded-2xl border border-[var(--color-panel)] bg-[linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] p-2 shadow-[var(--shadow-card)]">
-        <div className="flex items-center gap-2.5 px-3.5 pb-1 pt-3 font-mono text-[12.5px] text-[var(--color-ink)]">
+        <div className="flex items-center gap-2.5 px-3.5 pb-1 pt-3 font-mono text-xs text-[var(--color-ink)]">
           TOPOLOGY · {topo.subnet} · bridged
           <span className="ml-auto flex items-center gap-1.5 text-[var(--color-w3)]">
             <span className="inline-block h-[7px] w-[7px] animate-pulse rounded-full bg-[var(--color-w3)]" /> agents reporting
@@ -132,11 +132,11 @@ export function SocTopologyDiagram({ topo }: { topo: SocTopology }) {
 
       {/* Reference spec table */}
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[13px]">
+        <table className="w-full border-collapse text-sm">
           <thead>
             <tr>
               {['Component', 'Address', 'What runs on it', 'Who touches it'].map((h) => (
-                <th key={h} className="border-b border-line bg-panel-2 px-2.5 py-2 text-left font-mono text-[11.5px] uppercase tracking-wide text-muted">
+                <th key={h} className="border-b border-line bg-panel-2 px-2.5 py-2 text-left font-mono text-[11px] uppercase tracking-wide text-muted">
                   {h}
                 </th>
               ))}

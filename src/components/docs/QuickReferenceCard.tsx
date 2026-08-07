@@ -70,7 +70,7 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Quick reference card</h3>
+      <h3 className="text-sm font-semibold text-ink">Quick reference card</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {panels.map((p) => (
           <div

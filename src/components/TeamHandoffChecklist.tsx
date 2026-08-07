@@ -38,17 +38,17 @@ export function TeamHandoffChecklist({ course }: { course: Course; teamId?: stri
 
   return (
     <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-gray-900 dark:text-white">
+      <h2 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
         <Handshake className="h-4 w-4 text-indigo-600 dark:text-indigo-400" /> How your work connects
       </h2>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+      <p className="mt-1 text-sm text-muted">
         Week by week, whose output helps the next role. This is guidance, not a gate — every week is open, and you
         can work in any order.
       </p>
       <div className="mt-3 space-y-4">
         {weeks.map((week) => (
           <div key={week}>
-            <div className="text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+            <div className="eyebrow-muted">
               {week === 0 ? 'Setup' : `Week ${week}`}
             </div>
             <ul className="mt-1.5 space-y-1.5">
