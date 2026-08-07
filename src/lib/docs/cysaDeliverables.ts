@@ -141,12 +141,12 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           { field: 'pcap_file', label: 'Capture filename', type: 'text', placeholder: 'week2.pcap' },
           { field: 'pcap_sha256', label: 'Capture SHA-256', type: 'text', required: true, placeholder: 'from sha256sum week2.pcap' },
           { field: 'wireshark_shot', label: 'Wireshark HTTP stream (screenshot)', type: 'fileref', placeholder: '20260725_Team07_http_stream.png' },
-          { field: 'request_quote', label: 'The exact request the attacker sent', type: 'area', required: true, placeholder: "GET /vulnerabilities/sqli/?id=1' UNION SELECT user,password-- ...", help: 'Quote it verbatim from Follow → HTTP Stream, and say what it tried to do.' },
+          { field: 'request_quote', label: 'The exact request the attacker sent', type: 'area', required: true, placeholder: "GET /dvwa/vulnerabilities/sqli/?id=1' UNION SELECT user,password-- ...", help: 'Quote it verbatim from Follow → HTTP Stream, and say what it tried to do.' },
         ],
       },
       custodySection({
         seed: [
-          { evidence_id: 'E-01', description: 'week2.pcap', collected_by: 'Threat Hunter', collected_at: '2026-07-25 11:10', location: '~/team-artifacts/week-2/', sha256: 'from sha256sum week2.pcap', transferred_to: 'GRC', transferred_at: '2026-07-25 11:30', notes: 'port-scan + SQLi capture' },
+          { evidence_id: 'E-01', description: 'week2.pcap', collected_by: 'Threat Hunter', collected_at: '2026-07-25 11:10', location: '~/team-artifacts/week-2/', sha256: 'from sha256sum week2.pcap', transferred_to: 'Incident Responder', transferred_at: '2026-07-25 11:30', notes: 'port-scan + SQLi capture' },
         ],
       }),
     ],
@@ -216,19 +216,19 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
             c('impact', 'Impact', 'select', { options: LMH }),
             c('risk', 'Risk rating', 'text', { derived: (r) => riskLevel(r.likelihood ?? '', r.impact ?? '') }),
             c('fix', 'Fix', 'text', { placeholder: 'Parameterised queries / raise DVWA security' }),
-            c('owner', 'Owner', 'text', { placeholder: 'Blue' }),
+            c('owner', 'Owner', 'text', { placeholder: 'SOC Analyst' }),
             c('target_date', 'Target date', 'date'),
           ],
           seed: [
-            { finding: 'DVWA SQL injection (unauthenticated)', cve: 'OWASP A03 — config, no CVE', cvss: '9.8', likelihood: 'High', impact: 'High', fix: 'Parameterised queries; raise DVWA security level', owner: 'Blue', target_date: '2026-07-31' },
-            { finding: 'OpenSSH outdated banner', cve: 'CVE-2020-15778', cvss: '7.8', likelihood: 'Low', impact: 'High', fix: 'apt upgrade openssh-server', owner: 'Blue', target_date: '2026-08-07' },
+            { finding: 'DVWA SQL injection (unauthenticated)', cve: 'OWASP A03 — config, no CVE', cvss: '9.8', likelihood: 'High', impact: 'High', fix: 'Parameterised queries; raise DVWA security level', owner: 'SOC Analyst', target_date: '2026-07-31' },
+            { finding: 'OpenSSH outdated banner', cve: 'CVE-2020-15778', cvss: '7.8', likelihood: 'Low', impact: 'High', fix: 'apt upgrade openssh-server', owner: 'SOC Analyst', target_date: '2026-08-07' },
           ],
         },
       },
       custodySection({
         label: 'Chain of custody — scan output & screenshots',
         seed: [
-          { evidence_id: 'E-01', description: '20260726_Team07_wazuh_vulns.png', collected_by: 'Red', collected_at: '2026-07-26 10:15', location: '~/team-artifacts/week-3/', sha256: 'from sha256sum <file>', transferred_to: 'GRC', transferred_at: '2026-07-26 10:40', notes: 'Wazuh vulnerabilities screenshot' },
+          { evidence_id: 'E-01', description: '20260726_Team07_wazuh_vulns.png', collected_by: 'Incident Responder', collected_at: '2026-07-26 10:15', location: '~/team-artifacts/week-3/', sha256: 'from sha256sum <file>', transferred_to: 'Incident Responder', transferred_at: '2026-07-26 10:40', notes: 'Wazuh vulnerabilities screenshot' },
         ],
       }),
     ],
@@ -281,7 +281,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         fields: [
           { field: 'first_alert', label: 'First alert (screenshot)', type: 'fileref', placeholder: '20260731_Team07_first_alert.png', help: 'The earliest related alert — this timestamp is your incident start.' },
           { field: 'attacker_ip', label: 'Attacker IP', type: 'text', required: true, placeholder: '10.10.30.7' },
-          { field: 'access_log_line', label: 'Malicious request (from access.log)', type: 'area', placeholder: "10.10.30.7 - - [31/Jul/2026:14:22:07] \"GET /vulnerabilities/sqli/?id=1' UNION SELECT ...\"" },
+          { field: 'access_log_line', label: 'Malicious request (from access.log)', type: 'area', placeholder: "10.10.30.7 - - [31/Jul/2026:14:22:07] \"GET /dvwa/vulnerabilities/sqli/?id=1' UNION SELECT ...\"" },
           { field: 'containment', label: 'Containment (what you did)', type: 'area', placeholder: 'ufw deny from 10.10.30.7; stopped apache2.' },
           { field: 'containment_time', label: 'Containment time', type: 'text', placeholder: '2026-07-31 14:41' },
           { field: 'root_cause', label: 'Root cause', type: 'area', placeholder: 'DVWA security set to Low allowed unsanitised input on the sqli page.' },
@@ -296,13 +296,13 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           help: 'One row per step. Every row should point to the search or log line it came from.',
           columns: [
             c('time', 'Time', 'text', { placeholder: '14:22' }),
-            c('event', 'Event', 'text', { placeholder: 'SQLi UNION SELECT against /vulnerabilities/sqli/' }),
+            c('event', 'Event', 'text', { placeholder: 'SQLi UNION SELECT against /dvwa/vulnerabilities/sqli/' }),
             c('source', 'Source', 'text', { placeholder: 'Apache access.log' }),
             c('tool', 'Tool', 'text', { placeholder: 'Wazuh search' }),
             c('note', 'Note', 'text', { placeholder: 'first contact' }),
           ],
           seed: [
-            { time: '14:22', event: 'SQLi UNION SELECT against /vulnerabilities/sqli/', source: 'Apache access.log', tool: 'Wazuh search', note: 'first contact — incident start' },
+            { time: '14:22', event: 'SQLi UNION SELECT against /dvwa/vulnerabilities/sqli/', source: 'Apache access.log', tool: 'Wazuh search', note: 'first contact — incident start' },
             { time: '14:31', event: 'File upload of shell.php', source: 'FIM / Integrity monitoring', tool: 'Wazuh', note: 'attack succeeded' },
             { time: '14:41', event: 'Attacker IP blocked at firewall', source: 'ufw', tool: 'ufw deny', note: 'containment' },
           ],
@@ -310,8 +310,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
       custodySection({
         seed: [
-          { evidence_id: 'E-01', description: 'access.log', collected_by: 'Red', collected_at: '2026-07-31 14:45', location: '~/team-artifacts/week-4/', sha256: 'c5b9…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'malicious request source' },
-          { evidence_id: 'E-02', description: 'week4_attacker_events.png', collected_by: 'Red', collected_at: '2026-07-31 14:47', location: '~/team-artifacts/week-4/', sha256: 'a1f0…', transferred_to: 'GRC', transferred_at: '2026-07-31 15:05', notes: 'Wazuh export of the attacker’s events' },
+          { evidence_id: 'E-01', description: 'access.log', collected_by: 'Incident Responder', collected_at: '2026-07-31 14:45', location: '~/team-artifacts/week-4/', sha256: 'c5b9…', transferred_to: 'Incident Responder', transferred_at: '2026-07-31 15:05', notes: 'malicious request source' },
+          { evidence_id: 'E-02', description: 'week4_attacker_events.png', collected_by: 'Incident Responder', collected_at: '2026-07-31 14:47', location: '~/team-artifacts/week-4/', sha256: 'a1f0…', transferred_to: 'Incident Responder', transferred_at: '2026-07-31 15:05', notes: 'Wazuh export of the attacker’s events' },
         ],
       }),
     ],
@@ -374,7 +374,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
           ],
           seed: [
             { type: 'IP', value: '10.10.30.7', first_seen: 'Suricata port-scan alert', timestamp: '2026-07-25 14:20', source: 'lab attacker', verdict: 'Malicious', attack: 'T1046 Network Service Discovery' },
-            { type: 'URL', value: "/vulnerabilities/sqli/?id=1' UNION SELECT", first_seen: 'Apache access.log', timestamp: '2026-07-25 14:22', source: 'OWASP A03', verdict: 'Malicious', attack: 'T1190 Exploit Public-Facing App' },
+            { type: 'URL', value: "/dvwa/vulnerabilities/sqli/?id=1' UNION SELECT", first_seen: 'Apache access.log', timestamp: '2026-07-25 14:22', source: 'OWASP A03', verdict: 'Malicious', attack: 'T1190 Exploit Public-Facing App' },
             { type: 'Hash', value: 'sha256 of shell.php', first_seen: 'FIM / Integrity monitoring', timestamp: '2026-07-25 14:31', source: 'VirusTotal', verdict: 'Suspicious', attack: 'T1505.003 Web Shell' },
           ],
         },
@@ -626,7 +626,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
             c('note', 'How measured', 'text', { placeholder: 'First alert 14:22 → escalation 14:31' }),
           ],
           seed: [
-            { metric: 'MTTD (time to detect)', value: '~9 min', note: 'First alert → escalation' },
+            { metric: 'MTTD (time to detect)', value: '~9 min', note: 'Attack start → first alert' },
             { metric: 'MTTR (time to contain)', value: '~19 min', note: 'First alert → firewall block' },
             { metric: 'High risks remaining', value: '3', note: 'From the Vulnerability Assessment' },
           ],
@@ -637,7 +637,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
         title: 'Lessons & recommendations',
         fields: [
           { field: 'lessons', label: 'Lessons learned (what to keep / change)', type: 'area', required: true, placeholder: 'Baseline made triage fast. Windows Sysmon coverage was late — enable it in the build next time.' },
-          { field: 'recommendations', label: 'Recommendations (next steps, with owners)', type: 'area', placeholder: 'Parameterise DVWA queries (Blue, 2 wks); add a WAF (Blue); tune the SQLi rule to cut noise (Analyst).' },
+          { field: 'recommendations', label: 'Recommendations (next steps, with owners)', type: 'area', placeholder: 'Parameterise DVWA queries (SOC Analyst, 2 wks); add a WAF (Incident Responder); tune the SQLi rule to cut noise (SOC Analyst).' },
         ],
       },
     ],
