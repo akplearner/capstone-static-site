@@ -23,8 +23,7 @@ export function CatalogCard({ entry, index = 0 }: { entry: CatalogEntry; index?:
   const body = (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.04, 0.3) }}
       className={`group relative flex h-full flex-col rounded-[var(--radius-card)] border p-4 ${
         available

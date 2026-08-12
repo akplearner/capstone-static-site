@@ -74,8 +74,7 @@ export default function HomePage() {
             <motion.div
               key={s.title}
               initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
               className="rounded-[var(--radius-card)] border border-line bg-panel p-5"
             >
@@ -110,8 +109,7 @@ export default function HomePage() {
               key={v.id}
               data-region={v.region}
               initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ delay: Math.min(i * 0.05, 0.3) }}
             >
               <Link
