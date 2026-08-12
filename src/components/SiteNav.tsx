@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, GraduationCap, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
+import { ChevronRight, Compass, GraduationCap, LayoutDashboard, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { courseRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
@@ -27,7 +27,13 @@ export function SiteNav() {
   const courseTitle = course?.title ?? 'Course';
 
   const coursesActive = pathname === '/' || pathname.startsWith('/courses');
+  const exploreActive = pathname.startsWith('/explore');
+  const dashboardActive = pathname.startsWith('/dashboard');
   const instructorActive = pathname.startsWith('/instructor');
+
+  // The Dashboard link only appears once signed in — it's a personal home with
+  // nothing to show a guest. Explore is always available.
+  const { user } = useAuth();
 
   // Students should never see the studio exists. The link appears only once a
   // visitor is actually an instructor — an unlocked passcode (local) or an
@@ -64,6 +70,16 @@ export function SiteNav() {
               <GraduationCap className="h-4 w-4" />
               <span>Courses</span>
             </Link>
+            <Link href="/explore" className={linkClass(exploreActive)}>
+              <Compass className="h-4 w-4" />
+              <span>Explore</span>
+            </Link>
+            {user && (
+              <Link href="/dashboard" className={linkClass(dashboardActive)}>
+                <LayoutDashboard className="h-4 w-4" />
+                <span>Dashboard</span>
+              </Link>
+            )}
             {isInstructor && (
               <Link href="/instructor" className={linkClass(instructorActive)}>
                 <PencilRuler className="h-4 w-4" />
