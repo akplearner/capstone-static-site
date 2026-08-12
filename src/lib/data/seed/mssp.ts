@@ -578,6 +578,7 @@ export const MSSP: Course = {
   slug: 'mssp',
   vendor: 'Engagement',
   certification: 'SOC 2 + ISO 27001',
+  level: 'professional',
   audience: 'Run a real client engagement — SOC 2 + ISO 27001 compliance as an MSSP analyst.',
   description:
     'A full client engagement: scope the work, assess the gaps, implement and test controls, then assemble the audit evidence package. Three roles, mapped to SOC 2 and ISO/IEC 27001.',

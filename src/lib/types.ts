@@ -8,6 +8,12 @@ export type WeekNumber = number;
 export type GateStatus = 'locked' | 'ready' | 'passed';
 export type Framework = string;
 
+/** Credential tier, ordered surface→deep for the catalog. A course declares the
+ *  level of the credential it prepares for; the Explore catalog groups by it.
+ *  This is the *credential's* standing, deliberately separate from a week/task's
+ *  `difficulty` (pacing stars) — an expert cert can still open with an easy week. */
+export type Level = 'entry' | 'associate' | 'professional' | 'expert';
+
 // A role/track within a course (e.g. Red, Blue, GRC — or a single "Student" track).
 export interface RoleDef {
   id: string;        // 'red'
@@ -249,6 +255,9 @@ export interface Course {
   /** The specific credential, e.g. 'Security+' or 'CySA+ (CS0-003)'. Two certs
    *  from the same vendor share a family but get distinct accents. */
   certification?: string;
+  /** The credential tier this capstone prepares for. Read by the Explore catalog
+   *  to place the course on the ladder; must match its catalog entry's level. */
+  level?: Level;
   /** One-line "who this is for / what you'll do" tagline shown on the home card to
    *  differentiate courses at a glance. */
   audience?: string;

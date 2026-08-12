@@ -2036,6 +2036,7 @@ export const CYSA_PLUS: Course = {
   slug: 'cysa-plus',
   vendor: 'CompTIA',
   certification: 'CySA+ (CS0-003)',
+  level: 'professional',
   lifecyclePath: [
     { label: 'Detect', detail: 'An alert fires in the SOC — something looks off.' },
     { label: 'Triage', detail: 'SOC Analyst: real threat or noise? Escalate the real ones.' },

@@ -54,6 +54,7 @@ export const SECURITY_PLUS: Course = {
   slug: 'security-plus',
   vendor: 'CompTIA',
   certification: 'Security+',
+  level: 'associate',
   audience: 'Hands-on offensive + defensive lab — you play Red, Blue, or GRC on a live range.',
   description:
     'Four weeks on a live range as Red, Blue or GRC: reconnaissance, hardening, a staged breach, and the report you hand to a client.',
