@@ -49,6 +49,72 @@ export interface LabAccessData {
   notes: string;
 }
 
+/** How a step came to be finished. The single most useful fact on the dashboard:
+ *  it separates "pasted real output that matched" from "ticked the box".
+ *  - `verified-output` — the pasted output contained every `verify` token
+ *  - `self-attested`   — marked complete without matching output
+ *  - `file-hash`       — evidenced by a hashed artifact rather than console output */
+export type EvidenceMethod = 'verified-output' | 'self-attested' | 'file-hash';
+
+/** One step's verification record.
+ *
+ *  Deliberately holds the SHA-256 of the pasted output and never the text: real
+ *  terminal output carries internal IPs, hostnames and sometimes credentials. The
+ *  hash still makes the record tamper-evident (re-produce the output and it must
+ *  hash identically) without the platform storing anything sensitive.
+ *
+ *  This records honest self-verification, NOT proof a command ran on real
+ *  hardware — the check is client-side. UI wording must not overclaim. */
+export interface StepEvidence {
+  courseId: string;
+  taskId: string;
+  stepId: string;
+  verified: boolean;
+  method: EvidenceMethod;
+  matchedTokens: number;
+  totalTokens: number;
+  /** Hex SHA-256 of the pasted output, when there was any. */
+  outputSha256?: string;
+  /** How many times output was pasted. Effort is measured, never rewarded. */
+  attempts: number;
+  firstAttemptAt?: number;
+  verifiedAt?: number;
+}
+
+/** A hashed evidence file. The file itself is never uploaded — the hash, name and
+ *  size are the custody record (see docs/adr/0004-content-addressed-evidence.md).
+ *  Keyed by hash, so re-hashing the same file can't double-count it. */
+export interface EvidenceArtifact {
+  courseId: string;
+  sha256: string;
+  filename: string;
+  sizeBytes: number;
+  week?: number;
+  deliverableId?: string;
+  /** Did the filename match the course convention at hashing time? */
+  nameOk: boolean;
+  hashedAt: number;
+}
+
+/** The evidence ledger: per-step verification records and hashed artifacts.
+ *  Reads are synchronous and whole-course because they're consumed inside render
+ *  by the metrics projections, exactly like the other repos here. */
+export interface EvidenceRepository {
+  /** Every step record for a course, keyed `${taskId}::${stepId}`. */
+  getSteps(courseId: string, memberId: string): Record<string, StepEvidence>;
+  saveStep(memberId: string, evidence: StepEvidence): void;
+  getArtifacts(courseId: string, memberId: string): EvidenceArtifact[];
+  saveArtifact(memberId: string, artifact: EvidenceArtifact): void;
+}
+
+/** The career track a student is working toward — the one per-user row that is
+ *  global rather than course-scoped, since a path spans courses. */
+export interface PathRepository {
+  get(memberId: string): { pathId: string; chosenAt: number } | null;
+  save(memberId: string, pathId: string): void;
+  clear(memberId: string): void;
+}
+
 // Team-scoped deliverable forms (Master Package): map of deliverableId -> data.
 export interface DocsRepository {
   get(courseId: string, teamId: string): Record<string, DeliverableData> | null;

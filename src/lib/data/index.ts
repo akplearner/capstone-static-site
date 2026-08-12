@@ -10,6 +10,8 @@ import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
 import { localStorageGrcRepo } from './localStorageGrcRepo';
 import { localStorageUserStateRepo, localStorageLabAccessRepo } from './localStorageUserStateRepo';
+import { localStorageEvidenceRepo, localStoragePathRepo } from './localStorageEvidenceRepo';
+import { supabaseEvidenceRepo, supabasePathRepo } from './supabaseEvidenceRepo';
 import { supabaseProgressRepo } from './supabaseProgressRepo';
 import { supabaseDocsRepo } from './supabaseDocsRepo';
 import { supabaseGrcRepo } from './supabaseGrcRepo';
@@ -23,6 +25,8 @@ export const docsRepo = cloud ? supabaseDocsRepo : localStorageDocsRepo;
 export const grcRepo = cloud ? supabaseGrcRepo : localStorageGrcRepo;
 export const userStateRepo = cloud ? supabaseUserStateRepo : localStorageUserStateRepo;
 export const labAccessRepo = cloud ? supabaseLabAccessRepo : localStorageLabAccessRepo;
+export const evidenceRepo = cloud ? supabaseEvidenceRepo : localStorageEvidenceRepo;
+export const pathRepo = cloud ? supabasePathRepo : localStoragePathRepo;
 export type {
   CourseRepository,
   ProgressRepository,
@@ -30,7 +34,12 @@ export type {
   DocsRepository,
   UserStateRepository,
   LabAccessRepository,
+  EvidenceRepository,
+  PathRepository,
   UserCourseState,
   LabAccessData,
+  StepEvidence,
+  EvidenceArtifact,
+  EvidenceMethod,
   ImportResult,
 } from './types';

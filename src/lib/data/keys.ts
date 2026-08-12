@@ -34,4 +34,14 @@ export const KEYS = {
   // `completedAt` values, so this pointer cannot be derived there.
   resume: (courseId: string, memberId: string) =>
     `${STORAGE_PREFIX}${courseId}_resume_${memberId}`,
+  // The evidence ledger: what the student actually proved, not just what they
+  // ticked. Stored as one blob per (course, member) rather than a key per step —
+  // unlike completions, these are always read as a whole set by the metrics
+  // projections, so a single parse beats scanning hundreds of keys.
+  stepEvidence: (courseId: string, memberId: string) =>
+    `${STORAGE_PREFIX}${courseId}_evidence_${memberId}`,
+  evidenceArtifacts: (courseId: string, memberId: string) =>
+    `${STORAGE_PREFIX}${courseId}_artifacts_${memberId}`,
+  // Global (not course-scoped): the career track spans courses.
+  path: (memberId: string) => `${STORAGE_PREFIX}path_${memberId}`,
 };
