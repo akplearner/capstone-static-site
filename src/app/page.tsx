@@ -1,135 +1,140 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowRight, BookOpen, GraduationCap, Layers, Lock, Users } from 'lucide-react';
+import { ArrowRight, Compass, Hammer, FileCheck2, FolderGit2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { RoleIcon } from '@/components/RoleIcon';
-import { courseRepo, progressRepo } from '@/lib/data';
-import { useClientStore, useHydrated, EMPTY_ARRAY } from '@/lib/useClientStore';
-import { EmptyState } from '@/components/EmptyState';
+import { QuarryMiner } from '@/components/quarry/QuarryMiner';
+import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
-import { Skeleton } from '@/components/ui/Spinner';
-import { Course } from '@/lib/types';
+import { useAuth } from '@/lib/useAuth';
+import { VENDORS, catalogSummary } from '@/lib/catalog/helpers';
 
+// The platform landing. It sells one idea — you cut a real capstone, you don't
+// memorise an exam — in the quarry's own language. Signed-in users don't need the
+// pitch, so they're sent straight to their dashboard (a no-op in demo mode, where
+// Supabase isn't configured and `user` is always null, so the page still renders).
 export default function HomePage() {
-  const hydrated = useHydrated();
-  const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
-  const enrolled = useMemo(() => {
-    const map: Record<string, boolean> = {};
-    courses.forEach((c) => {
-      map[c.id] = !!progressRepo.getContext(c.id);
-    });
-    return map;
-  }, [courses]);
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading && user) router.replace('/dashboard');
+  }, [loading, user, router]);
+
+  const summary = catalogSummary();
 
   return (
-    <div className="space-y-10">
-      {/* Sign-in failures redirect here; without this the student just appears
-          signed out with no idea why. */}
+    <div className="space-y-16">
       <AuthErrorBanner />
-      <div className="space-y-3 text-center">
-        <div className="mx-auto inline-flex rounded-2xl bg-accent-soft p-3 text-accent">
-          <GraduationCap className="h-8 w-8" />
-        </div>
-        <p className="eyebrow">Build the environment · Work the process · Prove the skill</p>
-        <h1 className="text-4xl font-bold tracking-tight text-ink">Capstone Quarry</h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted">
-          Every vendor is its own region, and every crew cuts one capstone stone. Pick a region to begin, or open the instructor studio to build one.
-        </p>
-        <p className="mx-auto max-w-2xl text-sm text-muted">
-          New here? Just press <span className="font-medium text-ink">Start</span> — the course opens with a
-          step-by-step checklist. The <span className="font-medium text-ink">Guide</span> is a deep reference for
-          whenever you want it.
-        </p>
-      </div>
 
-      {!hydrated ? (
-        <div className="grid gap-6 md:grid-cols-2">
-          {[0, 1].map((i) => (
-            <Skeleton key={i} className="h-52 w-full" />
+      {/* Hero */}
+      <section className="grid items-center gap-8 md:grid-cols-[1.2fr_1fr]">
+        <div className="space-y-5">
+          <p className="eyebrow">Build it · Prove it · Keep it</p>
+          <h1 className="text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">
+            Cut the stone.<br />Don’t cram for the exam.
+          </h1>
+          <p className="max-w-xl text-lg text-muted">
+            Capstone Quarry turns each certification into a hands-on, home-lab build. You stand up
+            the environment, work the real process, and walk away with evidence for your
+            portfolio — not a memorised objectives list.
+          </p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/explore">
+              <Button size="lg" className="flex items-center gap-2">
+                <Compass className="h-5 w-5" /> Explore certs
+              </Button>
+            </Link>
+            <Link href="/dashboard">
+              <Button variant="secondary" size="lg" className="flex items-center gap-2">
+                Your dashboard <ArrowRight className="h-5 w-5" />
+              </Button>
+            </Link>
+          </div>
+          <p className="font-mono text-xs text-muted">
+            {summary.available} live capstones · {summary.total} certs on the map · {summary.vendors} vendors
+          </p>
+        </div>
+
+        {/* The miner at work on a stone. */}
+        <div className="flex items-center justify-center gap-2 rounded-[var(--radius-card)] border border-line bg-panel p-8 shadow-[var(--shadow-card)]">
+          <QuarryMiner size={120} />
+          <CapstoneStone stage={4} size={140} />
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="space-y-6">
+        <h2 className="text-2xl font-bold text-ink">How a capstone works</h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {STEPS.map((s, i) => (
+            <motion.div
+              key={s.title}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.06 }}
+              className="rounded-[var(--radius-card)] border border-line bg-panel p-5"
+            >
+              <div className="inline-flex rounded-xl bg-accent-soft p-2.5 text-accent">
+                <s.icon className="h-5 w-5" />
+              </div>
+              <h3 className="mt-3 font-semibold text-ink">
+                {i + 1}. {s.title}
+              </h3>
+              <p className="mt-1 text-sm text-muted">{s.body}</p>
+            </motion.div>
           ))}
         </div>
-      ) : courses.length === 0 ? (
-        <EmptyState
-          title="No courses yet"
-          message="No courses are available right now. If you're an instructor, open the studio to build one."
-          href="/instructor"
-          cta="Open Instructor Studio"
-        />
-      ) : (
-      <div className="grid gap-6 md:grid-cols-2">
-        {courses.map((course, i) => (
-          <motion.div
-            key={course.id}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.06 }}
-            className={`flex flex-col rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)] ${
-              course.locked ? 'opacity-60' : ''
-            }`}
-          >
-            <div className="flex items-center justify-between gap-2">
-              <h2 className="text-xl font-bold text-ink">{course.title}</h2>
-              <div className="flex items-center gap-2">
-                {course.locked && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 font-mono text-xs font-medium text-muted">
-                    <Lock className="h-3 w-3" /> Locked
-                  </span>
-                )}
-                {course.isSeed && (
-                  <span className="rounded-full bg-panel-2 px-2 py-0.5 font-mono text-xs font-medium text-muted">
-                    Built-in
-                  </span>
-                )}
-              </div>
-            </div>
-            {course.audience && (
-              <p className="mt-1 text-sm font-semibold text-accent">{course.audience}</p>
-            )}
-            <p className="mt-2 flex-1 text-sm text-muted">{course.description}</p>
+      </section>
 
-            <div className="mt-4 flex flex-wrap items-center gap-3 text-xs text-muted">
-              <span className="inline-flex items-center gap-1"><Layers className="h-3.5 w-3.5" /> {course.weeks.length} weeks</span>
-              <span className="inline-flex items-center gap-1"><Users className="h-3.5 w-3.5" /> {course.roles.length} roles</span>
-              <span className="flex items-center gap-1">
-                {course.roles.slice(0, 4).map((r) => (
-                  <RoleIcon key={r.id} iconName={r.icon} className="h-4 w-4" color={r.color} />
-                ))}
-              </span>
-            </div>
-
-            {course.locked ? (
-              <div className="mt-5 flex items-center gap-2 rounded-lg border border-line bg-panel-2 px-4 py-2.5 text-sm text-muted">
-                <Lock className="h-4 w-4" /> Locked by instructor
-              </div>
-            ) : (
-              <div className="mt-5 flex gap-3">
-                <Link href={`/courses/${course.id}`} className="flex-1">
-                  <Button className="flex w-full items-center justify-center gap-2">
-                    {enrolled[course.id] ? 'Continue' : 'Start'} <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href={`/courses/${course.id}/guide`}>
-                  <Button variant="secondary" className="flex items-center gap-2">
-                    <BookOpen className="h-4 w-4" /> Guide
-                  </Button>
-                </Link>
-              </div>
-            )}
-          </motion.div>
-        ))}
-      </div>
-      )}
-
-      <div className="flex flex-col items-center gap-3 rounded-[var(--radius-card)] border border-line bg-panel-2 p-8 text-center">
-        <h2 className="text-xl font-bold text-ink">Are you an instructor?</h2>
-        <p className="text-muted">Build and maintain courses, roles, weeks, tasks, and gates.</p>
-        <Link href="/instructor">
-          <Button variant="secondary" size="lg">Open Instructor Studio</Button>
-        </Link>
-      </div>
+      {/* Vendor teaser — every region is themed rock. */}
+      <section className="space-y-6">
+        <div className="flex items-end justify-between gap-3">
+          <div>
+            <h2 className="text-2xl font-bold text-ink">Pick your region</h2>
+            <p className="text-muted">Each vendor is its own quarry, with its own stone to cut.</p>
+          </div>
+          <Link href="/explore" className="hidden shrink-0 sm:block">
+            <Button variant="secondary" className="flex items-center gap-2">
+              Explore all <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {VENDORS.map((v, i) => (
+            <motion.div
+              key={v.id}
+              data-region={v.region}
+              initial={{ opacity: 0, y: 12 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: Math.min(i * 0.05, 0.3) }}
+            >
+              <Link
+                href="/explore"
+                className="flex h-full items-center gap-3 rounded-[var(--radius-card)] border border-line bg-panel p-4 hover:border-accent"
+              >
+                <CapstoneStone stage={3} size={44} className="shrink-0" />
+                <div className="min-w-0">
+                  <div className="font-semibold text-ink">{v.name}</div>
+                  <p className="truncate text-sm text-muted">{v.blurb}</p>
+                </div>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      </section>
     </div>
   );
 }
+
+const STEPS = [
+  { icon: Compass, title: 'Pick a cert', body: 'Choose a vendor and level from the map — from first cuts to deep, expert rock.' },
+  { icon: Hammer, title: 'Build the lab', body: 'Stand up the environment at home and work the real week-by-week process.' },
+  { icon: FileCheck2, title: 'File the evidence', body: 'Capture and hash your work into deliverables — proof the task was really done.' },
+  { icon: FolderGit2, title: 'Keep the portfolio', body: 'Walk away with a defensible capstone you can show, not just a passing score.' },
+];
