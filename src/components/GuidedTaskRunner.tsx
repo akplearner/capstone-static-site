@@ -20,7 +20,8 @@ import { Task } from '@/lib/types';
 import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
 import { useRequireAuth } from '@/lib/useRequireAuth';
-import { progressRepo } from '@/lib/data';
+import { progressRepo, evidenceRepo } from '@/lib/data';
+import { selfAttested } from '@/lib/evidenceLedger';
 
 /** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
  *  inside a component-body function as render work, even when it only runs from
@@ -92,6 +93,23 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
       // moves the pointer — un-ticking an old step shouldn't drag the student
       // backwards through the course.
       recordResume(courseId, memberId, { week: task.week, taskId: task.id, stepId });
+      // Record HOW this step was finished. A verify-gated step ticked without
+      // matching output is self-attested, and the dashboard says so — that
+      // distinction is the whole point of the ledger. `selfAttested` never
+      // downgrades an existing verified record, so proving it and then re-ticking
+      // the box keeps the proof.
+      const step = task.steps.find((s) => s.id === stepId);
+      const prior = evidenceRepo.getSteps(courseId, memberId)[`${task.id}::${stepId}`];
+      evidenceRepo.saveStep(
+        memberId,
+        selfAttested(prior, {
+          courseId,
+          taskId: task.id,
+          stepId,
+          totalTokens: step?.verify?.length ?? 0,
+          at: nowMs(),
+        })
+      );
     } else {
       progressRepo.removeCompletion(courseId, memberId, task.id, stepId);
     }
@@ -268,6 +286,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   troubleshooting={current.troubleshooting}
                   fixes={current.fixes}
                   verify={current.verify}
+                  ledger={{ courseId, taskId: task.id, stepId: current.id, memberId }}
                   optional={current.optional}
                   where={current.where}
                   path={current.path}
@@ -350,6 +369,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               troubleshooting={step.troubleshooting}
               fixes={step.fixes}
               verify={step.verify}
+              ledger={{ courseId, taskId: task.id, stepId: step.id, memberId }}
               optional={step.optional}
               where={step.where}
               path={step.path}

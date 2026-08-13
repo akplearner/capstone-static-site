@@ -23,6 +23,10 @@ import { FolderNode, Step } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
+import { evidenceRepo } from '@/lib/data';
+import type { StepEvidence } from '@/lib/data';
+import { useClientStore } from '@/lib/useClientStore';
+import { foldAttempt, scoreOutput, sha256Text } from '@/lib/evidenceLedger';
 import { splitCommand } from '@/lib/commands';
 import { toast } from './ui/Toast';
 import { StepFlow } from './diagrams/StepFlow';
@@ -111,17 +115,85 @@ export function FrameworkBadge({ framework }: FrameworkBadgeProps) {
  * what-it-means, the deliverable it produces, and framework tags. Reused by the
  * ChecklistItem ("show all") view and the GuidedTaskRunner one-step view.
  */
+/** Identifies the step whose verification record should be written. Omitted in
+ *  read-only views (another role's task), where pasting must not record anything. */
+export interface LedgerRef {
+  courseId: string;
+  taskId: string;
+  stepId: string;
+  memberId: string;
+}
+
 /**
  * Real-tool self-verification: the student pastes their ACTUAL command output and
- * the step turns green only when every expected token is present. Turns a static
- * "what you should see" block into a check you actually run against real output.
+ * the step turns green only when every expected token is present.
+ *
+ * The verdict is now RECORDED, not just rendered. Until this was wired up the
+ * check was a dead end — the pasted text, the pass/fail and the whole reason to
+ * bother all lived in local state and vanished on unmount, so a finished capstone
+ * was indistinguishable from a column of ticked boxes.
+ *
+ * What gets stored is the SHA-256 of the pasted text plus the match counts —
+ * never the text itself, which routinely carries internal IPs and credentials.
+ * That keeps the record tamper-evident (re-produce the output and it must hash
+ * identically) without the platform holding anything sensitive.
+ *
+ * The claim this supports is exactly "output matching the expected tokens was
+ * pasted, hashed and timestamped" — not that the command truly ran. The wording
+ * below says that and no more.
  */
-function OutputVerify({ verify }: { verify: string[] }) {
+function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef }) {
   const [text, setText] = React.useState('');
   const touched = text.trim().length > 0;
-  const norm = text.toLowerCase();
-  const results = verify.map((tok) => ({ tok, ok: norm.includes(tok.toLowerCase()) }));
-  const allOk = touched && results.every((r) => r.ok);
+  const score = scoreOutput(text, verify);
+  const missing = new Set(score.missing.map((m) => m.toLowerCase()));
+
+  // The stored record, so a verified step still reads as verified after a reload
+  // or after the guided view unmounts and remounts this step.
+  const prior = useClientStore<StepEvidence | null>(
+    () =>
+      ledger
+        ? evidenceRepo.getSteps(ledger.courseId, ledger.memberId)[
+            `${ledger.taskId}::${ledger.stepId}`
+          ] ?? null
+        : null,
+    null
+  );
+
+  const allOk = touched && score.allMatched;
+  const previouslyVerified = !!prior?.verified;
+
+  // Record on a debounce rather than per keystroke: hashing is async and a paste
+  // arrives as one change, so this writes one attempt per real attempt instead of
+  // one per character. `lastRecorded` stops an identical re-record inflating the
+  // attempt count.
+  const lastRecorded = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    if (!ledger || !touched) return;
+    if (lastRecorded.current === text) return;
+    const timer = setTimeout(() => {
+      const snapshot = text;
+      void sha256Text(snapshot).then((outputSha256) => {
+        lastRecorded.current = snapshot;
+        evidenceRepo.saveStep(
+          ledger.memberId,
+          foldAttempt(prior ?? undefined, {
+            courseId: ledger.courseId,
+            taskId: ledger.taskId,
+            stepId: ledger.stepId,
+            score: scoreOutput(snapshot, verify),
+            outputSha256,
+            at: Date.now(),
+          })
+        );
+      });
+    }, 800);
+    return () => clearTimeout(timer);
+    // `prior` is intentionally read fresh inside the timer via closure; including
+    // it here would restart the debounce on our own write.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [text, touched, ledger?.courseId, ledger?.taskId, ledger?.stepId, ledger?.memberId]);
+
   return (
     <div className="rounded-md border border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
       <label className="eyebrow-muted">
@@ -138,7 +210,17 @@ function OutputVerify({ verify }: { verify: string[] }) {
       {touched && (
         <div className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium ${allOk ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
           {allOk ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
-          {allOk ? 'Verified — your output matches.' : 'Not matching yet — check the command ran on the right target.'}
+          {allOk
+            ? 'Verified — your output matches. Recorded and hashed.'
+            : `Not matching yet (${score.matched}/${score.total}) — check the command ran on the right target.`}
+        </div>
+      )}
+      {/* Already proved it earlier: say so rather than showing an empty box that
+          implies the work was never done. */}
+      {!touched && previouslyVerified && (
+        <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400">
+          <Check className="h-4 w-4" />
+          Verified earlier{prior?.verifiedAt ? ` on ${new Date(prior.verifiedAt).toLocaleDateString()}` : ''} — recorded.
         </div>
       )}
       {/* The tokens are shown up front, not only after a failed paste: they are
@@ -149,18 +231,21 @@ function OutputVerify({ verify }: { verify: string[] }) {
           {touched ? 'Looking for:' : 'Your output must contain:'}
         </div>
         <div className="flex flex-wrap gap-1">
-          {results.map((r) => (
-            <span
-              key={r.tok}
-              className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${
-                touched && r.ok
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
-                  : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
-              }`}
-            >
-              {touched ? (r.ok ? '✓' : '○') : '•'} {r.tok}
-            </span>
-          ))}
+          {verify.map((tok) => {
+            const ok = touched && !missing.has(tok.toLowerCase());
+            return (
+              <span
+                key={tok}
+                className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${
+                  ok
+                    ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                    : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                }`}
+              >
+                {touched ? (ok ? '✓' : '○') : '•'} {tok}
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
@@ -183,6 +268,7 @@ export function StepDetail({
   troubleshooting,
   fixes,
   verify,
+  ledger,
   optional,
   where,
   path,
@@ -209,6 +295,8 @@ export function StepDetail({
   troubleshooting?: string;
   fixes?: { symptom: string; fix: string }[];
   verify?: string[];
+  /** Set to record the verification result. Omitted in read-only views. */
+  ledger?: LedgerRef;
   optional?: boolean;
   where?: string;
   path?: string[];
@@ -395,7 +483,7 @@ export function StepDetail({
           )}
           {/* No `hasCommand` guard: a dashboard step has verify tokens too, and
               gating on a command silently hid the check on every GUI step. */}
-          {verify && verify.length > 0 && <OutputVerify verify={verify} />}
+          {verify && verify.length > 0 && <OutputVerify verify={verify} ledger={ledger} />}
         </div>
       </div>
 
@@ -518,6 +606,8 @@ interface ChecklistItemProps {
   troubleshooting?: string;
   fixes?: { symptom: string; fix: string }[];
   verify?: string[];
+  /** Set to record the verification result. Omitted in read-only views. */
+  ledger?: LedgerRef;
   optional?: boolean;
   where?: string;
   path?: string[];
@@ -552,6 +642,7 @@ export function ChecklistItem({
   troubleshooting,
   fixes,
   verify,
+  ledger,
   optional,
   where,
   path,
@@ -633,6 +724,7 @@ export function ChecklistItem({
                 troubleshooting={troubleshooting}
                 fixes={fixes}
                 verify={verify}
+                ledger={ledger}
                 optional={optional}
                 where={where}
                 path={path}

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Package, Trash2, AlertTriangle, CheckCircle2, FileCheck2 } from 'lucide-react';
 import { validateEvidenceFileName } from '@/lib/utils';
+import { evidenceRepo } from '@/lib/data';
 import { toast } from '@/lib/toastBus';
 import { buildWeekPackage, weekPackageFileName, WeekAttachment } from '@/lib/docs/package';
 import { DeliverableData } from '@/lib/docs/types';
@@ -33,6 +34,11 @@ interface Attached extends WeekAttachment {
  * bundles the week's filled deliverable(s) + the attachments + a populated
  * chain-of-custody log into one zip. Attachments live only in memory (no upload,
  * no localStorage) — they're bundled on download and cleared on refresh.
+ *
+ * Each attachment's SHA-256 is recorded to the evidence ledger when `memberId` is
+ * supplied. The file still never leaves the device; the hash is what makes the
+ * custody claim durable rather than existing only inside a zip the student
+ * downloaded once.
  */
 export function WeekEvidencePackager({
   week,
@@ -40,12 +46,14 @@ export function WeekEvidencePackager({
   saved,
   meta,
   roles,
+  memberId,
 }: {
   week: number;
   courseId: string;
   saved: Record<string, DeliverableData>;
   meta: DocMeta;
   roles?: RoleDef[];
+  memberId?: string;
 }) {
   const [items, setItems] = useState<Attached[]>([]);
   const [busy, setBusy] = useState(false);
@@ -61,6 +69,20 @@ export function WeekEvidencePackager({
         const sha256 = await sha256Hex(buf);
         const check = validateEvidenceFileName(file.name);
         added.push({ name: file.name, bytes, size: file.size, sha256, nameOk: check.valid, nameMsg: check.message });
+        // The bytes stay in memory and go only into the downloaded zip, but the
+        // hash is worth keeping: it is the custody record proving this artifact
+        // existed, unchanged, at this moment.
+        if (memberId) {
+          evidenceRepo.saveArtifact(memberId, {
+            courseId,
+            sha256,
+            filename: file.name,
+            sizeBytes: file.size,
+            week,
+            nameOk: check.valid,
+            hashedAt: Date.now(),
+          });
+        }
       }
       setItems((prev) => [...added, ...prev]);
     } catch {

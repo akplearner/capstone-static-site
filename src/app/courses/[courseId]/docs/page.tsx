@@ -304,7 +304,7 @@ export default function DeliverablesPage() {
                 hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
                 <strong>ISO/IEC 27037</strong>.
               </p>
-              <EvidenceHasher />
+              <EvidenceHasher courseId={course.id} memberId={member?.memberId} week={selectedWeek} />
               <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
                 <div className="eyebrow-muted">
                   Handling rules
@@ -668,7 +668,7 @@ export default function DeliverablesPage() {
 
       {/* Package THIS week: filled form(s) + attached evidence → one zip with a
           populated chain-of-custody log. */}
-      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} roles={course.roles} />
+      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} roles={course.roles} memberId={member?.memberId} />
     </div>
   );
 }

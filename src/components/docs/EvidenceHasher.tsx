@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { FileCheck2, Copy, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { validateEvidenceFileName } from '@/lib/utils';
 import { toast } from '@/lib/toastBus';
+import { evidenceRepo } from '@/lib/data';
 
 interface Hashed {
   name: string;
@@ -33,8 +34,23 @@ function humanSize(n: number): string {
  * the file never leaves the device. They copy the ready Evidence-Log row (name,
  * size, hash) into their Evidence Log / Audit Evidence Packet. This is the actual
  * `sha256sum` step, performed in-app, instead of only being described.
+ *
+ * Each hash is also RECORDED to the evidence ledger when the caller supplies a
+ * course and member. Previously the hash existed only in component state and on
+ * the clipboard, so the platform had no record that the student ever produced the
+ * artifact — the file's own hash is the custody record worth keeping, per
+ * docs/adr/0004-content-addressed-evidence.md. The file itself is still never
+ * uploaded.
  */
-export function EvidenceHasher() {
+export function EvidenceHasher({
+  courseId,
+  memberId,
+  week,
+}: {
+  courseId?: string;
+  memberId?: string;
+  week?: number;
+} = {}) {
   const [items, setItems] = useState<Hashed[]>([]);
   const [busy, setBusy] = useState(false);
 
@@ -47,6 +63,17 @@ export function EvidenceHasher() {
         const sha256 = await sha256Hex(file);
         const check = validateEvidenceFileName(file.name);
         hashed.push({ name: file.name, size: file.size, sha256, nameOk: check.valid, nameMsg: check.message });
+        if (courseId && memberId) {
+          evidenceRepo.saveArtifact(memberId, {
+            courseId,
+            sha256,
+            filename: file.name,
+            sizeBytes: file.size,
+            week,
+            nameOk: check.valid,
+            hashedAt: Date.now(),
+          });
+        }
       }
       setItems((prev) => [...hashed, ...prev]);
     } catch {
