@@ -4,10 +4,10 @@ import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import { ArrowRight, Compass, Hammer, FileCheck2, FolderGit2 } from 'lucide-react';
+import { ArrowRight, Compass, Hammer, FolderGit2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { QuarryMiner } from '@/components/quarry/QuarryMiner';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
+import { QuarryScene } from '@/components/quarry/QuarryScene';
 import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
 import { useAuth } from '@/lib/useAuth';
 import { VENDORS, catalogSummary } from '@/lib/catalog/helpers';
@@ -31,16 +31,21 @@ export default function HomePage() {
       <AuthErrorBanner />
 
       {/* Hero */}
-      <section className="grid items-center gap-8 md:grid-cols-[1.2fr_1fr]">
+      <section className="grid items-center gap-8 md:grid-cols-[1.05fr_1fr]">
         <div className="space-y-5">
           <p className="eyebrow">Build it · Prove it · Keep it</p>
           <h1 className="text-4xl font-bold leading-tight tracking-tight text-ink sm:text-5xl">
             Cut the stone.<br />Don’t cram for the exam.
           </h1>
           <p className="max-w-xl text-lg text-muted">
-            Capstone Quarry turns each certification into a hands-on, home-lab build. You stand up
-            the environment, work the real process, and walk away with evidence for your
-            portfolio — not a memorised objectives list.
+            Each certification becomes a hands-on build you run in your own home lab. You stand up
+            the environment, work the real process week by week, and prove each step against the
+            output your machine actually printed.
+          </p>
+          <p className="max-w-xl text-muted">
+            Every verified step is hashed and timestamped into your evidence ledger, so what you
+            finish with is a portfolio an employer can inspect — not a claim that you passed
+            something.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/explore">
@@ -59,11 +64,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        {/* The miner at work on a stone. */}
-        <div className="flex items-center justify-center gap-2 rounded-[var(--radius-card)] border border-line bg-panel p-8 shadow-[var(--shadow-card)]">
-          <QuarryMiner size={120} />
-          <CapstoneStone stage={4} size={140} />
-        </div>
+        <QuarryScene className="aspect-[4/3] w-full shadow-[var(--shadow-card)]" />
       </section>
 
       {/* How it works */}
@@ -131,8 +132,24 @@ export default function HomePage() {
 }
 
 const STEPS = [
-  { icon: Compass, title: 'Pick a cert', body: 'Choose a vendor and level from the map — from first cuts to deep, expert rock.' },
-  { icon: Hammer, title: 'Build the lab', body: 'Stand up the environment at home and work the real week-by-week process.' },
-  { icon: FileCheck2, title: 'File the evidence', body: 'Capture and hash your work into deliverables — proof the task was really done.' },
-  { icon: FolderGit2, title: 'Keep the portfolio', body: 'Walk away with a defensible capstone you can show, not just a passing score.' },
+  {
+    icon: Compass,
+    title: 'Pick a cert',
+    body: 'Choose a vendor and level from the map, or follow a career path from first cuts to expert rock.',
+  },
+  {
+    icon: Hammer,
+    title: 'Build it at home',
+    body: 'Stand up the real environment on your own hardware and work the week-by-week process.',
+  },
+  {
+    icon: ShieldCheck,
+    title: 'Verify each step',
+    body: 'Paste what your terminal printed. Match the expected output and the step is recorded as verified, hashed and timestamped.',
+  },
+  {
+    icon: FolderGit2,
+    title: 'Keep the evidence',
+    body: 'Hash your captures into a chain of custody and export a portfolio that shows exactly what you proved.',
+  },
 ];
