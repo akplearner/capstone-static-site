@@ -210,9 +210,13 @@ export function QuarryScene({ className }: { className?: string }) {
               />
             ))}
             {/* The core lights as the stone takes shape. */}
+            {/* `initial={false}` matters: without it framer has no starting `r`
+                and emits r="undefined" for the first frame, which the browser
+                rejects. Same pattern as CapstoneStone's core. */}
             <motion.circle
               cx={44}
               cy={44}
+              initial={false}
               animate={{ r: 10 + facets * 4, opacity: 0.2 + facets * 0.13 }}
               transition={{ duration: 0.5 }}
               fill="url(#qs-glow)"
