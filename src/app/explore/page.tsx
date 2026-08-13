@@ -5,6 +5,12 @@ import { motion } from 'framer-motion';
 import { Compass } from 'lucide-react';
 import { CatalogCard } from '@/components/catalog/CatalogCard';
 import { VENDORS, LEVELS, catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
+import { pathById } from '@/lib/catalog/paths';
+import { courseRepo, progressRepo, evidenceRepo, pathRepo } from '@/lib/data';
+import { getTasksByRole } from '@/lib/course-helpers';
+import { courseMetrics } from '@/lib/metrics';
+import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
+import { useUserSync } from '@/lib/useUserSync';
 import type { Level } from '@/lib/types';
 
 // Sections theme themselves from `vendor.region` (a `[data-region=…]` key), so the
@@ -16,6 +22,46 @@ type LevelFilter = 'all' | Level;
 export default function ExplorePage() {
   const [vendor, setVendor] = useState<VendorFilter>('all');
   const [level, setLevel] = useState<LevelFilter>('all');
+  useUserSync();
+
+  // Which capstones this student has started, and how much of each they've
+  // actually verified — so the map doubles as a progress view instead of looking
+  // identical whether you've done nothing or finished three courses.
+  const enrolled = useClientStore<Record<string, number>>(() => {
+    const out: Record<string, number> = {};
+    for (const course of courseRepo.list()) {
+      const member = progressRepo.getContext(course.id);
+      if (!member) continue;
+      const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+      const taskPercent: Record<string, number> = {};
+      course.weeks.forEach((w) => {
+        getTasksByRole(course, member.role, w.number).forEach((t) => {
+          taskPercent[t.id] = progressRepo.getTaskPercent(course.id, member.memberId, t, keySet);
+        });
+      });
+      out[course.id] = courseMetrics({
+        course,
+        role: member.role,
+        taskPercent,
+        evidence: evidenceRepo.getSteps(course.id, member.memberId),
+        artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+      }).verificationRate;
+    }
+    return out;
+  }, EMPTY_OBJECT);
+
+  const memberId = useClientStore<string>(
+    () => courseRepo.list().map((c) => progressRepo.getContext(c.id)?.memberId).find(Boolean) ?? 'local',
+    'local'
+  );
+  const chosen = useClientStore<{ pathId: string; chosenAt: number } | null>(
+    () => pathRepo.get(memberId),
+    null
+  );
+  const pathEntryIds = useMemo(
+    () => new Set(chosen ? pathById(chosen.pathId)?.entryIds ?? [] : []),
+    [chosen]
+  );
 
   const groups = useMemo(
     () =>
@@ -43,8 +89,9 @@ export default function ExplorePage() {
         </p>
       </header>
 
-      {/* Filters */}
-      <div className="space-y-3 rounded-[var(--radius-card)] border border-line bg-panel p-4">
+      {/* Filters. Sticky, because the grid is long enough that re-filtering
+          otherwise means scrolling back to the top every time. */}
+      <div className="sticky top-0 z-10 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-3 backdrop-blur">
         <FilterRow
           label="Region"
           options={[{ id: 'all', name: 'All' }, ...VENDORS.map((v) => ({ id: v.id, name: v.name }))]}
@@ -87,9 +134,16 @@ export default function ExplorePage() {
                     <span className="eyebrow">{cell.level.name}</span>
                     <span className="text-xs text-muted">{cell.level.blurb}</span>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {cell.entries.map((entry, i) => (
-                      <CatalogCard key={entry.id} entry={entry} index={i} />
+                      <CatalogCard
+                        key={entry.id}
+                        entry={entry}
+                        index={i}
+                        onPath={pathEntryIds.has(entry.id)}
+                        enrolled={!!entry.courseId && enrolled[entry.courseId] !== undefined}
+                        verificationRate={entry.courseId ? enrolled[entry.courseId] : undefined}
+                      />
                     ))}
                   </div>
                 </div>
