@@ -221,6 +221,26 @@
   nav {
     display: none !important;
   }
+  /* The portfolio is meant to be saved as a PDF and handed to someone, so it
+     prints on white with black text regardless of the on-screen theme — a dark
+     page prints as a wall of ink and reads as a screenshot, not a document. */
+  :root,
+  .dark {
+    --color-surface: #ffffff;
+    --color-panel: #ffffff;
+    --color-panel-2: #f6f7f9;
+    --color-ink: #111418;
+    --color-muted: #4a5158;
+    --color-line: #c9ced4;
+  }
+  body {
+    background: #fff !important;
+  }
+  /* Keep a capstone block and the custody table from splitting mid-row. */
+  article section,
+  article tr {
+    break-inside: avoid;
+  }
 }
 
 html {

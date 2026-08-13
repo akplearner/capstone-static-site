@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, Compass, GraduationCap, LayoutDashboard, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
+import { ChevronRight, Compass, FolderGit2, GraduationCap, LayoutDashboard, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { courseRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
@@ -29,6 +29,7 @@ export function SiteNav() {
   const coursesActive = pathname === '/' || pathname.startsWith('/courses');
   const exploreActive = pathname.startsWith('/explore');
   const dashboardActive = pathname.startsWith('/dashboard');
+  const portfolioActive = pathname.startsWith('/portfolio');
   const instructorActive = pathname.startsWith('/instructor');
 
   // The Dashboard link only appears once signed in — it's a personal home with
@@ -78,6 +79,12 @@ export function SiteNav() {
               <Link href="/dashboard" className={linkClass(dashboardActive)}>
                 <LayoutDashboard className="h-4 w-4" />
                 <span>Dashboard</span>
+              </Link>
+            )}
+            {user && (
+              <Link href="/portfolio" className={linkClass(portfolioActive)}>
+                <FolderGit2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Portfolio</span>
               </Link>
             )}
             {isInstructor && (

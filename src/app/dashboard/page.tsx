@@ -2,14 +2,15 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Compass } from 'lucide-react';
+import { ArrowRight, Compass, FileCheck2, FolderGit2, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
-import { StepTally } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
 import { SignInPanel } from '@/components/auth/SignInPanel';
-import { courseRepo, progressRepo, docsRepo } from '@/lib/data';
+import { PathRail, PathPicker } from '@/components/catalog/PathRail';
+import { VerificationBar } from '@/components/catalog/VerificationBar';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole } from '@/lib/course-helpers';
@@ -17,23 +18,26 @@ import { regionFor, seamFor, phaseForWeek } from '@/lib/quarry';
 import { resolveActiveWeek } from '@/lib/resume';
 import { entryForCourse } from '@/lib/catalog';
 import { levelDef } from '@/lib/catalog/levels';
+import { pathById } from '@/lib/catalog/paths';
+import { courseMetrics, portfolioSummary, type CourseMetrics } from '@/lib/metrics';
 import { useClientStore, useHydrated, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
+import { useUserSync } from '@/lib/useUserSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type { Course, Member } from '@/lib/types';
 import type { CrewProgress } from '@/lib/game';
 
-// The signed-in home: the capstones you're enrolled in, each as a stone at its
-// real cut-stage, with where to pick back up. This round reads the same
-// device/account enrolment the course pages write (progressRepo.getContext); the
-// data source becomes cloud enrolments in round 27 with no change to this view.
+// The signed-in home: every capstone you've started, how far each stone is cut,
+// and — the number that actually matters — how much of it you proved against
+// real output rather than ticking a box.
 interface CourseCard {
   course: Course;
   member: Member;
   crew: CrewProgress;
-  /** The week the student is actively on, for the "continue" pointer. */
+  metrics: CourseMetrics;
   activeWeek: number;
   level?: string;
+  capstoneFiled: boolean;
 }
 
 function buildCard(course: Course): CourseCard | null {
@@ -59,50 +63,71 @@ function buildCard(course: Course): CourseCard | null {
     });
 
   const savedDocs = docsRepo.get(course.id, member.teamId);
-  const crew = deriveCrewProgress(
+  const capstoneFiled = isCapstoneFiled(course.id, savedDocs);
+  const crew = deriveCrewProgress(course, member.role, weekStats, taskStats, capstoneFiled);
+  const metrics = courseMetrics({
     course,
-    member.role,
-    weekStats,
-    taskStats,
-    isCapstoneFiled(course.id, savedDocs)
-  );
+    role: member.role,
+    taskPercent: taskStats,
+    evidence: evidenceRepo.getSteps(course.id, member.memberId),
+    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+  });
   const activeWeek = resolveActiveWeek(course, member.role, weekStats, null);
   const entry = entryForCourse(course.id);
-  return { course, member, crew, activeWeek, level: entry ? levelDef(entry.level).name : undefined };
+  return {
+    course,
+    member,
+    crew,
+    metrics,
+    activeWeek,
+    level: entry ? levelDef(entry.level).name : undefined,
+    capstoneFiled,
+  };
 }
 
 export default function DashboardPage() {
   const hydrated = useHydrated();
   const { user, loading } = useAuth();
+  // Cross-course hydration. Without this the cloud cache is only ever filled by
+  // a course page, so a signed-in student landing here first saw an empty
+  // dashboard — see src/lib/useUserSync.ts.
+  useUserSync();
+
   const cards = useClientStore<CourseCard[]>(
     () => courseRepo.list().map(buildCard).filter((c): c is CourseCard => c !== null),
     EMPTY_ARRAY
   );
+  const chosen = useClientStore<{ pathId: string; chosenAt: number } | null>(
+    () => pathRepo.get(cards[0]?.member.memberId ?? 'local'),
+    null
+  );
 
-  // With Supabase configured, enrolments live in the account — a signed-out
-  // visitor has nothing to read, so offer sign-in. In the local/demo build there
-  // is no account and enrolment is device-local, so we skip straight to the list.
   const needsSignIn = isSupabaseConfigured() && !loading && !user;
+  const summary = portfolioSummary(cards.map((c) => c.metrics));
+  const completedCourseIds = new Set(cards.filter((c) => c.capstoneFiled).map((c) => c.course.id));
+  const path = chosen ? pathById(chosen.pathId) : undefined;
+  const memberId = cards[0]?.member.memberId ?? 'local';
 
   return (
     <div className="space-y-8">
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-ink">Your dashboard</h1>
         <p className="max-w-2xl text-muted">
-          The capstones you’ve started, each stone cut as far as your real progress has taken it.
+          Every capstone you’ve started, how far the stone is cut, and how much of it you proved
+          against real output.
         </p>
       </header>
 
       {!hydrated ? (
         <div className="grid gap-6 md:grid-cols-2">
           {[0, 1].map((i) => (
-            <Skeleton key={i} className="h-48 w-full" />
+            <Skeleton key={i} className="h-56 w-full" />
           ))}
         </div>
       ) : needsSignIn ? (
         <SignInPanel
           title="Sign in to see your dashboard"
-          subtitle="Your enrolled capstones and progress are saved to your account."
+          subtitle="Your capstones, verification record and evidence are saved to your account."
           next="/dashboard"
         />
       ) : cards.length === 0 ? (
@@ -113,29 +138,100 @@ export default function DashboardPage() {
           cta="Explore certs"
         />
       ) : (
-        <div className="grid gap-6 md:grid-cols-2">
-          {cards.map((card, i) => (
-            <DashboardCourseCard key={card.course.id} card={card} index={i} />
-          ))}
-        </div>
-      )}
+        <>
+          {/* What you've proved overall. */}
+          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <Stat
+              icon={ShieldCheck}
+              label="Steps verified"
+              value={`${summary.verified}`}
+              sub={summary.verifiable > 0 ? `of ${summary.verifiable} checkable` : 'none checkable yet'}
+            />
+            <Stat
+              icon={FileCheck2}
+              label="Evidence hashed"
+              value={`${summary.artifacts}`}
+              sub="files in your custody log"
+            />
+            <Stat
+              icon={FolderGit2}
+              label="Capstones delivered"
+              value={`${completedCourseIds.size}`}
+              sub={`of ${cards.length} started`}
+            />
+            <Stat
+              icon={Compass}
+              label="Days worked"
+              value={`${summary.activeDays}`}
+              sub="measured, never scored"
+            />
+          </section>
 
-      {cards.length > 0 && (
-        <div className="flex items-center justify-between rounded-[var(--radius-card)] border border-line bg-panel-2 p-5">
-          <p className="text-sm text-muted">Looking for your next credential?</p>
-          <Link href="/explore">
-            <Button variant="secondary" className="flex items-center gap-2">
-              <Compass className="h-4 w-4" /> Explore certs
-            </Button>
-          </Link>
-        </div>
+          {path ? (
+            <PathRail
+              path={path}
+              completedCourseIds={completedCourseIds}
+              onChange={() => pathRepo.clear(memberId)}
+            />
+          ) : (
+            <PathPicker onPick={(id) => pathRepo.save(memberId, id)} />
+          )}
+
+          <div className="grid gap-6 md:grid-cols-2">
+            {cards.map((card, i) => (
+              <DashboardCourseCard key={card.course.id} card={card} index={i} />
+            ))}
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-panel-2 p-5">
+            <p className="text-sm text-muted">
+              Ready to show this to someone? Your portfolio collects every verified step and hashed
+              artifact into one page.
+            </p>
+            <div className="flex gap-2">
+              <Link href="/portfolio">
+                <Button className="flex items-center gap-2">
+                  <FolderGit2 className="h-4 w-4" /> View portfolio
+                </Button>
+              </Link>
+              <Link href="/explore">
+                <Button variant="secondary" className="flex items-center gap-2">
+                  <Compass className="h-4 w-4" /> Explore
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
 }
 
+function Stat({
+  icon: Icon,
+  label,
+  value,
+  sub,
+}: {
+  icon: typeof ShieldCheck;
+  label: string;
+  value: string;
+  sub: string;
+}) {
+  return (
+    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
+      <div className="flex items-center gap-2">
+        <Icon className="h-4 w-4 text-accent" />
+        <span className="eyebrow">{label}</span>
+      </div>
+      <div className="mt-1 text-2xl font-bold text-ink">{value}</div>
+      <div className="text-xs text-muted">{sub}</div>
+    </div>
+  );
+}
+
 function DashboardCourseCard({ card, index }: { card: CourseCard; index: number }) {
-  const { course, crew, activeWeek, level } = card;
+  const { course, crew, metrics, activeWeek, level } = card;
   const started = crew.stepsDone > 0;
   return (
     <motion.div
@@ -151,9 +247,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
           <h2 className="truncate text-lg font-bold text-ink">{course.title}</h2>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
             {course.vendor && <span className="font-medium text-accent">{course.vendor}</span>}
-            {level && (
-              <span className="rounded-full bg-panel-2 px-2 py-0.5 font-mono">{level}</span>
-            )}
+            {level && <span className="rounded-full bg-panel-2 px-2 py-0.5 font-mono">{level}</span>}
           </div>
         </div>
       </div>
@@ -164,9 +258,19 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
         className="mt-4"
       />
 
+      {/* The honest headline: proof, not tick-count. */}
       <div className="mt-4">
-        <StepTally done={crew.stepsDone} total={crew.stepsTotal} />
+        <VerificationBar m={metrics} />
       </div>
+
+      <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3 text-center">
+        <Mini label="Steps" value={`${metrics.stepsDone}/${metrics.stepsTotal}`} />
+        <Mini label="Evidence" value={`${metrics.artifacts}`} />
+        <Mini
+          label="Last worked"
+          value={metrics.lastActivity ? new Date(metrics.lastActivity).toLocaleDateString() : '—'}
+        />
+      </dl>
 
       <div className="mt-5">
         <Link href={`/courses/${course.id}`}>
@@ -176,5 +280,14 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
         </Link>
       </div>
     </motion.div>
+  );
+}
+
+function Mini({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="font-mono text-[10px] uppercase tracking-wider text-muted">{label}</dt>
+      <dd className="text-sm font-semibold text-ink">{value}</dd>
+    </div>
   );
 }
