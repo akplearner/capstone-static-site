@@ -47,6 +47,9 @@ Supabase dashboard → **SQL Editor** → **New query**. Paste and run each file
 
 1. `0001_init.sql` — accounts, roster, progress, team deliverables, gates.
 2. `0002_student_state.sql` — lab access, GRC registers, resume pointer.
+3. `0003_evidence_ledger.sql` — the evidence ledger: per-step verification
+   records, hashed evidence artifacts, and the chosen career path. All three are
+   owner-only and deliberately not published to realtime.
 
 Both are **idempotent**: safe to re-run, and safe to run against a project where
 an earlier version of this schema was already applied by hand.

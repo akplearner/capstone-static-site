@@ -27,8 +27,13 @@ additive, none requiring a rewrite.
 
 ### 1. Persistence / event sourcing
 - **Today:** state-based upserts. `step_completions` rows and `deliverables` jsonb are overwritten in
-  place; **no event log, no history.** Repo seam: `src/lib/data/index.ts`; impls
-  `src/lib/data/supabaseProgressRepo.ts`, `supabaseDocsRepo.ts`, `localStorage*Repo.ts`.
+  place; **still no general event log and no history of those tables.** The one exception is the
+  **evidence ledger** (`step_evidence`, `evidence_artifacts` — `supabase/migrations/0003_evidence_ledger.sql`),
+  which keeps per-step verification records with hashes, attempt counts and timestamps. That is a
+  purpose-built fact table, not the xAPI event log Phase 1 calls for — a step's history is still
+  folded into one row rather than appended. Repo seam: `src/lib/data/index.ts`; impls
+  `src/lib/data/supabaseProgressRepo.ts`, `supabaseDocsRepo.ts`, `supabaseEvidenceRepo.ts`,
+  `localStorage*Repo.ts`.
 - **Target:** append-only, immutable, signed `events`; everything else a projection.
 - **Seed to build on:** the **repo seam** is the single swap point; `step_completions` is already a fact
   table (one row per completed step) — a short step from an event.
@@ -78,7 +83,10 @@ additive, none requiring a rewrite.
 - **Today:** evidence stays **local**; the app provides a naming convention
   (`YYYYMMDD_TeamXX_Tool_Action.ext`, validated by `validateEvidenceFileName`), `sha256sum` guidance, and a
   downloadable **chain-of-custody log** (`src/lib/docs/custodyTemplate.ts`) seeded into the team ZIP
-  (`src/lib/docs/package.ts`). Nothing is content-addressed or stored server-side.
+  (`src/lib/docs/package.ts`). The **hashes are now persisted** to `evidence_artifacts`, keyed by the
+  digest itself, so re-hashing a file cannot double-count it and the custody log renders from recorded
+  data rather than retyped data. The **files themselves are still never uploaded**, which is ADR-0004's
+  intent for self-study; object storage remains unbuilt.
 - **Target:** blobs in object storage keyed by SHA-256; hash stored in Postgres; integrity/dedup/provenance
   for free.
 - **Seed:** the chain-of-custody / SHA-256 model is exactly the platform-scale pattern, one level up.
@@ -104,12 +112,13 @@ additive, none requiring a rewrite.
 | Member / Roster / Completion | `src/lib/types.ts`, repos | **Present** |
 | Framework | `Framework = string` + helpers | **Partial** (labels, not control codes) |
 | Tool | `Task.tools: string[]` (legend) | **Partial** (no version/role/env link) |
-| Validator | `DodCheck` (form-data only) | **Partial** (not state-reading) |
+| Validator | `DodCheck` (form-data only); the ledger's output-token check is the first pass/fail evidence that survives a reload | **Partial** (still not state-reading) |
 | Control / Objective | free-text in deliverable fields | **Absent** as an entity |
 | Competency / CertObjective | `Task.objective`, `Step.learn` prose | **Absent** as an entity |
 | Environment | implicit in prose + Lab Setup guide | **Absent** as an entity |
 | Scenario | implicit (week theme + gate) | **Minimal** |
 | Benchmark / SOP / Policy | exist as deliverable files | **Implicit** (not entities) |
+| Evidence ledger (step verification + artifact hashes) | `step_evidence`, `evidence_artifacts`, `src/lib/evidenceLedger.ts` | **Partial** (records proof; not an event log) |
 | Event / Attestation / Consent | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |
 
