@@ -2,8 +2,12 @@ import type { Metadata } from 'next';
 import { IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { SiteNav } from '@/components/SiteNav';
+import { SiteFooter } from '@/components/SiteFooter';
 import { MotionProvider } from '@/components/MotionProvider';
 import { ToastProvider } from '@/components/ui/Toast';
+// Applies the saved theme before first paint. Shared with next.config.ts, which
+// whitelists it in the CSP by hash — see src/lib/themeScript.ts.
+import { THEME_SCRIPT } from '@/lib/themeScript';
 
 // IBM Plex is the capstone's type system (matches the course overview design):
 // Plex Sans for prose/UI, Plex Mono for eyebrows, labels, IPs and terminals.
@@ -20,15 +24,35 @@ const plexMono = IBM_Plex_Mono({
   variable: '--font-plex-mono',
 });
 
+// The public origin. Needed for absolute OG/canonical URLs — without a
+// metadataBase Next emits relative image URLs that most social scrapers ignore.
+// Set NEXT_PUBLIC_SITE_URL in hosting; localhost is only the dev fallback.
+export const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000';
+
+// Root metadata. Pages that are `'use client'` can't export their own, so the
+// public routes get server `layout.tsx` wrappers that override the title via the
+// template below; everything else inherits this.
 export const metadata: Metadata = {
-  title: 'Capstone Lab Platform',
-  description: 'Security+ Capstone - Week-by-Week Lab Platform',
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: 'Capstone Quarry — prove your security skills by building, not cramming',
+    template: '%s · Capstone Quarry',
+  },
+  description:
+    'Hands-on cybersecurity capstones you build in your own home lab. Verify each step against real command output, hash your evidence, and export a portfolio that shows what you actually did.',
+  applicationName: 'Capstone Quarry',
+  openGraph: {
+    type: 'website',
+    siteName: 'Capstone Quarry',
+    title: 'Capstone Quarry — prove your security skills by building',
+    description:
+      'Build the lab, verify each step against real output, keep an evidence ledger you can show an employer.',
+    url: SITE_URL,
+  },
+  twitter: { card: 'summary_large_image' },
+  robots: { index: true, follow: true },
 };
 
-// Applies the saved theme (or the OS preference) before first paint to avoid a
-// flash of the wrong theme. See node_modules/next/dist/docs guide
-// "preventing-flash-before-hydration".
-const themeScript = `(function(){try{var t=localStorage.getItem('theme');var d=t?t==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('dark',d);}catch(e){}})()`;
 
 export default function RootLayout({
   children,
@@ -38,13 +62,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: THEME_SCRIPT }} />
       </head>
       <body className={`${plexSans.variable} ${plexMono.variable} bg-surface`}>
         <MotionProvider>
           <ToastProvider>
             <SiteNav />
             <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+            <SiteFooter />
           </ToastProvider>
         </MotionProvider>
       </body>

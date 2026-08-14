@@ -454,3 +454,12 @@ select {
    throughout, with `.eyebrow` (Plex Mono, uppercase, tracked) as the one
    professional kicker treatment. The only place the mining metaphor survives is
    the small QuarryMiner completion animation, which is pure SVG. */
+
+/* Legal pages: plain readable prose without pulling in a typography plugin.
+   Scoped to `.legal-body` so it can never leak into product UI. */
+.legal-body ul {
+  @apply ml-5 list-disc space-y-2;
+}
+.legal-body strong {
+  @apply font-semibold text-ink;
+}

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Circle, Server } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CheckCircle2, Circle, Server } from 'lucide-react';
 import { Collapsible } from './ui/Button';
 import { LAB_CHECKS, LAB_FIELDS, getLabAccess, saveLabAccess, useLabAccess } from '@/lib/labAccess';
 import { useRequireAuth } from '@/lib/useRequireAuth';
@@ -113,13 +113,24 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           </div>
 
           <label className="block">
-            <span className="block text-xs font-medium text-body">Notes (credentials, hostnames…)</span>
+            <span className="block text-xs font-medium text-body">Notes (lab hostnames, throwaway logins…)</span>
+            {/* This field is stored in the database — owner-only, but stored. Its
+                original placeholder invited students to paste passwords, which on
+                a public deployment is a liability we shouldn't create by
+                suggestion. The warning is inline rather than buried in the
+                privacy policy because this is the moment someone is about to
+                type. */}
+            <span className="mt-1 flex items-start gap-1.5 text-xs" style={{ color: 'var(--color-warn)' }}>
+              <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              Never put a production password, a work login, or anything you reuse elsewhere here —
+              throwaway lab credentials only.
+            </span>
             <textarea
               value={lab.notes}
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
-              placeholder="e.g. ubuntu user: student / pass: ••• ; RDP admin: ••• — visible only to you"
-              className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+              placeholder="e.g. ubuntu host is lab-01; DVWA on :8080 — throwaway lab details only"
+              className="mt-1.5 w-full rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
             />
           </label>
         </div>

@@ -1,106 +1,145 @@
-# Capstone Labs — What's needed from you to run a fully functional app
+# Capstone Quarry — going live
 
-> Everything the code can't do for itself: accounts, secrets, dashboard clicks, and content decisions.
-> Split into **(A) ship the MVP live now**, **(B) ongoing inputs**, and **(C) per future phase**.
-> I (the build side) handle all code, schema SQL, migrations, and docs; you handle the items below.
+> Everything the code can't do for itself. Work top to bottom; the order matters.
+> **Audience:** whoever owns the deployment. **Assumes:** a public launch with open signups.
+>
+> The code side is done: accounts, gating, the evidence ledger, legal pages, security headers and
+> CI all ship in the repo. What remains below is account creation, dashboard clicks and two
+> decisions only you can make.
 
 ---
 
-## A. To make today's MVP fully functional (self-study / team-practice)
+## 0. What is genuinely untested
 
-The app already runs **with zero setup** in localStorage mode (no accounts, per-device). To get the
-**cloud-backed** version (progress that survives across devices + real team visibility), you provide:
+Be aware before you launch. **No Supabase project existed while this was built**, so every cloud
+path — sign-up, sign-in, magic link, OAuth, password reset, the ledger's cloud writes, the
+delete-account function — is verified by code review and against the localStorage implementation
+**only**. The route gate *is* verified end to end (see §7). Treat §7 as a real test pass, not a
+formality.
 
-### A1. Go-ahead to merge to `main`
-The finished work sits on branches (`integration-test` / `mvp-gaps` / `supabase-auth` /
-`compact-tasks-commands`), verified conflict-free. **You:** say "merge to main." **I:** merge + push
-(triggers the Vercel deploy).
+---
 
-### A2. A Supabase project (free tier is fine)
-**You:**
-1. Create a project at <https://supabase.com>; copy the **Project URL** and **anon public** key.
-2. Run the schema SQL from `SUPABASE_SETUP.md` (tables + RLS) in the SQL editor. *(I provide/maintain it.)*
-3. Enable **Realtime** on the listed tables (one screen).
+## 1. Create the Supabase project
 
-### A3. Sign-in providers (you pick which)
-**You** enable in Supabase → Authentication → Providers:
-- **Magic-link email** — zero external setup (recommended to start).
-- **Google** — needs a Google Cloud OAuth app (client ID + secret).
-- **GitHub** — needs a GitHub OAuth app (client ID + secret).
-Set Site URL + Redirect URLs to include `http://localhost:3000/auth/callback` and your Vercel
-`/auth/callback`.
+1. Create a project at <https://supabase.com> (free tier is fine to start).
+2. Copy the **Project URL** and the **anon public** key from Project Settings → API.
+   Never copy the `service_role` key into the app or `.env.local` — it bypasses row-level security.
 
-### A4. Environment variables (local + Vercel)
-**You** set:
+## 2. Run the migrations, in order
+
+SQL Editor → paste and run each file from [`supabase/migrations/`](../supabase/migrations/):
+
+1. `0001_init.sql` — accounts, roster, progress, team deliverables, gates.
+2. `0002_student_state.sql` — lab access, GRC registers, resume pointer.
+3. `0003_evidence_ledger.sql` — step verification records, evidence hashes, chosen career path.
+
+All three are idempotent, so re-running is safe. Realtime is enabled by the migrations themselves.
+
+## 3. Enable the sign-in providers
+
+Authentication → Providers. The app offers four; enable the ones you want:
+
+| Provider | Extra setup | Notes |
+|---|---|---|
+| **Email** | none | **Turn ON "Confirm email"** — the app expects it and tells users to check their inbox. |
+| **Google** | Google Cloud OAuth client (ID + secret) | |
+| **GitHub** | GitHub OAuth app (ID + secret) | Suits this audience well. |
+| **Magic link** | none | Part of the Email provider. |
+
+If you *don't* enable Google or GitHub, hide its button with the env flags in §5 — otherwise it
+appears and fails opaquely the moment someone clicks it.
+
+Then Authentication → URL Configuration:
+- **Site URL:** your production origin (e.g. `https://your-domain.com`).
+- **Redirect URLs:** add both `https://your-domain.com/auth/callback` and
+  `http://localhost:3000/auth/callback`.
+
+## 4. Configure custom SMTP — a launch blocker
+
+Authentication → Emails → SMTP Settings. **Do not skip this.** Supabase's built-in mailer is
+rate-limited to a handful of messages an hour and is explicitly not for production. Email
+confirmation, magic link *and* password reset all depend on delivery — with the default mailer,
+signups silently stop working the moment you get traction.
+
+Use Resend, Postmark, SES or similar, and verify your sending domain (SPF/DKIM) or the mail lands
+in spam.
+
+## 5. Environment variables
+
+Set in your host (Vercel → Settings → Environment Variables, Production **and** Preview) and in
+`.env.local` for local work:
+
 ```
-NEXT_PUBLIC_SUPABASE_URL=…
-NEXT_PUBLIC_SUPABASE_ANON_KEY=…
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR-PROJECT.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=YOUR-ANON-KEY
+NEXT_PUBLIC_SITE_URL=https://your-domain.com      # canonical + OG URLs
+# Optional — set to 'false' to hide a provider you have NOT enabled in step 3:
+# NEXT_PUBLIC_ENABLE_GOOGLE_OAUTH=false
+# NEXT_PUBLIC_ENABLE_GITHUB_OAUTH=false
 ```
-in `.env.local` and in Vercel → Project → Settings → Environment Variables (Production + Preview).
-Without these the app stays in localStorage mode — so this is the switch that turns on cloud.
 
-### A5. Hosting
-You already deploy on **Vercel** (`vercel.json` present). Confirm the project is connected to the repo and
-the env vars above are set. Nothing else to host — Supabase is the backend.
+With the two Supabase values missing the app runs entirely in localStorage (demo mode) and shows a
+banner saying so. That's the fallback CI builds against — it is a supported state, not a broken one.
 
-### A6. The lab environment (out of app, per the self-study model)
-The app *guides* lab setup (the new **Lab requirements & setup** guide) but does not provision VMs.
-**You / students** provide the actual lab: Kali + Ubuntu(+DVWA) + optional Windows on one isolated
-network. (Phase 4 could add cloud labs — deferred.)
+## 6. Deploy the account-deletion function
 
-> **Minimum to be "fully functional" for students today:** A1 + A2 + A3 (magic-link alone is enough) + A4
-> + A5. Roughly 1–2 hours of dashboard work.
+Account deletion is a legal obligation under open signups, and the browser cannot do it: removing a
+row from `auth.users` needs the service-role key. The app deletes all of a user's application rows
+itself and then calls this function for the identity.
+
+```bash
+supabase functions deploy delete-account
+supabase secrets set SERVICE_ROLE_KEY=<your service_role key>
+```
+
+Source: [`supabase/functions/delete-account/index.ts`](../supabase/functions/delete-account/index.ts).
+**Until you deploy it**, the account page honestly tells the user their data was deleted but their
+login was not — so nothing lies to anyone, but the obligation isn't met.
+
+## 7. Smoke test on the real domain
+
+Do all of these against production before announcing. Each has failed silently in some deployment
+of some product; none takes more than a minute.
+
+- [ ] **Register with email + password** → confirmation email arrives → link works → you land signed in.
+- [ ] **Sign in** with that password. **Sign out.** Sign in again.
+- [ ] **Magic link** → email arrives → link signs you in.
+- [ ] **Google** and/or **GitHub** (whichever you enabled) complete and return to the app.
+- [ ] **Password reset** → email → set a new password → sign in with it.
+- [ ] **Gate:** while signed out, opening `/dashboard` redirects to `/login?next=/dashboard`, and
+      signing in returns you to the dashboard. `/` and `/explore` load without an account.
+- [ ] **Progress persists:** tick a step, reload, still ticked. Sign in on a second device and see it.
+- [ ] **Ledger:** paste matching output on a verify step; reload; it still reads verified.
+- [ ] **Guest migration:** in a private window do some work signed out, then register — the demo
+      banner's "save to an account" carries the progress *and* the evidence ledger across.
+- [ ] **Account:** export produces valid JSON; delete removes the account (needs §6).
+- [ ] **Health:** `GET /api/health` returns `{"status":"ok","mode":"cloud"}`.
+
+## 8. Point monitoring at it
+
+- Uptime check on `/api/health` — it returns **503** when Supabase is unreachable, so it will actually
+  page you instead of reporting a green light over a dead database.
+- **Error tracking is not wired.** Adding Sentry needs an account and a DSN, so it's yours to set up;
+  the natural hook is `src/app/global-error.tsx`, which already exists.
 
 ---
 
-## B. Ongoing inputs (content & policy — only you can decide)
+## Still open — decisions only you can make
 
-- **Course content** beyond Security+ (e.g. finishing the CySA+ stub): the tasks/steps/frameworks. I can
-  scaffold; you own the curriculum truth.
-- **Control-code curation** (Phase 1+): which published codes (NIST/CIS/OWASP/SY0) each task maps to — a
-  subject-matter decision.
-- **Validator definitions** (Phase 2): what "correct" looks like for each control (the pass condition).
-- **Branding / legal:** product name, logo, terms, privacy policy, and the **consent + CLA wording**
-  (Phase 1) — needs your/legal sign-off.
-- **Instructor accounts:** which accounts get `is_instructor` (one SQL update each, or give me the emails).
+1. **The `lab_access.notes` field.** It's stored (owner-only) and students may put credentials in it.
+   The app now warns against it inline and the privacy policy covers it. Consider whether to keep the
+   field at all.
+2. **Legal review.** `/legal/privacy` and `/legal/terms` are accurate about what the software does,
+   but they are drafts written by an engineer, not a lawyer. Have them reviewed before you take real
+   registrations.
+3. **A support contact.** Both legal pages tell users to contact "the address published on the site".
+   Publish one.
+4. **Instructor accounts.** Set `profiles.is_instructor = true` by SQL for whoever should reach the
+   studio.
+5. **Content roadmap.** 21 of 24 catalog entries are "coming soon". Which cert gets authored next?
 
----
+## Where the rest of the roadmap lives
 
-## C. What each future phase needs from you (preview)
-
-| Phase | I build | You provide |
-|------|---------|-------------|
-| **1 — Foundations** | events table + dual-write, `tenant_id`+RLS, control catalog, Validator interface, evidence hashing, consent fields, actor type | the **consent/CLA wording**; the initial **control catalog** decisions; approval of schema migrations |
-| **2 — Ground truth** | `Environment` definitions, state-reading validators, signed attestations | the **pass conditions** per control; a **signing key** (or approve managed signing); reference baselines |
-| **3 — Dual-use** | OSCAL/MSP posture reports, benchmark/eval packaging, read-model API | which **MSP/compliance outputs** matter; any **design-partner** client to validate against |
-| **4 — Agent/ecosystem (deferred)** | MCP thin adapter, A2A, marketplace | decision to start; marketplace **legal/payment** setup |
-
----
-
-## C2. For CertHatch (and other-platform) integration
-
-See [`INTEGRATION_CERTHATCH.md`](./INTEGRATION_CERTHATCH.md). To wire the two platforms together, **you
-decide / provide:**
-- **Competency-ontology home:** where the shared ontology package lives (a separate repo / private npm
-  registry) and **who owns its versioning** (semver, additive-only). Both platforms pin a version.
-- **Shared OIDC issuer:** one identity provider both CertHatch and capstone-labs trust, so `subjectId` is the
-  same person in both (can be the same Supabase/Auth issuer).
-- **LRS host:** who runs the shared xAPI Learning Record Store (managed LRS or a simple statement store to
-  start).
-- **Consent wording:** sign-off on the `share-cross-platform` consent text and the data-processing roles
-  between the two entities.
-- **CertHatch side:** CertHatch must emit `CompetencyWeaknessDetected` (and xAPI statements) tagged with the
-  shared competency IDs — that's work on the CertHatch repo, not this one.
-
-> None of this blocks the capstone-labs MVP; it turns on once both platforms speak the shared kernel.
-
-## D. Decisions still open (quick answers unblock me)
-
-1. **Merge to `main` now?** (A1) — yes/no.
-2. **Which sign-in methods** for launch? (A3) — magic-link only is fine to start.
-3. **Product name** for the live app — keep "Capstone Lab", use "Capstone Labs", or other.
-4. **CySA+** — leave locked, or prioritize authoring it after the MVP is live.
-5. **Start Phase 1 foundations** after the MVP is live, or hold?
-
-Once A1–A5 are done, the app is fully functional for self-study/team-practice. Everything in
-[`ROADMAP.md`](./ROADMAP.md) builds on top without a rewrite.
+[`ROADMAP.md`](./ROADMAP.md) for the staged plan, [`CURRENT_STATE.md`](./CURRENT_STATE.md) for an
+honest as-is map, [`ARCHITECTURE.md`](./ARCHITECTURE.md) for the north star, and
+[`adr/`](./adr/) for the load-bearing decisions.
