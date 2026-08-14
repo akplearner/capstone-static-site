@@ -209,14 +209,17 @@ export function QuarryScene({ className }: { className?: string }) {
                 animate={{ opacity: [0, 1, 1, 0] }}
                 transition={{ duration: CYCLE, times: [0, 0.12, 0.4, 0.55], repeat: Infinity }}
               >
+                {/* `initial={false}` is required: animating an SVG geometry
+                    attribute without it leaves x1/x2 undefined on the first
+                    frame and the browser rejects the element. Same trap as
+                    CapstoneStone's animated radius. */}
                 <motion.line
-                  x1={-150}
                   y1={-130}
-                  x2={-150}
                   y2={150}
                   stroke="var(--stone-crystal, #7aa2c8)"
                   strokeWidth={1.5}
                   strokeOpacity={0.85}
+                  initial={false}
                   animate={{ x1: [-150, 140], x2: [-150, 140] }}
                   transition={{ duration: CYCLE, times: [0, 1], repeat: Infinity, ease: 'easeInOut' }}
                 />
