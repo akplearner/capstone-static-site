@@ -15,7 +15,7 @@ import {
 import { Button } from './ui/Button';
 import { ChecklistItem, StepDetail } from './TaskComponents';
 import { GuidedStepper, StepperItem } from './GuidedStepper';
-import { QuarryMiner, MinerBeat } from './quarry/QuarryMiner';
+import { CutMark, CutBeat } from './quarry/CutBeat';
 import { Task } from '@/lib/types';
 import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
@@ -46,7 +46,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
-  // Bumped each time a step is newly ticked, to fire the one-shot miner beat.
+  // Bumped each time a step is newly ticked, to fire the one-shot cut beat.
   const [beat, setBeat] = useState(0);
   const { guard } = useRequireAuth();
   // CySA+ is the beginner course (no gatekeeping): default it to Guided so a
@@ -120,7 +120,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
       return next;
     });
     // Only a fresh tick earns a strike — re-confirming an already-done step, or
-    // un-ticking one, shouldn't set the miner going.
+    // un-ticking one, shouldn't fire the beat.
     if (done && !completed.has(stepId)) setBeat((b) => b + 1);
     onProgressChange?.();
   };
@@ -175,8 +175,8 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               <CheckCircle2 className="h-3 w-3" /> Task complete
             </span>
           )}
-          {/* The reward beat — a miner strikes the rock each time a step lands. */}
-          <MinerBeat trigger={beat} />
+          {/* The reward beat — a cut lands on the stone each time a step does. */}
+          <CutBeat trigger={beat} />
         </div>
         <div className="flex items-center gap-2">
           <div className="flex overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600">
@@ -392,7 +392,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-900/20"
         >
           <span className="flex items-center gap-2 text-sm font-medium text-green-800 dark:text-green-300">
-            <QuarryMiner size={30} className="shrink-0" /> Task complete — nice work.
+            <CutMark size={30} className="shrink-0" /> Task complete — nice work.
           </span>
           <Button size="sm" onClick={onNext} className="flex items-center gap-1">
             {nextLabel ?? 'Next'} <ArrowRight className="h-4 w-4" />
