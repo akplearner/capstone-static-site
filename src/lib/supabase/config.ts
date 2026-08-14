@@ -38,3 +38,20 @@ export function isSupabaseConfigured(): boolean {
   }
   return true;
 }
+
+/**
+ * Which OAuth providers the sign-in UI may offer.
+ *
+ * A provider button is only worth showing if the provider is actually enabled in
+ * the Supabase dashboard: offering one that isn't produces an opaque error the
+ * instant a student clicks it, which is worse than not offering it at all. These
+ * default to ON because the launch checklist enables both — set the env var to
+ * 'false' to hide a button you haven't turned on yet.
+ * See docs/OPERATIONS.md.
+ */
+function flagEnabled(value: string | undefined): boolean {
+  return value !== 'false' && value !== '0';
+}
+
+export const GOOGLE_OAUTH_ENABLED = flagEnabled(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_OAUTH);
+export const GITHUB_OAUTH_ENABLED = flagEnabled(process.env.NEXT_PUBLIC_ENABLE_GITHUB_OAUTH);
