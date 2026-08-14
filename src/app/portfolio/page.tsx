@@ -5,6 +5,7 @@ import { Download, Printer, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
+import { DemoBanner } from '@/components/auth/DemoBanner';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
@@ -131,6 +132,7 @@ export default function PortfolioPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBanner />
       {/* Controls — hidden when printing. */}
       <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
         <div>

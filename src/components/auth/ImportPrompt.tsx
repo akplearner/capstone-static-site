@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 import { Upload, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Course, Member, TaskCompletion } from '@/lib/types';
 import type { DeliverableData } from '@/lib/docs/types';
-import { progressRepo, docsRepo, grcRepo, userStateRepo, labAccessRepo } from '@/lib/data';
+import { progressRepo, docsRepo, grcRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo } from '@/lib/data';
 import type { GrcData } from '@/lib/types';
-import type { LabAccessData, UserCourseState } from '@/lib/data';
+import type { EvidenceArtifact, LabAccessData, StepEvidence, UserCourseState } from '@/lib/data';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/useAuth';
 import { useMember } from '@/lib/useMember';
@@ -123,11 +123,30 @@ export function ImportPrompt({ course }: { course: Course }) {
       });
     }
 
+    // 5. The evidence ledger — the student's proof of work. Skipping this would
+    //    silently downgrade every verified step back to an un-evidenced tick the
+    //    moment they signed in, which is the single most valuable thing they own.
+    const localEvidence = readLocal<Record<string, StepEvidence>>(
+      KEYS.stepEvidence(course.id, oldId)
+    );
+    const evidenceRows = Object.values(localEvidence ?? {});
+    evidenceRows.forEach((record) => evidenceRepo.saveStep(user.id, record));
+
+    const localArtifacts = readLocal<EvidenceArtifact[]>(
+      KEYS.evidenceArtifacts(course.id, oldId)
+    );
+    (localArtifacts ?? []).forEach((artifact) => evidenceRepo.saveArtifact(user.id, artifact));
+
+    // The chosen career path is global rather than course-scoped, so it migrates
+    // once regardless of which course triggered this prompt.
+    const localPath = readLocal<{ pathId: string; chosenAt: number }>(KEYS.path(oldId));
+    if (localPath?.pathId) pathRepo.save(user.id, localPath.pathId);
+
     // The repo writes are optimistic and fire-and-forget, so "no exception" does
     // NOT mean the server accepted them. Confirm against the database before
     // marking this course imported — otherwise a network blip would set the
     // marker, the prompt would never reappear, and the work would be gone.
-    const ok = await verifyLanded(expected);
+    const ok = await verifyLanded(expected, evidenceRows.length);
     setBusy(false);
     if (!ok) {
       setFailed(true);
@@ -138,11 +157,14 @@ export function ImportPrompt({ course }: { course: Course }) {
   };
 
   /** Read back what we just wrote. Returns false if the server is missing rows. */
-  const verifyLanded = async (expectedCompletions: number): Promise<boolean> => {
+  const verifyLanded = async (
+    expectedCompletions: number,
+    expectedEvidence: number
+  ): Promise<boolean> => {
     const supabase = getBrowserClient();
     if (!supabase) return false;
     try {
-      const [membership, completions] = await Promise.all([
+      const [membership, completions, evidence] = await Promise.all([
         supabase
           .from('memberships')
           .select('user_id')
@@ -154,10 +176,20 @@ export function ImportPrompt({ course }: { course: Course }) {
           .select('step_id', { count: 'exact', head: true })
           .eq('course_id', course.id)
           .eq('user_id', user.id),
+        // The ledger gets the same read-back as completions: it is the one store
+        // where a silent partial write would cost the student something they
+        // cannot reproduce by re-ticking a box.
+        supabase
+          .from('step_evidence')
+          .select('step_id', { count: 'exact', head: true })
+          .eq('course_id', course.id)
+          .eq('user_id', user.id),
       ]);
       if (membership.error || !membership.data) return false;
       if (completions.error) return false;
-      return (completions.count ?? 0) >= expectedCompletions;
+      if ((completions.count ?? 0) < expectedCompletions) return false;
+      if (evidence.error) return false;
+      return (evidence.count ?? 0) >= expectedEvidence;
     } catch {
       return false;
     }

@@ -8,6 +8,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
 import { SignInPanel } from '@/components/auth/SignInPanel';
+import { DemoBanner } from '@/components/auth/DemoBanner';
 import { PathRail, PathPicker } from '@/components/catalog/PathRail';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
@@ -110,6 +111,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      <DemoBanner />
       <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight text-ink">Your dashboard</h1>
         <p className="max-w-2xl text-muted">
