@@ -1,8 +1,9 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { STONE_STAGES, type StoneStage, stoneStage } from '@/lib/quarry';
+import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 import {
   BEZEL,
   CLAWS,
@@ -68,7 +69,7 @@ export function CapstoneStone({
   className?: string;
 }) {
   const def = stoneStage(stage);
-  const reduce = useReducedMotion();
+  const reduce = useReducedMotionSafe();
   const uid = useId();
 
   // Ids must be unique per instance. They used to be `rock-${stage}`, which is

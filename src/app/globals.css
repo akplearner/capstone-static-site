@@ -118,14 +118,42 @@
    src/lib/quarry.ts. ────────────────────────────────────────────────────── */
 
 /* THE FOUNDATION QUARRY — iron quartz. Charcoal and silver rock, mineral veins
-   running through it. Practical, industrial, unglamorous ground. */
+   running through it. Practical, industrial, unglamorous ground.
+
+   Each region now carries a full accent set, not only the four --stone-* tokens.
+   Until R30 a vendor themed only the stone; every accent-coloured element on
+   Explore, the landing page and the path rail (the "Start the capstone" link,
+   level eyebrows, hover borders, the "Your path" chip) fell back to the shared
+   teal, because --color-accent was declared only by the three [data-seam] blocks
+   and no seam is ever set on those surfaces. So the vendor's colour is now its
+   brand — CompTIA red, Cisco blue, AWS amber, and so on — in the UI chrome and in
+   the crystal that lights during the reveal.
+
+   Ordering is load-bearing: a region and a seam are equal specificity, so the
+   seam must stay AFTER its region for the seam to win. On a course page (region
+   AND seam both set) the seam still decides — Security+ stays iron-red, CySA+
+   stays steel — while on Explore, where only the region is set, both CompTIA
+   cards show the CompTIA brand. Vendor brand at the catalogue level, course seam
+   once you are inside a course: intended, not a bug. */
 [data-region='comptia'] {
   --stone-rock: #3f434b;
   --stone-rock-dark: #2b2e34;
   --stone-vein: #d8dce3;
-  --stone-crystal: #3f7fa8;
+  --stone-crystal: #d84450;          /* CompTIA red */
+  --color-accent: #b81f2b;
+  --color-accent-strong: #96161f;
+  --color-accent-ink: #7c1219;
+  --color-accent-soft: #fae9ea;
+  --color-accent-contrast: #ffffff;
 }
-.dark [data-region='comptia'] { --stone-crystal: #7fc3ee; }
+.dark [data-region='comptia'] {
+  --stone-crystal: #ff7c86;
+  --color-accent: #f2727a;
+  --color-accent-strong: #ff8a92;
+  --color-accent-ink: #ffdadd;
+  --color-accent-soft: #3a1216;
+  --color-accent-contrast: #2a0a0e;
+}
 [data-seam='security-plus'] {
   --color-accent: #a8202c;          /* iron-red vein */
   --color-accent-strong: #85161f;
@@ -180,9 +208,21 @@
   --stone-rock: #2a2733;
   --stone-rock-dark: #1a1822;
   --stone-vein: #cfc9de;
-  --stone-crystal: #6f62c4;
+  --stone-crystal: #7a68cf;          /* engagements violet */
+  --color-accent: #6a4fb0;
+  --color-accent-strong: #574293;
+  --color-accent-ink: #47367c;
+  --color-accent-soft: #eeeaf8;
+  --color-accent-contrast: #ffffff;
 }
-.dark [data-region='engagement'] { --stone-crystal: #a99cf5; }
+.dark [data-region='engagement'] {
+  --stone-crystal: #b3a5ff;
+  --color-accent: #b9adff;
+  --color-accent-strong: #cabfff;
+  --color-accent-ink: #e8e3ff;
+  --color-accent-soft: #221d3d;
+  --color-accent-contrast: #150f2b;
+}
 [data-seam='mssp'] {
   --color-accent: #4a3f8f;
   --color-accent-strong: #3a3173;
@@ -208,27 +248,81 @@
   --color-w4: #c98ad0;
 }
 
-/* Regions with no course yet. Declared now so adding an AWS or Cisco capstone is
-   a data change, not a CSS change.
+/* Regions whose courses are coming soon. They carry the full theme anyway, so a
+   vendor reads as its own brand on Explore and the landing page today, and adding
+   the capstone later is a data change rather than a CSS change. Each names a
+   brand hue used for BOTH the accent chrome and the crystal, so the "black stone
+   cracks open into a vivid crystal" reveal blazes in the vendor's colour.
 
-   `--stone-crystal` is the mineral at the heart of the capstone emblem, and it is
-   set per region rather than only per seam. It used to be declared *only* by the
-   three [data-seam] blocks, so on /explore, /portfolio, PathRail and the landing
-   page — every surface outside a course subtree — the stone's brightest element
-   fell back to one hardcoded steel-blue. The AWS card was amber rock with a blue
-   core and the Linux card was green rock with a blue core. Each region now names
-   its own mineral, in both themes. */
-[data-region='aws']       { --stone-rock: #4a3524; --stone-rock-dark: #2e2016; --stone-vein: #ffd9a3; --stone-crystal: #c9761d; }
-[data-region='microsoft'] { --stone-rock: #27384a; --stone-rock-dark: #172431; --stone-vein: #cfe6ff; --stone-crystal: #2f74c0; }
-[data-region='cisco']     { --stone-rock: #3a3a44; --stone-rock-dark: #24242c; --stone-vein: #e0b48a; --stone-crystal: #b06a35; }
-[data-region='isc2']      { --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee; --stone-crystal: #6d5fbf; }
-[data-region='linux']     { --stone-rock: #23342b; --stone-rock-dark: #14201a; --stone-vein: #b6e8c9; --stone-crystal: #1f8f5a; }
+   Light accents are deliberately darkened brand shades — bright orange or green
+   as body text fails contrast — while the crystal (an SVG fill on dark rock, not
+   text) keeps its full vividness. Dark accents are brightened. */
 
-.dark [data-region='aws']       { --stone-crystal: #ffb45c; }
-.dark [data-region='microsoft'] { --stone-crystal: #7ab8ff; }
-.dark [data-region='cisco']     { --stone-crystal: #f0a76e; }
-.dark [data-region='isc2']      { --stone-crystal: #b3a5ff; }
-.dark [data-region='linux']     { --stone-crystal: #5fd39b; }
+/* AWS — amber. */
+[data-region='aws'] {
+  --stone-rock: #4a3524; --stone-rock-dark: #2e2016; --stone-vein: #ffd9a3;
+  --stone-crystal: #d9821a;
+  --color-accent: #9c5a08; --color-accent-strong: #7e4906; --color-accent-ink: #6a3d05;
+  --color-accent-soft: #fdeede; --color-accent-contrast: #ffffff;
+}
+.dark [data-region='aws'] {
+  --stone-crystal: #ffb45c;
+  --color-accent: #ff9f2e; --color-accent-strong: #ffb457; --color-accent-ink: #ffe3c2;
+  --color-accent-soft: #3a2410; --color-accent-contrast: #2a1806;
+}
+
+/* Microsoft — azure. */
+[data-region='microsoft'] {
+  --stone-rock: #27384a; --stone-rock-dark: #172431; --stone-vein: #cfe6ff;
+  --stone-crystal: #2f74c0;
+  --color-accent: #0f66b0; --color-accent-strong: #0c5498; --color-accent-ink: #0a4880;
+  --color-accent-soft: #e6f1fb; --color-accent-contrast: #ffffff;
+}
+.dark [data-region='microsoft'] {
+  --stone-crystal: #7ab8ff;
+  --color-accent: #4aa5f0; --color-accent-strong: #6fbcf7; --color-accent-ink: #cfe6ff;
+  --color-accent-soft: #0d2740; --color-accent-contrast: #06192b;
+}
+
+/* Cisco — cyan-blue. Vein cooled from its old amber so it no longer fights the
+   blue brand. */
+[data-region='cisco'] {
+  --stone-rock: #33384a; --stone-rock-dark: #20242e; --stone-vein: #cfe0f0;
+  --stone-crystal: #1794cf;
+  --color-accent: #0b6591; --color-accent-strong: #0a5378; --color-accent-ink: #084865;
+  --color-accent-soft: #e4f2f9; --color-accent-contrast: #ffffff;
+}
+.dark [data-region='cisco'] {
+  --stone-crystal: #6cc8f2;
+  --color-accent: #43b6e6; --color-accent-strong: #66c6ef; --color-accent-ink: #cdeeff;
+  --color-accent-soft: #0c2c3b; --color-accent-contrast: #06202c;
+}
+
+/* ISC2 — indigo. */
+[data-region='isc2'] {
+  --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee;
+  --stone-crystal: #6d5fbf;
+  --color-accent: #5a4bd6; --color-accent-strong: #4a3cb8; --color-accent-ink: #3f33a0;
+  --color-accent-soft: #ece9fb; --color-accent-contrast: #ffffff;
+}
+.dark [data-region='isc2'] {
+  --stone-crystal: #b3a5ff;
+  --color-accent: #a99cf5; --color-accent-strong: #bcb1ff; --color-accent-ink: #e6e1ff;
+  --color-accent-soft: #201c34; --color-accent-contrast: #12102a;
+}
+
+/* Linux — emerald. */
+[data-region='linux'] {
+  --stone-rock: #23342b; --stone-rock-dark: #14201a; --stone-vein: #b6e8c9;
+  --stone-crystal: #1f9f63;
+  --color-accent: #157a48; --color-accent-strong: #11623a; --color-accent-ink: #0e5431;
+  --color-accent-soft: #e4f5eb; --color-accent-contrast: #ffffff;
+}
+.dark [data-region='linux'] {
+  --stone-crystal: #5fd39b;
+  --color-accent: #43c88a; --color-accent-strong: #66d6a1; --color-accent-ink: #c7f2da;
+  --color-accent-soft: #0c2c1e; --color-accent-contrast: #06201a;
+}
 
 * {
   @apply scroll-smooth;
