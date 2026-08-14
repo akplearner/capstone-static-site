@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } from 'framer-motion';
+import { CRYSTAL, CRYSTAL_FACE, HUB, RIM, SILHOUETTE, SPOKES, facetsFor } from './stoneGeometry';
 
 /**
  * The landing hero: rough stone resolving into a cut capstone under a measuring
@@ -25,7 +26,10 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
  */
 
 const CYCLE = 3.2; // seconds per scribe → cut → settle pass
-const FACETS = 5;
+/** One per face of the canonical stone. */
+const FACETS = 7;
+/** Canonical stone units → scene units. 120 * 2.15 ≈ 258px tall in a 640×480 box. */
+const SUBJECT_SCALE = 2.15;
 
 export function QuarryScene({ className }: { className?: string }) {
   const reduce = useReducedMotion();
@@ -80,11 +84,6 @@ export function QuarryScene({ className }: { className?: string }) {
         aria-label="Rough stone being measured and cut into a faceted capstone"
       >
         <defs>
-          <linearGradient id="qs-face" x1="0.1" y1="0" x2="0.75" y2="1">
-            <stop offset="0%" stopColor="var(--stone-vein, #d8dce3)" stopOpacity="0.42" />
-            <stop offset="42%" stopColor="var(--stone-rock, #3f434b)" stopOpacity="0.98" />
-            <stop offset="100%" stopColor="var(--stone-rock-dark, #24272c)" />
-          </linearGradient>
           <linearGradient id="qs-beam" x1="0.5" y1="0" x2="0.5" y2="1">
             <stop offset="0%" stopColor="var(--stone-crystal, #7aa2c8)" stopOpacity="0.26" />
             <stop offset="100%" stopColor="var(--stone-crystal, #7aa2c8)" stopOpacity="0" />
@@ -143,64 +142,102 @@ export function QuarryScene({ className }: { className?: string }) {
         )}
 
         {/* ── The subject ─────────────────────────────────────────────────── */}
+        {/* Drawn in the canonical 120-unit stone space and scaled into the scene,
+            so the hero, the progress emblem, the completion beat and the favicon
+            are provably the same object. This block used to carry its own
+            hand-authored 7-vertex stone at different vertex ratios — close enough
+            to look intentional, different enough that the hero and the mark never
+            quite matched. */}
         <motion.g style={{ x: foreX, y: foreY }}>
-          <g transform="translate(320 250)">
+          <g transform={`translate(320 250) scale(${SUBJECT_SCALE}) translate(-60 -59)`}>
             {/* Plinth, so the block reads as seated and worked. */}
-            <path d="M-116 132 H116 L86 172 H-86 Z" fill="var(--stone-rock-dark, #24272c)" opacity={0.85} />
+            <path d="M12 104 H108 L96 124 H24 Z" fill="var(--stone-rock, #3f434b)" opacity={0.5} />
 
             {/* The uncut mass, still visible behind the cut face — the "before"
-                stays on screen so the cut means something. */}
+                stays on screen so the cut means something. It is the same rough
+                silhouette stages 0–1 of the emblem use. */}
             <path
-              d="M-104 118 L-128 6 L-58 -104 L54 -122 L124 -34 L112 96 L18 148 Z"
+              d={SILHOUETTE.rough}
+              transform="translate(-9 -7)"
               fill="var(--stone-rock-dark, #24272c)"
-              opacity={0.55}
+              stroke="var(--stone-vein, #d8dce3)"
+              strokeOpacity={0.18}
+              strokeWidth={0.9}
+              opacity={0.85}
             />
 
-            {/* The cut face. */}
+            {/* The cut face. Flat rock, not a gradient: the facet fills below are
+                what shade the stone, and layering a vertical gradient underneath
+                them cancelled most of that contrast out. */}
             <path
-              d="M-92 108 L-112 6 L-52 -92 L48 -108 L110 -30 L100 88 L14 132 Z"
-              fill="url(#qs-face)"
+              d={SILHOUETTE.cut}
+              fill="var(--stone-rock, #3f434b)"
               stroke="var(--stone-vein, #d8dce3)"
               strokeOpacity={0.7}
-              strokeWidth={2.5}
+              strokeWidth={1.3}
               strokeLinejoin="round"
             />
 
-            {/* Rim light along the lit edge. */}
-            <path
-              d="M-52 -92 L48 -108 L110 -30"
-              stroke="var(--stone-vein, #d8dce3)"
-              strokeOpacity={0.95}
-              strokeWidth={3.5}
-              strokeLinecap="round"
-              fill="none"
-            />
+            {/* Faces, revealed one per cycle. Filling them — rather than only
+                stroking their edges — is what makes the stone read as solid. */}
+            {facetsFor('cut')
+              .slice(0, facets)
+              .map((f) => (
+                <motion.path
+                  key={f.d}
+                  d={f.d}
+                  initial={reduce ? false : { opacity: 0 }}
+                  animate={{ opacity: Math.abs(f.tone) }}
+                  transition={{ duration: 0.55, ease: 'easeOut' }}
+                  fill={
+                    f.tone >= 0 ? 'var(--stone-vein, #d8dce3)' : 'var(--stone-rock-dark, #24272c)'
+                  }
+                />
+              ))}
 
-            {/* Facets, scribed one per cycle. Each draws itself, so the eye reads
-                a line being cut rather than geometry appearing. */}
-            {FACET_PATHS.slice(0, facets).map((d) => (
+            {/* The scribed edge of each face lands with it. */}
+            {SPOKES.cut.slice(0, facets).map((d) => (
               <motion.path
                 key={d}
                 d={d}
                 initial={reduce ? false : { pathLength: 0, opacity: 0 }}
-                animate={{ pathLength: 1, opacity: 0.7 }}
+                animate={{ pathLength: 1, opacity: 0.5 }}
                 transition={{ duration: 0.55, ease: 'easeOut' }}
-                stroke="var(--stone-vein, #d8dce3)"
-                strokeWidth={1.8}
+                stroke="var(--stone-rock-dark, #24272c)"
+                strokeWidth={0.9}
                 strokeLinecap="round"
                 fill="none"
               />
             ))}
 
+            {/* Rim light along the lit edge. */}
+            <path
+              d={RIM}
+              stroke="var(--stone-vein, #d8dce3)"
+              strokeOpacity={0.95}
+              strokeWidth={1.9}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+
             {/* The core brightening as the stone takes shape. */}
             <motion.circle
-              cx={0}
-              cy={4}
+              cx={HUB.x}
+              cy={HUB.y}
               initial={false}
-              animate={{ r: 24 + facets * 7, opacity: 0.16 + facets * 0.1 }}
+              animate={{ r: 13 + facets * 3.6, opacity: 0.16 + facets * 0.1 }}
               transition={{ duration: 0.6 }}
               fill="url(#qs-core)"
             />
+            <motion.g
+              initial={false}
+              animate={{ opacity: facets >= FACETS ? 1 : 0.35 }}
+              transition={{ duration: 0.6 }}
+            >
+              <path d={CRYSTAL} fill="var(--stone-crystal, #7aa2c8)" opacity={0.95} />
+              <path d={CRYSTAL_FACE} fill="var(--stone-vein, #d8dce3)" opacity={0.5} />
+            </motion.g>
 
             {/* The scribe: a precision line that sweeps the face and leaves the
                 next facet behind it. This is the "tool" — a mark, not a mascot. */}
@@ -214,13 +251,13 @@ export function QuarryScene({ className }: { className?: string }) {
                     frame and the browser rejects the element. Same trap as
                     CapstoneStone's animated radius. */}
                 <motion.line
-                  y1={-130}
-                  y2={150}
+                  y1={-8}
+                  y2={128}
                   stroke="var(--stone-crystal, #7aa2c8)"
-                  strokeWidth={1.5}
+                  strokeWidth={0.8}
                   strokeOpacity={0.85}
                   initial={false}
-                  animate={{ x1: [-150, 140], x2: [-150, 140] }}
+                  animate={{ x1: [-14, 132], x2: [-14, 132] }}
                   transition={{ duration: CYCLE, times: [0, 1], repeat: Infinity, ease: 'easeInOut' }}
                 />
               </motion.g>
@@ -240,15 +277,6 @@ export function QuarryScene({ className }: { className?: string }) {
     </div>
   );
 }
-
-/** One facet per cut, in the order a cutter would take them. */
-const FACET_PATHS = [
-  'M-52 -92 L0 4 L110 -30',
-  'M0 4 L14 132',
-  'M0 4 L-112 6',
-  'M48 -108 L0 4',
-  'M0 4 L100 88',
-];
 
 /** Fixed values, not random: identical on server and client, so no hydration mismatch. */
 const MOTES = [

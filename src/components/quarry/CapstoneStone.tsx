@@ -1,21 +1,62 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useId, useState } from 'react';
+import { motion, useReducedMotion } from 'framer-motion';
 import { STONE_STAGES, type StoneStage, stoneStage } from '@/lib/quarry';
+import {
+  BEZEL,
+  CLAWS,
+  CRYSTAL,
+  CRYSTAL_FACE,
+  CROWN_BASE,
+  GIRDLE,
+  HUB,
+  PLINTH,
+  RIM,
+  SCRIBE,
+  SCRIBE_TICKS,
+  SILHOUETTE,
+  SPOKES,
+  SWEEP_BAND,
+  SWEEP_FROM,
+  SWEEP_TO,
+  facetsFor,
+  kindFor,
+} from './stoneGeometry';
 
 /**
- * Capstone progress emblem — one evolving abstract mark for the whole project.
+ * Capstone progress emblem — one evolving mark for the whole project.
  *
- * A quiet, professional progress indicator rather than an XP bar: it advances
- * only when a week is genuinely finished, so it can't flatter someone who hasn't
- * done the work. Drawn as inline SVG so it inherits the course's accent tokens
- * (`--stone-*` are just colour variables) and stays crisp at any size — no game
- * or pixel styling, and its labels are the professional programme phases.
+ * A quiet, professional progress indicator rather than an XP bar: it advances only
+ * when a week is genuinely finished, so it can't flatter someone who hasn't done
+ * the work.
  *
- * Each stage adds geometry rather than swapping art, so the progression reads as
- * one mark being completed, not six unrelated pictures (0 not started → 5
- * delivered).
+ * ── Why this was redrawn ─────────────────────────────────────────────────────
+ *
+ * The previous version layered eight sets of hairlines onto a flat blob and drew
+ * the identical picture at every size. It renders at 30px (`PathRail`), 44px
+ * (`CatalogCard`, landing), 48px (`/portfolio`) and 84px (`CapstoneStonePanel`) —
+ * and a `strokeWidth={1}` line in a 120-unit viewBox shown at 30px is a *quarter
+ * of a device pixel*. The facets and survey marks were, literally, invisible where
+ * most stones actually appear. Three things changed:
+ *
+ *  1. **Faces are filled, not outlined.** A cut stone reads as cut because
+ *     adjacent faces differ in value. Filled polygons survive downscaling; 1px
+ *     hairlines do not.
+ *  2. **The stage lives in the silhouette.** `rough` → `crown` → `cut` (see
+ *     stoneGeometry.ts). The old art distinguished stage 0 from stage 2 by moving
+ *     each vertex about two units, which nobody could see. Now the outline itself
+ *     goes from lumpy to half-straight to fully faceted.
+ *  3. **Optical sizing.** Small stones drop the fine detail and thicken their
+ *     strokes instead of rendering it into mud. Same silhouette and the same stage
+ *     meaning at every size — only the density changes.
+ *
+ * Colour comes entirely from the `--stone-*` / `--color-accent` cascade, so the
+ * mark takes each vendor's palette (see the `[data-region]` blocks in globals.css).
  */
+
+/** Below this, fine detail becomes noise rather than information. */
+const COMPACT_BELOW = 56;
 
 export function CapstoneStone({
   stage,
@@ -27,7 +68,45 @@ export function CapstoneStone({
   className?: string;
 }) {
   const def = stoneStage(stage);
-  const lit = stage >= 3;
+  const reduce = useReducedMotion();
+  const uid = useId();
+
+  // Ids must be unique per instance. They used to be `rock-${stage}`, which is
+  // document-global: /explore renders ~24 cards mostly at stage 3, so every
+  // `url(#rock-3)` resolved to the FIRST one in the document and every stone on
+  // the page silently took the first card's rock colour. Per-vendor theming was
+  // being computed and then thrown away.
+  const rockId = `rock-${uid}`;
+  const glowId = `glow-${uid}`;
+  const sweepId = `sweep-${uid}`;
+  const clipId = `clip-${uid}`;
+
+  // Fire the "a cut landed" beat only when the stage actually advances. Adjusting
+  // state during render (React's documented pattern for deriving from a changed
+  // prop) rather than in an effect: an effect here would either cascade a second
+  // render pass or trip the no-setState-in-effect rule.
+  const [seen, setSeen] = useState(stage);
+  const [pulse, setPulse] = useState(0);
+  if (seen !== stage) {
+    setSeen(stage);
+    if (stage > seen) setPulse((p) => p + 1);
+  }
+  // Nothing animates in on mount. Six stones used to replay their entrance springs
+  // every time /portfolio was opened, which made a static page look busy.
+  const advanced = pulse > 0;
+  const enter = (v: Record<string, number>) => (advanced ? v : false);
+
+  const kind = kindFor(stage);
+  const compact = size < COMPACT_BELOW;
+  const facets = facetsFor(kind);
+
+  // A stroke of width W renders at W * size/120 device px, so authoring in viewBox
+  // units means every stroke is four times too thin at 30px. Scale so the numbers
+  // below mean "device pixels at the rendered size".
+  const k = 120 / size;
+
+  const ambient = !compact && !reduce;
+  const sweeping = ambient || pulse > 0;
 
   return (
     <svg
@@ -39,124 +118,234 @@ export function CapstoneStone({
       aria-label={`${def.name}: ${def.means}`}
     >
       <defs>
-        <linearGradient id={`rock-${stage}`} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={rockId} x1="0.15" y1="0" x2="0.7" y2="1">
           <stop offset="0%" stopColor="var(--stone-rock, #3f434b)" />
           <stop offset="100%" stopColor="var(--stone-rock-dark, #24272c)" />
         </linearGradient>
-        <radialGradient id={`core-${stage}`}>
-          <stop offset="0%" stopColor="var(--stone-crystal, #7aa2c8)" stopOpacity={lit ? 0.95 : 0.35} />
+        <radialGradient id={glowId}>
+          <stop offset="0%" stopColor="var(--stone-crystal, #7aa2c8)" stopOpacity="0.75" />
           <stop offset="100%" stopColor="var(--stone-crystal, #7aa2c8)" stopOpacity="0" />
         </radialGradient>
+        <linearGradient id={sweepId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="var(--stone-vein, #d8dce3)" stopOpacity="0" />
+          <stop offset="50%" stopColor="var(--stone-vein, #d8dce3)" stopOpacity="0.55" />
+          <stop offset="100%" stopColor="var(--stone-vein, #d8dce3)" stopOpacity="0" />
+        </linearGradient>
+        <clipPath id={clipId}>
+          <path d={SILHOUETTE[kind]} />
+        </clipPath>
       </defs>
 
-      {/* The rock. Stage 0-1 is a rough blob; from stage 2 it gains cut facets. */}
-      <motion.path
-        initial={false}
-        animate={{
-          d:
-            stage < 2
-              ? 'M28 84 L20 52 L38 26 L74 20 L98 44 L94 82 L64 100 Z'
-              : 'M30 86 L18 54 L40 24 L74 18 L100 44 L96 84 L62 102 Z',
-        }}
-        transition={{ duration: 0.5, ease: 'easeOut' }}
-        fill={`url(#rock-${stage})`}
+      {/* Contact shadow, so the stone sits on something instead of floating. The
+          plinth takes over this job at stage 5. */}
+      {!compact && stage < 5 && (
+        <ellipse
+          cx={60}
+          cy={106}
+          rx={29}
+          ry={3.5}
+          fill="var(--stone-rock-dark, #24272c)"
+          opacity={0.5}
+        />
+      )}
+
+      {/* The body. The silhouette swaps instantly rather than tweening: the three
+          kinds have different vertex counts (12 / 8 / 7), and interpolating `d`
+          between mismatched paths produces garbage. The sweep below covers the
+          swap, which is why the cut reads as an event rather than a glitch. */}
+      <path
+        d={SILHOUETTE[kind]}
+        fill={`url(#${rockId})`}
         stroke="var(--stone-vein, #d8dce3)"
-        strokeOpacity={0.25}
-        strokeWidth={1.5}
+        strokeOpacity={0.38}
+        strokeWidth={1.1 * k}
+        strokeLinejoin="round"
       />
 
-      {/* Cut facets — the stone gains defined internal geometry once structured. */}
-      {stage >= 2 && (
-        <motion.g
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.4 }}
-          stroke="var(--stone-vein, #d8dce3)"
-          strokeOpacity={0.3}
-          strokeWidth={1}
+      {/* The faces. This is the drawing — everything else is trim. */}
+      <g clipPath={`url(#${clipId})`}>
+        {facets.map((f) => (
+          <path
+            key={f.d}
+            d={f.d}
+            fill={f.tone >= 0 ? 'var(--stone-vein, #d8dce3)' : 'var(--stone-rock-dark, #24272c)'}
+            opacity={Math.abs(f.tone)}
+          />
+        ))}
+      </g>
+
+      {/* Facet edges, only where they'll resolve. At 30px these would be noise. */}
+      {!compact && facets.length > 0 && (
+        <g
+          stroke="var(--stone-rock-dark, #24272c)"
+          strokeOpacity={0.45}
+          strokeWidth={0.7 * k}
           fill="none"
         >
-          <path d="M40 24 L58 56 L100 44" />
-          <path d="M58 56 L62 102" />
-          <path d="M58 56 L18 54" />
-        </motion.g>
+          {SPOKES[kind].map((d) => (
+            <path key={d} d={d} />
+          ))}
+        </g>
       )}
 
-      {/* The mineral core. Dim until the environment is operational, then lit. */}
-      <motion.circle
-        cx={58}
-        cy={56}
-        initial={false}
-        animate={{ r: 12 + stage * 3, opacity: lit ? 1 : 0.5 }}
-        transition={{ duration: 0.5 }}
-        fill={`url(#core-${stage})`}
-      />
+      {/* Stage 2: the unworked half washed dark, then the line the cut stopped
+          at. Without the wash the crown's three lit faces are the only shading on
+          the stone and stage 2 renders *brighter* than the fully-cut stage 3, so
+          the progression reads backwards. */}
+      {kind === 'crown' && (
+        <>
+          <path d={CROWN_BASE} fill="var(--stone-rock-dark, #24272c)" opacity={0.55} />
+          <path
+            d={GIRDLE}
+            stroke="var(--stone-vein, #d8dce3)"
+            strokeOpacity={0.8}
+            strokeWidth={1.4 * k}
+            strokeLinecap="round"
+            fill="none"
+          />
+        </>
+      )}
 
-      {/* Survey marks — chalk lines from reading the requirements. */}
-      {stage >= 1 && (
-        <motion.g
-          initial={{ opacity: 0 }}
-          animate={{ opacity: stage === 1 ? 0.9 : 0.4 }}
+      {/* Rim light along the lit edges. */}
+      {facets.length > 0 && (
+        <path
+          d={RIM}
           stroke="var(--stone-vein, #d8dce3)"
-          strokeWidth={1.5}
-          strokeDasharray="3 3"
-          fill="none"
-        >
-          <path d="M34 40 L86 34" />
-          <path d="M36 70 L88 64" />
-        </motion.g>
-      )}
-
-      {/* Live seams — services talking to each other through the stone. */}
-      {stage >= 3 && (
-        <motion.g
-          stroke="var(--stone-crystal, #7aa2c8)"
-          strokeWidth={2}
+          strokeOpacity={stage >= 5 ? 1 : 0.8}
+          strokeWidth={(stage >= 5 ? 2 : 1.6) * k}
           strokeLinecap="round"
+          strokeLinejoin="round"
           fill="none"
-          initial={{ pathLength: 0, opacity: 0 }}
-          animate={{ pathLength: 1, opacity: 0.9 }}
-          transition={{ duration: 0.8, ease: 'easeOut' }}
-        >
-          <path d="M58 56 L40 26" />
-          <path d="M58 56 L96 46" />
-          <path d="M58 56 L34 74" />
-        </motion.g>
+        />
       )}
 
-      {/* Reinforcing bands — controls applied and tested. */}
+      {/* Stage 1 — the cut planned on raw rock. Solid accent guides, not the old
+          3-3 dashes: `--color-accent` is the one token defined on every surface,
+          and a dash pattern at 30px is a smudge. */}
+      {stage === 1 && (
+        <g clipPath={`url(#${clipId})`}>
+          <motion.g
+            stroke="var(--color-accent)"
+            strokeWidth={1.6 * k}
+            strokeLinecap="round"
+            fill="none"
+            initial={enter({ pathLength: 0, opacity: 0 })}
+            animate={{ pathLength: 1, opacity: 0.95 }}
+            transition={{ duration: 0.5, ease: 'easeOut' }}
+          >
+            {SCRIBE.map((d) => (
+              <path key={d} d={d} />
+            ))}
+            {!compact && SCRIBE_TICKS.map((d) => <path key={d} d={d} strokeWidth={1.2 * k} />)}
+          </motion.g>
+        </g>
+      )}
+
+      {/* Stage 3 — the mineral core lights. A polygon rather than the old radial
+          gradient: at 30px a soft r=21 blob just fogged the middle of the stone. */}
+      {stage >= 3 && (
+        <>
+          {!compact && (
+            <motion.circle
+              cx={HUB.x}
+              cy={HUB.y}
+              r={26}
+              fill={`url(#${glowId})`}
+              initial={false}
+              animate={ambient ? { opacity: [0.55, 0.9, 0.55] } : { opacity: 0.75 }}
+              transition={ambient ? { duration: 6, repeat: Infinity, ease: 'easeInOut' } : undefined}
+            />
+          )}
+          <motion.g
+            initial={enter({ opacity: 0, scale: 0.7 })}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.45, ease: 'easeOut' }}
+            style={{ transformBox: 'view-box', transformOrigin: `${HUB.x}px ${HUB.y}px` }}
+          >
+            <path d={CRYSTAL} fill="var(--stone-crystal, #7aa2c8)" opacity={0.95} />
+            <path d={CRYSTAL_FACE} fill="var(--stone-vein, #d8dce3)" opacity={0.5} />
+            <path
+              d={CRYSTAL}
+              fill="none"
+              stroke="var(--stone-vein, #d8dce3)"
+              strokeOpacity={0.55}
+              strokeWidth={0.8 * k}
+              strokeLinejoin="round"
+            />
+          </motion.g>
+        </>
+      )}
+
+      {/* Stage 4 — set in a bezel. The old art drew two heavy bands in an X across
+          the face, which wiped out the facet read the stone had just earned. A
+          setting says "protected" without touching a single face. */}
       {stage >= 4 && (
         <motion.g
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 0.85, scale: 1 }}
-          transition={{ duration: 0.4 }}
-          stroke="var(--stone-vein, #d8dce3)"
-          strokeWidth={3}
-          strokeLinecap="round"
           fill="none"
+          strokeLinejoin="round"
+          strokeLinecap="round"
+          initial={enter({ pathLength: 0, opacity: 0 })}
+          animate={{ pathLength: 1, opacity: 1 }}
+          transition={{ duration: 0.6, ease: 'easeOut' }}
         >
-          <path d="M24 62 L98 54" />
-          <path d="M44 22 L52 100" />
+          {/* Keylined: a dark stroke under a light one. `--stone-vein` is a pale
+              colour tuned for dark rock, so a single-stroke bezel vanished into a
+              light page background and read as a blur rather than a setting. */}
+          <path d={BEZEL} stroke="var(--stone-rock-dark, #24272c)" strokeOpacity={0.6} strokeWidth={4 * k} />
+          <path d={BEZEL} stroke="var(--stone-vein, #d8dce3)" strokeOpacity={0.95} strokeWidth={2.2 * k} />
+          {!compact &&
+            CLAWS.map((d) => (
+              <path
+                key={d}
+                d={d}
+                stroke="var(--stone-vein, #d8dce3)"
+                strokeOpacity={0.9}
+                strokeWidth={2 * k}
+              />
+            ))}
         </motion.g>
       )}
 
-      {/* Mount — the finished artefact, seated in the team's portfolio. */}
+      {/* Stage 5 — handed over and seated. */}
       {stage >= 5 && (
         <motion.g
-          initial={{ opacity: 0, y: 4 }}
+          initial={enter({ opacity: 0, y: 5 })}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
+          transition={{ duration: 0.4, ease: 'easeOut' }}
         >
+          <rect {...PLINTH} fill="var(--color-accent)" opacity={0.92} />
           <rect
-            x={34}
-            y={102}
-            width={56}
-            height={8}
+            x={PLINTH.x}
+            y={PLINTH.y}
+            width={PLINTH.width}
+            height={2}
             rx={1}
-            fill="var(--color-accent)"
-            opacity={0.9}
+            fill="var(--stone-vein, #d8dce3)"
+            opacity={0.45}
           />
         </motion.g>
+      )}
+
+      {/* The specular sweep: the "cut lands" beat, and the slow ambient shimmer at
+          large sizes. Keyed on `pulse` so a stage advance restarts it. Compact
+          stones never run it — 24 twinkling 30px marks on /explore is a migraine,
+          and `useReducedMotion` is checked explicitly because MotionConfig stills
+          transforms but not loops. */}
+      {sweeping && (
+        <g clipPath={`url(#${clipId})`}>
+          <motion.path
+            key={pulse}
+            d={SWEEP_BAND}
+            fill={`url(#${sweepId})`}
+            initial={{ x: SWEEP_FROM, opacity: 0 }}
+            animate={{ x: SWEEP_TO, opacity: [0, 1, 1, 0] }}
+            transition={{
+              duration: 0.85,
+              ease: 'easeInOut',
+              ...(ambient ? { repeat: Infinity, repeatDelay: 10 } : {}),
+            }}
+          />
+        </g>
       )}
     </svg>
   );

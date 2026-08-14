@@ -1,8 +1,21 @@
 import { ImageResponse } from 'next/og';
+import {
+  CRYSTAL,
+  CRYSTAL_FACE,
+  RIM,
+  SILHOUETTE,
+  STATIC_PALETTE,
+  facetHex,
+  facetsFor,
+} from '@/components/quarry/stoneGeometry';
 
 // The social preview card. Also generated rather than shipped: the copy has
 // changed twice this month, and a drawn card updates with the product instead of
 // going stale in /public.
+//
+// The stone's geometry is imported from the same module the app draws from (see
+// the note in icon.tsx); only the colours are hardcoded, because Satori resolves
+// no CSS custom properties.
 
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -47,19 +60,22 @@ export default function OpengraphImage() {
 
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <svg width="330" height="330" viewBox="0 0 120 120">
-            <defs>
-              <linearGradient id="og" x1="0" y1="0" x2="0.7" y2="1">
-                <stop offset="0%" stopColor="#d8dce3" />
-                <stop offset="55%" stopColor="#5b6572" />
-                <stop offset="100%" stopColor="#24272c" />
-              </linearGradient>
-            </defs>
-            <path d="M30 86 L18 54 L40 24 L74 18 L100 44 L96 84 L62 102 Z" fill="url(#og)" />
-            <g stroke="#0d0f12" strokeOpacity="0.5" strokeWidth="2.5" fill="none">
-              <path d="M40 24 L58 56 L100 44" />
-              <path d="M58 56 L62 102" />
-              <path d="M58 56 L18 54" />
-            </g>
+            <path d={SILHOUETTE.cut} fill={STATIC_PALETTE.rock} />
+            {facetsFor('cut').map((f) => {
+              const { fill, opacity } = facetHex(f.tone);
+              return <path key={f.d} d={f.d} fill={fill} fillOpacity={opacity} />;
+            })}
+            <path d={CRYSTAL} fill={STATIC_PALETTE.crystal} fillOpacity="0.95" />
+            <path d={CRYSTAL_FACE} fill={STATIC_PALETTE.vein} fillOpacity="0.5" />
+            <path
+              d={RIM}
+              fill="none"
+              stroke={STATIC_PALETTE.vein}
+              strokeOpacity="0.9"
+              strokeWidth="2.2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </div>
       </div>

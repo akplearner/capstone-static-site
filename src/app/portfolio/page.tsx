@@ -12,7 +12,7 @@ import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/li
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole } from '@/lib/course-helpers';
-import { stoneStage } from '@/lib/quarry';
+import { regionFor, seamFor, stoneStage } from '@/lib/quarry';
 import { pathById } from '@/lib/catalog/paths';
 import { courseMetrics, portfolioSummary, type CourseMetrics } from '@/lib/metrics';
 import { getFrameworkLabel } from '@/lib/utils';
@@ -42,6 +42,12 @@ interface Row {
   metrics: CourseMetrics;
   artifacts: EvidenceArtifact[];
   capstoneFiled: boolean;
+  /** Palette keys for the row's capstone stone. This page draws the only
+   *  genuinely derived stages 0–5 in the product, and until now it set neither
+   *  attribute — so every stone here rendered in the fallback greys regardless of
+   *  which vendor the capstone belonged to. */
+  region: string;
+  seam: string;
 }
 
 function buildRow(courseId: string): Row | null {
@@ -71,6 +77,8 @@ function buildRow(courseId: string): Row | null {
     role: roleName,
     stage: crew.stage,
     capstoneFiled,
+    region: regionFor(course).key,
+    seam: seamFor(course),
     metrics: courseMetrics({
       course,
       role: member.role,
@@ -195,7 +203,12 @@ export default function PortfolioPage() {
         <section className="space-y-4">
           <h3 className="text-lg font-bold text-ink">Capstones</h3>
           {rows.map((r) => (
-            <div key={r.courseId} className="rounded-lg border border-line p-4">
+            <div
+              key={r.courseId}
+              data-region={r.region}
+              data-seam={r.seam}
+              className="rounded-lg border border-line p-4"
+            >
               <div className="flex items-start gap-3">
                 <CapstoneStone stage={r.stage} size={48} className="shrink-0" />
                 <div className="min-w-0 flex-1">

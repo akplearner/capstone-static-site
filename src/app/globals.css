@@ -57,6 +57,15 @@
   --color-term-dim: #6b7a8d;
   --color-term-ip: #f0b866;
 
+  /* Stone — the capstone emblem's palette (src/components/quarry/*).
+     These are defaults, not decoration: without them a stone rendered outside a
+     course subtree (the dashboard, /explore, /portfolio, the landing page) had
+     no --stone-* at all and fell back to the hex literals baked into the SVG. */
+  --stone-rock: #4c525c;
+  --stone-rock-dark: #2f333a;
+  --stone-vein: #e2e6ec;
+  --stone-crystal: #3f7fa8;
+
   --shadow-card: 0 1px 2px rgba(16, 24, 38, 0.06), 0 8px 24px rgba(16, 24, 38, 0.06);
   --radius-card: 12px;
 }
@@ -87,6 +96,11 @@
   --color-warn: #fbbf24;
   --color-danger: #ef6b6b;
 
+  --stone-rock: #444a54;
+  --stone-rock-dark: #262a30;
+  --stone-vein: #d8dce3;
+  --stone-crystal: #7fc3ee;
+
   --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.35);
 }
 
@@ -109,7 +123,9 @@
   --stone-rock: #3f434b;
   --stone-rock-dark: #2b2e34;
   --stone-vein: #d8dce3;
+  --stone-crystal: #3f7fa8;
 }
+.dark [data-region='comptia'] { --stone-crystal: #7fc3ee; }
 [data-seam='security-plus'] {
   --color-accent: #a8202c;          /* iron-red vein */
   --color-accent-strong: #85161f;
@@ -164,7 +180,9 @@
   --stone-rock: #2a2733;
   --stone-rock-dark: #1a1822;
   --stone-vein: #cfc9de;
+  --stone-crystal: #6f62c4;
 }
+.dark [data-region='engagement'] { --stone-crystal: #a99cf5; }
 [data-seam='mssp'] {
   --color-accent: #4a3f8f;
   --color-accent-strong: #3a3173;
@@ -191,12 +209,26 @@
 }
 
 /* Regions with no course yet. Declared now so adding an AWS or Cisco capstone is
-   a data change, not a CSS change. */
-[data-region='aws']       { --stone-rock: #4a3524; --stone-rock-dark: #2e2016; --stone-vein: #ffd9a3; }
-[data-region='microsoft'] { --stone-rock: #27384a; --stone-rock-dark: #172431; --stone-vein: #cfe6ff; }
-[data-region='cisco']     { --stone-rock: #3a3a44; --stone-rock-dark: #24242c; --stone-vein: #e0b48a; }
-[data-region='isc2']      { --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee; }
-[data-region='linux']     { --stone-rock: #23342b; --stone-rock-dark: #14201a; --stone-vein: #b6e8c9; }
+   a data change, not a CSS change.
+
+   `--stone-crystal` is the mineral at the heart of the capstone emblem, and it is
+   set per region rather than only per seam. It used to be declared *only* by the
+   three [data-seam] blocks, so on /explore, /portfolio, PathRail and the landing
+   page — every surface outside a course subtree — the stone's brightest element
+   fell back to one hardcoded steel-blue. The AWS card was amber rock with a blue
+   core and the Linux card was green rock with a blue core. Each region now names
+   its own mineral, in both themes. */
+[data-region='aws']       { --stone-rock: #4a3524; --stone-rock-dark: #2e2016; --stone-vein: #ffd9a3; --stone-crystal: #c9761d; }
+[data-region='microsoft'] { --stone-rock: #27384a; --stone-rock-dark: #172431; --stone-vein: #cfe6ff; --stone-crystal: #2f74c0; }
+[data-region='cisco']     { --stone-rock: #3a3a44; --stone-rock-dark: #24242c; --stone-vein: #e0b48a; --stone-crystal: #b06a35; }
+[data-region='isc2']      { --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee; --stone-crystal: #6d5fbf; }
+[data-region='linux']     { --stone-rock: #23342b; --stone-rock-dark: #14201a; --stone-vein: #b6e8c9; --stone-crystal: #1f8f5a; }
+
+.dark [data-region='aws']       { --stone-crystal: #ffb45c; }
+.dark [data-region='microsoft'] { --stone-crystal: #7ab8ff; }
+.dark [data-region='cisco']     { --stone-crystal: #f0a76e; }
+.dark [data-region='isc2']      { --stone-crystal: #b3a5ff; }
+.dark [data-region='linux']     { --stone-crystal: #5fd39b; }
 
 * {
   @apply scroll-smooth;
@@ -452,8 +484,10 @@ select {
 /* The retro "game layer" (Press Start 2P bitmap face, chunky panels, stepped
    meters and scanlines) has been retired: the content type system is IBM Plex
    throughout, with `.eyebrow` (Plex Mono, uppercase, tracked) as the one
-   professional kicker treatment. The only place the mining metaphor survives is
-   the small QuarryMiner completion animation, which is pure SVG. */
+   professional kicker treatment. The quarry metaphor survives only as abstract
+   vector work — the capstone emblem, the landing hero and the step-completion cut
+   (src/components/quarry/*), all built from the --stone-* tokens above. There is
+   no figure and no raster asset. */
 
 /* Legal pages: plain readable prose without pulling in a typography plugin.
    Scoped to `.legal-body` so it can never leak into product UI. */

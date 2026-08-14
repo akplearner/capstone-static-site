@@ -1,9 +1,23 @@
 import { ImageResponse } from 'next/og';
+import {
+  CRYSTAL,
+  CRYSTAL_FACE,
+  RIM,
+  SILHOUETTE,
+  STATIC_PALETTE,
+  facetHex,
+  facetsFor,
+} from '@/components/quarry/stoneGeometry';
 
-// The favicon, drawn rather than shipped as a file: a cut facet on dark stone,
-// the same mark the product uses everywhere else. Generated with Next's built-in
-// ImageResponse so there is no binary asset to maintain and no new dependency —
-// consistent with the app's zero-external-asset rule.
+// The favicon, drawn rather than shipped as a file: the same faceted capstone the
+// product uses everywhere else. Generated with Next's built-in ImageResponse so
+// there is no binary asset to maintain and no new dependency — consistent with the
+// app's zero-external-asset rule.
+//
+// Geometry is imported, not retyped. This file and opengraph-image.tsx each used to
+// carry their own copy of the path data, so changing the stone silently desynced
+// the favicon from the app. Colours ARE hardcoded here, because Satori is not a
+// browser and resolves no CSS custom properties — hence STATIC_PALETTE.
 
 export const size = { width: 512, height: 512 };
 export const contentType = 'image/png';
@@ -18,24 +32,29 @@ export default function Icon() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#14171c',
+          background: STATIC_PALETTE.ground,
         }}
       >
         <svg width="512" height="512" viewBox="0 0 120 120">
-          <defs>
-            <linearGradient id="f" x1="0" y1="0" x2="0.7" y2="1">
-              <stop offset="0%" stopColor="#d8dce3" />
-              <stop offset="60%" stopColor="#5b6572" />
-              <stop offset="100%" stopColor="#2b2f36" />
-            </linearGradient>
-          </defs>
-          {/* The faceted capstone. */}
-          <path d="M30 86 L18 54 L40 24 L74 18 L100 44 L96 84 L62 102 Z" fill="url(#f)" />
-          <g stroke="#0d0f12" strokeOpacity="0.55" strokeWidth="3" fill="none">
-            <path d="M40 24 L58 56 L100 44" />
-            <path d="M58 56 L62 102" />
-            <path d="M58 56 L18 54" />
-          </g>
+          <path d={SILHOUETTE.cut} fill={STATIC_PALETTE.rock} />
+          {facetsFor('cut').map((f) => {
+            const { fill, opacity } = facetHex(f.tone);
+            return <path key={f.d} d={f.d} fill={fill} fillOpacity={opacity} />;
+          })}
+          {/* The crystal earns its place at favicon scale: without it the mark is
+              a dark polygon with a light rim, which at 16px in a browser tab is
+              just a grey smudge. The coloured core is what makes the tab findable. */}
+          <path d={CRYSTAL} fill={STATIC_PALETTE.crystal} />
+          <path d={CRYSTAL_FACE} fill={STATIC_PALETTE.vein} fillOpacity="0.5" />
+          <path
+            d={RIM}
+            fill="none"
+            stroke={STATIC_PALETTE.vein}
+            strokeOpacity="0.9"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </div>
     ),
