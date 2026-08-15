@@ -74,7 +74,7 @@ additive, none requiring a rewrite.
 ### 6. Identity / tenancy
 - **Today:** optional Supabase **OIDC** (Google/GitHub/magic-link), **humans only**, `profiles.is_instructor`
   flag. Multi-tenancy is **soft**: scoped by `course_id` + `team_id` (no `tenant_id`); RLS uses
-  `(course_id, team_id)` JOINs (`SUPABASE_SETUP.md`).
+  `(course_id, team_id)` JOINs (`supabase/migrations/`).
 - **Target:** `tenant_id` on every row + RLS; `actor.type: human|agent`.
 - **Seed:** RLS is already in place and the auth layer is OIDC — adding `tenant_id` and an actor type is
   additive.
@@ -131,6 +131,6 @@ additive, none requiring a rewrite.
   projection functions to keep as read models.
 - **Validators:** `DodCheck` in `src/lib/docs/types.ts`; checks in `src/lib/docs/definitions.ts`.
 - **Frameworks:** `src/lib/utils.ts` (helpers); `frameworks: [...]` on tasks/steps/deliverables.
-- **Schema:** `SUPABASE_SETUP.md` (tables + RLS to extend with `events`, `tenant_id`, consent).
+- **Schema:** `supabase/migrations/` (tables + RLS to extend with `events`, `tenant_id`, consent).
 - **Evidence:** `src/lib/docs/custodyTemplate.ts`, `package.ts`, `validateEvidenceFileName` in `utils.ts`.
 - **Identity:** `src/lib/useAuth.ts`, `src/lib/supabase/*`, `profiles.is_instructor`.

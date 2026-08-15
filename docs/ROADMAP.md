@@ -42,7 +42,7 @@ data asset. Each item maps to a real seam.
    Keep current state tables as the first **projection** (rebuildable from events). *Seam:*
    `src/lib/data/index.ts` + the supabase repos. *ADR:* [0001](./adr/0001-event-sourcing-cqrs.md).
 2. **`tenant_id` everywhere + RLS.** Add `tenant_id` to every user-data row; backfill the current
-   single-tenant value; extend RLS in `SUPABASE_SETUP.md` to gate on it. *ADR:*
+   single-tenant value; extend RLS in `supabase/migrations/` to gate on it. *ADR:*
    [0002](./adr/0002-tenant-id-rls.md).
 3. **Control/objective anchoring.** Introduce a `controls` catalog (published codes) + a `frameworks→controls`
    map, and add `controlIds` (and `competencyIds`) to tasks/steps/deliverables — start by enriching the
