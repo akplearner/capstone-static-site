@@ -52,7 +52,8 @@ import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
-import { phaseForWeek } from '@/lib/quarry';
+import { phaseForWeek, stageForWeek } from '@/lib/quarry';
+import { WeekVerbIcon, verbForStage } from '@/components/quarry/items';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
@@ -1302,9 +1303,16 @@ export default function CoursePage() {
                       each stage of the lifecycle has its own colour. */}
                   {phaseForWeek(course, w.number) && (
                     <div
-                      className="mb-1 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
+                      className="mb-1 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
                       style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
                     >
+                      {/* The week's job as a literal object — rocket, monitor,
+                          shield — from the stage this week cuts. Planning weeks
+                          (stage 1) carry no icon. */}
+                      {(() => {
+                        const verb = verbForStage(stageForWeek(course, w.number));
+                        return verb ? <WeekVerbIcon verb={verb} size={20} className="shrink-0" /> : null;
+                      })()}
                       {phaseForWeek(course, w.number)}
                     </div>
                   )}

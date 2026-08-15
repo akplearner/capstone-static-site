@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Compass } from 'lucide-react';
 import { CatalogCard } from '@/components/catalog/CatalogCard';
+import { ToolTierIcon } from '@/components/quarry/items';
 import { VENDORS, LEVELS, catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
 import { pathById } from '@/lib/catalog/paths';
 import { courseRepo, progressRepo, evidenceRepo, pathRepo } from '@/lib/data';
@@ -130,7 +131,10 @@ export default function ExplorePage() {
 
               {group.cells.map((cell) => (
                 <div key={cell.level.id} className="space-y-2">
-                  <div className="flex items-baseline gap-2">
+                  <div className="flex items-center gap-2">
+                    {/* The level's mining tool: hand pick → steel pick → drill →
+                        core rig. Depth of tooling = depth of the work. */}
+                    <ToolTierIcon level={cell.level.id} size={26} className="shrink-0" />
                     <span className="eyebrow">{cell.level.name}</span>
                     <span className="text-xs text-muted">{cell.level.blurb}</span>
                   </div>

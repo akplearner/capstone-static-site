@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
+import { SealLedger } from '@/components/quarry/items';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { DemoBanner } from '@/components/auth/DemoBanner';
 import { PathRail, PathPicker } from '@/components/catalog/PathRail';
@@ -254,11 +255,24 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
         </div>
       </div>
 
-      <CapstoneStonePanel
-        stage={crew.stage}
-        nextPhase={phaseForWeek(course, activeWeek)}
-        className="mt-4"
-      />
+      <div className="mt-4 flex items-start justify-between gap-3">
+        <CapstoneStonePanel
+          stage={crew.stage}
+          nextPhase={phaseForWeek(course, activeWeek)}
+          className="min-w-0 flex-1"
+        />
+        {/* The seal ledger: one gem socket per graded week, filled when the week
+            is cleared — an empty socket shows the week number, so what's LEFT is
+            as visible as what's done. */}
+        {crew.weeksTotal > 0 && (
+          <div className="flex shrink-0 flex-col items-center gap-1">
+            <SealLedger sealed={crew.weeksCleared} total={crew.weeksTotal} size={64} />
+            <span className="font-mono text-[10px] text-muted">
+              {crew.weeksCleared}/{crew.weeksTotal} sealed
+            </span>
+          </div>
+        )}
+      </div>
 
       {/* The honest headline: proof, not tick-count. */}
       <div className="mt-4">

@@ -328,6 +328,27 @@
   @apply scroll-smooth;
 }
 
+/* ── Quarry item icon animations (src/components/quarry/items.tsx) ─────────
+   Ported from the owner's quarryitemsv2 prototype, `qi-` prefixed so nothing
+   collides. The reduced-motion block below stills all of these. */
+@keyframes qi-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+@keyframes qi-pulse { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@keyframes qi-core { 0%, 100% { opacity: 0.5; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.08); } }
+@keyframes qi-spark { 0%, 100% { opacity: 0; transform: scale(0.4); } 40% { opacity: 1; transform: scale(1); } }
+@keyframes qi-glow { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.65; } }
+@keyframes qi-drill { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.6px); } }
+@keyframes qi-ring { 0% { transform: scale(0.75); opacity: 0.9; } 100% { transform: scale(1.45); opacity: 0; } }
+
+.qi-float { animation: qi-float 3.4s ease-in-out infinite; }
+.qi-pulse { animation: qi-pulse 2.2s ease-in-out infinite; }
+.qi-core { animation: qi-core 2.4s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.qi-sparkA { animation: qi-spark 2.6s ease-in-out infinite; }
+.qi-sparkB { animation: qi-spark 2.6s ease-in-out 0.9s infinite; }
+.qi-sparkC { animation: qi-spark 2.6s ease-in-out 1.7s infinite; }
+.qi-glow { animation: qi-glow 2.8s ease-in-out infinite; }
+.qi-drill { animation: qi-drill 0.12s linear infinite; }
+.qi-ring { animation: qi-ring 2.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+
 /* Respect the OS "reduce motion" setting for CSS transitions/animations.
    framer-motion is handled separately via <MotionConfig reducedMotion="user">. */
 @media (prefers-reduced-motion: reduce) {

@@ -64,7 +64,9 @@ export default function HomePage() {
           </p>
         </div>
 
-        <QuarryScene className="aspect-[4/3] w-full shadow-[var(--shadow-card)]" />
+        {/* aspect-video, not 4/3: the pixel scene's logical grid is 256×144 and
+            any other ratio stretches the pixels. */}
+        <QuarryScene className="aspect-video w-full shadow-[var(--shadow-card)]" />
       </section>
 
       {/* How it works */}

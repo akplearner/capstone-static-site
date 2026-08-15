@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
 import { DemoBanner } from '@/components/auth/DemoBanner';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
+import { RelicTrophy, SealLedger } from '@/components/quarry/items';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
 import { deriveCrewProgress } from '@/lib/game';
@@ -48,6 +49,10 @@ interface Row {
    *  which vendor the capstone belonged to. */
   region: string;
   seam: string;
+  /** Cleared vs total graded weeks — `buildRow` already derives the full crew
+   *  progress for the stage; these two were being computed and thrown away. */
+  weeksCleared: number;
+  weeksTotal: number;
 }
 
 function buildRow(courseId: string): Row | null {
@@ -79,6 +84,8 @@ function buildRow(courseId: string): Row | null {
     capstoneFiled,
     region: regionFor(course).key,
     seam: seamFor(course),
+    weeksCleared: crew.weeksCleared,
+    weeksTotal: crew.weeksTotal,
     metrics: courseMetrics({
       course,
       role: member.role,
@@ -210,11 +217,22 @@ export default function PortfolioPage() {
               className="rounded-lg border border-line p-4"
             >
               <div className="flex items-start gap-3">
-                <CapstoneStone stage={r.stage} size={48} className="shrink-0" />
+                <div className="flex shrink-0 flex-col items-center gap-2">
+                  <CapstoneStone stage={r.stage} size={48} />
+                  {/* One socket per graded week, sealed as each week clears. */}
+                  {r.weeksTotal > 0 && (
+                    <SealLedger sealed={r.weeksCleared} total={r.weeksTotal} size={44} />
+                  )}
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
                     <h4 className="font-semibold text-ink">{r.courseTitle}</h4>
-                    <span className="font-mono text-xs text-muted">{stoneStage(r.stage).name}</span>
+                    <span className="inline-flex items-center gap-1.5 font-mono text-xs text-muted">
+                      {/* The trophy only exists once the capstone is actually
+                          filed — delivered, not merely finished. */}
+                      {r.capstoneFiled && <RelicTrophy size={22} className="shrink-0" />}
+                      {stoneStage(r.stage).name}
+                    </span>
                   </div>
                   <p className="text-sm text-muted">Role: {r.role}</p>
                   <div className="mt-3">
