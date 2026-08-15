@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle2, Loader2, Lock, Mail } from 'lucide-react';
 import { getBrowserClient } from '@/lib/supabase/client';
-import { GITHUB_OAUTH_ENABLED, GOOGLE_OAUTH_ENABLED } from '@/lib/supabase/config';
+import { isMethodEnabled, needsEmailField } from '@/lib/supabase/config';
 
 /**
  * The one sign-in/registration surface.
@@ -13,9 +13,21 @@ import { GITHUB_OAUTH_ENABLED, GOOGLE_OAUTH_ENABLED } from '@/lib/supabase/confi
  * render this, so the two can never drift into offering different providers or
  * disagreeing about what a password needs to be.
  *
- * Four ways in, deliberately: email + password is what people expect when told to
- * "register"; Google and GitHub are one click and suit a technical audience;
- * magic link is the fallback for anyone who has neither and won't make a password.
+ * Four ways in are implemented — Google, GitHub, magic link, email + password —
+ * but which ones appear is `NEXT_PUBLIC_AUTH_METHODS` (see supabase/config.ts).
+ * The default is **Google only**, because it is the one method needing no email
+ * delivery, so a deployment can exist with no SMTP at all. Nothing here is
+ * deleted when a method is off; it is just not rendered, so widening the list is
+ * an env change rather than a code change.
+ *
+ * Two layout rules that are easy to get wrong when methods are toggled:
+ *   1. The email input is shared by the password form AND the magic-link button,
+ *      so it lives OUTSIDE the <form> and renders when either is enabled. It used
+ *      to sit inside the form, which meant hiding the password form silently took
+ *      the field away from magic link.
+ *   2. The "or with email" divider needs something on BOTH sides. It used to be
+ *      gated only on OAuth existing, so a Google-only screen promised an email
+ *      form that wasn't there.
  *
  * Styling uses the design tokens (`--color-accent`, `--color-line`, …) rather than
  * hardcoded Tailwind palette classes, so this surface re-themes with the rest of
@@ -139,14 +151,25 @@ export function AuthForm({
     else setMagicSent(true);
   };
 
-  const anyOauth = GOOGLE_OAUTH_ENABLED || GITHUB_OAUTH_ENABLED;
+  const google = isMethodEnabled('google');
+  const github = isMethodEnabled('github');
+  const magic = isMethodEnabled('magic');
+  const passwordAuth = isMethodEnabled('password');
+  const anyOauth = google || github;
+  const emailField = needsEmailField();
+  // The divider only earns its place when there is something above AND below it.
+  const showDivider = anyOauth && emailField;
+  // With no email-based method there is no separate "register" action — the first
+  // Google sign-in creates the account — so the switcher and the password-recovery
+  // link have nothing to point at.
+  const showSwitcher = emailField;
 
   return (
     <div className="space-y-4">
       {anyOauth && (
         <>
-          <div className="grid gap-2 sm:grid-cols-2">
-            {GOOGLE_OAUTH_ENABLED && (
+          <div className={`grid gap-2 ${google && github ? 'sm:grid-cols-2' : ''}`}>
+            {google && (
               <button
                 type="button"
                 onClick={() => oauth('google')}
@@ -157,7 +180,7 @@ export function AuthForm({
                 Google
               </button>
             )}
-            {GITHUB_OAUTH_ENABLED && (
+            {github && (
               <button
                 type="button"
                 onClick={() => oauth('github')}
@@ -170,13 +193,18 @@ export function AuthForm({
             )}
           </div>
 
-          <div className="flex items-center gap-3 text-xs text-muted">
-            <span className="h-px flex-1 bg-line" /> or with email <span className="h-px flex-1 bg-line" />
-          </div>
+          {showDivider && (
+            <div className="flex items-center gap-3 text-xs text-muted">
+              <span className="h-px flex-1 bg-line" /> or with email <span className="h-px flex-1 bg-line" />
+            </div>
+          )}
         </>
       )}
 
-      <form onSubmit={withPassword} className="space-y-3">
+      {/* Shared by the password form and the magic-link button, so it lives here
+          rather than inside the <form> — otherwise turning password off would take
+          the field away from magic link too. */}
+      {emailField && (
         <label className="block">
           <span className="eyebrow-muted">Email</span>
           <input
@@ -186,76 +214,91 @@ export function AuthForm({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
+            form={passwordAuth ? 'auth-password-form' : undefined}
             className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
           />
         </label>
-
-        <label className="block">
-          <span className="eyebrow-muted">Password</span>
-          <input
-            type="password"
-            required
-            minLength={8}
-            autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder={mode === 'register' ? 'At least 8 characters' : '••••••••'}
-            className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
-          />
-        </label>
-
-        <button
-          type="submit"
-          disabled={!!busy}
-          className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong disabled:opacity-60"
-        >
-          {busy === 'password' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
-          {mode === 'register' ? 'Create account' : 'Sign in'}
-        </button>
-      </form>
-
-      {/* Passwordless fallback — same email field, no second form to fill in. */}
-      {magicSent ? (
-        <div className="flex items-center gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-ink">
-          <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" />
-          Check <span className="font-medium">{email}</span> for a sign-in link.
-        </div>
-      ) : (
-        <button
-          type="button"
-          onClick={magicLink}
-          disabled={!!busy}
-          className="flex w-full items-center justify-center gap-1.5 text-sm font-medium text-accent hover:underline disabled:opacity-60"
-        >
-          {busy === 'magic' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
-          Email me a sign-in link instead
-        </button>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-sm">
-        {mode === 'signin' ? (
-          <>
+      {passwordAuth && (
+        <form id="auth-password-form" onSubmit={withPassword} className="space-y-3">
+          <label className="block">
+            <span className="eyebrow-muted">Password</span>
+            <input
+              type="password"
+              required
+              minLength={8}
+              autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder={mode === 'register' ? 'At least 8 characters' : '••••••••'}
+              className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+            />
+          </label>
+
+          <button
+            type="submit"
+            disabled={!!busy}
+            className="flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong disabled:opacity-60"
+          >
+            {busy === 'password' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Lock className="h-4 w-4" />}
+            {mode === 'register' ? 'Create account' : 'Sign in'}
+          </button>
+        </form>
+      )}
+
+      {magic &&
+        (magicSent ? (
+          <div className="flex items-center gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-ink">
+            <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" />
+            Check <span className="font-medium">{email}</span> for a sign-in link.
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={magicLink}
+            disabled={!!busy}
+            className={
+              passwordAuth
+                ? 'flex w-full items-center justify-center gap-1.5 text-sm font-medium text-accent hover:underline disabled:opacity-60'
+                : 'flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong disabled:opacity-60'
+            }
+          >
+            {busy === 'magic' ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+            {/* "instead" only makes sense when there's a password form to be
+                instead OF; on its own it is the primary action. */}
+            {passwordAuth ? 'Email me a sign-in link instead' : 'Email me a sign-in link'}
+          </button>
+        ))}
+
+      {showSwitcher && (
+        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-line pt-3 text-sm">
+          {mode === 'signin' ? (
+            <>
+              <Switcher
+                label="New here?"
+                cta="Create an account"
+                to="register"
+                next={next}
+                onSwitchMode={onSwitchMode}
+              />
+              {passwordAuth && (
+                <Link href="/auth/reset" className="text-muted hover:text-ink hover:underline">
+                  Forgot password?
+                </Link>
+              )}
+            </>
+          ) : (
             <Switcher
-              label="New here?"
-              cta="Create an account"
-              to="register"
+              label="Already have an account?"
+              cta="Sign in"
+              to="signin"
               next={next}
               onSwitchMode={onSwitchMode}
             />
-            <Link href="/auth/reset" className="text-muted hover:text-ink hover:underline">
-              Forgot password?
-            </Link>
-          </>
-        ) : (
-          <Switcher
-            label="Already have an account?"
-            cta="Sign in"
-            to="signin"
-            next={next}
-            onSwitchMode={onSwitchMode}
-          />
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       {notice && (
         <div className="flex items-start gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-ink">

@@ -40,18 +40,54 @@ export function isSupabaseConfigured(): boolean {
 }
 
 /**
- * Which OAuth providers the sign-in UI may offer.
+ * Which sign-in methods the UI may offer.
  *
- * A provider button is only worth showing if the provider is actually enabled in
- * the Supabase dashboard: offering one that isn't produces an opaque error the
- * instant a student clicks it, which is worse than not offering it at all. These
- * default to ON because the launch checklist enables both — set the env var to
- * 'false' to hide a button you haven't turned on yet.
- * See docs/OPERATIONS.md.
+ * ONE variable, because the alternative was four booleans that all had to be set
+ * to `false` to reach the intended setup — more configuration to get less. The
+ * default (`google`) is the shipped setup, so the happy path needs no env var at
+ * all:
+ *
+ *   NEXT_PUBLIC_AUTH_METHODS=google              # default — Google SSO only
+ *   NEXT_PUBLIC_AUTH_METHODS=google,magic        # add emailed sign-in links
+ *   NEXT_PUBLIC_AUTH_METHODS=google,github,magic,password
+ *
+ * Google is the default because it is the only method that needs no email
+ * delivery at all: Google authenticates the user and hands back a verified
+ * address, so there is no SMTP, no confirmation step and no rate limit anywhere
+ * in the system. `magic` and `password` both depend on Supabase sending mail.
+ *
+ * ⚠️ This controls what is OFFERED, not what is POSSIBLE. Supabase's Email
+ * provider stays live in the API until you switch it off in the dashboard — so
+ * turning `password` off here hides the form but does not close the door. Both
+ * halves are in SUPABASE_SETUP.md, in that order.
+ *
+ * A method is only worth offering if it is actually enabled in Supabase:
+ * offering one that isn't produces an opaque error the instant a student clicks
+ * it, which is worse than not offering it at all.
  */
-function flagEnabled(value: string | undefined): boolean {
-  return value !== 'false' && value !== '0';
+export type AuthMethod = 'google' | 'github' | 'magic' | 'password';
+
+const ALL_METHODS: readonly AuthMethod[] = ['google', 'github', 'magic', 'password'];
+const DEFAULT_METHODS: readonly AuthMethod[] = ['google'];
+
+function parseAuthMethods(raw: string | undefined): readonly AuthMethod[] {
+  const named = (raw ?? '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter((s): s is AuthMethod => (ALL_METHODS as readonly string[]).includes(s));
+  // Unknown entries are ignored, and a value that names nothing valid falls back
+  // to the default. An auth screen with zero buttons is never the right answer to
+  // a typo — it would lock everyone out of a working deployment.
+  return named.length > 0 ? named : DEFAULT_METHODS;
 }
 
-export const GOOGLE_OAUTH_ENABLED = flagEnabled(process.env.NEXT_PUBLIC_ENABLE_GOOGLE_OAUTH);
-export const GITHUB_OAUTH_ENABLED = flagEnabled(process.env.NEXT_PUBLIC_ENABLE_GITHUB_OAUTH);
+export const AUTH_METHODS = parseAuthMethods(process.env.NEXT_PUBLIC_AUTH_METHODS);
+
+export function isMethodEnabled(method: AuthMethod): boolean {
+  return AUTH_METHODS.includes(method);
+}
+
+/** True when any method needs the shared email field (magic link or password). */
+export function needsEmailField(): boolean {
+  return isMethodEnabled('magic') || isMethodEnabled('password');
+}

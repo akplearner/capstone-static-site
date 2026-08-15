@@ -12,8 +12,8 @@
 ## 0. What is genuinely untested
 
 Be aware before you launch. **No Supabase project existed while this was built**, so every cloud
-path — sign-up, sign-in, magic link, OAuth, password reset, the ledger's cloud writes, the
-delete-account function — is verified by code review and against the localStorage implementation
+path — Google sign-in, the ledger's cloud writes, the delete-account function — is verified by
+code review and against the localStorage implementation
 **only**. The route gate *is* verified end to end (see §2). Treat §2 — and the smoke test in
 [`SUPABASE_SETUP.md`](../SUPABASE_SETUP.md) — as a real test pass, not a
 formality.
@@ -23,8 +23,8 @@ formality.
 ## 1. Set up Supabase and sign-in
 
 **→ [`SUPABASE_SETUP.md`](../SUPABASE_SETUP.md)** is the single, step-by-step setup path: project and
-migrations, URL configuration, the four sign-in providers, custom SMTP, env vars, the
-account-deletion function, and the instructor flag.
+migrations, URL configuration, Google SSO, env vars, and the optional account-deletion function
+and instructor flag. Five steps, no email infrastructure — Google needs none.
 
 That file used to be duplicated here, and the two copies drifted — both ended up telling you to
 register the redirect URL as a bare `.../auth/callback`, which does not match the

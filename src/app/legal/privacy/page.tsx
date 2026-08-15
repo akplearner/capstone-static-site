@@ -20,7 +20,8 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong>Account details.</strong> Your email address, and a display name if you set one.
-            Provided by you, or by Google/GitHub if you sign in that way.
+            Provided by you, or by the sign-in provider you use — currently Google, which tells us
+            your email address and name and nothing else.
           </li>
           <li>
             <strong>Course progress.</strong> Which steps you have completed and when, which team and

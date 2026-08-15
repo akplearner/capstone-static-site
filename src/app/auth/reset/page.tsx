@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { AlertCircle, CheckCircle2, KeyRound, Loader2 } from 'lucide-react';
 import { getBrowserClient } from '@/lib/supabase/client';
+import { isMethodEnabled } from '@/lib/supabase/config';
 import { useAuth } from '@/lib/useAuth';
 
 /**
@@ -14,16 +15,38 @@ import { useAuth } from '@/lib/useAuth';
  * the code for a session and lands you back here — now *with* a user — so the
  * same page can take the new password. Reusing the existing callback route means
  * no new redirect target to register in the Supabase allow-list.
+ *
+ * Only reachable when `password` is in NEXT_PUBLIC_AUTH_METHODS. It isn't by
+ * default, and its only inbound link ("Forgot password?") is hidden with it — but
+ * the route still resolves, so an old bookmark or an old recovery email would
+ * otherwise land on a form that cannot work. Those get sent to /login instead.
  */
 export default function ResetPage() {
   const supabase = getBrowserClient();
   const { user, loading } = useAuth();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // After the hooks, never before — an early return above them would change the
+  // hook call order between renders.
+  if (!isMethodEnabled('password')) {
+    return (
+      <Shell title="Password sign-in is off">
+        <p className="text-sm text-muted">
+          This deployment doesn’t use passwords.{' '}
+          <Link href="/login" className="font-medium text-accent hover:underline">
+            Go to sign in
+          </Link>
+          .
+        </p>
+      </Shell>
+    );
+  }
 
   if (!supabase) {
     return (
