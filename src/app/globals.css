@@ -338,6 +338,7 @@
 @keyframes qi-glow { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.65; } }
 @keyframes qi-drill { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.6px); } }
 @keyframes qi-ring { 0% { transform: scale(0.75); opacity: 0.9; } 100% { transform: scale(1.45); opacity: 0; } }
+@keyframes qi-swing { 0%, 55% { transform: rotate(-38deg); } 62% { transform: rotate(30deg); } 70% { transform: rotate(22deg); } 100% { transform: rotate(-38deg); } }
 
 .qi-float { animation: qi-float 3.4s ease-in-out infinite; }
 .qi-pulse { animation: qi-pulse 2.2s ease-in-out infinite; }
@@ -348,6 +349,9 @@
 .qi-glow { animation: qi-glow 2.8s ease-in-out infinite; }
 .qi-drill { animation: qi-drill 0.12s linear infinite; }
 .qi-ring { animation: qi-ring 2.6s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+/* The pickaxe swing. transform-box is deliberately NOT fill-box here — the
+   origin is an explicit point on the miner's mitt, set inline. */
+.qi-swing { animation: qi-swing 2.1s cubic-bezier(0.5, 0, 0.35, 1) infinite; }
 
 /* Respect the OS "reduce motion" setting for CSS transitions/animations.
    framer-motion is handled separately via <MotionConfig reducedMotion="user">. */

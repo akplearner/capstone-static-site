@@ -139,6 +139,7 @@ export default function PortfolioPage() {
       <EmptyState
         title="Nothing to show yet"
         message="Your portfolio fills up as you verify steps and hash evidence. Start a capstone first."
+        miner="idle"
         href="/explore"
         cta="Explore certs"
       />

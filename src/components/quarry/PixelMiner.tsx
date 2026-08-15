@@ -81,8 +81,10 @@ const N = {
   beam: '#4a3a28', beamLt: '#6a5238',
 };
 
-/** The beat crop: the world rectangle that contains the miner and the rock. */
-const BEAT = { x: 95, y: 49, w: 122, h: 84 };
+/** The beat crop: the world rectangle that contains the miner and the rock.
+ *  Top is 42, not 49: the chibi head is taller and the raised pick tip reaches
+ *  y≈49, so the tighter crop clipped the pickaxe head at the top of the swing. */
+const BEAT = { x: 95, y: 42, w: 122, h: 92 };
 export const BEAT_ASPECT = BEAT.w / BEAT.h;
 
 export function PixelMiner({
@@ -428,73 +430,97 @@ export function PixelMiner({
     }
 
     // ── the miner ───────────────────────────────────────────────────────────
+    /**
+     * The miner, in chibi proportions: head r17 over a body r8, so the head
+     * dominates — that ratio is what reads as "cute" rather than "small adult".
+     * Big glossy eyes with two catchlights each, blush, softened brows, and
+     * little arms with mitts. The hat and headlamp are rescaled to the larger
+     * head. Everything outside this function (cave, rock, particles) is the
+     * original scene.
+     */
     function miner() {
       const bx = 116 + lean, gY = 120;
-      shoulder.x = bx + 8; shoulder.y = 84;
+      shoulder.x = bx + 8; shoulder.y = 88;
       ctx!.save(); ctx!.translate(bx, gY); ctx!.scale(sqX, sqY); ctx!.translate(-bx, -gY); ctx!.translate(0, hop);
 
-      R(bx - 7, gY - 14, 5, 12, N.suitDk); R(bx + 3, gY - 14, 5, 12, N.suit);
-      R(bx - 7, gY - 14, 5, 1, N.suitLt); R(bx + 3, gY - 14, 5, 1, N.suitLt);
-      R(bx - 9, gY - 4, 8, 4, N.boot); R(bx + 2, gY - 4, 9, 4, N.boot);
-      R(bx - 9, gY - 1, 8, 2, N.bootDk); R(bx + 2, gY - 1, 9, 2, N.bootDk);
-      R(bx - 9, gY - 4, 8, 1, '#8b939d'); R(bx + 2, gY - 4, 9, 1, '#8b939d');
+      // Legs — short and stubby, then chunky boots with a sole.
+      R(bx - 6, gY - 12, 4, 9, N.suitDk); R(bx + 2, gY - 12, 4, 9, N.suit);
+      R(bx - 6, gY - 12, 4, 1, N.suitLt); R(bx + 2, gY - 12, 4, 1, N.suitLt);
+      R(bx - 8, gY - 4, 7, 4, N.boot); R(bx + 1, gY - 4, 8, 4, N.boot);
+      R(bx - 8, gY - 1, 7, 2, N.bootDk); R(bx + 1, gY - 1, 8, 2, N.bootDk);
+      R(bx - 8, gY - 4, 7, 1, '#8b939d'); R(bx + 1, gY - 4, 8, 1, '#8b939d');
 
-      disc(bx + 1, gY - 24, 10, N.sk);
-      disc(bx + 1, gY - 26, 10, N.skLt, bx - 9, bx + 2, gY - 36, gY - 24);
-      R(bx + 7, gY - 30, 3, 11, N.skDk);
-      R(bx - 5, gY - 26, 12, 12, N.suit); R(bx - 5, gY - 26, 12, 1, N.suitLt);
-      R(bx - 4, gY - 33, 3, 8, N.strap); R(bx + 3, gY - 33, 3, 8, N.strap);
-      R(bx - 4, gY - 27, 3, 1, N.buckle); R(bx + 3, gY - 27, 3, 1, N.buckle);
-      R(bx - 8, gY - 17, 17, 3, N.belt); R(bx - 1, gY - 17, 4, 3, N.buckle);
-      R(bx + 7, gY - 17, 3, 4, N.belt);
-      R(bx - 3, gY - 23, 7, 4, N.suitDk); R(bx - 3, gY - 23, 7, 1, '#aeb7c1');
+      // Body — a small round bump under the big head.
+      disc(bx + 1, gY - 22, 8, N.sk);
+      disc(bx + 1, gY - 24, 8, N.skLt, bx - 8, bx + 2, gY - 32, gY - 22);
+      R(bx + 6, gY - 26, 2, 9, N.skDk);
+      R(bx - 4, gY - 24, 10, 10, N.suit); R(bx - 4, gY - 24, 10, 1, N.suitLt);
+      R(bx - 3, gY - 29, 2, 6, N.strap); R(bx + 2, gY - 29, 2, 6, N.strap);
+      R(bx - 3, gY - 24, 2, 1, N.buckle); R(bx + 2, gY - 24, 2, 1, N.buckle);
+      R(bx - 7, gY - 16, 15, 3, N.belt); R(bx - 1, gY - 16, 4, 3, N.buckle);
+      R(bx + 6, gY - 16, 3, 4, N.belt);
 
-      const hx = bx + 2, hy = gY - 46;
-      disc(hx, hy, 14, N.sk);
-      disc(hx, hy, 14, N.skLt, hx + 1, hx + 14, hy - 14, hy + 4);
-      disc(hx, hy, 14, N.skDk, hx - 14, hx - 7, hy - 4, hy + 14);
-      disc(hx - 13, hy + 2, 3, N.skDk);
-      const ey = hy + 3;
-      if (blink > 0) { R(hx - 6, ey, 6, 1, N.eye); R(hx + 3, ey, 6, 1, N.eye); }
+      // Little arms + mitts — the far arm, and the one gripping the pick.
+      R(bx - 9, gY - 24, 3, 8, N.suitDk);
+      R(bx - 9, gY - 17, 3, 3, N.glove);
+      R(shoulder.x - 3, shoulder.y - 2, 5, 5, N.glove);
+      R(shoulder.x - 3, shoulder.y - 2, 5, 1, N.gloveDk);
+
+      // Head — big and round, with a soft dome shine.
+      const hx = bx + 2, hy = gY - 44, HR = 17;
+      disc(hx, hy, HR, N.sk);
+      disc(hx, hy, HR, N.skLt, hx + 1, hx + HR, hy - HR, hy + 4);
+      disc(hx, hy, HR, N.skDk, hx - HR, hx - 8, hy - 4, hy + HR);
+      disc(hx - 5, hy - 8, 5, N.skLt);
+      disc(hx - 16, hy + 3, 3, N.skDk);
+
+      // Eyes — big, glossy, low-set, two catchlights each.
+      const ey = hy + 4;
+      if (blink > 0) { R(hx - 11, ey, 9, 1, N.eye); R(hx + 3, ey, 9, 1, N.eye); }
       else if (happy > 0) {
-        R(hx - 6, ey - 1, 2, 1, N.eye); R(hx - 4, ey, 2, 1, N.eye); R(hx - 6, ey + 1, 1, 1, N.eye);
-        R(hx + 3, ey - 1, 2, 1, N.eye); R(hx + 5, ey, 2, 1, N.eye); R(hx + 6, ey + 1, 1, 1, N.eye);
+        R(hx - 10, ey - 1, 3, 1, N.eye); R(hx - 7, ey - 2, 3, 1, N.eye); R(hx - 4, ey - 1, 2, 1, N.eye);
+        R(hx + 3, ey - 1, 2, 1, N.eye); R(hx + 5, ey - 2, 3, 1, N.eye); R(hx + 8, ey - 1, 3, 1, N.eye);
       } else {
-        disc(hx - 4, ey, 3, N.eyeW); disc(hx + 5, ey, 3, N.eyeW);
-        R(hx - 3, ey - 1, 2, 3, N.eye); R(hx + 6, ey - 1, 2, 3, N.eye);
-        R(hx - 4, ey - 2, 1, 1, '#fff'); R(hx + 5, ey - 2, 1, 1, '#fff');
+        disc(hx - 6, ey, 5, N.eyeW); disc(hx + 7, ey, 5, N.eyeW);
+        disc(hx - 6, ey, 3.6, N.eye); disc(hx + 7, ey, 3.6, N.eye);
+        R(hx - 5, ey - 3, 2, 2, '#fff'); R(hx + 8, ey - 3, 2, 2, '#fff');
+        R(hx - 8, ey + 1, 1, 1, '#fff'); R(hx + 5, ey + 1, 1, 1, '#fff');
       }
-      R(hx - 7, ey - 5, 5, 1, N.skSh); R(hx + 4, ey - 5, 5, 1, N.skSh);
-      R(hx - 1, hy + 8, 4, 1, N.mouth); R(hx - 2, hy + 7, 1, 1, N.mouth); R(hx + 3, hy + 7, 1, 1, N.mouth);
-      R(hx - 4, hy + 10, 10, 1, N.skDk);
+      // Brows softened so he reads friendly rather than stern.
+      R(hx - 9, ey - 7, 4, 1, N.skSh); R(hx + 6, ey - 7, 4, 1, N.skSh);
+      R(hx - 1, hy + 11, 3, 1, N.mouth); R(hx - 2, hy + 10, 1, 1, N.mouth); R(hx + 2, hy + 10, 1, 1, N.mouth);
+      ctx!.globalAlpha = 0.5;
+      R(hx - 13, ey + 4, 4, 2, '#e79a9a'); R(hx + 9, ey + 4, 4, 2, '#e79a9a');
+      ctx!.globalAlpha = 1;
 
-      const top = hy - 14;
-      for (let y = 0; y < 12; y++) {
-        const w = Math.round(Math.sqrt(Math.max(0, 169 - (y - 1) * (y - 1))) * 1.16);
-        R(hx - w / 2, top + y, w, 1, y < 3 ? T.hatLt : T.hat);
+      // Hard hat, scaled to the bigger head (radius 17 → 289 = 17²).
+      const top = hy - HR;
+      for (let y = 0; y < 15; y++) {
+        const w = Math.round(Math.sqrt(Math.max(0, 289 - (y - 1) * (y - 1))) * 1.13);
+        R(hx - w / 2, top + y, w, 1, y < 4 ? T.hatLt : T.hat);
       }
-      R(hx - 13, hy - 6, 26, 2, T.hatDk);
-      R(hx - 15, hy - 3, 30, 3, T.hatDk);
-      R(hx + 11, hy - 4, 7, 3, T.hatDk);
-      R(hx - 15, hy - 3, 30, 1, T.hatLt);
-      R(hx - 8, top + 1, 7, 2, T.hatLt);
-      R(hx - 1, top - 2, 3, 5, T.hatDk);
-      R(hx - 1, top - 2, 1, 5, T.hatLt);
+      R(hx - 16, hy - 8, 32, 2, T.hatDk);
+      R(hx - 18, hy - 5, 36, 3, T.hatDk);
+      R(hx + 14, hy - 6, 8, 3, T.hatDk);
+      R(hx - 18, hy - 5, 36, 1, T.hatLt);
+      R(hx - 10, top + 2, 8, 2, T.hatLt);
+      R(hx - 1, top - 2, 3, 6, T.hatDk);
+      R(hx - 1, top - 2, 1, 6, T.hatLt);
 
       const lf = 1 + lamp * 1.2;
-      R(hx + 10, hy - 3, 6, 5, '#7c858f'); R(hx + 10, hy - 3, 6, 1, '#98a1ab');
+      R(hx + 13, hy - 5, 6, 5, '#7c858f'); R(hx + 13, hy - 5, 6, 1, '#98a1ab');
       ctx!.save();
-      const lg = ctx!.createRadialGradient(hx + 15, hy - 1, 0, hx + 15, hy - 1, 17 * lf);
+      const lg = ctx!.createRadialGradient(hx + 18, hy - 3, 0, hx + 18, hy - 3, 17 * lf);
       lg.addColorStop(0, 'rgba(240,250,255,' + 0.62 * lf + ')'); lg.addColorStop(1, 'rgba(240,250,255,0)');
-      ctx!.fillStyle = lg; ctx!.beginPath(); ctx!.arc(hx + 15, hy - 1, 17 * lf, 0, 6.3); ctx!.fill();
+      ctx!.fillStyle = lg; ctx!.beginPath(); ctx!.arc(hx + 18, hy - 3, 17 * lf, 0, 6.3); ctx!.fill();
       ctx!.globalAlpha = 0.12 * lf; ctx!.fillStyle = 'rgba(235,248,255,1)';
-      ctx!.beginPath(); ctx!.moveTo(hx + 15, hy - 4); ctx!.lineTo(RX + 4, RY - 14); ctx!.lineTo(RX + 4, RY + 10); ctx!.lineTo(hx + 15, hy + 3); ctx!.closePath(); ctx!.fill();
+      ctx!.beginPath(); ctx!.moveTo(hx + 18, hy - 6); ctx!.lineTo(RX + 4, RY - 14); ctx!.lineTo(RX + 4, RY + 10); ctx!.lineTo(hx + 18, hy + 1); ctx!.closePath(); ctx!.fill();
       ctx!.restore();
-      disc(hx + 15, hy - 1, 2, '#f2fbff'); R(hx + 15, hy - 2, 1, 1, '#fff');
+      disc(hx + 18, hy - 3, 2, '#f2fbff'); R(hx + 18, hy - 4, 1, 1, '#fff');
 
       ctx!.globalAlpha = 0.5;
-      disc(hx - 1, hy, 14, T.hatLt, hx - 14, hx - 11, hy - 8, hy + 8);
-      R(bx - 8, gY - 30, 1, 10, T.hatLt);
+      disc(hx - 1, hy, HR, T.hatLt, hx - HR, hx - 13, hy - 9, hy + 9);
+      R(bx - 8, gY - 27, 1, 9, T.hatLt);
       ctx!.globalAlpha = 1;
       ctx!.restore();
     }

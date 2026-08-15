@@ -292,6 +292,129 @@ export function RelicTrophy({ size = 32, className }: { size?: number; className
   );
 }
 
+/**
+ * The miner, as a static SVG — the same chibi character the landing hero
+ * animates on canvas, in a form that can sit inline anywhere.
+ *
+ * Proportions carry the whole read: head r30 over a body r14, comfortably past
+ * 2:1. Big glossy eyes with two catchlights each, blush, and a hard hat in the
+ * region's accent colour.
+ *
+ * `mood` picks the face — `idle` (gentle smile), `strain` (flat mouth, mid-work)
+ * or `happy` (arched closed eyes). `swing` animates the pickaxe.
+ *
+ * The prototype filled the head with `var(--sk)`, which was never defined and so
+ * resolved to black; the head uses the canvas miner's actual skin grey here.
+ */
+const SKIN = '#d9dee4';
+
+export type MinerMood = 'idle' | 'strain' | 'happy';
+
+export function MinerMark({
+  size = 96,
+  mood = 'idle',
+  swing = false,
+  className,
+}: {
+  size?: number;
+  mood?: MinerMood;
+  swing?: boolean;
+  className?: string;
+}) {
+  const HR = 30, hx = 50, hy = 40;
+  const bx = 50, by = 88, brx = 14, bry = 12;
+  const er = 9.5, ex = 11, ey = hy + 5;
+  const hb = hy - HR * 0.2;
+
+  return (
+    <Svg size={size} label={`Miner, ${mood}`} className={className}>
+      {/* The pick, swinging from the mitt. */}
+      <g style={{ transformOrigin: `${bx + brx + 3}px ${by - 2}px` }} className={swing ? 'qi-swing' : undefined}>
+        <rect x={bx + brx + 1} y={by - 40} width={5} height={42} rx={2.5} fill={WD.w1} {...o} />
+        <path
+          d={`M${bx + brx - 16} ${by - 44} Q${bx + brx + 3} ${by - 56} ${bx + brx + 22} ${by - 44} L${bx + brx + 18} ${by - 39} Q${bx + brx + 3} ${by - 49} ${bx + brx - 12} ${by - 39} Z`}
+          fill={MT.m1}
+          {...O}
+        />
+        <rect x={bx + brx - 3} y={by - 47} width={12} height={10} rx={3} fill={MT.m0} {...o} />
+      </g>
+
+      {/* Boots, far arm, body bump with overalls, gripping mitt. */}
+      <rect x={bx - 9} y={by + bry - 3} width={7} height={6} rx={2} fill={RK.r4} {...o} />
+      <rect x={bx + 2} y={by + bry - 3} width={7} height={6} rx={2} fill={RK.r4} {...o} />
+      <rect x={bx - brx - 2} y={by - 7} width={5} height={14} rx={2.5} fill={ACC_DK} {...o} />
+      <circle cx={bx - brx} cy={by + 7} r={3.4} fill={RK.r2} {...o} />
+      <ellipse cx={bx} cy={by} rx={brx} ry={bry} fill={ACC} {...O} />
+      <rect x={bx - brx * 0.62} y={by - bry * 0.9} width={4} height={9} rx={2} fill={ACC_DK} />
+      <rect x={bx + brx * 0.32} y={by - bry * 0.9} width={4} height={9} rx={2} fill={ACC_DK} />
+      <rect x={bx - brx * 0.8} y={by + bry * 0.3} width={brx * 1.6} height={4} rx={2} fill={RK.r3} />
+      <circle cx={bx + brx + 3} cy={by - 2} r={4.4} fill={RK.r2} {...o} />
+
+      {/* Head. */}
+      <circle cx={hx} cy={hy} r={HR} fill={SKIN} {...O} />
+      <path
+        d={`M${hx - HR * 0.6} ${hy - HR * 0.5} a${HR * 0.7} ${HR * 0.55} 0 0 1 ${HR * 0.84} -2`}
+        stroke="#fff"
+        strokeWidth={4}
+        fill="none"
+        strokeLinecap="round"
+        opacity={0.5}
+      />
+
+      {/* Hard hat: dome, highlight, band, brim, ridge. */}
+      <path d={`M${hx - HR - 1} ${hb} a${HR + 1} ${HR + 1} 0 0 1 ${(HR + 1) * 2} 0 Z`} fill={ACC} {...O} />
+      <path
+        d={`M${hx - HR * 0.62} ${hb - HR * 0.6} a${HR * 0.72} ${HR * 0.6} 0 0 1 ${HR * 0.9} -3`}
+        stroke={ACC_LT}
+        strokeWidth={4}
+        fill="none"
+        strokeLinecap="round"
+        opacity={0.85}
+      />
+      <rect x={hx - HR - 2} y={hb - 3} width={(HR + 2) * 2} height={6} rx={3} fill={ACC_DK} />
+      <path
+        d={`M${hx - HR - 4} ${hb + 2} q${HR + 4} ${HR * 0.3} ${(HR + 4) * 2} 0 l0 4 q-${HR + 4} ${HR * 0.26} -${(HR + 4) * 2} 0 Z`}
+        fill={ACC_DK}
+      />
+      <rect x={hx - 2} y={hy - HR - 3} width={4} height={HR * 0.5} rx={2} fill={ACC_DK} />
+
+      {/* Headlamp. */}
+      <rect x={hx + HR * 0.5} y={hb - 4} width={10} height={7} rx={2} fill={MT.m2} {...o} />
+      <circle cx={hx + HR * 0.5 + 11} cy={hb - 0.5} r={3.6} fill="#ffe9a8" {...o} />
+      <circle cx={hx + HR * 0.5 + 11} cy={hb - 0.5} r={1.6} fill="#fff" />
+      <path d={`M${hx + HR * 0.5 + 13} ${hb - 4} l16 -7 l0 16 Z`} fill="#ffe9a8" opacity={0.22} />
+
+      {/* Eyes. */}
+      {mood === 'happy' ? (
+        <>
+          <path d={`M${hx - ex - 7} ${ey + 1} q7 -9 14 0`} stroke={OUT} strokeWidth={3.4} fill="none" strokeLinecap="round" />
+          <path d={`M${hx + ex - 7} ${ey + 1} q7 -9 14 0`} stroke={OUT} strokeWidth={3.4} fill="none" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <circle cx={hx - ex} cy={ey} r={er} fill="#fff" {...o} />
+          <circle cx={hx + ex} cy={ey} r={er} fill="#fff" {...o} />
+          <circle cx={hx - ex} cy={ey} r={er * 0.68} fill={OUT} />
+          <circle cx={hx + ex} cy={ey} r={er * 0.68} fill={OUT} />
+          <circle cx={hx - ex + 2.4} cy={ey - 2.8} r={2.6} fill="#fff" />
+          <circle cx={hx + ex + 2.4} cy={ey - 2.8} r={2.6} fill="#fff" />
+          <circle cx={hx - ex - 2.6} cy={ey + 2.6} r={1.2} fill="#fff" opacity={0.85} />
+          <circle cx={hx + ex - 2.6} cy={ey + 2.6} r={1.2} fill="#fff" opacity={0.85} />
+        </>
+      )}
+
+      {/* Mouth + blush. */}
+      {mood === 'strain' ? (
+        <rect x={hx - 4} y={ey + er + 3} width={8} height={3} rx={1.5} fill={OUT} />
+      ) : (
+        <path d={`M${hx - 4} ${ey + er + 3} q4 4 8 0`} stroke={OUT} strokeWidth={2.2} fill="none" strokeLinecap="round" />
+      )}
+      <ellipse cx={hx - HR * 0.66} cy={ey + 7} rx={5} ry={3} fill="#e79a9a" opacity={0.55} />
+      <ellipse cx={hx + HR * 0.66} cy={ey + 7} rx={5} ry={3} fill="#e79a9a" opacity={0.55} />
+    </Svg>
+  );
+}
+
 /** Map a week's stone stage to its verb icon; planning weeks get none. */
 export function verbForStage(stage: number | undefined): WeekVerb | null {
   if (stage === 2) return 'deploy';

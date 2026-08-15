@@ -137,6 +137,7 @@ export default function DashboardPage() {
         <EmptyState
           title="No capstones yet"
           message="You haven’t started a capstone. Explore the catalog and pick a cert to cut."
+          miner="idle"
           href="/explore"
           cta="Explore certs"
         />
