@@ -567,6 +567,11 @@ function FormSection({
                 <Lock className="h-3 w-3" /> Locked
               </span>
             )}
+            {def.id === 'scope_roe' && data.fields.authorization && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                <CheckCircle2 className="h-3 w-3" /> Signed
+              </span>
+            )}
           </h2>
           <p className="mt-0.5 text-sm text-muted"><GlossaryText text={def.purpose} /></p>
           <p className="mt-0.5 text-xs text-muted">

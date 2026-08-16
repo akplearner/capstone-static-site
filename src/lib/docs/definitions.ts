@@ -51,7 +51,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
           { field: 'allowed', label: 'Allowed activities', type: 'area', placeholder: 'recon, scanning, ONE exploit' },
           { field: 'prohibited', label: 'Prohibited activities', type: 'area', placeholder: 'no DoS, no destructive payloads' },
           { field: 'tools', label: 'Authorized tools', type: 'area', placeholder: 'nmap, nikto, sqlmap, hydra' },
-          { field: 'authorization', label: 'Authorization / sign-off', type: 'text', required: true, placeholder: 'Instructor approved — [name]' },
+          { field: 'authorization', label: 'Authorization / sign-off', type: 'signature', required: true, placeholder: 'Approver name' },
         ],
       },
     ],

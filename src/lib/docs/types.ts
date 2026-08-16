@@ -2,7 +2,7 @@ import { Framework, Role } from '../types';
 import type { Column } from '../grc/templates';
 
 // A single (non-repeating) input on a deliverable form.
-export type FieldType = 'text' | 'area' | 'select' | 'date' | 'paste' | 'fileref';
+export type FieldType = 'text' | 'area' | 'select' | 'date' | 'paste' | 'fileref' | 'signature';
 
 export interface Field {
   field: string;

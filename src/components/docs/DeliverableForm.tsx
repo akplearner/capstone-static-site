@@ -22,6 +22,29 @@ function SingleField({
   const empty = !value.trim();
   const namingBad = f.type === 'fileref' && !empty && !validateEvidenceFileName(value).valid;
 
+  const handleSignature = (name: string) => {
+    if (!name.trim()) {
+      onChange('');
+      return;
+    }
+    const now = new Date();
+    const timestamp = now.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    onChange(`${name} — ${timestamp}`);
+  };
+
+  const extractName = (sig: string) => {
+    if (!sig) return '';
+    const match = sig.match(/^(.+?)\s*—/);
+    return match ? match[1] : sig;
+  };
+
   return (
     <label className="block">
       <span className="flex items-center gap-1 text-sm font-medium text-body">
@@ -38,6 +61,21 @@ function SingleField({
           rows={f.type === 'paste' ? 4 : 3}
           className={`${inputClass} ${f.type === 'paste' ? 'font-mono text-xs' : ''}`}
         />
+      ) : f.type === 'signature' ? (
+        <div className="space-y-2">
+          <input
+            type="text"
+            value={extractName(value)}
+            onChange={(e) => handleSignature(e.target.value)}
+            placeholder={f.placeholder || 'Approver name'}
+            className={inputClass}
+          />
+          {value && (
+            <div className="text-xs text-gray-500 dark:text-gray-400">
+              Signed on {value.match(/—\s*(.+)$/)?.[1] || 'pending'}
+            </div>
+          )}
+        </div>
       ) : f.type === 'select' ? (
         <select value={value} onChange={(e) => onChange(e.target.value)} className={inputClass}>
           <option value="">—</option>
