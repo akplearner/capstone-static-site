@@ -307,6 +307,21 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
       .map(({ step }) => `${step.id} (${words(step.whatItMeans ?? '')}w)`);
     expect(over, `tighten these: ${over.join(', ')}`).toHaveLength(0);
   });
+
+  // The Guide is one page of orientation now, and most of what it prints is data
+  // rather than copy: the course description, every week title and phase, and
+  // every role name and mission. `src/lib/page-shape.test.ts` budgets the page's
+  // own prose but cannot see any of this, so the two guards together are what
+  // actually bound the read. Without this half, the Guide could quietly triple in
+  // length without a single line changing in the page component.
+  it('the data the Guide renders stays inside one screen', () => {
+    const guideText = [
+      course.description,
+      ...course.weeks.flatMap((w) => [w.title, w.phase ?? w.theme ?? '']),
+      ...course.roles.flatMap((r) => [r.name, r.mission]),
+    ].join(' ');
+    expect(words(guideText), 'shorten a week title, a phase, or a role mission').toBeLessThan(220);
+  });
 });
 
 // ── Role-week ownership ─────────────────────────────────────────────────────

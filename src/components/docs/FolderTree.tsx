@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Folder, FileText, FileSpreadsheet, Image as ImageIcon, BookText } from 'lucide-react';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
-import { evidencePackageDir } from '@/lib/evidence';
+import { EVIDENCE_NAMING_PNG, evidencePackageDir } from '@/lib/evidence';
 import { roleFolder } from '@/lib/docs/package';
 import { Role, RoleDef, FolderNode } from '@/lib/types';
 import { DeliverableDef } from '@/lib/docs/types';
@@ -184,7 +184,7 @@ export function FolderTree({
         {isWeek ? (
           <>This is exactly what <strong>Download this week&apos;s package</strong> produces — role folders plus an{' '}
           <span className="font-mono">Evidence/</span> folder. Name screenshots{' '}
-          <span className="font-mono">YYYYMMDD_TeamXX_Tool_Action.png</span>.</>
+          <span className="font-mono">{EVIDENCE_NAMING_PNG}</span>.</>
         ) : (
           <>This is exactly what <strong>Download team package</strong> produces — one zip, ready to submit.
           Files are colour-coded by the role that owns them.</>

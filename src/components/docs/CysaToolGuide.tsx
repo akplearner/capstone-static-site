@@ -1,6 +1,7 @@
 'use client';
 
 import { ExternalLink, LayoutDashboard, Network, MonitorCheck } from 'lucide-react';
+import { SOC_IP, SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 
 // CySA+ "how to actually use the tools" reference. The step-by-step commands
 // live in each week's task; this is the one place that explains the tools as
@@ -52,10 +53,10 @@ const PANELS: Panel[] = [
   {
     icon: LayoutDashboard,
     name: 'Wazuh dashboard',
-    where: 'https://10.10.100.100 · both pods',
+    where: `${SOC_URL} · both pods`,
     what: 'The web SIEM every role shares. Agents ship their logs here and you read, search and prove everything from the browser.',
     config:
-      'No config for students — sign in with student / @Pass@2026. Each machine runs a Wazuh agent that forwards its logs to 10.10.100.100 over port 1514 (Linux: /var/log; Windows: the Application/Security/System event channels), plus the Suricata and Sysmon blocks you add. Confirm a machine is actually connected with the "Connected to the server" line in its ossec.log. Left menu: Agents (which machines report + status), Security events (one agent’s feed), and the modules Vulnerabilities, SCA, Integrity monitoring (FIM) and MITRE ATT&CK. The search bar takes field:value queries.',
+      `No config for students — sign in with ${SOC_LOGIN_LABEL}. Each machine runs a Wazuh agent that forwards its logs to ${SOC_IP} over port 1514 (Linux: /var/log; Windows: the Application/Security/System event channels), plus the Suricata and Sysmon blocks you add. Confirm a machine is actually connected with the "Connected to the server" line in its ossec.log. Left menu: Agents (which machines report + status), Security events (one agent’s feed), and the modules Vulnerabilities, SCA, Integrity monitoring (FIM) and MITRE ATT&CK. The search bar takes field:value queries.`,
     rowsTitle: 'Searches you reuse',
     rows: [
       { k: 'rule.level:>=7', v: 'Cut to alerts that usually matter (levels run 0–15; higher = more severe).' },

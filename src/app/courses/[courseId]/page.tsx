@@ -60,6 +60,7 @@ import { EngagementBanner } from '@/components/EngagementBanner';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
+import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
 const COHORTS = getMonthlyCohorts(12);
@@ -1160,10 +1161,10 @@ export default function CoursePage() {
             <b className="text-ink">Wazuh SOC</b> you open in a browser.
           </p>
           <Link
-            href={`/courses/${course.id}/guide`}
+            href={`/courses/${course.id}/guide/reference#lab`}
             className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
           >
-            See the full lab diagram &amp; setup in the Guide <ArrowRight className="h-4 w-4" />
+            See the full lab diagram &amp; setup <ArrowRight className="h-4 w-4" />
           </Link>
         </section>
       )}
@@ -1419,7 +1420,7 @@ export default function CoursePage() {
                     <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm dark:border-sky-800 dark:bg-sky-900/20">
                       <p className="text-sky-900 dark:text-sky-200">
                         <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}
-                        <span className="font-mono text-xs">https://10.10.100.100</span> (student / @Pass@2026) and
+                        <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and
                         start at <span className="font-semibold">Week 1</span>. The build steps here are only for
                         students setting up their own lab at home — opening them asks you to confirm first.
                       </p>
@@ -1637,7 +1638,7 @@ export default function CoursePage() {
         onConfirm={confirmHomeBuild}
         destructive={false}
         title="Only if you're building your own lab at home"
-        message="The classroom SOC is already built and running at https://10.10.100.100 (sign in: student / @Pass@2026). You don't need these build steps — start at Week 1. Open them only if you're setting up your own lab at home."
+        message={`The classroom SOC is already built and running at ${SOC_URL} (sign in: ${SOC_LOGIN_LABEL}). You don't need these build steps — start at Week 1. Open them only if you're setting up your own lab at home.`}
         confirmLabel="Yes, I'm building from home"
         cancelLabel="Back"
       />

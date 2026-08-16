@@ -1,314 +1,144 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
-import { Button, Collapsible } from '@/components/ui/Button';
-import { RoleIcon } from '@/components/RoleIcon';
-import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
-import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
-import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
-import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
-import { socTopology } from '@/lib/labTopology';
-import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
-import { FolderTree } from '@/components/docs/FolderTree';
-import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
-import { WeekGoals } from '@/components/docs/WeekGoals';
-import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
-import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
+import { ArrowRight, BookOpen } from 'lucide-react';
 import { AttackPathDiagram } from '@/components/diagrams/AttackPathDiagram';
-import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
-import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
-import { CysaToolGuide } from '@/components/docs/CysaToolGuide';
-import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
+import { WeekGoals } from '@/components/docs/WeekGoals';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
-import { readResume } from '@/lib/resume';
-import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
 
-
+/**
+ * "How this course works" — orientation, and nothing else.
+ *
+ * This page used to be an orientation page and a reference manual at once: on
+ * CySA+ it was 3,318 words across ten screens, hidden behind six collapsed
+ * sections. Four rounds of rewriting the prose didn't fix that, because the prose
+ * was never the problem — the same *topics* rendered repeatedly. The sensors were
+ * explained three times, the week arc twice on one page, each role's mission twice
+ * inside a single two-column section.
+ *
+ * So the manual moved to `./reference`, and everything with a home elsewhere was
+ * deleted rather than collapsed:
+ *
+ *   · the three sensor cards → the verify commands live in each role's Week-1 task
+ *     and the tool descriptions in CysaToolGuide, both on Reference
+ *   · LifecycleFlow → Reference; WeekGoals below is the one arc, and it now carries
+ *     the gate chips that were LifecycleFlow's only unique contribution
+ *   · RoleInterplayDiagram → Reference; at this page's width it clipped every
+ *     mission it was supposed to show, so a plain row does the job in less space
+ *   · CommandTroubleshooting → already renders inside every command-bearing step
+ *   · the framework cards → the chips already render per task on Weekly Tasks
+ *   · the "go to course" CTA → the sticky sub-nav above already does that
+ *
+ * The rule that keeps it this way: **disclosure is not compaction.** There is no
+ * Collapsible on this page. Anything long enough to want one belongs on Reference,
+ * where it renders open and Ctrl-F finds it. `src/lib/page-shape.test.ts` asserts
+ * both halves of that.
+ */
 export default function CourseGuidePage() {
   const course = useCourse();
   const { member } = useMember(course.id);
+  const unit = unitWord(course).toLowerCase();
 
-  const frameworkIds = Array.from(
-    new Set(course.tasks.flatMap((t) => t.frameworks))
-  ).sort();
+  // The real count, not a slogan. The page used to claim "each role fills one form
+  // per week", which is true for CySA+ and false for Security+, where GRC owns five
+  // deliverables in Week 1 alone.
+  const formCount = deliverablesForCourse(course.id).length;
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-10">
       <CourseSubNav courseId={course.id} active="guide" teamId={member?.teamId ?? null} />
-      <div className="space-y-3 text-center">
-        <h1 className="text-4xl font-bold text-ink">How {course.title} Works</h1>
-        <p className="mx-auto max-w-2xl text-lg text-muted">{course.description}</p>
-      </div>
 
-      <section className="space-y-4">
+      <header className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-ink">How {course.title} works</h1>
+        <p className="max-w-2xl text-muted">{course.description}</p>
+      </header>
+
+      <section className="space-y-3">
         <div>
-          <h2 className="text-2xl font-bold text-ink">The shape of the course</h2>
-          <p className="mt-1 text-muted">
-            Where each {unitWord(course).toLowerCase()} sits in the arc. The plain-words goal for the{' '}
-            {unitWord(course).toLowerCase()} you&apos;re on is on the Weekly Tasks tab, above its tasks.
+          <h2 className="text-xl font-bold text-ink">The arc</h2>
+          <p className="mt-1 text-sm text-muted">
+            {/* Explicit {' '}: JSX strips the leading whitespace of a text node that
+                spans a newline, which silently glued "week" to "you're". */}
+            Where each {unit} sits. The plain-words goal for the {unit}
+            {' '}
+            you&apos;re on is on the Weekly Tasks tab, above its tasks.
           </p>
         </div>
-        <WeekGoals weeks={course.weeks} />
-        {course.lifecyclePath && course.lifecyclePath.length > 0 && (
-          <CaseLifecycleChain stages={course.lifecyclePath} />
-        )}
-        {/* Weeks 2-4 describe this chain over and over but never drew it. */}
+        <WeekGoals course={course} gates={course.noGatekeeping ? undefined : course.gates} />
+        {/* The attack the course actually runs. Weeks 2-4 describe this chain over
+            and over in prose; this is the only place it is drawn. */}
         {course.id === 'cysa-plus' && <AttackPathDiagram />}
       </section>
 
-      <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="The lab — architecture, setup and the arc" defaultOpen={false}>
-          <div className="space-y-6 pb-2">
-            <div className="space-y-4">
-            <p className="text-muted">
-              {course.noGatekeeping
-                ? `Every ${unitWord(course).toLowerCase()} is open from the start — the flow below shows the arc of the ${isEngagement(course) ? 'engagement' : 'course'}, not locks.`
-                : `${course.gates.length} gates across the ${isEngagement(course) ? 'engagement' : 'course'} — clear each ${unitWord(course).toLowerCase()}'s required tasks to advance.`}
-            </p>
-            <LifecycleFlow
-              weeks={course.weeks}
-              gates={course.gates}
-              currentWeek={member ? readResume(course, member.memberId)?.week : undefined}
-              noGatekeeping={course.noGatekeeping}
-            />
-            </div>
-
-            <div className="space-y-4">
-            <p className="text-muted">
-              Everyone works against one shared environment — the systems in scope, their exposed services, the
-              monitoring that watches them, and the governance layer that documents it all. Your role decides
-              where on this map you operate.
-            </p>
-            {socTopology(course.id) ? (
-              <SocTopologyDiagram topo={socTopology(course.id)!} />
-            ) : (
-              <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
-            )}
-            </div>
-
-            {course.id === 'security-plus' && (
-            <div className="space-y-4">
-              <p className="text-muted">
-                Build the small VM lab you&apos;ll work against — what machines to create, how to network them, and
-                how to run the DVWA target.
-              </p>
-              <LabSetupGuide />
-            </div>
-            )}
-
-            {course.id === 'cysa-plus' && (
-            <div className="space-y-4">
-              <p className="text-muted">
-                The shared Wazuh SOC and your team&apos;s pods — what each machine is, its address, and how to
-                confirm you&apos;re ready before Week 1.
-              </p>
-              {/* The address and credentials live once, in CysaLabSetup's pre-flight list
-                  directly below. This box only carries the thing that list doesn't: why the
-                  build steps exist at all. */}
-              <div className="rounded-md border border-sky-200 bg-sky-50 p-3 text-sm text-sky-900 dark:border-sky-800 dark:bg-sky-900/20 dark:text-sky-200">
-                <span className="font-semibold">Already built for you.</span> The build steps below are only for
-                students setting up their own lab at home.
-              </div>
-              <CysaLabSetup courseId={course.id} />
-            </div>
-            )}
-          </div>
-        </Collapsible>
-      </section>
-
-      {course.id === 'cysa-plus' && (
-        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="Week 1 — install & verify your sensors" defaultOpen={false}>
-            {/* The model behind almost every "why is there no data?" question. */}
-            <div className="pb-4">
-              <LogPipelineDiagram />
-            </div>
-            <div className="space-y-4 pb-2">
-              <p className="text-muted">
-                Week 1 is about standing up the three sensors that feed the SOC. Here&apos;s what each one is, the one
-                command that proves it&apos;s working, and the official guide — the step-by-step commands live in each
-                role&apos;s Week-1 task.
-              </p>
-              <div className="grid gap-3 md:grid-cols-3">
-                {[
-                  {
-                    tool: 'Suricata',
-                    where: 'Ubuntu server',
-                    what: 'Network IDS — watches your server’s traffic and raises alerts.',
-                    verify: 'sudo systemctl status suricata',
-                    expect: 'active (running)',
-                    href: 'https://docs.suricata.io/en/latest/quickstart.html',
-                    guide: 'Suricata quickstart',
-                  },
-                  {
-                    tool: 'Sysmon',
-                    where: 'Windows PC',
-                    what: 'Rich Windows telemetry — process starts, network connections, file changes.',
-                    verify: 'Get-Service Sysmon*',
-                    expect: 'Status: Running',
-                    href: 'https://learn.microsoft.com/sysinternals/downloads/sysmon',
-                    guide: 'Sysmon (Sysinternals)',
-                  },
-                  {
-                    tool: 'Wazuh agent',
-                    where: 'The machine you own',
-                    what: 'Ships that machine’s logs (and its Suricata or Sysmon events) to the SOC at 10.10.100.100.',
-                    verify: 'Dashboard › Agents',
-                    expect: 'Active, recent check-in',
-                    href: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/index.html',
-                    guide: 'Wazuh agent guide',
-                  },
-                ].map((s) => (
-                  <div key={s.tool} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                    <div className="flex items-baseline justify-between gap-2">
-                      <span className="font-semibold text-ink">{s.tool}</span>
-                      <span className="text-xs text-muted">{s.where}</span>
-                    </div>
-                    <p className="mt-1 text-sm text-muted">{s.what}</p>
-                    <div className="mt-3 text-xs text-muted">Verify it:</div>
-                    <code className="mt-1 block rounded bg-gray-100 px-2 py-1 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
-                      {s.verify}
-                    </code>
-                    <div className="mt-1 text-xs text-muted">
-                      Expect: <span className="font-medium text-body">{s.expect}</span>
-                    </div>
-                    <a
-                      href={s.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:underline dark:text-sky-400"
-                    >
-                      {s.guide} <ArrowRight className="h-3 w-3" />
-                    </a>
-                  </div>
-                ))}
-              </div>
-              <p className="text-sm text-muted">
-                Want the deeper how-to — dashboard searches, Suricata rules, Sysmon event IDs? See{' '}
-                <span className="font-medium text-body">Using the tools — Wazuh, Suricata &amp; Sysmon</span> below.
-              </p>
-            </div>
-          </Collapsible>
-        </section>
-      )}
-
-      {course.id === 'cysa-plus' && (
-        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="Using the tools — Wazuh, Suricata & Sysmon" defaultOpen={false}>
-            <div className="pb-2">
-              <CysaToolGuide />
-            </div>
-          </Collapsible>
-        </section>
-      )}
-
-      <section id="command-help" className="scroll-mt-24 rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Running commands & getting unstuck" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
-            <p className="text-muted">
-              How to use a terminal, and what to do when a command errors out — the fixes for the problems almost
-              every beginner hits.
-            </p>
-            <CommandTroubleshooting />
-          </div>
-        </Collapsible>
-      </section>
-
-      <section className="space-y-4 rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-        <h2 className="text-2xl font-bold text-ink">What you owe, and when</h2>
-        <p className="text-muted">
-          The whole {isEngagement(course) ? 'engagement' : 'course'} comes down to a set of{' '}
-          <strong>graded deliverables</strong>. Each role fills <strong>one form per week</strong>; the{' '}
-          <strong>Deliverables</strong> tab lists them all with who owns each and when it is due, and the
-          Overview shows how each one feeds the next.
-        </p>
-        <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="More reference — folder layout & cheat sheet" defaultOpen={false}>
-            <div className="space-y-4 pb-2">
-              {course.id === 'security-plus' && <DocsReductionTable />}
-              <FolderTree courseId={course.id} />
-              {['security-plus', 'cysa-plus', 'mssp'].includes(course.id) && (
-                <QuickReferenceCard courseId={course.id} />
-              )}
-            </div>
-          </Collapsible>
-        </div>
-      </section>
-
       {course.roles.length > 0 && (
-        <section className="grid gap-8 lg:grid-cols-2 lg:items-center">
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-ink">The roles</h2>
-            <div className="space-y-3">
-              {course.roles.map((r) => (
-                <div key={r.id} className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
-                  <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
-                  <div>
-                    <div className="font-semibold text-ink">{r.name}</div>
-                    <div className="text-sm text-muted">{r.mission}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          <div className="rounded-lg border border-gray-200 bg-white p-6 dark:border-gray-700 dark:bg-gray-800">
-            <RoleInterplayDiagram roles={course.roles} highlightRole={member?.role} />
-          </div>
-        </section>
-      )}
-
-      {frameworkIds.length > 0 && (
-        <section className="rounded-lg border border-gray-200 bg-white px-6 dark:border-gray-700 dark:bg-gray-800">
-          <Collapsible title="Frameworks we use & why" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
-            <p className="text-muted">
-              Every task is mapped to recognized security frameworks. Tags aren’t decoration — they
-              show which standard your work satisfies and how an auditor or employer would read it.
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-xl font-bold text-ink">The roles</h2>
+            <p className="mt-1 text-sm text-muted">
+              {course.roles.length} lanes against one shared environment. Your role decides where on the map
+              you operate.
             </p>
-            <div className="grid gap-3 md:grid-cols-2">
-              {frameworkIds.map((fw) => (
-                <div key={fw} className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-                  <div className="flex items-center gap-2">
-                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
-                      {getFrameworkLabel(fw)}
-                    </span>
-                    <span className="text-sm text-muted">{getFrameworkDescription(fw)}</span>
-                  </div>
-                  {getFrameworkWhy(fw) && (
-                    <p className="mt-2 text-sm text-body">{getFrameworkWhy(fw)}</p>
-                  )}
-                </div>
-              ))}
-            </div>
           </div>
-          </Collapsible>
+          {/* A strip, not RoleInterplayDiagram.
+              The diagram was the plan here — it draws the hand-offs, which this
+              doesn't. But rendered on a compact page it took ~470px of mostly
+              empty box and clipped every mission to "Watch the alerts — decide
+              what is real, what is noi…". A role's mission is one short line; a
+              row shows it whole in a quarter of the height. The diagram moved to
+              Reference, where it has the room to be legible. */}
+          <ul className="grid gap-2 sm:grid-cols-3">
+            {course.roles.map((r) => (
+              <li key={r.id} className="rounded-lg border border-line bg-panel p-3">
+                <div className="flex items-center gap-2">
+                  <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: r.color }} />
+                  <span className="font-semibold text-ink">{r.name}</span>
+                </div>
+                <p className="mt-1 text-sm text-muted">{r.mission}</p>
+              </li>
+            ))}
+          </ul>
         </section>
       )}
 
-      <section className="flex flex-col items-center gap-4 rounded-lg bg-gray-50 p-8 text-center dark:bg-gray-800">
-        {member ? (
-          <>
-            <p className="text-muted">You’re enrolled. Jump back into your work.</p>
-            <Link href={`/courses/${course.id}`}>
-              <Button size="lg" className="flex items-center gap-2">
-                Go to Course <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-          </>
-        ) : (
-          <>
-            <p className="text-muted">Ready to start? Open the course to pick a team and role.</p>
-            <Link href={`/courses/${course.id}`}>
-              <Button size="lg" className="flex items-center gap-2">
-                Open Course <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
-          </>
-        )}
+      <section className="space-y-3">
+        <h2 className="text-xl font-bold text-ink">What you owe</h2>
+        <p className="max-w-2xl text-sm text-muted">
+          The {isEngagement(course) ? 'engagement' : 'course'} comes down to {formCount} graded deliverables.
+          The <strong>Deliverables</strong> tab shows the ones you own for the {unit} you&apos;re on; the{' '}
+          <strong>Team</strong> tab shows how each one feeds the next.
+        </p>
+        <Link
+          href={`/courses/${course.id}/docs`}
+          className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+        >
+          Open Deliverables <ArrowRight className="h-4 w-4" />
+        </Link>
+      </section>
+
+      <section className="rounded-[var(--radius-card)] border border-line bg-panel-2 p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div className="max-w-xl">
+            <h2 className="flex items-center gap-2 text-xl font-bold text-ink">
+              <BookOpen className="h-5 w-5 text-accent" /> Reference
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              The manual: the lab and every machine in it
+              {course.id === 'cysa-plus' && ', how to drive Wazuh, Suricata and Sysmon'}, terminal help and
+              command fixes, evidence and chain of custody, and the full deliverable list with its folder
+              layout.
+            </p>
+          </div>
+          <Link
+            href={`/courses/${course.id}/guide/reference`}
+            className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-contrast transition-colors hover:bg-accent-strong"
+          >
+            Open reference <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
     </div>
   );

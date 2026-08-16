@@ -1,20 +1,21 @@
 'use client';
 
 import { CheckCircle2, Cpu, Network, Server } from 'lucide-react';
+import { SOC_IP, SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 
 // CySA+ lab requirements — the shared Wazuh SOC + per-team pods. Unlike the
 // Security+ self-study lab, this is normally built once by the instructor/builder
 // (Week 0 · "Environment build"); students just get an account and their pod.
 
 const VMS: { name: string; role: string; addr: string; notes: string }[] = [
-  { name: 'Wazuh SOC', role: 'The dashboard everyone shares', addr: '10.10.100.100', notes: 'Wazuh manager + indexer + dashboard (all-in-one). You log in here in a browser.' },
+  { name: 'Wazuh SOC', role: 'The dashboard everyone shares', addr: SOC_IP, notes: 'Wazuh manager + indexer + dashboard (all-in-one). You log in here in a browser.' },
   { name: 'Ubuntu pod', role: 'Your team’s target', addr: '10.10.100.N', notes: 'DVWA web app + Suricata IDS + the Wazuh agent. N = your team number.' },
   { name: 'Windows 11 pod', role: 'Your team’s target', addr: '10.10.20.N', notes: 'Sysmon + the Wazuh agent for rich Windows logging.' },
   { name: 'Kali Linux', role: 'Your team’s attacker box', addr: '10.10.30.N', notes: 'You drive it yourself: the Week 2 traffic, the Week 3 scans and the Week 4 attack all start here — against your own pods only.' },
 ];
 
 const PREFLIGHT = [
-  'The classroom SOC is already running — open https://10.10.100.100 and sign in with student / @Pass@2026',
+  `The classroom SOC is already running — open ${SOC_URL} and sign in with ${SOC_LOGIN_LABEL}`,
   'Both of your pods (Ubuntu 10.10.100.N and Windows 10.10.20.N) exist and you can sign in to them',
   'You can SSH into your Ubuntu pod as the student user',
   'Your pod numbers are recorded in the Lab access panel (Weekly Tasks); Rules of Engagement read',

@@ -80,7 +80,10 @@ export function Badge({ variant = 'default', className = '', children, ...props 
 }
 
 interface TabsProps {
-  tabs: Array<{ label: string; value: string }>;
+  /** `label` is a ReactNode so a tab can carry state — a done tick, a lock — next
+   *  to its text. The Deliverables form switcher needs that; plain strings still
+   *  work unchanged. */
+  tabs: Array<{ label: React.ReactNode; value: string }>;
   activeTab: string;
   onTabChange: (value: string) => void;
   children: React.ReactNode;
@@ -102,7 +105,9 @@ export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
   };
   return (
     <div>
-      <div role="tablist" className="flex border-b border-line" onKeyDown={onKeyDown}>
+      {/* flex-wrap because a week can own five deliverables, and five tabs
+          overflowed the viewport on a phone. */}
+      <div role="tablist" className="flex flex-wrap border-b border-line" onKeyDown={onKeyDown}>
         {tabs.map((tab) => {
           const selected = activeTab === tab.value;
           return (

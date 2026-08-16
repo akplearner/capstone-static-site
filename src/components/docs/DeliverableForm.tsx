@@ -4,6 +4,7 @@ import { AlertTriangle, ExternalLink } from 'lucide-react';
 import { DeliverableData, DeliverableDef, Field, FieldGroup } from '@/lib/docs/types';
 import { RegisterTable } from '@/components/grc/RegisterTable';
 import { validateEvidenceFileName } from '@/lib/utils';
+import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
 
 const inputClass =
   'mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white';
@@ -61,7 +62,7 @@ function SingleField({
       )}
       {namingBad && (
         <span className="mt-1 block text-xs text-amber-600 dark:text-amber-400">
-          Name it like YYYYMMDD_TeamXX_Tool_Action.png
+          Name it like {EVIDENCE_NAMING_PNG}
         </span>
       )}
     </label>
@@ -79,7 +80,7 @@ function NamingWarnings({ group, rows }: { group: FieldGroup; rows: Record<strin
   return (
     <p className="mt-1 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-      Screenshot names should look like <span className="font-mono">YYYYMMDD_TeamXX_Tool_Action.png</span> —
+      Screenshot names should look like <span className="font-mono">{EVIDENCE_NAMING_PNG}</span> —
       check: {bad.join(', ')}
     </p>
   );

@@ -4,7 +4,7 @@ import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
 import { CUSTODY_RULES, CustodyRow, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
 import { RoleDef } from '../types';
-import { evidencePackageDir } from '../evidence';
+import { EVIDENCE_NAMING_PNG, EVIDENCE_PACKAGE_DIR, evidencePackageDir } from '../evidence';
 
 /** A filesystem-safe folder name for a role (e.g. "SOC Analyst" → "SOC_Analyst"). */
 export function roleFolder(owner: string, roles?: RoleDef[]): string {
@@ -68,7 +68,7 @@ function readme(root: string, meta: DocMeta): string {
     '## Evidence & chain of custody',
     '',
     'Evidence (screenshots, captures, hashes) stays on your machine in',
-    '`04_Testing_and_Findings/Evidence/`, named `YYYYMMDD_TeamXX_Tool_Action.png`.',
+    `\`${EVIDENCE_PACKAGE_DIR}\`, named \`${EVIDENCE_NAMING_PNG}\`.`,
     'Record every artifact and hand-off in `Evidence/CHAIN_OF_CUSTODY.md`. Handling rules:',
     '',
     ...CUSTODY_RULES.map((r) => `- ${r}`),

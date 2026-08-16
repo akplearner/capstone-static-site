@@ -25,8 +25,18 @@ export function evidencePackageDir(courseId?: string): string {
 export const EVIDENCE_LOCATION_RULE =
   'Save every artifact for a week in ~/team-artifacts/week-N/ while you work; the team package gathers them into 04_Testing_and_Findings/Evidence/.';
 
-/** Filename convention. */
+/**
+ * Filename convention. `EVIDENCE_NAMING` is the general form; the `_PNG` variant
+ * is the same pattern shown against a screenshot, which is what most surfaces are
+ * actually talking about.
+ *
+ * These were hand-typed in eight components at once, so a change to the convention
+ * had to be found eight times. `src/lib/page-shape.test.ts` now asserts the literal
+ * appears only in this file and in seed course content (where a student is reading
+ * a command, not a UI label).
+ */
 export const EVIDENCE_NAMING = 'YYYYMMDD_TeamXX_Tool_Action.ext';
+export const EVIDENCE_NAMING_PNG = 'YYYYMMDD_TeamXX_Tool_Action.png';
 
 /** Accepted evidence file types (kept in sync with validateEvidenceFileName). */
 export const EVIDENCE_FILE_TYPES: { ext: string; use: string }[] = [

@@ -3,6 +3,7 @@ import { DeliverableData, DeliverableDef } from './types';
 import { CUSTODY_RULES } from './custodyTemplate';
 import { MSSP_DELIVERABLES } from './msspDeliverables';
 import { CYSA_DELIVERABLES } from './cysaDeliverables';
+import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
 
 // Small helpers to keep the schema readable.
 const c = (
@@ -706,7 +707,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
         group: {
           group: 'evidence',
           label: 'Evidence log (chain of custody)',
-          help: 'Keep artifacts in ~/team-artifacts/week-N/. Name them YYYYMMDD_TeamXX_Tool_Action.ext and hash with sha256sum. Log every hand-off.',
+          help: `Keep artifacts in ${EVIDENCE_WORKING_DIR}. Name them ${EVIDENCE_NAMING} and hash with sha256sum. Log every hand-off.`,
           columns: [
             c('evidence_id', 'Evidence ID', 'text', { placeholder: 'E-01' }),
             c('filename', 'Filename', 'text', { placeholder: '20260627_Team01_sqlmap_dbdump.png' }),

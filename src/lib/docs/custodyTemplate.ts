@@ -1,6 +1,7 @@
 import { DocMeta } from './report';
 import type { Section } from './types';
 import type { Column } from '../grc/templates';
+import { EVIDENCE_NAMING, EVIDENCE_PACKAGE_DIR, EVIDENCE_WORKING_DIR } from '../evidence';
 
 // A ready-to-fill Chain-of-Custody log, generated locally. Students keep evidence
 // on their own machine (no upload) and document it like a real case: every artifact
@@ -22,10 +23,10 @@ export const CUSTODY_COLUMNS = [
 // The handling rules shown at the top of the log and in the team-package README.
 export const CUSTODY_RULES: string[] = [
   'Preserve the original — work on copies; never edit or rename the original artifact after collection.',
-  'Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.',
+  `Name every artifact \`${EVIDENCE_NAMING}\` so it is dated, attributed and self-describing.`,
   'Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.',
   'Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).',
-  'Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.',
+  `Keep every artifact for a week in \`${EVIDENCE_WORKING_DIR}\`; the team package gathers them into \`${EVIDENCE_PACKAGE_DIR}\`. Keep originals read-only and backed up.`,
   'One custodian holds the evidence at a time; record each transfer so the chain is unbroken.',
 ];
 
@@ -115,7 +116,10 @@ export function custodySection(opts?: { group?: string; label?: string; seed?: R
     group: {
       group: opts?.group ?? 'evidence',
       label: opts?.label ?? 'Chain of custody — hash & log every artifact',
-      help: 'Hash every artifact with `sha256sum` the moment you collect it, then log it here and record each hand-off. Open the "Evidence & chain of custody" tool near the top of this page (expand "Open the file hasher & handling rules") to compute the SHA-256.',
+      // The old text said "near the top of this page (expand …)" — the panel it
+      // described is now a toolbar button that opens a dialog, so the instruction
+      // pointed at nothing. Name the control, not its former position.
+      help: 'Hash every artifact with `sha256sum` the moment you collect it, then log it here and record each hand-off. The "Hash & log evidence" button above computes the SHA-256 for you.',
       columns: custodyColumns(),
       seed: opts?.seed,
     },

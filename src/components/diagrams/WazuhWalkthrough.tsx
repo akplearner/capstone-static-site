@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
+import { SOC_IP, SOC_URL } from '@/lib/labTopology';
 
 /**
  * An annotated, code-drawn walkthrough of a tool's UI — a simplified mock of the
@@ -58,7 +59,7 @@ function Chrome({ children, nav }: { children: React.ReactNode; nav?: string[] }
         <span className="h-2 w-2 rounded-full" style={{ background: 'var(--color-danger)' }} aria-hidden />
         <span className="h-2 w-2 rounded-full" style={{ background: 'var(--color-warn)' }} aria-hidden />
         <span className="h-2 w-2 rounded-full" style={{ background: 'var(--color-accent)' }} aria-hidden />
-        <span className="ml-2 truncate font-mono text-[10px] text-muted">https://10.10.100.100 — Wazuh</span>
+        <span className="ml-2 truncate font-mono text-[10px] text-muted">{SOC_URL} — Wazuh</span>
       </div>
       <div className="flex">
         {nav && (
@@ -175,7 +176,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
             <div className="flex items-center gap-1.5 rounded border border-line p-1.5">
               <Marker n={2} present={present} />
               <span className="text-muted">Server address</span>
-              <span className="font-mono">10.10.100.100</span>
+              <span className="font-mono">{SOC_IP}</span>
             </div>
             <div className="flex items-center gap-1.5 rounded border border-line p-1.5" style={{ borderColor: OK }}>
               <Marker n={3} present={present} />

@@ -3,7 +3,7 @@
 import { Download, FileText, ShieldCheck } from 'lucide-react';
 import { CommandBlock } from '@/components/TaskComponents';
 import { CUSTODY_COLUMNS, CUSTODY_RULES, custodyLogCSV, custodyLogMarkdown } from '@/lib/docs/custodyTemplate';
-import { EVIDENCE_LOCATION_RULE, EVIDENCE_FILE_TYPES, EVIDENCE_HANDLING } from '@/lib/evidence';
+import { EVIDENCE_LOCATION_RULE, EVIDENCE_FILE_TYPES, EVIDENCE_HANDLING, EVIDENCE_NAMING } from '@/lib/evidence';
 
 function downloadText(filename: string, text: string, type = 'text/plain;charset=utf-8') {
   const blob = new Blob([text], { type });
@@ -35,7 +35,7 @@ export function EvidenceGuide() {
       <div>
         <h3 className="text-sm font-semibold text-ink">1. Name it consistently</h3>
         <p className="mt-1 text-sm text-muted">
-          Every artifact: <span className="font-mono text-xs">YYYYMMDD_TeamXX_Tool_Action.ext</span> — e.g.{' '}
+          Every artifact: <span className="font-mono text-xs">{EVIDENCE_NAMING}</span> — e.g.{' '}
           <span className="font-mono text-xs">20260627_Team01_sqlmap_dbdump.png</span>. Dated, attributed,
           self-describing.
         </p>

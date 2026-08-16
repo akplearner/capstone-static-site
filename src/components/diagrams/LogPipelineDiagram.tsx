@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
+import { SOC_IP } from '@/lib/labTopology';
 
 /**
  * How a log actually reaches the dashboard — the mental model behind almost
@@ -19,7 +20,7 @@ const STAGES: { n: number; label: string; sub: string; proof: string }[] = [
   { n: 2, label: 'Sensor', sub: 'Suricata · Sysmon · system logs', proof: 'eve.json is growing' },
   { n: 3, label: 'Wazuh agent', sub: 'reads the files it is told to', proof: 'systemctl status = active' },
   { n: 4, label: 'Ports 1514 / 1515', sub: 'data · enrolment', proof: '"Connected to the server"' },
-  { n: 5, label: 'Wazuh manager', sub: '10.10.100.100', proof: 'agent shows Active' },
+  { n: 5, label: 'Wazuh manager', sub: SOC_IP, proof: 'agent shows Active' },
   { n: 6, label: 'Rule fires', sub: 'gives it a rule.level', proof: 'the event has a level' },
   { n: 7, label: 'Dashboard row', sub: 'Security events', proof: 'you can see it — check the time picker' },
 ];

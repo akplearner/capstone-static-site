@@ -101,3 +101,25 @@ export const SOC_TOPOLOGY_BY_COURSE: Record<string, SocTopology> = {
 export function socTopology(courseId: string): SocTopology | undefined {
   return SOC_TOPOLOGY_BY_COURSE[courseId];
 }
+
+/* ───────────────────────────────────────────────────────────────────────────
+ * The SOC's address and sign-in, in one place.
+ *
+ * These were hardcoded in five components at once — the lab table, the topology
+ * diagram, the log-pipeline diagram, the Guide's sensor cards and the tool guide
+ * — while a comment on the Guide claimed they lived once. Changing the classroom
+ * SOC meant finding all five. They are derived from SOC_TOPOLOGY_BY_COURSE rather
+ * than restated, so the diagram and the prose cannot drift apart.
+ *
+ * `src/lib/page-shape.test.ts` asserts the literals appear nowhere else.
+ * ────────────────────────────────────────────────────────────────────────── */
+const SOC = SOC_TOPOLOGY_BY_COURSE['cysa-plus'].soc;
+
+/** Dotted address of the shared Wazuh SOC, e.g. for `ssh` or an agent config. */
+export const SOC_IP = SOC.ip;
+/** What a student types into the browser to reach the dashboard. */
+export const SOC_URL = `https://${SOC.ip}`;
+/** The shared classroom credentials handed out with the pod. */
+export const SOC_LOGIN = { user: 'student', password: '@Pass@2026' };
+/** "student / @Pass@2026" — the form used in prose and pre-flight lists. */
+export const SOC_LOGIN_LABEL = `${SOC_LOGIN.user} / ${SOC_LOGIN.password}`;

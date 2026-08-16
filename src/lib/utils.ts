@@ -1,4 +1,5 @@
 import { Framework } from './types';
+import { EVIDENCE_NAMING } from './evidence';
 
 export const FRAMEWORK_COLORS: Record<Framework, string> = {
   'NIST_CSF': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -190,7 +191,7 @@ export function validateEvidenceFileName(filename: string): { valid: boolean; me
   if (!EVIDENCE_EXT.test(filename)) {
     return {
       valid: false,
-      message: 'File must follow format: YYYYMMDD_TeamXX_Tool_Action.ext (png/jpg/pdf/txt/log/pcap/mp4), e.g. 20260623_Team01_nmap_scan.txt'
+      message: `File must follow format: ${EVIDENCE_NAMING} (png/jpg/pdf/txt/log/pcap/mp4), e.g. 20260623_Team01_nmap_scan.txt`
     };
   }
 

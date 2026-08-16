@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { SOC_IP } from '@/lib/labTopology';
 
 /**
  * A per-step "follow the path" mini-diagram: node → (labelled arrow) → node.
@@ -19,7 +20,7 @@ const NODES: Record<string, { t: string; s: string; c: NodeColor }> = {
   you: { t: 'You', s: 'browser / SSH', c: 'slate' },
   ubuntu: { t: 'Ubuntu + DVWA', s: '10.10.100.N', c: 'blue' },
   win: { t: 'Windows 11', s: '10.10.20.N', c: 'blue' },
-  soc: { t: 'Wazuh SOC', s: '10.10.100.100', c: 'teal' },
+  soc: { t: 'Wazuh SOC', s: SOC_IP, c: 'teal' },
   dash: { t: 'Wazuh dashboard', s: 'in your browser', c: 'teal' },
   kali: { t: 'Kali', s: 'attacker', c: 'red' },
   report: { t: 'Your report', s: 'written up', c: 'slate' },

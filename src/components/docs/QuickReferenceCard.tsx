@@ -2,6 +2,7 @@
 
 import { FileStack, ClipboardList, Wrench, Tag, GraduationCap } from 'lucide-react';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
+import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
 
 /**
  * Spec §10 — the one-screen cheat sheet. Five panels students can glance at:
@@ -56,7 +57,7 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
       body: (
         <p>
           Deliverables <span className="font-mono text-[11px]">NN_Name.ext</span>; evidence{' '}
-          <span className="font-mono text-[11px]">YYYYMMDD_TeamXX_Tool_Action.png</span>; hash with{' '}
+          <span className="font-mono text-[11px]">{EVIDENCE_NAMING_PNG}</span>; hash with{' '}
           <span className="font-mono text-[11px]">sha256sum</span>.
         </p>
       ),

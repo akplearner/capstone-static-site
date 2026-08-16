@@ -1,25 +1,24 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
+import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
 import { EmptyState } from '@/components/EmptyState';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { FrameworkBadge } from '@/components/TaskComponents';
-import { Collapsible } from '@/components/ui/Button';
+import { Collapsible, Tabs } from '@/components/ui/Button';
+import { Dialog } from '@/components/ui/Dialog';
 import { LoadingBlock } from '@/components/ui/Spinner';
 import { toast } from '@/components/ui/Toast';
 import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
-import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
 import { GlossaryText } from '@/components/GlossaryText';
 import { TriageDecisionTree } from '@/components/diagrams/TriageDecisionTree';
 import { RiskMatrix } from '@/components/diagrams/RiskMatrix';
 import { IncidentTimelineDiagram } from '@/components/diagrams/IncidentTimelineDiagram';
-import { EVIDENCE_NAMING } from '@/lib/evidence';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useRequireAuth } from '@/lib/useRequireAuth';
@@ -28,10 +27,11 @@ import { docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData } from '@/lib/docs/types';
 import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
+import type { DeliverableDef } from '@/lib/docs/types';
+import { unitWord } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
-import { CUSTODY_RULES } from '@/lib/docs/custodyTemplate';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -92,6 +92,40 @@ function printHTML(html: string) {
   doc.close();
 }
 
+/**
+ * A week's deliverables — and, deliberately, almost nothing else.
+ *
+ * The page used to open on its tools: the week selector was the *tenth* of
+ * thirteen blocks, so a student scrolled past the file hasher, a "New here?"
+ * explainer, a whole-course export panel, a storage warning and a Guide
+ * cross-link before they could even pick a week, and the forms came after that.
+ * It was organised around what the page can do rather than what you came to do.
+ *
+ * Now the week is the page. The rail is first and sticky, the header is one line,
+ * every tool collapses into a single row that opens in a dialog instead of taking
+ * scroll, and the form follows immediately. When a week owns more than one form
+ * (Security+ GRC Week 1 owns five) they become tabs rather than a 10-screen stack.
+ *
+ * `data-block` attributes mark the four regions; `src/lib/page-shape.test.ts`
+ * asserts their order, which is what stops the rail drifting back down the page.
+ */
+
+/** Which forms get a shape diagram, keyed by deliverable id.
+ *
+ *  This used to key on week number with no course guard — so Security+, whose Risk
+ *  Register is Week 2, got the risk matrix in Week 3, and MSSP got all three
+ *  diagrams for forms it doesn't have. Keying on the form itself is both the fix
+ *  and the compaction: the diagram now sits inside the form it describes instead
+ *  of floating above the page as its own card. */
+const FORM_DIAGRAM: Record<string, () => React.ReactElement> = {
+  cysa_alert_triage: TriageDecisionTree,
+  risk_register: RiskMatrix,
+  cysa_incident_response: IncidentTimelineDiagram,
+  incident_report: IncidentTimelineDiagram,
+};
+
+type ToolPanel = 'evidence' | 'package' | 'handoff' | null;
+
 export default function DeliverablesPage() {
   const course = useCourse();
   useSupabaseSync(course.id);
@@ -104,32 +138,49 @@ export default function DeliverablesPage() {
 
   const courseDefs = deliverablesForCourse(course.id);
   const roleDefaultWeek = member ? deliverablesForRole(member.role, course.id)[0]?.weeks[0] ?? 1 : 1;
-  const [week, setWeek] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const formParam = searchParams.get('form');
   const toolParam = searchParams.get('tool');
+  const weekParam = searchParams.get('week');
   const formWeek = formParam ? courseDefs.find((d) => d.id === formParam)?.weeks[0] : undefined;
-  // A ?form= deep-link picks that form's week (until the user changes the week).
-  const selectedWeek = week ?? formWeek ?? roleDefaultWeek;
 
+  // The week lives in the URL now. It used to be useState, so a week was never
+  // shareable or bookmarkable and was lost on reload and on back — which matters
+  // most for the student who is told "look at your Week 3 form".
+  const weekFromUrl = weekParam !== null && weekParam !== '' ? Number(weekParam) : undefined;
+  const selectedWeek = Number.isFinite(weekFromUrl) ? (weekFromUrl as number) : formWeek ?? roleDefaultWeek;
+
+  const [activeForm, setActiveForm] = useState<string | null>(null);
+  // Seeded from the param so a ?tool=evidence deep link opens the hasher on the
+  // first paint, not one render later.
+  const [tool, setTool] = useState<ToolPanel>(toolParam === 'evidence' ? 'evidence' : null);
   const importInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
-  // Deep-link from a task step (/docs?form=<id>): the week is derived above so the
-  // form is on-screen; this effect only performs the DOM scroll (no state writes).
-  useEffect(() => {
-    if (!formParam) return;
-    const el = document.getElementById(`form-${formParam}`);
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [formParam, selectedWeek]);
+  // Every evidence step deep-links here as ?tool=evidence, and that has to open
+  // the hasher. Adjusting state during render (React's documented pattern for
+  // "derive state from a changing prop") rather than in an effect: an effect here
+  // would open the panel a frame late and trips react-hooks/set-state-in-effect.
+  const [seenToolParam, setSeenToolParam] = useState<string | null>(toolParam);
+  if (toolParam !== seenToolParam) {
+    setSeenToolParam(toolParam);
+    setTool(toolParam === 'evidence' ? 'evidence' : null);
+  }
 
-  // Deep-link from an evidence step (/docs?tool=evidence): scroll to the always-
-  // visible hash & chain-of-custody tool. DOM-only, mirrors the ?form= effect.
-  useEffect(() => {
-    if (toolParam !== 'evidence') return;
-    const el = document.getElementById('evidence-tool');
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, [toolParam]);
+  /** Select a week without an RSC round-trip.
+   *
+   *  replaceState, not router.replace: the latter re-runs the server component and
+   *  resets scroll on every chip click. And `form` is dropped deliberately — left
+   *  in place it points at a form that is no longer in this week, and the tab
+   *  selection below would keep snapping back to it. */
+  const pickWeek = (w: number) => {
+    const next = new URLSearchParams(searchParams.toString());
+    next.set('week', String(w));
+    next.delete('form');
+    window.history.replaceState(null, '', `?${next.toString()}`);
+    setActiveForm(null);
+    notifyStore();
+  };
 
   if (loading) return <LoadingBlock />;
   if (!member) {
@@ -137,6 +188,7 @@ export default function DeliverablesPage() {
       <EmptyState
         title="Enrol first"
         message="Join this course (pick a team and role) to work on your deliverables."
+        miner="idle"
         href={`/courses/${course.id}`}
         cta="Go to course"
       />
@@ -161,6 +213,25 @@ export default function DeliverablesPage() {
   const dueThisWeek = myDefs.filter((d) => d.weeks.includes(selectedWeek));
   const authorized = isTeamAuthorized(saved);
   const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role.toUpperCase();
+  const isDone = (def: (typeof courseDefs)[number]) =>
+    (def.dod ?? []).length > 0 && (def.dod ?? []).every((c) => c.test(saved[def.id] ?? emptyData()));
+
+  // Which form is showing. A ?form= deep-link wins, then the student's own click,
+  // then the first form they haven't finished — so opening the page mid-week lands
+  // on the work rather than on something already done.
+  const currentId =
+    (formParam && dueThisWeek.some((d) => d.id === formParam) ? formParam : null) ??
+    (activeForm && dueThisWeek.some((d) => d.id === activeForm) ? activeForm : null) ??
+    dueThisWeek.find((d) => !isDone(d))?.id ??
+    dueThisWeek[0]?.id ??
+    null;
+  const currentDef = dueThisWeek.find((d) => d.id === currentId) ?? null;
+
+  const gate = course.noGatekeeping ? undefined : course.gates.find((g) => g.week === selectedWeek);
+  const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
+  const gateChecks = gateDefs.flatMap((d) =>
+    (d.dod ?? []).map((check) => ({ label: check.label, owner: d.owner, pass: check.test(saved[d.id] ?? emptyData()) }))
+  );
 
   const handleExportMyWork = () => {
     const json = exportTeamData(saved, { ...meta, course: course.id }, member.role);
@@ -191,484 +262,422 @@ export default function DeliverablesPage() {
     }
   };
 
+  const weekWord = selectedWeek === 0 ? 'Setup' : `${unitWord(course)} ${selectedWeek}`;
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-5">
       <CourseSubNav courseId={course.id} active="deliverables" teamId={teamId} />
 
-      <div>
-        <h1 className="text-3xl font-bold text-ink">
-          Deliverables · Team {teamId}
-        </h1>
-        <p className="mt-2 text-muted">
-          Your graded documents, built from guided forms. Fill them in, then{' '}
-          <strong>Generate → Print / Save as PDF</strong>.
-        </p>
-      </div>
-
-      {/* Do now — the single clearest thing: which forms this role fills this week. */}
-      <div className="rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-        <h2 className="text-sm font-semibold text-blue-900 dark:text-blue-100">
-          This week, you ({roleName}) fill {dueThisWeek.length} form{dueThisWeek.length === 1 ? '' : 's'}
-        </h2>
-        {dueThisWeek.length === 0 ? (
-          <p className="mt-1 text-sm text-blue-800 dark:text-blue-200">
-            No form of your own in {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`} — this week your work is
-            evidence: screenshots and findings you collect and file with your week package below.{' '}
-            <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium underline">
-              Go to this week&apos;s tasks
-            </Link>
-            , or change the week to see another form.
-          </p>
-        ) : (
-          <ul className="mt-2 space-y-3">
-            {dueThisWeek.map((def) => {
-              const done = (def.dod ?? []).length > 0 && (def.dod ?? []).every((c) => c.test(saved[def.id] ?? emptyData()));
-              const evName = def.sections
-                .flatMap((s) => (s.kind === 'fields' ? s.fields : []))
-                .find((f) => f.type === 'fileref' && f.placeholder)?.placeholder;
-              return (
-                <li key={def.id} className="text-sm">
-                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    {done ? (
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
-                    ) : (
-                      <Circle className="h-4 w-4 shrink-0 text-blue-400" />
-                    )}
-                    <a href={`#form-${def.id}`} className="font-medium text-blue-800 underline dark:text-blue-200">
-                      {def.num}. {def.title}
-                    </a>
-                    <span className="font-mono text-[11px] text-blue-700/80 dark:text-blue-300/80">
-                      {def.folder}/{def.file}
-                    </span>
-                    {def.requiresAuth && !authorized && (
-                      <span className="inline-flex items-center gap-0.5 text-xs text-amber-700 dark:text-amber-400">
-                        <Lock className="h-3 w-3" /> needs scope sign-off
-                      </span>
-                    )}
-                  </div>
-                  {/* `howTo` is deliberately NOT repeated here — it renders in full inside each
-                      form's "How to build this" panel below. This list is the week's checklist. */}
-                  {evName && (
-                    <p className="ml-6 mt-0.5 text-[11px] text-blue-700/70 dark:text-blue-300/70">
-                      Evidence to attach, e.g. <span className="font-mono">{evName}</span>
-                    </p>
-                  )}
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        {courseDefs.some((d) => d.weeks.includes(selectedWeek)) && (
-          <p className="mt-4 border-t border-blue-200 pt-3 text-xs text-blue-800 dark:border-blue-800 dark:text-blue-200">
-            Name evidence <span className="font-mono">{EVIDENCE_NAMING}</span> and keep it in{' '}
-            <span className="font-mono">~/team-artifacts/week-{selectedWeek}/</span> while you work. The
-            week&apos;s submission zip is built for you at the bottom of this page.
-          </p>
-        )}
-      </div>
-
-      {/* The shape of this week's answer. Deliverables previously had no visual
-          at all, and these three forms are the ones whose *structure* was only
-          ever explained in a long paragraph. Shown for the selected week so it
-          sits beside the form it describes. */}
-      {(selectedWeek === 2 || selectedWeek === 3 || selectedWeek === 4) && (
-        <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-          {selectedWeek === 2 && <TriageDecisionTree />}
-          {selectedWeek === 3 && <RiskMatrix />}
-          {selectedWeek === 4 && <IncidentTimelineDiagram />}
-        </div>
-      )}
-
-      {/* Evidence & chain of custody — a stable, always-visible deep-link target
-          (?tool=evidence, linked from every evidence step). Hash a file locally,
-          then log it with the handling rules in view. */}
-      <section
-        id="evidence-tool"
-        className={`scroll-mt-24 rounded-lg border p-4 transition-shadow ${
-          toolParam === 'evidence'
-            ? 'border-indigo-400 ring-2 ring-indigo-400/60 dark:border-indigo-500'
-            : 'border-gray-200 dark:border-gray-700'
-        } bg-white dark:bg-gray-800`}
+      {/* ── the week rail ───────────────────────────────────────────────────
+          First, and sticky under the sub-nav: once you are deep inside a long
+          form the rail is still the way back out to another week. */}
+      <div
+        data-block="week-rail"
+        className="sticky top-12 z-20 -mx-4 flex flex-wrap items-center gap-1.5 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
       >
-        <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
-          <ShieldCheck className="h-5 w-5 text-indigo-600 dark:text-indigo-400" />
-          Evidence &amp; chain of custody
-        </h2>
-        <div className="mt-2 border-t border-gray-200 dark:border-gray-700">
-          <Collapsible title="Open the file hasher & handling rules" defaultOpen={toolParam === 'evidence'}>
-            <div className="space-y-3 pb-2">
-              {/* The "why" lives inside the tool now, not as always-visible theory
-                  above it — the page opens on what to do, not on custody doctrine. */}
-              <p className="text-sm text-muted">
-                Handle evidence like a real case: hash every artifact on collection, log it, and record each
-                hand-off so the chain is unbroken. Aligned with <strong>NIST SP 800-61</strong> and{' '}
-                <strong>ISO/IEC 27037</strong>.
-              </p>
-              <EvidenceHasher courseId={course.id} memberId={member?.memberId} week={selectedWeek} />
-              <div className="rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40">
-                <div className="eyebrow-muted">
-                  Handling rules
-                </div>
-                <ul className="mt-1.5 space-y-1 text-sm text-body">
-                  {CUSTODY_RULES.map((r, i) => (
-                    <li key={i} className="flex gap-1.5">
-                      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
-                      <span>{r}</span>
-                    </li>
-                  ))}
-                </ul>
-                <p className="mt-2 text-xs text-muted">
-                  The team package includes a ready-to-fill chain-of-custody log in{' '}
-                  <span className="font-mono">Evidence/</span>.
-                </p>
-              </div>
-            </div>
-          </Collapsible>
-        </div>
-      </section>
-
-      <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="New here? How documentation works" defaultOpen={false}>
-          <div className="space-y-4 pb-2">
-            <RoleExtractionGuide role={member.role} roleLabel={roleName} courseId={course.id} />
-            <p className="text-sm text-muted">
-              See the full weekly flow (task → evidence → form → report) on the{' '}
-              <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-                Guide
-              </Link>
-              . Hash evidence and log the chain of custody in the{' '}
-              <a href="#evidence-tool" className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-                Evidence &amp; chain of custody
-              </a>{' '}
-              tool above.
-            </p>
-          </div>
-        </Collapsible>
-      </div>
-
-      <div className="rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
-        <Collapsible title="Advanced — whole-course export & team hand-off" defaultOpen={false}>
-          <div className="space-y-3 pb-2">
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
-        <div className="flex items-start gap-2 text-sm text-blue-900 dark:text-blue-200">
-          <Package className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-          <p>
-            <strong>Download team package</strong> — bundles every deliverable into one zip, in the
-            submission folder structure (<span className="font-mono text-xs">{packageFileName(meta)}</span>),
-            with a ready-to-fill chain-of-custody log in <span className="font-mono text-xs">Evidence/</span>.{' '}
-            <Link href={`/courses/${course.id}/guide`} className="font-medium underline">
-              Evidence handling &amp; chain of custody →
-            </Link>
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => downloadBytes(packageFileName(meta), buildTeamPackage(saved, meta), 'application/zip')}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-        >
-          <Package className="h-4 w-4" /> Download team package (.zip)
-        </button>
-      </div>
-
-      {/* Cross-role handoff: each role works on their own device, so hand off a
-          JSON file that GRC gathers before building the complete team package. */}
-      <div className="space-y-3 rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
-        <div className="flex items-start gap-2">
-          <Users className="mt-0.5 h-5 w-5 shrink-0 text-blue-600 dark:text-blue-400" />
-          <div>
-            <h2 className="text-sm font-semibold text-ink">
-              Combine your work (optional)
-            </h2>
-            <p className="mt-0.5 text-sm text-muted">
-              Everyone fills their own deliverables on their own device — you never need a teammate to finish
-              yours. <strong>Export your work</strong> as a <span className="font-mono text-xs">.json</span>{' '}
-              backup, then <strong>Restore from file</strong> to repopulate the forms on another device — or, if
-              you&apos;re working as a team, send it to whoever is assembling the combined package above.
-            </p>
-            <p className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-muted">
-              {course.roles.map((r, i) => (
-                <span key={r.id} className="flex items-center gap-1.5">
-                  {i > 0 && <span aria-hidden>+</span>}
-                  <span className="rounded-full px-2 py-0.5 font-medium" style={{ backgroundColor: `${r.color}22`, color: r.color }}>
-                    {r.name}
-                  </span>
-                </span>
-              ))}
-              <span aria-hidden>→ export .json → one teammate restores all &amp; downloads the package</span>
-            </p>
-          </div>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <button
-            type="button"
-            onClick={() => printHTML(toRoleReportHTML(myDefs, saved, meta, `${roleName} — Full Report`))}
-            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-          >
-            <FileDown className="h-4 w-4" /> Generate my full report (PDF)
-          </button>
-          <button
-            type="button"
-            onClick={handleExportMyWork}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            <Download className="h-4 w-4" /> Export my work (.json)
-          </button>
-          <button
-            type="button"
-            onClick={() => importInputRef.current?.click()}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-          >
-            <Upload className="h-4 w-4" /> Restore from file (.json)
-          </button>
-          <input
-            ref={importInputRef}
-            type="file"
-            accept="application/json,.json"
-            className="hidden"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (file) handleImportFile(file);
-              e.target.value = '';
-            }}
-          />
-        </div>
-        {importMsg && (
-          <Alert variant={importMsg.ok ? 'success' : 'error'}>{importMsg.text}</Alert>
-        )}
-      </div>
-          </div>
-        </Collapsible>
-      </div>
-
-      <Alert variant="warning">
-        Your entries are saved in <strong>this browser</strong> only. Generate and save the PDF as soon
-        as a deliverable is done — shared, multi-device storage arrives with accounts.
-      </Alert>
-
-      <p className="text-sm text-muted">
-        Need the reference tables (all deliverables, weekly flow, folder layout, tools)?{' '}
-        <Link href={`/courses/${course.id}/guide`} className="font-medium text-blue-600 hover:underline dark:text-blue-400">
-          See the Guide →
-        </Link>
-      </p>
-
-      {/* Week selector */}
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-muted">Week:</span>
-        {weeks.map((w) => (
-          <button
-            key={w}
-            type="button"
-            onClick={() => setWeek(w)}
-            aria-current={w === selectedWeek ? 'true' : undefined}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-              w === selectedWeek
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600'
-            }`}
-          >
-            {w === 0 ? 'Setup' : `Week ${w}`}
-          </button>
-        ))}
-      </div>
-
-      {(() => {
-        if (course.noGatekeeping) return null;
-        const gate = course.gates.find((g) => g.week === selectedWeek);
-        const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
-        if (!gate || gateDefs.length === 0) return null;
-        return (
-          <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-            <h2 className="text-sm font-semibold text-ink">
-              Gate {gate.id} readiness — what this week is graded on
-            </h2>
-            <ul className="mt-3 space-y-2">
-              {gateDefs.flatMap((d) =>
-                (d.dod ?? []).map((check, ci) => {
-                  const pass = check.test(saved[d.id] ?? emptyData());
-                  return (
-                    <li key={`${d.id}-${ci}`} className="flex items-start gap-2 text-sm">
-                      {pass ? (
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" />
-                      ) : (
-                        <Circle className="mt-0.5 h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
-                      )}
-                      <span className={pass ? 'text-gray-500 line-through dark:text-gray-500' : 'text-body'}>
-                        {check.label}
-                      </span>
-                      <span className="text-[11px] uppercase text-gray-400">{d.owner}</span>
-                    </li>
-                  );
-                })
-              )}
-            </ul>
-            <p className="mt-2 text-[11px] text-gray-400">
-              Checks read your team&apos;s saved deliverables on this device.
-            </p>
-          </div>
-        );
-      })()}
-
-      {dueThisWeek.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-white p-6 text-sm text-gray-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400">
-          Nothing graded for <strong>{roleName}</strong> in{' '}
-          {selectedWeek === 0 ? 'Setup' : `Week ${selectedWeek}`}. Your work this week feeds your
-          teammates&apos; deliverables —{' '}
-          <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium text-blue-600 underline dark:text-blue-400">
-            go to this week&apos;s tasks
-          </Link>
-          .
-        </div>
-      ) : (
-        dueThisWeek.map((def) => {
-          // A form only has a "worked example" when a group carries seed rows;
-          // field-only forms (e.g. Detection Record) have none, so no badge/toggle.
-          const hasExample = def.sections.some((s) => s.kind === 'group' && (s.group.seed?.length ?? 0) > 0);
-          const isExample = hasExample && !saved[def.id];
-          const data = saved[def.id] ?? seedDeliverable(def);
-          const locked = !course.noGatekeeping && !!def.requiresAuth && !authorized;
-          const hasGuidance = !!(def.buildSteps || def.meaning || def.useIt || def.pitfalls);
+        {weeks.map((w) => {
+          const owned = myDefs.filter((d) => d.weeks.includes(w));
+          const allDone = owned.length > 0 && owned.every(isDone);
           return (
-            <section
-              key={def.id}
-              id={`form-${def.id}`}
-              className={`scroll-mt-24 space-y-4 rounded-lg border bg-white p-5 transition-colors dark:bg-gray-800 ${
-                formParam === def.id
-                  ? 'border-blue-400 ring-2 ring-blue-300 dark:border-blue-500 dark:ring-blue-700'
-                  : 'border-gray-200 dark:border-gray-700'
+            <button
+              key={w}
+              type="button"
+              onClick={() => pickWeek(w)}
+              aria-current={w === selectedWeek ? 'true' : undefined}
+              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                w === selectedWeek
+                  ? 'bg-accent text-accent-contrast'
+                  : 'text-muted hover:bg-panel-2 hover:text-ink'
               }`}
             >
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">
-                    {def.num}. {def.title}
-                    {def.framework && <FrameworkBadge framework={def.framework} />}
-                    {isExample && !locked && (
-                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                        Example
-                      </span>
-                    )}
-                    {locked && (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-gray-200 px-2 py-0.5 text-[11px] font-medium text-gray-600 dark:bg-gray-700 dark:text-gray-300">
-                        <Lock className="h-3 w-3" /> Locked
-                      </span>
-                    )}
-                  </h2>
-                  <p className="mt-0.5 text-sm text-muted"><GlossaryText text={def.purpose} /></p>
-                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-500">
-                    <span className="font-mono">{def.folder}/{def.file}</span> · {def.standard}
-                    {def.source ? ` · ${def.source}` : ''}
-                  </p>
-                </div>
-                {!locked && (
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  {hasExample && (isExample ? (
-                    <button
-                      type="button"
-                      onClick={() => setDoc(def.id, emptyData())}
-                      className="rounded-md border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                      Start blank
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setDoc(def.id, seedDeliverable(def))}
-                      className="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" /> Restore example
-                    </button>
-                  ))}
-                  <button
-                    type="button"
-                    onClick={() => printHTML(toDeliverableHTML(def, data, meta))}
-                    className="inline-flex items-center gap-1 rounded-md bg-blue-600 px-2.5 py-1.5 text-xs font-medium text-white hover:bg-blue-700"
-                  >
-                    <Printer className="h-3.5 w-3.5" /> Generate PDF
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, meta))}
-                    className="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                  >
-                    <FileText className="h-3.5 w-3.5" /> .md
-                  </button>
-                  {def.exportFormat === 'csv' && (
-                    <button
-                      type="button"
-                      onClick={() => download(def.file, toDeliverableCSV(def, data))}
-                      className="inline-flex items-center gap-1 rounded-md border border-gray-300 px-2.5 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                    >
-                      <FileSpreadsheet className="h-3.5 w-3.5" /> .csv
-                    </button>
-                  )}
-                </div>
-                )}
-              </div>
-
-              {!locked && hasGuidance && (
-                <div className="rounded-lg border border-gray-200 bg-gray-50/60 px-4 dark:border-gray-700 dark:bg-gray-900/30">
-                  <Collapsible title="How to build this — and what it means" defaultOpen={false}>
-                    <div className="space-y-3 pb-2 text-sm text-body">
-                      <p><GlossaryText text={def.howTo} /></p>
-                      {def.buildSteps && (
-                        <div>
-                          <div className="eyebrow-muted">Build it — where each value comes from</div>
-                          <ol className="mt-1 list-decimal space-y-1 pl-5">
-                            {def.buildSteps.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
-                          </ol>
-                        </div>
-                      )}
-                      {def.meaning && (
-                        <div>
-                          <div className="eyebrow-muted">What it means &amp; what a good one looks like</div>
-                          <p className="mt-1"><GlossaryText text={def.meaning} /></p>
-                        </div>
-                      )}
-                      {def.useIt && (
-                        <div>
-                          <div className="eyebrow-muted">What it feeds next</div>
-                          <p className="mt-1"><GlossaryText text={def.useIt} /></p>
-                        </div>
-                      )}
-                      {def.pitfalls && (
-                        <div>
-                          <div className="eyebrow-muted">Common mistakes to avoid</div>
-                          <ul className="mt-1 list-disc space-y-1 pl-5">
-                            {def.pitfalls.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </Collapsible>
-                </div>
-              )}
-
-              {locked ? (
-                <div className="flex items-start gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
-                  <Lock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
-                  <div className="text-sm text-amber-800 dark:text-amber-200">
-                    <p className="font-semibold">Locked until scope is authorized</p>
-                    <p className="mt-1">
-                      No scanning or testing begins until your team&apos;s <strong>Scope &amp; Rules of
-                      Engagement</strong> is signed off. Ask your team&apos;s GRC (Fixers) to complete deliverable{' '}
-                      <strong>1. Scope &amp; Rules of Engagement</strong> and fill in the{' '}
-                      <em>Authorization / sign-off</em> field. This form unlocks automatically once that is saved
-                      on this device — staying in scope is the rule that keeps the work ethical and legal.
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                <DeliverableForm def={def} data={data} onChange={(next) => setDoc(def.id, next)} />
-              )}
-            </section>
+              {w === 0 ? 'Setup' : `${unitWord(course)} ${w}`}
+              {allDone && <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />}
+            </button>
           );
-        })
+        })}
+      </div>
+
+      {/* ── the header: one line saying what this week asks of you ───────── */}
+      <header data-block="week-head" className="space-y-1">
+        <h1 className="text-2xl font-bold tracking-tight text-ink">
+          {weekWord} · {dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}
+        </h1>
+        <p className="text-sm text-muted">
+          {roleName} · Team {teamId} · fill the form, then generate the PDF. Evidence goes in{' '}
+          <span className="font-mono text-xs">~/team-artifacts/week-{selectedWeek}/</span>
+          {/* Same JSX whitespace trap as on the Guide: the text node after this
+              element spans a newline, so its leading space is trimmed away. */}
+          {' '}
+          and this week&apos;s zip is built at the bottom.
+        </p>
+      </header>
+
+      {/* ── the toolbar: everything that is not this week's form ──────────
+          These were five stacked blocks above the week selector. They are tools,
+          not reading, so they belong behind a control — which is the one place
+          disclosure is the right answer. */}
+      <div data-block="week-tools" className="flex flex-wrap items-center gap-2">
+        <ToolButton icon={ShieldCheck} label="Hash & log evidence" active={tool === 'evidence'} onClick={() => setTool(tool === 'evidence' ? null : 'evidence')} />
+        <ToolButton icon={Package} label="Team package" active={tool === 'package'} onClick={() => setTool(tool === 'package' ? null : 'package')} />
+        <ToolButton icon={Users} label="Export & hand-off" active={tool === 'handoff'} onClick={() => setTool(tool === 'handoff' ? null : 'handoff')} />
+        <Link
+          href={`/courses/${course.id}/guide/reference#forms`}
+          className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-panel-2 hover:text-ink"
+        >
+          <BookOpen className="h-4 w-4" /> How the forms work
+        </Link>
+      </div>
+
+      {/* The evidence tool keeps its id: every evidence step deep-links ?tool=evidence. */}
+      <span id="evidence-tool" className="sr-only" />
+
+      <Dialog open={tool === 'evidence'} onClose={() => setTool(null)} title="Hash & log evidence">
+        <div className="space-y-3">
+          <EvidenceHasher courseId={course.id} memberId={member.memberId} week={selectedWeek} />
+          {/* The custody doctrine — the NIST/ISO line, the six handling rules and the
+              "the package includes a custody log" note — used to be restated here,
+              and again forty lines below, and again inside the packager. It lives
+              once now, on Reference, where EvidenceGuide renders all of it. */}
+          <p className="text-xs text-muted">
+            Naming, hashing and hand-off rules:{' '}
+            <Link href={`/courses/${course.id}/guide/reference#evidence`} className="font-medium text-accent hover:underline">
+              Evidence &amp; chain of custody →
+            </Link>
+          </p>
+        </div>
+      </Dialog>
+
+      <Dialog open={tool === 'package'} onClose={() => setTool(null)} title="Team package">
+        <div className="space-y-3 text-sm text-body">
+          <p>
+            Bundles every deliverable into one zip in the submission folder structure (
+            <span className="font-mono text-xs">{packageFileName(meta)}</span>), with a ready-to-fill
+            chain-of-custody log.
+          </p>
+          <button
+            type="button"
+            onClick={() => downloadBytes(packageFileName(meta), buildTeamPackage(saved, meta), 'application/zip')}
+            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-contrast hover:bg-accent-strong"
+          >
+            <Package className="h-4 w-4" /> Download team package (.zip)
+          </button>
+        </div>
+      </Dialog>
+
+      <Dialog open={tool === 'handoff'} onClose={() => setTool(null)} title="Export & hand-off">
+        <div className="space-y-3 text-sm text-body">
+          <p className="text-muted">
+            Everyone fills their own deliverables on their own device — you never need a teammate to finish
+            yours. Export a <span className="font-mono text-xs">.json</span> backup, then restore it on another
+            device, or send it to whoever is assembling the combined package.
+          </p>
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => printHTML(toRoleReportHTML(myDefs, saved, meta, `${roleName} — Full Report`))}
+              className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-contrast hover:bg-accent-strong"
+            >
+              <FileDown className="h-4 w-4" /> My full report (PDF)
+            </button>
+            <button
+              type="button"
+              onClick={handleExportMyWork}
+              className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
+            >
+              <Download className="h-4 w-4" /> Export my work (.json)
+            </button>
+            <button
+              type="button"
+              onClick={() => importInputRef.current?.click()}
+              className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
+            >
+              <Upload className="h-4 w-4" /> Restore from file (.json)
+            </button>
+            <input
+              ref={importInputRef}
+              type="file"
+              accept="application/json,.json"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) handleImportFile(file);
+                e.target.value = '';
+              }}
+            />
+          </div>
+          {importMsg && <Alert variant={importMsg.ok ? 'success' : 'error'}>{importMsg.text}</Alert>}
+        </div>
+      </Dialog>
+
+      {/* Gate readiness, when the course has gates. One compact strip, not a card. */}
+      {gate && gateChecks.length > 0 && (
+        <div className="rounded-lg border border-line bg-panel px-4 py-3">
+          <div className="flex flex-wrap items-baseline gap-x-2">
+            <span className="text-sm font-semibold text-ink">Gate {gate.id} readiness</span>
+            <span className="font-mono text-xs text-muted">
+              {gateChecks.filter((c) => c.pass).length}/{gateChecks.length} checks
+            </span>
+          </div>
+          <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
+            {gateChecks.map((c, i) => (
+              <li key={i} className="flex items-start gap-1.5 text-xs">
+                {c.pass ? (
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                ) : (
+                  <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
+                )}
+                <span className={c.pass ? 'text-muted line-through' : 'text-body'}>{c.label}</span>
+                <span className="text-[10px] uppercase text-muted">{c.owner}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
+
+      {/* ── this week's form(s) ─────────────────────────────────────────── */}
+      <div data-block="week-forms">
+        {dueThisWeek.length === 0 ? (
+          // ONE empty state. There used to be two, rendering simultaneously — a
+          // blue box at the top of the page and a grey card further down.
+          <div className="rounded-lg border border-line bg-panel p-6 text-sm text-muted">
+            No form of your own in {weekWord}. This {unitWord(course).toLowerCase()} your work is evidence —
+            screenshots and findings you collect and file with the week package below.{' '}
+            <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium text-accent underline">
+              Go to this {unitWord(course).toLowerCase()}&apos;s tasks
+            </Link>
+            , or pick another {unitWord(course).toLowerCase()} above.
+          </div>
+        ) : dueThisWeek.length === 1 && currentDef ? (
+          <FormSection
+            def={currentDef}
+            saved={saved}
+            authorized={authorized}
+            noGatekeeping={course.noGatekeeping}
+            meta={meta}
+            onChange={setDoc}
+          />
+        ) : (
+          // More than one form this week — Security+ GRC Week 1 owns five, which
+          // stacked to roughly ten screens. Tabs make the week one page.
+          //
+          // Unmounting the inactive form is safe because DeliverableForm is fully
+          // controlled: every keystroke goes straight to docsRepo via onChange, so
+          // there is no local draft state to lose. Adding any would break this.
+          <Tabs
+            tabs={dueThisWeek.map((d) => ({
+              value: d.id,
+              label: (
+                <span className="flex items-center gap-1.5">
+                  {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />}
+                  {!course.noGatekeeping && d.requiresAuth && !authorized && <Lock className="h-3.5 w-3.5 text-amber-600" />}
+                  <span className="text-sm">{d.num}. {d.title}</span>
+                </span>
+              ),
+            }))}
+            activeTab={currentId ?? dueThisWeek[0].id}
+            onTabChange={setActiveForm}
+          >
+            {currentDef && (
+              <div className="pt-4">
+                <FormSection
+                  def={currentDef}
+                  saved={saved}
+                  authorized={authorized}
+                  noGatekeeping={course.noGatekeeping}
+                  meta={meta}
+                  onChange={setDoc}
+                />
+              </div>
+            )}
+          </Tabs>
+        )}
+      </div>
 
       {/* Package THIS week: filled form(s) + attached evidence → one zip with a
           populated chain-of-custody log. */}
-      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} roles={course.roles} memberId={member?.memberId} />
+      <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} roles={course.roles} memberId={member.memberId} />
     </div>
+  );
+}
+
+function ToolButton({
+  icon: Icon,
+  label,
+  active,
+  onClick,
+}: {
+  icon: typeof ShieldCheck;
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-expanded={active}
+      className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
+        active ? 'border-accent bg-accent-soft text-accent-ink' : 'border-line text-body hover:bg-panel-2'
+      }`}
+    >
+      <Icon className="h-4 w-4" /> {label}
+    </button>
+  );
+}
+
+/** One deliverable: title row, the shape diagram if it has one, guidance, form. */
+function FormSection({
+  def,
+  saved,
+  authorized,
+  noGatekeeping,
+  meta,
+  onChange,
+}: {
+  def: DeliverableDef;
+  saved: DocsMap;
+  authorized: boolean;
+  noGatekeeping?: boolean;
+  meta: { team: string; cohort: string; date: string; courseId: string };
+  onChange: (id: string, data: DeliverableData) => void;
+}) {
+  // A form only has a "worked example" when a group carries seed rows; field-only
+  // forms (e.g. Detection Record) have none, so no badge/toggle.
+  const hasExample = def.sections.some((s) => s.kind === 'group' && (s.group.seed?.length ?? 0) > 0);
+  const isExample = hasExample && !saved[def.id];
+  const data = saved[def.id] ?? seedDeliverable(def);
+  const locked = !noGatekeeping && !!def.requiresAuth && !authorized;
+  const hasGuidance = !!(def.buildSteps || def.meaning || def.useIt || def.pitfalls);
+  const Diagram = FORM_DIAGRAM[def.id];
+
+  return (
+    <section id={`form-${def.id}`} className="scroll-mt-24 space-y-4 rounded-lg border border-line bg-panel p-5">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">
+            {def.num}. {def.title}
+            {def.framework && <FrameworkBadge framework={def.framework} />}
+            {isExample && !locked && (
+              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                Example
+              </span>
+            )}
+            {locked && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-[11px] font-medium text-muted">
+                <Lock className="h-3 w-3" /> Locked
+              </span>
+            )}
+          </h2>
+          <p className="mt-0.5 text-sm text-muted"><GlossaryText text={def.purpose} /></p>
+          <p className="mt-0.5 text-xs text-muted">
+            <span className="font-mono">{def.folder}/{def.file}</span> · {def.standard}
+            {def.source ? ` · ${def.source}` : ''}
+          </p>
+        </div>
+        {!locked && (
+          <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {hasExample && (isExample ? (
+              <button
+                type="button"
+                onClick={() => onChange(def.id, emptyData())}
+                className="rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+              >
+                Start blank
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => onChange(def.id, seedDeliverable(def))}
+                className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+              >
+                <Sparkles className="h-3.5 w-3.5" /> Restore example
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => printHTML(toDeliverableHTML(def, data, meta))}
+              className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-contrast hover:bg-accent-strong"
+            >
+              <Printer className="h-3.5 w-3.5" /> Generate PDF
+            </button>
+            <button
+              type="button"
+              onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, meta))}
+              className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+            >
+              <FileText className="h-3.5 w-3.5" /> .md
+            </button>
+            {def.exportFormat === 'csv' && (
+              <button
+                type="button"
+                onClick={() => download(def.file, toDeliverableCSV(def, data))}
+                className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+              >
+                <FileSpreadsheet className="h-3.5 w-3.5" /> .csv
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* The shape of the answer, beside the form it describes. */}
+      {!locked && Diagram && <Diagram />}
+
+      {!locked && hasGuidance && (
+        <div className="rounded-lg border border-line bg-panel-2 px-4">
+          <Collapsible title="How to build this — and what it means" defaultOpen={false}>
+            <div className="space-y-3 pb-2 text-sm text-body">
+              <p><GlossaryText text={def.howTo} /></p>
+              {def.buildSteps && (
+                <div>
+                  <div className="eyebrow-muted">Build it — where each value comes from</div>
+                  <ol className="mt-1 list-decimal space-y-1 pl-5">
+                    {def.buildSteps.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
+                  </ol>
+                </div>
+              )}
+              {def.meaning && (
+                <div>
+                  <div className="eyebrow-muted">What it means &amp; what a good one looks like</div>
+                  <p className="mt-1"><GlossaryText text={def.meaning} /></p>
+                </div>
+              )}
+              {def.useIt && (
+                <div>
+                  <div className="eyebrow-muted">What it feeds next</div>
+                  <p className="mt-1"><GlossaryText text={def.useIt} /></p>
+                </div>
+              )}
+              {def.pitfalls && (
+                <div>
+                  <div className="eyebrow-muted">Common mistakes to avoid</div>
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    {def.pitfalls.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
+                  </ul>
+                </div>
+              )}
+            </div>
+          </Collapsible>
+        </div>
+      )}
+
+      {locked ? (
+        <div className="flex items-start gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
+          <Lock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <div className="text-sm text-amber-800 dark:text-amber-200">
+            <p className="font-semibold">Locked until scope is authorized</p>
+            <p className="mt-1">
+              No scanning or testing begins until your team&apos;s <strong>Scope &amp; Rules of
+              Engagement</strong> is signed off. Ask your team&apos;s GRC (Fixers) to complete deliverable{' '}
+              <strong>1. Scope &amp; Rules of Engagement</strong> and fill in the{' '}
+              <em>Authorization / sign-off</em> field. This form unlocks automatically once that is saved
+              on this device — staying in scope is the rule that keeps the work ethical and legal.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <DeliverableForm def={def} data={data} onChange={(next) => onChange(def.id, next)} />
+      )}
+    </section>
   );
 }
