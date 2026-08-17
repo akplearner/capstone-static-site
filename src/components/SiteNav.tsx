@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronRight, Compass, FolderGit2, GraduationCap, LayoutDashboard, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
+import { ChevronRight, Compass, FolderGit2, GraduationCap, LayoutDashboard, LogIn, LogOut, PencilRuler, ShieldCheck } from 'lucide-react';
 import { ThemeToggle } from './ThemeToggle';
 import { courseRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 
 type Crumb = { label: string; href?: string };
@@ -125,11 +126,37 @@ export function SiteNav() {
   );
 }
 
-/** Signed-in indicator + sign-out. Renders nothing when signed out (sign-in is
- *  offered contextually where saving is required) or when Supabase is unconfigured. */
+/**
+ * Signed in → who you are, and sign out. Signed out → the way in.
+ *
+ * The signed-out half used to render nothing, on the reasoning that "sign-in is
+ * offered contextually where saving is required". That held only while the proxy
+ * gated `/courses` wholesale, so every visitor eventually hit a redirect to
+ * `/login` whether they meant to or not. Now that a course dashboard is public
+ * (see `lib/routeGate.ts`) a visitor can browse the site indefinitely without
+ * being bounced — so without a link here there is no way in at all short of
+ * typing the URL.
+ *
+ * Still nothing in demo mode: with Supabase unconfigured there is no account to
+ * sign in to, and `DemoBanner` already explains that.
+ */
 function AuthControl() {
   const { user, signOut } = useAuth();
-  if (!user) return null;
+  const pathname = usePathname() || '/';
+
+  if (!user) {
+    if (!isSupabaseConfigured()) return null;
+    return (
+      <Link
+        href={`/login?next=${encodeURIComponent(pathname)}`}
+        className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted hover:bg-panel-2 hover:text-ink"
+      >
+        <LogIn className="h-4 w-4" />
+        <span>Sign in</span>
+      </Link>
+    );
+  }
+
   const label = user.email ?? 'Account';
   return (
     <button

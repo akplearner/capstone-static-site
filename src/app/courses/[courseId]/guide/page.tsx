@@ -5,6 +5,8 @@ import { ArrowRight, BookOpen } from 'lucide-react';
 import { AttackPathDiagram } from '@/components/diagrams/AttackPathDiagram';
 import { WeekGoals } from '@/components/docs/WeekGoals';
 import { CourseSubNav } from '@/components/CourseSubNav';
+import { CourseEnrolGate } from '@/components/CourseEnrolGate';
+import { LoadingBlock } from '@/components/ui/Spinner';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { useCourse } from '@/lib/useCourse';
@@ -40,8 +42,16 @@ import { useMember } from '@/lib/useMember';
  */
 export default function CourseGuidePage() {
   const course = useCourse();
-  const { member } = useMember(course.id);
+  const { member, loading } = useMember(course.id);
   const unit = unitWord(course).toLowerCase();
+
+  // Orientation is course material, so it needs enrolment — the same rule the
+  // Deliverables page has always applied. The proxy has already established there
+  // is an account (`lib/routeGate.ts`); this is the "…and they joined THIS course"
+  // half, which only the page can know. Wait for hydration first, or an enrolled
+  // student sees the gate flash before their own content.
+  if (loading) return <LoadingBlock />;
+  if (!member) return <CourseEnrolGate courseId={course.id} what="the guide" />;
 
   // The real count, not a slogan. The page used to claim "each role fills one form
   // per week", which is true for CySA+ and false for Security+, where GRC owns five

@@ -10,6 +10,7 @@ import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { QuarryScene } from '@/components/quarry/QuarryScene';
 import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
 import { useAuth } from '@/lib/useAuth';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { VENDORS, catalogSummary } from '@/lib/catalog/helpers';
 
 // The platform landing. It sells one idea — you cut a real capstone, you don't
@@ -53,11 +54,25 @@ export default function HomePage() {
                 <Compass className="h-5 w-5" /> Explore certs
               </Button>
             </Link>
-            <Link href="/dashboard">
-              <Button variant="secondary" size="lg" className="flex items-center gap-2">
-                Your dashboard <ArrowRight className="h-5 w-5" />
-              </Button>
-            </Link>
+            {/* Signed-in visitors are redirected to /dashboard above, so this
+                button is only ever seen signed out. In cloud mode that makes
+                "Your dashboard" a mislabelled sign-up button — it worked solely
+                because the proxy bounced it to /login. Name it what it does, and
+                point it at the page written for it. In demo mode there is no
+                account to create, so the original link is still the right one. */}
+            {isSupabaseConfigured() ? (
+              <Link href="/register?next=/dashboard">
+                <Button variant="secondary" size="lg" className="flex items-center gap-2">
+                  Get started <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/dashboard">
+                <Button variant="secondary" size="lg" className="flex items-center gap-2">
+                  Your dashboard <ArrowRight className="h-5 w-5" />
+                </Button>
+              </Link>
+            )}
           </div>
           <p className="font-mono text-xs text-muted">
             {summary.available} live capstones · {summary.total} certs on the map · {summary.vendors} vendors

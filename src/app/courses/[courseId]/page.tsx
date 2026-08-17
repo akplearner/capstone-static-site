@@ -36,6 +36,7 @@ import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
+import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { LabAccessPanel } from '@/components/LabAccessPanel';
@@ -1235,39 +1236,45 @@ export default function CoursePage() {
             </span>
           </div>
         )}
-        {!joined && (
-          <div className="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-            <Lock className="h-4 w-4 shrink-0" /> Join a team &amp; role on the <strong>Overview</strong> tab to unlock and track these tasks.
-          </div>
-        )}
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search tasks by name, objective, or framework…"
-            aria-label="Search tasks"
-            className="w-full pl-9 pr-9"
-          />
-          {query && (
-            <button
-              type="button"
-              onClick={() => setQuery('')}
-              aria-label="Clear search"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
-        </div>
-        {q && !anyMatches && (
-          <p className="text-sm text-muted">No tasks match “{query}”.</p>
+        {/* Not enrolled: the tasks ARE the course material, so this is where the
+            page stops. It used to render an amber "join to unlock and track these
+            tasks" note and then print every role's full task list underneath it —
+            so only the progress tracking was ever gated, never the material. The
+            course dashboard above still sells the course; this is the line. */}
+        {!joined && <CourseEnrolGate courseId={course.id} what="the weekly tasks" />}
+        {joined && (
+          <>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Search tasks by name, objective, or framework…"
+                aria-label="Search tasks"
+                className="w-full pl-9 pr-9"
+              />
+              {query && (
+                <button
+                  type="button"
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              )}
+            </div>
+            {q && !anyMatches && (
+              <p className="text-sm text-muted">No tasks match “{query}”.</p>
+            )}
+          </>
         )}
       </div>
 
       {joined && <LabAccessPanel courseId={course.id} />}
 
+      {joined && (
       <div className="space-y-4">
         {sortedWeeks.map((w) => {
           const weekTasks = getWeekTasks(course, w.number);
@@ -1592,41 +1599,17 @@ export default function CoursePage() {
                     </div>
                   )}
 
-                  {/* Not joined — all roles, locked */}
-                  {!joined &&
-                    course.roles.map((r) => {
-                      const roleTasks = shownTasks.filter((t) => t.role === r.id);
-                      if (roleTasks.length === 0) return null;
-                      return (
-                        <div
-                          key={r.id}
-                          className="lane space-y-3 py-3 pr-3"
-                          style={{ '--lane-color': r.color } as React.CSSProperties}
-                        >
-                          <RoleGroupHeader role={r} />
-                          {roleTasks.map((task) => (
-                            <TaskRow
-                              key={task.id}
-                              course={course}
-                              task={task}
-                              isOwn={false}
-                              joined={false}
-                              open={false}
-                              percent={0}
-                              onToggle={() => undefined}
-                            >
-                              {null}
-                            </TaskRow>
-                          ))}
-                        </div>
-                      );
-                    })}
+                  {/* The `!joined` branch that used to sit here — every role's
+                      tasks, rendered read-only to anyone who hadn't enrolled —
+                      is gone. Nothing in this subtree renders to a non-member
+                      any more; the gate is above, once. */}
                 </div>
               )}
             </section>
           );
         })}
       </div>
+      )}
       </motion.div>
       )}
 

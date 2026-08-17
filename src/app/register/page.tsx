@@ -11,6 +11,11 @@ import { Skeleton } from '@/components/ui/Spinner';
 
 // Registration. Kept as its own route rather than a tab on /login so it can be
 // linked to directly from the landing CTA and indexed as the signup entry point.
+//
+// The landing half of that was briefly untrue — the hero linked to /dashboard and
+// relied on the proxy bouncing signed-out visitors to /login, so nothing pointed
+// here at all. Its "Get started" button now does (cloud mode only; in demo mode
+// there is no account to create).
 function RegisterInner() {
   const params = useSearchParams();
   const next = safeNextPath(params.get('next'));

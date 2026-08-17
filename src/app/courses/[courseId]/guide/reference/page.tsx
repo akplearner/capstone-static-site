@@ -18,6 +18,8 @@ import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
 import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
+import { CourseEnrolGate } from '@/components/CourseEnrolGate';
+import { LoadingBlock } from '@/components/ui/Spinner';
 import { socTopology } from '@/lib/labTopology';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
@@ -51,9 +53,14 @@ interface Section {
 
 export default function CourseReferencePage() {
   const course = useCourse();
-  const { member } = useMember(course.id);
+  const { member, loading } = useMember(course.id);
   const topo = socTopology(course.id);
   const isCysa = course.id === 'cysa-plus';
+
+  // Same enrolment rule as the Guide this is an appendix to — the manual is course
+  // material. See `CourseEnrolGate` for why the check lives here and not the proxy.
+  if (loading) return <LoadingBlock />;
+  if (!member) return <CourseEnrolGate courseId={course.id} what="the reference manual" />;
 
   const frameworkIds = Array.from(new Set(course.tasks.flatMap((t) => t.frameworks))).sort();
 

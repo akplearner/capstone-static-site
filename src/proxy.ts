@@ -1,6 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from '@/lib/supabase/config';
+import { isProtected } from '@/lib/routeGate';
 
 // Next.js 16 renamed `middleware` to `proxy` (node_modules/next/dist/docs/.../proxy.md).
 // It must NOT export a `runtime` (proxy is Node-only; setting runtime throws).
@@ -8,21 +9,26 @@ import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from '@/lib/sup
 // Two jobs:
 //  1. Refresh the Supabase auth session cookie on navigation so server reads see a
 //     valid session.
-//  2. Gate the app. Marketing surfaces (`/`, `/explore`) stay public and indexable;
-//     anything holding a learner's work requires an account. This is the server-side
-//     half — `useRequireAuth` still guards writes client-side as defence in depth,
-//     but a redirect here is the one a user can't skip by disabling JavaScript.
+//  2. Gate the app. Marketing surfaces (`/`, `/explore`) and each course's
+//     DASHBOARD (`/courses/<id>`) stay public and indexable — a prospective
+//     student has to be able to see what they'd be enrolling in. Course material
+//     (everything below the dashboard) and anything holding a learner's own work
+//     requires an account. The rules live in `lib/routeGate.ts`.
+//
+// This is authentication only, and only the outer of two layers:
+//
+//   here          is there a session at all?      server-side, unskippable
+//   in-page       is this user enrolled HERE?     `useMember` + `CourseEnrolGate`
+//
+// Enrolment is deliberately not checked here: it would put a database round trip
+// in front of every navigation, and it would be redundant, since RLS already
+// returns zero rows to a non-member. `useRequireAuth` still guards writes
+// client-side as defence in depth, but a redirect here is the one a user can't
+// skip by disabling JavaScript.
 //
 // When Supabase isn't configured the proxy is a pass-through and NOTHING is gated:
 // that is the offline/demo mode the app is built around, and it keeps local dev and
 // CI (which build with no env vars) working exactly as before.
-
-/** Prefixes that require an account. Everything else is public. */
-const PROTECTED = ['/dashboard', '/portfolio', '/account', '/courses', '/instructor'];
-
-function isProtected(pathname: string): boolean {
-  return PROTECTED.some((p) => pathname === p || pathname.startsWith(`${p}/`));
-}
 
 export async function proxy(request: NextRequest) {
   if (!isSupabaseConfigured()) return NextResponse.next();

@@ -60,6 +60,14 @@ data asset. Each item maps to a real seam.
 7. **Actor type + capability-scoped API.** Add `actor.type: human|agent` to identity/events; keep the API
    resource-clean and capability-scoped (no agent gateway yet). *ADRs:*
    [0006](./adr/0006-standards-xapi-oscal-lti-oidc.md), [0007](./adr/0007-agent-ready-not-coupled.md).
+8. **R37 — server-side course-content gate.** Enrolment currently gates the course material in the UI
+   (`src/lib/routeGate.ts` for the account half, `CourseEnrolGate` for the enrolment half), but the
+   content itself ships inside the client bundle: `src/lib/data/seed/*.ts` is imported by client
+   components, so a non-member can still recover it from the bundle. Move seed content behind a server
+   route that reads the membership row before returning it, making the gate a real boundary rather than a
+   product one. *Seam:* `src/lib/data/` (the repo layer), every course page's data load, and the
+   offline/demo path — which must keep working with no env vars, since that is what CI builds. Sizeable:
+   this is the one Phase-1 item that changes how pages get their data, not just what is written down.
 
 **Acceptance:** every meaningful action appends a signed, consented, tenant-scoped, control-tagged event;
 today's dashboards rebuild from the log; dropping a projection table and replaying events reproduces it.

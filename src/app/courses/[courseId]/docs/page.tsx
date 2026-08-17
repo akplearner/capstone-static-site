@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
+import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { Collapsible, Tabs } from '@/components/ui/Button';
@@ -183,17 +183,7 @@ export default function DeliverablesPage() {
   };
 
   if (loading) return <LoadingBlock />;
-  if (!member) {
-    return (
-      <EmptyState
-        title="Enrol first"
-        message="Join this course (pick a team and role) to work on your deliverables."
-        miner="idle"
-        href={`/courses/${course.id}`}
-        cta="Go to course"
-      />
-    );
-  }
+  if (!member) return <CourseEnrolGate courseId={course.id} what="your deliverables" />;
 
   const teamId = member.teamId;
   const meta = { team: teamId, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };

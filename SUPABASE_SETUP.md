@@ -218,14 +218,34 @@ That email dependency is exactly what Google-only avoids.
 | | No env vars | Env vars set |
 |---|---|---|
 | Sign-in | not shown (demo banner instead) | Continue with Google |
-| Reading the course | open | open |
+| Course dashboard (`/courses/<id>`) | open | open |
+| Course material (tasks, guide, deliverables) | open | requires an account **and** enrolment |
 | Saving anything | localStorage | requires an account |
 | Across devices | no | yes |
 | Teammates see your work | no | yes |
 
-Browsing is never gated — a prospective student can read a whole course before
-signing in. The gate is on **writes**, because work that isn't attached to an
-account is lost the moment the browser is cleared.
+The line falls between the course **dashboard** and the course **material**. The
+dashboard is public so a prospective student can see what they'd be enrolling in —
+the identity, the week arc, the roles, the gates and the join form. The material —
+weekly tasks and their steps, the guide, the reference manual, the deliverables,
+the team space — opens once they join a team and a role.
+
+Two layers enforce that, and they check different things:
+
+- **`src/proxy.ts`** (via `src/lib/routeGate.ts`) checks *authentication* — is
+  there a session. Server-side, so it can't be skipped by disabling JavaScript.
+- **The page** checks *enrolment* — is this user on a team for **this** course,
+  via `useMember` + `CourseEnrolGate`. The proxy deliberately doesn't: it would put
+  a database round trip in front of every navigation, and it would be redundant
+  because RLS already returns a non-member zero rows.
+
+Neither is a *content* boundary. Course content currently ships inside the client
+bundle, so this hides the material from the page but does not withhold it from
+someone reading the bundle. Moving seed content behind a server route is tracked as
+R37 in `docs/ROADMAP.md`.
+
+Writes are gated separately and always: work that isn't attached to an account is
+lost the moment the browser is cleared.
 
 On a student's first sign-in, if that device already holds local progress, they're
 offered a **one-time import**. It is only marked done once the server confirms the
