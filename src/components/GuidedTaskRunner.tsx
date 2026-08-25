@@ -168,10 +168,10 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           <ListChecks className="h-4 w-4" />
           {requiredDone} of {requiredTotal} required done
           {optionalTotal > 0 && (
-            <span className="text-xs text-gray-400">· {optionalTotal} optional</span>
+            <span className="text-xs text-muted">· {optionalTotal} optional</span>
           )}
           {allRequiredDone && (
-            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-xs text-green-700 dark:bg-green-900/40 dark:text-green-300">
+            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-xs text-ok">
               <CheckCircle2 className="h-3 w-3" /> Task complete
             </span>
           )}
@@ -179,13 +179,13 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           <CutBeat trigger={beat} />
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex overflow-hidden rounded-lg border border-gray-300 dark:border-gray-600">
+          <div className="flex overflow-hidden rounded-lg border border-line">
             <button
               onClick={() => setMode('guided')}
               className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
                 mode === 'guided'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-accent text-accent-contrast'
+                  : 'bg-panel text-muted hover:bg-panel-2'
               }`}
             >
               <ArrowRight className="h-3.5 w-3.5" /> Guided
@@ -194,8 +194,8 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               onClick={() => setMode('all')}
               className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
                 mode === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-gray-600 hover:bg-gray-50 dark:bg-gray-800 dark:text-gray-300 dark:hover:bg-gray-700'
+                  ? 'bg-accent text-accent-contrast'
+                  : 'bg-panel text-muted hover:bg-panel-2'
               }`}
             >
               <Rows3 className="h-3.5 w-3.5" /> Show all
@@ -204,14 +204,14 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           {allDone ? (
             <button
               onClick={undoAll}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
             >
               <RotateCcw className="h-3.5 w-3.5" /> Reset
             </button>
           ) : (
             <button
               onClick={markAll}
-              className="flex items-center gap-1 rounded-lg border border-gray-300 px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+              className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
             >
               <Check className="h-3.5 w-3.5" /> Mark all
             </button>
@@ -243,12 +243,12 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
               transition={{ duration: 0.2 }}
-              className="rounded-lg border border-gray-200 bg-gray-50 p-5 dark:border-gray-700 dark:bg-gray-700/40"
+              className="rounded-lg border border-line bg-panel-2 p-5"
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-400">
+                    <span className="text-xs font-semibold uppercase tracking-wide text-accent">
                       Step {currentIdx + 1} of {total}
                     </span>
                     {current?.optional && (
@@ -262,7 +262,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   </h4>
                 </div>
                 {currentDone && (
-                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ok-soft px-2 py-1 text-xs font-medium text-ok">
                     <Check className="h-3 w-3" /> Done
                   </span>
                 )}
@@ -389,9 +389,9 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
         <motion.div
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 px-4 py-3 dark:border-green-800 dark:bg-green-900/20"
+          className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-ok-line bg-ok-soft px-4 py-3"
         >
-          <span className="flex items-center gap-2 text-sm font-medium text-green-800 dark:text-green-300">
+          <span className="flex items-center gap-2 text-sm font-medium text-ok">
             <CutMark size={30} className="shrink-0" /> Task complete — nice work.
           </span>
           <Button size="sm" onClick={onNext} className="flex items-center gap-1">

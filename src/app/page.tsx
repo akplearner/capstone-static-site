@@ -93,8 +93,9 @@ export default function HomePage() {
               key={s.title}
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
+              whileHover={{ y: -2 }}
               transition={{ delay: i * 0.06 }}
-              className="rounded-[var(--radius-card)] border border-line bg-panel p-5"
+              className="rounded-[var(--radius-card)] border border-line bg-panel p-5 transition-colors hover:border-accent"
             >
               <div className="inline-flex rounded-xl bg-accent-soft p-2.5 text-accent">
                 <s.icon className="h-5 w-5" />

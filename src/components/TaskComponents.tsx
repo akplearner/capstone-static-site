@@ -64,9 +64,9 @@ export function GateBadge({ gateId, status, completionPercent }: GateBadgeProps)
   };
 
   const colors = {
-    locked: 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300',
+    locked: 'bg-panel-2 text-muted',
     ready: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    passed: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
+    passed: 'bg-ok-soft text-ok',
   };
 
   return (
@@ -85,12 +85,12 @@ export function GateBadge({ gateId, status, completionPercent }: GateBadgeProps)
         </div>
         <div>{icons[status]}</div>
       </div>
-      <div className="mt-3 h-2 w-full rounded-full bg-gray-300 dark:bg-gray-600">
+      <div className="mt-3 h-2 w-full rounded-full bg-line">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${completionPercent}%` }}
           transition={{ duration: 0.5 }}
-          className="h-full rounded-full bg-blue-600"
+          className="h-full rounded-full bg-accent"
         />
       </div>
       <div className="mt-2 text-xs font-medium">{completionPercent}% Complete</div>
@@ -195,7 +195,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
   }, [text, touched, ledger?.courseId, ledger?.taskId, ledger?.stepId, ledger?.memberId]);
 
   return (
-    <div className="rounded-md border border-gray-200 bg-white p-2 dark:border-gray-600 dark:bg-gray-800">
+    <div className="rounded-md border border-line bg-panel p-2">
       <label className="eyebrow-muted">
         Verify — paste your actual output
       </label>
@@ -205,10 +205,10 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
         rows={2}
         spellCheck={false}
         placeholder="Paste what your terminal printed…"
-        className="mt-1 w-full rounded border border-gray-300 bg-gray-50 p-2 font-mono text-xs text-gray-800 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+        className="mt-1 w-full rounded border border-line bg-panel-2 p-2 font-mono text-xs text-ink"
       />
       {touched && (
-        <div className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium ${allOk ? 'text-green-600 dark:text-green-400' : 'text-amber-600 dark:text-amber-400'}`}>
+        <div className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium ${allOk ? 'text-ok' : 'text-warn'}`}>
           {allOk ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
           {allOk
             ? 'Verified — your output matches. Recorded and hashed.'
@@ -218,7 +218,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
       {/* Already proved it earlier: say so rather than showing an empty box that
           implies the work was never done. */}
       {!touched && previouslyVerified && (
-        <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-green-600 dark:text-green-400">
+        <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-ok">
           <Check className="h-4 w-4" />
           Verified earlier{prior?.verifiedAt ? ` on ${new Date(prior.verifiedAt).toLocaleDateString()}` : ''} — recorded.
         </div>
@@ -238,8 +238,8 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
                 key={tok}
                 className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${
                   ok
-                    ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
-                    : 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400'
+                    ? 'bg-ok-soft text-ok'
+                    : 'bg-panel-2 text-muted'
                 }`}
               >
                 {touched ? (ok ? '✓' : '○') : '•'} {tok}
@@ -362,16 +362,16 @@ export function StepDetail({
           have to exist first, so a missing one is a visible prerequisite, not a
           confusing failure. A `source` that looks like a shell command is copyable. */}
       {files && files.length > 0 && (
-        <div className="rounded-md border border-sky-200 bg-sky-50 px-3 py-2 dark:border-sky-800 dark:bg-sky-900/20">
-          <div className="flex items-center gap-2 text-sm font-semibold text-sky-900 dark:text-sky-200">
-            <Download className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" />
+        <div className="rounded-md border border-accent/30 bg-accent-soft px-3 py-2">
+          <div className="flex items-center gap-2 text-sm font-semibold text-ink">
+            <Download className="h-4 w-4 shrink-0 text-accent" />
             Files you&apos;ll need first
           </div>
           <ul className="mt-1.5 space-y-1.5">
             {files.map((f) => (
-              <li key={f.name} className="text-sm text-sky-900 dark:text-sky-200">
+              <li key={f.name} className="text-sm text-ink">
                 <span className="font-semibold">{f.name}</span>
-                <span className="text-sky-800 dark:text-sky-300"> — {f.purpose}</span>
+                <span className="text-body"> — {f.purpose}</span>
                 {f.source &&
                   (isCommandLike(f.source) ? (
                     <div className="mt-1">
@@ -382,12 +382,12 @@ export function StepDetail({
                       href={f.source}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-0.5 block break-all text-xs font-medium text-sky-700 underline dark:text-sky-400"
+                      className="mt-0.5 block break-all text-xs font-medium text-accent underline"
                     >
                       {f.source}
                     </a>
                   ) : (
-                    <div className="mt-0.5 text-xs text-sky-700 dark:text-sky-400">{f.source}</div>
+                    <div className="mt-0.5 text-xs text-accent">{f.source}</div>
                   ))}
               </li>
             ))}
@@ -488,10 +488,10 @@ export function StepDetail({
       </div>
 
       {deliverable && (
-        <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 dark:border-amber-800 dark:bg-amber-900/20">
+        <div className="rounded-md border border-warn-line bg-warn-soft px-3 py-2">
           <div className="flex items-start gap-2">
-            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
-            <span className="text-sm text-amber-800 dark:text-amber-300">
+            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-warn" />
+            <span className="text-sm text-ink">
               Save your evidence as <span className="font-mono font-semibold">{deliverable}</span>,
               then hash it for chain of custody and log it in your report.
             </span>
@@ -499,7 +499,7 @@ export function StepDetail({
           <div className="mt-2 flex flex-wrap gap-2 pl-6">
             <Link
               href={`/courses/${courseId}/docs?tool=evidence`}
-              className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-warn-line bg-panel px-2.5 py-1 text-xs font-medium text-warn transition-colors hover:bg-warn-soft"
             >
               <FileCheck2 className="h-3.5 w-3.5" /> Hash &amp; log this evidence →
             </Link>
@@ -508,7 +508,7 @@ export function StepDetail({
               return formId ? (
                 <Link
                   href={`/courses/${courseId}/docs?form=${formId}`}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 bg-white px-2.5 py-1 text-xs font-medium text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-900/30 dark:text-amber-200 dark:hover:bg-amber-900/50"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-warn-line bg-panel px-2.5 py-1 text-xs font-medium text-warn transition-colors hover:bg-warn-soft"
                 >
                   <SquarePen className="h-3.5 w-3.5" /> Open the form →
                 </Link>
@@ -673,7 +673,7 @@ export function ChecklistItem({
           checked={isComplete}
           onChange={(e) => onToggle(e.target.checked)}
           whileHover={{ scale: 1.1 }}
-          className="mt-1 h-5 w-5 cursor-pointer accent-blue-600"
+          className="mt-1 h-5 w-5 cursor-pointer accent-[var(--color-accent)]"
         />
         <div className="flex-1">
           <motion.div className="flex items-center justify-between gap-2">
@@ -687,7 +687,7 @@ export function ChecklistItem({
             </h4>
             <motion.button
               onClick={() => setShowDetails(!showDetails)}
-              className="flex shrink-0 items-center gap-1 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"
+              className="flex shrink-0 items-center gap-1 text-sm text-accent hover:text-accent-strong"
             >
               {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               {showDetails ? 'Hide' : 'Details'}
@@ -695,7 +695,7 @@ export function ChecklistItem({
           </motion.div>
 
           {isComplete && (
-            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="mt-1 flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+            <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="mt-1 flex items-center gap-1 text-sm text-ok">
               <Check className="h-4 w-4" /> Completed
             </motion.div>
           )}
@@ -706,7 +706,7 @@ export function ChecklistItem({
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
           >
-            <div className="mt-3 border-t border-gray-200 pt-3 dark:border-gray-600">
+            <div className="mt-3 border-t border-line pt-3">
               <StepDetail
                 instruction={instruction}
                 instructionList={instructionList}
@@ -830,7 +830,7 @@ export function CommandBlock({
       {stillUnfilled && (
         <Link
           href={`/courses/${courseId}#lab-access`}
-          className="mt-1 flex items-start gap-1.5 rounded-md border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-800 transition-colors hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300 dark:hover:bg-amber-900/40"
+          className="mt-1 flex items-start gap-1.5 rounded-md border border-warn-line bg-warn-soft px-2.5 py-1.5 text-xs text-ink transition-colors hover:opacity-80"
         >
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
@@ -870,7 +870,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
       </div>
       {c.explain && (
         <p className="mt-1 flex gap-1.5 pl-1 text-xs text-muted">
-          <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
           <span>{c.explain}</span>
         </p>
       )}
@@ -880,7 +880,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
             type="button"
             onClick={() => setShowFlags((v) => !v)}
             aria-expanded={showFlags}
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-700 hover:text-emerald-800 dark:text-emerald-400 dark:hover:text-emerald-300"
+            className="inline-flex items-center gap-1 text-[11px] font-medium text-ok hover:opacity-80"
           >
             {showFlags ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             {showFlags ? 'Hide the parts' : 'What each part means'}
@@ -889,7 +889,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
             <ul className="mt-1 space-y-0.5">
               {c.flags!.map((f) => (
                 <li key={f.flag} className="flex gap-2 text-xs text-muted">
-                  <code className="shrink-0 font-mono font-semibold text-emerald-700 dark:text-emerald-300">
+                  <code className="shrink-0 font-mono font-semibold text-ok">
                     {f.flag}
                   </code>
                   <span>{f.meaning}</span>
@@ -926,7 +926,7 @@ export function CopyButton({ text, label = 'Copy' }: { text: string; label?: str
       type="button"
       onClick={handleCopy}
       aria-label={copied ? 'Copied to clipboard' : label}
-      className="inline-flex items-center gap-1 rounded bg-blue-600 px-2 py-1 text-xs text-white hover:bg-blue-700"
+      className="inline-flex items-center gap-1 rounded bg-accent px-2 py-1 text-xs text-accent-contrast hover:bg-accent-strong"
     >
       {copied ? <Check className="h-3 w-3" aria-hidden /> : <Copy className="h-3 w-3" aria-hidden />}
       <span aria-hidden>{copied ? 'Copied' : label}</span>

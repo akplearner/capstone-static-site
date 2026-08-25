@@ -89,7 +89,7 @@ export function Dialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="relative z-10 w-full max-w-md rounded-lg border border-gray-200 bg-white p-5 shadow-xl dark:border-gray-700 dark:bg-gray-800"
+            className="relative z-10 w-full max-w-md rounded-lg border border-line bg-panel p-5 shadow-xl"
           >
             <div className="mb-2 flex items-start justify-between gap-4">
               <h2 id={labelledBy} className="text-lg font-semibold text-ink">
@@ -99,7 +99,7 @@ export function Dialog({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="rounded p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700"
+                className="rounded p-1 text-muted hover:bg-panel-2 hover:text-ink"
               >
                 <X className="h-4 w-4" />
               </button>

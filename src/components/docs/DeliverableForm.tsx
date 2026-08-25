@@ -7,7 +7,7 @@ import { validateEvidenceFileName } from '@/lib/utils';
 import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
 
 const inputClass =
-  'mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white';
+  'mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink';
 
 function SingleField({
   f,
@@ -49,10 +49,10 @@ function SingleField({
     <label className="block">
       <span className="flex items-center gap-1 text-sm font-medium text-body">
         {f.label}
-        {f.required && <span className="text-red-500">*</span>}
+        {f.required && <span className="text-danger">*</span>}
       </span>
       {f.derived ? (
-        <div className={`${inputClass} bg-gray-50 text-gray-600 dark:bg-gray-800`}>{value || '—'}</div>
+        <div className={`${inputClass} bg-panel-2 text-muted`}>{value || '—'}</div>
       ) : f.type === 'area' || f.type === 'paste' ? (
         <textarea
           value={value}
@@ -71,7 +71,7 @@ function SingleField({
             className={inputClass}
           />
           {value && (
-            <div className="text-xs text-gray-500 dark:text-gray-400">
+            <div className="text-xs text-muted">
               Signed on {value.match(/—\s*(.+)$/)?.[1] || 'pending'}
             </div>
           )}
@@ -94,12 +94,12 @@ function SingleField({
           className={inputClass}
         />
       )}
-      {f.help && <span className="mt-1 block text-xs text-gray-400">{f.help}</span>}
+      {f.help && <span className="mt-1 block text-xs text-muted">{f.help}</span>}
       {f.required && empty && (
-        <span className="mt-1 block text-xs text-red-500">Required for a complete deliverable.</span>
+        <span className="mt-1 block text-xs text-danger">Required for a complete deliverable.</span>
       )}
       {namingBad && (
-        <span className="mt-1 block text-xs text-amber-600 dark:text-amber-400">
+        <span className="mt-1 block text-xs text-warn">
           Name it like {EVIDENCE_NAMING_PNG}
         </span>
       )}
@@ -116,7 +116,7 @@ function NamingWarnings({ group, rows }: { group: FieldGroup; rows: Record<strin
     .filter((v) => v && !validateEvidenceFileName(v).valid);
   if (bad.length === 0) return null;
   return (
-    <p className="mt-1 flex items-start gap-1.5 text-xs text-amber-600 dark:text-amber-400">
+    <p className="mt-1 flex items-start gap-1.5 text-xs text-warn">
       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
       Screenshot names should look like <span className="font-mono">{EVIDENCE_NAMING_PNG}</span> —
       check: {bad.join(', ')}
@@ -176,7 +176,7 @@ export function DeliverableForm({
           href="https://www.first.org/cvss/calculator/3.1"
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline dark:text-blue-400"
+          className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
         >
           Score it with the FIRST CVSS calculator <ExternalLink className="h-3.5 w-3.5" />
         </a>

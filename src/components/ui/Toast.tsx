@@ -19,17 +19,21 @@ export function useToast() {
   return useContext(ToastCtx);
 }
 
+// Semantic tokens, not raw palette classes: `info` is the accent (it used to be
+// hardcoded blue, which made every toast a different brand from the buttons
+// beside it), and success/warn/error are the ok/warn/danger tokens the theme
+// already defines for exactly this.
 const styles: Record<ToastVariant, { ring: string; icon: typeof Info }> = {
-  success: { ring: 'border-green-300 dark:border-green-800', icon: CheckCircle2 },
-  error: { ring: 'border-red-300 dark:border-red-800', icon: XCircle },
-  info: { ring: 'border-blue-300 dark:border-blue-800', icon: Info },
-  warning: { ring: 'border-amber-300 dark:border-amber-800', icon: AlertTriangle },
+  success: { ring: 'border-ok-line', icon: CheckCircle2 },
+  error: { ring: 'border-danger-line', icon: XCircle },
+  info: { ring: 'border-accent/40', icon: Info },
+  warning: { ring: 'border-warn-line', icon: AlertTriangle },
 };
 const iconColor: Record<ToastVariant, string> = {
-  success: 'text-green-600 dark:text-green-400',
-  error: 'text-red-600 dark:text-red-400',
-  info: 'text-blue-600 dark:text-blue-400',
-  warning: 'text-amber-600 dark:text-amber-400',
+  success: 'text-ok',
+  error: 'text-danger',
+  info: 'text-accent',
+  warning: 'text-warn',
 };
 
 let nextId = 1;
@@ -71,16 +75,16 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.18 }}
-                className={`pointer-events-auto flex items-start gap-2 rounded-lg border bg-white p-3 shadow-lg dark:bg-gray-800 ${s.ring}`}
+                className={`pointer-events-auto flex items-start gap-2 rounded-lg border bg-panel p-3 shadow-lg ${s.ring}`}
                 role={t.variant === 'error' ? 'alert' : 'status'}
               >
                 <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor[t.variant]}`} aria-hidden />
-                <span className="flex-1 text-sm text-gray-800 dark:text-gray-200">{t.message}</span>
+                <span className="flex-1 text-sm text-ink">{t.message}</span>
                 <button
                   type="button"
                   onClick={() => dismiss(t.id)}
                   aria-label="Dismiss notification"
-                  className="rounded p-0.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 dark:hover:bg-gray-700"
+                  className="rounded p-0.5 text-muted hover:bg-panel-2 hover:text-ink"
                 >
                   <X className="h-3.5 w-3.5" />
                 </button>

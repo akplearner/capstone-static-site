@@ -50,7 +50,7 @@ export function DiagramFrame({
             <span key={l.label} className="inline-flex items-center gap-1.5">
               <span
                 className={`inline-block h-2.5 w-2.5 rounded-full ${
-                  l.color ? '' : 'bg-gray-300 dark:bg-gray-600'
+                  l.color ? '' : 'bg-line'
                 } ${l.dashed ? 'border border-dashed bg-transparent' : ''}`}
                 style={l.color ? { backgroundColor: l.dashed ? 'transparent' : l.color, borderColor: l.color } : undefined}
               />

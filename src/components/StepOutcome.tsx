@@ -100,12 +100,12 @@ export function AnnotatedTerminal({
             <Target className="h-3.5 w-3.5" /> What to look for
           </div>
           <ol className="space-y-1">
-            {hits.map((h, i) => (
+            {hits.map((h) => (
               <motion.li
                 key={h.n}
-                initial={{ opacity: 0, x: -4 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
                 className="flex gap-2 text-sm text-muted"
               >
                 <MarkerBadge n={h.n} />
@@ -124,7 +124,7 @@ export function AnnotatedTerminal({
                 key={m.text}
                 className="flex gap-2 text-sm text-muted"
               >
-                <span aria-hidden className="mt-0.5 text-gray-400">
+                <span aria-hidden className="mt-0.5 text-muted">
                   •
                 </span>
                 <span>
@@ -156,31 +156,31 @@ export function OutcomeCard({
   explanation?: string;
 }) {
   return (
-    <div className="mt-1 rounded-md border border-emerald-200 bg-emerald-50/60 px-3 py-2.5 dark:border-emerald-900 dark:bg-emerald-900/15">
+    <div className="mt-1 rounded-md border border-ok-line bg-ok-soft px-3 py-2.5">
       <div className="flex gap-2">
-        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ok" />
         <div className="min-w-0 flex-1">
-          <p className="text-sm text-emerald-900 dark:text-emerald-100">
+          <p className="text-sm text-ink">
             <GlossaryText text={text} />
           </p>
           {explanation && (
-            <p className="mt-1 text-sm text-emerald-800/80 dark:text-emerald-200/70">
+            <p className="mt-1 text-sm text-body">
               <GlossaryText text={explanation} />
             </p>
           )}
           {targets.length > 0 && (
-            <div className="mt-2 border-t border-emerald-200/70 pt-2 dark:border-emerald-800/60">
-              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            <div className="mt-2 border-t border-ok-line/70 pt-2">
+              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ok">
                 <Target className="h-3.5 w-3.5" /> The bit that proves it
               </div>
               <ul className="space-y-1">
                 {targets.map((t, i) => (
                   <motion.li
                     key={t.text}
-                    initial={{ opacity: 0, x: -4 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05, duration: 0.2 }}
-                    className="flex gap-2 text-sm text-emerald-900 dark:text-emerald-100"
+                    initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.2 }}
+                    className="flex gap-2 text-sm text-ink"
                   >
                     <MarkerBadge n={i + 1} />
                     <span>

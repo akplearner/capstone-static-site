@@ -6,6 +6,7 @@ import { ArrowRight, Compass, FileCheck2, FolderGit2, ShieldCheck } from 'lucide
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
+import { ProgressRing } from '@/components/ui/ProgressRing';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
 import { SealLedger } from '@/components/quarry/items';
 import { SignInPanel } from '@/components/auth/SignInPanel';
@@ -15,7 +16,7 @@ import { VerificationBar } from '@/components/catalog/VerificationBar';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
-import { getTasksByRole } from '@/lib/course-helpers';
+import { getTasksByRole, phaseTag } from '@/lib/course-helpers';
 import { regionFor, seamFor, phaseForWeek } from '@/lib/quarry';
 import { resolveActiveWeek } from '@/lib/resume';
 import { entryForCourse } from '@/lib/catalog';
@@ -143,13 +144,17 @@ export default function DashboardPage() {
         />
       ) : (
         <>
-          {/* What you've proved overall. */}
+          {/* What you've proved overall. The two stats that are ratios with a
+              known denominator draw as rings — a 42-of-96 is legible at a
+              glance where "42 / of 96 checkable" as two lines of text was not.
+              Evidence and days have no denominator, so they stay numbers. */}
           <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               icon={ShieldCheck}
               label="Steps verified"
               value={`${summary.verified}`}
               sub={summary.verifiable > 0 ? `of ${summary.verifiable} checkable` : 'none checkable yet'}
+              ring={summary.verifiable > 0 ? { value: summary.verified, max: summary.verifiable } : undefined}
             />
             <Stat
               icon={FileCheck2}
@@ -162,6 +167,7 @@ export default function DashboardPage() {
               label="Capstones delivered"
               value={`${completedCourseIds.size}`}
               sub={`of ${cards.length} started`}
+              ring={cards.length > 0 ? { value: completedCourseIds.size, max: cards.length } : undefined}
             />
             <Stat
               icon={Compass}
@@ -216,20 +222,32 @@ function Stat({
   label,
   value,
   sub,
+  ring,
 }: {
   icon: typeof ShieldCheck;
   label: string;
   value: string;
   sub: string;
+  /** Present when the stat is a ratio — drawn as a ring with the value inside. */
+  ring?: { value: number; max: number };
 }) {
   return (
-    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
+    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4 transition-colors hover:border-accent">
       <div className="flex items-center gap-2">
         <Icon className="h-4 w-4 text-accent" />
         <span className="eyebrow">{label}</span>
       </div>
-      <div className="mt-1 text-2xl font-bold text-ink">{value}</div>
-      <div className="text-xs text-muted">{sub}</div>
+      {ring ? (
+        <div className="mt-2 flex items-center gap-3">
+          <ProgressRing value={ring.value} max={ring.max} label={label} />
+          <div className="text-xs text-muted">{sub}</div>
+        </div>
+      ) : (
+        <>
+          <div className="mt-1 text-2xl font-bold text-ink">{value}</div>
+          <div className="text-xs text-muted">{sub}</div>
+        </>
+      )}
     </div>
   );
 }
@@ -238,13 +256,18 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
   const { course, crew, metrics, activeWeek, level } = card;
   const started = crew.stepsDone > 0;
   return (
+    // The interaction standard (ui/Card.tsx): border tint + 2px lift on hover.
+    // The card already carried data-region/data-seam for per-vendor theming but
+    // a plain border-line made the theme invisible here — the 3px left edge in
+    // the region accent is what lets two vendors' cards read differently.
     <motion.div
       data-region={regionFor(course).key}
       data-seam={seamFor(course)}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
+      whileHover={{ y: -2 }}
       transition={{ delay: index * 0.06 }}
-      className="flex flex-col rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)]"
+      className="group flex flex-col rounded-[var(--radius-card)] border border-line border-l-4 border-l-[var(--color-accent)] bg-panel p-6 shadow-[var(--shadow-card)] transition-colors hover:border-accent"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -289,10 +312,15 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
         />
       </dl>
 
+      {/* The resume pointer. `activeWeek` was always computed here and then
+          only used to label the stone — the card never said where you'd pick
+          up, and Continue dropped you at the course root to find your own way
+          back. Now it says the week and lands you on it. */}
       <div className="mt-5">
-        <Link href={`/courses/${course.id}`}>
+        <Link href={started ? `/courses/${course.id}?tab=weeks#week-${activeWeek}` : `/courses/${course.id}`}>
           <Button className="flex w-full items-center justify-center gap-2">
-            {started ? 'Continue' : 'Start'} <ArrowRight className="h-4 w-4" />
+            {started ? `Continue · ${phaseTag(course, activeWeek)}` : 'Start'}
+            <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
       </div>

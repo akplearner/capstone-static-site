@@ -100,12 +100,12 @@ export function StepTally({
 export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {milestones.map((b, i) => (
+      {milestones.map((b) => (
         <motion.span
           key={b.id}
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: i * 0.05, duration: 0.2 }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.2 }}
         >
           <PixelBadge tone={b.earned ? 'accent' : 'muted'} title={b.hint} className={b.earned ? '' : 'opacity-60'}>
             {b.label}

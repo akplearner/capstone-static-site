@@ -46,10 +46,19 @@
   --color-w3: #b26a00;
   --color-w4: #6a3d9a;
 
-  /* Semantic */
+  /* Semantic. The -soft/-line pairs are the callout fills and borders that used
+     to be hand-typed as green-50/amber-50/red-50 + their dark: twins in 20+
+     files; one token pair here replaces every copy. Ink text on a -soft fill
+     always passes contrast, so callouts don't need per-variant text colours. */
   --color-ok: #1a7f4b;
+  --color-ok-soft: #e8f5ee;
+  --color-ok-line: #b5dcc5;
   --color-warn: #a8620a;
+  --color-warn-soft: #fdf3e4;
+  --color-warn-line: #ecd3ab;
   --color-danger: #b22222;
+  --color-danger-soft: #fceaea;
+  --color-danger-line: #ecc0c0;
 
   /* Terminal (dark in both themes) */
   --color-term-bg: #10151f;
@@ -93,8 +102,14 @@
   --color-w4: #a583d0;
 
   --color-ok: #4ade80;
+  --color-ok-soft: #10281c;
+  --color-ok-line: #1d5637;
   --color-warn: #fbbf24;
+  --color-warn-soft: #2b2210;
+  --color-warn-line: #6b5220;
   --color-danger: #ef6b6b;
+  --color-danger-soft: #2e1518;
+  --color-danger-line: #6b2a2e;
 
   --stone-rock: #444a54;
   --stone-rock-dark: #262a30;

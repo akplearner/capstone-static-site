@@ -2,26 +2,31 @@ import { CheckCircle2, Info, AlertTriangle, XCircle } from 'lucide-react';
 
 export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
 
+// Token-driven, not raw palette classes. `info` uses the course accent — it was
+// hardcoded blue before, which made every info callout a different brand from
+// the accent-teal buttons on the same screen (and never re-themed per course).
+// The others use the ok/warn/danger token trios, which also re-theme in dark
+// mode without a single `dark:` class here.
 const variants: Record<AlertVariant, { box: string; icon: typeof Info; iconColor: string }> = {
   info: {
-    box: 'border-blue-200 bg-blue-50 text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200',
+    box: 'border-accent/30 bg-accent-soft text-ink',
     icon: Info,
-    iconColor: 'text-blue-600 dark:text-blue-400',
+    iconColor: 'text-accent',
   },
   success: {
-    box: 'border-green-200 bg-green-50 text-green-900 dark:border-green-800 dark:bg-green-900/20 dark:text-green-200',
+    box: 'border-ok-line bg-ok-soft text-ink',
     icon: CheckCircle2,
-    iconColor: 'text-green-600 dark:text-green-400',
+    iconColor: 'text-ok',
   },
   warning: {
-    box: 'border-amber-200 bg-amber-50 text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200',
+    box: 'border-warn-line bg-warn-soft text-ink',
     icon: AlertTriangle,
-    iconColor: 'text-amber-600 dark:text-amber-400',
+    iconColor: 'text-warn',
   },
   error: {
-    box: 'border-red-200 bg-red-50 text-red-900 dark:border-red-800 dark:bg-red-900/20 dark:text-red-200',
+    box: 'border-danger-line bg-danger-soft text-ink',
     icon: XCircle,
-    iconColor: 'text-red-600 dark:text-red-400',
+    iconColor: 'text-danger',
   },
 };
 

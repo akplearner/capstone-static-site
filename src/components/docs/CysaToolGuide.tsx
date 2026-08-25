@@ -128,10 +128,10 @@ export function CysaToolGuide() {
         {PANELS.map((p) => {
           const Icon = p.icon;
           return (
-            <div key={p.name} className="flex flex-col rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+            <div key={p.name} className="flex flex-col rounded-lg border border-line bg-panel p-4">
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-                  <Icon className="h-4 w-4 text-blue-600 dark:text-blue-400" /> {p.name}
+                  <Icon className="h-4 w-4 text-accent" /> {p.name}
                 </h3>
                 <span className="text-[11px] text-muted">{p.where}</span>
               </div>
@@ -149,7 +149,7 @@ export function CysaToolGuide() {
               <ul className="mt-1 space-y-1.5">
                 {p.rows.map((r) => (
                   <li key={r.k} className="text-sm">
-                    <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                    <code className="rounded bg-panel-2 px-1.5 py-0.5 font-mono text-xs text-ink">
                       {r.k}
                     </code>
                     <span className="mt-0.5 block text-muted">{r.v}</span>
@@ -167,7 +167,7 @@ export function CysaToolGuide() {
                       href={ref.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:underline dark:text-sky-400"
+                      className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
                     >
                       {ref.label} <ExternalLink className="h-3 w-3 shrink-0" />
                     </a>
@@ -179,17 +179,17 @@ export function CysaToolGuide() {
         })}
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-lg border border-line bg-panel p-4">
         <h3 className="text-sm font-semibold text-ink">Filtering &amp; what to look for (Week 2)</h3>
         <p className="mt-1 text-sm text-muted">
-          In Security events, type a <code className="rounded bg-gray-100 px-1 font-mono text-xs dark:bg-gray-900">field:value</code>{' '}
-          query in the search bar. Start with <code className="rounded bg-gray-100 px-1 font-mono text-xs dark:bg-gray-900">rule.level:&gt;=7</code>{' '}
+          In Security events, type a <code className="rounded bg-panel-2 px-1 font-mono text-xs">field:value</code>{' '}
+          query in the search bar. Start with <code className="rounded bg-panel-2 px-1 font-mono text-xs">rule.level:&gt;=7</code>{' '}
           to cut the noise, then match the shape of the attack:
         </p>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mt-3 overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
+              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
                 <th className="px-3 py-2">Looks like…</th>
                 <th className="px-3 py-2">Search</th>
                 <th className="px-3 py-2">The tell</th>
@@ -197,10 +197,10 @@ export function CysaToolGuide() {
             </thead>
             <tbody>
               {SIGNATURES.map((s) => (
-                <tr key={s.behaviour} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                <tr key={s.behaviour} className="border-b border-line/60 last:border-0">
                   <td className="px-3 py-2 font-medium text-ink">{s.behaviour}</td>
                   <td className="px-3 py-2">
-                    <code className="rounded bg-gray-100 px-1.5 py-0.5 font-mono text-xs text-gray-800 dark:bg-gray-900 dark:text-gray-200">
+                    <code className="rounded bg-panel-2 px-1.5 py-0.5 font-mono text-xs text-ink">
                       {s.query}
                     </code>
                   </td>
@@ -212,20 +212,20 @@ export function CysaToolGuide() {
         </div>
         <p className="mt-3 text-xs text-muted">
           <span className="font-semibold">Fields you filter on:</span>{' '}
-          <code className="rounded bg-gray-100 px-1 font-mono text-[11px] text-gray-700 dark:bg-gray-900 dark:text-gray-300">{FILTER_FIELDS}</code>
+          <code className="rounded bg-panel-2 px-1 font-mono text-[11px] text-body">{FILTER_FIELDS}</code>
         </p>
       </div>
 
-      <div className="rounded-lg border border-gray-200 bg-white p-4 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-lg border border-line bg-panel p-4">
         <h3 className="text-sm font-semibold text-ink">Driving the dashboard — search, read, build</h3>
         <p className="mt-1 text-sm text-muted">
           The clicks behind the tasks: find alerts, filter and read them, then turn a useful search into a saved
           visualization and your own dashboard. Used across Weeks 2–4.
         </p>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mt-3 overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
+              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
                 <th className="px-3 py-2">To…</th>
                 <th className="px-3 py-2">Do this</th>
                 <th className="px-3 py-2">Docs</th>
@@ -233,7 +233,7 @@ export function CysaToolGuide() {
             </thead>
             <tbody>
               {DASHBOARD_HOWTO.map((h) => (
-                <tr key={h.action} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                <tr key={h.action} className="border-b border-line/60 last:border-0">
                   <td className="px-3 py-2 font-medium text-ink">{h.action}</td>
                   <td className="px-3 py-2 text-muted">{h.how}</td>
                   <td className="px-3 py-2">
@@ -242,7 +242,7 @@ export function CysaToolGuide() {
                         href={h.ref.href}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:underline dark:text-sky-400"
+                        className="inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
                       >
                         {h.ref.label} <ExternalLink className="h-3 w-3 shrink-0" />
                       </a>

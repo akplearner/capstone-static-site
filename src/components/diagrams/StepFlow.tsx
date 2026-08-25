@@ -43,7 +43,7 @@ export function StepFlow({ path }: { path: string[] }) {
 
   const items: React.ReactNode[] = [];
   for (let i = 0; i < path.length; i++) {
-    const delay = Math.min(i * 0.05, 0.5);
+    const delay = 0;
     if (i % 2 === 0) {
       const n = NODES[path[i]] ?? { t: path[i], s: '', c: 'slate' as NodeColor };
       items.push(

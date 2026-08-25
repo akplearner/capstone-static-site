@@ -41,7 +41,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
   const checkCount = LAB_CHECKS.filter((c) => lab.checks[c.key]).length;
 
   return (
-    <div id="lab-access" className="scroll-mt-24 rounded-lg border border-gray-200 bg-white px-4 dark:border-gray-700 dark:bg-gray-800">
+    <div id="lab-access" className="scroll-mt-24 rounded-lg border border-line bg-panel px-4">
       <Collapsible
         title={`Lab access — your targets & reachability  (${filledCount}/${LAB_FIELDS.length} set · ${checkCount}/${LAB_CHECKS.length} checked)`}
         defaultOpen={filledCount === 0}
@@ -51,7 +51,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
               substitution and the privacy model; the notes field's own
               placeholder already says "visible only to you". */}
           <p className="flex items-start gap-2 text-sm text-muted">
-            <Server className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+            <Server className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
             Enter your lab&apos;s IPs and every command below fills them in for you. Saved to your
             account, visible only to you.
           </p>
@@ -59,13 +59,13 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           <div className="flex flex-col gap-1">
             <Link
               href={`/courses/${courseId}/guide/reference#lab`}
-              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
             >
               New here? Lab requirements &amp; setup <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
               href={`/courses/${courseId}/guide/reference#terminal`}
-              className="inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+              className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
             >
               A command won&apos;t run? Terminal basics &amp; common fixes <ArrowRight className="h-3.5 w-3.5" />
             </Link>
@@ -80,7 +80,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                   value={lab.values[f.key] ?? ''}
                   onChange={(e) => setValue(f.key, e.target.value)}
                   placeholder={f.placeholder}
-                  className="mt-1 w-full rounded-lg border border-gray-300 bg-white px-3 py-1.5 font-mono text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+                  className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-1.5 font-mono text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
                 />
               </label>
             ))}
@@ -99,11 +99,11 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                     className="flex items-center gap-2 text-left text-sm text-body"
                   >
                     {lab.checks[c.key] ? (
-                      <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                      <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
                     ) : (
-                      <Circle className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
+                      <Circle className="h-4 w-4 shrink-0 text-line" />
                     )}
-                    <span className={lab.checks[c.key] ? 'text-gray-400 line-through dark:text-gray-500' : ''}>
+                    <span className={lab.checks[c.key] ? 'text-muted line-through dark:text-muted' : ''}>
                       {c.label}
                     </span>
                   </button>

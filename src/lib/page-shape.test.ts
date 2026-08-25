@@ -146,6 +146,32 @@ describe('single source of truth', () => {
   });
 });
 
+/**
+ * Design-token guard.
+ *
+ * The theme defines a complete token set (ink/body/muted/line/panel/accent plus
+ * ok/warn/danger with -soft/-line pairs), and every raw palette class is a place
+ * that ignores it — it doesn't re-theme per course, and it needs a hand-written
+ * `dark:` twin that drifts. R38 swept the student-facing surfaces; these two
+ * assertions are what make it the LAST sweep rather than the sixth.
+ */
+describe('design tokens — palette classes do not come back', () => {
+  const RAW = /\bgray-[0-9]|\bbg-white\b|\bblue-600\b/;
+
+  it('the ui/ primitives are fully tokenized', () => {
+    const offenders = collectSourceFiles('src/components/ui').filter((f) => RAW.test(code(f)));
+    expect(offenders, 'ui primitives must use theme tokens, never raw palette classes').toEqual([]);
+  });
+
+  it('the number of files using raw gray-* only goes down', () => {
+    // 26 files at the end of R38 — instructor tools and a few reference-page
+    // components, none student-critical. New code uses tokens; fixing an old
+    // file lowers the number, and then THIS number should be lowered to match.
+    const offenders = collectSourceFiles('src').filter((f) => /\bgray-[0-9]/.test(code(f)));
+    expect(offenders.length).toBeLessThanOrEqual(26);
+  });
+});
+
 function collectSourceFiles(dir: string): string[] {
   const out: string[] = [];
   for (const entry of readdirSync(root(dir))) {

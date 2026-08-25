@@ -165,7 +165,7 @@ function JoinPanel({
   if (member && !editing) {
     const rd = getRoleDef(course, member.role);
     return (
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-line bg-panel p-5">
         <div className="flex items-center gap-3">
           <RoleIcon iconName={rd?.icon} className="h-7 w-7" color={rd?.color} />
           <div>
@@ -183,7 +183,7 @@ function JoinPanel({
   }
 
   return (
-    <div className="space-y-5 rounded-lg border-2 border-blue-200 bg-blue-50/50 p-6 dark:border-blue-800 dark:bg-blue-900/10">
+    <div className="space-y-5 rounded-lg border-2 border-accent/30 bg-accent-soft/50 p-6">
       <div>
         <h2 className="text-xl font-bold text-ink">Join this course</h2>
         <p className="mt-1 text-sm text-muted">
@@ -202,7 +202,7 @@ function JoinPanel({
               if (error) setError(null);
             }}
             placeholder="Your name"
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-2 w-full rounded-lg border border-line bg-panel px-4 py-2 text-ink"
           />
         </label>
         <label className="block">
@@ -210,7 +210,7 @@ function JoinPanel({
           <select
             value={cohort}
             onChange={(e) => setCohort(e.target.value)}
-            className="mt-2 w-full rounded-lg border border-gray-300 bg-white px-4 py-2 dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="mt-2 w-full rounded-lg border border-line bg-panel px-4 py-2 text-ink"
           >
             {COHORTS.map((c) => (
               <option key={c}>{c}</option>
@@ -233,10 +233,10 @@ function JoinPanel({
                 onClick={() => setTeam(t)}
                 className={`rounded-lg border-2 px-3 py-2 text-sm font-medium transition-colors ${
                   selected
-                    ? 'border-blue-600 bg-blue-50 text-blue-700 dark:border-blue-400 dark:bg-blue-900/20 dark:text-blue-300'
+                    ? 'border-accent bg-accent-soft text-accent-ink'
                     : full
-                      ? 'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-600'
-                      : 'border-gray-300 bg-white text-gray-700 hover:border-gray-400 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                      ? 'cursor-not-allowed border-line bg-panel-2 text-muted opacity-60'
+                      : 'border-line bg-panel text-body hover:border-accent'
                 }`}
               >
                 <span>Team {t}</span>
@@ -260,15 +260,15 @@ function JoinPanel({
                 onClick={() => setRole(r.id)}
                 className={`flex w-full items-center gap-3 rounded-lg border-2 px-4 py-3 text-left transition-colors ${
                   role === r.id
-                    ? 'border-blue-600 bg-blue-50 dark:border-blue-400 dark:bg-blue-900/20'
-                    : 'border-gray-300 bg-white hover:border-gray-400 dark:border-gray-600 dark:bg-gray-700'
+                    ? 'border-accent bg-accent-soft'
+                    : 'border-line bg-panel hover:border-accent'
                 }`}
               >
                 <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                 <span>
                   <span className="block font-medium text-ink">{r.name}</span>
                   <span className="block text-xs text-muted">{roleGuide(r.id, course.id).blurb}</span>
-                  <span className="mt-0.5 block text-[11px] text-gray-500 dark:text-gray-500">
+                  <span className="mt-0.5 block text-[11px] text-muted">
                     {worksLabel(roleGuide(r.id, course.id).works)}
                   </span>
                 </span>
@@ -299,7 +299,7 @@ function TaskReference({ task }: { task: Task }) {
   return (
     <div className="space-y-3">
       {task.steps.map((s, i) => (
-        <div key={s.id} className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/40">
+        <div key={s.id} className="rounded-lg border border-line bg-panel-2 p-4">
           <div className="eyebrow-muted">
             Step {i + 1}
           </div>
@@ -395,7 +395,6 @@ function TaskRow({
   const canOpen = joined;
   const card = taskCard(course, task, percent);
   const steps = card.steps.total;
-  const optionalCount = card.steps.optional;
   const doneSteps = card.steps.done;
   const showProgress = isOwn && joined;
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
@@ -412,17 +411,17 @@ function TaskRow({
         disabled={!canOpen}
         onClick={() => canOpen && onToggle()}
         className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${
-          canOpen ? 'hover:bg-gray-50 dark:hover:bg-gray-700/50' : 'cursor-not-allowed opacity-70'
+          canOpen ? 'hover:bg-panel-2' : 'cursor-not-allowed opacity-70'
         }`}
       >
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
             <span className="font-medium text-ink">{task.title}</span>
             {showProgress && percent === 100 && (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
             )}
             {isNext && percent < 100 && (
-              <span className="shrink-0 rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-semibold text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
                 Next
               </span>
             )}
@@ -431,16 +430,19 @@ function TaskRow({
             {task.objective}
           </span>
 
-          {/* Scannable meta row. Difficulty lives on the week header above (a task's
-              difficulty is the week's), deliverable filenames on the "You produce"
-              strip when open, and framework tags inside the Task brief — so the card
-              shows only what's specific to this task: progress, time, hand-off. */}
+          {/* Scannable meta row — only what's specific to this closed task:
+              progress and time. Difficulty lives on the week glance card (a
+              task's difficulty is the week's); the optional-step count is on
+              the runner toolbar once open ("N of M · x optional"); hand-offs
+              render in full on the open task's identity strip. The collapsed
+              row restating those was 11 elements before a student had read a
+              single instruction. */}
           <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
             {showProgress ? (
-              <span className="flex items-center gap-1.5">
-                <span className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <span className="flex items-center gap-1.5" title={`${percent}% done`}>
+                <span className="h-1.5 w-20 overflow-hidden rounded-full bg-line">
                   <span
-                    className="block h-full rounded-full bg-blue-600"
+                    className="block h-full rounded-full bg-accent"
                     style={{ width: `${percent}%` }}
                   />
                 </span>
@@ -451,44 +453,27 @@ function TaskRow({
             ) : (
               <span className="text-muted">{steps} steps</span>
             )}
-            {optionalCount > 0 && (
-              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
-                +{optionalCount} optional
-              </span>
-            )}
             {task.estimatedTime && (
               <span className="flex items-center gap-1 text-muted">
                 <Clock className="h-3.5 w-3.5" /> {task.estimatedTime}
-              </span>
-            )}
-            {card.handoff.length > 0 && (
-              <span
-                className="flex items-center gap-1"
-                style={{ color: getRoleDef(course, card.handoff[0].to)?.color }}
-                title={card.handoff.map((h) => `${h.artifact ?? 'Output'} → ${roleName(h.to)}`).join(' · ')}
-              >
-                <ArrowRight className="h-3.5 w-3.5" /> {roleName(card.handoff[0].to)}
               </span>
             )}
           </span>
         </span>
 
         <span className="flex shrink-0 items-center gap-3 pt-0.5">
-          {showProgress && (
-            <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{percent}%</span>
-          )}
           {!canOpen ? (
-            <Lock className="h-4 w-4 text-gray-400" />
+            <Lock className="h-4 w-4 text-muted" />
           ) : open ? (
-            <ChevronDown className="h-5 w-5 text-gray-400" />
+            <ChevronDown className="h-5 w-5 text-muted" />
           ) : (
-            <ChevronRight className="h-5 w-5 text-gray-400" />
+            <ChevronRight className="h-5 w-5 text-muted" />
           )}
         </span>
       </button>
 
       {open && canOpen && (
-        <div className="border-t border-gray-200 p-4 dark:border-gray-700">
+        <div className="border-t border-line p-4">
           {/* The task's identity card: what it needs, what it makes, where it
               goes. Rendered above the steps because these are the questions you
               have *before* you start, not after. */}
@@ -562,12 +547,12 @@ function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
       <RoleIcon iconName={role.icon} className="h-5 w-5" color={role.color} />
       <span className="font-semibold text-ink">{role.name}</span>
       {tag === 'own' && (
-        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
           Your role
         </span>
       )}
       {tag === 'reference' && (
-        <span className="text-xs text-gray-400 dark:text-gray-500">reference</span>
+        <span className="text-xs text-muted">reference</span>
       )}
     </div>
   );
@@ -861,10 +846,10 @@ export default function CoursePage() {
     <>
       <TaskThisWeek task={task} />
       {hasBrief && (
-        <div className="mb-4 rounded-lg border border-gray-200 px-4 dark:border-gray-700">
+        <div className="mb-4 rounded-lg border border-line px-4">
           <Collapsible title="Task brief — what you'll learn & frameworks" defaultOpen={false}>
             <div className="space-y-3 py-2">
-        <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/30">
+        <div className="space-y-3 rounded-lg border border-line bg-panel-2 p-3">
           {task.learn && task.learn.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 eyebrow-muted">
@@ -1000,7 +985,7 @@ export default function CoursePage() {
                       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 60);
                     }
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-green-50 px-3 py-1.5 text-sm font-medium text-green-700 hover:bg-green-100 dark:bg-green-900/20 dark:text-green-300 dark:hover:bg-green-900/40"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-ok-soft px-3 py-1.5 text-sm font-medium text-ok hover:opacity-80"
                 >
                   <Sparkles className="h-4 w-4" /> All done — review
                 </button>
@@ -1029,10 +1014,10 @@ export default function CoursePage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-lg border border-green-200 bg-gradient-to-br from-green-50 to-emerald-50 p-6 dark:border-green-800 dark:from-green-900/20 dark:to-emerald-900/10"
+          className="rounded-lg border border-ok-line bg-ok-soft p-6"
         >
           <div className="flex items-start gap-3">
-            <div className="rounded-full bg-green-100 p-2 text-green-700 dark:bg-green-900/40 dark:text-green-300">
+            <div className="rounded-full bg-ok-soft p-2 text-ok">
               <CheckCircle2 className="h-6 w-6" />
             </div>
             <div className="flex-1">
@@ -1050,7 +1035,7 @@ export default function CoursePage() {
                 {member && (
                   <Link
                     href={`/courses/${course.id}/docs`}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-green-600 px-3 py-2 text-sm font-medium text-white hover:bg-green-700"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-ok px-3 py-2 text-sm font-medium text-white hover:opacity-90"
                   >
                     <FileText className="h-4 w-4" /> Build your final package
                   </Link>
@@ -1058,7 +1043,7 @@ export default function CoursePage() {
                 {member && (
                   <Link
                     href={`/courses/${course.id}/team/${member.teamId}`}
-                    className="inline-flex items-center gap-1.5 rounded-md border border-green-300 px-3 py-2 text-sm font-medium text-green-700 hover:bg-green-100 dark:border-green-700 dark:text-green-300 dark:hover:bg-green-900/30"
+                    className="inline-flex items-center gap-1.5 rounded-md border border-ok-line px-3 py-2 text-sm font-medium text-ok hover:bg-ok-soft"
                   >
                     <Users className="h-4 w-4" /> Review team progress
                   </Link>
@@ -1100,7 +1085,7 @@ export default function CoursePage() {
             {/* Next-action lives in the always-visible sticky bar; the hero only
                 confirms the done state to avoid a second competing Continue. */}
             {!nextTask && (
-              <span className="inline-flex items-center gap-2 rounded-lg bg-green-50 px-4 py-2 text-sm font-medium text-green-700 dark:bg-green-900/20 dark:text-green-300">
+              <span className="inline-flex items-center gap-2 rounded-lg bg-ok-soft px-4 py-2 text-sm font-medium text-ok">
                 <Sparkles className="h-4 w-4" /> All your tasks complete!
               </span>
             )}
@@ -1174,9 +1159,12 @@ export default function CoursePage() {
       {/* One-time migration of this device's local progress into the account */}
       <ImportPrompt course={course} />
 
-      {/* Enrollment summary once joined (edit team/role here) */}
+      {/* Enrollment summary once joined (edit team/role here). No id: the
+          newcomer render above owns `join-panel` — the same id declared twice,
+          even on mutually exclusive branches, is a refactor away from being a
+          real duplicate. */}
       {joined && (
-        <div id="join-panel">
+        <div>
           <JoinPanel
             course={course}
             member={member}
@@ -1192,7 +1180,7 @@ export default function CoursePage() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => setConfirmingReset(true)}
-            className="ml-auto inline-flex items-center gap-1 text-sm text-gray-500 hover:text-red-600 dark:text-gray-400 dark:hover:text-red-400"
+            className="ml-auto inline-flex items-center gap-1 text-sm text-muted hover:text-danger"
           >
             <RotateCcw className="h-4 w-4" /> Reset my progress
           </button>
@@ -1245,7 +1233,7 @@ export default function CoursePage() {
         {joined && (
           <>
             <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
               <input
                 type="text"
                 value={query}
@@ -1259,7 +1247,7 @@ export default function CoursePage() {
                   type="button"
                   onClick={() => setQuery('')}
                   aria-label="Clear search"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted hover:text-ink"
                 >
                   <X className="h-4 w-4" />
                 </button>
@@ -1301,35 +1289,27 @@ export default function CoursePage() {
               <button
                 type="button"
                 onClick={() => toggleWeek(w.number)}
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50"
+                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-panel-2"
               >
                 <div className="min-w-0">
-                  {/* The expedition phase, above everything. It answers "what
-                      kind of work is this week" before the title says what the
-                      work is about, and it's the one line that makes four weeks
-                      read as one arc. Tinted with the per-week phase token so
-                      each stage of the lifecycle has its own colour. */}
-                  {phaseForWeek(course, w.number) && (
-                    <div
-                      className="mb-1 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
-                      style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
-                    >
-                      {/* The week's job as a literal object — rocket, monitor,
-                          shield — from the stage this week cuts. Planning weeks
-                          (stage 1) carry no icon. */}
-                      {(() => {
-                        const verb = verbForStage(stageForWeek(course, w.number));
-                        return verb ? <WeekVerbIcon verb={verb} size={20} className="shrink-0" /> : null;
-                      })()}
-                      {phaseForWeek(course, w.number)}
-                    </div>
-                  )}
+                  {/* One phase line, not two. This used to be an eyebrow with the
+                      phase name AND a PixelBadge with the week tag directly under
+                      it — the same information split across two chips (13 header
+                      elements in all). Merged: `[icon] Week N · Detect & Baseline`,
+                      tinted with the per-week phase token so the four weeks still
+                      read as one arc. */}
+                  <div
+                    className="mb-1 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
+                    style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
+                  >
+                    {(() => {
+                      const verb = verbForStage(stageForWeek(course, w.number));
+                      return verb ? <WeekVerbIcon verb={verb} size={20} className="shrink-0" /> : null;
+                    })()}
+                    {phaseTag(course, w.number)}
+                    {phaseForWeek(course, w.number) && <span aria-hidden> · {phaseForWeek(course, w.number)}</span>}
+                  </div>
                   <div className="flex flex-wrap items-center gap-2">
-                    {/* The week tag in the arcade face — short enough to stay
-                        legible, and it makes a week read as a level. */}
-                    <PixelBadge tone={weekPct >= 100 ? 'accent' : 'neutral'}>
-                      {phaseTag(course, w.number)}
-                    </PixelBadge>
                     <h3 className="text-lg font-bold text-ink">
                       {w.title}
                     </h3>
@@ -1351,46 +1331,47 @@ export default function CoursePage() {
                     <p className="truncate text-sm text-muted">{w.theme}</p>
                   )}
                 </div>
+                {/* The right rail carried six independent items (bar, bold %,
+                    gate, lock pill, task count, chevron). Two now: one labelled
+                    meter, and one status chip showing the single most relevant
+                    state — locked beats gate beats task count. */}
                 <div className="flex shrink-0 items-center gap-3">
                   {joined && (
-                    <span className="hidden items-center gap-1.5 sm:flex">
-                      {/* A smooth accent meter, taking the course's accent. */}
+                    <span className="hidden items-center gap-1.5 sm:flex" title={`${weekPct}% of this week's steps done`}>
                       <span className="relative h-2 w-16 overflow-hidden rounded-full bg-panel-2">
                         <span
                           className="absolute inset-y-0 left-0 rounded-full"
                           style={{ width: `${weekPct}%`, background: 'var(--color-accent)' }}
                         />
                       </span>
-                      <span className="text-sm font-semibold text-muted">
-                        {weekPct}%
-                      </span>
+                      <span className="text-xs font-medium text-muted">{weekPct}%</span>
                     </span>
                   )}
-                  {gateForWeek && joined && !course.noGatekeeping && (
-                    <span className="hidden text-xs text-muted md:inline">
-                      Gate {gateForWeek.id}
-                    </span>
-                  )}
-                  {locked && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500 dark:bg-gray-700 dark:text-gray-400">
+                  {locked ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-xs font-medium text-muted">
                       <Lock className="h-3 w-3" /> Locked
                     </span>
-                  )}
-                  <span className="text-xs text-muted">
-                    {displayCount} task{displayCount === 1 ? '' : 's'}
-                  </span>
-                  {isWeekOpen ? (
-                    <ChevronDown className="h-5 w-5 text-gray-400" />
+                  ) : gateForWeek && joined && !course.noGatekeeping ? (
+                    <span className="hidden rounded-full bg-panel-2 px-2 py-0.5 text-xs font-medium text-muted md:inline">
+                      Gate {gateForWeek.id} · {displayCount} task{displayCount === 1 ? '' : 's'}
+                    </span>
                   ) : (
-                    <ChevronRight className="h-5 w-5 text-gray-400" />
+                    <span className="text-xs text-muted">
+                      {displayCount} task{displayCount === 1 ? '' : 's'}
+                    </span>
+                  )}
+                  {isWeekOpen ? (
+                    <ChevronDown className="h-5 w-5 text-muted" />
+                  ) : (
+                    <ChevronRight className="h-5 w-5 text-muted" />
                   )}
                 </div>
               </button>
 
               {isWeekOpen && locked && (
-                <div className="border-t border-gray-200 p-5 dark:border-gray-700">
-                  <div className="flex items-start gap-3 rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
-                    <Lock className="mt-0.5 h-5 w-5 shrink-0 text-gray-400" />
+                <div className="border-t border-line p-5">
+                  <div className="flex items-start gap-3 rounded-lg border border-line bg-panel-2 p-4">
+                    <Lock className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
                     <div>
                       <p className="text-sm font-medium text-ink">
                         Locked until you clear Gate {lockGate?.id}.
@@ -1403,7 +1384,7 @@ export default function CoursePage() {
                         <button
                           type="button"
                           onClick={() => openAndScrollWeek(lockGate.week)}
-                          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-blue-600 hover:underline dark:text-blue-400"
+                          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
                         >
                           Go to Week {lockGate.week} <ArrowRight className="h-3.5 w-3.5" />
                         </button>
@@ -1414,7 +1395,7 @@ export default function CoursePage() {
               )}
 
               {isWeekOpen && !locked && (
-                <div className="space-y-4 border-t border-gray-200 p-5 dark:border-gray-700">
+                <div className="space-y-4 border-t border-line p-5">
                   {weekTasks.length === 0 && (
                     <p className="text-sm text-muted">
                       No tasks for this week yet.
@@ -1424,8 +1405,8 @@ export default function CoursePage() {
                   {/* Setup week: the classroom lab is already built — the build task
                       is home-build-only and confirms before it expands. */}
                   {w.number === 0 && (
-                    <div className="mb-3 rounded-lg border border-sky-200 bg-sky-50 p-3 text-sm dark:border-sky-800 dark:bg-sky-900/20">
-                      <p className="text-sky-900 dark:text-sky-200">
+                    <div className="mb-3 rounded-lg border border-accent/30 bg-accent-soft p-3 text-sm">
+                      <p className="text-ink">
                         <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}
                         <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and
                         start at <span className="font-semibold">Week 1</span>. The build steps here are only for
@@ -1434,88 +1415,75 @@ export default function CoursePage() {
                     </div>
                   )}
 
-                  {/* One compact "Week at a glance" card: objective + status chips +
-                      what-done-looks-like, with the flow diagram and gate checklist
-                      tucked behind a toggle. */}
+                  {/* ONE week-glance card, then ONE diagram, then the lanes.
+                      This region used to be five stacked blocks — a floating
+                      plain-English line, WeekMilestoneHeader (itself four rows,
+                      one of them a flow-chip strip), a gate pill, and a
+                      Collapsible hiding the flow diagram AND the gate
+                      checklist. The plain sentence and milestone facts are now
+                      one card; the clickable WeekTaskFlow diagram renders open
+                      (disclosure is for tools, and a map you can click is the
+                      thing a student orients by); only the gate checklist —
+                      a checklist tool — stays behind a toggle, with the gate
+                      status readable on the toggle row itself. */}
                   {joined && member && (
-                    <div className="space-y-2.5">
-                      {/* One description of the week, not three. It used to
-                          state `objective`, then restate it as "In plain
-                          words", then restate it again as "Done when". `plain`
-                          is the one written for these students; `objective` is
-                          instructor phrasing and still renders on the Guide. */}
-                      {w.plain && (
-                        <p className="text-sm text-ink">
-                          <Lightbulb
-                            className="mr-1.5 inline h-4 w-4 -translate-y-px text-accent"
-                            aria-hidden
-                          />
-                          {w.plain}
-                        </p>
-                      )}
-
-                      {/* How hard, how long, what you'll use, the shape of the
-                          work, what you hand in, and when it's finished. */}
-                      <WeekMilestoneHeader
-                        course={course}
-                        role={member.role}
-                        week={w.number}
-                        percent={weekPct}
-                      />
-
-                      {/* The "{weekPct}% complete" pill that used to sit here is
-                          gone: the week's own header button renders the same
-                          percentage next to a progress bar a few pixels above. */}
-                      <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-                        {gateForWeek && !course.noGatekeeping &&
-                          (() => {
-                            const s = gateStats[gateForWeek.id] || 'locked';
-                            const meta =
-                              s === 'passed'
-                                ? { label: 'Gate passed', cls: 'bg-emerald-50 text-emerald-700 ring-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:ring-emerald-800' }
-                                : s === 'ready'
-                                  ? { label: 'Gate ready', cls: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:ring-amber-800' }
-                                  : { label: 'Gate in progress', cls: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:ring-gray-600' };
-                            return (
-                              <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-medium ring-1 ${meta.cls}`}>
-                                {gateForWeek.id} · {meta.label}
-                              </span>
-                            );
-                          })()}
+                    <div className="space-y-3">
+                      <div className="rounded-lg border border-line bg-panel p-4">
+                        {/* One description of the week, not three: `plain` is
+                            the sentence written for these students; `objective`
+                            is instructor phrasing and still renders on the
+                            Guide. */}
+                        {w.plain && (
+                          <p className="text-sm text-ink">
+                            <Lightbulb
+                              className="mr-1.5 inline h-4 w-4 -translate-y-px text-accent"
+                              aria-hidden
+                            />
+                            {w.plain}
+                          </p>
+                        )}
+                        <WeekMilestoneHeader
+                          course={course}
+                          role={member.role}
+                          week={w.number}
+                          percent={weekPct}
+                        />
                       </div>
 
-                      {/* The week's task flow is worth seeing in every course — it was
-                          previously gated behind !noGatekeeping, which meant CySA (the
-                          one course that sets it) had no week diagram at all. Only the
-                          gate checklist is gatekeeping-specific now. */}
-                      {(ownTasks.length > 0 || (gateForWeek && !course.noGatekeeping)) && (
-                        <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 dark:border-gray-700 dark:bg-gray-800">
+                      {/* The week's map, always visible: every task as a card,
+                          in order, clickable straight into the task below. */}
+                      {ownTasks.length > 0 && (
+                        <WeekTaskFlow
+                          course={course}
+                          role={member.role}
+                          week={w.number}
+                          taskStats={taskStats}
+                          onTaskClick={(id) => {
+                            const t = getTaskById(course, id);
+                            if (t) goToTask(t);
+                          }}
+                        />
+                      )}
+
+                      {gateForWeek && !course.noGatekeeping && (
+                        <div className="rounded-lg border border-line bg-panel px-3">
                           <Collapsible
-                            title={course.noGatekeeping ? 'This week’s task flow' : 'Week flow & gate checklist'}
+                            title={(() => {
+                              const s = gateStats[gateForWeek.id] || 'locked';
+                              const label =
+                                s === 'passed' ? 'passed' : s === 'ready' ? 'ready' : 'in progress';
+                              return `Gate ${gateForWeek.id} checklist · ${label}`;
+                            })()}
                             defaultOpen={false}
                           >
-                            <div className="space-y-3 pb-1">
-                              {ownTasks.length > 0 && (
-                                <WeekTaskFlow
-                                  course={course}
-                                  role={member.role}
-                                  week={w.number}
-                                  taskStats={taskStats}
-                                  onTaskClick={(id) => {
-                                    const t = getTaskById(course, id);
-                                    if (t) goToTask(t);
-                                  }}
-                                />
-                              )}
-                              {gateForWeek && !course.noGatekeeping && (
-                                <WeekGatePanel
-                                  course={course}
-                                  week={w.number}
-                                  status={gateStats[gateForWeek.id] || 'locked'}
-                                  ownRole={member?.role}
-                                  taskStats={taskStats}
-                                />
-                              )}
+                            <div className="pb-1">
+                              <WeekGatePanel
+                                course={course}
+                                week={w.number}
+                                status={gateStats[gateForWeek.id] || 'locked'}
+                                ownRole={member?.role}
+                                taskStats={taskStats}
+                              />
                             </div>
                           </Collapsible>
                         </div>
@@ -1551,7 +1519,7 @@ export default function CoursePage() {
 
                   {/* Other roles — tucked into a reference panel */}
                   {joined && otherTasks.length > 0 && (
-                    <div className="rounded-lg border border-dashed border-gray-300 p-3 dark:border-gray-600">
+                    <div className="rounded-lg border border-dashed border-line p-3">
                       <button
                         type="button"
                         onClick={() => toggleRef(w.number)}
@@ -1560,9 +1528,9 @@ export default function CoursePage() {
                         <Users className="h-4 w-4" />
                         Other roles this week (reference) · {otherTasks.length}
                         {refOpen ? (
-                          <ChevronDown className="ml-auto h-4 w-4 text-gray-400" />
+                          <ChevronDown className="ml-auto h-4 w-4 text-muted" />
                         ) : (
-                          <ChevronRight className="ml-auto h-4 w-4 text-gray-400" />
+                          <ChevronRight className="ml-auto h-4 w-4 text-muted" />
                         )}
                       </button>
                       {refOpen && (

@@ -34,7 +34,7 @@ export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-gray-200 motion-reduce:animate-none dark:bg-gray-700 ${className}`}
+      className={`animate-pulse rounded-md bg-panel-2 motion-reduce:animate-none ${className}`}
       aria-hidden
     />
   );

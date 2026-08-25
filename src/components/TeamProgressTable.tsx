@@ -22,9 +22,9 @@ export interface DeliverableStatus {
 }
 
 function pctColor(p: number) {
-  if (p >= 100) return 'bg-green-500';
-  if (p > 0) return 'bg-blue-500';
-  return 'bg-gray-300 dark:bg-gray-600';
+  if (p >= 100) return 'bg-ok';
+  if (p > 0) return 'bg-accent';
+  return 'bg-line';
 }
 
 /** Roster + per-member week progress and the team's 8 deliverable completions.
@@ -42,10 +42,10 @@ export function TeamProgressTable({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white dark:border-gray-700 dark:bg-gray-800">
+      <div className="overflow-x-auto rounded-lg border border-line bg-panel">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
+            <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
               <th className="px-4 py-2.5">Member</th>
               <th className="px-4 py-2.5">Overall</th>
               {weeks.map((w) => (
@@ -64,13 +64,13 @@ export function TeamProgressTable({
             {rows.map((m) => {
               const rd = getRoleDef(course, m.role);
               return (
-                <tr key={m.memberId} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                <tr key={m.memberId} className="border-b border-line/60 last:border-0">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <RoleIcon iconName={rd?.icon} className="h-4 w-4 shrink-0" color={rd?.color} />
                       <span className="font-medium text-ink">{m.displayName || 'Unnamed'}</span>
                       {m.isYou && (
-                        <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[10px] font-medium text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">
+                        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-medium text-accent-ink">
                           You
                         </span>
                       )}
@@ -79,7 +79,7 @@ export function TeamProgressTable({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-line">
                         <div className={`h-full rounded-full ${pctColor(m.overall)}`} style={{ width: `${m.overall}%` }} />
                       </div>
                       <span className="tabular-nums text-xs text-muted">{m.overall}%</span>
@@ -92,10 +92,10 @@ export function TeamProgressTable({
                         <span
                           className={`inline-block min-w-[2.5rem] rounded-full px-2 py-0.5 text-xs tabular-nums ${
                             pct >= 100
-                              ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300'
+                              ? 'bg-ok-soft text-ok'
                               : pct > 0
-                                ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300'
-                                : 'text-gray-400 dark:text-gray-600'
+                                ? 'bg-accent-soft text-accent-ink'
+                                : 'text-muted opacity-60'
                           }`}
                         >
                           {pct}%
@@ -121,17 +121,17 @@ export function TeamProgressTable({
             return (
               <div
                 key={d.id}
-                className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-700 dark:bg-gray-800"
+                className="flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-2"
               >
                 {d.complete ? (
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
                 ) : (
-                  <Circle className="h-4 w-4 shrink-0 text-gray-300 dark:text-gray-600" />
+                  <Circle className="h-4 w-4 shrink-0 text-line" />
                 )}
                 <span className={`flex-1 text-sm ${d.complete ? 'text-muted' : 'text-ink'}`}>
                   {d.title}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-gray-400">
+                <span className="flex items-center gap-1 text-[11px] text-muted">
                   <RoleIcon iconName={rd?.icon} className="h-3 w-3" color={rd?.color} />
                   {rd?.name ?? d.owner}
                 </span>

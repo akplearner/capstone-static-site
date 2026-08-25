@@ -5,9 +5,9 @@ import { Course, GateStatus } from '@/lib/types';
 import { getRoleDef, getTaskById } from '@/lib/course-helpers';
 
 const STATUS_PILL: Record<GateStatus, string> = {
-  locked: 'bg-gray-100 text-gray-700 dark:bg-gray-700 dark:text-gray-300',
+  locked: 'bg-panel-2 text-muted',
   ready: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
-  passed: 'bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300',
+  passed: 'bg-ok-soft text-ok',
 };
 
 const STATUS_LABEL: Record<GateStatus, string> = {
@@ -43,7 +43,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
   });
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-700/30">
+    <div className="rounded-lg border border-line bg-panel-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Flag className="h-4 w-4 text-muted" />
@@ -61,17 +61,17 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
           <li key={it.id} className="flex items-center gap-2 text-sm">
             {it.mine ? (
               it.done ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-green-600" />
+                <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
               ) : (
-                <Circle className="h-4 w-4 shrink-0 text-gray-400" />
+                <Circle className="h-4 w-4 shrink-0 text-muted" />
               )
             ) : (
-              <Users className="h-4 w-4 shrink-0 text-gray-400" />
+              <Users className="h-4 w-4 shrink-0 text-muted" />
             )}
             <span
               className={
                 it.done
-                  ? 'text-gray-500 line-through dark:text-gray-500'
+                  ? 'text-muted line-through'
                   : 'text-body'
               }
             >
@@ -82,17 +82,17 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
                 {shortRole(it.role.name)}
               </span>
             )}
-            {!it.mine && <span className="text-[11px] text-gray-400">team</span>}
+            {!it.mine && <span className="text-[11px] text-muted">team</span>}
           </li>
         ))}
       </ul>
 
       {gate.handoffs && gate.handoffs.length > 0 && (
-        <div className="mt-4 border-t border-gray-200 pt-3 dark:border-gray-600">
+        <div className="mt-4 border-t border-line pt-3">
           <p className="eyebrow-muted">
             End-of-week company sync
           </p>
-          <p className="mt-0.5 text-[11px] text-gray-400">
+          <p className="mt-0.5 text-[11px] text-muted">
             Confirm these hand-offs together before moving on (shared tracking arrives with the backend).
           </p>
           <ul className="mt-2 space-y-1.5">
@@ -101,7 +101,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
               const to = getRoleDef(course, h.to);
               return (
                 <li key={`${h.from}-${h.to}-${i}`} className="flex items-start gap-2 text-sm">
-                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-gray-400" />
+                  <ArrowRight className="mt-0.5 h-4 w-4 shrink-0 text-muted" />
                   <span className="text-body">
                     <span className="font-medium" style={{ color: from?.color }}>
                       {shortRole(from?.name ?? h.from)}

@@ -19,10 +19,10 @@ interface GuidedStepperProps {
 }
 
 const dotStyles: Record<StepperStatus, string> = {
-  done: 'bg-green-600 text-white border-green-600',
-  current: 'bg-blue-600 text-white border-blue-600 ring-4 ring-blue-200 dark:ring-blue-900/50',
-  upcoming: 'bg-white text-gray-400 border-gray-300 dark:bg-gray-800 dark:border-gray-600',
-  locked: 'bg-gray-100 text-gray-400 border-gray-300 dark:bg-gray-700 dark:border-gray-600',
+  done: 'bg-ok text-white border-ok-line',
+  current: 'bg-accent text-accent-contrast border-accent ring-4 ring-accent/25',
+  upcoming: 'bg-panel text-muted border-line',
+  locked: 'bg-panel-2 text-muted border-line',
 };
 
 function StepIcon({ status }: { status: StepperStatus }) {
@@ -62,7 +62,7 @@ export function GuidedStepper({ items, onSelect, className = '' }: GuidedStepper
                 <div
                   className={`truncate text-xs font-medium ${
                     item.status === 'current'
-                      ? 'text-blue-600 dark:text-blue-400'
+                      ? 'text-accent'
                       : 'text-muted'
                   }`}
                   title={item.label}
@@ -70,14 +70,14 @@ export function GuidedStepper({ items, onSelect, className = '' }: GuidedStepper
                   {item.label}
                 </div>
                 {item.sublabel && (
-                  <div className="text-[10px] text-gray-400 dark:text-gray-500">{item.sublabel}</div>
+                  <div className="text-[10px] text-muted">{item.sublabel}</div>
                 )}
               </div>
             </div>
             {!isLast && (
-              <div className="mt-5 h-0.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+              <div className="mt-5 h-0.5 flex-1 overflow-hidden rounded-full bg-line">
                 <motion.div
-                  className="h-full rounded-full bg-green-600"
+                  className="h-full rounded-full bg-ok"
                   initial={{ width: 0 }}
                   animate={{ width: connectorActive ? '100%' : '0%' }}
                   transition={{ duration: 0.4 }}

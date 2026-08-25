@@ -46,12 +46,10 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
             <div key={task.id} className="flex items-stretch gap-2">
               <Card
                 {...(onTaskClick ? { onClick: () => onTaskClick(task.id), type: 'button' as const } : {})}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.06 }}
-                className={`flex w-44 shrink-0 flex-col rounded-lg border bg-white p-3 text-left dark:bg-gray-800 ${
-                  onTaskClick ? 'cursor-pointer hover:shadow-md' : ''
-                } border-gray-200 dark:border-gray-700`}
+                whileHover={onTaskClick ? { y: -2 } : undefined}
+                className={`flex w-44 shrink-0 flex-col rounded-lg border bg-panel p-3 text-left transition-colors ${
+                  onTaskClick ? 'cursor-pointer hover:border-accent hover:shadow-md' : ''
+                } border-line`}
                 style={accent ? { borderLeftColor: accent, borderLeftWidth: 3 } : undefined}
               >
                 <div className="flex items-center justify-between gap-1">
@@ -61,7 +59,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
                   {taskStats && (
                     <span
                       className={`text-[11px] font-bold ${
-                        pct === 100 ? 'text-green-600 dark:text-green-400' : 'text-blue-600 dark:text-blue-400'
+                        pct === 100 ? 'text-ok' : 'text-accent'
                       }`}
                     >
                       {pct}%
@@ -82,7 +80,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
               </Card>
               {i < tasks.length - 1 && (
                 <div className="flex items-center">
-                  <ChevronRight className="h-5 w-5 text-gray-300 dark:text-gray-600" />
+                  <ChevronRight className="h-5 w-5 text-line" />
                 </div>
               )}
             </div>
@@ -91,7 +89,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
       </div>
 
       {handoffs.length > 0 && (
-        <div className="mt-3 border-t border-gray-100 pt-3 dark:border-gray-700">
+        <div className="mt-3 border-t border-line pt-3">
           <div className="mb-1.5 eyebrow-muted">
             Optional — share to enrich a teammate&apos;s work
           </div>
@@ -100,7 +98,7 @@ export function WeekTaskFlow({ course, role, week, taskStats, onTaskClick }: Wee
             const to = getRoleDef(course, h.to);
             return (
               <li key={`${h.to}-${i}`} className="flex items-start gap-2 text-xs text-muted">
-                <Send className="mt-0.5 h-3.5 w-3.5 shrink-0 text-gray-400" />
+                <Send className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
                 <span className="inline-flex items-center gap-1">
                   <RoleIcon iconName={to?.icon} className="h-3.5 w-3.5" color={to?.color} />
                   <span className="font-medium" style={{ color: to?.color }}>

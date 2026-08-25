@@ -64,17 +64,17 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
         </defs>
 
         {/* Network cloud */}
-        <ellipse cx="290" cy="150" rx="56" ry="30" className="fill-gray-100 stroke-gray-300 dark:fill-gray-800 dark:stroke-gray-600" strokeWidth="1.5" />
-        <text x="290" y="146" textAnchor="middle" fontSize="11" fontWeight="700" className="fill-gray-600 dark:fill-gray-300">Network</text>
-        <text x="290" y="160" textAnchor="middle" fontSize="9" className="fill-gray-400 dark:fill-gray-500">{LAB_SUBNET}</text>
+        <ellipse cx="290" cy="150" rx="56" ry="30" className="fill-[var(--color-panel-2)] stroke-[var(--color-line)]" strokeWidth="1.5" />
+        <text x="290" y="146" textAnchor="middle" fontSize="11" fontWeight="700" className="fill-[var(--color-body)]">Network</text>
+        <text x="290" y="160" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">{LAB_SUBNET}</text>
 
         {/* Attacker (Red) */}
         {has('red') && (
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('red') }} transition={{ duration: 0.3 }}>
             <rect x="24" y="120" width="140" height="72" rx="10" fill={red} fillOpacity={0.12} stroke={red} strokeWidth={highlightRole === 'red' ? 3 : 2} />
             <text x="94" y="148" textAnchor="middle" fontSize="12" fontWeight="700" fill={red}>Attacker</text>
-            <text x="94" y="164" textAnchor="middle" fontSize="9" className="fill-gray-500 dark:fill-gray-400">Kali · Red</text>
-            <text x="94" y="178" textAnchor="middle" fontSize="9" className="fill-gray-500 dark:fill-gray-400">recon → exploit</text>
+            <text x="94" y="164" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Kali · Red</text>
+            <text x="94" y="178" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">recon → exploit</text>
           </motion.g>
         )}
 
@@ -96,13 +96,13 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
 
         {/* Ubuntu host */}
         <g>
-          <rect x="420" y="70" width="140" height="76" rx="10" className="fill-white stroke-gray-400 dark:fill-gray-800 dark:stroke-gray-500" strokeWidth="2" />
-          <text x="490" y="92" textAnchor="middle" fontSize="11.5" fontWeight="700" className="fill-gray-800 dark:fill-gray-100">{ubuntu.name}</text>
-          <text x="490" y="106" textAnchor="middle" fontSize="9" className="fill-gray-400 dark:fill-gray-500">Blue defends · {ubuntu.ip}</text>
+          <rect x="420" y="70" width="140" height="76" rx="10" className="fill-[var(--color-panel)] stroke-[var(--color-line)]" strokeWidth="2" />
+          <text x="490" y="92" textAnchor="middle" fontSize="11.5" fontWeight="700" className="fill-[var(--color-ink)]">{ubuntu.name}</text>
+          <text x="490" y="106" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Blue defends · {ubuntu.ip}</text>
           {ubuntu.services.map((svc, i) => (
             <g key={svc}>
-              <rect x={432 + i * 40} y="118" width="34" height="18" rx="4" className="fill-gray-100 stroke-gray-300 dark:fill-gray-700 dark:stroke-gray-600" />
-              <text x={432 + i * 40 + 17} y="131" textAnchor="middle" fontSize="8.5" className="fill-gray-600 dark:fill-gray-300">{svc}</text>
+              <rect x={432 + i * 40} y="118" width="34" height="18" rx="4" className="fill-[var(--color-panel-2)] stroke-[var(--color-line)]" />
+              <text x={432 + i * 40 + 17} y="131" textAnchor="middle" fontSize="8.5" className="fill-[var(--color-body)]">{svc}</text>
             </g>
           ))}
         </g>
@@ -110,9 +110,9 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
         {/* Windows host (optional Blue track) */}
         {showWindows && (
           <g>
-            <rect x="420" y="165" width="140" height="76" rx="10" className="fill-white stroke-violet-400 dark:fill-gray-800 dark:stroke-violet-500" strokeWidth="2" strokeDasharray="6 4" />
-            <text x="490" y="187" textAnchor="middle" fontSize="11.5" fontWeight="700" className="fill-gray-800 dark:fill-gray-100">{windows.name}</text>
-            <text x="490" y="201" textAnchor="middle" fontSize="9" className="fill-gray-400 dark:fill-gray-500">Blue defends · optional · {windows.ip}</text>
+            <rect x="420" y="165" width="140" height="76" rx="10" className="fill-[var(--color-panel)] stroke-violet-400" strokeWidth="2" strokeDasharray="6 4" />
+            <text x="490" y="187" textAnchor="middle" fontSize="11.5" fontWeight="700" className="fill-[var(--color-ink)]">{windows.name}</text>
+            <text x="490" y="201" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Blue defends · optional · {windows.ip}</text>
             <rect x="452" y="213" width="76" height="18" rx="4" className="fill-violet-100 stroke-violet-300 dark:fill-violet-900/40 dark:stroke-violet-700" />
             <text x="490" y="226" textAnchor="middle" fontSize="8.5" className="fill-violet-700 dark:fill-violet-300">Defender · RDP</text>
           </g>
@@ -123,7 +123,7 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('blue') }} transition={{ duration: 0.3 }}>
             <rect x="300" y="300" width="170" height="66" rx="10" fill={blue} fillOpacity={0.12} stroke={blue} strokeWidth={highlightRole === 'blue' ? 3 : 2} />
             <text x="385" y="328" textAnchor="middle" fontSize="12" fontWeight="700" fill={blue}>SOC / Monitoring</text>
-            <text x="385" y="344" textAnchor="middle" fontSize="9" className="fill-gray-500 dark:fill-gray-400">Blue · logs, pcap, alerts</text>
+            <text x="385" y="344" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Blue · logs, pcap, alerts</text>
             {/* monitoring up to the host(s) */}
             <line x1="430" y1="300" x2="470" y2="148" stroke={blue} strokeWidth="1.8" strokeDasharray="4 3" markerEnd="url(#arch-mon)" />
             {showWindows && (
@@ -137,7 +137,7 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
           <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('grc') }} transition={{ duration: 0.3 }}>
             <rect x="24" y="300" width="250" height="66" rx="10" fill={grc} fillOpacity={0.1} stroke={grc} strokeWidth={highlightRole === 'grc' ? 3 : 2} strokeDasharray="6 4" />
             <text x="149" y="326" textAnchor="middle" fontSize="11.5" fontWeight="700" fill={grc}>Governance · Risk · Compliance</text>
-            <text x="149" y="343" textAnchor="middle" fontSize="9" className="fill-gray-500 dark:fill-gray-400">GRC · policy, SOPs, risk & evidence</text>
+            <text x="149" y="343" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">GRC · policy, SOPs, risk & evidence</text>
           </motion.g>
         )}
       </svg>
