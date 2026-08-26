@@ -1199,10 +1199,11 @@ export default function CoursePage() {
             <h2 className="text-2xl font-bold tracking-tight text-ink">The build — one picture</h2>
           </div>
           <p className="max-w-3xl text-sm text-muted">
-            One rack-mount server in a <b className="text-ink">24U rack</b> — patch panel and switch
-            up top, the server on rails, the PDU below — running a hypervisor with a{' '}
-            <b className="text-ink">Windows</b> and a <b className="text-ink">Linux</b> VM. You plan
-            it, build it, connect it, then secure and hand it over.
+            One rack-mount server in a <b className="text-ink">24U rack</b> on the 10.10.0.0/16 campus
+            LAN (your host is 10.10.30.<b className="text-ink">T</b>, T = your team number), running a
+            hypervisor with two zones: a <b className="text-ink">DMZ</b> for the website and a{' '}
+            <b className="text-ink">private network</b> for the Windows server and the Linux database.
+            You plan it, build it, connect it, then secure and hand it over.
           </p>
           <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
             <ServerTopologyDiagram />
@@ -1487,7 +1488,11 @@ export default function CoursePage() {
 
                   {/* Setup week: the classroom lab is already built — the build task
                       is home-build-only and confirms before it expands. */}
-                  {w.number === 0 && (
+                  {/* SOC-course banner only: this names the shared Wazuh SOC and
+                      its login, which is meaningless (and confusing) on a course
+                      whose Week 0 is required prep rather than an optional
+                      home-lab build — Server+ hit exactly that. */}
+                  {w.number === 0 && !!socTopology(course.id) && (
                     <div className="mb-3 rounded-lg border border-accent/30 bg-accent-soft p-3 text-sm">
                       <p className="text-ink">
                         <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}

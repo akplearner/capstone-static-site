@@ -47,7 +47,11 @@ function isCommandLike(source: string): boolean {
 }
 
 function isUrl(source: string): boolean {
-  return /^https?:\/\//i.test(source.trim());
+  // Root-relative paths count too: course downloads (starter packs, guide
+  // PDFs) are served from /downloads/ on this same host, and rendering them
+  // as plain text instead of a link made the file unreachable from the step.
+  const s = source.trim();
+  return /^https?:\/\//i.test(s) || s.startsWith('/');
 }
 
 interface GateBadgeProps {

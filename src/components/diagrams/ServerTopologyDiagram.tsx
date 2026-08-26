@@ -13,10 +13,16 @@ import { DiagramFrame } from './DiagramFrame';
  * Rack & Cabling Record and the Topology & IP Plan so the diagram and the forms
  * agree.
  *
+ * The virtual side draws the three bridges: vmbr0 management on the campus
+ * LAN (each team's host at 10.10.30.<team#>), vmbr1 the DMZ zone carrying the
+ * website, and vmbr2 the private network with the Windows server and the
+ * Linux database — later mapped to a physical NIC into a Cisco router +
+ * switch, the servers' only internet path. DMZ/private subnets are worked
+ * examples; the 10.10.30.T rule is the real classroom rule.
+ *
  * The generic `ArchitectureDiagram` draws a red/blue/grc attack lab and hardcodes
  * those role ids, which describes nothing about a rack build — hence this own
- * picture. Addresses are the handbook's worked examples; a team uses whatever the
- * instructor assigned.
+ * picture.
  */
 
 // Bottom-up is how a rack is actually counted, but we render top-down, so the
@@ -39,21 +45,44 @@ const KIND_COLOR: Record<RackKind, string> = {
   blank: 'var(--color-line)',
 };
 
-const VMS: { name: string; runs: string; addr: string }[] = [
-  { name: 'winserver', runs: 'Windows Server — DNS · DHCP · staff portal', addr: '10.10.10.20' },
-  { name: 'linuxsrv', runs: 'Ubuntu Server — web service · database', addr: '10.10.10.21' },
+const ZONES: {
+  bridge: string;
+  name: string;
+  subnet: string;
+  color: string;
+  vms: { name: string; runs: string; addr: string }[];
+}[] = [
+  {
+    bridge: 'vmbr1',
+    name: 'DMZ',
+    subnet: '172.16.0.0/24',
+    color: 'var(--color-w3)',
+    vms: [{ name: 'websrv', runs: 'The website — public-facing', addr: '172.16.0.10' }],
+  },
+  {
+    bridge: 'vmbr2',
+    name: 'Private',
+    subnet: '192.168.0.0/24',
+    color: 'var(--color-w1)',
+    vms: [
+      { name: 'winserver', runs: 'Windows Server — directory · DNS · DHCP', addr: '192.168.0.2' },
+      { name: 'linuxsrv', runs: 'Ubuntu Server — the database', addr: '192.168.0.3' },
+    ],
+  },
 ];
 
 export function ServerTopologyDiagram() {
   return (
     <DiagramFrame
       title="What you build — one server in a 24U rack"
-      howToRead="Left is the physical 24U rack, counted in U from the bottom up: the patch panel and switch carry the network, the server sits on rails, the PDU powers it all. Right is what that one server virtualises."
+      howToRead="Left is the physical 24U rack, counted in U from the bottom up. Right is what the one server virtualises: management on the campus LAN, a DMZ zone for the website, and a private zone for the Windows server and the database."
       legend={[
         { label: 'Patch panel — structured cabling', color: 'var(--color-w3)' },
         { label: 'Switch — the network', color: 'var(--color-w2)' },
         { label: 'Server — the Proxmox host', color: 'var(--color-accent)' },
         { label: 'PDU — power', color: 'var(--color-w1)' },
+        { label: 'vmbr1 — DMZ zone', color: 'var(--color-w3)' },
+        { label: 'vmbr2 — private zone', color: 'var(--color-w1)' },
       ]}
     >
       <div className="grid min-w-[560px] gap-4 sm:grid-cols-[minmax(220px,1fr)_minmax(240px,1.2fr)]">
@@ -105,32 +134,49 @@ export function ServerTopologyDiagram() {
           </div>
         </div>
 
-        {/* The virtual layer that runs inside the one server */}
+        {/* The virtual layer: vmbr0 management on the LAN, then the two zones */}
         <div className="space-y-3">
           <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2">
             <div className="text-sm font-bold text-ink">Proxmox host — the one server (U20–U21)</div>
-            <div className="font-mono text-[11px] text-muted">management 10.10.10.10 · web console on :8006</div>
+            <div className="font-mono text-[11px] text-muted">
+              vmbr0 management · 10.10.30.<span className="font-bold text-ink">T</span> on the 10.10.0.0/16 LAN · web console :8006
+            </div>
+            <div className="text-[10px] text-muted">T is your team number — Team 1 is 10.10.30.1, Team 2 is .2</div>
           </div>
 
           <div className="text-center text-xs text-muted" aria-hidden>
-            ↓ runs
+            ↓ runs two zones
           </div>
 
           <div className="space-y-2">
-            {VMS.map((vm) => (
-              <div key={vm.name} className="rounded-lg border border-line bg-panel px-3 py-2">
+            {ZONES.map((z) => (
+              <div key={z.bridge} className="rounded-lg border-2 bg-panel px-3 py-2" style={{ borderColor: z.color }}>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                  <span className="font-mono text-xs font-bold text-ink">{vm.name}</span>
-                  <span className="font-mono text-[11px] text-muted">{vm.addr}</span>
+                  <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
+                    {z.bridge} · {z.name}
+                  </span>
+                  <span className="font-mono text-[11px] text-muted">{z.subnet}</span>
                 </div>
-                <div className="text-[11px] text-muted">{vm.runs}</div>
+                <div className="mt-1.5 space-y-1">
+                  {z.vms.map((vm) => (
+                    <div key={vm.name} className="rounded-md border border-line bg-panel-2 px-2 py-1">
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                        <span className="font-mono text-[11px] font-bold text-ink">{vm.name}</span>
+                        <span className="font-mono text-[10px] text-muted">{vm.addr}</span>
+                      </div>
+                      <div className="text-[10px] text-muted">{vm.runs}</div>
+                    </div>
+                  ))}
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="rounded-lg border border-dashed border-line px-3 py-2 text-center text-[11px] text-muted">
-            <span className="font-semibold text-ink">One machine, two guests.</span> The addresses are
-            worked examples — use whatever the instructor assigned, and record them in the Topology &amp; IP Plan.
+          <div className="rounded-lg border border-dashed border-line px-3 py-2 text-[11px] text-muted">
+            <span className="font-semibold text-ink">Later phase:</span> vmbr2 maps to a physical NIC
+            attached to a <span className="font-semibold text-ink">Cisco router + switch</span> — that
+            becomes the servers&rsquo; only path to the internet. Zone subnets are worked examples;
+            record yours in the Architecture &amp; IP Plan.
           </div>
         </div>
       </div>

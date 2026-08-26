@@ -24,11 +24,20 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
  * the build tasks are flagged `shared` so they belong to everyone (see
  * `Course.sharedTrack`).
  *
- * Addresses (10.10.10.x) are worked examples; a student uses whatever the
- * instructor assigned. `ServerTopologyDiagram` draws the physical 24U rack —
- * it also renders on the course Overview beside the phase arc. There is no
- * attacker, no target range and no lab-access panel on this course — see
- * LAB_PROFILES in labAccess.ts.
+ * Week 0 is preparation, not the engagement: PXE-image your workstation from
+ * the student guide, download the starter pack (the course folder structure),
+ * and learn the addressing rule. It uses the platform's `setup: true` week
+ * support — collapsed by default and excluded from the graded arcs.
+ *
+ * THE NETWORK. The campus LAN is 10.10.0.0/16 and each team's Proxmox host
+ * sits at 10.10.30.<team#> (Team 1 = 10.10.30.1). Inside Proxmox, vmbr1 is
+ * the DMZ zone carrying the website VM and vmbr2 is the private network with
+ * the Windows server and the Linux database; in a later phase vmbr2 is
+ * assigned to a physical NIC attached to a Cisco router + switch, which
+ * becomes the servers' only path to the internet. The DMZ/private subnets
+ * (172.16.0.0/24, 192.168.0.0/24) are worked examples. There is no attacker,
+ * no target range and no lab-access panel on this course — see LAB_PROFILES
+ * in labAccess.ts.
  */
 
 const roles: RoleDef[] = [
@@ -74,6 +83,20 @@ const roles: RoleDef[] = [
  * course opens all four from the start. Each week is scoped to ~2 hours.
  */
 const weeks: WeekDef[] = [
+  {
+    number: 0,
+    title: 'Preparation',
+    theme: 'Get ready to build',
+    objective: 'Image your workstation over PXE, download the starter pack, and get your team, focus and numbers straight.',
+    runs: 'Week 0',
+    setup: true,
+    stage: 0,
+    phase: 'Preparation',
+    difficulty: 1,
+    flow: ['Image your workstation', 'Get the starter pack', 'Know your numbers'],
+    milestone: 'Your workstation is imaged and on ITS.lan, the starter folders exist on it, and you know your team\'s addressing.',
+    plain: 'Before the engagement starts you need a working seat: a freshly imaged workstation on the domain, the course folder structure on it, and your team number — because every address you will ever assign derives from it.',
+  },
   {
     number: 1,
     title: 'Plan the Infrastructure',
@@ -142,6 +165,153 @@ const gates: Gate[] = [];
  * set as a whole. Per-week estimated times sum to roughly the two-hour budget.
  */
 const sharedTasks: Task[] = [
+  // ══ WEEK 0 · Preparation ══════════════════════════════════════════════════
+  {
+    id: 'sp-w0-pxe',
+    role: 'mgmt',
+    shared: true,
+    week: 0,
+    title: 'Image your workstation over PXE',
+    objective: 'Take your assigned workstation from powered off to imaged, named from the desk label, and joined to ITS.lan.',
+    frameworks: ['NIST_CSF'],
+    deliverables: [],
+    estimatedTime: '30 min',
+    difficulty: 1,
+    learn: ['PXE network boot', 'Disk selection', 'Naming conventions', 'Domain join'],
+    tools: ['PXE Imaging Student Guide (PDF)'],
+    prerequisites: ['Your assigned workstation and its desk label', 'An ethernet cable seated at both ends'],
+    definitionOfDone: [
+      'hostname prints the desk label with a hyphen (e.g. CIT6-R1C3)',
+      'The full device name ends in .ITS.lan, not WORKGROUP',
+      'Drive C: sits on the 932 GB disk — the 238 GB SSD is untouched',
+      'The domain controller answers a ping',
+    ],
+    steps: [
+      {
+        id: 'sp-w0-pxe-s1',
+        title: 'Work the six stages, top to bottom',
+        description: 'Link up → boot menu → PXE menu → the 1 TB disk → the name → join ITS.lan.',
+        where: 'Your assigned workstation',
+        instruction: 'Follow the PXE Imaging Student Guide stage by stage. Do not skip a stage, and do not change anything in BIOS Setup the guide does not tell you to change.',
+        instructionList: [
+          'Link up: cable clicked in at both ends, link light on within ~5 seconds of power. No light means no PXE.',
+          'Boot menu: tap the boot-menu key about once per second at the manufacturer logo.',
+          'PXE menu: pick the IPv4 network entry (never IPv6), then the Windows entry, and let it run.',
+          'The disk: install to the 932 GB drive — never the 238 GB SSD. Go by size, not disk number.',
+          'The name: the desk label, with the space typed as a hyphen (CIT6 R1C3 → CIT6-R1C3).',
+          'Join ITS.lan in full, reboot, and sign in as ITS\\yourusername.',
+        ],
+        files: [
+          { name: 'PXE Imaging Student Guide (PDF)', purpose: 'the full six-stage walkthrough, the verify checks, and the PXE error table', source: '/downloads/PXE_Imaging_Student_Guide.pdf' },
+        ],
+        whatItMeans: 'One machine, one student — imaging erases the disk you pick. The point of no return is the disk confirmation, so read the size twice.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'Windows boots from the local disk with no PXE screen, hostname prints the desk label with a hyphen, the full name ends in .ITS.lan, and C: sits on the 932 GB disk.',
+        outputKind: 'result',
+        fixes: [
+          { symptom: 'No link light, or PXE-E51 (no DHCP offers)?', fix: 'Swap the cable, then try a known-good wall port. Still nothing — tell your instructor; do not change UEFI settings yourself.' },
+          { symptom: '"Start PXE over IPv4" flashes and Windows loads instead?', fix: 'PXE timed out. Reboot, get into the boot menu faster, and pick the IPv4 network entry again.' },
+          { symptom: 'You installed to the 238 GB SSD?', fix: 'Tell your instructor, then re-image from Stage 03 and pick the 932 GB disk this time.' },
+          { symptom: 'Stuck for more than five minutes?', fix: 'Raise your hand and read the error out loud, word for word — a PXE code tells the instructor exactly what broke.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sp-w0-starter',
+    role: 'mgmt',
+    shared: true,
+    week: 0,
+    title: 'Download the starter pack and set up your folders',
+    objective: 'Put the course folder structure on your imaged workstation — the home for every document and photo you will produce.',
+    frameworks: ['NIST_CSF'],
+    deliverables: [],
+    estimatedTime: '15 min',
+    difficulty: 1,
+    learn: ['Document organisation', 'File naming conventions'],
+    tools: ['Starter pack (ZIP)'],
+    prerequisites: ['Your imaged workstation from the PXE task'],
+    definitionOfDone: [
+      'The ServerPlus_Capstone folder tree exists on your workstation',
+      'You know which folder each form exports into',
+      'You can state the file-naming convention from memory',
+    ],
+    steps: [
+      {
+        id: 'sp-w0-starter-s1',
+        title: 'Unzip the starter pack',
+        description: 'The folder skeleton every deliverable and photo files into.',
+        where: 'Your imaged workstation',
+        instruction: 'Download the starter pack, unzip it somewhere you will find it again, and read the README in each folder — it says which form lands where and how files are named.',
+        files: [
+          { name: 'ServerPlus_Starter_Pack.zip', purpose: 'the course folder structure, per-folder READMEs, the naming convention, and a copy of the PXE guide', source: '/downloads/ServerPlus_Starter_Pack.zip' },
+        ],
+        tree: {
+          label: 'ServerPlus_Capstone/',
+          kind: 'root',
+          children: [
+            { label: '00_Planning', kind: 'folder' },
+            { label: '01_Physical', kind: 'folder' },
+            { label: '02_Assets', kind: 'folder' },
+            { label: '03_Network', kind: 'folder' },
+            { label: '04_Config', kind: 'folder' },
+            { label: '05_Operations', kind: 'folder' },
+            { label: '06_Resilience', kind: 'folder' },
+            { label: '07_Handover', kind: 'folder' },
+            { label: '08_Evidence', kind: 'folder' },
+            { label: 'README.txt', kind: 'file', format: 'md' },
+          ],
+        },
+        whatItMeans: 'Week 4\'s handover package is assembled from these folders, not from memory. A document filed the day it was made is one you can find in Week 4.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'The ServerPlus_Capstone tree sits on your workstation with a README in every folder, ready to receive the Week-1 exports.',
+        outputKind: 'result',
+      },
+    ],
+  },
+  {
+    id: 'sp-w0-orient',
+    role: 'mgmt',
+    shared: true,
+    week: 0,
+    title: 'Know your team, focus and numbers',
+    objective: 'Join a team, pick your documentation focus, locate the guides, and learn the addressing rule everything derives from.',
+    frameworks: ['NIST_CSF'],
+    deliverables: [],
+    estimatedTime: '15 min',
+    difficulty: 1,
+    learn: ['The four focuses', 'The lab addressing scheme'],
+    tools: ['Configuration Guide (PDF)'],
+    prerequisites: ['A seat on a team (up to four, ideally one per focus)'],
+    definitionOfDone: [
+      'You are on a team with a focus picked',
+      'You can point at the Configuration Guide and the PXE guide',
+      'You can say your Proxmox host address from your team number',
+    ],
+    steps: [
+      {
+        id: 'sp-w0-orient-s1',
+        title: 'Get your bearings',
+        description: 'The team, the focus, the guides, and the addressing rule.',
+        instruction: 'Join your team on the Team page and pick the focus you will document deepest — Networking, Windows, Linux or Management. Then learn the numbers below; every address you assign later derives from them.',
+        instructionList: [
+          'Everyone does the same build; your focus only decides what you document deeper.',
+          'The campus LAN is 10.10.0.0/16.',
+          'Your Proxmox host is 10.10.30.T where T is your team number — Team 1 is 10.10.30.1, Team 2 is .2.',
+          'Inside Proxmox: vmbr1 is the DMZ zone (the website); vmbr2 is the private network (Windows + Linux database).',
+          'Later phase: vmbr2 maps to a physical NIC into a Cisco router + switch — the servers\' only internet path.',
+        ],
+        files: [
+          { name: 'Configuration Guide (PDF)', purpose: 'the exact CLI for every install step, handed out by your instructor' },
+        ],
+        whatItMeans: 'The addressing rule is the one fact the whole class shares. Knowing it cold is what stops two teams colliding on the same LAN.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'You can state your focus, your team number, and your Proxmox host address without looking anything up.',
+        outputKind: 'result',
+      },
+    ],
+  },
+
   // ══ WEEK 1 · Plan & Analyze ═══════════════════════════════════════════════
   {
     id: 'sp-w1-business',
@@ -418,11 +588,11 @@ const sharedTasks: Task[] = [
         title: 'Install the hypervisor from the guide',
         description: 'Follow the Configuration Guide for the exact install steps.',
         where: 'The server console',
-        instruction: 'Boot the install media and install the hypervisor, following the Configuration Guide for the exact steps and values. Set the hostname and a static management address.',
+        instruction: 'Boot the install media and install the hypervisor, following the Configuration Guide for the exact steps and values. Set the hostname and your team\'s management address on the LAN.',
         instructionList: [
           'Boot the prepared install media on the server.',
           'Follow the Configuration Guide for the install options and disk layout.',
-          'Set the hostname and a static management IP — Week 3 formalises the full plan.',
+          'Set the hostname and the management IP: 10.10.30.T for team T (Team 1 = 10.10.30.1).',
           'Remove the media and reboot when it finishes.',
         ],
         files: [
@@ -438,10 +608,11 @@ const sharedTasks: Task[] = [
         title: 'Create the core VMs and record the baseline',
         description: 'The Week-2 core VMs from the architecture layout, then the paperwork.',
         where: 'The hypervisor web console',
-        instruction: 'Create the VMs the architecture marked as Week-2 core, with the planned resources, then record every system\'s baseline in the Configuration Management Record with a screenshot as evidence.',
+        instruction: 'Create the VMs the architecture marked as Week-2 core with their planned resources, attach each to the bridge its zone calls for — vmbr1 for the DMZ website, vmbr2 for the private Windows and database VMs — then record every baseline in the Configuration Management Record.',
         instructionList: [
           'Upload the OS install images to the host storage.',
           'Create each core VM with the vCPU, RAM and disk from the architecture layout.',
+          'Attach each VM to its zone: vmbr1 (DMZ) for the website, vmbr2 (private) for Windows and the database.',
           'Follow the Configuration Guide for the guest install options.',
           'Add a baseline row per system: values set, guide section, evidence screenshot.',
         ],
@@ -575,9 +746,9 @@ const sharedTasks: Task[] = [
         where: 'Each system, and the rack',
         instruction: 'Set the host and each VM to the address the plan gives it, following the Configuration Guide for the per-OS steps, then confirm the uplink path from patch panel to switch to the office network.',
         instructionList: [
-          'Set the hypervisor host to its planned management address.',
-          'Set the Windows VM\'s address, gateway and DNS from its plan row.',
-          'Set the Linux VM\'s address the same way.',
+          'Confirm the host holds its management address — 10.10.30.T for team T on the 10.10.0.0/16 LAN.',
+          'Set the Windows VM\'s address, gateway and DNS from its plan row on the private zone (vmbr2).',
+          'Set the database and website VMs the same way — private zone (vmbr2) and DMZ (vmbr1) respectively.',
           'Confirm the uplink lead from the patch panel to the switch is connected and labelled.',
           'Log each address change in the Change Log as you make it.',
         ],
@@ -925,7 +1096,7 @@ export const SERVER_PLUS: Course = {
     { label: 'Hand over', detail: 'An as-built PDF package the client can run the server from.' },
   ],
   isSeed: true,
-  version: 5,
+  version: 6,
   teamCount: 16,
   teamCapacity: 4,
 };
