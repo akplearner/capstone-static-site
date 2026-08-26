@@ -19,6 +19,7 @@ import {
   Sparkles,
   Tag,
   Users,
+  Wrench,
   X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
@@ -551,6 +552,14 @@ function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
           Your role
         </span>
       )}
+      {/* On a shared-track course the role is a documentation focus, not a lane
+          of work, and calling it "your role" beside a shared build reads as if
+          the build belonged to someone else. */}
+      {tag === 'focus' && (
+        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
+          Your focus
+        </span>
+      )}
       {tag === 'reference' && (
         <span className="text-xs text-muted">reference</span>
       )}
@@ -841,15 +850,34 @@ export default function CoursePage() {
     // The concrete plan (the ordered steps) and the done-criteria are always
     // visible above the brief now — a student shouldn't have to open anything to
     // learn what they're doing this week or what "finished" means.
-    const hasBrief = !!(task.learn?.length || task.frameworks?.length);
+    const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length);
     return (
     <>
       <TaskThisWeek task={task} />
       {hasBrief && (
         <div className="mb-4 rounded-lg border border-line px-4">
-          <Collapsible title="Task brief — what you'll learn & frameworks" defaultOpen={false}>
+          <Collapsible title="Task brief — tools, what you'll learn & frameworks" defaultOpen={false}>
             <div className="space-y-3 py-2">
         <div className="space-y-3 rounded-lg border border-line bg-panel-2 p-3">
+          {/* The tools for THIS task. They used to be aggregated into a
+              single week-wide chip strip above every task — a dozen chips a
+              student had to map back onto the right task themselves. Two or
+              three, beside the work they belong to, is the useful form. */}
+          {task.tools && task.tools.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="flex items-center gap-1 eyebrow-muted">
+                <Wrench className="h-3.5 w-3.5" /> Tools
+              </span>
+              {task.tools.map((tool) => (
+                <span
+                  key={tool}
+                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 font-mono text-[11px] text-ink"
+                >
+                  {tool}
+                </span>
+              ))}
+            </div>
+          )}
           {task.learn && task.learn.length > 0 && (
             <div>
               <div className="flex items-center gap-1.5 eyebrow-muted">
@@ -1271,10 +1299,30 @@ export default function CoursePage() {
           const isWeekOpen = q ? true : effectiveOpenWeeks.has(w.number);
           const weekPct = weekStats[w.number] ?? 0;
           const gateForWeek = course.gates.find((g) => g.week === w.number);
-          const ownTasks = member ? shownTasks.filter((t) => t.role === member.role) : [];
-          const otherTasks = member ? shownTasks.filter((t) => t.role !== member.role) : shownTasks;
+          // Three lanes, not two. On a shared-track course (Server+) the build
+          // itself belongs to everyone and only the small deep-dive differs by
+          // focus, so a `shared` task must never fall into "other roles" — that
+          // would hide the actual week's work behind a collapsed reference panel
+          // for three of four students.
+          const sharedWeekTasks = member ? shownTasks.filter((t) => t.shared) : [];
+          const ownTasks = member
+            ? shownTasks.filter((t) => !t.shared && t.role === member.role)
+            : [];
+          const otherTasks = member
+            ? shownTasks.filter((t) => !t.shared && t.role !== member.role)
+            : shownTasks;
           const refOpen = q ? true : openRefs.has(w.number);
-          const displayCount = q ? shownTasks.length : weekTasks.length;
+          // On a role-split course the week's task count is the crew's — useful,
+          // because your teammates' lanes are real work happening beside yours.
+          // On a shared track the other focuses' deep-dives are copies of the
+          // same slot, so counting all four told a student "6 tasks" for a week
+          // in which they work three.
+          const memberWeekCount = sharedWeekTasks.length + ownTasks.length;
+          const displayCount = q
+            ? shownTasks.length
+            : course.sharedTrack && member
+              ? memberWeekCount
+              : weekTasks.length;
           const locked = weekLocked(w.number);
           const lockGate = priorGateForWeek(w.number);
           return (
@@ -1452,7 +1500,7 @@ export default function CoursePage() {
 
                       {/* The week's map, always visible: every task as a card,
                           in order, clickable straight into the task below. */}
-                      {ownTasks.length > 0 && (
+                      {ownTasks.length + sharedWeekTasks.length > 0 && (
                         <WeekTaskFlow
                           course={course}
                           role={member.role}
@@ -1491,6 +1539,34 @@ export default function CoursePage() {
                     </div>
                   )}
 
+                  {/* The shared build — everyone works this, whatever focus
+                      they picked. Neutral lane, not a role colour: colouring it
+                      would imply it belonged to one of the four. */}
+                  {joined && sharedWeekTasks.length > 0 && (
+                    <div className="lane space-y-3 py-3 pr-3" data-own="true">
+                      <div className="flex items-center gap-2">
+                        <Users className="h-5 w-5 text-muted" />
+                        <span className="font-semibold text-ink">This week — everyone</span>
+                        <span className="text-xs text-muted">same build, whatever your focus</span>
+                      </div>
+                      {sharedWeekTasks.map((task) => (
+                        <TaskRow
+                          key={task.id}
+                          course={course}
+                          task={task}
+                          isOwn
+                          joined={joined}
+                          open={expanded.has(task.id)}
+                          isNext={task.id === nextTask?.id}
+                          percent={taskStats[task.id] ?? 0}
+                          onToggle={() => toggleTask(task)}
+                        >
+                          {renderTaskBody(task, true)}
+                        </TaskRow>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Your role's tasks (interactive) */}
                   {joined && ownRole && ownTasks.length > 0 && (
                     <div
@@ -1498,7 +1574,7 @@ export default function CoursePage() {
                       data-own="true"
                       style={{ '--lane-color': ownRole.color } as React.CSSProperties}
                     >
-                      <RoleGroupHeader role={ownRole} tag="own" />
+                      <RoleGroupHeader role={ownRole} tag={course.sharedTrack ? 'focus' : 'own'} />
                       {ownTasks.map((task) => (
                         <TaskRow
                           key={task.id}
@@ -1526,7 +1602,9 @@ export default function CoursePage() {
                         className="flex w-full items-center gap-2 text-sm font-medium text-muted"
                       >
                         <Users className="h-4 w-4" />
-                        Other roles this week (reference) · {otherTasks.length}
+                        {course.sharedTrack
+                          ? `What the other focuses document · ${otherTasks.length}`
+                          : `Other roles this week (reference) · ${otherTasks.length}`}
                         {refOpen ? (
                           <ChevronDown className="ml-auto h-4 w-4 text-muted" />
                         ) : (

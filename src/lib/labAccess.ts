@@ -39,6 +39,45 @@ export const LAB_CHECKS: { key: string; label: string }[] = [
   { key: 'scope', label: 'Read the Rules of Engagement (authorized scope)' },
 ];
 
+/**
+ * What a given course's lab actually consists of.
+ *
+ * The two lists above describe the attack-and-defend lab the security courses
+ * run: a Kali attacker, a DVWA target, a Windows and an Ubuntu host. They were
+ * rendered on EVERY course, so a Server+ student building a rack-mount server
+ * was asked for "Your Kali (attacker) IP" and told to confirm "DVWA loads in a
+ * browser" — for a course that has no attacker, no DVWA, and no commands at all.
+ *
+ * A course therefore declares its own profile. The default is the security lab,
+ * so Security+/CySA+/MSSP are unchanged; a course with an empty profile has no
+ * lab access to collect and the panel does not render for it at all.
+ *
+ * Note this only governs the FORM. `fillPlaceholders` and `hasUnfilled` still
+ * work off the full token list, because a token is a token whatever course it
+ * appears in — and any course that stops using one simply never renders it.
+ */
+export interface LabProfile {
+  fields: typeof LAB_FIELDS;
+  checks: typeof LAB_CHECKS;
+}
+
+const LAB_PROFILES: Record<string, LabProfile> = {
+  // Build-and-document courses: the student is handed physical hardware and an
+  // instructor's configuration guide, not a target range. Nothing to collect.
+  'server-plus': { fields: [], checks: [] },
+};
+
+export function labProfile(courseId: string): LabProfile {
+  return LAB_PROFILES[courseId] ?? { fields: LAB_FIELDS, checks: LAB_CHECKS };
+}
+
+/** True when the course collects any lab access at all. The panel is skipped
+ *  entirely when false — an empty card with a heading is worse than no card. */
+export function hasLabAccess(courseId: string): boolean {
+  const p = labProfile(courseId);
+  return p.fields.length > 0 || p.checks.length > 0;
+}
+
 /** The member this data belongs to. Derived here rather than threaded through
  *  every caller, so the public API stays `getLabAccess(courseId)` and no call
  *  site changed when this moved off localStorage. Both repo implementations

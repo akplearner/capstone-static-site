@@ -6,8 +6,10 @@ import { custodySection, everyEvidenceHashed } from './custodyTemplate';
  * Client deliverables for the CompTIA Server+ capstone — a hands-on, documented
  * build of a rack-mount server from bare metal to a running, handed-over system.
  *
- * Every student runs the WHOLE build on their own server, independently. There
- * is one role (`tech`), so every form below is owned by it and no deliverable
+ * Every student runs the WHOLE build on their own server, independently, and
+ * fills EVERY form below — that is what `shared: true` means. `owner` is the
+ * focus role that leads the documentation for that record (and the lane the
+ * deliverable chain draws it in), not a gate on who may open it. No deliverable
  * waits on anyone else's work. The point of the course is the *process* —
  * asset, configuration and patch management, topology, DR — captured by filling
  * these forms and exporting each as a PDF (the Generate PDF button on the
@@ -38,7 +40,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 1,
     file: '01_Project_Brief.md',
     title: 'Project Brief & Site Prep',
-    owner: 'tech',
+    owner: 'ops',
+    shared: true,
     folder: '00_Project',
     standard: 'Project brief / scope',
     weeks: [1],
@@ -94,7 +97,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 2,
     file: '02_Rack_and_Cabling.md',
     title: 'Rack & Cabling Record',
-    owner: 'tech',
+    owner: 'hw',
+    shared: true,
     folder: '01_Physical',
     standard: 'Structured cabling / rack elevation',
     weeks: [1],
@@ -188,7 +192,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 3,
     file: '03_Asset_Register.csv',
     title: 'Asset Register',
-    owner: 'tech',
+    owner: 'hw',
+    shared: true,
     folder: '02_Assets',
     standard: 'Asset inventory / CMDB',
     weeks: [1, 3],
@@ -295,7 +300,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 4,
     file: '04_Topology_and_IP_Plan.md',
     title: 'Network Topology & IP Plan',
-    owner: 'tech',
+    owner: 'net',
+    shared: true,
     folder: '03_Network',
     standard: 'Topology / IPAM',
     weeks: [2],
@@ -368,7 +374,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 5,
     file: '05_Configuration_Management.md',
     title: 'Configuration Management Record',
-    owner: 'tech',
+    owner: 'sys',
+    shared: true,
     folder: '04_Config',
     standard: 'Configuration management / baseline',
     weeks: [2, 3],
@@ -431,7 +438,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 6,
     file: '06_Patch_Management.csv',
     title: 'Patch Management Log',
-    owner: 'tech',
+    owner: 'sys',
+    shared: true,
     folder: '05_Operations',
     standard: 'Patch management',
     weeks: [3],
@@ -497,7 +505,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 7,
     file: '07_Change_Log.csv',
     title: 'Change Log',
-    owner: 'tech',
+    owner: 'ops',
+    shared: true,
     folder: '00_Project',
     standard: 'Change control',
     weeks: [1, 2, 3, 4],
@@ -557,7 +566,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 8,
     file: '08_DR_Plan.md',
     title: 'Disaster Recovery Plan',
-    owner: 'tech',
+    owner: 'ops',
+    shared: true,
     folder: '06_Resilience',
     standard: 'Disaster recovery (RTO / RPO / MTTR)',
     weeks: [4],
@@ -633,7 +643,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     num: 9,
     file: '09_As_Built.md',
     title: 'As-Built Handover Package',
-    owner: 'tech',
+    owner: 'ops',
+    shared: true,
     folder: '07_Handover',
     standard: 'As-built handover documentation',
     weeks: [4],

@@ -67,8 +67,16 @@ export function isSetupWeek(course: Course, weekNumber: number): boolean {
   return w?.setup ?? weekNumber === 0;
 }
 
+/** Every task this role actually works.
+ *
+ *  A task flagged `shared` belongs to everyone whatever focus they picked — the
+ *  shared-track shape Server+ uses, where the build is one track and the role
+ *  only decides what you document deeper. Including it HERE rather than at the
+ *  call sites is deliberate: this function is what feeds progress, metrics, the
+ *  capstone stone, resume, the portfolio and the gate checks, so anywhere else
+ *  would have left three of four students reading 0% on a build they had done. */
 export function getTasksByRole(course: Course, role: string, week?: number): Task[] {
-  let tasks = course.tasks.filter((t) => t.role === role);
+  let tasks = course.tasks.filter((t) => t.role === role || t.shared);
   if (week != null) tasks = tasks.filter((t) => t.week === week);
   return tasks;
 }

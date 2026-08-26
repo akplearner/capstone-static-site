@@ -217,6 +217,11 @@ export interface Task {
    *  SOC already exists. Expanding it asks for confirmation first, and it is
    *  never offered as "your next task". Replaces a hardcoded 'cr-w0' check. */
   homeLabOnly?: boolean;
+  /** Every member works this task, whatever focus/role they picked. Used by
+   *  shared-track courses (see `Course.sharedTrack`): the build itself is one
+   *  shared lane and the role only decides what you document deeper, so the
+   *  build tasks are authored once rather than copied per role. */
+  shared?: boolean;
 }
 
 /** The legacy shape used by `content-data.ts` (Security+). It was a hand-copied
@@ -274,6 +279,13 @@ export interface Course {
    *  week is open from the start and hand-offs between roles are shown as guidance,
    *  not requirements. Used by CySA+ to keep the flow simple for beginners. */
   noGatekeeping?: boolean;
+  /** One shared build, four focus roles. Every member works the tasks flagged
+   *  `Task.shared` plus their own role's smaller deep-dive task, and every
+   *  deliverable flagged `shared` is filled by everyone — a role is a
+   *  documentation focus, not a separate lane of work. Without this the course
+   *  page shows you only `task.role === your role`, which for a shared build
+   *  would leave three of four students with an empty week. Used by Server+. */
+  sharedTrack?: boolean;
   isSeed?: boolean;      // true for built-in courses shipped in code
   version?: number;      // export/import schema version
   updatedAt?: number;

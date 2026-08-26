@@ -59,6 +59,14 @@ export default function CourseReferencePage() {
   const isServerDeployment = course.id === 'server-plus';
   const isCysa = course.id === 'cysa-plus';
 
+  // What this course actually uses, derived from its own content rather than
+  // hardcoded by id. A build-and-document course has no commands at all, and
+  // rendering a full terminal-troubleshooting manual for it was the single
+  // biggest block of irrelevant reading on this page.
+  const hasCommands = course.tasks.some((t) =>
+    t.steps.some((s) => !!s.command || (s.commands?.length ?? 0) > 0)
+  );
+
   // Same enrolment rule as the Guide this is an appendix to — the manual is course
   // material. See `CourseEnrolGate` for why the check lives here and not the proxy.
   if (loading) return <LoadingBlock />;
@@ -120,14 +128,18 @@ export default function CourseReferencePage() {
           },
         ]
       : []),
-    {
-      id: 'terminal',
-      // Keeps the historical #command-help anchor working too — see the <span id>
-      // below. Unlike before, the content it lands on is open.
-      title: 'Running commands & getting unstuck',
-      blurb: 'How to use a terminal, and the fixes for the errors almost every beginner hits.',
-      body: <CommandTroubleshooting />,
-    },
+    // Only for a course that actually runs commands. `#command-help` still
+    // resolves on those; a course with no CLI simply never links to it.
+    ...(hasCommands
+      ? [
+          {
+            id: 'terminal',
+            title: 'Running commands & getting unstuck',
+            blurb: 'How to use a terminal, and the fixes for the errors almost every beginner hits.',
+            body: <CommandTroubleshooting />,
+          },
+        ]
+      : []),
     {
       id: 'evidence',
       title: 'Evidence & chain of custody',

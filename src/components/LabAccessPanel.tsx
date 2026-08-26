@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { AlertTriangle, ArrowRight, CheckCircle2, Circle, Server } from 'lucide-react';
 import { Collapsible } from './ui/Button';
-import { LAB_CHECKS, LAB_FIELDS, getLabAccess, saveLabAccess, useLabAccess } from '@/lib/labAccess';
+import { getLabAccess, hasLabAccess, labProfile, saveLabAccess, useLabAccess } from '@/lib/labAccess';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 
 // Week-0 "Lab access" card: the student stores the target IPs/credentials their
@@ -37,13 +37,19 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
     });
   };
 
-  const filledCount = LAB_FIELDS.filter((f) => lab.values[f.key]?.trim()).length;
-  const checkCount = LAB_CHECKS.filter((c) => lab.checks[c.key]).length;
+  // What this course's lab is made of. A build-and-document course has no
+  // target range to collect, so the whole panel is skipped rather than rendered
+  // empty — see LAB_PROFILES.
+  const { fields, checks } = labProfile(courseId);
+  const filledCount = fields.filter((f) => lab.values[f.key]?.trim()).length;
+  const checkCount = checks.filter((c) => lab.checks[c.key]).length;
+
+  if (!hasLabAccess(courseId)) return null;
 
   return (
     <div id="lab-access" className="scroll-mt-24 rounded-lg border border-line bg-panel px-4">
       <Collapsible
-        title={`Lab access — your targets & reachability  (${filledCount}/${LAB_FIELDS.length} set · ${checkCount}/${LAB_CHECKS.length} checked)`}
+        title={`Lab access — your targets & reachability  (${filledCount}/${fields.length} set · ${checkCount}/${checks.length} checked)`}
         defaultOpen={filledCount === 0}
       >
         <div className="space-y-4 pb-2">
@@ -72,7 +78,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
-            {LAB_FIELDS.map((f) => (
+            {fields.map((f) => (
               <label key={f.key} className="block">
                 <span className="block text-xs font-medium text-body">{f.label}</span>
                 <input
@@ -91,7 +97,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
               Reachability check
             </div>
             <ul className="mt-2 space-y-1.5">
-              {LAB_CHECKS.map((c) => (
+              {checks.map((c) => (
                 <li key={c.key}>
                   <button
                     type="button"

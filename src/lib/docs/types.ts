@@ -54,7 +54,15 @@ export interface DeliverableDef {
    *  (the original single-course set). Used to scope the docs subsystem so a
    *  second course's forms never leak into another course's pages/ZIP. */
   courseId?: string;
+  /** Who leads the documentation for this record. On a role-split course that
+   *  is also who fills it; on a shared-track course (see `shared`) everyone
+   *  fills it and this is the focus that documents it deepest. It is the lane
+   *  the deliverable chain draws it in, so it must be a real role of the course. */
   owner: Role; // 'red' | 'blue' | 'grc'
+  /** Every role of the course sees and fills this form, not just `owner`.
+   *  Set on shared-track courses, where the build is one shared track and the
+   *  role only decides whose deep-dive the record gets. */
+  shared?: boolean;
   folder: string;
   standard: string;
   framework?: Framework;

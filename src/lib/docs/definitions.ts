@@ -767,8 +767,17 @@ export function isTeamAuthorized(saved: Record<string, DeliverableData>): boolea
   return !!saved['scope_roe']?.fields.authorization?.trim();
 }
 
+/** The forms a member actually fills.
+ *
+ *  On a role-split course that is the ones their role owns. On a shared-track
+ *  course every `shared` form is filled by everyone — the role picks whose
+ *  deep-dive a record gets, not who is allowed to open it — so those come back
+ *  for every role. Without the `shared` arm, four focus roles sharing nine forms
+ *  would leave three of four students looking at an empty Deliverables page. */
 export function deliverablesForRole(role: string, courseId: string): DeliverableDef[] {
-  return DELIVERABLES.filter((d) => d.owner === role && courseIdOf(d) === courseId);
+  return DELIVERABLES.filter(
+    (d) => (d.shared || d.owner === role) && courseIdOf(d) === courseId
+  );
 }
 
 /** Resolve a deliverable by its title (used to turn a step's `usesForm` title

@@ -3,34 +3,62 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 /**
  * CompTIA Server+ — Build & Document a Rack-Mount Server.
  *
- * This is a hands-on, documentation-first build. Every student takes a
- * rack-mount server, mounts it in a 42U rack, wires the patch panel, installs a
- * hypervisor and services, then operates, protects and hands it over — all
- * captured by filling the platform's deliverable forms and exporting them to
- * PDF. The exact CLI for standing up components lives in the course's
- * Configuration Guide (a PDF), which the steps reference rather than repeat; the
- * learning here is the *process in technical detail*, not command drills.
+ * A hands-on, documentation-first build. Every student takes a rack-mount
+ * server, mounts it in a 42U rack, wires the patch panel, installs a hypervisor
+ * and services, then operates, protects and hands it over — all captured by
+ * filling the platform's deliverable forms and exporting them to PDF. The exact
+ * CLI for standing up components lives in the course's Configuration Guide (a
+ * PDF), which the steps reference rather than repeat; the learning here is the
+ * *process in technical detail*, not command drills.
  *
- * ONE ROLE, on purpose. A pod of technicians works side by side, but nobody
- * waits on anyone: every student runs the whole build on their own server. So
- * there is a single role (`tech`), no gates, `noGatekeeping: true` (every week
- * open from day one), and no cross-role hand-offs. Each week carries one
- * optional "Go deeper" step inviting a student to document one area in more
- * depth — a lens, never a dependency.
+ * ONE SHARED TRACK, FOUR FOCUSES. A pod of technicians works side by side and
+ * nobody waits on anyone: every student runs the whole build on their own
+ * server and fills every form. The four roles are not four lanes of work — they
+ * are four *documentation focuses*. Each week your focus adds one small
+ * deep-dive into the part you own, and you are the documentation lead for a
+ * couple of the records. Nothing gates: `noGatekeeping: true`, no gates array,
+ * no cross-role hand-offs, and the build tasks are flagged `shared` so they
+ * belong to everyone (see `Course.sharedTrack`).
  *
  * Addresses (10.10.10.x) are worked examples; a student uses whatever the
  * instructor assigned. `ServerTopologyDiagram` draws the physical rack, since
- * the generic `ArchitectureDiagram` hardcodes a red/blue/grc lab.
+ * the generic `ArchitectureDiagram` hardcodes a red/blue/grc lab. There is no
+ * attacker, no target range and no lab-access panel on this course — see
+ * LAB_PROFILES in labAccess.ts.
  */
 
 const roles: RoleDef[] = [
   {
-    id: 'tech',
-    name: 'IT Technician',
-    mission: 'Build, document and hand over a client\'s server from bare metal to running services.',
+    id: 'hw',
+    name: 'Hardware & Rack',
+    mission: 'Lead the physical record: mounting, power, airflow and what the hardware actually is.',
     color: '#b45309',
     icon: 'Wrench',
-    label: '🔧 IT Technician',
+    label: '🔧 Hardware & Rack',
+  },
+  {
+    id: 'net',
+    name: 'Network & Cabling',
+    mission: 'Lead the cabling and addressing record: every port, every link, every address.',
+    color: '#0369a1',
+    icon: 'Network',
+    label: '🔌 Network & Cabling',
+  },
+  {
+    id: 'sys',
+    name: 'Systems & Virtualization',
+    mission: 'Lead the build record: hypervisor, VMs, baselines and patch levels.',
+    color: '#7c3aed',
+    icon: 'Cpu',
+    label: '💻 Systems & Virtualization',
+  },
+  {
+    id: 'ops',
+    name: 'Operations & Documentation',
+    mission: 'Lead the paperwork that outlives the build: change control, recovery and handover.',
+    color: '#0f766e',
+    icon: 'ClipboardList',
+    label: '📋 Operations & Documentation',
   },
 ];
 
@@ -96,16 +124,25 @@ const weeks: WeekDef[] = [
   },
 ];
 
-// No gates: the course is ungated (`noGatekeeping: true`), and with a single
-// role there is nobody to hand off to. Kept as an empty array so the shape
-// matches the other seeds and the integrity guards pass trivially.
+// No gates: the course is ungated (`noGatekeeping: true`) and no focus waits on
+// another. Kept as an empty array so the shape matches the other seeds.
 const gates: Gate[] = [];
 
-const tasks: Task[] = [
+/**
+ * The shared build — worked by every student whatever focus they picked.
+ *
+ * `shared: true` is what makes that true across the whole app: `getTasksByRole`
+ * returns these for every role, so progress, the stone, resume and the portfolio
+ * all count them. `role` here is nominal (these render in their own "everyone"
+ * lane, never a role lane); `ops` is used because that focus leads the record
+ * set as a whole.
+ */
+const sharedTasks: Task[] = [
   // ══ WEEK 1 · Receive & Rack ═══════════════════════════════════════════════
   {
     id: 'sp-w1-brief',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 1,
     title: 'Receive the hardware and write the brief',
     objective: 'Agree what you are building and for whom, then open the log that tracks every change.',
@@ -146,7 +183,8 @@ const tasks: Task[] = [
   },
   {
     id: 'sp-w1-rack',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 1,
     title: 'Rack and cable the server',
     objective: 'Mount the server in the 42U rack, wire the patch panel, power it, and record every cable.',
@@ -209,22 +247,14 @@ const tasks: Task[] = [
         whatItMeans: 'You cannot secure, budget for, patch or recover what you do not know you have. The software rows come in Week 3.',
         frameworks: ['NIST_CSF', 'CIS'],
       },
-      {
-        id: 'sp-w1-rack-s4',
-        title: 'Go deeper: your focus area',
-        description: 'Optional — document one area in more depth for the team.',
-        instruction: 'Pick one area to own for the team\'s records this week — cabling, power, or asset data — and add a deeper note on it in the relevant form.',
-        whatItMeans: 'One shared build, but each person documents one area in depth. It is how the team\'s paperwork gets real expertise behind it.',
-        optional: true,
-        frameworks: ['NIST_CSF'],
-      },
     ],
   },
 
   // ══ WEEK 2 · Build the Platform ═══════════════════════════════════════════
   {
     id: 'sp-w2-install',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 2,
     title: 'Install the virtualization platform',
     objective: 'Install the hypervisor from the Configuration Guide, create the VMs, and record every setting.',
@@ -295,7 +325,8 @@ const tasks: Task[] = [
   },
   {
     id: 'sp-w2-topology',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 2,
     title: 'Map the network and addressing',
     objective: 'Draw how everything connects and give every device a fixed address before it changes.',
@@ -332,22 +363,14 @@ const tasks: Task[] = [
         whatItMeans: 'The IP plan is the single source of truth for addresses. If someone assigns one without opening it, the plan has already failed.',
         frameworks: ['NIST_CSF'],
       },
-      {
-        id: 'sp-w2-topology-s3',
-        title: 'Go deeper: your focus area',
-        description: 'Optional — document one layer of the topology in depth.',
-        instruction: 'Own one part of the topology this week — the physical cabling map, the addressing scheme, or the virtual bridges — and add a deeper note explaining your choices.',
-        whatItMeans: 'Same shared plan, but one person documents one layer in depth. That is how the diagram gains the reasoning behind it, not just the shapes.',
-        optional: true,
-        frameworks: ['NIST_CSF'],
-      },
     ],
   },
 
   // ══ WEEK 3 · Operate & Maintain ═══════════════════════════════════════════
   {
     id: 'sp-w3-assets',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 3,
     title: 'Complete the asset and configuration records',
     objective: 'Finish the software inventory now everything is installed, and keep the configuration record current.',
@@ -388,7 +411,8 @@ const tasks: Task[] = [
   },
   {
     id: 'sp-w3-patch',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 3,
     title: 'Patch management and change control',
     objective: 'Bring every system to a known patch level with a rollback, and keep the change log current.',
@@ -445,22 +469,14 @@ const tasks: Task[] = [
         whatItMeans: 'Append-only, written as you go. The rollback value is only trustworthy if you wrote it before the change, not from memory later.',
         frameworks: ['NIST_CSF'],
       },
-      {
-        id: 'sp-w3-patch-s4',
-        title: 'Go deeper: your focus area',
-        description: 'Optional — document one maintenance area in depth.',
-        instruction: 'Own one maintenance area this week — OS patching, the database, or change control — and write a deeper note on how you would keep it current in production.',
-        whatItMeans: 'One shared routine, but each person documents one part in depth. It is how the team learns operations, not just installation.',
-        optional: true,
-        frameworks: ['NIST_CSF'],
-      },
     ],
   },
 
   // ══ WEEK 4 · Protect & Hand Over ══════════════════════════════════════════
   {
     id: 'sp-w4-dr',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 4,
     title: 'Disaster recovery and a real restore',
     objective: 'Set recovery targets, write the restore procedure, then prove it with one real restore.',
@@ -502,7 +518,8 @@ const tasks: Task[] = [
   },
   {
     id: 'sp-w4-handover',
-    role: 'tech',
+    role: 'ops',
+    shared: true,
     week: 4,
     title: 'Assemble and hand over the as-built package',
     objective: 'Bring every document together, export it to PDF, and hand over a package the client can run from.',
@@ -553,6 +570,160 @@ const tasks: Task[] = [
   },
 ];
 
+/**
+ * The focus deep-dives — the only thing that differs between two students.
+ *
+ * One small task per role per week. It never blocks anyone and never produces a
+ * form of its own: it deepens a section of a record the whole team fills, so the
+ * team's paperwork ends up with real expertise behind each part instead of four
+ * shallow copies. Authored as a table because every one of them has the same
+ * shape, and a table is far easier to keep balanced across four focuses.
+ */
+const FOCUS: {
+  role: string;
+  week: number;
+  title: string;
+  section: string;
+  form: string;
+  file: string;
+  instruction: string;
+  meaning: string;
+}[] = [
+  // ── Hardware & Rack ──────────────────────────────────────────────────────
+  {
+    role: 'hw', week: 1, title: 'Deep-dive: mounting, weight order and airflow',
+    section: 'the rack elevation', form: 'Rack & Cabling Record', file: '02_Rack_and_Cabling.md',
+    instruction: 'Expand the rack elevation: why each device sits at that U, how the weight is ordered, where the air goes in and out, and what the PDU load adds up to.',
+    meaning: 'Anyone can bolt a server in. The record of why it sits there is what stops the next person creating a hot spot or a top-heavy rack.',
+  },
+  {
+    role: 'hw', week: 2, title: 'Deep-dive: what the hardware actually is',
+    section: 'the hardware rows', form: 'Asset Register', file: '03_Asset_Register.csv',
+    instruction: 'Expand the hardware rows with the real spec: CPU and RAM fitted, disks and their layout, PSU count, and the service tag you would quote to support.',
+    meaning: 'A row that says "server" is not an asset record. The spec is what a support call, a capacity question and a warranty claim all need.',
+  },
+  {
+    role: 'hw', week: 3, title: 'Deep-dive: warranty and end-of-life exposure',
+    section: 'the lifecycle columns', form: 'Asset Register', file: '03_Asset_Register.csv',
+    instruction: 'Work the lifecycle columns: which items are out of warranty, which are past end-of-support, and what each one would cost to replace.',
+    meaning: 'This is the column that turns an inventory into a budget conversation — and into the risk nobody noticed until the part failed.',
+  },
+  {
+    role: 'hw', week: 4, title: 'Deep-dive: what fails first, physically',
+    section: 'the impact column', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
+    instruction: 'Add the physical failure modes to the plan: the disk, the PSU, the fan, the single PDU — and what each one takes down with it.',
+    meaning: 'Most recovery plans assume software failure. The hardware ones are the failures a rack-mount server actually has.',
+  },
+
+  // ── Network & Cabling ────────────────────────────────────────────────────
+  {
+    role: 'net', week: 1, title: 'Deep-dive: the cable schedule and port map',
+    section: 'the cable schedule', form: 'Rack & Cabling Record', file: '02_Rack_and_Cabling.md',
+    instruction: 'Expand the cable schedule so any link traces end to end from paperwork alone: panel port, switch port, colour, label and what it carries.',
+    meaning: 'A colour scheme nobody wrote down is a colour scheme nobody can follow. The schedule is what makes the rack safe to work in.',
+  },
+  {
+    role: 'net', week: 2, title: 'Deep-dive: the addressing rationale',
+    section: 'the IP plan', form: 'Network Topology & IP Plan', file: '04_Topology_and_IP_Plan.md',
+    instruction: 'Explain the addressing choices: which ranges are reserved for what, why the management address is separated, and where growth goes.',
+    meaning: 'The next tech does not need your addresses so much as your reasoning — that is what stops them assigning into a reserved range.',
+  },
+  {
+    role: 'net', week: 3, title: 'Deep-dive: what a re-patch would break',
+    section: 'the network changes', form: 'Change Log', file: '07_Change_Log.csv',
+    instruction: 'For each network change logged, record exactly what would break if the lead were moved or the port re-patched, and how to put it back.',
+    meaning: 'A patch lead is the easiest thing in the rack to move and the hardest failure to diagnose afterwards.',
+  },
+  {
+    role: 'net', week: 4, title: 'Deep-dive: recovering the network path',
+    section: 'the restore procedures', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
+    instruction: 'Write how the network path itself is recovered: a dead switch, a failed uplink, a lost address plan — and what to re-patch in what order.',
+    meaning: 'Restoring a server nobody can reach is not a recovery. The path back to it has to be in the plan too.',
+  },
+
+  // ── Systems & Virtualization ─────────────────────────────────────────────
+  {
+    role: 'sys', week: 1, title: 'Deep-dive: firmware and boot-order pre-checks',
+    section: 'the host baseline', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
+    instruction: 'Record the pre-install state of the host: firmware and BIOS versions, boot order, virtualization support, and the RAID or disk mode you set.',
+    meaning: 'These are the settings nobody records and everybody has to rediscover the next time the machine will not boot from the right disk.',
+  },
+  {
+    role: 'sys', week: 2, title: 'Deep-dive: baselines and sizing rationale',
+    section: 'the per-system rows', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
+    instruction: 'Expand each system row with the values you actually set and why that sizing — vCPU, RAM, disk and the headroom you left on the host.',
+    meaning: 'Recording the value makes a rebuild possible. Recording the reasoning makes the next sizing decision a judgement rather than a guess.',
+  },
+  {
+    role: 'sys', week: 3, title: 'Deep-dive: patch baselines and rollback per OS',
+    section: 'the rollback column', form: 'Patch Management Log', file: '06_Patch_Management.csv',
+    instruction: 'Detail the rollback for each OS: how the snapshot or restore point is taken, how long it is kept, and the exact way you would revert.',
+    meaning: '"VM snapshot" is a plan only if you know how to roll it back and how long you have before it is cleaned up.',
+  },
+  {
+    role: 'sys', week: 4, title: 'Deep-dive: the restore procedure per system',
+    section: 'the restore steps', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
+    instruction: 'Write each restore procedure to the point someone else could run it: where the backup is, the order of operations, and how to verify the service afterwards.',
+    meaning: 'A restore procedure is only real if a person who did not build the system can follow it under pressure.',
+  },
+
+  // ── Operations & Documentation ───────────────────────────────────────────
+  {
+    role: 'ops', week: 1, title: 'Deep-dive: tagging scheme and acceptance criteria',
+    section: 'the acceptance criteria', form: 'Project Brief & Site Prep', file: '01_Project_Brief.md',
+    instruction: 'Define the asset-tag scheme the whole team will use, and sharpen the acceptance criteria so each one is something you could demonstrate.',
+    meaning: 'An acceptance criterion you cannot demonstrate is an opinion. A tagging scheme decided later is one applied inconsistently.',
+  },
+  {
+    role: 'ops', week: 2, title: 'Deep-dive: versioning the record set',
+    section: 'the document versions', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
+    instruction: 'Set how the records are versioned: what bumps a version, who does it, and how a reader tells whether they hold the current copy.',
+    meaning: 'Documentation without a version is documentation nobody can trust — there is no way to tell current from stale.',
+  },
+  {
+    role: 'ops', week: 3, title: 'Deep-dive: append-only change discipline',
+    section: 'the change rows', form: 'Change Log', file: '07_Change_Log.csv',
+    instruction: 'Audit the log as a record: every row written before the change, a rollback on each one, and corrections made by a new row rather than an edit.',
+    meaning: 'A change log edited after the fact is a story. Append-only is what makes it evidence.',
+  },
+  {
+    role: 'ops', week: 4, title: 'Deep-dive: assembling the handover package',
+    section: 'the handover checklist', form: 'As-Built Handover Package', file: '09_As_Built.md',
+    instruction: 'Drive the package: confirm every document is current, exported and in order, and that the client summary reads to someone who was never here.',
+    meaning: 'The package is the deliverable the client keeps. Assembling it is a job, not a formality at the end of the last day.',
+  },
+];
+
+const focusTasks: Task[] = FOCUS.map((f) => ({
+  id: `sp-w${f.week}-${f.role}`,
+  role: f.role,
+  week: f.week,
+  title: f.title,
+  objective: `Your focus this week — go deeper on ${f.section} in the ${f.form}.`,
+  frameworks: ['NIST_CSF'],
+  deliverables: [f.file],
+  estimatedTime: '30 min',
+  difficulty: 2 as const,
+  learn: ['Documenting to a professional standard', 'Depth over coverage'],
+  tools: [f.form],
+  definitionOfDone: [`${f.section} in the ${f.form} goes deeper than the shared pass`],
+  steps: [
+    {
+      id: `sp-w${f.week}-${f.role}-s1`,
+      title: f.title.replace('Deep-dive: ', 'Document '),
+      description: `Your focus area, in ${f.section}.`,
+      instruction: f.instruction,
+      usesForm: f.form,
+      producesDeliverable: f.file,
+      whatItMeans: f.meaning,
+      isEvidenceStep: true,
+      frameworks: ['NIST_CSF'],
+    },
+  ],
+}));
+
+const tasks: Task[] = [...sharedTasks, ...focusTasks];
+
 export const SERVER_PLUS: Course = {
   id: 'server-plus',
   title: 'Server+ Build & Handover',
@@ -560,14 +731,15 @@ export const SERVER_PLUS: Course = {
   vendor: 'CompTIA',
   certification: 'Server+',
   level: 'associate',
-  audience: 'Build and document your own rack-mount server — rack, cable, install, patch and hand over, the way a real IT technician does.',
+  audience: 'Build and document your own rack-mount server — everyone builds the same, each documents their focus deeper.',
   description:
-    'Build a client\'s rack-mount server from bare metal to a running, documented system — on your own, start to finish. Over four weeks you receive and rack the hardware, install the platform, operate and maintain it, then protect and hand it over as a PDF package.',
+    'Build a client\'s rack-mount server from bare metal to a running, documented system — on your own, start to finish. Four weeks: receive and rack the hardware, install the platform, operate and maintain it, then protect and hand it over as a PDF package.',
   roles,
   weeks,
   gates,
   tasks,
   noGatekeeping: true,
+  sharedTrack: true,
   lifecyclePath: [
     { label: 'Receive', detail: 'Take delivery of the server and agree what you are building.' },
     { label: 'Rack & Cable', detail: 'Mount it in the 42U rack, wire the patch panel, and power it.' },
@@ -578,7 +750,7 @@ export const SERVER_PLUS: Course = {
     { label: 'Hand over', detail: 'An as-built PDF package the client can run the server from.' },
   ],
   isSeed: true,
-  version: 2,
+  version: 3,
   teamCount: 16,
-  teamCapacity: 6,
+  teamCapacity: 4,
 };

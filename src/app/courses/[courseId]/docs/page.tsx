@@ -548,7 +548,7 @@ function FormSection({
             {def.num}. {def.title}
             {def.framework && <FrameworkBadge framework={def.framework} />}
             {isExample && !locked && (
-              <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+              <span className="rounded-full bg-panel-2 px-2 py-0.5 text-[11px] font-medium text-muted">
                 Example
               </span>
             )}
@@ -558,7 +558,7 @@ function FormSection({
               </span>
             )}
             {def.id === 'scope_roe' && data.fields.authorization && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2 py-0.5 text-[11px] font-medium text-green-700 dark:bg-green-900/40 dark:text-green-300">
+              <span className="inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-[11px] font-medium text-ok">
                 <CheckCircle2 className="h-3 w-3" /> Signed
               </span>
             )}
@@ -571,11 +571,13 @@ function FormSection({
         </div>
         {!locked && (
           <div className="flex shrink-0 flex-wrap items-center gap-2">
+            {/* A text link, not a fourth bordered button: switching the
+                worked example on and off is a preference, not an export. */}
             {hasExample && (isExample ? (
               <button
                 type="button"
                 onClick={() => onChange(def.id, emptyData())}
-                className="rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+                className="text-xs font-medium text-muted underline-offset-2 hover:text-accent hover:underline"
               >
                 Start blank
               </button>
@@ -583,7 +585,7 @@ function FormSection({
               <button
                 type="button"
                 onClick={() => onChange(def.id, seedDeliverable(def))}
-                className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+                className="inline-flex items-center gap-1 text-xs font-medium text-muted underline-offset-2 hover:text-accent hover:underline"
               >
                 <Sparkles className="h-3.5 w-3.5" /> Restore example
               </button>
@@ -598,7 +600,7 @@ function FormSection({
             <button
               type="button"
               onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, meta))}
-              className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+              className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-muted hover:bg-panel-2 hover:text-body"
             >
               <FileText className="h-3.5 w-3.5" /> .md
             </button>
@@ -606,7 +608,7 @@ function FormSection({
               <button
                 type="button"
                 onClick={() => download(def.file, toDeliverableCSV(def, data))}
-                className="inline-flex items-center gap-1 rounded-md border border-line px-2.5 py-1.5 text-xs font-medium text-body hover:bg-panel-2"
+                className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-muted hover:bg-panel-2 hover:text-body"
               >
                 <FileSpreadsheet className="h-3.5 w-3.5" /> .csv
               </button>

@@ -1,24 +1,21 @@
 'use client';
 
-import { ArrowRight, Terminal, ClipboardList } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { deliverablesForRole } from '@/lib/docs/definitions';
-import { DeliverableDef } from '@/lib/docs/types';
-
-/** The field/column labels a deliverable collects — what your extraction feeds. */
-function captureLabels(def: DeliverableDef): string[] {
-  const labels: string[] = [];
-  def.sections.forEach((s) => {
-    if (s.kind === 'fields') s.fields.forEach((f) => labels.push(f.label));
-    else s.group.columns.forEach((c) => labels.push(c.label));
-  });
-  return labels;
-}
 
 /**
- * A role-specific "how to extract content into your forms" guide: for each
- * deliverable this role owns, what it's built from, how to do it, and the
- * fields your extraction feeds. Complements the universal WorkflowFlow by
- * making the per-role path concrete (spec §9 clarity).
+ * The index of the forms you fill — one compact row each, linking to the form.
+ *
+ * This used to print a card per deliverable with three labelled rows (built
+ * from / how / feeds) and the first six field labels of every form. On a
+ * nine-form course that was the single longest block on the Reference page, and
+ * every word of it is already rendered beside the form itself on the
+ * Deliverables page — where you are actually filling it in. What a manual owes
+ * you here is the map: what exists, what each one records, and a way in.
+ *
+ * `deliverablesForRole` is shared-track aware, so on Server+ this lists all nine
+ * forms for every focus; on a role-split course it lists the ones you own.
  */
 export function RoleExtractionGuide({
   role,
@@ -34,57 +31,48 @@ export function RoleExtractionGuide({
   const label = roleLabel ?? role.toUpperCase();
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
-      <h2 className="flex items-center gap-2 text-sm font-semibold text-ink">
-        <ClipboardList className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-        How {label} extracts content into the forms
-      </h2>
+    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+      <h3 className="text-sm font-semibold text-ink">The forms {label} fills</h3>
       <p className="mt-1 text-sm text-muted">
-        For every output, pull the <strong>3 things</strong> (what you found · the proof · why it
-        matters), then type them into the matching deliverable below.
+        Each one opens on the Deliverables page, where its guidance and worked examples sit beside
+        the fields.
       </p>
 
-      <div className="mt-4 space-y-3">
-        {defs.map((def) => {
-          const fields = captureLabels(def);
-          const shown = fields.slice(0, 6);
-          const more = fields.length - shown.length;
-          return (
-            <div
-              key={def.id}
-              className="rounded-lg border border-gray-200 bg-gray-50 p-4 dark:border-gray-700 dark:bg-gray-900/40"
-            >
-              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-                <span className="font-semibold text-ink">
-                  {def.num}. {def.title}
-                </span>
-                <span className="font-mono text-xs text-muted">{def.file}</span>
-              </div>
-
-              <div className="mt-2 grid gap-2 text-sm sm:grid-cols-[auto_1fr] sm:items-start">
-                <span className="flex items-center gap-1.5 eyebrow-muted">
-                  <Terminal className="h-3.5 w-3.5" /> Built from
-                </span>
-                <span className="text-body">
-                  {def.source ?? 'Your own work for this role.'}
-                </span>
-
-                <span className="eyebrow-muted">
-                  How
-                </span>
-                <span className="text-body">{def.howTo}</span>
-
-                <span className="flex items-center gap-1.5 eyebrow-muted">
-                  <ArrowRight className="h-3.5 w-3.5" /> Feeds
-                </span>
-                <span className="text-body">
-                  {shown.join(' · ')}
-                  {more > 0 && <span className="text-gray-400"> · +{more} more</span>}
-                </span>
-              </div>
-            </div>
-          );
-        })}
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b border-line text-left uppercase tracking-wide text-muted">
+              <th className="py-1.5 pr-3 text-xs font-medium">Form</th>
+              <th className="py-1.5 pr-3 text-xs font-medium">What it records</th>
+              <th className="py-1.5 pr-3 text-xs font-medium">Week</th>
+              <th className="py-1.5 text-xs font-medium" />
+            </tr>
+          </thead>
+          <tbody>
+            {defs.map((def) => (
+              <tr key={def.id} className="border-b border-line/60 last:border-0 align-top">
+                <td className="py-2 pr-3">
+                  <span className="font-medium text-ink">
+                    {def.num}. {def.title}
+                  </span>
+                  <span className="block font-mono text-[11px] text-muted">{def.file}</span>
+                </td>
+                <td className="py-2 pr-3 text-muted">{def.standard}</td>
+                <td className="py-2 pr-3 font-mono text-[11px] text-muted">
+                  {def.weeks.join(', ')}
+                </td>
+                <td className="py-2">
+                  <Link
+                    href={`/courses/${courseId}/docs?form=${def.id}`}
+                    className="inline-flex items-center gap-1 whitespace-nowrap text-sm font-medium text-accent hover:underline"
+                  >
+                    Open <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
