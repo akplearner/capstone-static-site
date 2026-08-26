@@ -59,6 +59,8 @@ import { WeekVerbIcon, verbForStage } from '@/components/quarry/items';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
+import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
+import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
@@ -1183,6 +1185,39 @@ export default function CoursePage() {
         </section>
       )}
 
+
+      {/* ── The build in one picture — Server+ ──
+          The SOC courses describe their lab and link to the diagram; a build
+          course is ABOUT the physical thing, so the rack topology earns a place
+          on the Overview itself, with the phase arc under it. Both components
+          also render on the Reference page — this is the orientation copy of
+          the same pictures, not a second source of truth. */}
+      {course.id === 'server-plus' && (
+        <section className="space-y-4">
+          <div className="shead">
+            <span className="num">02</span>
+            <h2 className="text-2xl font-bold tracking-tight text-ink">The build — one picture</h2>
+          </div>
+          <p className="max-w-3xl text-sm text-muted">
+            One rack-mount server in a <b className="text-ink">24U rack</b> — patch panel and switch
+            up top, the server on rails, the PDU below — running a hypervisor with a{' '}
+            <b className="text-ink">Windows</b> and a <b className="text-ink">Linux</b> VM. You plan
+            it, build it, connect it, then secure and hand it over.
+          </p>
+          <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+            <ServerTopologyDiagram />
+          </div>
+          <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+            <LifecycleFlow weeks={course.weeks} gates={course.gates} noGatekeeping={course.noGatekeeping} />
+          </div>
+          <Link
+            href={`/courses/${course.id}/guide/reference#lab`}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
+          >
+            See the full reference &amp; forms <ArrowRight className="h-4 w-4" />
+          </Link>
+        </section>
+      )}
 
       {/* One-time migration of this device's local progress into the account */}
       <ImportPrompt course={course} />

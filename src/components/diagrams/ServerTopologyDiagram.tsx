@@ -3,7 +3,7 @@
 import { DiagramFrame } from './DiagramFrame';
 
 /**
- * The Server+ picture: a physical 42U rack elevation beside the small virtual
+ * The Server+ picture: a physical 24U rack elevation beside the small virtual
  * layer that runs inside the one server.
  *
  * This course is a hands-on, documented build — rack the server, wire the patch
@@ -27,7 +27,7 @@ const RACK: { u: string; label: string; sub?: string; kind: RackKind; span: numb
   { u: 'U23', label: 'Access switch', sub: 'Uplink to the office LAN on port 24', kind: 'switch', span: 1 },
   { u: 'U22', label: '', kind: 'blank', span: 1 },
   { u: 'U20–U21', label: 'The server — Proxmox host', sub: '2U, on sliding rails · the one machine you build', kind: 'server', span: 2 },
-  { u: 'U2–U19', label: 'Free U — headroom for growth', kind: 'blank', span: 1 },
+  { u: 'U2–U19', label: 'Expansion reserve — ≥20% kept free for growth', kind: 'blank', span: 1 },
   { u: 'U1', label: 'Rack PDU', sub: '8-outlet · feeds every device above', kind: 'pdu', span: 1 },
 ];
 
@@ -47,8 +47,8 @@ const VMS: { name: string; runs: string; addr: string }[] = [
 export function ServerTopologyDiagram() {
   return (
     <DiagramFrame
-      title="What you build — one server in a 42U rack"
-      howToRead="Left is the physical rack, counted in U from the bottom up: the patch panel and switch carry the network, the server sits on rails, the PDU powers it all. Right is what that one server virtualises."
+      title="What you build — one server in a 24U rack"
+      howToRead="Left is the physical 24U rack, counted in U from the bottom up: the patch panel and switch carry the network, the server sits on rails, the PDU powers it all. Right is what that one server virtualises."
       legend={[
         { label: 'Patch panel — structured cabling', color: 'var(--color-w3)' },
         { label: 'Switch — the network', color: 'var(--color-w2)' },
@@ -60,7 +60,7 @@ export function ServerTopologyDiagram() {
         {/* The physical rack elevation */}
         <div className="rounded-lg border border-line bg-panel-2 p-3">
           <div className="mb-2 flex items-baseline justify-between">
-            <span className="eyebrow-muted">Rack A · 42U</span>
+            <span className="eyebrow-muted">Rack A · 24U</span>
             <span className="text-[11px] text-muted">front elevation</span>
           </div>
           <div className="space-y-1">
