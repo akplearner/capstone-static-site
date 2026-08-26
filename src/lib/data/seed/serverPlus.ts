@@ -5,20 +5,25 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
  *
  * A hands-on, documentation-first build. Every student takes a rack-mount
  * server, mounts it in a 42U rack, wires the patch panel, installs a hypervisor
- * and services, then operates, protects and hands it over — all captured by
- * filling the platform's deliverable forms and exporting them to PDF. The exact
- * CLI for standing up components lives in the course's Configuration Guide (a
- * PDF), which the steps reference rather than repeat; the learning here is the
- * *process in technical detail*, not command drills.
+ * and services, connects it to the network, then secures it and hands it over —
+ * all captured by filling the platform's deliverable forms and exporting them
+ * to PDF. The exact CLI for standing up components lives in the course's
+ * Configuration Guide (a PDF), which the steps reference rather than repeat;
+ * the learning here is the *process in technical detail*, not command drills.
  *
  * ONE SHARED TRACK, FOUR FOCUSES. A pod of technicians works side by side and
  * nobody waits on anyone: every student runs the whole build on their own
- * server and fills every form. The four roles are not four lanes of work — they
- * are four *documentation focuses*. Each week your focus adds one small
- * deep-dive into the part you own, and you are the documentation lead for a
- * couple of the records. Nothing gates: `noGatekeeping: true`, no gates array,
- * no cross-role hand-offs, and the build tasks are flagged `shared` so they
- * belong to everyone (see `Course.sharedTrack`).
+ * server and fills every form. The four roles — Networking, Windows, Linux,
+ * Management — are not four lanes of work; they are four *documentation
+ * focuses*. Each week your focus adds one small deep-dive into the part you
+ * own, and you are the documentation lead for a couple of the records. Nothing
+ * gates: `noGatekeeping: true`, no gates array, no cross-role hand-offs, and
+ * the build tasks are flagged `shared` so they belong to everyone (see
+ * `Course.sharedTrack`).
+ *
+ * The arc runs in four phases: build the hardware and document it → configure
+ * and deploy the platform and services → network and connect it → secure it
+ * and prove disaster recovery.
  *
  * Addresses (10.10.10.x) are worked examples; a student uses whatever the
  * instructor assigned. `ServerTopologyDiagram` draws the physical rack, since
@@ -29,98 +34,98 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 
 const roles: RoleDef[] = [
   {
-    id: 'hw',
-    name: 'Hardware & Rack',
-    mission: 'Lead the physical record: mounting, power, airflow and what the hardware actually is.',
-    color: '#b45309',
-    icon: 'Wrench',
-    label: '🔧 Hardware & Rack',
-  },
-  {
     id: 'net',
-    name: 'Network & Cabling',
-    mission: 'Lead the cabling and addressing record: every port, every link, every address.',
+    name: 'Networking',
+    mission: 'Lead the network record: cabling, addressing, topology and the connectivity proof.',
     color: '#0369a1',
     icon: 'Network',
-    label: '🔌 Network & Cabling',
+    label: '🔌 Networking',
   },
   {
-    id: 'sys',
-    name: 'Systems & Virtualization',
-    mission: 'Lead the build record: hypervisor, VMs, baselines and patch levels.',
+    id: 'win',
+    name: 'Windows',
+    mission: 'Lead the Windows record: the Server VM, its roles, patching and its restore.',
+    color: '#2563eb',
+    icon: 'Server',
+    label: '🪟 Windows',
+  },
+  {
+    id: 'lnx',
+    name: 'Linux',
+    mission: 'Lead the Linux record: the hypervisor, the Linux VM, services and snapshots.',
     color: '#7c3aed',
     icon: 'Cpu',
-    label: '💻 Systems & Virtualization',
+    label: '🐧 Linux',
   },
   {
-    id: 'ops',
-    name: 'Operations & Documentation',
-    mission: 'Lead the paperwork that outlives the build: change control, recovery and handover.',
+    id: 'mgmt',
+    name: 'Management',
+    mission: 'Lead the paperwork that outlives the build: brief, assets, change control, handover.',
     color: '#0f766e',
     icon: 'ClipboardList',
-    label: '📋 Operations & Documentation',
+    label: '📋 Management',
   },
 ];
 
 /**
- * The build arc. A server goes from delivery to handover: receive & rack →
- * install → operate & maintain → protect & hand over. `stage` is the cut of the
- * Capstone Stone each week produces (1→4, unique and non-decreasing); `phase` is
- * the verb shown above the week title. No week is locked — `noGatekeeping` on
- * the course opens all four from the start.
+ * The build arc, in four phases: build & document → configure & deploy →
+ * network & connect → secure & DRP. `stage` is the cut of the Capstone Stone
+ * each week produces (1→4, unique and non-decreasing); `phase` is the verb
+ * shown above the week title. No week is locked — `noGatekeeping` on the
+ * course opens all four from the start.
  */
 const weeks: WeekDef[] = [
   {
     number: 1,
-    title: 'Receive & Rack the Hardware',
+    title: 'Build the Hardware',
     theme: 'Mount it and map it',
-    objective: 'Take delivery, rack the server in the 42U rack, wire the patch panel, and start the records.',
+    objective: 'Take delivery, rack the server in the 42U rack, wire the patch panel, and document everything you touched.',
     runs: 'Week 1',
     stage: 1,
-    phase: 'Rack & Cable',
+    phase: 'Build & Document',
     difficulty: 2,
-    flow: ['Write the brief', 'Rack the server', 'Patch the panel', 'Tag the assets'],
+    flow: ['Write the brief', 'Rack the server', 'Wire the patch panel', 'Tag the assets'],
     milestone: 'The server is mounted at a known U position, every cable is labelled and logged, and the assets are tagged.',
     plain: 'You are handed a rack-mount server and a room. Before any software, a professional mounts it properly, wires the patch panel so any cable can be traced, and writes down what they have.',
   },
   {
     number: 2,
-    title: 'Build the Platform',
+    title: 'Configure & Deploy',
     theme: 'Install and record',
-    objective: 'Install the hypervisor from the Configuration Guide, create the VMs, and document the network and every setting.',
+    objective: 'Install the hypervisor from the Configuration Guide, create the VMs, deploy the Windows and Linux services, and record every setting.',
     runs: 'Week 2',
     stage: 2,
-    phase: 'Install & Provision',
+    phase: 'Configure & Deploy',
     difficulty: 3,
-    flow: ['Install the hypervisor', 'Create the VMs', 'Map the network', 'Record the baseline'],
-    milestone: 'The platform is installed and reachable, the VMs exist on their planned addresses, and every setting is recorded.',
+    flow: ['Install the hypervisor', 'Create the VMs', 'Deploy the services', 'Record the baseline'],
+    milestone: 'The platform and its services are running, and every setting is recorded well enough to rebuild from.',
     plain: 'Now the machine becomes a server. You follow the guide for the exact commands, then capture what you set so the build could be reproduced — installing is easy, reproducing it later is the skill.',
   },
   {
     number: 3,
-    title: 'Operate & Maintain',
-    theme: 'Keep it current',
-    objective: 'Complete the asset inventory, patch every system with a rollback, and keep configuration and change control current.',
+    title: 'Network & Connect',
+    theme: 'Plan it, connect it, prove it',
+    objective: 'Decide every address in one place, draw the topology, connect the server to the network, and prove every host reaches what it should.',
     runs: 'Week 3',
     stage: 3,
-    phase: 'Configure & Patch',
+    phase: 'Network & Connect',
     difficulty: 3,
-    flow: ['Finish the inventory', 'Snapshot & patch', 'Log the changes', 'Reconcile the config'],
-    milestone: 'Every system is at a known patch level with a rollback, and the asset, config and change records match reality.',
-    plain: 'A server that is installed and forgotten is a liability. This week is the real job: knowing what you have, keeping it patched, and being able to answer "what changed?" in seconds.',
+    flow: ['Plan the addresses', 'Draw the topology', 'Connect the uplink', 'Prove it reaches'],
+    milestone: 'Every host holds its planned address, the topology matches reality, and the connectivity is proven and logged.',
+    plain: 'A server nobody can reach is a space heater. This week you decide the addressing on paper, connect the machine through the patch panel to the real network, and prove the paths work.',
   },
   {
     number: 4,
-    title: 'Protect & Hand Over',
-    theme: 'Prove it and hand it over',
-    objective: 'Set recovery targets, prove a restore, then assemble and export the as-built handover package.',
+    title: 'Secure & Recover',
+    theme: 'Patch it, prove it, hand it over',
+    objective: 'Patch every system with a rollback, set recovery targets, prove a restore, then assemble and export the as-built handover package.',
     runs: 'Week 4',
     stage: 4,
-    phase: 'Protect & Hand Over',
-    difficulty: 2,
-    flow: ['Set the targets', 'Restore for real', 'Assemble the package', 'Hand it over'],
-    milestone: 'A restore was performed and timed, and the client has a PDF package they could run the server from without you.',
-    plain: 'Anyone can say they have backups. This week you restore for real and time it, then hand over documentation a stranger could operate the server from — the difference between a lab and a delivered job.',
+    phase: 'Secure & DRP',
+    difficulty: 3,
+    flow: ['Snapshot & patch', 'Set the targets', 'Restore for real', 'Hand it over'],
+    milestone: 'Every system is patched with a rollback, a restore was performed and timed, and the client has the PDF package.',
+    plain: 'Security here is discipline, not drama: patch with a way back, write recovery numbers you can defend, restore for real and time it, then hand over documentation a stranger could run the server from.',
   },
 ];
 
@@ -134,14 +139,14 @@ const gates: Gate[] = [];
  * `shared: true` is what makes that true across the whole app: `getTasksByRole`
  * returns these for every role, so progress, the stone, resume and the portfolio
  * all count them. `role` here is nominal (these render in their own "everyone"
- * lane, never a role lane); `ops` is used because that focus leads the record
+ * lane, never a role lane); `mgmt` is used because that focus leads the record
  * set as a whole.
  */
 const sharedTasks: Task[] = [
-  // ══ WEEK 1 · Receive & Rack ═══════════════════════════════════════════════
+  // ══ WEEK 1 · Build & Document ═════════════════════════════════════════════
   {
     id: 'sp-w1-brief',
-    role: 'ops',
+    role: 'mgmt',
     shared: true,
     week: 1,
     title: 'Receive the hardware and write the brief',
@@ -183,7 +188,7 @@ const sharedTasks: Task[] = [
   },
   {
     id: 'sp-w1-rack',
-    role: 'ops',
+    role: 'mgmt',
     shared: true,
     week: 1,
     title: 'Rack and cable the server',
@@ -244,16 +249,16 @@ const sharedTasks: Task[] = [
         instruction: 'Put an asset tag on every physical item — server, switch, patch panel, PDU — then add a hardware row for each to the Asset Register with its tag, serial and condition.',
         usesForm: 'Asset Register',
         producesDeliverable: '03_Asset_Register.csv',
-        whatItMeans: 'You cannot secure, budget for, patch or recover what you do not know you have. The software rows come in Week 3.',
+        whatItMeans: 'You cannot secure, budget for, patch or recover what you do not know you have. The software rows come with Week 2\'s deploy.',
         frameworks: ['NIST_CSF', 'CIS'],
       },
     ],
   },
 
-  // ══ WEEK 2 · Build the Platform ═══════════════════════════════════════════
+  // ══ WEEK 2 · Configure & Deploy ═══════════════════════════════════════════
   {
     id: 'sp-w2-install',
-    role: 'ops',
+    role: 'mgmt',
     shared: true,
     week: 2,
     title: 'Install the virtualization platform',
@@ -267,7 +272,7 @@ const sharedTasks: Task[] = [
     prerequisites: ['The server racked and powered', 'The Configuration Guide (PDF)', 'Install media prepared'],
     definitionOfDone: [
       'The hypervisor is installed and reachable',
-      'The VMs exist with their planned resources and addresses',
+      'The VMs exist with their planned resources',
       'Every baseline setting is recorded with evidence',
     ],
     steps: [
@@ -280,7 +285,7 @@ const sharedTasks: Task[] = [
         instructionList: [
           'Boot the prepared install media on the server.',
           'Follow the Configuration Guide for the install options and disk layout.',
-          'Set the hostname and a static management IP from your topology plan.',
+          'Set the hostname and a static management IP — Week 3 formalises the full plan.',
           'Remove the media and reboot when it finishes.',
         ],
         files: [
@@ -294,21 +299,21 @@ const sharedTasks: Task[] = [
       {
         id: 'sp-w2-install-s2',
         title: 'Create the VMs',
-        description: 'Stand up the guests that carry the services.',
+        description: 'Stand up the Windows and Linux guests that carry the services.',
         where: 'The hypervisor web console',
-        instruction: 'Create each VM with the resources from your plan, on the management bridge with a static address. Use the Configuration Guide for the per-VM steps.',
+        instruction: 'Create the Windows Server VM and the Linux VM with the resources from your plan. Use the Configuration Guide for the per-VM steps.',
         instructionList: [
           'Upload the OS install images to the host storage.',
           'Create each VM with the vCPU, RAM and disk from your plan.',
-          'Attach each VM to the bridge and give it a static address.',
+          'Attach each VM to the bridge.',
           'Follow the Configuration Guide for the guest install options.',
         ],
         files: [
           { name: 'Configuration Guide (PDF) — VM provisioning', purpose: 'the per-VM create and guest-install steps' },
         ],
-        whatItMeans: 'Sizing and addressing come from the plan you wrote, not from guesswork at the console. Decide once, on paper, then build to it.',
+        whatItMeans: 'Sizing comes from the plan you wrote, not from guesswork at the console. Decide once, on paper, then build to it.',
         frameworks: ['NIST_CSF'],
-        expectedOutput: 'Each VM boots to its OS, holds its planned static address, and shows on the correct bridge in the hardware tab.',
+        expectedOutput: 'Both VMs boot to their OS and show on the correct bridge in the hardware tab.',
         outputKind: 'result',
       },
       {
@@ -324,19 +329,74 @@ const sharedTasks: Task[] = [
     ],
   },
   {
-    id: 'sp-w2-topology',
-    role: 'ops',
+    id: 'sp-w2-deploy',
+    role: 'mgmt',
     shared: true,
     week: 2,
-    title: 'Map the network and addressing',
-    objective: 'Draw how everything connects and give every device a fixed address before it changes.',
+    title: 'Deploy the Windows and Linux services',
+    objective: 'Stand up the services each VM exists to run, and register every installed program.',
+    frameworks: ['NIST_CSF', 'CIS'],
+    deliverables: ['03_Asset_Register.csv', '05_Configuration_Management.md'],
+    estimatedTime: '2 hours',
+    difficulty: 3,
+    learn: ['Windows Server roles', 'Linux service deployment', 'Software asset management'],
+    tools: ['Asset Register form', 'Configuration Management form', 'Configuration Guide (PDF)'],
+    prerequisites: ['Both VMs installed and booting'],
+    definitionOfDone: [
+      'The Windows Server roles are installed and running',
+      'The Linux services are installed and running',
+      'Every installed program is a software asset with a version and support-end date',
+    ],
+    steps: [
+      {
+        id: 'sp-w2-deploy-s1',
+        title: 'Deploy the services from the guide',
+        description: 'The Windows roles and the Linux services, per the Configuration Guide.',
+        where: 'The Windows and Linux VMs',
+        instruction: 'Install the Windows Server roles and the Linux services your brief calls for, following the Configuration Guide for the exact steps, and update each system\'s row in the configuration record.',
+        instructionList: [
+          'On the Windows Server VM, add the roles from the guide and confirm each starts.',
+          'On the Linux VM, install the services from the guide and confirm each runs.',
+          'Update each system\'s baseline row with the roles and services now on it.',
+          'Attach a screenshot of each service running as evidence.',
+        ],
+        files: [
+          { name: 'Configuration Guide (PDF) — Windows roles', purpose: 'the exact role-install steps for the Windows Server VM' },
+          { name: 'Configuration Guide (PDF) — Linux services', purpose: 'the exact package and service steps for the Linux VM' },
+        ],
+        usesForm: 'Configuration Management Record',
+        producesDeliverable: '05_Configuration_Management.md',
+        whatItMeans: 'A VM with no services is scaffolding. Deploying is what turns the platform into the thing the client asked for.',
+        frameworks: ['NIST_CSF'],
+      },
+      {
+        id: 'sp-w2-deploy-s2',
+        title: 'Register the software you installed',
+        description: 'Add every installed program to the asset register.',
+        instruction: 'Add a software row per installed program — each OS, the hypervisor, every role and service — with its version and support-end date. That date is the security-relevant column.',
+        usesForm: 'Asset Register',
+        producesDeliverable: '03_Asset_Register.csv',
+        whatItMeans: 'The register now answers a security question as well as a budget one: what do we own, and what is out of support and no longer patched?',
+        frameworks: ['NIST_CSF', 'CIS'],
+      },
+    ],
+  },
+
+  // ══ WEEK 3 · Network & Connect ════════════════════════════════════════════
+  {
+    id: 'sp-w3-topology',
+    role: 'mgmt',
+    shared: true,
+    week: 3,
+    title: 'Plan the addresses and draw the topology',
+    objective: 'Decide every address in one place and draw how everything connects, before anything changes.',
     frameworks: ['NIST_CSF'],
     deliverables: ['04_Topology_and_IP_Plan.md'],
     estimatedTime: '1 hour',
     difficulty: 2,
     learn: ['Topology diagrams', 'IP address planning', 'Documentation as source of truth'],
     tools: ['Network Topology & IP Plan form'],
-    prerequisites: ['The rack & cabling record', 'The platform installed'],
+    prerequisites: ['The rack & cabling record', 'The platform and services deployed'],
     definitionOfDone: [
       'The physical and virtual paths are described',
       'Every host has a unique planned address',
@@ -344,7 +404,7 @@ const sharedTasks: Task[] = [
     ],
     steps: [
       {
-        id: 'sp-w2-topology-s1',
+        id: 'sp-w3-topology-s1',
         title: 'Describe the physical and virtual layout',
         description: 'Two paragraphs and a diagram anyone can read in 30 seconds.',
         instruction: 'In the Network Topology & IP Plan form, describe the physical path — office drop, patch panel, switch, server NIC — and the virtual layout of the host and its VMs.',
@@ -354,7 +414,7 @@ const sharedTasks: Task[] = [
         frameworks: ['NIST_CSF'],
       },
       {
-        id: 'sp-w2-topology-s2',
+        id: 'sp-w3-topology-s2',
         title: 'Write the IP plan',
         description: 'Decide every address in one place, before anything uses it.',
         instruction: 'Give the host and every VM a row with its address, gateway and DNS. Reserve ranges so nothing collides, and check every address is unique.',
@@ -365,57 +425,70 @@ const sharedTasks: Task[] = [
       },
     ],
   },
-
-  // ══ WEEK 3 · Operate & Maintain ═══════════════════════════════════════════
   {
-    id: 'sp-w3-assets',
-    role: 'ops',
+    id: 'sp-w3-connect',
+    role: 'mgmt',
     shared: true,
     week: 3,
-    title: 'Complete the asset and configuration records',
-    objective: 'Finish the software inventory now everything is installed, and keep the configuration record current.',
-    frameworks: ['NIST_CSF', 'CIS'],
-    deliverables: ['03_Asset_Register.csv', '05_Configuration_Management.md'],
+    title: 'Connect the server and prove it reaches',
+    objective: 'Apply the plan to every host, connect through the patch panel to the network, and prove the paths work.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['04_Topology_and_IP_Plan.md', '07_Change_Log.csv'],
     estimatedTime: '1.5 hours',
-    difficulty: 2,
-    learn: ['Software asset management', 'Support-lifecycle tracking', 'Configuration drift'],
-    tools: ['Asset Register form', 'Configuration Management form'],
-    prerequisites: ['Every service installed', 'The Week-1 asset register started'],
+    difficulty: 3,
+    learn: ['Applying an IP plan', 'Connectivity verification', 'Logging network changes'],
+    tools: ['Network Topology & IP Plan form', 'Change Log form', 'Configuration Guide (PDF)'],
+    prerequisites: ['The IP plan written', 'The patch panel wired in Week 1'],
     definitionOfDone: [
-      'Every installed program is a software asset with a version',
-      'End-of-support dates are recorded',
-      'The configuration record matches what is running',
+      'Every host holds its planned address',
+      'Each host reaches the gateway and each service answers',
+      'Every network change has a change-log row',
     ],
     steps: [
       {
-        id: 'sp-w3-assets-s1',
-        title: 'Complete the software inventory',
-        description: 'Add every installed program to the register now it exists.',
-        instruction: 'Add a software row per installed program — each OS, the hypervisor, every service — with its version and support-end date. That date is the security-relevant column.',
-        usesForm: 'Asset Register',
-        producesDeliverable: '03_Asset_Register.csv',
-        whatItMeans: 'The register now answers a security question as well as a budget one: what do we own, and what is out of support and no longer patched?',
-        frameworks: ['NIST_CSF', 'CIS'],
+        id: 'sp-w3-connect-s1',
+        title: 'Apply the plan and connect the uplink',
+        description: 'Set each host to its planned address and patch through to the LAN.',
+        where: 'Each system, and the rack',
+        instruction: 'Set the host and each VM to the address the plan gives it, following the Configuration Guide for the per-OS steps, then confirm the uplink path from patch panel to switch to the office network.',
+        instructionList: [
+          'Set the hypervisor host to its planned management address.',
+          'Set the Windows VM\'s address, gateway and DNS from its plan row.',
+          'Set the Linux VM\'s address the same way.',
+          'Confirm the uplink lead from the patch panel to the switch is connected and labelled.',
+          'Log each address change in the Change Log as you make it.',
+        ],
+        files: [
+          { name: 'Configuration Guide (PDF) — network configuration', purpose: 'the per-OS steps for setting a static address, gateway and DNS' },
+        ],
+        usesForm: 'Change Log',
+        producesDeliverable: '07_Change_Log.csv',
+        whatItMeans: 'The plan only counts once reality matches it. Applying addresses from the plan — never inventing them at the console — is the discipline.',
+        frameworks: ['NIST_CSF'],
       },
       {
-        id: 'sp-w3-assets-s2',
-        title: 'Reconcile the configuration record',
-        description: 'Confirm the record still matches the running systems.',
-        instruction: 'Walk each system and confirm the Configuration Management Record still matches what is actually running. Update any value that drifted, and log the change.',
-        usesForm: 'Configuration Management Record',
-        producesDeliverable: '05_Configuration_Management.md',
-        whatItMeans: 'A stale config record is a trap for the next tech. Reconciling it keeps "reinstall to spec" possible instead of "reinstall and hope".',
+        id: 'sp-w3-connect-s2',
+        title: 'Prove the connectivity',
+        description: 'Every path the design promises, demonstrated and recorded.',
+        instruction: 'From each host, confirm it reaches its gateway and that each deployed service answers from another machine. Note the result of each check in the topology form so the record shows proven paths.',
+        usesForm: 'Network Topology & IP Plan',
+        producesDeliverable: '04_Topology_and_IP_Plan.md',
+        whatItMeans: 'A topology diagram claims; a connectivity check proves. Recording the checks turns the diagram into evidence.',
         frameworks: ['NIST_CSF'],
+        expectedOutput: 'Each host reaches its gateway, each service answers from a neighbouring machine, and the results are noted in the topology record.',
+        outputKind: 'result',
       },
     ],
   },
+
+  // ══ WEEK 4 · Secure & DRP ═════════════════════════════════════════════════
   {
-    id: 'sp-w3-patch',
-    role: 'ops',
+    id: 'sp-w4-secure',
+    role: 'mgmt',
     shared: true,
-    week: 3,
-    title: 'Patch management and change control',
-    objective: 'Bring every system to a known patch level with a rollback, and keep the change log current.',
+    week: 4,
+    title: 'Patch every system with a rollback',
+    objective: 'Bring every system to a known patch level — snapshot first — and keep the change log current.',
     frameworks: ['NIST_CSF', 'CIS'],
     deliverables: ['06_Patch_Management.csv', '07_Change_Log.csv'],
     estimatedTime: '1.5 hours',
@@ -430,7 +503,7 @@ const sharedTasks: Task[] = [
     ],
     steps: [
       {
-        id: 'sp-w3-patch-s1',
+        id: 'sp-w4-secure-s1',
         title: 'Snapshot, then patch each system',
         description: 'Take the rollback first, then update.',
         where: 'Each system',
@@ -444,13 +517,13 @@ const sharedTasks: Task[] = [
         files: [
           { name: 'Configuration Guide (PDF) — updates & patching', purpose: 'the exact per-OS update commands' },
         ],
-        whatItMeans: 'A patch with no rollback is a gamble on production. The snapshot taken first is what makes patching a live server safe.',
+        whatItMeans: 'Unpatched systems are the most common way in. The snapshot taken first is what makes patching a live server safe.',
         frameworks: ['NIST_CSF', 'CIS'],
         expectedOutput: 'Each system is at a recorded new patch level, its services confirmed running, with a snapshot available to roll back to.',
         outputKind: 'result',
       },
       {
-        id: 'sp-w3-patch-s2',
+        id: 'sp-w4-secure-s2',
         title: 'Log the patch run',
         description: 'Record the level, schedule and rollback for each system.',
         instruction: 'Record each system in the Patch Management Log: its starting level, the schedule you set, the rollback method, what you applied and the result.',
@@ -460,7 +533,7 @@ const sharedTasks: Task[] = [
         frameworks: ['NIST_CSF', 'CIS'],
       },
       {
-        id: 'sp-w3-patch-s3',
+        id: 'sp-w4-secure-s3',
         title: 'Keep the change log current',
         description: 'Append the patch run and any config change this week.',
         instruction: 'Add a change-log row for the patch run and any config change this week — what you did, why, the result, and how to roll it back.',
@@ -471,11 +544,9 @@ const sharedTasks: Task[] = [
       },
     ],
   },
-
-  // ══ WEEK 4 · Protect & Hand Over ══════════════════════════════════════════
   {
     id: 'sp-w4-dr',
-    role: 'ops',
+    role: 'mgmt',
     shared: true,
     week: 4,
     title: 'Disaster recovery and a real restore',
@@ -486,7 +557,7 @@ const sharedTasks: Task[] = [
     difficulty: 3,
     learn: ['RTO, RPO and MTTR', 'Restore procedures', 'Testing a backup'],
     tools: ['Disaster Recovery Plan form'],
-    prerequisites: ['Backups or snapshots in place', 'The configuration record current'],
+    prerequisites: ['Snapshots taken during the patch run', 'The configuration record current'],
     definitionOfDone: [
       'Each critical system has an RTO, RPO and MTTR',
       'A restore was run and its time measured',
@@ -518,7 +589,7 @@ const sharedTasks: Task[] = [
   },
   {
     id: 'sp-w4-handover',
-    role: 'ops',
+    role: 'mgmt',
     shared: true,
     week: 4,
     title: 'Assemble and hand over the as-built package',
@@ -589,33 +660,7 @@ const FOCUS: {
   instruction: string;
   meaning: string;
 }[] = [
-  // ── Hardware & Rack ──────────────────────────────────────────────────────
-  {
-    role: 'hw', week: 1, title: 'Deep-dive: mounting, weight order and airflow',
-    section: 'the rack elevation', form: 'Rack & Cabling Record', file: '02_Rack_and_Cabling.md',
-    instruction: 'Expand the rack elevation: why each device sits at that U, how the weight is ordered, where the air goes in and out, and what the PDU load adds up to.',
-    meaning: 'Anyone can bolt a server in. The record of why it sits there is what stops the next person creating a hot spot or a top-heavy rack.',
-  },
-  {
-    role: 'hw', week: 2, title: 'Deep-dive: what the hardware actually is',
-    section: 'the hardware rows', form: 'Asset Register', file: '03_Asset_Register.csv',
-    instruction: 'Expand the hardware rows with the real spec: CPU and RAM fitted, disks and their layout, PSU count, and the service tag you would quote to support.',
-    meaning: 'A row that says "server" is not an asset record. The spec is what a support call, a capacity question and a warranty claim all need.',
-  },
-  {
-    role: 'hw', week: 3, title: 'Deep-dive: warranty and end-of-life exposure',
-    section: 'the lifecycle columns', form: 'Asset Register', file: '03_Asset_Register.csv',
-    instruction: 'Work the lifecycle columns: which items are out of warranty, which are past end-of-support, and what each one would cost to replace.',
-    meaning: 'This is the column that turns an inventory into a budget conversation — and into the risk nobody noticed until the part failed.',
-  },
-  {
-    role: 'hw', week: 4, title: 'Deep-dive: what fails first, physically',
-    section: 'the impact column', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
-    instruction: 'Add the physical failure modes to the plan: the disk, the PSU, the fan, the single PDU — and what each one takes down with it.',
-    meaning: 'Most recovery plans assume software failure. The hardware ones are the failures a rack-mount server actually has.',
-  },
-
-  // ── Network & Cabling ────────────────────────────────────────────────────
+  // ── Networking ───────────────────────────────────────────────────────────
   {
     role: 'net', week: 1, title: 'Deep-dive: the cable schedule and port map',
     section: 'the cable schedule', form: 'Rack & Cabling Record', file: '02_Rack_and_Cabling.md',
@@ -623,16 +668,16 @@ const FOCUS: {
     meaning: 'A colour scheme nobody wrote down is a colour scheme nobody can follow. The schedule is what makes the rack safe to work in.',
   },
   {
-    role: 'net', week: 2, title: 'Deep-dive: the addressing rationale',
+    role: 'net', week: 2, title: 'Deep-dive: bridges and NIC mapping',
+    section: 'the virtual-network rows', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
+    instruction: 'Record how the virtual network is built: which physical NIC backs which bridge, which VMs attach where, and why that mapping.',
+    meaning: 'The bridge-to-NIC mapping is invisible from the rack and undocumented by default — exactly the knowledge that leaves when the builder does.',
+  },
+  {
+    role: 'net', week: 3, title: 'Deep-dive: the addressing rationale',
     section: 'the IP plan', form: 'Network Topology & IP Plan', file: '04_Topology_and_IP_Plan.md',
     instruction: 'Explain the addressing choices: which ranges are reserved for what, why the management address is separated, and where growth goes.',
     meaning: 'The next tech does not need your addresses so much as your reasoning — that is what stops them assigning into a reserved range.',
-  },
-  {
-    role: 'net', week: 3, title: 'Deep-dive: what a re-patch would break',
-    section: 'the network changes', form: 'Change Log', file: '07_Change_Log.csv',
-    instruction: 'For each network change logged, record exactly what would break if the lead were moved or the port re-patched, and how to put it back.',
-    meaning: 'A patch lead is the easiest thing in the rack to move and the hardest failure to diagnose afterwards.',
   },
   {
     role: 'net', week: 4, title: 'Deep-dive: recovering the network path',
@@ -641,55 +686,81 @@ const FOCUS: {
     meaning: 'Restoring a server nobody can reach is not a recovery. The path back to it has to be in the plan too.',
   },
 
-  // ── Systems & Virtualization ─────────────────────────────────────────────
+  // ── Windows ──────────────────────────────────────────────────────────────
   {
-    role: 'sys', week: 1, title: 'Deep-dive: firmware and boot-order pre-checks',
+    role: 'win', week: 1, title: 'Deep-dive: what the Windows VM will need',
+    section: 'the hardware rows', form: 'Asset Register', file: '03_Asset_Register.csv',
+    instruction: 'Expand the hardware rows with the spec that matters to the Windows guest: CPU and RAM available, disk layout, and the licence the VM will need.',
+    meaning: 'Sizing a Windows Server VM starts from what the hardware can actually give it — and the licence is an asset like any other.',
+  },
+  {
+    role: 'win', week: 2, title: 'Deep-dive: the Windows Server baseline',
+    section: 'the Windows VM row', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
+    instruction: 'Expand the Windows VM\'s row: each installed role and why, the sizing you chose, and the settings you would need to rebuild it to spec.',
+    meaning: 'Recording the value makes a rebuild possible. Recording the reasoning makes the next sizing decision a judgement rather than a guess.',
+  },
+  {
+    role: 'win', week: 3, title: 'Deep-dive: Windows network settings',
+    section: 'the Windows plan row', form: 'Network Topology & IP Plan', file: '04_Topology_and_IP_Plan.md',
+    instruction: 'Document the Windows VM\'s network configuration in depth: the static address, DNS order, and how you confirmed each service answers by name.',
+    meaning: 'Most "server down" calls on a Windows box are name resolution. The record of what DNS should be is what makes that a five-minute fix.',
+  },
+  {
+    role: 'win', week: 4, title: 'Deep-dive: Windows patching and restore',
+    section: 'the Windows restore procedure', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
+    instruction: 'Write the Windows recovery in full: how its updates roll back, where its restore point or backup lives, and the exact steps to bring its roles back.',
+    meaning: 'A restore procedure is only real if a person who did not build the system can follow it under pressure.',
+  },
+
+  // ── Linux ────────────────────────────────────────────────────────────────
+  {
+    role: 'lnx', week: 1, title: 'Deep-dive: firmware and boot pre-checks',
     section: 'the host baseline', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
     instruction: 'Record the pre-install state of the host: firmware and BIOS versions, boot order, virtualization support, and the RAID or disk mode you set.',
     meaning: 'These are the settings nobody records and everybody has to rediscover the next time the machine will not boot from the right disk.',
   },
   {
-    role: 'sys', week: 2, title: 'Deep-dive: baselines and sizing rationale',
-    section: 'the per-system rows', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
-    instruction: 'Expand each system row with the values you actually set and why that sizing — vCPU, RAM, disk and the headroom you left on the host.',
-    meaning: 'Recording the value makes a rebuild possible. Recording the reasoning makes the next sizing decision a judgement rather than a guess.',
+    role: 'lnx', week: 2, title: 'Deep-dive: the hypervisor and Linux baseline',
+    section: 'the host and Linux VM rows', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
+    instruction: 'Expand the hypervisor and Linux VM rows: storage layout, the services installed and why, and the values you would need to rebuild both to spec.',
+    meaning: 'The hypervisor is the one system everything else stands on. Its baseline is the most expensive record to be missing.',
   },
   {
-    role: 'sys', week: 3, title: 'Deep-dive: patch baselines and rollback per OS',
-    section: 'the rollback column', form: 'Patch Management Log', file: '06_Patch_Management.csv',
-    instruction: 'Detail the rollback for each OS: how the snapshot or restore point is taken, how long it is kept, and the exact way you would revert.',
+    role: 'lnx', week: 3, title: 'Deep-dive: Linux network configuration',
+    section: 'the Linux plan row', form: 'Network Topology & IP Plan', file: '04_Topology_and_IP_Plan.md',
+    instruction: 'Document the Linux side of the network in depth: how the host bridge is configured, the VM\'s interface settings, and how you proved each service answers.',
+    meaning: 'On Linux the network config lives in files nobody opens until it breaks. Writing down which file holds what is the deep-dive.',
+  },
+  {
+    role: 'lnx', week: 4, title: 'Deep-dive: snapshots and the Linux restore',
+    section: 'the Linux restore procedure', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
+    instruction: 'Write the Linux recovery in full: how snapshots are taken and kept, how a service is restored from one, and how you verify the data afterwards.',
     meaning: '"VM snapshot" is a plan only if you know how to roll it back and how long you have before it is cleaned up.',
   },
-  {
-    role: 'sys', week: 4, title: 'Deep-dive: the restore procedure per system',
-    section: 'the restore steps', form: 'Disaster Recovery Plan', file: '08_DR_Plan.md',
-    instruction: 'Write each restore procedure to the point someone else could run it: where the backup is, the order of operations, and how to verify the service afterwards.',
-    meaning: 'A restore procedure is only real if a person who did not build the system can follow it under pressure.',
-  },
 
-  // ── Operations & Documentation ───────────────────────────────────────────
+  // ── Management ───────────────────────────────────────────────────────────
   {
-    role: 'ops', week: 1, title: 'Deep-dive: tagging scheme and acceptance criteria',
+    role: 'mgmt', week: 1, title: 'Deep-dive: tagging scheme and acceptance criteria',
     section: 'the acceptance criteria', form: 'Project Brief & Site Prep', file: '01_Project_Brief.md',
     instruction: 'Define the asset-tag scheme the whole team will use, and sharpen the acceptance criteria so each one is something you could demonstrate.',
     meaning: 'An acceptance criterion you cannot demonstrate is an opinion. A tagging scheme decided later is one applied inconsistently.',
   },
   {
-    role: 'ops', week: 2, title: 'Deep-dive: versioning the record set',
+    role: 'mgmt', week: 2, title: 'Deep-dive: versioning the record set',
     section: 'the document versions', form: 'Configuration Management Record', file: '05_Configuration_Management.md',
     instruction: 'Set how the records are versioned: what bumps a version, who does it, and how a reader tells whether they hold the current copy.',
     meaning: 'Documentation without a version is documentation nobody can trust — there is no way to tell current from stale.',
   },
   {
-    role: 'ops', week: 3, title: 'Deep-dive: append-only change discipline',
+    role: 'mgmt', week: 3, title: 'Deep-dive: change control on the network work',
     section: 'the change rows', form: 'Change Log', file: '07_Change_Log.csv',
-    instruction: 'Audit the log as a record: every row written before the change, a rollback on each one, and corrections made by a new row rather than an edit.',
+    instruction: 'Audit this week\'s network changes as a record: every address change logged before it was made, a rollback on each, corrections by new rows only.',
     meaning: 'A change log edited after the fact is a story. Append-only is what makes it evidence.',
   },
   {
-    role: 'ops', week: 4, title: 'Deep-dive: assembling the handover package',
+    role: 'mgmt', week: 4, title: 'Deep-dive: the numbers and the handover',
     section: 'the handover checklist', form: 'As-Built Handover Package', file: '09_As_Built.md',
-    instruction: 'Drive the package: confirm every document is current, exported and in order, and that the client summary reads to someone who was never here.',
+    instruction: 'Defend the RTO, RPO and MTTR numbers in business terms, then drive the package: every document current, exported and in order, readable by a stranger.',
     meaning: 'The package is the deliverable the client keeps. Assembling it is a job, not a formality at the end of the last day.',
   },
 ];
@@ -731,9 +802,9 @@ export const SERVER_PLUS: Course = {
   vendor: 'CompTIA',
   certification: 'Server+',
   level: 'associate',
-  audience: 'Build and document your own rack-mount server — everyone builds the same, each documents their focus deeper.',
+  audience: 'Build and document your own rack-mount server through four phases — everyone builds the same, each focus documents its part deeper.',
   description:
-    'Build a client\'s rack-mount server from bare metal to a running, documented system — on your own, start to finish. Four weeks: receive and rack the hardware, install the platform, operate and maintain it, then protect and hand it over as a PDF package.',
+    'Build a client\'s rack-mount server from bare metal to a running, documented system — on your own, start to finish. Four phases: build the hardware and document it, configure and deploy the platform, network and connect it, then secure it and prove disaster recovery.',
   roles,
   weeks,
   gates,
@@ -742,15 +813,15 @@ export const SERVER_PLUS: Course = {
   sharedTrack: true,
   lifecyclePath: [
     { label: 'Receive', detail: 'Take delivery of the server and agree what you are building.' },
-    { label: 'Rack & Cable', detail: 'Mount it in the 42U rack, wire the patch panel, and power it.' },
-    { label: 'Install', detail: 'Stand up the hypervisor and the VMs on top of it.' },
-    { label: 'Configure', detail: 'Record every setting as a baseline you could rebuild from.' },
-    { label: 'Patch', detail: 'Bring every system current, with a rollback taken first.' },
-    { label: 'Protect', detail: 'Set recovery targets and prove a restore actually works.' },
+    { label: 'Build & Rack', detail: 'Mount it in the 42U rack, wire the patch panel, and power it.' },
+    { label: 'Configure', detail: 'Install the hypervisor and record every setting as a baseline.' },
+    { label: 'Deploy', detail: 'Stand up the Windows and Linux services the client asked for.' },
+    { label: 'Connect', detail: 'Apply the IP plan, connect the uplink, and prove every path.' },
+    { label: 'Secure & DRP', detail: 'Patch with a rollback, set RTO/RPO/MTTR, and prove a restore.' },
     { label: 'Hand over', detail: 'An as-built PDF package the client can run the server from.' },
   ],
   isSeed: true,
-  version: 3,
+  version: 4,
   teamCount: 16,
   teamCapacity: 4,
 };
