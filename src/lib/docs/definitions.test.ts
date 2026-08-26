@@ -86,13 +86,16 @@ describe('lookup helpers', () => {
     const sp = deliverablesForCourse('security-plus');
     const mssp = deliverablesForCourse('mssp');
     const cysa = deliverablesForCourse('cysa-plus');
-    expect(sp.length).toBeGreaterThan(0);
-    expect(mssp.length).toBeGreaterThan(0);
-    expect(cysa.length).toBeGreaterThan(0);
+    const server = deliverablesForCourse('server-plus');
+    const sets = [sp, mssp, cysa, server];
+    sets.forEach((s) => expect(s.length).toBeGreaterThan(0));
     // No form appears in more than one course's set.
-    expect(sp.some((d) => mssp.includes(d) || cysa.includes(d))).toBe(false);
-    expect(mssp.some((d) => cysa.includes(d))).toBe(false);
-    // The per-course sets partition the full list (every form belongs to exactly one course).
-    expect(sp.length + mssp.length + cysa.length).toBe(DELIVERABLES.length);
+    sets.forEach((a, i) =>
+      sets.slice(i + 1).forEach((b) => expect(a.some((d) => b.includes(d))).toBe(false))
+    );
+    // The per-course sets partition the full list (every form belongs to exactly
+    // one course). This is the assertion that breaks the moment a new course is
+    // added without being listed here — which is the point.
+    expect(sets.reduce((n, s) => n + s.length, 0)).toBe(DELIVERABLES.length);
   });
 });

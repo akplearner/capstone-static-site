@@ -6,6 +6,7 @@ import { CourseSubNav } from '@/components/CourseSubNav';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
+import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
@@ -55,6 +56,7 @@ export default function CourseReferencePage() {
   const course = useCourse();
   const { member, loading } = useMember(course.id);
   const topo = socTopology(course.id);
+  const isServerDeployment = course.id === 'server-plus';
   const isCysa = course.id === 'cysa-plus';
 
   // Same enrolment rule as the Guide this is an appendix to — the manual is course
@@ -72,7 +74,16 @@ export default function CourseReferencePage() {
         'Every machine in the environment, what runs on it, and how to confirm you can reach it before Week 1.',
       body: (
         <div className="space-y-6">
-          {topo ? <SocTopologyDiagram topo={topo} /> : <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />}
+          {/* Three shapes, three diagrams. The generic ArchitectureDiagram draws a
+              red/blue/grc attack lab and hardcodes those role ids, so it is the
+              fallback only — a four-bridge deployment gets its own picture. */}
+          {topo ? (
+            <SocTopologyDiagram topo={topo} />
+          ) : isServerDeployment ? (
+            <ServerTopologyDiagram />
+          ) : (
+            <ArchitectureDiagram roles={course.roles} highlightRole={member?.role} />
+          )}
           {course.id === 'security-plus' && <LabSetupGuide />}
           {isCysa && (
             <>

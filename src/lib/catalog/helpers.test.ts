@@ -18,9 +18,10 @@ import {
 import { SECURITY_PLUS } from '../data/seed/securityPlus';
 import { CYSA_PLUS } from '../data/seed/cysa';
 import { MSSP } from '../data/seed/mssp';
+import { SERVER_PLUS } from '../data/seed/serverPlus';
 import type { Course, Level } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS];
 const COURSE_BY_ID = new Map(COURSES.map((c) => [c.id, c]));
 const LEVEL_IDS = new Set<Level>(LEVELS.map((l) => l.id));
 

@@ -3,6 +3,7 @@ import { DeliverableData, DeliverableDef } from './types';
 import { CUSTODY_RULES } from './custodyTemplate';
 import { MSSP_DELIVERABLES } from './msspDeliverables';
 import { CYSA_DELIVERABLES } from './cysaDeliverables';
+import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
 
 // Small helpers to keep the schema readable.
@@ -740,6 +741,7 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...SECURITY_PLUS_DELIVERABLES,
   ...MSSP_DELIVERABLES,
   ...CYSA_DELIVERABLES,
+  ...SERVER_PLUS_DELIVERABLES,
 ];
 
 /** The course a deliverable belongs to (defaults to 'security-plus'). */

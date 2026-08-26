@@ -218,6 +218,34 @@
   --color-w4: #b48ad0;
 }
 
+/* Server+ — a warmer copper vein in the same CompTIA rock. The deployment
+   course is build-shaped rather than adversarial, so it reads warm where the
+   Security+ and CySA+ seams read hot and cold respectively. */
+[data-seam='server-plus'] {
+  --color-accent: #9a5b2c;
+  --color-accent-strong: #7d4820;
+  --color-accent-ink: #6b3d1b;
+  --color-accent-soft: #f7ece3;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #c8814d;
+  --color-w1: #2b6f6a;
+  --color-w2: #9a5b2c;
+  --color-w3: #7a5b9a;
+  --color-w4: #2f6b3f;
+}
+.dark [data-seam='server-plus'] {
+  --color-accent: #e0a06a;
+  --color-accent-strong: #f0b783;
+  --color-accent-ink: #ffe4cc;
+  --color-accent-soft: #33210f;
+  --color-accent-contrast: #26170a;
+  --stone-crystal: #f0b783;
+  --color-w1: #55b8b0;
+  --color-w2: #e0a06a;
+  --color-w3: #b49ad9;
+  --color-w4: #62c07e;
+}
+
 /* THE OBSIDIAN AUDIT VAULT — black glass. Evidence, control, traceability. */
 [data-region='engagement'] {
   --stone-rock: #2a2733;

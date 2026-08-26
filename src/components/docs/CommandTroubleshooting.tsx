@@ -11,7 +11,10 @@ import { Terminal, AlertTriangle, ClipboardPaste } from 'lucide-react';
  */
 
 const TERMINAL_BASICS: { label: string; body: string }[] = [
-  { label: 'Open a terminal', body: 'On Kali, click the black terminal icon in the top bar (or press Ctrl+Alt+T). You type commands here and press Enter to run them.' },
+  // Named generically, not "on Kali": this component renders on every course,
+  // and a deployment course has no attacker box — its terminals are the
+  // hypervisor host, the jump box and the servers.
+  { label: 'Open a terminal', body: 'On a Linux desktop, click the black terminal icon or press Ctrl+Alt+T. On a server you reach over SSH, the terminal is the session itself. You type commands here and press Enter to run them.' },
   { label: 'The prompt', body: 'A line ending in $ (or #) is the prompt — it means the terminal is waiting for you. You don’t type the $ itself.' },
   { label: 'Paste a command', body: 'Copy from this site, then in the terminal press Ctrl+Shift+V (plain Ctrl+V often does nothing in a terminal). Right-click → Paste also works.' },
   { label: 'Run one line at a time', body: 'When a step shows several numbered commands, run them one by one — paste one, press Enter, wait for it to finish, then the next.' },
@@ -53,7 +56,7 @@ const COMMON_ERRORS: { symptom: string; meaning: string; fix: string }[] = [
   {
     symptom: 'Read the last line first',
     meaning: 'When anything fails, the error’s last line usually names the real problem.',
-    fix: 'Match that line to the rows above. Also double-check you’re on the right machine (Kali for attacks, Ubuntu/Windows for defending).',
+    fix: 'Match that line to the rows above. Also double-check you’re on the machine the step’s WHERE chip names — running the right command on the wrong host is the most common cause.',
   },
 ];
 

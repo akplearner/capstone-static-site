@@ -29,6 +29,13 @@ const NODES: Record<string, { t: string; s: string; c: NodeColor }> = {
   analyst: { t: 'SOC Analyst', s: 'triage', c: 'blue' },
   hunter: { t: 'Threat Hunter', s: 'investigate', c: 'teal' },
   responder: { t: 'Incident Responder', s: 'contain & report', c: 'red' },
+  // Server+ deployment hosts. That course's lab is a hypervisor with four
+  // bridges rather than a SOC, so none of the nodes above describe it.
+  pve: { t: 'Proxmox host', s: '10.10.10.x · vmbr0', c: 'slate' },
+  jumpbox: { t: 'Jump box', s: '172.16.0.10 · DMZ', c: 'teal' },
+  winsrv: { t: 'Windows Server', s: '192.168.0.2 · private', c: 'blue' },
+  lnxsrv: { t: 'Ubuntu Server', s: '192.168.0.3 · private', c: 'blue' },
+  client: { t: 'Client PC', s: 'DHCP · a user seat', c: 'slate' },
 };
 
 const DOT: Record<NodeColor, string> = {

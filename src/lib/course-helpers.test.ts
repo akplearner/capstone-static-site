@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { SECURITY_PLUS } from './data/seed/securityPlus';
 import { CYSA_PLUS } from './data/seed/cysa';
 import { MSSP } from './data/seed/mssp';
+import { SERVER_PLUS } from './data/seed/serverPlus';
 import {
   getTasksByRole,
   getRequiredSteps,
@@ -44,7 +45,7 @@ describe('course-helpers on the Security+ seed', () => {
 });
 
 describe('progress denominator never collapses to zero', () => {
-  const ALL = [SECURITY_PLUS, CYSA_PLUS, MSSP];
+  const ALL = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS];
 
   it('every task with steps has a non-zero progress denominator', () => {
     // The bug this guards: a task built entirely from optional steps had a 0/0
@@ -127,7 +128,7 @@ describe('week summary aggregation', () => {
   });
 
   it('every non-setup week in every course states a milestone', () => {
-    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP]) {
+    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS]) {
       for (const w of course.weeks) {
         expect(w.milestone, `${course.id} week ${w.number}`).toBeTruthy();
         expect(w.difficulty, `${course.id} week ${w.number}`).toBeDefined();
@@ -138,7 +139,7 @@ describe('week summary aggregation', () => {
 
 describe('setup weeks', () => {
   it('week 0 is setup in every course, later weeks are not', () => {
-    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP]) {
+    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS]) {
       expect(isSetupWeek(course, 0), course.id).toBe(true);
       for (const w of course.weeks.filter((x) => x.number > 0)) {
         expect(isSetupWeek(course, w.number), `${course.id}/w${w.number}`).toBe(false);

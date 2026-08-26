@@ -55,6 +55,15 @@ export const CATALOG: CatalogEntry[] = [
     blurb: 'Run a live offensive + defensive range as Red, Blue, or GRC.',
   },
   {
+    id: 'comptia-server-plus',
+    vendorId: 'comptia',
+    certName: 'Server+',
+    level: 'associate',
+    status: 'available',
+    courseId: 'server-plus',
+    blurb: 'Deploy a client server room as an MSP — assess, build, secure, hand over.',
+  },
+  {
     id: 'comptia-cysa-plus',
     vendorId: 'comptia',
     certName: 'CySA+',

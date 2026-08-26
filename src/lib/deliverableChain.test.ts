@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { CYSA_PLUS } from './data/seed/cysa';
 import { SECURITY_PLUS } from './data/seed/securityPlus';
 import { MSSP } from './data/seed/mssp';
+import { SERVER_PLUS } from './data/seed/serverPlus';
 import {
   buildDeliverableChain,
   describeChain,
@@ -112,6 +113,7 @@ describe.each([
   ['security-plus', SECURITY_PLUS],
   ['cysa-plus', CYSA_PLUS],
   ['mssp', MSSP],
+  ['server-plus', SERVER_PLUS],
 ] as const)('every course has a real chain — %s', (_id, course) => {
   const chain = buildDeliverableChain(course);
 

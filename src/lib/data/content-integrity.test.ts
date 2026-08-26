@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
+import { SERVER_PLUS } from './seed/serverPlus';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
@@ -12,7 +13,7 @@ import { LAB_FIELDS } from '../labAccess';
 // deliverable actually provides would render a dead link. These tests fail fast if
 // a step ever points at a form/file that isn't registered for its course.
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS];
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
   return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));

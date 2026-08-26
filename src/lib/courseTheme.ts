@@ -49,6 +49,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Engagement',
     certification: 'SOC 2 + ISO 27001',
   },
+  'server-plus': {
+    key: 'server-plus',
+    vendor: 'CompTIA',
+    certification: 'Server+',
+  },
 };
 
 /** Neutral identity for a course we have no styling for — keeps the default
