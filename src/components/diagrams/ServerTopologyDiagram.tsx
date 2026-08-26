@@ -3,136 +3,135 @@
 import { DiagramFrame } from './DiagramFrame';
 
 /**
- * The Server+ deployment topology: one blade server running a hypervisor, with
- * four virtual bridges that keep the zones apart.
+ * The Server+ picture: a physical 42U rack elevation beside the small virtual
+ * layer that runs inside the one server.
  *
- * This course needs its own picture. The generic `ArchitectureDiagram` draws a
- * red/blue/grc attack-and-defend lab and hardcodes those three role ids, which
- * describes nothing about a four-bridge MSP deployment — an environment whose
- * whole point is that the DMZ and the private LAN cannot reach each other.
+ * This course is a hands-on, documented build — rack the server, wire the patch
+ * panel, install a hypervisor — not a traffic-flow story. So the reference
+ * picture is the rack itself: what sits at each U, how the patch panel feeds the
+ * switch, and what the one server virtualises. It mirrors the seed rows in the
+ * Rack & Cabling Record and the Topology & IP Plan so the diagram and the forms
+ * agree.
  *
- * Addresses are the handbook's worked examples. A team uses whatever the
- * instructor assigned; the shape is what matters here.
+ * The generic `ArchitectureDiagram` draws a red/blue/grc attack lab and hardcodes
+ * those role ids, which describes nothing about a rack build — hence this own
+ * picture. Addresses are the handbook's worked examples; a team uses whatever the
+ * instructor assigned.
  */
 
-const ZONES = [
-  {
-    bridge: 'vmbr1',
-    name: 'DMZ',
-    subnet: '172.16.0.0/24',
-    color: 'var(--color-w3)',
-    hosts: ['Jump box 172.16.0.10', 'Public-facing web', 'Monitoring UI'],
-    trust: 'Semi-trusted',
-  },
-  {
-    bridge: 'vmbr2',
-    name: 'Private LAN',
-    subnet: '192.168.0.0/24',
-    color: 'var(--color-w1)',
-    hosts: ['winserver 192.168.0.2', 'linuxsrv 192.168.0.3', 'DHCP pool .100–.200'],
-    trust: 'Trusted core',
-  },
+// Bottom-up is how a rack is actually counted, but we render top-down, so the
+// array is ordered high U → low U. `span` is how many U the device occupies.
+type RackKind = 'panel' | 'switch' | 'server' | 'pdu' | 'blank';
+const RACK: { u: string; label: string; sub?: string; kind: RackKind; span: number }[] = [
+  { u: 'U24', label: '24-port patch panel', sub: 'Cat6 terminations from the office drops', kind: 'panel', span: 1 },
+  { u: 'U23', label: 'Access switch', sub: 'Uplink to the office LAN on port 24', kind: 'switch', span: 1 },
+  { u: 'U22', label: '', kind: 'blank', span: 1 },
+  { u: 'U20–U21', label: 'The server — Proxmox host', sub: '2U, on sliding rails · the one machine you build', kind: 'server', span: 2 },
+  { u: 'U2–U19', label: 'Free U — headroom for growth', kind: 'blank', span: 1 },
+  { u: 'U1', label: 'Rack PDU', sub: '8-outlet · feeds every device above', kind: 'pdu', span: 1 },
 ];
 
-const SPEC: { component: string; address: string; runs: string; who: string }[] = [
-  { component: 'Proxmox host', address: '10.10.10.x (vmbr0)', runs: 'The hypervisor and every VM below', who: 'Network Engineer' },
-  { component: 'Jump box', address: '172.16.0.10 (vmbr1)', runs: 'Hardened SSH gateway — the only way in', who: 'Network Engineer' },
-  { component: 'Windows Server', address: '192.168.0.2 (vmbr2)', runs: 'DNS · DHCP · IIS portal · file shares', who: 'Windows Engineer' },
-  { component: 'Ubuntu Server', address: '192.168.0.3 (vmbr2)', runs: 'NGINX site · MariaDB dispatch database', who: 'Linux Engineer' },
-  { component: 'Client workstation', address: 'DHCP .100–.200 (vmbr2)', runs: 'Proves the services from a user seat', who: 'Whole team' },
+const KIND_COLOR: Record<RackKind, string> = {
+  panel: 'var(--color-w3)',
+  switch: 'var(--color-w2)',
+  server: 'var(--color-accent)',
+  pdu: 'var(--color-w1)',
+  blank: 'var(--color-line)',
+};
+
+const VMS: { name: string; runs: string; addr: string }[] = [
+  { name: 'winserver', runs: 'Windows Server — DNS · DHCP · staff portal', addr: '10.10.10.20' },
+  { name: 'linuxsrv', runs: 'Ubuntu Server — web service · database', addr: '10.10.10.21' },
 ];
 
 export function ServerTopologyDiagram() {
   return (
     <DiagramFrame
-      title="The environment you build — four bridges, three zones"
-      howToRead="Everything runs inside one blade server. Each bridge is a virtual switch: traffic on one cannot reach another unless a rule you wrote allows it. Admin access enters through the jump box only."
+      title="What you build — one server in a 42U rack"
+      howToRead="Left is the physical rack, counted in U from the bottom up: the patch panel and switch carry the network, the server sits on rails, the PDU powers it all. Right is what that one server virtualises."
       legend={[
-        { label: 'Management — no user services', color: 'var(--color-muted)' },
-        { label: 'DMZ — semi-trusted', color: 'var(--color-w3)' },
-        { label: 'Private LAN — trusted core', color: 'var(--color-w1)' },
-        { label: 'Physical uplink', color: 'var(--color-line)', dashed: true },
+        { label: 'Patch panel — structured cabling', color: 'var(--color-w3)' },
+        { label: 'Switch — the network', color: 'var(--color-w2)' },
+        { label: 'Server — the Proxmox host', color: 'var(--color-accent)' },
+        { label: 'PDU — power', color: 'var(--color-w1)' },
       ]}
     >
-      <div className="min-w-[540px] space-y-3">
-        {/* Office LAN + management bridge */}
-        <div className="rounded-lg border border-line bg-panel-2 px-3 py-2 text-center">
-          <div className="eyebrow-muted">Office / school LAN — 10.10.10.0/24</div>
-          <div className="mt-1 text-xs text-muted">
-            vmbr0 · management only · Proxmox console at{' '}
-            <span className="font-mono text-ink">https://10.10.10.x:8006</span>
+      <div className="grid min-w-[560px] gap-4 sm:grid-cols-[minmax(220px,1fr)_minmax(240px,1.2fr)]">
+        {/* The physical rack elevation */}
+        <div className="rounded-lg border border-line bg-panel-2 p-3">
+          <div className="mb-2 flex items-baseline justify-between">
+            <span className="eyebrow-muted">Rack A · 42U</span>
+            <span className="text-[11px] text-muted">front elevation</span>
+          </div>
+          <div className="space-y-1">
+            {RACK.map((r) => {
+              const color = KIND_COLOR[r.kind];
+              const isBlank = r.kind === 'blank';
+              return (
+                <div
+                  key={r.u}
+                  className={`flex items-stretch gap-2 rounded-md ${
+                    isBlank ? '' : 'border-2 bg-panel'
+                  }`}
+                  style={{
+                    borderColor: isBlank ? undefined : color,
+                    minHeight: r.span > 1 ? `${r.span * 2.2}rem` : undefined,
+                  }}
+                >
+                  <span
+                    className={`flex w-14 shrink-0 items-center justify-center rounded-l-md font-mono text-[10px] ${
+                      isBlank ? 'text-muted/60' : 'text-ink'
+                    }`}
+                    style={isBlank ? undefined : { backgroundColor: color, color: '#fff' }}
+                  >
+                    {r.u}
+                  </span>
+                  {isBlank ? (
+                    <span className="flex flex-1 items-center border border-dashed border-line/60 px-2 py-1 text-[10px] italic text-muted/70">
+                      {r.label}
+                    </span>
+                  ) : (
+                    <span className="flex-1 px-2 py-1">
+                      <span className="block text-xs font-semibold text-ink">{r.label}</span>
+                      {r.sub && <span className="block text-[10px] text-muted">{r.sub}</span>}
+                    </span>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-2 text-center text-[10px] text-muted">
+            Patch panel → switch → server NIC. Every lead is labelled and logged in the Rack &amp; Cabling Record.
           </div>
         </div>
 
-        <div className="text-center text-xs text-muted" aria-hidden>
-          ↓
-        </div>
+        {/* The virtual layer that runs inside the one server */}
+        <div className="space-y-3">
+          <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2">
+            <div className="text-sm font-bold text-ink">Proxmox host — the one server (U20–U21)</div>
+            <div className="font-mono text-[11px] text-muted">management 10.10.10.10 · web console on :8006</div>
+          </div>
 
-        {/* The host */}
-        <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center">
-          <div className="text-sm font-bold text-ink">Proxmox host — the one blade server</div>
-          <div className="text-xs text-muted">Every VM below runs inside this machine</div>
-        </div>
+          <div className="text-center text-xs text-muted" aria-hidden>
+            ↓ runs
+          </div>
 
-        <div className="text-center text-xs text-muted" aria-hidden>
-          ↓
-        </div>
-
-        {/* The two service zones side by side */}
-        <div className="grid gap-3 sm:grid-cols-2">
-          {ZONES.map((z) => (
-            <div
-              key={z.bridge}
-              className="rounded-lg border-2 bg-panel px-3 py-2"
-              style={{ borderColor: z.color }}
-            >
-              <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
-                  {z.bridge} · {z.name}
-                </span>
-                <span className="text-[11px] text-muted">{z.trust}</span>
+          <div className="space-y-2">
+            {VMS.map((vm) => (
+              <div key={vm.name} className="rounded-lg border border-line bg-panel px-3 py-2">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                  <span className="font-mono text-xs font-bold text-ink">{vm.name}</span>
+                  <span className="font-mono text-[11px] text-muted">{vm.addr}</span>
+                </div>
+                <div className="text-[11px] text-muted">{vm.runs}</div>
               </div>
-              <div className="font-mono text-[11px] text-muted">{z.subnet}</div>
-              <ul className="mt-1.5 space-y-0.5">
-                {z.hosts.map((h) => (
-                  <li key={h} className="text-xs text-ink">
-                    · {h}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
 
-        {/* The rule that makes the zones mean something */}
-        <div className="rounded-lg border border-dashed border-line px-3 py-2 text-center text-xs text-muted">
-          <span className="font-semibold text-ink">DMZ → Private LAN is blocked</span> except the one
-          SSH path the firewall rule base allows. Proving that block is a Week&nbsp;3 deliverable.
-          <span className="mt-1 block">vmbr3 · physical uplink to the office switch</span>
-        </div>
-
-        {/* What is what */}
-        <div className="overflow-x-auto rounded-lg border border-line">
-          <table className="w-full text-xs">
-            <thead>
-              <tr className="border-b border-line text-left uppercase tracking-wide text-muted">
-                <th className="px-2 py-1.5">Component</th>
-                <th className="px-2 py-1.5">Address</th>
-                <th className="px-2 py-1.5">What runs on it</th>
-                <th className="px-2 py-1.5">Who owns it</th>
-              </tr>
-            </thead>
-            <tbody>
-              {SPEC.map((s) => (
-                <tr key={s.component} className="border-b border-line/60 last:border-0">
-                  <td className="px-2 py-1.5 font-medium text-ink">{s.component}</td>
-                  <td className="px-2 py-1.5 font-mono text-[11px] text-body">{s.address}</td>
-                  <td className="px-2 py-1.5 text-muted">{s.runs}</td>
-                  <td className="px-2 py-1.5 text-muted">{s.who}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="rounded-lg border border-dashed border-line px-3 py-2 text-center text-[11px] text-muted">
+            <span className="font-semibold text-ink">One machine, two guests.</span> The addresses are
+            worked examples — use whatever the instructor assigned, and record them in the Topology &amp; IP Plan.
+          </div>
         </div>
       </div>
     </DiagramFrame>
