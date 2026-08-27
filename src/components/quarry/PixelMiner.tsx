@@ -13,8 +13,15 @@ import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
  * platform, in the art style the owner actually chose and supplied.
  *
  * Two variants:
- *  - `scene` — the full 256×144 mine, upscaled with `image-rendering: pixelated`
- *    (chunky pixels are the aesthetic). The landing hero.
+ *  - `scene` — the full 256×144 mine, composed offscreen at logical size and
+ *    blitted to the visible canvas at an integer 4× nearest-neighbour
+ *    (1024×576), which CSS then scales *down* smoothly to the hero panel.
+ *    Stretching the 144p canvas straight to ~600px with
+ *    `image-rendering: pixelated` was a non-integer upscale: some logical
+ *    pixels landed 2 screen-px wide and others 3, and the seams shimmered
+ *    whenever the scene moved. The integer upscale keeps every pixel the same
+ *    size; the final downscale is the step where smoothing is correct. The
+ *    landing hero.
  *  - `beat`  — just the miner and the rock, cropped to a 122×84 window on a
  *    transparent background, for inline use at toolbar size. Deliberately NOT
  *    pixelated-upscaled: at 30–56px the canvas is *downscaled*, and nearest-
@@ -116,13 +123,27 @@ export function PixelMiner({
   useEffect(() => {
     const cv = canvasRef.current;
     if (!cv) return;
-    const ctx = cv.getContext('2d');
-    if (!ctx) return;
-    ctx.imageSmoothingEnabled = false;
+    const vctx = cv.getContext('2d');
+    if (!vctx) return;
 
     const beat = variant === 'beat';
-    const W = (cv.width = beat ? BEAT.w : 256);
-    const H = (cv.height = beat ? BEAT.h : 144);
+    const W = beat ? BEAT.w : 256;
+    const H = beat ? BEAT.h : 144;
+    // The scene composes at logical size in an offscreen buffer and blits to
+    // the visible canvas at an integer SS× — see the variant notes at the top
+    // of the file. The beat is already smooth-downscaled, so it draws direct.
+    const SS = beat ? 1 : 4;
+    const outW = W * SS, outH = H * SS;
+    cv.width = outW;
+    cv.height = outH;
+    // Assigning width/height resets all context state, so flags come after.
+    vctx.imageSmoothingEnabled = false;
+
+    const buf = beat ? null : document.createElement('canvas');
+    if (buf) { buf.width = W; buf.height = H; }
+    const ctx = buf ? buf.getContext('2d') : vctx;
+    if (!ctx) return;
+    ctx.imageSmoothingEnabled = false;
 
     let cycleIdx = 0;
     const pickTheme = (): ThemeDef => {
@@ -239,7 +260,7 @@ export function PixelMiner({
       else if (p >= 0.56 && p < 0.72) {
         const t = (p - 0.56) / 0.16, s = Math.sin(t * Math.PI);
         sqY = 1 - 0.16 * s; sqX = 1 + 0.14 * s; hop = t < 0.25 ? 8 * (t / 0.25) : 6 * s;
-      }
+      } else sqY = 1 + 0.01 * Math.sin(cycle * 2.6); // idle breath — never frozen between swings
       lean = p >= 0.44 && p < 0.6 ? eIn((p - 0.44) / 0.16) * 3 : p >= 0.6 && p < 0.82 ? 3 * (1 - eOut((p - 0.6) / 0.22)) : 0;
     }
     function impact() {
@@ -314,6 +335,10 @@ export function PixelMiner({
         [-4, 58, 34, 12], [228, 66, 32, 12], [-4, 80, 44, 14], [218, 84, 42, 14], [-4, 100, 58, 20], [204, 102, 60, 20]];
       ledges.forEach((l, i) => { R(l[0], l[1], l[2], l[3], i % 2 ? N.caveMid : N.cave); R(l[0], l[1], l[2], 1, N.caveEdge); R(l[0] + 2, l[1] + l[3] - 1, l[2] - 4, 1, '#080d12'); });
       for (let i = 0; i < 26; i++) { const x = (i * 37) % 256, y = 16 + ((i * 53) % 104); if (x > 70 && x < 190 && y > 30 && y < 110) continue; R(x, y, 2, 1, N.caveLt); }
+      // The ledge lips nearest the rock catch its glow — one tinted pixel row
+      // each, so the cave acknowledges the light source.
+      R(218, 84, 22, 1, 'rgba(' + T.glow + ',0.16)');
+      R(204, 102, 30, 1, 'rgba(' + T.glow + ',0.2)');
     }
     function stalactites() {
       stalac.forEach((s) => {
@@ -332,6 +357,8 @@ export function PixelMiner({
       R(6, 20, 244, 7, N.beam); R(6, 20, 244, 2, N.beamLt);
       R(14, 27, 4, 4, '#3a2d1e'); R(238, 27, 4, 4, '#3a2d1e');
       for (let x = 22; x < 240; x += 28) R(x, 22, 2, 2, '#6d5638');
+      // The near post's inner edge, lit faintly by the rock.
+      R(244, 78, 1, 34, 'rgba(' + T.glow + ',0.14)');
     }
     function crystals() {
       cryst.forEach((cl) => {
@@ -357,6 +384,10 @@ export function PixelMiner({
       ctx!.fillStyle = 'rgba(3,6,9,0.55)';
       ctx!.beginPath(); ctx!.ellipse(120, 122, 20, 4, 0, 0, 6.3); ctx!.fill();
       ctx!.beginPath(); ctx!.ellipse(RX, 124, 25, 5, 0, 0, 6.3); ctx!.fill();
+      // The rock's glow reflects off the floor beneath it, so the rock sits in
+      // the scene instead of floating over its own shadow.
+      ctx!.fillStyle = 'rgba(' + T.glow + ',0.1)';
+      ctx!.beginPath(); ctx!.ellipse(RX, 123, 20, 3.5, 0, 0, 6.3); ctx!.fill();
     }
     function motesDraw() {
       for (const m of motes) { ctx!.globalAlpha = m.a * (0.6 + 0.4 * Math.sin(m.ph)); R(m.x, m.y, 1, 1, '#cfe6f2'); }
@@ -394,6 +425,10 @@ export function PixelMiner({
       poly([p[7], p[0], [RX, RY]], N.rockLt);
       poly([p[2], p[3], p[4], [RX, RY]], N.rockDk);
       edge(p[5], p[6], N.rockEdge, 2); edge(p[6], p[7], N.rockEdge, 2); edge(p[7], p[0], N.rockEdge, 1);
+      // Close the lower silhouette — without these edges the dark facets melt
+      // into the ground shadow.
+      edge(p[0], p[1], '#1b232d', 1); edge(p[1], p[2], '#1b232d', 1);
+      edge(p[2], p[3], '#1b232d', 1); edge(p[3], p[4], '#1b232d', 1);
       const cg = ctx!.createRadialGradient(RX, RY, 1, RX, RY, 13);
       cg.addColorStop(0, 'rgba(' + T.glow + ',0.75)'); cg.addColorStop(1, 'rgba(' + T.glow + ',0)');
       ctx!.fillStyle = cg; ctx!.beginPath(); ctx!.arc(RX, RY, 13, 0, 6.3); ctx!.fill();
@@ -548,6 +583,10 @@ export function PixelMiner({
       rockDraw(); miner(); arm(); gemsDraw(); particles();
       ctx!.restore();
       if (!beat) vignette();
+      if (buf) {
+        vctx!.clearRect(0, 0, outW, outH);
+        vctx!.drawImage(buf, 0, 0, outW, outH);
+      }
     }
 
     if (!live) {
@@ -595,7 +634,7 @@ export function PixelMiner({
     <canvas
       ref={canvasRef}
       className={`block h-full w-full ${className ?? ''}`}
-      style={{ imageRendering: 'pixelated', cursor: interactive ? 'pointer' : undefined }}
+      style={{ cursor: interactive ? 'pointer' : undefined }}
       role="img"
       aria-label="A pixel miner working a glowing rock inside a mine"
     />
