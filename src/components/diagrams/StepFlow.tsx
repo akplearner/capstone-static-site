@@ -29,13 +29,21 @@ const NODES: Record<string, { t: string; s: string; c: NodeColor }> = {
   analyst: { t: 'SOC Analyst', s: 'triage', c: 'blue' },
   hunter: { t: 'Threat Hunter', s: 'investigate', c: 'teal' },
   responder: { t: 'Incident Responder', s: 'contain & report', c: 'red' },
-  // Server+ deployment hosts. That course's lab is a hypervisor with four
-  // bridges rather than a SOC, so none of the nodes above describe it.
-  pve: { t: 'Proxmox host', s: '10.10.10.x · vmbr0', c: 'slate' },
-  jumpbox: { t: 'Jump box', s: '172.16.0.10 · DMZ', c: 'teal' },
-  winsrv: { t: 'Windows Server', s: '192.168.0.2 · private', c: 'blue' },
-  lnxsrv: { t: 'Ubuntu Server', s: '192.168.0.3 · private', c: 'blue' },
-  client: { t: 'Client PC', s: 'DHCP · a user seat', c: 'slate' },
+  // NOTE — there are deliberately no Server+ nodes here.
+  //
+  // There used to be five (pve, jumpbox, winsrv, lnxsrv, client), and no Server+
+  // step ever set `path`, so nothing rendered them and nothing caught them going
+  // stale: `pve` still read 10.10.10.x after the host moved to the campus LAN,
+  // and `jumpbox` described a machine the course does not have, on websrv's
+  // address. Dead nodes carrying a superseded design are worse than no nodes —
+  // the next author to write path: ['pve', ...] would have shipped the old
+  // topology without touching a line of it.
+  //
+  // If a Server+ step ever does want this diagram, add the nodes by READING
+  // `src/lib/serverTopology.ts` (BASE_VMS / BRIDGES / HOST), never by typing an
+  // address in here. That module is the single source of truth the addressing
+  // guard in `src/lib/page-shape.test.ts` enforces, and a hand-typed copy in a
+  // diagram node is exactly the drift it exists to stop.
 };
 
 const DOT: Record<NodeColor, string> = {

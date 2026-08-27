@@ -2,6 +2,16 @@
 
 import { ExternalLink } from 'lucide-react';
 import { CopyButton } from '@/components/TaskComponents';
+import {
+  CAMPUS_LAN,
+  HOST,
+  HOST_CONSOLE_URL,
+  MONITORING_HOST,
+  TEAM_VM_START,
+  ZONE_BRIDGES,
+  baseVmsOn,
+  bridge,
+} from '@/lib/serverTopology';
 
 /**
  * The Server+ build procedures, in the platform.
@@ -22,6 +32,12 @@ import { CopyButton } from '@/components/TaskComponents';
  * The `updatedFromOriginal` rationale behind each correction is authoring
  * history and is deliberately not rendered; a student needs the procedure, not
  * the diff against a document they never saw.
+ *
+ * The addressing table below is DERIVED from `@/lib/serverTopology`, the module
+ * the topology diagram reads as well. Hand-typing it here is what produced the
+ * drift this guide was meant to end. Command bodies keep their literal addresses
+ * inline on purpose: a copy button has to hand the student the line they will
+ * actually type.
  */
 
 type Step = {
@@ -38,21 +54,41 @@ type Procedure = {
   title: string;
   where: string;
   summary: string;
-  /** Advanced monitoring track — real work, but not required to pass the week. */
+  /**
+   * Real work, but not required to pass the week: the advanced monitoring track,
+   * and the later-phase hand-off of the private zone to the Cisco router.
+   */
   optional?: boolean;
+  /** Badge wording, when "advanced" is not what makes it optional. */
+  optionalLabel?: string;
   steps: Step[];
 };
 
 type WeekBlock = { number: number; title: string; phase: string; lead: string };
 
-// The addressing rule, stated once at the top of the guide. Every procedure
-// below assumes it, and Team 1 is used as the worked example throughout because
-// a guide full of substitution markers is unreadable.
-const ADDRESSING: { zone: string; net: string; hosts: string }[] = [
-  { zone: 'Campus LAN', net: '10.10.0.0/16 · gateway 10.10.0.1', hosts: 'The school network your management interface sits on.' },
-  { zone: 'vmbr0 — management', net: '10.10.30.T (T = your team number)', hosts: 'The Proxmox host. Web console https://10.10.30.T:8006 — Team 1 is 10.10.30.1.' },
-  { zone: 'vmbr1 — DMZ', net: '172.16.0.0/24 · gateway 172.16.0.1', hosts: 'websrv 172.16.0.10 — Ubuntu + NGINX, the public-facing website.' },
-  { zone: 'vmbr2 — private', net: '192.168.0.0/24 · gateway 192.168.0.1', hosts: 'winserver 192.168.0.2 (AD DS, DNS, DHCP) · linuxsrv 192.168.0.3 (MariaDB).' },
+// The addressing rule, stated once at the top of the guide and read straight out
+// of the topology module — not retyped. Every procedure below assumes it, and
+// Team 1 is the worked example throughout because a guide full of substitution
+// markers is unreadable.
+const ADDRESSING: { zone: string; net: string; hosts: string; note?: string }[] = [
+  {
+    zone: 'Campus LAN',
+    net: `${CAMPUS_LAN.cidr} · gateway ${CAMPUS_LAN.gateway}`,
+    hosts: 'The school network your management interface sits on.',
+  },
+  {
+    zone: `${bridge('vmbr0').id} — ${bridge('vmbr0').zone}`,
+    net: `${HOST.rule} (${HOST.teamMarker} = your team number)`,
+    hosts: `The Proxmox host. Web console ${HOST_CONSOLE_URL} — Team ${HOST.exampleTeam} is ${HOST.exampleAddress}.`,
+  },
+  ...ZONE_BRIDGES.map((b) => ({
+    zone: `${b.id} — ${b.zone}`,
+    net: `${b.cidr} · gateway ${b.gateway}`,
+    hosts: baseVmsOn(b.id)
+      .map((v) => `${v.hostname} ${v.address} — ${v.os} + ${v.services.join(', ')}`)
+      .join(' · '),
+    note: b.note,
+  })),
 ];
 
 const WEEKS: WeekBlock[] = [
@@ -354,7 +390,7 @@ EOF`,
     steps: [
       { gui: 'In Server Manager → Add Roles and Features, install the DHCP Server role, then complete the post-deployment configuration when Server Manager prompts.', explain: 'The post-deployment step creates the security groups and authorizes the server in AD.' },
       { cmd: 'Install-WindowsFeature -Name DHCP -IncludeManagementTools', explain: 'PowerShell equivalent of the role install.' },
-      { cmd: 'Add-DhcpServerv4Scope -Name "CapstoneScope" -StartRange 192.168.0.100 -EndRange 192.168.0.200 -SubnetMask 255.255.255.0 -State Active', explain: 'The range starts at .100 deliberately: .1 (gateway), .2 (winserver) and .3 (linuxsrv) are static, and .4 upward is where your own extra private-zone VMs go.' },
+      { cmd: 'Add-DhcpServerv4Scope -Name "CapstoneScope" -StartRange 192.168.0.100 -EndRange 192.168.0.200 -SubnetMask 255.255.255.0 -State Active', explain: 'The range starts at .100 deliberately: .1 (gateway), .2 (winserver) and .3 (linuxsrv) are static, .4 is reserved for the optional secmon monitoring host, and .5 upward is where your own extra private-zone VMs go.' },
       { cmd: 'Set-DhcpServerv4OptionValue -ScopeId 192.168.0.0 -Router 192.168.0.1 -DnsServer 192.168.0.2 -DnsDomain "team1.local"', explain: 'Option 3 (router) is the Proxmox host vmbr2 address; option 6 (DNS) is winserver itself. Substitute your team number in the domain.' },
       { cmd: 'Add-DhcpServerInDC -DnsName "winserver.team1.local" -IPAddress 192.168.0.2', explain: 'Authorizes the DHCP server in Active Directory. An unauthorized DHCP server in a domain refuses to hand out leases.' },
       { gui: 'Now build something to lease to. In the Proxmox web console click Create VM, name it client01, pick any desktop image (Ubuntu Desktop or Windows 10/11), 1 core / 2048 MB / 20 GB, Bridge vmbr2.', explain: 'Nothing else in the base build is a DHCP client — the three servers are all static — so without this VM the scope cannot be tested. It is a throwaway; your own business design may call for a different client, which is fine.' },
@@ -401,12 +437,14 @@ EOF`,
       { gui: 'On winserver, download the windows_exporter MSI from its GitHub releases page onto the VM.', explain: 'Windows needs a different exporter; it listens on port 9182.' },
       { cmd: 'msiexec /i windows_exporter-amd64.msi ENABLED_COLLECTORS="cpu,cs,logical_disk,net,os,service,system,memory" /quiet', explain: 'Run in an elevated PowerShell on winserver, substituting the exact filename you downloaded.' },
       {
-        cmd: `sudo tee -a /etc/prometheus/prometheus.yml > /dev/null <<'EOF'
-  - job_name: capstone_nodes
+        cmd: 'sudo nano /etc/prometheus/prometheus.yml',
+        explain: 'Run on secmon. Open the file and add the job below as a new list item under the existing scrape_configs: key, at the same indentation as the job already there. Do not append it blindly to the end of the file — this is a structured YAML document, and where the block lands is what makes it valid.',
+      },
+      {
+        cmd: `  - job_name: capstone_nodes
     static_configs:
-      - targets: ['192.168.0.4:9100','192.168.0.3:9100','192.168.0.2:9182']
-EOF`,
-        explain: 'Run on secmon. Three private-zone targets — secmon itself, linuxsrv and winserver. The two-space indent matters: this block must land as a list item under the existing scrape_configs key. Open the file afterwards and confirm it did.',
+      - targets: ['192.168.0.4:9100','192.168.0.3:9100','192.168.0.2:9182']`,
+        explain: 'The three private-zone targets — secmon and linuxsrv on 9100, winserver on 9182. Paste it inside scrape_configs, two spaces before the dash, exactly as shown.',
       },
       { cmd: 'sudo systemctl restart prometheus && systemctl status prometheus --no-pager', explain: 'Reloads the scrape config. A YAML error shows up here, not later.' },
       { gui: 'Browse to http://192.168.0.4:9090/targets and confirm all three targets read UP, then log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.', explain: 'Screenshot the targets page for the Configuration Management Record. Only private-zone hosts are here: reaching websrv from secmon needs the static route added in Week 3, and the websrv target goes in there.' },
@@ -483,35 +521,28 @@ EOF`,
       { cmd: 'route print -4', explain: 'Confirm the 172.16.0.0 entry is listed, and that it appears under Persistent Routes.' },
       { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', explain: 'On linuxsrv. Takes effect immediately but does NOT survive a reboot on its own.' },
       {
-        cmd: `sudo tee -a /etc/netplan/01-capstone.yaml > /dev/null <<'EOF'
-      # appended under the same ethernets: interface block
+        cmd: 'sudo nano /etc/netplan/01-capstone.yaml',
+        explain: 'Open the file you wrote earlier. The route belongs INSIDE the existing routes: list, so this is an edit, not an append — appending would drop it at the end of the file, below nameservers, where netplan reads it as a stray list item and refuses the whole config.',
+      },
+      {
+        cmd: `network:
+  version: 2
+  ethernets:
+    ens18:
+      dhcp4: false
+      addresses: [192.168.0.3/24]
+      routes:
+        - to: default
+          via: 192.168.0.1
         - to: 172.16.0.0/24
           via: 192.168.0.1
-EOF`,
-        explain: 'Persists the route. This must land inside the existing routes: list of the interface you configured earlier — open the file and check the indentation before applying, since netplan YAML is unforgiving.',
+      nameservers:
+        addresses: [192.168.0.2]`,
+        explain: 'The complete file for linuxsrv — type it so yours matches this exactly, substituting the interface name you read with ip -br link. The only change from what you wrote earlier is the second entry under routes:, at the same indent as the default route.',
       },
       { cmd: 'sudo netplan apply && ip route show', explain: 'Applies and confirms. The 172.16.0.0/24 via 192.168.0.1 line must appear.' },
       { cmd: 'ping -c 4 172.16.0.10', explain: 'From linuxsrv. Proves the private zone can now initiate to the DMZ web host.' },
       { cmd: 'Test-NetConnection -ComputerName 172.16.0.10 -Port 80', explain: 'From winserver. TcpTestSucceeded : True proves the route and the forward rule both work.' },
-    ],
-  },
-  {
-    id: 'map-vmbr2-physical-nic',
-    week: 3,
-    title: 'Later phase: map vmbr2 to a physical NIC on the Cisco router and switch',
-    where: 'Proxmox host shell, and the rack',
-    summary:
-      'Move the private zone off the host internal bridge and onto real cable: attach vmbr2 to a second physical NIC patched into the Cisco switch, and hand the 192.168.0.1 gateway over to the Cisco router, which becomes the servers only internet path.',
-    steps: [
-      { cmd: 'ip -br link show', explain: 'Identify the second physical NIC by name (enp1s0f1, eno2 and so on). Cross-check against the NIC inventory you took in Week 1 — do not guess which port is which.' },
-      { gui: 'Patch that NIC through the patch panel to an access port on the Cisco switch, and log the cable at both ends in the Rack Plan & Cabling Record.', explain: 'The cable schedule is what lets anyone trace this link later without pulling the rack apart.' },
-      { gui: 'On the Cisco router, configure the interface facing this switch as 192.168.0.1/24 and give it the outbound path (default route / NAT) to the internet.', explain: 'The router takes over as the private-zone gateway. This is the servers only internet path in the finished design.' },
-      { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak-prephys', explain: 'Back up again before this change — it can take the private zone offline if you get it wrong.' },
-      { cmd: 'nano /etc/network/interfaces', explain: 'In the vmbr2 stanza, change bridge-ports none to your physical NIC name, and REMOVE the address 192.168.0.1/24 line — the Cisco router now owns that address. Two devices holding 192.168.0.1 is a duplicate-address outage, not redundancy.' },
-      { cmd: 'ifreload -a', explain: 'Applies the bridge change in place.' },
-      { cmd: 'bridge link show | grep vmbr2', explain: 'The physical NIC must now appear as a member of vmbr2.' },
-      { cmd: 'ping -c 4 192.168.0.1', explain: 'Run from linuxsrv. The gateway must still answer — but now it is the Cisco router answering, not the Proxmox host.' },
-      { cmd: 'ping -c 4 8.8.8.8', explain: 'Run from linuxsrv. This is the point of the whole phase: the private-zone servers now reach the internet through the Cisco router.' },
     ],
   },
   {
@@ -557,6 +588,31 @@ EOF`,
       { gui: 'In Grafana at http://192.168.0.4:3000, add a Loki data source pointing at http://localhost:3100.', explain: 'Grafana now has both Prometheus (metrics) and Loki (logs).' },
       { gui: 'Build one dashboard with a stat panel per host driven by the Prometheus up metric, a table of each host address, and a logs panel querying Loki.', explain: 'One screen that answers "is everything up and reachable?" — the same question the Week-3 manual checks answered once.' },
       { gui: 'Record the change in the Configuration Management Record and screenshot the dashboard into 08_Evidence.', explain: 'This is the evidence that the connectivity proof is now continuous rather than a one-off.' },
+    ],
+  },
+  {
+    // Last in the week on purpose. It hands 192.168.0.1 to the Cisco router, so
+    // every check above — "both zone gateways are the host's own bridge
+    // addresses" included — has to have been made and recorded first. Run top to
+    // bottom this used to sit before the proof and quietly falsify it.
+    id: 'map-vmbr2-physical-nic',
+    week: 3,
+    title: 'Later phase: map vmbr2 to a physical NIC on the Cisco router and switch',
+    where: 'Proxmox host shell, and the rack',
+    summary:
+      'Move the private zone off the host internal bridge and onto real cable: attach vmbr2 to a second physical NIC patched into the Cisco switch, and hand the 192.168.0.1 gateway over to the Cisco router, which becomes the servers only internet path. Do this only once the connectivity proof above is complete and recorded — from here on the private gateway is the router, not the host, and every earlier check would have to be re-taken.',
+    optional: true,
+    optionalLabel: 'Later phase · optional',
+    steps: [
+      { cmd: 'ip -br link show', explain: 'Identify the second physical NIC by name (enp1s0f1, eno2 and so on). Cross-check against the NIC inventory you took in Week 1 — do not guess which port is which.' },
+      { gui: 'Patch that NIC through the patch panel to an access port on the Cisco switch, and log the cable at both ends in the Rack Plan & Cabling Record.', explain: 'The cable schedule is what lets anyone trace this link later without pulling the rack apart.' },
+      { gui: 'On the Cisco router, configure the interface facing this switch as 192.168.0.1/24 and give it the outbound path (default route / NAT) to the internet.', explain: 'The router takes over as the private-zone gateway. This is the servers only internet path in the finished design.' },
+      { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak-prephys', explain: 'Back up again before this change — it can take the private zone offline if you get it wrong.' },
+      { cmd: 'nano /etc/network/interfaces', explain: 'In the vmbr2 stanza, change bridge-ports none to your physical NIC name, and REMOVE the address 192.168.0.1/24 line — the Cisco router now owns that address. Two devices holding 192.168.0.1 is a duplicate-address outage, not redundancy.' },
+      { cmd: 'ifreload -a', explain: 'Applies the bridge change in place.' },
+      { cmd: 'bridge link show | grep vmbr2', explain: 'The physical NIC must now appear as a member of vmbr2.' },
+      { cmd: 'ping -c 4 192.168.0.1', explain: 'Run from linuxsrv. The gateway must still answer — but now it is the Cisco router answering, not the Proxmox host. Note that change in the Change Log: the address did not move, the device holding it did.' },
+      { cmd: 'ping -c 4 8.8.8.8', explain: 'Run from linuxsrv. This is the point of the whole phase: the private-zone servers now reach the internet through the Cisco router.' },
     ],
   },
   {
@@ -692,12 +748,16 @@ export function ServerConfigGuide() {
               <dt className="text-xs font-semibold uppercase tracking-wide text-accent-ink">{a.zone}</dt>
               <dd className="mt-1 font-mono text-xs text-ink">{a.net}</dd>
               <dd className="mt-1 text-xs text-muted">{a.hosts}</dd>
+              {a.note && <dd className="mt-1 text-xs text-muted/80">{a.note}</dd>}
             </div>
           ))}
         </dl>
         <p className="mt-3 text-xs text-muted">
-          These subnets are worked examples of the standard build. Your own extra business VMs go at
-          192.168.0.4 and upward in the private zone, or 172.16.0.11 and upward in the DMZ.
+          These subnets are worked examples of the standard build.{' '}
+          <span className="font-mono">{MONITORING_HOST.address}</span> is reserved for the optional{' '}
+          {MONITORING_HOST.hostname} monitoring host, so your own extra business VMs start at{' '}
+          <span className="font-mono">{TEAM_VM_START.vmbr2}</span> and upward in the private zone, or{' '}
+          <span className="font-mono">{TEAM_VM_START.vmbr1}</span> and upward in the DMZ.
         </p>
       </div>
 
@@ -723,9 +783,17 @@ export function ServerConfigGuide() {
                 Week {w.number}
               </span>
               <h3 className="text-base font-bold text-ink">{w.title}</h3>
+              {/* Week 0 is Preparation — it is not the first week of the arc and
+                  must not wear Week 1's colour. The w1–w4 tokens are the four
+                  phases; week 0 gets the neutral one. */}
               <span
                 className="font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
-                style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
+                style={{
+                  color:
+                    w.number === 0
+                      ? 'var(--color-muted)'
+                      : `var(--color-w${Math.min(4, w.number)})`,
+                }}
               >
                 {w.phase}
               </span>
@@ -745,7 +813,7 @@ export function ServerConfigGuide() {
                   <h4 className="text-sm font-semibold text-ink">{p.title}</h4>
                   {p.optional && (
                     <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted">
-                      Advanced · optional
+                      {p.optionalLabel ?? 'Advanced · optional'}
                     </span>
                   )}
                 </div>

@@ -146,13 +146,20 @@ export default function CourseReferencePage() {
       : []),
     // Only for a course that actually runs commands. `#command-help` still
     // resolves on those; a course with no CLI simply never links to it.
+    //
+    // Inlining the configuration guide gave Server+ ~150 commands, so this gate
+    // opened for a course whose lab profile is empty — no Lab access panel, no
+    // attacker box. The section is therefore passed the course id and composes
+    // its rows from that course's own lab, so the generic terminal help renders
+    // everywhere while the panel- and tool-specific fixes appear only where they
+    // are true. See `CommandTroubleshooting`.
     ...(hasCommands
       ? [
           {
             id: 'terminal',
             title: 'Running commands & getting unstuck',
             blurb: 'How to use a terminal, and the fixes for the errors almost every beginner hits.',
-            body: <CommandTroubleshooting />,
+            body: <CommandTroubleshooting courseId={course.id} />,
           },
         ]
       : []),

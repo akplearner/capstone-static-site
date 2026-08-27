@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { FolderNode, Step } from '@/lib/types';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
-import { useLabAccess, fillPlaceholders, hasUnfilled } from '@/lib/labAccess';
+import { useLabAccess, fillPlaceholders, hasLabAccess, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
 import { evidenceRepo } from '@/lib/data';
 import type { StepEvidence } from '@/lib/data';
@@ -820,8 +820,12 @@ export function CommandBlock({
   const allText = list.map((c) => c.cmd).join('\n');
   // Warn when a command still carries an unfilled placeholder (e.g. <YOUR_TARGET_IP>,
   // 10.10.100.X) — a beginner would otherwise copy the literal token and hit a
-  // confusing failure. Points them at the Lab access panel that fills it in.
-  const stillUnfilled = list.some((c) => hasUnfilled(c.cmd));
+  // confusing failure. Points them at the Lab access panel that fills it in, so
+  // it is gated on the course HAVING one: a course with an empty lab profile
+  // renders no panel (LabAccessPanel returns null), and the #lab-access anchor
+  // it links to does not exist there. Same rule CommandTroubleshooting applies
+  // to its "still shows 10.10.100.X" row.
+  const stillUnfilled = hasLabAccess(courseId) && list.some((c) => hasUnfilled(c.cmd));
 
   return (
     <div>

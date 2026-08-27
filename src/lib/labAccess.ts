@@ -116,15 +116,19 @@ export function fillPlaceholders(text: string, values: Record<string, string>): 
   return out;
 }
 
-/** True if the text still carries any known lab placeholder. Derived from
- *  LAB_FIELDS so it can never drift from the actual tokens (e.g. a subnet rename
- *  like 10.10.10.X → 10.10.100.X): any <UPPER_TOKEN> angle-token, or any literal
- *  sample token declared on a field. */
+/** True if the text still carries a lab placeholder: the general UPPER_SNAKE
+ *  angle form, or any token a field declares literally. Deriving the second half
+ *  from LAB_FIELDS means it can never drift from the actual tokens (e.g. a
+ *  subnet rename like 10.10.10.X → 10.10.100.X, or the lowercase spellings
+ *  <kali-ip> / <team> / <#> that the prose actually uses). */
 export function hasUnfilled(text: string): boolean {
-  // Case-insensitive, and allows the hyphenated lowercase spellings (<kali-ip>)
-  // the content uses — the old /<[A-Z_]+>/ silently ignored every one of them.
-  if (/<[A-Za-z_#][A-Za-z0-9_-]*>/.test(text)) return true;
-  return LAB_FIELDS.some((f) =>
-    f.tokens.some((tok) => !tok.startsWith('<') && text.includes(tok))
-  );
+  // UPPER_SNAKE only. A placeholder is written in caps by convention; a
+  // lowercase angle word is markup, and matching it flagged real config as
+  // unfilled — <html>/<body>/<h1> in the NGINX welcome-page command, and every
+  // <ossec_config> / <localfile> / <log_format> in the Wazuh XML, each shown to
+  // the student as "this still shows a placeholder like 10.10.100.X". The
+  // lowercase tokens that ARE placeholders are declared on a field, so they are
+  // caught by the literal pass below rather than by guessing from shape.
+  if (/<[A-Z][A-Z0-9_]*>/.test(text)) return true;
+  return LAB_FIELDS.some((f) => f.tokens.some((tok) => text.includes(tok)));
 }

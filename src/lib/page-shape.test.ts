@@ -120,9 +120,39 @@ describe('page shape — the week is the Deliverables page', () => {
  * When a new repeated fact turns up, add a row rather than letting the copies
  * spread — this table is the living record of what "say it once" means here.
  */
-const SEED_CONTENT = ['src/lib/data/seed/', 'src/lib/content-data.ts', 'src/lib/docs/cysaDeliverables.ts'];
+const SEED_CONTENT = [
+  'src/lib/data/seed/',
+  'src/lib/content-data.ts',
+  'src/lib/docs/cysaDeliverables.ts',
+  // The Server+ forms are worked examples a student reads and copies into their
+  // own IP plan — the same kind of content as the seed, not a UI label.
+  'src/lib/docs/serverPlusDeliverables.ts',
+];
 
-const REGISTRY: { literal: string; home: string; alsoAllowed?: string[] }[] = [
+/**
+ * Source with the student-facing procedure text removed.
+ *
+ * A shell command has to read the way the student will type it: `ping -c 4
+ * 192.168.0.1` cannot be assembled out of constants and still be worth a copy
+ * button, and the sentence explaining it has to name the same address. So rows
+ * marked `commandsExempt` scan what is LEFT once the step text is gone — the
+ * tables, the headings and the diagram nodes. Those are data being *displayed*,
+ * and displayed data gets imported.
+ *
+ * Those rows read through `code()` as well, for the reason given above it: a
+ * comment explaining which address moved where must be able to name the address.
+ */
+const STEP_TEXT =
+  /\b(?:title|where|summary|cmd|gui|explain):\s*(?:`[^`]*`|'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")/g;
+const withoutStepText = (src: string) => src.replace(STEP_TEXT, '');
+
+const REGISTRY: {
+  literal: string;
+  home: string;
+  alsoAllowed?: string[];
+  /** Ignore the literal inside procedure/step text; see `withoutStepText`. */
+  commandsExempt?: boolean;
+}[] = [
   { literal: '10.10.100.100', home: 'src/lib/labTopology.ts' },
   { literal: '@Pass@2026', home: 'src/lib/labTopology.ts' },
   {
@@ -132,16 +162,28 @@ const REGISTRY: { literal: string; home: string; alsoAllowed?: string[] }[] = [
     // is allowed to state the rule it enforces.
     alsoAllowed: ['src/lib/utils.ts'],
   },
+  // The Server+ topology. ServerConfigGuide.tsx was created by COPYING the seed
+  // instead of reading it, and the copies disagreed inside the commit that
+  // introduced them — one surface reserved 192.168.0.4 for the optional
+  // monitoring host while another told teams to start their own VMs there. Five
+  // hand-typed tables is four too many, so these rows say the addressing is
+  // rendered from serverTopology.ts and nowhere else.
+  { literal: '10.10.30.T', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '172.16.0.0/24', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.0/24', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.1', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.4', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: 'capstone_db', home: 'src/lib/serverTopology.ts', commandsExempt: true },
 ];
 
 describe('single source of truth', () => {
   const files = collectSourceFiles('src');
 
-  it.each(REGISTRY)('"$literal" lives only in $home', ({ literal, home, alsoAllowed = [] }) => {
+  it.each(REGISTRY)('"$literal" lives only in $home', ({ literal, home, alsoAllowed = [], commandsExempt }) => {
     const allowed = [home, ...alsoAllowed, ...SEED_CONTENT];
     const offenders = files
       .filter((f) => !allowed.some((a) => f.startsWith(a)))
-      .filter((f) => read(f).includes(literal));
+      .filter((f) => (commandsExempt ? withoutStepText(code(f)) : read(f)).includes(literal));
     expect(offenders, `${literal} should be imported from ${home}, not restated`).toEqual([]);
   });
 });

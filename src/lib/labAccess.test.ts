@@ -28,7 +28,21 @@ describe('hasUnfilled', () => {
     expect(hasUnfilled('nmap 10.10.100.x')).toBe(true);
   });
 
+  it('detects the lowercase spellings declared on a field', () => {
+    expect(hasUnfilled('ping <kali-ip>')).toBe(true);
+    expect(hasUnfilled('team<#>')).toBe(true);
+  });
+
   it('returns false for a fully-resolved command', () => {
     expect(hasUnfilled('nmap 192.168.56.5')).toBe(false);
+  });
+
+  // Markup is not a placeholder. Flagging it sent a student to a Lab access
+  // panel to "fill in" the HTML of their own welcome page, or their Wazuh XML.
+  it('does not flag markup that merely looks like a token', () => {
+    expect(
+      hasUnfilled('echo "<html><body><h1>Welcome to the Team X capstone website</h1></body></html>" | sudo tee /var/www/html/index.html')
+    ).toBe(false);
+    expect(hasUnfilled('<ossec_config>\n  <localfile>\n    <log_format>syslog</log_format>')).toBe(false);
   });
 });

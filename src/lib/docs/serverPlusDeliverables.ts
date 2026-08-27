@@ -566,7 +566,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
       'It anchors the configuration record and the DR plan, and it is the reference for every later network change. Keep it matching reality.',
     pitfalls: [
       'An architecture with no security or monitoring role — the requirements sheet almost certainly implies one.',
-      'Two devices sharing an address; the collision surfaces as an outage days later.',
+      'Two devices sharing an address; the collision surfaces as an outage days later. 192.168.0.4 is the one people take twice — it is the monitoring host, so your own VMs start at 192.168.0.5.',
     ],
     sections: [
       {
@@ -574,7 +574,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         group: {
           group: 'roles',
           label: 'Server roles & VM layout — drafted in Week 1',
-          help: 'At least four planned VMs, each in its zone: vmbr1 is the DMZ (public-facing), vmbr2 the private network. Build order says what exists by Week 2.',
+          help: 'At least four planned VMs, each in its zone: vmbr1 is the DMZ (public-facing), vmbr2 the private network. Build order says what exists by Week 2. The four seeded rows are the base build every team shares; add your own business VMs below them.',
           columns: [
             c('vm', 'VM name', 'text', { placeholder: 'winserver' }),
             c('role', 'Server role', 'select', { options: ['Directory services', 'File server', 'Application server', 'Database server', 'Web server', 'Security / monitoring', 'Other'] }),
@@ -597,7 +597,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         fields: [
           { field: 'storage', label: 'Storage strategy', type: 'area', required: true, placeholder: 'RAID 5 across 4 SAS drives for VM storage; separate backup datastore on 2 added drives.' },
           { field: 'backup', label: 'Backup strategy', type: 'area', required: true, placeholder: 'Nightly VM snapshots to the backup datastore, kept 30 days per the retention requirement.' },
-          { field: 'monitoring', label: 'Monitoring & security controls', type: 'area', placeholder: 'Hypervisor alerts by email; security/monitoring VM planned for a later phase; strong admin passwords, no public services.' },
+          { field: 'monitoring', label: 'Monitoring & security controls', type: 'area', placeholder: 'Hypervisor alerts by email; the secmon monitoring VM holds 192.168.0.4 in the private zone whether or not you build it this term; strong admin passwords, no public services.' },
         ],
       },
       {
@@ -614,7 +614,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         group: {
           group: 'ipplan',
           label: 'IP address plan — finalised in Week 3',
-          help: 'Every host gets a row before it connects. Your Proxmox host is 10.10.30.T for team T on the 10.10.0.0/16 LAN; the DMZ/private subnets are worked examples.',
+          help: 'Every host gets a row before it connects. Your Proxmox host is 10.10.30.T for team T on the 10.10.0.0/16 LAN. The seeded rows are the reserved base build: 172.16.0.10 is websrv in the DMZ, and 192.168.0.2–.4 are winserver, linuxsrv and the monitoring host. Your own business VMs start at 192.168.0.5 in the private zone and 172.16.0.11 in the DMZ.',
           columns: [
             c('hostname', 'Hostname', 'text', { placeholder: 'winserver' }),
             c('role', 'Role', 'text', { placeholder: 'Windows Server VM' }),
@@ -628,6 +628,8 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
             { hostname: 'websrv', role: 'Website — vmbr1 (DMZ)', ip: '172.16.0.10', gateway: '172.16.0.1', dns: '192.168.0.2', assignment: 'Static' },
             { hostname: 'winserver', role: 'Directory — vmbr2 (private)', ip: '192.168.0.2', gateway: '192.168.0.1', dns: 'self', assignment: 'Static' },
             { hostname: 'linuxsrv', role: 'Database — vmbr2 (private)', ip: '192.168.0.3', gateway: '192.168.0.1', dns: '192.168.0.2', assignment: 'Static' },
+            { hostname: 'secmon', role: 'Monitoring (optional track) — vmbr2 (private); reserved either way', ip: '192.168.0.4', gateway: '192.168.0.1', dns: '192.168.0.2', assignment: 'Static' },
+            { hostname: '(your first business VM)', role: 'Your own service — vmbr2 (private); DMZ equivalents start at 172.16.0.11', ip: '192.168.0.5', gateway: '192.168.0.1', dns: '192.168.0.2', assignment: 'Static' },
           ],
         },
       },
@@ -857,7 +859,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
       'List the critical systems from the asset register, in the order the business needs them back.',
       'Set RTO (max downtime), RPO (max data loss) and a target MTTR for each.',
       'Write the restore steps, pointing at the configuration record and backups.',
-      'Run one real restore — delete a test file, bring it back, confirm it is intact.',
+      'Run one real restore on ONE machine — break something on it, roll that same VM back, confirm the data returned.',
       'Record the actual recovery time against the targets, including a miss.',
     ],
     meaning:
@@ -867,6 +869,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     pitfalls: [
       'Numbers chosen because they sound good instead of from what downtime costs the client.',
       'Recording the test as "passed" with no measured time — the number is the whole point.',
+      'Breaking one machine and rolling back another. Deleting the web root on websrv and restoring linuxsrv proves nothing: the failure and the snapshot have to be the same VM.',
     ],
     sections: [
       {
@@ -894,11 +897,17 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         title: 'Restore test result',
         fields: [
           { field: 'test_date', label: 'Test date', type: 'date' },
-          { field: 'test_system', label: 'System tested', type: 'text', placeholder: 'linuxsrv — /var/www/html' },
-          { field: 'what_was_lost', label: 'What was deleted / simulated', type: 'text', placeholder: 'Deleted the portal web root' },
+          {
+            field: 'test_system',
+            label: 'System tested',
+            type: 'text',
+            placeholder: 'linuxsrv (192.168.0.3) — the MariaDB database capstone_db',
+            help: 'One machine, named once: whatever you break has to live on the VM you then roll back. linuxsrv is the usual choice because its data is the database, which is the thing worth proving came back.',
+          },
+          { field: 'what_was_lost', label: 'What was deleted / simulated', type: 'text', placeholder: 'Dropped capstone_db on linuxsrv (DROP DATABASE), then rolled that VM back to its snapshot' },
           { field: 'recovery_time', label: 'Actual recovery time (measured MTTR)', type: 'text', placeholder: '11 minutes' },
           { field: 'rto_met', label: 'RTO met?', type: 'select', options: YN },
-          { field: 'integrity', label: 'How you confirmed the data was intact', type: 'area', placeholder: 'Compared the restored file against the pre-deletion copy — identical.' },
+          { field: 'integrity', label: 'How you confirmed the data was intact', type: 'area', placeholder: 'capstone_db is listed again by SHOW DATABASES, and the row count in the restored table matches the count taken before the drop — 1,284 rows, unchanged.' },
         ],
       },
     ],
