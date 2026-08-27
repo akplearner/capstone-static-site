@@ -27,6 +27,46 @@ import { catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
 //
 // Everything here is theme tokens, never raw palette classes: the page renders in
 // light and dark, and `page-shape.test.ts` fails the build on `gray-*`/`bg-white`.
+
+/**
+ * The one hover treatment, shared by every card on the page.
+ *
+ * It is CSS rather than a framer `whileHover` for two reasons: the lift and the
+ * colour change then ease on the SAME timing function (a `whileHover` y-offset
+ * against a `transition-colors` border eased at two different rates, which is
+ * what made the cards feel twitchy), and `prefers-reduced-motion` is already
+ * handled globally for CSS transitions without this file having to know.
+ */
+const CARD =
+  'rounded-[var(--radius-card)] border border-line bg-panel ' +
+  'transition-[transform,box-shadow,border-color] duration-200 ease-out ' +
+  'hover:-translate-y-0.5 hover:border-accent hover:shadow-[var(--shadow-card)]';
+
+/** Eyebrow → title → lead, with an optional action on the right. Written once so
+ *  the three sections below actually line up with each other. */
+function SectionHead({
+  eyebrow,
+  title,
+  lead,
+  action,
+}: {
+  eyebrow: string;
+  title: string;
+  lead: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-wrap items-end justify-between gap-4">
+      <div className="max-w-2xl space-y-2">
+        <p className="eyebrow">{eyebrow}</p>
+        <h2 className="text-3xl font-bold tracking-tight text-ink">{title}</h2>
+        <p className="text-muted">{lead}</p>
+      </div>
+      {action}
+    </div>
+  );
+}
+
 export default function HomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
@@ -66,38 +106,42 @@ export default function HomePage() {
   });
 
   return (
-    // overflow-x-clip, not hidden: the hero's decorative bloom deliberately
-    // bleeds past its box, and on a narrow viewport that bleed was pushing the
-    // document wider than the screen. `clip` stops the sideways scroll without
-    // turning this into a scroll container (which `hidden` would, breaking
-    // sticky positioning further down the tree).
+    // overflow-x-clip, not hidden: the hero's glow deliberately bleeds past its
+    // box, and on a narrow viewport that bleed was pushing the document wider
+    // than the screen. `clip` stops the sideways scroll without turning this
+    // into a scroll container (which `hidden` would, breaking sticky
+    // positioning further down the tree).
     <div className="space-y-20 overflow-x-clip sm:space-y-28">
       <AuthErrorBanner />
 
-      {/* ── Hero ──────────────────────────────────────────────────────────
-          Two columns on desktop, but the type carries it: an eyebrow, a
-          display heading that breaks where the idea breaks, one lead
-          paragraph, the actions, then the catalog as a stat band rather than
-          the mono one-liner it used to be. */}
+      {/* ── Hero ────────────────────────────────────────────────────────── */}
       <section className="grid items-center gap-10 md:grid-cols-[1.05fr_1fr]">
         <div className="space-y-6">
           <motion.p {...reveal(0)} className="eyebrow">
             Build it · Prove it · Keep it
           </motion.p>
 
+          {/*
+            No hard <br/>. The break used to be forced after "Cut the stone.",
+            which left the second sentence in a column too narrow to hold it —
+            so it wrapped again and stranded "exam." alone on a third line.
+            A capped measure plus text-balance lets the browser even the lines
+            itself, at every width, without a hand-placed break to go stale.
+
+            And the second line is `text-body`, not `text-muted`: muted is the
+            token for secondary and disabled text, and it made the punchline —
+            the most important sentence here — read as switched off.
+          */}
           <motion.h1
             {...reveal(1)}
-            className="text-[2.6rem] font-bold leading-[1.05] tracking-[-0.02em] text-ink sm:text-6xl"
+            className="max-w-[16ch] text-balance text-[2.7rem] font-bold leading-[1.06] tracking-[-0.025em] text-ink sm:text-[3.5rem]"
           >
-            Cut the stone.
-            <br />
-            <span className="text-muted">Don&rsquo;t cram for the exam.</span>
+            Cut the stone. <span className="text-body">Don&rsquo;t cram for the exam.</span>
           </motion.h1>
 
           <motion.p {...reveal(2)} className="max-w-xl text-lg leading-relaxed text-body">
-            Each certification becomes a hands-on build you run in your own lab. You stand up the
-            environment, work the real process week by week, and prove each step against what your
-            machine actually printed.
+            Every certification becomes a hands-on build you run in your own lab. You work the real
+            process week by week and prove each step against what your machine actually printed.
           </motion.p>
 
           <motion.div {...reveal(3)} className="flex flex-wrap gap-3">
@@ -127,62 +171,67 @@ export default function HomePage() {
             )}
           </motion.div>
 
+          {/* A caption to the actions, not a widget beside them. It was a
+              filled, bordered, divided box sitting in a column that is
+              otherwise pure type; a single rule above it does the same job
+              without introducing another card edge. */}
           <motion.dl
             {...reveal(4)}
-            className="grid max-w-lg grid-cols-3 divide-x divide-line rounded-[var(--radius-card)] border border-line bg-panel"
+            className="flex max-w-lg divide-x divide-line border-t border-line pt-4"
           >
             {[
               { n: summary.available, label: 'live capstones' },
               { n: summary.total, label: 'certs on the map' },
               { n: summary.vendors, label: 'vendors' },
-            ].map((s) => (
-              <div key={s.label} className="px-4 py-3">
+            ].map((s, i) => (
+              <div key={s.label} className={i === 0 ? 'pr-6' : 'px-6'}>
                 <dt className="sr-only">{s.label}</dt>
                 <dd>
-                  <span className="block text-2xl font-bold tabular-nums text-ink">{s.n}</span>
-                  <span className="block text-xs text-muted">{s.label}</span>
+                  <span className="block text-2xl font-bold tabular-nums leading-none text-ink">
+                    {s.n}
+                  </span>
+                  <span className="mt-1 block text-xs text-muted">{s.label}</span>
                 </dd>
               </div>
             ))}
           </motion.dl>
         </div>
 
-        {/* The scene, seated rather than floating: a soft accent bloom behind
-            it and a hairline ring give it somewhere to sit on the page.
+        {/* The scene, seated rather than floating. QuarryScene draws its OWN
+            border at this radius, so the page must not add a ring on top of it
+            — that was two hairlines on one edge. A soft, tight glow underneath
+            gives it somewhere to sit; the old -inset-6 blur-2xl wash was large
+            and flat enough to muddy the edge instead.
             aspect-video, not 4/3 — the pixel scene's logical grid is 256×144
             and any other ratio stretches the pixels. */}
         <motion.div {...reveal(2)} className="relative">
           <div
             aria-hidden
-            className="pointer-events-none absolute -inset-6 rounded-[calc(var(--radius-card)+1rem)] bg-accent-soft opacity-60 blur-2xl"
+            className="pointer-events-none absolute -inset-2 rounded-[calc(var(--radius-card)+0.5rem)] bg-accent-soft opacity-40 blur-xl"
           />
-          <QuarryScene className="relative aspect-video w-full rounded-[var(--radius-card)] ring-1 ring-line shadow-[var(--shadow-card)]" />
+          <QuarryScene className="relative aspect-video w-full shadow-[var(--shadow-card)]" />
         </motion.div>
       </section>
 
-      {/* ── How it works ──────────────────────────────────────────────────
-          Numbered as a sequence, not four unrelated cards: the number is the
-          visual anchor and the rule under the row reads as a path. */}
+      {/* ── How it works ─────────────────────────────────────────────────── */}
       <section className="space-y-8">
-        <motion.div {...reveal(0)} className="max-w-2xl space-y-2">
-          <p className="eyebrow">The loop</p>
-          <h2 className="text-3xl font-bold tracking-tight text-ink">How a capstone works</h2>
-          <p className="text-muted">
-            The same four moves every week, on every cert. Nothing is multiple choice.
-          </p>
+        <motion.div {...reveal(0)}>
+          <SectionHead
+            eyebrow="The loop"
+            title="How a capstone works"
+            lead="The same four moves every week, on every cert. Nothing is multiple choice."
+          />
         </motion.div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {STEPS.map((s, i) => (
-            <motion.div
-              key={s.title}
-              {...reveal(i)}
-              whileHover={reduce ? undefined : { y: -3 }}
-              className="group relative overflow-hidden rounded-[var(--radius-card)] border border-line bg-panel p-5 transition-colors hover:border-accent"
-            >
+            <motion.div key={s.title} {...reveal(i)} className={`group relative p-5 ${CARD}`}>
+              {/* Inside the padding box, not hanging off the corner: the card
+                  clips its own overflow, so the old -right-2 -top-3 numeral was
+                  rendered with its edges cut off. */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute -right-2 -top-3 text-6xl font-bold leading-none text-line/60 transition-colors group-hover:text-accent-soft"
+                className="pointer-events-none absolute right-3 top-1 select-none text-5xl font-bold leading-none text-line/70 transition-colors group-hover:text-accent-soft"
               >
                 {i + 1}
               </span>
@@ -196,21 +245,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ── The proof ─────────────────────────────────────────────────────
-          The actual differentiator over a cram app, so it gets a section
-          rather than a clause in the hero. The ledger beside it is a composed
-          illustration of the real artifact, drawn in tokens. */}
+      {/* ── The proof ────────────────────────────────────────────────────── */}
       <section className="grid items-center gap-10 md:grid-cols-[1fr_1.05fr]">
         <motion.div {...reveal(0)} className="space-y-4">
           <p className="eyebrow">The proof</p>
-          <h2 className="text-3xl font-bold tracking-tight text-ink">
-            What you walk away with
-          </h2>
+          <h2 className="text-3xl font-bold tracking-tight text-ink">What you walk away with</h2>
           <p className="max-w-xl text-body">
-            Every verified step is hashed and timestamped into your evidence ledger as you work.
-            What you finish with is a portfolio an employer can inspect — the commands you ran, the
-            output they printed, and the documents you filed — not a claim that you passed
-            something.
+            Every verified step is hashed and timestamped into your evidence ledger as you work. You
+            finish with a portfolio an employer can inspect — the commands you ran, the output they
+            printed, the documents you filed.
           </p>
           <Link
             href="/portfolio"
@@ -253,21 +296,21 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* ── Regions ───────────────────────────────────────────────────────
-          Each vendor is its own themed rock, now carrying the live count of
-          what is actually buildable there rather than a bare blurb. */}
+      {/* ── Regions ──────────────────────────────────────────────────────── */}
       <section className="space-y-8">
-        <motion.div {...reveal(0)} className="flex flex-wrap items-end justify-between gap-4">
-          <div className="max-w-2xl space-y-2">
-            <p className="eyebrow">The map</p>
-            <h2 className="text-3xl font-bold tracking-tight text-ink">Pick your region</h2>
-            <p className="text-muted">Each vendor is its own quarry, with its own stone to cut.</p>
-          </div>
-          <Link href="/explore" className="hidden shrink-0 sm:block">
-            <Button variant="secondary" className="flex items-center gap-2">
-              Explore all <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+        <motion.div {...reveal(0)}>
+          <SectionHead
+            eyebrow="The map"
+            title="Pick your region"
+            lead="Each vendor is its own quarry, with its own stone to cut."
+            action={
+              <Link href="/explore" className="hidden shrink-0 sm:block">
+                <Button variant="secondary" className="flex items-center gap-2">
+                  Explore all <ArrowRight className="h-4 w-4" />
+                </Button>
+              </Link>
+            }
+          />
         </motion.div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -275,7 +318,7 @@ export default function HomePage() {
             <motion.div key={g.vendor.id} data-region={g.vendor.region} {...reveal(i)}>
               <Link
                 href="/explore"
-                className="flex h-full flex-col gap-3 rounded-[var(--radius-card)] border border-line bg-panel p-5 transition-colors hover:border-accent"
+                className={`flex h-full flex-col gap-3 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${CARD}`}
               >
                 <div className="flex items-start gap-3">
                   <CapstoneStone stage={3} size={44} className="shrink-0" />
@@ -313,22 +356,22 @@ const STEPS = [
   {
     icon: Compass,
     title: 'Pick a cert',
-    body: 'Choose a vendor and level from the map, or follow a career path from first cuts to expert rock.',
+    body: 'Choose a vendor and level from the map, or follow a career path.',
   },
   {
     icon: Hammer,
     title: 'Build it for real',
-    body: 'Stand up the real environment on your own hardware and work the week-by-week process.',
+    body: 'Stand up the real environment on your own hardware, week by week.',
   },
   {
     icon: ShieldCheck,
     title: 'Verify each step',
-    body: 'Paste what your terminal printed. Match the expected output and the step is recorded as verified.',
+    body: 'Paste what your terminal printed. Match it and the step is verified.',
   },
   {
     icon: FolderGit2,
     title: 'Keep the evidence',
-    body: 'Hash your captures into a chain of custody and export a portfolio that shows what you proved.',
+    body: 'Hash your captures into a chain of custody and export the portfolio.',
   },
 ];
 
