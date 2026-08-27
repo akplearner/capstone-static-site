@@ -13,6 +13,7 @@ import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
 import { CysaLabSetup } from '@/components/docs/CysaLabSetup';
 import { CysaToolGuide } from '@/components/docs/CysaToolGuide';
+import { ServerConfigGuide } from '@/components/docs/ServerConfigGuide';
 import { CommandTroubleshooting } from '@/components/docs/CommandTroubleshooting';
 import { EvidenceGuide } from '@/components/docs/EvidenceGuide';
 import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
@@ -112,6 +113,21 @@ export default function CourseReferencePage() {
         </div>
       ),
     },
+    // Straight after the lab: that section shows what you are building, this one
+    // is how you build it. It used to be an instructor PDF a student had to keep
+    // open beside the site, which meant the procedures could not be corrected
+    // when the topology moved — and the PDF still describes the old design.
+    ...(isServerDeployment
+      ? [
+          {
+            id: 'config-guide',
+            title: 'Configuration guide',
+            blurb:
+              'Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology.',
+            body: <ServerConfigGuide />,
+          },
+        ]
+      : []),
     ...(isCysa
       ? [
           {

@@ -16,9 +16,9 @@ import { custodySection, everyEvidenceHashed } from './custodyTemplate';
  * requirements, a rack plan, a hardware capability audit, an upgrade plan and a
  * draft architecture. The build then executes that plan. Forms are deliberately
  * compact (a few grouped columns, seeded worked rows) so a week's paperwork
- * fits inside the two-hour weekly budget; the exact CLI lives in the course's
- * Configuration Guide, and each form is exported to PDF from the Deliverables
- * page.
+ * fits inside the two-hour weekly budget; the exact CLI lives in the platform's
+ * own configuration guide (Reference → Configuration guide), not in any handout,
+ * and each form is exported to PDF from the Deliverables page.
  *
  * Course-scoped (`courseId: 'server-plus'`) so they never surface on another
  * course. The whole set drains into `srv_as_built`, the handover package.
@@ -228,7 +228,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     purpose:
       'The deep audit of what each server actually is and can do — CPU, memory, storage, networking, expansion and firmware. Upgrade decisions and VM sizing are only as good as this sheet.',
     howTo:
-      'Walk one server at a time with the service tag, the BIOS screen and the remote-management page. The Configuration Guide says where each value lives. Record what IS, not what the spec sheet claims.',
+      'Walk one server at a time with the service tag, the BIOS screen and the remote-management page. The platform\'s configuration guide (Reference → Configuration guide, Week 1) says which screen each value lives on. Record what IS, not what the spec sheet claims.',
     source: 'The machine itself: labels, BIOS/UEFI, and iDRAC/iLO.',
     buildSteps: [
       'Identify the server: manufacturer, model, serial/service tag.',
@@ -658,12 +658,12 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
     purpose:
       'The record of how each system is actually configured — the settings that would have to be reproduced to rebuild it. Configuration you did not write down is configuration you cannot restore or audit.',
     howTo:
-      'One row per system. Capture the baseline settings you set — hostname, addresses, roles, key options — and where the exact steps live (the configuration guide). Record the value, not a description of it.',
+      'One row per system. Capture the baseline settings you set — hostname, addresses, roles, key options — and name the procedure they came from in the platform\'s configuration guide (Reference → Configuration guide). Record the value, not a description of it.',
     source: 'Every system you install and configure.',
     buildSteps: [
       'One row per configured system: the hypervisor host and each VM.',
       'Record the baseline that matters — hostname, IP, installed roles, key options.',
-      'Note where the exact build steps live (the configuration guide section).',
+      'Name the configuration-guide procedure the exact build steps live in.',
       'Attach a screenshot of the setting and its result as evidence.',
       'Update the row whenever you change the system, and log the change.',
     ],
@@ -686,21 +686,22 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
             c('system', 'System', 'text', { placeholder: 'Hypervisor host' }),
             c('purpose', 'Purpose', 'text', { placeholder: 'Virtualization platform' }),
             c('baseline', 'Baseline configuration (values)', 'area', { placeholder: 'Hostname pve-host; vmbr0 mgmt 10.10.30.1/16; vmbr1 DMZ; vmbr2 private; no-subscription repo enabled.' }),
-            c('guide_ref', 'Guide section for exact steps', 'text', { placeholder: 'Config Guide §4 — Proxmox install' }),
+            c('guide_ref', 'Guide procedure for exact steps', 'text', { placeholder: 'Config guide — Install Proxmox VE and set the management address' }),
             c('evidence', 'Evidence (screenshot)', 'text', { placeholder: 'GranitePeak_Wk2_pve-config.png' }),
           ],
           seed: [
-            { system: 'Hypervisor host', purpose: 'Virtualization platform', baseline: 'Hostname pve-host; vmbr0 mgmt 10.10.30.1/16 (Team 1); vmbr1 DMZ; vmbr2 private; no-subscription repo enabled.', guide_ref: 'Config Guide §4 — Proxmox install', evidence: 'GranitePeak_Wk2_pve-config.png' },
-            { system: 'winserver VM', purpose: 'Directory, DNS, DHCP', baseline: '2 vCPU / 4 GB / 60 GB; static 192.168.0.2 on vmbr2; roles: AD DS, DNS, DHCP.', guide_ref: 'Config Guide §6 — Windows roles', evidence: 'GranitePeak_Wk2_win-roles.png' },
-            { system: 'linuxsrv VM', purpose: 'Web service and database', baseline: '2 vCPU / 4 GB / 40 GB; static 192.168.0.3 on vmbr2; packages: mariadb-server.', guide_ref: 'Config Guide §7 — Linux services', evidence: 'GranitePeak_Wk2_linux-svc.png' },
+            { system: 'Hypervisor host', purpose: 'Virtualization platform', baseline: 'Hostname pve-host; vmbr0 mgmt 10.10.30.1/16 (Team 1); vmbr1 DMZ 172.16.0.1/24; vmbr2 private 192.168.0.1/24; no-subscription repo enabled.', guide_ref: 'Config guide — Install Proxmox VE and set the management address', evidence: 'GranitePeak_Wk2_pve-config.png' },
+            { system: 'websrv VM', purpose: 'Public-facing website (DMZ)', baseline: '2 vCPU / 2 GB / 30 GB; static 172.16.0.10 on vmbr1, gw 172.16.0.1, DNS 192.168.0.2; packages: nginx.', guide_ref: 'Config guide — Publish the website on websrv with NGINX', evidence: 'GranitePeak_Wk2_websrv-nginx.png' },
+            { system: 'winserver VM', purpose: 'Directory, DNS, DHCP', baseline: '2 vCPU / 4 GB / 60 GB; static 192.168.0.2 on vmbr2, gw 192.168.0.1, DNS 127.0.0.1; roles: AD DS, DNS, DHCP.', guide_ref: 'Config guide — Promote winserver to a domain controller for teamX.local', evidence: 'GranitePeak_Wk2_win-roles.png' },
+            { system: 'linuxsrv VM', purpose: 'Database', baseline: '2 vCPU / 4 GB / 40 GB; static 192.168.0.3 on vmbr2, gw 192.168.0.1, DNS 192.168.0.2; packages: mariadb-server.', guide_ref: 'Config guide — Install MariaDB and create capstone_db on linuxsrv', evidence: 'GranitePeak_Wk2_linux-svc.png' },
           ],
         },
       },
     ],
     dod: [
-      { label: 'At least three systems are recorded', test: (d) => (d.groups.systems ?? []).filter((r) => !!r.system).length >= 3 },
+      { label: 'All four systems are recorded — the host, websrv, winserver and linuxsrv', test: (d) => (d.groups.systems ?? []).filter((r) => !!r.system).length >= 4 },
       { label: 'Every system has a baseline configuration with real values', test: (d) => (d.groups.systems ?? []).length > 0 && (d.groups.systems ?? []).every((r) => !!r.baseline) },
-      { label: 'Every system points to its guide section and evidence', test: (d) => (d.groups.systems ?? []).length > 0 && (d.groups.systems ?? []).every((r) => !!r.guide_ref && !!r.evidence) },
+      { label: 'Every system points to its guide procedure and evidence', test: (d) => (d.groups.systems ?? []).length > 0 && (d.groups.systems ?? []).every((r) => !!r.guide_ref && !!r.evidence) },
     ],
   },
 
