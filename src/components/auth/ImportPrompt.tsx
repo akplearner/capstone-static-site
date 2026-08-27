@@ -13,6 +13,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useMember } from '@/lib/useMember';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { KEYS } from '@/lib/data/keys';
+import { teamLabel } from '@/lib/team';
 import { useClientStore } from '@/lib/useClientStore';
 
 // First-sign-in migration: if this device has localStorage progress for the course
@@ -213,7 +214,7 @@ export function ImportPrompt({ course }: { course: Course }) {
             Import your saved progress?
           </h3>
           <p className="mt-0.5 text-sm text-muted">
-            We found progress saved on this device (Team {localCtx.teamId} · {localCtx.role}). Import it
+            We found progress saved on this device ({teamLabel(localCtx.teamId)} · {localCtx.role}). Import it
             into your account so it syncs across devices and to your team.
           </p>
           {/* The import is only marked done once the server confirms it, so this

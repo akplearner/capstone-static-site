@@ -17,6 +17,7 @@ import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { buildDeliverableChain } from '@/lib/deliverableChain';
 import { emptyData } from '@/lib/docs/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { parseTeamId, teamLabel } from '@/lib/team';
 
 export default function TeamSpacePage() {
   const course = useCourse();
@@ -80,7 +81,7 @@ export default function TeamSpacePage() {
     return (
       <EmptyState
         title="Access denied"
-        message={`You can only view your own team's space (Team ${member.teamId}).`}
+        message={`You can only view your own team's space (${teamLabel(member.teamId)}).`}
         href={`/courses/${course.id}/team/${member.teamId}`}
         cta="Go to my team"
       />
@@ -91,7 +92,12 @@ export default function TeamSpacePage() {
     <div className="space-y-8">
       <CourseSubNav courseId={course.id} active="team" teamId={teamId} />
       <div>
-        <h1 className="text-3xl font-bold text-ink">Team {teamId} · {course.title}</h1>
+        <h1 className="text-3xl font-bold text-ink">
+          {teamLabel(teamId)} · {course.title}
+        </h1>
+        {parseTeamId(teamId).cohort && (
+          <p className="mt-1 text-sm text-muted">Class session {parseTeamId(teamId).cohort}</p>
+        )}
         <p className="mt-2 text-muted">
           Your team&apos;s roster, each member&apos;s progress, and the documents you produce together.
         </p>

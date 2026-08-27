@@ -1,6 +1,7 @@
 # Setup — turning on accounts and saved work
 
-Students sign in with **Google**, and everything they produce is saved to Postgres:
+Students sign in with **Google** (and optionally **GitHub** — step 3b), and
+everything they produce is saved to Postgres:
 progress, team deliverables, GRC registers, lab access details, the evidence
 ledger, and where they left off. The backend is **Supabase** (managed Postgres +
 Auth + Row-Level Security).
@@ -75,6 +76,25 @@ For day-two running (monitoring, incidents, open decisions) see
 > Pointing Google at your app's URL is the single most common OAuth mistake.
 > Supabase receives the code, then forwards to your `/auth/callback`.
 
+## 3b · GitHub (optional) — 5 min
+
+Much quicker than Google: no consent screen, no publishing step.
+
+1. GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**.
+2. **Homepage URL:** `https://yourdomain.com`.
+   **Authorization callback URL** — the same Supabase callback as Google's,
+   **not** your own domain:
+
+   ```
+   https://<project-ref>.supabase.co/auth/v1/callback
+   ```
+
+3. Register, then **Generate a new client secret**.
+4. Copy the Client ID + secret → Supabase → **Authentication → Providers → GitHub**
+   → enable, paste, save.
+5. In step 5's env vars, add `NEXT_PUBLIC_AUTH_METHODS=google,github` — the app
+   defaults to Google-only, and this is what makes the GitHub button appear.
+
 ## 4 · Close the door on email sign-in — 1 min
 
 Supabase → **Authentication → Providers → Email** → **disable**.
@@ -94,7 +114,12 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon public key>
 NEXT_PUBLIC_SITE_URL=https://yourdomain.com
 ```
 
-There is no auth flag to set — the app defaults to Google-only.
+There is no auth flag to set for Google alone — the app defaults to Google-only.
+If you did step 3b, also add:
+
+```
+NEXT_PUBLIC_AUTH_METHODS=google,github
+```
 
 > ⚠️ **`NEXT_PUBLIC_*` values are inlined at build time, so you must redeploy.**
 > Restarting is not enough, and until you redeploy the app keeps behaving exactly

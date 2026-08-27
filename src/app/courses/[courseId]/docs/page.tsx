@@ -32,6 +32,7 @@ import { unitWord } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
+import { parseTeamId, teamLabel } from '@/lib/team';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -186,7 +187,8 @@ export default function DeliverablesPage() {
   if (!member) return <CourseEnrolGate courseId={course.id} what="your deliverables" />;
 
   const teamId = member.teamId;
-  const meta = { team: teamId, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };
+  // Generated documents print the team NUMBER; the cohort is its own meta field.
+  const meta = { team: parseTeamId(teamId).num, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };
 
   const setDoc = (id: string, data: DeliverableData) => {
     // Deliverables are the team's shared documents — they have to belong to an
@@ -293,7 +295,7 @@ export default function DeliverablesPage() {
           {weekWord} · {dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}
         </h1>
         <p className="text-sm text-muted">
-          {roleName} · Team {teamId} · fill the form, then generate the PDF. Evidence goes in{' '}
+          {roleName} · {teamLabel(teamId)} · fill the form, then generate the PDF. Evidence goes in{' '}
           <span className="font-mono text-xs">~/team-artifacts/week-{selectedWeek}/</span>
           {/* Same JSX whitespace trap as on the Guide: the text node after this
               element spans a newline, so its leading space is trimmed away. */}

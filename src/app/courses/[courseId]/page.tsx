@@ -64,6 +64,7 @@ import { emptyData, type DeliverableData } from '@/lib/docs/types';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
+import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 
@@ -115,13 +116,18 @@ function JoinPanel({
   );
   const [name, setName] = useState(member?.displayName ?? '');
   const [cohort, setCohort] = useState(member?.cohort ?? COHORTS[0]);
-  const [team, setTeam] = useState(member?.teamId ?? teamIds[0]);
+  // The picker holds the bare team NUMBER; the cohort-scoped id is composed on
+  // submit (see src/lib/team.ts — Team 1 of one class session must never share
+  // stores with Team 1 of another).
+  const [team, setTeam] = useState(member ? parseTeamId(member.teamId).num : teamIds[0]);
   const [role, setRole] = useState(member?.role ?? course.roles[0]?.id ?? '');
   const [error, setError] = useState<string | null>(null);
 
-  const usedOf = (t: string) => counts[t] ?? 0;
+  // Counts are keyed by the scoped id, so capacity fills per class session.
+  const usedOf = (t: string) => counts[composeTeamId(cohort, t)] ?? 0;
   // A team is full only for students not already on it.
-  const isFull = (t: string) => cap > 0 && usedOf(t) >= cap && !(member && member.teamId === t);
+  const isFull = (t: string) =>
+    cap > 0 && usedOf(t) >= cap && !(member && member.teamId === composeTeamId(cohort, t));
 
   const submit = () => {
     if (!name.trim()) {
@@ -134,7 +140,7 @@ function JoinPanel({
       memberId:
         userId ?? member?.memberId ?? `${course.id}-${cohort}-${team}-${role}-${Date.now()}`,
       courseId: course.id,
-      teamId: team,
+      teamId: composeTeamId(cohort, team),
       role,
       displayName: name.trim(),
       cohort,
@@ -175,7 +181,7 @@ function JoinPanel({
           <div>
             <div className="font-semibold text-ink">{member.displayName}</div>
             <div className="text-sm text-muted">
-              Team {member.teamId} · {rd?.name ?? member.role} · {member.cohort}
+              {teamLabel(member.teamId)} · {rd?.name ?? member.role} · {member.cohort}
             </div>
           </div>
         </div>

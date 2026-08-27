@@ -9,6 +9,7 @@ import { useClientStore } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
+import { teamLabel } from '@/lib/team';
 
 type Crumb = { label: string; href?: string };
 
@@ -181,7 +182,7 @@ function buildCrumbs(segments: string[], courseTitle: string): Crumb[] {
     const crumbs: Crumb[] = [home, { label: courseTitle, href: sub ? courseHref : undefined }];
     if (sub === 'guide') crumbs.push({ label: 'Guide' });
     else if (sub === 'docs') crumbs.push({ label: 'Deliverables' });
-    else if (sub === 'team') crumbs.push({ label: `Team ${teamId ?? ''}`.trim() });
+    else if (sub === 'team') crumbs.push({ label: teamId ? teamLabel(teamId) : 'Team' });
     return crumbs;
   }
 
