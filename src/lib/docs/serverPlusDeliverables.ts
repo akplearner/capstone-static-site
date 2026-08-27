@@ -79,6 +79,7 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         fields: [
           { field: 'client', label: 'Business name', type: 'text', required: true, placeholder: 'Granite Peak Aggregates' },
           { field: 'industry', label: 'Industry', type: 'select', options: ['Manufacturing', 'Healthcare', 'Retail', 'MSP / IT services', 'Logistics', 'Professional services', 'Other'] },
+          { field: 'industry_other', label: 'If Other — describe the business', type: 'text', placeholder: 'e.g. A regional veterinary clinic chain' },
           { field: 'technician', label: 'Technician (you)', type: 'text', required: true, placeholder: 'Your name' },
           { field: 'start_date', label: 'Start date', type: 'date', required: true },
           { field: 'employees', label: 'Employees', type: 'text', required: true, placeholder: '45' },

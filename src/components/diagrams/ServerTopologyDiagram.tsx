@@ -71,11 +71,18 @@ const ZONES: {
   },
 ];
 
-export function ServerTopologyDiagram() {
+export function ServerTopologyDiagram({
+  business,
+}: {
+  /** The team's chosen business, from the Business Requirements record — the
+   *  topology is generic until a team says who it is building for. */
+  business?: { name?: string; industry?: string };
+} = {}) {
+  const businessLabel = [business?.name, business?.industry].filter(Boolean).join(' · ');
   return (
     <DiagramFrame
       title="What you build — one server in a 24U rack"
-      howToRead="Left is the physical 24U rack, counted in U from the bottom up. Right is what the one server virtualises: management on the campus LAN, a DMZ zone for the website, and a private zone for the Windows server and the database."
+      howToRead="Left is the physical 24U rack. Right is the network topology the one server carries: the campus LAN into vmbr0 management, a DMZ zone for public-facing services, and a private zone for internal systems. Dashed slots are where your team adds the VMs its business needs."
       legend={[
         { label: 'Patch panel — structured cabling', color: 'var(--color-w3)' },
         { label: 'Switch — the network', color: 'var(--color-w2)' },
@@ -134,28 +141,47 @@ export function ServerTopologyDiagram() {
           </div>
         </div>
 
-        {/* The virtual layer: vmbr0 management on the LAN, then the two zones */}
-        <div className="space-y-3">
-          <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2">
-            <div className="text-sm font-bold text-ink">Proxmox host — the one server (U20–U21)</div>
-            <div className="font-mono text-[11px] text-muted">
-              vmbr0 management · 10.10.30.<span className="font-bold text-ink">T</span> on the 10.10.0.0/16 LAN · web console :8006
+        {/* The virtual side, drawn as a topology: LAN → host → the two zones,
+            each with its base VMs and a dashed slot for the VMs the team adds
+            for its business. Connector lines are bordered spacers — no SVG. */}
+        <div className="flex flex-col">
+          {businessLabel && (
+            <div className="mb-2 self-start rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent-ink">
+              Building for: {businessLabel}
             </div>
-            <div className="text-[10px] text-muted">T is your team number — Team 1 is 10.10.30.1, Team 2 is .2</div>
+          )}
+
+          {/* Campus LAN */}
+          <div className="rounded-lg border border-line bg-panel-2 px-3 py-1.5 text-center">
+            <span className="text-xs font-semibold text-ink">Campus LAN</span>
+            <span className="ml-2 font-mono text-[11px] text-muted">10.10.0.0/16</span>
+          </div>
+          <div className="mx-auto h-4 w-px bg-line" aria-hidden />
+
+          {/* The host */}
+          <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center">
+            <div className="text-sm font-bold text-ink">Proxmox host</div>
+            <div className="font-mono text-[11px] text-muted">
+              vmbr0 · 10.10.30.<span className="font-bold text-ink">T</span> (T = team #, Team 1 = .1) · console :8006
+            </div>
           </div>
 
-          <div className="text-center text-xs text-muted" aria-hidden>
-            ↓ runs two zones
+          {/* Fork into the two zones */}
+          <div className="mx-auto h-3 w-px bg-line" aria-hidden />
+          <div className="mx-[12%] h-px bg-line" aria-hidden />
+          <div className="mx-[12%] flex justify-between" aria-hidden>
+            <div className="h-3 w-px bg-line" />
+            <div className="h-3 w-px bg-line" />
           </div>
 
-          <div className="space-y-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {ZONES.map((z) => (
-              <div key={z.bridge} className="rounded-lg border-2 bg-panel px-3 py-2" style={{ borderColor: z.color }}>
+              <div key={z.bridge} className="flex flex-col rounded-lg border-2 bg-panel px-2.5 py-2" style={{ borderColor: z.color }}>
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                   <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
                     {z.bridge} · {z.name}
                   </span>
-                  <span className="font-mono text-[11px] text-muted">{z.subnet}</span>
+                  <span className="font-mono text-[10px] text-muted">{z.subnet}</span>
                 </div>
                 <div className="mt-1.5 space-y-1">
                   {z.vms.map((vm) => (
@@ -164,19 +190,37 @@ export function ServerTopologyDiagram() {
                         <span className="font-mono text-[11px] font-bold text-ink">{vm.name}</span>
                         <span className="font-mono text-[10px] text-muted">{vm.addr}</span>
                       </div>
-                      <div className="text-[10px] text-muted">{vm.runs}</div>
+                      <div className="text-[10px] text-muted">{vm.runs} · base build</div>
                     </div>
                   ))}
+                  {/* The room the design leaves on purpose: the VMs that make
+                      this YOUR business, planned in the Architecture & IP Plan. */}
+                  <div className="rounded-md border border-dashed border-line px-2 py-1.5 text-center">
+                    <span className="block text-[11px] font-semibold text-muted">
+                      + {businessLabel ? `${business?.name ?? 'your business'}'s VMs` : 'your business\u2019s VMs'}
+                    </span>
+                    <span className="block text-[10px] text-muted/80">
+                      {z.name === 'DMZ'
+                        ? 'public-facing services your business needs'
+                        : 'internal systems your business runs on'}{' '}
+                      — plan them in the Architecture &amp; IP Plan
+                    </span>
+                  </div>
                 </div>
+                {z.bridge === 'vmbr2' && (
+                  <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-[10px] text-muted">
+                    later phase: physical NIC →{' '}
+                    <span className="font-semibold text-ink">Cisco router + switch</span> — the
+                    servers&rsquo; only internet path
+                  </div>
+                )}
               </div>
             ))}
           </div>
 
-          <div className="rounded-lg border border-dashed border-line px-3 py-2 text-[11px] text-muted">
-            <span className="font-semibold text-ink">Later phase:</span> vmbr2 maps to a physical NIC
-            attached to a <span className="font-semibold text-ink">Cisco router + switch</span> — that
-            becomes the servers&rsquo; only path to the internet. Zone subnets are worked examples;
-            record yours in the Architecture &amp; IP Plan.
+          <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-[10px] text-muted">
+            The Windows / Linux / website VMs are the base build — every team the same. Zone subnets
+            are worked examples; record yours in the Architecture &amp; IP Plan.
           </div>
         </div>
       </div>

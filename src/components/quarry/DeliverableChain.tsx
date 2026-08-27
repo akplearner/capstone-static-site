@@ -29,12 +29,13 @@ import { DiagramFrame } from '@/components/diagrams/DiagramFrame';
  * no guard is needed here.
  */
 
-const LANE_H = 78;
-const COL_W = 190;
+const COL_W = 200;
 const PAD_X = 116; // room for the role labels down the left
 const PAD_Y = 34; // room for the week headers across the top
-const NODE_W = 152;
+const NODE_W = 160;
 const NODE_H = 40;
+const SLOT_GAP = 10; // vertical gap between stacked nodes in one cell
+const LANE_PAD = 9; // breathing room above/below a lane's stack
 
 function truncate(s: string, max: number) {
   return s.length > max ? `${s.slice(0, max - 1)}…` : s;
@@ -66,10 +67,29 @@ export function DeliverableChainDiagram({
   if (chain.nodes.length === 0 || chain.edges.length === 0) return null;
 
   const width = PAD_X + chain.columns.length * COL_W;
-  const height = PAD_Y + chain.lanes.length * LANE_H + 12;
+
+  // Lanes grow with their deepest cell: a role that owns three files in one
+  // week gets three stacked rows, not three nodes rendered on top of each
+  // other (which is exactly what Week 1 used to look like).
+  const laneRows = chain.lanes.map((_, li) => {
+    let rows = 1;
+    for (const col of chain.columns.keys()) {
+      const inCell = chain.nodes.filter((n) => n.lane === li && n.column === col).length;
+      rows = Math.max(rows, inCell);
+    }
+    return rows;
+  });
+  const laneHeight = (li: number) => laneRows[li] * (NODE_H + SLOT_GAP) - SLOT_GAP + LANE_PAD * 2;
+  const laneTop = (li: number) => {
+    let y = PAD_Y;
+    for (let i = 0; i < li; i++) y += laneHeight(i);
+    return y;
+  };
+  const height = laneTop(chain.lanes.length) + 12;
 
   const cx = (n: { column: number }) => PAD_X + n.column * COL_W + COL_W / 2 - NODE_W / 2;
-  const cy = (n: { lane: number }) => PAD_Y + n.lane * LANE_H + (LANE_H - NODE_H) / 2;
+  const cy = (n: { lane: number; slot: number }) =>
+    laneTop(n.lane) + LANE_PAD + n.slot * (NODE_H + SLOT_GAP);
   const byId = new Map(chain.nodes.map((n) => [n.id, n]));
 
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
@@ -114,8 +134,8 @@ export function DeliverableChainDiagram({
             viewBox="0 0 8 8"
             refX="7"
             refY="4"
-            markerWidth="5"
-            markerHeight="5"
+            markerWidth="6.5"
+            markerHeight="6.5"
             orient="auto-start-reverse"
           >
             <path d="M0 0 L8 4 L0 8 z" fill="var(--color-accent)" />
@@ -154,22 +174,16 @@ export function DeliverableChainDiagram({
           <g key={`lane-${role}`} opacity={dim(role)}>
             <rect
               x={0}
-              y={PAD_Y + i * LANE_H}
+              y={laneTop(i)}
               width={width}
-              height={LANE_H}
+              height={laneHeight(i)}
               fill={roleColor(role)}
               opacity={highlightRole === role ? 0.09 : 0.035}
             />
-            <rect
-              x={0}
-              y={PAD_Y + i * LANE_H}
-              width={4}
-              height={LANE_H}
-              fill={roleColor(role)}
-            />
+            <rect x={0} y={laneTop(i)} width={4} height={laneHeight(i)} fill={roleColor(role)} />
             <text
               x={12}
-              y={PAD_Y + i * LANE_H + LANE_H / 2 + 4}
+              y={laneTop(i) + laneHeight(i) / 2 + 4}
               fontSize="11"
               fontWeight="700"
               fill={roleColor(role)}
@@ -217,13 +231,13 @@ export function DeliverableChainDiagram({
                 d={d}
                 fill="none"
                 stroke={e.sameRole ? 'var(--color-muted)' : 'var(--color-accent)'}
-                strokeWidth={touchesActive ? (e.sameRole ? 2 : 2.75) : e.sameRole ? 1.25 : 1.75}
+                strokeWidth={touchesActive ? (e.sameRole ? 2.5 : 3.25) : e.sameRole ? 1.75 : 2.25}
                 strokeDasharray={e.sameRole ? '4 3' : undefined}
                 markerEnd="url(#chain-arrow)"
                 initial={{ pathLength: 0, opacity: 0 }}
                 animate={{
                   pathLength: 1,
-                  opacity: touchesActive ? 1 : e.sameRole ? 0.5 : 0.85,
+                  opacity: touchesActive ? 1 : e.sameRole ? 0.65 : 0.95,
                 }}
                 transition={{ duration: 0.7, delay, ease: 'easeOut' }}
               />
@@ -307,7 +321,7 @@ export function DeliverableChainDiagram({
                 className="fill-[var(--color-ink)]"
                 style={{ fontFamily: 'var(--font-mono, ui-monospace), monospace' }}
               >
-                {truncate(n.file, 24)}
+                {truncate(n.file, 26)}
               </text>
             </motion.g>
           );

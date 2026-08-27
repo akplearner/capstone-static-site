@@ -60,6 +60,7 @@ import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
+import { emptyData, type DeliverableData } from '@/lib/docs/types';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -544,6 +545,104 @@ function TaskRow({
 }
 
 /** Header strip for a role group within a week. */
+/**
+ * "Your team's business" — the dropdown that makes the topology yours.
+ *
+ * Writes the SAME team-scoped record the Week-1 Business Requirements form
+ * fills (`srv_business_reqs` via docsRepo), so there is one source of truth:
+ * pick the industry here and the form on the Deliverables page is already
+ * started; fill the form there and this card shows it. Team selection itself
+ * lives in the JoinPanel below ("Change team or role").
+ */
+const BUSINESS_INDUSTRIES = ['Manufacturing', 'Healthcare', 'Retail', 'MSP / IT services', 'Logistics', 'Professional services', 'Other'];
+
+function TeamBusinessPicker({
+  courseId,
+  teamId,
+  onBusiness,
+}: {
+  courseId: string;
+  teamId: string;
+  onBusiness: (b: { name?: string; industry?: string }) => void;
+}) {
+  const saved = useClientStore<Record<string, DeliverableData>>(
+    () => docsRepo.get(courseId, teamId) ?? EMPTY_OBJECT,
+    EMPTY_OBJECT
+  );
+  const data = saved['srv_business_reqs'] ?? emptyData();
+  const name = data.fields.client ?? '';
+  const industry = data.fields.industry ?? '';
+  const other = data.fields.industry_other ?? '';
+
+  // Lift the current choice so the topology diagram can label itself. An
+  // effect, not a render-time call — setState during a sibling's render is a
+  // React error.
+  const industryLabel = industry === 'Other' && other ? other : industry;
+  useEffect(() => {
+    onBusiness({ name: name || undefined, industry: industryLabel || undefined });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, industryLabel]);
+
+  const setField = (field: string, value: string) => {
+    const current = docsRepo.get(courseId, teamId) ?? {};
+    const doc = current['srv_business_reqs'] ?? emptyData();
+    docsRepo.save(courseId, teamId, {
+      ...current,
+      srv_business_reqs: { ...doc, fields: { ...doc.fields, [field]: value } },
+    });
+    notifyStore();
+  };
+
+  return (
+    <div className="rounded-lg border border-line bg-panel p-4">
+      <div className="flex flex-wrap items-end gap-3">
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-ink">Your team&apos;s business</div>
+          <p className="mt-0.5 text-xs text-muted">
+            The base build is the same for every team — this decides what the extra VMs are for.
+            Saved into your Week-1 Business Requirements Sheet.
+          </p>
+        </div>
+        <label className="block">
+          <span className="block text-xs font-medium text-body">Business name</span>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setField('client', e.target.value)}
+            placeholder="e.g. Granite Peak Aggregates"
+            className="mt-1 w-48 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+          />
+        </label>
+        <label className="block">
+          <span className="block text-xs font-medium text-body">Type of business</span>
+          <select
+            value={industry}
+            onChange={(e) => setField('industry', e.target.value)}
+            className="mt-1 w-48 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
+          >
+            <option value="">Choose…</option>
+            {BUSINESS_INDUSTRIES.map((o) => (
+              <option key={o} value={o}>{o}</option>
+            ))}
+          </select>
+        </label>
+        {industry === 'Other' && (
+          <label className="block">
+            <span className="block text-xs font-medium text-body">Describe it</span>
+            <input
+              type="text"
+              value={other}
+              onChange={(e) => setField('industry_other', e.target.value)}
+              placeholder="e.g. A veterinary clinic chain"
+              className="mt-1 w-56 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+            />
+          </label>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
   return (
     <div className="flex items-center gap-2">
@@ -576,6 +675,7 @@ export default function CoursePage() {
   const { unlocked: instructorOverride } = useInstructorAuth();
   useSupabaseSync(course.id);
   const requireAuth = isSupabaseConfigured();
+  const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
   const [confirmingReset, setConfirmingReset] = useState(false);
   // The Week-0 build task is only for students setting up their own lab from home;
   // the classroom SOC is already built. Gate its expansion behind a confirmation
@@ -1205,8 +1305,15 @@ export default function CoursePage() {
             <b className="text-ink">private network</b> for the Windows server and the Linux database.
             You plan it, build it, connect it, then secure and hand it over.
           </p>
+          {joined && member && (
+            <TeamBusinessPicker
+              courseId={course.id}
+              teamId={member.teamId}
+              onBusiness={setTeamBusiness}
+            />
+          )}
           <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
-            <ServerTopologyDiagram />
+            <ServerTopologyDiagram business={teamBusiness} />
           </div>
           <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
             <LifecycleFlow weeks={course.weeks} gates={course.gates} noGatekeeping={course.noGatekeeping} />

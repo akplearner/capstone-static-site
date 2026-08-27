@@ -33,6 +33,11 @@ export interface ChainNode {
   lane: number;
   /** Column index: which week column it sits in. */
   column: number;
+  /** Index within its (lane, column) cell, 0-based. Two deliverables owned by
+   *  the same role in the same week used to render at identical coordinates —
+   *  literally on top of each other — which is exactly the unreadable Week 1
+   *  this field exists to fix. Assigned in definition (num) order. */
+  slot: number;
   /** The team has actually filled this in. */
   filed: boolean;
   /** This is the course's final, defended artefact. */
@@ -122,9 +127,14 @@ export function buildDeliverableChain(
     new Set(defs.map((d) => Math.min(...d.weeks)).filter((n) => Number.isFinite(n)))
   ).sort((a, b) => a - b);
 
+  // Per-cell counters so co-located nodes stack instead of overlapping.
+  const cellCounts = new Map<string, number>();
   const nodes: ChainNode[] = defs.map((d) => {
     const week = Math.min(...d.weeks);
     const lane = lanes.indexOf(d.owner);
+    const cellKey = `${lane >= 0 ? lane : lanes.length}:${week}`;
+    const slot = cellCounts.get(cellKey) ?? 0;
+    cellCounts.set(cellKey, slot + 1);
     return {
       id: d.id,
       file: d.file,
@@ -136,6 +146,7 @@ export function buildDeliverableChain(
       // land at lane -1 and render off the top of the diagram.
       lane: lane >= 0 ? lane : lanes.length,
       column: Math.max(0, columns.indexOf(week)),
+      slot,
       filed: isDeliverableFiled(saved?.[d.id]),
       capstone: !!d.capstone,
     };
