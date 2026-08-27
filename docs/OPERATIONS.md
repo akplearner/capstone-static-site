@@ -22,9 +22,11 @@ formality.
 
 ## 1. Set up Supabase and sign-in
 
-**→ [`SUPABASE_SETUP.md`](../SUPABASE_SETUP.md)** is the single, step-by-step setup path: project and
-migrations, URL configuration, Google SSO, env vars, and the optional account-deletion function
-and instructor flag. Five steps, no email infrastructure — Google needs none.
+**→ [`SUPABASE_SETUP.md`](../SUPABASE_SETUP.md)** is the single, step-by-step setup path: the two
+values to copy, the one-paste schema (`supabase/setup.sql`), URL configuration, Google SSO, env
+vars and the redeploy. Six steps, no email infrastructure — Google needs none. Anything optional
+(GitHub, magic links, the account-deletion function, the instructor flag) sits below a divider at
+the end of that file, so the path to a working sign-in is the whole first half.
 
 That file used to be duplicated here, and the two copies drifted — both ended up telling you to
 register the redirect URL as a bare `.../auth/callback`, which does not match the

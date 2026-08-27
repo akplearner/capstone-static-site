@@ -9,8 +9,11 @@ import { AlertCircle, X } from 'lucide-react';
 // no reason to think anything had gone wrong — they'd just appear signed out.
 
 const REASONS: Record<string, string> = {
+  // Fires for BOTH a stale magic link and a failed Google/GitHub code exchange
+  // (see auth/callback/route.ts), so it must not name one method: on the default
+  // Google-only deployment there are no magic links to talk about.
   expired:
-    'That sign-in link didn’t work. Magic links expire after a short while and can only be used once — send yourself a fresh one.',
+    'That sign-in didn’t complete — the link had already been used or had expired. Please sign in again.',
   missing_code:
     'That sign-in link was incomplete. Open the most recent link in your email, and make sure your mail client didn’t truncate it.',
   missing_token:

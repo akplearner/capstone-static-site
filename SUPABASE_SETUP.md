@@ -1,277 +1,321 @@
-# Setup — turning on accounts and saved work
+# Turning on student accounts
 
-Students sign in with **Google** (and optionally **GitHub** — step 3b), and
-everything they produce is saved to Postgres:
-progress, team deliverables, GRC registers, lab access details, the evidence
-ledger, and where they left off. The backend is **Supabase** (managed Postgres +
-Auth + Row-Level Security).
+Right now the platform saves work in the browser only. Do the six steps below and
+students sign in with **Google**, and everything they produce is saved to a real
+database: progress, team deliverables, registers, the evidence ledger, and where
+they left off — on any device, visible to their teammates.
 
-**No email anywhere.** Google authenticates the user and hands back a verified
-address, so there is no SMTP to configure, no confirmation step, no mail rate
-limit and no password reset. That is the whole reason the setup is five steps.
+**No email is involved anywhere.** Google verifies the student and hands back their
+address, so there is no mail server to configure, no confirmation step, and no
+password to reset. That is the whole reason this is short.
 
-**Until the env vars are set, nothing changes.** The app runs entirely in the
-browser's localStorage with no sign-in — which is also how CI builds it. Setting
-them switches the data layer to Supabase and makes the sign-in button appear.
+**Nothing changes until step 6.** Until the environment variables are set and the
+site is redeployed, the platform behaves exactly as it does today.
 
-**Time:** about 25 minutes, most of it in Google Cloud.
-For day-two running (monitoring, incidents, open decisions) see
-[`docs/OPERATIONS.md`](./docs/OPERATIONS.md); this file is the one-time setup.
+**Time: about 30 minutes**, 15 of it inside Google Cloud.
+
+Have two browser tabs open: your **Supabase** project and your **Vercel** project.
 
 ---
 
-## 1 · Project + schema — 5 min
+## Step 1 · Copy two values from Supabase — 2 min
 
-1. supabase.com → **New project**. Save the database password somewhere safe.
-2. **Project Settings → API** → copy the **Project URL** and the **anon public** key.
-   Only the anon key goes in the app. It is designed to be public and is safe in
-   the browser *because* every table has row-level security. The **`service_role`**
-   key bypasses RLS entirely — it is used only in the optional Edge Function below.
-3. **SQL Editor → New query** → paste and run each file from
-   [`supabase/migrations/`](./supabase/migrations/), **in order**:
+In your Supabase project: **Project Settings** (the gear, bottom of the left
+sidebar) → **API**.
 
-   | File | What it creates |
-   |---|---|
-   | `0001_init.sql` | profiles, memberships, step_completions, deliverables, gate_status |
-   | `0002_student_state.sql` | user_course_state, grc_registers, lab_access |
-   | `0003_evidence_ledger.sql` | step_evidence, evidence_artifacts, user_paths |
+Copy these two somewhere you can paste from in step 6:
 
-   All three are idempotent — safe to re-run.
-
-> **Run these before anyone signs in.** `0001` installs an `on_auth_user_created`
-> trigger that creates each user's `profiles` row automatically. An account created
-> before the migrations ran will have no profile; delete it and sign in again.
-
-## 2 · URL configuration — 2 min ⚠️ the most common failure
-
-**Authentication → URL Configuration:**
-
-- **Site URL:** `https://yourdomain.com`
-- **Redirect URLs** — add both, **including the `/**` wildcard**:
-  - `https://yourdomain.com/**`
-  - `http://localhost:3000/**`
-
-> The wildcard is not optional. The app redirects to
-> `<origin>/auth/callback?next=<url-encoded path>` (see `redirectTo()` in
-> `src/components/auth/AuthForm.tsx`). A bare `.../auth/callback` entry will not
-> match it, and every Google sign-in will bounce to the homepage instead of
-> signing the user in.
-
-## 3 · Google — 15 min
-
-1. Google Cloud Console → **APIs & Services → OAuth consent screen** → *External*.
-   Fill app name, support email, developer email. Scopes `email` and `profile` are
-   enough and are **not** sensitive, so Google requires no review. **Publish** the
-   consent screen, or users see an "unverified app" warning.
-2. **Credentials → Create credentials → OAuth client ID → Web application**.
-3. **Authorised redirect URI** — Supabase's callback, **not** your own domain:
-
-   ```
-   https://<project-ref>.supabase.co/auth/v1/callback
-   ```
-
-4. Copy the Client ID + Secret → Supabase → **Authentication → Providers → Google**
-   → enable, paste, save.
-
-> Pointing Google at your app's URL is the single most common OAuth mistake.
-> Supabase receives the code, then forwards to your `/auth/callback`.
-
-## 3b · GitHub (optional) — 5 min
-
-Much quicker than Google: no consent screen, no publishing step.
-
-1. GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**.
-2. **Homepage URL:** `https://yourdomain.com`.
-   **Authorization callback URL** — the same Supabase callback as Google's,
-   **not** your own domain:
-
-   ```
-   https://<project-ref>.supabase.co/auth/v1/callback
-   ```
-
-3. Register, then **Generate a new client secret**.
-4. Copy the Client ID + secret → Supabase → **Authentication → Providers → GitHub**
-   → enable, paste, save.
-5. In step 5's env vars, add `NEXT_PUBLIC_AUTH_METHODS=google,github` — the app
-   defaults to Google-only, and this is what makes the GitHub button appear.
-
-## 4 · Close the door on email sign-in — 1 min
-
-Supabase → **Authentication → Providers → Email** → **disable**.
-
-The app doesn't offer password or magic-link sign-in, but that is a UI decision.
-Until you turn the Email provider off, someone can still create a password account
-by calling your Supabase API directly. This step is what makes Google-only real
-rather than cosmetic.
-
-## 5 · Env vars, then redeploy — 5 min
-
-In your host (Vercel → Settings → Environment Variables), for **Production and Preview**:
-
-```
-NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon public key>
-NEXT_PUBLIC_SITE_URL=https://yourdomain.com
-```
-
-There is no auth flag to set for Google alone — the app defaults to Google-only.
-If you did step 3b, also add:
-
-```
-NEXT_PUBLIC_AUTH_METHODS=google,github
-```
-
-> ⚠️ **`NEXT_PUBLIC_*` values are inlined at build time, so you must redeploy.**
-> Restarting is not enough, and until you redeploy the app keeps behaving exactly
-> as if Supabase were absent. This is the most common way this setup appears "not
-> to work".
-
-Locally: `cp .env.local.example .env.local` and paste the same values.
-
-**Confirm the vars actually took** — one request tells you:
-
-```bash
-curl https://yourdomain.com/api/health
-```
-
-- `{"status":"ok","mode":"cloud","supabase":"reachable",...}` → connected, carry on.
-- `{"status":"ok","mode":"local","supabase":"not-configured"}` → still in demo
-  mode: the vars are missing or you haven't redeployed since setting them.
-- `"status":"degraded"` (HTTP 503) → vars are set but Supabase is unreachable;
-  check the URL.
-
----
-
-## Smoke test — on the real domain
-
-1. Click **Continue with Google** → you land signed in on `/dashboard`.
-2. Sign out, then back in — second time through, no new account is created.
-3. Signed out, visit `/dashboard` → redirected to `/login?next=/dashboard`.
-4. Tick a step in a course, then hard-refresh → the tick survives. This is the one
-   that proves writes and RLS work, not just sign-in.
-5. `curl /api/health` → `mode:"cloud"`.
-
-## Checking the access rules, not just the login
-
-Being able to sign in does not prove the rules are right. Worth ten minutes:
-
-1. Sign in as student A, tick a step, confirm it appears on another device.
-2. As student B **on a different team**, confirm you get **zero rows** for A's
-   `lab_access` and for the other team's `grc_registers`. Use a second browser or
-   the SQL editor's "run as authenticated user".
-
-A policy that merely exists is not evidence that it works.
-
-### Who can read what
-
-| Table | Who can read it |
+| Label on the page | Looks like |
 |---|---|
-| `profiles` | you, plus teammates (display name only) |
-| `memberships` | anyone on the same course |
-| `step_completions` | you and your teammates |
-| `deliverables`, `gate_status`, `grc_registers` | your team |
-| `user_course_state`, `step_evidence`, `evidence_artifacts`, `user_paths` | **you only** |
-| `lab_access` | **you only** — not teammates, not instructors |
+| **Project URL** | `https://abcdefghijkl.supabase.co` |
+| **anon** **public** key | a very long string starting `eyJ…` |
 
-`lab_access` is the strictest on purpose: its notes field is where students record
-lab details. Instructors get read access to memberships, completions and
-deliverables — never to lab credentials.
+The anon key is *meant* to be public — it goes in the browser. What protects your
+data is the security rules step 2 installs, not the secrecy of this key. Ignore
+the **`service_role`** key; nothing here uses it.
+
+While you are here, note the **project ref** — the `abcdefghijkl` part of the
+Project URL. Step 4 needs it.
 
 ---
 
-## Optional
+## Step 2 · Create the database tables — 3 min
 
-### Account deletion
+This is the step that was hard to find. In the **left sidebar** of your Supabase
+project there is an icon labelled **SQL Editor** (it looks like `</>`, roughly
+halfway down, under Table Editor). Click it.
 
-The privacy policy promises users can delete their account. Deleting the auth
-identity needs the service-role key, which must never reach the browser, so it
-lives in an Edge Function:
+1. Click **New query** (top left of that panel).
+2. Open the file **`supabase/setup.sql`** from this repository, select all of it,
+   and paste it into the query box. It is long — around 400 lines. That is
+   expected; paste the whole thing.
+3. Click **Run** (bottom right, or Ctrl/Cmd + Enter).
 
-```bash
-supabase functions deploy delete-account
-supabase secrets set SERVICE_ROLE_KEY=<service_role key>
-```
+You should see **"Success. No rows returned."** in the results panel. That *is*
+success — these statements create tables rather than return rows.
 
-Until this is deployed, `/account` still deletes all of the user's application
-data and then honestly reports that their login could not be removed.
+> **Do this before anyone signs in.** This installs the rule that creates a
+> profile for each new account. Anyone who signs in before this step will end up
+> without one; the fix is to delete that user under **Authentication → Users** and
+> sign in again.
 
-### Make yourself an instructor
+The file is safe to run twice — if you are unsure whether it worked, just run it
+again. To confirm, open **Table Editor** in the sidebar: you should see tables
+including `profiles`, `memberships`, `deliverables` and `step_completions`.
 
-Sign in first (the trigger creates the row), then:
+---
+
+## Step 3 · Tell Supabase your web address — 2 min
+
+**Authentication** (sidebar) → **URL Configuration**.
+
+- **Site URL:** `https://yourdomain.com` — your live Vercel address.
+- **Redirect URLs:** click **Add URL** and add **both** of these, exactly, with
+  the `/**` on the end:
+
+  ```
+  https://yourdomain.com/**
+  http://localhost:3000/**
+  ```
+
+> ⚠️ **The `/**` matters more than anything else on this page.** After Google
+> signs a student in, the platform sends them to
+> `…/auth/callback?next=/the-page-they-were-on`. A plain `…/auth/callback` entry
+> does not match that, and every single sign-in silently dumps the student back on
+> the homepage, still signed out. If you only remember one warning from this
+> guide, make it this one.
+
+---
+
+## Step 4 · Create the Google sign-in credentials — 15 min
+
+This part is entirely inside [Google Cloud Console](https://console.cloud.google.com),
+and it is the longest stretch. Create or pick any project at the top of the page.
+
+**4a — the consent screen** (what students see when they click Google):
+
+1. **APIs & Services → OAuth consent screen**.
+2. Choose **External**, then fill in the app name (e.g. *Capstone Quarry*), your
+   support email, and your developer email. The default scopes are all you need —
+   they are not "sensitive", so Google will not put you through a review.
+3. **Publish** the app. If you leave it in *Testing*, every student gets a red
+   "Google hasn't verified this app" warning.
+
+**4b — the credentials:**
+
+1. **APIs & Services → Credentials → Create credentials → OAuth client ID**.
+2. Application type: **Web application**.
+3. Under **Authorised redirect URIs**, click **Add URI** and paste this — replacing
+   `<project-ref>` with the value from step 1:
+
+   ```
+   https://<project-ref>.supabase.co/auth/v1/callback
+   ```
+
+   > **This is Supabase's address, not yours.** Putting your own domain here is the
+   > single most common mistake in the whole setup. Google hands the student to
+   > Supabase, and Supabase hands them to your site.
+
+4. Click **Create**. Google shows you a **Client ID** and a **Client secret** —
+   keep that dialog open for the next step.
+
+**4c — paste them into Supabase:**
+
+Supabase → **Authentication** → **Providers** (or *Sign In / Providers*) → find
+**Google** in the list → toggle it **on** → paste the Client ID and Client secret
+→ **Save**.
+
+---
+
+## Step 5 · Turn off email sign-in — 1 min
+
+Supabase → **Authentication → Providers → Email** → toggle it **off** → Save.
+
+The platform only ever shows a Google button, but until you do this, someone could
+still create a password account by talking to your database's API directly. This
+step is what makes "Google only" actually true.
+
+---
+
+## Step 6 · Add the settings to Vercel and redeploy — 5 min
+
+In Vercel: your project → **Settings** → **Environment Variables**.
+
+Add these three. For each one, make sure **Production** and **Preview** are both
+ticked:
+
+| Name | Value |
+|---|---|
+| `NEXT_PUBLIC_SUPABASE_URL` | the Project URL from step 1 |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the anon public key from step 1 |
+| `NEXT_PUBLIC_SITE_URL` | `https://yourdomain.com` |
+
+That is all three. There is **no** setting to turn Google on — it is the default.
+
+Now the part that is easy to miss:
+
+> ⚠️ **Go to Deployments → the most recent one → ⋯ → Redeploy.**
+> These values are baked in when the site is built, so setting them changes
+> nothing until a new build runs. If the platform still looks like it did before,
+> this is almost always why.
+
+---
+
+## Check it worked
+
+**1. Is it connected?** Visit `https://yourdomain.com/api/health` in a browser:
+
+| What you see | What it means |
+|---|---|
+| `"mode":"cloud","supabase":"reachable"` | ✅ Connected. Carry on. |
+| `"mode":"local","supabase":"not-configured"` | Still in browser-only mode — step 6, and check you redeployed. |
+| `"status":"degraded"` | Variables are set but Supabase did not answer — check the URL for typos. |
+
+**2. Can you sign in?** Open your site, click **Sign in**, choose Google. You
+should land on the dashboard with your name in the corner.
+
+**3. Does work actually save?** This is the one that proves the database, not just
+the login. Join a course, tick a step, then **hard-refresh the page**. The tick
+must still be there. If it is, you are done.
+
+**4. Make yourself the instructor.** Sign in once first (that creates your
+profile), then Supabase → **SQL Editor** → New query → run:
 
 ```sql
 update public.profiles set is_instructor = true
 where id = (select id from auth.users where email = 'you@example.com');
 ```
 
-### Realtime
-
-Lets teammates see each other's progress update live rather than on refresh. The
-migrations already add the right tables to the `supabase_realtime` publication —
-confirm under **Database → Replication**. `lab_access` and `user_course_state` are
-deliberately **not** published: they are single-user, so there is no second party
-to notify.
-
 ---
 
-## Adding more sign-in methods later
+## If something is not working
 
-All four methods are implemented and tested — Google-only is a default, not a
-limitation. To widen, set one env var and redeploy:
+Find what you are actually seeing:
+
+| What you see | What is wrong | Fix |
+|---|---|---|
+| Sign-in returns you to the homepage, still signed out | Redirect URL is missing the `/**` | **Step 3** |
+| Homepage says the sign-in link expired | The link was already used, or it timed out | Just sign in again |
+| A yellow box: "Accounts aren't configured on this deployment" | The site cannot see the variables | **Step 6** — then redeploy |
+| `/api/health` says `"mode":"local"` | Same as above: unset, or set but never redeployed | **Step 6** — then redeploy |
+| An error mentioning an unsupported provider | Google is not switched on in Supabase | **Step 4c** |
+| Google warns "this app isn't verified" | The consent screen is still in Testing | **Step 4a** — publish it |
+| Signed in fine, but ticks vanish on refresh | The tables were never created | **Step 2** |
+| Signed in, but the platform acts like you have no account | You signed in before step 2 ran | Delete the user in **Authentication → Users**, sign in again |
+| `redirect_uri_mismatch` from Google | The redirect URI is your domain, not Supabase's | **Step 4b** |
+
+Still stuck? `/api/health` tells you which half of the setup to look at: if it says
+`local`, the problem is Vercel (step 6). If it says `cloud`, the problem is in
+Supabase (steps 2–5).
+
+---
+---
+
+# Optional extras
+
+Everything below is genuinely optional. The setup above is complete without it.
+
+## Add a GitHub button too
+
+Faster than Google — no consent screen, no publishing.
+
+1. GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**.
+2. **Homepage URL:** your domain. **Authorization callback URL:** the *same*
+   Supabase address as step 4b — `https://<project-ref>.supabase.co/auth/v1/callback`.
+3. Register, then **Generate a new client secret**.
+4. Supabase → **Authentication → Providers → GitHub** → enable → paste both → Save.
+5. In Vercel, add a fourth variable and redeploy:
+
+   ```
+   NEXT_PUBLIC_AUTH_METHODS=google,github
+   ```
+
+## Other sign-in methods
+
+Emailed sign-in links and email + password are both implemented:
 
 ```
-NEXT_PUBLIC_AUTH_METHODS=google,magic            # + emailed sign-in links
+NEXT_PUBLIC_AUTH_METHODS=google,magic
 NEXT_PUBLIC_AUTH_METHODS=google,github,magic,password
 ```
 
-Then, in Supabase: re-enable the **Email** provider for `magic`/`password`, turn on
-**Confirm email** if you use `password`, and register a **GitHub** OAuth app for
-`github` (same Supabase callback URL as step 3).
+Both need the **Email** provider switched back on (undoing step 5) — and both need
+real email delivery. Supabase's built-in mailer is capped at a few messages an hour
+and labelled test-only, so before real students you would also need custom SMTP
+(**Project Settings → Authentication → SMTP Settings**) with a provider like Resend,
+your sending domain's SPF/DKIM records verified, and the rate limit raised.
 
-⚠️ **`magic` and `password` need working email delivery.** Supabase's built-in
-mailer is capped at a few messages an hour and is labelled test-only, so before
-real users you also need **custom SMTP**: Project Settings → Authentication → SMTP
-Settings, with a provider like Resend (verify your sending domain's SPF/DKIM
-records, or the mail lands in spam) and the per-hour rate limit raised.
+Avoiding all of that is exactly why the default is Google.
 
-That email dependency is exactly what Google-only avoids.
+## Let students delete their account
+
+The privacy policy promises account deletion. Removing the login itself needs the
+`service_role` key, which must never reach a browser, so it lives in a small
+server-side function:
+
+```bash
+supabase functions deploy delete-account
+supabase secrets set SERVICE_ROLE_KEY=<service_role key>
+```
+
+Until this is deployed, `/account` still deletes all of a student's work and then
+honestly reports that the login itself could not be removed.
+
+## Live teammate updates
+
+Teammates seeing each other's progress update without refreshing is already
+configured by step 2. Confirm under **Database → Replication** if you want to check.
+`lab_access` and `user_course_state` are deliberately excluded — they are private to
+one student, so there is nobody to notify.
 
 ---
 
-## How it behaves
+## Checking the privacy rules actually hold
 
-| | No env vars | Env vars set |
+Being able to sign in does not prove the access rules work. Worth ten minutes
+before real students:
+
+1. Sign in as student A, tick a step, confirm it appears on a second device.
+2. As student B **on a different team**, confirm you see **nothing** of A's lab
+   notes and nothing of the other team's registers. Use a second browser.
+
+### Who can read what
+
+| Data | Who can read it |
+|---|---|
+| Profiles | you, plus teammates (display name only) |
+| Team membership | anyone on the same course |
+| Step completions | you and your teammates |
+| Deliverables, gate status, registers | your team |
+| Personal state, evidence, chosen path | **you only** |
+| Lab access notes | **you only** — not teammates, not instructors |
+
+Lab notes are the strictest on purpose: that is where students record lab details.
+Instructors can read membership, completions and deliverables — never lab
+credentials.
+
+A team is a team **within one class session**: Team 1 of the January cohort and
+Team 1 of March are separate teams with separate documents.
+
+---
+
+## What students experience
+
+| | Before setup | After setup |
 |---|---|---|
-| Sign-in | not shown (demo banner instead) | Continue with Google |
-| Course dashboard (`/courses/<id>`) | open | open |
-| Course material (tasks, guide, deliverables) | open | requires an account **and** enrolment |
-| Saving anything | localStorage | requires an account |
-| Across devices | no | yes |
-| Teammates see your work | no | yes |
+| Sign-in | not offered | Continue with Google |
+| Course overview page | open to anyone | open to anyone |
+| Weekly tasks, guide, deliverables | open | needs an account **and** a team |
+| Saving work | this browser only | saved to their account |
+| Another device | starts empty | everything is there |
+| Teammates see their work | no | yes |
 
-The line falls between the course **dashboard** and the course **material**. The
-dashboard is public so a prospective student can see what they'd be enrolling in —
-the identity, the week arc, the roles, the gates and the join form. The material —
-weekly tasks and their steps, the guide, the reference manual, the deliverables,
-the team space — opens once they join a team and a role.
+Course overview pages stay public on purpose, so someone considering the course can
+see what it involves. The material opens once a student joins a team and a role.
 
-Two layers enforce that, and they check different things:
+On a student's first sign-in, if that browser already holds work from before, they
+are offered a one-time import. It is only marked done once the server confirms the
+work arrived, so a failed import can be retried and never silently loses anything.
 
-- **`src/proxy.ts`** (via `src/lib/routeGate.ts`) checks *authentication* — is
-  there a session. Server-side, so it can't be skipped by disabling JavaScript.
-- **The page** checks *enrolment* — is this user on a team for **this** course,
-  via `useMember` + `CourseEnrolGate`. The proxy deliberately doesn't: it would put
-  a database round trip in front of every navigation, and it would be redundant
-  because RLS already returns a non-member zero rows.
-
-Neither is a *content* boundary. Course content currently ships inside the client
-bundle, so this hides the material from the page but does not withhold it from
-someone reading the bundle. Moving seed content behind a server route is tracked as
-R37 in `docs/ROADMAP.md`.
-
-Writes are gated separately and always: work that isn't attached to an account is
-lost the moment the browser is cleared.
-
-On a student's first sign-in, if that device already holds local progress, they're
-offered a **one-time import**. It is only marked done once the server confirms the
-rows landed, so a failed import can be retried and never silently discards work.
+For day-two running — monitoring, incidents, open decisions — see
+[`docs/OPERATIONS.md`](./docs/OPERATIONS.md).
