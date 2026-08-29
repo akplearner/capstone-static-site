@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { CopyButton } from '@/components/TaskComponents';
 import {
@@ -91,12 +92,15 @@ const ADDRESSING: { zone: string; net: string; hosts: string; note?: string }[] 
   })),
 ];
 
+// These must match the course weeks in src/lib/data/seed/serverPlus.ts — a guide
+// that names Week 2 differently from the week the student is standing in is a
+// guide they stop trusting.
 const WEEKS: WeekBlock[] = [
   { number: 0, title: 'Preparation', phase: 'Get ready to build', lead: 'Prove your own seat works before the engagement starts.' },
-  { number: 1, title: 'Plan the Infrastructure', phase: 'Plan & Analyze', lead: 'Read the machine. Both procedures here are read-only — you change nothing this week.' },
-  { number: 2, title: 'Build & Deploy', phase: 'Build & Deploy', lead: 'The plan becomes metal and software: RAID, hypervisor, bridges, VMs, services.' },
-  { number: 3, title: 'Network & Connect', phase: 'Network & Connect', lead: 'Make the addressing real, route between the zones, and prove every path.' },
-  { number: 4, title: 'Secure & Recover', phase: 'Secure & DRP', lead: 'Harden what is exposed, patch with a way back, and time a real restore.' },
+  { number: 1, title: 'Assess & Bring Up', phase: 'Assess & Diagnose', lead: 'Read the machine and wake it up. Discovery is read-only; the bring-up work changes firmware deliberately.' },
+  { number: 2, title: 'Build the Platform', phase: 'Build the Platform', lead: 'The plan becomes metal and software: RAID, hypervisor, bridges, VMs, services.' },
+  { number: 3, title: 'Network & Operate', phase: 'Network & Operate', lead: 'Make the addressing real, route between the zones, prove every path, and run it by procedure.' },
+  { number: 4, title: 'Secure & Hand Over', phase: 'Secure & Hand Over', lead: 'Harden what is exposed, patch with a way back, and time a real restore.' },
 ];
 
 const PROCEDURES: Procedure[] = [
@@ -132,7 +136,7 @@ const PROCEDURES: Procedure[] = [
       { gui: 'Plug a keyboard and monitor into the server and power it on. Watch for the Dell splash screen and the message "Press F2 to enter System Setup".', explain: 'Navigating the BIOS differs by server model — check the manual or search your exact model if the screens do not match.' },
       { gui: 'Tap F2 repeatedly until System Setup loads. Keep tapping; a single press usually misses the window.', explain: 'F2 is the Dell System Setup key.' },
       { gui: 'Open System BIOS → Processor Settings. Record the processor model, core count, thread count and the Virtualization Technology setting (Enabled/Disabled).', explain: 'Virtualization Technology is VT-x. If it is Disabled the hypervisor plan does not work — note it now, change it in Week 2.' },
-      { gui: 'Open System BIOS → Memory Settings. Record System Memory Size (installed), the maximum the platform supports, slots used vs total, and the memory type (ECC RDIMM/UDIMM).', explain: 'Installed-versus-maximum is your upgrade headroom and drives the Upgrade Planning Sheet.' },
+      { gui: 'Open System BIOS → Memory Settings. Record System Memory Size (installed), the maximum the platform supports, slots used vs total, and the memory type (ECC RDIMM/UDIMM).', explain: 'Installed-versus-maximum is your upgrade headroom and drives the Hardware Discovery, HCL & Upgrade Plan.' },
       { gui: 'Open System BIOS → Integrated Devices (and Device Settings for add-in NICs). Record each NIC model, port count and link speed.', explain: 'These are the physical ports vmbr0 maps to, and later the uplink for vmbr2.' },
       { gui: 'Open System BIOS → System Information and the main System Setup page. Record the BIOS version, the service tag / serial, and the Boot Mode (UEFI or BIOS legacy).', explain: 'Boot Mode decides the partition scheme when you flash the USB in Week 2 — GPT for UEFI, MBR for BIOS.' },
       { gui: 'Press Esc and choose Discard Changes and Exit. Do not save anything this week.', explain: 'Week 1 is plan and analyse: you are reading the machine, not configuring it.' },
@@ -149,7 +153,7 @@ const PROCEDURES: Procedure[] = [
       { gui: 'Reboot or power on the server and watch the POST for the prompt "Press Ctrl+R to enter Configuration Utility". Hold Ctrl and press R as soon as it appears.', explain: 'Ctrl+R is the PERC utility key.' },
       { gui: 'On the VD Mgmt (Virtual Disk Management) screen, record the controller model and cache size shown at the top, and list any virtual disks that already exist with their RAID level and size.', explain: 'An existing virtual disk tells you the machine has a prior life; Week 2 decides whether it is deleted.' },
       { gui: 'Press Ctrl+N to reach PD Mgmt (Physical Disk Management). Record every physical disk: count, capacity, media type (SAS/SATA, HDD/SSD) and state.', explain: 'Drive count and size set which RAID levels are actually available and what usable capacity the hypervisor will get.' },
-      { gui: 'Note the RAID levels the controller offers (typically 0/1/5/6/10) and how many drive bays are populated versus total.', explain: 'Empty bays are upgrade headroom for the Upgrade Planning Sheet.' },
+      { gui: 'Note the RAID levels the controller offers (typically 0/1/5/6/10) and how many drive bays are populated versus total.', explain: 'Empty bays are upgrade headroom for the Hardware Discovery, HCL & Upgrade Plan.' },
       { gui: 'Press Esc, choose Exit and confirm. Do NOT delete, create or initialize anything this week.', explain: 'Deleting a virtual disk erases every drive in it. Week 1 is read-only; the destructive work is a deliberate Week-2 procedure.' },
     ],
   },
@@ -214,7 +218,7 @@ const PROCEDURES: Procedure[] = [
       { gui: 'Insert the flashed USB into the server, reboot, and press F11 for the one-time boot menu. Select the USB device.', explain: 'F11 is the Dell boot menu key; use it rather than re-editing the boot order.' },
       { gui: 'At the Proxmox VE Installer menu, choose "Install Proxmox VE" (graphical) and accept the EULA.', explain: 'The installer will detect the drives it can see.' },
       { gui: 'At Target Harddisk, select the RAID virtual disk you created. The installer will wipe it and create new partitions — that is expected.', explain: 'There should be exactly one sensible target, because the controller presents the array as a single disk.' },
-      { gui: 'Set the country, time zone and keyboard layout, then set the root password and an administrative email address.', explain: 'Record the root password in the Configuration Management Record — you cannot restore what you cannot log into.' },
+      { gui: 'Set the country, time zone and keyboard layout, then set the root password and an administrative email address.', explain: 'Record the root password in the Server Bring-Up Log — you cannot restore what you cannot log into.' },
       { gui: 'At Management Network Configuration set: Hostname pve-host.teamX.local; IP address 10.10.30.T/16 where T is your team number (Team 1 = 10.10.30.1/16); Gateway 10.10.0.1; DNS server as your instructor supplies.', explain: 'This is the campus LAN 10.10.0.0/16 and it becomes vmbr0, the management bridge. The prefix is /16 (netmask 255.255.0.0), not /24 — a /24 here cannot reach the 10.10.0.1 gateway.' },
       { gui: 'Confirm the summary, let the install run, then remove the USB drive and reboot.', explain: 'Leaving the stick in sends the server straight back into the installer.' },
       { cmd: 'ip -4 addr show vmbr0', explain: 'Run at the host console after the reboot. Must show 10.10.30.T/16 on vmbr0.' },
@@ -310,7 +314,7 @@ EOF`,
       { cmd: 'sudo systemctl enable --now nginx', explain: 'Enables at boot and starts it in one command.' },
       { cmd: 'systemctl status nginx --no-pager', explain: 'Confirm active (running) before you go looking for network problems.' },
       { cmd: 'curl -I http://172.16.0.10', explain: 'Run this one from the Proxmox host shell, not from websrv itself. The host holds 172.16.0.1 on vmbr1, so it reaches the DMZ with no routing at all. HTTP/1.1 200 OK proves the site answers across the network. The private-zone hosts cannot reach it yet — that needs the Week-3 static routes, and it is proven there.' },
-      { cmd: 'curl http://172.16.0.10', explain: 'Again from the Proxmox host. Confirm your own welcome text comes back in the body, not the NGINX default page. Screenshot this — it is the evidence for the Configuration Management Record.' },
+      { cmd: 'curl http://172.16.0.10', explain: 'Again from the Proxmox host. Confirm your own welcome text comes back in the body, not the NGINX default page. Screenshot this — it is the evidence for the Server Bring-Up Log.' },
     ],
   },
   {
@@ -337,7 +341,7 @@ EOF`,
     where: 'Proxmox web console, then the linuxsrv console',
     summary: 'Build the private-zone Ubuntu Server VM on vmbr2 at 192.168.0.3/24 with gateway 192.168.0.1 — the database host.',
     steps: [
-      { gui: 'In the Proxmox web console, click Create VM. Name: linuxsrv. Note the VM ID.', explain: 'Record it in the Configuration Management Record alongside websrv and winserver.' },
+      { gui: 'In the Proxmox web console, click Create VM. Name: linuxsrv. Note the VM ID.', explain: 'Record it in the Server Bring-Up Log alongside websrv and winserver.' },
       { gui: 'On the OS tab select the Ubuntu Server ISO from local (pve-host).', explain: 'Same image you used for websrv.' },
       { gui: 'On the Disks tab set 40 GB; CPU 2 cores; Memory 4096 MB (4 GB).', explain: 'Matches the linuxsrv row in the Architecture & IP Plan — a database wants more disk and RAM than the web host.' },
       { gui: 'On the Network tab, set Bridge to vmbr2.', explain: 'Private zone. The database is never exposed in the DMZ.' },
@@ -395,7 +399,7 @@ EOF`,
       { cmd: 'Add-DhcpServerInDC -DnsName "winserver.team1.local" -IPAddress 192.168.0.2', explain: 'Authorizes the DHCP server in Active Directory. An unauthorized DHCP server in a domain refuses to hand out leases.' },
       { gui: 'Now build something to lease to. In the Proxmox web console click Create VM, name it client01, pick any desktop image (Ubuntu Desktop or Windows 10/11), 1 core / 2048 MB / 20 GB, Bridge vmbr2.', explain: 'Nothing else in the base build is a DHCP client — the three servers are all static — so without this VM the scope cannot be tested. It is a throwaway; your own business design may call for a different client, which is fine.' },
       { gui: 'Leave client01 on DHCP — do not give it a static address. Boot it, let it request an address, and confirm what it gets lands inside 192.168.0.100-200 with gateway 192.168.0.1 and DNS 192.168.0.2.', explain: 'Taking a lease is the entire job of this VM. A scope with no client is untested.' },
-      { cmd: 'Get-DhcpServerv4Lease -ScopeId 192.168.0.0', explain: 'Lists the leases actually issued — client01 should be there. Screenshot this for the Configuration Management Record.' },
+      { cmd: 'Get-DhcpServerv4Lease -ScopeId 192.168.0.0', explain: 'Lists the leases actually issued — client01 should be there. Screenshot this for the Server Bring-Up Log.' },
     ],
   },
   {
@@ -412,7 +416,7 @@ EOF`,
       { cmd: 'sudo mysql_secure_installation', explain: 'Sets the root password, removes the anonymous users and the test database, and disables remote root login. Answer yes to everything except leaving root auth as unix_socket if it offers.' },
       { cmd: 'sudo mysql', explain: 'Opens the MariaDB shell as root over the unix socket. The next statements are typed inside it.' },
       { cmd: 'CREATE DATABASE capstone_db;', explain: 'The application database.' },
-      { cmd: "CREATE USER 'capuser'@'localhost' IDENTIFIED BY 'ChangeThisPassword1!';", explain: 'Use a real password of your own and record it in the Configuration Management Record — never ship the example.' },
+      { cmd: "CREATE USER 'capuser'@'localhost' IDENTIFIED BY 'ChangeThisPassword1!';", explain: 'Use a real password of your own and record it in the Server Bring-Up Log — never ship the example.' },
       { cmd: "GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'localhost'; FLUSH PRIVILEGES; EXIT;", explain: 'Grants only on capstone_db, not on everything — then reloads the grant tables and leaves the shell.' },
       { cmd: 'mysql -u capuser -p -e "SHOW DATABASES;"', explain: 'Log in as the application user and confirm capstone_db is listed. This is the proof step.' },
       { cmd: `sudo mysql -e "CREATE USER 'capuser'@'172.16.0.10' IDENTIFIED BY 'ChangeThisPassword1!'; GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'172.16.0.10'; FLUSH PRIVILEGES;"`, explain: 'OPTIONAL — only if one of your own business VMs or a dynamic site on websrv needs the database across zones. You must also bind MariaDB to the private address in /etc/mysql/mariadb.conf.d/50-server.cnf and allow the traffic. The base build does not need this.' },
@@ -447,7 +451,7 @@ EOF`,
         explain: 'The three private-zone targets — secmon and linuxsrv on 9100, winserver on 9182. Paste it inside scrape_configs, two spaces before the dash, exactly as shown.',
       },
       { cmd: 'sudo systemctl restart prometheus && systemctl status prometheus --no-pager', explain: 'Reloads the scrape config. A YAML error shows up here, not later.' },
-      { gui: 'Browse to http://192.168.0.4:9090/targets and confirm all three targets read UP, then log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.', explain: 'Screenshot the targets page for the Configuration Management Record. Only private-zone hosts are here: reaching websrv from secmon needs the static route added in Week 3, and the websrv target goes in there.' },
+      { gui: 'Browse to http://192.168.0.4:9090/targets and confirm all three targets read UP, then log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.', explain: 'Screenshot the targets page for the Server Bring-Up Log. Only private-zone hosts are here: reaching websrv from secmon needs the static route added in Week 3, and the websrv target goes in there.' },
     ],
   },
   {
@@ -587,7 +591,7 @@ EOF`,
       { cmd: 'systemctl status promtail --no-pager', explain: 'On each agent host. Active (running) with no connection errors in the log.' },
       { gui: 'In Grafana at http://192.168.0.4:3000, add a Loki data source pointing at http://localhost:3100.', explain: 'Grafana now has both Prometheus (metrics) and Loki (logs).' },
       { gui: 'Build one dashboard with a stat panel per host driven by the Prometheus up metric, a table of each host address, and a logs panel querying Loki.', explain: 'One screen that answers "is everything up and reachable?" — the same question the Week-3 manual checks answered once.' },
-      { gui: 'Record the change in the Configuration Management Record and screenshot the dashboard into 08_Evidence.', explain: 'This is the evidence that the connectivity proof is now continuous rather than a one-off.' },
+      { gui: 'Record the change in the Server Bring-Up Log and screenshot the dashboard into 08_Evidence.', explain: 'This is the evidence that the connectivity proof is now continuous rather than a one-off.' },
     ],
   },
   {
@@ -605,7 +609,7 @@ EOF`,
     optionalLabel: 'Later phase · optional',
     steps: [
       { cmd: 'ip -br link show', explain: 'Identify the second physical NIC by name (enp1s0f1, eno2 and so on). Cross-check against the NIC inventory you took in Week 1 — do not guess which port is which.' },
-      { gui: 'Patch that NIC through the patch panel to an access port on the Cisco switch, and log the cable at both ends in the Rack Plan & Cabling Record.', explain: 'The cable schedule is what lets anyone trace this link later without pulling the rack apart.' },
+      { gui: 'Patch that NIC through the patch panel to an access port on the Cisco switch, and log the cable at both ends in the Rack, Power & Asset Register.', explain: 'The cable schedule is what lets anyone trace this link later without pulling the rack apart.' },
       { gui: 'On the Cisco router, configure the interface facing this switch as 192.168.0.1/24 and give it the outbound path (default route / NAT) to the internet.', explain: 'The router takes over as the private-zone gateway. This is the servers only internet path in the finished design.' },
       { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak-prephys', explain: 'Back up again before this change — it can take the private zone offline if you get it wrong.' },
       { cmd: 'nano /etc/network/interfaces', explain: 'In the vmbr2 stanza, change bridge-ports none to your physical NIC name, and REMOVE the address 192.168.0.1/24 line — the Cisco router now owns that address. Two devices holding 192.168.0.1 is a duplicate-address outage, not redundancy.' },
@@ -625,7 +629,7 @@ EOF`,
     steps: [
       { cmd: 'sudo apt update && sudo apt install openssh-server -y', explain: 'Skip if you selected OpenSSH during the Ubuntu install; harmless to run either way.' },
       { cmd: 'sudo systemctl enable --now ssh', explain: 'Enables at boot and starts it.' },
-      { cmd: 'sudo adduser webadmin', explain: 'Creates the non-root administrative user and prompts for its password. Pick your own name and record it in the Configuration Management Record — you are about to disable root login and this account becomes your only way in.' },
+      { cmd: 'sudo adduser webadmin', explain: 'Creates the non-root administrative user and prompts for its password. Pick your own name and record it in the Server Bring-Up Log — you are about to disable root login and this account becomes your only way in.' },
       { cmd: 'sudo usermod -aG sudo webadmin', explain: 'Gives the new user sudo. Do this BEFORE disabling root, and test it — an unprivileged-only account plus no root login means a console-only recovery.' },
       { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', explain: 'Back up before editing.' },
       { cmd: `sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/; s/^#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config`, explain: 'Sets both directives and uncomments them if they were commented. Editing by hand with sudo nano /etc/ssh/sshd_config is equally fine.' },
@@ -637,15 +641,15 @@ EOF`,
       { cmd: 'sudo ufw allow from 172.16.0.0/24 to any port 22 proto tcp', explain: 'SSH from within the DMZ itself.' },
       { cmd: 'sudo ufw allow 80/tcp', explain: 'The website is public-facing, so port 80 is open to everyone — unlike SSH, which is restricted to the three networks above.' },
       { cmd: 'sudo ufw enable', explain: 'Turns the firewall on. It warns that this may disrupt existing SSH connections — you have already allowed SSH from all three trusted networks, so answer y.' },
-      { cmd: 'sudo ufw status numbered', explain: 'Read the whole ruleset back. Screenshot it for the Configuration Management Record.' },
+      { cmd: 'sudo ufw status numbered', explain: 'Read the whole ruleset back. Screenshot it for the Server Bring-Up Log.' },
       { cmd: 'curl -I http://172.16.0.10', explain: 'From the Proxmox host or from linuxsrv. Confirm the firewall did not break the website you deployed in Week 2.' },
       { gui: 'Now switch to the linuxsrv console and run the same shape again. The Week-3 DNAT publishes this host sshd on port 2222, so the campus LAN reaches two machines, not one — hardening only websrv leaves that door standing open.', explain: 'This is the correction to make against the older jump-box guides: they hardened the single exposed host, and this design exposes two.' },
-      { cmd: 'sudo adduser dbadmin', explain: 'On linuxsrv. The non-root administrative user — pick your own name and record it in the Configuration Management Record. Give it sudo with sudo usermod -aG sudo dbadmin and test it BEFORE you disable root, from the console rather than over SSH.' },
+      { cmd: 'sudo adduser dbadmin', explain: 'On linuxsrv. The non-root administrative user — pick your own name and record it in the Server Bring-Up Log. Give it sudo with sudo usermod -aG sudo dbadmin and test it BEFORE you disable root, from the console rather than over SSH.' },
       { cmd: `sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak && sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && grep -E '^PermitRootLogin' /etc/ssh/sshd_config`, explain: 'Back up, set the directive, read it straight back. Same edit as websrv.' },
       { cmd: 'sudo sshd -t && sudo systemctl restart ssh', explain: 'Validate, then apply. Silence from sshd -t means valid.' },
       { cmd: 'sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp', explain: 'The campus LAN. The host 2222 DNAT does not rewrite the source address, so a forwarded session arrives here as its real campus address — this is the rule that lets it in.' },
       { cmd: 'sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp', explain: 'SSH from within the private zone itself. No port 80 rule and no 3306 rule: linuxsrv serves the database, and the base build has no cross-zone grant to allow.' },
-      { cmd: 'sudo ufw enable && sudo ufw status numbered', explain: 'Turn it on and read the whole ruleset back. Screenshot it for the Configuration Management Record.' },
+      { cmd: 'sudo ufw enable && sudo ufw status numbered', explain: 'Turn it on and read the whole ruleset back. Screenshot it for the Server Bring-Up Log.' },
       { cmd: 'ssh -p 2222 dbadmin@10.10.30.1', explain: 'From a campus workstation, with your team host address and your own user name. The hardened path still works end to end — that is the proof this step is finished.' },
     ],
   },
@@ -661,17 +665,17 @@ EOF`,
       { cmd: 'qm snapshot 101 pre-patch-2026-03-09 --description "Pre-patch rollback point"', explain: 'Substitute the real VM ID and today date. Repeat for every VM before you touch any of them. Snapshot names cannot contain spaces.' },
       { cmd: 'qm listsnapshot 101', explain: 'Confirm the snapshot exists before patching. An unverified rollback is not a rollback.' },
       { cmd: 'apt update && apt dist-upgrade -y', explain: 'On the Proxmox host itself. The hypervisor gets patched too — it is the machine everything else depends on.' },
-      { cmd: 'pveversion -v | head -n 3', explain: 'Records the new hypervisor version for the Patch Management Log.' },
+      { cmd: 'pveversion -v | head -n 3', explain: 'Records the new hypervisor version for the Operations Log & SOPs.' },
       { cmd: 'sudo apt update && sudo apt full-upgrade -y', explain: 'On websrv and linuxsrv. full-upgrade will remove packages when a dependency change requires it, which is what you want on a maintained server.' },
       { cmd: 'sudo apt autoremove --purge -y && [ -f /var/run/reboot-required ] && sudo reboot', explain: 'Cleans up, then reboots only if the update actually needs it (a kernel update, typically).' },
-      { cmd: 'lsb_release -d && uname -r', explain: 'On each Ubuntu host after the reboot. Distribution and kernel version for the Patch Management Log.' },
+      { cmd: 'lsb_release -d && uname -r', explain: 'On each Ubuntu host after the reboot. Distribution and kernel version for the Operations Log & SOPs.' },
       { cmd: 'Install-Module PSWindowsUpdate -Force -Scope AllUsers', explain: 'On winserver, in an elevated PowerShell. Gives you Windows Update from the command line. If the module cannot be reached, use sconfig option 6 or the Settings GUI instead.' },
       { cmd: 'Get-WindowsUpdate -Install -AcceptAll -AutoReboot', explain: 'Applies every available update and reboots if required.' },
-      { cmd: 'Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5', explain: 'Lists what actually landed, for the Patch Management Log.' },
+      { cmd: 'Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5', explain: 'Lists what actually landed, for the Operations Log & SOPs.' },
       { cmd: 'systemctl status nginx mariadb --no-pager', explain: 'Run the relevant half on websrv and linuxsrv. Every service must still be running after the update — that check is the point of patching with a rollback.' },
       { cmd: 'Get-Service NTDS, DNS, DHCPServer | Select-Object Name, Status', explain: 'On winserver. All three roles must read Running after the reboot.' },
       { cmd: 'qm rollback 101 pre-patch-2026-03-09', explain: 'ONLY if an update broke something. The VM must be stopped first. This is why the snapshot came before the patch.' },
-      { gui: 'Record each system starting level, schedule, rollback method, what you applied, the date and the result in the Patch Management Log, and add a Change Log row for the patch run.', explain: 'Without the recorded level you cannot tell what is still exposed.' },
+      { gui: 'Record each system starting level, schedule, rollback method, what you applied, the date and the result in the Operations Log & SOPs, and add a change row for the patch run.', explain: 'Without the recorded level you cannot tell what is still exposed.' },
     ],
   },
   {
@@ -731,104 +735,176 @@ function CommandLine({ cmd }: { cmd: string }) {
 }
 
 export function ServerConfigGuide() {
+  // One week at a time. Rendering all 28 procedures at once put ~9,000 words on
+  // the Reference page — 84% of everything the page said — and a manual that
+  // long is not read, it is scrolled past. The week is the unit a student is
+  // actually working in, so that is the unit shown. This is the same week
+  // selector the Deliverables page uses, and for the same reason.
+  //
+  // Every week keeps a real anchor: `#config-week-N` selects that week on load
+  // and on hash change, so the deep links in the task steps still land on the
+  // procedure they promise rather than on a panel that is closed.
+  const [week, setWeek] = useState(1);
+
+  useEffect(() => {
+    const fromHash = () => {
+      const m = /^#config-week-(\d)$/.exec(window.location.hash);
+      if (m) setWeek(Number(m[1]));
+    };
+    fromHash();
+    window.addEventListener('hashchange', fromHash);
+    return () => window.removeEventListener('hashchange', fromHash);
+  }, []);
+
+  const active = WEEKS.find((w) => w.number === week) ?? WEEKS[1];
+  const procs = PROCEDURES.filter((p) => p.week === week);
+  const steps = procs.reduce((n, p) => n + p.steps.length, 0);
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* The addressing rule leads, because every command below is written
           against it and a student who skips it will type the wrong subnet into
-          the installer — the one mistake that is expensive to undo. */}
-      <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
-        <h3 className="text-sm font-semibold text-ink">The addressing rule</h3>
-        <p className="mt-1 text-sm text-muted">
-          Three zones, one host routing between them. Substitute your own team number wherever you see
-          T or teamX — the worked examples throughout use Team 1.
-        </p>
-        <dl className="mt-3 grid gap-2 sm:grid-cols-2">
-          {ADDRESSING.map((a) => (
-            <div key={a.zone} className="rounded-lg border border-line bg-panel-2 p-3">
-              <dt className="text-xs font-semibold uppercase tracking-wide text-accent-ink">{a.zone}</dt>
-              <dd className="mt-1 font-mono text-xs text-ink">{a.net}</dd>
-              <dd className="mt-1 text-xs text-muted">{a.hosts}</dd>
-              {a.note && <dd className="mt-1 text-xs text-muted/80">{a.note}</dd>}
-            </div>
-          ))}
-        </dl>
-        <p className="mt-3 text-xs text-muted">
-          These subnets are worked examples of the standard build.{' '}
+          the installer — the one mistake that is expensive to undo. A table,
+          not prose: four zones with the same three facts each is a table. */}
+      <div className="overflow-hidden rounded-[var(--radius-card)] border border-line">
+        <div className="flex flex-wrap items-baseline gap-x-3 border-b border-line bg-panel-2 px-4 py-2">
+          <h3 className="text-sm font-semibold text-ink">The addressing rule</h3>
+          <span className="text-xs text-muted">Worked examples use Team 1 — substitute your own team number for T.</span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[34rem] border-collapse text-left">
+            <thead>
+              <tr className="border-b border-line bg-panel">
+                <th className="px-4 py-2 eyebrow-muted font-semibold">Zone</th>
+                <th className="px-4 py-2 eyebrow-muted font-semibold">Network</th>
+                <th className="px-4 py-2 eyebrow-muted font-semibold">What lives there</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ADDRESSING.map((a) => (
+                <tr key={a.zone} className="border-b border-line last:border-0 odd:bg-panel even:bg-panel-2">
+                  <td className="px-4 py-2 align-top text-xs font-semibold text-accent-ink">{a.zone}</td>
+                  <td className="px-4 py-2 align-top font-mono text-xs text-ink">{a.net}</td>
+                  <td className="px-4 py-2 align-top text-xs text-muted">
+                    {a.hosts}
+                    {a.note && <span className="block text-muted/80">{a.note}</span>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <p className="border-t border-line bg-panel px-4 py-2 text-xs text-muted">
           <span className="font-mono">{MONITORING_HOST.address}</span> is reserved for the optional{' '}
-          {MONITORING_HOST.hostname} monitoring host, so your own extra business VMs start at{' '}
-          <span className="font-mono">{TEAM_VM_START.vmbr2}</span> and upward in the private zone, or{' '}
-          <span className="font-mono">{TEAM_VM_START.vmbr1}</span> and upward in the DMZ.
+          {MONITORING_HOST.hostname} monitoring host. Your own business VMs start at{' '}
+          <span className="font-mono">{TEAM_VM_START.vmbr2}</span> in the private zone and{' '}
+          <span className="font-mono">{TEAM_VM_START.vmbr1}</span> in the DMZ.
         </p>
       </div>
 
+      {/* Week switcher. Buttons rather than anchors: the anchor still exists on
+          the section below for deep links, but clicking here should swap the
+          week in place instead of jumping the page. */}
       <nav aria-label="Configuration guide weeks" className="flex flex-wrap gap-2">
-        {WEEKS.map((w) => (
-          <a
-            key={w.number}
-            href={`#config-week-${w.number}`}
-            className="rounded-md border border-line bg-panel px-3 py-1.5 text-xs font-medium text-body transition-colors hover:border-accent hover:text-accent"
-          >
-            Week {w.number} · {w.title}
-          </a>
-        ))}
+        {WEEKS.map((w) => {
+          const on = w.number === week;
+          return (
+            <button
+              key={w.number}
+              type="button"
+              onClick={() => {
+                setWeek(w.number);
+                history.replaceState(null, '', `#config-week-${w.number}`);
+              }}
+              aria-current={on ? 'true' : undefined}
+              className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                on
+                  ? 'border-accent bg-accent text-accent-contrast'
+                  : 'border-line bg-panel text-body hover:border-accent hover:text-accent'
+              }`}
+            >
+              Week {w.number}
+              <span className="ml-1.5 opacity-70">{w.title}</span>
+            </button>
+          );
+        })}
       </nav>
 
-      {WEEKS.map((w) => {
-        const procs = PROCEDURES.filter((p) => p.week === w.number);
-        if (procs.length === 0) return null;
-        return (
-          <section key={w.number} id={`config-week-${w.number}`} className="scroll-mt-16 space-y-4">
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line pb-2">
-              <span className="inline-flex items-center rounded-full bg-accent-soft px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent-ink">
-                Week {w.number}
-              </span>
-              <h3 className="text-base font-bold text-ink">{w.title}</h3>
-              {/* Week 0 is Preparation — it is not the first week of the arc and
-                  must not wear Week 1's colour. The w1–w4 tokens are the four
-                  phases; week 0 gets the neutral one. */}
-              <span
-                className="font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
-                style={{
-                  color:
-                    w.number === 0
-                      ? 'var(--color-muted)'
-                      : `var(--color-w${Math.min(4, w.number)})`,
-                }}
-              >
-                {w.phase}
-              </span>
-              <span className="ml-auto text-[11px] text-muted">
-                {procs.length} {procs.length === 1 ? 'procedure' : 'procedures'}
-              </span>
+      <section id={`config-week-${active.number}`} className="scroll-mt-16 space-y-4">
+        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line pb-2">
+          <h3 className="text-base font-bold text-ink">
+            Week {active.number} · {active.title}
+          </h3>
+          {/* Week 0 is Preparation — not the first week of the arc, so it must
+              not wear Week 1's colour. w1–w4 are the four phases. */}
+          <span
+            className="font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
+            style={{ color: active.number === 0 ? 'var(--color-muted)' : `var(--color-w${Math.min(4, active.number)})` }}
+          >
+            {active.phase}
+          </span>
+          <span className="ml-auto font-mono text-[11px] text-muted">
+            {procs.length} {procs.length === 1 ? 'procedure' : 'procedures'} · {steps} steps
+          </span>
+        </div>
+        <p className="text-sm text-muted">{active.lead}</p>
+
+        {/* A jump table, so you can find the one procedure you came for without
+            reading past the others. */}
+        {procs.length > 1 && (
+          <ol className="grid gap-1 sm:grid-cols-2">
+            {procs.map((p, i) => (
+              <li key={p.id}>
+                <a
+                  href={`#${p.id}`}
+                  className="flex items-baseline gap-2 rounded-md border border-line bg-panel-2 px-3 py-1.5 text-xs text-body transition-colors hover:border-accent hover:text-accent"
+                >
+                  <span className="font-mono text-[10px] text-muted">{i + 1}</span>
+                  <span className="min-w-0 flex-1">{p.title}</span>
+                  <span className="shrink-0 font-mono text-[10px] text-muted">{p.steps.length}</span>
+                </a>
+              </li>
+            ))}
+          </ol>
+        )}
+
+        {procs.map((p) => (
+          <article
+            key={p.id}
+            id={p.id}
+            className="scroll-mt-16 overflow-hidden rounded-[var(--radius-card)] border border-line"
+          >
+            <div className="border-b border-line bg-panel-2 px-4 py-2.5">
+              <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                <h4 className="text-sm font-semibold text-ink">{p.title}</h4>
+                {p.optional && (
+                  <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted">
+                    {p.optionalLabel ?? 'Advanced · optional'}
+                  </span>
+                )}
+                <span className="ml-auto eyebrow-muted">{p.where}</span>
+              </div>
+              <p className="mt-1 text-xs text-muted">{p.summary}</p>
             </div>
-            <p className="text-sm text-muted">{w.lead}</p>
 
-            {procs.map((p) => (
-              <article
-                key={p.id}
-                id={p.id}
-                className="scroll-mt-16 rounded-[var(--radius-card)] border border-line bg-panel p-4"
-              >
-                <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-                  <h4 className="text-sm font-semibold text-ink">{p.title}</h4>
-                  {p.optional && (
-                    <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted">
-                      {p.optionalLabel ?? 'Advanced · optional'}
-                    </span>
-                  )}
-                </div>
-                <div className="mt-1 eyebrow-muted">{p.where}</div>
-                <p className="mt-2 text-sm text-body">{p.summary}</p>
-
-                <ol className="mt-3 space-y-3">
+            {/* Two columns: what you do, and what it does. A procedure is a
+                table — the old shape put every explanation in a paragraph under
+                its command, which reads as prose and scans as a wall. */}
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[30rem] border-collapse text-left">
+                <thead className="sr-only">
+                  <tr>
+                    <th>Step</th>
+                    <th>Do this</th>
+                    <th>What it does</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {p.steps.map((s, i) => (
-                    <li key={i} className="grid grid-cols-[1.5rem_1fr] gap-x-2">
-                      <span className="mt-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-panel-2 font-mono text-[10px] text-muted">
-                        {i + 1}
-                      </span>
-                      <div className="min-w-0">
-                        {s.cmd ? <CommandLine cmd={s.cmd} /> : <p className="text-sm text-body">{s.gui}</p>}
-                        <p className="mt-1 text-xs text-muted">{s.explain}</p>
+                    <tr key={i} className="border-b border-line last:border-0 align-top odd:bg-panel even:bg-panel-2">
+                      <td className="w-8 py-2 pl-4 pr-1 font-mono text-[10px] leading-6 text-muted">{i + 1}</td>
+                      <td className="w-[55%] py-2 pr-3">
+                        {s.cmd ? <CommandLine cmd={s.cmd} /> : <span className="text-sm text-body">{s.gui}</span>}
                         {s.doc && (
                           <a
                             href={s.doc.href}
@@ -837,15 +913,16 @@ export function ServerConfigGuide() {
                             {s.doc.label} <ExternalLink className="h-3 w-3 shrink-0" />
                           </a>
                         )}
-                      </div>
-                    </li>
+                      </td>
+                      <td className="py-2 pr-4 text-xs text-muted">{s.explain}</td>
+                    </tr>
                   ))}
-                </ol>
-              </article>
-            ))}
-          </section>
-        );
-      })}
+                </tbody>
+              </table>
+            </div>
+          </article>
+        ))}
+      </section>
     </div>
   );
 }

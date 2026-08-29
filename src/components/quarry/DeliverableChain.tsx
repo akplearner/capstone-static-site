@@ -311,6 +311,25 @@ export function DeliverableChainDiagram({
                 strokeWidth={n.capstone ? 2 : 1.25}
                 strokeDasharray={n.filed ? undefined : '3 2'}
               />
+              {/* The capstone breathes until it is filed — the one node the
+                  whole chain drains into, so the eye is drawn to the finish
+                  line rather than having to be told where it is. `.qi-glow` is
+                  the existing ambient keyframe; the global
+                  prefers-reduced-motion block stills it. */}
+              {n.capstone && !n.filed && (
+                <rect
+                  className="qi-glow"
+                  x={cx(n) - 2}
+                  y={cy(n) - 2}
+                  width={NODE_W + 4}
+                  height={NODE_H + 4}
+                  rx={6}
+                  fill="none"
+                  stroke="var(--color-accent)"
+                  strokeWidth={1.5}
+                  aria-hidden
+                />
+              )}
               {/* The real filename the student saves and hands off. */}
               <text
                 x={cx(n) + NODE_W / 2}

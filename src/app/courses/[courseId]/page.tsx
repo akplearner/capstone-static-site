@@ -1516,7 +1516,12 @@ export default function CoursePage() {
                       </PixelBadge>
                     )}
                     {w.number === activeWeek && joined && weekPct < 100 && (
-                      <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
+                        {/* A slow pulse on the dot only — the eye finds the week
+                            you are on without reading five headers. `.qi-pulse`
+                            is the existing ambient keyframe and the global
+                            prefers-reduced-motion block stills it. */}
+                        <span className="qi-pulse h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
                         Current
                       </span>
                     )}

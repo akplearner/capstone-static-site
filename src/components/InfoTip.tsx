@@ -11,11 +11,15 @@ export function InfoTip({ label }: { label: string }) {
         tabIndex={0}
         role="img"
         aria-label={label}
-        className="h-4 w-4 cursor-help text-gray-400 outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:text-gray-500"
+        className="h-4 w-4 cursor-help text-muted outline-none focus-visible:ring-2 focus-visible:ring-accent"
       />
       <span
         role="tooltip"
-        className="pointer-events-none absolute left-1/2 top-6 z-40 w-64 -translate-x-1/2 rounded-lg bg-gray-900 px-3 py-2 text-xs font-normal leading-relaxed text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 dark:bg-gray-700"
+        // A 16rem box CENTRED on the icon hung off the right of a phone screen and
+        // widened the PAGE, so the Overview and Reference tabs scrolled sideways.
+        // Narrow screens anchor it to the trigger's right edge instead, and the
+        // width is clamped to the viewport. Centred again from sm: upward.
+        className="pointer-events-none absolute top-6 z-40 w-[min(16rem,calc(100vw-2rem))] rounded-lg bg-ink px-3 py-2 text-xs font-normal leading-relaxed text-surface opacity-0 shadow-lg transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 max-sm:right-0 sm:left-1/2 sm:-translate-x-1/2"
       >
         {label}
       </span>
