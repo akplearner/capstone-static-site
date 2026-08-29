@@ -3,25 +3,43 @@ import { DeliverableDef } from './types';
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 
 /**
- * Client deliverables for the CompTIA Server+ capstone — plan, build, connect
- * and secure a rack-mount server in a 24U rack, documented like a professional.
+ * Client deliverables for the CompTIA Server+ capstone.
  *
- * Every student runs the WHOLE engagement on their own server, independently,
- * and fills EVERY form below — that is what `shared: true` means. `owner` is
- * the focus role that leads the documentation for that record (and the lane the
- * deliverable chain draws it in), not a gate on who may open it. No deliverable
- * waits on anyone else's work.
+ * THE SCENARIO. You are the only IT person at a small startup. Nothing is
+ * organised: no topology, no asset list, no documentation, no procedures. You
+ * are handed a second-hand server that does not POST. You diagnose it, get it
+ * running, build the platform on it, and leave behind the records and SOPs the
+ * company never had.
  *
- * Week 1 is planning and analysis — a junior sysadmin's first week: business
- * requirements, a rack plan, a hardware capability audit, an upgrade plan and a
- * draft architecture. The build then executes that plan. Forms are deliberately
- * compact (a few grouped columns, seeded worked rows) so a week's paperwork
- * fits inside the two-hour weekly budget; the exact CLI lives in the platform's
- * own configuration guide (Reference → Configuration guide), not in any handout,
- * and each form is exported to PDF from the Deliverables page.
+ * WHY SIX FORMS. There were eleven, and the paperwork had outgrown the
+ * engineering — students spent the hour filling boxes instead of at the
+ * machine. Six, each matching one artifact a real IT department actually keeps:
  *
- * Course-scoped (`courseId: 'server-plus'`) so they never surface on another
- * course. The whole set drains into `srv_as_built`, the handover package.
+ *   1 Architecture Brief & IP Plan   what the business needs, and the design
+ *   2 Hardware Discovery, HCL …      what the metal is, and what it can run
+ *   3 Server Bring-Up Log            POST fault → RAID → hypervisor
+ *   4 Rack, Power & Asset Register   where it lives and what we own
+ *   5 Operations Log & SOPs          how it is run, by written procedure
+ *   6 DR Plan & As-Built Handover    how it recovers, and the handover  ← capstone
+ *
+ * The business half is deliberately SMALL. It is a startup, not an enterprise:
+ * five fields of context, then the effort goes into defining the architecture
+ * clearly. Specifications are interesting only because of what they serve.
+ *
+ * WRITTEN FOR STUDENTS WHO ARE NOT TECHNICAL YET. They learn these systems by
+ * doing this. So every field carries `help` naming the literal command or menu
+ * path that produces the value, `placeholder` showing a real example, and every
+ * table a seeded worked row. The guidance panel (buildSteps / meaning / useIt /
+ * pitfalls) carries the SOP for the document itself. None of that is decoration:
+ * a form that assumes you already know the answer teaches nobody.
+ *
+ * Every student runs the whole engagement on their own server and fills EVERY
+ * form — that is `shared: true`. `owner` is the focus role that leads that
+ * record (and the lane the chain diagram draws it in), never a lock on who may
+ * open it. Nothing waits on anyone else.
+ *
+ * Course-scoped (`courseId: 'server-plus'`) so these never surface on another
+ * course. The set drains into `srv_as_built`, the handover package.
  */
 
 // Local column helper (mirrors the one in definitions.ts; kept local to avoid a
@@ -33,151 +51,450 @@ const c = (
   extra: Partial<Column> = {}
 ): Column => ({ field, label, type, ...extra });
 
-const CONDITION = ['New', 'Good', 'Fair', 'Poor', 'End of life'];
 const YN = ['Yes', 'No'];
+const ZONES = ['vmbr1 — DMZ', 'vmbr2 — private', 'vmbr0 — management'];
+/** The verdict language an HCL actually uses. */
+const HCL_VERDICT = ['Supported', 'Works with caveats', 'Unsupported', 'Not yet tested'];
 
 export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
-  // 1 — Business Requirements Sheet ──────────────────────────────────────────
+  // 1 — Architecture Brief & IP Plan ─────────────────────────────────────────
+  // Keeps the id `srv_business_reqs` and its client/industry/industry_other
+  // fields: the course overview's TeamBusinessPicker reads and writes them
+  // directly, and the topology diagram's "Building for:" chip depends on them.
   {
     id: 'srv_business_reqs',
-    feeds: ['srv_rack_plan', 'srv_architecture'],
+    feeds: ['srv_hardware', 'srv_rack_assets'],
     courseId: 'server-plus',
     num: 1,
-    file: '01_Business_Requirements.md',
-    title: 'Business Requirements Sheet',
-    owner: 'mgmt',
+    file: '01_Architecture_Brief.md',
+    title: 'Architecture Brief & IP Plan',
+    owner: 'net',
     shared: true,
     folder: '00_Planning',
-    standard: 'Business requirements / scope',
-    weeks: [1],
+    standard: 'Architecture definition & addressing',
+    weeks: [1, 3],
     kind: 'template',
     exportFormat: 'md',
     purpose:
-      'The business profile that drives every technical decision this course: who the client is, what must stay up, what rules apply, and what "done" looks like. Specs only matter because of what is on this page.',
+      'What the startup needs, and the architecture that delivers it. Five lines of business context, then the design itself: which machines exist, which network zone each belongs in, and what address each one answers on.',
     howTo:
-      'Choose (or propose) a business scenario and fill every field. The compliance, uptime and critical-systems answers are the ones the architecture and DR plan will be checked against later.',
+      'Week 1: fill the context and draft the machine list — what you INTEND to build. Week 3: come back and correct it to what you actually built, then fill the addressing table from the running system.',
     buildSteps: [
-      'Name the client, the industry, and yourself as the technician.',
-      'Size the business: employees, departments, hours of operation.',
-      'List the critical systems the business cannot work without.',
-      'Set the compliance rule, the uptime target, and data retention.',
-      'State remote-access needs and the security posture.',
-      'Write acceptance criteria you could actually demonstrate.',
+      'Context first, briefly: who the company is, what it sells, how many staff, and what it needs computers to do.',
+      'List the services the business actually needs — a website, a shared database, file storage, user logins.',
+      'Turn each service into a machine: give it a hostname, an operating system, and a job.',
+      'Put each machine in a zone: DMZ (vmbr1) if the public reaches it, private (vmbr2) if only staff do.',
+      'Give each machine an address inside its zone, and record the gateway for that zone.',
+      'In Week 3, verify every address against the running machine before you call this final.',
     ],
     meaning:
-      'A requirement you cannot trace to the business is a preference. Every later document should be able to point back at a line on this sheet.',
+      'A good architecture can be read aloud: "the website is public so it sits in the DMZ; the database is not, so it sits private and only the website reaches it." If a machine is in a zone you cannot justify in one sentence, it is in the wrong zone.',
     useIt:
-      'It drives the rack plan and the architecture, and it is what the DR numbers and security choices are justified against.',
+      'It tells you what to build in Week 2, what to address in Week 3, and it is the first page of the handover package.',
     pitfalls: [
-      'Choosing specs first and inventing a business to fit them. The business comes first; the hardware serves it.',
-      'An uptime target with no consequence attached. "99.9% because dispatch stops" is a requirement; "99.9%" alone is a wish.',
+      'Designing an enterprise for a startup. Four machines that work beat twelve that are imaginary.',
+      'Putting the database in the DMZ because it was easier. Zones exist to limit what an attacker reaches next.',
+      'Leaving Week 1 guesses in place at handover. As-built means the addresses that are really configured.',
     ],
     sections: [
       {
         kind: 'fields',
-        title: 'The business',
+        title: 'The startup — keep this short',
         fields: [
-          { field: 'client', label: 'Business name', type: 'text', required: true, placeholder: 'Granite Peak Aggregates' },
-          { field: 'industry', label: 'Industry', type: 'select', options: ['Manufacturing', 'Healthcare', 'Retail', 'MSP / IT services', 'Logistics', 'Professional services', 'Other'] },
-          { field: 'industry_other', label: 'If Other — describe the business', type: 'text', placeholder: 'e.g. A regional veterinary clinic chain' },
-          { field: 'technician', label: 'Technician (you)', type: 'text', required: true, placeholder: 'Your name' },
-          { field: 'start_date', label: 'Start date', type: 'date', required: true },
-          { field: 'employees', label: 'Employees', type: 'text', required: true, placeholder: '45' },
-          { field: 'departments', label: 'Departments', type: 'text', placeholder: 'Dispatch, Sales, Accounting, Yard' },
-          { field: 'hours', label: 'Hours of operation', type: 'text', placeholder: 'Mon–Sat 05:00–18:00' },
+          {
+            field: 'client',
+            label: 'Company name',
+            type: 'text',
+            required: true,
+            placeholder: 'Granite Peak Outfitters',
+            help: 'Invent one, or use the business your team agreed on. This also names your topology diagram on the course overview.',
+          },
+          {
+            field: 'industry',
+            label: 'Industry',
+            type: 'select',
+            options: ['Manufacturing', 'Healthcare', 'Retail', 'MSP / IT services', 'Logistics', 'Professional services', 'Other'],
+            help: 'Roughly what the company does. It shapes what data matters and how bad downtime is.',
+          },
+          {
+            field: 'industry_other',
+            label: 'If Other — describe the business',
+            type: 'text',
+            placeholder: 'A regional veterinary clinic chain',
+            help: 'Only needed if you chose Other above.',
+          },
+          {
+            field: 'employees',
+            label: 'Staff',
+            type: 'text',
+            required: true,
+            placeholder: '18',
+            help: 'How many people will use these systems. It sets how many accounts and how much storage you plan for.',
+          },
+          {
+            field: 'needs',
+            label: 'What the business needs computers to do',
+            type: 'area',
+            required: true,
+            placeholder: 'Sell online, keep customer and order records, share files internally, and give every member of staff a login.',
+            help: 'Plain language, two or three sentences. Every machine you build below has to trace back to something on this line.',
+          },
         ],
       },
       {
+        kind: 'group',
+        group: {
+          group: 'machines',
+          label: 'The machines — your architecture',
+          help: 'One row per virtual machine. The four seeded rows are the base build every team creates; add rows for the machines YOUR business needs. Public-facing goes in the DMZ, internal goes private.',
+          columns: [
+            c('hostname', 'Hostname', 'text', { placeholder: 'websrv' }),
+            c('os', 'Operating system', 'text', { placeholder: 'Ubuntu Server 24.04' }),
+            c('job', 'What it does', 'text', { placeholder: 'Public website (NGINX)' }),
+            c('zone', 'Zone', 'select', { options: ZONES }),
+            c('why_zone', 'Why that zone', 'text', { placeholder: 'The public must reach it, so it is isolated from internal systems' }),
+            c('serves', 'Which business need it serves', 'text', { placeholder: 'Sell online' }),
+          ],
+          seed: [
+            { hostname: 'websrv', os: 'Ubuntu Server 24.04', job: 'Public website (NGINX)', zone: 'vmbr1 — DMZ', why_zone: 'Reachable from outside, so it is kept away from internal systems', serves: 'Sell online' },
+            { hostname: 'winserver', os: 'Windows Server 2022', job: 'AD DS, DNS and DHCP — staff logins', zone: 'vmbr2 — private', why_zone: 'Holds every user account; must never be reachable from outside', serves: 'Give every member of staff a login' },
+            { hostname: 'linuxsrv', os: 'Ubuntu Server 24.04', job: 'MariaDB — customer and order records', zone: 'vmbr2 — private', why_zone: 'Business data; only the website reaches it, never the public', serves: 'Keep customer and order records' },
+            { hostname: 'secmon', os: 'Ubuntu Server 24.04', job: 'Monitoring (optional, advanced)', zone: 'vmbr2 — private', why_zone: 'Watches the other machines; no reason to expose it', serves: 'Know when something breaks' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'ipplan',
+          label: 'Addressing — fill from the running system in Week 3',
+          help: 'One row per address you actually configured. Check each against the machine before writing it here: `ip a` on Linux, `ipconfig /all` on Windows.',
+          columns: [
+            c('hostname', 'Hostname', 'text', { placeholder: 'websrv' }),
+            c('zone', 'Zone', 'select', { options: ZONES }),
+            c('address', 'IP address / mask', 'text', { placeholder: '172.16.0.10/24' }),
+            c('gateway', 'Gateway', 'text', { placeholder: '172.16.0.1' }),
+            c('verified', 'Verified on the machine?', 'select', { options: YN }),
+          ],
+          seed: [
+            { hostname: 'pve-host', zone: 'vmbr0 — management', address: '10.10.30.1/16', gateway: '10.10.0.1', verified: 'Yes' },
+            { hostname: 'websrv', zone: 'vmbr1 — DMZ', address: '172.16.0.10/24', gateway: '172.16.0.1', verified: 'Yes' },
+            { hostname: 'winserver', zone: 'vmbr2 — private', address: '192.168.0.2/24', gateway: '192.168.0.1', verified: 'Yes' },
+            { hostname: 'linuxsrv', zone: 'vmbr2 — private', address: '192.168.0.3/24', gateway: '192.168.0.1', verified: 'Yes' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'The company, staff count and what it needs are written down', test: (d) => !!(d.fields.client && d.fields.employees && d.fields.needs) },
+      { label: 'At least four machines are designed, each with a zone', test: (d) => (d.groups.machines ?? []).filter((r) => !!r.hostname && !!r.zone).length >= 4 },
+      { label: 'Every machine justifies its zone and names the need it serves', test: (d) => (d.groups.machines ?? []).length > 0 && (d.groups.machines ?? []).every((r) => !!r.why_zone && !!r.serves) },
+      { label: 'At least four addresses are planned with a gateway (Week 3)', test: (d) => (d.groups.ipplan ?? []).filter((r) => !!r.address && !!r.gateway).length >= 4 },
+      { label: 'Every address has been verified on the running machine', test: (d) => (d.groups.ipplan ?? []).length > 0 && (d.groups.ipplan ?? []).every((r) => r.verified === 'Yes') },
+    ],
+  },
+
+  // 2 — Hardware Discovery, HCL & Upgrade Plan ───────────────────────────────
+  {
+    id: 'srv_hardware',
+    feeds: ['srv_bringup', 'srv_rack_assets'],
+    courseId: 'server-plus',
+    num: 2,
+    file: '02_Hardware_and_HCL.csv',
+    title: 'Hardware Discovery, HCL & Upgrade Plan',
+    owner: 'lnx',
+    shared: true,
+    folder: '01_Physical',
+    standard: 'Hardware audit & compatibility validation',
+    weeks: [1],
+    kind: 'form',
+    exportFormat: 'csv',
+    purpose:
+      'What this machine actually IS, whether the software you plan to run actually SUPPORTS it, and what has to be fixed or bought before the design works. Three questions every technician answers before installing anything.',
+    howTo:
+      'Boot the server from a live USB (or use the BIOS screens if it will not boot yet) and run the command in each field\'s hint. Record what the machine reports, not what the model\'s spec sheet claims — second-hand servers rarely match their brochure.',
+    source: 'The machine itself: BIOS/UEFI screens, and Linux commands from a live USB.',
+    buildSteps: [
+      'Identify the machine: manufacturer, model and serial (on the pull-out tag at the front).',
+      'Run the discovery commands and record what each one reports.',
+      'For every component that matters — CPU, RAM, storage controller, NIC — decide whether your hypervisor and OS support it, and write down the evidence.',
+      'Anything unsupported or marginal becomes a row in the gaps table with a proposed fix.',
+      'Price the fixes, rank them, and get instructor approval before assuming any of them.',
+    ],
+    meaning:
+      'An HCL — Hardware Compatibility List — is the check that stops a build failing halfway. "The RAID card has no driver in this kernel" is a five-minute discovery now, or a lost afternoon in Week 2. The gap between installed and maximum is your upgrade headroom.',
+    useIt:
+      'It decides what you can build: virtualization flags decide whether the hypervisor works at all, and RAM headroom decides how many VMs you can run. It feeds the bring-up log and the asset register.',
+    pitfalls: [
+      'Copying the spec sheet instead of reading the machine.',
+      'Recording that VT-x "is supported" when it is switched off in the BIOS. Supported and enabled are different facts — the hypervisor only cares about the second.',
+      'Marking a component Supported with no evidence. A vendor list or a loaded kernel module is evidence; an assumption is not.',
+    ],
+    sections: [
+      {
+        kind: 'group',
+        group: {
+          group: 'discovery',
+          label: 'Discovery — what is in the box',
+          help: 'Run each command from a live USB and paste what it tells you. If the machine will not boot yet, read the same values off the BIOS/UEFI screens.',
+          columns: [
+            c('component', 'Component', 'text', { placeholder: 'CPU' }),
+            c('command', 'How you found it', 'text', { placeholder: 'lscpu' }),
+            c('found', 'What the machine reports', 'text', { placeholder: '2× Xeon E5-2640 v3 — 16 cores / 32 threads' }),
+            c('notes', 'Notes', 'text', { placeholder: 'Both sockets populated' }),
+          ],
+          seed: [
+            { component: 'CPU model & cores', command: 'lscpu', found: '2× Xeon E5-2640 v3 — 16C / 32T', notes: 'Both sockets populated' },
+            { component: 'Virtualization extensions', command: 'lscpu | grep -i virt', found: 'VT-x present and enabled', notes: 'Had to enable it in BIOS first' },
+            { component: 'IOMMU (PCIe passthrough)', command: 'dmesg | grep -i -e DMAR -e IOMMU', found: 'DMAR: IOMMU enabled', notes: 'Needed only for passthrough' },
+            { component: 'Memory size, type & ECC', command: 'sudo dmidecode -t memory', found: '32 GB RDIMM ECC — 4 of 24 slots used', notes: '768 GB maximum, so plenty of headroom' },
+            { component: 'Disks & bays', command: 'lsblk -o NAME,SIZE,MODEL,ROTA', found: '4× 600 GB SAS 10k, 8 bays total', notes: 'ROTA=1 means spinning disk' },
+            { component: 'RAID / HBA controller', command: 'lspci -nnk | grep -iA3 raid', found: 'Dell PERC H730 Mini', notes: 'Driver megaraid_sas in use' },
+            { component: 'Network cards & driver', command: 'lspci -nnk | grep -iA3 ethernet', found: '4× 1GbE Broadcom NetXtreme', notes: 'Driver tg3 in use' },
+            { component: 'BIOS / firmware version', command: 'sudo dmidecode -t bios', found: 'BIOS 2.19.0, dated 2023-06', notes: 'Two releases behind current' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'hcl',
+          label: 'HCL — will the software support this hardware?',
+          help: 'One row per component that has to work with your hypervisor or OS. Evidence means a vendor compatibility page, or the kernel module actually loaded — check with `lsmod`.',
+          columns: [
+            c('component', 'Component', 'text', { placeholder: 'Dell PERC H730 Mini (RAID)' }),
+            c('target', 'Must work with', 'text', { placeholder: 'Proxmox VE 8' }),
+            c('driver', 'Driver / kernel module', 'text', { placeholder: 'megaraid_sas' }),
+            c('evidence', 'Evidence', 'text', { placeholder: 'Listed on the Proxmox hardware wiki; lsmod shows it loaded' }),
+            c('verdict', 'Verdict', 'select', { options: HCL_VERDICT }),
+          ],
+          seed: [
+            { component: 'Dell PERC H730 Mini (RAID)', target: 'Proxmox VE 8', driver: 'megaraid_sas', evidence: 'Proxmox hardware wiki; lsmod shows module loaded', verdict: 'Supported' },
+            { component: 'Broadcom NetXtreme 1GbE', target: 'Proxmox VE 8', driver: 'tg3', evidence: 'lspci -nnk shows "Kernel driver in use: tg3"', verdict: 'Supported' },
+            { component: 'Xeon E5-2640 v3 — VT-x', target: 'Proxmox VE 8 (KVM)', driver: 'kvm_intel', evidence: 'lscpu reports vmx; enabled in BIOS', verdict: 'Supported' },
+            { component: 'Onboard SATA DVD', target: 'Proxmox VE 8', driver: 'ahci', evidence: 'Detected, but no longer needed by the build', verdict: 'Works with caveats' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'gaps',
+          label: 'Gaps & upgrade plan — what must change before this works',
+          help: 'One row per problem the discovery found: unsupported parts, stale firmware, too little RAM for the machines you designed. Price it and rank it — you are asking someone to spend money.',
+          columns: [
+            c('gap', 'What is wrong', 'text', { placeholder: 'Only 32 GB RAM for four planned VMs' }),
+            c('impact', 'What it blocks', 'text', { placeholder: 'Cannot run the Windows VM and the database comfortably at once' }),
+            c('fix', 'Proposed fix', 'text', { placeholder: 'Add 4× 16 GB RDIMM to reach 96 GB' }),
+            c('cost', 'Cost', 'text', { placeholder: '$180 used' }),
+            c('priority', 'Priority', 'select', { options: ['Blocker', 'High', 'Medium', 'Low'] }),
+          ],
+          seed: [
+            { gap: 'BIOS two releases behind', impact: 'Known memory-training bug on this generation', fix: 'Flash BIOS to current before installing', cost: '$0', priority: 'High' },
+            { gap: 'Only 32 GB RAM for four planned VMs', impact: 'Windows VM and database will contend for memory', fix: 'Add 4× 16 GB RDIMM to reach 96 GB', cost: '$180 used', priority: 'Medium' },
+          ],
+        },
+      },
+      {
         kind: 'fields',
-        title: 'What the infrastructure must do',
+        title: 'Sign-off',
         fields: [
-          { field: 'critical_systems', label: 'Critical systems', type: 'area', required: true, placeholder: 'Dispatch database, staff portal, file shares, name resolution and addressing for the office.' },
-          { field: 'compliance', label: 'Compliance requirements', type: 'select', options: ['None', 'HIPAA', 'PCI-DSS', 'SOX', 'Multiple / other'] },
-          { field: 'sla', label: 'Uptime target (SLA)', type: 'text', required: true, placeholder: '99.5% during operating hours — downtime stops dispatch' },
-          { field: 'retention', label: 'Data retention requirement', type: 'text', placeholder: 'Dispatch records kept 7 years; nightly backups kept 30 days' },
-          { field: 'remote_access', label: 'Remote access needs', type: 'text', placeholder: 'Owner and technician need remote administration; no public services' },
-          { field: 'posture', label: 'Security posture', type: 'select', options: ['Basic', 'Moderate', 'High'] },
-          { field: 'acceptance', label: 'Acceptance criteria (demonstrable)', type: 'area', required: true, placeholder: 'Wk1 plan approved · Wk2 platform deployed · Wk3 connected & proven · Wk4 secured, restore timed, package handed over' },
+          {
+            field: 'approved',
+            label: 'Instructor approval of the upgrade plan',
+            type: 'text',
+            required: true,
+            placeholder: 'Approved by J. Rivera — 2026-02-10',
+            help: 'Show your gaps table to your instructor before assuming any purchase. Real upgrade plans are approved, not announced.',
+          },
         ],
       },
     ],
     dod: [
-      { label: 'The business, industry, technician and start date are filled in', test: (d) => !!(d.fields.client && d.fields.technician && d.fields.start_date) },
-      { label: 'Critical systems and the uptime target are written down', test: (d) => !!(d.fields.critical_systems && d.fields.sla) },
-      { label: 'Employees, compliance and posture are set', test: (d) => !!(d.fields.employees && d.fields.compliance && d.fields.posture) },
-      { label: 'The acceptance criteria are demonstrable statements', test: (d) => !!d.fields.acceptance },
+      { label: 'CPU, memory, storage and network are all discovered', test: (d) => (d.groups.discovery ?? []).filter((r) => !!r.component && !!r.found).length >= 6 },
+      { label: 'Virtualization extensions are recorded as present and enabled', test: (d) => (d.groups.discovery ?? []).some((r) => /virt|vt-x|vt_x|amd-v/i.test(r.component ?? '') && !!r.found) },
+      { label: 'At least one NIC and one storage controller have a compatibility verdict', test: (d) => {
+        const rows = d.groups.hcl ?? [];
+        const has = (re: RegExp) => rows.some((r) => re.test(`${r.component ?? ''}`) && !!r.verdict);
+        return has(/nic|ethernet|network/i) && has(/raid|hba|storage|sas|sata/i);
+      } },
+      { label: 'Every HCL row carries evidence, not an assumption', test: (d) => (d.groups.hcl ?? []).length > 0 && (d.groups.hcl ?? []).every((r) => !!r.evidence && !!r.verdict) },
+      { label: 'Every gap has a proposed fix and a priority', test: (d) => (d.groups.gaps ?? []).length > 0 && (d.groups.gaps ?? []).every((r) => !!r.fix && !!r.priority) },
+      { label: 'The upgrade plan is approved by the instructor', test: (d) => !!d.fields.approved },
     ],
   },
 
-  // 2 — Rack Plan & Cabling Record ───────────────────────────────────────────
+  // 3 — Server Bring-Up Log ──────────────────────────────────────────────────
   {
-    id: 'srv_rack_plan',
-    feeds: ['srv_asset_register', 'srv_architecture'],
+    id: 'srv_bringup',
+    feeds: ['srv_operations', 'srv_rack_assets'],
     courseId: 'server-plus',
-    num: 2,
-    file: '02_Rack_Plan_and_Cabling.md',
-    title: 'Rack Plan & Cabling Record',
-    owner: 'net',
+    num: 3,
+    file: '03_Server_Bring_Up.md',
+    title: 'Server Bring-Up Log',
+    owner: 'win',
     shared: true,
-    folder: '01_Physical',
-    standard: 'Rack elevation / structured cabling',
+    folder: '02_BringUp',
+    standard: 'Troubleshooting method, RAID & hypervisor build record',
     weeks: [1, 2],
     kind: 'form',
     exportFormat: 'md',
     purpose:
-      'The plan for the 24U rack — what goes at which U, how air and power move, and where the room to grow is — then, once built, the record of every cable so any link can be traced without pulling the rack apart.',
+      'The machine arrives dead. This is the record of bringing it back: what was wrong, how you proved it, the array you built on it, and the hypervisor you installed. It is also where you practise the troubleshooting method properly.',
     howTo:
-      'Plan the elevation in Week 1 before touching hardware: placements, airflow, power, cooling, physical security, and at least 20% free U space. In Week 2, as-built it and log every cable.',
+      'Work the method in order — symptom, theory, test the theory, fix, verify, document — and log every attempt, including the theories that turned out to be wrong. A log with no failed theories in it is a log nobody believes.',
+    source: 'The server itself: POST behaviour, beep/LED codes, BIOS screens, RAID utility, installer.',
     buildSteps: [
-      'Note the rack (24U) and count what must fit: servers, switch, patch panel, PDU/UPS.',
-      'Place equipment bottom-up by weight, and record the airflow direction.',
-      'Decide the power path (PDU/UPS outlets) and the cable-management strategy.',
-      'Reserve expansion space — at least 20% of the rack (5U in a 24U) stays free.',
-      'Note the physical-security consideration (locked room, locked rack, or both).',
-      'Week 2: correct the elevation to as-built and log each cable at both ends.',
+      'Describe the symptom exactly: no video? fans spin and stop? a beep pattern? a blinking amber LED?',
+      'Look the code up for THAT vendor and write down what it means.',
+      'Form one theory and change ONE thing to test it. Changing three things teaches you nothing.',
+      'Strip to minimum boot if you are stuck: one CPU, one stick of RAM in the first slot, no drives, no cards.',
+      'Once it posts: set boot mode, boot order, and turn on the virtualization extensions.',
+      'Build the RAID array and write down WHY you chose that level.',
+      'Install Proxmox, give it its management address, and prove you can reach the console.',
     ],
     meaning:
-      'A rack planned on paper is one you can defend: why each U, where the air goes, what the PDU can feed, and where the next server lands without re-cabling.',
+      'The method matters more than the fix. Anyone can reseat RAM; a technician can say which symptom pointed there, what they ruled out, and how they proved it was fixed. That reasoning is what the log records.',
     useIt:
-      'The Week-2 build executes this plan; the asset register and architecture reference it; a field tech traces any link from the cable schedule alone.',
+      'It becomes the machine\'s history — the first thing the next technician reads when it misbehaves — and it feeds the asset register and the operations log.',
     pitfalls: [
-      'Filling the rack. With no expansion reserve, the first growth request means re-racking a live business.',
-      'Recording the switch port but not the patch-panel port — the trace breaks in the middle.',
+      'Changing several things at once, then not knowing which one worked.',
+      'Deleting the failed attempts before handing the log in. They are the evidence you followed a method.',
+      'Choosing RAID 5 because it sounds sensible. State the trade-off you accepted: capacity, redundancy, or rebuild time.',
+      'Forgetting to enable virtualization in the BIOS — it surfaces later as a hypervisor that refuses to start VMs.',
+    ],
+    sections: [
+      {
+        kind: 'group',
+        group: {
+          group: 'post',
+          label: 'POST fault log — one row per attempt',
+          help: 'Keep the rows that did not work. Working through a wrong theory and ruling it out is the method doing its job.',
+          columns: [
+            c('symptom', 'Symptom observed', 'text', { placeholder: 'Fans spin at full speed, no video, amber status LED' }),
+            c('code', 'Beep / LED code & meaning', 'text', { placeholder: 'Amber 1-3 — memory not detected (Dell)' }),
+            c('theory', 'Theory', 'text', { placeholder: 'A DIMM is unseated or dead' }),
+            c('action', 'What you changed (one thing)', 'text', { placeholder: 'Reseated all four DIMMs' }),
+            c('result', 'Result', 'select', { options: ['Fixed it', 'No change — theory wrong', 'Partly — new symptom'] }),
+          ],
+          seed: [
+            { symptom: 'Fans full speed, no video, amber LED', code: 'Amber 1-3 — memory not detected (Dell)', theory: 'A DIMM is unseated or dead', action: 'Reseated all four DIMMs', result: 'No change — theory wrong' },
+            { symptom: 'Fans full speed, no video, amber LED', code: 'Amber 1-3 — memory not detected (Dell)', theory: 'One dead DIMM is stopping the whole bank', action: 'Minimum boot: one DIMM in slot A1 only', result: 'Fixed it' },
+          ],
+        },
+      },
+      {
+        kind: 'fields',
+        title: 'BIOS / UEFI baseline — set these before installing anything',
+        fields: [
+          { field: 'bios_before', label: 'Firmware version on arrival', type: 'text', placeholder: 'BIOS 2.19.0 (2023-06)', help: 'From the BIOS splash screen, or `sudo dmidecode -t bios`.' },
+          { field: 'bios_after', label: 'Firmware version after updating', type: 'text', placeholder: 'BIOS 2.22.1 (2025-02)', help: 'Leave blank if you did not update — but say why in the gaps table of the hardware sheet.' },
+          { field: 'boot_mode', label: 'Boot mode', type: 'select', options: ['UEFI', 'Legacy BIOS'], help: 'UEFI for a modern install. Changing this later usually means reinstalling.' },
+          { field: 'boot_order', label: 'Boot order set to', type: 'text', placeholder: 'RAID array first, then USB', help: 'After installing, the array must come first or the server boots the installer again.' },
+          { field: 'virt_enabled', label: 'Virtualization extensions enabled?', type: 'select', options: YN, required: true, help: 'Intel VT-x / AMD-V. Usually under Processor Settings. Without this the hypervisor cannot run VMs.' },
+          { field: 'virt_where', label: 'Where that setting lives', type: 'text', placeholder: 'System BIOS → Processor Settings → Virtualization Technology', help: 'Write the menu path down — the next technician will need it.' },
+        ],
+      },
+      {
+        kind: 'fields',
+        title: 'RAID array',
+        fields: [
+          { field: 'raid_controller', label: 'Controller', type: 'text', placeholder: 'Dell PERC H730 Mini', help: 'Enter its configuration utility during POST — usually Ctrl+R, watch the screen for the prompt.' },
+          { field: 'raid_level', label: 'RAID level chosen', type: 'select', options: ['RAID 0', 'RAID 1', 'RAID 5', 'RAID 6', 'RAID 10'], required: true, help: 'RAID 1 mirrors two disks. RAID 5 survives one failure with less wasted space. RAID 10 is fastest to rebuild.' },
+          { field: 'raid_why', label: 'Why that level', type: 'area', required: true, placeholder: 'RAID 10 across four 600 GB SAS disks: this is the only server, so a rebuild has to be fast and cannot slow the VMs down. I traded capacity for that.', help: 'Name the trade-off you accepted. Every RAID level gives up something.' },
+          { field: 'raid_members', label: 'Member disks', type: 'text', placeholder: '4× 600 GB SAS 10k, bays 0–3', help: 'Which physical disks joined the array.' },
+          { field: 'raid_spare', label: 'Hot spare', type: 'select', options: ['Yes — one assigned', 'No — none available', 'No — deliberate choice'], help: 'A hot spare rebuilds automatically without anyone visiting the rack.' },
+          { field: 'raid_verified', label: 'How you verified the array is healthy', type: 'text', required: true, placeholder: 'Controller utility shows the virtual disk Optimal after initialisation completed', help: 'An array that exists is not the same as an array that is healthy.' },
+        ],
+      },
+      {
+        kind: 'fields',
+        title: 'Hypervisor install',
+        fields: [
+          { field: 'hv_version', label: 'Proxmox version installed', type: 'text', required: true, placeholder: 'Proxmox VE 8.2', help: 'From the installer, or `pveversion` once it is up.' },
+          { field: 'hv_target', label: 'Installed onto', type: 'text', placeholder: 'The RAID 10 virtual disk', help: 'Not a USB stick and not a single disk — the array you just built.' },
+          { field: 'hv_hostname', label: 'Hostname', type: 'text', placeholder: 'pve-host', help: 'Set during installation. Renaming a Proxmox host afterwards is painful.' },
+          { field: 'hv_address', label: 'Management address', type: 'text', required: true, placeholder: '10.10.30.1/16', help: 'Follow the team rule: 10.10.30.T where T is your team number.' },
+          { field: 'hv_bridges', label: 'Bridges created', type: 'text', placeholder: 'vmbr0 management, vmbr1 DMZ, vmbr2 private', help: 'The virtual switches your VMs will attach to.' },
+          { field: 'hv_proof', label: 'Proof it works', type: 'text', required: true, placeholder: 'Reached https://10.10.30.1:8006 from the classroom LAN and logged in', help: 'Reaching the web console from another machine is the proof.' },
+        ],
+      },
+    ],
+    dod: [
+      { label: 'At least one POST fault is worked through to a verified fix', test: (d) => (d.groups.post ?? []).some((r) => r.result === 'Fixed it') },
+      { label: 'The log keeps the reasoning: symptom, theory and action on every row', test: (d) => (d.groups.post ?? []).length > 0 && (d.groups.post ?? []).every((r) => !!r.symptom && !!r.theory && !!r.action) },
+      { label: 'Virtualization extensions are enabled and the menu path recorded', test: (d) => d.fields.virt_enabled === 'Yes' && !!d.fields.virt_where },
+      { label: 'The RAID level is chosen and the trade-off justified in writing', test: (d) => !!(d.fields.raid_level && d.fields.raid_why) },
+      { label: 'The array is verified healthy', test: (d) => !!d.fields.raid_verified },
+      { label: 'The hypervisor is installed and reachable on its management address', test: (d) => !!(d.fields.hv_version && d.fields.hv_address && d.fields.hv_proof) },
+    ],
+  },
+
+  // 4 — Rack, Power & Asset Register ─────────────────────────────────────────
+  {
+    id: 'srv_rack_assets',
+    feeds: ['srv_operations'],
+    courseId: 'server-plus',
+    num: 4,
+    file: '04_Rack_and_Assets.csv',
+    title: 'Rack, Power & Asset Register',
+    owner: 'net',
+    shared: true,
+    folder: '03_Physical',
+    standard: 'Physical installation & asset inventory',
+    weeks: [2],
+    kind: 'form',
+    exportFormat: 'csv',
+    purpose:
+      'Where the equipment physically lives, how it is powered and cabled, and a list of everything the company owns. The two questions a lone admin cannot answer without this: what do we have, and which cable is that?',
+    howTo:
+      'Rack the server, label both ends of every cable as you run it, then write down what you did. Then walk the room and list every asset — including the virtual machines, which are assets too.',
+    buildSteps: [
+      'Record the rack: how many U, which way the air flows, how it is powered.',
+      'Place each device at its U position, heaviest at the bottom.',
+      'Leave at least 20% of the rack free — you will need it within a year.',
+      'Label both ends of every cable before you plug it in, and log it.',
+      'List every asset: physical machines, virtual machines, network gear, and licences.',
+    ],
+    meaning:
+      'An asset register is the answer to "what do we actually own?" — the question nobody at a startup can answer, and the one an auditor, an insurer or your replacement asks first. The cable schedule is what makes the next change safe.',
+    useIt:
+      'It feeds the operations log (you can only change what you know you have) and the handover package.',
+    pitfalls: [
+      'Labelling one end of a cable. The unlabelled end is the one you will be holding.',
+      'Filling the rack completely because it fits today.',
+      'Listing only physical machines. The VMs are assets — they hold the data.',
     ],
     sections: [
       {
         kind: 'fields',
-        title: 'Rack plan (Week 1)',
+        title: 'The rack',
         fields: [
-          { field: 'rack_id', label: 'Rack ID / location', type: 'text', required: true, placeholder: 'Rack A — server room' },
-          { field: 'rack_size', label: 'Rack size', type: 'select', options: ['24U', '42U', '12U', 'Other'] },
-          { field: 'airflow', label: 'Airflow direction', type: 'text', required: true, placeholder: 'Front (cold) intake → rear (hot) exhaust; nothing blocks the rear' },
-          { field: 'power', label: 'Power distribution', type: 'text', required: true, placeholder: '8-outlet PDU at U1 fed from the UPS; one outlet per device, labelled' },
-          { field: 'cooling', label: 'Cooling consideration', type: 'text', placeholder: 'Room AC holds 22°C; 1U gap above the server for airflow' },
-          { field: 'physical_security', label: 'Physical security', type: 'text', placeholder: 'Server room locked; rack key with the office manager' },
-          { field: 'expansion', label: 'Expansion reserve (≥20% = 5U in a 24U)', type: 'text', required: true, placeholder: 'U8–U18 kept free (11U) for a second server and NAS' },
-          { field: 'photo', label: 'Rack photo (front & rear, Week 2)', type: 'text', placeholder: 'GranitePeak_Wk2_rack-front.jpg' },
+          { field: 'rack_id', label: 'Rack identifier', type: 'text', required: true, placeholder: 'Rack A — server room', help: 'Name it so a cable label can refer to it.' },
+          { field: 'rack_units', label: 'Size', type: 'text', placeholder: '24U', help: 'Count the mounting holes in threes if the rack is not marked.' },
+          { field: 'airflow', label: 'Airflow direction', type: 'text', placeholder: 'Front-to-back; cold aisle at the front', help: 'Every device must pull air the same way or they heat each other.' },
+          { field: 'power', label: 'Power arrangement', type: 'text', required: true, placeholder: '8-outlet PDU on a dedicated 20A circuit; UPS feeds the PDU', help: 'What feeds the rack, and what happens to it when the building loses power.' },
+          { field: 'expansion', label: 'Space kept free', type: 'text', required: true, placeholder: '18U reserved (75%)', help: 'Aim for 20% or more. Growth is the one certainty.' },
         ],
       },
       {
         kind: 'group',
         group: {
           group: 'elevation',
-          label: 'Rack elevation — planned in Week 1, corrected to as-built in Week 2',
-          help: 'One row per device, top of its position first. This is the map of the 24U rack.',
+          label: 'Rack elevation — what sits where',
+          help: 'One row per device, top of the rack downwards. Include the reserved blank space as a row so it is deliberate rather than accidental.',
           columns: [
             c('u', 'U position', 'text', { placeholder: 'U20–U21' }),
-            c('device', 'Device', 'text', { placeholder: 'Dell R630 server' }),
-            c('type', 'Type', 'select', { options: ['Server', 'Switch', 'Patch panel', 'PDU', 'UPS', 'Shelf', 'Blank / reserved'] }),
-            c('status', 'Status', 'select', { options: ['Planned', 'Installed'] }),
-            c('notes', 'Notes', 'text', { placeholder: '2U, front intake / rear exhaust' }),
+            c('device', 'Device', 'text', { placeholder: 'Proxmox host (2U)' }),
+            c('type', 'Type', 'select', { options: ['Server', 'Switch', 'Patch panel', 'PDU', 'UPS', 'Blank / reserved'] }),
+            c('power_draw', 'Power draw', 'text', { placeholder: '~350 W typical' }),
           ],
           seed: [
-            { u: 'U24', device: '24-port patch panel', type: 'Patch panel', status: 'Planned', notes: 'Cat6 terminations from the office drops' },
-            { u: 'U23', device: 'Access switch', type: 'Switch', status: 'Planned', notes: 'Uplink to office LAN on port 24' },
-            { u: 'U20–U21', device: 'Dell PowerEdge R630', type: 'Server', status: 'Planned', notes: '2U on sliding rails — the hypervisor host' },
-            { u: 'U8–U18', device: 'Expansion reserve', type: 'Blank / reserved', status: 'Planned', notes: '≥20% kept free for growth' },
-            { u: 'U1', device: 'Rack PDU', type: 'PDU', status: 'Planned', notes: '8-outlet, feeds every device above' },
+            { u: 'U24', device: '24-port patch panel', type: 'Patch panel', power_draw: '—' },
+            { u: 'U23', device: 'Access switch', type: 'Switch', power_draw: '~40 W' },
+            { u: 'U20–U21', device: 'Proxmox host (2U, on rails)', type: 'Server', power_draw: '~350 W typical' },
+            { u: 'U2–U19', device: 'Reserved for growth', type: 'Blank / reserved', power_draw: '—' },
+            { u: 'U1', device: 'Rack PDU, 8 outlet', type: 'PDU', power_draw: '—' },
           ],
         },
       },
@@ -185,799 +502,248 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         kind: 'group',
         group: {
           group: 'cabling',
-          label: 'Cable schedule (Week 2)',
-          help: 'One row per cable. Trace any link from panel port to switch port using this alone.',
+          label: 'Cable schedule',
+          help: 'One row per cable. Label both ends with the same label before plugging anything in.',
           columns: [
             c('label', 'Cable label', 'text', { placeholder: 'A-01' }),
-            c('from', 'From', 'text', { placeholder: 'Patch panel P1' }),
-            c('to', 'To', 'text', { placeholder: 'Switch Gi0/1' }),
-            c('colour', 'Colour', 'select', { options: ['Blue', 'Green', 'Yellow', 'Red', 'Grey', 'Black'] }),
-            c('carries', 'Carries', 'text', { placeholder: 'Server NIC 1 — management' }),
+            c('from', 'From', 'text', { placeholder: 'Patch panel port 1' }),
+            c('to', 'To', 'text', { placeholder: 'Switch port 1' }),
+            c('type', 'Type', 'text', { placeholder: 'Cat6 patch, 0.5 m' }),
           ],
           seed: [
-            { label: 'A-01', from: 'Patch panel P1', to: 'Switch Gi0/1', colour: 'Blue', carries: 'Server NIC 1 — hypervisor management' },
-            { label: 'A-02', from: 'Patch panel P2', to: 'Switch Gi0/2', colour: 'Green', carries: 'Server NIC 2 — VM traffic' },
-            { label: 'A-24', from: 'Switch Gi0/24', to: 'Office wall port', colour: 'Yellow', carries: 'Uplink to the office LAN' },
+            { label: 'A-01', from: 'Patch panel port 1', to: 'Switch port 1', type: 'Cat6 patch, 0.5 m' },
+            { label: 'A-02', from: 'Switch port 24 (uplink)', to: 'Campus LAN drop', type: 'Cat6, 3 m' },
+            { label: 'S-01', from: 'Proxmox host NIC 1', to: 'Switch port 2', type: 'Cat6 patch, 1 m' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'assets',
+          label: 'Asset register — everything the company owns',
+          help: 'Physical machines AND virtual ones. If it holds data or costs money, it belongs here.',
+          columns: [
+            c('asset_id', 'Asset ID', 'text', { placeholder: 'SRV-001' }),
+            c('name', 'Name', 'text', { placeholder: 'pve-host' }),
+            c('type', 'Type', 'select', { options: ['Physical server', 'Virtual machine', 'Network device', 'Storage', 'Software / licence'] }),
+            c('identifier', 'Serial / identifier', 'text', { placeholder: 'Service tag 7XK2M13' }),
+            c('owner', 'Responsible for it', 'text', { placeholder: 'IT (you)' }),
+          ],
+          seed: [
+            { asset_id: 'SRV-001', name: 'pve-host', type: 'Physical server', identifier: 'Dell R630 — tag 7XK2M13', owner: 'IT (you)' },
+            { asset_id: 'VM-001', name: 'websrv', type: 'Virtual machine', identifier: 'VMID 101', owner: 'IT (you)' },
+            { asset_id: 'VM-002', name: 'winserver', type: 'Virtual machine', identifier: 'VMID 102', owner: 'IT (you)' },
+            { asset_id: 'NET-001', name: 'Access switch', type: 'Network device', identifier: 'Cisco CBS350, FOC2481', owner: 'IT (you)' },
           ],
         },
       },
     ],
     dod: [
-      { label: 'The rack is identified with airflow, power and an expansion reserve', test: (d) => !!(d.fields.rack_id && d.fields.airflow && d.fields.power && d.fields.expansion) },
+      { label: 'The rack is identified with power and reserved space recorded', test: (d) => !!(d.fields.rack_id && d.fields.power && d.fields.expansion) },
       { label: 'At least four devices are placed in the elevation', test: (d) => (d.groups.elevation ?? []).filter((r) => !!r.u && !!r.device).length >= 4 },
-      { label: 'The elevation includes a reserved expansion row', test: (d) => (d.groups.elevation ?? []).some((r) => r.type === 'Blank / reserved') },
-      { label: 'At least three cables are logged with both ends (Week 2)', test: (d) => (d.groups.cabling ?? []).filter((r) => !!r.label && !!r.from && !!r.to).length >= 3 },
+      { label: 'Space is deliberately reserved for growth', test: (d) => (d.groups.elevation ?? []).some((r) => r.type === 'Blank / reserved') },
+      { label: 'At least three cables are logged with both ends', test: (d) => (d.groups.cabling ?? []).filter((r) => !!r.label && !!r.from && !!r.to).length >= 3 },
+      { label: 'At least four assets are registered, including virtual machines', test: (d) => (d.groups.assets ?? []).filter((r) => !!r.asset_id && !!r.name).length >= 4 && (d.groups.assets ?? []).some((r) => r.type === 'Virtual machine') },
     ],
   },
 
-  // 3 — Server Hardware Discovery Sheet ──────────────────────────────────────
+  // 5 — Operations Log & SOPs ────────────────────────────────────────────────
   {
-    id: 'srv_discovery',
-    feeds: ['srv_upgrade_plan', 'srv_config_mgmt'],
-    courseId: 'server-plus',
-    num: 3,
-    file: '03_Hardware_Discovery.csv',
-    title: 'Server Hardware Discovery Sheet',
-    owner: 'lnx',
-    shared: true,
-    folder: '01_Physical',
-    standard: 'Hardware capability audit',
-    weeks: [1],
-    kind: 'form',
-    exportFormat: 'csv',
-    purpose:
-      'The deep audit of what each server actually is and can do — CPU, memory, storage, networking, expansion and firmware. Upgrade decisions and VM sizing are only as good as this sheet.',
-    howTo:
-      'Walk one server at a time with the service tag, the BIOS screen and the remote-management page. The platform\'s configuration guide (Reference → Configuration guide, Week 1) says which screen each value lives on. Record what IS, not what the spec sheet claims.',
-    source: 'The machine itself: labels, BIOS/UEFI, and iDRAC/iLO.',
-    buildSteps: [
-      'Identify the server: manufacturer, model, serial/service tag.',
-      'CPU: model, cores/threads, virtualization support (VT-x/VT-d), max RAM.',
-      'Memory: installed vs maximum, slots used vs total, ECC type.',
-      'Storage: bays, RAID controller and levels, installed drives.',
-      'Network & management: NICs, speeds, ports, iDRAC/iLO version.',
-      'Expansion & firmware: PCIe slots, installed cards, BIOS version, boot mode.',
-    ],
-    meaning:
-      'The gap between installed and maximum is your upgrade headroom, and the virtualization flags decide whether the hypervisor plan works at all.',
-    useIt:
-      'It feeds the Upgrade Planning Sheet directly (headroom and compatibility) and the configuration record (the pre-install baseline).',
-    pitfalls: [
-      'Copying the model\'s spec sheet instead of reading the machine. Reclaimed servers rarely match their brochure.',
-      'Skipping the virtualization flags — a disabled VT-x surfaces as a Week-2 mystery failure.',
-    ],
-    sections: [
-      {
-        kind: 'group',
-        group: {
-          group: 'cpu',
-          label: 'CPU',
-          help: 'One row per server. The virtualization column decides whether the hypervisor plan works.',
-          columns: [
-            c('server', 'Server', 'text', { placeholder: 'R630 — service tag 7XK2M13' }),
-            c('model', 'CPU model', 'text', { placeholder: '2× Xeon E5-2640 v3' }),
-            c('cores', 'Cores / threads', 'text', { placeholder: '16C / 32T total' }),
-            c('virt', 'VT-x / VT-d', 'select', { options: ['Both enabled', 'VT-x only', 'Disabled in BIOS', 'Not supported'] }),
-            c('max_ram', 'Max RAM supported', 'text', { placeholder: '768 GB' }),
-          ],
-          seed: [
-            { server: 'R630 — 7XK2M13', model: '2× Xeon E5-2640 v3', cores: '16C / 32T total', virt: 'Both enabled', max_ram: '768 GB' },
-          ],
-        },
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'memory',
-          label: 'Memory',
-          help: 'Installed vs maximum is the upgrade headroom.',
-          columns: [
-            c('server', 'Server', 'text', { placeholder: 'R630 — 7XK2M13' }),
-            c('installed', 'Installed', 'text', { placeholder: '32 GB' }),
-            c('max', 'Maximum', 'text', { placeholder: '768 GB' }),
-            c('slots', 'Slots used / total', 'text', { placeholder: '4 / 24' }),
-            c('ecc', 'ECC type', 'select', { options: ['RDIMM', 'LRDIMM', 'UDIMM ECC', 'Non-ECC', 'Unknown'] }),
-          ],
-          seed: [
-            { server: 'R630 — 7XK2M13', installed: '32 GB', max: '768 GB', slots: '4 / 24', ecc: 'RDIMM' },
-          ],
-        },
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'storage',
-          label: 'Storage',
-          help: 'Bays, controller and what is actually in the sleds.',
-          columns: [
-            c('server', 'Server', 'text', { placeholder: 'R630 — 7XK2M13' }),
-            c('bays', 'Drive bays', 'text', { placeholder: '8× 2.5" hot-swap' }),
-            c('controller', 'RAID controller', 'text', { placeholder: 'PERC H730, 1 GB cache' }),
-            c('levels', 'RAID levels supported', 'text', { placeholder: '0/1/5/6/10' }),
-            c('drives', 'Installed drives', 'text', { placeholder: '4× 600 GB SAS 10k' }),
-          ],
-          seed: [
-            { server: 'R630 — 7XK2M13', bays: '8× 2.5" hot-swap', controller: 'PERC H730, 1 GB cache', levels: '0/1/5/6/10', drives: '4× 600 GB SAS 10k' },
-          ],
-        },
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'network',
-          label: 'Network & remote management',
-          help: 'The NICs the topology will use, and the out-of-band path.',
-          columns: [
-            c('server', 'Server', 'text', { placeholder: 'R630 — 7XK2M13' }),
-            c('nics', 'NICs (model · ports · speed)', 'text', { placeholder: 'Broadcom quad-port 1 GbE' }),
-            c('mgmt', 'iDRAC / iLO / IPMI', 'text', { placeholder: 'iDRAC8 Enterprise' }),
-            c('mgmt_ver', 'Management firmware', 'text', { placeholder: '2.70.70.70' }),
-          ],
-          seed: [
-            { server: 'R630 — 7XK2M13', nics: 'Broadcom quad-port 1 GbE', mgmt: 'iDRAC8 Enterprise', mgmt_ver: '2.70.70.70' },
-          ],
-        },
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'firmware',
-          label: 'Expansion & firmware',
-          help: 'PCIe headroom and the boot state the install will meet.',
-          columns: [
-            c('server', 'Server', 'text', { placeholder: 'R630 — 7XK2M13' }),
-            c('pcie', 'PCIe slots (free / total)', 'text', { placeholder: '2 / 3 free' }),
-            c('cards', 'Installed cards', 'text', { placeholder: 'PERC H730 only' }),
-            c('bios', 'BIOS version', 'text', { placeholder: '2.19.0' }),
-            c('boot', 'Boot mode', 'select', { options: ['UEFI', 'BIOS (legacy)', 'UEFI + Secure Boot'] }),
-          ],
-          seed: [
-            { server: 'R630 — 7XK2M13', pcie: '2 / 3 free', cards: 'PERC H730 only', bios: '2.19.0', boot: 'UEFI' },
-          ],
-        },
-      },
-    ],
-    dod: [
-      { label: 'CPU row recorded with virtualization support', test: (d) => (d.groups.cpu ?? []).filter((r) => !!r.server && !!r.virt).length >= 1 },
-      { label: 'Memory row shows installed, maximum and slots', test: (d) => (d.groups.memory ?? []).filter((r) => !!r.installed && !!r.max && !!r.slots).length >= 1 },
-      { label: 'Storage row names the controller and installed drives', test: (d) => (d.groups.storage ?? []).filter((r) => !!r.controller && !!r.drives).length >= 1 },
-      { label: 'Network & management and firmware rows are recorded', test: (d) => (d.groups.network ?? []).filter((r) => !!r.nics).length >= 1 && (d.groups.firmware ?? []).filter((r) => !!r.bios).length >= 1 },
-    ],
-  },
-
-  // 4 — Upgrade Planning Sheet ───────────────────────────────────────────────
-  {
-    id: 'srv_upgrade_plan',
-    feeds: ['srv_asset_register'],
-    courseId: 'server-plus',
-    num: 4,
-    file: '04_Upgrade_Plan.csv',
-    title: 'Upgrade Planning Sheet',
-    owner: 'win',
-    shared: true,
-    folder: '00_Planning',
-    standard: 'Upgrade planning / procurement',
-    weeks: [1],
-    kind: 'form',
-    exportFormat: 'csv',
-    purpose:
-      'The proposal for what the servers need before they can serve the business — each upgrade confirmed compatible, priced, justified in business terms, and risk-assessed. Procurement thinking, not shopping.',
-    howTo:
-      'One row per proposed upgrade, driven by the gap the Discovery Sheet exposed (installed vs max, missing capability). Every row needs a compatibility check and a business justification, then instructor sign-off.',
-    source: 'The Server Hardware Discovery Sheet — its headroom and gaps.',
-    buildSteps: [
-      'Find the gaps: installed vs maximum RAM, drive bays empty, NIC speeds vs need.',
-      'Propose the component: current → replacement, with the exact part class.',
-      'Confirm compatibility against the discovery sheet (board, controller, backplane).',
-      'Price it with a vendor source, and rate the installation complexity and risk.',
-      'Justify it in business terms — the requirement it serves, not the spec it raises.',
-      'Get instructor approval before anything is ordered or installed.',
-    ],
-    meaning:
-      'An upgrade justified by a requirement ("dispatch DB needs RAM for 4 VMs") survives review; one justified by a bigger number does not.',
-    useIt:
-      'Approved upgrades become asset-register rows when installed, and the risk column feeds the change log when the work happens.',
-    pitfalls: [
-      'Proposing parts the platform cannot use — the compatibility column exists to be checked, not ticked.',
-      'A justification that restates the spec ("more RAM") instead of the business need it serves.',
-    ],
-    sections: [
-      {
-        kind: 'group',
-        group: {
-          group: 'upgrades',
-          label: 'Proposed upgrades',
-          help: 'One row per component. Compatibility and justification are the graded columns.',
-          columns: [
-            c('server', 'Server', 'text', { placeholder: 'R630 — 7XK2M13' }),
-            c('type', 'Component type', 'select', { options: ['RAM', 'CPU', 'Drive', 'NIC', 'RAID controller', 'PSU', 'Other'] }),
-            c('current', 'Current', 'text', { placeholder: '32 GB (4× 8 GB RDIMM)' }),
-            c('proposed', 'Proposed', 'text', { placeholder: '96 GB (add 4× 16 GB RDIMM 2133)' }),
-            c('compatible', 'Compatible?', 'select', { options: ['Confirmed', 'Needs check', 'No'] }),
-            c('cost', 'Est. cost', 'text', { placeholder: '$120 used' }),
-            c('vendor', 'Vendor source', 'text', { placeholder: 'Refurb reseller' }),
-            c('complexity', 'Install complexity', 'select', { options: ['Low', 'Medium', 'High'] }),
-            c('downtime', 'Downtime?', 'select', { options: YN }),
-            c('justification', 'Business justification', 'area', { placeholder: 'Runs the 4-VM layout with headroom; dispatch DB stays responsive at month-end.' }),
-            c('risk', 'Risk', 'select', { options: ['Low', 'Medium', 'High'] }),
-          ],
-          seed: [
-            { server: 'R630 — 7XK2M13', type: 'RAM', current: '32 GB (4× 8 GB RDIMM)', proposed: '96 GB (add 4× 16 GB RDIMM 2133)', compatible: 'Confirmed', cost: '$120 used', vendor: 'Refurb reseller', complexity: 'Low', downtime: 'Yes', justification: 'Runs the 4-VM layout with headroom; dispatch DB stays responsive at month-end.', risk: 'Low' },
-            { server: 'R630 — 7XK2M13', type: 'Drive', current: '4 bays empty', proposed: '2× 1 TB SAS for backup datastore', compatible: 'Needs check', cost: '$90', vendor: 'Refurb reseller', complexity: 'Low', downtime: 'No', justification: 'Local backup target so the DR plan has somewhere to restore from.', risk: 'Low' },
-          ],
-        },
-      },
-      {
-        kind: 'fields',
-        title: 'Instructor approval',
-        fields: [
-          { field: 'approved', label: 'Approved', type: 'select', options: ['Yes', 'No', 'Pending'] },
-          { field: 'approval_notes', label: 'Instructor notes', type: 'area', placeholder: 'RAM approved; confirm backplane before ordering drives.' },
-        ],
-      },
-    ],
-    dod: [
-      { label: 'At least two upgrades are proposed with current → proposed', test: (d) => (d.groups.upgrades ?? []).filter((r) => !!r.current && !!r.proposed).length >= 2 },
-      { label: 'Every row has a compatibility status and a cost', test: (d) => (d.groups.upgrades ?? []).length > 0 && (d.groups.upgrades ?? []).every((r) => !!r.compatible && !!r.cost) },
-      { label: 'Every row is justified in business terms with a risk rating', test: (d) => (d.groups.upgrades ?? []).length > 0 && (d.groups.upgrades ?? []).every((r) => !!r.justification && !!r.risk) },
-      { label: 'Instructor approval is recorded', test: (d) => !!d.fields.approved },
-    ],
-  },
-
-  // 5 — Asset Register / CMDB ────────────────────────────────────────────────
-  {
-    id: 'srv_asset_register',
-    feeds: ['srv_config_mgmt', 'srv_dr_plan'],
-    courseId: 'server-plus',
-    num: 5,
-    file: '05_Asset_Register.csv',
-    title: 'Asset Register',
-    owner: 'mgmt',
-    shared: true,
-    folder: '02_Assets',
-    standard: 'Asset inventory / CMDB',
-    weeks: [1, 2],
-    kind: 'form',
-    exportFormat: 'csv',
-    purpose:
-      'The master list of every piece of hardware and software you deploy — a lightweight CMDB. You cannot secure, budget for, patch or recover what you do not know you have.',
-    howTo:
-      'Walk the rack device by device and record what you can read off the hardware and the OS. Warranty and end-of-support dates are the columns that prevent nasty surprises.',
-    source: 'The rack plan (hardware) and everything you install (software).',
-    buildSteps: [
-      'List the vendors you deal with first — the register refers to them by name.',
-      'Add one hardware row per physical item in the rack, with an asset tag, value and warranty date.',
-      'Add one software row per installed program, with its version and support-end date.',
-      'Mark condition honestly — "reclaimed, out of warranty" is useful; "Good" everywhere is not.',
-      'Complete the software tab in Week 2, as part of deploying the services.',
-    ],
-    meaning:
-      'A good register answers a budget question and a security question at once: what do we own, and what is out of support and no longer patched?',
-    useIt:
-      'It feeds configuration and patch management (what needs updating), and the DR plan (what has to come back, and in what order).',
-    pitfalls: [
-      'Recording only the server. The switch, patch panel, PDU, OS licences and installed programs are assets too.',
-      'Blank end-of-life dates — that column is the one that turns the register into a risk tool.',
-    ],
-    sections: [
-      {
-        kind: 'group',
-        group: {
-          group: 'vendors',
-          label: 'Vendor list',
-          help: 'Who you buy from and who to call. Referenced by name from the hardware rows.',
-          columns: [
-            c('vendor', 'Vendor name', 'text', { placeholder: 'Dell Technologies' }),
-            c('product', 'Product supplied', 'text', { placeholder: 'PowerEdge R630 server' }),
-            c('contact', 'Contact', 'text', { placeholder: 'support@example.com' }),
-            c('notes', 'Notes', 'text', { placeholder: 'Support contract expired; parts only.' }),
-          ],
-          seed: [
-            { vendor: 'Dell Technologies', product: 'PowerEdge R630 server', contact: 'support@example.com', notes: 'Reclaimed unit — parts only.' },
-          ],
-        },
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'hardware',
-          label: 'Hardware assets',
-          help: 'One row per physical item in the rack. Asset tag, warranty and condition make this a planning tool.',
-          columns: [
-            c('tag', 'Asset tag', 'text', { placeholder: 'GP-HW-001' }),
-            c('name', 'Name', 'text', { placeholder: 'Hypervisor host' }),
-            c('type', 'Type', 'select', { options: ['Server', 'Switch', 'Patch panel', 'PDU', 'UPS', 'Other'] }),
-            c('model', 'Make / model', 'text', { placeholder: 'Dell PowerEdge R630' }),
-            c('serial', 'Serial / service tag', 'text', { placeholder: '7XK2M13' }),
-            c('location', 'Location (rack / U)', 'text', { placeholder: 'Rack A · U20–U21' }),
-            c('warranty_expiry', 'Warranty expiry', 'date'),
-            c('value', 'Value', 'text', { placeholder: '$1,800' }),
-            c('condition', 'Condition', 'select', { options: CONDITION }),
-          ],
-          seed: [
-            { tag: 'GP-HW-001', name: 'Hypervisor host', type: 'Server', model: 'Dell PowerEdge R630', serial: '7XK2M13', location: 'Rack A · U20–U21', warranty_expiry: '2024-04-02', value: '$1,800', condition: 'Fair' },
-            { tag: 'GP-HW-002', name: 'Access switch', type: 'Switch', model: 'Cisco Catalyst 2960', serial: 'FOC1934', location: 'Rack A · U23', warranty_expiry: '2023-04-02', value: '$300', condition: 'Fair' },
-            { tag: 'GP-HW-003', name: 'Patch panel', type: 'Patch panel', model: '24-port Cat6', serial: 'n/a', location: 'Rack A · U24', warranty_expiry: '', value: '$60', condition: 'Good' },
-          ],
-        },
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'software',
-          label: 'Software assets',
-          help: 'One row per installed program, including each OS. The support-end date is the security-relevant column.',
-          columns: [
-            c('tag', 'Asset tag', 'text', { placeholder: 'GP-SW-001' }),
-            c('host', 'Installed on', 'text', { placeholder: 'Hypervisor host' }),
-            c('program', 'Program', 'text', { placeholder: 'Proxmox VE' }),
-            c('version', 'Version', 'text', { placeholder: '8.2' }),
-            c('type', 'Type', 'select', { options: ['Operating system', 'Hypervisor', 'Server role', 'Database', 'Application', 'Utility'] }),
-            c('install_date', 'Installed', 'date'),
-            c('support_end', 'Support ends', 'date'),
-          ],
-          seed: [
-            { tag: 'GP-SW-001', host: 'Hypervisor host', program: 'Proxmox VE', version: '8.2', type: 'Hypervisor', install_date: '2026-02-17', support_end: '2027-07-31' },
-            { tag: 'GP-SW-002', host: 'winserver VM', program: 'Windows Server 2022', version: '21H2', type: 'Operating system', install_date: '2026-02-18', support_end: '2031-10-14' },
-            { tag: 'GP-SW-003', host: 'linuxsrv VM', program: 'Ubuntu Server', version: '22.04 LTS', type: 'Operating system', install_date: '2026-02-18', support_end: '2027-04-30' },
-          ],
-        },
-      },
-    ],
-    dod: [
-      { label: 'At least one vendor is recorded', test: (d) => (d.groups.vendors ?? []).filter((r) => !!r.vendor).length >= 1 },
-      { label: 'At least three hardware assets with a tag and condition', test: (d) => (d.groups.hardware ?? []).filter((r) => !!r.tag && !!r.condition).length >= 3 },
-      { label: 'At least three software assets with a version', test: (d) => (d.groups.software ?? []).filter((r) => !!r.program && !!r.version).length >= 3 },
-      { label: 'Every software row names the host it runs on', test: (d) => (d.groups.software ?? []).length > 0 && (d.groups.software ?? []).every((r) => !!r.host) },
-    ],
-  },
-
-  // 6 — Architecture & IP Plan ───────────────────────────────────────────────
-  {
-    id: 'srv_architecture',
-    feeds: ['srv_config_mgmt', 'srv_dr_plan'],
-    courseId: 'server-plus',
-    num: 6,
-    file: '06_Architecture_and_IP_Plan.md',
-    title: 'Architecture & IP Plan',
-    owner: 'net',
-    shared: true,
-    folder: '03_Network',
-    standard: 'Architecture / topology / IPAM',
-    weeks: [1, 3],
-    kind: 'form',
-    exportFormat: 'md',
-    purpose:
-      'The design of the whole environment: which server roles run where, how the network is laid out, how storage and backups work — drafted in Week 1 against the business requirements, finalised with real addresses in Week 3.',
-    howTo:
-      'Week 1: draft the server roles, the VM layout (at least four planned VMs) and the storage/backup strategy. Week 3: describe the real physical and virtual paths and give every host its address in one place.',
-    source: 'The business requirements (what it must do) and the rack plan (what it runs on).',
-    buildSteps: [
-      'Draft the server roles the business needs: directory, file, application, database, security/monitoring.',
-      'Lay out at least four planned VMs and which role each carries.',
-      'Sketch the storage strategy and where backups land.',
-      'Week 3: describe the physical path — office drop → patch panel → switch → server NIC.',
-      'Week 3: reserve the address ranges and give the host and every VM a row.',
-      'Draw the topology diagram and note its filename here.',
-    ],
-    meaning:
-      'The draft is judged against the requirements sheet; the final is judged against reality. Both halves of that sentence matter.',
-    useIt:
-      'It anchors the configuration record and the DR plan, and it is the reference for every later network change. Keep it matching reality.',
-    pitfalls: [
-      'An architecture with no security or monitoring role — the requirements sheet almost certainly implies one.',
-      'Two devices sharing an address; the collision surfaces as an outage days later. 192.168.0.4 is the one people take twice — it is the monitoring host, so your own VMs start at 192.168.0.5.',
-    ],
-    sections: [
-      {
-        kind: 'group',
-        group: {
-          group: 'roles',
-          label: 'Server roles & VM layout — drafted in Week 1',
-          help: 'At least four planned VMs, each in its zone: vmbr1 is the DMZ (public-facing), vmbr2 the private network. Build order says what exists by Week 2. The four seeded rows are the base build every team shares; add your own business VMs below them.',
-          columns: [
-            c('vm', 'VM name', 'text', { placeholder: 'winserver' }),
-            c('role', 'Server role', 'select', { options: ['Directory services', 'File server', 'Application server', 'Database server', 'Web server', 'Security / monitoring', 'Other'] }),
-            c('bridge', 'Bridge / zone', 'select', { options: ['vmbr1 — DMZ', 'vmbr2 — private'] }),
-            c('os', 'OS', 'text', { placeholder: 'Windows Server 2022' }),
-            c('resources', 'Planned resources', 'text', { placeholder: '2 vCPU / 4 GB / 60 GB' }),
-            c('build', 'Build order', 'select', { options: ['Week 2 (core)', 'Planned — later phase'] }),
-          ],
-          seed: [
-            { vm: 'winserver', role: 'Directory services', bridge: 'vmbr2 — private', os: 'Windows Server 2022', resources: '2 vCPU / 4 GB / 60 GB', build: 'Week 2 (core)' },
-            { vm: 'linuxsrv', role: 'Database server', bridge: 'vmbr2 — private', os: 'Ubuntu Server 22.04', resources: '2 vCPU / 4 GB / 40 GB', build: 'Week 2 (core)' },
-            { vm: 'websrv', role: 'Web server', bridge: 'vmbr1 — DMZ', os: 'Ubuntu Server 22.04', resources: '2 vCPU / 2 GB / 30 GB', build: 'Week 2 (core)' },
-            { vm: 'secmon', role: 'Security / monitoring', bridge: 'vmbr2 — private', os: 'Ubuntu Server 22.04', resources: '2 vCPU / 6 GB / 80 GB', build: 'Planned — later phase' },
-          ],
-        },
-      },
-      {
-        kind: 'fields',
-        title: 'Storage, backup & monitoring strategy — drafted in Week 1',
-        fields: [
-          { field: 'storage', label: 'Storage strategy', type: 'area', required: true, placeholder: 'RAID 5 across 4 SAS drives for VM storage; separate backup datastore on 2 added drives.' },
-          { field: 'backup', label: 'Backup strategy', type: 'area', required: true, placeholder: 'Nightly VM snapshots to the backup datastore, kept 30 days per the retention requirement.' },
-          { field: 'monitoring', label: 'Monitoring & security controls', type: 'area', placeholder: 'Hypervisor alerts by email; the secmon monitoring VM holds 192.168.0.4 in the private zone whether or not you build it this term; strong admin passwords, no public services.' },
-        ],
-      },
-      {
-        kind: 'fields',
-        title: 'Topology — finalised in Week 3',
-        fields: [
-          { field: 'physical', label: 'Physical path', type: 'area', placeholder: 'Campus LAN (10.10.0.0/16) wall port → patch panel P1 → switch Gi0/1 → server NIC 1 (vmbr0, management). Later phase: NIC 2 → Cisco router + switch for vmbr2\'s internet path.' },
-          { field: 'virtual', label: 'Virtual layout', type: 'area', placeholder: 'vmbr0 = management on the LAN; vmbr1 = DMZ with websrv; vmbr2 = private with winserver and the linuxsrv database — vmbr2 later maps to a physical NIC into the Cisco router (the servers\' only internet path).' },
-          { field: 'diagram_file', label: 'Topology diagram file', type: 'text', placeholder: 'GranitePeak_Wk3_topology.png' },
-        ],
-      },
-      {
-        kind: 'group',
-        group: {
-          group: 'ipplan',
-          label: 'IP address plan — finalised in Week 3',
-          help: 'Every host gets a row before it connects. Your Proxmox host is 10.10.30.T for team T on the 10.10.0.0/16 LAN. The seeded rows are the reserved base build: 172.16.0.10 is websrv in the DMZ, and 192.168.0.2–.4 are winserver, linuxsrv and the monitoring host. Your own business VMs start at 192.168.0.5 in the private zone and 172.16.0.11 in the DMZ.',
-          columns: [
-            c('hostname', 'Hostname', 'text', { placeholder: 'winserver' }),
-            c('role', 'Role', 'text', { placeholder: 'Windows Server VM' }),
-            c('ip', 'IP address', 'text', { placeholder: '192.168.0.2' }),
-            c('gateway', 'Gateway', 'text', { placeholder: '192.168.0.1' }),
-            c('dns', 'DNS', 'text', { placeholder: '192.168.0.2' }),
-            c('assignment', 'Static / DHCP', 'select', { options: ['Static', 'DHCP'] }),
-          ],
-          seed: [
-            { hostname: 'pve-host', role: 'Hypervisor — vmbr0 (Team 1)', ip: '10.10.30.1', gateway: '10.10.0.1', dns: '—', assignment: 'Static' },
-            { hostname: 'websrv', role: 'Website — vmbr1 (DMZ)', ip: '172.16.0.10', gateway: '172.16.0.1', dns: '192.168.0.2', assignment: 'Static' },
-            { hostname: 'winserver', role: 'Directory — vmbr2 (private)', ip: '192.168.0.2', gateway: '192.168.0.1', dns: 'self', assignment: 'Static' },
-            { hostname: 'linuxsrv', role: 'Database — vmbr2 (private)', ip: '192.168.0.3', gateway: '192.168.0.1', dns: '192.168.0.2', assignment: 'Static' },
-            { hostname: 'secmon', role: 'Monitoring (optional track) — vmbr2 (private); reserved either way', ip: '192.168.0.4', gateway: '192.168.0.1', dns: '192.168.0.2', assignment: 'Static' },
-            { hostname: '(your first business VM)', role: 'Your own service — vmbr2 (private); DMZ equivalents start at 172.16.0.11', ip: '192.168.0.5', gateway: '192.168.0.1', dns: '192.168.0.2', assignment: 'Static' },
-          ],
-        },
-      },
-    ],
-    dod: [
-      { label: 'At least four VMs are laid out with a role each', test: (d) => (d.groups.roles ?? []).filter((r) => !!r.vm && !!r.role).length >= 4 },
-      { label: 'The storage and backup strategies are written', test: (d) => !!(d.fields.storage && d.fields.backup) },
-      { label: 'The physical and virtual layouts are described (Week 3)', test: (d) => !!(d.fields.physical && d.fields.virtual) },
-      { label: 'At least three hosts have a unique address (Week 3)', test: (d) => { const ips = (d.groups.ipplan ?? []).map((r) => (r.ip ?? '').trim()).filter(Boolean); return ips.length >= 3 && new Set(ips).size === ips.length; } },
-    ],
-  },
-
-  // 7 — Configuration Management Record ──────────────────────────────────────
-  {
-    id: 'srv_config_mgmt',
-    feeds: ['srv_change_log', 'srv_dr_plan'],
-    courseId: 'server-plus',
-    num: 7,
-    file: '07_Configuration_Management.md',
-    title: 'Configuration Management Record',
-    owner: 'lnx',
-    shared: true,
-    folder: '04_Config',
-    standard: 'Configuration management / baseline',
-    weeks: [2],
-    kind: 'form',
-    exportFormat: 'md',
-    purpose:
-      'The record of how each system is actually configured — the settings that would have to be reproduced to rebuild it. Configuration you did not write down is configuration you cannot restore or audit.',
-    howTo:
-      'One row per system. Capture the baseline settings you set — hostname, addresses, roles, key options — and name the procedure they came from in the platform\'s configuration guide (Reference → Configuration guide). Record the value, not a description of it.',
-    source: 'Every system you install and configure.',
-    buildSteps: [
-      'One row per configured system: the hypervisor host and each VM.',
-      'Record the baseline that matters — hostname, IP, installed roles, key options.',
-      'Name the configuration-guide procedure the exact build steps live in.',
-      'Attach a screenshot of the setting and its result as evidence.',
-      'Update the row whenever you change the system, and log the change.',
-    ],
-    meaning:
-      'A good configuration record lets you rebuild a system to the same state from the paperwork. It is the difference between "reinstall and hope" and "reinstall to spec".',
-    useIt:
-      'It feeds the change log and the DR plan — the restore procedure is only as good as the config it restores to.',
-    pitfalls: [
-      'Describing the setting ("configured networking") instead of recording the value (the actual IP, mask, gateway).',
-      'Letting the record drift from reality after a change. A stale config record is a trap for the next tech.',
-    ],
-    sections: [
-      {
-        kind: 'group',
-        group: {
-          group: 'systems',
-          label: 'Systems',
-          help: 'One row per configured system. Record the values, not descriptions.',
-          columns: [
-            c('system', 'System', 'text', { placeholder: 'Hypervisor host' }),
-            c('purpose', 'Purpose', 'text', { placeholder: 'Virtualization platform' }),
-            c('baseline', 'Baseline configuration (values)', 'area', { placeholder: 'Hostname pve-host; vmbr0 mgmt 10.10.30.1/16; vmbr1 DMZ; vmbr2 private; no-subscription repo enabled.' }),
-            c('guide_ref', 'Guide procedure for exact steps', 'text', { placeholder: 'Config guide — Install Proxmox VE and set the management address' }),
-            c('evidence', 'Evidence (screenshot)', 'text', { placeholder: 'GranitePeak_Wk2_pve-config.png' }),
-          ],
-          seed: [
-            { system: 'Hypervisor host', purpose: 'Virtualization platform', baseline: 'Hostname pve-host; vmbr0 mgmt 10.10.30.1/16 (Team 1); vmbr1 DMZ 172.16.0.1/24; vmbr2 private 192.168.0.1/24; no-subscription repo enabled.', guide_ref: 'Config guide — Install Proxmox VE and set the management address', evidence: 'GranitePeak_Wk2_pve-config.png' },
-            { system: 'websrv VM', purpose: 'Public-facing website (DMZ)', baseline: '2 vCPU / 2 GB / 30 GB; static 172.16.0.10 on vmbr1, gw 172.16.0.1, DNS 192.168.0.2; packages: nginx.', guide_ref: 'Config guide — Publish the website on websrv with NGINX', evidence: 'GranitePeak_Wk2_websrv-nginx.png' },
-            { system: 'winserver VM', purpose: 'Directory, DNS, DHCP', baseline: '2 vCPU / 4 GB / 60 GB; static 192.168.0.2 on vmbr2, gw 192.168.0.1, DNS 127.0.0.1; roles: AD DS, DNS, DHCP.', guide_ref: 'Config guide — Promote winserver to a domain controller for teamX.local', evidence: 'GranitePeak_Wk2_win-roles.png' },
-            { system: 'linuxsrv VM', purpose: 'Database', baseline: '2 vCPU / 4 GB / 40 GB; static 192.168.0.3 on vmbr2, gw 192.168.0.1, DNS 192.168.0.2; packages: mariadb-server.', guide_ref: 'Config guide — Install MariaDB and create capstone_db on linuxsrv', evidence: 'GranitePeak_Wk2_linux-svc.png' },
-          ],
-        },
-      },
-    ],
-    dod: [
-      { label: 'All four systems are recorded — the host, websrv, winserver and linuxsrv', test: (d) => (d.groups.systems ?? []).filter((r) => !!r.system).length >= 4 },
-      { label: 'Every system has a baseline configuration with real values', test: (d) => (d.groups.systems ?? []).length > 0 && (d.groups.systems ?? []).every((r) => !!r.baseline) },
-      { label: 'Every system points to its guide procedure and evidence', test: (d) => (d.groups.systems ?? []).length > 0 && (d.groups.systems ?? []).every((r) => !!r.guide_ref && !!r.evidence) },
-    ],
-  },
-
-  // 8 — Patch Management Log ─────────────────────────────────────────────────
-  {
-    id: 'srv_patch_mgmt',
-    feeds: ['srv_change_log'],
-    courseId: 'server-plus',
-    num: 8,
-    file: '08_Patch_Management.csv',
-    title: 'Patch Management Log',
-    owner: 'win',
-    shared: true,
-    folder: '05_Operations',
-    standard: 'Patch management',
-    weeks: [4],
-    kind: 'form',
-    exportFormat: 'csv',
-    purpose:
-      'The record of what patch level each system is at, when it was last updated, and how you would roll a bad patch back. Unpatched systems are the most common way an environment is compromised.',
-    howTo:
-      'One row per system. Record its current patch baseline, the schedule you set, what you applied, and the rollback — a snapshot or a restore point taken before you patched.',
-    source: 'The asset register (every system that needs patching).',
-    buildSteps: [
-      'One row per system from the asset register.',
-      'Record its starting patch baseline before you touch it.',
-      'Set an update schedule appropriate to the system.',
-      'Take a snapshot or restore point first — that is your rollback.',
-      'Apply updates, then record the new level and the date.',
-    ],
-    meaning:
-      'A good patch log answers "are we current, and can we undo a bad update?" A patch with no rollback is a gamble on production.',
-    useIt:
-      'It feeds the change log and proves to the client that the environment is maintained, not just installed and forgotten.',
-    pitfalls: [
-      'Patching with no snapshot first — when an update breaks a service, there is no way back.',
-      'Recording "updated" with no date or level. Without the level you cannot tell what is still exposed.',
-    ],
-    sections: [
-      {
-        kind: 'group',
-        group: {
-          group: 'patches',
-          label: 'Systems',
-          help: 'One row per system. The rollback column is what makes patching safe on a live server.',
-          columns: [
-            c('system', 'System', 'text', { placeholder: 'Hypervisor host' }),
-            c('baseline', 'Starting patch level', 'text', { placeholder: '8.2, kernel 6.8' }),
-            c('schedule', 'Update schedule', 'select', { options: ['Weekly', 'Monthly', 'Quarterly', 'On release', 'Manual'] }),
-            c('rollback', 'Rollback method', 'select', { options: ['VM snapshot', 'System restore point', 'Full backup', 'None'] }),
-            c('applied', 'Patches applied', 'text', { placeholder: 'apt full-upgrade — 42 packages' }),
-            c('date', 'Date applied', 'date'),
-            c('result', 'Result', 'select', { options: ['Success', 'Rolled back', 'Pending'] }),
-          ],
-          seed: [
-            { system: 'Hypervisor host', baseline: '8.2, kernel 6.8', schedule: 'Monthly', rollback: 'Full backup', applied: 'apt full-upgrade — 42 packages', date: '2026-03-09', result: 'Success' },
-            { system: 'winserver VM', baseline: '2022 21H2, no updates', schedule: 'Monthly', rollback: 'VM snapshot', applied: 'Windows Update — March cumulative', date: '2026-03-09', result: 'Success' },
-            { system: 'linuxsrv VM', baseline: '22.04, base install', schedule: 'Monthly', rollback: 'VM snapshot', applied: 'apt upgrade — 30 packages', date: '2026-03-09', result: 'Success' },
-          ],
-        },
-      },
-    ],
-    dod: [
-      { label: 'At least three systems are logged', test: (d) => (d.groups.patches ?? []).filter((r) => !!r.system).length >= 3 },
-      { label: 'Every system has a schedule and a rollback method', test: (d) => (d.groups.patches ?? []).length > 0 && (d.groups.patches ?? []).every((r) => !!r.schedule && !!r.rollback) },
-      { label: 'No system relies on "None" for rollback', test: (d) => !(d.groups.patches ?? []).some((r) => r.rollback === 'None') },
-      { label: 'Every applied patch has a date', test: (d) => (d.groups.patches ?? []).filter((r) => !!r.applied).length > 0 && (d.groups.patches ?? []).filter((r) => !!r.applied).every((r) => !!r.date) },
-    ],
-  },
-
-  // 9 — Change Log ───────────────────────────────────────────────────────────
-  {
-    id: 'srv_change_log',
+    id: 'srv_operations',
     feeds: ['srv_as_built'],
     courseId: 'server-plus',
-    num: 9,
-    file: '09_Change_Log.csv',
-    title: 'Change Log',
-    owner: 'mgmt',
+    num: 5,
+    file: '05_Operations_and_SOPs.md',
+    title: 'Operations Log & SOPs',
+    owner: 'win',
     shared: true,
-    folder: '00_Planning',
-    standard: 'Change control',
-    weeks: [1, 2, 3, 4],
+    folder: '04_Operations',
+    standard: 'Change & patch management, standard operating procedures',
+    weeks: [2, 3, 4],
     kind: 'form',
-    exportFormat: 'csv',
+    exportFormat: 'md',
     purpose:
-      'A chronological, append-only record of every change you made. When something breaks, the first question is "what changed?" — this answers it in seconds and holds the rollback.',
+      'How this environment is run: every change recorded, every patch tracked, and the written procedures that mean someone else could do it the same way. This is the difference between a server and a service.',
     howTo:
-      'Add a row the moment you make a change. Never reconstruct it from memory later — the rollback column is only trustworthy if it was written before the change.',
+      'Log changes as you make them — not at the end of the week, when you will have forgotten the rollback plan. Then write the SOPs as numbered steps a stranger could follow.',
+    source: 'Your own work in Weeks 2 to 4.',
     buildSteps: [
-      'Before a risky change, write the row: what you are about to do, why, and how to undo it.',
-      'Make the change, then fill in the result you actually saw.',
-      'Log the physical changes too — racking, re-cabling, a moved patch lead.',
-      'Keep it append-only. Correct a mistake with a new row, never by editing history.',
+      'Every time you change the running system, add a row before you make the change.',
+      'Write the rollback first. If you cannot say how to undo it, you are not ready to do it.',
+      'Track patches separately: what version, tested where, applied when, and what you saw afterwards.',
+      'Write each SOP as numbered steps, naming who does it and how often.',
+      'Test one SOP by following it exactly as written — you will find the missing step.',
     ],
     meaning:
-      'A good change log lets whoever is on call answer "what changed?" and reverse it without calling you.',
+      'An SOP is a procedure someone else can follow without you in the room. If a step says "configure the firewall appropriately", it is not an SOP yet. The change log answers "what changed?" — the first question asked whenever something breaks.',
     useIt:
-      'Read it first during troubleshooting; hand it over as proof of a controlled, professional build.',
+      'It goes into the handover package, and it is what the company operates from after you leave.',
     pitfalls: [
-      'Filling it in at the end of the week — the rollback value is the previous setting, and nobody remembers it later.',
-      'Vague entries. "Fixed network" is not a change record.',
+      'Writing the log at the end of the week from memory.',
+      'Patching production without a snapshot to roll back to.',
+      'SOPs written for someone who already knows the answer. Write them for the person who arrives after you.',
     ],
     sections: [
       {
         kind: 'group',
         group: {
           group: 'changes',
-          label: 'Changes',
-          help: 'Append-only. One row per meaningful change, written as you make it.',
+          label: 'Change log',
+          help: 'One row per change to the running system. Fill the rollback column BEFORE you make the change.',
           columns: [
-            c('datetime', 'Date / time', 'text', { placeholder: '2026-02-17 14:05' }),
-            c('change', 'What changed', 'text', { placeholder: 'Mounted the R630 in Rack A, U20–U21' }),
-            c('why', 'Why', 'text', { placeholder: 'Physical install per the rack plan' }),
-            c('result', 'Result', 'text', { placeholder: 'Racked, cabled and powered; front panel lit' }),
-            c('rollback', 'Rollback', 'text', { placeholder: 'Unrack and return to staging' }),
+            c('date', 'Date', 'text', { placeholder: '2026-02-24' }),
+            c('change', 'What changed', 'text', { placeholder: 'Created vmbr2 private bridge on the host' }),
+            c('why', 'Why', 'text', { placeholder: 'Windows and database VMs need an isolated network' }),
+            c('rollback', 'How to undo it', 'text', { placeholder: 'Remove vmbr2 from /etc/network/interfaces and reload' }),
+            c('result', 'Result', 'select', { options: ['Worked', 'Rolled back', 'Partial — follow-up needed'] }),
           ],
           seed: [
-            { datetime: '2026-02-17 09:20', change: 'Mounted the R630 in Rack A, U20–U21', why: 'Physical install per the rack plan', result: 'Racked on rails, cable-managed', rollback: 'Unrack and return to staging' },
-            { datetime: '2026-02-17 14:05', change: 'Patched panel P1–P2 to switch Gi0/1–Gi0/2', why: 'Connect the server NICs to the LAN', result: 'Both links up, labelled A-01/A-02', rollback: 'Remove patch leads; ports revert to unused' },
+            { date: '2026-02-24', change: 'Created vmbr2 private bridge', why: 'Windows and database VMs need an isolated network', rollback: 'Remove the stanza from /etc/network/interfaces and reload networking', result: 'Worked' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'patches',
+          label: 'Patch log',
+          help: 'One row per patch round, per machine. Snapshot first — that is your rollback.',
+          columns: [
+            c('system', 'System', 'text', { placeholder: 'linuxsrv' }),
+            c('patch', 'What was applied', 'text', { placeholder: 'apt full-upgrade — 41 packages, incl. kernel 6.8.0-52' }),
+            c('snapshot', 'Snapshot taken first?', 'select', { options: YN }),
+            c('date', 'Date applied', 'text', { placeholder: '2026-03-03' }),
+            c('outcome', 'Outcome', 'text', { placeholder: 'Rebooted; MariaDB came back up; site responding' }),
+          ],
+          seed: [
+            { system: 'linuxsrv', patch: 'apt full-upgrade — 41 packages, incl. kernel 6.8.0-52', snapshot: 'Yes', date: '2026-03-03', outcome: 'Rebooted; MariaDB came back up; site responding' },
+          ],
+        },
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'sops',
+          label: 'Standard operating procedures',
+          help: 'The procedures this company keeps. Write the steps as instructions, numbered, with no gaps — assume the reader has never seen this system.',
+          columns: [
+            c('name', 'Procedure', 'text', { placeholder: 'Monthly patch round' }),
+            c('trigger', 'When it runs', 'text', { placeholder: 'First Tuesday of each month, 18:00' }),
+            c('who', 'Who does it', 'text', { placeholder: 'IT administrator' }),
+            c('steps', 'Steps, in order', 'text', { placeholder: '1) Snapshot each VM 2) Patch test VM first 3) Verify service responds 4) Patch remaining VMs 5) Reboot in order db, then web 6) Verify site 7) Log it here 8) Delete snapshots after 7 days' }),
+          ],
+          seed: [
+            { name: 'Monthly patch round', trigger: 'First Tuesday, 18:00', who: 'IT administrator', steps: '1) Snapshot each VM 2) Patch the test VM first 3) Verify it still serves 4) Patch the rest 5) Reboot database then web 6) Check the site loads 7) Record it in the patch log 8) Delete snapshots after 7 days' },
+            { name: 'Making a change', trigger: 'Before any change to a running system', who: 'IT administrator', steps: '1) Write the change and its rollback in the change log 2) Snapshot if the change touches a VM 3) Make the change 4) Verify the service still works 5) Record the result 6) If it failed, roll back and say so' },
+            { name: 'Weekly backup check', trigger: 'Every Monday', who: 'IT administrator', steps: '1) Confirm the scheduled backup ran 2) Check its size is plausible 3) Once a month, restore one file to prove it 4) Record the result in the DR plan' },
+            { name: 'New staff member', trigger: 'On hire', who: 'IT administrator', steps: '1) Create the AD account 2) Add to the right group only 3) Confirm they can log in 4) Add them to the asset register if issued a device' },
           ],
         },
       },
     ],
     dod: [
-      { label: 'At least four changes are logged', test: (d) => (d.groups.changes ?? []).filter((r) => !!r.change).length >= 4 },
-      { label: 'Every change records why it was made', test: (d) => (d.groups.changes ?? []).length > 0 && (d.groups.changes ?? []).every((r) => !!r.why) },
-      { label: 'Every change has a rollback written down', test: (d) => (d.groups.changes ?? []).length > 0 && (d.groups.changes ?? []).every((r) => !!r.rollback) },
+      { label: 'At least three changes are logged with a rollback for each', test: (d) => (d.groups.changes ?? []).filter((r) => !!r.change && !!r.rollback).length >= 3 },
+      { label: 'Every logged change records what happened', test: (d) => (d.groups.changes ?? []).length > 0 && (d.groups.changes ?? []).every((r) => !!r.result) },
+      { label: 'At least two patch rounds are recorded', test: (d) => (d.groups.patches ?? []).filter((r) => !!r.system && !!r.patch).length >= 2 },
+      { label: 'Patches were snapshotted before being applied', test: (d) => (d.groups.patches ?? []).length > 0 && (d.groups.patches ?? []).every((r) => r.snapshot === 'Yes') },
+      { label: 'At least three SOPs are written with ordered steps and an owner', test: (d) => (d.groups.sops ?? []).filter((r) => !!r.name && !!r.steps && !!r.who).length >= 3 },
     ],
   },
 
-  // 10 — DR Plan (RTO / RPO / MTTR) ──────────────────────────────────────────
+  // 6 — DR Plan & As-Built Handover — THE CAPSTONE ───────────────────────────
   {
-    id: 'srv_dr_plan',
-    feeds: ['srv_as_built'],
+    id: 'srv_as_built',
+    capstone: true,
     courseId: 'server-plus',
-    num: 10,
-    file: '10_DR_Plan.md',
-    title: 'Disaster Recovery Plan',
-    owner: 'win',
+    num: 6,
+    file: '06_DR_and_As_Built.md',
+    title: 'DR Plan & As-Built Handover',
+    owner: 'mgmt',
     shared: true,
-    folder: '06_Resilience',
-    standard: 'Disaster recovery (RTO / RPO / MTTR)',
+    folder: '05_Handover',
+    standard: 'Disaster recovery & as-built handover documentation',
     weeks: [4],
     kind: 'form',
     exportFormat: 'md',
     purpose:
-      'The written procedure for getting the server running again after a failure — and the numbers that say how fast and how much data you can lose. It turns "we hope we can recover" into "we can, in N hours".',
+      'How this company survives losing the server, and the complete record of what you actually built. The thing they operate from after you leave.',
     howTo:
-      'Set an RTO, RPO and target MTTR per system, document the restore steps, then run one real restore and record the actual recovery time against the targets.',
-    source: 'The asset register (what is critical) and the configuration record (how each system rebuilds).',
+      'Set the recovery targets, write the restore procedure, then PROVE it by restoring something and timing it. Then walk the handover checklist, fix anything that disagrees with reality, and write the summary.',
+    source: 'Every other deliverable in this course, plus a real restore test.',
     buildSteps: [
-      'List the critical systems from the asset register, in the order the business needs them back.',
-      'Set RTO (max downtime), RPO (max data loss) and a target MTTR for each.',
-      'Write the restore steps, pointing at the configuration record and backups.',
-      'Run one real restore on ONE machine — break something on it, roll that same VM back, confirm the data returned.',
-      'Record the actual recovery time against the targets, including a miss.',
+      'Decide how much downtime and how much data loss the business can actually absorb.',
+      'Write what is backed up, to where, how often, and how long it is kept.',
+      'Write the restore procedure as numbered steps.',
+      'Actually restore something. Time it. Compare that to your target and be honest.',
+      'Walk the handover checklist and confirm each document matches reality.',
+      'Write the client summary: what they have, how they run it, what is still outstanding.',
     ],
     meaning:
-      'RTO is how fast it must return; RPO is how much data you can lose; MTTR is how long a repair actually takes on average. Only a tested restore proves any of them.',
+      'A backup nobody has restored is a hope, not a plan. RTO is how long until you are running again; RPO is how much data you accept losing. Both are business decisions, and the restore test is what turns them from numbers into facts.',
     useIt:
-      'You execute a slice of it as the Week-4 restore test; the client keeps it current as the system changes.',
+      'This is the handover. The company keeps it, operates from it, and maintains it as things change.',
     pitfalls: [
-      'Numbers chosen because they sound good instead of from what downtime costs the client.',
-      'Recording the test as "passed" with no measured time — the number is the whole point.',
-      'Breaking one machine and rolling back another. Deleting the web root on websrv and restoring linuxsrv proves nothing: the failure and the snapshot have to be the same VM.',
+      'An RTO with no evidence behind it. If you have not timed a restore, you do not know your RTO.',
+      'Backing up to the same server. That is a copy, not a backup.',
+      'Assembling the package from memory in Week 4 instead of keeping documents current.',
+      'Handing over the plan instead of what was built. As-built means as BUILT, including what changed.',
     ],
     sections: [
       {
+        kind: 'fields',
+        title: 'Recovery targets',
+        fields: [
+          { field: 'rto', label: 'RTO — how long until service is back', type: 'text', required: true, placeholder: '4 hours', help: 'How long can the business actually be down before it hurts badly? Ask the business, do not guess.' },
+          { field: 'rpo', label: 'RPO — how much data can be lost', type: 'text', required: true, placeholder: '24 hours (one night of orders)', help: 'If backups run nightly, your RPO is one day. Shorter needs more frequent backups.' },
+          { field: 'critical', label: 'What must come back first', type: 'area', required: true, placeholder: 'The order database, then the website. Staff logins can wait an hour.', help: 'Recovery order matters — you cannot restore everything at once.' },
+        ],
+      },
+      {
         kind: 'group',
         group: {
-          group: 'systems',
-          label: 'Critical systems — RTO / RPO / MTTR',
-          help: 'Ordered by how urgently the business needs each one back.',
+          group: 'backups',
+          label: 'What is backed up',
+          help: 'One row per thing worth protecting. "Where to" must not be the same machine.',
           columns: [
-            c('system', 'System', 'text', { placeholder: 'linuxsrv — database' }),
-            c('impact', 'Impact if down', 'text', { placeholder: 'Dispatch stops' }),
-            c('rto', 'RTO (max downtime)', 'text', { placeholder: '2 hours' }),
-            c('rpo', 'RPO (max data loss)', 'text', { placeholder: '24 hours' }),
-            c('mttr', 'Target MTTR', 'text', { placeholder: '90 min' }),
-            c('restore', 'Restore procedure', 'area', { placeholder: 'Restore the VM snapshot; import the latest DB dump; verify the row count; restart the service.' }),
+            c('what', 'What', 'text', { placeholder: 'capstone_db (MariaDB on linuxsrv)' }),
+            c('where', 'Backed up to', 'text', { placeholder: 'Proxmox Backup Store on a separate disk' }),
+            c('how_often', 'How often', 'text', { placeholder: 'Nightly 02:00' }),
+            c('keep', 'Kept for', 'text', { placeholder: '14 days' }),
           ],
           seed: [
-            { system: 'linuxsrv — database', impact: 'Dispatch stops — trucks idle', rto: '2 hours', rpo: '24 hours', mttr: '90 min', restore: 'Restore the nightly VM snapshot, import the latest DB dump, verify the row count, restart the service.' },
-            { system: 'winserver — directory/DNS/DHCP', impact: 'Nothing resolves; no addresses issued', rto: '4 hours', rpo: '24 hours', mttr: '2 hours', restore: 'Restore the VM snapshot; confirm the DNS zone and DHCP scope from the configuration record.' },
+            { what: 'capstone_db (MariaDB on linuxsrv)', where: 'Proxmox backup store on a separate disk', how_often: 'Nightly 02:00', keep: '14 days' },
+            { what: 'websrv VM (whole machine)', where: 'Proxmox backup store on a separate disk', how_often: 'Weekly Sunday', keep: '4 weeks' },
           ],
         },
       },
       {
         kind: 'fields',
-        title: 'Restore test result',
+        title: 'Restore test — the part that makes this real',
         fields: [
-          { field: 'test_date', label: 'Test date', type: 'date' },
-          {
-            field: 'test_system',
-            label: 'System tested',
-            type: 'text',
-            placeholder: 'linuxsrv (192.168.0.3) — the MariaDB database capstone_db',
-            help: 'One machine, named once: whatever you break has to live on the VM you then roll back. linuxsrv is the usual choice because its data is the database, which is the thing worth proving came back.',
-          },
-          { field: 'what_was_lost', label: 'What was deleted / simulated', type: 'text', placeholder: 'Dropped capstone_db on linuxsrv (DROP DATABASE), then rolled that VM back to its snapshot' },
-          { field: 'recovery_time', label: 'Actual recovery time (measured MTTR)', type: 'text', placeholder: '11 minutes' },
-          { field: 'rto_met', label: 'RTO met?', type: 'select', options: YN },
-          { field: 'integrity', label: 'How you confirmed the data was intact', type: 'area', placeholder: 'capstone_db is listed again by SHOW DATABASES, and the row count in the restored table matches the count taken before the drop — 1,284 rows, unchanged.' },
+          { field: 'restore_steps', label: 'Restore procedure, in order', type: 'area', required: true, placeholder: '1) Open the Proxmox backup store 2) Select the most recent linuxsrv backup 3) Restore to a new VMID so the original is untouched 4) Start it on an isolated bridge 5) Log in and confirm capstone_db has last night\'s orders 6) Record the time taken', help: 'Numbered steps someone else could follow while you are unreachable.' },
+          { field: 'restore_what', label: 'What you actually restored', type: 'text', required: true, placeholder: 'linuxsrv from the 2026-03-10 backup, into VMID 199', help: 'Restore into a NEW machine — never over the working one.' },
+          { field: 'restore_time', label: 'How long it took', type: 'text', required: true, placeholder: '38 minutes, including verification', help: 'Time it properly. This is the only honest source for your RTO.' },
+          { field: 'restore_result', label: 'What the test proved (or exposed)', type: 'area', required: true, placeholder: 'The database came back with all orders to 02:00. It exposed that the website VM has no backup schedule — added afterwards.', help: 'A test that finds a problem is a successful test. Say what it found.' },
         ],
       },
-    ],
-    dod: [
-      { label: 'At least two systems have RTO, RPO and MTTR', test: (d) => (d.groups.systems ?? []).filter((r) => !!r.rto && !!r.rpo && !!r.mttr).length >= 2 },
-      { label: 'Every system has a written restore procedure', test: (d) => (d.groups.systems ?? []).length > 0 && (d.groups.systems ?? []).every((r) => !!r.restore) },
-      { label: 'A real restore was performed and its time measured', test: (d) => !!(d.fields.test_system && d.fields.recovery_time) },
-      { label: 'Data integrity after the restore was confirmed', test: (d) => !!d.fields.integrity },
-    ],
-  },
-
-  // 11 — As-Built Handover Package — THE CAPSTONE ────────────────────────────
-  {
-    id: 'srv_as_built',
-    capstone: true,
-    courseId: 'server-plus',
-    num: 11,
-    file: '11_As_Built.md',
-    title: 'As-Built Handover Package',
-    owner: 'mgmt',
-    shared: true,
-    folder: '07_Handover',
-    standard: 'As-built handover documentation',
-    weeks: [4],
-    kind: 'form',
-    exportFormat: 'md',
-    purpose:
-      'The complete, accurate record of what you actually built — the thing the client operates from after you leave. Assembled from documents you kept current all along, then exported as one PDF package.',
-    howTo:
-      'Walk the checklist, confirm each document exists and matches reality, then write the client summary. Use Generate PDF on each form to produce the handover set.',
-    source: 'Every other deliverable in this course.',
-    buildSteps: [
-      'Walk the handover checklist and confirm each document exists and is current.',
-      'Fix anything that disagrees with reality before checking it in.',
-      'Export each form to PDF (the Generate PDF button) to build the package.',
-      'Write the client summary: what they now have and how they operate it.',
-      'List the findings and recommendations, including the planned-but-not-built VMs.',
-    ],
-    meaning:
-      'The standard is simple: a stranger should be able to pick this up and run the server without asking you a single question.',
-    useIt:
-      'It is the handover. The client keeps it, operates from it, and maintains it as the system changes.',
-    pitfalls: [
-      'Assembling it from memory in Week 4. If the documents were not kept current, this becomes a scramble.',
-      'Including the plan instead of what was built. As-built means as BUILT, including what changed.',
-    ],
-    sections: [
       {
         kind: 'group',
         group: {
           group: 'contents',
           label: 'Handover checklist',
-          help: 'Every document in the package, its version, and whether it matches what is actually running.',
+          help: 'Every document in the package, and whether it matches what is actually running right now.',
           columns: [
-            c('document', 'Document', 'text', { placeholder: 'Rack Plan & Cabling Record' }),
-            c('version', 'Version', 'text', { placeholder: '1.0' }),
+            c('document', 'Document', 'text', { placeholder: 'Architecture Brief & IP Plan' }),
             c('current', 'Matches reality?', 'select', { options: ['Yes', 'No — needs update'] }),
             c('pdf', 'Exported to PDF?', 'select', { options: YN }),
           ],
           seed: [
-            { document: 'Business Requirements Sheet', version: '1.0', current: 'Yes', pdf: 'Yes' },
-            { document: 'Rack Plan & Cabling Record', version: '1.1', current: 'Yes', pdf: 'Yes' },
-            { document: 'Server Hardware Discovery Sheet', version: '1.0', current: 'Yes', pdf: 'Yes' },
-            { document: 'Upgrade Planning Sheet', version: '1.0', current: 'Yes', pdf: 'Yes' },
-            { document: 'Asset Register', version: '1.1', current: 'Yes', pdf: 'Yes' },
-            { document: 'Architecture & IP Plan', version: '1.1', current: 'Yes', pdf: 'Yes' },
-            { document: 'Configuration Management Record', version: '1.1', current: 'Yes', pdf: 'Yes' },
-            { document: 'Patch Management Log', version: '1.0', current: 'Yes', pdf: 'Yes' },
-            { document: 'Change Log', version: 'live', current: 'Yes', pdf: 'Yes' },
-            { document: 'Disaster Recovery Plan', version: '1.1', current: 'Yes', pdf: 'Yes' },
+            { document: 'Architecture Brief & IP Plan', current: 'Yes', pdf: 'Yes' },
+            { document: 'Hardware Discovery, HCL & Upgrade Plan', current: 'Yes', pdf: 'Yes' },
+            { document: 'Server Bring-Up Log', current: 'Yes', pdf: 'Yes' },
+            { document: 'Rack, Power & Asset Register', current: 'Yes', pdf: 'Yes' },
+            { document: 'Operations Log & SOPs', current: 'Yes', pdf: 'Yes' },
           ],
         },
       },
@@ -985,9 +751,9 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
         kind: 'fields',
         title: 'Client summary',
         fields: [
-          { field: 'what_they_have', label: 'What the client now has', type: 'area', required: true, placeholder: 'A rack-mounted server in a 24U rack running Proxmox with a Windows and a Linux VM for the portal and dispatch database, cabled and documented.' },
-          { field: 'how_to_operate', label: 'How they operate it without you', type: 'area', required: true, placeholder: 'Every setting is in the configuration record; patch and change logs show what has been maintained; the DR plan says how to recover.' },
-          { field: 'recommendations', label: 'Findings & recommendations', type: 'area', required: true, placeholder: 'The server is out of warranty; the file-server and monitoring VMs are planned but not yet built; there is no offsite backup copy yet.' },
+          { field: 'what_they_have', label: 'What the company now has', type: 'area', required: true, placeholder: 'A rack-mounted server running Proxmox on a RAID 10 array, hosting a public website, a Windows domain for staff logins, and a database — cabled, labelled and documented.', help: 'Plain language. The person reading this may not be technical.' },
+          { field: 'how_to_operate', label: 'How they run it without you', type: 'area', required: true, placeholder: 'The SOPs cover patching, changes and backup checks. The asset register lists everything. The bring-up log explains the hardware history.', help: 'Point at the documents that answer each routine question.' },
+          { field: 'recommendations', label: 'What is still outstanding', type: 'area', required: true, placeholder: 'No offsite backup copy yet; the server is out of warranty; RAM upgrade approved but not purchased; monitoring VM planned but not built.', help: 'Honesty here is worth more than a clean report. Every real handover has a list.' },
           { field: 'handover_date', label: 'Handover date', type: 'date', required: true },
           { field: 'signoff', label: 'Client sign-off', type: 'signature', required: true, placeholder: 'Client representative name' },
         ],
@@ -995,14 +761,20 @@ export const SERVER_PLUS_DELIVERABLES: DeliverableDef[] = [
       custodySection({
         label: 'Evidence appendix — log every photo & screenshot you hand over',
         seed: [
-          { evidence_id: 'E-01', description: 'GranitePeak_Wk2_rack-front.jpg', collected_by: 'Technician', collected_at: '2026-02-17 15:00', location: '08_Evidence/', sha256: 'from sha256sum GranitePeak_Wk2_rack-front.jpg', transferred_to: 'Client', transferred_at: '2026-03-12 15:00', notes: 'Rack photo, handed over at closeout' },
+          { evidence_id: 'E-01', description: 'GranitePeak_Wk2_rack-front.jpg', collected_by: 'Technician', collected_at: '2026-02-17 15:00', location: '06_Evidence/', sha256: 'from sha256sum GranitePeak_Wk2_rack-front.jpg', transferred_to: 'Client', transferred_at: '2026-03-12 15:00', notes: 'Rack photo, handed over at closeout' },
         ],
       }),
     ],
     dod: [
-      { label: 'At least nine documents are checked into the package', test: (d) => (d.groups.contents ?? []).filter((r) => !!r.document).length >= 9 },
-      { label: 'Every document matches reality and is exported to PDF', test: (d) => (d.groups.contents ?? []).length > 0 && (d.groups.contents ?? []).every((r) => r.current === 'Yes' && r.pdf === 'Yes') },
-      { label: 'The client summary and recommendations are written', test: (d) => !!(d.fields.what_they_have && d.fields.how_to_operate && d.fields.recommendations) },
+      { label: 'RTO, RPO and the recovery order are set', test: (d) => !!(d.fields.rto && d.fields.rpo && d.fields.critical) },
+      { label: 'At least two things are backed up, off the server itself', test: (d) => (d.groups.backups ?? []).filter((r) => !!r.what && !!r.where).length >= 2 },
+      { label: 'The restore procedure is written as followable steps', test: (d) => !!d.fields.restore_steps },
+      { label: 'A restore was actually performed and timed', test: (d) => !!(d.fields.restore_what && d.fields.restore_time && d.fields.restore_result) },
+      { label: 'All five other documents are checked in and match reality', test: (d) => {
+        const rows = (d.groups.contents ?? []).filter((r) => !!r.document);
+        return rows.length >= 5 && rows.every((r) => r.current === 'Yes' && r.pdf === 'Yes');
+      } },
+      { label: 'The client summary and outstanding items are written', test: (d) => !!(d.fields.what_they_have && d.fields.how_to_operate && d.fields.recommendations) },
       { label: 'Handover is dated and signed off', test: (d) => !!(d.fields.handover_date && d.fields.signoff) },
       { label: 'Every handover artifact is logged (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
     ],
