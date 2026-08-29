@@ -11,7 +11,20 @@ export interface Column {
   type: ColumnType;
   options?: string[];
   derived?: (row: RegisterRow) => string;
+  /** An EXAMPLE of a good value. */
   placeholder?: string;
+  /**
+   * Where the value comes from — the command to run, the screen to read, the
+   * menu path to follow. `Field` has carried this since the forms were written,
+   * but `Column` did not, and two thirds of every form's inputs are columns. So
+   * the one thing a student most needs ("how do I get this?") was structurally
+   * impossible to say for most of the course, and one table worked around it by
+   * adding a literal "How you found it" column to hold the answer.
+   *
+   * Rendered as a hint under the column heading, once per table rather than
+   * once per row.
+   */
+  help?: string;
 }
 
 export interface RegisterDef {

@@ -205,8 +205,14 @@ export default function DeliverablesPage() {
   const dueThisWeek = myDefs.filter((d) => d.weeks.includes(selectedWeek));
   const authorized = isTeamAuthorized(saved);
   const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role.toUpperCase();
-  const isDone = (def: (typeof courseDefs)[number]) =>
-    (def.dod ?? []).length > 0 && (def.dod ?? []).every((c) => c.test(saved[def.id] ?? emptyData()));
+  // A form that spans weeks is graded on the checks that apply BY the week being
+  // looked at. Running the whole list in every week meant Week 1 could not read
+  // as complete until Week 3's addressing was filled in.
+  const isDoneBy = (def: (typeof courseDefs)[number], week: number) => {
+    const due = (def.dod ?? []).filter((c) => (c.week ?? 0) <= week);
+    return due.length > 0 && due.every((c) => c.test(saved[def.id] ?? emptyData()));
+  };
+  const isDone = (def: (typeof courseDefs)[number]) => isDoneBy(def, selectedWeek);
 
   // Which form is showing. A ?form= deep-link wins, then the student's own click,
   // then the first form they haven't finished — so opening the page mid-week lands
@@ -269,7 +275,7 @@ export default function DeliverablesPage() {
       >
         {weeks.map((w) => {
           const owned = myDefs.filter((d) => d.weeks.includes(w));
-          const allDone = owned.length > 0 && owned.every(isDone);
+          const allDone = owned.length > 0 && owned.every((d) => isDoneBy(d, w));
           return (
             <button
               key={w}

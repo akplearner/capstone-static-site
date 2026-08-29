@@ -48,9 +48,18 @@ export function RegisterTable({
               {columns.map((c) => (
                 <th
                   key={c.field}
-                  className="px-2 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted"
+                  className="px-2 py-2 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-muted"
                 >
                   {c.label}
+                  {/* Where the value comes from. Under the heading, so it is
+                      said once for the column rather than repeated in every
+                      row — and it stays visible while the row is being filled,
+                      which a placeholder does not. */}
+                  {c.help && (
+                    <span className="mt-0.5 block max-w-[16rem] text-[11px] font-normal normal-case tracking-normal text-muted/80">
+                      {c.help}
+                    </span>
+                  )}
                 </th>
               ))}
               <th className="w-10" />

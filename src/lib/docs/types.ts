@@ -43,6 +43,15 @@ export interface DeliverableData {
 export interface DodCheck {
   label: string;
   test: (d: DeliverableData) => boolean;
+  /**
+   * The first week this check counts. A form that spans weeks — a log written
+   * across the build, an addressing table filled once the system runs — was
+   * being graded on ALL of its checks in EVERY week it appeared, so Week 1
+   * could not be marked complete until Week 3's work was done. A check with a
+   * `week` is simply not evaluated before that week; one without it behaves
+   * exactly as it always has.
+   */
+  week?: number;
 }
 
 export interface DeliverableDef {
