@@ -643,7 +643,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
     purpose:
       'The known-good state of every system, the benchmark you hardened against, the ports you deliberately left open, and the written rules the company runs by. This is the document an auditor asks for first.',
     howTo:
-      'Capture the baseline to a FILE on each host, not just into this form — a baseline you cannot diff against later is a description, not a baseline. Then record the standard you followed and every place you knowingly departed from it.',
+      'This one builds over two weeks rather than being filled in one sitting. Week 3: capture the baseline to a FILE on each host, name the benchmark, and account for every listening port. Week 4: write the policies once you know what you are actually enforcing, and diff the running systems against the Week 3 capture.',
     source: 'Captured command output from each host, plus the decisions you made about it.',
     buildSteps: [
       'On each host, capture the state to a file and hash it — that file is the baseline.',
