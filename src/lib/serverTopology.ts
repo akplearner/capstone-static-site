@@ -54,6 +54,23 @@ export const HOST_CONSOLE_URL = `https://${HOST.rule}:${HOST.consolePort}`;
 /** The same console, for the worked Team 1 example. */
 export const HOST_CONSOLE_URL_EXAMPLE = `https://${HOST.exampleAddress}:${HOST.consolePort}`;
 
+/**
+ * The Proxmox root login every team sets during the Week 1 install.
+ *
+ * One classroom password rather than a per-team choice, for the same reason the
+ * CySA SOC has one (`SOC_LOGIN` in labTopology.ts): an instructor walking twelve
+ * benches cannot help with a console nobody can open, and a password students
+ * invent on install day is the thing most often lost by Week 4.
+ *
+ * `page-shape.test.ts` asserts this literal appears nowhere else, so the guide,
+ * the week steps and the forms all read it from here. Week 4 hardening is where
+ * a real deployment would rotate it — the course says so rather than pretending
+ * a shared password is good practice.
+ */
+export const HOST_ROOT_LOGIN = { user: 'root', password: 'Pass@2026' };
+/** "root / Pass@2026" — the form used in prose and step text. */
+export const HOST_ROOT_LOGIN_LABEL = `${HOST_ROOT_LOGIN.user} / ${HOST_ROOT_LOGIN.password}`;
+
 export interface Bridge {
   id: 'vmbr0' | 'vmbr1' | 'vmbr2';
   /** Zone name as it is labelled on the diagram and in the IP plan. */

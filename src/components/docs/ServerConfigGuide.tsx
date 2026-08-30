@@ -8,6 +8,7 @@ import {
   HOST,
   HOST_CONSOLE_URL,
   MONITORING_HOST,
+  HOST_ROOT_LOGIN,
   TEAM_VM_START,
   ZONE_BRIDGES,
   baseVmsOn,
@@ -25,10 +26,16 @@ import {
  * disagree again.
  *
  * Grouped by week rather than by machine because that is the order a student
- * meets them: Week 1 only ever reads the hardware, Week 2 changes it. Splitting
- * the two BIOS trips and the two RAID trips is deliberate — running the ODT's
- * combined section in Week 1 walks a student from "view the virtual disks"
- * straight into deleting them.
+ * meets them. Week 1 now runs the whole bring-up — receive, POST, document,
+ * array, install — because that is one continuous job and splitting it across a
+ * week boundary left students waiting to act on what they had just found.
+ *
+ * The read-then-change discipline that split bought is kept WITHIN the week
+ * instead: the BIOS and RAID inventory trips are still read-only and still exit
+ * without saving, and creating the array is still a separate procedure carrying
+ * its own warning. Running the ODT's combined section walks a student from
+ * "view the virtual disks" straight into deleting them, which is the thing the
+ * ordering exists to prevent.
  *
  * The `updatedFromOriginal` rationale behind each correction is authoring
  * history and is deliberately not rendered; a student needs the procedure, not
@@ -97,8 +104,8 @@ const ADDRESSING: { zone: string; net: string; hosts: string; note?: string }[] 
 // guide they stop trusting.
 const WEEKS: WeekBlock[] = [
   { number: 0, title: 'Preparation', phase: 'Get ready to build', lead: 'Prove your own seat works before the engagement starts.' },
-  { number: 1, title: 'Assess & Bring Up', phase: 'Assess & Diagnose', lead: 'Read the machine and wake it up. Discovery is read-only; the bring-up work changes firmware deliberately.' },
-  { number: 2, title: 'Build the Platform', phase: 'Build the Platform', lead: 'The plan becomes metal and software: RAID, hypervisor, bridges, VMs, services.' },
+  { number: 1, title: 'Bring the Server Up', phase: 'Receive & Install', lead: 'Receive it, fit it, post it, document it, build the array and install the hypervisor. Inventory trips read; the array and install trips change.' },
+  { number: 2, title: 'Design & Deploy', phase: 'Design & Deploy', lead: 'Decide what runs on the hypervisor, then build it: bridges, VMs and their services.' },
   { number: 3, title: 'Network & Operate', phase: 'Network & Operate', lead: 'Make the addressing real, route between the zones, prove every path, and run it by procedure.' },
   { number: 4, title: 'Secure & Hand Over', phase: 'Secure & Hand Over', lead: 'Harden what is exposed, patch with a way back, and time a real restore.' },
 ];
@@ -135,11 +142,11 @@ const PROCEDURES: Procedure[] = [
     steps: [
       { gui: 'Plug a keyboard and monitor into the server and power it on. Watch for the Dell splash screen and the message "Press F2 to enter System Setup".', explain: 'Navigating the BIOS differs by server model — check the manual or search your exact model if the screens do not match.' },
       { gui: 'Tap F2 repeatedly until System Setup loads. Keep tapping; a single press usually misses the window.', explain: 'F2 is the Dell System Setup key.' },
-      { gui: 'Open System BIOS → Processor Settings. Record the processor model, core count, thread count and the Virtualization Technology setting (Enabled/Disabled).', explain: 'Virtualization Technology is VT-x. If it is Disabled the hypervisor plan does not work — note it now, change it in Week 2.' },
+      { gui: 'Open System BIOS → Processor Settings. Record the processor model, core count, thread count and the Virtualization Technology setting (Enabled/Disabled).', explain: 'Virtualization Technology is VT-x. If it is Disabled the hypervisor plan does not work — note it now and turn it on in the boot-order trip.' },
       { gui: 'Open System BIOS → Memory Settings. Record System Memory Size (installed), the maximum the platform supports, slots used vs total, and the memory type (ECC RDIMM/UDIMM).', explain: 'Installed-versus-maximum is your upgrade headroom and drives the Hardware Discovery, HCL & Upgrade Plan.' },
       { gui: 'Open System BIOS → Integrated Devices (and Device Settings for add-in NICs). Record each NIC model, port count and link speed.', explain: 'These are the physical ports vmbr0 maps to, and later the uplink for vmbr2.' },
-      { gui: 'Open System BIOS → System Information and the main System Setup page. Record the BIOS version, the service tag / serial, and the Boot Mode (UEFI or BIOS legacy).', explain: 'Boot Mode decides the partition scheme when you flash the USB in Week 2 — GPT for UEFI, MBR for BIOS.' },
-      { gui: 'Press Esc and choose Discard Changes and Exit. Do not save anything this week.', explain: 'Week 1 is plan and analyse: you are reading the machine, not configuring it.' },
+      { gui: 'Open System BIOS → System Information and the main System Setup page. Record the BIOS version, the service tag / serial, and the Boot Mode (UEFI or BIOS legacy).', explain: 'Boot Mode decides the partition scheme when you flash the USB — GPT for UEFI, MBR for BIOS.' },
+      { gui: 'Press Esc and choose Discard Changes and Exit. Save nothing on this trip.', explain: 'Read before you change. You come back to this screen once you know what needs setting.' },
     ],
   },
   {
@@ -148,18 +155,18 @@ const PROCEDURES: Procedure[] = [
     title: 'Read the RAID controller and physical disks (Ctrl+R)',
     where: 'The server console — PERC Configuration Utility',
     summary:
-      'Enter the RAID configuration utility read-only to record the controller model and cache, the RAID levels it supports, every physical disk, and any virtual disk that already exists — then exit changing nothing.',
+      'Enter the RAID configuration utility read-only to record the controller model and cache, the RAID levels it supports, every physical disk, and any virtual disk that already exists — then exit changing nothing on this trip.',
     steps: [
       { gui: 'Reboot or power on the server and watch the POST for the prompt "Press Ctrl+R to enter Configuration Utility". Hold Ctrl and press R as soon as it appears.', explain: 'Ctrl+R is the PERC utility key.' },
-      { gui: 'On the VD Mgmt (Virtual Disk Management) screen, record the controller model and cache size shown at the top, and list any virtual disks that already exist with their RAID level and size.', explain: 'An existing virtual disk tells you the machine has a prior life; Week 2 decides whether it is deleted.' },
+      { gui: 'On the VD Mgmt (Virtual Disk Management) screen, record the controller model and cache size shown at the top, and list any virtual disks that already exist with their RAID level and size.', explain: 'An existing virtual disk tells you the machine has a prior life; the array step decides whether it is deleted.' },
       { gui: 'Press Ctrl+N to reach PD Mgmt (Physical Disk Management). Record every physical disk: count, capacity, media type (SAS/SATA, HDD/SSD) and state.', explain: 'Drive count and size set which RAID levels are actually available and what usable capacity the hypervisor will get.' },
       { gui: 'Note the RAID levels the controller offers (typically 0/1/5/6/10) and how many drive bays are populated versus total.', explain: 'Empty bays are upgrade headroom for the Hardware Discovery, HCL & Upgrade Plan.' },
-      { gui: 'Press Esc, choose Exit and confirm. Do NOT delete, create or initialize anything this week.', explain: 'Deleting a virtual disk erases every drive in it. Week 1 is read-only; the destructive work is a deliberate Week-2 procedure.' },
+      { gui: 'Press Esc, choose Exit and confirm. Do NOT delete, create or initialize anything this week.', explain: 'Deleting a virtual disk erases every drive in it. This trip is read-only; the destructive work is a separate, deliberate procedure.' },
     ],
   },
   {
     id: 'flash-proxmox-usb',
-    week: 2,
+    week: 1,
     title: 'Flash the Proxmox VE USB with Rufus',
     where: 'A school Windows workstation',
     summary:
@@ -170,38 +177,38 @@ const PROCEDURES: Procedure[] = [
       { gui: 'Open Rufus (Rufus-4.7 or later) from the share.', explain: 'Rufus does not need installing; run it from the share.' },
       { gui: 'Under Device, select your USB drive. Tick "List USB Hard Drives" if the stick does not appear.', explain: 'Confirm the drive letter and size — Rufus will happily overwrite the wrong device.' },
       { gui: 'Click SELECT, navigate to the ISO share and choose the Proxmox VE ISO your instructor supplies.', explain: 'Use whichever Proxmox VE release the instructor hands out; the platform standard is Proxmox VE 8.2.' },
-      { gui: 'Set Partition scheme to GPT if the Boot Mode read UEFI in Week 1, or MBR if it read BIOS (legacy). Leave File system as FAT32.', explain: 'This is why you recorded Boot Mode during the Week-1 BIOS inventory.' },
+      { gui: 'Set Partition scheme to GPT if the Boot Mode read UEFI in Week 1, or MBR if it read BIOS (legacy). Leave File system as FAT32.', explain: 'This is why you recorded Boot Mode during the BIOS inventory.' },
       { gui: 'Click START, and when Rufus asks how to write the image, choose DD Image mode (not ISO mode). Wait for it to finish and eject the drive.', explain: 'The Proxmox ISO is a hybrid image — ISO mode produces a stick the server will not boot.' },
     ],
   },
   {
     id: 'set-boot-order-usb',
-    week: 2,
+    week: 1,
     title: 'Set the boot order to boot the USB device',
     where: 'The server console — Dell System Setup (F2)',
-    summary: 'Return to System Setup, put the USB device at the top of the boot sequence, and save — the change half of the BIOS work Week 1 deferred.',
+    summary: 'Return to System Setup, put the USB device at the top of the boot sequence, and save — the change half of the BIOS work the inventory trip deliberately left alone.',
     steps: [
-      { gui: 'Power on the server and tap F2 repeatedly at the Dell splash screen until System Setup loads.', explain: 'Same entry key as the Week-1 inventory; this time you will save changes.' },
+      { gui: 'Power on the server and tap F2 repeatedly at the Dell splash screen until System Setup loads.', explain: 'Same entry key as the read-only inventory trip; this is the trip that saves.' },
       { gui: 'Navigate to Boot Settings with the arrow keys and press Enter, then open Boot Sequence.', explain: 'Boot Settings is where the order lives; the exact wording varies by model.' },
       { gui: 'Confirm USB Device / Removable Device is listed, then move it to the top of the boot list using + / - or the "Enter to change" menu.', explain: 'If the USB does not appear at all, reseat the stick and re-enter setup — an unflashed or ISO-mode stick often will not enumerate.' },
-      { gui: 'If the Week-1 inventory showed Virtualization Technology Disabled, enable it now under Processor Settings while you are here.', explain: 'The hypervisor needs VT-x; this is the deliberate change Week 1 deferred.' },
+      { gui: 'If the Week-1 inventory showed Virtualization Technology Disabled, enable it now under Processor Settings while you are here.', explain: 'The hypervisor needs VT-x. The inventory trip only read it; this is where you turn it on.' },
       { gui: 'Save and exit: Exit → Save Changes and Exit, or press F10.', explain: 'The server will now boot the installer stick on the next power cycle.' },
     ],
   },
   {
     id: 'create-raid-virtual-disk',
-    week: 2,
+    week: 1,
     title: 'Create and initialize the RAID virtual disk',
     where: 'The server console — PERC Configuration Utility (Ctrl+R)',
     summary:
       'Clear any existing virtual disk, create the RAID array the Week-1 plan calls for, and initialize it so Proxmox has a single target disk to install onto.',
     steps: [
-      { gui: 'Power on and press Ctrl+R at the "Press Ctrl+R to enter Configuration Utility" prompt.', explain: 'Same utility you inspected in Week 1 — this time you will change it.' },
-      { gui: 'STOP: deleting a virtual disk erases ALL data on those drives. Confirm with your instructor that this server holds nothing anyone needs before continuing.', explain: 'The Week-1 inventory already told you what is on the controller. This is the one step worth flagging twice.' },
+      { gui: 'Power on and press Ctrl+R at the "Press Ctrl+R to enter Configuration Utility" prompt.', explain: 'Same utility you inspected read-only earlier — this time you will change it.' },
+      { gui: 'STOP: deleting a virtual disk erases ALL data on those drives. Confirm with your instructor that this server holds nothing anyone needs before continuing.', explain: 'The inventory trip already told you what is on the controller. This is the one step worth flagging twice.' },
       { gui: 'On the VD Mgmt screen, highlight each existing virtual disk, press F2, choose Delete VD and confirm. Repeat until no virtual disks remain.', explain: 'Proxmox must be installed to a clean array, not layered on the previous build.' },
-      { gui: 'Press Ctrl+N to open PD Mgmt and confirm every physical disk you recorded in Week 1 is detected and in a Ready state.', explain: 'A missing or Foreign disk here means a reseat or a foreign-config import, not a create.' },
+      { gui: 'Press Ctrl+N to open PD Mgmt and confirm every physical disk you inventoried is detected and in a Ready state.', explain: 'A missing or Foreign disk here means a reseat or a foreign-config import, not a create.' },
       { gui: 'Return to VD Mgmt, press F2 and choose Create New VD.', explain: 'This is the creation dialog.' },
-      { gui: 'Select the RAID level from your Week-1 plan (0, 1, 5, 6 or 10), then highlight each drive to include and press Space to select it.', explain: 'The level must be one the Week-1 audit confirmed the controller supports and you have the drive count for.' },
+      { gui: 'Select the RAID level you justified in the Bring-Up Log (0, 1, 5, 6 or 10), then highlight each drive to include and press Space to select it.', explain: 'The level must be one the audit confirmed the controller supports and you have the drive count for.' },
       { gui: 'Set the VD size to the full available capacity and leave stripe size and the remaining options at their defaults, then confirm to create the virtual disk.', explain: 'Defaults are correct for this build; there is no workload here that justifies tuning them.' },
       { gui: 'Highlight the new virtual disk, press F2, choose Initialize and confirm. Quick Init is fine. Wait for it to complete.', explain: 'An uninitialized VD can present oddly to the installer.' },
       { gui: 'Press Esc, choose Exit and confirm, then let the server continue booting.', explain: 'The array is now a single disk the Proxmox installer will offer as its target.' },
@@ -209,7 +216,7 @@ const PROCEDURES: Procedure[] = [
   },
   {
     id: 'install-proxmox-host',
-    week: 2,
+    week: 1,
     title: 'Install Proxmox VE and set the management address',
     where: 'The server console, then a browser on the campus LAN',
     summary:
@@ -218,12 +225,12 @@ const PROCEDURES: Procedure[] = [
       { gui: 'Insert the flashed USB into the server, reboot, and press F11 for the one-time boot menu. Select the USB device.', explain: 'F11 is the Dell boot menu key; use it rather than re-editing the boot order.' },
       { gui: 'At the Proxmox VE Installer menu, choose "Install Proxmox VE" (graphical) and accept the EULA.', explain: 'The installer will detect the drives it can see.' },
       { gui: 'At Target Harddisk, select the RAID virtual disk you created. The installer will wipe it and create new partitions — that is expected.', explain: 'There should be exactly one sensible target, because the controller presents the array as a single disk.' },
-      { gui: 'Set the country, time zone and keyboard layout, then set the root password and an administrative email address.', explain: 'Record the root password in the Server Bring-Up Log — you cannot restore what you cannot log into.' },
+      { gui: `Set the country, time zone and keyboard layout, then set the root password to ${HOST_ROOT_LOGIN.password} and add an administrative email address.`, explain: 'One classroom password for every team, so an instructor can help at any bench. Record it in the Server Bring-Up Log anyway — a real deployment rotates it during hardening.' },
       { gui: 'At Management Network Configuration set: Hostname pve-host.teamX.local; IP address 10.10.30.T/16 where T is your team number (Team 1 = 10.10.30.1/16); Gateway 10.10.0.1; DNS server as your instructor supplies.', explain: 'This is the campus LAN 10.10.0.0/16 and it becomes vmbr0, the management bridge. The prefix is /16 (netmask 255.255.0.0), not /24 — a /24 here cannot reach the 10.10.0.1 gateway.' },
       { gui: 'Confirm the summary, let the install run, then remove the USB drive and reboot.', explain: 'Leaving the stick in sends the server straight back into the installer.' },
       { cmd: 'ip -4 addr show vmbr0', explain: 'Run at the host console after the reboot. Must show 10.10.30.T/16 on vmbr0.' },
       { cmd: 'ping -c 4 10.10.0.1', explain: 'Proves the host reaches the campus gateway. If this fails the prefix or the cable is wrong, not the install.' },
-      { gui: 'From a school desktop, browse to https://10.10.30.T:8006, accept the self-signed certificate warning, set Realm to "Linux PAM standard authentication" and log in as root.', explain: 'This is the console every remaining Week-2 procedure is driven from.' },
+      { gui: `From a school desktop, browse to ${HOST_CONSOLE_URL}, accept the self-signed certificate warning, set Realm to "Linux PAM standard authentication" and log in as ${HOST_ROOT_LOGIN.user} / ${HOST_ROOT_LOGIN.password}.`, explain: 'This is the console every remaining procedure in the course is driven from.' },
       { cmd: 'systemctl status pveproxy --no-pager', explain: 'If the browser cannot reach the console, check the service is active before blaming the network.' },
     ],
   },

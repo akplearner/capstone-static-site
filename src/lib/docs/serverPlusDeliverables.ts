@@ -17,7 +17,7 @@ import { custodySection, everyEvidenceHashed } from './custodyTemplate';
  * Week 1 plan and offered nothing new. So the multi-week ones are split by the
  * week the work actually happens in:
  *
- *   1 Architecture Brief             what the business needs, and the design   W1
+ *   1 Architecture Brief             what the business needs, and the design   W2
  *   2 Hardware Discovery, HCL …      what the metal is, and what it can run    W1
  *   3 Server Bring-Up Log            POST fault → RAID → hypervisor            W1-2
  *   4 Rack, Power & Asset Register   where it lives and what we own            W2
@@ -80,7 +80,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
     shared: true,
     folder: '00_Planning',
     standard: 'Architecture definition',
-    weeks: [1],
+    weeks: [2],
     kind: 'template',
     exportFormat: 'md',
     purpose:

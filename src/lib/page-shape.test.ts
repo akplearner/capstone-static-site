@@ -174,6 +174,19 @@ const REGISTRY: {
   { literal: '192.168.0.1', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: '192.168.0.4', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: 'capstone_db', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  // The Proxmox root password every team sets in Week 1.
+  //
+  // `alsoAllowed` is load-bearing, not defensive: the CySA SOC password is the
+  // string '@Pass@2026', which CONTAINS 'Pass@2026', so this row matches
+  // labTopology.ts on sight. Allowing that one file is what lets the two
+  // passwords coexist; without it this row fails the moment it is added, on a
+  // file that has nothing to do with Server+.
+  {
+    literal: 'Pass@2026',
+    home: 'src/lib/serverTopology.ts',
+    alsoAllowed: ['src/lib/labTopology.ts'],
+    commandsExempt: true,
+  },
 ];
 
 describe('single source of truth', () => {
