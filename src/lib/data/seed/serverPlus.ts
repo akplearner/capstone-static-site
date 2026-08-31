@@ -698,7 +698,8 @@ const sharedTasks: Task[] = [
         title: 'Create and initialize the virtual disk',
         description: 'The destructive step. Read the warning before the keystrokes.',
         where: 'The server console — PERC Configuration Utility (Ctrl+R)',
-        instruction: 'STOP before you touch anything: deleting a virtual disk erases ALL data on those drives. Confirm with your instructor that this server holds nothing anyone needs. Then build the array.',
+        danger: 'Deleting a virtual disk erases ALL data on every drive in it, and there is no undo. Confirm with your instructor that this server holds nothing anyone needs before you press anything.',
+        instruction: 'Build the array the level you justified calls for.',
         instructionList: [
           'Press Ctrl+R at the POST prompt to enter the PERC Configuration Utility.',
           'VD Mgmt: highlight each existing virtual disk, press F2, choose Delete VD and confirm. Repeat until none remain.',
@@ -774,11 +775,12 @@ const sharedTasks: Task[] = [
         title: 'Install onto the array and set the management address',
         description: 'The install itself, and the address that makes it yours.',
         where: 'The server console, then a browser on the campus LAN',
+        danger: 'The Target Harddisk screen wipes whatever you select. Read the size and confirm it is the array you just built, not a disk with something on it.',
         instruction: 'Boot the stick, install Proxmox onto the virtual disk you created, and set the management network to your team\'s address. The prefix is the part people get wrong.',
         instructionList: [
           'Press F11 for the one-time boot menu and select the USB device.',
           'Choose "Install Proxmox VE" (graphical) and accept the EULA.',
-          'Target Harddisk: select the RAID virtual disk. It will be wiped and repartitioned — that is expected.',
+          'Target Harddisk: select the RAID virtual disk you created — the installer wipes and repartitions whatever you pick here.',
           'Set country, time zone and keyboard. The root password is Pass@2026 — every team uses the same one, so an instructor can help at any bench and nobody is locked out of their own server in Week 4. Add an admin email.',
           'Management Network Configuration — Hostname: pve-host.teamX.local for your team number.',
           'IP address 10.10.30.T/16 for team T (Team 1 = 10.10.30.1/16), Gateway 10.10.0.1, DNS as your instructor supplies.',

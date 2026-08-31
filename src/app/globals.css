@@ -533,6 +533,38 @@ select {
   white-space: nowrap;
 }
 
+/* A key to press. Sized to sit inside a sentence without changing its line
+   height, which a bordered box will do if you let it. */
+.kbd {
+  font-family: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
+  background: var(--color-panel-2);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 0.82em;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+/* A menu path: System BIOS › Processor Settings. The separator is drawn rather
+   than typed so the parts stay legible when the path wraps. */
+.menupath {
+  font-family: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
+  font-size: 0.84em;
+  color: var(--color-accent-ink);
+  background: var(--color-accent-soft);
+  border: 1px solid color-mix(in srgb, var(--color-accent) 22%, var(--color-line));
+  border-radius: 5px;
+  padding: 1px 6px;
+}
+.menupath-sep {
+  color: var(--color-muted);
+  padding: 0 5px;
+}
+
 /* Numbered section header: a mono ordinal + title. */
 .shead {
   display: flex;

@@ -269,6 +269,7 @@ export function StepDetail({
   whatItMeans,
   deliverable,
   usesForm,
+  danger,
   troubleshooting,
   fixes,
   verify,
@@ -296,6 +297,7 @@ export function StepDetail({
   frameworks: string[];
   deliverable?: string;
   usesForm?: string;
+  danger?: string;
   troubleshooting?: string;
   fixes?: { symptom: string; fix: string }[];
   verify?: string[];
@@ -399,6 +401,23 @@ export function StepDetail({
         </div>
       )}
 
+      {/* Read before anything else in the step: this one is destructive. It sits
+          above the instructions rather than beside them because a warning a
+          student meets after the keystrokes has already failed. */}
+      {danger && (
+        <div className="flex items-start gap-2 rounded-lg border-2 border-warn-line bg-warn-soft px-3 py-2.5">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="text-[11px] font-semibold uppercase tracking-wide text-warn">
+              Stop and read this first
+            </p>
+            <p className="mt-0.5 text-sm font-medium text-ink">
+              <GlossaryText text={danger} keys />
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* A tiny node→arrow→node "follow the path" for this step, when authored. */}
       {path && path.length > 0 && <StepFlow path={path} />}
 
@@ -429,7 +448,7 @@ export function StepDetail({
               )}
               {(instruction || description) && (
                 <div className="mt-1 text-sm text-body">
-                  {instruction || description}
+                  <GlossaryText text={instruction || description || ''} keys />
                 </div>
               )}
               {/* The discrete actions. A step whose instruction is really a
@@ -441,7 +460,7 @@ export function StepDetail({
                       <span className="mt-px shrink-0 font-mono text-xs font-semibold text-accent">
                         {i + 1}.
                       </span>
-                      <span><GlossaryText text={item} /></span>
+                      <span><GlossaryText text={item} keys /></span>
                     </li>
                   ))}
                 </ol>
@@ -607,6 +626,7 @@ interface ChecklistItemProps {
   frameworks: string[];
   deliverable?: string;
   usesForm?: string;
+  danger?: string;
   troubleshooting?: string;
   fixes?: { symptom: string; fix: string }[];
   verify?: string[];
@@ -643,6 +663,7 @@ export function ChecklistItem({
   frameworks,
   deliverable,
   usesForm,
+  danger,
   troubleshooting,
   fixes,
   verify,
@@ -725,6 +746,7 @@ export function ChecklistItem({
                 frameworks={frameworks}
                 deliverable={deliverable}
                 usesForm={usesForm}
+                danger={danger}
                 troubleshooting={troubleshooting}
                 fixes={fixes}
                 verify={verify}

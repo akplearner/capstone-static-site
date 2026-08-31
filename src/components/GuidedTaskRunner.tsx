@@ -366,6 +366,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               frameworks={step.frameworks}
               deliverable={step.producesDeliverable}
               usesForm={step.usesForm}
+              danger={step.danger}
               troubleshooting={step.troubleshooting}
               fixes={step.fixes}
               verify={step.verify}

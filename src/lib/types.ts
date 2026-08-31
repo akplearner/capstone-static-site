@@ -106,6 +106,12 @@ export interface Step {
    *  the 8 deliverable forms, named by title) on the Deliverables page — not by a
    *  terminal command. Renders a "fill the form" callout instead of a command. */
   usesForm?: string;
+  /** A warning that must be read BEFORE the instructions, because the step is
+   *  destructive or irreversible — deleting a RAID virtual disk, choosing the
+   *  install target that gets wiped. Rendered above everything else in the step,
+   *  in the warning tone. Reserve it for real consequences: a warning on every
+   *  step is a warning on none. */
+  danger?: string;
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
   /** Several independent failure modes, each with its own fix. Prefer this over a

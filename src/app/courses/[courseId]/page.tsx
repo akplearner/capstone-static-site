@@ -56,9 +56,11 @@ import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
 import { phaseForWeek, stageForWeek } from '@/lib/quarry';
 import { WeekVerbIcon, verbForStage } from '@/components/quarry/items';
-import { isCapstoneFiled } from '@/lib/deliverableChain';
+import { isCapstoneFiled, isDeliverableFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
+import { EngagementStatus } from '@/components/EngagementStatus';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
 import { emptyData, type DeliverableData } from '@/lib/docs/types';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
@@ -328,6 +330,7 @@ function TaskReference({ task }: { task: Task }) {
               frameworks={s.frameworks}
               deliverable={s.producesDeliverable}
               usesForm={s.usesForm}
+              danger={s.danger}
               troubleshooting={s.troubleshooting}
               verify={s.verify}
               optional={s.optional}
@@ -606,7 +609,7 @@ function TeamBusinessPicker({
           <div className="text-sm font-semibold text-ink">Your team&apos;s business</div>
           <p className="mt-0.5 text-xs text-muted">
             The base build is the same for every team — this decides what the extra VMs are for.
-            Saved into your Week-1 Business Requirements Sheet.
+            Saved into your Architecture Brief.
           </p>
         </div>
         <label className="block">
@@ -1139,6 +1142,30 @@ export default function CoursePage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
+      {/* Where you are, before anything that describes the course. The sections
+          below answer "what is this?", which a student needs once; this answers
+          "where am I and what next?", which they come back for every week. */}
+      {joined && member && (
+        <EngagementStatus
+          course={course}
+          weekNumber={activeWeek}
+          phase={phaseForWeek(course, activeWeek) ?? undefined}
+          percent={crew.stepsTotal > 0 ? Math.round((crew.stepsDone / crew.stepsTotal) * 100) : 0}
+          weeks={sortedWeeks.map((w) => w.number)}
+          weekPercent={(w) => weekStats[w] ?? 0}
+          docsFiled={
+            deliverablesForCourse(course.id).filter((d) => isDeliverableFiled(savedDocs?.[d.id])).length
+          }
+          docsTotal={deliverablesForCourse(course.id).length}
+          nextTask={nextTask}
+          onGoToWeek={(w) => {
+            setTab('weeks');
+            openAndScrollWeek(w);
+          }}
+          onContinue={() => nextTask && goToTask(nextTask)}
+        />
+      )}
+
       {/* The capstone's overall progress — where the whole project stands, on the
           overview only, not repeated above every tab. */}
       {joined && member && (
