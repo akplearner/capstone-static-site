@@ -3,16 +3,20 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 /**
  * CompTIA Server+ — Plan, Build & Hand Over a Rack-Mount Server.
  *
- * A hands-on, documentation-first engagement built to fit ~2 hours of work a
- * week, with one deliberate exception: Week 2 is the build, and racking,
- * flashing, a RAID build, a hypervisor install, ISO uploads, three operating
- * systems and four services do not fit in two hours. It is authored at ~3 and
- * says so in its own copy — a fabricated estimate is worse than a long week.
- * Week 1 is a junior sysadmin's first week: profile the business, plan
- * the 24U rack, audit what the hardware can actually do, plan the upgrades,
- * and draft the architecture. The build then executes that plan: rack and
- * deploy in Week 2, network and connect in Week 3, secure and prove disaster
- * recovery in Week 4. Everything is captured by filling the platform's
+ * A hands-on, documentation-first engagement. The weeks are NOT equal, and the
+ * copy says so rather than flattening them to a tidy number — a fabricated
+ * estimate is worse than a long week. Summed from the `estimatedTime` values
+ * below: Week 1 is 3 hours, Week 2 is 3.3, Week 3 is 1.75 and Week 4 is 2.25.
+ * Weeks 1 and 2 are the build and they run long, because a POST fault, a
+ * firmware audit, a RAID build, a hypervisor install, ISO uploads, three
+ * operating systems and four services do not fit in two hours.
+ * Week 1 is a junior sysadmin's first week at the bench: a boxed server
+ * arrives and does not work, and by Friday it is a hypervisor answering on the
+ * team's address — receive, POST, firmware, discovery, RAID, install. Week 2
+ * then decides what belongs on that hypervisor and builds it: the architecture
+ * brief, the rack, the VMs and the services. Week 3 networks and operates it,
+ * Week 4 secures it and hands it over. Everything is captured by filling the
+ * platform's
  * deliverable forms and exporting them to PDF, and every command a step needs
  * sits on the step that performs it — nothing here sends a student off to a
  * handout to find out what to type. The longer write-up of each procedure lives
@@ -127,8 +131,8 @@ const weeks: WeekDef[] = [
     phase: 'Design & Deploy',
     difficulty: 3,
     flow: ['Draft the architecture', 'Rack and cable it', 'Create the VMs', 'Deploy the services'],
-    milestone: 'The design is written down, the server sits at its planned U, and the core services run on the machines the design called for. Budget about three hours: this is the heavy week.',
-    plain: 'The hypervisor is running, so now decide what belongs on it and build that. Write the architecture the business actually needs, mount and cable the server where the rack plan says, then stand up the Windows and Linux machines and the services they carry. This week does not fit in two hours and we are not going to pretend it does — ISO uploads and three operating-system installs are about three hours of work. Each step is what you must DO; every procedure is written out in full in the platform\'s configuration guide, on the Reference page.',
+    milestone: 'The design is written down, the server sits at its planned U, and the core services run on the machines the design called for. Budget about three and a half hours: this is the heaviest week.',
+    plain: 'The hypervisor is running, so now decide what belongs on it and build that. Write the architecture the business actually needs, mount and cable the server where the rack plan says, then stand up the Windows and Linux machines and the services they carry. This week does not fit in two hours and we are not going to pretend it does — ISO uploads and three operating-system installs are about three and a half hours of work. Each step is what you must DO; every procedure is written out in full in the platform\'s configuration guide, on the Reference page.',
   },
   {
     number: 3,
@@ -170,8 +174,8 @@ const gates: Gate[] = [];
  * all count them. `role` here is nominal (these render in their own "everyone"
  * lane, never a role lane); `mgmt` is used because that focus leads the record
  * set as a whole. Each `estimatedTime` is what the work takes, not what the
- * budget wants: Weeks 1, 3 and 4 land near two hours and Week 2 lands near
- * three, because that is what the Week-2 steps actually contain.
+ * budget wants: Week 1 sums to 180 minutes and Week 2 to 200, because that is
+ * what those steps actually contain; Weeks 3 and 4 come in at 105 and 135.
  */
 const sharedTasks: Task[] = [
   // ══ WEEK 0 · Preparation ══════════════════════════════════════════════════
@@ -279,12 +283,12 @@ const sharedTasks: Task[] = [
           kind: 'root',
           children: [
             { label: '00_Planning', kind: 'folder' },
-            { label: '01_Physical', kind: 'folder' },
-            { label: '02_Assets', kind: 'folder' },
-            { label: '03_Network', kind: 'folder' },
-            { label: '04_Config', kind: 'folder' },
-            { label: '05_Operations', kind: 'folder' },
-            { label: '06_Resilience', kind: 'folder' },
+            { label: '01_Hardware', kind: 'folder' },
+            { label: '02_BringUp', kind: 'folder' },
+            { label: '03_Rack', kind: 'folder' },
+            { label: '04_Network', kind: 'folder' },
+            { label: '05_Standards', kind: 'folder' },
+            { label: '06_Operations', kind: 'folder' },
             { label: '07_Handover', kind: 'folder' },
             { label: '08_Evidence', kind: 'folder' },
             { label: 'README.txt', kind: 'file', format: 'md' },
@@ -926,7 +930,7 @@ const sharedTasks: Task[] = [
         id: 'sp-w2-rackplan-s1',
         title: 'Draft the rack elevation and strategies',
         description: 'The map of the 24U rack, decided on paper first.',
-        instruction: 'In the Rack Plan & Cabling form, place every device at a planned U and record the four strategies the build will follow.',
+        instruction: 'In the Rack, Power & Asset Register, place every device at a planned U and record the four strategies the build will follow.',
         instructionList: [
           'Place servers low, patch panel and switch high, PDU at the bottom.',
           'Record the airflow direction — front cold intake, rear hot exhaust.',
@@ -991,7 +995,7 @@ const sharedTasks: Task[] = [
         id: 'sp-w2-rack-s2',
         title: 'Tag and register the hardware',
         description: 'Begin the master list of everything in the rack.',
-        instruction: 'Put an asset tag on every physical item — server, switch, patch panel, PDU — then add a hardware row for each to the Asset Register with its tag, serial and condition.',
+        instruction: 'Put an asset tag on every physical item — server, switch, patch panel, PDU — then add a hardware row for each to the Rack, Power & Asset Register with its tag, serial and condition.',
         usesForm: 'Rack, Power & Asset Register',
         producesDeliverable: '04_Rack_and_Assets.csv',
         whatItMeans: 'You cannot secure, budget for, patch or recover what you do not know you have. The software rows come with the deploy.',
@@ -1211,13 +1215,13 @@ const sharedTasks: Task[] = [
         id: 'sp-w2-deploy-s4',
         title: 'Record the services and register the software',
         description: 'What now runs on each system, and every program that came with it.',
-        where: 'The Server Bring-Up Log, then the Asset Register',
+        where: 'The Server Bring-Up Log, then the Rack, Power & Asset Register',
         instruction: 'Go back to each system\'s baseline row and add what now runs on it, with a screenshot of each service running as the evidence. Then register every program you installed, because the register answers a security question as well as a budget one.',
         instructionList: [
           'websrv: NGINX, the document root, and the page it serves.',
           'winserver: AD DS, the domain name, the DNS records added, and the DHCP scope and its options.',
           'linuxsrv: MariaDB, the database name, and the application user (the password too — you cannot restore what you cannot log into).',
-          'Then, in the Asset Register, add a software row per installed program — each OS, the hypervisor, every role and service — with its version and support-end date. That date is the security-relevant column.',
+          'Then, in the Rack, Power & Asset Register, add a software row per installed program — each OS, the hypervisor, every role and service — with its version and support-end date. That date is the security-relevant column.',
         ],
         files: [
           { name: 'Configuration guide — the service procedures', purpose: 'every command in this task written out in full, with what each one does: NGINX, AD DS, DNS, DHCP and MariaDB', source: '/courses/server-plus/guide/reference#config-guide' },
@@ -1425,7 +1429,7 @@ const sharedTasks: Task[] = [
         title: 'Prove connectivity across all three zones',
         description: 'Every path the design promises, demonstrated from the right machine and recorded.',
         where: 'Every host, plus a campus workstation',
-        instruction: 'Run each check from the machine named in its explanation — a ping that passes from the wrong host proves nothing — then record every result in the Architecture & IP Plan.',
+        instruction: 'Run each check from the machine named in its explanation — a ping that passes from the wrong host proves nothing — then record every result in the IP Plan & Connectivity Proof.',
         commands: [
           { cmd: 'ping -c 4 10.10.0.1', explain: 'From the Proxmox host: the management path to the campus gateway.' },
           { cmd: 'ping -c 4 172.16.0.1 && ping -c 4 192.168.0.1', explain: 'From the Proxmox host: both zone gateways are its own bridge addresses, so this confirms both bridges are up.' },
@@ -2160,7 +2164,7 @@ export const SERVER_PLUS: Course = {
   level: 'associate',
   audience: 'Plan, build and document your own rack-mount server in four phases — everyone builds the same, each focus documents its part deeper.',
   description:
-    'You are the only IT person at a startup where nothing is documented, and the server you have been given does not even POST. Diagnose it, build the platform on it, network it, secure it, and leave behind the records and procedures the company never had — about two hours a week, three in the build week.',
+    'You are the only IT person at a startup where nothing is documented, and the server you have been given does not even POST. Diagnose it, build the platform on it, network it, secure it, and leave behind the records and procedures the company never had — two to three and a half hours a week, with Weeks 1 and 2 the long ones.',
   roles,
   weeks,
   gates,

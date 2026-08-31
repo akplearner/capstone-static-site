@@ -54,7 +54,7 @@ Name every exported form and evidence file like this:
     <Client>_Wk<N>_<what-it-is>.<ext>
 
 Examples:
-    GranitePeak_Wk1_Business_Requirements.pdf
+    GranitePeak_Wk1_Hardware_and_HCL.pdf
     GranitePeak_Wk2_rack-front.jpg
     GranitePeak_Wk3_topology.png
 
@@ -63,15 +63,22 @@ package is assembled from these files.
 """
 
 # folder -> the one line saying what lands in it.
+#
+# These EIGHT folders are the eight deliverables in
+# src/lib/docs/serverPlusDeliverables.ts, one folder per form, in `num` order --
+# folder prefix is always `num - 1`. 08_Evidence is the ninth folder and is not
+# a form. src/lib/starterPack.test.ts asserts this list still matches the
+# deliverables and the in-platform folder tree, because this pack is unzipped
+# onto a student's own disk on day one and cannot be corrected afterwards.
 FOLDERS: dict[str, str] = {
-    "00_Planning": "Business Requirements Sheet, Upgrade Planning Sheet and the Change Log live here.",
-    "01_Physical": "Rack Plan & Cabling Record and the Server Hardware Discovery Sheet live here.",
-    "02_Assets": "The Asset Register (hardware + software) lives here.",
-    "03_Network": "The Architecture & IP Plan (draft Week 1, final Week 3) lives here.",
-    "04_Config": "The Configuration Management Record lives here.",
-    "05_Operations": "The Patch Management Log lives here.",
-    "06_Resilience": "The Disaster Recovery Plan and the restore-test result live here.",
-    "07_Handover": "The As-Built Handover Package -- the capstone -- lives here.",
+    "00_Planning": "The Architecture Brief -- what the business needs and the design that delivers it -- lives here.",
+    "01_Hardware": "The Hardware Discovery, HCL & Upgrade Plan lives here.",
+    "02_BringUp": "The Server Bring-Up Log -- POST fault to RAID to hypervisor -- lives here.",
+    "03_Rack": "The Rack, Power & Asset Register lives here.",
+    "04_Network": "The IP Plan & Connectivity Proof lives here.",
+    "05_Standards": "Baselines, Policies & Standards lives here.",
+    "06_Operations": "The Operations Log & SOPs lives here.",
+    "07_Handover": "The DR Plan & As-Built Handover -- the capstone -- lives here.",
     "08_Evidence": (
         "Every photo and screenshot you attach or hand over lives here, named per "
         "the convention and logged in the As-Built evidence appendix."

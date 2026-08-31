@@ -19,8 +19,8 @@ import {
  * panel, install a hypervisor — not a traffic-flow story. So the reference
  * picture is the rack itself: what sits at each U, how the patch panel feeds the
  * switch, and what the one server virtualises. It mirrors the seed rows in the
- * Rack & Cabling Record and the Topology & IP Plan so the diagram and the forms
- * agree.
+ * Rack, Power & Asset Register and the IP Plan & Connectivity Proof so the
+ * diagram and the forms agree.
  *
  * The virtual side draws the three bridges: vmbr0 management on the campus
  * LAN (each team's host at the 10.10.30.<team#> rule), vmbr1 the DMZ zone
@@ -142,7 +142,7 @@ export function ServerTopologyDiagram({
             })}
           </div>
           <div className="mt-2 text-center text-[10px] text-muted">
-            Patch panel → switch → server NIC. Every lead is labelled and logged in the Rack &amp; Cabling Record.
+            Patch panel → switch → server NIC. Every lead is labelled and logged in the Rack, Power &amp; Asset Register.
           </div>
         </div>
 
@@ -201,7 +201,7 @@ export function ServerTopologyDiagram({
                     </div>
                   ))}
                   {/* The room the design leaves on purpose: the VMs that make
-                      this YOUR business, planned in the Architecture & IP Plan. */}
+                      this YOUR business, planned in the Architecture Brief. */}
                   <div className="rounded-md border border-dashed border-line px-2 py-1.5 text-center">
                     <span className="block text-[11px] font-semibold text-muted">
                       + {businessLabel ? `${business?.name ?? 'your business'}'s VMs` : 'your business\u2019s VMs'}
@@ -211,7 +211,7 @@ export function ServerTopologyDiagram({
                         ? 'public-facing services your business needs'
                         : 'internal systems your business runs on'}{' '}
                       — from <span className="font-mono">{z.teamStart}</span>, planned in the
-                      Architecture &amp; IP Plan
+                      Architecture Brief
                     </span>
                   </div>
                 </div>
@@ -228,7 +228,7 @@ export function ServerTopologyDiagram({
 
           <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-[10px] text-muted">
             The Windows / Linux / website VMs are the base build — every team the same. Zone subnets
-            are worked examples; record yours in the Architecture &amp; IP Plan.
+            are worked examples; record yours in the IP Plan &amp; Connectivity Proof.
           </div>
         </div>
       </div>
