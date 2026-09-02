@@ -1,6 +1,7 @@
 'use client';
 
 import { Plus, Trash2 } from 'lucide-react';
+import { InfoTip } from '@/components/InfoTip';
 import { RegisterRow } from '@/lib/types';
 import { Column, cellValue } from '@/lib/grc/templates';
 
@@ -42,7 +43,11 @@ export function RegisterTable({
   return (
     <div>
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] text-sm">
+        {/* 480px, down from 640: the column help under every heading was the
+            width driver, and it moved into an InfoTip on the heading. On a
+            390px phone that cuts the sideways scroll in an EDITABLE table from
+            250px to 90px. */}
+        <table className="w-full min-w-[480px] text-sm">
           <thead>
             <tr className="border-b border-line">
               {columns.map((c) => (
@@ -50,16 +55,15 @@ export function RegisterTable({
                   key={c.field}
                   className="px-2 py-2 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-muted"
                 >
-                  {c.label}
-                  {/* Where the value comes from. Under the heading, so it is
-                      said once for the column rather than repeated in every
-                      row — and it stays visible while the row is being filled,
-                      which a placeholder does not. */}
-                  {c.help && (
-                    <span className="mt-0.5 block max-w-[16rem] text-[11px] font-normal normal-case tracking-normal text-muted/80">
-                      {c.help}
-                    </span>
-                  )}
+                  {/* The "where does this value come from" help lives in a
+                      tooltip on the heading now. Printed under every heading it
+                      was 158 visible words on one form and the thing forcing
+                      the table's 640px floor; the ⓘ keeps it one hover/focus
+                      away, said once per column. */}
+                  <span className="inline-flex items-center gap-1">
+                    {c.label}
+                    {c.help && <InfoTip label={`${c.label}: ${c.help}`} />}
+                  </span>
                 </th>
               ))}
               <th className="w-10" />
@@ -97,7 +101,7 @@ export function RegisterTable({
                         placeholder={c.placeholder}
                         rows={2}
                         onChange={(e) => update(i, c.field, e.target.value)}
-                        className={`${inputClass} min-w-[12rem] resize-y`}
+                        className={`${inputClass} min-w-[10rem] resize-y`}
                       />
                     ) : (
                       <input
@@ -115,7 +119,7 @@ export function RegisterTable({
                     type="button"
                     onClick={() => removeRow(i)}
                     aria-label="Delete row"
-                    className="rounded p-1 text-muted hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                    className="rounded p-1.5 text-muted hover:bg-danger-soft hover:text-danger"
                   >
                     <Trash2 className="h-4 w-4" />
                   </button>

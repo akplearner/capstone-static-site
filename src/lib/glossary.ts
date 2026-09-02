@@ -12,7 +12,22 @@ export const GLOSSARY: Record<string, string> = {
   tcpdump: 'A command-line tool that records network traffic to a .pcap file you can open in Wireshark.',
   Wireshark: 'A traffic viewer. Open a .pcap in it and "Follow HTTP Stream" to read the exact request an attacker sent.',
   Kali: 'The attacker machine in your lab — a Linux build that ships with nmap, nikto, hydra and the rest.',
-  Proxmox: 'The host that runs all the lab virtual machines. You only touch it if you are building the lab yourself.',
+  Proxmox: 'A hypervisor — an operating system whose job is to run virtual machines. In Server+ you install it on your own server; in the CySA lab it already runs the lab.',
+  // ── Server+ bench vocabulary ──────────────────────────────────────────────
+  // The 70-odd terms above are SOC/CySA words; almost none can fire on a
+  // build-and-document course, which left the glossary inert there. These are
+  // the bench terms a Server+ beginner actually stalls on — chosen from the
+  // words that appear a handful of times each, NOT the ones on every screen
+  // (RAID and hypervisor appear in 30 strings apiece; wrapping those would put
+  // an ⓘ in every paragraph, which is the clutter this course just removed).
+  POST: 'Power-On Self-Test — the hardware check a machine runs the moment you power it on, before any operating system. Beeps and blink codes are POST talking to you.',
+  DIMM: 'A memory stick. Which slots they go in is dictated by the motherboard manual, and the wrong slots can stop the machine starting at all.',
+  ECC: 'Error-Correcting Code memory — server RAM that detects and fixes single-bit corruption on the fly. Servers use it; desktops usually do not.',
+  HCL: 'Hardware Compatibility List — the check that the software you plan to run officially supports the exact hardware you have, before you build on it.',
+  UEFI: 'The modern replacement for the old BIOS firmware. Boot mode matters: an OS installed under UEFI will not boot if the firmware is later switched to legacy.',
+  IOMMU: 'The chip feature (Intel VT-d / AMD-Vi) that lets a virtual machine be handed a real piece of hardware, like a NIC, as its own.',
+  'VT-x': 'Intel\u2019s virtualization extensions. Present is not enough — they must be ENABLED in firmware setup, or the hypervisor cannot start a single VM.',
+  'stripe size': 'How large a chunk of data a RAID array writes to one disk before moving to the next. The default is right for this build.',
   IDS: 'Intrusion Detection System — software that watches traffic and raises an alert when it matches a known attack pattern. Suricata is yours.',
   NVD: 'National Vulnerability Database — the public catalogue you search to find a CVE and its score for a given software version.',
   pod: 'Your team\u2019s pair of machines: one Ubuntu web server and one Windows PC.',

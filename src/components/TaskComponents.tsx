@@ -35,7 +35,6 @@ import { WazuhWalkthrough } from './diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { Collapsible } from './ui/Button';
-import { TerminalBasics } from './docs/CommandTroubleshooting';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -551,7 +550,7 @@ export function StepDetail({
           step; a student who wants to understand *why*, or who is stuck, opens
           this. Nothing is removed — it's the same content, just not in the way of
           getting the step done. */}
-      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0) || hasCommand) && (
+      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0)) && (
         <div className="rounded-md border border-line bg-panel-2/50">
           <div className="px-3">
             <Collapsible title="Why this works & if you get stuck">
@@ -586,15 +585,6 @@ export function StepDetail({
                         </li>
                       ))}
                     </ul>
-                  </div>
-                )}
-                {/* Terminal basics for absolute beginners, folded in here so a
-                    step ends with ONE footer toggle instead of two stacked ones
-                    — this used to be its own "New to the terminal?" collapsible
-                    directly below. Still only on steps with a command. */}
-                {hasCommand && (
-                  <div className="border-t border-line pt-2">
-                    <TerminalBasics />
                   </div>
                 )}
               </div>
@@ -705,7 +695,7 @@ export function ChecklistItem({
           checked={isComplete}
           onChange={(e) => onToggle(e.target.checked)}
           whileHover={{ scale: 1.1 }}
-          className="mt-1 h-5 w-5 cursor-pointer accent-[var(--color-accent)]"
+          className="mt-1 h-6 w-6 cursor-pointer accent-[var(--color-accent)]"
         />
         <div className="flex-1">
           <motion.div className="flex items-center justify-between gap-2">
@@ -724,12 +714,21 @@ export function ChecklistItem({
               onClick={() => setShowDetails(!showDetails)}
               aria-expanded={showDetails}
               aria-controls={panelId}
-              className="flex shrink-0 items-center gap-1 text-sm text-accent hover:text-accent-strong"
+              className="-my-1 flex shrink-0 items-center gap-1 px-1 py-2 text-sm text-accent hover:text-accent-strong"
             >
               {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
               {showDetails ? 'Hide' : 'Details'}
             </motion.button>
           </motion.div>
+
+          {/* The step's authored one-liner. It was dead weight for two rounds —
+              `instruction || description` in the body means a step with both
+              never showed it (743 words across the four seeds, unreachable).
+              As the collapsed row's subtitle it does exactly what it was
+              written for: says what the step is without opening it. */}
+          {description && !showDetails && (
+            <p className="mt-0.5 line-clamp-1 text-xs text-muted">{description}</p>
+          )}
 
           {isComplete && (
             <motion.div initial={{ opacity: 0, scale: 0 }} animate={{ opacity: 1, scale: 1 }} className="mt-1 flex items-center gap-1 text-sm text-ok">
@@ -999,7 +998,7 @@ function StepSteps({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="inline-flex items-center gap-1 text-left text-[11px] font-medium text-accent hover:opacity-80"
+        className="-my-1 inline-flex items-center gap-1 py-1.5 text-left text-[11px] font-medium text-accent hover:opacity-80"
       >
         {open ? <ChevronUp className="h-3 w-3 shrink-0" /> : <ChevronDown className="h-3 w-3 shrink-0" />}
         {open ? 'Hide the steps' : label}

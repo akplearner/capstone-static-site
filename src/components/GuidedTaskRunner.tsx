@@ -15,6 +15,7 @@ import { Button, Collapsible } from './ui/Button';
 import { ChecklistItem, StepDetail } from './TaskComponents';
 import { GuidedStepper, StepperItem } from './GuidedStepper';
 import { CutMark, CutBeat } from './quarry/CutBeat';
+import { TerminalBasics } from './docs/CommandTroubleshooting';
 import { Task } from '@/lib/types';
 import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
@@ -51,11 +52,13 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   // Bumped each time a step is newly ticked, to fire the one-shot cut beat.
   const [beat, setBeat] = useState(0);
   const { guard } = useRequireAuth();
-  // CySA+ is the beginner course (no gatekeeping): default it to Guided so a
-  // non-technical student faces one step at a time, not a scroll of them. The
-  // "Show all" toggle stays for anyone who prefers the full list. Other courses
-  // keep the show-all default until this pilot is confirmed.
-  const [mode, setMode] = useState<'guided' | 'all'>(courseId === 'cysa-plus' ? 'guided' : 'all');
+  // The two no-gatekeeping courses default to Guided: one step at a time is
+  // the smallest possible reading surface, which is what their students asked
+  // for. The "Show all" toggle sits right on the count row for anyone who
+  // prefers the full checklist. Gated courses keep the show-all default.
+  const [mode, setMode] = useState<'guided' | 'all'>(
+    courseId === 'cysa-plus' || courseId === 'server-plus' ? 'guided' : 'all'
+  );
   const [currentIdx, setCurrentIdx] = useState(() => {
     const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));
@@ -154,6 +157,9 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     () =>
       task.steps.map((s, i) => ({
         label: `Step ${i + 1}`,
+        // The dots used to be thirteen unlabeled "Step N"s — a rail you could
+        // count but not read. The title is what makes it a map.
+        sublabel: s.title,
         status: completed.has(s.id) ? 'done' : i === currentIdx ? 'current' : 'upcoming',
       })),
     [task.steps, completed, currentIdx]
@@ -164,13 +170,13 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
 
   return (
     <div className="space-y-4">
-      {/* A task opens straight into its checklist. The only always-visible row
-          above the steps is the count; everything that used to stack here — the
-          Guided/Show-all toggle, Mark all, and the "Goal: produce X" line (the
-          filename now lives on the step rows themselves) — sits inside the
-          "About this task" disclosure below, per the instructor's explicit
-          "checklist only, hide everything" instruction. */}
-      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
+      {/* One row above the steps: the count on the left, the view toggle on
+          the right. The toggle spent one round buried inside "About this task"
+          and came straight back out — with Guided now the default, the switch
+          between "one step at a time" and "the whole checklist" is the primary
+          view control, not a setting. Mark all stays in About. */}
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
         <ListChecks className="h-4 w-4" />
         {requiredDone} of {requiredTotal} required done
         {optionalTotal > 0 && (
@@ -183,39 +189,39 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
         )}
         {/* The reward beat — a cut lands on the stone each time a step does. */}
         <CutBeat trigger={beat} />
+        </div>
+        <div className="flex overflow-hidden rounded-lg border border-line">
+          <button
+            onClick={() => setMode('guided')}
+            className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'guided'
+                ? 'bg-accent text-accent-contrast'
+                : 'bg-panel text-muted hover:bg-panel-2'
+            }`}
+          >
+            <ArrowRight className="h-3.5 w-3.5" /> Guided
+          </button>
+          <button
+            onClick={() => setMode('all')}
+            className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+              mode === 'all'
+                ? 'bg-accent text-accent-contrast'
+                : 'bg-panel text-muted hover:bg-panel-2'
+            }`}
+          >
+            <Rows3 className="h-3.5 w-3.5" /> Show all
+          </button>
+        </div>
       </div>
 
       {/* Everything about the task that is not a step: the done-when list, the
           prerequisites/outputs, the tools-and-learning brief (all supplied by
-          the caller via `about`), plus the two controls that change how the
-          checklist behaves. Settings-shaped things live behind a disclosure. */}
+          the caller via `about`), plus Mark all. */}
       <div className="rounded-lg border border-line bg-panel px-3">
         <Collapsible title="About this task — done-when, tools & extras">
           <div className="space-y-3 py-1 pr-2">
             {about}
             <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
-              <div className="flex overflow-hidden rounded-lg border border-line">
-                <button
-                  onClick={() => setMode('guided')}
-                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                    mode === 'guided'
-                      ? 'bg-accent text-accent-contrast'
-                      : 'bg-panel text-muted hover:bg-panel-2'
-                  }`}
-                >
-                  <ArrowRight className="h-3.5 w-3.5" /> Guided
-                </button>
-                <button
-                  onClick={() => setMode('all')}
-                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                    mode === 'all'
-                      ? 'bg-accent text-accent-contrast'
-                      : 'bg-panel text-muted hover:bg-panel-2'
-                  }`}
-                >
-                  <Rows3 className="h-3.5 w-3.5" /> Show all
-                </button>
-              </div>
               {allDone ? (
                 <button
                   onClick={undoAll}
@@ -267,6 +273,12 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   <h4 className="mt-1 text-lg font-semibold text-ink">
                     {current?.title}
                   </h4>
+                  {/* The step's authored one-liner — unreachable for two rounds
+                      (the body renders `instruction || description`, and every
+                      step has both), now doing its job as the card's subtitle. */}
+                  {current?.description && (
+                    <p className="mt-0.5 text-sm text-muted">{current.description}</p>
+                  )}
                 </div>
                 {currentDone && (
                   <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ok-soft px-2 py-1 text-xs font-medium text-ok">
@@ -406,6 +418,20 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
       )}
 
       {/* One obvious next action once the task is done — no dead-end. */}
+      {/* Absolute-beginner terminal help, ONCE per task. It used to render
+          inside every command-bearing step's footer — 29 steps × 176 words of
+          the identical six cards, ~5,100 duplicated words across the course.
+          Same help, one home, below the steps it serves. */}
+      {task.steps.some((s) => s.command || s.commands?.length) && (
+        <div className="rounded-lg border border-line bg-panel-2/50 px-3">
+          <Collapsible title="New to the terminal?">
+            <div className="pb-2 pr-2">
+              <TerminalBasics />
+            </div>
+          </Collapsible>
+        </div>
+      )}
+
       {allRequiredDone && onNext && (
         <motion.div
           initial={{ opacity: 0, y: 6 }}

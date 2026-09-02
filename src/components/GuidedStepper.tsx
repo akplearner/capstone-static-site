@@ -70,7 +70,9 @@ export function GuidedStepper({ items, onSelect, className = '' }: GuidedStepper
                   {item.label}
                 </div>
                 {item.sublabel && (
-                  <div className="text-[10px] text-muted">{item.sublabel}</div>
+                  <div className="truncate text-[10px] text-muted" title={item.sublabel}>
+                    {item.sublabel}
+                  </div>
                 )}
               </div>
             </div>

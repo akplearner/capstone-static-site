@@ -46,7 +46,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, userStateRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
@@ -61,7 +61,7 @@ import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
 import { emptyData, type DeliverableData } from '@/lib/docs/types';
 import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
-import { roleGuide, worksLabel } from '@/lib/roleGuide';
+import { hasSpecificGuide, roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
 import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
@@ -276,10 +276,20 @@ function JoinPanel({
                 <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                 <span>
                   <span className="block font-medium text-ink">{r.name}</span>
-                  <span className="block text-xs text-muted">{roleGuide(r.id, course.id).blurb}</span>
-                  <span className="mt-0.5 block text-[11px] text-muted">
-                    {worksLabel(roleGuide(r.id, course.id).works)}
-                  </span>
+                  {/* The line that tells the roles APART. Without a written
+                      guide for this course's role ids, the old code showed the
+                      generic fallback — four identical blurbs on four buttons —
+                      while each role's authored mission went unrendered. */}
+                  {hasSpecificGuide(r.id, course.id) ? (
+                    <>
+                      <span className="block text-xs text-muted">{roleGuide(r.id, course.id).blurb}</span>
+                      <span className="mt-0.5 block text-[11px] text-muted">
+                        {worksLabel(roleGuide(r.id, course.id).works)}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="block text-xs text-muted">{r.mission}</span>
+                  )}
                 </span>
               </button>
             ))}
@@ -1027,9 +1037,6 @@ export default function CoursePage() {
 
   // "This week" context for the role hero.
   const contentWeeks = sortedWeeks.filter((w) => w.number >= 1);
-  const tasksLeftThisWeek = member
-    ? getTasksByRole(course, member.role, activeWeek).filter((t) => (taskStats[t.id] ?? 0) < 100).length
-    : 0;
   // Task search (Weekly Tasks tab). Matches title, objective, or framework; an
   // active query force-opens every week so matches are visible without clicking.
   const q = query.trim().toLowerCase();
@@ -1241,7 +1248,7 @@ export default function CoursePage() {
                     href={`/courses/${course.id}/docs`}
                     className="inline-flex items-center gap-1.5 rounded-md bg-ok px-3 py-2 text-sm font-medium text-white hover:opacity-90"
                   >
-                    <FileText className="h-4 w-4" /> Build your final package
+                    <FileText className="h-4 w-4" /> Open Deliverables
                   </Link>
                 )}
                 {member && (
@@ -1281,8 +1288,7 @@ export default function CoursePage() {
                   You&apos;re {ownRole.name}
                 </div>
                 <div className="text-sm text-muted">
-                  {phaseTag(course, activeWeek)} of {contentWeeks.length} ·{' '}
-                  {tasksLeftThisWeek} task{tasksLeftThisWeek === 1 ? '' : 's'} left this {unitWord(course).toLowerCase()}
+                  {phaseTag(course, activeWeek)} of {contentWeeks.length}
                 </div>
               </div>
             </div>
@@ -1461,12 +1467,7 @@ export default function CoursePage() {
             <h2 className="text-2xl font-bold text-ink">
               {phaseTag(course, activeWeek)}
             </h2>
-            <span className="text-sm text-muted">
-              {ownRole.name} ·{' '}
-              {tasksLeftThisWeek === 0
-                ? 'nothing left this week'
-                : `${tasksLeftThisWeek} task${tasksLeftThisWeek === 1 ? '' : 's'} left`}
-            </span>
+            <span className="text-sm text-muted">{ownRole.name}</span>
           </div>
         )}
         {/* Not enrolled: the tasks ARE the course material, so this is where the
@@ -1625,11 +1626,7 @@ export default function CoursePage() {
                     <span className="hidden rounded-full bg-panel-2 px-2 py-0.5 text-xs font-medium text-muted md:inline">
                       Gate {gateForWeek.id} · {displayCount} task{displayCount === 1 ? '' : 's'}
                     </span>
-                  ) : (
-                    <span className="text-xs text-muted">
-                      {displayCount} task{displayCount === 1 ? '' : 's'}
-                    </span>
-                  )}
+                  ) : null}
                   {isWeekOpen ? (
                     <ChevronDown className="h-5 w-5 text-muted" />
                   ) : (

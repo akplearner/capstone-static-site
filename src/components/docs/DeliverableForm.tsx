@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
 import { DeliverableData, DeliverableDef, Field, FieldGroup } from '@/lib/docs/types';
 import { RegisterTable } from '@/components/grc/RegisterTable';
@@ -21,6 +22,12 @@ function SingleField({
   const value = f.derived ? f.derived(fields) : fields[f.field] ?? '';
   const empty = !value.trim();
   const namingBad = f.type === 'fileref' && !empty && !validateEvidenceFileName(value).valid;
+  // "Required" turns red only after the student has actually been IN the field.
+  // On first paint, form 03 used to open with seven red error messages before a
+  // single character was typed — a brand-new form scolding a brand-new student.
+  // The asterisk still marks required fields; the form-level counter says how
+  // many are left; red is reserved for a field someone visited and left empty.
+  const [touched, setTouched] = useState(false);
 
   const handleSignature = (name: string) => {
     if (!name.trim()) {
@@ -57,6 +64,7 @@ function SingleField({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={() => setTouched(true)}
           placeholder={f.placeholder}
           rows={f.type === 'paste' ? 4 : 3}
           className={`${inputClass} ${f.type === 'paste' ? 'font-mono text-xs' : ''}`}
@@ -77,7 +85,7 @@ function SingleField({
           )}
         </div>
       ) : f.type === 'select' ? (
-        <select value={value} onChange={(e) => onChange(e.target.value)} className={inputClass}>
+        <select value={value} onChange={(e) => onChange(e.target.value)} onBlur={() => setTouched(true)} className={inputClass}>
           <option value="">—</option>
           {(f.options ?? []).map((o) => (
             <option key={o} value={o}>
@@ -90,12 +98,13 @@ function SingleField({
           type={f.type === 'date' ? 'date' : 'text'}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={() => setTouched(true)}
           placeholder={f.placeholder}
           className={inputClass}
         />
       )}
       {f.help && <span className="mt-1 block text-xs text-muted">{f.help}</span>}
-      {f.required && empty && (
+      {f.required && empty && touched && (
         <span className="mt-1 block text-xs text-danger">Required for a complete deliverable.</span>
       )}
       {namingBad && (
@@ -138,6 +147,13 @@ export function DeliverableForm({
   const setGroup = (g: string, rows: Record<string, string>[]) =>
     onChange({ ...data, groups: { ...data.groups, [g]: rows } });
 
+  // One neutral line instead of a page of premature red: how many required
+  // fields still need a value. Field-level red appears per field after a visit.
+  const requiredLeft = def.sections
+    .filter((s): s is Extract<typeof s, { kind: 'fields' }> => s.kind === 'fields')
+    .flatMap((s) => s.fields)
+    .filter((f) => f.required && !f.derived && !(data.fields[f.field] ?? '').trim()).length;
+
   const hasCvss = def.sections.some(
     (s) =>
       (s.kind === 'group' && s.group.columns.some((c) => c.field === 'cvss')) ||
@@ -146,6 +162,11 @@ export function DeliverableForm({
 
   return (
     <div className="space-y-5">
+      {requiredLeft > 0 && (
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2 px-3 py-1 text-xs font-medium text-muted">
+          {requiredLeft} required {requiredLeft === 1 ? 'field' : 'fields'} left
+        </div>
+      )}
       {def.sections.map((s, i) =>
         s.kind === 'fields' ? (
           <div key={i} className="space-y-3">

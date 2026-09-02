@@ -172,8 +172,8 @@ export default function CourseReferencePage() {
     },
     {
       id: 'forms',
-      title: 'The deliverables',
-      blurb: 'Every form in the course, where its content comes from, and the folder layout you submit.',
+      title: 'The folder layout & forms reference',
+      blurb: 'Every form in the course, where its content comes from, and the folder layout you submit. The forms themselves are filled on the Deliverables tab.',
       body: (
         <div className="space-y-6">
           {member && <RoleExtractionGuide role={member.role} courseId={course.id} />}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
@@ -20,6 +20,7 @@ import { TriageDecisionTree } from '@/components/diagrams/TriageDecisionTree';
 import { RiskMatrix } from '@/components/diagrams/RiskMatrix';
 import { IncidentTimelineDiagram } from '@/components/diagrams/IncidentTimelineDiagram';
 import { useCourse } from '@/lib/useCourse';
+import { readResume } from '@/lib/resume';
 import { useMember } from '@/lib/useMember';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
@@ -144,6 +145,20 @@ export default function DeliverablesPage() {
   const toolParam = searchParams.get('tool');
   const weekParam = searchParams.get('week');
   const formWeek = formParam ? courseDefs.find((d) => d.id === formParam)?.weeks[0] : undefined;
+
+  // A "Record in: {form} →" link used to land at the TOP of this page — correct
+  // tab selected, but the student then scrolled past the sub-nav, week rail,
+  // header, toolbar and tabs to find the form the step just named. Scroll to it
+  // and pulse its border once, so the landing is the form, not the page.
+  useEffect(() => {
+    if (!formParam) return;
+    const el = document.getElementById(`form-${formParam}`);
+    if (!el) return;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    el.classList.add('form-arrive');
+    const t = setTimeout(() => el.classList.remove('form-arrive'), 2400);
+    return () => clearTimeout(t);
+  }, [formParam]);
 
   // The week lives in the URL now. It used to be useState, so a week was never
   // shareable or bookmarkable and was lost on reload and on back — which matters
@@ -297,6 +312,10 @@ export default function DeliverablesPage() {
 
       {/* ── the header: one line saying what this week asks of you ───────── */}
       <header data-block="week-head" className="space-y-1">
+        {/* The page finally says its own tab name. Nine links point here under
+            what used to be six different labels; the eyebrow is the anchor that
+            tells an arriving student they are where the link promised. */}
+        <div className="eyebrow-muted">Deliverables</div>
         <h1 className="text-2xl font-bold tracking-tight text-ink">
           {weekWord} · {dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}
         </h1>
@@ -434,6 +453,20 @@ export default function DeliverablesPage() {
 
       {/* ── this week's form(s) ─────────────────────────────────────────── */}
       <div data-block="week-forms">
+        {/* Following a step's form link can legitimately land on a LATER week's
+            form — three of the four Week-1 focus tasks draft into Week-2 forms
+            on purpose. What was wrong was doing it silently: the week rail
+            re-selected itself and the student thought they were lost. Say it. */}
+        {formParam && formWeek != null && (() => {
+          const studentWeek = readResume(course, member.memberId)?.week;
+          return studentWeek != null && formWeek > studentWeek ? (
+            <div className="mb-3 flex items-center gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-body">
+              <Sparkles className="h-4 w-4 shrink-0 text-accent" aria-hidden />
+              This is a Week {formWeek} form — you&apos;re drafting it early, which is exactly what
+              your step asked for. Your own week is still Week {studentWeek}.
+            </div>
+          ) : null;
+        })()}
         {dueThisWeek.length === 0 ? (
           // ONE empty state. There used to be two, rendering simultaneously — a
           // blue box at the top of the page and a grey card further down.

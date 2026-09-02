@@ -691,3 +691,15 @@ select {
 .legal-body strong {
   @apply font-semibold text-ink;
 }
+
+/* One pulse on the form card a step's "Record in →" link lands on, so the
+   student sees WHICH form the step meant without hunting. Added and removed by
+   the docs page's arrival effect; stilled with everything else under the
+   global prefers-reduced-motion block's animation kill. */
+.form-arrive {
+  animation: form-arrive-pulse 0.8s ease-out 2;
+}
+@keyframes form-arrive-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--color-accent) 45%, transparent); }
+  100% { box-shadow: 0 0 0 10px transparent; }
+}

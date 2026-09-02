@@ -112,7 +112,6 @@ export function EngagementStatus({
                   <Circle className="h-3.5 w-3.5 text-muted" aria-hidden />
                 )}
                 {w === 0 ? 'Setup' : `Week ${w}`}
-                <span className="font-mono text-[10px] text-muted">{pct}%</span>
               </button>
             </li>
           );
@@ -122,7 +121,7 @@ export function EngagementStatus({
             href={`/courses/${course.id}/docs`}
             className="text-xs font-medium text-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
-            Open the documents →
+            Open Deliverables →
           </Link>
         </li>
       </ol>

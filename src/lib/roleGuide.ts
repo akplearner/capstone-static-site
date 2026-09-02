@@ -107,6 +107,20 @@ export function roleGuide(roleId: string, courseId?: string): RoleGuide {
   return GUIDES[roleId] ?? FALLBACK;
 }
 
+/**
+ * Whether a role has its OWN written guide, as opposed to the generic fallback.
+ *
+ * The join picker needs this distinction: Server+ role ids (net/win/lnx/mgmt)
+ * match nothing here, so all four roles rendered the identical fallback blurb —
+ * 44 words of undifferentiated text at the exact moment a student chooses, while
+ * each role's authored `mission` (the sentence that actually distinguishes them)
+ * sat unused 400px lower on the page. When this is false the picker shows the
+ * mission instead.
+ */
+export function hasSpecificGuide(roleId: string, courseId?: string): boolean {
+  return !!((courseId && BY_COURSE[courseId]?.[roleId]) || GUIDES[roleId]);
+}
+
 /** Short "you mostly …" label for the role. */
 export function worksLabel(works: RoleGuide['works']): string {
   if (works === 'commands') return 'You mostly run commands in a terminal.';
