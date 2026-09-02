@@ -23,12 +23,17 @@
  * the CySA+ SOC lab.
  */
 
-/** The school network every team's management interface sits on. */
+/**
+ * The school network every team's management interface sits on.
+ *
+ * The gateway is NOT on the same third octet as the hosts: hosts sit at
+ * 10.10.30.T and the gateway answers on 10.10.10.1, and both are reachable only
+ * because the prefix is /16. That gap is exactly why a /24 here fails — and why
+ * the gateway was wrong in this file for so long without anything noticing.
+ */
 export const CAMPUS_LAN = {
   cidr: '10.10.0.0/16',
-  gateway: '10.10.0.1',
-  /** Not /24 — a /24 here cannot reach the campus gateway. */
-  prefix: '/16',
+  gateway: '10.10.10.1',
 };
 
 /**

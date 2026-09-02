@@ -319,6 +319,11 @@ function TaskReference({ task }: { task: Task }) {
           <div className="mt-3">
             <StepDetail
               instruction={s.instruction}
+              /* instructionList and fixes were both missing here, so the
+                 read-only view of another role's task showed the summary line
+                 and dropped the actual procedure under it. */
+              instructionList={s.instructionList}
+              paths={s.paths}
               description={s.description}
               command={s.command}
               commands={s.commands}
@@ -332,6 +337,7 @@ function TaskReference({ task }: { task: Task }) {
               usesForm={s.usesForm}
               danger={s.danger}
               troubleshooting={s.troubleshooting}
+              fixes={s.fixes}
               verify={s.verify}
               optional={s.optional}
               where={s.where}

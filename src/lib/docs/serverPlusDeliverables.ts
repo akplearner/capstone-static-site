@@ -384,8 +384,8 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
         kind: 'fields',
         title: 'RAID array',
         fields: [
-          { field: 'raid_controller', label: 'Controller', type: 'text', placeholder: 'Dell PERC H730 Mini', help: 'Enter its configuration utility during POST — usually Ctrl+R, watch the screen for the prompt.' },
-          { field: 'raid_level', label: 'RAID level chosen', type: 'select', options: ['RAID 0', 'RAID 1', 'RAID 5', 'RAID 6', 'RAID 10'], required: true, help: 'RAID 1 mirrors two disks. RAID 5 survives one failure with less wasted space. RAID 10 is fastest to rebuild.' },
+          { field: 'raid_controller', label: 'Controller', type: 'text', placeholder: 'Dell PERC H730 Mini', help: 'Enter its configuration utility during POST — Ctrl+C on an LSI SAS card, Ctrl+R on a Dell PERC. Watch the screen for which prompt you get.' },
+          { field: 'raid_level', label: 'RAID level chosen', type: 'select', options: ['RAID 0', 'RAID 1', 'RAID 1E', 'RAID 5', 'RAID 6', 'RAID 10'], required: true, help: 'Pick what your controller actually offered. RAID 1 mirrors two disks. RAID 5 survives one failure with less wasted space. RAID 10 is fastest to rebuild. An LSI SAS BIOS usually lists only 0, 1 and 1E.' },
           { field: 'raid_why', label: 'Why that level', type: 'area', required: true, placeholder: 'RAID 10 across four 600 GB SAS disks: this is the only server, so a rebuild has to be fast and cannot slow the VMs down. I traded capacity for that.', help: 'Name the trade-off you accepted. Every RAID level gives up something.' },
           { field: 'raid_members', label: 'Member disks', type: 'text', placeholder: '4× 600 GB SAS 10k, bays 0–3', help: 'Which physical disks joined the array.' },
           { field: 'raid_spare', label: 'Hot spare', type: 'select', options: ['Yes — one assigned', 'No — none available', 'No — deliberate choice'], help: 'A hot spare rebuilds automatically without anyone visiting the rack.' },
@@ -588,7 +588,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('survives', 'Survives a reboot?', 'select', { options: YN, help: 'Reboot the host and re-run the command. Applied is not the same as persisted.' }),
           ],
           seed: [
-            { hostname: 'pve-host', zone: 'vmbr0 — management', address: '10.10.30.1/16', gateway: '10.10.0.1', dns: '10.10.0.1', survives: 'Yes' },
+            { hostname: 'pve-host', zone: 'vmbr0 — management', address: '10.10.30.1/16', gateway: '10.10.10.1', dns: '10.10.10.1', survives: 'Yes' },
             { hostname: 'websrv', zone: 'vmbr1 — DMZ', address: '172.16.0.10/24', gateway: '172.16.0.1', dns: '192.168.0.2', survives: 'Yes' },
             { hostname: 'winserver', zone: 'vmbr2 — private', address: '192.168.0.2/24', gateway: '192.168.0.1', dns: '127.0.0.1', survives: 'Yes' },
             { hostname: 'linuxsrv', zone: 'vmbr2 — private', address: '192.168.0.3/24', gateway: '192.168.0.1', dns: '192.168.0.2', survives: 'Yes' },

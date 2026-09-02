@@ -174,6 +174,22 @@ const REGISTRY: {
   { literal: '192.168.0.1', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: '192.168.0.4', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: 'capstone_db', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  // The campus gateway. It had NO row until it was found wrong: the code said
+  // 10.10.0.1 while the classroom gateway is 10.10.10.1, restated by hand in
+  // twelve places across six files and asserted by nothing, which is precisely
+  // how it drifted and stayed wrong.
+  //
+  // `alsoAllowed` is load-bearing here for the same reason it is on Pass@2026:
+  // this row matches by plain substring, and 10.10.10.1 is already in the repo
+  // twice for unrelated reasons — as a generic ping example in the shared
+  // command content, and INSIDE the CySA attacker box's 10.10.10.10. Neither is
+  // the Server+ campus gateway, and neither should be dragged into this SSOT.
+  {
+    literal: '10.10.10.1',
+    home: 'src/lib/serverTopology.ts',
+    alsoAllowed: ['src/lib/content-data.ts', 'src/lib/labTopology.ts'],
+    commandsExempt: true,
+  },
   // The Proxmox root password every team sets in Week 1.
   //
   // `alsoAllowed` is load-bearing, not defensive: the CySA SOC password is the

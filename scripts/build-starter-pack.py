@@ -88,7 +88,7 @@ FOLDERS: dict[str, str] = {
 # The authoritative topology, as a student reads it. One block, one edit.
 ADDRESSING_BLOCK = """THE ADDRESSING RULE
 ===================
-Campus LAN:          10.10.0.0/16, gateway 10.10.0.1
+Campus LAN:          10.10.0.0/16, gateway 10.10.10.1
 Your Proxmox host:   10.10.30.T   (T = your team number; Team 1 = 10.10.30.1)
 Its web console:     https://10.10.30.T:8006
 

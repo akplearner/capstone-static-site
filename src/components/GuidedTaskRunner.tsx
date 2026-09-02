@@ -268,11 +268,18 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                 )}
               </div>
 
+              {/* `danger` was missing from this list. Guided mode passed every
+                  other field and silently dropped the one that says "this erases
+                  every drive and there is no undo" — the field a student most
+                  needs before touching anything. Server+ defaults to 'all' mode,
+                  so it showed there; only guided mode lost it. */}
               {current && (
                 <StepDetail
                   instruction={current.instruction}
                   instructionList={current.instructionList}
+                  paths={current.paths}
                   description={current.description}
+                  danger={current.danger}
                   command={current.command}
                   commands={current.commands}
                   commandExplanation={current.commandExplanation}
@@ -353,6 +360,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               title={step.title}
               instruction={step.instruction}
               instructionList={step.instructionList}
+              paths={step.paths}
               description={step.description}
               command={step.command}
               commands={step.commands}

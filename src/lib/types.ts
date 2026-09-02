@@ -112,6 +112,19 @@ export interface Step {
    *  in the warning tone. Reserve it for real consequences: a warning on every
    *  step is a warning on none. */
   danger?: string;
+  /** Two or more ways to do the SAME step, when the hardware in front of the
+   *  student decides which one applies — not a preference, a fork in the road.
+   *
+   *  The case this exists for: the RAID utility. A bench with an LSI SAS
+   *  controller prompts `Press Ctrl+C to enter SAS controller` and offers
+   *  RAID Properties → Create New Volume; a bench with a Dell PERC card prompts
+   *  `Press Ctrl+R` and offers VD Mgmt → Create New VD. Same step, same outcome,
+   *  different keystroke and different menus — and a classroom has both. Teaching
+   *  only one leaves half the room stuck at the first screen, and burying one
+   *  under the other makes a student who has the "wrong" card think they are
+   *  doing it wrong. So they render side by side, equally, and the student picks
+   *  by reading their own POST screen. */
+  paths?: { label: string; when: string; steps: string[] }[];
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
   /** Several independent failure modes, each with its own fix. Prefer this over a

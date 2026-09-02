@@ -259,6 +259,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
 export function StepDetail({
   instruction,
   instructionList,
+  paths,
   description,
   command,
   commands,
@@ -286,6 +287,7 @@ export function StepDetail({
 }: {
   instruction?: string;
   instructionList?: string[];
+  paths?: { label: string; when: string; steps: string[] }[];
   description?: string;
   command?: string;
   commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
@@ -451,19 +453,15 @@ export function StepDetail({
                   <GlossaryText text={instruction || description || ''} keys />
                 </div>
               )}
-              {/* The discrete actions. A step whose instruction is really a
-                  sequence reads as a list, not a paragraph in a half-width column. */}
-              {instructionList && instructionList.length > 0 && (
-                <ol className="mt-2 space-y-1.5 text-sm text-body">
-                  {instructionList.map((item, i) => (
-                    <li key={i} className="flex gap-2">
-                      <span className="mt-px shrink-0 font-mono text-xs font-semibold text-accent">
-                        {i + 1}.
-                      </span>
-                      <span><GlossaryText text={item} keys /></span>
-                    </li>
-                  ))}
-                </ol>
+              {/* The discrete actions, one press away.
+                  These lists are the single biggest block of text in the course
+                  — 5,157 words across the four seeds, 57% of everything visible
+                  in Server+ Week 1 — and every one of them was rendered open, so
+                  a student read every click of every step before doing anything.
+                  The instruction above says what to do; this says exactly how,
+                  for whoever needs it. Nothing is removed. */}
+              {((instructionList && instructionList.length > 0) || (paths && paths.length > 0)) && (
+                <StepSteps items={instructionList} paths={paths} />
               )}
             </div>
           )}
@@ -613,6 +611,7 @@ interface ChecklistItemProps {
   title: string;
   instruction?: string;
   instructionList?: string[];
+  paths?: { label: string; when: string; steps: string[] }[];
   description?: string;
   command?: string;
   commands?: { cmd: string; explain?: string }[];
@@ -650,6 +649,7 @@ export function ChecklistItem({
   title,
   instruction,
   instructionList,
+  paths,
   description,
   command,
   commands,
@@ -735,6 +735,7 @@ export function ChecklistItem({
               <StepDetail
                 instruction={instruction}
                 instructionList={instructionList}
+                paths={paths}
                 description={description}
                 command={command}
                 commands={commands}
@@ -927,6 +928,83 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
               ))}
             </ul>
           )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The numbered click-path for a step, behind one press.
+ *
+ * The count is in the label on purpose: "Show the 7 steps" tells a student how
+ * much is behind the toggle before they commit to opening it, which a bare
+ * "More info" does not. It matches the flag toggle in `CommandRow` rather than
+ * `Collapsible`, whose full-width rule and indent read as a page section — wrong
+ * weight for something sitting inside a half-width column.
+ *
+ * It opens closed every time, including for the step a student is currently on.
+ * The instruction above it is the whole action for most steps; the list is for
+ * the first time through, or when the short form was not enough.
+ */
+function NumberedSteps({ items }: { items: string[] }) {
+  return (
+    <ol className="mt-1.5 space-y-1.5 text-sm text-body">
+      {items.map((item, i) => (
+        <li key={i} className="flex gap-2">
+          <span className="mt-px shrink-0 font-mono text-xs font-semibold text-accent">
+            {i + 1}.
+          </span>
+          <span>
+            <GlossaryText text={item} keys />
+          </span>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function StepSteps({
+  items,
+  paths,
+}: {
+  items?: string[];
+  paths?: { label: string; when: string; steps: string[] }[];
+}) {
+  const [open, setOpen] = React.useState(false);
+  const count = paths?.length
+    ? Math.max(...paths.map((p) => p.steps.length))
+    : (items?.length ?? 0);
+  const label = paths?.length
+    ? `Show both ways — ${paths.length} paths, about ${count} steps each`
+    : `Show the ${count} steps`;
+
+  return (
+    <div className="mt-2">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        aria-expanded={open}
+        className="inline-flex items-center gap-1 text-left text-[11px] font-medium text-accent hover:opacity-80"
+      >
+        {open ? <ChevronUp className="h-3 w-3 shrink-0" /> : <ChevronDown className="h-3 w-3 shrink-0" />}
+        {open ? 'Hide the steps' : label}
+      </button>
+      {open && items && items.length > 0 && <NumberedSteps items={items} />}
+      {/* Side by side on a wide screen, stacked on a phone — neither path is
+          the default, because which one applies is decided by the card in the
+          server, not by us. */}
+      {open && paths && paths.length > 0 && (
+        <div className="mt-2 grid gap-2 lg:grid-cols-2">
+          {paths.map((p) => (
+            <div key={p.label} className="rounded-md border border-line bg-panel-2 p-2.5">
+              <div className="font-mono text-[11px] font-semibold text-ink">
+                <GlossaryText text={p.label} keys />
+              </div>
+              <div className="mt-0.5 text-[11px] text-muted">{p.when}</div>
+              <NumberedSteps items={p.steps} />
+            </div>
+          ))}
         </div>
       )}
     </div>
