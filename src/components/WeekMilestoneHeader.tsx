@@ -1,27 +1,25 @@
 'use client';
 
-import { Clock, Flag, ListChecks } from 'lucide-react';
+import { Clock, Flag } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { formatMinutes, weekSummary } from '@/lib/course-helpers';
 import { GlossaryText } from './GlossaryText';
-import { Difficulty } from './ui/Difficulty';
 
 /**
- * The "what am I in for this week" facts — difficulty · time · size, the tools,
- * and the one-sentence milestone. Everything is aggregated from data the tasks
- * already carry (`tools`, `estimatedTime`, step counts), so this adds a view,
- * not a second copy of the content.
+ * The week's finish line, and nothing else: "Done when: <milestone>" plus a
+ * small time estimate. One row.
  *
- * Two rows this used to render are gone, deliberately:
- *   - the task-flow chip strip — it drew the same sequence WeekTaskFlow draws
- *     as clickable cards directly below; the diagram is the single home now.
- *   - the aggregated tool strip — a week's worth of every task's tools, up to
- *     a dozen chips, restated above tasks that each name their own two or
- *     three. The tools now render inside the open task's brief, next to the
- *     work they are used for.
- *   - the per-chip stagger animations — a dozen chips fading in one by one on
- *     every week open read as busyness, not polish. The card the caller wraps
- *     this in animates once; chips never stagger individually (see ui/Card.tsx).
+ * This component has been losing rows for three rounds, on the instructor's
+ * consistent instruction, and each cut has the same shape — the row restated
+ * something the checklist below already carries:
+ *   - the task-flow chip strip duplicated WeekTaskFlow (both are gone now);
+ *   - the aggregated tool strip restated every open task's own tools;
+ *   - the facts row (difficulty · "N tasks · M steps") restated what the task
+ *     rows themselves show, and difficulty answered a question no student was
+ *     asking at this point — they are already committed to the week.
+ * The milestone is the one line that earns the space: it is the only place the
+ * week states, in a sentence, what "done" means. The time chip rides along
+ * because "how long is this" is the second thing everyone asks.
  */
 
 export function WeekMilestoneHeader({
@@ -37,42 +35,27 @@ export function WeekMilestoneHeader({
   percent: number;
 }) {
   const s = weekSummary(course, role, week);
-  if (s.taskCount === 0) return null;
+  if (s.taskCount === 0 || !s.milestone) return null;
 
   const cleared = percent >= 100;
 
   return (
-    // No border of its own: the caller's glance card provides the one frame.
-    <div>
-      {/* Facts row: difficulty · time · size */}
-      <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-2">
-        {s.difficulty && <Difficulty level={s.difficulty} />}
-        {s.minutes != null && (
-          <span className="inline-flex items-center gap-1.5 text-xs text-muted">
-            <Clock className="h-3.5 w-3.5" /> ~{formatMinutes(s.minutes)}
-          </span>
-        )}
-        <span className="inline-flex items-center gap-1.5 text-xs text-muted">
-          <ListChecks className="h-3.5 w-3.5" />
-          {s.taskCount} {s.taskCount === 1 ? 'task' : 'tasks'} · {s.requiredStepCount} steps
+    <div
+      className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border px-3 py-2 ${
+        cleared ? 'border-ok-line bg-ok-soft' : 'border-line bg-panel-2'
+      }`}
+    >
+      <Flag className={`h-4 w-4 shrink-0 ${cleared ? 'text-ok' : 'text-muted'}`} aria-hidden />
+      <p className="min-w-0 flex-1 text-sm text-ink">
+        <span className="font-semibold">
+          {cleared ? `You've completed Week ${week} — ` : 'Done when: '}
         </span>
-      </div>
-
-      {/* The milestone: one sentence saying when the week is actually done. */}
-      {s.milestone && (
-        <div
-          className={`mt-3 flex gap-2 rounded-md border px-3 py-2 ${
-            cleared ? 'border-ok-line bg-ok-soft' : 'border-line bg-panel-2'
-          }`}
-        >
-          <Flag className={`mt-0.5 h-4 w-4 shrink-0 ${cleared ? 'text-ok' : 'text-muted'}`} aria-hidden />
-          <p className="text-sm text-ink">
-            <span className="font-semibold">
-              {cleared ? `You've completed Week ${week} — ` : 'Done when: '}
-            </span>
-            <GlossaryText text={s.milestone} />
-          </p>
-        </div>
+        <GlossaryText text={s.milestone} />
+      </p>
+      {s.minutes != null && (
+        <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-muted">
+          <Clock className="h-3.5 w-3.5" /> ~{formatMinutes(s.minutes)}
+        </span>
       )}
     </div>
   );

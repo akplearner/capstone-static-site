@@ -1,18 +1,17 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { type ReactNode, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
   ArrowRight,
   Check,
   CheckCircle2,
-  FileText,
   ListChecks,
   Rows3,
   RotateCcw,
 } from 'lucide-react';
-import { Button } from './ui/Button';
+import { Button, Collapsible } from './ui/Button';
 import { ChecklistItem, StepDetail } from './TaskComponents';
 import { GuidedStepper, StepperItem } from './GuidedStepper';
 import { CutMark, CutBeat } from './quarry/CutBeat';
@@ -40,9 +39,12 @@ interface GuidedTaskRunnerProps {
   onNext?: () => void;
   /** Label for the advance button, e.g. "Next task →" or "Review & finish →". */
   nextLabel?: string;
+  /** The task's non-step material — done-when list, prerequisites/outputs,
+   *  tools & learning — rendered inside the "About this task" disclosure. */
+  about?: ReactNode;
 }
 
-export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about }: GuidedTaskRunnerProps) {
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
@@ -161,73 +163,78 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   const currentDone = current ? completed.has(current.id) : false;
 
   return (
-    <div className="space-y-5">
-      {/* Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
-          <ListChecks className="h-4 w-4" />
-          {requiredDone} of {requiredTotal} required done
-          {optionalTotal > 0 && (
-            <span className="text-xs text-muted">· {optionalTotal} optional</span>
-          )}
-          {allRequiredDone && (
-            <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-xs text-ok">
-              <CheckCircle2 className="h-3 w-3" /> Task complete
-            </span>
-          )}
-          {/* The reward beat — a cut lands on the stone each time a step does. */}
-          <CutBeat trigger={beat} />
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex overflow-hidden rounded-lg border border-line">
-            <button
-              onClick={() => setMode('guided')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                mode === 'guided'
-                  ? 'bg-accent text-accent-contrast'
-                  : 'bg-panel text-muted hover:bg-panel-2'
-              }`}
-            >
-              <ArrowRight className="h-3.5 w-3.5" /> Guided
-            </button>
-            <button
-              onClick={() => setMode('all')}
-              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
-                mode === 'all'
-                  ? 'bg-accent text-accent-contrast'
-                  : 'bg-panel text-muted hover:bg-panel-2'
-              }`}
-            >
-              <Rows3 className="h-3.5 w-3.5" /> Show all
-            </button>
-          </div>
-          {allDone ? (
-            <button
-              onClick={undoAll}
-              className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
-            >
-              <RotateCcw className="h-3.5 w-3.5" /> Reset
-            </button>
-          ) : (
-            <button
-              onClick={markAll}
-              className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
-            >
-              <Check className="h-3.5 w-3.5" /> Mark all
-            </button>
-          )}
-        </div>
+    <div className="space-y-4">
+      {/* A task opens straight into its checklist. The only always-visible row
+          above the steps is the count; everything that used to stack here — the
+          Guided/Show-all toggle, Mark all, and the "Goal: produce X" line (the
+          filename now lives on the step rows themselves) — sits inside the
+          "About this task" disclosure below, per the instructor's explicit
+          "checklist only, hide everything" instruction. */}
+      <div className="flex flex-wrap items-center gap-2 text-sm font-medium text-muted">
+        <ListChecks className="h-4 w-4" />
+        {requiredDone} of {requiredTotal} required done
+        {optionalTotal > 0 && (
+          <span className="text-xs text-muted">· {optionalTotal} optional</span>
+        )}
+        {allRequiredDone && (
+          <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-xs text-ok">
+            <CheckCircle2 className="h-3 w-3" /> Task complete
+          </span>
+        )}
+        {/* The reward beat — a cut lands on the stone each time a step does. */}
+        <CutBeat trigger={beat} />
       </div>
 
-      {/* The target, kept in view while stepping so the end goal is never out of
-          sight — you always know which file this task is building toward. */}
-      {task.deliverables?.[0] && (
-        <div className="flex items-center gap-1.5 text-xs text-muted">
-          <FileText className="h-3.5 w-3.5 shrink-0" />
-          <span>Goal: produce</span>
-          <span className="font-mono text-ink">{task.deliverables[0]}</span>
-        </div>
-      )}
+      {/* Everything about the task that is not a step: the done-when list, the
+          prerequisites/outputs, the tools-and-learning brief (all supplied by
+          the caller via `about`), plus the two controls that change how the
+          checklist behaves. Settings-shaped things live behind a disclosure. */}
+      <div className="rounded-lg border border-line bg-panel px-3">
+        <Collapsible title="About this task — done-when, tools & extras">
+          <div className="space-y-3 py-1 pr-2">
+            {about}
+            <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
+              <div className="flex overflow-hidden rounded-lg border border-line">
+                <button
+                  onClick={() => setMode('guided')}
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                    mode === 'guided'
+                      ? 'bg-accent text-accent-contrast'
+                      : 'bg-panel text-muted hover:bg-panel-2'
+                  }`}
+                >
+                  <ArrowRight className="h-3.5 w-3.5" /> Guided
+                </button>
+                <button
+                  onClick={() => setMode('all')}
+                  className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                    mode === 'all'
+                      ? 'bg-accent text-accent-contrast'
+                      : 'bg-panel text-muted hover:bg-panel-2'
+                  }`}
+                >
+                  <Rows3 className="h-3.5 w-3.5" /> Show all
+                </button>
+              </div>
+              {allDone ? (
+                <button
+                  onClick={undoAll}
+                  className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" /> Reset
+                </button>
+              ) : (
+                <button
+                  onClick={markAll}
+                  className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
+                >
+                  <Check className="h-3.5 w-3.5" /> Mark all
+                </button>
+              )}
+            </div>
+          </div>
+        </Collapsible>
+      </div>
 
       {mode === 'guided' ? (
         <div className="space-y-5">
@@ -353,10 +360,15 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
         </div>
       ) : (
         <div className="space-y-3">
-          {task.steps.map((step) => (
+          {task.steps.map((step, i) => (
             <ChecklistItem
               key={step.id}
               stepId={step.id}
+              number={i + 1}
+              /* Exactly one row opens: the first incomplete step at the moment
+                 this list mounted (`currentIdx` is initialized to it). Read
+                 once — no re-open/re-close choreography as steps are ticked. */
+              defaultOpen={i === currentIdx}
               title={step.title}
               instruction={step.instruction}
               instructionList={step.instructionList}

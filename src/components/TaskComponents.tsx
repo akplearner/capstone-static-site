@@ -15,7 +15,6 @@ import {
   CornerDownRight,
   Download,
   FileCheck2,
-  FileText,
   Sparkles,
   SquarePen,
 } from 'lucide-react';
@@ -348,24 +347,6 @@ export function StepDetail({
         </div>
       )}
 
-      {usesForm && (
-        <Link
-          href={`/courses/${courseId}/docs${(() => {
-            const id = deliverableIdByTitle(usesForm, courseId);
-            return id ? `?form=${id}` : '';
-          })()}`}
-          className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 transition-colors hover:bg-violet-100 dark:border-violet-800 dark:bg-violet-900/20 dark:hover:bg-violet-900/40"
-        >
-          <SquarePen className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
-          <p className="text-sm text-violet-900 dark:text-violet-200">
-            <span className="font-semibold">No terminal needed — fill this in the website form.</span>{' '}
-            Open the <span className="font-semibold">{usesForm}</span> form on the Deliverables page and
-            enter your data; it generates the formatted document for you.{' '}
-            <span className="underline">Go to Deliverables →</span>
-          </p>
-        </Link>
-      )}
-
       {/* Pre-setup the step silently depends on: the files/downloads/configs that
           have to exist first, so a missing one is a visible prerequisite, not a
           confusing failure. A `source` that looks like a shell command is copyable. */}
@@ -508,34 +489,60 @@ export function StepDetail({
         </div>
       </div>
 
-      {deliverable && (
-        <div className="rounded-md border border-warn-line bg-warn-soft px-3 py-2">
-          <div className="flex items-start gap-2">
-            <FileText className="mt-0.5 h-4 w-4 shrink-0 text-warn" />
-            <span className="text-sm text-ink">
-              Save your evidence as <span className="font-mono font-semibold">{deliverable}</span>,
-              then hash it for chain of custody and log it in your report.
-            </span>
-          </div>
-          <div className="mt-2 flex flex-wrap gap-2 pl-6">
+      {/* The step's exit action, one line: where to record it, what it saves
+          as, and the evidence-chain link. This replaced two stacked callout
+          cards — a ~33-word "fill this in the website form" card and a ~27-word
+          "save your evidence" card — that repeated identical wording on 12 of
+          Server+ Week 1's 13 steps: 720 words of the same two sentences, 39% of
+          everything on the tab that wasn't a step. The three deep links they
+          carried all survive (`?form=`, `?tool=evidence` are guard-asserted
+          targets); only the boilerplate went. Sitting after the do/see grid
+          also puts `danger` genuinely first on the destructive steps — the old
+          form card rendered above the warning. */}
+      {(usesForm || deliverable) && (
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md border border-line bg-panel-2 px-3 py-1.5 text-xs text-muted">
+          {usesForm && (
             <Link
-              href={`/courses/${courseId}/docs?tool=evidence`}
-              className="inline-flex items-center gap-1.5 rounded-md border border-warn-line bg-panel px-2.5 py-1 text-xs font-medium text-warn transition-colors hover:bg-warn-soft"
+              href={`/courses/${courseId}/docs${(() => {
+                const id = deliverableIdByTitle(usesForm, courseId);
+                return id ? `?form=${id}` : '';
+              })()}`}
+              className="inline-flex items-center gap-1 font-medium text-accent hover:underline"
             >
-              <FileCheck2 className="h-3.5 w-3.5" /> Hash &amp; log this evidence →
+              <SquarePen className="h-3.5 w-3.5" /> Record in: {usesForm} →
             </Link>
-            {(() => {
-              const formId = deliverableIdByFile(deliverable, courseId);
-              return formId ? (
-                <Link
-                  href={`/courses/${courseId}/docs?form=${formId}`}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-warn-line bg-panel px-2.5 py-1 text-xs font-medium text-warn transition-colors hover:bg-warn-soft"
-                >
-                  <SquarePen className="h-3.5 w-3.5" /> Open the form →
-                </Link>
-              ) : null;
-            })()}
-          </div>
+          )}
+          {usesForm && deliverable && <span aria-hidden>·</span>}
+          {deliverable && (
+            <>
+              <span>
+                saves as <span className="font-mono text-ink">{deliverable}</span>
+              </span>
+              <span aria-hidden>·</span>
+              <Link
+                href={`/courses/${courseId}/docs?tool=evidence`}
+                className="inline-flex items-center gap-1 font-medium text-accent hover:underline"
+              >
+                <FileCheck2 className="h-3.5 w-3.5" /> Hash &amp; log →
+              </Link>
+              {!usesForm &&
+                (() => {
+                  // On a form-backed deliverable-only step this is the only
+                  // route from the step to its form — Security+ has 20 such
+                  // steps. With `usesForm` set, the Record-in link above is
+                  // the same destination, so this would be a duplicate.
+                  const formId = deliverableIdByFile(deliverable, courseId);
+                  return formId ? (
+                    <Link
+                      href={`/courses/${courseId}/docs?form=${formId}`}
+                      className="inline-flex items-center gap-1 font-medium text-accent hover:underline"
+                    >
+                      <SquarePen className="h-3.5 w-3.5" /> Open the form →
+                    </Link>
+                  ) : null;
+                })()}
+            </>
+          )}
         </div>
       )}
 
@@ -544,7 +551,7 @@ export function StepDetail({
           step; a student who wants to understand *why*, or who is stuck, opens
           this. Nothing is removed — it's the same content, just not in the way of
           getting the step done. */}
-      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0)) && (
+      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0) || hasCommand) && (
         <div className="rounded-md border border-line bg-panel-2/50">
           <div className="px-3">
             <Collapsible title="Why this works & if you get stuck">
@@ -581,21 +588,15 @@ export function StepDetail({
                     </ul>
                   </div>
                 )}
-              </div>
-            </Collapsible>
-          </div>
-        </div>
-      )}
-
-      {/* Absolute-beginner help at point of need: the terminal basics reference
-          (open a terminal, paste, run, sudo) collapsed right on the step, instead
-          of only on the Guide tab. Only on steps that actually have a command. */}
-      {hasCommand && (
-        <div className="rounded-md border border-line bg-panel-2/50">
-          <div className="px-3">
-            <Collapsible title="New to the terminal?">
-              <div className="pr-2">
-                <TerminalBasics />
+                {/* Terminal basics for absolute beginners, folded in here so a
+                    step ends with ONE footer toggle instead of two stacked ones
+                    — this used to be its own "New to the terminal?" collapsible
+                    directly below. Still only on steps with a command. */}
+                {hasCommand && (
+                  <div className="border-t border-line pt-2">
+                    <TerminalBasics />
+                  </div>
+                )}
               </div>
             </Collapsible>
           </div>
@@ -640,9 +641,11 @@ interface ChecklistItemProps {
   images?: Step['images'];
   outputHighlights?: Step['outputHighlights'];
   outputKind?: Step['outputKind'];
-  /** Force the detail panel open/closed. Defaults to open only while the step is
-   *  still incomplete, so a finished week reads as a short list of ticks. */
+  /** Force the detail panel open/closed. Defaults to closed — a checklist is
+   *  rows, not bodies; the caller opens the first incomplete step. */
   defaultOpen?: boolean;
+  /** 1-based position rendered as a mono "1." before the title. */
+  number?: number;
 }
 
 export function ChecklistItem({
@@ -678,10 +681,14 @@ export function ChecklistItem({
   outputHighlights,
   outputKind,
   defaultOpen,
+  number,
 }: ChecklistItemProps) {
-  // Steps you've already finished collapse; the one you're on stays open. Opening
-  // every step at once was what made a week look like an undifferentiated wall.
-  const [showDetails, setShowDetails] = React.useState(defaultOpen ?? !isComplete);
+  // Closed is the default: a checklist is rows you can scan and tick, and the
+  // old default (every incomplete step open) meant opening a task dumped every
+  // step body at once — the opposite. The caller opens exactly one row, the
+  // first incomplete step at mount, so "resume where you were" still works.
+  const [showDetails, setShowDetails] = React.useState(defaultOpen ?? false);
+  const panelId = React.useId();
 
   return (
     // Stratum 3: a step gets a seam line, not a third nested box. Stacking a
@@ -703,6 +710,9 @@ export function ChecklistItem({
         <div className="flex-1">
           <motion.div className="flex items-center justify-between gap-2">
             <h4 className={`flex items-center gap-2 font-medium ${isComplete ? 'line-through text-muted' : 'text-ink'}`}>
+              {number != null && (
+                <span className="font-mono text-xs font-semibold text-muted no-underline">{number}.</span>
+              )}
               {title}
               {optional && (
                 <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
@@ -712,6 +722,8 @@ export function ChecklistItem({
             </h4>
             <motion.button
               onClick={() => setShowDetails(!showDetails)}
+              aria-expanded={showDetails}
+              aria-controls={panelId}
               className="flex shrink-0 items-center gap-1 text-sm text-accent hover:text-accent-strong"
             >
               {showDetails ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -726,10 +738,12 @@ export function ChecklistItem({
           )}
 
           <motion.div
+            id={panelId}
             initial={false}
             animate={{ height: showDetails ? 'auto' : 0 }}
             transition={{ duration: 0.2 }}
             className="overflow-hidden"
+            hidden={!showDetails}
           >
             <div className="mt-3 border-t border-line pt-3">
               <StepDetail

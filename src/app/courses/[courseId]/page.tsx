@@ -12,7 +12,6 @@ import {
   FileText,
   GraduationCap,
   Inbox,
-  Lightbulb,
   Lock,
   RotateCcw,
   Search,
@@ -29,9 +28,7 @@ import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
-import { TaskThisWeek } from '@/components/TaskThisWeek';
 import { CourseSubNav } from '@/components/CourseSubNav';
-import { WeekTaskFlow } from '@/components/diagrams/WeekTaskFlow';
 import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
@@ -49,7 +46,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, userStateRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getTaskById, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
@@ -381,6 +378,142 @@ function CardRow({
 }
 
 /**
+ * Everything about a task that is not a step, gathered for the "About this
+ * task" disclosure: the done-criteria, the identity strip (needs / produces /
+ * hand-offs), and the tools-and-learning brief. These used to render as three
+ * separate always-open blocks stacked between the task title and its first
+ * checkbox — ~129 words of framing per task before a single instruction. The
+ * instructor's instruction was "checklist only", so the checklist now comes
+ * first and this panel holds the rest, one press away. Nothing was deleted:
+ * Security+ authors hand-offs on 15/15 tasks and MSSP on 9/14, and the DoD is
+ * the task-level finish line — they must stay reachable, just not in the way.
+ */
+function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
+  const card = taskCard(course, task);
+  const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
+  const done = task.definitionOfDone ?? [];
+  const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length);
+
+  return (
+    <div className="space-y-3">
+      {done.length > 0 && (
+        <div>
+          <div className="flex items-center gap-1.5 eyebrow-muted">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Done when
+          </div>
+          <ul className="mt-1.5 space-y-1 text-sm text-ink">
+            {done.map((d) => (
+              <li key={d} className="flex gap-1.5">
+                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
+                <span>{d}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {(card.inputs.length > 0 || card.produces.length > 0 || card.handoff.length > 0) && (
+        <div className="grid gap-3 border-t border-line pt-3 sm:grid-cols-3">
+          {card.inputs.length > 0 && (
+            <CardRow icon={Inbox} label="You need first">
+              <ul className="space-y-0.5">
+                {card.inputs.map((i, n) => (
+                  <li key={`${i.label}-${n}`}>
+                    {i.from && (
+                      <span
+                        className="font-semibold"
+                        style={{ color: getRoleDef(course, i.from)?.color }}
+                      >
+                        {roleName(i.from)}:{' '}
+                      </span>
+                    )}
+                    {i.label}
+                  </li>
+                ))}
+              </ul>
+            </CardRow>
+          )}
+          {card.produces.length > 0 && (
+            <CardRow icon={FileText} label="You produce">
+              <ul className="space-y-0.5">
+                {card.produces.map((d) => (
+                  <li key={d} className="break-all font-mono text-[11px]">
+                    {d}
+                  </li>
+                ))}
+              </ul>
+            </CardRow>
+          )}
+          {card.handoff.length > 0 && (
+            <CardRow icon={ArrowRight} label="Hand off to">
+              <ul className="space-y-0.5">
+                {card.handoff.map((h, n) => (
+                  <li key={`${h.to}-${n}`}>
+                    <span
+                      className="font-semibold"
+                      style={{ color: getRoleDef(course, h.to)?.color }}
+                    >
+                      {roleName(h.to)}
+                    </span>
+                    {h.artifact ? ` — ${h.artifact}` : ''}
+                    <span className="text-muted"> · {h.note}</span>
+                  </li>
+                ))}
+              </ul>
+            </CardRow>
+          )}
+        </div>
+      )}
+      {hasBrief && (
+        <div className="space-y-3 border-t border-line pt-3">
+          {task.tools && task.tools.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="flex items-center gap-1 eyebrow-muted">
+                <Wrench className="h-3.5 w-3.5" /> Tools
+              </span>
+              {task.tools.map((tool) => (
+                <span
+                  key={tool}
+                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 font-mono text-[11px] text-ink"
+                >
+                  {tool}
+                </span>
+              ))}
+            </div>
+          )}
+          {task.learn && task.learn.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 eyebrow-muted">
+                <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
+              </div>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-body">
+                {task.learn.map((l) => (
+                  <li key={l}>{l}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.frameworks.length > 0 && (
+            <div className="flex flex-wrap items-center gap-1.5">
+              <span className="flex items-center gap-1 eyebrow-muted">
+                <Tag className="h-3.5 w-3.5" /> Frameworks
+              </span>
+              {task.frameworks.map((fw) => (
+                <span
+                  key={fw}
+                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getFrameworkColor(fw)}`}
+                >
+                  {getFrameworkLabel(fw)}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
  * A single collapsible task, stating everything it is.
  *
  * The header stays scannable — title, status, size, time — and the detail rows
@@ -399,6 +532,7 @@ function TaskRow({
   percent,
   onToggle,
   isNext,
+  number,
   children,
 }: {
   course: Course;
@@ -409,6 +543,10 @@ function TaskRow({
   percent: number;
   onToggle: () => void;
   isNext?: boolean;
+  /** 1-based position in the week's checklist, mono "1." before the title.
+   *  Continuous across the shared lane then the focus lane — the same order
+   *  the removed WeekTaskFlow cards displayed. Reference tasks: unnumbered. */
+  number?: number;
   children: React.ReactNode;
 }) {
   const canOpen = joined;
@@ -416,7 +554,6 @@ function TaskRow({
   const steps = card.steps.total;
   const doneSteps = card.steps.done;
   const showProgress = isOwn && joined;
-  const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
 
   return (
     <div
@@ -435,6 +572,9 @@ function TaskRow({
       >
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
+            {number != null && (
+              <span className="font-mono text-sm font-semibold text-muted">{number}.</span>
+            )}
             <span className="font-medium text-ink">{task.title}</span>
             {showProgress && percent === 100 && (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
@@ -493,65 +633,10 @@ function TaskRow({
 
       {open && canOpen && (
         <div className="border-t border-line p-4">
-          {/* The task's identity card: what it needs, what it makes, where it
-              goes. Rendered above the steps because these are the questions you
-              have *before* you start, not after. */}
-          {(card.inputs.length > 0 || card.produces.length > 0 || card.handoff.length > 0) && (
-            <div className="mb-4 grid gap-3 rounded-lg border border-line bg-panel px-3.5 py-3 sm:grid-cols-3">
-              {card.inputs.length > 0 && (
-                <CardRow icon={Inbox} label="You need first">
-                  <ul className="space-y-0.5">
-                    {card.inputs.map((i, n) => (
-                      <li key={`${i.label}-${n}`}>
-                        {i.from && (
-                          <span
-                            className="font-semibold"
-                            style={{ color: getRoleDef(course, i.from)?.color }}
-                          >
-                            {roleName(i.from)}:{' '}
-                          </span>
-                        )}
-                        {i.label}
-                      </li>
-                    ))}
-                  </ul>
-                </CardRow>
-              )}
-              {card.produces.length > 0 && (
-                <CardRow icon={FileText} label="You produce">
-                  <ul className="space-y-0.5">
-                    {/* The filenames, not a count — this is what the student
-                        actually has to create and hand in. */}
-                    {card.produces.map((d) => (
-                      <li key={d} className="break-all font-mono text-[11px]">
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-                </CardRow>
-              )}
-              {card.handoff.length > 0 && (
-                <CardRow icon={ArrowRight} label="Hand off to">
-                  <ul className="space-y-0.5">
-                    {card.handoff.map((h, n) => (
-                      <li key={`${h.to}-${n}`}>
-                        <span
-                          className="font-semibold"
-                          style={{ color: getRoleDef(course, h.to)?.color }}
-                        >
-                          {roleName(h.to)}
-                        </span>
-                        {h.artifact ? ` — ${h.artifact}` : ''}
-                        {/* h.note was authored on every handoff and rendered
-                            nowhere; it is the sentence that says *why*. */}
-                        <span className="text-muted"> · {h.note}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardRow>
-              )}
-            </div>
-          )}
+          {/* The identity strip (needs / produces / hand-offs) used to render
+              here, above the steps, on every open task. It moved into the
+              "About this task" disclosure (TaskAboutPanel) — the checklist
+              comes first now. */}
           {children}
         </div>
       )}
@@ -959,77 +1044,14 @@ export default function CoursePage() {
 
   // Expanded content for a task row (deliverables + the runner or read-only steps).
   const renderTaskBody = (task: Task, isOwn: boolean) => {
-    // Prerequisites, produced files and hand-offs are shown once — in the
-    // 3-column identity strip at the top of the open task (TaskRow, above). The
-    // brief holds only orientation: what you'll learn, the frameworks it maps to,
-    // and the done-criteria. An earlier amber strip repeated the prereq/hand-off
-    // pair here; it was a strict subset of the identity strip, so it's gone.
-    // The concrete plan (the ordered steps) and the done-criteria are always
-    // visible above the brief now — a student shouldn't have to open anything to
-    // learn what they're doing this week or what "finished" means.
-    const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length);
+    // A task body is the checklist, full stop. Everything that used to stack
+    // above it — the TaskThisWeek step-title list (a duplicate of the rows
+    // themselves), the done-when bullets, and the "Task brief" collapsible —
+    // now lives in the runner's single "About this task" disclosure, fed via
+    // the `about` prop. The step-title list is simply gone: the numbers moved
+    // onto the rows they belonged to.
     return (
     <>
-      <TaskThisWeek task={task} />
-      {hasBrief && (
-        <div className="mb-4 rounded-lg border border-line px-4">
-          <Collapsible title="Task brief — tools, what you'll learn & frameworks" defaultOpen={false}>
-            <div className="space-y-3 py-2">
-        <div className="space-y-3 rounded-lg border border-line bg-panel-2 p-3">
-          {/* The tools for THIS task. They used to be aggregated into a
-              single week-wide chip strip above every task — a dozen chips a
-              student had to map back onto the right task themselves. Two or
-              three, beside the work they belong to, is the useful form. */}
-          {task.tools && task.tools.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="flex items-center gap-1 eyebrow-muted">
-                <Wrench className="h-3.5 w-3.5" /> Tools
-              </span>
-              {task.tools.map((tool) => (
-                <span
-                  key={tool}
-                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 font-mono text-[11px] text-ink"
-                >
-                  {tool}
-                </span>
-              ))}
-            </div>
-          )}
-          {task.learn && task.learn.length > 0 && (
-            <div>
-              <div className="flex items-center gap-1.5 eyebrow-muted">
-                <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
-              </div>
-              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-body">
-                {task.learn.map((l) => (
-                  <li key={l}>{l}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-          {/* Framework mappings live here, not on the card: they matter for cert
-              alignment but aren't something a beginner acts on step to step, and a
-              row of rainbow tags was a big share of the card's on-screen colour. */}
-          {task.frameworks.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="flex items-center gap-1 eyebrow-muted">
-                <Tag className="h-3.5 w-3.5" /> Frameworks
-              </span>
-              {task.frameworks.map((fw) => (
-                <span
-                  key={fw}
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getFrameworkColor(fw)}`}
-                >
-                  {getFrameworkLabel(fw)}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-            </div>
-          </Collapsible>
-        </div>
-      )}
       {isOwn && member ? (
         (() => {
           // The next incomplete task for this role, ordered by week, excluding this one.
@@ -1045,6 +1067,7 @@ export default function CoursePage() {
               task={task}
               courseId={course.id}
               memberId={member.memberId}
+              about={<TaskAboutPanel course={course} task={task} />}
               onProgressChange={onProgressChange}
               nextLabel={following ? 'Next task →' : 'Review & finish →'}
               onNext={() => {
@@ -1066,7 +1089,19 @@ export default function CoursePage() {
           );
         })()
       ) : (
-        <TaskReference task={task} />
+        <>
+          {/* Read-only view of another role's task keeps the same About panel —
+              hand-offs and prerequisites are real data on Security+ and MSSP,
+              and this is the only surface that shows them for reference tasks. */}
+          <div className="mb-3 rounded-lg border border-line px-4">
+            <Collapsible title="About this task" defaultOpen={false}>
+              <div className="py-1 pr-2">
+                <TaskAboutPanel course={course} task={task} />
+              </div>
+            </Collapsible>
+          </div>
+          <TaskReference task={task} />
+        </>
       )}
     </>
     );
@@ -1654,55 +1689,21 @@ export default function CoursePage() {
                     </div>
                   )}
 
-                  {/* ONE week-glance card, then ONE diagram, then the lanes.
-                      This region used to be five stacked blocks — a floating
-                      plain-English line, WeekMilestoneHeader (itself four rows,
-                      one of them a flow-chip strip), a gate pill, and a
-                      Collapsible hiding the flow diagram AND the gate
-                      checklist. The plain sentence and milestone facts are now
-                      one card; the clickable WeekTaskFlow diagram renders open
-                      (disclosure is for tools, and a map you can click is the
-                      thing a student orients by); only the gate checklist —
-                      a checklist tool — stays behind a toggle, with the gate
-                      status readable on the toggle row itself. */}
+                  {/* One row between the week header and the checklist: the
+                      finish line ("Done when: …" + time). Everything else that
+                      used to sit here — the plain-English paragraph, the
+                      difficulty/counts facts row, and the WeekTaskFlow card
+                      strip — restated what the numbered task rows directly
+                      below already say, and went, on the instructor's explicit
+                      instruction. Only the gate checklist keeps its toggle. */}
                   {joined && member && (
                     <div className="space-y-3">
-                      <div className="rounded-lg border border-line bg-panel p-4">
-                        {/* One description of the week, not three: `plain` is
-                            the sentence written for these students; `objective`
-                            is instructor phrasing and still renders on the
-                            Guide. */}
-                        {w.plain && (
-                          <p className="text-sm text-ink">
-                            <Lightbulb
-                              className="mr-1.5 inline h-4 w-4 -translate-y-px text-accent"
-                              aria-hidden
-                            />
-                            {w.plain}
-                          </p>
-                        )}
-                        <WeekMilestoneHeader
-                          course={course}
-                          role={member.role}
-                          week={w.number}
-                          percent={weekPct}
-                        />
-                      </div>
-
-                      {/* The week's map, always visible: every task as a card,
-                          in order, clickable straight into the task below. */}
-                      {ownTasks.length + sharedWeekTasks.length > 0 && (
-                        <WeekTaskFlow
-                          course={course}
-                          role={member.role}
-                          week={w.number}
-                          taskStats={taskStats}
-                          onTaskClick={(id) => {
-                            const t = getTaskById(course, id);
-                            if (t) goToTask(t);
-                          }}
-                        />
-                      )}
+                      <WeekMilestoneHeader
+                        course={course}
+                        role={member.role}
+                        week={w.number}
+                        percent={weekPct}
+                      />
 
                       {gateForWeek && !course.noGatekeeping && (
                         <div className="rounded-lg border border-line bg-panel px-3">
@@ -1740,8 +1741,9 @@ export default function CoursePage() {
                         <span className="font-semibold text-ink">This week — everyone</span>
                         <span className="text-xs text-muted">same build, whatever your focus</span>
                       </div>
-                      {sharedWeekTasks.map((task) => (
+                      {sharedWeekTasks.map((task, taskIdx) => (
                         <TaskRow
+                          number={taskIdx + 1}
                           key={task.id}
                           course={course}
                           task={task}
@@ -1766,8 +1768,9 @@ export default function CoursePage() {
                       style={{ '--lane-color': ownRole.color } as React.CSSProperties}
                     >
                       <RoleGroupHeader role={ownRole} tag={course.sharedTrack ? 'focus' : 'own'} />
-                      {ownTasks.map((task) => (
+                      {ownTasks.map((task, taskIdx) => (
                         <TaskRow
+                          number={sharedWeekTasks.length + taskIdx + 1}
                           key={task.id}
                           course={course}
                           task={task}
