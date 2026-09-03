@@ -85,6 +85,19 @@ export interface FieldGroup {
   columns: Column[];
   /** Worked-example rows. */
   seed?: Record<string, string>[];
+  /**
+   * Start these rows from an upstream form the team has already filled.
+   *
+   * A team writes its four hostnames and zones into the Architecture Brief in
+   * Week 2, then writes the same hostnames and zones into the IP Plan in
+   * Week 3. `DeliverableDef.feeds` already declared that the one feeds the
+   * other, but only so a diagram could draw an arrow — the student still
+   * retyped it, and the two forms could disagree.
+   *
+   * Only the named columns are carried, only into rows the student has not
+   * filled, and never over anything they typed. See `applyCarryForward`.
+   */
+  carryFrom?: { deliverableId: string; group: string; columns: string[] };
 }
 
 export type Section =

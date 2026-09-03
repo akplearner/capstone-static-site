@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { AlertTriangle, ExternalLink } from 'lucide-react';
+import { AlertTriangle, ArrowDownToLine, ExternalLink } from 'lucide-react';
 import { DeliverableData, DeliverableDef, Field, FieldGroup, emptyFormContext, type FormContext } from '@/lib/docs/types';
 import { DURATION_UNITS, formatDuration, isIpv4, parseDuration } from '@/lib/docs/formContext';
 import { RegisterTable } from '@/components/grc/RegisterTable';
+import { deliverableTitle } from '@/lib/docs/definitions';
 import { validateEvidenceFileName } from '@/lib/utils';
 import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
 
@@ -213,6 +214,7 @@ export function DeliverableForm({
   def,
   data,
   ctx = emptyFormContext(),
+  carried = {},
   onChange,
 }: {
   def: DeliverableDef;
@@ -221,8 +223,12 @@ export function DeliverableForm({
    *  hostnames they name, and the artifacts this member has hashed. Defaulted
    *  so a caller that does not care still renders. */
   ctx?: FormContext;
+  /** Groups whose rows were started from an upstream form, so the form can say
+   *  so. Silently knowing things the student never typed is unnerving. */
+  carried?: Record<string, { from: string; rows: number }>;
   onChange: (next: DeliverableData) => void;
 }) {
+  const titleOf = (id: string) => deliverableTitle(id) ?? id;
   const setField = (k: string, v: string) =>
     onChange({ ...data, fields: { ...data.fields, [k]: v } });
   const setGroup = (g: string, rows: Record<string, string>[]) =>
@@ -264,6 +270,15 @@ export function DeliverableForm({
           <div key={i} className="space-y-1">
             <div className="text-sm font-semibold text-ink">{s.group.label}</div>
             {s.group.help && <p className="text-xs text-muted">{s.group.help}</p>}
+            {carried[s.group.group] && (
+              <p className="flex items-start gap-1.5 rounded-md border border-accent/30 bg-accent-soft px-2.5 py-1.5 text-xs text-ink">
+                <ArrowDownToLine className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
+                <span>
+                  {carried[s.group.group].rows} row{carried[s.group.group].rows === 1 ? '' : 's'} started from{' '}
+                  <strong>{titleOf(carried[s.group.group].from)}</strong> — edit or delete anything that has changed.
+                </span>
+              </p>
+            )}
             <RegisterTable
               columns={s.group.columns}
               rows={data.groups[s.group.group] ?? []}

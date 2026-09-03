@@ -103,3 +103,57 @@ export function parseDuration(value: string): { amount: string; unit: string } {
 export function formatDuration(amount: string, unit: string): string {
   return amount.trim() ? `${amount.trim()} ${unit}` : '';
 }
+
+/** A row counts as filled once any cell in it has a value. */
+function rowHasContent(row: Record<string, string>): boolean {
+  return Object.values(row).some((v) => (v ?? '').trim());
+}
+
+/**
+ * Start a form's tables from the upstream form the team already filled.
+ *
+ * The rules, in the order that matters:
+ *
+ *  1. **Never overwrite what the student typed.** A group is only ever carried
+ *     into when every one of its current rows is empty. One character anywhere
+ *     in the table and this does nothing.
+ *  2. Only the columns the group names are copied. The IP Plan takes hostname
+ *     and zone from the Architecture Brief; it does not take the addresses,
+ *     because its own instruction is to read those off the running machine.
+ *  3. The student's own upstream data beats the generic worked example. When a
+ *     form is still showing its example (`replaceSeed`), real rows from their
+ *     own earlier form replace it.
+ *
+ * Returns the data to render plus, per group, how many rows came from where —
+ * so the form can say so rather than silently appearing to know things.
+ */
+export function applyCarryForward(
+  def: DeliverableDef,
+  data: DeliverableData,
+  ctx: FormContext,
+  opts: { replaceSeed?: boolean } = {}
+): { data: DeliverableData; carried: Record<string, { from: string; rows: number }> } {
+  const carried: Record<string, { from: string; rows: number }> = {};
+  let groups = data.groups;
+
+  for (const section of def.sections) {
+    if (section.kind !== 'group' || !section.group.carryFrom) continue;
+    const { deliverableId, group: sourceGroup, columns } = section.group.carryFrom;
+
+    const current = groups[section.group.group] ?? [];
+    const studentHasTyped = current.some(rowHasContent);
+    // Rule 1, and rule 3: a filled table is left alone; an example is only
+    // displaced by the student's own real data.
+    if (studentHasTyped && !opts.replaceSeed) continue;
+
+    const upstream = (ctx.docs[deliverableId]?.groups?.[sourceGroup] ?? [])
+      .map((row) => Object.fromEntries(columns.map((c) => [c, row[c] ?? ''])))
+      .filter(rowHasContent);
+    if (upstream.length === 0) continue;
+
+    groups = { ...groups, [section.group.group]: upstream };
+    carried[section.group.group] = { from: deliverableId, rows: upstream.length };
+  }
+
+  return { data: groups === data.groups ? data : { ...data, groups }, carried };
+}

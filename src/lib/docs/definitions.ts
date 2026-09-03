@@ -783,6 +783,12 @@ export function deliverablesForRole(role: string, courseId: string): Deliverable
 /** Resolve a deliverable by its title (used to turn a step's `usesForm` title
  *  into the deliverable `id` for a deep-link to the form on the Deliverables page).
  *  Scope to a course when known so identically-titled forms don't cross courses. */
+/** The human title for a deliverable id — for a form that has to name another
+ *  form ("started from the Architecture Brief") without hardcoding the words. */
+export function deliverableTitle(id: string): string | undefined {
+  return DELIVERABLES.find((d) => d.id === id)?.title;
+}
+
 export function deliverableIdByTitle(title: string, courseId?: string): string | undefined {
   const t = title.trim().toLowerCase();
   return DELIVERABLES.find(

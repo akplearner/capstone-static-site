@@ -29,7 +29,7 @@ import { docsRepo, evidenceRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
 import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
-import { buildFormContext } from '@/lib/docs/formContext';
+import { applyCarryForward, buildFormContext } from '@/lib/docs/formContext';
 import type { DeliverableDef } from '@/lib/docs/types';
 import { unitWord } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
@@ -594,7 +594,15 @@ function FormSection({
   // forms (e.g. Detection Record) have none, so no badge/toggle.
   const hasExample = def.sections.some((s) => s.kind === 'group' && (s.group.seed?.length ?? 0) > 0);
   const isExample = hasExample && !saved[def.id];
-  const data = saved[def.id] ?? seedDeliverable(def);
+  // Start the tables the student has not touched from the form that feeds this
+  // one, so the hostnames and zones they wrote in Week 2 are not retyped in
+  // Week 3. Never over anything they typed — see `applyCarryForward`.
+  const { data, carried } = applyCarryForward(
+    def,
+    saved[def.id] ?? seedDeliverable(def),
+    ctx,
+    { replaceSeed: isExample }
+  );
   const locked = !noGatekeeping && !!def.requiresAuth && !authorized;
   const hasGuidance = !!(def.buildSteps || def.meaning || def.useIt || def.pitfalls);
   const Diagram = FORM_DIAGRAM[def.id];
@@ -732,7 +740,7 @@ function FormSection({
           </div>
         </div>
       ) : (
-        <DeliverableForm def={def} data={data} ctx={ctx} onChange={(next) => onChange(def.id, next)} />
+        <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
       )}
     </section>
   );

@@ -605,6 +605,11 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           group: 'addresses',
           label: 'What each host actually holds',
           help: 'One row per host, read off the machine itself — not from your Week 1 plan.',
+          // The hostnames and zones are the same four facts this team already
+          // wrote in the Architecture Brief; the addresses are deliberately not
+          // carried, because the whole point of this table is to read them off
+          // the running machine.
+          carryFrom: { deliverableId: 'srv_business_reqs', group: 'machines', columns: ['hostname', 'zone'] },
           columns: [
             c('hostname', 'Hostname', 'text', { placeholder: 'websrv', help: 'hostname on Linux, or hostname on Windows.' }),
             c('zone', 'Zone', 'select', { options: ZONES, help: 'Which bridge the interface is attached to.' }),
