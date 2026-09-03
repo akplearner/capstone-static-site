@@ -404,6 +404,30 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           { field: 'hv_proof', label: 'Proof it works', type: 'text', required: true, placeholder: 'Reached https://10.10.30.1:8006 from the classroom LAN and logged in', help: 'Reaching the web console from another machine is the proof.' },
         ],
       },
+      {
+        kind: 'fields',
+        title: 'Remote access',
+        fields: [
+          { field: 'remote_host_ip', label: 'The host\'s Tailscale address', type: 'text', required: true, placeholder: '100.x.y.z', help: 'What `tailscale ip -4` prints on YOUR host. It belongs to this machine and does not change — another team\'s server has a different one.' },
+          { field: 'remote_tailnet', label: 'Whose tailnet, and who is on it', type: 'text', placeholder: 'Alex owns the tailnet; Sam, Jo and Priya invited, plus the instructor', help: 'One tailnet per team. Name the owner, because they are who adds or removes people later.' },
+          { field: 'remote_proof', label: 'Proof it works from off campus', type: 'text', required: true, placeholder: 'SSH and https://100.x.y.z:8006 both reached from home, after a reboot', help: 'Reaching it from the classroom proves nothing — the point is the path that works when you are not in the building.' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'access',
+          label: 'Who can get in',
+          help: 'One row per person, including yourself. Never record a password here — this document is exported to the client in the handover package. Names and rights only.',
+          columns: [
+            c('person', 'Name', 'text', { placeholder: 'Alex Romero' }),
+            c('login', 'Login', 'text', { placeholder: 'alex@pam', help: 'The pam realm is the host\'s own Linux user, so one identity covers SSH and the console.' }),
+            c('sudo', 'sudo on the host', 'select', { options: YN, help: 'In the sudo group, so their administrative commands are attributable to them.' }),
+            c('pve_role', 'Proxmox role', 'select', { options: ['PVEAdmin', 'PVEVMAdmin', 'PVEAuditor'], help: 'Granted through the teamadmins group, not person by person. PVEAdmin runs the build without being able to hand out permissions.' }),
+            c('note', 'Notes', 'text', { placeholder: 'Networking focus; owns the tailnet' }),
+          ],
+        },
+      },
     ],
     dod: [
       { label: 'At least one POST fault is worked through to a verified fix', test: (d) => (d.groups.post ?? []).some((r) => r.result === 'Fixed it') },
@@ -412,6 +436,8 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       { label: 'The RAID level is chosen and the trade-off justified in writing', test: (d) => !!(d.fields.raid_level && d.fields.raid_why) },
       { label: 'The array is verified healthy', test: (d) => !!d.fields.raid_verified },
       { label: 'The hypervisor is installed and reachable on its management address', test: (d) => !!(d.fields.hv_version && d.fields.hv_address && d.fields.hv_proof) },
+      { label: 'The host has a remote-access address, and it was proved from off campus', test: (d) => !!(d.fields.remote_host_ip && d.fields.remote_proof) },
+      { label: 'Every teammate has their own named account — nobody is sharing root', test: (d) => (d.groups.access ?? []).length > 1 && (d.groups.access ?? []).every((r) => !!r.person && !!r.login) },
     ],
   },
 

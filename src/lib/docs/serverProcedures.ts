@@ -186,6 +186,52 @@ export const PROCEDURES: Procedure[] = [
       { cmd: 'systemctl status pveproxy --no-pager', explain: 'If the browser cannot reach the console, check the service is active before blaming the network.' },
     ],
   },
+  // Remote access closes Week 1: the host has an address and the console
+  // answers, and the previous procedure's own last line says a host you can only
+  // reach at the keyboard is not finished. These two make it reachable, and make
+  // it reachable BY NAME — four students share one server.
+  {
+    id: 'tailscale-remote-access',
+    week: 1,
+    title: 'Reach your host from home with Tailscale',
+    where: 'The Proxmox host shell, then your own laptop',
+    summary:
+      'Put the host on a private Tailscale network so the team can administer it from off campus — SSH and the web console over an encrypted path, with no router port-forward and nothing new exposed to the Internet.',
+    steps: [
+      { cmd: 'timedatectl status', explain: 'Do this BEFORE anything that downloads over HTTPS. A host whose clock is wrong rejects valid certificates, and the failure reads like a broken installer or a dead mirror rather than a broken clock.' },
+      { cmd: 'chronyc tracking', explain: 'Confirms the host is really synchronised to a time source rather than merely holding a plausible-looking clock. Correct the time before continuing if it is not.' },
+      { cmd: 'curl -fsSL https://tailscale.com/install.sh | sh', explain: 'The official installer. It detects the Debian base that Proxmox VE is built on, adds the Tailscale package source, and installs the client and the tailscaled service.' },
+      { cmd: 'tailscale up', explain: 'Prints a one-time authentication URL. ONE teammate opens it, signs in and approves this host — that person owns the team tailnet, and the next procedure invites everyone else into it.' },
+      { cmd: 'tailscale ip -4', explain: 'Your host’s own Tailscale address, a 100.x address that belongs to this machine and does not change. Write it into the Server Bring-Up Log — it is how the team reaches this server from off campus. It is yours; another team’s server has a different one.' },
+      { cmd: 'tailscale status', explain: 'Every device in the tailnet and whether it is online. pve-host must be listed here before you go home and try it.' },
+      { cmd: 'systemctl is-active tailscaled', explain: 'Must print active. tailscaled runs as a system service, so remote access comes back after a reboot without anyone logging in at the keyboard.' },
+      { cmd: 'ssh root@<tailscale-ip>', explain: 'From a laptop OFF the campus network, substituting the address tailscale ip -4 printed. A host-key prompt is expected the first time — it is the same machine at a new address — so verify the fingerprint before accepting it.' },
+      { gui: 'With Tailscale connected on your laptop, browse to https://<tailscale-ip>:8006 and sign in exactly as you do on campus. The self-signed certificate warning is the same one, for the same reason.', explain: 'Tailscale supplies the private path; Proxmox still does its own authentication. The network path is not the login, and you have not opened a port on the campus router to get here.' },
+      { gui: 'Reboot the host once, on campus, and confirm it comes back on the tailnet before anyone relies on remote-only access.', explain: 'Prove it here, where you can still reach the keyboard, rather than discovering it at home on a Sunday.' },
+      { cmd: 'tar -czf /root/pve-config-backup.tar.gz -C / etc/pve etc/network/interfaces etc/hosts etc/hostname var/lib/tailscale/tailscaled.state', explain: 'Backs up the host configuration together with the Tailscale identity. Without that state file a rebuilt host is a brand-new device that has to be authorised into the tailnet again.' },
+    ],
+  },
+  {
+    id: 'team-accounts-shared-host',
+    week: 1,
+    title: 'One account each on the shared host',
+    where: 'The host shell, then Datacenter → Permissions in the web console',
+    summary:
+      'Four of you share one server. Give every teammate a named Linux account with sudo, add it to Proxmox in the PAM realm through one group, and get everyone onto the team tailnet — so the log can say who did what and nobody works as root.',
+    steps: [
+      { gui: 'Agree who owns what before anyone types: one person owns the tailnet (whoever ran tailscale up), and every teammate gets their own login on the host.', explain: 'Your Baselines, Policies & Standards form already carries the rule as a policy row — named admin accounts only, no shared logins. This is the procedure that makes it true.' },
+      { cmd: 'apt update && apt install -y sudo', explain: 'Proxmox VE ships without sudo, because the only account it expects anyone to use is root. A named account cannot administer anything until this is installed.' },
+      { cmd: 'adduser alex', explain: 'Run once per teammate, substituting their name. It creates the Linux account and prompts for a password that only that person should type.' },
+      { cmd: 'usermod -aG sudo alex', explain: 'Puts the account in the sudo group, so it can run administrative commands and every one of them is attributable to a name.' },
+      { gui: 'In the web console: Datacenter → Permissions → Groups → Create, and name the group teamadmins.', explain: 'Permission goes to a group, not to four people one at a time. Adding or removing somebody later is then one change in one place.' },
+      { gui: 'Datacenter → Permissions → Add → Group Permission. Set Path to /, Group to teamadmins, Role to PVEAdmin.', explain: 'PVEAdmin can run the whole build — VMs, storage, networking — but cannot hand out permissions. Administrator could, which would let any teammate quietly grant themselves more than the team agreed.' },
+      { gui: 'Datacenter → Permissions → Users → Add. Set Realm to "Linux PAM standard authentication", User name to the Linux account you just created, and Group to teamadmins. Repeat for each teammate.', explain: 'The pam realm points Proxmox at the host’s own Linux users, so each person has ONE identity that works for both SSH and the console. The pve realm is a separate Proxmox-only user database — real, but it would hand everybody a second password to lose.' },
+      { cmd: 'pveum user list', explain: 'Read the result back rather than trusting the dialog. Every teammate should appear as name@pam, enabled, in teamadmins.' },
+      { gui: 'Tailnet: the owner opens the Tailscale admin console and invites the other three teammates and the instructor. Each installs Tailscale on their own laptop, signs in with that invitation, and confirms the host shows up in their own device list.', explain: 'Being a user of the tailnet is what makes the host’s 100.x address reachable for them. Passing one person’s Tailscale login around would undo the naming you just did on the host.' },
+      { gui: 'STOP before going further: do not disable password authentication and do not lock the root account until every teammate has proved their own account signs in and runs sudo.', explain: 'You can now reach this server from anywhere, which means you can also lock yourself out of it from anywhere. Week 4 hardens SSH deliberately, with a way back.' },
+      { gui: `Last: change the root password away from the classroom one (${HOST_ROOT_LOGIN.password}) now that everyone has their own account, and record in the Bring-Up Log that you did.`, explain: 'It was typed in front of the room on install day and is written in the course material. Rotating it is the moment the named accounts start to mean something.' },
+    ],
+  },
   {
     id: 'upload-isos',
     week: 2,

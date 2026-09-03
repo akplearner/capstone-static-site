@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { PROCEDURES, WEEKS, procedureById } from './serverProcedures';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
+import { HOST } from '../serverTopology';
 
 /**
  * Steps say WHAT; the guide says HOW.
@@ -54,6 +57,44 @@ describe('Server+ procedures — the guide the steps point at', () => {
   });
 
   it('the duplicated Week 1–2 steps are the ones that link', () => {
-    expect(refs.length).toBeGreaterThanOrEqual(12);
+    expect(refs.length).toBeGreaterThanOrEqual(14);
+  });
+});
+
+/**
+ * Every team gets its OWN server, and the course has to say so everywhere.
+ *
+ * The Tailscale procedures were written from an instructor SOP that documents a
+ * single real machine — local address 10.10.30.15, Tailscale address
+ * 100.121.75.81. Pasted in as-is those would have told sixteen teams to
+ * administer one host. The addressing rule is `HOST.rule` (10.10.30.T) with
+ * Team 1 as the single worked example, and nothing else may appear.
+ *
+ * CySA+ is deliberately not scanned: its attacker box genuinely lives at
+ * 10.10.30.<team> on a different lab, and that is its own course's fact.
+ */
+const SERVER_PLUS_SOURCES = [
+  'src/lib/docs/serverProcedures.ts',
+  'src/lib/data/seed/serverPlus.ts',
+  'src/lib/docs/serverPlusDeliverables.ts',
+  'src/lib/serverTopology.ts',
+  'src/components/diagrams/ServerTopologyDiagram.tsx',
+];
+const readSource = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
+
+describe('the host address is always the team’s own', () => {
+  it.each(SERVER_PLUS_SOURCES)('%s writes only the rule or the Team 1 example', (path) => {
+    const found = Array.from(readSource(path).matchAll(/10\.10\.30\.(\d+|[A-Za-z])/g)).map((m) => m[0]);
+    const allowed = [HOST.rule, HOST.exampleAddress];
+    expect(
+      Array.from(new Set(found.filter((a) => !allowed.includes(a)))),
+      `use ${HOST.rule} (worked example ${HOST.exampleAddress}), never one team's address`
+    ).toEqual([]);
+  });
+
+  it.each(SERVER_PLUS_SOURCES)('%s carries no address from the source SOP', (path) => {
+    // The SOP's own machine. A 100.x address belongs to one tailnet node; the
+    // course must always say "whatever `tailscale ip -4` prints on your host".
+    expect(readSource(path)).not.toContain('100.121.75.81');
   });
 });
