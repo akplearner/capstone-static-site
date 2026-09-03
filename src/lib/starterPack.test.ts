@@ -118,6 +118,7 @@ const SERVER_PLUS_FILES = [
   'src/lib/data/seed/serverPlus.ts',
   'src/lib/docs/serverPlusDeliverables.ts',
   'src/components/docs/ServerConfigGuide.tsx',
+  'src/lib/docs/serverProcedures.ts',
   'src/components/diagrams/ServerTopologyDiagram.tsx',
 ];
 

@@ -125,6 +125,14 @@ export interface Step {
    *  doing it wrong. So they render side by side, equally, and the student picks
    *  by reading their own POST screen. */
   paths?: { label: string; when: string; steps: string[] }[];
+  /** Steps say WHAT; the guide says HOW. When the exact clicks or keystrokes
+   *  for this step are written out as a procedure in the course's configuration
+   *  guide, name that procedure here and the step renders one "Exact clicks: …
+   *  →" row that opens the Guide with the right week selected and the article
+   *  in view. A step with a `guideRef` carries no `instructionList` or `paths` —
+   *  `serverProcedures.test.ts` holds both halves of that rule. `label`
+   *  overrides the procedure title when one step spans several procedures. */
+  guideRef?: { procedureId: string; label?: string };
   /** Common failure + fix shown as an "If it doesn't work…" callout. */
   troubleshooting?: string;
   /** Several independent failure modes, each with its own fix. Prefer this over a

@@ -26,8 +26,9 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
  * sits on the step that performs it — nothing here sends a student off to a
  * handout to find out what to type. The longer write-up of each procedure lives
  * in the platform's own configuration guide
- * (/courses/server-plus/guide/reference#config-guide); a step links it only
- * where the fuller context genuinely helps.
+ * (/courses/server-plus/guide#config-guide). Steps say WHAT; the guide says
+ * HOW: where a step's exact clicks are a procedure there, the step carries a
+ * `guideRef` to it instead of a copy of the list.
  *
  * ONE SHARED TRACK, FOUR FOCUSES. A pod of technicians works side by side and
  * nobody waits on anyone: every student runs the whole engagement on their own
@@ -330,7 +331,7 @@ const sharedTasks: Task[] = [
         id: 'sp-w0-orient-s1',
         title: 'Get your bearings',
         description: 'The team, the focus, the guides, and the addressing rule.',
-        instruction: 'Join your team on the Team page and pick the focus you will document deepest — Networking, Windows, Linux or Management. Then learn the numbers below; every address you assign later derives from them.',
+        instruction: 'Join your team on the Home tab and pick the focus you will document deepest — Networking, Windows, Linux or Management. Then learn the numbers below; every address you assign later derives from them.',
         instructionList: [
           'Everyone does the same build; your focus only decides what you document deeper.',
           'The campus LAN is 10.10.0.0/16.',
@@ -342,7 +343,6 @@ const sharedTasks: Task[] = [
           'Every command you need is on the step that performs it; the configuration guide is in the platform, not a handout.',
         ],
         files: [
-          { name: 'Configuration guide — the whole build', purpose: 'the long-form write-up of every procedure the steps run, in one place', source: '/courses/server-plus/guide/reference#config-guide' },
           { name: 'PXE Imaging Student Guide (PDF)', purpose: 'the imaging walkthrough for the workstation you are sitting at', source: '/downloads/PXE_Imaging_Student_Guide.pdf' },
         ],
         whatItMeans: 'The addressing rule is the one fact the whole class shares. Knowing it cold is what stops two teams colliding on the same LAN.',
@@ -480,17 +480,7 @@ const sharedTasks: Task[] = [
         description: 'The CPU, memory, NIC and firmware rows, off the machine itself.',
         where: 'The server console — System Setup (F2)',
         instruction: 'Power on and tap F2 at the splash screen until System Setup loads, then read each screen into the Hardware Discovery sheet. Leave without saving.',
-        instructionList: [
-          'Tap F2 about once per second at "Press F2 to enter System Setup" — a single press usually misses the window.',
-          'System BIOS → Processor Settings: processor model, core and thread count, and the Virtualization Technology setting.',
-          'System BIOS → Memory Settings: System Memory Size, the platform maximum, slots used vs total, and ECC RDIMM/UDIMM.',
-          'System BIOS → Integrated Devices (and Device Settings for add-in cards): each NIC model, port count and link speed.',
-          'System BIOS → System Information: BIOS version, service tag, and the Boot Mode (UEFI or BIOS legacy).',
-          'Press Esc and leave without saving — you come back to this screen to set the boot order once the array exists.',
-        ],
-        files: [
-          { name: 'Configuration guide — hardware discovery', purpose: 'the same walk of the System Setup screens, with what each recorded value is later used for', source: '/courses/server-plus/guide/reference#config-guide' },
-        ],
+        guideRef: { procedureId: 'bios-hardware-inventory' },
         usesForm: 'Hardware Discovery, HCL & Upgrade Plan',
         producesDeliverable: '02_Hardware_and_HCL.csv',
         whatItMeans: 'Virtualization Technology is VT-x: disabled, the hypervisor plan does not work. Boot Mode decides the USB partition scheme — GPT for UEFI, MBR for legacy.',
@@ -506,13 +496,7 @@ const sharedTasks: Task[] = [
         description: 'The storage half of the audit, taken without changing anything.',
         where: 'The server console — the RAID utility your card offers',
         instruction: 'Reboot and watch POST for your controller\'s prompt — Ctrl+C on an LSI SAS card, Ctrl+R on a Dell PERC. Read the controller and drives into the sheet. Change nothing.',
-        instructionList: [
-          'Record the controller model and cache size from the top of the screen (PERC: the VD Mgmt screen; LSI SAS: Adapter Properties).',
-          'List any volume that already exists, with its RAID level and size (PERC: VD Mgmt; LSI SAS: RAID Properties → View Existing Volume).',
-          'Record every physical disk — count, capacity, SAS/SATA, HDD/SSD and state (PERC: Ctrl+N to PD Mgmt; LSI SAS: SAS Topology).',
-          'Note the RAID levels YOUR controller offers — a PERC lists 0/1/5/6/10, an LSI SAS BIOS usually only 0/1/1E — and how many bays are populated of the total.',
-          'Press Esc, choose Exit and confirm. Read only on this trip — creating the array is a separate, deliberate step once you have decided the level.',
-        ],
+        guideRef: { procedureId: 'raid-controller-inventory' },
         usesForm: 'Hardware Discovery, HCL & Upgrade Plan',
         producesDeliverable: '02_Hardware_and_HCL.csv',
         whatItMeans: 'Drive count and size decide which RAID levels you can actually build, and empty bays are the storage headroom the upgrade plan spends.',
@@ -617,35 +601,8 @@ const sharedTasks: Task[] = [
         description: 'The destructive step. Read the warning before the keystrokes.',
         where: 'The server console — the RAID utility your card offers',
         danger: 'Deleting a virtual disk erases ALL data on every drive in it, and there is no undo. Confirm with your instructor that this server holds nothing anyone needs before you press anything.',
-        instruction: 'Read your POST screen and take the path it offers. Both end the same way: one healthy volume for the hypervisor to install onto.',
-        paths: [
-          {
-            label: 'Ctrl+C — LSI SAS BIOS',
-            when: 'POST says "Press Ctrl+C to enter SAS controller"',
-            steps: [
-              'Press Ctrl+C at the POST prompt, then pick your adapter from the list and press Enter.',
-              'Choose RAID Properties.',
-              'If a volume already exists: View Existing Volume → Manage Volume → Delete Volume, and confirm.',
-              'Choose Create New Volume, then the type your plan calls for — IS is RAID 0, IM is RAID 1, IME is RAID 1E.',
-              'In the disk list, move to the RAID Disk column and press Space to set Yes on each drive you are including.',
-              'Press C to create the volume, then choose to save the changes and exit the menu.',
-              'Press Esc back to the top, exit the utility and let the server reboot.',
-            ],
-          },
-          {
-            label: 'Ctrl+R — Dell PERC / MegaRAID',
-            when: 'POST says "Press Ctrl+R to enter Configuration Utility"',
-            steps: [
-              'Press Ctrl+R at the POST prompt to enter the PERC Configuration Utility.',
-              'VD Mgmt: highlight each existing virtual disk, press F2, choose Delete VD and confirm. Repeat until none remain.',
-              'Ctrl+N to PD Mgmt: confirm every disk you inventoried is detected and Ready.',
-              'Back on VD Mgmt press F2, choose Create New VD, pick the level you justified, then highlight each drive and press Space to include it.',
-              'Set the VD size to the full available capacity; leave stripe size and the rest at their defaults, and confirm.',
-              'Highlight the new VD, press F2, choose Initialize and confirm. Quick Init is fine — wait for it to finish.',
-              'Confirm the virtual disk reports Optimal, then Esc → Exit → confirm.',
-            ],
-          },
-        ],
+        instruction: 'Read your POST screen — Ctrl+C on an LSI SAS BIOS, Ctrl+R on a Dell PERC — and take the path it offers. Both end the same way: one healthy volume for the hypervisor to install onto.',
+        guideRef: { procedureId: 'create-raid-virtual-disk', label: 'Create the volume — LSI SAS (Ctrl+C) and Dell PERC (Ctrl+R), both written out' },
         usesForm: 'Server Bring-Up Log',
         producesDeliverable: '03_Server_Bring_Up.md',
         expectedOutput: 'One volume listed in the utility, at the level you chose, spanning the drives you selected, and reported healthy — PERC calls that state Optimal, the LSI SAS BIOS calls it Optimal or Active.',
@@ -686,20 +643,9 @@ const sharedTasks: Task[] = [
         description: 'Written raw, in DD mode — and this trip to System Setup saves.',
         where: 'A school Windows workstation, then the server console (F2)',
         instruction: 'Write the Proxmox image to a USB stick with Rufus, then make the server willing to boot it. This is the trip where you save your firmware changes.',
+        guideRef: { procedureId: 'flash-proxmox-usb', label: 'Flash the USB, then set the boot order' },
         commands: [
           { cmd: 'explorer \\\\itsdc3\\its', explain: 'Opens the share the course keeps its images on. Rufus and the Proxmox VE ISO both live here.' },
-        ],
-        instructionList: [
-          'Plug in a USB drive of at least 4 GB. The image is written raw, so anything on the stick is destroyed.',
-          'Run Rufus (4.7 or later) straight from the share — it does not need installing.',
-          'Under Device pick your USB drive, ticking "List USB Hard Drives" if it does not appear. Confirm the letter and size.',
-          'Click SELECT and choose the Proxmox VE ISO your instructor supplies.',
-          'Partition scheme: GPT if the Boot Mode you recorded read UEFI, MBR if it read BIOS legacy. Leave File system as FAT32.',
-          'Click START and choose DD Image mode when asked — not ISO mode. Wait for READY, then eject.',
-          'At the server: power on and tap F2 about once a second until System Setup loads.',
-          'Boot Settings → Boot Sequence: move USB Device / Removable Device to the top.',
-          'If the inventory found Virtualization Technology Disabled, enable it now under Processor Settings — the hypervisor cannot start a VM without it.',
-          'Exit → Save Changes and Exit, or press F10. This is the trip that saves.',
         ],
         whatItMeans: 'The Proxmox ISO is a hybrid image: ISO mode produces a stick the server will not boot.',
         frameworks: ['NIST_CSF'],
@@ -714,16 +660,7 @@ const sharedTasks: Task[] = [
         where: 'The server console, then a browser on the campus LAN',
         danger: 'The Target Harddisk screen wipes whatever you select. Read the size and confirm it is the array you just built, not a disk with something on it.',
         instruction: 'Boot the stick, install Proxmox onto the virtual disk you created, and set the management network to your team\'s address. The prefix is the part people get wrong.',
-        instructionList: [
-          'Press F11 for the one-time boot menu and select the USB device.',
-          'Choose "Install Proxmox VE" (graphical) and accept the EULA.',
-          'Target Harddisk: select the RAID virtual disk you created — the installer wipes and repartitions whatever you pick here.',
-          'Set country, time zone and keyboard. The root password is Pass@2026 — every team uses the same one, so an instructor can help at any bench and nobody is locked out of their own server in Week 4. Add an admin email.',
-          'Management Network Configuration — Hostname: pve-host.teamX.local for your team number.',
-          'IP address 10.10.30.T/16 for team T (Team 1 = 10.10.30.1/16), Gateway 10.10.10.1, DNS as your instructor supplies.',
-          'The prefix is /16 (255.255.0.0), not /24 — a /24 here cannot reach the 10.10.10.1 gateway.',
-          'Confirm the summary, let it run, then REMOVE the USB and reboot.',
-        ],
+        guideRef: { procedureId: 'install-proxmox-host' },
         usesForm: 'Server Bring-Up Log',
         producesDeliverable: '03_Server_Bring_Up.md',
         whatItMeans: 'vmbr0 is the management bridge on the campus LAN, and every later procedure is driven from the console it serves.',
@@ -741,6 +678,7 @@ const sharedTasks: Task[] = [
         description: 'Three commands and one browser check. This is what "done" means for Week 1.',
         where: 'The host console, then a campus workstation',
         instruction: 'Log in at the host console as root and confirm the address, the gateway and the version. Then open the web console from another machine — a host only you can reach at the keyboard is not finished.',
+        guideRef: { procedureId: 'install-proxmox-host', label: 'The install, and the checks that prove it' },
         commands: [
           { cmd: 'ip -4 addr show vmbr0', explain: 'The install turns the management NIC into vmbr0 and puts your address on it. Must show your team address with /16.' },
           { cmd: 'ping -c 4 10.10.10.1', explain: 'Proves the host reaches the campus gateway. If this fails the prefix or the cable is wrong, not the install.' },
@@ -962,14 +900,7 @@ const sharedTasks: Task[] = [
         description: 'Two things that must exist before the first VM — the networks it attaches to, and the image it boots.',
         where: 'Proxmox host shell, then the web console',
         instruction: 'Add both bridge stanzas to the host\'s interfaces file, read the file back before applying it, then reload — the host\'s own address on each bridge is that zone\'s gateway. Then upload the guest images.',
-        instructionList: [
-          'Back up the interfaces file, append the two stanzas, read the whole file back, then reload.',
-          'Both bridges are created with "bridge-ports none" — no physical NIC, so nothing on them reaches the outside world on its own.',
-          'Finish the shell half by enabling forwarding and the outbound NAT below. Without those two lines every "apt install" you run in a guest this week fails to reach the archive.',
-          'Browse to https://10.10.30.T:8006 for your team number, accept the self-signed certificate, set Realm to "Linux PAM standard authentication" and log in as root.',
-          'Expand Datacenter → pve-host → local (pve-host) in the left sidebar — that is the storage holding ISOs.',
-          'Select ISO Images in the centre pane, click Upload → Select File, and upload the Windows Server and Ubuntu Server images from the ISO share.',
-        ],
+        guideRef: { procedureId: 'create-zone-bridges', label: 'The zone bridges, then the ISO upload' },
         commands: [
           { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak', explain: 'A malformed interfaces file can leave the host unreachable, and this backup is your way back.' },
           {
@@ -997,18 +928,8 @@ const sharedTasks: Task[] = [
         title: 'Create the three core VMs',
         description: 'websrv in the DMZ, winserver and linuxsrv in the private zone — the bridge is what decides the zone.',
         where: 'Proxmox web console, then each VM\'s console',
-        instruction: 'Create all three VMs from the wizard and note the VM ID each one is assigned — every qm command in Weeks 3 and 4 addresses a VM by that number. Record the three IDs in the Server Bring-Up Log as you go.',
-        instructionList: [
-          'websrv — OS tab: the Ubuntu Server ISO from local (pve-host). Disks 30 GB, CPU 2 cores, Memory 2048 MB. Network tab: Bridge vmbr1. A website on vmbr2 is not in the DMZ.',
-          'websrv — start it, open its Console, run the Ubuntu installer, and at the network screen choose Manual: subnet 172.16.0.0/24, address 172.16.0.10, gateway 172.16.0.1, name servers 192.168.0.2, 1.1.1.1.',
-          'linuxsrv — OS tab: the same Ubuntu Server ISO. Disks 40 GB, CPU 2 cores, Memory 4096 MB. Network tab: Bridge vmbr2. A database wants more disk and RAM than the web host, and is never exposed in the DMZ.',
-          'linuxsrv — network screen Manual: subnet 192.168.0.0/24, address 192.168.0.3, gateway 192.168.0.1, name servers 192.168.0.2, 1.1.1.1.',
-          'The second name server is deliberate and temporary on both Ubuntu hosts: winserver does not carry the DNS role yet, so nothing would resolve the package archive without it. Week 3 drops it when you apply netplan.',
-          'Select "Install OpenSSH server" when offered on both Ubuntu hosts — linuxsrv is the internal host the Week-3 port-forward rule targets — then finish each install and reboot.',
-          'winserver — OS tab: the Windows Server ISO, Guest OS Type Microsoft Windows. Disks 60 GB, CPU 2 cores, Memory 4096 MB. Network tab: Bridge vmbr2. Three roles will not be comfortable in less, and directory services never sit in the DMZ.',
-          'winserver — install Windows Server, Desktop Experience unless your instructor says Core; the Server Manager click-paths later assume Desktop Experience.',
-          'winserver — Network and Sharing Center → Change adapter settings → the adapter → Properties → Internet Protocol Version 4 → Properties: address 192.168.0.2, mask 255.255.255.0, gateway 192.168.0.1, preferred DNS 127.0.0.1.',
-        ],
+        instruction: 'Create all three VMs and note the VM ID each one is assigned — every qm command in Weeks 3 and 4 addresses a VM by that number. Record the three IDs in the Bring-Up Log.',
+        guideRef: { procedureId: 'create-websrv-dmz-vm', label: 'websrv, winserver and linuxsrv — one VM at a time' },
         commands: [
           { cmd: 'ip -4 addr show', explain: 'In the websrv console after the reboot — it must show 172.16.0.10/24 — and again on linuxsrv, which must show 192.168.0.3/24.' },
           { cmd: 'ping -c 4 172.16.0.1', explain: 'From websrv: its gateway is the host\'s vmbr1 address. The same check on linuxsrv is "ping -c 4 192.168.0.1".' },
@@ -1030,9 +951,6 @@ const sharedTasks: Task[] = [
           'Host: hostname, management address and prefix, RAID level, the two bridge addresses.',
           'Each VM: VM ID, bridge, vCPU/RAM/disk, address, gateway and DNS server.',
           'Name the procedure each row came from, and attach the screenshot that proves it.',
-        ],
-        files: [
-          { name: 'Configuration guide — build week', purpose: 'the long-form write-up of the install, bridge and VM procedures, if you want the fuller context', source: '/courses/server-plus/guide/reference#config-guide' },
         ],
         usesForm: 'Server Bring-Up Log',
         producesDeliverable: '03_Server_Bring_Up.md',
@@ -1068,6 +986,7 @@ const sharedTasks: Task[] = [
         description: 'The one public-facing site in the design — in the DMZ, not on Windows and not on the database host.',
         where: 'The websrv console (172.16.0.10)',
         instruction: 'Install NGINX on the DMZ host and replace its default page with your team\'s welcome page, then prove it answers from another machine rather than from itself.',
+        guideRef: { procedureId: 'deploy-nginx-website' },
         commands: [
           { cmd: 'sudo apt update', explain: 'Refresh the package lists first. websrv reaches the archive through the Proxmox host — the forwarding and NAT you enabled when you created the bridges.' },
           { cmd: 'sudo apt install nginx -y', explain: 'Installs NGINX and enables the default site on port 80.' },
@@ -1086,16 +1005,8 @@ const sharedTasks: Task[] = [
         title: 'Stand up the Windows roles: AD DS, DNS and DHCP',
         description: 'One machine, three roles, in the one order that works — then a client that proves the scope.',
         where: 'winserver (192.168.0.2) — Server Manager and PowerShell as Administrator',
-        instruction: 'Promote the forest first: -InstallDns creates the DNS role and the forward lookup zone the records go into. Then add the records, then DHCP. Substitute your own team number for every team1 value below — the server reboots twice.',
-        instructionList: [
-          'Rename before promotion — renaming a domain controller afterwards is far more work.',
-          'Record the Directory Services Restore Mode password Install-ADDSForest prompts for.',
-          'If your instructor has you run a standalone DNS server instead of promoting, use Server Manager → Add Roles and Features → DNS Server, then DNS Manager → right-click Forward Lookup Zones → New Zone → Primary, named teamX.local.',
-          'Either way, add the three A records and test them from linuxsrv as well as from winserver — both sit in the private zone, so both reach the DNS server directly.',
-          'DHCP: Server Manager → Add Roles and Features → DHCP Server, then run the post-deployment configuration it prompts for — that is what creates the security groups.',
-          'Before you can prove the scope, build something to lease to: Proxmox → Create VM, name it client01, any desktop image (Ubuntu Desktop or Windows 10/11), 1 core / 2048 MB / 20 GB, Bridge vmbr2.',
-          'Leave client01 on DHCP — do not give it a static address. Taking a lease is the entire job of this VM.',
-        ],
+        instruction: 'Promote the forest first: -InstallDns creates the DNS role and the zone the records go into. Then the records, then DHCP. Substitute your team number for every team1 value — the server reboots twice.',
+        guideRef: { procedureId: 'winserver-promote-adds', label: 'Promote, DNS records, then DHCP and client01' },
         commands: [
           { cmd: 'Rename-Computer -NewName "winserver" -Restart', explain: 'Rename before promotion. The machine reboots.' },
           { cmd: 'Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools', explain: 'Installs the role and the management tools. Nothing is a domain controller yet.' },
@@ -1114,9 +1025,6 @@ const sharedTasks: Task[] = [
           { cmd: 'Add-DhcpServerInDC -DnsName "winserver.team1.local" -IPAddress 192.168.0.2', explain: 'Authorizes the server in Active Directory. An unauthorized DHCP server in a domain refuses to hand out leases.' },
           { cmd: 'Get-DhcpServerv4Lease -ScopeId 192.168.0.0', explain: 'Run this once client01 has booted — a scope with no client is untested. Screenshot the leases for the record.' },
         ],
-        files: [
-          { name: 'Configuration guide — the Windows roles', purpose: 'the promotion, DNS and DHCP procedures written out one screen at a time, with what each value is for', source: '/courses/server-plus/guide/reference#config-guide' },
-        ],
         whatItMeans: 'The order is the lesson: the forest creates the zone, the zone takes the records, and DHCP hands out the gateway and the DNS server — not just an address.',
         frameworks: ['NIST_CSF'],
         expectedOutput: 'PS C:\\> Get-Service NTDS, DNS | Select-Object Name, Status\nName  Status\n----  ------\nNTDS  Running\nDNS   Running\n\nPS C:\\> nslookup websrv.team1.local 192.168.0.2\nName:    websrv.team1.local\nAddress:  172.16.0.10\n\nPS C:\\> Get-DhcpServerv4Lease -ScopeId 192.168.0.0\nIPAddress     ScopeId     HostName\n---------     -------     --------\n192.168.0.100 192.168.0.0 client01.team1.local',
@@ -1128,6 +1036,7 @@ const sharedTasks: Task[] = [
         description: 'The database server in the private zone, with its own application user.',
         where: 'The linuxsrv console (192.168.0.3)',
         instruction: 'Install MariaDB, secure it, then create the database and the application user. The four SQL statements are typed inside the MariaDB shell.',
+        guideRef: { procedureId: 'linuxsrv-mariadb' },
         commands: [
           { cmd: 'sudo apt update', explain: 'Refresh package lists. Like websrv, linuxsrv reaches the archive through the Proxmox host\'s forwarding and NAT.' },
           { cmd: 'sudo apt install mariadb-server -y', explain: 'Installs the server and the client.' },
@@ -1156,9 +1065,6 @@ const sharedTasks: Task[] = [
           'linuxsrv: MariaDB, the database name, and the application user (the password too — you cannot restore what you cannot log into).',
           'Then, in the Rack, Power & Asset Register, add a software row per installed program — each OS, the hypervisor, every role and service — with its version and support-end date. That date is the security-relevant column.',
         ],
-        files: [
-          { name: 'Configuration guide — the service procedures', purpose: 'every command in this task written out in full, with what each one does: NGINX, AD DS, DNS, DHCP and MariaDB', source: '/courses/server-plus/guide/reference#config-guide' },
-        ],
         usesForm: 'Server Bring-Up Log',
         producesDeliverable: '03_Server_Bring_Up.md',
         whatItMeans: 'A VM with no services is scaffolding. Recording what you deployed is what turns the build into something a stranger can rebuild — and what is out of support is no longer patched.',
@@ -1170,14 +1076,7 @@ const sharedTasks: Task[] = [
         description: 'The monitoring VM from your plan, with an exporter on every host.',
         where: 'A new secmon VM in the private zone, and every other VM',
         instruction: 'Create the secmon VM you planned in Week 1, then install the server stack on it and an exporter everywhere else.',
-        instructionList: [
-          'Create secmon: Ubuntu Server ISO, 2 cores, 6144 MB, 80 GB, Bridge vmbr2.',
-          'Install Ubuntu with address 192.168.0.4/24, gateway 192.168.0.1, DNS 192.168.0.2 — .4 is reserved for monitoring, which is why your own extra VMs start at .5.',
-          'On winserver, download the windows_exporter MSI from its GitHub releases page — Windows needs a different exporter, on port 9182.',
-          'Browse to http://192.168.0.4:9090/targets and confirm all three targets read UP.',
-          'websrv is deliberately not scraped yet: secmon is in the private zone and has no path into the DMZ until the Week-3 static routes. You add it there.',
-          'Log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.',
-        ],
+        guideRef: { procedureId: 'monitoring-prometheus-grafana' },
         commands: [
           { cmd: 'sudo apt update && sudo apt install -y prometheus prometheus-node-exporter', explain: 'On secmon. The Prometheus server, plus an exporter for secmon itself.' },
           { cmd: 'sudo apt install -y apt-transport-https software-properties-common wget', explain: 'Prerequisites for adding the Grafana repository — Grafana is not in the Ubuntu archive.' },
@@ -1314,6 +1213,7 @@ const sharedTasks: Task[] = [
         description: 'The host started routing in Week 2 so the guests could install packages. Now it gets the cross-zone rules and the two published ports.',
         where: 'Proxmox host shell',
         instruction: 'Confirm the Week-2 forwarding is still on, add the rules that are missing, read the whole ruleset back, and only then persist it. Duplicated rules from a second run are the usual cause of confusing behaviour.',
+        guideRef: { procedureId: 'enable-routing-nat' },
         commands: [
           { cmd: 'sysctl net.ipv4.ip_forward', explain: 'You turned this on in Week 2 so the guests could reach the package archive, and the drop-in file made it persistent. Expect 1; if it reads 0, re-run the two Week-2 lines.' },
           { cmd: 'iptables -t nat -L POSTROUTING -n -v', explain: 'The MASQUERADE out of vmbr0 is already here from Week 2. Read the chain first so you add only what is missing — a second copy of a rule is the usual cause of confusing behaviour.' },
@@ -1328,9 +1228,6 @@ const sharedTasks: Task[] = [
           { cmd: 'iptables -t nat -L -n -v && iptables -L FORWARD -n -v', explain: 'Read the ruleset back before persisting. Seeing doubles? Flush with "iptables -F" and "iptables -t nat -F", then re-enter every rule in this step plus the Week-2 vmbr0 MASQUERADE.' },
           { cmd: 'apt install iptables-persistent -y', explain: 'Answer yes when it offers to save the current IPv4 rules.' },
           { cmd: 'netfilter-persistent save', explain: 'Writes the live ruleset to /etc/iptables/rules.v4. Reboot once and re-run the list commands to prove the rules really came back.' },
-        ],
-        files: [
-          { name: 'Configuration guide — routing and NAT', purpose: 'the same ruleset written out rule by rule, with what each one is for and how to undo it', source: '/courses/server-plus/guide/reference#config-guide' },
         ],
         whatItMeans: 'Segmentation is only useful with deliberate holes in it. These rules are the holes: the website published on 80, and SSH to one internal host on 2222.',
         frameworks: ['NIST_CSF', 'CIS'],
@@ -1686,9 +1583,7 @@ const sharedTasks: Task[] = [
         title: 'Log the patch run and the changes',
         description: 'The patch log rows, and the change-log rows beside them.',
         instruction: 'Record each system in the Operations Log & SOPs — starting level, schedule, rollback method, what you applied, result — and add a change-log row for the run.',
-        files: [
-          { name: 'Configuration guide — hardening and patching', purpose: 'the SSH, ufw, snapshot and per-OS update procedures written out in full, in case a command in this task needs its longer explanation', source: '/courses/server-plus/guide/reference#config-guide' },
-        ],
+        guideRef: { procedureId: 'snapshot-and-patch' },
         usesForm: 'Operations Log & SOPs',
         producesDeliverable: '07_Operations_and_SOPs.md',
         whatItMeans: 'The log answers "are we current, and can we undo a bad update?". Without the level you cannot tell what is still exposed.',

@@ -331,6 +331,7 @@ function TaskReference({ task }: { task: Task }) {
                  and dropped the actual procedure under it. */
               instructionList={s.instructionList}
               paths={s.paths}
+              guideRef={s.guideRef}
               description={s.description}
               command={s.command}
               commands={s.commands}

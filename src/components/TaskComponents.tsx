@@ -14,11 +14,13 @@ import {
   Copy,
   CornerDownRight,
   Download,
+  BookOpen,
   FileCheck2,
   Sparkles,
   SquarePen,
 } from 'lucide-react';
 import { FolderNode, Step } from '@/lib/types';
+import { procedureTitle } from '@/lib/docs/serverProcedures';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 import { useLabAccess, fillPlaceholders, hasLabAccess, hasUnfilled } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
@@ -258,6 +260,7 @@ export function StepDetail({
   instruction,
   instructionList,
   paths,
+  guideRef,
   description,
   command,
   commands,
@@ -286,6 +289,7 @@ export function StepDetail({
   instruction?: string;
   instructionList?: string[];
   paths?: { label: string; when: string; steps: string[] }[];
+  guideRef?: Step['guideRef'];
   description?: string;
   command?: string;
   commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
@@ -442,6 +446,23 @@ export function StepDetail({
                   for whoever needs it. Nothing is removed. */}
               {((instructionList && instructionList.length > 0) || (paths && paths.length > 0)) && (
                 <StepSteps items={instructionList} paths={paths} />
+              )}
+              {/* Steps say WHAT, the guide says HOW. Where the click-list used
+                  to be a copy of a procedure in the configuration guide, this
+                  one row replaces it: the Guide opens on that procedure's week
+                  with the article scrolled into view (ServerConfigGuide reads
+                  the hash). One home for configuration detail, not two. */}
+              {guideRef && (
+                <Link
+                  href={`/courses/${courseId}/guide#${guideRef.procedureId}`}
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-md border border-accent/30 bg-accent-soft px-2.5 py-1.5 text-sm font-medium text-accent-ink hover:border-accent"
+                >
+                  <BookOpen className="h-4 w-4 shrink-0" aria-hidden />
+                  <span>
+                    <span className="text-muted">Exact clicks: </span>
+                    {guideRef.label ?? procedureTitle(guideRef.procedureId)} →
+                  </span>
+                </Link>
               )}
             </div>
           )}
@@ -603,6 +624,7 @@ interface ChecklistItemProps {
   instruction?: string;
   instructionList?: string[];
   paths?: { label: string; when: string; steps: string[] }[];
+  guideRef?: Step['guideRef'];
   description?: string;
   command?: string;
   commands?: { cmd: string; explain?: string }[];
@@ -643,6 +665,7 @@ export function ChecklistItem({
   instruction,
   instructionList,
   paths,
+  guideRef,
   description,
   command,
   commands,
@@ -749,6 +772,7 @@ export function ChecklistItem({
                 instruction={instruction}
                 instructionList={instructionList}
                 paths={paths}
+                guideRef={guideRef}
                 description={description}
                 command={command}
                 commands={commands}

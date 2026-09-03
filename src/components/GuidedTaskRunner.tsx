@@ -297,6 +297,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   instruction={current.instruction}
                   instructionList={current.instructionList}
                   paths={current.paths}
+                  guideRef={current.guideRef}
                   description={current.description}
                   danger={current.danger}
                   command={current.command}
@@ -385,6 +386,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               instruction={step.instruction}
               instructionList={step.instructionList}
               paths={step.paths}
+              guideRef={step.guideRef}
               description={step.description}
               command={step.command}
               commands={step.commands}
