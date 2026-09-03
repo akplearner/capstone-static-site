@@ -13,8 +13,7 @@ export const WEEKS: Record<number, Week> = {
     phase: 'Arrive & Authorize',
     difficulty: 1,
     flow: ['Boot the lab', 'Reach the target', 'Agree the rules'],
-    milestone: 'Your Kali reaches the target, DVWA loads, and the Rules of Engagement are signed.',
-    plain: 'Setup week: build your little lab and agree the rules before touching anything. Like a locksmith signing a contract and laying out their tools before going near a door — permission first, then work.'
+    milestone: 'Your Kali reaches the target, DVWA loads, and the Rules of Engagement are signed.'
   },
   1: {
     number: 1,
@@ -26,8 +25,7 @@ export const WEEKS: Record<number, Week> = {
     phase: 'Survey & Harden',
     difficulty: 2,
     flow: ['Passive recon', 'Harden the host', 'Pick the framework'],
-    milestone: 'You have an OSINT profile of the target, a hardened baseline, and a named control framework.',
-    plain: 'Quietly learn everything you can about the target from the outside, and lock down the obvious weak spots first — like casing a building and bolting the easy doors before anyone tries them.'
+    milestone: 'You have an OSINT profile of the target, a hardened baseline, and a named control framework.'
   },
   2: {
     number: 2,
@@ -39,8 +37,7 @@ export const WEEKS: Record<number, Week> = {
     phase: 'Probe & Instrument',
     difficulty: 2,
     flow: ['Enumerate services', 'Baseline the host', 'Rate the risks'],
-    milestone: 'Every open service is listed with its version, and each risk has a likelihood and impact rating.',
-    plain: 'Now actively hunt for the weak spots — and on the defence side, wire up the alarms that should notice someone poking at them. Attack and detection, built side by side.'
+    milestone: 'Every open service is listed with its version, and each risk has a likelihood and impact rating.'
   },
   3: {
     number: 3,
@@ -52,8 +49,7 @@ export const WEEKS: Record<number, Week> = {
     phase: 'Breach & Detect',
     difficulty: 3,
     flow: ['Attack', 'Detect', 'Preserve evidence'],
-    milestone: 'An attack succeeded, Blue caught it in the logs, and the evidence is hashed with an unbroken chain of custody.',
-    plain: 'The staged break-in: attackers exploit a weakness while defenders detect it and preserve the proof — hashed and logged like a real case, not just "we saw something".'
+    milestone: 'An attack succeeded, Blue caught it in the logs, and the evidence is hashed with an unbroken chain of custody.'
   },
   4: {
     number: 4,
@@ -65,8 +61,7 @@ export const WEEKS: Record<number, Week> = {
     phase: 'Report & Brief',
     difficulty: 2,
     flow: ['Respond', 'Write it up', 'Brief the client'],
-    milestone: 'The incident is closed and the final report and briefing are ready to hand over.',
-    plain: 'Turn everything into the report and briefing a client pays for: what you found, how bad it is, and exactly what to fix — in words a non-technical manager can act on.'
+    milestone: 'The incident is closed and the final report and briefing are ready to hand over.'
   }
 };
 

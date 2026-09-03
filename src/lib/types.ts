@@ -30,10 +30,6 @@ export interface WeekDef {
   theme: string;
   objective: string;
   runs?: string;
-  /** Plain-language "here's what you're really doing this week and why it matters,
-   *  like a real analyst" — 1–2 sentences with a light analogy, for non-technical
-   *  students. Rendered as a callout above the week's tasks. */
-  plain?: string;
   /** Lab/course setup rather than graded work. Setup weeks start collapsed and
    *  are skipped when resolving where a student left off, so an opt-in build
    *  track never presents itself as "the week you're on". Defaults to week 0. */

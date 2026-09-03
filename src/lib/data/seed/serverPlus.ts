@@ -112,7 +112,6 @@ const weeks: WeekDef[] = [
     difficulty: 1,
     flow: ['Image your workstation', 'Get the starter pack', 'Know your numbers'],
     milestone: 'Your workstation is imaged and on ITS.lan, the starter folders exist on it, and you know your team\'s addressing.',
-    plain: 'Before the engagement starts you need a working seat: a freshly imaged workstation on the domain, the course folder structure on it, and your team number — because every address you will ever assign derives from it.',
   },
   {
     number: 1,
@@ -125,7 +124,6 @@ const weeks: WeekDef[] = [
     difficulty: 3,
     flow: ['Bring it up', 'Document it', 'Build the array', 'Install & log in'],
     milestone: 'The server posts cleanly, its firmware and support status are documented, the array is healthy, and you can log in to the Proxmox console at 10.10.30.T from a campus workstation.',
-    plain: 'A server arrives on the bench and does not work properly. By the end of this week you are logged in to a hypervisor on your team\'s address. Four tasks: bring it up, document what it is, build the array, install Proxmox. Budget about three hours — we are not going to pretend a server arrives working. Chapters 1-4.',
   },
   {
     number: 2,
@@ -138,7 +136,6 @@ const weeks: WeekDef[] = [
     difficulty: 3,
     flow: ['Draft the architecture', 'Rack and cable it', 'Create the VMs', 'Deploy the services'],
     milestone: 'The design is written down, the server sits at its planned U, and the core services run on the machines the design called for. Budget about three and a half hours: this is the heaviest week.',
-    plain: 'The hypervisor is running, so now decide what belongs on it and build that. Write the architecture the business actually needs, mount and cable the server where the rack plan says, then stand up the Windows and Linux machines and the services they carry. This week does not fit in two hours and we are not going to pretend it does — ISO uploads and three operating-system installs are about three and a half hours of work. Each step is what you must DO; every procedure is written out in full in the platform\'s configuration guide, on the Reference page.',
   },
   {
     number: 3,
@@ -151,7 +148,6 @@ const weeks: WeekDef[] = [
     difficulty: 3,
     flow: ['Finalise the addresses', 'Connect the uplink', 'Prove it reaches', 'Write the SOPs'],
     milestone: 'Every host holds its verified address, connectivity is proven and logged, and the operating procedures are written.',
-    plain: 'A server nobody can reach is a space heater. This week you finalise the addressing, connect the machine to the real network, and prove the paths work — then write down how this environment is run, so it is a service and not just a box. Chapters 5, 7, 8 and 9.',
   },
   {
     number: 4,
@@ -164,7 +160,6 @@ const weeks: WeekDef[] = [
     difficulty: 3,
     flow: ['Snapshot & patch', 'Set the targets', 'Restore for real', 'Hand it over'],
     milestone: 'Every system is patched with a rollback, a restore was performed and timed, and the client has the PDF package.',
-    plain: 'Security here is discipline, not drama: patch with a way back, write recovery numbers you can defend, restore for real and time it, then hand over documentation a stranger could run the server from. Chapters 10, 11, 12 and 4.',
   },
 ];
 
