@@ -64,13 +64,13 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
 
           <div className="flex flex-col gap-1">
             <Link
-              href={`/courses/${courseId}/guide/reference#lab`}
+              href={`/courses/${courseId}/guide#lab`}
               className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
             >
               New here? Lab requirements &amp; setup <ArrowRight className="h-3.5 w-3.5" />
             </Link>
             <Link
-              href={`/courses/${courseId}/guide/reference#terminal`}
+              href={`/courses/${courseId}/guide#terminal`}
               className="inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
             >
               A command won&apos;t run? Terminal basics &amp; common fixes <ArrowRight className="h-3.5 w-3.5" />

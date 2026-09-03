@@ -5,16 +5,12 @@ import { phaseTag } from '@/lib/course-helpers';
  * The course arc as a scannable index — one tight row per week: a week chip, the
  * phase, the title, and the gate that closes it when the course has gates.
  *
- * It deliberately does NOT print the week's `plain` sentence. That sentence
- * renders on the Weekly Tasks week block, which is the screen a student actually
- * works from; printing it here too meant reading the same ~200 words twice, once
- * on a page they visit to orient themselves and again on the page they use daily.
- *
- * This is now the Guide's *only* rendering of the arc. `LifecycleFlow` used to
- * draw the same weeks forty lines further down the same page — a fixed-width SVG
- * that truncates the phase to 18 characters and hides the title in a tooltip. It
- * moved to the Reference route, and the one thing it had that this didn't (the
- * gate markers) is the chip below. Presentational and state-free.
+ * This is the course's *only* rendering of the arc. `LifecycleFlow` used to
+ * draw the same weeks — a fixed-width SVG that truncated the phase to 18
+ * characters and hid the title in a tooltip — on the Guide, then on Reference,
+ * then on the Server+ Overview as well. It is deleted; the one thing it had that
+ * this didn't (the gate markers) is the chip below. Presentational and
+ * state-free.
  */
 export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] }) {
   const ordered = [...course.weeks].sort((a, b) => a.number - b.number);

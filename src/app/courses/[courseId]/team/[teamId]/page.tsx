@@ -1,128 +1,21 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { Info, Users } from 'lucide-react';
-import { EmptyState } from '@/components/EmptyState';
-import { CourseSubNav } from '@/components/CourseSubNav';
-import { TeamProgressTable, MemberProgress, DeliverableStatus } from '@/components/TeamProgressTable';
-import { DeliverableChainDiagram } from '@/components/quarry/DeliverableChain';
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { LoadingBlock } from '@/components/ui/Spinner';
 import { useCourse } from '@/lib/useCourse';
-import { useMember } from '@/lib/useMember';
-import { useSupabaseSync } from '@/lib/useSupabaseSync';
-import { progressRepo, docsRepo } from '@/lib/data';
-import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
-import { getRequiredStepCount, getTasksByRole } from '@/lib/course-helpers';
-import { deliverablesForCourse } from '@/lib/docs/definitions';
-import { buildDeliverableChain } from '@/lib/deliverableChain';
-import { emptyData } from '@/lib/docs/types';
-import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { parseTeamId, teamLabel } from '@/lib/team';
 
-export default function TeamSpacePage() {
+/**
+ * The Team page folded into the Home tab (`TeamBlock`), keyed on the member's
+ * own team — the only one a student could ever view here, so the route carried
+ * an id it then had to deny. It forwards to `#team` on Home; client-side so the
+ * fragment survives (a server redirect drops it).
+ */
+export default function TeamSpaceRedirect() {
   const course = useCourse();
-  const params = useParams();
-  const teamId = params.teamId as string;
-  useSupabaseSync(course.id);
-  const { member, loading } = useMember(course.id);
-
-  // Roster + per-member progress, recomputed whenever cloud/local data changes.
-  const rows = useClientStore<MemberProgress[]>(() => {
-    const roster = progressRepo.getRoster(course.id).filter((e) => e.teamId === teamId);
-    return roster.map((m) => {
-      const keySet = progressRepo.getCompletionKeySet(course.id, m.memberId);
-      const tasks = getTasksByRole(course, m.role);
-      const totalSteps = tasks.reduce((s, t) => s + getRequiredStepCount(t), 0);
-      const doneSteps = tasks.reduce(
-        (s, t) => s + Math.round((progressRepo.getTaskPercent(course.id, m.memberId, t, keySet) / 100) * getRequiredStepCount(t)),
-        0
-      );
-      const overall = totalSteps ? Math.round((doneSteps / totalSteps) * 100) : 0;
-      const weeks = [...course.weeks]
-        .map((w) => w.number)
-        .sort((a, b) => a - b)
-        .map((week) => ({
-          week,
-          pct: progressRepo.getWeekCompletion(course, m.memberId, m.role, week, keySet),
-        }));
-      return { memberId: m.memberId, displayName: m.displayName, role: m.role, overall, weeks, isYou: member?.memberId === m.memberId };
-    });
-  }, EMPTY_ARRAY);
-
-  // Team deliverable completeness (DoD checks where defined; else any saved data).
-  const deliverables = useClientStore<DeliverableStatus[]>(() => {
-    const saved = docsRepo.get(course.id, teamId) ?? {};
-    return deliverablesForCourse(course.id).map((d) => {
-      const data = saved[d.id];
-      let complete = false;
-      if (d.dod && d.dod.length > 0) {
-        complete = d.dod.every((c) => c.test(data ?? emptyData()));
-      } else if (data) {
-        complete =
-          Object.values(data.fields ?? {}).some((v) => v && v.trim()) ||
-          Object.values(data.groups ?? {}).some((rowsArr) => rowsArr.length > 0);
-      }
-      return { id: d.id, title: d.title, owner: d.owner, complete };
-    });
-  }, EMPTY_ARRAY);
-
-  // The deliverable chain, with filed status recomputed whenever docs change,
-  // so the diagram reads as a live status board rather than a static plan.
-  const chain = useClientStore(
-    () => buildDeliverableChain(course, docsRepo.get(course.id, teamId) ?? {}),
-    buildDeliverableChain(course, {})
-  );
-
-  if (loading) return <LoadingBlock />;
-
-  // Teammates of the same team can view it; others can't (RLS also enforces this
-  // server-side, so a non-member's queries simply return nothing).
-  if (member && member.teamId !== teamId) {
-    return (
-      <EmptyState
-        title="Access denied"
-        message={`You can only view your own team's space (${teamLabel(member.teamId)}).`}
-        href={`/courses/${course.id}/team/${member.teamId}`}
-        cta="Go to my team"
-      />
-    );
-  }
-
-  return (
-    <div className="space-y-8">
-      <CourseSubNav courseId={course.id} active="team" teamId={teamId} />
-      <div>
-        <h1 className="text-3xl font-bold text-ink">
-          {teamLabel(teamId)} · {course.title}
-        </h1>
-        {parseTeamId(teamId).cohort && (
-          <p className="mt-1 text-sm text-muted">Class session {parseTeamId(teamId).cohort}</p>
-        )}
-        <p className="mt-2 text-muted">
-          Your team&apos;s roster, each member&apos;s progress, and the documents you produce together.
-        </p>
-      </div>
-
-      <section className="space-y-3">
-        <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
-          <Users className="h-5 w-5 text-blue-600 dark:text-blue-400" /> Team progress
-        </h2>
-        {!isSupabaseConfigured() && (
-          <div className="flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
-            <Info className="mt-0.5 h-4 w-4 shrink-0" />
-            <p>
-              Sign-in isn&apos;t configured, so this shows only your own device&apos;s data. Once the
-              platform is connected to its backend, teammates&apos; live progress appears here.
-            </p>
-          </div>
-        )}
-        <TeamProgressTable course={course} rows={rows} deliverables={deliverables} />
-      </section>
-
-      <section className="space-y-3">
-        <h2 className="text-lg font-semibold text-ink">How your work connects</h2>
-        <DeliverableChainDiagram course={course} chain={chain} highlightRole={member?.role} />
-      </section>
-    </div>
-  );
+  const router = useRouter();
+  useEffect(() => {
+    router.replace(`/courses/${course.id}#team`);
+  }, [course.id, router]);
+  return <LoadingBlock />;
 }

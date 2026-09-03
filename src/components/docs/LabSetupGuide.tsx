@@ -32,7 +32,7 @@ export function LabSetupGuide() {
     <div className="space-y-6">
       <p className="text-sm text-muted">
         You run a small isolated lab of 2–3 VMs. Build them once, put them on one private network, and
-        record their IPs in the <span className="font-medium">Lab access</span> panel (Weekly Tasks).
+        record their IPs in the <span className="font-medium">Lab access</span> panel (Tasks).
       </p>
 
       {/* VMs */}
@@ -73,9 +73,9 @@ export function LabSetupGuide() {
           <Network className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Network
         </h3>
         <ul className="mt-2 space-y-1.5 text-sm text-body">
-          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /> Put every VM on ONE isolated network — VirtualBox <span className="font-mono text-xs">Host-Only</span> or <span className="font-mono text-xs">Internal</span>, VMware <span className="font-mono text-xs">Host-Only</span>. Avoid Bridged so the lab never touches your home/work LAN.</li>
-          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /> Use one subnet, e.g. <span className="font-mono text-xs">10.10.10.0/24</span>, with static IPs (Kali .10, Ubuntu .5, Windows .6) — then record them in Lab access.</li>
-          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /> Confirm reachability: from Kali, <span className="font-mono text-xs">ping &lt;UBUNTU_IP&gt;</span> must reply before Week 1.</li>
+          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /><span className="min-w-0">Put every VM on ONE isolated network — VirtualBox <span className="font-mono text-xs">Host-Only</span> or <span className="font-mono text-xs">Internal</span>, VMware <span className="font-mono text-xs">Host-Only</span>. Avoid Bridged so the lab never touches your home/work LAN.</span></li>
+          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /><span className="min-w-0">Use one subnet, e.g. <span className="font-mono text-xs">10.10.10.0/24</span>, with static IPs (Kali .10, Ubuntu .5, Windows .6) — then record them in Lab access.</span></li>
+          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /><span className="min-w-0">Confirm reachability: from Kali, <span className="font-mono text-xs">ping &lt;UBUNTU_IP&gt;</span> must reply before Week 1.</span></li>
         </ul>
       </div>
 

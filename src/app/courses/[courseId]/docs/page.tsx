@@ -10,6 +10,7 @@ import { FrameworkBadge } from '@/components/TaskComponents';
 import { Collapsible, Tabs } from '@/components/ui/Button';
 import { Dialog } from '@/components/ui/Dialog';
 import { LoadingBlock } from '@/components/ui/Spinner';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { toast } from '@/components/ui/Toast';
 import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
@@ -311,23 +312,25 @@ export default function DeliverablesPage() {
       </div>
 
       {/* ── the header: one line saying what this week asks of you ───────── */}
-      <header data-block="week-head" className="space-y-1">
-        {/* The page finally says its own tab name. Nine links point here under
-            what used to be six different labels; the eyebrow is the anchor that
-            tells an arriving student they are where the link promised. */}
-        <div className="eyebrow-muted">Deliverables</div>
-        <h1 className="text-2xl font-bold tracking-tight text-ink">
-          {weekWord} · {dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}
-        </h1>
-        <p className="text-sm text-muted">
-          {roleName} · {teamLabel(teamId)} · fill the form, then generate the PDF. Evidence goes in{' '}
-          <span className="font-mono text-xs">~/team-artifacts/week-{selectedWeek}/</span>
-          {/* Same JSX whitespace trap as on the Guide: the text node after this
-              element spans a newline, so its leading space is trimmed away. */}
-          {' '}
-          and this week&apos;s zip is built at the bottom.
-        </p>
-      </header>
+      {/* The page says its own tab name — the eyebrow is the anchor that tells
+          an arriving student they are where the link promised. Same header
+          shape as every other tab (PageHeader); the data-block literal is what
+          the shape guard reads. */}
+      <PageHeader
+        data-block="week-head"
+        eyebrow="Deliverables"
+        title={`${weekWord} · ${dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}`}
+        lede={
+          <>
+            {roleName} · {teamLabel(teamId)} · fill the form, then generate the PDF. Evidence goes in{' '}
+            <span className="font-mono text-xs">~/team-artifacts/week-{selectedWeek}/</span>
+            {/* Same JSX whitespace trap as on the Guide: the text node after this
+                element spans a newline, so its leading space is trimmed away. */}
+            {' '}
+            and this week&apos;s zip is built at the bottom.
+          </>
+        }
+      />
 
       {/* ── the toolbar: everything that is not this week's form ──────────
           These were five stacked blocks above the week selector. They are tools,
@@ -338,7 +341,7 @@ export default function DeliverablesPage() {
         <ToolButton icon={Package} label="Team package" active={tool === 'package'} onClick={() => setTool(tool === 'package' ? null : 'package')} />
         <ToolButton icon={Users} label="Export & hand-off" active={tool === 'handoff'} onClick={() => setTool(tool === 'handoff' ? null : 'handoff')} />
         <Link
-          href={`/courses/${course.id}/guide/reference#forms`}
+          href={`/courses/${course.id}/guide#forms`}
           className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium text-muted transition-colors hover:bg-panel-2 hover:text-ink"
         >
           <BookOpen className="h-4 w-4" /> How the forms work
@@ -357,7 +360,7 @@ export default function DeliverablesPage() {
               once now, on Reference, where EvidenceGuide renders all of it. */}
           <p className="text-xs text-muted">
             Naming, hashing and hand-off rules:{' '}
-            <Link href={`/courses/${course.id}/guide/reference#evidence`} className="font-medium text-accent hover:underline">
+            <Link href={`/courses/${course.id}/guide#evidence`} className="font-medium text-accent hover:underline">
               Evidence &amp; chain of custody →
             </Link>
           </p>
@@ -473,7 +476,7 @@ export default function DeliverablesPage() {
           <div className="rounded-lg border border-line bg-panel p-6 text-sm text-muted">
             No form of your own in {weekWord}. This {unitWord(course).toLowerCase()} your work is evidence —
             screenshots and findings you collect and file with the week package below.{' '}
-            <Link href={`/courses/${course.id}?tab=weeks`} className="font-medium text-accent underline">
+            <Link href={`/courses/${course.id}?tab=tasks`} className="font-medium text-accent underline">
               Go to this {unitWord(course).toLowerCase()}&apos;s tasks
             </Link>
             , or pick another {unitWord(course).toLowerCase()} above.

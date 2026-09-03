@@ -34,6 +34,9 @@ const code = (p: string) =>
     .replace(/\{\/\*[\s\S]*?\*\/\}/g, '');
 
 const GUIDE = 'src/app/courses/[courseId]/guide/page.tsx';
+// The manual — the sections that used to be the Reference route. It renders on
+// the Guide now, below the orientation, so the rule follows it there.
+const MANUAL = 'src/components/docs/GuideManual.tsx';
 const REFERENCE = 'src/app/courses/[courseId]/guide/reference/page.tsx';
 const DOCS = 'src/app/courses/[courseId]/docs/page.tsx';
 
@@ -63,6 +66,7 @@ describe('page shape — disclosure is for tools, not for reading', () => {
   // route, where it renders open.
   it.each([
     ['Guide', GUIDE],
+    ['GuideManual', MANUAL],
     ['Reference', REFERENCE],
   ])('%s renders no Collapsible', (_name, path) => {
     expect(code(path)).not.toContain('Collapsible');
@@ -78,9 +82,13 @@ describe('page shape — disclosure is for tools, not for reading', () => {
 
   it('the Guide renders one week arc and one role-mission source', () => {
     const src = code(GUIDE);
-    // WeekGoals and LifecycleFlow both print week title + phase. They used to sit
-    // forty lines apart on this page; LifecycleFlow now lives on Reference.
-    const arcs = ['WeekGoals', 'LifecycleFlow'].filter((c) => src.includes(c));
+    // WeekGoals and LifecycleFlow both printed week title + phase. They used to
+    // sit forty lines apart on this page. LifecycleFlow is deleted now — WeekGoals
+    // carries the gate chips that were its only unique contribution — and the
+    // manual (`GuideManual`) renders on this page too, so it is held to the same
+    // rule: one arc, and it is WeekGoals.
+    const manual = code(MANUAL);
+    const arcs = ['WeekGoals', 'LifecycleFlow'].filter((c) => src.includes(c) || manual.includes(c));
     expect(arcs).toEqual(['WeekGoals']);
     // The Guide prints each role's mission exactly once. It used to print it
     // twice in one two-column section — as a card list, and again inside

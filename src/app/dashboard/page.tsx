@@ -317,7 +317,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
           up, and Continue dropped you at the course root to find your own way
           back. Now it says the week and lands you on it. */}
       <div className="mt-5">
-        <Link href={started ? `/courses/${course.id}?tab=weeks#week-${activeWeek}` : `/courses/${course.id}`}>
+        <Link href={started ? `/courses/${course.id}?tab=tasks&week=${activeWeek}` : `/courses/${course.id}`}>
           <Button className="flex w-full items-center justify-center gap-2">
             {started ? `Continue · ${phaseTag(course, activeWeek)}` : 'Start'}
             <ArrowRight className="h-4 w-4" />

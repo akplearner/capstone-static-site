@@ -18,7 +18,7 @@ const PREFLIGHT = [
   `The classroom SOC is already running — open ${SOC_URL} and sign in with ${SOC_LOGIN_LABEL}`,
   'Both of your pods (Ubuntu 10.10.100.N and Windows 10.10.20.N) exist and you can sign in to them',
   'You can SSH into your Ubuntu pod as the student user',
-  'Your pod numbers are recorded in the Lab access panel (Weekly Tasks); Rules of Engagement read',
+  'Your pod numbers are recorded in the Lab access panel (Tasks); Rules of Engagement read',
 ];
 
 export function CysaLabSetup({ courseId }: { courseId: string }) {
@@ -67,8 +67,8 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
           The full build — Wazuh all-in-one install, DVWA + Suricata on the Ubuntu template, Sysmon on the
           Windows template, then cloning ×16 — is a guided task with copy-paste commands and the required files
           in <span className="font-medium">Week&nbsp;0 · Environment build</span> on the{' '}
-          <a href={`/courses/${courseId}?tab=weeks`} className="font-medium text-blue-600 underline dark:text-blue-400">
-            Weekly Tasks
+          <a href={`/courses/${courseId}?tab=tasks`} className="font-medium text-blue-600 underline dark:text-blue-400">
+            Tasks
           </a>{' '}
           page.
         </p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
@@ -14,16 +14,15 @@ import {
   Inbox,
   Lock,
   RotateCcw,
-  Search,
   Sparkles,
   Tag,
   Users,
   Wrench,
-  X,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
 import { LoadingBlock } from '@/components/ui/Spinner';
+import { PageHeader } from '@/components/ui/PageHeader';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { StepDetail } from '@/components/TaskComponents';
@@ -34,6 +33,7 @@ import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
 import { RoleIcon } from '@/components/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
+import { TeamBlock } from '@/components/TeamBlock';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
@@ -46,25 +46,21 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, userStateRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard } from '@/lib/course-helpers';
+import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
-import { phaseForWeek, stageForWeek } from '@/lib/quarry';
-import { WeekVerbIcon, verbForStage } from '@/components/quarry/items';
+import { phaseForWeek } from '@/lib/quarry';
 import { isCapstoneFiled, isDeliverableFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { EngagementStatus } from '@/components/EngagementStatus';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
-import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
-import { emptyData, type DeliverableData } from '@/lib/docs/types';
-import { LifecycleFlow } from '@/components/diagrams/LifecycleFlow';
 import { hasSpecificGuide, roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
 import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
-import { Course, GateStatus, Member, RoleDef, Task } from '@/lib/types';
+import { Course, GateStatus, Member, Task } from '@/lib/types';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
@@ -544,6 +540,7 @@ function TaskRow({
   onToggle,
   isNext,
   number,
+  focus,
   children,
 }: {
   course: Course;
@@ -554,6 +551,10 @@ function TaskRow({
   percent: number;
   onToggle: () => void;
   isNext?: boolean;
+  /** Shared-track courses: this is the one task of the week that is yours
+   *  alone — the deep-dive your documentation focus adds to the shared build.
+   *  It sits last in the week's one list, so the chip is what marks it. */
+  focus?: boolean;
   /** 1-based position in the week's checklist, mono "1." before the title.
    *  Continuous across the shared lane then the focus lane — the same order
    *  the removed WeekTaskFlow cards displayed. Reference tasks: unnumbered. */
@@ -587,6 +588,11 @@ function TaskRow({
               <span className="font-mono text-sm font-semibold text-muted">{number}.</span>
             )}
             <span className="font-medium text-ink">{task.title}</span>
+            {focus && (
+              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
+                Your focus
+              </span>
+            )}
             {showProgress && percent === 100 && (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
             )}
@@ -655,130 +661,6 @@ function TaskRow({
   );
 }
 
-/** Header strip for a role group within a week. */
-/**
- * "Your team's business" — the dropdown that makes the topology yours.
- *
- * Writes the SAME team-scoped record the Week-1 Business Requirements form
- * fills (`srv_business_reqs` via docsRepo), so there is one source of truth:
- * pick the industry here and the form on the Deliverables page is already
- * started; fill the form there and this card shows it. Team selection itself
- * lives in the JoinPanel below ("Change team or role").
- */
-const BUSINESS_INDUSTRIES = ['Manufacturing', 'Healthcare', 'Retail', 'MSP / IT services', 'Logistics', 'Professional services', 'Other'];
-
-function TeamBusinessPicker({
-  courseId,
-  teamId,
-  onBusiness,
-}: {
-  courseId: string;
-  teamId: string;
-  onBusiness: (b: { name?: string; industry?: string }) => void;
-}) {
-  const saved = useClientStore<Record<string, DeliverableData>>(
-    () => docsRepo.get(courseId, teamId) ?? EMPTY_OBJECT,
-    EMPTY_OBJECT
-  );
-  const data = saved['srv_business_reqs'] ?? emptyData();
-  const name = data.fields.client ?? '';
-  const industry = data.fields.industry ?? '';
-  const other = data.fields.industry_other ?? '';
-
-  // Lift the current choice so the topology diagram can label itself. An
-  // effect, not a render-time call — setState during a sibling's render is a
-  // React error.
-  const industryLabel = industry === 'Other' && other ? other : industry;
-  useEffect(() => {
-    onBusiness({ name: name || undefined, industry: industryLabel || undefined });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [name, industryLabel]);
-
-  const setField = (field: string, value: string) => {
-    const current = docsRepo.get(courseId, teamId) ?? {};
-    const doc = current['srv_business_reqs'] ?? emptyData();
-    docsRepo.save(courseId, teamId, {
-      ...current,
-      srv_business_reqs: { ...doc, fields: { ...doc.fields, [field]: value } },
-    });
-    notifyStore();
-  };
-
-  return (
-    <div className="rounded-lg border border-line bg-panel p-4">
-      <div className="flex flex-wrap items-end gap-3">
-        <div className="min-w-0">
-          <div className="text-sm font-semibold text-ink">Your team&apos;s business</div>
-          <p className="mt-0.5 text-xs text-muted">
-            The base build is the same for every team — this decides what the extra VMs are for.
-            Saved into your Architecture Brief.
-          </p>
-        </div>
-        <label className="block">
-          <span className="block text-xs font-medium text-body">Business name</span>
-          <input
-            type="text"
-            value={name}
-            onChange={(e) => setField('client', e.target.value)}
-            placeholder="e.g. Granite Peak Aggregates"
-            className="mt-1 w-48 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
-          />
-        </label>
-        <label className="block">
-          <span className="block text-xs font-medium text-body">Type of business</span>
-          <select
-            value={industry}
-            onChange={(e) => setField('industry', e.target.value)}
-            className="mt-1 w-48 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
-          >
-            <option value="">Choose…</option>
-            {BUSINESS_INDUSTRIES.map((o) => (
-              <option key={o} value={o}>{o}</option>
-            ))}
-          </select>
-        </label>
-        {industry === 'Other' && (
-          <label className="block">
-            <span className="block text-xs font-medium text-body">Describe it</span>
-            <input
-              type="text"
-              value={other}
-              onChange={(e) => setField('industry_other', e.target.value)}
-              placeholder="e.g. A veterinary clinic chain"
-              className="mt-1 w-56 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
-            />
-          </label>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function RoleGroupHeader({ role, tag }: { role: RoleDef; tag?: string }) {
-  return (
-    <div className="flex items-center gap-2">
-      <RoleIcon iconName={role.icon} className="h-5 w-5" color={role.color} />
-      <span className="font-semibold text-ink">{role.name}</span>
-      {tag === 'own' && (
-        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
-          Your role
-        </span>
-      )}
-      {/* On a shared-track course the role is a documentation focus, not a lane
-          of work, and calling it "your role" beside a shared build reads as if
-          the build belonged to someone else. */}
-      {tag === 'focus' && (
-        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
-          Your focus
-        </span>
-      )}
-      {tag === 'reference' && (
-        <span className="text-xs text-muted">reference</span>
-      )}
-    </div>
-  );
-}
-
 export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
@@ -786,7 +668,7 @@ export default function CoursePage() {
   const { unlocked: instructorOverride } = useInstructorAuth();
   useSupabaseSync(course.id);
   const requireAuth = isSupabaseConfigured();
-  const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
+  const unit = unitWord(course).toLowerCase();
   const [confirmingReset, setConfirmingReset] = useState(false);
   // The Week-0 build task is only for students setting up their own lab from home;
   // the classroom SOC is already built. Gate its expansion behind a confirmation
@@ -798,21 +680,33 @@ export default function CoursePage() {
     false
   );
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
-  // null = the student hasn't toggled weeks yet, so the active week shows open by
-  // default; once they interact we track their explicit set.
-  const [openWeeks, setOpenWeeks] = useState<Set<number> | null>(null);
-  const [openRefs, setOpenRefs] = useState<Set<number>>(new Set());
-  const [tab, setTab] = useState<'overview' | 'weeks'>('overview');
-  // Honor a ?tab=weeks deep-link (used by the shared nav on sub-pages). Done in an
-  // effect (not a lazy initializer) so server and client first render match — avoids
-  // a hydration mismatch; the one-shot sync on mount is intentional.
+  // One week at a time. null = the student hasn't picked, so the week the
+  // resume pointer resolves to shows; a pick is written to `?week=` the way the
+  // Deliverables page does it, so it is bookmarkable and survives Back.
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+  // Role-split courses keep teammates' tasks as a read-only footer under the
+  // list — they carry real hand-offs a student has to be able to open.
+  const [othersOpen, setOthersOpen] = useState(false);
+  // The "do once" setup strip. null = follow the resume pointer: open only when
+  // the student actually stopped inside Setup. In class the lab already exists.
+  const [setupOpen, setSetupOpen] = useState<boolean | null>(null);
+  const [tab, setTabState] = useState<'home' | 'tasks'>('home');
+  // Honor `?tab=tasks` (and the older `?tab=weeks`, which bookmarks still
+  // carry) plus `?week=N`. In an effect, not a lazy initializer, so server and
+  // client first render match; the one-shot sync on mount is intentional.
   useEffect(() => {
-    if (typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('tab') === 'weeks') {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      setTab('weeks');
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get('tab');
+    const w = params.get('week');
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (t === 'tasks' || t === 'weeks') setTabState('tasks');
+    if (w !== null && Number.isFinite(Number(w))) setSelectedWeek(Number(w));
+    // Write the current spelling back, so a copied URL carries `tasks`.
+    if (t === 'weeks') {
+      params.set('tab', 'tasks');
+      window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`);
     }
   }, []);
-  const [query, setQuery] = useState('');
 
   // Progress writes broadcast through the store; useClientStore re-reads below.
   const onProgressChange = useCallback(() => notifyStore(), []);
@@ -850,13 +744,9 @@ export default function CoursePage() {
     };
   }, EMPTY_STATS);
 
-  // Exactly one week opens by default: the one the student stopped in. Everything
-  // else stays collapsed until they click it, which is why `openWeeks` starts
-  // null (untouched) rather than pre-populated. The setup week is never opened
-  // automatically — in class the lab already exists, so leading with the build
-  // steps sends students to work they don't need to do.
-  const defaultOpenWeeks = useMemo(() => new Set<number>([activeWeek]), [activeWeek]);
-  const effectiveOpenWeeks = openWeeks ?? defaultOpenWeeks;
+  // The week on screen: the student's pick (or a `?week=` deep link), else
+  // where the resume pointer says they stopped.
+  const effectiveWeek = selectedWeek ?? activeWeek;
 
   // Open the task the student stopped in, exactly once, after progress has been
   // read on the client. Progress is client-only, so this can't be a lazy state
@@ -870,10 +760,12 @@ export default function CoursePage() {
     resumeApplied.current = true;
     const taskId = resume.taskId;
     setExpanded((prev) => new Set(prev).add(taskId));
-    if (
-      typeof window !== 'undefined' &&
-      new URLSearchParams(window.location.search).get('tab') === 'weeks'
-    ) {
+    // Scroll to it only when the week on screen is the pointer's week — a
+    // `?week=` deep link deliberately wins over the pointer.
+    const params = new URLSearchParams(window.location.search);
+    const onTasks = params.get('tab') === 'tasks' || params.get('tab') === 'weeks';
+    const weekParam = params.get('week');
+    if (onTasks && (weekParam === null || Number(weekParam) === resume.week)) {
       setTimeout(
         () =>
           document
@@ -883,6 +775,13 @@ export default function CoursePage() {
       );
     }
   }, [resume]);
+
+  // `/team/<id>` forwards to `#team` here. The block renders only once the
+  // member has loaded, so the browser's own hash jump has nothing to land on.
+  useEffect(() => {
+    if (!member || window.location.hash !== '#team') return;
+    setTimeout(() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+  }, [member]);
 
   if (loading) return <LoadingBlock />;
 
@@ -925,18 +824,44 @@ export default function CoursePage() {
     }
   };
 
-  const openWeek = (n: number) =>
-    setOpenWeeks((prev) => new Set(prev ?? [activeWeek]).add(n));
+  /** Switch tab without an RSC round-trip, keeping the URL honest: `?tab=tasks`
+   *  (and `?week=`) are written with replaceState so Tasks is bookmarkable and
+   *  Back restores it; Home clears both. The hash is preserved. */
+  const selectTab = (t: 'home' | 'tasks') => {
+    setTabState(t);
+    const params = new URLSearchParams(window.location.search);
+    if (t === 'tasks') params.set('tab', 'tasks');
+    else {
+      params.delete('tab');
+      params.delete('week');
+    }
+    const qs = params.toString();
+    window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`);
+  };
+
+  /** Show one week on the Tasks tab. Setup is not a week on the rail — it is the
+   *  "do once" strip above it, so picking it opens the strip instead. */
+  const pickWeek = (n: number) => {
+    setTabState('tasks');
+    if (isSetupWeek(course, n)) {
+      setSetupOpen(true);
+    } else {
+      setSelectedWeek(n);
+      setSetupOpen((v) => v ?? false);
+    }
+    const params = new URLSearchParams(window.location.search);
+    params.set('tab', 'tasks');
+    params.set('week', String(n));
+    window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+  };
 
   const openAndScrollWeek = (n: number) => {
-    setTab('weeks');
-    openWeek(n);
-    scrollTo(`week-${n}`);
+    pickWeek(n);
+    scrollTo(isSetupWeek(course, n) ? 'setup-strip' : 'week-rail');
   };
 
   const goToTask = (task: Task) => {
-    setTab('weeks');
-    openWeek(task.week);
+    pickWeek(task.week);
     setExpanded((prev) => new Set(prev).add(task.id));
     scrollTo(`task-${task.id}`, 'center');
   };
@@ -952,10 +877,7 @@ export default function CoursePage() {
       });
 
   const toggle = toggleSet(setExpanded);
-  const toggleRef = toggleSet(setOpenRefs);
 
-  // Expanding a task pins its week open, so finishing the task (which advances
-  // activeWeek) doesn't auto-collapse the week and hide the "Next task →" CTA.
   const toggleTask = (task: Task) => {
     // Home-lab-only build tasks confirm before revealing (once per device).
     if (task.homeLabOnly && !homeBuildAck && !expanded.has(task.id)) {
@@ -963,7 +885,6 @@ export default function CoursePage() {
       setHomeBuildDialog(true);
       return;
     }
-    openWeek(task.week);
     toggle(task.id);
   };
 
@@ -975,19 +896,10 @@ export default function CoursePage() {
     notifyStore();
     setHomeBuildDialog(false);
     if (pendingHomeBuild) {
-      openWeek(pendingHomeBuild.week);
       toggle(pendingHomeBuild.id);
       setPendingHomeBuild(null);
     }
   };
-
-  const toggleWeek = (n: number) =>
-    setOpenWeeks((prev) => {
-      const next = new Set(prev ?? [activeWeek]);
-      if (next.has(n)) next.delete(n);
-      else next.add(n);
-      return next;
-    });
 
   const confirmReset = () => {
     if (!member) return;
@@ -1038,17 +950,46 @@ export default function CoursePage() {
 
   // "This week" context for the role hero.
   const contentWeeks = sortedWeeks.filter((w) => w.number >= 1);
-  // Task search (Weekly Tasks tab). Matches title, objective, or framework; an
-  // active query force-opens every week so matches are visible without clicking.
-  const q = query.trim().toLowerCase();
-  const matchesQuery = (task: Task) =>
-    !q ||
-    task.title.toLowerCase().includes(q) ||
-    task.objective.toLowerCase().includes(q) ||
-    task.frameworks.some(
-      (fw) => fw.toLowerCase().includes(q) || getFrameworkLabel(fw).toLowerCase().includes(q)
-    );
-  const anyMatches = sortedWeeks.some((w) => getWeekTasks(course, w.number).some(matchesQuery));
+  // ── The Tasks tab, one week at a time ──
+  // Setup weeks are the "do once" strip; the rail holds only graded weeks.
+  const gradedWeeks = sortedWeeks.filter((w) => !isSetupWeek(course, w.number));
+  const setupWeeks = sortedWeeks.filter((w) => isSetupWeek(course, w.number));
+  const setupTasks = member ? setupWeeks.flatMap((w) => getTasksByRole(course, member.role, w.number)) : [];
+  const setupPct = setupWeeks.length
+    ? Math.round(setupWeeks.reduce((sum, w) => sum + (weekStats[w.number] ?? 0), 0) / setupWeeks.length)
+    : 0;
+  const setupIsOpen = setupOpen ?? (setupWeeks.length > 0 && isSetupWeek(course, effectiveWeek));
+  // A pointer (or deep link) into Setup opens the strip; the rail still shows a
+  // graded week underneath it.
+  const viewWeek = gradedWeeks.some((w) => w.number === effectiveWeek)
+    ? effectiveWeek
+    : (gradedWeeks[0]?.number ?? 1);
+  const viewWeekDef = sortedWeeks.find((w) => w.number === viewWeek);
+  const weekTasks = member ? getWeekTasks(course, viewWeek) : [];
+  // One flat list: the shared build first, then the task that is yours alone.
+  // On a shared-track course (Server+) the build belongs to everyone and only
+  // the small deep-dive differs by focus; on a role-split course "shared" is
+  // empty and the list is simply your role's work.
+  const sharedWeekTasks = weekTasks.filter((t) => t.shared);
+  const ownWeekTasks = member ? weekTasks.filter((t) => !t.shared && t.role === member.role) : [];
+  const ordered = [...sharedWeekTasks, ...ownWeekTasks];
+  const otherWeekTasks = member ? weekTasks.filter((t) => !t.shared && t.role !== member.role) : [];
+  const viewPct = weekStats[viewWeek] ?? 0;
+  const gateForWeek = course.gates.find((g) => g.week === viewWeek);
+  const viewLocked = weekLocked(viewWeek);
+  const lockGate = priorGateForWeek(viewWeek);
+  // Home, shared track: what the other focuses document this week — the titles
+  // are all a student needs, since each is a copy of the same slot.
+  const otherFocuses = course.sharedTrack && member
+    ? otherRoles
+        .map((r) => ({
+          role: r,
+          titles: getWeekTasks(course, activeWeek)
+            .filter((t) => !t.shared && t.role === r.id)
+            .map((t) => t.title),
+        }))
+        .filter((o) => o.titles.length > 0)
+    : [];
 
   // Expanded content for a task row (deliverables + the runner or read-only steps).
   const renderTaskBody = (task: Task, isOwn: boolean) => {
@@ -1087,7 +1028,7 @@ export default function CoursePage() {
                 if (following) {
                   goToTask(following);
                 } else {
-                  setTab('overview');
+                  selectTab('home');
                   if (typeof window !== 'undefined') {
                     setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 60);
                   }
@@ -1140,9 +1081,9 @@ export default function CoursePage() {
       {/* Sticky course sub-nav — shared component, persists on every in-course page */}
       <CourseSubNav
         courseId={course.id}
-        active={tab === 'weeks' ? 'weeks' : 'overview'}
+        active={tab}
         teamId={joined && member ? member.teamId : null}
-        onSelectTab={setTab}
+        onSelectTab={selectTab}
         trailing={
           joined && member ? (
             <>
@@ -1168,7 +1109,7 @@ export default function CoursePage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setTab('overview');
+                    selectTab('home');
                     if (typeof window !== 'undefined') {
                       setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 60);
                     }
@@ -1183,17 +1124,19 @@ export default function CoursePage() {
         }
       />
 
-      {/* ───────── Overview tab ───────── */}
-      {tab === 'overview' && (
+      {/* ───────── Home ───────── */}
+      {tab === 'home' && (
       <motion.div
         className="space-y-6"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.25 }}
       >
-      {/* Where you are, before anything that describes the course. The sections
-          below answer "what is this?", which a student needs once; this answers
-          "where am I and what next?", which they come back for every week. */}
+      {/* Where you are, before anything else. Home is the dashboard: status,
+          the stone, your role, your team. Everything that DESCRIBED the course —
+          the role cards, the lab and build pictures, the arc — lives once now,
+          on the Guide, which is the page a student visits to be oriented. This
+          is the page they come back to. */}
       {joined && member && (
         <EngagementStatus
           course={course}
@@ -1207,16 +1150,12 @@ export default function CoursePage() {
           }
           docsTotal={deliverablesForCourse(course.id).length}
           nextTask={nextTask}
-          onGoToWeek={(w) => {
-            setTab('weeks');
-            openAndScrollWeek(w);
-          }}
+          onGoToWeek={openAndScrollWeek}
           onContinue={() => nextTask && goToTask(nextTask)}
         />
       )}
 
-      {/* The capstone's overall progress — where the whole project stands, on the
-          overview only, not repeated above every tab. */}
+      {/* The capstone's overall progress — where the whole project stands. */}
       {joined && member && (
         <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
           <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
@@ -1253,12 +1192,12 @@ export default function CoursePage() {
                   </Link>
                 )}
                 {member && (
-                  <Link
-                    href={`/courses/${course.id}/team/${member.teamId}`}
+                  <a
+                    href="#team"
                     className="inline-flex items-center gap-1.5 rounded-md border border-ok-line px-3 py-2 text-sm font-medium text-ok hover:bg-ok-soft"
                   >
                     <Users className="h-4 w-4" /> Review team progress
-                  </Link>
+                  </a>
                 )}
               </div>
             </div>
@@ -1317,94 +1256,34 @@ export default function CoursePage() {
         </div>
       )}
 
-      {/* ── Your team: who's in the crew and what each one owns ──
-          The "how a case moves" (lifecycle) and "how the paperwork moves"
-          (deliverable chain) diagrams that used to sit here duplicated the
-          Guide's role diagram and the Team page's hand-off checklist, so they
-          now live once, there. This tab just introduces the roles. */}
-      {course.roles.length > 0 && (
-        <section className="space-y-4">
-          <div className="shead">
-            <span className="num">01</span>
-            <h2 className="text-2xl font-bold tracking-tight text-ink">Your team</h2>
-          </div>
-          <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
-            {course.roles.map((r) => (
-              <div key={r.id} className="rounded-[var(--radius-card)] border border-line bg-panel p-4 shadow-[var(--shadow-card)]">
-                <h3 className="flex items-center gap-2 text-base font-semibold text-ink">
-                  <RoleIcon iconName={r.icon} className="h-4.5 w-4.5" color={r.color} />
-                  {r.name}
-                </h3>
-                <p className="mt-1.5 text-sm text-muted">{r.mission}</p>
-              </div>
+      {/* Your team — the roster and each member's progress. This was its own
+          tab; a student only ever views their own team, so it keys on the
+          member's team and renders here, behind the join. `/team/<id>`
+          redirects to `#team`. Private route material stays behind `joined`:
+          the bare dashboard is public. */}
+      {joined && member && <TeamBlock course={course} member={member} />}
+
+      {/* Shared track: the deep-dives the other focuses add this week. Titles
+          only — each is a copy of the same slot, so the title is the fact. The
+          Tasks tab used to fold these into every week as a reference panel. */}
+      {otherFocuses.length > 0 && (
+        <section className="space-y-2">
+          <h2 className="text-lg font-semibold text-ink">What the other focuses document this {unit}</h2>
+          <ul className="grid gap-2 sm:grid-cols-3">
+            {otherFocuses.map(({ role, titles }) => (
+              <li key={role.id} className="rounded-lg border border-line bg-panel px-3 py-2 text-sm">
+                <div className="flex items-center gap-2 font-semibold text-ink">
+                  <RoleIcon iconName={role.icon} className="h-4 w-4" color={role.color} />
+                  {role.name}
+                </div>
+                <ul className="mt-1 space-y-0.5 text-muted">
+                  {titles.map((t) => (
+                    <li key={t}>{t}</li>
+                  ))}
+                </ul>
+              </li>
             ))}
-          </div>
-        </section>
-      )}
-
-      {/* ── The lab in one picture ──
-          The full SOC topology diagram lives on the Guide (its lab-architecture
-          section); here we keep the plain-language description and point to it,
-          rather than render the same diagram on two tabs. */}
-      {socTopology(course.id) && (
-        <section className="space-y-4">
-          <div className="shead">
-            <span className="num">02</span>
-            <h2 className="text-2xl font-bold tracking-tight text-ink">The lab — one picture</h2>
-          </div>
-          <p className="max-w-3xl text-sm text-muted">
-            Every machine is a VM on one host, all on the same flat network. Each team gets a{' '}
-            <b className="text-ink">pod</b> — one Ubuntu web server and one Windows PC — and both report to the single{' '}
-            <b className="text-ink">Wazuh SOC</b> you open in a browser.
-          </p>
-          <Link
-            href={`/courses/${course.id}/guide/reference#lab`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
-          >
-            See the full lab diagram &amp; setup <ArrowRight className="h-4 w-4" />
-          </Link>
-        </section>
-      )}
-
-
-      {/* ── The build in one picture — Server+ ──
-          The SOC courses describe their lab and link to the diagram; a build
-          course is ABOUT the physical thing, so the rack topology earns a place
-          on the Overview itself, with the phase arc under it. Both components
-          also render on the Reference page — this is the orientation copy of
-          the same pictures, not a second source of truth. */}
-      {course.id === 'server-plus' && (
-        <section className="space-y-4">
-          <div className="shead">
-            <span className="num">02</span>
-            <h2 className="text-2xl font-bold tracking-tight text-ink">The build — one picture</h2>
-          </div>
-          <p className="max-w-3xl text-sm text-muted">
-            One rack-mount server in a <b className="text-ink">24U rack</b> on the 10.10.0.0/16 campus
-            LAN (your host is 10.10.30.<b className="text-ink">T</b>, T = your team number), running a
-            hypervisor with two zones: a <b className="text-ink">DMZ</b> for the website and a{' '}
-            <b className="text-ink">private network</b> for the Windows server and the Linux database.
-            You plan it, build it, connect it, then secure and hand it over.
-          </p>
-          {joined && member && (
-            <TeamBusinessPicker
-              courseId={course.id}
-              teamId={member.teamId}
-              onBusiness={setTeamBusiness}
-            />
-          )}
-          <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
-            <ServerTopologyDiagram business={teamBusiness} />
-          </div>
-          <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
-            <LifecycleFlow weeks={course.weeks} gates={course.gates} noGatekeeping={course.noGatekeeping} />
-          </div>
-          <Link
-            href={`/courses/${course.id}/guide/reference#lab`}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:underline"
-          >
-            See the full reference &amp; forms <ArrowRight className="h-4 w-4" />
-          </Link>
+          </ul>
         </section>
       )}
 
@@ -1412,9 +1291,7 @@ export default function CoursePage() {
       <ImportPrompt course={course} />
 
       {/* Enrollment summary once joined (edit team/role here). No id: the
-          newcomer render above owns `join-panel` — the same id declared twice,
-          even on mutually exclusive branches, is a refactor away from being a
-          real duplicate. */}
+          newcomer render above owns `join-panel`. */}
       {joined && (
         <div>
           <JoinPanel
@@ -1450,234 +1327,77 @@ export default function CoursePage() {
       </motion.div>
       )}
 
-      {/* ───────── Weekly Tasks tab ───────── */}
-      {tab === 'weeks' && (
+      {/* ───────── Tasks ───────── */}
+      {tab === 'tasks' && (
       <motion.div
         className="space-y-4"
         initial={{ opacity: 0, y: 6 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2 }}
       >
-      {/* Weekly breakdown.
-          The "Weekly tasks" heading that used to be here repeated the tab label
-          two rows above it. In its place: the one line that answers "what am I
-          meant to be doing", built from values this page already computes. */}
-      <div className="space-y-3">
-        {joined && member && ownRole && (
-          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-            <h2 className="text-2xl font-bold text-ink">
-              {phaseTag(course, activeWeek)}
-            </h2>
-            <span className="text-sm text-muted">{ownRole.name}</span>
-          </div>
-        )}
-        {/* Not enrolled: the tasks ARE the course material, so this is where the
-            page stops. It used to render an amber "join to unlock and track these
-            tasks" note and then print every role's full task list underneath it —
-            so only the progress tracking was ever gated, never the material. The
-            course dashboard above still sells the course; this is the line. */}
-        {!joined && <CourseEnrolGate courseId={course.id} what="the weekly tasks" />}
-        {joined && (
-          <>
-            <div className="relative">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted" />
-              <input
-                type="text"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search tasks by name, objective, or framework…"
-                aria-label="Search tasks"
-                className="w-full pl-9 pr-9"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery('')}
-                  aria-label="Clear search"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted hover:text-ink"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            {q && !anyMatches && (
-              <p className="text-sm text-muted">No tasks match “{query}”.</p>
-            )}
-          </>
-        )}
-      </div>
+      {/* Not enrolled: the tasks ARE the course material, so this is where the
+          page stops. The dashboard above still sells the course; this is the line. */}
+      {!joined && <CourseEnrolGate courseId={course.id} what="the tasks" />}
 
-      {joined && <LabAccessPanel courseId={course.id} />}
+      {joined && member && ownRole && (
+        <>
+          {/* One week at a time, one flat list.
+              Five stacked week panels, each split into three lanes with their
+              own headers, plus a search box that force-opened all of it, put 45
+              rows and 43 controls in front of a Week-1 student. Now: a header
+              naming the week you are on, the "do once" setup strip, a rail to
+              switch weeks, and the week's tasks in the order you do them. */}
+          <PageHeader
+            level={2}
+            eyebrow="Tasks"
+            title={`${phaseTag(course, viewWeek)} · ${viewWeekDef?.title ?? ''}`}
+            lede={`${ownRole.name} · ${ordered.length} task${ordered.length === 1 ? '' : 's'} this ${unit}`}
+            trailing={
+              <span className="flex items-center gap-1.5" title={`${viewPct}% of this ${unit}'s steps done`}>
+                <span className="relative h-2 w-20 overflow-hidden rounded-full bg-panel-2">
+                  <span
+                    className="absolute inset-y-0 left-0 rounded-full"
+                    style={{ width: `${viewPct}%`, background: 'var(--color-accent)' }}
+                  />
+                </span>
+                <span className="text-xs font-medium text-muted">{viewPct}%</span>
+              </span>
+            }
+          />
 
-      {joined && (
-      <div className="space-y-4">
-        {sortedWeeks.map((w) => {
-          const weekTasks = getWeekTasks(course, w.number);
-          const shownTasks = q ? weekTasks.filter(matchesQuery) : weekTasks;
-          if (q && shownTasks.length === 0) return null;
-          const isWeekOpen = q ? true : effectiveOpenWeeks.has(w.number);
-          const weekPct = weekStats[w.number] ?? 0;
-          const gateForWeek = course.gates.find((g) => g.week === w.number);
-          // Three lanes, not two. On a shared-track course (Server+) the build
-          // itself belongs to everyone and only the small deep-dive differs by
-          // focus, so a `shared` task must never fall into "other roles" — that
-          // would hide the actual week's work behind a collapsed reference panel
-          // for three of four students.
-          const sharedWeekTasks = member ? shownTasks.filter((t) => t.shared) : [];
-          const ownTasks = member
-            ? shownTasks.filter((t) => !t.shared && t.role === member.role)
-            : [];
-          const otherTasks = member
-            ? shownTasks.filter((t) => !t.shared && t.role !== member.role)
-            : shownTasks;
-          const refOpen = q ? true : openRefs.has(w.number);
-          // On a role-split course the week's task count is the crew's — useful,
-          // because your teammates' lanes are real work happening beside yours.
-          // On a shared track the other focuses' deep-dives are copies of the
-          // same slot, so counting all four told a student "6 tasks" for a week
-          // in which they work three.
-          const memberWeekCount = sharedWeekTasks.length + ownTasks.length;
-          const displayCount = q
-            ? shownTasks.length
-            : course.sharedTrack && member
-              ? memberWeekCount
-              : weekTasks.length;
-          const locked = weekLocked(w.number);
-          const lockGate = priorGateForWeek(w.number);
-          return (
-            <section
-              key={w.number}
-              id={`week-${w.number}`}
-              // Stratum 1: the week is the bedrock band. The accent-weighted
-              // left edge is what makes one week visibly end and the next begin.
-              className="stratum-week scroll-mt-24 overflow-hidden"
-              data-open={isWeekOpen ? 'true' : 'false'}
-            >
+          {/* Setup is "do once", not a week. It used to be Week 0 on the rail,
+              opening ahead of the real work; in class the lab already exists. */}
+          {setupWeeks.length > 0 && setupTasks.length > 0 && (
+            <section id="setup-strip" className="scroll-mt-24 rounded-lg border border-line bg-panel">
               <button
                 type="button"
-                onClick={() => toggleWeek(w.number)}
-                className="flex w-full items-center justify-between gap-3 px-5 py-4 text-left transition-colors hover:bg-panel-2"
+                onClick={() => setSetupOpen(!setupIsOpen)}
+                aria-expanded={setupIsOpen}
+                aria-controls="setup-tasks"
+                className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-panel-2"
               >
-                <div className="min-w-0">
-                  {/* One phase line, not two. This used to be an eyebrow with the
-                      phase name AND a PixelBadge with the week tag directly under
-                      it — the same information split across two chips (13 header
-                      elements in all). Merged: `[icon] Week N · Detect & Baseline`,
-                      tinted with the per-week phase token so the four weeks still
-                      read as one arc. */}
-                  <div
-                    className="mb-1 flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
-                    style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
-                  >
-                    {(() => {
-                      const verb = verbForStage(stageForWeek(course, w.number));
-                      return verb ? <WeekVerbIcon verb={verb} size={20} className="shrink-0" /> : null;
-                    })()}
-                    {phaseTag(course, w.number)}
-                    {phaseForWeek(course, w.number) && <span aria-hidden> · {phaseForWeek(course, w.number)}</span>}
-                  </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-lg font-bold text-ink">
-                      {w.title}
-                    </h3>
-                    {weekPct >= 100 && joined && (
-                      <PixelBadge tone="accent" title="Every required step in this week is done">
-                        Cleared
-                      </PixelBadge>
-                    )}
-                    {w.number === activeWeek && joined && weekPct < 100 && (
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-soft px-2 py-0.5 text-xs font-medium text-accent-ink">
-                        {/* A slow pulse on the dot only — the eye finds the week
-                            you are on without reading five headers. `.qi-pulse`
-                            is the existing ambient keyframe and the global
-                            prefers-reduced-motion block stills it. */}
-                        <span className="qi-pulse h-1.5 w-1.5 rounded-full bg-accent" aria-hidden />
-                        Current
-                      </span>
-                    )}
-                  </div>
-                  {/* The theme only earns its line when there is no phase. With
-                      both, week 0 read "ARRIVE & EQUIP / SETUP / SETUP" — the
-                      phase already says what kind of work this is. */}
-                  {!phaseForWeek(course, w.number) && (
-                    <p className="truncate text-sm text-muted">{w.theme}</p>
-                  )}
-                </div>
-                {/* The right rail carried six independent items (bar, bold %,
-                    gate, lock pill, task count, chevron). Two now: one labelled
-                    meter, and one status chip showing the single most relevant
-                    state — locked beats gate beats task count. */}
-                <div className="flex shrink-0 items-center gap-3">
-                  {joined && (
-                    <span className="hidden items-center gap-1.5 sm:flex" title={`${weekPct}% of this week's steps done`}>
-                      <span className="relative h-2 w-16 overflow-hidden rounded-full bg-panel-2">
-                        <span
-                          className="absolute inset-y-0 left-0 rounded-full"
-                          style={{ width: `${weekPct}%`, background: 'var(--color-accent)' }}
-                        />
-                      </span>
-                      <span className="text-xs font-medium text-muted">{weekPct}%</span>
-                    </span>
-                  )}
-                  {locked ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-xs font-medium text-muted">
-                      <Lock className="h-3 w-3" /> Locked
-                    </span>
-                  ) : gateForWeek && joined && !course.noGatekeeping ? (
-                    <span className="hidden rounded-full bg-panel-2 px-2 py-0.5 text-xs font-medium text-muted md:inline">
-                      Gate {gateForWeek.id} · {displayCount} task{displayCount === 1 ? '' : 's'}
-                    </span>
-                  ) : null}
-                  {isWeekOpen ? (
-                    <ChevronDown className="h-5 w-5 text-muted" />
-                  ) : (
-                    <ChevronRight className="h-5 w-5 text-muted" />
-                  )}
-                </div>
+                <Wrench className="h-4 w-4 shrink-0 text-muted" aria-hidden />
+                <span className="min-w-0 flex-1 text-sm">
+                  <span className="font-semibold text-ink">
+                    Do once — {setupWeeks.map((w) => w.title).join(' · ')}
+                  </span>
+                  <span className="text-muted">
+                    {' '}· {setupTasks.length} task{setupTasks.length === 1 ? '' : 's'} · {setupPct}%
+                  </span>
+                </span>
+                {setupIsOpen ? (
+                  <ChevronDown className="h-5 w-5 shrink-0 text-muted" />
+                ) : (
+                  <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
+                )}
               </button>
-
-              {isWeekOpen && locked && (
-                <div className="border-t border-line p-5">
-                  <div className="flex items-start gap-3 rounded-lg border border-line bg-panel-2 p-4">
-                    <Lock className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
-                    <div>
-                      <p className="text-sm font-medium text-ink">
-                        Locked until you clear Gate {lockGate?.id}.
-                      </p>
-                      <p className="mt-1 text-sm text-muted">
-                        Finish Week {(lockGate?.week ?? w.number - 1)} required tasks to pass Gate{' '}
-                        {lockGate?.id} and unlock this week — the engagement runs in order.
-                      </p>
-                      {lockGate && (
-                        <button
-                          type="button"
-                          onClick={() => openAndScrollWeek(lockGate.week)}
-                          className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
-                        >
-                          Go to Week {lockGate.week} <ArrowRight className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {isWeekOpen && !locked && (
-                <div className="space-y-4 border-t border-line p-5">
-                  {weekTasks.length === 0 && (
-                    <p className="text-sm text-muted">
-                      No tasks for this week yet.
-                    </p>
-                  )}
-
-                  {/* Setup week: the classroom lab is already built — the build task
-                      is home-build-only and confirms before it expands. */}
+              {setupIsOpen && (
+                <div id="setup-tasks" className="space-y-3 border-t border-line p-4">
                   {/* SOC-course banner only: this names the shared Wazuh SOC and
-                      its login, which is meaningless (and confusing) on a course
-                      whose Week 0 is required prep rather than an optional
-                      home-lab build — Server+ hit exactly that. */}
-                  {w.number === 0 && !!socTopology(course.id) && (
-                    <div className="mb-3 rounded-lg border border-accent/30 bg-accent-soft p-3 text-sm">
+                      its login, which is meaningless on a course whose setup is
+                      required prep rather than an optional home-lab build. */}
+                  {!!socTopology(course.id) && (
+                    <div className="rounded-lg border border-accent/30 bg-accent-soft p-3 text-sm">
                       <p className="text-ink">
                         <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}
                         <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and
@@ -1686,135 +1406,170 @@ export default function CoursePage() {
                       </p>
                     </div>
                   )}
-
-                  {/* One row between the week header and the checklist: the
-                      finish line ("Done when: …" + time). Everything else that
-                      used to sit here — the plain-English paragraph, the
-                      difficulty/counts facts row, and the WeekTaskFlow card
-                      strip — restated what the numbered task rows directly
-                      below already say, and went, on the instructor's explicit
-                      instruction. Only the gate checklist keeps its toggle. */}
-                  {joined && member && (
-                    <div className="space-y-3">
-                      <WeekMilestoneHeader
-                        course={course}
-                        role={member.role}
-                        week={w.number}
-                        percent={weekPct}
-                      />
-
-                      {gateForWeek && !course.noGatekeeping && (
-                        <div className="rounded-lg border border-line bg-panel px-3">
-                          <Collapsible
-                            title={(() => {
-                              const s = gateStats[gateForWeek.id] || 'locked';
-                              const label =
-                                s === 'passed' ? 'passed' : s === 'ready' ? 'ready' : 'in progress';
-                              return `Gate ${gateForWeek.id} checklist · ${label}`;
-                            })()}
-                            defaultOpen={false}
-                          >
-                            <div className="pb-1">
-                              <WeekGatePanel
-                                course={course}
-                                week={w.number}
-                                status={gateStats[gateForWeek.id] || 'locked'}
-                                ownRole={member?.role}
-                                taskStats={taskStats}
-                              />
-                            </div>
-                          </Collapsible>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* The shared build — everyone works this, whatever focus
-                      they picked. Neutral lane, not a role colour: colouring it
-                      would imply it belonged to one of the four. */}
-                  {joined && sharedWeekTasks.length > 0 && (
-                    <div className="lane space-y-3 py-3 pr-3" data-own="true">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-5 w-5 text-muted" />
-                        <span className="font-semibold text-ink">This week — everyone</span>
-                        <span className="text-xs text-muted">same build, whatever your focus</span>
-                      </div>
-                      {sharedWeekTasks.map((task, taskIdx) => (
-                        <TaskRow
-                          number={taskIdx + 1}
-                          key={task.id}
-                          course={course}
-                          task={task}
-                          isOwn
-                          joined={joined}
-                          open={expanded.has(task.id)}
-                          isNext={task.id === nextTask?.id}
-                          percent={taskStats[task.id] ?? 0}
-                          onToggle={() => toggleTask(task)}
-                        >
-                          {renderTaskBody(task, true)}
-                        </TaskRow>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Your role's tasks (interactive) */}
-                  {joined && ownRole && ownTasks.length > 0 && (
-                    <div
-                      className="lane space-y-3 py-3 pr-3"
-                      data-own="true"
-                      style={{ '--lane-color': ownRole.color } as React.CSSProperties}
+                  {setupTasks.map((task) => (
+                    <TaskRow
+                      key={task.id}
+                      course={course}
+                      task={task}
+                      isOwn
+                      joined={joined}
+                      open={expanded.has(task.id)}
+                      percent={taskStats[task.id] ?? 0}
+                      onToggle={() => toggleTask(task)}
                     >
-                      <RoleGroupHeader role={ownRole} tag={course.sharedTrack ? 'focus' : 'own'} />
-                      {ownTasks.map((task, taskIdx) => (
-                        <TaskRow
-                          number={sharedWeekTasks.length + taskIdx + 1}
-                          key={task.id}
-                          course={course}
-                          task={task}
-                          isOwn
-                          joined={joined}
-                          open={expanded.has(task.id)}
-                          isNext={task.id === nextTask?.id}
-                          percent={taskStats[task.id] ?? 0}
-                          onToggle={() => toggleTask(task)}
-                        >
-                          {renderTaskBody(task, true)}
-                        </TaskRow>
-                      ))}
+                      {renderTaskBody(task, true)}
+                    </TaskRow>
+                  ))}
+                </div>
+              )}
+            </section>
+          )}
+
+          {/* The week rail — the same selector the Deliverables page uses. A
+              tick when the week is done, a lock while its gate is shut, and a
+              slow pulse on the week you are on. */}
+          <nav id="week-rail" aria-label={`${unitWord(course)}s`} className="flex flex-wrap items-center gap-1.5 scroll-mt-24">
+            {gradedWeeks.map((w) => {
+              const pct = weekStats[w.number] ?? 0;
+              const on = w.number === viewWeek;
+              const isLocked = weekLocked(w.number);
+              return (
+                <button
+                  key={w.number}
+                  type="button"
+                  onClick={() => pickWeek(w.number)}
+                  aria-current={on ? 'true' : undefined}
+                  className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    on ? 'bg-accent text-accent-contrast' : 'text-muted hover:bg-panel-2 hover:text-ink'
+                  }`}
+                >
+                  {w.number === activeWeek && pct < 100 && (
+                    <span className="qi-pulse h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
+                  )}
+                  {phaseTag(course, w.number)}
+                  {pct >= 100 && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
+                  {isLocked && <Lock className="h-3.5 w-3.5" aria-label="locked" />}
+                </button>
+              );
+            })}
+          </nav>
+
+          <LabAccessPanel courseId={course.id} />
+
+          <section
+            id={`week-${viewWeek}`}
+            className="stratum-week scroll-mt-24 overflow-hidden"
+            data-open="true"
+          >
+            <div className="space-y-4 p-5">
+              {viewLocked ? (
+                <div className="flex items-start gap-3 rounded-lg border border-line bg-panel-2 p-4">
+                  <Lock className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
+                  <div>
+                    <p className="text-sm font-medium text-ink">
+                      Locked until you clear Gate {lockGate?.id}.
+                    </p>
+                    <p className="mt-1 text-sm text-muted">
+                      Finish {phaseTag(course, lockGate?.week ?? viewWeek - 1)} required tasks to pass Gate{' '}
+                      {lockGate?.id} and unlock this {unit} — the engagement runs in order.
+                    </p>
+                    {lockGate && (
+                      <button
+                        type="button"
+                        onClick={() => openAndScrollWeek(lockGate.week)}
+                        className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
+                      >
+                        Go to {phaseTag(course, lockGate.week)} <ArrowRight className="h-3.5 w-3.5" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* The finish line, one row: "Done when: …" + time. */}
+                  <WeekMilestoneHeader course={course} role={member.role} week={viewWeek} percent={viewPct} />
+
+                  {gateForWeek && !course.noGatekeeping && (
+                    <div className="rounded-lg border border-line bg-panel px-3">
+                      <Collapsible
+                        title={(() => {
+                          const st = gateStats[gateForWeek.id] || 'locked';
+                          const label = st === 'passed' ? 'passed' : st === 'ready' ? 'ready' : 'in progress';
+                          return `Gate ${gateForWeek.id} checklist · ${label}`;
+                        })()}
+                        defaultOpen={false}
+                      >
+                        <div className="pb-1">
+                          <WeekGatePanel
+                            course={course}
+                            week={viewWeek}
+                            status={gateStats[gateForWeek.id] || 'locked'}
+                            ownRole={member.role}
+                            taskStats={taskStats}
+                          />
+                        </div>
+                      </Collapsible>
                     </div>
                   )}
 
-                  {/* Other roles — tucked into a reference panel */}
-                  {joined && otherTasks.length > 0 && (
+                  {ordered.length === 0 && (
+                    <p className="text-sm text-muted">No tasks for this {unit} yet.</p>
+                  )}
+
+                  {/* The list. Shared build first, your focus last with its chip;
+                      no lanes, no lane headers. */}
+                  <div className="space-y-3">
+                    {ordered.map((task, i) => (
+                      <TaskRow
+                        key={task.id}
+                        number={i + 1}
+                        course={course}
+                        task={task}
+                        isOwn
+                        joined={joined}
+                        open={expanded.has(task.id)}
+                        isNext={task.id === nextTask?.id}
+                        focus={!!course.sharedTrack && !task.shared}
+                        percent={taskStats[task.id] ?? 0}
+                        onToggle={() => toggleTask(task)}
+                      >
+                        {renderTaskBody(task, true)}
+                      </TaskRow>
+                    ))}
+                  </div>
+
+                  {/* Role-split courses: teammates' tasks, read-only, one press
+                      away. They carry the hand-offs a student has to be able to
+                      open. On a shared track the other focuses' deep-dives are
+                      copies of the same slot — their titles are on Home. */}
+                  {!course.sharedTrack && otherWeekTasks.length > 0 && (
                     <div className="rounded-lg border border-dashed border-line p-3">
                       <button
                         type="button"
-                        onClick={() => toggleRef(w.number)}
+                        onClick={() => setOthersOpen((v) => !v)}
+                        aria-expanded={othersOpen}
                         className="flex w-full items-center gap-2 text-sm font-medium text-muted"
                       >
                         <Users className="h-4 w-4" />
-                        {course.sharedTrack
-                          ? `What the other focuses document · ${otherTasks.length}`
-                          : `Other roles this week (reference) · ${otherTasks.length}`}
-                        {refOpen ? (
+                        Other roles this {unit} · {otherWeekTasks.length}
+                        {othersOpen ? (
                           <ChevronDown className="ml-auto h-4 w-4 text-muted" />
                         ) : (
                           <ChevronRight className="ml-auto h-4 w-4 text-muted" />
                         )}
                       </button>
-                      {refOpen && (
+                      {othersOpen && (
                         <div className="mt-3 space-y-4">
                           {otherRoles.map((r) => {
-                            const roleTasks = otherTasks.filter((t) => t.role === r.id);
+                            const roleTasks = otherWeekTasks.filter((t) => t.role === r.id);
                             if (roleTasks.length === 0) return null;
                             return (
-                              <div
-                                key={r.id}
-                                className="lane space-y-3 py-3 pr-3"
-                                style={{ '--lane-color': r.color } as React.CSSProperties}
-                              >
-                                <RoleGroupHeader role={r} tag="reference" />
+                              <div key={r.id} className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
+                                  <span className="font-semibold text-ink">{r.name}</span>
+                                  <span className="text-xs text-muted">reference</span>
+                                </div>
                                 {roleTasks.map((task) => (
                                   <TaskRow
                                     key={task.id}
@@ -1836,17 +1591,11 @@ export default function CoursePage() {
                       )}
                     </div>
                   )}
-
-                  {/* The `!joined` branch that used to sit here — every role's
-                      tasks, rendered read-only to anyone who hadn't enrolled —
-                      is gone. Nothing in this subtree renders to a non-member
-                      any more; the gate is above, once. */}
-                </div>
+                </>
               )}
-            </section>
-          );
-        })}
-      </div>
+            </div>
+          </section>
+        </>
       )}
       </motion.div>
       )}
