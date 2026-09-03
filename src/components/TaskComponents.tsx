@@ -22,7 +22,7 @@ import {
 import { FolderNode, Step } from '@/lib/types';
 import { procedureTitle } from '@/lib/docs/serverProcedures';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
-import { useLabAccess, fillPlaceholders, hasLabAccess, hasUnfilled } from '@/lib/labAccess';
+import { useLabAccess, fillPlaceholders, hasLabAccess, hasUnfilled, labProfile } from '@/lib/labAccess';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
 import { evidenceRepo } from '@/lib/data';
 import type { StepEvidence } from '@/lib/data';
@@ -886,6 +886,14 @@ export function CommandBlock({
   // it links to does not exist there. Same rule CommandTroubleshooting applies
   // to its "still shows 10.10.100.X" row.
   const stillUnfilled = hasLabAccess(courseId) && list.some((c) => hasUnfilled(c.cmd));
+  // Name the placeholder THIS course uses. Hardcoding the attack lab's
+  // 10.10.100.X told a Server+ student to go and set a "target IP" that their
+  // course does not have and their panel never offered.
+  const exampleToken = labProfile(courseId).fields[0]?.tokens[0] ?? '<YOUR_TARGET_IP>';
+  // Lower-case only the first letter: the labels start with "Your …", and
+  // lower-casing the lot turned "Your Proxmox host address" into "proxmox".
+  const rawLabel = labProfile(courseId).fields[0]?.label ?? 'Your target IP';
+  const exampleLabel = rawLabel.charAt(0).toLowerCase() + rawLabel.slice(1);
 
   return (
     <div>
@@ -902,8 +910,9 @@ export function CommandBlock({
         >
           <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
           <span>
-            This still shows a placeholder like <span className="font-mono">10.10.100.X</span>. Set your target IP
-            in <span className="font-semibold underline">Lab access</span> and it fills in automatically.
+            This still shows a placeholder like <span className="font-mono">{exampleToken}</span>. Set{' '}
+            {exampleLabel} in <span className="font-semibold underline">Lab access</span> and it fills in
+            automatically.
           </span>
         </Link>
       )}

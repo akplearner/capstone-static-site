@@ -2,6 +2,7 @@
 
 import { Terminal, AlertTriangle, ClipboardPaste } from 'lucide-react';
 import { hasLabAccess, labProfile } from '@/lib/labAccess';
+import { HOST } from '@/lib/serverTopology';
 
 /**
  * Two beginner references that live on the Guide and are linked from every step
@@ -38,6 +39,10 @@ const TERMINAL_BASICS: { label: string; body: string }[] = [
   { label: 'Stop a stuck command', body: 'Press Ctrl+C to cancel a command that hangs or runs forever (e.g. a ping with no -c limit).' },
 ];
 
+/** "Your Proxmox host address" → "your Proxmox host address": these labels start
+ *  with "Your", and lower-casing the whole string mangles the product name. */
+const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
+
 interface ErrorRow {
   symptom: string;
   meaning: string;
@@ -47,15 +52,19 @@ interface ErrorRow {
 /** What this course's lab gives a student, so a fix never names something they
  *  do not have. Derived from the course's own lab profile — a course that drops
  *  the attacker or the whole panel loses the matching sentences automatically. */
-function labShape(courseId: string): { panel: boolean; attackTools: boolean } {
+function labShape(courseId: string): { panel: boolean; attackTools: boolean; remote: boolean } {
   return {
     panel: hasLabAccess(courseId),
     attackTools: labProfile(courseId).fields.some((f) => f.key === 'ATTACKER_IP'),
+    // A course whose lab is a server it reaches from off campus. Sniffing the
+    // field key rather than the course id is this file's own convention: drop
+    // the field and the remote-access rows go with it.
+    remote: labProfile(courseId).fields.some((f) => f.key === 'PVE_TAILSCALE'),
   };
 }
 
 function commonErrors(courseId: string): ErrorRow[] {
-  const { panel, attackTools } = labShape(courseId);
+  const { panel, attackTools, remote } = labShape(courseId);
   const rows: ErrorRow[] = [
     {
       symptom: 'command not found',
@@ -91,11 +100,43 @@ function commonErrors(courseId: string): ErrorRow[] {
   // Only a course with a Lab access panel can be told to open one. Without the
   // panel there is no placeholder substitution either, so the row has no subject.
   if (panel) {
+    // The example and the thing to go and set are the course's own. This row
+    // used to name the attack lab's target IP on every course, including one
+    // whose panel never offered such a field.
+    const first = labProfile(courseId).fields[0];
     rows.push({
-      symptom: 'The command still shows 10.10.100.X or <YOUR_TARGET_IP>',
+      symptom: `The command still shows ${first?.tokens[0] ?? '<YOUR_TARGET_IP>'}`,
       meaning: 'That’s a placeholder, not a real address — you copied it literally.',
-      fix: 'Open the Lab access panel (Week 0) and enter your target IP; the site then fills it into every command automatically.',
+      fix: `Open the Lab access panel at the top of the Tasks tab and enter ${lowerFirst(first?.label ?? 'Your target IP')}; the site then fills it into every command automatically.`,
     });
+  }
+
+  // Remote administration: the host is reachable from off campus, so "I cannot
+  // reach my server" is a different problem from "this host is on the wrong
+  // network", and the answers are not the ones above.
+  if (remote) {
+    rows.push(
+      {
+        symptom: 'ssh: connect to host … Operation timed out (from home)',
+        meaning: 'Your laptop is not on the tailnet, or the host is not.',
+        fix: `Check the Tailscale client is signed in and connected on your laptop, then run tailscale status on the host — it must list the host as online. On campus you can still reach it on its ${HOST.rule} address while you sort this out.`,
+      },
+      {
+        symptom: 'The Proxmox console times out but SSH works',
+        meaning: 'The path is fine; the web service or the port is not.',
+        fix: 'Run systemctl status pveproxy --no-pager over SSH. Remember the console is on port 8006 and https, not http — a plain http:// URL simply hangs.',
+      },
+      {
+        symptom: 'It worked yesterday and not today',
+        meaning: 'The host rebooted and something did not come back, or your address changed.',
+        fix: 'systemctl is-active tailscaled on the host must read active. The host keeps the same Tailscale address across reboots, so if the address you saved has changed, you are looking at a rebuilt host that was re-authorised as a new device.',
+      },
+      {
+        symptom: 'Permission denied (publickey) after setting up keys',
+        meaning: 'The key is not where the server expects it, or the account is wrong.',
+        fix: 'Run ssh -v to see which key is offered, and confirm you are connecting as the right user. Password login is still enabled until Week 4 hardens it, so you have a way back in — use it rather than locking yourself out further.',
+      }
+    );
   }
 
   rows.push(

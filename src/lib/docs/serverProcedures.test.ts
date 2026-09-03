@@ -57,7 +57,7 @@ describe('Server+ procedures — the guide the steps point at', () => {
   });
 
   it('the duplicated Week 1–2 steps are the ones that link', () => {
-    expect(refs.length).toBeGreaterThanOrEqual(14);
+    expect(refs.length).toBeGreaterThanOrEqual(15);
   });
 });
 

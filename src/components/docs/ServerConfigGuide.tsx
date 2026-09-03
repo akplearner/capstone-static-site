@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { CopyButton } from '@/components/TaskComponents';
+import { fillPlaceholders, useLabAccess } from '@/lib/labAccess';
 import {
   CAMPUS_LAN,
   HOST,
@@ -75,8 +76,12 @@ const ADDRESSING: { zone: string; net: string; hosts: string; note?: string }[] 
 
 
 /** One typed line, with the same terminal chrome a task step uses so a command
- *  reads as a command everywhere on the platform. */
-function CommandLine({ cmd }: { cmd: string }) {
+ *  reads as a command everywhere on the platform — including the substitution:
+ *  a student who has set their host address in Lab access copies THEIR address
+ *  here too. Without this the identical command filled in the task and stayed a
+ *  placeholder in the guide, which reads as a bug rather than a distinction. */
+function CommandLine({ cmd, values }: { cmd: string; values: Record<string, string> }) {
+  cmd = fillPlaceholders(cmd, values);
   return (
     <div
       className="relative rounded-lg p-3 pr-20 font-mono text-xs"
@@ -101,6 +106,7 @@ export function ServerConfigGuide() {
   // and on hash change, so the deep links in the task steps still land on the
   // procedure they promise rather than on a panel that is closed.
   const [week, setWeek] = useState(1);
+  const lab = useLabAccess('server-plus');
 
   //
   // A procedure anchor (`#create-raid-virtual-disk`) works the same way, because
@@ -275,7 +281,13 @@ export function ServerConfigGuide() {
                     <tr key={i} className="border-b border-line last:border-0 align-top odd:bg-panel even:bg-panel-2">
                       <td className="w-8 py-2 pl-4 pr-1 font-mono text-[10px] leading-6 text-muted">{i + 1}</td>
                       <td className="w-[55%] py-2 pr-3">
-                        {s.cmd ? <CommandLine cmd={s.cmd} /> : <span className="text-sm text-body">{s.gui}</span>}
+                        {s.cmd ? (
+                          <CommandLine cmd={s.cmd} values={lab.values} />
+                        ) : (
+                          /* A click-path that names an address names YOURS too,
+                             for the same reason the commands do. */
+                          <span className="text-sm text-body">{fillPlaceholders(s.gui ?? '', lab.values)}</span>
+                        )}
                         {s.doc && (
                           <a
                             href={s.doc.href}

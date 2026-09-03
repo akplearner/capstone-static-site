@@ -40,7 +40,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
   // What this course's lab is made of. A build-and-document course has no
   // target range to collect, so the whole panel is skipped rather than rendered
   // empty — see LAB_PROFILES.
-  const { fields, checks } = labProfile(courseId);
+  const { fields, checks, title, intro } = labProfile(courseId);
   const filledCount = fields.filter((f) => lab.values[f.key]?.trim()).length;
   const checkCount = checks.filter((c) => lab.checks[c.key]).length;
 
@@ -48,8 +48,11 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
 
   return (
     <div id="lab-access" className="scroll-mt-24 rounded-lg border border-line bg-panel px-4">
+      {/* The heading names what the course actually collects. "Your targets" is
+          right for an attack lab and wrong for a build course, whose two values
+          are its own server's addresses. */}
       <Collapsible
-        title={`Lab access — your targets & reachability  (${filledCount}/${fields.length} set · ${checkCount}/${checks.length} checked)`}
+        title={`${title ?? 'Lab access — your targets & reachability'}  (${filledCount}/${fields.length} set · ${checkCount}/${checks.length} checked)`}
         defaultOpen={filledCount === 0}
       >
         <div className="space-y-4 pb-2">
@@ -58,8 +61,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
               placeholder already says "visible only to you". */}
           <p className="flex items-start gap-2 text-sm text-muted">
             <Server className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
-            Enter your lab&apos;s IPs and every command below fills them in for you. Saved to your
-            account, visible only to you.
+            {intro ?? 'Enter your lab’s IPs and every command below fills them in for you. Saved to your account, visible only to you.'}
           </p>
 
           <div className="flex flex-col gap-1">

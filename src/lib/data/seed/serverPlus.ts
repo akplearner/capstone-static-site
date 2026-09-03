@@ -52,8 +52,10 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
  * assigned to a physical NIC attached to a Cisco router + switch, which
  * becomes the servers' only path to the internet. The DMZ/private subnets
  * (172.16.0.0/24, 192.168.0.0/24) are worked examples. Nothing here is
- * offensive security: there is no target range and no lab-access panel on this
- * course — see LAB_PROFILES in labAccess.ts.
+ * offensive security: there is no target range. The Lab access panel collects
+ * exactly two things here — this team's host address and its Tailscale address —
+ * so the 10.10.30.T rule in a command becomes the student's own number. See
+ * LAB_PROFILES in labAccess.ts.
  */
 
 const roles: RoleDef[] = [
@@ -1449,9 +1451,9 @@ const sharedTasks: Task[] = [
     objective: 'Lock down the two machines the campus LAN can reach and the domain controller behind them, then bring every system to a known patch level — snapshot first.',
     frameworks: ['NIST_CSF', 'CIS'],
     deliverables: ['07_Operations_and_SOPs.md'],
-    estimatedTime: '55 min',
+    estimatedTime: '70 min',
     difficulty: 3,
-    learn: ['SSH hardening', 'Host firewalls with ufw', 'Windows Defender Firewall & named admin accounts', 'Patch baselines', 'Rollback via snapshots'],
+    learn: ['SSH hardening', 'Host firewalls with ufw', 'Windows Defender Firewall & named admin accounts', 'Patch baselines', 'Rollback via snapshots', 'Key-only access to the hypervisor'],
     tools: ['Operations Log & SOPs form', 'Configuration guide (in platform)'],
     prerequisites: ['The asset register complete', 'The systems reachable'],
     definitionOfDone: [
@@ -1460,6 +1462,7 @@ const sharedTasks: Task[] = [
       'Every system has a patch baseline and a schedule',
       'A rollback exists before any patch is applied',
       'Every change is logged with a rollback',
+      'The Proxmox host takes root only by key, and both ways back in were checked first',
     ],
     steps: [
       {
@@ -1638,6 +1641,32 @@ const sharedTasks: Task[] = [
         producesDeliverable: '07_Operations_and_SOPs.md',
         whatItMeans: 'The log answers "are we current, and can we undo a bad update?". Without the level you cannot tell what is still exposed.',
         frameworks: ['NIST_CSF', 'CIS'],
+      },
+      {
+        id: 'sp-w4-secure-s7',
+        title: 'Close the root password door on the host itself',
+        description: 'The one machine you can reach from anywhere is the one you hardened last.',
+        where: 'The Proxmox host, over Tailscale',
+        danger: 'Check both ways back in — the web console and the physical keyboard — BEFORE you touch sshd_config, and keep your current session open until a new one works. This is the change most likely to lock a whole team out of its own server.',
+        instruction: 'Prove a named account logs in with its key, then set PermitRootLogin to prohibit-password on the host and read the file back. Leave password authentication on for the named accounts.',
+        guideRef: { procedureId: 'harden-proxmox-host-access' },
+        commands: [
+          { cmd: 'ssh alex@<tailscale-ip>', explain: 'Must not ask for a password. If it does, the key is not in place and this step stops here.' },
+          { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', explain: 'Back it up first, exactly as you did on websrv.' },
+          { cmd: "sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config", explain: 'prohibit-password, not no: root keeps a key-only emergency route, and the root password stops working over the network.' },
+          { cmd: 'sudo sshd -t && sudo systemctl restart ssh', explain: 'Validate, then apply. Silence from sshd -t means the file is good.' },
+          { cmd: "grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config", explain: 'Read the result back for the log. PasswordAuthentication stays yes here — your teammates need it until every one of them has a key.' },
+        ],
+        usesForm: 'Operations Log & SOPs',
+        producesDeliverable: '07_Operations_and_SOPs.md',
+        whatItMeans: 'Week 4 hardened the servers a stranger can reach. This is the machine that runs them all, and it is now reachable from off campus too.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: "alex@pve-host:~$ grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config\nPermitRootLogin prohibit-password\nPasswordAuthentication yes",
+        verify: ['prohibit-password'],
+        fixes: [
+          { symptom: 'The new SSH session is refused after the restart?', fix: 'Use the session you kept open, or the web console, and restore the backup: sudo cp /etc/ssh/sshd_config.bak /etc/ssh/sshd_config && sudo systemctl restart ssh.' },
+          { symptom: 'Locked out of every SSH route?', fix: 'The Proxmox web console has a Shell button, and the physical keyboard at the rack always works. Neither depends on sshd — that is why you checked both before starting.' },
+        ],
       },
     ],
   },

@@ -207,6 +207,8 @@ export const PROCEDURES: Procedure[] = [
       { cmd: 'systemctl is-active tailscaled', explain: 'Must print active. tailscaled runs as a system service, so remote access comes back after a reboot without anyone logging in at the keyboard.' },
       { cmd: 'ssh root@<tailscale-ip>', explain: 'From a laptop OFF the campus network, substituting the address tailscale ip -4 printed. A host-key prompt is expected the first time — it is the same machine at a new address — so verify the fingerprint before accepting it.' },
       { gui: 'With Tailscale connected on your laptop, browse to https://<tailscale-ip>:8006 and sign in exactly as you do on campus. The self-signed certificate warning is the same one, for the same reason.', explain: 'Tailscale supplies the private path; Proxmox still does its own authentication. The network path is not the login, and you have not opened a port on the campus router to get here.' },
+      { gui: 'In the Tailscale admin console turn on MagicDNS, then reconnect the client on your laptop.', explain: 'This is a tailnet setting, not a record in the Windows DNS zone you build in Week 2 — that zone serves the private network and knows nothing about the tailnet. Students look there first every time.' },
+      { cmd: 'ssh root@pve-host', explain: 'With MagicDNS on, the machine answers to its name from any device in the tailnet, so nobody has to keep a 100.x address written down. https://pve-host:8006 reaches the console the same way.' },
       { gui: 'Reboot the host once, on campus, and confirm it comes back on the tailnet before anyone relies on remote-only access.', explain: 'Prove it here, where you can still reach the keyboard, rather than discovering it at home on a Sunday.' },
       { cmd: 'tar -czf /root/pve-config-backup.tar.gz -C / etc/pve etc/network/interfaces etc/hosts etc/hostname var/lib/tailscale/tailscaled.state', explain: 'Backs up the host configuration together with the Tailscale identity. Without that state file a rebuilt host is a brand-new device that has to be authorised into the tailnet again.' },
     ],
@@ -228,6 +230,9 @@ export const PROCEDURES: Procedure[] = [
       { gui: 'Datacenter → Permissions → Users → Add. Set Realm to "Linux PAM standard authentication", User name to the Linux account you just created, and Group to teamadmins. Repeat for each teammate.', explain: 'The pam realm points Proxmox at the host’s own Linux users, so each person has ONE identity that works for both SSH and the console. The pve realm is a separate Proxmox-only user database — real, but it would hand everybody a second password to lose.' },
       { cmd: 'pveum user list', explain: 'Read the result back rather than trusting the dialog. Every teammate should appear as name@pam, enabled, in teamadmins.' },
       { gui: 'Tailnet: the owner opens the Tailscale admin console and invites the other three teammates and the instructor. Each installs Tailscale on their own laptop, signs in with that invitation, and confirms the host shows up in their own device list.', explain: 'Being a user of the tailnet is what makes the host’s 100.x address reachable for them. Passing one person’s Tailscale login around would undo the naming you just did on the host.' },
+      { cmd: 'ssh-keygen -t ed25519 -C "alex@capstone"', explain: 'Run this on YOUR OWN laptop, not on the server. It makes a key pair: a private half that never leaves your machine and a public half you are about to hand to the host. Give it a passphrase.' },
+      { cmd: 'ssh-copy-id alex@<tailscale-ip>', explain: 'Also from your laptop, over the tailnet. It appends your public key to that account\'s authorized_keys on the host. It asks for the password one last time — that is the point at which the password stops being the only way in.' },
+      { cmd: 'ssh alex@<tailscale-ip>', explain: 'Log in again. If it does not ask for the account password, key authentication is working. Every teammate does this with their own key, on their own laptop — a key that two people share is a shared login wearing a different hat.' },
       { gui: 'STOP before going further: do not disable password authentication and do not lock the root account until every teammate has proved their own account signs in and runs sudo.', explain: 'You can now reach this server from anywhere, which means you can also lock yourself out of it from anywhere. Week 4 hardens SSH deliberately, with a way back.' },
       { gui: `Last: change the root password away from the classroom one (${HOST_ROOT_LOGIN.password}) now that everyone has their own account, and record in the Bring-Up Log that you did.`, explain: 'It was typed in front of the room on install day and is written in the course material. Rotating it is the moment the named accounts start to mean something.' },
     ],
@@ -622,6 +627,29 @@ EOF`,
       { cmd: 'bridge link show | grep vmbr2', explain: 'The physical NIC must now appear as a member of vmbr2.' },
       { cmd: 'ping -c 4 192.168.0.1', explain: 'Run from linuxsrv. The gateway must still answer — but now it is the Cisco router answering, not the Proxmox host. Note that change in the Operations Log & SOPs: the address did not move, the device holding it did.' },
       { cmd: 'ping -c 4 8.8.8.8', explain: 'Run from linuxsrv. This is the point of the whole phase: the private-zone servers now reach the internet through the Cisco router.' },
+    ],
+  },
+  // The host is hardened FIRST in Week 4, because it is the one machine that is
+  // now reachable from off campus and the one every other procedure is driven
+  // from. Week 1 created the named accounts and the keys; this is where the
+  // password door closes behind them.
+  {
+    id: 'harden-proxmox-host-access',
+    week: 4,
+    title: 'Harden the way into the Proxmox host itself',
+    where: 'The Proxmox host shell, over Tailscale',
+    summary:
+      'Close the root password door on the hypervisor now that every teammate has a named account and a key. Keys stay, root passwords go, and the console and the physical keyboard remain as the way back.',
+    steps: [
+      { gui: 'Before you change anything, name your two ways back in and check both: the Proxmox web console in a browser, and the physical keyboard at the rack.', explain: 'This is the procedure with the most potential to lock four people out of one server. Neither way back depends on SSH, which is what you are about to change.' },
+      { cmd: 'ssh alex@<tailscale-ip>', explain: 'Prove key login works for a named account, right now, from the machine you will use later. If this asks for a password, the key is not in place and you must stop here — Week 1 has the ssh-copy-id procedure.' },
+      { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', explain: 'Back up before editing, exactly as you did on websrv. This file is how you get in.' },
+      { cmd: `sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config`, explain: 'prohibit-password, not no: root can still log in WITH A KEY, which keeps an emergency route for whoever holds it, but the root password stops being a way in over the network.' },
+      { cmd: `grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config`, explain: 'Read it back. PasswordAuthentication stays yes on this host: your teammates\' named accounts still need it until every one of them has a working key, and turning it off early is how a team loses its own server.' },
+      { cmd: 'sudo sshd -t', explain: 'Validates the file. Silence means valid. A typo caught here is a typo that never locked anybody out.' },
+      { cmd: 'sudo systemctl restart ssh', explain: 'Applies it. KEEP YOUR CURRENT SESSION OPEN and prove a new one works in a second window before you close this one.' },
+      { gui: 'Datacenter → Firewall: read the rules before you enable enforcement, and leave it off unless you have deliberately allowed 22 and 8006 from the tailnet.', explain: 'The instructor SOP is explicit about this one: enabling the Proxmox firewall blindly while you depend on remote administration is the fastest way to lose the server you are administering.' },
+      { gui: 'Optional: Datacenter → Permissions → Two Factor, add TOTP to each named account.', explain: 'Worth doing on a host reachable from anywhere. Worth thinking about first on a shared server: a lost TOTP secret on an account four people rely on locks all four out, so record the recovery keys where the team can reach them.' },
     ],
   },
   {
