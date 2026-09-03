@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { AlertTriangle, ArrowDownToLine, ExternalLink } from 'lucide-react';
 import { DeliverableData, DeliverableDef, Field, FieldGroup, emptyFormContext, type FormContext } from '@/lib/docs/types';
-import { DURATION_UNITS, formatDuration, isIpv4, parseDuration } from '@/lib/docs/formContext';
+import { DURATION_UNITS, fitsInput, formatDuration, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
 import { RegisterTable } from '@/components/grc/RegisterTable';
 import { deliverableTitle } from '@/lib/docs/definitions';
 import { validateEvidenceFileName } from '@/lib/utils';
@@ -27,7 +27,7 @@ function SingleField({
   const empty = !value.trim();
   const namingBad = f.type === 'fileref' && !empty && !validateEvidenceFileName(value).valid;
   // Shape only, and only once they have left the field — same rule as required.
-  const badAddress = f.type === 'ipv4' && !empty && !isIpv4(value);
+  const badAddress = f.type === 'ipv4' && !empty && !isIpv4OrCidr(value);
   const suggestions =
     f.type === 'hostref' ? ctx.hostnames : f.type === 'evidence' ? ctx.evidence.map((e) => e.filename) : [];
   const listId = `field-${f.field}-options`;
@@ -99,7 +99,7 @@ function SingleField({
         // export could not tell either.
         <span className="relative mt-1 flex items-center">
           <input
-            type="number"
+            type={fitsInput('number', value) ? 'number' : 'text'}
             value={value}
             onChange={(e) => onChange(e.target.value)}
             onBlur={() => setTouched(true)}
@@ -168,7 +168,7 @@ function SingleField({
         </select>
       ) : (
         <input
-          type={f.type === 'date' ? 'date' : 'text'}
+          type={f.type === 'date' && fitsInput('date', value) ? 'date' : 'text'}
           inputMode={f.type === 'ipv4' ? 'numeric' : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}

@@ -156,7 +156,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           label: 'The machines — your architecture',
           help: 'One row per virtual machine. The four seeded rows are the base build every team creates; add rows for the machines YOUR business needs. Public-facing goes in the DMZ, internal goes private.',
           columns: [
-            c('hostname', 'Hostname', 'text', { help: "Short, lowercase, no spaces — this becomes the machine's real name.", placeholder: 'websrv' }),
+            c('hostname', 'Hostname', 'hostref', { help: "Short, lowercase, no spaces — this becomes the machine's real name.", placeholder: 'websrv' }),
             c('os', 'Operating system', 'text', { help: 'Name and version, e.g. Ubuntu Server 24.04 or Windows Server 2022.', placeholder: 'Ubuntu Server 24.04' }),
             c('job', 'What it does', 'text', { help: 'One line. If it takes two, it is probably two machines.', placeholder: 'Public website (NGINX)' }),
             c('zone', 'Zone', 'select', { help: 'DMZ if the public reaches it, private if only staff do, management for the host itself.', options: ZONES }),
@@ -399,7 +399,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           { field: 'hv_version', label: 'Proxmox version installed', type: 'text', required: true, placeholder: 'Proxmox VE 8.2', help: 'From the installer, or `pveversion` once it is up.' },
           { field: 'hv_target', label: 'Installed onto', type: 'text', placeholder: 'The RAID 10 virtual disk', help: 'Not a USB stick and not a single disk — the array you just built.' },
           { field: 'hv_hostname', label: 'Hostname', type: 'text', placeholder: 'pve-host', help: 'Set during installation. Renaming a Proxmox host afterwards is painful.' },
-          { field: 'hv_address', label: 'Management address', type: 'text', required: true, placeholder: '10.10.30.1/16', help: 'Follow the team rule: 10.10.30.T where T is your team number.' },
+          { field: 'hv_address', label: 'Management address', type: 'ipv4', required: true, placeholder: '10.10.30.1/16', help: 'Follow the team rule: 10.10.30.T where T is your team number.' },
           { field: 'hv_bridges', label: 'Bridges created', type: 'text', placeholder: 'vmbr0 management, vmbr1 DMZ, vmbr2 private', help: 'The virtual switches your VMs will attach to.' },
           { field: 'hv_proof', label: 'Proof it works', type: 'text', required: true, placeholder: 'Reached https://10.10.30.1:8006 from the classroom LAN and logged in', help: 'Reaching the web console from another machine is the proof.' },
         ],
@@ -408,7 +408,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
         kind: 'fields',
         title: 'Remote access',
         fields: [
-          { field: 'remote_host_ip', label: 'The host\'s Tailscale address', type: 'text', required: true, placeholder: '100.x.y.z', help: 'What `tailscale ip -4` prints on YOUR host. It belongs to this machine and does not change — another team\'s server has a different one.' },
+          { field: 'remote_host_ip', label: 'The host\'s Tailscale address', type: 'ipv4', required: true, placeholder: '100.101.102.103', help: 'What `tailscale ip -4` prints on YOUR host. It belongs to this machine and does not change — another team\'s server has a different one.' },
           { field: 'remote_tailnet', label: 'Whose tailnet, and who is on it', type: 'text', placeholder: 'Alex owns the tailnet; Sam, Jo and Priya invited, plus the instructor', help: 'One tailnet per team. Name the owner, because they are who adds or removes people later.' },
           { field: 'remote_proof', label: 'Proof it works from off campus', type: 'text', required: true, placeholder: 'SSH and https://100.x.y.z:8006 both reached from home, after a reboot', help: 'Reaching it from the classroom proves nothing — the point is the path that works when you are not in the building.' },
         ],
@@ -498,7 +498,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('u', 'U position', 'text', { help: 'Count from the bottom. A 2U device spans two, e.g. U20–U21.', placeholder: 'U20–U21' }),
             c('device', 'Device', 'text', { help: 'What physically occupies those units.', placeholder: 'Proxmox host (2U)' }),
             c('type', 'Type', 'select', { help: 'Heaviest at the bottom; blanks are deliberate reserved space.',  options: ['Server', 'Switch', 'Patch panel', 'PDU', 'UPS', 'Blank / reserved'] }),
-            c('power_draw', 'Power draw', 'text', { help: 'From the label or the vendor spec. It adds up to what the PDU must carry.', placeholder: '~350 W typical' }),
+            c('power_draw', 'Power draw', 'number', { unit: 'W', help: 'From the label or the vendor spec. It adds up to what the PDU must carry.', placeholder: '350' }),
           ],
           seed: [
             { u: 'U24', device: '24-port patch panel', type: 'Patch panel', power_draw: '—' },
@@ -611,11 +611,11 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           // the running machine.
           carryFrom: { deliverableId: 'srv_business_reqs', group: 'machines', columns: ['hostname', 'zone'] },
           columns: [
-            c('hostname', 'Hostname', 'text', { placeholder: 'websrv', help: 'hostname on Linux, or hostname on Windows.' }),
+            c('hostname', 'Hostname', 'hostref', { placeholder: 'websrv', help: 'hostname on Linux, or hostname on Windows. Pick the name you gave it in the Architecture Brief.' }),
             c('zone', 'Zone', 'select', { options: ZONES, help: 'Which bridge the interface is attached to.' }),
-            c('address', 'IP address / mask', 'text', { placeholder: '172.16.0.10/24', help: 'ip -brief a on Linux; ipconfig /all on Windows.' }),
-            c('gateway', 'Default gateway', 'text', { placeholder: '172.16.0.1', help: 'ip route | grep default on Linux; the Default Gateway line on Windows.' }),
-            c('dns', 'DNS server', 'text', { placeholder: '192.168.0.2', help: 'resolvectl status on Ubuntu; the DNS Servers line in ipconfig /all.' }),
+            c('address', 'IP address / mask', 'ipv4', { placeholder: '172.16.0.10/24', help: 'ip -brief a on Linux; ipconfig /all on Windows.' }),
+            c('gateway', 'Default gateway', 'ipv4', { placeholder: '172.16.0.1', help: 'ip route | grep default on Linux; the Default Gateway line on Windows.' }),
+            c('dns', 'DNS server', 'ipv4', { placeholder: '192.168.0.2', help: 'resolvectl status on Ubuntu; the DNS Servers line in ipconfig /all.' }),
             c('survives', 'Survives a reboot?', 'select', { options: YN, help: 'Reboot the host and re-run the command. Applied is not the same as persisted.' }),
           ],
           seed: [
@@ -633,12 +633,13 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           label: 'Connectivity proof — including what must NOT work',
           help: 'One row per test. A segmented network is only proven when you have also shown the paths that are supposed to be blocked really are.',
           columns: [
-            c('from', 'From', 'text', { placeholder: 'websrv', help: 'The host you ran the command on.' }),
+            c('from', 'From', 'hostref', { placeholder: 'websrv', help: 'The host you ran the command on.' }),
             c('to', 'To', 'text', { placeholder: 'linuxsrv 192.168.0.3', help: 'What you were trying to reach.' }),
             c('command', 'Command run', 'text', { placeholder: 'ping -c 4 192.168.0.3', help: 'The exact line you typed, so anyone can repeat the test.' }),
             c('expected', 'Expected', 'select', { options: ['Should work', 'Should be blocked'], help: 'Decide BEFORE you run it. A test with no expectation cannot fail.' }),
             c('result', 'What came back', 'text', { placeholder: '4 packets transmitted, 0 received — blocked as designed', help: 'Paste the summary line, not the whole output.' }),
             c('matches', 'Matches expectation?', 'select', { options: YN, help: 'A No here is a finding, not a mistake — record it and fix it.' }),
+            c('verdict', 'Verdict', 'text', { derived: (r) => (r.matches === 'Yes' ? 'Proven' : r.matches === 'No' ? 'Finding' : ''), help: 'Computed from the answer beside it. A test that did not match expectation is a finding to fix, not a box to tick.' }),
           ],
           seed: [
             { from: 'Campus LAN', to: 'the website via the host', command: 'curl -I http://10.10.30.1', expected: 'Should work', result: 'HTTP/1.1 200 OK', matches: 'Yes' },
@@ -702,7 +703,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           label: 'Configuration baseline — capture it to a file',
           help: 'One row per capture. Save each into ~/team-artifacts/baseline/ so Week 4 can diff the running system against it.',
           columns: [
-            c('host', 'Host', 'text', { placeholder: 'linuxsrv', help: 'The machine the capture came from.' }),
+            c('host', 'Host', 'hostref', { placeholder: 'linuxsrv', help: 'The machine the capture came from.' }),
             c('what', 'What was captured', 'text', { placeholder: 'Enabled services', help: 'Services, firewall rules, installed roles, VM config — one row each.' }),
             c('command', 'Command used', 'text', { placeholder: 'systemctl list-unit-files --state=enabled', help: 'Linux: systemctl list-unit-files --state=enabled · ufw status numbered · dpkg --get-selections. Windows: Get-WindowsFeature | Where Installed · Get-NetFirewallRule -Enabled True. Proxmox: qm config <vmid>.' }),
             c('file', 'Saved as', 'text', { placeholder: 'baseline/linuxsrv-services.txt', help: 'Redirect the output to a file: command > baseline/linuxsrv-services.txt' }),
@@ -765,7 +766,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('rule', 'The rule', 'text', { placeholder: '14 characters minimum, no expiry, lock for 15 min after 5 failures', help: 'Specific enough to configure. On the domain: Get-ADDefaultDomainPasswordPolicy shows what is actually set.' }),
             c('enforced', 'How it is enforced', 'text', { placeholder: 'Default Domain Policy GPO on winserver', help: 'A policy nothing enforces is advice. Name the GPO, the config file, or the scheduled job.' }),
             c('owner', 'Owner', 'text', { placeholder: 'IT administrator', help: 'Who is responsible for it being true.' }),
-            c('review', 'Review date', 'text', { placeholder: '2026-09-01', help: 'When someone checks it is still right.' }),
+            c('review', 'Review date', 'date', { help: 'When someone checks it is still right.' }),
           ],
           seed: [
             { policy: 'Password & lockout', rule: '14 characters minimum, no forced expiry, lock 15 min after 5 failures', enforced: 'Default Domain Policy GPO on winserver', owner: 'IT administrator', review: '2026-09-01' },
@@ -850,7 +851,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           label: 'Change log',
           help: 'One row per change to the running system. Approval and the back-out plan are filled in BEFORE the change, not after — that is what makes this a change process rather than a diary.',
           columns: [
-            c('date', 'Date', 'text', { placeholder: '2026-02-24', help: 'When the change was actually made.' }),
+            c('date', 'Date', 'date', { help: 'When the change was actually made.' }),
             c('change', 'What changed', 'text', { placeholder: 'Created vmbr2 private bridge on the host', help: 'One change per row. "Various fixes" is not a change record.' }),
             c('why', 'Why', 'text', { placeholder: 'Windows and database VMs need an isolated network', help: 'The reason someone would accept the risk of making it.' }),
             c('approved_by', 'Approved by', 'text', { placeholder: 'Instructor — J. Rivera', help: 'Who agreed to it before it happened. On a one-person team this is your instructor; the point is that approval precedes the change.' }),
@@ -873,7 +874,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('system', 'System', 'text', { placeholder: 'linuxsrv', help: 'One row per machine per patch round.' }),
             c('patch', 'What was applied', 'text', { placeholder: 'apt full-upgrade — 41 packages, incl. kernel 6.8.0-52', help: 'apt list --upgradable before, or Get-HotFix after on Windows.' }),
             c('snapshot', 'Snapshot taken first?', 'select', { options: YN, help: 'The snapshot IS the rollback. A No here needs a reason.' }),
-            c('date', 'Date applied', 'text', { placeholder: '2026-03-03', help: 'Inside the patch window from your policy.' }),
+            c('date', 'Date applied', 'date', { help: 'Inside the patch window from your policy.' }),
             c('outcome', 'Outcome', 'text', { placeholder: 'Rebooted; MariaDB came back up; site responding', help: 'What you checked AFTER, not just that it installed.' }),
           ],
           seed: [
@@ -965,8 +966,8 @@ const AS_BUILT: DeliverableDef[] = [
         kind: 'fields',
         title: 'Recovery targets',
         fields: [
-          { field: 'rto', label: 'RTO — how long until service is back', type: 'text', required: true, placeholder: '4 hours', help: 'How long can the business actually be down before it hurts badly? Ask the business, do not guess.' },
-          { field: 'rpo', label: 'RPO — how much data can be lost', type: 'text', required: true, placeholder: '24 hours (one night of orders)', help: 'If backups run nightly, your RPO is one day. Shorter needs more frequent backups.' },
+          { field: 'rto', label: 'RTO — how long until service is back', type: 'duration', required: true, placeholder: '4', help: 'How long can the business actually be down before it hurts badly? Ask the business, do not guess.' },
+          { field: 'rpo', label: 'RPO — how much data can be lost', type: 'duration', required: true, placeholder: '24', help: 'If backups run nightly, your RPO is one day. Shorter needs more frequent backups.' },
           { field: 'critical', label: 'What must come back first', type: 'area', required: true, placeholder: 'The order database, then the website. Staff logins can wait an hour.', help: 'Recovery order matters — you cannot restore everything at once.' },
         ],
       },
@@ -980,7 +981,7 @@ const AS_BUILT: DeliverableDef[] = [
             c('what', 'What', 'text', { help: 'The data or machine being protected — be specific about which database.', placeholder: 'capstone_db (MariaDB on linuxsrv)' }),
             c('where', 'Backed up to', 'text', { help: 'Must not be the same disk as the thing it protects. That is a copy, not a backup.', placeholder: 'Proxmox Backup Store on a separate disk' }),
             c('how_often', 'How often', 'text', { help: 'How much work you can afford to lose decides this.', placeholder: 'Nightly 02:00' }),
-            c('keep', 'Kept for', 'text', { help: 'How far back you can go. Long enough to notice a problem before it ages out.', placeholder: '14 days' }),
+            c('keep', 'Kept for', 'duration', { help: 'How far back you can go. Long enough to notice a problem before it ages out.', placeholder: '14' }),
           ],
           seed: [
             { what: 'capstone_db (MariaDB on linuxsrv)', where: 'Proxmox backup store on a separate disk', how_often: 'Nightly 02:00', keep: '14 days' },
@@ -994,7 +995,7 @@ const AS_BUILT: DeliverableDef[] = [
         fields: [
           { field: 'restore_steps', label: 'Restore procedure, in order', type: 'area', required: true, placeholder: '1) Open the Proxmox backup store 2) Select the most recent linuxsrv backup 3) Restore to a new VMID so the original is untouched 4) Start it on an isolated bridge 5) Log in and confirm capstone_db has last night\'s orders 6) Record the time taken', help: 'Numbered steps someone else could follow while you are unreachable.' },
           { field: 'restore_what', label: 'What you actually restored', type: 'text', required: true, placeholder: 'linuxsrv from the 2026-03-10 backup, into VMID 199', help: 'Restore into a NEW machine — never over the working one.' },
-          { field: 'restore_time', label: 'How long it took', type: 'text', required: true, placeholder: '38 minutes, including verification', help: 'Time it properly. This is the only honest source for your RTO.' },
+          { field: 'restore_time', label: 'How long it took', type: 'duration', required: true, placeholder: '38', help: 'Time it properly. This is the only honest source for your RTO.' },
           { field: 'restore_result', label: 'What the test proved (or exposed)', type: 'area', required: true, placeholder: 'The database came back with all orders to 02:00. It exposed that the website VM has no backup schedule — added afterwards.', help: 'A test that finds a problem is a successful test. Say what it found.' },
         ],
       },

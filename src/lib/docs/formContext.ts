@@ -157,3 +157,34 @@ export function applyCarryForward(
 
   return { data: groups === data.groups ? data : { ...data, groups }, carried };
 }
+
+/** The address half of "172.16.0.10/24" — the plan tables record a mask. */
+export function addressPart(value: string): string {
+  return (value ?? '').trim().split('/')[0];
+}
+
+/** A dotted quad, optionally with a /0–32 mask. */
+export function isIpv4OrCidr(value: string): boolean {
+  const [addr, bits] = (value ?? '').trim().split('/');
+  if (!isIpv4(addr)) return false;
+  if (bits === undefined) return true;
+  return /^\d{1,2}$/.test(bits) && Number(bits) <= 32;
+}
+
+/**
+ * Can a stricter input hold what is already stored?
+ *
+ * A `<input type="number">` given "~350 W typical" renders **empty** — the
+ * browser refuses the value and the student's answer vanishes from the screen
+ * while remaining in their document. Same for a `date` holding "Wed 18:00".
+ * Giving a column a real type must never do that to something already typed,
+ * so the renderers fall back to a text box for a value the strict control
+ * cannot represent. New entries still get the number pad and the date picker.
+ */
+export function fitsInput(type: string, value: string): boolean {
+  const v = (value ?? '').trim();
+  if (!v) return true;
+  if (type === 'number') return /^-?\d+(\.\d+)?$/.test(v);
+  if (type === 'date') return /^\d{4}-\d{2}-\d{2}$/.test(v);
+  return true;
+}

@@ -2,7 +2,10 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
+  addressPart,
   applyCarryForward,
+  fitsInput,
+  isIpv4OrCidr,
   buildFormContext,
   formatDuration,
   inSubnet,
@@ -158,6 +161,38 @@ describe('address and duration helpers', () => {
     expect(formatDuration('', 'hours')).toBe('');
     // Text typed before the field had a type must still survive a render.
     expect(parseDuration('about a day').amount).toBe('');
+  });
+});
+
+/**
+ * Giving a column a real type must never blank out an answer already typed.
+ *
+ * `<input type="number">` handed "~350 W typical" renders EMPTY — the browser
+ * refuses the value, so the student's answer disappears from the screen while
+ * still sitting in their document. Same for a date input holding "Wed 18:00".
+ * Every column retyped in this round had prose in its placeholder, so this is
+ * not hypothetical.
+ */
+describe('a stricter type never hides what is already stored', () => {
+  it.each([
+    ['number', '350', true],
+    ['number', '~350 W typical', false],
+    ['number', '', true],
+    ['date', '2026-02-24', true],
+    ['date', 'Wed 18:00–19:00', false],
+    ['date', '', true],
+    ['text', 'anything at all', true],
+  ])('fitsInput(%s, %s) = %s', (type, value, expected) => {
+    expect(fitsInput(type, value)).toBe(expected);
+  });
+
+  it('accepts an address with or without its mask', () => {
+    // The IP plan records 172.16.0.10/24; the gateway column records 172.16.0.1.
+    expect(isIpv4OrCidr('172.16.0.10/24')).toBe(true);
+    expect(isIpv4OrCidr('172.16.0.1')).toBe(true);
+    expect(isIpv4OrCidr('172.16.0.10/99')).toBe(false);
+    expect(isIpv4OrCidr('the DMZ')).toBe(false);
+    expect(addressPart('172.16.0.10/24')).toBe('172.16.0.10');
   });
 });
 

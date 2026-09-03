@@ -5,7 +5,7 @@ import { InfoTip } from '@/components/InfoTip';
 import { RegisterRow } from '@/lib/types';
 import { Column, cellValue } from '@/lib/grc/templates';
 import { emptyFormContext, type FormContext } from '@/lib/docs/types';
-import { DURATION_UNITS, formatDuration, inSubnet, isIpv4, parseDuration } from '@/lib/docs/formContext';
+import { DURATION_UNITS, addressPart, fitsInput, formatDuration, inSubnet, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
 
 const inputClass =
   'w-full rounded border border-line bg-panel px-2 py-1 text-sm text-ink';
@@ -20,7 +20,11 @@ function badgeClass(value: string): string {
     case 'Medium':
       return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
     case 'Low':
+    case 'Proven':
       return 'bg-ok-soft text-ok';
+    // A connectivity test that did not match expectation is a finding to fix.
+    case 'Finding':
+      return 'bg-danger-soft text-danger';
     default:
       return 'bg-panel-2 text-muted';
   }
@@ -86,7 +90,7 @@ function Cell({
     return (
       <span className="relative inline-flex w-full items-center">
         <input
-          type="number"
+          type={fitsInput('number', value) ? 'number' : 'text'}
           value={value}
           placeholder={col.placeholder}
           onChange={(e) => onChange(e.target.value)}
@@ -158,8 +162,9 @@ function Cell({
     // address is not an error, and the student is the one who knows whether
     // this machine really does belong somewhere unexpected.
     const subnet = col.subnetFrom ? row[col.subnetFrom] : undefined;
-    const badShape = !!value.trim() && !isIpv4(value);
-    const wrongZone = !badShape && !!value.trim() && !!subnet && !inSubnet(value, subnet);
+    const badShape = !!value.trim() && !isIpv4OrCidr(value);
+    const wrongZone =
+      !badShape && !!value.trim() && !!subnet && !inSubnet(addressPart(value), subnet);
     return (
       <>
         <input
@@ -180,7 +185,7 @@ function Cell({
 
   return (
     <input
-      type={col.type === 'date' ? 'date' : 'text'}
+      type={col.type === 'date' && fitsInput('date', value) ? 'date' : 'text'}
       value={value}
       placeholder={col.placeholder}
       onChange={(e) => onChange(e.target.value)}
