@@ -1,8 +1,41 @@
 import { Framework, Role } from '../types';
 import type { Column } from '../grc/templates';
 
-// A single (non-repeating) input on a deliverable form.
-export type FieldType = 'text' | 'area' | 'select' | 'date' | 'paste' | 'fileref' | 'signature';
+/**
+ * A single (non-repeating) input on a deliverable form.
+ *
+ * The five types after `signature` were added because nearly every input in the
+ * course was a free-text box — 149 of ~190 table columns — including the ones
+ * holding a port number, a disk size, a date, an address or a hostname the team
+ * had already written down somewhere else. A text box accepts anything, so it
+ * accepts the wrong thing silently, and asks the student to remember a format
+ * nobody stated.
+ *
+ *   number    a quantity, with its unit shown in the field rather than hidden
+ *             in the placeholder
+ *   ipv4      an address, checked for shape once the student leaves the field
+ *   hostref   a host the team has already declared — the reason `websrv`,
+ *             `web-srv` and `WebSrv` used to appear in three different forms
+ *   duration  a recovery target: a number and a unit, not a sentence
+ *   evidence  a reference to an artifact the student has actually hashed,
+ *             picked rather than described
+ *
+ * `hostref` and `evidence` need to see beyond this one form, which is what
+ * `FormContext` below is for.
+ */
+export type FieldType =
+  | 'text'
+  | 'area'
+  | 'select'
+  | 'date'
+  | 'paste'
+  | 'fileref'
+  | 'signature'
+  | 'number'
+  | 'ipv4'
+  | 'hostref'
+  | 'duration'
+  | 'evidence';
 
 export interface Field {
   field: string;
@@ -12,8 +45,34 @@ export interface Field {
   required?: boolean;
   placeholder?: string;
   help?: string;
+  /** Unit for a `number` — GB, ports, minutes. Rendered inside the input. */
+  unit?: string;
   /** Read-only value computed from the record (e.g. derived severity). */
   derived?: (rec: Record<string, string>) => string;
+}
+
+/**
+ * What a form can see beyond itself.
+ *
+ * `DeliverableForm` is handed one document. Two things need more than that: a
+ * `hostref` has to offer the hostnames the team declared in another form, and
+ * an `evidence` field has to offer the artifacts this member has hashed. Rather
+ * than let either reach into a repo from inside a cell renderer, the page builds
+ * this once and passes it down.
+ *
+ * Everything here is plain data, so a test can construct one.
+ */
+export interface FormContext {
+  /** Every deliverable this team has saved, by deliverable id. */
+  docs: Record<string, DeliverableData>;
+  /** Hostnames the team has declared, deduplicated and sorted. */
+  hostnames: string[];
+  /** Artifacts this member has hashed — filename first, hash for the record. */
+  evidence: { filename: string; sha256: string }[];
+}
+
+export function emptyFormContext(): FormContext {
+  return { docs: {}, hostnames: [], evidence: [] };
 }
 
 // A repeatable multi-row table inside a deliverable (Asset Inventory, Risk

@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { AlertTriangle, ExternalLink } from 'lucide-react';
-import { DeliverableData, DeliverableDef, Field, FieldGroup } from '@/lib/docs/types';
+import { DeliverableData, DeliverableDef, Field, FieldGroup, emptyFormContext, type FormContext } from '@/lib/docs/types';
+import { DURATION_UNITS, formatDuration, isIpv4, parseDuration } from '@/lib/docs/formContext';
 import { RegisterTable } from '@/components/grc/RegisterTable';
 import { validateEvidenceFileName } from '@/lib/utils';
 import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
@@ -13,15 +14,22 @@ const inputClass =
 function SingleField({
   f,
   fields,
+  ctx,
   onChange,
 }: {
   f: Field;
   fields: Record<string, string>;
+  ctx: FormContext;
   onChange: (value: string) => void;
 }) {
   const value = f.derived ? f.derived(fields) : fields[f.field] ?? '';
   const empty = !value.trim();
   const namingBad = f.type === 'fileref' && !empty && !validateEvidenceFileName(value).valid;
+  // Shape only, and only once they have left the field — same rule as required.
+  const badAddress = f.type === 'ipv4' && !empty && !isIpv4(value);
+  const suggestions =
+    f.type === 'hostref' ? ctx.hostnames : f.type === 'evidence' ? ctx.evidence.map((e) => e.filename) : [];
+  const listId = `field-${f.field}-options`;
   // "Required" turns red only after the student has actually been IN the field.
   // On first paint, form 03 used to open with seven red error messages before a
   // single character was typed — a brand-new form scolding a brand-new student.
@@ -84,6 +92,70 @@ function SingleField({
             </div>
           )}
         </div>
+      ) : f.type === 'number' ? (
+        // The unit sits in the box, not in a placeholder that vanishes on the
+        // first keystroke — "40" on its own could be GB, MB or minutes, and the
+        // export could not tell either.
+        <span className="relative mt-1 flex items-center">
+          <input
+            type="number"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onBlur={() => setTouched(true)}
+            placeholder={f.placeholder}
+            className={`${inputClass} mt-0 ${f.unit ? 'pr-14' : ''}`}
+          />
+          {f.unit && <span className="pointer-events-none absolute right-3 text-xs text-muted">{f.unit}</span>}
+        </span>
+      ) : f.type === 'duration' ? (
+        (() => {
+          const { amount, unit } = parseDuration(value);
+          return (
+            <span className="mt-1 flex items-center gap-2">
+              <input
+                type="number"
+                value={amount}
+                onChange={(e) => onChange(formatDuration(e.target.value, unit))}
+                onBlur={() => setTouched(true)}
+                placeholder={f.placeholder}
+                className={`${inputClass} mt-0 w-24`}
+              />
+              <select
+                value={unit}
+                onChange={(e) => onChange(formatDuration(amount, e.target.value))}
+                className={`${inputClass} mt-0 w-32`}
+              >
+                {DURATION_UNITS.map((u) => (
+                  <option key={u} value={u}>
+                    {u}
+                  </option>
+                ))}
+              </select>
+            </span>
+          );
+        })()
+      ) : f.type === 'hostref' || f.type === 'evidence' ? (
+        // A datalist, not a select: the list is a suggestion, not a limit. A
+        // student naming a machine nobody has declared yet must not be blocked
+        // by their own paperwork.
+        <>
+          <input
+            type="text"
+            list={suggestions.length > 0 ? listId : undefined}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            onBlur={() => setTouched(true)}
+            placeholder={f.placeholder}
+            className={inputClass}
+          />
+          {suggestions.length > 0 && (
+            <datalist id={listId}>
+              {suggestions.map((o) => (
+                <option key={o} value={o} />
+              ))}
+            </datalist>
+          )}
+        </>
       ) : f.type === 'select' ? (
         <select value={value} onChange={(e) => onChange(e.target.value)} onBlur={() => setTouched(true)} className={inputClass}>
           <option value="">—</option>
@@ -96,12 +168,16 @@ function SingleField({
       ) : (
         <input
           type={f.type === 'date' ? 'date' : 'text'}
+          inputMode={f.type === 'ipv4' ? 'numeric' : undefined}
           value={value}
           onChange={(e) => onChange(e.target.value)}
           onBlur={() => setTouched(true)}
           placeholder={f.placeholder}
-          className={inputClass}
+          className={`${inputClass} ${badAddress && touched ? 'border-warn' : ''}`}
         />
+      )}
+      {badAddress && touched && (
+        <span className="mt-1 block text-xs text-warn">Four numbers, 0–255, e.g. 172.16.0.10</span>
       )}
       {f.help && <span className="mt-1 block text-xs text-muted">{f.help}</span>}
       {f.required && empty && touched && (
@@ -136,10 +212,15 @@ function NamingWarnings({ group, rows }: { group: FieldGroup; rows: Record<strin
 export function DeliverableForm({
   def,
   data,
+  ctx = emptyFormContext(),
   onChange,
 }: {
   def: DeliverableDef;
   data: DeliverableData;
+  /** What this form can see beyond itself: the team's other documents, the
+   *  hostnames they name, and the artifacts this member has hashed. Defaulted
+   *  so a caller that does not care still renders. */
+  ctx?: FormContext;
   onChange: (next: DeliverableData) => void;
 }) {
   const setField = (k: string, v: string) =>
@@ -175,7 +256,7 @@ export function DeliverableForm({
             )}
             <div className="grid gap-4 md:grid-cols-2">
               {s.fields.map((f) => (
-                <SingleField key={f.field} f={f} fields={data.fields} onChange={(v) => setField(f.field, v)} />
+                <SingleField key={f.field} f={f} fields={data.fields} ctx={ctx} onChange={(v) => setField(f.field, v)} />
               ))}
             </div>
           </div>
@@ -186,6 +267,7 @@ export function DeliverableForm({
             <RegisterTable
               columns={s.group.columns}
               rows={data.groups[s.group.group] ?? []}
+              ctx={ctx}
               onChange={(rows) => setGroup(s.group.group, rows)}
             />
             <NamingWarnings group={s.group} rows={data.groups[s.group.group] ?? []} />

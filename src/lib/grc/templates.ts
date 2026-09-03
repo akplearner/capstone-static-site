@@ -4,13 +4,28 @@ import type { RegisterRow, GrcData } from '../types';
 // Column schema for the generic RegisterTable. `derived` columns are computed
 // (read-only) from the other fields, so students don't hand-calculate severity
 // or risk level.
-export type ColumnType = 'text' | 'number' | 'select' | 'area' | 'date';
+export type ColumnType =
+  | 'text'
+  | 'number'
+  | 'select'
+  | 'area'
+  | 'date'
+  | 'ipv4'
+  | 'hostref'
+  | 'duration'
+  | 'evidence';
 export interface Column {
   field: string;
   label: string;
   type: ColumnType;
   options?: string[];
   derived?: (row: RegisterRow) => string;
+  /** Unit for a `number` column — GB, ports, minutes. Shown inside the cell. */
+  unit?: string;
+  /** For an `ipv4` column: the sibling column naming the subnet this address
+   *  should sit in, so the cell can say "that is not in the zone you named"
+   *  rather than only checking the shape. */
+  subnetFrom?: string;
   /** An EXAMPLE of a good value. */
   placeholder?: string;
   /**

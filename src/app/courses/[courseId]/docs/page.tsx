@@ -25,10 +25,11 @@ import { readResume } from '@/lib/resume';
 import { useMember } from '@/lib/useMember';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
-import { docsRepo } from '@/lib/data';
+import { docsRepo, evidenceRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
-import { DeliverableData, emptyData } from '@/lib/docs/types';
+import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
 import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
+import { buildFormContext } from '@/lib/docs/formContext';
 import type { DeliverableDef } from '@/lib/docs/types';
 import { unitWord } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
@@ -240,6 +241,16 @@ export default function DeliverablesPage() {
     dueThisWeek[0]?.id ??
     null;
   const currentDef = dueThisWeek.find((d) => d.id === currentId) ?? null;
+
+  // What every form on this page can see beyond itself: the team's other
+  // documents (so a hostname is picked, not retyped) and the artifacts this
+  // member has hashed (so evidence is referenced, not described). Built once
+  // here rather than reached for from inside a cell renderer.
+  const formCtx: FormContext = buildFormContext(
+    saved,
+    courseDefs,
+    evidenceRepo.getArtifacts(course.id, member.memberId).map((a) => ({ filename: a.filename, sha256: a.sha256 }))
+  );
 
   const gate = course.noGatekeeping ? undefined : course.gates.find((g) => g.week === selectedWeek);
   const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
@@ -485,6 +496,7 @@ export default function DeliverablesPage() {
           <FormSection
             def={currentDef}
             saved={saved}
+            ctx={formCtx}
             authorized={authorized}
             noGatekeeping={course.noGatekeeping}
             meta={meta}
@@ -516,6 +528,7 @@ export default function DeliverablesPage() {
                 <FormSection
                   def={currentDef}
                   saved={saved}
+                  ctx={formCtx}
                   authorized={authorized}
                   noGatekeeping={course.noGatekeeping}
                   meta={meta}
@@ -563,6 +576,7 @@ function ToolButton({
 function FormSection({
   def,
   saved,
+  ctx,
   authorized,
   noGatekeeping,
   meta,
@@ -570,6 +584,7 @@ function FormSection({
 }: {
   def: DeliverableDef;
   saved: DocsMap;
+  ctx: FormContext;
   authorized: boolean;
   noGatekeeping?: boolean;
   meta: { team: string; cohort: string; date: string; courseId: string };
@@ -717,7 +732,7 @@ function FormSection({
           </div>
         </div>
       ) : (
-        <DeliverableForm def={def} data={data} onChange={(next) => onChange(def.id, next)} />
+        <DeliverableForm def={def} data={data} ctx={ctx} onChange={(next) => onChange(def.id, next)} />
       )}
     </section>
   );
