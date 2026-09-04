@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, HTMLMotionProps } from 'framer-motion';
+import { SPRING } from '@/lib/motion';
 
 // Card, Badge, Tabs and Collapsible used to live in this file, which made them
 // invisible — pages hand-rolled card markup (and raw gray-* classes with it)
@@ -64,6 +65,11 @@ export function Button({
       // while refusing to do anything reads as broken rather than as disabled.
       whileHover={disabled ? undefined : { scale: 1.02 }}
       whileTap={disabled ? undefined : { scale: 0.97 }}
+      // The press spring, which shipped in R63 and was used nowhere: every
+      // hover and tap in the app fell through to framer's default instead.
+      // A control answering a finger is the one place a spring is obviously
+      // right, and this is the stiffest of the two so it is over in ~150ms.
+      transition={SPRING.press}
       disabled={disabled}
       className={`focusable ${variantStyles[variant]} ${sizeStyles[size]} ${disabledStyles} rounded-lg font-medium transition-[background-color,box-shadow,color] ${className}`}
       {...props}

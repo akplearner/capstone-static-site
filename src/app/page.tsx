@@ -114,7 +114,12 @@ export default function HomePage() {
     animate: { opacity: 1, y: 0 },
     transition: reduce
       ? { duration: 0 }
-      : { duration: 0.45, delay: Math.min(i * 0.06, 0.4) },
+      : // Deliberately off the interaction scale in `lib/motion.ts`, for the
+        // same reason `quarry/**` is: this is the front door arriving, not a
+        // control answering a click. Nothing is waiting on it. R47 tuned this
+        // stagger; `DUR.reveal` would be less than half as long and would make
+        // the hero read as a flicker rather than a reveal.
+        { duration: 0.45, delay: Math.min(i * 0.06, 0.4) },
   });
 
   return (

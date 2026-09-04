@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { SocTopology } from '@/lib/labTopology';
+import { DUR } from '@/lib/motion';
 
 /**
  * The SOC lab "one picture" — a shared Wazuh SOC on one flat network, N team
@@ -53,21 +54,21 @@ export function SocTopologyDiagram({ topo }: { topo: SocTopology }) {
             <rect x="40" y="44" width="880" height="246" rx="12" fill="none" stroke="var(--color-line)" strokeWidth="1" strokeDasharray="6 5" />
 
             {/* Kali attacker */}
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.reveal }}>
               <rect x="64" y="72" width="160" height="54" rx="10" fill="var(--color-panel-2)" stroke="var(--color-w4)" strokeWidth="1" />
               <text x="80" y="95" fill="var(--color-w4)" fontFamily="var(--font-sans)" fontSize="13" fontWeight="600">{topo.attacker.name}</text>
               <text x="80" y="113" fill="var(--color-w4)" fontFamily="var(--font-mono)" fontSize="9">{topo.attacker.note}</text>
             </motion.g>
 
             {/* Analyst browser */}
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.05 }}>
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.reveal, delay: 0.05 }}>
               <rect x="64" y="150" width="160" height="54" rx="10" fill="var(--color-panel-2)" stroke="var(--color-line)" strokeWidth="1" />
               <text x="80" y="173" fill="var(--color-ink)" fontFamily="var(--font-sans)" fontSize="13" fontWeight="600">{topo.browser.name}</text>
               <text x="80" y="191" fill="var(--color-muted)" fontFamily="var(--font-mono)" fontSize="9">{topo.browser.note}</text>
             </motion.g>
 
             {/* Team pod */}
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.1 }}>
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.reveal, delay: 0.1 }}>
               <rect x="250" y="62" width="290" height="172" rx="12" fill="none" stroke="var(--color-line)" strokeWidth="1" strokeDasharray="5 4" />
               <text x="262" y="82" fill="var(--color-muted)" fontFamily="var(--font-mono)" fontSize="10" letterSpacing="1.4">YOUR TEAM POD (×{topo.teamCount})</text>
               <rect x="262" y="92" width="266" height="54" rx="9" fill="var(--color-panel)" stroke="var(--color-w2)" strokeWidth="1" />
@@ -81,7 +82,7 @@ export function SocTopologyDiagram({ topo }: { topo: SocTopology }) {
             </motion.g>
 
             {/* Wazuh SOC hub */}
-            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3, delay: 0.15 }}>
+            <motion.g initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: DUR.reveal, delay: 0.15 }}>
               <rect x="570" y="62" width="330" height="164" rx="13" fill="url(#soc-sg)" stroke="var(--color-accent)" strokeWidth="1.3" />
               <text x="590" y="90" fill="#fff" fontFamily="var(--font-sans)" fontSize="15.5" fontWeight="700">{topo.soc.name}</text>
               <text x="590" y="110" fill="var(--color-accent)" fontFamily="var(--font-mono)" fontSize="12" fontWeight="600">{topo.soc.ip}</text>

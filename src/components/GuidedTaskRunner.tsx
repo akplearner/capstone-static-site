@@ -22,6 +22,7 @@ import { recordResume } from '@/lib/resume';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo, evidenceRepo } from '@/lib/data';
 import { selfAttested } from '@/lib/evidenceLedger';
+import { DUR } from '@/lib/motion';
 
 /** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
  *  inside a component-body function as render work, even when it only runs from
@@ -255,7 +256,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: DUR.reveal }}
               className="rounded-lg border border-line bg-panel-2 p-5"
             >
               <div className="mb-3 flex items-start justify-between gap-3">

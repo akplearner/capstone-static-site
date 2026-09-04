@@ -7,6 +7,7 @@ import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { Button } from '@/components/ui/Button';
 import { PATHS, resolvePath, type CareerPath } from '@/lib/catalog/paths';
 import { vendorById } from '@/lib/catalog';
+import { DUR, EASE } from '@/lib/motion';
 
 /**
  * The career track, drawn as a run of stones.
@@ -54,7 +55,7 @@ export function PathRail({
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.05 }}
+              transition={{ delay: i * 0.05, duration: DUR.reveal, ease: EASE.out }}
               data-region={vendor?.region}
               className={`flex h-full min-w-[9.5rem] flex-1 flex-col gap-1 rounded-lg border p-3 ${
                 r.current

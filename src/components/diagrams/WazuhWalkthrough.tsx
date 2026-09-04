@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { SOC_IP, SOC_URL } from '@/lib/labTopology';
+import { DUR } from '@/lib/motion';
 
 /**
  * An annotated, code-drawn walkthrough of a tool's UI — a simplified mock of the
@@ -41,7 +42,7 @@ function Marker({ n, present }: { n: number; present: Set<number> }) {
     <motion.span
       initial={{ opacity: 0, scale: 0.6 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: Math.min(n * 0.06, 0.5), duration: 0.2 }}
+      transition={{ delay: Math.min(n * 0.06, 0.5), duration: DUR.reveal }}
       className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[10px] font-bold text-white shadow"
       style={{ background: 'var(--color-danger)' }}
       aria-hidden

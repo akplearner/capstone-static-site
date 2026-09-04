@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { RoleDef } from '@/lib/types';
 import { LAB_SUBNET, labHost, WEEK_WIRE } from '@/lib/labTopology';
 import { DiagramFrame } from './DiagramFrame';
+import { DUR } from '@/lib/motion';
 
 interface ArchitectureDiagramProps {
   roles: RoleDef[];
@@ -70,7 +71,7 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
 
         {/* Attacker (Red) */}
         {has('red') && (
-          <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('red') }} transition={{ duration: 0.3 }}>
+          <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('red') }} transition={{ duration: DUR.reveal }}>
             <rect x="24" y="120" width="140" height="72" rx="10" fill={red} fillOpacity={0.12} stroke={red} strokeWidth={highlightRole === 'red' ? 3 : 2} />
             <text x="94" y="148" textAnchor="middle" fontSize="12" fontWeight="700" fill={red}>Attacker</text>
             <text x="94" y="164" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Kali · Red</text>
@@ -120,7 +121,7 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
 
         {/* SOC / monitoring (Blue) */}
         {has('blue') && (
-          <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('blue') }} transition={{ duration: 0.3 }}>
+          <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('blue') }} transition={{ duration: DUR.reveal }}>
             <rect x="300" y="300" width="170" height="66" rx="10" fill={blue} fillOpacity={0.12} stroke={blue} strokeWidth={highlightRole === 'blue' ? 3 : 2} />
             <text x="385" y="328" textAnchor="middle" fontSize="12" fontWeight="700" fill={blue}>SOC / Monitoring</text>
             <text x="385" y="344" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Blue · logs, pcap, alerts</text>
@@ -134,7 +135,7 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
 
         {/* GRC governance band */}
         {has('grc') && (
-          <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('grc') }} transition={{ duration: 0.3 }}>
+          <motion.g initial={{ opacity: 0 }} animate={{ opacity: dim('grc') }} transition={{ duration: DUR.reveal }}>
             <rect x="24" y="300" width="250" height="66" rx="10" fill={grc} fillOpacity={0.1} stroke={grc} strokeWidth={highlightRole === 'grc' ? 3 : 2} strokeDasharray="6 4" />
             <text x="149" y="326" textAnchor="middle" fontSize="11.5" fontWeight="700" fill={grc}>Governance · Risk · Compliance</text>
             <text x="149" y="343" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">GRC · policy, SOPs, risk & evidence</text>

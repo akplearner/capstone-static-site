@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { meter } from '@/lib/motion';
 import { ShieldCheck } from 'lucide-react';
 import type { CourseMetrics } from '@/lib/metrics';
 import { evidenceQuality } from '@/lib/metrics';
@@ -49,11 +50,11 @@ export function VerificationBar({ m, compact }: { m: CourseMetrics; compact?: bo
         aria-label={`${m.verified} of ${m.verifiable} checkable steps verified from pasted output`}
       >
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
+          className="absolute inset-0 origin-left rounded-full"
           style={{ background: 'var(--color-accent)' }}
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: pct / 100 }}
+          transition={meter}
         />
       </div>
       {!compact && (

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { meter } from '@/lib/motion';
 
 /**
  * A small SVG progress ring for ratios with a known denominator — the number
@@ -45,7 +46,7 @@ export function ProgressRing({
         strokeDasharray={c}
         initial={{ strokeDashoffset: c }}
         animate={{ strokeDashoffset: c * (1 - pct) }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
+        transition={meter}
         className="stroke-accent"
       />
       <text

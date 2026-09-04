@@ -1279,7 +1279,7 @@ export default function CoursePage() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
+          transition={{ delay: 0.05, duration: DUR.reveal, ease: EASE.out }}
           whileHover={{ y: -2 }}
           className="rounded-[var(--radius-card)] border border-l-4 border-line bg-panel p-5 shadow-[var(--shadow-1)] transition-shadow hover:shadow-[var(--shadow-2)]"
           style={{ borderLeftColor: ownRole.color }}

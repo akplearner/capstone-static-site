@@ -7,6 +7,7 @@ import { CheckCircle2, Image as ImageIcon, Target } from 'lucide-react';
 import { GlossaryText } from './GlossaryText';
 import { locateTargets, type OutputTarget } from '@/lib/stepOutcome';
 import type { Step } from '@/lib/types';
+import { DUR } from '@/lib/motion';
 
 /**
  * "What you should see."
@@ -105,7 +106,7 @@ export function AnnotatedTerminal({
                 key={h.n}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: DUR.reveal }}
                 className="flex gap-2 text-sm text-muted"
               >
                 <MarkerBadge n={h.n} />
@@ -179,7 +180,7 @@ export function OutcomeCard({
                     key={t.text}
                     initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: DUR.reveal }}
                     className="flex gap-2 text-sm text-ink"
                   >
                     <MarkerBadge n={i + 1} />

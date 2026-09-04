@@ -358,6 +358,43 @@ describe('design tokens — palette classes do not come back', () => {
     );
   });
 
+  /**
+   * A transition with no timing is a transition nobody chose.
+   *
+   * Five sites shipped `transition={{ delay: … }}` and nothing else, which
+   * falls through to framer's defaults — a spring for transforms, 300ms for
+   * everything else. That is how two elements told to move together ended up
+   * moving apart. Every transition object must name a duration or a spring.
+   *
+   * `quarry/**` is exempt: its draw-ins and ambient loops are scene-setting at
+   * 0.4s-6s, deliberately off the interaction scale (see `lib/motion.ts`).
+   */
+  it('every transition declares its timing', () => {
+    const offenders: string[] = [];
+    for (const f of collectSourceFiles('src')) {
+      if (f.startsWith('src/components/quarry/')) continue;
+      for (const m of code(f).matchAll(/transition=\{\{([^}]*)\}\}/g)) {
+        if (!/duration|type:\s*'spring'/.test(m[1])) offenders.push(`${f}: {{${m[1].trim()}}}`);
+      }
+    }
+    expect(offenders, 'name a DUR value or a SPRING preset').toEqual([]);
+  });
+
+  /**
+   * A meter animates its transform, never its width.
+   *
+   * A width transition re-lays-out its row on every frame, and — the part that
+   * actually bites — `MotionConfig reducedMotion="user"` stills TRANSFORMS, so
+   * a width animation keeps running at full speed for a student who asked for
+   * none. Three bar meters were doing exactly that until R64-C.
+   */
+  it('no motion element animates its width', () => {
+    const offenders = collectSourceFiles('src').filter((f) =>
+      /animate=\{\{[^}]*\bwidth:/.test(code(f))
+    );
+    expect(offenders, 'scale a full-width bar from its left edge instead').toEqual([]);
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));

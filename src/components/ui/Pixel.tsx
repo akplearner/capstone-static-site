@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { DUR, meter } from '@/lib/motion';
 import clsx from 'clsx';
 import type { Milestone } from '@/lib/quarry';
 
@@ -81,11 +82,11 @@ export function StepTally({
         aria-label={`${done} of ${total} steps complete`}
       >
         <motion.div
-          className="absolute inset-y-0 left-0 rounded-full"
+          className="absolute inset-0 origin-left rounded-full"
           style={{ background: 'var(--color-accent)' }}
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: pct / 100 }}
+          transition={meter}
         />
       </div>
       <span className="font-mono text-2xs text-muted" title={`${done} of ${total} steps`}>
@@ -105,7 +106,7 @@ export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
           key={b.id}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: DUR.reveal }}
         >
           <PixelBadge tone={b.earned ? 'accent' : 'muted'} title={b.hint} className={b.earned ? '' : 'opacity-60'}>
             {b.label}

@@ -16,6 +16,7 @@ import type { Transition, Variants } from 'framer-motion';
  *
  * ── Which one to reach for ──
  *   press    a control reacting under the cursor or the finger
+ *   disclosure  a panel opening or closing in place
  *   slide    a bounded element moving to a new position (the tab underline,
  *            the week pill) — a spring, because a position change wants
  *            momentum, and springs are the one thing framer stills for free
@@ -34,6 +35,10 @@ import type { Transition, Variants } from 'framer-motion';
 export const DUR = {
   press: 0.12,
   swap: 0.15,
+  /** A disclosure opening or closing. The three in the app already agreed on
+   *  this number before there was a name for it; it is here so they can keep
+   *  it rather than be rounded to `reveal`. */
+  disclosure: 0.18,
   reveal: 0.2,
   meter: 0.45,
 } as const;
@@ -79,3 +84,15 @@ export const reveal: Variants = {
  * The call sites scale a full-width bar from its left edge instead.
  */
 export const meter: Transition = { duration: DUR.meter, ease: EASE.out };
+
+/**
+ * The exception this file does NOT cover: `src/components/quarry/**`.
+ *
+ * Three `pathLength` draw-ins (CapstoneStone's scribe marks and bezel,
+ * DeliverableChain's edges) and three ambient loops run at 0.4s to 6s — an
+ * order of magnitude past the interaction budget above, deliberately. They are
+ * scene-setting, not feedback: nothing is waiting on them and no click is
+ * pending. Tokenising them would either speed them up out of recognition or
+ * drag the scale up to meet them. Left bespoke on purpose; the ambient loops
+ * are gated on `useReducedMotionSafe`, which is the part that actually matters.
+ */

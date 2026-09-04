@@ -7,6 +7,7 @@ import { EVIDENCE_NAMING_PNG, evidencePackageDir } from '@/lib/evidence';
 import { roleFolder } from '@/lib/docs/package';
 import { Role, RoleDef, FolderNode } from '@/lib/types';
 import { DeliverableDef } from '@/lib/docs/types';
+import { DUR } from '@/lib/motion';
 
 /**
  * The submission folder structure, built from the deliverables' `folder`/`file`
@@ -140,7 +141,7 @@ export function TreeNode({ node, depth = 0, index = 0, roles }: { node: Node; de
     <motion.li
       initial={{ opacity: 0, x: -6 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: Math.min(depth * 0.04 + index * 0.03, 0.4), duration: 0.18 }}
+      transition={{ delay: Math.min(depth * 0.04 + index * 0.03, 0.4), duration: DUR.disclosure }}
     >
       <span className="flex items-center gap-1.5">
         <NodeIcon node={node} />

@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
+import { DUR } from '@/lib/motion';
 
 /**
  * The Week-2 triage decision, drawn.
@@ -54,7 +55,7 @@ export function TriageDecisionTree() {
             key={b.verdict}
             initial={{ opacity: 0, x: -6 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.06, duration: 0.25 }}
+            transition={{ delay: i * 0.06, duration: DUR.reveal }}
             className="grid grid-cols-[1fr_auto_1.2fr] items-center gap-2"
           >
             <div className="rounded-md border border-line bg-panel px-3 py-2 text-sm text-muted">{b.q}</div>

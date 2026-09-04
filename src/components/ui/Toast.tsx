@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, Info, AlertTriangle, XCircle, X } from 'lucide-react';
 import { toast, subscribeToasts, type ToastInput, type ToastVariant } from '@/lib/toastBus';
+import { DUR } from '@/lib/motion';
 
 export { toast };
 export type { ToastInput, ToastVariant };
@@ -74,7 +75,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 initial={{ opacity: 0, y: 12, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20 }}
-                transition={{ duration: 0.18 }}
+                transition={{ duration: DUR.disclosure }}
                 className={`pointer-events-auto flex items-start gap-2 rounded-[var(--radius-card)] border bg-panel p-3 shadow-[var(--shadow-3)] ${s.ring}`}
                 role={t.variant === 'error' ? 'alert' : 'status'}
               >

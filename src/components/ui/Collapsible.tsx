@@ -3,6 +3,7 @@
 import React from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import { DUR, EASE } from '@/lib/motion';
 
 /**
  * Disclosure is for tools and actions, never for reading material — prose either
@@ -49,7 +50,7 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
           aria-hidden
           className="text-muted"
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.18, ease: 'easeOut' }}
+          transition={{ duration: DUR.disclosure, ease: EASE.out }}
         >
           <ChevronDown className="h-4 w-4" />
         </motion.span>
@@ -62,7 +63,7 @@ export function Collapsible({ title, children, defaultOpen = false }: Collapsibl
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.18, ease: 'easeOut' }}
+              transition={{ duration: DUR.disclosure, ease: EASE.out }}
               className="overflow-hidden"
             >
               <div className="pb-3 pl-4">{children}</div>

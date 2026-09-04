@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
+import { DUR } from '@/lib/motion';
 
 /**
  * Likelihood × impact, as an actual grid.
@@ -77,7 +78,7 @@ export function RiskMatrix() {
                     key={likelihood}
                     initial={{ opacity: 0, scale: 0.96 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: i * 0.03, duration: 0.2 }}
+                    transition={{ delay: i * 0.03, duration: DUR.reveal }}
                     className="rounded-md px-2 py-3 text-center text-xs font-semibold text-white"
                     style={{ background: SEVERITY[sev] }}
                   >

@@ -30,6 +30,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type { Course, Member } from '@/lib/types';
 import type { CrewProgress } from '@/lib/game';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { DUR, EASE } from '@/lib/motion';
 
 // The signed-in home: every capstone you've started, how far each stone is cut,
 // and — the number that actually matters — how much of it you proved against
@@ -298,7 +299,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      transition={{ delay: index * 0.06 }}
+      transition={{ delay: index * 0.06, duration: DUR.reveal, ease: EASE.out }}
       className="group flex flex-col rounded-[var(--radius-card)] border border-line border-l-4 border-l-[var(--color-accent)] bg-panel p-6 shadow-[var(--shadow-card)] transition-colors hover:border-accent"
     >
       <div className="flex items-start justify-between gap-2">

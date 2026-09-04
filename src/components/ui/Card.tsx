@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
+import { DUR } from '@/lib/motion';
 
 /**
  * The panel card, and the platform's interaction standard for anything clickable.
@@ -30,7 +31,7 @@ export function Card({ children, className = '', interactive = false, ...props }
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       whileHover={interactive ? { y: -2 } : undefined}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: DUR.reveal }}
       className={`rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-1)] ${
         interactive
           ? // An interactive card carries the focus ring itself, because the

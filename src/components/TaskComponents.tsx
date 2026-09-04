@@ -37,7 +37,7 @@ import { WazuhWalkthrough } from './diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { Collapsible } from './ui/Button';
-import { meter } from '@/lib/motion';
+import { DUR, EASE, meter } from '@/lib/motion';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -779,7 +779,7 @@ export function ChecklistItem({
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  transition={{ duration: DUR.disclosure, ease: EASE.out }}
                   className="overflow-hidden"
                 >
                   <div className="mt-3 border-t border-line pt-3">

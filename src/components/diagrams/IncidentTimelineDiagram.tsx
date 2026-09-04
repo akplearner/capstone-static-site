@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
+import { DUR } from '@/lib/motion';
 
 /**
  * What an incident timeline looks like, on an actual time axis.
@@ -80,7 +81,7 @@ export function IncidentTimelineDiagram() {
               key={e.t}
               initial={{ opacity: 0, scale: 0.5 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.07, duration: 0.25 }}
+              transition={{ delay: i * 0.07, duration: DUR.reveal }}
               className="absolute top-1 h-3.5 w-3.5 -translate-x-1/2 rounded-full border-2"
               style={{ left: `${pct(e.min)}%`, background: TONE[e.kind], borderColor: 'var(--color-panel)' }}
               aria-hidden
@@ -95,7 +96,7 @@ export function IncidentTimelineDiagram() {
               key={e.t}
               initial={{ opacity: 0, x: -4 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05, duration: 0.2 }}
+              transition={{ delay: i * 0.05, duration: DUR.reveal }}
               className="grid grid-cols-[54px_14px_1fr_auto] items-center gap-2 rounded-md border border-line bg-panel px-2 py-1.5"
             >
               <span className="font-mono text-2xs text-ink">{e.t}</span>

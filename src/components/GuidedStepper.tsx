@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { meter } from '@/lib/motion';
 import { CheckCircle2, Circle, Lock, MapPin } from 'lucide-react';
 
 export type StepperStatus = 'done' | 'current' | 'upcoming' | 'locked';
@@ -77,12 +78,12 @@ export function GuidedStepper({ items, onSelect, className = '' }: GuidedStepper
               </div>
             </div>
             {!isLast && (
-              <div className="mt-5 h-0.5 flex-1 overflow-hidden rounded-full bg-line">
+              <div className="relative mt-5 h-0.5 flex-1 overflow-hidden rounded-full bg-line">
                 <motion.div
-                  className="h-full rounded-full bg-ok"
-                  initial={{ width: 0 }}
-                  animate={{ width: connectorActive ? '100%' : '0%' }}
-                  transition={{ duration: 0.4 }}
+                  className="absolute inset-0 origin-left rounded-full bg-ok"
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: connectorActive ? 1 : 0 }}
+                  transition={meter}
                 />
               </div>
             )}

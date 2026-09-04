@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Button } from './Button';
+import { DUR } from '@/lib/motion';
 
 /**
  * Accessible modal: role="dialog" + aria-modal, Escape to close, backdrop click,
@@ -76,7 +77,7 @@ export function Dialog({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          transition={{ duration: DUR.swap }}
         >
           <div className="absolute inset-0 bg-black/40" onClick={onClose} aria-hidden />
           <motion.div
@@ -88,7 +89,7 @@ export function Dialog({
             initial={{ opacity: 0, y: 16, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.18 }}
+            transition={{ duration: DUR.disclosure }}
             className="relative z-10 w-full max-w-md rounded-[var(--radius-card)] border border-line bg-panel p-5 shadow-[var(--shadow-3)]"
           >
             <div className="mb-2 flex items-start justify-between gap-4">

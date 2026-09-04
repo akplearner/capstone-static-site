@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { RoleDef } from '@/lib/types';
+import { DUR, EASE } from '@/lib/motion';
 
 interface RoleInterplayDiagramProps {
   roles: RoleDef[];
@@ -56,7 +57,7 @@ export function RoleInterplayDiagram({ roles, highlightRole }: RoleInterplayDiag
               key={role.id}
               initial={{ scale: 0.7, opacity: 0 }}
               animate={{ scale: 1, opacity: dim ? 0.4 : 1 }}
-              transition={{ delay: 0.1 + i * 0.08 }}
+              transition={{ delay: 0.1 + i * 0.08, duration: DUR.reveal, ease: EASE.out }}
             >
               <circle cx={p.x} cy={p.y} r={nodeR} fill={role.color} opacity={0.15} />
               <circle

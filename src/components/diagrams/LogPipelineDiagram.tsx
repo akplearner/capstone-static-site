@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { SOC_IP } from '@/lib/labTopology';
+import { DUR } from '@/lib/motion';
 
 /**
  * How a log actually reaches the dashboard — the mental model behind almost
@@ -45,7 +46,7 @@ export function LogPipelineDiagram() {
               <motion.div
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05, duration: 0.25 }}
+                transition={{ delay: i * 0.05, duration: DUR.reveal }}
                 className="flex w-[104px] flex-col rounded-md border border-line bg-panel p-2"
                 style={{ borderTopColor: tone, borderTopWidth: 2 }}
               >

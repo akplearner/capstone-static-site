@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { DUR, SPRING } from '@/lib/motion';
 
 interface TabsProps {
   /** `label` is a ReactNode so a tab can carry state — a done tick, a lock — next
@@ -62,7 +63,7 @@ export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
                 <motion.span
                   layoutId={indicatorId}
                   className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-accent"
-                  transition={{ type: 'spring', stiffness: 480, damping: 38 }}
+                  transition={SPRING.slide}
                 />
               )}
             </motion.button>
@@ -76,7 +77,7 @@ export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
         aria-labelledby={`tab-${activeTab}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: DUR.reveal }}
       >
         {children}
       </motion.div>

@@ -6,6 +6,7 @@ import { ArrowRight, Lock, Route } from 'lucide-react';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { courseHref, type CatalogEntry } from '@/lib/catalog';
 import { levelDef } from '@/lib/catalog/levels';
+import { DUR, EASE } from '@/lib/motion';
 
 /**
  * One credential in the catalog, drawn as a stone card.
@@ -39,7 +40,7 @@ export function CatalogCard({
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: Math.min(index * 0.04, 0.3) }}
+      transition={{ delay: Math.min(index * 0.04, 0.3), duration: DUR.reveal, ease: EASE.out }}
       className={`group relative flex h-full flex-col rounded-[var(--radius-card)] border p-4 transition-colors ${
         available
           ? `bg-panel shadow-[var(--shadow-card)] hover:border-accent ${
