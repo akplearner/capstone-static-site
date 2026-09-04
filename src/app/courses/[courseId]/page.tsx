@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
@@ -543,7 +543,7 @@ function TaskRow({
   isNext,
   number,
   focus,
-  children,
+  renderBody,
 }: {
   course: Course;
   task: Task;
@@ -561,7 +561,21 @@ function TaskRow({
    *  Continuous across the shared lane then the focus lane — the same order
    *  the removed WeekTaskFlow cards displayed. Reference tasks: unnumbered. */
   number?: number;
-  children: React.ReactNode;
+  /**
+   * The body, as a thunk rather than an element.
+   *
+   * This was `children`, which meant every call site evaluated
+   * `renderTaskBody(task, …)` for EVERY row — including the collapsed ones,
+   * whose body is then thrown away by the `open &&` below. That is a whole
+   * `GuidedTaskRunner` element tree per row, and worse, `renderTaskBody` ran a
+   * loop over `sortedWeeks × getTasksByRole` to find the next incomplete task,
+   * so a week of 5 collapsed tasks did that search 5 times for nothing.
+   *
+   * A function is called only where the result is used. It also removes the one
+   * thing that made `React.memo` on this component impossible — `children` was
+   * a fresh element tree on every render, so a memo could never have hit.
+   */
+  renderBody: () => React.ReactNode;
 }) {
   const canOpen = joined;
   const card = taskCard(course, task, percent);
@@ -663,7 +677,7 @@ function TaskRow({
               here, above the steps, on every open task. It moved into the
               "About this task" disclosure (TaskAboutPanel) — the checklist
               comes first now. */}
-          {children}
+          {renderBody()}
         </div>
       )}
     </div>
@@ -753,6 +767,33 @@ export default function CoursePage() {
     };
   }, EMPTY_STATS);
 
+  // Weeks in order. Memoised because `incompleteTasks` below depends on it, and
+  // a fresh array every render would make that memo miss every time — which is
+  // the same as not having it. Hooks live above the early returns.
+  const sortedWeeks = useMemo(
+    () => [...course.weeks].sort((a, b) => a.number - b.number),
+    [course.weeks]
+  );
+
+  /**
+   * Every incomplete task for this role, in week order.
+   *
+   * This search used to live inside `renderTaskBody`, which ran it once per task
+   * row — a full `sortedWeeks × getTasksByRole` walk, repeated for every task on
+   * the week, to answer "what comes after me?" for a runner that only the one
+   * open row ever shows. One ordered list answers it for all of them, and "the
+   * next one that is not me" is then a scan of an array we already have.
+   */
+  const incompleteTasks = useMemo(() => {
+    if (!member) return [] as Task[];
+    return sortedWeeks.flatMap((w) =>
+      getTasksByRole(course, member.role, w.number).filter((t) => (taskStats[t.id] ?? 0) < 100)
+    );
+  }, [course, member, sortedWeeks, taskStats]);
+
+  const nextIncompleteAfter = (taskId: string): Task | undefined =>
+    incompleteTasks.find((t: Task) => t.id !== taskId);
+
   // The week on screen: the student's pick (or a `?week=` deep link), else
   // where the resume pointer says they stopped.
   const effectiveWeek = selectedWeek ?? activeWeek;
@@ -806,7 +847,7 @@ export default function CoursePage() {
   }
 
   const joined = !!member;
-  const sortedWeeks = [...course.weeks].sort((a, b) => a.number - b.number);
+
 
   // Gate sequencing: a week stays locked until the previous week's gate is passed,
   // so students work in order. Instructors (or local dev passcode) bypass it.
@@ -1012,14 +1053,8 @@ export default function CoursePage() {
     <>
       {isOwn && member ? (
         (() => {
-          // The next incomplete task for this role, ordered by week, excluding this one.
-          let following: Task | undefined;
-          for (const w of sortedWeeks) {
-            const t = getTasksByRole(course, member.role, w.number).find(
-              (tk) => tk.id !== task.id && (taskStats[tk.id] ?? 0) < 100
-            );
-            if (t) { following = t; break; }
-          }
+          // Which task follows this one, from the order computed once above.
+          const following = nextIncompleteAfter(task.id);
           return (
             <GuidedTaskRunner
               task={task}
@@ -1446,9 +1481,8 @@ export default function CoursePage() {
                       open={expanded.has(task.id)}
                       percent={taskStats[task.id] ?? 0}
                       onToggle={() => toggleTask(task)}
-                    >
-                      {renderTaskBody(task, true)}
-                    </TaskRow>
+                      renderBody={() => renderTaskBody(task, true)}
+                    />
                   ))}
                 </div>
               )}
@@ -1599,9 +1633,8 @@ export default function CoursePage() {
                         focus={!!course.sharedTrack && !task.shared}
                         percent={taskStats[task.id] ?? 0}
                         onToggle={() => toggleTask(task)}
-                      >
-                        {renderTaskBody(task, true)}
-                      </TaskRow>
+                        renderBody={() => renderTaskBody(task, true)}
+                      />
                     ))}
                   </div>
 
@@ -1647,9 +1680,8 @@ export default function CoursePage() {
                                     open={expanded.has(task.id)}
                                     percent={taskStats[task.id] ?? 0}
                                     onToggle={() => toggleTask(task)}
-                                  >
-                                    {renderTaskBody(task, false)}
-                                  </TaskRow>
+                                    renderBody={() => renderTaskBody(task, false)}
+                                  />
                                 ))}
                               </div>
                             );
