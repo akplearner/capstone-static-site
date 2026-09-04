@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
-import { LoadingBlock } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
@@ -64,6 +63,7 @@ import { Course, GateStatus, Member, Task } from '@/lib/types';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { Alert } from '@/components/ui/Alert';
 import { DUR, EASE, SPRING, meter, swap } from '@/lib/motion';
+import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
 const COHORTS = getMonthlyCohorts(12);
@@ -792,7 +792,7 @@ export default function CoursePage() {
     setTimeout(() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }, [member]);
 
-  if (loading) return <LoadingBlock />;
+  if (loading) return <CoursePageSkeleton />;
 
   if (course.locked) {
     return (

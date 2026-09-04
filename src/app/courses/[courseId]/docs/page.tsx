@@ -9,7 +9,6 @@ import { CourseSubNav } from '@/components/CourseSubNav';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { Collapsible, Tabs } from '@/components/ui/Button';
 import { Dialog } from '@/components/ui/Dialog';
-import { LoadingBlock } from '@/components/ui/Spinner';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { toast } from '@/components/ui/Toast';
 import { Alert } from '@/components/ui/Alert';
@@ -37,6 +36,7 @@ import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleRepor
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
 import { parseTeamId, teamLabel } from '@/lib/team';
+import { DeliverablesSkeleton } from '@/components/ui/Skeletons';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -214,7 +214,7 @@ export default function DeliverablesPage() {
     notifyStore();
   };
 
-  if (loading) return <LoadingBlock />;
+  if (loading) return <DeliverablesSkeleton />;
   if (!member) return <CourseEnrolGate courseId={course.id} what="your deliverables" />;
 
   const teamId = member.teamId;

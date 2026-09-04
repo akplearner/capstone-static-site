@@ -8,11 +8,11 @@ import { GuideManual } from '@/components/docs/GuideManual';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { PageHeader } from '@/components/ui/PageHeader';
-import { LoadingBlock } from '@/components/ui/Spinner';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
+import { GuideSkeleton } from '@/components/ui/Skeletons';
 
 /**
  * The Guide: a screen of orientation, then the manual.
@@ -37,7 +37,7 @@ export default function CourseGuidePage() {
   // Orientation is course material, so it needs enrolment — the same rule the
   // Deliverables page has always applied. Wait for hydration first, or an
   // enrolled student sees the gate flash before their own content.
-  if (loading) return <LoadingBlock />;
+  if (loading) return <GuideSkeleton />;
   if (!member) return <CourseEnrolGate courseId={course.id} what="the guide" />;
 
   const formCount = deliverablesForCourse(course.id).length;

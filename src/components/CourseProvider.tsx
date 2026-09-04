@@ -7,7 +7,7 @@ import { courseRepo } from '@/lib/data';
 import { regionFor, seamFor } from '@/lib/quarry';
 import { useClientStore, useHydrated } from '@/lib/useClientStore';
 import { Button } from './ui/Button';
-import { LoadingBlock } from './ui/Spinner';
+import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 
 // Resolves the course for /courses/[courseId]/* routes. Seeds resolve on first
 // render; instructor-authored (localStorage) courses resolve after mount.
@@ -25,7 +25,7 @@ export function CourseProvider({
 
   if (!course) {
     if (!ready) {
-      return <LoadingBlock label="Loading course…" />;
+      return <CoursePageSkeleton />;
     }
     return (
       <div className="mx-auto max-w-md space-y-4 py-16 text-center">

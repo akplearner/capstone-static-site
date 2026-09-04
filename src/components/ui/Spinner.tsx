@@ -31,10 +31,20 @@ export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
 }
 
 /** Grey placeholder block for skeleton screens. */
-export function Skeleton({ className = '' }: { className?: string }) {
+export function Skeleton({
+  className = '',
+  style,
+}: {
+  className?: string;
+  /** For a width the Tailwind scale doesn't have — the content-shaped
+   *  skeletons in `Skeletons.tsx` trace real element widths, which are
+   *  whatever they are, not multiples of 4px. */
+  style?: React.CSSProperties;
+}) {
   return (
     <div
       className={`animate-pulse rounded-md bg-panel-2 motion-reduce:animate-none ${className}`}
+      style={style}
       aria-hidden
     />
   );
