@@ -62,8 +62,9 @@ import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
 import { Course, GateStatus, Member, Task } from '@/lib/types';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { Alert } from '@/components/ui/Alert';
-import { DUR, EASE, SPRING, meter, swap } from '@/lib/motion';
+import { DUR, EASE, meter, swap } from '@/lib/motion';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
+import { WeekRail } from '@/components/WeekRail';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
 const COHORTS = getMonthlyCohorts(12);
@@ -1489,63 +1490,22 @@ export default function CoursePage() {
             </section>
           )}
 
-          {/* The week rail — the same selector the Deliverables page uses. A
-              tick when the week is done, a lock while its gate is shut, and a
-              slow pulse on the week you are on. */}
-          <nav id="week-rail" aria-label={`${unitWord(course)}s`} className="flex flex-wrap items-center gap-1.5 scroll-under-chrome">
-            {gradedWeeks.map((w) => {
-              const pct = weekStats[w.number] ?? 0;
-              const on = w.number === viewWeek;
-              const isLocked = weekLocked(w.number);
-              return (
-                <button
-                  key={w.number}
-                  type="button"
-                  onClick={() => pickWeek(w.number)}
-                  aria-current={on ? 'true' : undefined}
-                  className={`relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    on ? 'text-accent-contrast' : 'text-muted hover:bg-panel-2 hover:text-ink'
-                  }`}
-                >
-                  {/* The selected fill is one shared element, so changing week
-                      slides it across the rail instead of repainting one button
-                      and un-painting another. This is the control students touch
-                      more than any other on the page and until now it did
-                      nothing at all when they used it. It sits BEHIND the label
-                      (-z-10) rather than wrapping it, so the text does not
-                      re-animate with the pill. */}
-                  {on && (
-                    <motion.span
-                      layoutId="week-rail-pill"
-                      transition={SPRING.slide}
-                      className="absolute inset-0 -z-10 rounded-md bg-accent"
-                      aria-hidden
-                    />
-                  )}
-                  {/* The phase dot. Every week wears its own colour, always,
-                      so the rail reads as a coloured sequence you are moving
-                      along — the one thing a student most wants to know at a
-                      glance, and until R63 the interface only ever said it in
-                      words. On the selected week the pill behind it is already
-                      the accent, so the dot switches to `bg-current` there
-                      rather than putting a second hue on a filled chip. Week 0
-                      (Setup) has no phase colour and falls back to the accent,
-                      which is deliberate: it is preparation, not a phase. */}
-                  <span
-                    data-week={w.number}
-                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${
-                      w.number === activeWeek && pct < 100 ? 'qi-pulse' : ''
-                    } ${on ? 'bg-current' : ''}`}
-                    style={on ? undefined : { background: 'var(--week, var(--color-accent))' }}
-                    aria-hidden
-                  />
-                  {phaseTag(course, w.number)}
-                  {pct >= 100 && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
-                  {isLocked && <Lock className="h-3.5 w-3.5" aria-label="locked" />}
-                </button>
-              );
-            })}
-          </nav>
+          {/* The week rail — literally the same component the Deliverables page
+              uses now. A tick when the week is done, a lock while its gate is
+              shut, and a slow pulse on the week you are actually on. */}
+          <WeekRail
+            id="week-rail"
+            dots
+            selected={viewWeek}
+            onSelect={pickWeek}
+            items={gradedWeeks.map((w) => ({
+              week: w.number,
+              label: phaseTag(course, w.number),
+              done: (weekStats[w.number] ?? 0) >= 100,
+              locked: weekLocked(w.number),
+              pulse: w.number === activeWeek && (weekStats[w.number] ?? 0) < 100,
+            }))}
+          />
 
           <LabAccessPanel courseId={course.id} />
 

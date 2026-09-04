@@ -296,11 +296,16 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
     <motion.div
       data-region={regionFor(course).key}
       data-seam={seamFor(course)}
+      // The third theming attribute, beside the other two. `activeWeek` was
+      // already in scope and used three times in this card; the left edge was
+      // the one place that could say how far through the course the student is
+      // and was painting every card the same accent regardless.
+      data-week={activeWeek}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
       transition={{ delay: index * 0.06, duration: DUR.reveal, ease: EASE.out }}
-      className="group flex flex-col rounded-[var(--radius-card)] border border-line border-l-4 border-l-[var(--color-accent)] bg-panel p-6 shadow-[var(--shadow-card)] transition-colors hover:border-accent"
+      className="group flex flex-col rounded-[var(--radius-card)] border border-line border-l-4 border-l-[var(--week,var(--color-accent))] bg-panel p-6 shadow-[var(--shadow-card)] transition-colors hover:border-accent"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">

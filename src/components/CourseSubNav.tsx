@@ -1,18 +1,50 @@
 'use client';
 
-import type { ReactNode } from 'react';
 import Link from 'next/link';
+import { useId, type ReactNode } from 'react';
+import { motion } from 'framer-motion';
+import { SPRING } from '@/lib/motion';
 import { BookOpen, ClipboardList, Home, ListChecks } from 'lucide-react';
 
 export type CourseTab = 'home' | 'tasks' | 'deliverables' | 'guide';
 
 const BASE =
-  'flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
+  'relative flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors';
 const INACTIVE = 'text-muted hover:bg-panel-2 hover:text-ink';
 // text-accent-contrast so the active tab label stays legible when a dark theme
 // lightens the accent (see --color-accent-contrast in globals.css).
-const ACTIVE = 'bg-accent text-accent-contrast hover:bg-accent-strong';
+//
+// The FILL is no longer here — it moved into a `layoutId` element behind the
+// label, so this now carries only the ink. All three selectors in the app (this
+// nav, the week rail, ui/Tabs) are the same shape as a result.
+const ACTIVE = 'text-accent-contrast';
 const cls = (active: boolean) => `${BASE} ${active ? ACTIVE : INACTIVE}`;
+
+/**
+ * The sliding fill, and an honest note about how far it slides.
+ *
+ * On the course dashboard, Home and Tasks are both buttons in one commit, so
+ * moving between them genuinely animates. Home→Guide and Tasks→Deliverables are
+ * Next route changes: this whole nav unmounts and the next page's nav mounts
+ * with the pill already at its destination. So the pill animates for one of the
+ * six transitions and appears in place for the rest.
+ *
+ * That is normal — it is what a shared-layout indicator does across a route
+ * boundary, and every app with one behaves this way. It is written down because
+ * it is the reason this was the weakest item in the round, and because the
+ * obvious "fix" (hoisting the nav above the router) would trade a real page
+ * boundary for an animation nobody asked for.
+ */
+function ActivePill({ id }: { id: string }) {
+  return (
+    <motion.span
+      layoutId={id}
+      transition={SPRING.slide}
+      className="absolute inset-0 -z-10 rounded-md bg-accent"
+      aria-hidden
+    />
+  );
+}
 
 interface CourseSubNavProps {
   courseId: string;
@@ -39,6 +71,16 @@ interface CourseSubNavProps {
  */
 export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }: CourseSubNavProps) {
   const cur = (tab: CourseTab) => (active === tab ? 'page' : undefined);
+  const pillId = `subnav-pill-${useId()}`;
+  // Each tab's inner content, written once. The onSelectTab ternary below
+  // already duplicates every label/icon pair; adding the pill to both branches
+  // by hand would have made that four copies of each.
+  const body = (tab: CourseTab, icon: ReactNode, label: string) => (
+    <>
+      {active === tab && <ActivePill id={pillId} />}
+      {icon} {label}
+    </>
+  );
   return (
     <nav
       aria-label="Course sections"
@@ -47,31 +89,31 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
     >
       {onSelectTab ? (
         <button type="button" aria-current={cur('home')} onClick={() => onSelectTab('home')} className={cls(active === 'home')}>
-          <Home className="h-4 w-4" /> Home
+          {body('home', <Home className="h-4 w-4" />, 'Home')}
         </button>
       ) : (
         <Link href={`/courses/${courseId}`} aria-current={cur('home')} className={cls(active === 'home')}>
-          <Home className="h-4 w-4" /> Home
+          {body('home', <Home className="h-4 w-4" />, 'Home')}
         </Link>
       )}
 
       {onSelectTab ? (
         <button type="button" data-tour="tab-weeks" aria-current={cur('tasks')} onClick={() => onSelectTab('tasks')} className={cls(active === 'tasks')}>
-          <ListChecks className="h-4 w-4" /> Tasks
+          {body('tasks', <ListChecks className="h-4 w-4" />, 'Tasks')}
         </button>
       ) : (
         <Link href={`/courses/${courseId}?tab=tasks`} data-tour="tab-weeks" aria-current={cur('tasks')} className={cls(active === 'tasks')}>
-          <ListChecks className="h-4 w-4" /> Tasks
+          {body('tasks', <ListChecks className="h-4 w-4" />, 'Tasks')}
         </Link>
       )}
 
       {teamId && (
         <Link href={`/courses/${courseId}/docs`} data-tour="tab-deliverables" aria-current={cur('deliverables')} className={cls(active === 'deliverables')}>
-          <ClipboardList className="h-4 w-4" /> Deliverables
+          {body('deliverables', <ClipboardList className="h-4 w-4" />, 'Deliverables')}
         </Link>
       )}
       <Link href={`/courses/${courseId}/guide`} aria-current={cur('guide')} className={cls(active === 'guide')}>
-        <BookOpen className="h-4 w-4" /> Guide
+        {body('guide', <BookOpen className="h-4 w-4" />, 'Guide')}
       </Link>
 
       {trailing && <div className="ml-auto flex items-center gap-2">{trailing}</div>}

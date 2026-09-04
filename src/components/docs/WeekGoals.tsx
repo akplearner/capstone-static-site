@@ -20,7 +20,17 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
         const phase = w.phase ?? w.theme;
         const gate = gates?.find((g) => g.week === w.number);
         return (
-          <li key={w.number} className="rounded-lg border border-line bg-panel px-3 py-2">
+          // `data-week` resolves this row's phase colour once (globals.css),
+          // so the phase label below can just say `var(--week)` and the whole
+          // row can wear it. It replaces a hand-built `var(--color-w${n})`
+          // whose clamp — Math.min(4, Math.max(1, n)) — gave SETUP the Week-1
+          // colour, contradicting the rule that week 0 has no phase at all.
+          <li
+            key={w.number}
+            data-week={w.number}
+            className="rounded-lg border border-line border-l-2 bg-panel px-3 py-2"
+            style={{ borderLeftColor: 'var(--week, var(--color-line))' }}
+          >
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
               <span className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-accent-ink">
                 {/* phaseTag, not a hardcoded "Week N": an engagement course reads
@@ -30,7 +40,7 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
               {phase && (
                 <span
                   className="font-mono text-3xs font-semibold uppercase leading-none tracking-wider"
-                  style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
+                  style={{ color: 'var(--week, var(--color-muted))' }}
                 >
                   {phase}
                 </span>

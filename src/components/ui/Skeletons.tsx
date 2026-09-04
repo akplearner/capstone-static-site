@@ -45,7 +45,11 @@ function HeaderSkeleton({ eyebrow = true }: { eyebrow?: boolean }) {
   );
 }
 
-/** The week rail: Setup + four weeks. */
+/** The week rail: Setup + four weeks.
+ *  Widths trace `WeekRail`'s real buttons — `px-3 py-1.5 text-sm` plus a dot
+ *  and a label. It was a third hand-copy of that geometry before R64 unified
+ *  the two live rails; it is still a copy, but now there is exactly one thing
+ *  left for it to drift from. */
 function WeekRailSkeleton() {
   return (
     <div className="flex flex-wrap gap-1.5">

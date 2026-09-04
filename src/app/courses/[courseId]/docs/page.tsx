@@ -37,6 +37,7 @@ import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/packa
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
 import { parseTeamId, teamLabel } from '@/lib/team';
 import { DeliverablesSkeleton } from '@/components/ui/Skeletons';
+import { WeekRail } from '@/components/WeekRail';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -304,35 +305,26 @@ export default function DeliverablesPage() {
     <div className="space-y-5">
       <CourseSubNav courseId={course.id} active="deliverables" teamId={teamId} />
 
-      {/* ── the week rail ───────────────────────────────────────────────────
+      {/* ── the week rail ──────────────────────────────────────────────────
           First, and sticky under the sub-nav: once you are deep inside a long
-          form the rail is still the way back out to another week. */}
-      <div
+          form the rail is still the way back out to another week. Shared with
+          the Tasks tab since R64 — it used to be a hand-copied twin that had
+          silently missed the pill, the phase dots and the lock. */}
+      <WeekRail
         data-block="week-rail"
-        style={{ top: 'calc(var(--nav-h, 0px) + 3rem)' }}
-        className="sticky z-20 -mx-4 flex flex-wrap items-center gap-1.5 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
-      >
-        {weeks.map((w) => {
+        sticky
+        dots
+        selected={selectedWeek}
+        onSelect={pickWeek}
+        items={weeks.map((w) => {
           const owned = myDefs.filter((d) => d.weeks.includes(w));
-          const allDone = owned.length > 0 && owned.every((d) => isDoneBy(d, w));
-          return (
-            <button
-              key={w}
-              type="button"
-              onClick={() => pickWeek(w)}
-              aria-current={w === selectedWeek ? 'true' : undefined}
-              className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                w === selectedWeek
-                  ? 'bg-accent text-accent-contrast'
-                  : 'text-muted hover:bg-panel-2 hover:text-ink'
-              }`}
-            >
-              {w === 0 ? 'Setup' : `${unitWord(course)} ${w}`}
-              {allDone && <CheckCircle2 className="h-3.5 w-3.5 text-ok" />}
-            </button>
-          );
+          return {
+            week: w,
+            label: w === 0 ? 'Setup' : `${unitWord(course)} ${w}`,
+            done: owned.length > 0 && owned.every((d) => isDoneBy(d, w)),
+          };
         })}
-      </div>
+      />
 
       {/* ── the header: one line saying what this week asks of you ───────── */}
       {/* The page says its own tab name — the eyebrow is the anchor that tells
@@ -482,7 +474,11 @@ export default function DeliverablesPage() {
       )}
 
       {/* ── this week's form(s) ─────────────────────────────────────────── */}
-      <div data-block="week-forms">
+      {/* `data-week` here does for this page what it does for the week band on
+          Tasks: everything nested inherits the phase colour, so the form a
+          student is filling is visibly part of the same week as the rail above
+          it. Setup (week 0) resolves to nothing and falls back to the accent. */}
+      <div data-block="week-forms" data-week={selectedWeek}>
         {/* Following a step's form link can legitimately land on a LATER week's
             form — three of the four Week-1 focus tasks draft into Week-2 forms
             on purpose. What was wrong was doing it silently: the week rail
@@ -651,7 +647,14 @@ function FormSection({
   const Diagram = FORM_DIAGRAM[def.id];
 
   return (
-    <section id={`form-${def.id}`} className="scroll-under-chrome space-y-4 rounded-lg border border-line bg-panel p-5">
+    // `.stratum-week` is what actually consumes the `--week` set on the
+    // week-forms block above — the same 4px phase edge the Tasks tab draws on
+    // its week band, so a form reads as belonging to the week whose rail sits
+    // above it rather than as a card floating on its own.
+    <section
+      id={`form-${def.id}`}
+      className="stratum-week scroll-under-chrome space-y-4 p-5"
+    >
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">
