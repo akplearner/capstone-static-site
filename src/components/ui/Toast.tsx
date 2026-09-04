@@ -75,7 +75,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: 0.18 }}
-                className={`pointer-events-auto flex items-start gap-2 rounded-lg border bg-panel p-3 shadow-lg ${s.ring}`}
+                className={`pointer-events-auto flex items-start gap-2 rounded-[var(--radius-card)] border bg-panel p-3 shadow-[var(--shadow-3)] ${s.ring}`}
                 role={t.variant === 'error' ? 'alert' : 'status'}
               >
                 <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor[t.variant]}`} aria-hidden />

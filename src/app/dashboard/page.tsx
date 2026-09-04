@@ -29,6 +29,7 @@ import { useUserSync } from '@/lib/useUserSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type { Course, Member } from '@/lib/types';
 import type { CrewProgress } from '@/lib/game';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 // The signed-in home: every capstone you've started, how far each stone is cut,
 // and — the number that actually matters — how much of it you proved against
@@ -114,13 +115,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
       <DemoBanner />
-      <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Your dashboard</h1>
-        <p className="max-w-2xl text-muted">
-          Every capstone you’ve started, how far the stone is cut, and how much of it you proved
-          against real output.
-        </p>
-      </header>
+      <PageHeader
+        title="Your dashboard"
+        lede="Every capstone you’ve started, how far the stone is cut, and how much of it you proved against real output."
+      />
 
       {!hydrated ? (
         <div className="grid gap-6 md:grid-cols-2">

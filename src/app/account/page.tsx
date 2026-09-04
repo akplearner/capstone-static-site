@@ -12,6 +12,7 @@ import { useHydrated } from '@/lib/useClientStore';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, userStateRepo, labAccessRepo } from '@/lib/data';
 import { toast } from '@/lib/toastBus';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 /**
  * Account settings — and the two rights that are not optional once signups are
@@ -204,12 +205,12 @@ export default function AccountPage() {
 function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto max-w-2xl space-y-6 py-6">
-      <header className="flex items-center gap-3">
+      <div className="flex items-center gap-3">
         <div className="inline-flex rounded-2xl bg-accent-soft p-3 text-accent">
           <UserIcon className="h-6 w-6" />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Account</h1>
-      </header>
+        <PageHeader title="Account" className="min-w-0 flex-1" />
+      </div>
       {children}
     </div>
   );

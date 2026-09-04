@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 /**
  * Shared shell for the legal pages, so privacy and terms read as one document
@@ -22,12 +23,13 @@ export function LegalPage({
 }) {
   return (
     <article className="mx-auto max-w-3xl py-6">
-      <header className="border-b border-line pb-5">
-        <p className="eyebrow">Legal</p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight text-ink">{title}</h1>
-        <p className="mt-1 font-mono text-xs text-muted">Last updated {updated}</p>
-        <p className="mt-4 text-muted">{intro}</p>
-      </header>
+      <PageHeader
+        className="border-b border-line pb-5"
+        eyebrow="Legal"
+        title={title}
+        lede={intro}
+        trailing={<p className="font-mono text-xs text-muted">Last updated {updated}</p>}
+      />
 
       <div className="space-y-8 py-8">{children}</div>
 

@@ -13,6 +13,7 @@ import { courseMetrics } from '@/lib/metrics';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { useUserSync } from '@/lib/useUserSync';
 import type { Level } from '@/lib/types';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 // Sections theme themselves from `vendor.region` (a `[data-region=…]` key), so the
 // stone in each card inherits that vendor's rock + mineral with no per-card logic.
@@ -76,19 +77,20 @@ export default function ExplorePage() {
 
   return (
     <div className="space-y-8">
-      <header className="space-y-3">
+      <div className="space-y-3">
         <div className="inline-flex rounded-2xl bg-accent-soft p-3 text-accent">
           <Compass className="h-7 w-7" />
         </div>
-        <h1 className="text-3xl font-bold tracking-tight text-ink">Explore certs</h1>
-        <p className="max-w-2xl text-muted">
-          Every vendor is a region of the quarry, and every credential is a stone to cut. Lit
-          stones are live capstones you can start now; the rough rock is on the map and coming.
-        </p>
-        <p className="font-mono text-xs text-muted">
-          {summary.available} live · {summary.total} on the map · {summary.vendors} regions
-        </p>
-      </header>
+        <PageHeader
+          title="Explore certs"
+          lede="Every vendor is a region of the quarry, and every credential is a stone to cut. Lit stones are live capstones you can start now; the rough rock is on the map and coming."
+          trailing={
+            <p className="font-mono text-xs text-muted">
+              {summary.available} live · {summary.total} on the map · {summary.vendors} regions
+            </p>
+          }
+        />
+      </div>
 
       {/* Filters. Sticky, because the grid is long enough that re-filtering
           otherwise means scrolling back to the top every time. */}

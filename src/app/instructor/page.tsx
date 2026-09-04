@@ -10,6 +10,7 @@ import { toast } from '@/components/ui/Toast';
 import { courseRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 function slugify(s: string): string {
   return s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -114,21 +115,21 @@ export default function InstructorHomePage() {
 
   return (
     <div className="space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-3xl font-bold text-ink">Instructor Studio</h1>
-          <p className="mt-1 text-muted">Create and maintain courses and lab content.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={() => setCreating((v) => !v)} className="flex items-center gap-1">
-            <Plus className="h-4 w-4" /> New course
-          </Button>
-          <Button variant="secondary" onClick={() => fileRef.current?.click()} className="flex items-center gap-1">
-            <Upload className="h-4 w-4" /> Import
-          </Button>
-          <input ref={fileRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" />
-        </div>
-      </div>
+      <PageHeader
+        title="Instructor Studio"
+        lede="Create and maintain courses and lab content."
+        trailing={
+          <>
+            <Button onClick={() => setCreating((v) => !v)} className="flex items-center gap-1">
+              <Plus className="h-4 w-4" /> New course
+            </Button>
+            <Button variant="secondary" onClick={() => fileRef.current?.click()} className="flex items-center gap-1">
+              <Upload className="h-4 w-4" /> Import
+            </Button>
+            <input ref={fileRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" />
+          </>
+        }
+      />
 
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 

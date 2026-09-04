@@ -89,7 +89,7 @@ export function Dialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: 0.18 }}
-            className="relative z-10 w-full max-w-md rounded-lg border border-line bg-panel p-5 shadow-xl"
+            className="relative z-10 w-full max-w-md rounded-[var(--radius-card)] border border-line bg-panel p-5 shadow-[var(--shadow-3)]"
           >
             <div className="mb-2 flex items-start justify-between gap-4">
               <h2 id={labelledBy} className="text-lg font-semibold text-ink">

@@ -22,6 +22,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useUserSync } from '@/lib/useUserSync';
 import type { EvidenceArtifact } from '@/lib/data';
 import type { StoneStage } from '@/lib/quarry';
+import { PageHeader } from '@/components/ui/PageHeader';
 
 /**
  * The showcase — private by default, exported by choice.
@@ -150,20 +151,21 @@ export default function PortfolioPage() {
     <div className="space-y-8">
       <DemoBanner />
       {/* Controls — hidden when printing. */}
-      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-ink">Portfolio</h1>
-          <p className="text-muted">Private to you. Export it when you want to show someone.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="secondary" className="flex items-center gap-2" onClick={() => window.print()}>
-            <Printer className="h-4 w-4" /> Save as PDF
-          </Button>
-          <Button variant="secondary" className="flex items-center gap-2" onClick={exportJson}>
-            <Download className="h-4 w-4" /> Export JSON
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        className="print:hidden"
+        title="Portfolio"
+        lede="Private to you. Export it when you want to show someone."
+        trailing={
+          <>
+            <Button variant="secondary" className="flex items-center gap-2" onClick={() => window.print()}>
+              <Printer className="h-4 w-4" /> Save as PDF
+            </Button>
+            <Button variant="secondary" className="flex items-center gap-2" onClick={exportJson}>
+              <Download className="h-4 w-4" /> Export JSON
+            </Button>
+          </>
+        }
+      />
 
       <article className="space-y-8 rounded-[var(--radius-card)] border border-line bg-panel p-8 print:border-0 print:p-0">
         <header className="border-b border-line pb-5">

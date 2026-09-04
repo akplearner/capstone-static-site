@@ -271,8 +271,8 @@ export function DeliverableForm({
             <div className="text-sm font-semibold text-ink">{s.group.label}</div>
             {s.group.help && <p className="text-xs text-muted">{s.group.help}</p>}
             {carried[s.group.group] && (
-              <p className="flex items-start gap-1.5 rounded-md border border-accent/30 bg-accent-soft px-2.5 py-1.5 text-xs text-ink">
-                <ArrowDownToLine className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
+              <p className="flex items-start gap-1.5 rounded-md border border-info-line bg-info-soft px-2.5 py-1.5 text-xs text-ink">
+                <ArrowDownToLine className="mt-0.5 h-3.5 w-3.5 shrink-0 text-info" aria-hidden />
                 <span>
                   {carried[s.group.group].rows} row{carried[s.group.group].rows === 1 ? '' : 's'} started from{' '}
                   <strong>{titleOf(carried[s.group.group].from)}</strong> — edit or delete anything that has changed.

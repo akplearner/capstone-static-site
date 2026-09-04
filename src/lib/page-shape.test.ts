@@ -251,6 +251,26 @@ describe('design tokens — palette classes do not come back', () => {
     const offenders = collectSourceFiles('src').filter((f) => /\bgray-[0-9]/.test(code(f)));
     expect(offenders.length).toBeLessThanOrEqual(25);
   });
+
+  /**
+   * Elevation is a token too.
+   *
+   * Tailwind's `shadow-md/lg/xl` are fixed black at fixed opacities. They do not
+   * follow the theme, so in dark mode an overlay lit by one glows grey against
+   * a near-black page instead of sitting above it — which is exactly what Dialog,
+   * Toast and InfoTip did until R63. The ramp (--shadow-1/2/3) has dark twins,
+   * so this is the rule that keeps them on it.
+   *
+   * `shadow-none` and `shadow-[var(--shadow-N)]` are fine; so is a print or
+   * hover variant of either. Only the fixed-size Tailwind scale is banned.
+   */
+  it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
+    const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
+    const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));
+    expect(offenders, 'use shadow-[var(--shadow-1|2|3)] — the raw scale does not re-theme').toEqual(
+      []
+    );
+  });
 });
 
 function collectSourceFiles(dir: string): string[] {

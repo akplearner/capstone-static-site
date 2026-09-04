@@ -62,6 +62,7 @@ import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/u
 import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
 import { Course, GateStatus, Member, Task } from '@/lib/types';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
+import { Alert } from '@/components/ui/Alert';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
 const COHORTS = getMonthlyCohorts(12);
@@ -1217,7 +1218,7 @@ export default function CoursePage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
           whileHover={{ y: -2 }}
-          className="rounded-[var(--radius-card)] border border-l-4 border-line bg-panel p-5 shadow-[var(--shadow-card)] transition-shadow hover:shadow-md"
+          className="rounded-[var(--radius-card)] border border-l-4 border-line bg-panel p-5 shadow-[var(--shadow-1)] transition-shadow hover:shadow-[var(--shadow-2)]"
           style={{ borderLeftColor: ownRole.color }}
         >
           <div className="flex flex-wrap items-center justify-between gap-3">
@@ -1397,14 +1398,11 @@ export default function CoursePage() {
                       its login, which is meaningless on a course whose setup is
                       required prep rather than an optional home-lab build. */}
                   {!!socTopology(course.id) && (
-                    <div className="rounded-lg border border-accent/30 bg-accent-soft p-3 text-sm">
-                      <p className="text-ink">
-                        <span className="font-semibold">The classroom SOC is already set up.</span> Sign in at{' '}
-                        <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and
-                        start at <span className="font-semibold">Week 1</span>. The build steps here are only for
-                        students setting up their own lab at home — opening them asks you to confirm first.
-                      </p>
-                    </div>
+                    <Alert variant="info" title="The classroom SOC is already set up.">
+                      Sign in at <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and start
+                      at <span className="font-semibold">Week 1</span>. The build steps here are only for students
+                      setting up their own lab at home — opening them asks you to confirm first.
+                    </Alert>
                   )}
                   {setupTasks.map((task) => (
                     <TaskRow

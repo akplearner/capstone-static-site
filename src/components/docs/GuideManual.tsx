@@ -26,6 +26,7 @@ import { useClientStore } from '@/lib/useClientStore';
 import { buildDeliverableChain } from '@/lib/deliverableChain';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
 import type { Course, Member } from '@/lib/types';
+import { Alert } from '@/components/ui/Alert';
 
 /**
  * The course manual — everything you look up rather than read.
@@ -116,10 +117,9 @@ export function GuideManual({ course, member }: { course: Course; member: Member
             <>
               {/* The build steps below are for home labs only, so say that before
                   a classroom student starts installing Wazuh by hand. */}
-              <div className="rounded-md border border-accent/30 bg-accent-soft p-3 text-sm text-ink">
-                <span className="font-semibold">Already built for you.</span> The build steps below are only for
-                students setting up their own lab at home.
-              </div>
+              <Alert variant="info" title="Already built for you.">
+                The build steps below are only for students setting up their own lab at home.
+              </Alert>
               <CysaLabSetup courseId={course.id} />
             </>
           )}
@@ -253,7 +253,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           out from the bottom of the configuration guide. */}
       <div className="sticky top-12 z-20 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 className="text-lg font-bold text-ink">The manual</h2>
+          <h2 className="text-xl font-bold text-ink">The manual</h2>
           <span className="text-sm text-muted">Look things up here. Everything is open, so search the page.</span>
         </div>
         <nav aria-label="Manual sections" className="flex flex-wrap gap-1.5">
@@ -272,7 +272,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
       {sections.map((s) => (
         <section key={s.id} id={s.id} className="scroll-mt-28 space-y-3 border-t border-line pt-6">
           <div>
-            <h3 className="text-xl font-bold text-ink">{s.title}</h3>
+            <h3 className="text-lg font-bold text-ink">{s.title}</h3>
             <p className="mt-1 max-w-3xl text-sm text-muted">{s.blurb}</p>
           </div>
           {/* The Lab access panel and older bookmarks point at #command-help; keep

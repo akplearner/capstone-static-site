@@ -2,16 +2,18 @@ import { CheckCircle2, Info, AlertTriangle, XCircle } from 'lucide-react';
 
 export type AlertVariant = 'info' | 'success' | 'warning' | 'error';
 
-// Token-driven, not raw palette classes. `info` uses the course accent — it was
-// hardcoded blue before, which made every info callout a different brand from
-// the accent-teal buttons on the same screen (and never re-themed per course).
-// The others use the ok/warn/danger token trios, which also re-theme in dark
-// mode without a single `dark:` class here.
+// Token-driven, not raw palette classes. Every variant now names its own
+// semantic trio, so none of them re-theme per course and none of them re-state a
+// hex. `info` used to borrow the course accent, which put a passive callout in
+// exactly the colour of the page's primary action — on a screen with an accent
+// button the two competed, and the callout changed hue per vendor for no reason
+// a student could read. It has its own `info` trio now. The ok/warn/danger trios
+// re-theme in dark mode without a single `dark:` class here; so does info.
 const variants: Record<AlertVariant, { box: string; icon: typeof Info; iconColor: string }> = {
   info: {
-    box: 'border-accent/30 bg-accent-soft text-ink',
+    box: 'border-info-line bg-info-soft text-ink',
     icon: Info,
-    iconColor: 'text-accent',
+    iconColor: 'text-info',
   },
   success: {
     box: 'border-ok-line bg-ok-soft text-ink',
