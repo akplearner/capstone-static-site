@@ -675,7 +675,11 @@ function FormSection({
           </h2>
           <p className="mt-0.5 text-sm text-muted"><GlossaryText text={def.purpose} /></p>
           <p className="mt-0.5 text-xs text-muted">
-            <span className="font-mono">{def.folder}/{def.file}</span> · {def.standard}
+            {/* break-all: a path like 02_Investigation/02_Threat_Investigation_Report.md
+                is 49 characters with no break opportunity a browser will take,
+                so on a phone it ran 7px past the viewport and made the whole
+                page scroll sideways. */}
+            <span className="break-all font-mono">{def.folder}/{def.file}</span> · {def.standard}
             {def.source ? ` · ${def.source}` : ''}
           </p>
         </div>

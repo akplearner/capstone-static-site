@@ -202,10 +202,22 @@ function NamingWarnings({ group, rows }: { group: FieldGroup; rows: Record<strin
     .filter((v) => v && !validateEvidenceFileName(v).valid);
   if (bad.length === 0) return null;
   return (
+    // The text is one child, not three loose runs.
+    //
+    // `flex` turns every anonymous text run into its own flex item, and flex
+    // items do not wrap against each other — so this line laid itself out at
+    // its full unwrapped width and pushed the whole DOCUMENT to 529px on a
+    // 390px screen, which is a page that scrolls sideways on a phone. Wrapping
+    // the text in one `min-w-0` span gives the flex row a single shrinkable
+    // child; `break-all` on the example filename handles the other half, since
+    // an evidence name is a 45-character token with no break opportunity in it.
     <p className="mt-1 flex items-start gap-1.5 text-xs text-warn">
       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-      Screenshot names should look like <span className="font-mono">{EVIDENCE_NAMING_PNG}</span> —
-      check: {bad.join(', ')}
+      <span className="min-w-0">
+        Screenshot names should look like{' '}
+        <span className="break-all font-mono">{EVIDENCE_NAMING_PNG}</span> — check:{' '}
+        <span className="break-all">{bad.join(', ')}</span>
+      </span>
     </p>
   );
 }
