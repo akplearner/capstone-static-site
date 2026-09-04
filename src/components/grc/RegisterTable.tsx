@@ -175,9 +175,9 @@ function Cell({
           onChange={(e) => onChange(e.target.value)}
           className={`${inputClass} ${badShape ? 'border-warn' : ''}`}
         />
-        {badShape && <span className="mt-0.5 block text-[11px] text-warn">Four numbers, 0–255, e.g. 172.16.0.10</span>}
+        {badShape && <span className="mt-0.5 block text-2xs text-warn">Four numbers, 0–255, e.g. 172.16.0.10</span>}
         {wrongZone && (
-          <span className="mt-0.5 block text-[11px] text-warn">Outside {subnet} — is that deliberate?</span>
+          <span className="mt-0.5 block text-2xs text-warn">Outside {subnet} — is that deliberate?</span>
         )}
       </>
     );

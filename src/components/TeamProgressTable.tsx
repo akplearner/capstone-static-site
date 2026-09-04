@@ -72,7 +72,7 @@ export function TeamProgressTable({
                       <RoleIcon iconName={rd?.icon} className="h-4 w-4 shrink-0" color={rd?.color} />
                       <span className="font-medium text-ink">{m.displayName || 'Unnamed'}</span>
                       {m.isYou && (
-                        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[10px] font-medium text-accent-ink">
+                        <span className="rounded-full bg-accent-soft px-2 py-0.5 text-3xs font-medium text-accent-ink">
                           You
                         </span>
                       )}
@@ -138,7 +138,7 @@ export function TeamProgressTable({
                 <span className={`flex-1 text-sm ${d.complete ? 'text-muted' : 'text-ink'}`}>
                   {d.title}
                 </span>
-                <span className="flex items-center gap-1 text-[11px] text-muted">
+                <span className="flex items-center gap-1 text-2xs text-muted">
                   <RoleIcon iconName={rd?.icon} className="h-3 w-3" color={rd?.color} />
                   {rd?.name ?? d.owner}
                 </span>

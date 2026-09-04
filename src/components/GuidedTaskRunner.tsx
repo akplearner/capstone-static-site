@@ -265,7 +265,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                       Step {currentIdx + 1} of {total}
                     </span>
                     {current?.optional && (
-                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
+                      <span className="rounded-full bg-violet-100 px-2 py-0.5 text-2xs font-medium text-violet-700 dark:bg-violet-900/40 dark:text-violet-300">
                         Optional
                       </span>
                     )}

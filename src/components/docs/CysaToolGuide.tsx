@@ -133,7 +133,7 @@ export function CysaToolGuide() {
                 <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                   <Icon className="h-4 w-4 text-accent" /> {p.name}
                 </h3>
-                <span className="text-[11px] text-muted">{p.where}</span>
+                <span className="text-2xs text-muted">{p.where}</span>
               </div>
 
               <p className="mt-2 text-sm text-muted">{p.what}</p>
@@ -212,7 +212,7 @@ export function CysaToolGuide() {
         </div>
         <p className="mt-3 text-xs text-muted">
           <span className="font-semibold">Fields you filter on:</span>{' '}
-          <code className="rounded bg-panel-2 px-1 font-mono text-[11px] text-body">{FILTER_FIELDS}</code>
+          <code className="rounded bg-panel-2 px-1 font-mono text-2xs text-body">{FILTER_FIELDS}</code>
         </p>
       </div>
 

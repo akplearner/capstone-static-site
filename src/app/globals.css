@@ -112,6 +112,29 @@
      component stylesheet and a utility class can agree without a magic number.
      --radius-card is the only new size: the panel corner this app already
      uses everywhere, one step above xl's 12px siblings. */
+  /* Type. Font size was the one axis of this system with no token layer —
+     radius and shadow both got one in R63, while 139 sites hand-wrote
+     `text-[10px]` or `text-[11px]`. Tailwind's scale bottoms out at
+     `text-xs` (12px), so these extend it downward rather than redefining
+     anything: `--text-<name>` plus `--text-<name>--line-height` is exactly how
+     v4 generates a `text-<name>` utility, so `text-2xs` and `text-3xs` behave
+     like any other step.
+
+     The values are the existing pixel sizes to the rem, so this sweep changes
+     nothing on screen. What it buys is that either size is now editable in one
+     place, and a guard can stop new arbitrary ones appearing.
+
+     `--line-height: inherit` is the load-bearing part, and it is not obvious.
+     An arbitrary `text-[10px]` sets font-size ONLY — Tailwind has no line-height
+     to pair with a value you invented. A named step sets both. So defining these
+     with a computed line-height silently re-leaded all 112 sites: measured, that
+     moved the landing page by 6% of its pixels and changed nine page heights by
+     up to 28px. `inherit` reproduces the arbitrary value's behaviour exactly. */
+  --text-3xs: 0.625rem;   /* 10px */
+  --text-3xs--line-height: inherit;
+  --text-2xs: 0.6875rem;  /* 11px */
+  --text-2xs--line-height: inherit;
+
   --radius-sm: 0.25rem;  /* 4px */
   --radius-md: 0.375rem; /* 6px */
   --radius-lg: 0.5rem;   /* 8px */
@@ -624,6 +647,15 @@ select {
 .eyebrow-muted {
   color: var(--color-muted);
 }
+
+/* NOT added here: an `.eyebrow-2xs` / `.eyebrow-3xs` size modifier.
+   About fourteen sites do write this treatment out longhand one size down
+   (`font-mono text-3xs font-semibold uppercase tracking-wider text-muted`),
+   and consolidating them looks obvious — but `.eyebrow` sets letter-spacing to
+   0.18em while every one of those sites uses `tracking-wider` (0.05em). Folding
+   them in would re-space fourteen labels, and this sweep's whole contract is
+   that nothing moves on screen. Left alone deliberately; an unused class would
+   just be more of the dead chrome R63 deleted. */
 
 /* Inline IP / address chip. */
 .ip {

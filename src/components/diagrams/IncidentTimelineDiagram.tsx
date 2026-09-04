@@ -54,13 +54,13 @@ export function IncidentTimelineDiagram() {
         {/* The measured intervals, above the axis. */}
         <div className="relative mb-1.5 h-9">
           <div
-            className="absolute top-0 flex h-4 items-center justify-center rounded border border-dashed text-[10px] font-semibold"
+            className="absolute top-0 flex h-4 items-center justify-center rounded border border-dashed text-3xs font-semibold"
             style={{ left: 0, width: `${pct(detect.min)}%`, borderColor: 'var(--color-accent)', color: 'var(--color-accent)' }}
           >
             MTTD {detect.min} min
           </div>
           <div
-            className="absolute top-5 flex h-4 items-center justify-center rounded border border-dashed text-[10px] font-semibold"
+            className="absolute top-5 flex h-4 items-center justify-center rounded border border-dashed text-3xs font-semibold"
             style={{
               left: `${pct(detect.min)}%`,
               width: `${pct(respond.min - detect.min)}%`,
@@ -98,10 +98,10 @@ export function IncidentTimelineDiagram() {
               transition={{ delay: i * 0.05, duration: 0.2 }}
               className="grid grid-cols-[54px_14px_1fr_auto] items-center gap-2 rounded-md border border-line bg-panel px-2 py-1.5"
             >
-              <span className="font-mono text-[11px] text-ink">{e.t}</span>
+              <span className="font-mono text-2xs text-ink">{e.t}</span>
               <span className="h-2.5 w-2.5 rounded-full" style={{ background: TONE[e.kind] }} aria-hidden />
               <span className="text-sm text-ink">{e.label}</span>
-              <span className="font-mono text-[11px] text-muted">{e.source}</span>
+              <span className="font-mono text-2xs text-muted">{e.source}</span>
             </motion.li>
           ))}
         </ol>

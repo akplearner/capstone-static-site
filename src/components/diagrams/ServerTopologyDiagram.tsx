@@ -102,7 +102,7 @@ export function ServerTopologyDiagram({
         <div className="rounded-lg border border-line bg-panel-2 p-3">
           <div className="mb-2 flex items-baseline justify-between">
             <span className="eyebrow-muted">Rack A · {RACK_UNITS}U</span>
-            <span className="text-[11px] text-muted">front elevation</span>
+            <span className="text-2xs text-muted">front elevation</span>
           </div>
           <div className="space-y-1">
             {RACK.map((r) => {
@@ -120,7 +120,7 @@ export function ServerTopologyDiagram({
                   }}
                 >
                   <span
-                    className={`flex w-14 shrink-0 items-center justify-center rounded-l-md font-mono text-[10px] ${
+                    className={`flex w-14 shrink-0 items-center justify-center rounded-l-md font-mono text-3xs ${
                       isBlank ? 'text-muted/60' : 'text-ink'
                     }`}
                     style={isBlank ? undefined : { backgroundColor: color, color: '#fff' }}
@@ -128,20 +128,20 @@ export function ServerTopologyDiagram({
                     {r.u}
                   </span>
                   {isBlank ? (
-                    <span className="flex flex-1 items-center border border-dashed border-line/60 px-2 py-1 text-[10px] italic text-muted/70">
+                    <span className="flex flex-1 items-center border border-dashed border-line/60 px-2 py-1 text-3xs italic text-muted/70">
                       {r.label}
                     </span>
                   ) : (
                     <span className="flex-1 px-2 py-1">
                       <span className="block text-xs font-semibold text-ink">{r.label}</span>
-                      {r.sub && <span className="block text-[10px] text-muted">{r.sub}</span>}
+                      {r.sub && <span className="block text-3xs text-muted">{r.sub}</span>}
                     </span>
                   )}
                 </div>
               );
             })}
           </div>
-          <div className="mt-2 text-center text-[10px] text-muted">
+          <div className="mt-2 text-center text-3xs text-muted">
             Patch panel → switch → server NIC. Every lead is labelled and logged in the Rack, Power &amp; Asset Register.
           </div>
         </div>
@@ -151,7 +151,7 @@ export function ServerTopologyDiagram({
             for its business. Connector lines are bordered spacers — no SVG. */}
         <div className="flex flex-col">
           {businessLabel && (
-            <div className="mb-2 self-start rounded-full bg-accent-soft px-3 py-1 text-[11px] font-semibold text-accent-ink">
+            <div className="mb-2 self-start rounded-full bg-accent-soft px-3 py-1 text-2xs font-semibold text-accent-ink">
               Building for: {businessLabel}
             </div>
           )}
@@ -159,14 +159,14 @@ export function ServerTopologyDiagram({
           {/* Campus LAN */}
           <div className="rounded-lg border border-line bg-panel-2 px-3 py-1.5 text-center">
             <span className="text-xs font-semibold text-ink">Campus LAN</span>
-            <span className="ml-2 font-mono text-[11px] text-muted">{CAMPUS_LAN.cidr}</span>
+            <span className="ml-2 font-mono text-2xs text-muted">{CAMPUS_LAN.cidr}</span>
           </div>
           <div className="mx-auto h-4 w-px bg-line" aria-hidden />
 
           {/* The host */}
           <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center">
             <div className="text-sm font-bold text-ink">Proxmox host</div>
-            <div className="font-mono text-[11px] text-muted">
+            <div className="font-mono text-2xs text-muted">
               vmbr0 · {HOST.rule.slice(0, -HOST.teamMarker.length)}
               <span className="font-bold text-ink">{HOST.teamMarker}</span> ({HOST.teamMarker} = team #,
               Team {HOST.exampleTeam} = {HOST.exampleAddress}) · console :{HOST.consolePort}
@@ -188,25 +188,25 @@ export function ServerTopologyDiagram({
                   <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
                     {z.bridge.id} · {z.bridge.zone}
                   </span>
-                  <span className="font-mono text-[10px] text-muted">{z.bridge.cidr}</span>
+                  <span className="font-mono text-3xs text-muted">{z.bridge.cidr}</span>
                 </div>
                 <div className="mt-1.5 space-y-1">
                   {z.vms.map((vm) => (
                     <div key={vm.hostname} className="rounded-md border border-line bg-panel-2 px-2 py-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
-                        <span className="font-mono text-[11px] font-bold text-ink">{vm.hostname}</span>
-                        <span className="font-mono text-[10px] text-muted">{vm.address}</span>
+                        <span className="font-mono text-2xs font-bold text-ink">{vm.hostname}</span>
+                        <span className="font-mono text-3xs text-muted">{vm.address}</span>
                       </div>
-                      <div className="text-[10px] text-muted">{vm.runs} · base build</div>
+                      <div className="text-3xs text-muted">{vm.runs} · base build</div>
                     </div>
                   ))}
                   {/* The room the design leaves on purpose: the VMs that make
                       this YOUR business, planned in the Architecture Brief. */}
                   <div className="rounded-md border border-dashed border-line px-2 py-1.5 text-center">
-                    <span className="block text-[11px] font-semibold text-muted">
+                    <span className="block text-2xs font-semibold text-muted">
                       + {businessLabel ? `${business?.name ?? 'your business'}'s VMs` : 'your business\u2019s VMs'}
                     </span>
-                    <span className="block text-[10px] text-muted/80">
+                    <span className="block text-3xs text-muted/80">
                       {z.bridge.zone === 'DMZ'
                         ? 'public-facing services your business needs'
                         : 'internal systems your business runs on'}{' '}
@@ -216,7 +216,7 @@ export function ServerTopologyDiagram({
                   </div>
                 </div>
                 {z.bridge.id === 'vmbr2' && (
-                  <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-[10px] text-muted">
+                  <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted">
                     later phase: physical NIC →{' '}
                     <span className="font-semibold text-ink">Cisco router + switch</span> — the
                     servers&rsquo; only internet path
@@ -226,7 +226,7 @@ export function ServerTopologyDiagram({
             ))}
           </div>
 
-          <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-[10px] text-muted">
+          <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-3xs text-muted">
             The Windows / Linux / website VMs are the base build — every team the same. Zone subnets
             are worked examples; record yours in the IP Plan &amp; Connectivity Proof.
           </div>

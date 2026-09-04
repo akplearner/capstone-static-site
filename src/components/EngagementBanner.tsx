@@ -64,16 +64,16 @@ export function EngagementBanner({
           <Building2 className="h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-300" />
           <span className="truncate text-sm font-semibold text-ink">{client}</span>
           {type && (
-            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-medium text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-2xs font-medium text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
               {type}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-md bg-gray-900 px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-white dark:bg-white dark:text-gray-900">
+          <span className="rounded-md bg-gray-900 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-white dark:bg-white dark:text-gray-900">
             {phase}
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+          <span className="text-2xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
             Confidential
           </span>
         </div>

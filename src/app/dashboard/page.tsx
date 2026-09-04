@@ -323,7 +323,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
         {crew.weeksTotal > 0 && (
           <div className="flex shrink-0 flex-col items-center gap-1">
             <SealLedger sealed={crew.weeksCleared} total={crew.weeksTotal} size={64} />
-            <span className="font-mono text-[10px] text-muted">
+            <span className="font-mono text-3xs text-muted">
               {crew.weeksCleared}/{crew.weeksTotal} sealed
             </span>
           </div>
@@ -363,7 +363,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
 function Mini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-mono text-[10px] uppercase tracking-wider text-muted">{label}</dt>
+      <dt className="font-mono text-3xs uppercase tracking-wider text-muted">{label}</dt>
       <dd className="text-sm font-semibold text-ink">{value}</dd>
     </div>
   );

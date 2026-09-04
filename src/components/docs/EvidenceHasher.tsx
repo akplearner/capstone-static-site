@@ -140,11 +140,11 @@ export function EvidenceHasher({
                   <Copy className="h-3 w-3" /> Copy row
                 </button>
               </div>
-              <div className="mt-1 break-all font-mono text-[11px] text-muted">
+              <div className="mt-1 break-all font-mono text-2xs text-muted">
                 SHA-256: {it.sha256}
               </div>
               {!it.nameOk && (
-                <div className="mt-0.5 text-[11px] text-warn">{it.nameMsg}</div>
+                <div className="mt-0.5 text-2xs text-warn">{it.nameMsg}</div>
               )}
             </li>
           ))}

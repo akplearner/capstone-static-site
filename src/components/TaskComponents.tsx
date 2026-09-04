@@ -232,7 +232,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
           what the student is looking for, so hiding them until they get it wrong
           withheld exactly the information that makes the check doable. */}
       <div className="mt-1.5">
-        <div className="mb-1 text-[11px] font-medium text-muted">
+        <div className="mb-1 text-2xs font-medium text-muted">
           {touched ? 'Looking for:' : 'Your output must contain:'}
         </div>
         <div className="flex flex-wrap gap-1">
@@ -241,7 +241,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
             return (
               <span
                 key={tok}
-                className={`rounded px-1.5 py-0.5 font-mono text-[11px] ${
+                className={`rounded px-1.5 py-0.5 font-mono text-2xs ${
                   ok
                     ? 'bg-ok-soft text-ok'
                     : 'bg-panel-2 text-muted'
@@ -395,7 +395,7 @@ export function StepDetail({
         <div className="flex items-start gap-2 rounded-lg border-2 border-warn-line bg-warn-soft px-3 py-2.5">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-wide text-warn">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-warn">
               Stop and read this first
             </p>
             <p className="mt-0.5 text-sm font-medium text-ink">
@@ -429,7 +429,7 @@ export function StepDetail({
                 What to do
               </div>
               {where && (
-                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-line bg-panel-2 px-2 py-1 font-mono text-[10px] text-muted">
+                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md border border-line bg-panel-2 px-2 py-1 font-mono text-3xs text-muted">
                   <span className="font-semibold text-accent">WHERE</span> {where}
                 </div>
               )}
@@ -731,7 +731,7 @@ export function ChecklistItem({
               )}
               {title}
               {optional && (
-                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[11px] font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
+                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-2xs font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
                   Optional
                 </span>
               )}
@@ -975,7 +975,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
             type="button"
             onClick={() => setShowFlags((v) => !v)}
             aria-expanded={showFlags}
-            className="inline-flex items-center gap-1 text-[11px] font-medium text-ok hover:opacity-80"
+            className="inline-flex items-center gap-1 text-2xs font-medium text-ok hover:opacity-80"
           >
             {showFlags ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
             {showFlags ? 'Hide the parts' : 'What each part means'}
@@ -1049,7 +1049,7 @@ function StepSteps({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        className="-my-1 inline-flex items-center gap-1 py-1.5 text-left text-[11px] font-medium text-accent hover:opacity-80"
+        className="-my-1 inline-flex items-center gap-1 py-1.5 text-left text-2xs font-medium text-accent hover:opacity-80"
       >
         {open ? <ChevronUp className="h-3 w-3 shrink-0" /> : <ChevronDown className="h-3 w-3 shrink-0" />}
         {open ? 'Hide the steps' : label}
@@ -1062,10 +1062,10 @@ function StepSteps({
         <div className="mt-2 grid gap-2 lg:grid-cols-2">
           {paths.map((p) => (
             <div key={p.label} className="rounded-md border border-line bg-panel-2 p-2.5">
-              <div className="font-mono text-[11px] font-semibold text-ink">
+              <div className="font-mono text-2xs font-semibold text-ink">
                 <GlossaryText text={p.label} keys />
               </div>
-              <div className="mt-0.5 text-[11px] text-muted">{p.when}</div>
+              <div className="mt-0.5 text-2xs text-muted">{p.when}</div>
               <NumberedSteps items={p.steps} />
             </div>
           ))}

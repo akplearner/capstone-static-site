@@ -365,7 +365,7 @@ export function DeliverableChainDiagram({
               <FileText className="h-4 w-4 shrink-0 text-muted" />
               <code className="font-mono text-sm font-semibold text-ink">{activeNode.file}</code>
               <span
-                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
+                className={`rounded-full px-2 py-0.5 text-2xs font-semibold ${
                   activeNode.filed
                     ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
                     : 'bg-panel text-muted'
@@ -374,7 +374,7 @@ export function DeliverableChainDiagram({
                 {activeNode.filed ? 'Filed' : 'Not yet filed'}
               </span>
               {activeNode.capstone && (
-                <span className="rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
+                <span className="rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">
                   Final artefact
                 </span>
               )}

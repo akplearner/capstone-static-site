@@ -36,7 +36,7 @@ export function VerificationBar({ m, compact }: { m: CourseMetrics; compact?: bo
           <ShieldCheck className="h-4 w-4 text-accent" />
           {pct}% verified
         </span>
-        <span className="font-mono text-[11px] text-muted">
+        <span className="font-mono text-2xs text-muted">
           {m.verified}/{m.verifiable} checkable steps
         </span>
       </div>

@@ -333,6 +333,31 @@ describe('design tokens — palette classes do not come back', () => {
     expect(offenders, 'gate infinite loops behind useReducedMotionSafe()').toEqual([]);
   });
 
+  /**
+   * Font size is a token like any other.
+   *
+   * 139 sites hand-wrote `text-[10px]` or `text-[11px]` — 40% the volume of the
+   * nearest real scale step — with no principle separating the two: the same
+   * component used both, adjacent, in one row. R64 added `--text-3xs` and
+   * `--text-2xs` and swept them, pixel-identically. This is what stops the next
+   * one appearing.
+   *
+   * `WazuhWalkthrough` is exempt on purpose. Its sizes are not app typography:
+   * they draw a simulated Wazuh/Wireshark screenshot at reduced scale, and they
+   * answer to "does this read as a screenshot", not to the design system.
+   * Putting them on app tokens would mean a future caption change silently
+   * rescales a fake UI.
+   */
+  it('no new arbitrary font sizes', () => {
+    const MOCK_UI = 'src/components/diagrams/WazuhWalkthrough.tsx';
+    const offenders = collectSourceFiles('src')
+      .filter((f) => f !== MOCK_UI)
+      .filter((f) => /text-\[\d+px\]/.test(code(f)));
+    expect(offenders, 'use text-2xs / text-3xs — an arbitrary size is a token nobody can change').toEqual(
+      []
+    );
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));

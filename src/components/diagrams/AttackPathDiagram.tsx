@@ -48,15 +48,15 @@ export function AttackPathDiagram() {
               >
                 <div className="flex items-baseline justify-between gap-1">
                   <span className="text-xs font-semibold text-ink">{h.stage}</span>
-                  <span className="font-mono text-[10px] text-muted">W{h.week}</span>
+                  <span className="font-mono text-3xs text-muted">W{h.week}</span>
                 </div>
-                <span className="mt-0.5 text-[11px] leading-tight text-muted">{h.what}</span>
+                <span className="mt-0.5 text-2xs leading-tight text-muted">{h.what}</span>
                 {h.attck && (
-                  <span className="mt-1 self-start rounded border border-line px-1 font-mono text-[10px] text-muted">
+                  <span className="mt-1 self-start rounded border border-line px-1 font-mono text-3xs text-muted">
                     {h.attck}
                   </span>
                 )}
-                <span className="mt-1.5 border-t border-line pt-1 text-[11px] leading-tight text-muted">
+                <span className="mt-1.5 border-t border-line pt-1 text-2xs leading-tight text-muted">
                   <span className="font-medium text-ink">Leaves: </span>
                   {h.sees}
                 </span>

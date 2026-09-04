@@ -474,7 +474,7 @@ export default function DeliverablesPage() {
                   <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
                 )}
                 <span className={c.pass ? 'text-muted line-through' : 'text-body'}>{c.label}</span>
-                <span className="text-[10px] uppercase text-muted">{c.owner}</span>
+                <span className="text-3xs uppercase text-muted">{c.owner}</span>
               </li>
             ))}
           </ul>
@@ -658,17 +658,17 @@ function FormSection({
             {def.num}. {def.title}
             {def.framework && <FrameworkBadge framework={def.framework} />}
             {isExample && !locked && (
-              <span className="rounded-full bg-panel-2 px-2 py-0.5 text-[11px] font-medium text-muted">
+              <span className="rounded-full bg-panel-2 px-2 py-0.5 text-2xs font-medium text-muted">
                 Example
               </span>
             )}
             {locked && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-[11px] font-medium text-muted">
+              <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-2xs font-medium text-muted">
                 <Lock className="h-3 w-3" /> Locked
               </span>
             )}
             {def.id === 'scope_roe' && data.fields.authorization && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-[11px] font-medium text-ok">
+              <span className="inline-flex items-center gap-1 rounded-full bg-ok-soft px-2 py-0.5 text-2xs font-medium text-ok">
                 <CheckCircle2 className="h-3 w-3" /> Signed
               </span>
             )}

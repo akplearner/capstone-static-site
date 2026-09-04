@@ -74,7 +74,7 @@ export function StepFlow({ path }: { path: string[] }) {
             <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: DOT[n.c] }} aria-hidden />
             {n.t}
           </span>
-          {n.s && <span className="mt-0.5 font-mono text-[10px] text-muted">{n.s}</span>}
+          {n.s && <span className="mt-0.5 font-mono text-3xs text-muted">{n.s}</span>}
         </motion.div>
       );
     } else {
@@ -86,7 +86,7 @@ export function StepFlow({ path }: { path: string[] }) {
           transition={{ delay, duration: 0.2 }}
           className="flex min-w-[52px] flex-col items-center justify-center px-0.5"
         >
-          <span className="text-center font-mono text-[10px] leading-tight text-muted">{path[i]}</span>
+          <span className="text-center font-mono text-3xs leading-tight text-muted">{path[i]}</span>
           <span className="text-base font-bold leading-none text-accent" aria-hidden>→</span>
         </motion.div>
       );

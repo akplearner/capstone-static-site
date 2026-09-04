@@ -146,7 +146,7 @@ export function TreeNode({ node, depth = 0, index = 0, roles }: { node: Node; de
         <NodeIcon node={node} />
         <span className={`font-mono text-xs ${textCls}`}>{node.label}</span>
         {node.owner && (
-          <span className="rounded bg-panel-2 px-1 text-[11px] text-muted">
+          <span className="rounded bg-panel-2 px-1 text-2xs text-muted">
             {ownerLabel(node.owner, roles)}
           </span>
         )}
@@ -193,7 +193,7 @@ export function FolderTree({
       <ul className="mt-3 space-y-1">
         <TreeNode node={tree} roles={roles} />
       </ul>
-      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-muted">
+      <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-2xs text-muted">
         {/* Role names come from the course, not a hardcoded Red/Blue/GRC — those
             are Security+ labels and mean nothing in a course whose roles are
             SOC Analyst / Threat Hunter / Incident Responder. */}

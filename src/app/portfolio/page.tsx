@@ -241,7 +241,7 @@ export default function PortfolioPage() {
                   <div className="mt-3">
                     <VerificationBar m={r.metrics} />
                   </div>
-                  <p className="mt-2 font-mono text-[11px] text-muted">
+                  <p className="mt-2 font-mono text-2xs text-muted">
                     {r.metrics.stepsDone}/{r.metrics.stepsTotal} steps · {r.metrics.artifacts} artifacts ·{' '}
                     {r.metrics.activeDays} days worked
                     {r.metrics.attempts > 0 && ` · ${r.metrics.attempts} verification attempts`}
@@ -274,7 +274,7 @@ export default function PortfolioPage() {
                       <td className="py-2 pr-3">
                         <span className="font-medium text-ink">{a.filename}</span>
                         {!a.nameOk && (
-                          <span className="ml-2 rounded bg-panel-2 px-1.5 py-0.5 text-[10px] text-muted">
+                          <span className="ml-2 rounded bg-panel-2 px-1.5 py-0.5 text-3xs text-muted">
                             off-convention name
                           </span>
                         )}
@@ -282,7 +282,7 @@ export default function PortfolioPage() {
                       <td className="whitespace-nowrap py-2 pr-3 text-muted">
                         {a.hashedAt ? new Date(a.hashedAt).toLocaleDateString() : '—'}
                       </td>
-                      <td className="py-2 font-mono text-[11px] break-all text-muted">{a.sha256}</td>
+                      <td className="py-2 font-mono text-2xs break-all text-muted">{a.sha256}</td>
                     </tr>
                   ))}
                 </tbody>

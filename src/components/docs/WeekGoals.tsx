@@ -22,14 +22,14 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
         return (
           <li key={w.number} className="rounded-lg border border-line bg-panel px-3 py-2">
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-              <span className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-accent-ink">
+              <span className="inline-flex items-center rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-accent-ink">
                 {/* phaseTag, not a hardcoded "Week N": an engagement course reads
                     "Phase P1" everywhere else and used to read "Week 1" only here. */}
                 {phaseTag(course, w.number)}
               </span>
               {phase && (
                 <span
-                  className="font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
+                  className="font-mono text-3xs font-semibold uppercase leading-none tracking-wider"
                   style={{ color: `var(--color-w${Math.min(4, Math.max(1, w.number))})` }}
                 >
                   {phase}
@@ -37,7 +37,7 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
               )}
               <span className="font-semibold text-ink">{w.title}</span>
               {gate && (
-                <span className="ml-auto rounded-full border border-line px-2 py-0.5 font-mono text-[10px] text-muted">
+                <span className="ml-auto rounded-full border border-line px-2 py-0.5 font-mono text-3xs text-muted">
                   Gate {gate.id}
                 </span>
               )}

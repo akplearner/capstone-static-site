@@ -44,7 +44,7 @@ export function PixelBadge({
     <span
       title={title}
       className={clsx(
-        'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-[10px] font-semibold uppercase leading-none tracking-wider',
+        'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 font-mono text-3xs font-semibold uppercase leading-none tracking-wider',
         tone === 'accent' && 'border-accent/40 bg-accent-soft text-accent-ink',
         tone === 'neutral' && 'border-line bg-panel text-ink',
         tone === 'muted' && 'border-line bg-panel-2 text-muted',
@@ -88,7 +88,7 @@ export function StepTally({
           transition={{ duration: 0.5, ease: 'easeOut' }}
         />
       </div>
-      <span className="font-mono text-[11px] text-muted" title={`${done} of ${total} steps`}>
+      <span className="font-mono text-2xs text-muted" title={`${done} of ${total} steps`}>
         {done}/{total}
       </span>
     </div>

@@ -215,12 +215,12 @@ export function ServerConfigGuide() {
           {/* Week 0 is Preparation — not the first week of the arc, so it must
               not wear Week 1's colour. w1–w4 are the four phases. */}
           <span
-            className="font-mono text-[10px] font-semibold uppercase leading-none tracking-wider"
+            className="font-mono text-3xs font-semibold uppercase leading-none tracking-wider"
             style={{ color: active.number === 0 ? 'var(--color-muted)' : `var(--color-w${Math.min(4, active.number)})` }}
           >
             {active.phase}
           </span>
-          <span className="ml-auto font-mono text-[11px] text-muted">
+          <span className="ml-auto font-mono text-2xs text-muted">
             {procs.length} {procs.length === 1 ? 'procedure' : 'procedures'} · {steps} steps
           </span>
         </div>
@@ -236,9 +236,9 @@ export function ServerConfigGuide() {
                   href={`#${p.id}`}
                   className="flex items-baseline gap-2 rounded-md border border-line bg-panel-2 px-3 py-1.5 text-xs text-body transition-colors hover:border-accent hover:text-accent"
                 >
-                  <span className="font-mono text-[10px] text-muted">{i + 1}</span>
+                  <span className="font-mono text-3xs text-muted">{i + 1}</span>
                   <span className="min-w-0 flex-1">{p.title}</span>
-                  <span className="shrink-0 font-mono text-[10px] text-muted">{p.steps.length}</span>
+                  <span className="shrink-0 font-mono text-3xs text-muted">{p.steps.length}</span>
                 </a>
               </li>
             ))}
@@ -255,7 +255,7 @@ export function ServerConfigGuide() {
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <h4 className="text-sm font-semibold text-ink">{p.title}</h4>
                 {p.optional && (
-                  <span className="rounded-full border border-line px-2 py-0.5 font-mono text-[10px] uppercase tracking-wide text-muted">
+                  <span className="rounded-full border border-line px-2 py-0.5 font-mono text-3xs uppercase tracking-wide text-muted">
                     {p.optionalLabel ?? 'Advanced · optional'}
                   </span>
                 )}
@@ -279,7 +279,7 @@ export function ServerConfigGuide() {
                 <tbody>
                   {p.steps.map((s, i) => (
                     <tr key={i} className="border-b border-line last:border-0 align-top odd:bg-panel even:bg-panel-2">
-                      <td className="w-8 py-2 pl-4 pr-1 font-mono text-[10px] leading-6 text-muted">{i + 1}</td>
+                      <td className="w-8 py-2 pl-4 pr-1 font-mono text-3xs leading-6 text-muted">{i + 1}</td>
                       <td className="w-[55%] py-2 pr-3">
                         {s.cmd ? (
                           <CommandLine cmd={s.cmd} values={lab.values} />

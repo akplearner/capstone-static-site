@@ -34,7 +34,7 @@ import type { Step } from '@/lib/types';
 function MarkerBadge({ n }: { n: number }) {
   return (
     <span
-      className="mr-1 inline-flex h-4 w-4 shrink-0 translate-y-[-1px] items-center justify-center rounded-[3px] align-middle text-[10px] font-bold text-white"
+      className="mr-1 inline-flex h-4 w-4 shrink-0 translate-y-[-1px] items-center justify-center rounded-[3px] align-middle text-3xs font-bold text-white"
       style={{ background: 'var(--color-danger)' }}
       aria-hidden
     >
@@ -86,7 +86,7 @@ export function AnnotatedTerminal({
         style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
       >
         <div
-          className="mb-1.5 select-none text-[10px] font-semibold uppercase tracking-wide"
+          className="mb-1.5 select-none text-3xs font-semibold uppercase tracking-wide"
           style={{ color: 'var(--color-term-dim)' }}
         >
           your screen should look like this
@@ -170,7 +170,7 @@ export function OutcomeCard({
           )}
           {targets.length > 0 && (
             <div className="mt-2 border-t border-ok-line/70 pt-2">
-              <div className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-ok">
+              <div className="mb-1 flex items-center gap-1.5 text-2xs font-semibold uppercase tracking-wide text-ok">
                 <Target className="h-3.5 w-3.5" /> The bit that proves it
               </div>
               <ul className="space-y-1">

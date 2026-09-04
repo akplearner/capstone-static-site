@@ -70,7 +70,7 @@ export function PathRail({
                   size={30}
                   className={available ? '' : 'opacity-50'}
                 />
-                <span className="font-mono text-[10px] uppercase tracking-wider text-muted">
+                <span className="font-mono text-3xs uppercase tracking-wider text-muted">
                   {r.complete ? 'Delivered' : r.current ? 'In progress' : available ? 'Ready' : 'Soon'}
                 </span>
               </div>

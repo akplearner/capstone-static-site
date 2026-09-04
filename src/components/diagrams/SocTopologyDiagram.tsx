@@ -136,7 +136,7 @@ export function SocTopologyDiagram({ topo }: { topo: SocTopology }) {
           <thead>
             <tr>
               {['Component', 'Address', 'What runs on it', 'Who touches it'].map((h) => (
-                <th key={h} className="border-b border-line bg-panel-2 px-2.5 py-2 text-left font-mono text-[11px] uppercase tracking-wide text-muted">
+                <th key={h} className="border-b border-line bg-panel-2 px-2.5 py-2 text-left font-mono text-2xs uppercase tracking-wide text-muted">
                   {h}
                 </th>
               ))}

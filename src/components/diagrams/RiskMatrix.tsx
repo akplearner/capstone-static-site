@@ -61,13 +61,13 @@ export function RiskMatrix() {
         <div className="grid grid-cols-[92px_repeat(3,1fr)] gap-1.5">
           <div />
           {LEVELS.map((l) => (
-            <div key={l} className="pb-0.5 text-center text-[11px] font-semibold uppercase tracking-wide text-muted">
+            <div key={l} className="pb-0.5 text-center text-2xs font-semibold uppercase tracking-wide text-muted">
               {l}
             </div>
           ))}
           {[...LEVELS].reverse().map((impact) => (
             <div key={impact} className="contents">
-              <div className="flex items-center justify-end pr-1 text-[11px] font-semibold uppercase tracking-wide text-muted">
+              <div className="flex items-center justify-end pr-1 text-2xs font-semibold uppercase tracking-wide text-muted">
                 {impact}
               </div>
               {LEVELS.map((likelihood, i) => {
@@ -90,7 +90,7 @@ export function RiskMatrix() {
         </div>
         <div className="mt-1.5 grid grid-cols-[92px_1fr] gap-x-2">
           <div />
-          <div className="text-center text-[11px] font-semibold uppercase tracking-wide text-muted">
+          <div className="text-center text-2xs font-semibold uppercase tracking-wide text-muted">
             Likelihood →
           </div>
         </div>

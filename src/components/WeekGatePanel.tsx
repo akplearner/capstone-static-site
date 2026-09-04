@@ -82,7 +82,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
                 {shortRole(it.role.name)}
               </span>
             )}
-            {!it.mine && <span className="text-[11px] text-muted">team</span>}
+            {!it.mine && <span className="text-2xs text-muted">team</span>}
           </li>
         ))}
       </ul>
@@ -92,7 +92,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
           <p className="eyebrow-muted">
             End-of-week company sync
           </p>
-          <p className="mt-0.5 text-[11px] text-muted">
+          <p className="mt-0.5 text-2xs text-muted">
             Confirm these hand-offs together before moving on (shared tracking arrives with the backend).
           </p>
           <ul className="mt-2 space-y-1.5">

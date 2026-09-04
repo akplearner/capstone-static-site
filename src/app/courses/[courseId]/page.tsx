@@ -247,7 +247,7 @@ function JoinPanel({
                 }`}
               >
                 <span>Team {t}</span>
-                <span className="mt-0.5 block text-[11px] font-normal">
+                <span className="mt-0.5 block text-2xs font-normal">
                   {cap > 0 ? `${usedOf(t)}/${cap}${full ? ' · Full' : ''}` : `${usedOf(t)} joined`}
                 </span>
               </button>
@@ -281,7 +281,7 @@ function JoinPanel({
                   {hasSpecificGuide(r.id, course.id) ? (
                     <>
                       <span className="block text-xs text-muted">{roleGuide(r.id, course.id).blurb}</span>
-                      <span className="mt-0.5 block text-[11px] text-muted">
+                      <span className="mt-0.5 block text-2xs text-muted">
                         {worksLabel(roleGuide(r.id, course.id).works)}
                       </span>
                     </>
@@ -379,7 +379,7 @@ function CardRow({
     <div className="flex gap-2">
       <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
       <div className="min-w-0 flex-1">
-        <span className="font-mono text-[10px] uppercase tracking-wide text-muted">{label}</span>
+        <span className="font-mono text-3xs uppercase tracking-wide text-muted">{label}</span>
         <div className="mt-0.5 text-sm text-ink">{children}</div>
       </div>
     </div>
@@ -445,7 +445,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
             <CardRow icon={FileText} label="You produce">
               <ul className="space-y-0.5">
                 {card.produces.map((d) => (
-                  <li key={d} className="break-all font-mono text-[11px]">
+                  <li key={d} className="break-all font-mono text-2xs">
                     {d}
                   </li>
                 ))}
@@ -482,7 +482,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
               {task.tools.map((tool) => (
                 <span
                   key={tool}
-                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 font-mono text-[11px] text-ink"
+                  className="rounded border border-line bg-panel-2 px-1.5 py-0.5 font-mono text-2xs text-ink"
                 >
                   {tool}
                 </span>
@@ -509,7 +509,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
               {task.frameworks.map((fw) => (
                 <span
                   key={fw}
-                  className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${getFrameworkColor(fw)}`}
+                  className={`rounded-full px-2 py-0.5 text-2xs font-medium ${getFrameworkColor(fw)}`}
                 >
                   {getFrameworkLabel(fw)}
                 </span>
@@ -605,7 +605,7 @@ function TaskRow({
             )}
             <span className="font-medium text-ink">{task.title}</span>
             {focus && (
-              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
+              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">
                 Your focus
               </span>
             )}
@@ -613,7 +613,7 @@ function TaskRow({
               <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
             )}
             {isNext && percent < 100 && (
-              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-[11px] font-semibold text-accent-ink">
+              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">
                 Next
               </span>
             )}

@@ -283,7 +283,7 @@ export default function HomePage() {
             <span className="flex items-center gap-2 text-sm font-semibold text-ink">
               <FileCheck2 className="h-4 w-4 text-accent" /> Evidence ledger
             </span>
-            <span className="font-mono text-[11px] text-muted">3 of 3 verified</span>
+            <span className="font-mono text-2xs text-muted">3 of 3 verified</span>
           </div>
           <ul className="divide-y divide-line">
             {LEDGER.map((row) => (
@@ -292,16 +292,16 @@ export default function HomePage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                     <span className="text-sm font-medium text-ink">{row.step}</span>
-                    <span className="font-mono text-[11px] text-muted">{row.at}</span>
+                    <span className="font-mono text-2xs text-muted">{row.at}</span>
                   </div>
-                  <span className="mt-0.5 block truncate font-mono text-[11px] text-muted">
+                  <span className="mt-0.5 block truncate font-mono text-2xs text-muted">
                     sha256 {row.hash}
                   </span>
                 </div>
               </li>
             ))}
           </ul>
-          <div className="border-t border-line bg-panel-2 px-4 py-2.5 text-[11px] text-muted">
+          <div className="border-t border-line bg-panel-2 px-4 py-2.5 text-2xs text-muted">
             Exported as <span className="font-mono text-body">portfolio.pdf</span> · every entry
             traceable to the artifact that produced it
           </div>
@@ -355,7 +355,7 @@ export default function HomePage() {
                     {g.cells.map((c) => (
                       <span
                         key={c.level.id}
-                        className="rounded border border-line px-1.5 py-0.5 text-[10px] uppercase tracking-wide text-muted"
+                        className="rounded border border-line px-1.5 py-0.5 text-3xs uppercase tracking-wide text-muted"
                       >
                         {c.level.id}
                       </span>

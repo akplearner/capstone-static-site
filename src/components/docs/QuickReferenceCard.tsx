@@ -49,16 +49,16 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
     {
       icon: Wrench,
       title: 'EVERY TOOL',
-      body: <p className="font-mono text-[11px] leading-relaxed">{tools}</p>,
+      body: <p className="font-mono text-2xs leading-relaxed">{tools}</p>,
     },
     {
       icon: Tag,
       title: 'NAME IT',
       body: (
         <p>
-          Deliverables <span className="font-mono text-[11px]">NN_Name.ext</span>; evidence{' '}
-          <span className="font-mono text-[11px]">{EVIDENCE_NAMING_PNG}</span>; hash with{' '}
-          <span className="font-mono text-[11px]">sha256sum</span>.
+          Deliverables <span className="font-mono text-2xs">NN_Name.ext</span>; evidence{' '}
+          <span className="font-mono text-2xs">{EVIDENCE_NAMING_PNG}</span>; hash with{' '}
+          <span className="font-mono text-2xs">sha256sum</span>.
         </p>
       ),
     },

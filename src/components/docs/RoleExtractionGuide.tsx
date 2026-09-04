@@ -55,10 +55,10 @@ export function RoleExtractionGuide({
                   <span className="font-medium text-ink">
                     {def.num}. {def.title}
                   </span>
-                  <span className="block font-mono text-[11px] text-muted">{def.file}</span>
+                  <span className="block font-mono text-2xs text-muted">{def.file}</span>
                 </td>
                 <td className="py-2 pr-3 text-muted">{def.standard}</td>
-                <td className="py-2 pr-3 font-mono text-[11px] text-muted">
+                <td className="py-2 pr-3 font-mono text-2xs text-muted">
                   {def.weeks.join(', ')}
                 </td>
                 <td className="py-2">

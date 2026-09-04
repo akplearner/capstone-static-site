@@ -49,10 +49,10 @@ export function LogPipelineDiagram() {
                 className="flex w-[104px] flex-col rounded-md border border-line bg-panel p-2"
                 style={{ borderTopColor: tone, borderTopWidth: 2 }}
               >
-                <span className="font-mono text-[10px] text-muted">{s.n}</span>
+                <span className="font-mono text-3xs text-muted">{s.n}</span>
                 <span className="mt-0.5 text-xs font-semibold leading-tight text-ink">{s.label}</span>
-                <span className="mt-0.5 text-[11px] leading-tight text-muted">{s.sub}</span>
-                <span className="mt-1.5 border-t border-line pt-1 text-[11px] leading-tight text-muted">
+                <span className="mt-0.5 text-2xs leading-tight text-muted">{s.sub}</span>
+                <span className="mt-1.5 border-t border-line pt-1 text-2xs leading-tight text-muted">
                   <span className="font-medium text-ink">Proof: </span>
                   {s.proof}
                 </span>

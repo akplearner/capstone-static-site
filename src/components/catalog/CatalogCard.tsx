@@ -49,7 +49,7 @@ export function CatalogCard({
       }`}
     >
       {onPath && (
-        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-accent-ink">
+        <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 font-mono text-3xs font-semibold uppercase tracking-wider text-accent-ink">
           <Route className="h-3 w-3" /> Your path
         </span>
       )}
@@ -83,7 +83,7 @@ export function CatalogCard({
           </span>
         )}
         {enrolled && verificationRate !== undefined && (
-          <span className="shrink-0 font-mono text-[11px] text-muted" title="Steps verified from your pasted output">
+          <span className="shrink-0 font-mono text-2xs text-muted" title="Steps verified from your pasted output">
             {verificationRate}% verified
           </span>
         )}
