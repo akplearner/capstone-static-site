@@ -65,7 +65,7 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
   const cohort = parseTeamId(teamId).cohort;
 
   return (
-    <section id="team" className="scroll-mt-24 space-y-3">
+    <section id="team" className="scroll-under-chrome space-y-3">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
         <h2 className="flex items-center gap-2 text-lg font-semibold text-ink">
           <Users className="h-5 w-5 text-accent" /> Your team · {teamLabel(teamId)}

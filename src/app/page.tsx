@@ -29,18 +29,30 @@ import { catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
 // light and dark, and `page-shape.test.ts` fails the build on `gray-*`/`bg-white`.
 
 /**
- * The one hover treatment, shared by every card on the page.
+ * The landing card, and the one hover treatment shared by every card here.
  *
  * It is CSS rather than a framer `whileHover` for two reasons: the lift and the
  * colour change then ease on the SAME timing function (a `whileHover` y-offset
  * against a `transition-colors` border eased at two different rates, which is
  * what made the cards feel twitchy), and `prefers-reduced-motion` is already
  * handled globally for CSS transitions without this file having to know.
+ *
+ * It used to have NO resting shadow: elevation appeared only on hover, so at
+ * rest the "How it works" row and the region grid were seven identical grey
+ * rectangles on a grey page, and the only thing separating a card from the
+ * background was a 1px line. On a first visit — which is the entire job of this
+ * page — nothing looked like an object you could pick up until you had already
+ * put a cursor on it, and on a phone there is no hover at all, so the cards
+ * never lifted for a mobile visitor even once.
+ *
+ * Now: tier 1 at rest, tier 2 on hover. The hover still says something (it goes
+ * further, and the border takes the accent); it just is not the entire
+ * difference between "flat page" and "cards".
  */
 const CARD =
-  'rounded-[var(--radius-card)] border border-line bg-panel ' +
+  'rounded-[var(--radius-card)] border border-line bg-panel shadow-[var(--shadow-1)] ' +
   'transition-[transform,box-shadow,border-color] duration-200 ease-out ' +
-  'hover:-translate-y-0.5 hover:border-accent hover:shadow-[var(--shadow-card)]';
+  'hover:-translate-y-0.5 hover:border-accent hover:shadow-[var(--shadow-2)]';
 
 /** Eyebrow → title → lead, with an optional action on the right. Written once so
  *  the three sections below actually line up with each other. */
@@ -316,9 +328,16 @@ export default function HomePage() {
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {regions.map((g, i) => (
             <motion.div key={g.vendor.id} data-region={g.vendor.region} {...reveal(i)}>
+              {/* Each region already declares its vendor's brand through
+                  `data-region` — CompTIA red, Cisco blue, AWS amber — and until
+                  R63 not one of those colours reached the card unless you
+                  hovered it. Nine regions rendered as nine identical grey
+                  tiles. A 3px top edge in the region's own accent is enough to
+                  make the grid read as a map of vendors at a glance, which is
+                  the whole promise of the section above it. */}
               <Link
                 href="/explore"
-                className={`flex h-full flex-col gap-3 p-5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${CARD}`}
+                className={`flex h-full flex-col gap-3 border-t-[3px] border-t-accent p-5 ${CARD}`}
               >
                 <div className="flex items-start gap-3">
                   <CapstoneStone stage={3} size={44} className="shrink-0" />

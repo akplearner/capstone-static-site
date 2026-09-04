@@ -309,7 +309,8 @@ export default function DeliverablesPage() {
           form the rail is still the way back out to another week. */}
       <div
         data-block="week-rail"
-        className="sticky top-12 z-20 -mx-4 flex flex-wrap items-center gap-1.5 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
+        style={{ top: 'calc(var(--nav-h, 0px) + 3rem)' }}
+        className="sticky z-20 -mx-4 flex flex-wrap items-center gap-1.5 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
       >
         {weeks.map((w) => {
           const owned = myDefs.filter((d) => d.weeks.includes(w));
@@ -650,7 +651,7 @@ function FormSection({
   const Diagram = FORM_DIAGRAM[def.id];
 
   return (
-    <section id={`form-${def.id}`} className="scroll-mt-24 space-y-4 rounded-lg border border-line bg-panel p-5">
+    <section id={`form-${def.id}`} className="scroll-under-chrome space-y-4 rounded-lg border border-line bg-panel p-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">

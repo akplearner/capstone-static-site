@@ -94,7 +94,10 @@ export default function ExplorePage() {
 
       {/* Filters. Sticky, because the grid is long enough that re-filtering
           otherwise means scrolling back to the top every time. */}
-      <div className="sticky top-0 z-10 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-3 backdrop-blur">
+      <div
+        style={{ top: 'var(--nav-h, 0px)' }}
+        className="sticky z-10 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-3 backdrop-blur"
+      >
         <FilterRow
           label="Region"
           options={[{ id: 'all', name: 'All' }, ...VENDORS.map((v) => ({ id: v.id, name: v.name }))]}

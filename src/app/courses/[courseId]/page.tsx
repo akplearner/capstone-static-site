@@ -574,7 +574,7 @@ function TaskRow({
       id={`task-${task.id}`}
       // Stratum 2: a task is cut *into* the week, so it sits inset and a shade
       // darker rather than repeating the week's card treatment.
-      className="stratum-task scroll-mt-24 overflow-hidden"
+      className="stratum-task scroll-under-chrome overflow-hidden"
     >
       <button
         type="button"
@@ -1076,7 +1076,11 @@ export default function CoursePage() {
           identity now lives once, on Overview. */}
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-4xl font-bold tracking-tight text-ink">{course.title}</h1>
+          {/* 4xl only once there is room for it. At 390px the title plus the
+              description below ran to roughly 400px — more than half the first
+              screen — before the sub-nav, on the page a student opens to do
+              this week's work. */}
+          <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-4xl">{course.title}</h1>
           {/* Vendor + credential, in the course's own accent — the fastest way
               to tell which product you're looking at. Also the only place the
               certification code belongs; it used to appear three times. */}
@@ -1084,7 +1088,12 @@ export default function CoursePage() {
             <PixelBadge tone="accent">{courseIdentityLabel(course)}</PixelBadge>
           )}
         </div>
-        <p className="text-lg text-muted">{course.description}</p>
+        {/* Clamped on a phone, in full from `sm` up. This is the course's
+            identity, not its instructions — it is worth two lines above the
+            work, and the Guide carries it in full. */}
+        <p className="line-clamp-2 text-base text-muted sm:line-clamp-none sm:text-lg">
+          {course.description}
+        </p>
       </div>
 
       {/* Sticky course sub-nav — shared component, persists on every in-course page */}
@@ -1392,7 +1401,7 @@ export default function CoursePage() {
           {/* Setup is "do once", not a week. It used to be Week 0 on the rail,
               opening ahead of the real work; in class the lab already exists. */}
           {setupWeeks.length > 0 && setupTasks.length > 0 && (
-            <section id="setup-strip" className="scroll-mt-24 rounded-lg border border-line bg-panel">
+            <section id="setup-strip" className="scroll-under-chrome rounded-lg border border-line bg-panel">
               <button
                 type="button"
                 onClick={() => setSetupOpen(!setupIsOpen)}
@@ -1449,7 +1458,7 @@ export default function CoursePage() {
           {/* The week rail — the same selector the Deliverables page uses. A
               tick when the week is done, a lock while its gate is shut, and a
               slow pulse on the week you are on. */}
-          <nav id="week-rail" aria-label={`${unitWord(course)}s`} className="flex flex-wrap items-center gap-1.5 scroll-mt-24">
+          <nav id="week-rail" aria-label={`${unitWord(course)}s`} className="flex flex-wrap items-center gap-1.5 scroll-under-chrome">
             {gradedWeeks.map((w) => {
               const pct = weekStats[w.number] ?? 0;
               const on = w.number === viewWeek;
@@ -1479,9 +1488,23 @@ export default function CoursePage() {
                       aria-hidden
                     />
                   )}
-                  {w.number === activeWeek && pct < 100 && (
-                    <span className="qi-pulse h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
-                  )}
+                  {/* The phase dot. Every week wears its own colour, always,
+                      so the rail reads as a coloured sequence you are moving
+                      along — the one thing a student most wants to know at a
+                      glance, and until R63 the interface only ever said it in
+                      words. On the selected week the pill behind it is already
+                      the accent, so the dot switches to `bg-current` there
+                      rather than putting a second hue on a filled chip. Week 0
+                      (Setup) has no phase colour and falls back to the accent,
+                      which is deliberate: it is preparation, not a phase. */}
+                  <span
+                    data-week={w.number}
+                    className={`h-1.5 w-1.5 shrink-0 rounded-full ${
+                      w.number === activeWeek && pct < 100 ? 'qi-pulse' : ''
+                    } ${on ? 'bg-current' : ''}`}
+                    style={on ? undefined : { background: 'var(--week, var(--color-accent))' }}
+                    aria-hidden
+                  />
                   {phaseTag(course, w.number)}
                   {pct >= 100 && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
                   {isLocked && <Lock className="h-3.5 w-3.5" aria-label="locked" />}
@@ -1492,10 +1515,14 @@ export default function CoursePage() {
 
           <LabAccessPanel courseId={course.id} />
 
+          {/* `data-week` is one attribute, and every stratum edge inside —
+              the week band, the task rows, the step seams — takes this phase's
+              colour from it. See the "Phase colour" block in globals.css. */}
           <motion.section
             key={`week-${viewWeek}`}
             id={`week-${viewWeek}`}
-            className="stratum-week scroll-mt-24 overflow-hidden"
+            className="stratum-week scroll-under-chrome overflow-hidden"
+            data-week={viewWeek}
             data-open="true"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

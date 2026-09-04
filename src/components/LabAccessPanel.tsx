@@ -47,7 +47,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
   if (!hasLabAccess(courseId)) return null;
 
   return (
-    <div id="lab-access" className="scroll-mt-24 rounded-lg border border-line bg-panel px-4">
+    <div id="lab-access" className="scroll-under-chrome rounded-lg border border-line bg-panel px-4">
       {/* The heading names what the course actually collects. "Your targets" is
           right for an attack lab and wrong for a build course, whose two values
           are its own server's addresses. */}

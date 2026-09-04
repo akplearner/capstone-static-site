@@ -207,7 +207,7 @@ export function ServerConfigGuide() {
         })}
       </nav>
 
-      <section id={`config-week-${active.number}`} className="scroll-mt-16 space-y-4">
+      <section id={`config-week-${active.number}`} className="scroll-under-chrome space-y-4">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line pb-2">
           <h3 className="text-base font-bold text-ink">
             Week {active.number} · {active.title}
@@ -249,7 +249,7 @@ export function ServerConfigGuide() {
           <article
             key={p.id}
             id={p.id}
-            className="scroll-mt-16 overflow-hidden rounded-[var(--radius-card)] border border-line"
+            className="scroll-under-chrome overflow-hidden rounded-[var(--radius-card)] border border-line"
           >
             <div className="border-b border-line bg-panel-2 px-4 py-2.5">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

@@ -146,7 +146,9 @@ export default function DashboardPage() {
               known denominator draw as rings — a 42-of-96 is legible at a
               glance where "42 / of 96 checkable" as two lines of text was not.
               Evidence and days have no denominator, so they stay numbers. */}
-          <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <section aria-labelledby="dash-record" className="space-y-3">
+            <SectionLabel id="dash-record">Your record</SectionLabel>
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             <Stat
               icon={ShieldCheck}
               label="Steps verified"
@@ -173,23 +175,32 @@ export default function DashboardPage() {
               value={`${summary.activeDays}`}
               sub="measured, never scored"
             />
+            </div>
           </section>
 
-          {path ? (
-            <PathRail
-              path={path}
-              completedCourseIds={completedCourseIds}
-              onChange={() => pathRepo.clear(memberId)}
-            />
-          ) : (
-            <PathPicker onPick={(id) => pathRepo.save(memberId, id)} />
-          )}
+          <section aria-labelledby="dash-path" className="space-y-3">
+            <SectionLabel id="dash-path">Your path</SectionLabel>
+            {path ? (
+              <PathRail
+                path={path}
+                completedCourseIds={completedCourseIds}
+                onChange={() => pathRepo.clear(memberId)}
+              />
+            ) : (
+              <PathPicker onPick={(id) => pathRepo.save(memberId, id)} />
+            )}
+          </section>
 
-          <div className="grid gap-6 md:grid-cols-2">
-            {cards.map((card, i) => (
-              <DashboardCourseCard key={card.course.id} card={card} index={i} />
-            ))}
-          </div>
+          <section aria-labelledby="dash-capstones" className="space-y-3">
+            <SectionLabel id="dash-capstones">
+              Your capstones{cards.length > 1 ? ` · ${cards.length}` : ''}
+            </SectionLabel>
+            <div className="grid gap-6 md:grid-cols-2">
+              {cards.map((card, i) => (
+                <DashboardCourseCard key={card.course.id} card={card} index={i} />
+              ))}
+            </div>
+          </section>
 
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-panel-2 p-5">
             <p className="text-sm text-muted">
@@ -212,6 +223,24 @@ export default function DashboardPage() {
         </>
       )}
     </div>
+  );
+}
+
+/**
+ * A group heading for the dashboard.
+ *
+ * The five blocks below the header — stats, path, course cards, the portfolio
+ * prompt — sat in one flat `space-y-8` with nothing saying where one ended and
+ * the next began, so the page read as a pile rather than as three answers to
+ * three questions. Deliberately quiet: an `.eyebrow` with a rule, not another
+ * heading competing with the course titles this round just promoted.
+ */
+function SectionLabel({ id, children }: { id: string; children: React.ReactNode }) {
+  return (
+    <h2 id={id} className="eyebrow-muted flex items-center gap-3">
+      <span className="shrink-0">{children}</span>
+      <span className="h-px flex-1 bg-line" aria-hidden />
+    </h2>
   );
 }
 
@@ -242,7 +271,12 @@ function Stat({
         </div>
       ) : (
         <>
-          <div className="mt-1 text-2xl font-bold text-ink">{value}</div>
+          {/* text-xl semibold, not 2xl bold. These four numbers were the
+              typographically heaviest thing on the page — heavier than the
+              course titles they are a summary OF — so the eye landed on a
+              tally before the work. A summary strip should be readable, not
+              loudest. */}
+          <div className="mt-1 text-xl font-semibold text-ink">{value}</div>
           <div className="text-xs text-muted">{sub}</div>
         </>
       )}
@@ -269,7 +303,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <h2 className="truncate text-lg font-bold text-ink">{course.title}</h2>
+          <h2 className="truncate text-xl font-bold text-ink">{course.title}</h2>
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
             {course.vendor && <span className="font-medium text-accent">{course.vendor}</span>}
             {level && <span className="rounded-full bg-panel-2 px-2 py-0.5 font-mono">{level}</span>}

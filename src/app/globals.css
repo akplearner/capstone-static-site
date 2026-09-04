@@ -686,15 +686,45 @@ select {
    separated by tone and an edge rather than by more boxes. Depth is legible at
    a glance without adding chrome. ─────────────────────────────────────────── */
 
+/* Anchor targets clear the chrome that is actually on screen.
+   There were three guesses in the codebase — scroll-mt-16, -24 and -28 — none
+   of which could be right, because the sticky stack is a site header (whose
+   height changes with the breakpoint and with whether a breadcrumb row is
+   showing) plus a sub-nav. `--nav-h` is published by SiteNav; 3.5rem is the
+   sub-nav under it. */
+.scroll-under-chrome {
+  scroll-margin-top: calc(var(--nav-h, 0px) + 3.5rem);
+}
+
+/* ── Phase colour ─────────────────────────────────────────────────────────
+   Four palettes (--color-w1..w4) are authored per seam — 56 hand-typed hexes
+   across the course set — and until R63 they rendered ONLY inside SVG
+   diagrams. Not one pixel of page chrome, navigation or card. Meanwhile the
+   single most useful thing the interface can tell a student at a glance is how
+   far through the course they are, and it was saying it in text alone.
+
+   `data-week` resolves the number to `--week`, so anything inside a week block
+   can just use `var(--week)` and get the right phase without knowing which one
+   it is. The fallback is the accent, so an element outside any week — and
+   Setup, which is week 0 and deliberately has no phase colour — looks exactly
+   as it did. */
+[data-week='1'] { --week: var(--color-w1); }
+[data-week='2'] { --week: var(--color-w2); }
+[data-week='3'] { --week: var(--color-w3); }
+[data-week='4'] { --week: var(--color-w4); }
+
 /* Level 1 — a week. The bedrock band. */
 .stratum-week {
   background: var(--color-panel);
   border: 1px solid var(--color-line);
-  border-left: 4px solid color-mix(in srgb, var(--color-accent) 55%, transparent);
+  border-left: 4px solid color-mix(in srgb, var(--week, var(--color-accent)) 55%, transparent);
   border-radius: var(--radius-card);
+  /* The phase colour changes when the student moves week; crossfading the
+     edge rather than cutting it keeps the week switch reading as one move. */
+  transition: border-left-color 200ms ease-out;
 }
 .stratum-week[data-open='true'] {
-  border-left-color: var(--color-accent);
+  border-left-color: var(--week, var(--color-accent));
   box-shadow: var(--shadow-card);
 }
 
@@ -703,13 +733,14 @@ select {
 .stratum-task {
   background: color-mix(in srgb, var(--color-panel-2) 70%, var(--color-panel));
   border: 1px solid var(--color-line);
+  border-left: 3px solid color-mix(in srgb, var(--week, var(--color-accent)) 40%, var(--color-line));
   border-radius: var(--radius-lg);
 }
 
 /* Level 3 — a step. No box at all: a seam line down the left edge. A third
    nested border is what made this feel like a wall. */
 .stratum-step {
-  border-left: 2px solid color-mix(in srgb, var(--color-accent) 30%, var(--color-line));
+  border-left: 2px solid color-mix(in srgb, var(--week, var(--color-accent)) 30%, var(--color-line));
   background: transparent;
   padding-left: 0.875rem;
 }

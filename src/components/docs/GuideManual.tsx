@@ -251,7 +251,10 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           it is how you skip to the one section you came for without scrolling
           past the others. Sticky under the sub-nav, so it is still the way back
           out from the bottom of the configuration guide. */}
-      <div className="sticky top-12 z-20 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur">
+      <div
+        style={{ top: 'calc(var(--nav-h, 0px) + 3rem)' }}
+        className="sticky z-20 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
+      >
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 className="text-xl font-bold text-ink">The manual</h2>
           <span className="text-sm text-muted">Look things up here. Everything is open, so search the page.</span>
@@ -270,7 +273,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
       </div>
 
       {sections.map((s) => (
-        <section key={s.id} id={s.id} className="scroll-mt-28 space-y-3 border-t border-line pt-6">
+        <section key={s.id} id={s.id} className="scroll-under-chrome space-y-3 border-t border-line pt-6">
           <div>
             <h3 className="text-lg font-bold text-ink">{s.title}</h3>
             <p className="mt-1 max-w-3xl text-sm text-muted">{s.blurb}</p>

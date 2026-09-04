@@ -42,7 +42,8 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
   return (
     <nav
       aria-label="Course sections"
-      className="sticky top-0 z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
+      style={{ top: 'var(--nav-h, 0px)' }}
+      className="sticky z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
     >
       {onSelectTab ? (
         <button type="button" aria-current={cur('home')} onClick={() => onSelectTab('home')} className={cls(active === 'home')}>
