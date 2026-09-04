@@ -31,8 +31,13 @@ export function Card({ children, className = '', interactive = false, ...props }
       whileInView={{ opacity: 1, y: 0 }}
       whileHover={interactive ? { y: -2 } : undefined}
       transition={{ duration: 0.3 }}
-      className={`rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)] ${
-        interactive ? 'group transition-colors hover:border-accent' : ''
+      className={`rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-1)] ${
+        interactive
+          ? // An interactive card carries the focus ring itself, because the
+            // thing that receives focus inside it is usually a stretched link
+            // whose own outline would trace the text rather than the card.
+            'focusable group transition-[border-color,box-shadow] focus-within:border-accent hover:border-accent hover:shadow-[var(--shadow-2)]'
+          : ''
       } ${className}`}
       {...props}
     >

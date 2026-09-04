@@ -14,6 +14,11 @@ interface TabsProps {
 }
 
 export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
+  // The sliding indicator is one shared element, so its layoutId has to be
+  // unique per Tabs instance — two tablists on a page sharing an id would make
+  // the underline fly between them.
+  const indicatorId = `tab-indicator-${React.useId()}`;
+
   // Arrow-key navigation across the tablist (WAI-ARIA tabs pattern).
   const onKeyDown = (e: React.KeyboardEvent) => {
     const idx = tabs.findIndex((t) => t.value === activeTab);
@@ -44,13 +49,22 @@ export function Tabs({ tabs, activeTab, onTabChange, children }: TabsProps) {
               tabIndex={selected ? 0 : -1}
               onClick={() => onTabChange(tab.value)}
               whileHover={{ opacity: 0.8 }}
-              className={`px-4 py-2 font-medium transition-colors ${
-                selected
-                  ? 'border-b-2 border-accent text-accent'
-                  : 'text-muted hover:text-ink'
+              className={`focusable relative rounded-t-[var(--radius-sm)] px-4 py-2 font-medium transition-colors ${
+                selected ? 'text-accent' : 'text-muted hover:text-ink'
               }`}
             >
               {tab.label}
+              {/* The underline used to be a `border-b-2` on whichever button was
+                  selected, so switching tabs teleported it. One shared element
+                  with a layoutId slides it instead — bounded, transform-only,
+                  and stilled automatically under prefers-reduced-motion. */}
+              {selected && (
+                <motion.span
+                  layoutId={indicatorId}
+                  className="absolute inset-x-0 -bottom-px h-0.5 rounded-full bg-accent"
+                  transition={{ type: 'spring', stiffness: 480, damping: 38 }}
+                />
+              )}
             </motion.button>
           );
         })}

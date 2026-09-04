@@ -23,7 +23,10 @@ export function Badge({ variant = 'default', className = '', children, ...props 
     default: 'bg-accent-soft text-accent-ink',
     secondary: 'bg-panel-2 text-muted',
     outline: 'border border-line text-muted',
-    note: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
+    // Was violet-100/violet-700 plus a hand-written dark: twin — the only raw
+    // palette left in ui/, and a fifth hue on a screen that already had four.
+    // `note` means "worth noticing, not required", which is what info says.
+    note: 'bg-info-soft text-info',
     warn: 'border border-warn-line bg-warn-soft text-ink',
   };
 

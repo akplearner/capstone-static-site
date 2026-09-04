@@ -99,7 +99,7 @@ export function Dialog({
                 type="button"
                 onClick={onClose}
                 aria-label="Close dialog"
-                className="rounded p-1 text-muted hover:bg-panel-2 hover:text-ink"
+                className="focusable rounded-[var(--radius-sm)] p-1 text-muted transition-colors hover:bg-panel-2 hover:text-ink"
               >
                 <X className="h-4 w-4" />
               </button>

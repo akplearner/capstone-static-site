@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   Check,
   CheckCircle2,
@@ -761,48 +761,63 @@ export function ChecklistItem({
             </motion.div>
           )}
 
-          <motion.div
-            id={panelId}
-            initial={false}
-            animate={{ height: showDetails ? 'auto' : 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-            hidden={!showDetails}
-          >
-            <div className="mt-3 border-t border-line pt-3">
-              <StepDetail
-                instruction={instruction}
-                instructionList={instructionList}
-                paths={paths}
-                guideRef={guideRef}
-                description={description}
-                command={command}
-                commands={commands}
-                commandExplanation={commandExplanation}
-                commandFlags={commandFlags}
-                expectedOutput={expectedOutput}
-                outputExplanation={outputExplanation}
-                whatItMeans={whatItMeans}
-                frameworks={frameworks}
-                deliverable={deliverable}
-                usesForm={usesForm}
-                danger={danger}
-                troubleshooting={troubleshooting}
-                fixes={fixes}
-                verify={verify}
-                ledger={ledger}
-                optional={optional}
-                where={where}
-                path={path}
-                files={files}
-                tree={tree}
-                walkthrough={walkthrough}
-                images={images}
-                outputHighlights={outputHighlights}
-                outputKind={outputKind}
-              />
-            </div>
-          </motion.div>
+          {/* The same bug the Collapsible primitive had: this animated
+              `height: auto → 0` while setting `hidden` (display: none) on the
+              SAME render, so the closing animation played against an element
+              already removed from layout — nobody has ever seen this panel
+              close. `hidden` was correct in intent (a collapsed step must not
+              be tabbable, and must not be found by Ctrl-F), so AnimatePresence
+              takes over the lifetime instead: it really unmounts, once it has
+              finished closing. The id stays on the wrapper so `aria-controls`
+              always resolves. */}
+          <div id={panelId}>
+            <AnimatePresence initial={false}>
+              {showDetails && (
+                <motion.div
+                  key="detail"
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.18, ease: 'easeOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-3 border-t border-line pt-3">
+                    <StepDetail
+                      instruction={instruction}
+                      instructionList={instructionList}
+                      paths={paths}
+                      guideRef={guideRef}
+                      description={description}
+                      command={command}
+                      commands={commands}
+                      commandExplanation={commandExplanation}
+                      commandFlags={commandFlags}
+                      expectedOutput={expectedOutput}
+                      outputExplanation={outputExplanation}
+                      whatItMeans={whatItMeans}
+                      frameworks={frameworks}
+                      deliverable={deliverable}
+                      usesForm={usesForm}
+                      danger={danger}
+                      troubleshooting={troubleshooting}
+                      fixes={fixes}
+                      verify={verify}
+                      ledger={ledger}
+                      optional={optional}
+                      where={where}
+                      path={path}
+                      files={files}
+                      tree={tree}
+                      walkthrough={walkthrough}
+                      images={images}
+                      outputHighlights={outputHighlights}
+                      outputKind={outputKind}
+                    />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
     </div>

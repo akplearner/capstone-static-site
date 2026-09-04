@@ -264,6 +264,52 @@ describe('design tokens — palette classes do not come back', () => {
    * `shadow-none` and `shadow-[var(--shadow-N)]` are fine; so is a print or
    * hover variant of either. Only the fixed-size Tailwind scale is banned.
    */
+  /**
+   * Focus is not optional, and it is not a component's private business.
+   *
+   * Before R63 `focus-visible` appeared in exactly ZERO of the ui/ primitives
+   * and the only focus style in the app was the one on inputs — so tabbing
+   * through a page of buttons showed the browser default, which against a
+   * themed panel is frequently invisible. The fix is a rule on the ELEMENTS in
+   * globals.css rather than a class every component must remember, and this
+   * asserts that rule is still there and still covers what it claims to.
+   */
+  it('the focus ring covers every interactive element by default', () => {
+    const css = readFileSync(root('src/app/globals.css'), 'utf8');
+    for (const sel of ["button:focus-visible", "a:focus-visible", "[role='tab']:focus-visible"]) {
+      expect(css, `globals.css must style ${sel}`).toContain(sel);
+    }
+    // A ring drawn with `outline: none` and nothing else is a ring that does
+    // not exist in forced-colors mode.
+    expect(css).toContain('outline: 2px solid transparent');
+  });
+
+  /**
+   * Disabled had never been drawn at all — `disabled:` appeared zero times in
+   * the repo — so a button the code had disabled looked pressable.
+   */
+  it('Button draws its disabled state', () => {
+    const src = code('src/components/ui/Button.tsx');
+    expect(src).toMatch(/disabled:opacity/);
+    expect(src).toMatch(/disabled:pointer-events-none/);
+  });
+
+  /**
+   * The close-animation bug, as a rule.
+   *
+   * Two disclosures animated `height: auto → 0` while setting `hidden`
+   * (display: none) on the same render, so the close played against an element
+   * already gone from layout. Nobody had ever seen either of them close. A
+   * `hidden` prop on a motion element is that bug; AnimatePresence is the fix.
+   */
+  it('no motion element hides itself with `hidden` while animating its height', () => {
+    const offenders = collectSourceFiles('src').filter((f) => {
+      const src = code(f);
+      return /animate=\{\{\s*height:/.test(src) && /\bhidden=\{/.test(src);
+    });
+    expect(offenders, 'use AnimatePresence — `hidden` cancels the exit animation').toEqual([]);
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));

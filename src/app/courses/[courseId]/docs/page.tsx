@@ -327,7 +327,7 @@ export default function DeliverablesPage() {
               }`}
             >
               {w === 0 ? 'Setup' : `${unitWord(course)} ${w}`}
-              {allDone && <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />}
+              {allDone && <CheckCircle2 className="h-3.5 w-3.5 text-ok" />}
             </button>
           );
         })}
@@ -468,7 +468,7 @@ export default function DeliverablesPage() {
             {gateChecks.map((c, i) => (
               <li key={i} className="flex items-start gap-1.5 text-xs">
                 {c.pass ? (
-                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-green-600" />
+                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
                 ) : (
                   <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
                 )}
@@ -521,16 +521,18 @@ export default function DeliverablesPage() {
           // More than one form this week — Security+ GRC Week 1 owns five, which
           // stacked to roughly ten screens. Tabs make the week one page.
           //
-          // Unmounting the inactive form is safe because DeliverableForm is fully
-          // controlled: every keystroke goes straight to docsRepo via onChange, so
-          // there is no local draft state to lose. Adding any would break this.
+          // Unmounting the inactive form is safe because DeliverableForm holds no
+          // draft state of its own: every keystroke goes out through onChange, and
+          // since R63 the not-yet-written edits live in this page's useAutoSave
+          // overlay rather than in the form. Giving the form local state would
+          // break this — a tab switch would drop whatever had not been flushed.
           <Tabs
             tabs={dueThisWeek.map((d) => ({
               value: d.id,
               label: (
                 <span className="flex items-center gap-1.5">
-                  {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />}
-                  {!course.noGatekeeping && d.requiresAuth && !authorized && <Lock className="h-3.5 w-3.5 text-amber-600" />}
+                  {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-ok" />}
+                  {!course.noGatekeeping && d.requiresAuth && !authorized && <Lock className="h-3.5 w-3.5 text-warn" />}
                   <span className="text-sm">{d.num}. {d.title}</span>
                 </span>
               ),
@@ -767,7 +769,7 @@ function FormSection({
 
       {locked ? (
         <div className="flex items-start gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
-          <Lock className="mt-0.5 h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" />
+          <Lock className="mt-0.5 h-5 w-5 shrink-0 text-warn" />
           <div className="text-sm text-amber-800 dark:text-amber-200">
             <p className="font-semibold">Locked until scope is authorized</p>
             <p className="mt-1">
