@@ -310,6 +310,29 @@ describe('design tokens — palette classes do not come back', () => {
     expect(offenders, 'use AnimatePresence — `hidden` cancels the exit animation').toEqual([]);
   });
 
+  /**
+   * Every animation that never stops must be switchable off.
+   *
+   * `MotionConfig reducedMotion="user"` covers most of this app for free, but
+   * it stills only POSITIONAL keys — x, y, scale, rotate, layout. An infinite
+   * loop on `opacity`, `pathLength` or `offsetDistance` sails straight through
+   * it, which is how DeliverableChain ended up running a forever-loop at full
+   * speed for a student who had explicitly asked for no motion. A loop is the
+   * worst case for that setting: there is no moment where it is over.
+   *
+   * So: a file containing `repeat: Infinity` must also read the preference.
+   * Deliberately file-level rather than per-animation — matching a gate to its
+   * animation needs a parser, and the coarse version is the one that cannot be
+   * quietly satisfied by an unrelated import.
+   */
+  it('every never-ending animation reads the reduced-motion preference', () => {
+    const offenders = collectSourceFiles('src').filter((f) => {
+      const src = code(f);
+      return /repeat:\s*Infinity/.test(src) && !/useReducedMotionSafe|useReducedMotion/.test(src);
+    });
+    expect(offenders, 'gate infinite loops behind useReducedMotionSafe()').toEqual([]);
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));

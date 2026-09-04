@@ -9,6 +9,7 @@ import { describeChain, downstreamOf, type DeliverableChain } from '@/lib/delive
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import type { DeliverableDef } from '@/lib/docs/types';
 import { DiagramFrame } from '@/components/diagrams/DiagramFrame';
+import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 
 /**
  * How your work connects — each role's files, and the optional links between them.
@@ -52,6 +53,7 @@ export function DeliverableChainDiagram({
   highlightRole?: string;
 }) {
   const [active, setActive] = useState<string | null>(null);
+  const reduceMotion = useReducedMotionSafe();
 
   // The definitions carry the prose the diagram can't ("built from", "feeds"),
   // keyed by id so the detail card can look one up in O(1).
@@ -243,7 +245,14 @@ export function DeliverableChainDiagram({
               />
               {/* The transfer itself: an artefact travelling the edge. Only for
                   real handoffs — carrying your own work forward isn't one. */}
-              {!e.sameRole && (
+              {/* Gated by hand, and it has to be: the app-wide
+                  `MotionConfig reducedMotion="user"` stills only POSITIONAL
+                  keys — x, y, scale, rotate. `offsetDistance` and `opacity` are
+                  neither, so this loop ran at full speed, forever, for a
+                  student who had explicitly asked for no motion. It is the one
+                  animation on the page that never stops, which is exactly the
+                  kind the setting exists for. */}
+              {!e.sameRole && !reduceMotion && (
                 <motion.circle
                   r={3.5}
                   fill="var(--stone-crystal, #7aa2c8)"

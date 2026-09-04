@@ -37,6 +37,7 @@ import { WazuhWalkthrough } from './diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { Collapsible } from './ui/Button';
+import { meter } from '@/lib/motion';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -89,12 +90,12 @@ export function GateBadge({ gateId, status, completionPercent }: GateBadgeProps)
         </div>
         <div>{icons[status]}</div>
       </div>
-      <div className="mt-3 h-2 w-full rounded-full bg-line">
+      <div className="relative mt-3 h-2 w-full overflow-hidden rounded-full bg-line">
         <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${completionPercent}%` }}
-          transition={{ duration: 0.5 }}
-          className="h-full rounded-full bg-accent"
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: completionPercent / 100 }}
+          transition={meter}
+          className="absolute inset-0 origin-left rounded-full bg-accent"
         />
       </div>
       <div className="mt-2 text-xs font-medium">{completionPercent}% Complete</div>

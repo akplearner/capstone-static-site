@@ -1,9 +1,11 @@
 'use client';
 
+import { motion } from 'framer-motion';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { getRoleDef } from '@/lib/course-helpers';
 import { RoleIcon } from './RoleIcon';
+import { meter } from '@/lib/motion';
 
 export interface MemberProgress {
   memberId: string;
@@ -79,8 +81,13 @@ export function TeamProgressTable({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="h-1.5 w-20 overflow-hidden rounded-full bg-line">
-                        <div className={`h-full rounded-full ${pctColor(m.overall)}`} style={{ width: `${m.overall}%` }} />
+                      <div className="relative h-1.5 w-20 overflow-hidden rounded-full bg-line">
+                        <motion.div
+                          className={`absolute inset-0 origin-left rounded-full ${pctColor(m.overall)}`}
+                          initial={{ scaleX: 0 }}
+                          animate={{ scaleX: m.overall / 100 }}
+                          transition={meter}
+                        />
                       </div>
                       <span className="tabular-nums text-xs text-muted">{m.overall}%</span>
                     </div>

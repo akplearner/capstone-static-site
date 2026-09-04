@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
   CheckCircle2,
@@ -63,6 +63,7 @@ import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
 import { Course, GateStatus, Member, Task } from '@/lib/types';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { Alert } from '@/components/ui/Alert';
+import { DUR, EASE, SPRING, meter, swap } from '@/lib/motion';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
 const COHORTS = getMonthlyCohorts(12);
@@ -617,10 +618,17 @@ function TaskRow({
           <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
             {showProgress ? (
               <span className="flex items-center gap-1.5" title={`${percent}% done`}>
-                <span className="h-1.5 w-20 overflow-hidden rounded-full bg-line">
-                  <span
-                    className="block h-full rounded-full bg-accent"
-                    style={{ width: `${percent}%` }}
+                <span className="relative block h-1.5 w-20 overflow-hidden rounded-full bg-line">
+                  {/* scaleX, not width. Two reasons, and both matter here:
+                      a width transition re-lays-out its row on every frame (24
+                      task rows on a week), and `MotionConfig reducedMotion` stills
+                      transforms for free — a width animation would keep running
+                      for a student who asked for none. */}
+                  <motion.span
+                    className="absolute inset-0 origin-left rounded-full bg-accent"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: percent / 100 }}
+                    transition={meter}
                   />
                 </span>
                 <span className="text-muted">
@@ -1125,13 +1133,24 @@ export default function CoursePage() {
         }
       />
 
-      {/* ───────── Home ───────── */}
+      {/* ───────── The tabs ─────────
+          `mode="wait"` is the whole point. Without an AnimatePresence the
+          outgoing panel unmounted on the SAME frame the incoming one mounted,
+          so switching Home↔Tasks showed a blank page for one frame and then
+          faded a new one in — the fade read as slowness because there was
+          nothing to fade FROM. Now the old panel is given 120ms to leave
+          before the new one arrives, and the switch reads as one movement.
+          Both panels are keyed on `tab`, which is what tells AnimatePresence
+          they are alternatives rather than siblings. */}
+      <AnimatePresence mode="wait" initial={false}>
       {tab === 'home' && (
       <motion.div
+        key="tab-home"
         className="space-y-6"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25 }}
+        variants={swap}
+        initial="enter"
+        animate="center"
+        exit="exit"
       >
       {/* Where you are, before anything else. Home is the dashboard: status,
           the stone, your role, your team. Everything that DESCRIBED the course —
@@ -1331,10 +1350,12 @@ export default function CoursePage() {
       {/* ───────── Tasks ───────── */}
       {tab === 'tasks' && (
       <motion.div
+        key="tab-tasks"
         className="space-y-4"
-        initial={{ opacity: 0, y: 6 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2 }}
+        variants={swap}
+        initial="enter"
+        animate="center"
+        exit="exit"
       >
       {/* Not enrolled: the tasks ARE the course material, so this is where the
           page stops. The dashboard above still sells the course; this is the line. */}
@@ -1355,10 +1376,12 @@ export default function CoursePage() {
             lede={`${ownRole.name} · ${ordered.length} task${ordered.length === 1 ? '' : 's'} this ${unit}`}
             trailing={
               <span className="flex items-center gap-1.5" title={`${viewPct}% of this ${unit}'s steps done`}>
-                <span className="relative h-2 w-20 overflow-hidden rounded-full bg-panel-2">
-                  <span
-                    className="absolute inset-y-0 left-0 rounded-full"
-                    style={{ width: `${viewPct}%`, background: 'var(--color-accent)' }}
+                <span className="relative block h-2 w-20 overflow-hidden rounded-full bg-panel-2">
+                  <motion.span
+                    className="absolute inset-0 origin-left rounded-full bg-accent"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: viewPct / 100 }}
+                    transition={meter}
                   />
                 </span>
                 <span className="text-xs font-medium text-muted">{viewPct}%</span>
@@ -1437,10 +1460,25 @@ export default function CoursePage() {
                   type="button"
                   onClick={() => pickWeek(w.number)}
                   aria-current={on ? 'true' : undefined}
-                  className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-                    on ? 'bg-accent text-accent-contrast' : 'text-muted hover:bg-panel-2 hover:text-ink'
+                  className={`relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+                    on ? 'text-accent-contrast' : 'text-muted hover:bg-panel-2 hover:text-ink'
                   }`}
                 >
+                  {/* The selected fill is one shared element, so changing week
+                      slides it across the rail instead of repainting one button
+                      and un-painting another. This is the control students touch
+                      more than any other on the page and until now it did
+                      nothing at all when they used it. It sits BEHIND the label
+                      (-z-10) rather than wrapping it, so the text does not
+                      re-animate with the pill. */}
+                  {on && (
+                    <motion.span
+                      layoutId="week-rail-pill"
+                      transition={SPRING.slide}
+                      className="absolute inset-0 -z-10 rounded-md bg-accent"
+                      aria-hidden
+                    />
+                  )}
                   {w.number === activeWeek && pct < 100 && (
                     <span className="qi-pulse h-1.5 w-1.5 rounded-full bg-current" aria-hidden />
                   )}
@@ -1454,10 +1492,14 @@ export default function CoursePage() {
 
           <LabAccessPanel courseId={course.id} />
 
-          <section
+          <motion.section
+            key={`week-${viewWeek}`}
             id={`week-${viewWeek}`}
             className="stratum-week scroll-mt-24 overflow-hidden"
             data-open="true"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: DUR.swap, ease: EASE.out }}
           >
             <div className="space-y-4 p-5">
               {viewLocked ? (
@@ -1592,11 +1634,12 @@ export default function CoursePage() {
                 </>
               )}
             </div>
-          </section>
+          </motion.section>
         </>
       )}
       </motion.div>
       )}
+      </AnimatePresence>
 
       {/* Home-build gate for the Week-0 build task — mounted regardless of tab so it
           opens when a student tries to expand the build steps on the Weekly tab. */}
