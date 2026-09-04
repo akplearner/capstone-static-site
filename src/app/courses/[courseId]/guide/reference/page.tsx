@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoadingBlock } from '@/components/ui/Spinner';
+import { GuideSkeleton } from '@/components/ui/Skeletons';
 import { useCourse } from '@/lib/useCourse';
 
 /**
@@ -20,5 +20,7 @@ export default function CourseReferenceRedirect() {
   useEffect(() => {
     router.replace(`/courses/${course.id}/guide${window.location.hash || '#lab'}`);
   }, [course.id, router]);
-  return <LoadingBlock />;
+  // Same as the team stub: this forwards to the Guide, preserving the hash, so
+  // it draws the Guide.
+  return <GuideSkeleton />;
 }

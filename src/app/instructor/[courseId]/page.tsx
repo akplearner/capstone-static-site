@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Save, Eye, Download, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
-import { LoadingBlock } from '@/components/ui/Spinner';
+import { EditorSkeleton } from '@/components/ui/Skeletons';
 import { toast } from '@/components/ui/Toast';
 import { EmptyState } from '@/components/EmptyState';
 import { RolesEditor } from '@/components/instructor/RolesEditor';
@@ -78,7 +78,7 @@ export default function CourseEditorPage() {
   if (notFound) {
     return <EmptyState title="Course not found" message="This course doesn’t exist." href="/instructor" cta="Back to studio" />;
   }
-  if (!draft) return <LoadingBlock />;
+  if (!draft) return <EditorSkeleton />;
 
   const save = () => {
     if (errors.length > 0) return;

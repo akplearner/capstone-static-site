@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { LoadingBlock } from '@/components/ui/Spinner';
+import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 import { useCourse } from '@/lib/useCourse';
 
 /**
@@ -17,5 +17,8 @@ export default function TeamSpaceRedirect() {
   useEffect(() => {
     router.replace(`/courses/${course.id}#team`);
   }, [course.id, router]);
-  return <LoadingBlock />;
+  // A redirect stub has no loaded state of its own — it forwards to the course
+  // page's Home tab. So the honest skeleton is that page's, which is also the
+  // one about to render.
+  return <CoursePageSkeleton />;
 }

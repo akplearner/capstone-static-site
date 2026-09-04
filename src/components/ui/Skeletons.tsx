@@ -147,3 +147,84 @@ export function GuideSkeleton() {
     </div>
   );
 }
+
+/**
+ * A page whose shape we do not know.
+ *
+ * The root `app/loading.tsx` is the fallback for the landing page, explore,
+ * dashboard, portfolio, account, login and legal — genuinely different layouts
+ * — so any specific outline would be a lie on six of the seven. This draws only
+ * what they all share: a header and a block of content. That is less than the
+ * skeletons above promise, deliberately; per the rule at the top of this file,
+ * a skeleton that promises a layout and delivers a different one is worse than
+ * a spinner, and this is the one case where a spinner's honesty was its only
+ * virtue. Being the right SHAPE is what it gives up; being the right WEIGHT and
+ * in the right place is what it keeps.
+ */
+export function PageSkeleton() {
+  return (
+    <div className="space-y-8 py-2" aria-busy="true" aria-label="Loading">
+      <HeaderSkeleton />
+      <Skeleton className="h-64 w-full rounded-[var(--radius-card)]" />
+    </div>
+  );
+}
+
+/**
+ * The narrow centred card behind a passcode or a sign-in.
+ *
+ * `InstructorGate` resolves to one of four things, and three of them are this:
+ * a round icon badge over a heading, a line of explanation, and either a form
+ * or a button. The fourth is the unlocked studio, which is a passthrough to
+ * arbitrary content — unguessable, and not worth guessing when the wait is an
+ * auth check that resolves in a frame.
+ */
+export function AuthCardSkeleton() {
+  return (
+    <div className="mx-auto max-w-md space-y-5 py-16" aria-busy="true" aria-label="Checking access">
+      <Skeleton className="mx-auto h-12 w-12 rounded-2xl" />
+      <Skeleton className="mx-auto h-7 w-56" />
+      <Skeleton className="mx-auto h-4 w-full max-w-sm" />
+      <Skeleton className="h-10 w-full rounded-lg" />
+    </div>
+  );
+}
+
+/**
+ * The course editor — the one remaining spinner with a single stable shape.
+ *
+ * Header row (back-link over title, then a button cluster), the tab strip, then
+ * a panel of form fields. The field rows are the same outline as
+ * `DeliverablesSkeleton`'s, because they are the same thing: a label over an
+ * input.
+ */
+export function EditorSkeleton() {
+  return (
+    <div className="space-y-6" aria-busy="true" aria-label="Loading course editor">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="space-y-2">
+          <Skeleton className="h-3 w-24" />
+          <Skeleton className="h-7 w-64 max-w-full" />
+        </div>
+        <div className="flex gap-2">
+          {[72, 76, 64].map((w, i) => (
+            <Skeleton key={i} className="h-9 rounded-lg" style={{ width: w }} />
+          ))}
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1 border-b border-line pb-2">
+        {[68, 60, 74, 58, 66].map((w, i) => (
+          <Skeleton key={i} className="h-8 rounded-md" style={{ width: w }} />
+        ))}
+      </div>
+      <div className="max-w-xl space-y-4">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="space-y-1.5">
+            <Skeleton className="h-3 w-28" />
+            <Skeleton className="h-9 w-full rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}

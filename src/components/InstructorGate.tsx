@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Lock, LogOut, ShieldAlert } from 'lucide-react';
 import { Button } from './ui/Button';
-import { LoadingBlock } from './ui/Spinner';
+import { AuthCardSkeleton } from './ui/Skeletons';
 import { SignInPanel } from './auth/SignInPanel';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 
@@ -12,7 +12,7 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
 
-  if (!auth.ready) return <LoadingBlock />;
+  if (!auth.ready) return <AuthCardSkeleton />;
 
   if (!auth.unlocked) {
     // Real-auth mode: instructor access comes from the account's profile flag.

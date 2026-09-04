@@ -1,34 +1,15 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
-
-/** Accessible loading spinner. Announces "Loading" to assistive tech. */
-export function Spinner({
-  size = 20,
-  label = 'Loading',
-  className = '',
-}: {
-  size?: number;
-  label?: string;
-  className?: string;
-}) {
-  return (
-    <span role="status" className={`inline-flex items-center gap-2 text-muted ${className}`}>
-      <Loader2 className="animate-spin motion-reduce:animate-none" style={{ width: size, height: size }} aria-hidden />
-      <span className="sr-only">{label}</span>
-    </span>
-  );
-}
-
-/** Centered full-section loading state, used by route loading.tsx and in-page waits. */
-export function LoadingBlock({ label = 'Loading…' }: { label?: string }) {
-  return (
-    <div className="flex items-center justify-center gap-2 py-12 text-muted">
-      <Spinner label={label} />
-      <span>{label}</span>
-    </div>
-  );
-}
+/**
+ * Skeleton — the one loading primitive left.
+ *
+ * `Spinner` and `LoadingBlock` lived here and both had zero call sites after
+ * R64-F replaced the last five whole-page spinners with content-shaped
+ * skeletons. They are deleted rather than kept "in case": an unused primitive
+ * is the dead chrome R63 spent a commit removing, and `git` remembers them if
+ * an inline pending state ever needs one. The filename is left alone so the six
+ * `from '@/components/ui/Spinner'` imports do not churn for a rename.
+ */
 
 /** Grey placeholder block for skeleton screens. */
 export function Skeleton({
