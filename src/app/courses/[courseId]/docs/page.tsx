@@ -30,6 +30,7 @@ import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore'
 import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
 import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
 import { applyCarryForward, buildFormContext } from '@/lib/docs/formContext';
+import { useAutoSave, type SaveStatus } from '@/lib/docs/useAutoSave';
 import type { DeliverableDef } from '@/lib/docs/types';
 import { unitWord } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
@@ -135,10 +136,23 @@ export default function DeliverablesPage() {
   useSupabaseSync(course.id);
   const { member, loading } = useMember(course.id);
   const { guard } = useRequireAuth();
-  const saved = useClientStore<DocsMap>(
+  const stored = useClientStore<DocsMap>(
     () => (member ? docsRepo.get(course.id, member.teamId) ?? EMPTY_OBJECT : EMPTY_OBJECT),
     EMPTY_OBJECT
   );
+
+  // Deliverables are the team's shared documents — they have to belong to an
+  // account or a teammate can never see them, so the persist stays behind the
+  // auth guard even though it now runs on a debounce.
+  const { save, flush, merge, status: saveStatus } = useAutoSave((id, data) => {
+    guard('save your team’s deliverables', () => {
+      const current = member ? docsRepo.get(course.id, member.teamId) ?? {} : {};
+      if (member) docsRepo.save(course.id, member.teamId, { ...current, [id]: data });
+      notifyStore();
+    });
+  });
+  // What the page renders: what is stored, with anything not yet written on top.
+  const saved = merge(stored);
 
   const courseDefs = deliverablesForCourse(course.id);
   const roleDefaultWeek = member ? deliverablesForRole(member.role, course.id)[0]?.weeks[0] ?? 1 : 1;
@@ -207,15 +221,11 @@ export default function DeliverablesPage() {
   // Generated documents print the team NUMBER; the cohort is its own meta field.
   const meta = { team: parseTeamId(teamId).num, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };
 
-  const setDoc = (id: string, data: DeliverableData) => {
-    // Deliverables are the team's shared documents — they have to belong to an
-    // account or a teammate can never see them.
-    guard('save your team’s deliverables', () => {
-      const current = docsRepo.get(course.id, teamId) ?? {};
-      docsRepo.save(course.id, teamId, { ...current, [id]: data });
-      notifyStore();
-    });
-  };
+  // Typing lands in React state; the write is coalesced and flushed on a pause,
+  // on tab-hide and on unmount. See `useAutoSave` for why: every keystroke used
+  // to cost a JSON parse, a stringify, a synchronous localStorage write and a
+  // global re-read by every subscriber on the page.
+  const setDoc = (id: string, data: DeliverableData) => save(id, data);
 
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
   const myDefs = deliverablesForRole(member.role, course.id);
@@ -259,6 +269,7 @@ export default function DeliverablesPage() {
   );
 
   const handleExportMyWork = () => {
+    flush();
     const json = exportTeamData(saved, { ...meta, course: course.id }, member.role);
     download(`${packageRoot(meta)}_${member.role}.json`, json);
   };
@@ -329,6 +340,7 @@ export default function DeliverablesPage() {
           the shape guard reads. */}
       <PageHeader
         data-block="week-head"
+        trailing={<SaveState status={saveStatus} />}
         eyebrow="Deliverables"
         title={`${weekWord} · ${dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}`}
         lede={
@@ -387,7 +399,10 @@ export default function DeliverablesPage() {
           </p>
           <button
             type="button"
-            onClick={() => downloadBytes(packageFileName(meta), buildTeamPackage(saved, meta), 'application/zip')}
+            onClick={() => {
+              flush();
+              downloadBytes(packageFileName(meta), buildTeamPackage(saved, meta), 'application/zip');
+            }}
             className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-contrast hover:bg-accent-strong"
           >
             <Package className="h-4 w-4" /> Download team package (.zip)
@@ -544,6 +559,31 @@ export default function DeliverablesPage() {
           populated chain-of-custody log. */}
       <WeekEvidencePackager week={selectedWeek} courseId={course.id} saved={saved} meta={meta} roles={course.roles} memberId={member.memberId} />
     </div>
+  );
+}
+
+/**
+ * "Saving… / Saved".
+ *
+ * There is no Save button — the form writes as you type — so before this the
+ * most frequent action in the product confirmed nothing at all. The indicator
+ * reports the real state of the debounced write from `useAutoSave`, and stays
+ * out of the way once it has settled.
+ */
+function SaveState({ status }: { status: SaveStatus }) {
+  if (status === 'idle') return null;
+  const saved = status === 'saved';
+  return (
+    <span
+      // Polite: it narrates a background save, and must not interrupt typing.
+      aria-live="polite"
+      className={`inline-flex items-center gap-1.5 text-xs font-medium transition-colors ${
+        saved ? 'text-ok' : 'text-muted'
+      }`}
+    >
+      {saved ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Circle className="h-3.5 w-3.5 animate-pulse motion-reduce:animate-none" />}
+      {status === 'saved' ? 'Saved' : 'Saving…'}
+    </span>
   );
 }
 

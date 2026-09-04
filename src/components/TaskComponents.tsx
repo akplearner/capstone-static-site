@@ -707,8 +707,10 @@ export function ChecklistItem({
     // Stratum 3: a step gets a seam line, not a third nested box. Stacking a
     // third border inside week -> task -> step is what made a week read as an
     // undifferentiated wall.
-    <motion.div
-      layout
+    <div
+      // `layout` used to sit here. Without a LayoutGroup coordinating them it
+      // animated nothing, and it made every one of a task's steps re-measure on
+      // every global store event — which fires on each keystroke and each tick.
       data-done={isComplete ? 'true' : 'false'}
       className="stratum-step py-3"
     >
@@ -803,7 +805,7 @@ export function ChecklistItem({
           </motion.div>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
