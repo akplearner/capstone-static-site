@@ -88,6 +88,40 @@ function ensureMigrated(): void {
   safeSetItem(KEYS.migratedV2, '1');
 }
 
+/**
+ * The completion key set, cached.
+ *
+ * `getCompletionKeySet` iterates the WHOLE of localStorage — every key the
+ * browser holds for this origin, not just this course's — to collect the ones
+ * with a completion prefix. That is a fine way to answer the question once. It
+ * is not a fine way to answer it the way callers actually ask it:
+ * `TeamBlock` calls it once per roster member, and `explore`, `dashboard` and
+ * `portfolio` call it once per course, all inside `useClientStore` selectors
+ * that re-run on every render and on every one of the ~34 store broadcasts.
+ *
+ * So the scan is cached per (course, member) behind a version counter. Every
+ * write path that can change a completion key bumps it — set, remove, reset —
+ * and a `storage` event from another tab clears the lot, since a cache cannot
+ * see a write it did not make.
+ *
+ * The cached Set is handed back by reference. Callers only ever `.has()` it, and
+ * the two that build one (`getCompletedStepIds`, `getTaskPercent`) take it as an
+ * argument rather than mutating it.
+ */
+const keySetCache = new Map<string, { version: number; value: Set<string> }>();
+let completionVersion = 0;
+
+function bumpCompletions(): void {
+  completionVersion++;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', () => {
+    completionVersion++;
+    keySetCache.clear();
+  });
+}
+
 export const localStorageProgressRepo: ProgressRepository = {
   getContext(courseId: string): Member | null {
     if (!hasWindow()) return null;
@@ -159,11 +193,15 @@ export const localStorageProgressRepo: ProgressRepository = {
     const set = new Set<string>();
     if (!hasWindow()) return set;
     ensureMigrated();
+    const cacheKey = `${courseId}\u0000${memberId}`;
+    const hit = keySetCache.get(cacheKey);
+    if (hit && hit.version === completionVersion) return hit.value;
     const prefix = KEYS.completionPrefix(courseId, memberId);
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith(prefix)) set.add(key);
     }
+    keySetCache.set(cacheKey, { version: completionVersion, value: set });
     return set;
   },
 
@@ -181,11 +219,13 @@ export const localStorageProgressRepo: ProgressRepository = {
       KEYS.completion(courseId, memberId, taskId, stepId),
       JSON.stringify(completion)
     );
+    bumpCompletions();
   },
 
   removeCompletion(courseId, memberId, taskId, stepId): void {
     if (!hasWindow()) return;
     localStorage.removeItem(KEYS.completion(courseId, memberId, taskId, stepId));
+    bumpCompletions();
   },
 
   getCompletedStepIds(courseId, memberId, task: Task, keySet): string[] {
@@ -249,5 +289,6 @@ export const localStorageProgressRepo: ProgressRepository = {
       if (key && key.startsWith(prefix)) toRemove.push(key);
     }
     toRemove.forEach((k) => localStorage.removeItem(k));
+    bumpCompletions();
   },
 };

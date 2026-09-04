@@ -48,13 +48,19 @@ export function SiteNav() {
   const segments = pathname.split('/').filter(Boolean);
 
   // Resolve a course title for breadcrumbs when we're inside a course/editor.
+  //
+  // The selector returns the TITLE, not the course. It used to return the whole
+  // `Course`, which `useClientStore` then deep-serialises to decide whether it
+  // changed — every week, task, step and command in the course, on every page in
+  // the app, on every render and every store broadcast, to produce one string
+  // for a breadcrumb. Reading the string directly is the same answer for the
+  // cost of comparing a string.
   const courseId =
     segments[0] === 'courses' || segments[0] === 'instructor' ? segments[1] : undefined;
-  const course = useClientStore(
-    () => (courseId ? courseRepo.get(courseId) ?? null : null),
-    null
+  const courseTitle = useClientStore(
+    () => (courseId ? courseRepo.get(courseId)?.title ?? 'Course' : 'Course'),
+    'Course'
   );
-  const courseTitle = course?.title ?? 'Course';
 
   const coursesActive = pathname === '/' || pathname.startsWith('/courses');
   const exploreActive = pathname.startsWith('/explore');

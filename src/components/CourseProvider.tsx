@@ -20,7 +20,17 @@ export function CourseProvider({
 }) {
   // Resolve only after mount so server and client first render match (authored
   // courses live in localStorage and aren't visible during SSR).
-  const course = useClientStore<Course | null>(() => courseRepo.get(courseId) ?? null, null);
+  //
+  // This one really does need the whole `Course` — it is the provider for the
+  // entire in-course subtree. What it does not need is to SERIALISE it on every
+  // store broadcast to find out whether it changed. A course changes only when
+  // it is authored, and `save()` stamps `updatedAt`, so id + that timestamp is a
+  // sufficient identity; seeds have no `updatedAt` and never change at all.
+  const course = useClientStore<Course | null>(
+    () => courseRepo.get(courseId) ?? null,
+    null,
+    (c) => (c ? `${c.id}:${c.updatedAt ?? 'seed'}` : 'none')
+  );
   const ready = useHydrated();
 
   if (!course) {

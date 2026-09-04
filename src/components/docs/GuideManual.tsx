@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
@@ -70,9 +70,15 @@ export function GuideManual({ course, member }: { course: Course; member: Member
 
   // The deliverable chain, with filed status recomputed whenever docs change,
   // so the diagram reads as a live status board rather than a static plan.
+  //
+  // The server value is memoised because `useClientStore` documents that it must
+  // be referentially stable — passing `buildDeliverableChain(course, {})` inline
+  // rebuilt the whole chain on every render and handed React a new object each
+  // time, which is exactly the case that hook's docblock warns about.
+  const emptyChain = useMemo(() => buildDeliverableChain(course, {}), [course]);
   const chain = useClientStore(
     () => buildDeliverableChain(course, docsRepo.get(course.id, member.teamId) ?? {}),
-    buildDeliverableChain(course, {})
+    emptyChain
   );
 
   // A section anchor on arrival. The page renders behind a member check, so the

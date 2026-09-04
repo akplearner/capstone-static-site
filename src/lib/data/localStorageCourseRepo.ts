@@ -27,9 +27,44 @@ function readAuthored(): Course[] {
   }
 }
 
+/**
+ * The catalogue, cached.
+ *
+ * `list()` is the hottest read in the app and it was rebuilding its result every
+ * single call: parse the authored JSON, build a Set of ids, filter the seeds,
+ * spread both into a new array. `get()` is `list().find()`, so a page asking for
+ * one course paid for all of them — and `useClientStore` then `JSON.stringify`s
+ * whatever comes back, which for a `Course` is every week, task, step and
+ * command it contains. `CourseProvider` and `SiteNav` both do that on every
+ * page, and `explore`/`dashboard`/`portfolio` do it per course.
+ *
+ * The cache is keyed on nothing but a version counter, because the only thing
+ * that can change the answer is a local write — seeds are compiled in. Every
+ * mutating path already funnels through `writeAuthored`, so bumping there covers
+ * save, delete and import without each of them having to remember.
+ *
+ * Returning the SAME array reference when nothing changed is the second half of
+ * the win: it lets callers compare identity instead of re-deriving.
+ */
+let listCache: { version: number; value: Course[] } | null = null;
+let version = 0;
+
 function writeAuthored(courses: Course[]): void {
   if (!hasWindow()) return;
   safeSetItem(KEYS.courses, JSON.stringify(courses));
+  version++;
+}
+
+/** Another tab wrote, or a test cleared storage — the cache cannot see either. */
+export function invalidateCourseCache(): void {
+  version++;
+  listCache = null;
+}
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (e) => {
+    if (!e.key || e.key === KEYS.courses) invalidateCourseCache();
+  });
 }
 
 const isObj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object';
@@ -78,11 +113,14 @@ export const localStorageCourseRepo: CourseRepository = {
   list(): Course[] {
     // On the server, return seeds only so pages can prerender.
     if (!hasWindow()) return SEEDS;
+    if (listCache && listCache.version === version) return listCache.value;
     const authored = readAuthored();
     const authoredIds = new Set(authored.map((c) => c.id));
     // Authored overrides a seed with the same id; otherwise seeds + authored.
     const seedsKept = SEEDS.filter((s) => !authoredIds.has(s.id));
-    return [...seedsKept, ...authored];
+    const value = [...seedsKept, ...authored];
+    listCache = { version, value };
+    return value;
   },
 
   get(idOrSlug: string): Course | undefined {
