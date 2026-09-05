@@ -102,7 +102,7 @@ const gates: Gate[] = [
     ],
   },
   {
-    id: 4,
+    id: 3,
     week: 3,
     title: 'Validation complete',
     description:
@@ -115,11 +115,11 @@ const gates: Gate[] = [
     ],
   },
   {
-    id: 3,
+    id: 4,
     week: 4,
     title: 'Type I readiness / operating effectiveness',
     description: 'Controls are tested, detections validated, metrics reported, an internal audit is complete, and the evidence packet is assembled — ready for the external Type I / Stage 1 auditor.',
-    requiredArtifactTypes: ['04_Retest_and_Validation.md', '05_Detection_Rules.csv', '07_Internal_Audit_Report.md', '08_Audit_Evidence_Packet.csv'],
+    requiredArtifactTypes: ['04_Retest_and_Validation.md', '06_Detection_and_Response_Metrics.md', '07_Internal_Audit_Report.md', '08_Audit_Evidence_Packet.csv'],
     requiredTasks: ['mr-w3', 'mr-w4', 'mb-w3', 'mb-w4', 'mg-w4a', 'mg-w4b'],
   },
 ];

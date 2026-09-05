@@ -278,7 +278,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
     standard: 'SOC 2 CC7 · ISO 9.1',
     framework: 'SOC_2',
     weeks: [4],
-    gate: 3,
+    gate: 4,
     kind: 'form',
     exportFormat: 'md',
     purpose:
@@ -319,7 +319,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
     standard: 'ISO 27001 Clause 9.2 · 9.3',
     framework: 'ISO_27001',
     weeks: [4],
-    gate: 3,
+    gate: 4,
     kind: 'form',
     exportFormat: 'md',
     purpose:
@@ -373,7 +373,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
     standard: 'SOC 2 Type I/II · ISO Stage 1/2',
     framework: 'SOC_2',
     weeks: [4],
-    gate: 3,
+    gate: 4,
     kind: 'form',
     exportFormat: 'csv',
     purpose:
