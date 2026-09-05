@@ -33,8 +33,6 @@ export function labHost(key: LabHost['key']): LabHost {
   return LAB_HOSTS.find((h) => h.key === key)!;
 }
 
-/** The primary target students attack/defend — the Ubuntu+DVWA host. */
-export const TARGET_IP = labHost('ubuntu').ip;
 
 /** What the attacker→target link carries each week, plus the week's focus line. */
 export const WEEK_WIRE: Record<number, { wire: string; focus: string }> = {

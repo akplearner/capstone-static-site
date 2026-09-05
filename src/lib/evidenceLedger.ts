@@ -135,8 +135,6 @@ export function methodLabel(method: EvidenceMethod): string {
   switch (method) {
     case 'verified-output':
       return 'Verified from output';
-    case 'file-hash':
-      return 'Evidenced by file hash';
     default:
       return 'Self-attested';
   }

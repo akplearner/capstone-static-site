@@ -94,11 +94,16 @@ export function CatalogCard({
 
   if (available && href) {
     return (
-      <Link href={href} className="block h-full focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+      // `min-w-0`: a grid item's automatic minimum size is its content's
+      // min-content width, and the card's title is `truncate` (white-space:
+      // nowrap), so a long certificate name — "SOC 2 + ISO 27001" — pushed the
+      // card 26px past its track and gave /explore a horizontal scrollbar at
+      // 390px. The title can only shrink if its grid item is allowed to.
+      <Link href={href} className="block h-full min-w-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent">
         {body}
       </Link>
     );
   }
   // Coming-soon: never a link, so a dead /courses/* route can't be reached.
-  return <div className="h-full" aria-disabled>{body}</div>;
+  return <div className="h-full min-w-0" aria-disabled>{body}</div>;
 }

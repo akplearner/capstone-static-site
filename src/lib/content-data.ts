@@ -1844,10 +1844,6 @@ export const STEP_DELIVERABLES: Record<string, string> = {
   'grc-w3-s2': 'Evidence_Hashes.txt',
 };
 
-export function getStepDeliverable(stepId: string): string | undefined {
-  return STEP_DELIVERABLES[stepId];
-}
-
 // All deliverable filenames expected from a role for a given week.
 export function getDeliverablesForWeek(role: 'red' | 'blue' | 'grc', week: number): string[] {
   const tasks = getTasksByRole(role, week);

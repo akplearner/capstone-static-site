@@ -56,8 +56,6 @@ export const HOST = {
 
 /** What a student types into the browser to reach the Proxmox web console. */
 export const HOST_CONSOLE_URL = `https://${HOST.rule}:${HOST.consolePort}`;
-/** The same console, for the worked Team 1 example. */
-export const HOST_CONSOLE_URL_EXAMPLE = `https://${HOST.exampleAddress}:${HOST.consolePort}`;
 
 /**
  * The Proxmox root login every team sets during the Week 1 install.
@@ -73,8 +71,6 @@ export const HOST_CONSOLE_URL_EXAMPLE = `https://${HOST.exampleAddress}:${HOST.c
  * a shared password is good practice.
  */
 export const HOST_ROOT_LOGIN = { user: 'root', password: 'Pass@2026' };
-/** "root / Pass@2026" — the form used in prose and step text. */
-export const HOST_ROOT_LOGIN_LABEL = `${HOST_ROOT_LOGIN.user} / ${HOST_ROOT_LOGIN.password}`;
 
 export interface Bridge {
   id: 'vmbr0' | 'vmbr1' | 'vmbr2';
@@ -187,8 +183,6 @@ export function baseVmsOn(id: Bridge['id']): BaseVm[] {
 /** The optional Prometheus/Grafana/Loki host. It owns .4; teams start at .5. */
 export const MONITORING_HOST = vm('secmon');
 
-/** The application database linuxsrv carries. */
-export const DATABASE_NAME = 'capstone_db';
 
 /**
  * Where a team's OWN business VMs start in each zone.

@@ -415,11 +415,3 @@ export function MinerMark({
   );
 }
 
-/** Map a week's stone stage to its verb icon; planning weeks get none. */
-export function verbForStage(stage: number | undefined): WeekVerb | null {
-  if (stage === 2) return 'deploy';
-  if (stage === 3) return 'operate';
-  if (stage === 4) return 'harden';
-  if (stage === 5) return 'deliver';
-  return null;
-}

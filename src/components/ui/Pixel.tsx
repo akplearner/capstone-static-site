@@ -1,9 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { DUR, meter } from '@/lib/motion';
+import { meter } from '@/lib/motion';
 import clsx from 'clsx';
-import type { Milestone } from '@/lib/quarry';
 
 /**
  * Small label + progress primitives.
@@ -16,18 +15,6 @@ import type { Milestone } from '@/lib/quarry';
  * token so it stays course-coloured with no per-course code here.
  */
 
-/** A short mono, uppercase, letter-spaced kicker. Titles, chips, counters — never prose. */
-export function PixelHeading({
-  children,
-  className,
-  as: Tag = 'span',
-}: {
-  children: React.ReactNode;
-  className?: string;
-  as?: 'span' | 'h2' | 'h3' | 'div';
-}) {
-  return <Tag className={clsx('eyebrow', className)}>{children}</Tag>;
-}
 
 /** A clean mono chip. `tone` picks accent vs neutral vs muted styling. */
 export function PixelBadge({
@@ -92,27 +79,6 @@ export function StepTally({
       <span className="font-mono text-2xs text-muted" title={`${done} of ${total} steps`}>
         {done}/{total}
       </span>
-    </div>
-  );
-}
-
-/** Milestones. Unearned ones stay visible but dimmed, so the rail doubles as a
- *  checklist of what is still to prove. */
-export function MilestoneRail({ milestones }: { milestones: Milestone[] }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {milestones.map((b) => (
-        <motion.span
-          key={b.id}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: DUR.reveal }}
-        >
-          <PixelBadge tone={b.earned ? 'accent' : 'muted'} title={b.hint} className={b.earned ? '' : 'opacity-60'}>
-            {b.label}
-          </PixelBadge>
-        </motion.span>
-      ))}
     </div>
   );
 }

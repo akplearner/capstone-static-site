@@ -1156,7 +1156,6 @@ export default function CoursePage() {
                 <Button
                   onClick={() => nextTask && goToTask(nextTask)}
                   size="sm"
-                  data-tour="continue-btn"
                   className="flex items-center gap-1.5"
                 >
                   Continue <ArrowRight className="h-4 w-4" />

@@ -23,14 +23,6 @@ export function phaseTag(course: Course, weekNumber: number): string {
   return weekNumber === 0 ? 'Setup' : `Week ${weekNumber}`;
 }
 
-/** "Phase P1 · Gap Assessment" (engagement) or "Week 3: Recon" (course). */
-export function phaseTitle(course: Course, weekNumber: number): string {
-  const w = course.weeks.find((x) => x.number === weekNumber);
-  const tag = phaseTag(course, weekNumber);
-  if (!w) return tag;
-  return isEngagement(course) ? `${tag} · ${w.title}` : `${tag}: ${w.title}`;
-}
-
 // Required steps drive completion %, week progress, and gates. Optional steps
 // (e.g. the Windows track) are still shown and tracked, but never gate progress.
 export function getRequiredSteps(task: Task): Step[] {

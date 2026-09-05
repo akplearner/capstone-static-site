@@ -806,17 +806,6 @@ export function deliverableIdByFile(file: string, courseId?: string): string | u
   )?.id;
 }
 
-/** Human label for how a deliverable is built (spec §2 "How it's built"). */
-export function buildLabel(def: DeliverableDef): string {
-  const hasGroup = def.sections.some((s) => s.kind === 'group');
-  const hasFields = def.sections.some((s) => s.kind === 'fields');
-  if (def.kind === 'checklist') return 'Checklist (multi-row)';
-  if (def.kind === 'template') return 'Type-in template';
-  if (hasGroup && hasFields) return 'Form + wrapper';
-  if (hasGroup) return 'Form (multi-row)';
-  return 'Form';
-}
-
 /** Build a deliverable's starting data from its seed (example) rows/fields. */
 export function seedDeliverable(def: DeliverableDef): DeliverableData {
   const data: DeliverableData = { fields: {}, groups: {} };

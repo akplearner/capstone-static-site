@@ -1,16 +1,10 @@
-import { Course, Gate, GateStatus, GrcData, Member, RosterEntry, Task, TaskCompletion } from '../types';
+import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import type { DeliverableData } from '../docs/types';
 
 export interface ImportResult {
   ok: boolean;
   course?: Course;
   error?: string;
-}
-
-// Team-scoped GRC Workspace registers.
-export interface GrcRepository {
-  get(courseId: string, teamId: string): GrcData | null;
-  save(courseId: string, teamId: string, data: GrcData): void;
 }
 
 /** Small per-user, per-course UI state that should follow a student between
@@ -53,8 +47,12 @@ export interface LabAccessData {
  *  it separates "pasted real output that matched" from "ticked the box".
  *  - `verified-output` — the pasted output contained every `verify` token
  *  - `self-attested`   — marked complete without matching output
- *  - `file-hash`       — evidenced by a hashed artifact rather than console output */
-export type EvidenceMethod = 'verified-output' | 'self-attested' | 'file-hash';
+ *
+ *  There was a third, `file-hash`, for "evidenced by a hashed artifact rather
+ *  than console output". Nothing ever emitted it: hashing a file writes an
+ *  `EvidenceArtifact`, which is a separate record, not a step method. It was
+ *  declared, given a label and tested, and no student could ever have one. */
+export type EvidenceMethod = 'verified-output' | 'self-attested';
 
 /** One step's verification record.
  *

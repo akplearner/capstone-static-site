@@ -47,17 +47,3 @@ export function resolve<T extends object>(registry: Record<string, T>, value: Re
   return { ...hit, ...overrides } as T;
 }
 
-/** Resolve a list, tolerating a missing list. */
-export function resolveAll<T extends object>(
-  registry: Record<string, T>,
-  values: Refable<T>[] | undefined
-): T[] {
-  return (values ?? []).map((v) => resolve(registry, v));
-}
-
-/** Every id a ref list points at — used by the integrity guard. */
-export function refIds<T extends object>(values: Refable<T>[] | undefined): string[] {
-  return (values ?? [])
-    .map((v) => (typeof v === 'string' ? v : typeof v === 'object' && v && 'ref' in v ? (v as { ref: string }).ref : null))
-    .filter((v): v is string => v !== null);
-}

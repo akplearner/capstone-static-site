@@ -556,17 +556,13 @@ pre {
      · two layers — a surface-coloured gap inside the accent ring — because a
        single accent ring drawn on an accent-filled control (a primary Button,
        a selected tab) is invisible;
-     · :focus-visible, so a mouse click does not leave a ring behind.
-
-   `.focusable-inset` is for a control clipped by an `overflow-hidden` parent,
-   where an outward ring would simply be cut off. */
+     · :focus-visible, so a mouse click does not leave a ring behind. */
 button:focus-visible,
 a:focus-visible,
 summary:focus-visible,
 [role='button']:focus-visible,
 [role='tab']:focus-visible,
-.focusable:focus-visible,
-.focusable-inset:focus-visible {
+.focusable:focus-visible {
   /* Transparent rather than `none`: Windows High Contrast Mode discards
      box-shadow entirely, and a transparent outline is the one thing it does
      re-colour. Without this, forced-colors users lose the ring completely. */
@@ -583,12 +579,6 @@ summary:focus-visible,
   box-shadow:
     0 0 0 2px var(--color-surface),
     0 0 0 4px color-mix(in srgb, var(--color-accent) 70%, transparent);
-}
-
-/* For a control clipped by an overflow-hidden parent, where an outward ring
-   would simply be cut off. Wins on specificity over the element rules above. */
-.focusable-inset:focus-visible {
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 
 input,
@@ -781,18 +771,6 @@ select {
   opacity: 0.72;
 }
 
-
-/* The connective tissue between weeks: a vertical seam showing the expedition is
-   one continuous cut rather than four unrelated cards. */
-.seam-rail {
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    color-mix(in srgb, var(--color-accent) 35%, transparent) 12%,
-    color-mix(in srgb, var(--color-accent) 35%, transparent) 88%,
-    transparent
-  );
-}
 
 /* The retro "game layer" (Press Start 2P bitmap face, chunky panels, stepped
    meters and scanlines) has been retired: the content type system is IBM Plex

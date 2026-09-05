@@ -5,12 +5,10 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
+  AlertTriangle,
   Check,
-  CheckCircle2,
   ChevronDown,
   ChevronUp,
-  Lock,
-  AlertTriangle,
   Copy,
   CornerDownRight,
   Download,
@@ -37,7 +35,7 @@ import { WazuhWalkthrough } from './diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { Collapsible } from './ui/Button';
-import { DUR, EASE, meter } from '@/lib/motion';
+import { DUR, EASE } from '@/lib/motion';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -53,54 +51,6 @@ function isUrl(source: string): boolean {
   // as plain text instead of a link made the file unreachable from the step.
   const s = source.trim();
   return /^https?:\/\//i.test(s) || s.startsWith('/');
-}
-
-interface GateBadgeProps {
-  gateId: number;
-  status: 'locked' | 'ready' | 'passed';
-  completionPercent: number;
-}
-
-export function GateBadge({ gateId, status, completionPercent }: GateBadgeProps) {
-  const icons = {
-    locked: <Lock className="h-7 w-7" />,
-    ready: <AlertTriangle className="h-7 w-7" />,
-    passed: <CheckCircle2 className="h-7 w-7" />,
-  };
-
-  const colors = {
-    locked: 'bg-panel-2 text-muted',
-    ready: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-    passed: 'bg-ok-soft text-ok',
-  };
-
-  return (
-    <motion.div
-      whileHover={{ scale: 1.05 }}
-      className={`rounded-lg p-4 ${colors[status]}`}
-    >
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-sm font-semibold">Gate {gateId}</div>
-          <div className="text-xs">
-            {status === 'locked' && 'Complete your tasks to unlock'}
-            {status === 'ready' && 'In progress — keep going'}
-            {status === 'passed' && 'Passed!'}
-          </div>
-        </div>
-        <div>{icons[status]}</div>
-      </div>
-      <div className="relative mt-3 h-2 w-full overflow-hidden rounded-full bg-line">
-        <motion.div
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: completionPercent / 100 }}
-          transition={meter}
-          className="absolute inset-0 origin-left rounded-full bg-accent"
-        />
-      </div>
-      <div className="mt-2 text-xs font-medium">{completionPercent}% Complete</div>
-    </motion.div>
-  );
 }
 
 interface FrameworkBadgeProps {

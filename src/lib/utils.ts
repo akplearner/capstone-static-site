@@ -1,8 +1,7 @@
 import { Framework } from './types';
 import { EVIDENCE_NAMING } from './evidence';
-import { localDay } from './localDate';
 
-export const FRAMEWORK_COLORS: Record<Framework, string> = {
+const FRAMEWORK_COLORS: Record<Framework, string> = {
   'NIST_CSF': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
   'CIS': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
   'OWASP': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
@@ -14,7 +13,7 @@ export const FRAMEWORK_COLORS: Record<Framework, string> = {
   'STRIDE': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
 };
 
-export const FRAMEWORK_LABELS: Record<Framework, string> = {
+const FRAMEWORK_LABELS: Record<Framework, string> = {
   'NIST_CSF': 'NIST CSF',
   'CIS': 'CIS',
   'OWASP': 'OWASP',
@@ -26,7 +25,7 @@ export const FRAMEWORK_LABELS: Record<Framework, string> = {
   'STRIDE': 'STRIDE',
 };
 
-export const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
+const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'NIST_CSF': 'NIST Cybersecurity Framework - Identify, Protect, Detect, Respond, Recover',
   'CIS': 'CIS Critical Security Controls',
   'OWASP': 'OWASP Top 10 / Web Security',
@@ -41,7 +40,7 @@ export const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
 // Why each framework matters and the role it plays in the engagement. Surfaced
 // next to the framework tags so students understand *why* a step is mapped to it,
 // not just that it is.
-export const FRAMEWORK_WHY: Record<Framework, string> = {
+const FRAMEWORK_WHY: Record<Framework, string> = {
   'NIST_CSF':
     'Organizes all security work into five functions — Identify, Protect, Detect, Respond, Recover. Tagging a step here shows which part of the lifecycle it strengthens and proves you covered the whole picture, not just attack or defense.',
   'CIS':
@@ -83,107 +82,9 @@ export function getFrameworkWhy(framework: Framework): string {
   return FRAMEWORK_WHY[framework] || '';
 }
 
-export function formatDate(timestamp: number): string {
-  return new Date(timestamp).toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
-
 export function calculateProgress(completed: number, total: number): number {
   if (total === 0) return 0;
   return Math.round((completed / total) * 100);
-}
-
-export function formatTeamId(id: string): string {
-  // Format "01" as "Team 01"
-  return `Team ${id.padStart(2, '0')}`;
-}
-
-export function getRoleLabel(role: string): string {
-  const labels: Record<string, string> = {
-    'red': '🏃 Red (Runners)',
-    'blue': '🛡️ Blue (Wardens)',
-    'grc': '📋 GRC (Fixers)',
-  };
-  return labels[role] || role;
-}
-
-// Plain (emoji-free) labels — safe inside SVG diagrams, titles, and aria attributes.
-export function getRoleName(role: string): string {
-  const names: Record<string, string> = {
-    'red': 'Red (Runners)',
-    'blue': 'Blue (Wardens)',
-    'grc': 'GRC (Fixers)',
-  };
-  return names[role] || role;
-}
-
-export function getRoleMission(role: string): string {
-  const missions: Record<string, string> = {
-    'red': 'Reconnaissance, enumeration, and exploitation.',
-    'blue': 'Hardening, detection, and incident response.',
-    'grc': 'Governance, risk, compliance, and reporting.',
-  };
-  return missions[role] || '';
-}
-
-// Shared role color tokens (previously duplicated inline across pages).
-export interface RoleColor {
-  text: string;
-  bg: string;
-  border: string;
-  ring: string;
-  hex: string; // for SVG fills/strokes
-}
-
-export const ROLE_COLORS: Record<string, RoleColor> = {
-  red: {
-    text: 'text-red-700 dark:text-red-300',
-    bg: 'bg-red-50 dark:bg-red-900/20',
-    border: 'border-red-200 dark:border-red-800',
-    ring: 'ring-red-500',
-    hex: '#dc2626',
-  },
-  blue: {
-    text: 'text-blue-700 dark:text-blue-300',
-    bg: 'bg-blue-50 dark:bg-blue-900/20',
-    border: 'border-blue-200 dark:border-blue-800',
-    ring: 'ring-blue-500',
-    hex: '#2563eb',
-  },
-  grc: {
-    text: 'text-green-700 dark:text-green-300',
-    bg: 'bg-green-50 dark:bg-green-900/20',
-    border: 'border-green-200 dark:border-green-800',
-    ring: 'ring-green-500',
-    hex: '#16a34a',
-  },
-};
-
-export function getRoleColor(role: string): RoleColor {
-  return ROLE_COLORS[role] || ROLE_COLORS.blue;
-}
-
-// Inline styles derived from a role's hex color. Used for diagrams and badges so
-// any number of instructor-defined roles render correctly (Tailwind can't
-// generate class names from dynamic colors).
-export function roleTint(hex: string, alpha = '22'): Record<string, string> {
-  return { backgroundColor: `${hex}${alpha}`, borderColor: hex, color: hex };
-}
-
-export function roleAccent(hex: string): Record<string, string> {
-  return { color: hex, borderColor: hex };
-}
-
-export function generateEvidenceFileName(role: string, team: string, tool: string, action: string): string {
-  // Local, not UTC: a screenshot taken at 8pm US-eastern was named with
-  // tomorrow's date, which is exactly the thing the convention exists to pin.
-  const date = localDay().replace(/-/g, '');
-  return `${date}_${team}_${tool}_${action}.png`;
 }
 
 /** Accepted evidence file extensions (see EVIDENCE_FILE_TYPES in evidence.ts). */
@@ -199,20 +100,6 @@ export function validateEvidenceFileName(filename: string): { valid: boolean; me
   }
 
   return { valid: true, message: 'Filename valid' };
-}
-
-// Calculate gate readiness based on completed tasks
-export function canUnlockNextGate(currentGateCompletionPercent: number): boolean {
-  return currentGateCompletionPercent >= 100;
-}
-
-export function getGateStatusLabel(status: string): string {
-  const labels: Record<string, string> = {
-    'locked': '🔒 Locked',
-    'ready': '⚠️  Ready for Review',
-    'passed': '✅ Passed',
-  };
-  return labels[status] || status;
 }
 
 // Monthly cohorts as `YYYY-MM`, starting from `base`'s month (default: now).

@@ -1,7 +1,7 @@
 'use client';
 
 import type { RealtimeChannel } from '@supabase/supabase-js';
-import { GrcData, Member, RosterEntry } from '../types';
+import { Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
 import type { EvidenceArtifact, LabAccessData, StepEvidence, UserCourseState } from './types';
 import { getBrowserClient } from '../supabase/client';
@@ -26,7 +26,6 @@ const rosterByCourse = new Map<string, RosterEntry[]>();
 const contextByCourse = new Map<string, Member | null>();
 const docsByTeam = new Map<string, Record<string, DeliverableData>>(); // `${courseId}::${teamId}`
 const gateByKey = new Map<string, string>(); // KEYS.gate(...) -> status
-const grcByTeam = new Map<string, GrcData>(); // `${courseId}::${teamId}`
 // The next two are the CURRENT USER's rows only — RLS gives no one else's, and
 // for lab_access that is deliberate (it holds credentials). Keyed by courseId
 // alone because the user is implicit.
@@ -56,7 +55,6 @@ export function setCurrentUserId(id: string | null) {
     contextByCourse.clear();
     docsByTeam.clear();
     gateByKey.clear();
-    grcByTeam.clear();
     labAccessByCourse.clear();
     userStateByCourse.clear();
     // The ledger holds one student's proof of work. Failing to clear it here
@@ -100,12 +98,6 @@ export const cache = {
   },
   setGate(key: string, status: string) {
     gateByKey.set(key, status);
-  },
-  grc(courseId: string, teamId: string): GrcData | null {
-    return grcByTeam.get(teamKey(courseId, teamId)) ?? null;
-  },
-  setGrc(courseId: string, teamId: string, data: GrcData) {
-    grcByTeam.set(teamKey(courseId, teamId), data);
   },
   labAccess(courseId: string): LabAccessData | null {
     return labAccessByCourse.get(courseId) ?? null;
@@ -185,13 +177,12 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, deliverables, gates, grc, labAccess, userState, evidence, artifacts] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
       supabase.from('deliverables').select('*').eq('course_id', courseId),
       supabase.from('gate_status').select('*').eq('course_id', courseId),
-      supabase.from('grc_registers').select('*').eq('course_id', courseId),
       // These two are single-row-per-user; RLS already restricts them to the
       // caller, so no user_id filter is needed (or would add anything).
       supabase.from('lab_access').select('*').eq('course_id', courseId).maybeSingle(),
@@ -246,12 +237,6 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     gates.data.forEach((g) =>
       gateByKey.set(KEYS.gate(courseId, String(g.team_id), Number(g.gate_id)), String(g.status))
     );
-  }
-
-  if (grc.data) {
-    grc.data.forEach((g) => {
-      grcByTeam.set(teamKey(courseId, String(g.team_id)), (g.data ?? {}) as GrcData);
-    });
   }
 
   // `.maybeSingle()` yields null (not an error) when the student has no row yet,

@@ -5,8 +5,7 @@ import { motion } from 'framer-motion';
 import { Upload, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Course, Member, TaskCompletion } from '@/lib/types';
 import type { DeliverableData } from '@/lib/docs/types';
-import { progressRepo, docsRepo, grcRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo } from '@/lib/data';
-import type { GrcData } from '@/lib/types';
+import { progressRepo, docsRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo } from '@/lib/data';
 import type { EvidenceArtifact, LabAccessData, StepEvidence, UserCourseState } from '@/lib/data';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/useAuth';
@@ -104,12 +103,13 @@ export function ImportPrompt({ course }: { course: Course }) {
     const localDocs = readLocal<Record<string, DeliverableData>>(KEYS.docs(course.id, localCtx.teamId));
     if (localDocs) docsRepo.save(course.id, localCtx.teamId, localDocs);
 
-    // 4. GRC registers, lab access, and the resume pointer + Week-0 ack. These
-    //    also live in the cloud now, so an import that skipped them would silently
-    //    drop a returning student's work the moment they signed in.
-    const localGrc = readLocal<GrcData>(KEYS.grc(course.id, localCtx.teamId));
-    if (localGrc) grcRepo.save(course.id, localCtx.teamId, localGrc);
-
+    // 4. Lab access and the resume pointer + Week-0 ack. These also live in the
+    //    cloud now, so an import that skipped them would silently drop a
+    //    returning student's work the moment they signed in.
+    //
+    //    The old GRC registers used to be copied here too. Nothing has read that
+    //    store since the deliverable forms replaced it, so the copy was moving
+    //    data into a map with no readers; R65 removed the store.
     const localLab = readLocal<LabAccessData>(KEYS.labAccess(course.id));
     if (localLab) labAccessRepo.save(course.id, user.id, localLab);
 

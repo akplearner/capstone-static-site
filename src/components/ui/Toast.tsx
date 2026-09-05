@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, Info, AlertTriangle, XCircle, X } from 'lucide-react';
 import { toast, subscribeToasts, type ToastInput, type ToastVariant } from '@/lib/toastBus';
@@ -15,11 +15,6 @@ interface Toast extends Required<Omit<ToastInput, 'duration'>> {
 }
 
 const ToastCtx = createContext<(t: ToastInput | string) => void>(() => {});
-/** Hook form; identical to the module `toast()` but convenient inside components. */
-export function useToast() {
-  return useContext(ToastCtx);
-}
-
 // Semantic tokens, not raw palette classes: `info` is the accent (it used to be
 // hardcoded blue, which made every toast a different brand from the buttons
 // beside it), and success/warn/error are the ok/warn/danger tokens the theme

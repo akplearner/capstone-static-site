@@ -346,38 +346,7 @@ export interface TaskCompletion {
   completedAt: number;
 }
 
-export interface Artifact {
-  id: string;
-  courseId: string;
-  teamId: string;
-  week: WeekNumber;
-  role: Role;
-  type: 'pdf' | 'log' | 'pcap' | 'screenshot' | 'other';
-  filename: string;
-  uploadedAt: number;
-  uploadedBy: string;
-}
-
-export interface GateCheckResult {
-  gateId: number;
-  status: GateStatus;
-  completedTasks: string[];
-  remainingTasks: string[];
-  submittedArtifacts: string[];
-  canUnlock: boolean;
-}
-
-export interface CollaborationNote {
-  id: string;
-  role: Role;
-  author: string;
-  content: string;
-  createdAt: number;
-  type: 'note' | 'pitfall' | 'tip' | 'qa';
-}
-
 // GRC Workspace: team-scoped registers (asset inventory, vulns, CTI, risk,
 // audit). Rows are simple string maps so one generic table renders every
 // register; the column schemas live in src/lib/grc/templates.ts.
 export type RegisterRow = Record<string, string>;
-export type GrcData = Record<string, RegisterRow[]>; // keyed by register id

@@ -124,6 +124,3 @@ export function format(text: string): ReactNode {
 }
 
 /** Convenience wrapper for rendering a formatted string inline. */
-export function Formatted({ text }: { text: string }) {
-  return <>{format(text)}</>;
-}

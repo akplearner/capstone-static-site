@@ -29,12 +29,3 @@ export function safeSetItem(key: string, value: string): boolean {
   }
 }
 
-/** Guarded removeItem (never throws). */
-export function safeRemoveItem(key: string): void {
-  if (typeof window === 'undefined') return;
-  try {
-    window.localStorage.removeItem(key);
-  } catch {
-    /* ignore */
-  }
-}

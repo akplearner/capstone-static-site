@@ -162,6 +162,5 @@ describe('verifiableSteps + methodLabel', () => {
   it('labels each method for the UI', () => {
     expect(methodLabel('verified-output')).toBe('Verified from output');
     expect(methodLabel('self-attested')).toBe('Self-attested');
-    expect(methodLabel('file-hash')).toBe('Evidenced by file hash');
   });
 });

@@ -19,8 +19,6 @@ import type { StoneStage } from '@/lib/quarry';
  * Canonical space: a 120×120 viewBox with the stone's hub vertex at (58, 56).
  */
 
-/** Every path here is authored in this box. Scale, don't re-author. */
-export const VIEWBOX = 120;
 
 /** The interior vertex every facet fans from. Also the crystal's seat. */
 export const HUB = { x: 58, y: 56 } as const;

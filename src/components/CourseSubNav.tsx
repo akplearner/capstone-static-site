@@ -98,17 +98,17 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
       )}
 
       {onSelectTab ? (
-        <button type="button" data-tour="tab-weeks" aria-current={cur('tasks')} onClick={() => onSelectTab('tasks')} className={cls(active === 'tasks')}>
+        <button type="button" aria-current={cur('tasks')} onClick={() => onSelectTab('tasks')} className={cls(active === 'tasks')}>
           {body('tasks', <ListChecks className="h-4 w-4" />, 'Tasks')}
         </button>
       ) : (
-        <Link href={`/courses/${courseId}?tab=tasks`} data-tour="tab-weeks" aria-current={cur('tasks')} className={cls(active === 'tasks')}>
+        <Link href={`/courses/${courseId}?tab=tasks`} aria-current={cur('tasks')} className={cls(active === 'tasks')}>
           {body('tasks', <ListChecks className="h-4 w-4" />, 'Tasks')}
         </Link>
       )}
 
       {teamId && (
-        <Link href={`/courses/${courseId}/docs`} data-tour="tab-deliverables" aria-current={cur('deliverables')} className={cls(active === 'deliverables')}>
+        <Link href={`/courses/${courseId}/docs`} aria-current={cur('deliverables')} className={cls(active === 'deliverables')}>
           {body('deliverables', <ClipboardList className="h-4 w-4" />, 'Deliverables')}
         </Link>
       )}
