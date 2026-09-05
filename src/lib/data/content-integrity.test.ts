@@ -132,6 +132,74 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
+  /**
+   * A gate holds the team, so it has to ask something of everyone on it.
+   *
+   * `deriveGateStatus` is per-role: it takes the required tasks that belong to
+   * you and asks whether you have finished them. A gate that lists no task of
+   * yours is therefore silent about you — and the renderer used to read that
+   * silence as `'locked'`, which through `weekLocked` meant Red and Blue were
+   * barred from MSSP week 2 onward, permanently, with nothing they could do.
+   *
+   * The repo now reads it as "does not apply to you", so the failure is no
+   * longer a lock-out. But a checkpoint that requires nothing of a role does
+   * not hold that role at the checkpoint, which is not what a gate is for.
+   * `shared` tasks count for everyone, as `getTasksByRole` treats them.
+   */
+  it('every gate requires work from every role', () => {
+    for (const gate of course.gates) {
+      for (const role of course.roles) {
+        const mine = course.tasks.filter(
+          (t) => (t.role === role.id || t.shared) && gate.requiredTasks.includes(t.id)
+        );
+        expect(
+          mine.length,
+          `gate ${gate.id} ("${gate.title}") requires nothing of ${role.id} — it cannot hold them`
+        ).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  /**
+   * Nobody has an empty week.
+   *
+   * MSSP's Red role had no task at all in weeks 2 and 4 — a student who picked
+   * it opened the Tasks tab on those weeks and found their own list empty. The
+   * setup week is exempt: it is "do once", and a course may legitimately have
+   * nothing for a role to set up.
+   */
+  it('every graded week has work for every role', () => {
+    for (const week of course.weeks) {
+      if (week.number === 0) continue;
+      for (const role of course.roles) {
+        const mine = course.tasks.filter(
+          (t) => t.week === week.number && (t.role === role.id || t.shared)
+        );
+        expect(mine.length, `${courseId} week ${week.number} has nothing for ${role.id}`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  /**
+   * A gate at every week but the last.
+   *
+   * `priorGateForWeek(n)` looks for a gate at `n - 1`; when there is none the
+   * week opens with nothing required. MSSP had no week-3 gate, so week 4 — the
+   * audit-readiness week — was ungated for everyone. Courses that opt out of
+   * sequencing entirely (`noGatekeeping`) are exempt, as are courses with no
+   * gates at all.
+   */
+  it('gated courses gate every week that has a following week', () => {
+    if (course.noGatekeeping || course.gates.length === 0) return;
+    const gatedWeeks = new Set(course.gates.map((g) => g.week));
+    const graded = course.weeks.map((w) => w.number).filter((n) => n > 0);
+    const last = Math.max(...graded);
+    for (const n of graded) {
+      if (n === last) continue;
+      expect(gatedWeeks.has(n), `${courseId} week ${n + 1} opens with no gate behind it`).toBe(true);
+    }
+  });
+
   it('step ids are unique within the course', () => {
     const ids = allSteps(course).map(({ step }) => step.id);
     const dupes = ids.filter((id, i) => ids.indexOf(id) !== i);

@@ -212,10 +212,11 @@ export const supabaseProgressRepo: ProgressRepository = {
     return calculateProgress(completed, total);
   },
 
+  /** See the note on the localStorage twin — same two fixes. */
   deriveGateStatus(course: Course, memberId, role, gate: Gate, keySet): GateStatus {
     const set = keySet ?? this.getCompletionKeySet(course.id, memberId);
-    const myTasks = getTasksByRole(course, role, gate.week).filter((t) => gate.requiredTasks.includes(t.id));
-    if (myTasks.length === 0) return 'locked';
+    const myTasks = getTasksByRole(course, role).filter((t) => gate.requiredTasks.includes(t.id));
+    if (myTasks.length === 0) return 'passed';
     const totalSteps = myTasks.reduce((sum, t) => sum + getRequiredStepCount(t), 0);
     const completedSteps = myTasks.reduce((sum, t) => sum + completedRequiredCount(course.id, memberId, t, set), 0);
     if (totalSteps > 0 && completedSteps === totalSteps) return 'passed';

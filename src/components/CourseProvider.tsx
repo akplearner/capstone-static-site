@@ -7,6 +7,7 @@ import { courseRepo } from '@/lib/data';
 import { regionFor, seamFor } from '@/lib/quarry';
 import { useClientStore, useHydrated } from '@/lib/useClientStore';
 import { Button } from './ui/Button';
+import { EmptyState } from './EmptyState';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 
 // Resolves the course for /courses/[courseId]/* routes. Seeds resolve on first
@@ -47,6 +48,30 @@ export function CourseProvider({
           <Button>Browse courses</Button>
         </Link>
       </div>
+    );
+  }
+
+  /**
+   * A locked course is locked everywhere.
+   *
+   * The check used to live in `courses/[courseId]/page.tsx` and nowhere else,
+   * so `/guide`, `/guide/reference`, `/docs` and `/team/<id>` served a locked
+   * course's full content to anyone who typed the URL — and the course page
+   * itself links to all four. This provider is the one place every in-course
+   * route passes through, which makes it the only place the check belongs.
+   *
+   * Deliberately not exempting the instructor override: that is the behaviour
+   * the single check already had, and course preview belongs on the instructor
+   * route, not on a student page with a bypass.
+   */
+  if (course.locked) {
+    return (
+      <EmptyState
+        title="Course locked"
+        message="This course is locked by the instructor and isn’t open yet. Check back later."
+        href="/"
+        cta="Browse courses"
+      />
     );
   }
 

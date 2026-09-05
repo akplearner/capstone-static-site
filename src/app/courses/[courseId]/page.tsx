@@ -31,7 +31,6 @@ import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
 import { RoleIcon } from '@/components/RoleIcon';
-import { EmptyState } from '@/components/EmptyState';
 import { TeamBlock } from '@/components/TeamBlock';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { SignInPanel } from '@/components/auth/SignInPanel';
@@ -835,17 +834,6 @@ export default function CoursePage() {
   }, [member]);
 
   if (loading) return <CoursePageSkeleton />;
-
-  if (course.locked) {
-    return (
-      <EmptyState
-        title="Course locked"
-        message="This course is locked by the instructor and isn’t open yet. Check back later."
-        href="/"
-        cta="Browse courses"
-      />
-    );
-  }
 
   const joined = !!member;
 

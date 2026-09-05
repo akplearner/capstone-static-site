@@ -254,12 +254,28 @@ export const localStorageProgressRepo: ProgressRepository = {
     return calculateProgress(completed, total);
   },
 
+  /**
+   * Where a role stands against one gate.
+   *
+   * Two things were wrong here, and MSSP hit both at once.
+   *
+   * The task lookup was scoped to `gate.week`, so a gate that requires work
+   * from an earlier week silently required nothing of it — `content-integrity`
+   * validates `requiredTasks` ids across the whole course, so the test and the
+   * renderer disagreed about what "required" means. The id is the requirement;
+   * the week is not part of it.
+   *
+   * And a gate that asks nothing of your role returned `'locked'`, which reads
+   * as "you can never pass this" — and, through `weekLocked`, actually meant it:
+   * MSSP's Red role matched zero required tasks on all three gates and was
+   * therefore barred from week 2 onward, permanently, with nothing it could do
+   * about it. The honest answer for a gate that does not concern you is that it
+   * does not hold you up, so it is `'passed'`.
+   */
   deriveGateStatus(course: Course, memberId, role, gate: Gate, keySet): GateStatus {
     const set = keySet ?? this.getCompletionKeySet(course.id, memberId);
-    const myTasks = getTasksByRole(course, role, gate.week).filter((t) =>
-      gate.requiredTasks.includes(t.id)
-    );
-    if (myTasks.length === 0) return 'locked';
+    const myTasks = getTasksByRole(course, role).filter((t) => gate.requiredTasks.includes(t.id));
+    if (myTasks.length === 0) return 'passed';
     const totalSteps = myTasks.reduce((sum, t) => sum + getRequiredStepCount(t), 0);
     const completedSteps = myTasks.reduce(
       (sum, t) => sum + completedRequiredCount(course.id, memberId, t, set),

@@ -241,8 +241,13 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'engagement',
     certName: 'SOC 2 + ISO 27001',
     level: 'professional',
-    status: 'available',
-    courseId: 'mssp',
+    // The seed says `locked: true`, so the course page turns anyone who follows
+    // this card away. A card that promises "available" and delivers "Course
+    // locked" is worse than one that says "coming soon", so until the seed is
+    // unlocked the catalogue tells the truth. `courseId` goes with it: it is
+    // documented above as being set only when the status is `available`, and it
+    // is what makes the card a link.
+    status: 'coming-soon',
     blurb: 'Run a real client engagement to audit-ready evidence.',
   },
 ];

@@ -84,11 +84,28 @@ describe('catalog — entries', () => {
     }
   });
 
-  it('all three seed courses are represented as available entries', () => {
+  /**
+   * The catalogue and the seed have to agree about whether a course is open.
+   *
+   * This used to assert "every seed is an available entry", which was true
+   * while every seed was unlocked and became a false invariant the moment one
+   * was not: MSSP shipped `locked: true` in the seed and `status: 'available'`
+   * in the catalogue, so the Explore card was a live link to "Course locked".
+   *
+   * `locked` is the seed's own word for "not open yet", and `coming-soon` is the
+   * catalogue's. Neither is allowed to contradict the other.
+   */
+  it('the catalogue agrees with each seed about whether it is open', () => {
     for (const c of COURSES) {
       const entry = entryForCourse(c.id);
-      expect(entry, `no catalog entry for ${c.id}`).toBeTruthy();
-      expect(entry && isAvailable(entry)).toBe(true);
+      if (c.locked) {
+        expect(entry, `${c.id} is locked but the catalogue links to it`).toBeUndefined();
+        const listed = CATALOG.find((e) => e.courseId === c.id);
+        expect(listed, `${c.id} is locked; no entry may carry its courseId`).toBeUndefined();
+      } else {
+        expect(entry, `no catalog entry for ${c.id}`).toBeTruthy();
+        expect(entry && isAvailable(entry)).toBe(true);
+      }
     }
   });
 });

@@ -61,6 +61,22 @@ const weeks: WeekDef[] = [
     milestone: 'The Type I readiness package is assembled and the client has the findings report.' },
 ];
 
+/**
+ * The gates.
+ *
+ * `deriveGateStatus` is per-ROLE: it looks at the required tasks that belong to
+ * you and asks whether you have finished them. A gate that lists no task of
+ * yours therefore says nothing about you — and `weekLocked` used to read that
+ * silence as "not passed", which barred Red and Blue from week 2 onward with
+ * nothing they could do about it, for the whole life of this seed.
+ *
+ * That reading is fixed in the repo (a gate that asks nothing of you does not
+ * hold you up), but the content bug it exposed is here: a gate meant to hold the
+ * team at a checkpoint has to name work from every role, or it holds nobody.
+ * Each gate below now requires one task per role, and there is a gate at week 3
+ * so week 4 is gated like every other week — `priorGateForWeek(4)` used to be
+ * undefined, so the final week opened with nothing required at all.
+ */
 const gates: Gate[] = [
   {
     id: 1,
@@ -68,7 +84,7 @@ const gates: Gate[] = [
     title: 'Scope & SoA signed',
     description: 'The engagement agreement is signed and the Statement of Applicability defines which controls are in scope. Nothing is implemented before this.',
     requiredArtifactTypes: ['01_Engagement_and_Scope.md', '02_Statement_of_Applicability.csv'],
-    requiredTasks: ['mg-w0', 'mg-w1'],
+    requiredTasks: ['mg-w0', 'mg-w1', 'mr-w1', 'mb-w1'],
     handoffs: [
       { from: 'grc', to: 'blue', artifact: 'Statement of Applicability', label: 'GRC → Blue: which controls to implement' },
       { from: 'grc', to: 'red', artifact: 'Engagement scope', label: 'GRC → Red: what may be tested' },
@@ -80,9 +96,22 @@ const gates: Gate[] = [
     title: 'Controls implemented',
     description: 'Every applicable control is implemented and mapped in the Control Matrix with an owner and its evidence source.',
     requiredArtifactTypes: ['03_Control_Matrix.csv'],
-    requiredTasks: ['mg-w2', 'mb-w2'],
+    requiredTasks: ['mg-w2', 'mb-w2', 'mr-w2'],
     handoffs: [
       { from: 'blue', to: 'grc', artifact: 'Implemented controls', label: 'Blue → GRC: controls + evidence' },
+    ],
+  },
+  {
+    id: 4,
+    week: 3,
+    title: 'Validation complete',
+    description:
+      'The controls have been tested rather than merely built: findings recorded with remediations, detections written and shown to fire against the test, and evidence collection under way.',
+    requiredArtifactTypes: ['04_Retest_and_Validation.md', '05_Detection_Rules.csv'],
+    requiredTasks: ['mr-w3', 'mb-w3', 'mg-w3'],
+    handoffs: [
+      { from: 'red', to: 'blue', artifact: 'Attack telemetry', label: 'Red → Blue: what to detect' },
+      { from: 'red', to: 'grc', artifact: 'Retest results', label: 'Red → GRC: what closed' },
     ],
   },
   {
@@ -91,7 +120,7 @@ const gates: Gate[] = [
     title: 'Type I readiness / operating effectiveness',
     description: 'Controls are tested, detections validated, metrics reported, an internal audit is complete, and the evidence packet is assembled — ready for the external Type I / Stage 1 auditor.',
     requiredArtifactTypes: ['04_Retest_and_Validation.md', '05_Detection_Rules.csv', '07_Internal_Audit_Report.md', '08_Audit_Evidence_Packet.csv'],
-    requiredTasks: ['mr-w3', 'mb-w3', 'mb-w4', 'mg-w4a', 'mg-w4b'],
+    requiredTasks: ['mr-w3', 'mr-w4', 'mb-w3', 'mb-w4', 'mg-w4a', 'mg-w4b'],
   },
 ];
 
@@ -385,6 +414,53 @@ To         Action      From
     ],
   },
 
+  {
+    id: 'mr-w2',
+    role: 'red',
+    week: 2,
+    title: 'Threat-model the proposed controls',
+    objective:
+      'Check the controls being implemented against the attack paths found in Week 1, and say which ones actually close them.',
+    frameworks: ['NIST_800_115', 'OWASP', 'SOC_2'],
+    deliverables: [],
+    estimatedTime: '90 min',
+    prerequisites: ['Attack-surface findings from Week 1', 'Control Matrix with owners assigned (in progress)'],
+    learn: ['Threat modelling against a control set', 'Control efficacy vs control existence', 'Compensating controls'],
+    tools: ['Control Matrix', 'Week-1 scan output'],
+    definitionOfDone: [
+      'Every Week-1 finding mapped to the control that is meant to close it',
+      'Any finding with no control covering it raised to GRC before the gate',
+    ],
+    handoff: [
+      {
+        to: 'grc',
+        artifact: 'Control coverage assessment',
+        note: 'GRC records the uncovered findings in the matrix as gaps or accepted risks, with a reason.',
+      },
+      {
+        to: 'blue',
+        artifact: 'Which controls to prioritise',
+        note: 'Blue implements the controls that close a real finding first.',
+      },
+    ],
+    steps: [
+      {
+        id: 'mr-w2-s1',
+        title: 'Map each finding to the control that closes it',
+        description: 'Walk the Week-1 findings against the control matrix.',
+        instruction: 'Walk your Week-1 findings against the control matrix.',
+        instructionList: [
+          'For each finding, name the control in the matrix meant to close it.',
+          'Say how you would retest that finding once the control is in.',
+          'Where no control closes a finding, write it down and tell GRC.',
+        ],
+        whatItMeans:
+          'An auditor asks whether a control addresses the risk it claims to. Checking that while the controls are still being built beats finding out in Week 4 that one closes nothing.',
+        frameworks: ['SOC_2', 'ISO_27001'],
+      },
+    ],
+  },
+
   // ── Week 3 — P3 Validation & Testing ───────────────────────────────────────
   {
     id: 'mr-w3',
@@ -481,6 +557,49 @@ To         Action      From
   },
 
   // ── Week 4 — P4 Audit Readiness ────────────────────────────────────────────
+  {
+    id: 'mr-w4',
+    role: 'red',
+    week: 4,
+    title: 'Close out the retest and attest',
+    objective:
+      'Finish the Retest & Validation report — every finding resolved one way or another — and attest to the result for the evidence packet.',
+    frameworks: ['NIST_800_115', 'SOC_2'],
+    deliverables: ['04_Retest_and_Validation.md'],
+    estimatedTime: '90 min',
+    prerequisites: ['Week-3 findings recorded with remediations', 'Fixes deployed by Blue'],
+    learn: ['Remediation validation to closure', 'Risk acceptance with a named owner', 'Tester attestation'],
+    tools: ['Retest & Validation form'],
+    definitionOfDone: [
+      'Every finding reads Closed, Open or Risk accepted — none left blank',
+      'The methodology section states how each retest was performed',
+      'Anything still Open or Risk accepted names who accepted it and why',
+    ],
+    handoff: [
+      {
+        to: 'grc',
+        artifact: 'Signed-off retest report',
+        note: 'GRC files it in the evidence packet as the operating-effectiveness evidence for CC4.1 / A.8.8.',
+      },
+    ],
+    steps: [
+      {
+        id: 'mr-w4-s1',
+        title: 'Resolve every finding and attest',
+        description: 'Retest what is still open, then attest to the result.',
+        instruction: 'Take the report from “tested” to “closed out”.',
+        instructionList: [
+          'Retest anything still open from Week 3 and set its result.',
+          'For each Open or Risk-accepted finding, record who accepted it and why.',
+          'Fill the methodology section: how the retests were done, not just that they were.',
+        ],
+        usesForm: 'Retest & Remediation-Validation Report',
+        whatItMeans:
+          'The auditor’s question is not “did you test?” but “what happened to what you found?”. A blank retest column is an open finding by default, and a risk accepted without a named owner is an omission, not an acceptance.',
+        frameworks: ['NIST_800_115', 'SOC_2'],
+      },
+    ],
+  },
   {
     id: 'mb-w4',
     role: 'blue',
