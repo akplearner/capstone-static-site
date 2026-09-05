@@ -1029,8 +1029,9 @@ export default function CoursePage() {
   const gateForWeek = course.gates.find((g) => g.week === viewWeek);
   const viewLocked = weekLocked(viewWeek);
   const lockGate = priorGateForWeek(viewWeek);
-  // Home, shared track: what the other focuses document this week — the titles
-  // are all a student needs, since each is a copy of the same slot.
+  // Home, shared track: what the other focuses document this week. Titles only
+  // — this is the glance. The full deep-dives, steps and all, are the reference
+  // panel at the foot of the Tasks list, which this section links through to.
   const otherFocuses = course.sharedTrack && member
     ? otherRoles
         .map((r) => ({
@@ -1329,11 +1330,25 @@ export default function CoursePage() {
       {joined && member && <TeamBlock course={course} member={member} />}
 
       {/* Shared track: the deep-dives the other focuses add this week. Titles
-          only — each is a copy of the same slot, so the title is the fact. The
-          Tasks tab used to fold these into every week as a reference panel. */}
+          only — the glance. Tasks carries the same three under the same heading,
+          with their steps, and the link goes there: a title tells you the slot
+          is covered, but a hand-off can only be checked against the steps. */}
       {otherFocuses.length > 0 && (
         <section className="space-y-2">
-          <h2 className="text-lg font-semibold text-ink">What the other focuses document this {unit}</h2>
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+            <h2 className="text-lg font-semibold text-ink">What the other focuses document this {unit}</h2>
+            <button
+              type="button"
+              onClick={() => {
+                pickWeek(activeWeek);
+                setOthersOpen(true);
+                scrollTo('other-focuses');
+              }}
+              className="text-sm font-medium text-accent hover:text-accent-strong"
+            >
+              Read their steps in Tasks →
+            </button>
+          </div>
           <ul className="grid gap-2 sm:grid-cols-3">
             {otherFocuses.map(({ role, titles }) => (
               <li key={role.id} className="rounded-lg border border-line bg-panel px-3 py-2 text-sm">
@@ -1598,29 +1613,41 @@ export default function CoursePage() {
                     ))}
                   </div>
 
-                  {/* Role-split courses: teammates' tasks, read-only, one press
-                      away. They carry the hand-offs a student has to be able to
-                      open. On a shared track the other focuses' deep-dives are
-                      copies of the same slot — their titles are on Home. */}
-                  {!course.sharedTrack && otherWeekTasks.length > 0 && (
-                    <div className="rounded-lg border border-dashed border-line p-3">
+                  {/* The rest of the team's work this week, read-only, one
+                      press away. On a role-split course these carry the
+                      hand-offs a student has to be able to open. On a shared
+                      track they are the other three focuses on the same build —
+                      "is the build covered?" is a question you answer by reading
+                      what the other focuses are documenting, and Home's summary
+                      lists only their titles. This was gated on
+                      `!course.sharedTrack` for several rounds on the reasoning
+                      that a title was enough; it is not. A hand-off cannot be
+                      checked against a title. */}
+                  {otherWeekTasks.length > 0 && (
+                    <div id="other-focuses" className="scroll-under-chrome rounded-lg border border-dashed border-line p-3">
                       <button
                         type="button"
                         onClick={() => setOthersOpen((v) => !v)}
                         aria-expanded={othersOpen}
+                        aria-controls="other-focus-tasks"
                         className="flex w-full items-center gap-2 text-sm font-medium text-muted"
                       >
                         <Users className="h-4 w-4" />
-                        Other roles this {unit} · {otherWeekTasks.length}
+                        {course.sharedTrack
+                          ? `What the other focuses document this ${unit}`
+                          : `Other roles this ${unit}`}{' '}
+                        · {otherWeekTasks.length}
                         {othersOpen ? (
                           <ChevronDown className="ml-auto h-4 w-4 text-muted" />
                         ) : (
                           <ChevronRight className="ml-auto h-4 w-4 text-muted" />
                         )}
                       </button>
-                      {othersOpen && (
-                        <div className="mt-3 space-y-4">
-                          {otherRoles.map((r) => {
+                      {/* Wrapper stays mounted so `aria-controls` above always
+                          resolves — see the same fix in `Collapsible`. */}
+                      <div id="other-focus-tasks" className={othersOpen ? 'mt-3 space-y-4' : 'hidden'}>
+                        {othersOpen &&
+                          otherRoles.map((r) => {
                             const roleTasks = otherWeekTasks.filter((t) => t.role === r.id);
                             if (roleTasks.length === 0) return null;
                             return (
@@ -1646,8 +1673,7 @@ export default function CoursePage() {
                               </div>
                             );
                           })}
-                        </div>
-                      )}
+                      </div>
                     </div>
                   )}
                 </>

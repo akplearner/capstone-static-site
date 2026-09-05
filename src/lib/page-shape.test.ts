@@ -397,6 +397,28 @@ describe('design tokens — palette classes do not come back', () => {
    * `shadow-none` and `shadow-[var(--shadow-N)]` are fine; so is a print or
    * hover variant of either. Only the fixed-size Tailwind scale is banned.
    */
+  /**
+   * The team's other work stays reachable from the task list.
+   *
+   * `sharedTrack` describes the CONTENT — one build everyone shares, with a
+   * small per-focus deep-dive on top — not the audience for it. For several
+   * rounds the reference panel carrying the other three focuses was gated on
+   * `!course.sharedTrack`, which silently removed it from the whole of Server+:
+   * `otherWeekTasks` was still computed on every week and then thrown away, so
+   * nothing failed and nothing looked wrong. An instructor found it.
+   *
+   * The panel's own emptiness check (`otherWeekTasks.length > 0`) is the only
+   * condition it should carry. This asserts nothing puts a course-shape test
+   * back in front of it.
+   */
+  it('the other-focus panel is not gated on sharedTrack', () => {
+    const src = code('src/app/courses/[courseId]/page.tsx');
+    expect(src).toContain('{otherWeekTasks.length > 0 && (');
+    expect(src, 'the panel is for every course that has other roles').not.toMatch(
+      /sharedTrack\s*&&\s*otherWeekTasks/
+    );
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));
