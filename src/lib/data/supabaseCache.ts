@@ -142,6 +142,15 @@ export const cache = {
   setArtifact(artifact: EvidenceArtifact) {
     artifactsByHash.set(`${artifact.courseId}::${artifact.sha256}`, artifact);
   },
+  /** Drop one course's evidence — the optimistic half of `resetCourse`. */
+  clearEvidence(courseId: string) {
+    [...stepEvidenceByKey.keys()]
+      .filter((k) => k.startsWith(`${courseId}::`))
+      .forEach((k) => stepEvidenceByKey.delete(k));
+    [...artifactsByHash.entries()]
+      .filter(([, v]) => v.courseId === courseId)
+      .forEach(([k]) => artifactsByHash.delete(k));
+  },
   path(): { pathId: string; chosenAt: number } | null {
     return chosenPath;
   },

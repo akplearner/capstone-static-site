@@ -42,10 +42,10 @@ export function RoleExtractionGuide({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left uppercase tracking-wide text-muted">
-              <th className="py-1.5 pr-3 text-xs font-medium">Form</th>
-              <th className="py-1.5 pr-3 text-xs font-medium">What it records</th>
-              <th className="py-1.5 pr-3 text-xs font-medium">Week</th>
-              <th className="py-1.5 text-xs font-medium" />
+              <th scope="col" className="py-1.5 pr-3 text-xs font-medium">Form</th>
+              <th scope="col" className="py-1.5 pr-3 text-xs font-medium">What it records</th>
+              <th scope="col" className="py-1.5 pr-3 text-xs font-medium">Week</th>
+              <th scope="col" className="py-1.5 text-xs font-medium" />
             </tr>
           </thead>
           <tbody>

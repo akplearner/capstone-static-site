@@ -152,9 +152,9 @@ export function ServerConfigGuide() {
           <table className="w-full min-w-[34rem] border-collapse text-left">
             <thead>
               <tr className="border-b border-line bg-panel">
-                <th className="px-4 py-2 eyebrow-muted font-semibold">Zone</th>
-                <th className="px-4 py-2 eyebrow-muted font-semibold">Network</th>
-                <th className="px-4 py-2 eyebrow-muted font-semibold">What lives there</th>
+                <th scope="col" className="px-4 py-2 eyebrow-muted font-semibold">Zone</th>
+                <th scope="col" className="px-4 py-2 eyebrow-muted font-semibold">Network</th>
+                <th scope="col" className="px-4 py-2 eyebrow-muted font-semibold">What lives there</th>
               </tr>
             </thead>
             <tbody>
@@ -271,9 +271,9 @@ export function ServerConfigGuide() {
               <table className="w-full min-w-[30rem] border-collapse text-left">
                 <thead className="sr-only">
                   <tr>
-                    <th>Step</th>
-                    <th>Do this</th>
-                    <th>What it does</th>
+                    <th scope="col">Step</th>
+                    <th scope="col">Do this</th>
+                    <th scope="col">What it does</th>
                   </tr>
                 </thead>
                 <tbody>

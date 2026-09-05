@@ -105,6 +105,17 @@ export interface EvidenceRepository {
   saveStep(memberId: string, evidence: StepEvidence): void;
   getArtifacts(courseId: string, memberId: string): EvidenceArtifact[];
   saveArtifact(memberId: string, artifact: EvidenceArtifact): void;
+  /**
+   * Forget everything this student proved on this course — the step ledger and
+   * the hashed artifacts both.
+   *
+   * "Reset my progress" used to clear completions only, so a student who reset
+   * read 0% on the course page while `/portfolio` went on printing their whole
+   * verified-step record and every file they had hashed. Two answers to one
+   * question. Reset now clears both, and the page calls this alongside
+   * `progressRepo.resetCourse`.
+   */
+  resetCourse(courseId: string, memberId: string): void;
 }
 
 /** The career track a student is working toward — the one per-user row that is

@@ -38,6 +38,7 @@ import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff
 import { parseTeamId, teamLabel } from '@/lib/team';
 import { DeliverablesSkeleton } from '@/components/ui/Skeletons';
 import { WeekRail } from '@/components/WeekRail';
+import { localDay } from '@/lib/localDate';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -220,7 +221,7 @@ export default function DeliverablesPage() {
 
   const teamId = member.teamId;
   // Generated documents print the team NUMBER; the cohort is its own meta field.
-  const meta = { team: parseTeamId(teamId).num, cohort: member.cohort, date: new Date().toISOString().slice(0, 10), courseId: course.id };
+  const meta = { team: parseTeamId(teamId).num, cohort: member.cohort, date: localDay(), courseId: course.id };
 
   // Typing lands in React state; the write is coalesced and flushed on a pause,
   // on tab-hide and on unmount. See `useAutoSave` for why: every keystroke used

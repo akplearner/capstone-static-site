@@ -2,6 +2,7 @@ import type { Course, Step, Task } from './types';
 import type { EvidenceArtifact, StepEvidence } from './data/types';
 import { getTasksByRole, isSetupWeek } from './course-helpers';
 import { verifiableSteps } from './evidenceLedger';
+import { localDay } from './localDate';
 
 /**
  * Per-student metrics — projections, never a source of truth.
@@ -66,9 +67,10 @@ export interface MetricsInput {
   artifacts: EvidenceArtifact[];
 }
 
-function dayKey(ms: number): string {
-  return new Date(ms).toISOString().slice(0, 10);
-}
+// Local, not UTC: an 8pm session on the US east coast falls on the next UTC
+// day, which split one evening's work across two buckets and dated a late one
+// tomorrow. See `lib/localDate.ts`.
+const dayKey = localDay;
 
 /** Steps that count toward completion — optional ones are tracked but excluded,
  *  matching how progress and gates already treat them. */

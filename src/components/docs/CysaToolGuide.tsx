@@ -190,9 +190,9 @@ export function CysaToolGuide() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                <th className="px-3 py-2">Looks like…</th>
-                <th className="px-3 py-2">Search</th>
-                <th className="px-3 py-2">The tell</th>
+                <th scope="col" className="px-3 py-2">Looks like…</th>
+                <th scope="col" className="px-3 py-2">Search</th>
+                <th scope="col" className="px-3 py-2">The tell</th>
               </tr>
             </thead>
             <tbody>
@@ -226,9 +226,9 @@ export function CysaToolGuide() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                <th className="px-3 py-2">To…</th>
-                <th className="px-3 py-2">Do this</th>
-                <th className="px-3 py-2">Docs</th>
+                <th scope="col" className="px-3 py-2">To…</th>
+                <th scope="col" className="px-3 py-2">Do this</th>
+                <th scope="col" className="px-3 py-2">Docs</th>
               </tr>
             </thead>
             <tbody>

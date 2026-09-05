@@ -39,10 +39,10 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
-                <th className="px-3 py-2">Machine</th>
-                <th className="px-3 py-2">Role</th>
-                <th className="px-3 py-2">Address</th>
-                <th className="px-3 py-2">What runs on it</th>
+                <th scope="col" className="px-3 py-2">Machine</th>
+                <th scope="col" className="px-3 py-2">Role</th>
+                <th scope="col" className="px-3 py-2">Address</th>
+                <th scope="col" className="px-3 py-2">What runs on it</th>
               </tr>
             </thead>
             <tbody>

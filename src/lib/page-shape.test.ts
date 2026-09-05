@@ -419,6 +419,53 @@ describe('design tokens — palette classes do not come back', () => {
     );
   });
 
+  /**
+   * A date a student reads is a date in the student's timezone.
+   *
+   * `new Date().toISOString().slice(0, 10)` is UTC, so for the four hours after
+   * 8pm US-eastern it is tomorrow. It was dating the Evidence Log row copied to
+   * the clipboard, the `date` printed on every generated deliverable, and the
+   * day buckets the streak counts. `lib/localDate.ts` has the two helpers.
+   *
+   * UTC is still right for the wire and for machine metadata, so the ban is
+   * scoped: the Supabase repos write `timestamptz` columns, and the two export
+   * `generatedAt`/`exportedAt` fields are stamps for a file, not for a reader.
+   */
+  it('no user-facing date is built out of toISOString', () => {
+    const WIRE = /^src\/lib\/data\/supabase/;
+    const ALLOWED = new Set([
+      // Machine metadata inside a downloaded JSON export.
+      'src/app/account/page.tsx',
+      'src/app/portfolio/page.tsx',
+    ]);
+    const offenders = collectSourceFiles('src').filter(
+      (f) => !WIRE.test(f) && !ALLOWED.has(f) && /toISOString\(\)/.test(code(f))
+    );
+    expect(offenders, 'use localDay/localStamp from lib/localDate').toEqual([]);
+  });
+
+  /**
+   * Every register control says which column it is in.
+   *
+   * `RegisterTable` renders two layouts and only one of them can use a `<label>`:
+   * the phone card wraps each control in one, and a `<td>` cannot. The table
+   * therefore has to write the name onto the control, and until R65 it wrote
+   * nothing — every cell of every graded deliverable announced as "edit text,
+   * blank", on the layout everyone not on a phone uses.
+   *
+   * `labelled` is the seam. This asserts the table branch passes `false` (so the
+   * name gets written) and the card branch passes it plain (so it does not get
+   * written twice).
+   */
+  it('the register table names its own controls', () => {
+    const src = code('src/components/grc/RegisterTable.tsx');
+    expect(src, 'the <td> branch must ask Cell for an aria-label').toContain('labelled={false}');
+    expect(src, 'the aria-label has to name the column and the row').toContain(
+      "'aria-label': `${col.label}, row ${rowIndex + 1}`"
+    );
+    expect(src, 'a <th> that names a column says so').toContain('scope="col"');
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));

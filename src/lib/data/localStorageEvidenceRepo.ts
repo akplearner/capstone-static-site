@@ -62,6 +62,12 @@ export const localStorageEvidenceRepo: EvidenceRepository = {
     next.push(artifact);
     safeSetItem(key, JSON.stringify(next));
   },
+
+  resetCourse(courseId: string, memberId: string): void {
+    if (!hasWindow()) return;
+    localStorage.removeItem(KEYS.stepEvidence(courseId, memberId));
+    localStorage.removeItem(KEYS.evidenceArtifacts(courseId, memberId));
+  },
 };
 
 export const localStoragePathRepo: PathRepository = {

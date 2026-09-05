@@ -263,9 +263,9 @@ export default function PortfolioPage() {
               <table className="w-full min-w-[36rem] text-left text-sm">
                 <thead>
                   <tr className="border-b border-line text-xs uppercase tracking-wide text-muted">
-                    <th className="py-2 pr-3 font-medium">File</th>
-                    <th className="py-2 pr-3 font-medium">Hashed</th>
-                    <th className="py-2 font-medium">SHA-256</th>
+                    <th scope="col" className="py-2 pr-3 font-medium">File</th>
+                    <th scope="col" className="py-2 pr-3 font-medium">Hashed</th>
+                    <th scope="col" className="py-2 font-medium">SHA-256</th>
                   </tr>
                 </thead>
                 <tbody>

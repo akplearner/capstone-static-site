@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { FileCheck2, Copy, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { validateEvidenceFileName } from '@/lib/utils';
+import { localStamp } from '@/lib/localDate';
 import { toast } from '@/lib/toastBus';
 import { evidenceRepo } from '@/lib/data';
 
@@ -84,7 +85,7 @@ export function EvidenceHasher({
   }
 
   function copyRow(it: Hashed) {
-    const date = new Date().toISOString().slice(0, 16).replace('T', ' ');
+    const date = localStamp();
     // Evidence-Log-shaped row: filename, collected date/time, size, SHA-256.
     const row = `${it.name},${date},${humanSize(it.size)},${it.sha256}`;
     navigator.clipboard?.writeText(row).then(

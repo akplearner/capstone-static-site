@@ -36,19 +36,39 @@ function badgeClass(value: string): string {
  * Extracted from the table body so the desktop table and the phone card layout
  * below render exactly the same control — the two used to be one branchy block
  * inside a `<td>`, which is why there was no card layout at all.
+ *
+ * The two layouts differ in exactly one way, and it is why `labelled` exists:
+ * the card wraps each control in a `<label>`, and a `<td>` cannot. The table
+ * therefore has to write the name on the control itself. Until R65 it wrote
+ * nothing, and every cell of every graded form announced as "edit text, blank"
+ * — on the layout that everyone not on a phone actually uses.
  */
 function Cell({
   col,
   row,
+  rowIndex,
   ctx,
+  labelled,
   onChange,
 }: {
   col: Column;
   row: RegisterRow;
+  /** Which row this is. Only used to keep generated ids unique. */
+  rowIndex: number;
   ctx: FormContext;
+  /**
+   * True when an enclosing `<label>` already names the control — the phone
+   * layout. The table layout has no label to give (a `<th>` is not one, and
+   * `scope` alone does not name a control the way it names a cell), so it asks
+   * for the name to be written on.
+   */
+  labelled: boolean;
   onChange: (value: string) => void;
 }) {
   const value = row[col.field] ?? '';
+  // "Impact, row 3" rather than "Impact": a register is a grid, and a name that
+  // does not say which row it belongs to is a name you cannot navigate by.
+  const named = labelled ? {} : { 'aria-label': `${col.label}, row ${rowIndex + 1}` };
 
   if (col.derived) {
     return (
@@ -60,7 +80,7 @@ function Cell({
 
   if (col.type === 'select') {
     return (
-      <select value={value} onChange={(e) => onChange(e.target.value)} className={inputClass}>
+      <select {...named} value={value} onChange={(e) => onChange(e.target.value)} className={inputClass}>
         <option value="">—</option>
         {(col.options ?? []).map((o) => (
           <option key={o} value={o}>
@@ -74,6 +94,7 @@ function Cell({
   if (col.type === 'area') {
     return (
       <textarea
+        {...named}
         value={value}
         placeholder={col.placeholder}
         rows={2}
@@ -90,6 +111,7 @@ function Cell({
     return (
       <span className="relative inline-flex w-full items-center">
         <input
+          {...named}
           type={fitsInput('number', value) ? 'number' : 'text'}
           value={value}
           placeholder={col.placeholder}
@@ -107,12 +129,13 @@ function Cell({
   // the suggestion, not the limit — a student adding a machine nobody has
   // declared yet must not be blocked by their own paperwork.
   if (col.type === 'hostref' || col.type === 'evidence') {
-    const listId = `${col.type}-${col.field}`;
+    const listId = `${col.type}-${col.field}-${labelled ? 'card' : 'row'}-${rowIndex}`;
     const options =
       col.type === 'hostref' ? ctx.hostnames : ctx.evidence.map((e) => e.filename);
     return (
       <>
         <input
+          {...named}
           type="text"
           list={options.length > 0 ? listId : undefined}
           value={value}
@@ -136,6 +159,7 @@ function Cell({
     return (
       <span className="flex items-center gap-1">
         <input
+          aria-label={`${col.label}, row ${rowIndex + 1} — amount`}
           type="number"
           value={amount}
           placeholder={col.placeholder}
@@ -143,6 +167,7 @@ function Cell({
           className={`${inputClass} w-20`}
         />
         <select
+          aria-label={`${col.label}, row ${rowIndex + 1} — unit`}
           value={unit}
           onChange={(e) => onChange(formatDuration(amount, e.target.value))}
           className={`${inputClass} w-24`}
@@ -168,6 +193,7 @@ function Cell({
     return (
       <>
         <input
+          {...named}
           type="text"
           inputMode="numeric"
           value={value}
@@ -185,6 +211,7 @@ function Cell({
 
   return (
     <input
+      {...named}
       type={col.type === 'date' && fitsInput('date', value) ? 'date' : 'text'}
       value={value}
       placeholder={col.placeholder}
@@ -241,7 +268,14 @@ export function RegisterTable({
                     {c.label}
                     {c.help && <InfoTip label={`${c.label}: ${c.help}`} />}
                   </span>
-                  <Cell col={c} row={row} ctx={ctx} onChange={(v) => update(i, c.field, v)} />
+                  <Cell
+                    col={c}
+                    row={row}
+                    rowIndex={i}
+                    ctx={ctx}
+                    labelled
+                    onChange={(v) => update(i, c.field, v)}
+                  />
                 </label>
               ))}
             </div>
@@ -264,6 +298,7 @@ export function RegisterTable({
               {columns.map((c) => (
                 <th
                   key={c.field}
+                  scope="col"
                   className="px-2 py-2 text-left align-bottom text-xs font-semibold uppercase tracking-wide text-muted"
                 >
                   {/* The "where does this value come from" help lives in a
@@ -275,7 +310,9 @@ export function RegisterTable({
                   </span>
                 </th>
               ))}
-              <th className="w-10" />
+              <th scope="col" className="w-10">
+                <span className="sr-only">Delete row</span>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -283,7 +320,14 @@ export function RegisterTable({
               <tr key={i} className="border-b border-line/60">
                 {columns.map((c) => (
                   <td key={c.field} className="px-2 py-1.5 align-top">
-                    <Cell col={c} row={row} ctx={ctx} onChange={(v) => update(i, c.field, v)} />
+                    <Cell
+                      col={c}
+                      row={row}
+                      rowIndex={i}
+                      ctx={ctx}
+                      labelled={false}
+                      onChange={(v) => update(i, c.field, v)}
+                    />
                   </td>
                 ))}
                 <td className="px-1 py-1.5 text-right">

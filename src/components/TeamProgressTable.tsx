@@ -48,10 +48,10 @@ export function TeamProgressTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-              <th className="px-4 py-2.5">Member</th>
-              <th className="px-4 py-2.5">Overall</th>
+              <th scope="col" className="px-4 py-2.5">Member</th>
+              <th scope="col" className="px-4 py-2.5">Overall</th>
               {weeks.map((w) => (
-                <th key={w} className="px-3 py-2.5 text-center">W{w}</th>
+                <th key={w} scope="col" className="px-3 py-2.5 text-center">W{w}</th>
               ))}
             </tr>
           </thead>

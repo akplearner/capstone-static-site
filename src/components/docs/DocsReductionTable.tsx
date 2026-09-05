@@ -36,9 +36,9 @@ function Table() {
       <table className="w-full min-w-[560px] text-sm">
         <thead>
           <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
-            <th className="py-2 pr-3">Old working files</th>
-            <th className="py-2 pr-3" />
-            <th className="py-2 pr-3">New deliverable</th>
+            <th scope="col" className="py-2 pr-3">Old working files</th>
+            <th scope="col" className="py-2 pr-3" />
+            <th scope="col" className="py-2 pr-3">New deliverable</th>
           </tr>
         </thead>
         <tbody>

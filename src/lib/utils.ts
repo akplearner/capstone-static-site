@@ -1,5 +1,6 @@
 import { Framework } from './types';
 import { EVIDENCE_NAMING } from './evidence';
+import { localDay } from './localDate';
 
 export const FRAMEWORK_COLORS: Record<Framework, string> = {
   'NIST_CSF': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
@@ -179,7 +180,9 @@ export function roleAccent(hex: string): Record<string, string> {
 }
 
 export function generateEvidenceFileName(role: string, team: string, tool: string, action: string): string {
-  const date = new Date().toISOString().split('T')[0].replace(/-/g, '');
+  // Local, not UTC: a screenshot taken at 8pm US-eastern was named with
+  // tomorrow's date, which is exactly the thing the convention exists to pin.
+  const date = localDay().replace(/-/g, '');
   return `${date}_${team}_${tool}_${action}.png`;
 }
 

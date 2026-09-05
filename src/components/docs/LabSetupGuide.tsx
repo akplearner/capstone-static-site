@@ -44,10 +44,10 @@ export function LabSetupGuide() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
-                <th className="px-3 py-2">VM</th>
-                <th className="px-3 py-2">Role</th>
-                <th className="px-3 py-2">Suggested specs</th>
-                <th className="px-3 py-2">Notes</th>
+                <th scope="col" className="px-3 py-2">VM</th>
+                <th scope="col" className="px-3 py-2">Role</th>
+                <th scope="col" className="px-3 py-2">Suggested specs</th>
+                <th scope="col" className="px-3 py-2">Notes</th>
               </tr>
             </thead>
             <tbody>

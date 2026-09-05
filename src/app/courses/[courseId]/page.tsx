@@ -43,10 +43,10 @@ import { useAuth } from '@/lib/useAuth';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { progressRepo, userStateRepo, docsRepo } from '@/lib/data';
+import { progressRepo, userStateRepo, docsRepo, evidenceRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
-import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
+import { clearResume, readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
@@ -952,9 +952,22 @@ export default function CoursePage() {
     }
   };
 
+  /**
+   * Reset means reset.
+   *
+   * This used to clear completion keys only, so the course read 0% while
+   * `/portfolio` went on printing every verified step and every hashed file —
+   * two answers to one question, and the wrong one was the durable one. The
+   * evidence ledger and the resume pointer go with them.
+   *
+   * Gate status needs no clearing: it is derived from completions on every
+   * render (`deriveGateStatus`), never stored.
+   */
   const confirmReset = () => {
     if (!member) return;
     progressRepo.resetCourse(course.id, member.memberId);
+    evidenceRepo.resetCourse(course.id, member.memberId);
+    clearResume(course.id, member.memberId);
     setExpanded(new Set());
     setConfirmingReset(false);
     notifyStore();
@@ -1398,7 +1411,14 @@ export default function CoursePage() {
             onClose={() => setConfirmingReset(false)}
             onConfirm={confirmReset}
             title="Reset your progress?"
-            message="This clears all your completed steps for this course on this device. This cannot be undone."
+            message={
+              // The old copy said "on this device" unconditionally, which is a
+              // lie on the cloud backend: that delete is server-side and takes
+              // the record away everywhere the student signs in.
+              `This clears your completed steps, your evidence ledger and your hashed artifacts for this course${
+                isSupabaseConfigured() ? ' from your account, on every device' : ' on this device'
+              }. This cannot be undone.`
+            }
             confirmLabel="Reset progress"
           />
         </div>
@@ -1475,33 +1495,40 @@ export default function CoursePage() {
                   <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
                 )}
               </button>
-              {setupIsOpen && (
-                <div id="setup-tasks" className="space-y-3 border-t border-line p-4">
-                  {/* SOC-course banner only: this names the shared Wazuh SOC and
-                      its login, which is meaningless on a course whose setup is
-                      required prep rather than an optional home-lab build. */}
-                  {!!socTopology(course.id) && (
-                    <Alert variant="info" title="The classroom SOC is already set up.">
-                      Sign in at <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and start
-                      at <span className="font-semibold">Week 1</span>. The build steps here are only for students
-                      setting up their own lab at home — opening them asks you to confirm first.
-                    </Alert>
-                  )}
-                  {setupTasks.map((task) => (
-                    <TaskRow
-                      key={task.id}
-                      course={course}
-                      task={task}
-                      isOwn
-                      joined={joined}
-                      open={expanded.has(task.id)}
-                      percent={taskStats[task.id] ?? 0}
-                      onToggle={() => toggleTask(task)}
-                      renderBody={() => renderTaskBody(task, true)}
-                    />
-                  ))}
-                </div>
-              )}
+              {/* Mounted while collapsed so the `aria-controls` above resolves
+                  — the same fix R63 made in `Collapsible` and missed here. */}
+              <div
+                id="setup-tasks"
+                className={setupIsOpen ? 'space-y-3 border-t border-line p-4' : 'hidden'}
+              >
+                {setupIsOpen && (
+                  <>
+                    {/* SOC-course banner only: this names the shared Wazuh SOC and
+                        its login, which is meaningless on a course whose setup is
+                        required prep rather than an optional home-lab build. */}
+                    {!!socTopology(course.id) && (
+                      <Alert variant="info" title="The classroom SOC is already set up.">
+                        Sign in at <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and start
+                        at <span className="font-semibold">Week 1</span>. The build steps here are only for students
+                        setting up their own lab at home — opening them asks you to confirm first.
+                      </Alert>
+                    )}
+                    {setupTasks.map((task) => (
+                      <TaskRow
+                        key={task.id}
+                        course={course}
+                        task={task}
+                        isOwn
+                        joined={joined}
+                        open={expanded.has(task.id)}
+                        percent={taskStats[task.id] ?? 0}
+                        onToggle={() => toggleTask(task)}
+                        renderBody={() => renderTaskBody(task, true)}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
             </section>
           )}
 

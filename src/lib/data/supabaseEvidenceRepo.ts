@@ -109,6 +109,27 @@ export const supabaseEvidenceRepo: EvidenceRepository = {
         }
       });
   },
+
+  resetCourse(courseId: string): void {
+    cache.clearEvidence(courseId);
+    notifyStore();
+
+    const supabase = getBrowserClient();
+    if (!supabase) return;
+    const user_id = getCurrentUserId();
+    if (!user_id) return;
+
+    for (const table of ['step_evidence', 'evidence_artifacts'] as const) {
+      void supabase
+        .from(table)
+        .delete()
+        .eq('user_id', user_id)
+        .eq('course_id', courseId)
+        .then(({ error }) => {
+          if (error) console.error(`${table} reset failed`, error.message);
+        });
+    }
+  },
 };
 
 export const supabasePathRepo: PathRepository = {
