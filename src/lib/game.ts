@@ -1,5 +1,5 @@
 import { Course } from './types';
-import { getTasksByRole, isSetupWeek } from './course-helpers';
+import { getTasksByRole, isGradedWeek } from './course-helpers';
 import { deriveStoneStage, stageForWeek, type Milestone, type StoneStage } from './quarry';
 
 /**
@@ -52,8 +52,11 @@ export function deriveCrewProgress(
     stepsDone += Math.round(((taskPercent[t.id] ?? 0) / 100) * counted);
   }
 
+  // Graded weeks only: not setup, not advanced. An advanced week is real work
+  // for students who finish early, and must never be the reason the stone
+  // stays uncut or "Environment operational" stays unearned for everyone else.
   const gradedWeeks = course.weeks.filter(
-    (w) => !isSetupWeek(course, w.number) && getTasksByRole(course, role, w.number).length > 0
+    (w) => isGradedWeek(course, w.number) && getTasksByRole(course, role, w.number).length > 0
   );
   const clearedWeeks = gradedWeeks
     .filter((w) => (weekPercent[w.number] ?? 0) >= 100)

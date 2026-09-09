@@ -44,7 +44,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, userStateRepo, docsRepo, evidenceRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getTasksByRole, getWeekTasks, isAdvancedWeek, isEngagement, isGradedWeek, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { clearResume, readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
@@ -999,7 +999,7 @@ export default function CoursePage() {
   let nextTask: Task | undefined;
   if (member) {
     for (const w of sortedWeeks) {
-      if (isSetupWeek(course, w.number)) continue;
+      if (!isGradedWeek(course, w.number)) continue;
       const t = getTasksByRole(course, member.role, w.number).find(
         (tk) => !tk.homeLabOnly && (taskStats[tk.id] ?? 0) < 100
       );
@@ -1543,6 +1543,7 @@ export default function CoursePage() {
               done: (weekStats[w.number] ?? 0) >= 100,
               locked: weekLocked(w.number),
               pulse: w.number === activeWeek && (weekStats[w.number] ?? 0) < 100,
+              advanced: isAdvancedWeek(course, w.number),
             }))}
           />
 

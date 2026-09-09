@@ -1,6 +1,6 @@
 import { Course } from './types';
 import { userStateRepo } from './data';
-import { getTasksByRole, getTaskById, isSetupWeek } from './course-helpers';
+import { getTasksByRole, getTaskById, isGradedWeek } from './course-helpers';
 
 /**
  * "Pick up where you left off."
@@ -94,7 +94,7 @@ export function resolveActiveWeek(
   if (resume) return resume.week;
 
   const weeks = [...course.weeks].sort((a, b) => a.number - b.number);
-  const graded = weeks.filter((w) => !isSetupWeek(course, w.number));
+  const graded = weeks.filter((w) => isGradedWeek(course, w.number));
 
   const firstIncomplete = graded.find((w) => {
     // A week with no tasks for this role can't be "where you are".

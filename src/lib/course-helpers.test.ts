@@ -10,7 +10,7 @@ import {
   getProgressSteps,
   getProgressStepCount,
   getWeekNumbers,
-  isSetupWeek,
+  isSetupWeek, isAdvancedWeek, isGradedWeek,
   weekSummary,
   parseEstimatedMinutes,
   formatMinutes,
@@ -143,6 +143,29 @@ describe('setup weeks', () => {
       expect(isSetupWeek(course, 0), course.id).toBe(true);
       for (const w of course.weeks.filter((x) => x.number > 0)) {
         expect(isSetupWeek(course, w.number), `${course.id}/w${w.number}`).toBe(false);
+      }
+    }
+  });
+});
+
+describe('advanced weeks', () => {
+  const withAdvanced = {
+    ...SERVER_PLUS,
+    weeks: [...SERVER_PLUS.weeks, { number: 9, title: 'Extra', theme: 'x', objective: 'x', advanced: true }],
+  };
+
+  it('are neither setup nor graded', () => {
+    expect(isAdvancedWeek(withAdvanced, 9)).toBe(true);
+    expect(isSetupWeek(withAdvanced, 9)).toBe(false);
+    expect(isGradedWeek(withAdvanced, 9)).toBe(false);
+  });
+
+  it('every other week is exactly one of setup or graded', () => {
+    for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS]) {
+      for (const w of course.weeks) {
+        const setup = isSetupWeek(course, w.number);
+        const graded = isGradedWeek(course, w.number);
+        expect(setup !== graded || isAdvancedWeek(course, w.number), `${course.id}/w${w.number}`).toBe(true);
       }
     }
   });

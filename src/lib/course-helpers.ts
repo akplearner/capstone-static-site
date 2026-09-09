@@ -249,7 +249,7 @@ export function taskCard(course: Course, task: Task, percent = 0): TaskCard {
     handoff: task.handoff ?? [],
     domains: task.frameworks ?? [],
     status: percent >= 100 ? 'cleared' : percent > 0 ? 'in-progress' : 'not-started',
-    optional: !!task.homeLabOnly || isSetupWeek(course, task.week),
+    optional: !!task.homeLabOnly || !isGradedWeek(course, task.week),
   };
 }
 

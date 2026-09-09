@@ -2,7 +2,7 @@
 
 import { useId, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Lock } from 'lucide-react';
+import { CheckCircle2, Lock, Sparkles } from 'lucide-react';
 import { SPRING } from '@/lib/motion';
 
 /**
@@ -44,6 +44,9 @@ export interface WeekRailItem {
   locked?: boolean;
   /** Renders a slow pulse on the dot — "this is where you actually are". */
   pulse?: boolean;
+  /** An advanced week: on the rail like any other, marked so nobody reads it
+   *  as required. Never counted toward completion (see `isGradedWeek`). */
+  advanced?: boolean;
 }
 
 export function WeekRail({
@@ -128,6 +131,7 @@ export function WeekRail({
               />
             )}
             {it.label}
+            {it.advanced && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
             {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
             {it.locked && <Lock className="h-3.5 w-3.5" aria-label="locked" />}
           </button>

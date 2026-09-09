@@ -1,6 +1,6 @@
 import type { Course, Step, Task } from './types';
 import type { EvidenceArtifact, StepEvidence } from './data/types';
-import { getTasksByRole, isSetupWeek } from './course-helpers';
+import { getTasksByRole, isGradedWeek } from './course-helpers';
 import { verifiableSteps } from './evidenceLedger';
 import { localDay } from './localDate';
 
@@ -87,7 +87,7 @@ export function courseMetrics({
 }: MetricsInput): CourseMetrics {
   // Setup weeks are opt-in and don't count, exactly as deriveCrewProgress treats
   // them — otherwise a student who skipped the home build looks incomplete.
-  const tasks = getTasksByRole(course, role).filter((t) => !isSetupWeek(course, t.week));
+  const tasks = getTasksByRole(course, role).filter((t) => isGradedWeek(course, t.week));
 
   let stepsDone = 0;
   let stepsTotal = 0;

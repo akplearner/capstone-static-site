@@ -153,7 +153,7 @@ export function DeliverableChainDiagram({
               y={0}
               width={COL_W}
               height={height}
-              fill={`var(--color-w${Math.min(4, Math.max(1, week))})`}
+              fill={`var(--color-w${Math.min(5, Math.max(1, week))})`}
               opacity={i % 2 === 0 ? 0.05 : 0.02}
             />
             <text
@@ -163,7 +163,7 @@ export function DeliverableChainDiagram({
               fontSize="10"
               fontWeight="700"
               letterSpacing="1"
-              fill={`var(--color-w${Math.min(4, Math.max(1, week))})`}
+              fill={`var(--color-w${Math.min(5, Math.max(1, week))})`}
             >
               {week === 0 ? 'SETUP' : `WEEK ${week}`}
             </text>

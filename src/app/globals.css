@@ -40,11 +40,13 @@
      contrast — so they flip this to near-black. */
   --color-accent-contrast: #ffffff;
 
-  /* Per-week phase accents (k1–k4 in the source) */
+  /* Per-week phase accents (k1–k4 in the source). w5 is the advanced week —
+     a fifth hue, rose, that no graded phase uses, so it reads as its own thing. */
   --color-w1: #158066;
   --color-w2: #1f5aa8;
   --color-w3: #b26a00;
   --color-w4: #6a3d9a;
+  --color-w5: #b0213f;
 
   /* Semantic. The -soft/-line pairs are the callout fills and borders that used
      to be hand-typed as green-50/amber-50/red-50 + their dark: twins in 20+
@@ -163,6 +165,7 @@
   --color-w2: #5f93d6;
   --color-w3: #d69b4a;
   --color-w4: #a583d0;
+  --color-w5: #e0708a;
 
   --color-ok: #4ade80;
   --color-ok-soft: #10281c;
@@ -251,6 +254,7 @@
   --color-w2: #a8202c;
   --color-w3: #7a4b6b;
   --color-w4: #52606e;
+  --color-w5: #7a5563;
 }
 .dark [data-seam='security-plus'] {
   --color-accent: #ef7078;
@@ -263,6 +267,7 @@
   --color-w2: #ef7078;
   --color-w3: #c98ab5;
   --color-w4: #93a4b5;
+  --color-w5: #c7a2b1;
 }
 [data-seam='cysa-plus'] {
   --color-accent: #2d5f8a;          /* steel vein, same rock */
@@ -275,6 +280,7 @@
   --color-w2: #2d5f8a;
   --color-w3: #8a5a2b;
   --color-w4: #6b3f6e;
+  --color-w5: #8f3a52;
 }
 .dark [data-seam='cysa-plus'] {
   --color-accent: #6fb2e8;
@@ -287,6 +293,7 @@
   --color-w2: #6fb2e8;
   --color-w3: #d9a463;
   --color-w4: #b48ad0;
+  --color-w5: #e39ab0;
 }
 
 /* Server+ — a warmer copper vein in the same CompTIA rock. The deployment
@@ -303,6 +310,7 @@
   --color-w2: #9a5b2c;
   --color-w3: #7a5b9a;
   --color-w4: #2f6b3f;
+  --color-w5: #8a3f4f;
 }
 .dark [data-seam='server-plus'] {
   --color-accent: #e0a06a;
@@ -315,6 +323,7 @@
   --color-w2: #e0a06a;
   --color-w3: #b49ad9;
   --color-w4: #62c07e;
+  --color-w5: #e59aa8;
 }
 
 /* THE OBSIDIAN AUDIT VAULT — black glass. Evidence, control, traceability. */
@@ -348,6 +357,7 @@
   --color-w2: #3f5f8f;
   --color-w3: #7a5a2b;
   --color-w4: #6b3f6e;
+  --color-w5: #8f3a52;
 }
 .dark [data-seam='mssp'] {
   --color-accent: #a596f5;
@@ -360,6 +370,7 @@
   --color-w2: #7fa8e0;
   --color-w3: #d9a463;
   --color-w4: #c98ad0;
+  --color-w5: #f0a0b8;
 }
 
 /* Regions whose courses are coming soon. They carry the full theme anyway, so a
@@ -734,6 +745,7 @@ select {
 [data-week='2'] { --week: var(--color-w2); }
 [data-week='3'] { --week: var(--color-w3); }
 [data-week='4'] { --week: var(--color-w4); }
+[data-week='5'] { --week: var(--color-w5); }
 
 /* Level 1 — a week. The bedrock band. */
 .stratum-week {

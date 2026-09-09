@@ -243,7 +243,7 @@ export function ServerConfigGuide() {
               not wear Week 1's colour. w1–w4 are the four phases. */}
           <span
             className="font-mono text-3xs font-semibold uppercase leading-none tracking-wider"
-            style={{ color: active.number === 0 ? 'var(--color-muted)' : `var(--color-w${Math.min(4, active.number)})` }}
+            style={{ color: active.number === 0 ? 'var(--color-muted)' : `var(--color-w${Math.min(5, active.number)})` }}
           >
             {active.phase}
           </span>

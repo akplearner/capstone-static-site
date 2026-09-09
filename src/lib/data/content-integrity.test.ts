@@ -298,14 +298,30 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
   });
 
   it('no two graded weeks cut the same stage, so no stage is unreachable', () => {
-    const graded = course.weeks.filter((w) => !w.setup && w.stage != null);
+    const graded = course.weeks.filter((w) => !w.setup && !w.advanced && w.stage != null);
     const stages = graded.map((w) => w.stage);
     expect(new Set(stages).size, `duplicate stages: ${stages.join(',')}`).toBe(stages.length);
   });
 
+  /**
+   * An advanced week cuts no stone.
+   *
+   * The five stages a week can grant (0–4) belong to the graded arc, and a
+   * course that has used them all — Server+ has — cannot give a sixth week one
+   * without either a duplicate or a backwards step. Nor should it: the stone
+   * records the course finished, and an advanced week is what some students
+   * do after that. So it carries no stage, and the arc rules above skip it.
+   */
+  it('advanced weeks carry no stage', () => {
+    for (const w of course.weeks.filter((x) => x.advanced)) {
+      expect(w.stage, `advanced week ${w.number} must not cut a stage`).toBeUndefined();
+      expect(w.setup, `week ${w.number} cannot be both setup and advanced`).toBeFalsy();
+    }
+  });
+
   it('every graded week carries a stage and a phase', () => {
     for (const w of course.weeks) {
-      if (w.setup) continue;
+      if (w.setup || w.advanced) continue;
       expect(w.stage, `week ${w.number} has no stage`).not.toBeUndefined();
       expect((w.phase ?? '').trim().length, `week ${w.number} has no phase`).toBeGreaterThan(0);
     }

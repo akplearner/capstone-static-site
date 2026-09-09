@@ -46,6 +46,11 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
                 </span>
               )}
               <span className="font-semibold text-ink">{w.title}</span>
+              {w.advanced && (
+                <span className="rounded-full border border-line px-2 py-0.5 font-mono text-3xs uppercase tracking-wide text-muted">
+                  Advanced · optional
+                </span>
+              )}
               {gate && (
                 <span className="ml-auto rounded-full border border-line px-2 py-0.5 font-mono text-3xs text-muted">
                   Gate {gate.id}

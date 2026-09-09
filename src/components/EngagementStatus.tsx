@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Circle, FileText } from 'lucide-react';
+import { ArrowRight, CheckCircle2, Circle, FileText, Sparkles } from 'lucide-react';
 import { ProgressRing } from '@/components/ui/ProgressRing';
+import { isAdvancedWeek } from '@/lib/course-helpers';
 import type { Course, Task } from '@/lib/types';
 
 /**
@@ -112,6 +113,7 @@ export function EngagementStatus({
                   <Circle className="h-3.5 w-3.5 text-muted" aria-hidden />
                 )}
                 {w === 0 ? 'Setup' : `Week ${w}`}
+                {isAdvancedWeek(course, w) && <Sparkles className="h-3.5 w-3.5 text-muted" aria-label="advanced, optional" />}
               </button>
             </li>
           );
