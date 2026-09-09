@@ -5,10 +5,10 @@ import { ExternalLink } from 'lucide-react';
 import { CopyButton } from '@/components/TaskComponents';
 import { fillPlaceholders, useLabAccess } from '@/lib/labAccess';
 import {
+  ADVANCED_HOSTS,
   CAMPUS_LAN,
   HOST,
   HOST_CONSOLE_URL,
-  MONITORING_HOST,
   TEAM_VM_START,
   ZONE_BRIDGES,
   baseVmsOn,
@@ -199,8 +199,14 @@ export function ServerConfigGuide() {
           </table>
         </div>
         <p className="border-t border-line bg-panel px-4 py-2 text-xs text-muted">
-          <span className="font-mono">{MONITORING_HOST.address}</span> is reserved for the optional{' '}
-          {MONITORING_HOST.hostname} monitoring host. Your own business VMs start at{' '}
+          The advanced track (Week 5) reserves{' '}
+          {ADVANCED_HOSTS.map((v, i) => (
+            <span key={v.hostname}>
+              {i > 0 && (i === ADVANCED_HOSTS.length - 1 ? ' and ' : ', ')}
+              <span className="font-mono">{v.address}</span> for {v.hostname}
+            </span>
+          ))}
+          . Your own business VMs start at{' '}
           <span className="font-mono">{TEAM_VM_START.vmbr2}</span> in the private zone and{' '}
           <span className="font-mono">{TEAM_VM_START.vmbr1}</span> in the DMZ.
         </p>

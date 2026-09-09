@@ -58,6 +58,11 @@ export const WEEKS: WeekBlock[] = [
   { number: 2, title: 'Design & Deploy', phase: 'Design & Deploy', lead: 'Decide what runs on the hypervisor, then build it: bridges, VMs and their services.' },
   { number: 3, title: 'Network & Operate', phase: 'Network & Operate', lead: 'Make the addressing real, route between the zones, prove every path, and run it by procedure.' },
   { number: 4, title: 'Secure & Hand Over', phase: 'Secure & Hand Over', lead: 'Harden what is exposed, patch with a way back, and time a real restore.' },
+  // The advanced track. Nothing here is required to finish the course; it is
+  // where a student who has finished goes next. Every tool below replaces a
+  // record the student already kept by hand, which is what makes seven tools
+  // one week rather than seven.
+  { number: 5, title: 'Automate & Observe', phase: 'Automate & Observe', lead: 'Define the lab in code, watch every host, run your own SIEM, and move the registers you kept on paper into NetBox and GLPI. About 18 GB of guests in total — a 16 GB server runs this one VM at a time.' },
 ];
 
 export const PROCEDURES: Procedure[] = [
@@ -434,12 +439,11 @@ EOF`,
   },
   {
     id: 'monitoring-prometheus-grafana',
-    week: 2,
+    week: 5,
     title: 'Stand up Prometheus and Grafana',
     where: 'A new secmon VM in the private zone, and every other VM',
     summary:
-      'Build the monitoring VM planned in Week 1, install Prometheus and Grafana on it, put an exporter on every host, and confirm the three private-zone targets report UP before anything has had a chance to break. websrv joins the scrape list in Week 3, once there is a route to it.',
-    optional: true,
+      'Build the monitoring VM from the Architecture Brief, install Prometheus and Grafana on it, put an exporter on every host, and confirm every target reports UP. The route to the DMZ already exists from Week 3, so websrv is scraped from the start.',
     steps: [
       { gui: 'In the Proxmox web console create a VM named secmon: Ubuntu Server ISO, 2 cores, 6144 MB RAM, 80 GB disk, Bridge vmbr2. Install Ubuntu with the static address 192.168.0.4/24, gateway 192.168.0.1, DNS 192.168.0.2.', explain: 'Matches the secmon row in the Architecture Brief. It lives in the private zone — monitoring is never exposed in the DMZ.' },
       { cmd: 'sudo apt update && sudo apt install -y prometheus prometheus-node-exporter', explain: 'Run on secmon. Installs the Prometheus server and an exporter for secmon itself.' },
@@ -447,7 +451,7 @@ EOF`,
       { cmd: 'sudo mkdir -p /etc/apt/keyrings && wget -q -O - https://apt.grafana.com/gpg.key | sudo gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null', explain: 'Adds the Grafana signing key in the modern keyrings location.' },
       { cmd: 'echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list', explain: 'Adds the repository. Grafana is not in the Ubuntu archive.' },
       { cmd: 'sudo apt update && sudo apt install -y grafana && sudo systemctl enable --now grafana-server', explain: 'Installs Grafana and starts it on port 3000.' },
-      { cmd: 'sudo apt install -y prometheus-node-exporter', explain: 'Run this on websrv (172.16.0.10) and linuxsrv (192.168.0.3) too. Each exposes metrics on port 9100. Install it on websrv now, but it is not scraped until Week 3 — secmon is in the private zone and has no path into the DMZ yet.' },
+      { cmd: 'sudo apt install -y prometheus-node-exporter', explain: 'Run this on websrv (172.16.0.10) and linuxsrv (192.168.0.3) too. Each exposes metrics on port 9100.' },
       { gui: 'On winserver, download the windows_exporter MSI from its GitHub releases page onto the VM.', explain: 'Windows needs a different exporter; it listens on port 9182.' },
       { cmd: 'msiexec /i windows_exporter-amd64.msi ENABLED_COLLECTORS="cpu,cs,logical_disk,net,os,service,system,memory" /quiet', explain: 'Run in an elevated PowerShell on winserver, substituting the exact filename you downloaded.' },
       {
@@ -457,11 +461,12 @@ EOF`,
       {
         cmd: `  - job_name: capstone_nodes
     static_configs:
-      - targets: ['192.168.0.4:9100','192.168.0.3:9100','192.168.0.2:9182']`,
-        explain: 'The three private-zone targets — secmon and linuxsrv on 9100, winserver on 9182. Paste it inside scrape_configs, two spaces before the dash, exactly as shown.',
+      - targets: ['192.168.0.4:9100','192.168.0.3:9100','192.168.0.2:9182','172.16.0.10:9100']`,
+        explain: 'Four targets — secmon and linuxsrv on 9100, winserver on 9182, websrv across the DMZ route on 9100. Paste it inside scrape_configs, two spaces before the dash, exactly as shown.',
       },
+      { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', explain: 'On secmon, and persist it in netplan exactly as you did on linuxsrv in Week 3. secmon is a private-zone host like any other: without this route it cannot reach websrv.' },
       { cmd: 'sudo systemctl restart prometheus && systemctl status prometheus --no-pager', explain: 'Reloads the scrape config. A YAML error shows up here, not later.' },
-      { gui: 'Browse to http://192.168.0.4:9090/targets and confirm all three targets read UP, then log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.', explain: 'Screenshot the targets page for the Server Bring-Up Log. Only private-zone hosts are here: reaching websrv from secmon needs the static route added in Week 3, and the websrv target goes in there.' },
+      { gui: 'Browse to http://192.168.0.4:9090/targets and confirm all four targets read UP, then log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.', explain: 'Screenshot the targets page into 08_Evidence.' },
     ],
   },
   {
@@ -584,24 +589,20 @@ EOF`,
   },
   {
     id: 'monitoring-loki-dashboard',
-    week: 3,
+    week: 5,
     title: 'Add Loki and a one-glance dashboard',
     where: 'The secmon VM (192.168.0.4) and every other host',
     summary:
-      'Add the websrv scrape target now that a route to the DMZ exists, then ship logs from every host into Loki and build one Grafana dashboard that shows each VM up, its address and its logs — turning the manual connectivity proof into a continuous one.',
-    optional: true,
+      'Ship logs from every host into Loki and build one Grafana dashboard that shows each VM up, its address and its logs — turning the Week-3 connectivity proof, done once by hand, into one that runs every minute.',
     steps: [
-      { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', explain: 'On secmon, and persist it in netplan exactly as you did on linuxsrv. secmon is a private-zone host like any other: without this route it cannot reach the DMZ.' },
-      { cmd: 'sudo nano /etc/prometheus/prometheus.yml', explain: 'Add \'172.16.0.10:9100\' to the capstone_nodes target list you wrote in Week 2 — the websrv exporter, which you installed then but could not scrape.' },
-      { cmd: 'sudo systemctl restart prometheus && curl -s http://172.16.0.10:9100/metrics | head -n 3', explain: 'Reload the config, then prove the scrape path itself: metrics coming back from the DMZ host means the route works. Browse to http://192.168.0.4:9090/targets and confirm websrv is the fourth target reading UP.' },
-      { cmd: 'sudo apt install -y loki promtail && sudo systemctl enable --now loki promtail', explain: 'Run on secmon. Both packages come from the Grafana repository you added in Week 2. Loki listens on 3100.' },
+      { cmd: 'sudo apt install -y loki promtail && sudo systemctl enable --now loki promtail', explain: 'Run on secmon. Both packages come from the Grafana repository you added with Grafana. Loki listens on 3100.' },
       { cmd: 'curl -s http://localhost:3100/ready', explain: 'On secmon. Must return ready before agents can ship to it.' },
       { cmd: 'sudo apt install -y promtail', explain: 'Run on websrv and linuxsrv — these are the log agents.' },
       { cmd: `sudo sed -i 's|http://localhost:3100/loki/api/v1/push|http://192.168.0.4:3100/loki/api/v1/push|' /etc/promtail/config.yml && sudo systemctl restart promtail`, explain: 'Points each agent at the Loki server on secmon instead of at itself. Read the file back to confirm the substitution landed.' },
       { cmd: 'systemctl status promtail --no-pager', explain: 'On each agent host. Active (running) with no connection errors in the log.' },
       { gui: 'In Grafana at http://192.168.0.4:3000, add a Loki data source pointing at http://localhost:3100.', explain: 'Grafana now has both Prometheus (metrics) and Loki (logs).' },
       { gui: 'Build one dashboard with a stat panel per host driven by the Prometheus up metric, a table of each host address, and a logs panel querying Loki.', explain: 'One screen that answers "is everything up and reachable?" — the same question the Week-3 manual checks answered once.' },
-      { gui: 'Record the change in the Server Bring-Up Log and screenshot the dashboard into 08_Evidence.', explain: 'This is the evidence that the connectivity proof is now continuous rather than a one-off.' },
+      { gui: 'Screenshot the dashboard into 08_Evidence.', explain: 'This is the evidence that the connectivity proof is now continuous rather than a one-off.' },
     ],
   },
   {
@@ -733,12 +734,11 @@ EOF`,
   },
   {
     id: 'monitoring-alerts',
-    week: 4,
+    week: 5,
     title: 'Alert on the failures the DR plan cares about',
     where: 'Grafana on the secmon VM (192.168.0.4)',
     summary:
       'Turn the monitoring stack into something that notices a failure before a person does: alerts for host down, disk nearly full and a failed service, one of them tested for real.',
-    optional: true,
     steps: [
       { gui: 'In Grafana at http://192.168.0.4:3000, open Alerting → Alert rules → New alert rule. Create "Host down" on the Prometheus query up == 0, evaluated every 1m, firing after 2m.', explain: 'This fires when any exporter stops answering — the hypervisor, either private-zone VM, or the DMZ web host.' },
       { gui: 'Create a second rule, "Disk nearly full", on node_filesystem_avail_bytes / node_filesystem_size_bytes * 100 < 15.', explain: 'A full disk takes services down quietly. Fifteen percent gives you time to act.' },
@@ -747,6 +747,271 @@ EOF`,
       { cmd: 'sudo systemctl stop nginx', explain: 'On websrv. Test one alert for real — wait for it to fire in Grafana, then screenshot the firing state.' },
       { cmd: 'sudo systemctl start nginx', explain: 'Put the website back and confirm the alert clears.' },
       { gui: 'Screenshot the dashboard and the fired alert into 08_Evidence, and note in the DR Plan & As-Built Handover how each critical system failure is detected.', explain: 'A DR plan fires when someone notices the failure. Alerts are how someone notices — they turn the MTTR target from a hope into a number.' },
+    ],
+  },
+
+  // ── Week 5 — the rest of the advanced track ────────────────────────────────
+  {
+    id: 'pve-exporter-host',
+    week: 5,
+    title: 'Scrape the Proxmox host itself',
+    where: 'The Proxmox host shell, then secmon',
+    summary:
+      'Prometheus watches the guests but not the machine they run on. prometheus-pve-exporter reads the Proxmox API with a read-only token and publishes host, storage and VM state as metrics — the one target that tells you the hypervisor is in trouble before every VM alert fires at once.',
+    steps: [
+      { cmd: 'pveum user add prometheus@pve --comment "read-only, for pve-exporter"', explain: 'On the Proxmox host. A user of its own, so the token can be revoked without touching anyone else.' },
+      { cmd: 'pveum aclmod / -user prometheus@pve -role PVEAuditor', explain: 'PVEAuditor is the built-in read-only role. Nothing the exporter holds can change anything.' },
+      { cmd: 'pveum user token add prometheus@pve exporter --privsep=0', explain: 'Prints the token value ONCE. Copy it into a password manager now — it cannot be shown again.' },
+      { cmd: 'sudo apt install -y pipx && pipx install prometheus-pve-exporter', explain: 'On secmon. pipx keeps the exporter and its dependencies out of the system Python.' },
+      { cmd: `sudo mkdir -p /etc/prometheus && sudo tee /etc/prometheus/pve.yml >/dev/null <<'EOF'
+default:
+  user: prometheus@pve
+  token_name: exporter
+  token_value: PASTE_THE_TOKEN_VALUE_HERE
+  verify_ssl: false
+EOF
+sudo chmod 600 /etc/prometheus/pve.yml`, explain: 'The exporter’s credentials. Mode 600 because this file IS a credential; verify_ssl off because the host uses its self-signed certificate.' },
+      { cmd: `sudo tee /etc/systemd/system/pve-exporter.service >/dev/null <<'EOF'
+[Unit]
+Description=Prometheus Proxmox VE exporter
+After=network.target
+[Service]
+ExecStart=/root/.local/bin/pve_exporter --config.file /etc/prometheus/pve.yml --web.listen-address 0.0.0.0:9221
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload && sudo systemctl enable --now pve-exporter`, explain: 'Runs it as a service on 9221. If pipx installed under your own user, the path is ~/.local/bin/pve_exporter — check with which pve_exporter.' },
+      { cmd: 'curl -s "http://localhost:9221/pve?target=10.10.30.T&module=default" | grep -c pve_', explain: 'A number in the hundreds means the exporter reached the host. Zero, or an error page, means the token or address is wrong.' },
+      { cmd: `  - job_name: proxmox_host
+    metrics_path: /pve
+    params:
+      module: [default]
+    static_configs:
+      - targets: ['10.10.30.T']
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: 192.168.0.4:9221`, explain: 'Add to scrape_configs in /etc/prometheus/prometheus.yml on secmon. The relabel block is what makes Prometheus ask the exporter about the host rather than about itself — copy it exactly.' },
+      { cmd: 'sudo systemctl restart prometheus', explain: 'Browse to http://192.168.0.4:9090/targets: proxmox_host is the fifth target, UP.' },
+      { gui: 'In Grafana import dashboard 10347 (Proxmox via Prometheus) from grafana.com, choosing your Prometheus data source.', explain: 'Host CPU, memory, storage and every VM’s state on one screen, from data you already collect.' },
+    ],
+  },
+  {
+    id: 'pulse-proxmox',
+    week: 5,
+    title: 'Pulse: the Proxmox dashboard that watches backups',
+    where: 'The Proxmox host shell, then secmon',
+    summary:
+      'Pulse is a small dashboard built for Proxmox: nodes, VMs, storage and — the part Grafana does not have — backup jobs and whether the last one succeeded. It runs on secmon with a read-only API token and alerts when a backup fails, which is the failure a DR plan most needs to hear about.',
+    steps: [
+      { cmd: 'pveum user add pulse@pve --comment "read-only, for Pulse"', explain: 'On the Proxmox host. Its own user, same reason as the exporter.' },
+      { cmd: 'pveum aclmod / -user pulse@pve -role PVEAuditor', explain: 'Read-only.' },
+      { cmd: 'pveum user token add pulse@pve dashboard --privsep=0', explain: 'Copy the value the moment it prints.' },
+      { cmd: 'curl -fsSL https://raw.githubusercontent.com/rcourtman/Pulse/main/install.sh | bash', explain: 'On secmon. The install script drops a single binary and a systemd unit; Pulse listens on 7655.', doc: { label: 'Pulse README', href: 'https://github.com/rcourtman/Pulse' } },
+      { cmd: 'systemctl status pulse --no-pager', explain: 'active (running). If the unit is named differently on your build the script prints the name it used.' },
+      { gui: 'Browse to http://192.168.0.4:7655, set the admin password, then Settings → Proxmox → Add node: host https://10.10.30.T:8006, token ID pulse@pve!dashboard, and the token value. Skip certificate verification.', explain: 'Your node appears with every VM, its storage and its backups within a minute.' },
+      { gui: 'Open the Backups view and confirm the Week-4 backup job is listed with its last run. Then Settings → Alerts: enable the backup-failed alert and add an email or webhook destination.', explain: 'A backup nobody notices failing is the same as no backup. This is the alert the DR plan actually needs.' },
+      { gui: 'Screenshot the Backups view into 08_Evidence and add a Pulse row to the tooling table in the DR Plan & As-Built Handover.', explain: 'Pulse holds the backup status that used to be a manual weekly check in the SOPs.' },
+    ],
+  },
+  {
+    id: 'wazuh-single-node',
+    week: 5,
+    title: 'Install your own Wazuh manager',
+    where: 'A new wazuh VM in the private zone',
+    summary:
+      'One VM, one script: the Wazuh assisted installer puts the manager, the indexer and the dashboard on a single host. Four GB of RAM is the floor — the indexer will not start on less. When it finishes you have the same SIEM the CySA+ course runs, except this one is yours.',
+    steps: [
+      { gui: 'In the Proxmox web console create a VM named wazuh: Ubuntu Server ISO, 2 cores, 4096 MB RAM, 50 GB disk, Bridge vmbr2. Install Ubuntu with the static address 192.168.0.20/24, gateway 192.168.0.1, DNS 192.168.0.2. Or create it with Terraform — the point of the track.', explain: 'Matches the wazuh row in the Architecture Brief. Private zone: a SIEM holds every host’s security events and is never exposed.' },
+      { cmd: 'curl -sO https://packages.wazuh.com/4.x/wazuh-install.sh', explain: 'On the wazuh VM. The assisted installer.', doc: { label: 'Wazuh quickstart', href: 'https://documentation.wazuh.com/current/quickstart.html' } },
+      { cmd: 'sudo bash ./wazuh-install.sh -a', explain: '-a is all-in-one. Takes ten to fifteen minutes. The last lines print the admin password — copy it now, it is not stored anywhere you can read later.' },
+      { cmd: 'sudo systemctl status wazuh-manager wazuh-indexer wazuh-dashboard --no-pager | grep Active', explain: 'Three lines, all active (running). The indexer is the one that fails on a small VM.' },
+      { cmd: 'sudo ss -ltnp | grep -E ":(443|1514|1515|55000) "', explain: 'The dashboard (443), agent data (1514), agent enrolment (1515) and the API (55000) are all listening.' },
+      { gui: 'Browse to https://192.168.0.20 and sign in as admin with the printed password. Change it under the admin menu → Reset password.', explain: 'The dashboard is empty until an agent enrols — that is the next procedure.' },
+    ],
+  },
+  {
+    id: 'wazuh-enrol-agents',
+    week: 5,
+    title: 'Enrol every VM as a Wazuh agent',
+    where: 'websrv, linuxsrv and winserver',
+    summary:
+      'An agent per host, each named so you can find it, each pointed at 192.168.0.20. Linux agents ship auth and syslog and watch /etc for changes out of the box; the Windows agent ships the Security event log. Then prove the pipeline with a deliberate SSH brute force.',
+    steps: [
+      { cmd: 'sudo -i', explain: 'On websrv first, then linuxsrv. Everything below runs as root.' },
+      { cmd: 'curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg', explain: 'Trust the Wazuh signing key.', doc: { label: 'Wazuh agent (Linux)', href: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-linux.html' } },
+      { cmd: 'echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list && apt-get update', explain: 'Add the repository and refresh.' },
+      { cmd: 'WAZUH_MANAGER="192.168.0.20" WAZUH_AGENT_NAME="websrv" apt-get install -y wazuh-agent', explain: 'Manager address and a name, at install time. On linuxsrv the name is linuxsrv. An unnamed agent enrols under its hostname, which is fine here but say it on purpose.' },
+      { cmd: 'systemctl daemon-reload && systemctl enable --now wazuh-agent && tail -n 5 /var/ossec/logs/ossec.log', explain: 'The proof: a line reading Connected to the server (192.168.0.20:1514/tcp). websrv reaches the manager through the DMZ→private route from Week 3.' },
+      { cmd: 'ufw allow out to 192.168.0.20 port 1514 proto tcp && ufw allow out to 192.168.0.20 port 1515 proto tcp', explain: 'Only needed if you tightened outbound rules in Week 4. Inbound needs nothing: agents call out.' },
+      { cmd: `Invoke-WebRequest -Uri https://packages.wazuh.com/4.x/windows/wazuh-agent-4.9.2-1.msi -OutFile $env:tmp\\wazuh-agent.msi
+msiexec.exe /i $env:tmp\\wazuh-agent.msi /q WAZUH_MANAGER='192.168.0.20' WAZUH_AGENT_NAME='winserver'
+NET START WazuhSvc`, explain: 'In an elevated PowerShell on winserver. Use the current 4.x version from the agent download page — the filename changes with the release.', doc: { label: 'Wazuh agent (Windows)', href: 'https://documentation.wazuh.com/current/installation-guide/wazuh-agent/wazuh-agent-package-windows.html' } },
+      { gui: 'In the dashboard open Agents: websrv, linuxsrv and winserver all read Active. Screenshot it into 08_Evidence.', explain: 'Disconnected means the agent installed but never reached 1514 — check the route and the firewall before anything else.' },
+      { cmd: 'for i in 1 2 3 4 5 6 7 8; do ssh -o BatchMode=yes -o ConnectTimeout=2 nobody@172.16.0.10 true 2>/dev/null; done', explain: 'From your workstation: eight failed logins in a row against websrv. This is the brute force the SIEM exists to notice.' },
+      { gui: 'Dashboard → Threat Hunting → Events, filter agent.name: websrv. Within a minute rule 5710 (login with non-existent user) appears eight times and rule 5712 (sshd brute force) once, level 10.', explain: 'One real attack, one real detection, with a timestamp. Screenshot it and write both times into the DR Plan & As-Built Handover.' },
+      { gui: 'Integrity Monitoring → websrv: edit /etc/nginx/nginx.conf on websrv (add a comment line) and watch the alert arrive.', explain: 'FIM on /etc is on by default. Now a tampered config is an event, not a mystery found weeks later.' },
+    ],
+  },
+  {
+    id: 'terraform-proxmox-provider',
+    week: 5,
+    title: 'Terraform: a token, a provider, a plan',
+    where: 'The Proxmox host shell, then your workstation',
+    summary:
+      'Infrastructure as code starts with a credential Terraform may use and a provider that speaks Proxmox. The token lives in an environment variable and never in a file you might commit; the provider block goes in main.tf; the first plan proves the two can talk.',
+    steps: [
+      { cmd: 'pveum user add terraform@pve --comment "Terraform provider"', explain: 'On the Proxmox host. Terraform gets its own identity so its changes are attributable in the task log.' },
+      { cmd: 'pveum role add Terraform -privs "Datastore.Allocate Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify SDN.Use VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt User.Modify"', explain: 'The privileges the provider documents. Not Administrator: a tool that can build VMs should not be able to delete users.', doc: { label: 'bpg/proxmox provider docs', href: 'https://registry.terraform.io/providers/bpg/proxmox/latest/docs' } },
+      { cmd: 'pveum aclmod / -user terraform@pve -role Terraform', explain: 'Grant it at the root, so it applies to every node and datastore.' },
+      { cmd: 'pveum user token add terraform@pve provider --privsep=0', explain: 'Copy the token value now. --privsep=0 means the token carries the user’s permissions rather than a subset.' },
+      { cmd: 'sudo apt update && sudo apt install -y gnupg software-properties-common && wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list && sudo apt update && sudo apt install -y terraform', explain: 'On your workstation (Ubuntu shown; the Windows installer is on the same page). Terraform runs where you type, against the host’s API.', doc: { label: 'Install Terraform', href: 'https://developer.hashicorp.com/terraform/install' } },
+      { cmd: `mkdir -p ~/ServerPlus_Capstone/00_Planning/terraform && cd ~/ServerPlus_Capstone/00_Planning/terraform && cat > main.tf <<'EOF'
+terraform {
+  required_providers {
+    proxmox = {
+      source  = "bpg/proxmox"
+      version = "~> 0.60"
+    }
+  }
+}
+
+provider "proxmox" {
+  endpoint = "https://10.10.30.T:8006/"
+  insecure = true
+  # The API token comes from PROXMOX_VE_API_TOKEN in the environment.
+  # It is never written into this file.
+}
+EOF`, explain: 'The provider block, in the planning folder so the file is filed with the design. Replace T with your team number.' },
+      { cmd: "export PROXMOX_VE_API_TOKEN='terraform@pve!provider=PASTE_THE_TOKEN_VALUE_HERE'", explain: 'The credential, in the shell only. Close the terminal and it is gone; commit main.tf and nothing secret goes with it.' },
+      { cmd: 'terraform init && terraform plan', explain: 'init downloads the provider; plan authenticates and, with no resources yet, reports No changes. An authentication error here is the token, the endpoint, or the T you forgot to replace.' },
+    ],
+  },
+  {
+    id: 'terraform-first-vm-and-import',
+    week: 5,
+    title: 'Terraform: a template, a VM from code, and the existing three imported',
+    where: 'The Proxmox host shell, then your workstation',
+    summary:
+      'A cloud-init template makes a VM a clone rather than an install. main.tf then creates the tools VM from it — a machine you never clicked through — and terraform import brings websrv, winserver and linuxsrv under the same state, so the whole lab is described in one file that plan can check against reality.',
+    steps: [
+      { cmd: 'cd /var/lib/vz/template/iso && wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img', explain: 'On the Proxmox host. Ubuntu’s cloud image: a disk that boots and configures itself from cloud-init instead of an installer.' },
+      { cmd: 'qm create 9000 --name ubuntu-cloud --memory 2048 --cores 2 --net0 virtio,bridge=vmbr2 --scsihw virtio-scsi-pci --ostype l26', explain: 'An empty VM shell with the template ID 9000. The bridge is a default the clone will override.' },
+      { cmd: 'qm set 9000 --scsi0 local-lvm:0,import-from=/var/lib/vz/template/iso/noble-server-cloudimg-amd64.img && qm set 9000 --ide2 local-lvm:cloudinit --boot order=scsi0 --serial0 socket --vga serial0 && qm disk resize 9000 scsi0 20G', explain: 'Attach the cloud image as the disk, add the cloud-init drive, boot from the disk. Substitute your storage name if it is not local-lvm.' },
+      { cmd: 'qm set 9000 --ciuser ubuntu --sshkeys ~/.ssh/authorized_keys --ipconfig0 ip=dhcp && qm template 9000', explain: 'Default user and your key baked in, then converted to a template — it can now only be cloned, never started.' },
+      { cmd: `cat >> main.tf <<'EOF'
+
+resource "proxmox_virtual_environment_vm" "tools" {
+  name      = "tools"
+  node_name = "pve-host"
+  vm_id     = 121
+
+  clone {
+    vm_id = 9000
+  }
+
+  cpu {
+    cores = 2
+  }
+
+  memory {
+    dedicated = 4096
+  }
+
+  disk {
+    datastore_id = "local-lvm"
+    interface    = "scsi0"
+    size         = 40
+  }
+
+  network_device {
+    bridge = "vmbr2"
+  }
+
+  initialization {
+    ip_config {
+      ipv4 {
+        address = "192.168.0.21/24"
+        gateway = "192.168.0.1"
+      }
+    }
+    dns {
+      servers = ["192.168.0.2"]
+    }
+  }
+}
+EOF`, explain: 'On your workstation, in the terraform folder. The tools VM as a description: what it is, not how to click it. node_name is your host’s name from the console’s left pane.' },
+      { cmd: 'terraform plan -out tools.plan && terraform apply tools.plan', explain: 'plan shows one resource to add; apply builds it. Two minutes later ssh ubuntu@192.168.0.21 answers, on a machine no one installed.' },
+      { cmd: 'terraform import proxmox_virtual_environment_vm.websrv pve-host/100', explain: 'Bring the existing websrv under state — its VM ID is in the console; 100 is the usual first. Add an empty resource "proxmox_virtual_environment_vm" "websrv" {} block to main.tf first, then fill it in from terraform state show until plan reports no changes. Repeat for winserver and linuxsrv.' },
+      { cmd: 'terraform plan', explain: 'The finish line: No changes. Your infrastructure matches your configuration. main.tf now describes all four VMs and is the truest as-built you have — file it in 00_Planning and hash it.' },
+    ],
+  },
+  {
+    id: 'netbox-ipam',
+    week: 5,
+    title: 'NetBox: the rack and the IP plan, as a system of record',
+    where: 'The tools VM (192.168.0.21)',
+    summary:
+      'NetBox holds the two registers you kept as forms — the 24U rack elevation and the IP plan — and holds them as data: a device at a U, a prefix with its addresses and what each one belongs to. Fill it from your own forms, then export it, and the export should match the form to the row.',
+    steps: [
+      { cmd: 'sudo apt update && sudo apt install -y docker.io docker-compose-v2 git && sudo usermod -aG docker $USER && newgrp docker', explain: 'On tools. Docker is how both NetBox and GLPI ship; adding yourself to the docker group saves a sudo on every command.' },
+      { cmd: 'git clone -b release https://github.com/netbox-community/netbox-docker.git ~/netbox-docker && cd ~/netbox-docker', explain: 'The maintained compose bundle.', doc: { label: 'netbox-docker', href: 'https://github.com/netbox-community/netbox-docker' } },
+      { cmd: `tee docker-compose.override.yml >/dev/null <<'EOF'
+services:
+  netbox:
+    ports:
+      - "8000:8080"
+EOF`, explain: 'Publish the web UI on 8000. Without this override the container is only reachable from inside Docker.' },
+      { cmd: 'docker compose pull && docker compose up -d', explain: 'Pulls NetBox, PostgreSQL and Redis and starts them. First start takes a few minutes while the database migrates — watch with docker compose logs -f netbox.' },
+      { cmd: 'docker compose exec netbox /opt/netbox/netbox/manage.py createsuperuser', explain: 'Your admin account. Runs inside the container.' },
+      { gui: 'Browse to http://192.168.0.21:8000 and sign in. Organization → Sites → Add: your company from the Architecture Brief. Then Racks → Add: 24U, at that site.', explain: 'The rack you planned in Week 2, now a record something else can query.' },
+      { gui: 'Devices → Device Types → Add one per model in your Rack, Power & Asset Register (server 2U, switch 1U, patch panel 1U, PDU 1U); then Devices → Add each, at the U position the register gives it.', explain: 'The elevation NetBox draws is the one you drew on paper. If they disagree, one of them is wrong.' },
+      { gui: 'IPAM → Prefixes → Add 172.16.0.0/24 (DMZ) and 192.168.0.0/24 (private). Then IP Addresses → Add every address from your IP Plan & Connectivity Proof, each assigned to its device, and mark the gateways.', explain: 'The plan becomes IPAM: the next address a colleague needs is a click, not a search through a form.' },
+      { gui: 'IP Addresses → Export → CSV. Save it into 08_Evidence as 20260915_TeamXX_netbox_ipam.csv and hash it.', explain: 'Compare it line by line with the IP plan form. Every difference is a finding for the As-Built.' },
+    ],
+  },
+  {
+    id: 'glpi-assets-and-change',
+    week: 5,
+    title: 'GLPI: the asset register and the change log, as tickets',
+    where: 'The tools VM (192.168.0.21)',
+    summary:
+      'GLPI is the helpdesk and asset system a small company would actually run. The hardware and software assets from your register go in as inventory; one row from your change log goes in as a change ticket with its rollback attached; the GLPI Agent on winserver proves inventory can arrive by itself.',
+    steps: [
+      { cmd: `mkdir -p ~/glpi && cd ~/glpi && tee docker-compose.yml >/dev/null <<'EOF'
+services:
+  db:
+    image: mariadb:11
+    environment:
+      MARIADB_ROOT_PASSWORD: change-me-root
+      MARIADB_DATABASE: glpi
+      MARIADB_USER: glpi
+      MARIADB_PASSWORD: change-me-glpi
+    volumes:
+      - glpi-db:/var/lib/mysql
+  glpi:
+    image: diouxx/glpi
+    ports:
+      - "8080:80"
+    volumes:
+      - glpi-www:/var/www/html/glpi
+    depends_on:
+      - db
+volumes:
+  glpi-db:
+  glpi-www:
+EOF
+docker compose up -d`, explain: 'On tools, beside NetBox. A community-maintained GLPI image over the official MariaDB image; change both passwords before you run it.', doc: { label: 'GLPI install documentation', href: 'https://glpi-install.readthedocs.io/en/latest/' } },
+      { gui: 'Browse to http://192.168.0.21:8080 and walk the installer: database host db, user glpi, the password you set. Sign in as glpi / glpi and change it immediately — the installer warns you, and it means it.', explain: 'Four default accounts exist after install; the installer lists them. Change or disable every one.' },
+      { gui: 'Assets → Computers → Add one per machine in your Rack, Power & Asset Register: name, serial, location (the rack and U), status. Then Assets → Software → Add each installed program with its support-end date.', explain: 'The register, as inventory. The support-end dates are what make this worth more than the spreadsheet — GLPI can report what expires next.' },
+      { gui: 'Assistance → Changes → Add: pick one row from your Operations Log & SOPs, enter it as a change with the same title, the plan, the rollback in the Rollback plan field, and the approver as validator. Move it through Evaluation → Approval → Applied → Closed.', explain: 'Change control with an approver, which the Management deep-dive documented in Week 3, now enforced by the tool rather than by habit.' },
+      { cmd: `Invoke-WebRequest -Uri https://github.com/glpi-project/glpi-agent/releases/latest/download/GLPI-Agent-x64.msi -OutFile $env:tmp\\glpi-agent.msi
+msiexec /i $env:tmp\\glpi-agent.msi /quiet SERVER='http://192.168.0.21:8080/front/inventory.php' RUNNOW=1`, explain: 'In an elevated PowerShell on winserver. The agent inventories the machine and posts it to GLPI.', doc: { label: 'GLPI Agent', href: 'https://glpi-agent.readthedocs.io/' } },
+      { gui: 'Assets → Computers: winserver now carries an inventory it reported itself — CPU, memory, disks, installed software. Screenshot it into 08_Evidence.', explain: 'Compare it with the row you typed. The agent’s numbers are the truth; the register was the intention.' },
     ],
   },
 ];

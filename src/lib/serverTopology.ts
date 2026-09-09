@@ -119,7 +119,7 @@ export const ZONE_BRIDGES = BRIDGES.filter(
 );
 
 export interface BaseVm {
-  hostname: 'websrv' | 'winserver' | 'linuxsrv' | 'secmon';
+  hostname: 'websrv' | 'winserver' | 'linuxsrv' | 'secmon' | 'wazuh' | 'tools';
   address: string;
   bridge: Bridge['id'];
   os: string;
@@ -127,7 +127,7 @@ export interface BaseVm {
   runs: string;
   /** The services it carries, for the addressing table and the IP plan. */
   services: string[];
-  /** Advanced monitoring track — a real host, but not required to pass. */
+  /** The advanced track (Week 5) — a real host, but not required to pass. */
   optional?: boolean;
 }
 
@@ -165,8 +165,29 @@ export const BASE_VMS: BaseVm[] = [
     address: '192.168.0.4',
     bridge: 'vmbr2',
     os: 'Ubuntu Server',
-    runs: 'Monitoring — the optional track',
-    services: ['Prometheus', 'Grafana', 'Loki'],
+    runs: 'Monitoring — the advanced track',
+    services: ['Prometheus', 'Grafana', 'Loki', 'Pulse'],
+    optional: true,
+  },
+  // The other two advanced hosts sit in the .20s: above the team block (.5 up,
+  // a team would need sixteen VMs to reach them) and below winserver's DHCP
+  // scope (.100–.200), so a static address here collides with nothing.
+  {
+    hostname: 'wazuh',
+    address: '192.168.0.20',
+    bridge: 'vmbr2',
+    os: 'Ubuntu Server',
+    runs: 'Wazuh — your own SIEM',
+    services: ['Wazuh manager', 'Wazuh indexer', 'Wazuh dashboard'],
+    optional: true,
+  },
+  {
+    hostname: 'tools',
+    address: '192.168.0.21',
+    bridge: 'vmbr2',
+    os: 'Ubuntu Server',
+    runs: 'NetBox and GLPI — the registers, as software',
+    services: ['NetBox', 'GLPI', 'Docker'],
     optional: true,
   },
 ];
@@ -180,8 +201,11 @@ export function baseVmsOn(id: Bridge['id']): BaseVm[] {
   return BASE_VMS.filter((v) => v.bridge === id && !v.optional);
 }
 
-/** The optional Prometheus/Grafana/Loki host. It owns .4; teams start at .5. */
+/** The advanced-track monitoring host. It owns .4; teams start at .5. */
 export const MONITORING_HOST = vm('secmon');
+
+/** Every advanced-track host, for the Week 5 guide and the addressing table. */
+export const ADVANCED_HOSTS: BaseVm[] = BASE_VMS.filter((v) => v.optional);
 
 
 /**

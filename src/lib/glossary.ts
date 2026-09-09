@@ -44,7 +44,12 @@ export const GLOSSARY: Record<string, string> = {
   PTES: 'Penetration Testing Execution Standard — the agreed steps of a pentest: recon, scan, exploit, report.',
   STRIDE: 'A checklist of threat types: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.',
   NIC: "Network Interface Card — a machine's network connection. On these VMs it's usually named ens18.",
-  FIM: 'File Integrity Monitoring — watching key files for unexpected changes.',
+  // ── Week 5 — the advanced track ──────────────────────────────────────────
+  IaC: 'Infrastructure as Code — describing machines in a text file a tool applies, so the build is repeatable and the file is the record. Terraform is yours.',
+  exporter: 'A small program on a host that publishes its metrics on an HTTP port for Prometheus to collect. node_exporter for Linux, windows_exporter for Windows.',
+  IPAM: 'IP Address Management — the tool that holds every subnet and address and who has it, so the plan and reality are the same document. NetBox is yours.',
+  FIM: 'File Integrity Monitoring — an agent that hashes important files and alerts when one changes, which is how a tampered config gets noticed.',
+  'cloud-init': 'The first-boot setup a cloud image runs: hostname, user, keys and addressing handed in from outside, so a clone comes up configured instead of blank.',
   SCA: "Security Configuration Assessment — checking a machine's settings against a hardening benchmark.",
   'Rules of Engagement': "The written agreement of what you're allowed to test, and when.",
   RoE: "Rules of Engagement — the written agreement of what you're allowed to test, and when.",

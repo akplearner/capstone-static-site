@@ -181,6 +181,8 @@ const REGISTRY: {
   { literal: '192.168.0.0/24', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: '192.168.0.1', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: '192.168.0.4', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.20', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.21', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: 'capstone_db', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   // The campus gateway. It had NO row until it was found wrong: the code said
   // 10.10.0.1 while the classroom gateway is 10.10.10.1, restated by hand in
