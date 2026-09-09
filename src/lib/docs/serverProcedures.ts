@@ -593,13 +593,34 @@ EOF`,
     title: 'Add Loki and a one-glance dashboard',
     where: 'The secmon VM (192.168.0.4) and every other host',
     summary:
-      'Ship logs from every host into Loki and build one Grafana dashboard that shows each VM up, its address and its logs — turning the Week-3 connectivity proof, done once by hand, into one that runs every minute.',
+      'Ship logs from every host into Loki with Grafana Alloy, and build one Grafana dashboard that shows each VM up, its address and its logs — turning the Week-3 connectivity proof, done once by hand, into one that runs every minute. Alloy, not Promtail: Promtail was deprecated in February 2025 and reached end of life on 2 March 2026.',
     steps: [
-      { cmd: 'sudo apt install -y loki promtail && sudo systemctl enable --now loki promtail', explain: 'Run on secmon. Both packages come from the Grafana repository you added with Grafana. Loki listens on 3100.' },
+      { cmd: 'sudo apt install -y loki && sudo systemctl enable --now loki', explain: 'Run on secmon. From the Grafana repository you added with Grafana. Loki listens on 3100.' },
       { cmd: 'curl -s http://localhost:3100/ready', explain: 'On secmon. Must return ready before agents can ship to it.' },
-      { cmd: 'sudo apt install -y promtail', explain: 'Run on websrv and linuxsrv — these are the log agents.' },
-      { cmd: `sudo sed -i 's|http://localhost:3100/loki/api/v1/push|http://192.168.0.4:3100/loki/api/v1/push|' /etc/promtail/config.yml && sudo systemctl restart promtail`, explain: 'Points each agent at the Loki server on secmon instead of at itself. Read the file back to confirm the substitution landed.' },
-      { cmd: 'systemctl status promtail --no-pager', explain: 'On each agent host. Active (running) with no connection errors in the log.' },
+      { cmd: 'sudo mkdir -p /etc/apt/keyrings && wget -q -O - https://apt.grafana.com/gpg.key | sudo gpg --dearmor | sudo tee /etc/apt/keyrings/grafana.gpg > /dev/null && echo "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main" | sudo tee /etc/apt/sources.list.d/grafana.list && sudo apt update && sudo apt install -y alloy', explain: 'On websrv, linuxsrv and secmon — the log agent. Alloy ships from the same Grafana repository; the two hosts that do not have it yet add it here.', doc: { label: 'Grafana Alloy — install on Debian/Ubuntu', href: 'https://grafana.com/docs/alloy/latest/set-up/install/linux/' } },
+      { cmd: `sudo tee /etc/alloy/config.alloy >/dev/null <<'EOF'
+local.file_match "system" {
+  path_targets = [{ __path__ = "/var/log/*.log", job = "varlogs", host = constants.hostname }]
+}
+
+loki.source.file "system" {
+  targets    = local.file_match.system.targets
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.source.journal "journal" {
+  labels     = { job = "journal", host = constants.hostname }
+  forward_to = [loki.write.default.receiver]
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://192.168.0.4:3100/loki/api/v1/push"
+  }
+}
+EOF
+sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`, explain: 'The agent configuration, on every Linux host: every file under /var/log and the systemd journal, labelled with the hostname, pushed to Loki on secmon. The two groups let the alloy user read them.' },
+      { cmd: 'systemctl status alloy --no-pager && sudo journalctl -u alloy -n 5 --no-pager', explain: 'On each host. Active (running), and no "connection refused" in the last lines — that would mean secmon or its port 3100 is unreachable from here.' },
       { gui: 'In Grafana at http://192.168.0.4:3000, add a Loki data source pointing at http://localhost:3100.', explain: 'Grafana now has both Prometheus (metrics) and Loki (logs).' },
       { gui: 'Build one dashboard with a stat panel per host driven by the Prometheus up metric, a table of each host address, and a logs panel querying Loki.', explain: 'One screen that answers "is everything up and reachable?" — the same question the Week-3 manual checks answered once.' },
       { gui: 'Screenshot the dashboard into 08_Evidence.', explain: 'This is the evidence that the connectivity proof is now continuous rather than a one-off.' },
