@@ -44,7 +44,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { progressRepo, userStateRepo, docsRepo, evidenceRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
-import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
+import { getRoleDef, getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { clearResume, readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { deriveCrewProgress } from '@/lib/game';
 import { StepTally, PixelBadge } from '@/components/ui/Pixel';
@@ -594,6 +594,8 @@ function TaskRow({
         type="button"
         disabled={!canOpen}
         onClick={() => canOpen && onToggle()}
+        aria-expanded={open}
+        aria-controls={`task-${task.id}-body`}
         className={`flex w-full items-start justify-between gap-3 px-4 py-3 text-left transition-colors ${
           canOpen ? 'hover:bg-panel-2' : 'cursor-not-allowed opacity-70'
         }`}
@@ -671,15 +673,19 @@ function TaskRow({
         </span>
       </button>
 
-      {open && canOpen && (
-        <div className="border-t border-line p-4">
+      {/* Mounted while collapsed so the toggle's `aria-controls` resolves —
+          the same rule `Collapsible` and the setup strip follow. */}
+      <div id={`task-${task.id}-body`} className={open && canOpen ? 'border-t border-line p-4' : 'hidden'}>
+        {open && canOpen && (
+          <>
           {/* The identity strip (needs / produces / hand-offs) used to render
               here, above the steps, on every open task. It moved into the
               "About this task" disclosure (TaskAboutPanel) — the checklist
               comes first now. */}
           {renderBody()}
-        </div>
-      )}
+          </>
+        )}
+      </div>
     </div>
   );
 }
@@ -848,8 +854,12 @@ export default function CoursePage() {
   };
   // Whole-course completion. With gatekeeping, every gate must be passed. With
   // no gatekeeping (CySA), it's simply every week at 100% for your role.
+  // Graded weeks only. Every other reader of "finished" (`game.ts`, `metrics`,
+  // `resume`) already skipped setup weeks; this one counted Week 0, so the
+  // "Course complete" banner never showed for a student who skipped preparation.
+  const gradedForCompletion = course.weeks.filter((w) => isGradedWeek(course, w.number));
   const allWeeksComplete =
-    joined && course.weeks.length > 0 && course.weeks.every((w) => (weekStats[w.number] ?? 0) >= 100);
+    joined && gradedForCompletion.length > 0 && gradedForCompletion.every((w) => (weekStats[w.number] ?? 0) >= 100);
   const allGatesPassed = course.noGatekeeping
     ? allWeeksComplete
     : joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');

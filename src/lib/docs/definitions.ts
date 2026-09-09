@@ -814,3 +814,30 @@ export function seedDeliverable(def: DeliverableDef): DeliverableData {
   });
   return data;
 }
+
+/**
+ * The student's data with the worked example subtracted.
+ *
+ * A form with nothing saved renders its example rows so there is something to
+ * edit rather than a blank grid, and the first keystroke persists all of them.
+ * Every example row is written to pass its own DoD check — that is what makes
+ * it a worked example — so a form that is nothing but the example ticked every
+ * box, and on the Deliverables page that meant one typed character flipped the
+ * form to "done" and swapped the next form in under the cursor.
+ *
+ * This is what the DoD is evaluated against instead: a row identical to a seed
+ * row, column for column, is not evidence of work and does not count. A row
+ * the student changed in any cell does.
+ */
+export function withoutSeedRows(def: DeliverableDef, data: DeliverableData): DeliverableData {
+  let groups = data.groups;
+  for (const s of def.sections) {
+    if (s.kind !== 'group' || !s.group.seed?.length) continue;
+    const rows = groups[s.group.group];
+    if (!rows?.length) continue;
+    const seeds = s.group.seed.map((r) => JSON.stringify(r));
+    const kept = rows.filter((r) => !seeds.includes(JSON.stringify(r)));
+    if (kept.length !== rows.length) groups = { ...groups, [s.group.group]: kept };
+  }
+  return groups === data.groups ? data : { ...data, groups };
+}

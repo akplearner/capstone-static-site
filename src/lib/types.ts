@@ -34,6 +34,11 @@ export interface WeekDef {
    *  are skipped when resolving where a student left off, so an opt-in build
    *  track never presents itself as "the week you're on". Defaults to week 0. */
   setup?: boolean;
+  /** Real work for students who finish early. Shown on the rail as a week and
+   *  marked Advanced; never counted toward completion, the stone, milestones or
+   *  Continue — a student who never opens it still finishes the course. Needs
+   *  no `stage`: the stone's cuts belong to the graded arc. */
+  advanced?: boolean;
   /** How hard this week is, 1 (gentlest) to 4 (hardest). Rendered as stars in
    *  the week milestone header so students can pace themselves. */
   difficulty?: 1 | 2 | 3 | 4;

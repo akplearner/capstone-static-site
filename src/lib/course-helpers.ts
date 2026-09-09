@@ -59,6 +59,22 @@ export function isSetupWeek(course: Course, weekNumber: number): boolean {
   return w?.setup ?? weekNumber === 0;
 }
 
+/** True for an authored `advanced` week — extra work that is never required. */
+export function isAdvancedWeek(course: Course, weekNumber: number): boolean {
+  return !!getWeekDef(course, weekNumber)?.advanced;
+}
+
+/**
+ * The weeks that count. Not setup (done once, before the work) and not
+ * advanced (done after it, by some) — everything that reads "did they finish
+ * the course" has to ask this and nothing narrower. `page.tsx` used to run
+ * `course.weeks.every(...)` for its "Course complete" banner, which counted
+ * Week 0 and so never showed for anyone who skipped preparation.
+ */
+export function isGradedWeek(course: Course, weekNumber: number): boolean {
+  return !isSetupWeek(course, weekNumber) && !isAdvancedWeek(course, weekNumber);
+}
+
 /** Every task this role actually works.
  *
  *  A task flagged `shared` belongs to everyone whatever focus they picked — the

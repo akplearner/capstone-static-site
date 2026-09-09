@@ -466,6 +466,36 @@ describe('design tokens — palette classes do not come back', () => {
     expect(src, 'a <th> that names a column says so').toContain('scope="col"');
   });
 
+  /**
+   * Three Server+ audit findings, each held by the literal that fixed it.
+   *
+   * - "Exact clicks →" links land on the procedure. The config guide used to
+   *   `setWeek` and scroll inside a `requestAnimationFrame`, which fires before
+   *   React commits the new week, so the article was not there yet and the page
+   *   sat at the top. The scroll lives in an effect keyed on the week now.
+   * - The Deliverables page keeps the form you are editing on screen. Any
+   *   edit pins `activeForm`; "first unfinished form" applies on arrival only.
+   * - The "Course complete" banner counts graded weeks, not Week 0.
+   */
+  it('the config guide scrolls to a procedure after its week has rendered', () => {
+    const src = code('src/components/docs/ServerConfigGuide.tsx');
+    expect(src, 'the scroll must wait for the commit, not a frame').not.toContain('requestAnimationFrame');
+    expect(src).toContain('pendingScroll');
+    expect(src).toMatch(/useEffect\(\(\) => \{[\s\S]*?pendingScroll\.current[\s\S]*?\}, \[week\]\)/);
+  });
+
+  it('editing a deliverable pins it as the form on screen', () => {
+    const src = code('src/app/courses/[courseId]/docs/page.tsx');
+    expect(src).toMatch(/const setDoc = \(id: string, data: DeliverableData\) => \{\s*setActiveForm\(id\);/);
+    expect(src, 'DoD is judged without the worked example').toContain('withoutSeedRows(def, saved[id]');
+  });
+
+  it('course completion is judged on graded weeks only', () => {
+    const src = code('src/app/courses/[courseId]/page.tsx');
+    expect(src).not.toMatch(/course\.weeks\.every\(\(w\) => \(weekStats/);
+    expect(src).toMatch(/isGradedWeek\(course, w\.number\)\)[\s\S]{0,120}allWeeksComplete/);
+  });
+
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));

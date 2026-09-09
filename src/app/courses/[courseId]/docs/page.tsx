@@ -27,7 +27,7 @@ import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { docsRepo, evidenceRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
-import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable } from '@/lib/docs/definitions';
+import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable, withoutSeedRows } from '@/lib/docs/definitions';
 import { applyCarryForward, buildFormContext } from '@/lib/docs/formContext';
 import { useAutoSave, type SaveStatus } from '@/lib/docs/useAutoSave';
 import type { DeliverableDef } from '@/lib/docs/types';
@@ -227,7 +227,15 @@ export default function DeliverablesPage() {
   // on tab-hide and on unmount. See `useAutoSave` for why: every keystroke used
   // to cost a JSON parse, a stringify, a synchronous localStorage write and a
   // global re-read by every subscriber on the page.
-  const setDoc = (id: string, data: DeliverableData) => save(id, data);
+  //
+  // And the form being edited stays the form on screen. `currentId` below picks
+  // "the first form you have not finished" when nothing else has chosen — right
+  // on arrival, wrong mid-edit: finishing the last field used to make the form
+  // "done" and swap the next one in under the cursor. Any edit pins its form.
+  const setDoc = (id: string, data: DeliverableData) => {
+    setActiveForm(id);
+    save(id, data);
+  };
 
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
   const myDefs = deliverablesForRole(member.role, course.id);
@@ -237,9 +245,12 @@ export default function DeliverablesPage() {
   // A form that spans weeks is graded on the checks that apply BY the week being
   // looked at. Running the whole list in every week meant Week 1 could not read
   // as complete until Week 3's addressing was filled in.
+  // Judged on the student's own rows: the worked example is subtracted first
+  // (`withoutSeedRows`), so a form left as the example is not "done".
+  const own = (id: string, def: (typeof courseDefs)[number]) => withoutSeedRows(def, saved[id] ?? emptyData());
   const isDoneBy = (def: (typeof courseDefs)[number], week: number) => {
     const due = (def.dod ?? []).filter((c) => (c.week ?? 0) <= week);
-    return due.length > 0 && due.every((c) => c.test(saved[def.id] ?? emptyData()));
+    return due.length > 0 && due.every((c) => c.test(own(def.id, def)));
   };
   const isDone = (def: (typeof courseDefs)[number]) => isDoneBy(def, selectedWeek);
 
@@ -267,7 +278,7 @@ export default function DeliverablesPage() {
   const gate = course.noGatekeeping ? undefined : course.gates.find((g) => g.week === selectedWeek);
   const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
   const gateChecks = gateDefs.flatMap((d) =>
-    (d.dod ?? []).map((check) => ({ label: check.label, owner: d.owner, pass: check.test(saved[d.id] ?? emptyData()) }))
+    (d.dod ?? []).map((check) => ({ label: check.label, owner: d.owner, pass: check.test(own(d.id, d)) }))
   );
 
   const handleExportMyWork = () => {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { CopyButton } from '@/components/TaskComponents';
 import { fillPlaceholders, useLabAccess } from '@/lib/labAccess';
@@ -113,6 +113,16 @@ export function ServerConfigGuide() {
   // that is what a step's "Exact clicks →" link carries: select the procedure's
   // week, then scroll to its article once that week has rendered — the article
   // is not in the DOM until the week is, so the browser's own hash jump misses.
+  //
+  // "Once that week has rendered" is the part that was wrong. This used to
+  // `setWeek` and then scroll inside a `requestAnimationFrame`, and the frame
+  // fires before React has committed the new week — so `getElementById` found
+  // nothing and the page sat at the top, 3000px above the procedure the link
+  // promised. A full page load happened to win that race; the in-app `<Link>`
+  // every step renders lost it every time for any week but the default. So the
+  // wanted id is parked in a ref and the scroll runs from the effect below,
+  // which runs only after the week it needs is in the DOM.
+  const pendingScroll = useRef<string | null>(null);
   useEffect(() => {
     const fromHash = () => {
       const hash = window.location.hash.slice(1);
@@ -123,15 +133,32 @@ export function ServerConfigGuide() {
       }
       const proc = procedureById(hash);
       if (!proc) return;
+      // Already on screen (the jump table inside a week, or a hashchange to a
+      // sibling procedure): scroll now. `setWeek` to the same week would not
+      // re-render, so the effect below would never fire for it.
+      const el = document.getElementById(proc.id);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      pendingScroll.current = proc.id;
       setWeek(proc.week);
-      requestAnimationFrame(() =>
-        document.getElementById(proc.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      );
     };
     fromHash();
     window.addEventListener('hashchange', fromHash);
     return () => window.removeEventListener('hashchange', fromHash);
   }, []);
+
+  // Runs after every commit that changed `week` — and once on mount, for the
+  // case where the hash names a procedure in the week already showing.
+  useEffect(() => {
+    const id = pendingScroll.current;
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    pendingScroll.current = null;
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [week]);
 
   const active = WEEKS.find((w) => w.number === week) ?? WEEKS[1];
   const procs = PROCEDURES.filter((p) => p.week === week);
