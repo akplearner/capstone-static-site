@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PROCEDURES, WEEKS, procedureById } from './serverProcedures';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
-import { HOST } from '../serverTopology';
+import { HOST, OPS, ZONE_BRIDGES, BRIDGES } from '../serverTopology';
 
 /**
  * Steps say WHAT; the guide says HOW.
@@ -96,5 +96,57 @@ describe('the host address is always the team’s own', () => {
     // The SOP's own machine. A 100.x address belongs to one tailnet node; the
     // course must always say "whatever `tailscale ip -4` prints on your host".
     expect(readSource(path)).not.toContain('100.121.75.81');
+  });
+});
+
+/**
+ * Week 6's ops network is the one place a team's address is unique — and it is
+ * unique by the team number, so a command that names one must carry the rule
+ * (`OPS.team.rule`, 10.20.T) for the Lab access panel to fill, never a worked
+ * example's octet. The Core's own block (10.20.0.x) is the same for everyone
+ * and is allowed as a literal. The README the repository procedure writes is
+ * a command too — a student copies it — so it is held to the same rule.
+ */
+describe('Week 6 names team addresses by the rule, never by example', () => {
+  const week6Commands = [
+    ...SERVER_PLUS.tasks.filter((t) => t.week === 6).flatMap((t) => t.steps.flatMap((s) => [s.command ?? '', ...(s.commands ?? []).map((c) => c.cmd)])),
+    ...PROCEDURES.filter((p) => p.week === 6).flatMap((p) => p.steps.map((s) => s.cmd ?? '')),
+  ].filter(Boolean);
+
+  it('has Week 6 commands to check', () => {
+    expect(week6Commands.length).toBeGreaterThan(40);
+  });
+
+  it('never hard-codes a team octet on the ops network', () => {
+    const literal = week6Commands.filter((c) => /\b10\.20\.(?:[1-9]|1[0-6])\.\d+/.test(c));
+    expect(literal, `use ${OPS.team.rule}.x so Lab access fills it`).toEqual([]);
+  });
+
+  it('uses the ops rule somewhere, so the token is not vacuous', () => {
+    expect(week6Commands.some((c) => c.includes(OPS.team.rule))).toBe(true);
+  });
+
+  it('badges the instructor build so nobody runs it', () => {
+    const day0 = procedureById('core-node-day-zero');
+    expect(day0?.optional).toBe(true);
+    expect(day0?.optionalLabel).toMatch(/Instructor/);
+    // …and the only step that points at it is a read, not a build.
+    const readers = SERVER_PLUS.tasks.flatMap((t) => t.steps).filter((s) => s.guideRef?.procedureId === 'core-node-day-zero');
+    expect(readers.length).toBe(1);
+    expect(readers[0].commands ?? []).toEqual([]);
+  });
+});
+
+describe('the ops network is a plane, not a zone', () => {
+  it('never appears among the segmented zones', () => {
+    expect(ZONE_BRIDGES.map((b) => b.id as string)).not.toContain(OPS.bridge);
+    expect(BRIDGES.map((b) => b.id as string)).not.toContain(OPS.bridge);
+  });
+
+  it('gives the Core a block no team can collide with', () => {
+    // Team numbers start at 1; the Core sits in block 0.
+    for (const addr of Object.values(OPS.core)) expect(addr.startsWith('10.20.0.')).toBe(true);
+    expect(OPS.team.node.startsWith(OPS.team.rule + '.')).toBe(true);
+    expect(OPS.team.opsVm.startsWith(OPS.team.rule + '.')).toBe(true);
   });
 });

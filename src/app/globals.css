@@ -40,13 +40,15 @@
      contrast — so they flip this to near-black. */
   --color-accent-contrast: #ffffff;
 
-  /* Per-week phase accents (k1–k4 in the source). w5 is the advanced week —
-     a fifth hue, rose, that no graded phase uses, so it reads as its own thing. */
+  /* Per-week phase accents (k1–k4 in the source). w5 and w6 are the advanced
+     weeks — rose and a slate cyan, two hues no graded phase uses, so each reads
+     as its own thing and neither is mistaken for a phase. */
   --color-w1: #158066;
   --color-w2: #1f5aa8;
   --color-w3: #b26a00;
   --color-w4: #6a3d9a;
   --color-w5: #b0213f;
+  --color-w6: #0f7e94;
 
   /* Semantic. The -soft/-line pairs are the callout fills and borders that used
      to be hand-typed as green-50/amber-50/red-50 + their dark: twins in 20+
@@ -166,6 +168,7 @@
   --color-w3: #d69b4a;
   --color-w4: #a583d0;
   --color-w5: #e0708a;
+  --color-w6: #5fc4d6;
 
   --color-ok: #4ade80;
   --color-ok-soft: #10281c;
@@ -255,6 +258,7 @@
   --color-w3: #7a4b6b;
   --color-w4: #52606e;
   --color-w5: #7a5563;
+  --color-w6: #3f6b73;
 }
 .dark [data-seam='security-plus'] {
   --color-accent: #ef7078;
@@ -268,6 +272,7 @@
   --color-w3: #c98ab5;
   --color-w4: #93a4b5;
   --color-w5: #c7a2b1;
+  --color-w6: #9dc5cc;
 }
 [data-seam='cysa-plus'] {
   --color-accent: #2d5f8a;          /* steel vein, same rock */
@@ -281,6 +286,7 @@
   --color-w3: #8a5a2b;
   --color-w4: #6b3f6e;
   --color-w5: #8f3a52;
+  --color-w6: #2a6f7e;
 }
 .dark [data-seam='cysa-plus'] {
   --color-accent: #6fb2e8;
@@ -294,6 +300,7 @@
   --color-w3: #d9a463;
   --color-w4: #b48ad0;
   --color-w5: #e39ab0;
+  --color-w6: #7fcbd9;
 }
 
 /* Server+ — a warmer copper vein in the same CompTIA rock. The deployment
@@ -311,6 +318,7 @@
   --color-w3: #7a5b9a;
   --color-w4: #2f6b3f;
   --color-w5: #8a3f4f;
+  --color-w6: #2d6b78;
 }
 .dark [data-seam='server-plus'] {
   --color-accent: #e0a06a;
@@ -324,6 +332,7 @@
   --color-w3: #b49ad9;
   --color-w4: #62c07e;
   --color-w5: #e59aa8;
+  --color-w6: #84c9d5;
 }
 
 /* THE OBSIDIAN AUDIT VAULT — black glass. Evidence, control, traceability. */
@@ -358,6 +367,7 @@
   --color-w3: #7a5a2b;
   --color-w4: #6b3f6e;
   --color-w5: #8f3a52;
+  --color-w6: #2a6f7e;
 }
 .dark [data-seam='mssp'] {
   --color-accent: #a596f5;
@@ -371,6 +381,7 @@
   --color-w3: #d9a463;
   --color-w4: #c98ad0;
   --color-w5: #f0a0b8;
+  --color-w6: #8ad4e4;
 }
 
 /* Regions whose courses are coming soon. They carry the full theme anyway, so a
@@ -730,8 +741,9 @@ select {
 }
 
 /* ── Phase colour ─────────────────────────────────────────────────────────
-   Four palettes (--color-w1..w4) are authored per seam — 56 hand-typed hexes
-   across the course set — and until R63 they rendered ONLY inside SVG
+   Six palettes (--color-w1..w6, the last two for the advanced weeks) are
+   authored per seam — hand-typed hexes across the course set — and until R63
+   the first four rendered ONLY inside SVG
    diagrams. Not one pixel of page chrome, navigation or card. Meanwhile the
    single most useful thing the interface can tell a student at a glance is how
    far through the course they are, and it was saying it in text alone.
@@ -746,6 +758,7 @@ select {
 [data-week='3'] { --week: var(--color-w3); }
 [data-week='4'] { --week: var(--color-w4); }
 [data-week='5'] { --week: var(--color-w5); }
+[data-week='6'] { --week: var(--color-w6); }
 
 /* Level 1 — a week. The bedrock band. */
 .stratum-week {

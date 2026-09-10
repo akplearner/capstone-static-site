@@ -4,7 +4,7 @@ import { Info, Users } from 'lucide-react';
 import { TeamProgressTable, type MemberProgress, type DeliverableStatus } from '@/components/TeamProgressTable';
 import { progressRepo, docsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
-import { getRequiredStepCount, getTasksByRole } from '@/lib/course-helpers';
+import { getRequiredStepCount, getTasksByRole, isAdvancedWeek } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { emptyData } from '@/lib/docs/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
@@ -52,7 +52,12 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
       const data = saved[d.id];
       let complete = false;
       if (d.dod && d.dod.length > 0) {
-        complete = d.dod.every((c) => c.test(data ?? emptyData()));
+        // Checks that belong to an advanced week are never required: a team
+        // that finished the four graded weeks has a complete As-Built, whether
+        // or not it went on to Weeks 5 and 6. The Deliverables page filters by
+        // the week it is showing; this block has no week, so it filters by kind.
+        const required = d.dod.filter((c) => c.week === undefined || !isAdvancedWeek(course, c.week));
+        complete = required.every((c) => c.test(data ?? emptyData()));
       } else if (data) {
         complete =
           Object.values(data.fields ?? {}).some((v) => v && v.trim()) ||

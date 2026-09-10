@@ -63,6 +63,11 @@ export const WEEKS: WeekBlock[] = [
   // record the student already kept by hand, which is what makes seven tools
   // one week rather than seven.
   { number: 5, title: 'Automate & Observe', phase: 'Automate & Observe', lead: 'Define the lab in code, watch every host, run your own SIEM, and move the registers you kept on paper into NetBox and GLPI. About 18 GB of guests in total — a 16 GB server runs this one VM at a time.' },
+  // The second advanced week. Week 5 gave the team its own tools on its own
+  // server; Week 6 is the MSP question — do that for sixteen clients from one
+  // console. Everything joins the instructor's Core node over a shared ops
+  // network, and the proof is a VM destroyed and rebuilt from the repository.
+  { number: 6, title: 'Run It as a Fleet', phase: 'Run It as a Fleet', lead: 'Put the site in Git, build it from a template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the Core. Then destroy a VM and watch the repository bring it back.' },
 ];
 
 export const PROCEDURES: Procedure[] = [
@@ -1033,6 +1038,377 @@ docker compose up -d`, explain: 'On tools, beside NetBox. A community-maintained
       { cmd: `Invoke-WebRequest -Uri https://github.com/glpi-project/glpi-agent/releases/latest/download/GLPI-Agent-x64.msi -OutFile $env:tmp\\glpi-agent.msi
 msiexec /i $env:tmp\\glpi-agent.msi /quiet SERVER='http://192.168.0.21:8080/front/inventory.php' RUNNOW=1`, explain: 'In an elevated PowerShell on winserver. The agent inventories the machine and posts it to GLPI.', doc: { label: 'GLPI Agent', href: 'https://glpi-agent.readthedocs.io/' } },
       { gui: 'Assets → Computers: winserver now carries an inventory it reported itself — CPU, memory, disks, installed software. Screenshot it into 08_Evidence.', explain: 'Compare it with the row you typed. The agent’s numbers are the truth; the register was the intention.' },
+    ],
+  },
+
+  // ══ WEEK 6 · Run It as a Fleet ═══════════════════════════════════════════
+  //
+  // Week 5 put the team's own tools on the team's own server. Week 6 asks the
+  // MSP question: do that for sixteen clients from one console. The instructor
+  // runs one Core node — Git, the observability plane, Wazuh, the backup vault,
+  // a package cache — and every team onboards its site into it over a shared
+  // ops network. The addressing lives in serverTopology.ts (`OPS`); the command
+  // bodies below carry the team rule as a token the Lab access panel fills.
+  {
+    id: 'core-node-day-zero',
+    week: 6,
+    title: 'Instructor, Day 0: build the Core node',
+    where: 'The instructor’s rack server, before students arrive',
+    summary:
+      'Read this so you know what you are joining; do not run it. Half a day builds the platform every team onboards into: the ops bridge, a package cache first, then Gitea, the observability plane, Wazuh, the backup vault, the golden template, and a handout per team. Everything is a container or a VM on one 64 GB server.',
+    optional: true,
+    optionalLabel: 'Instructor · Day 0',
+    steps: [
+      { cmd: `cat >> /etc/network/interfaces <<'EOF'
+
+auto vmbr9
+iface vmbr9 inet static
+    address 10.20.0.1/16
+    bridge_ports eno2.20
+    bridge_stp off
+    bridge_fd 0
+EOF
+ifreload -a && ip -br a show vmbr9`, explain: 'On the Core node. The ops bridge, backed by the second NIC tagged VLAN 20 — the same stanza every team node gets with its own address. A bridge with no physical port is one host talking to itself.' },
+      { cmd: 'pct create 114 local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst --hostname cache --memory 2048 --cores 2 --rootfs local-lvm:200 --net0 name=eth0,bridge=vmbr9,ip=10.20.0.14/16 --unprivileged 1 && pct start 114 && pct exec 114 -- bash -c "apt update && apt install -y apt-cacher-ng"', explain: 'cache.lab first. Sixteen teams pulling the same packages over the school link is the biggest time sink in the room; a cache on the ops network turns a ten-minute install into thirty seconds. Every team’s base role points apt at it.', doc: { label: 'apt-cacher-ng', href: 'https://wiki.debian.org/AptCacherNg' } },
+      { cmd: 'pct create 110 local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst --hostname git --memory 2048 --cores 2 --rootfs local-lvm:40 --net0 name=eth0,bridge=vmbr9,ip=10.20.0.10/16 --unprivileged 1 && pct start 110', explain: 'git.lab as a container. Install Gitea from its binary release inside it, then in the web UI create one organisation per team (team01 … team16, each team’s members as owners) and a platform repository the instructor owns.', doc: { label: 'Gitea installation', href: 'https://docs.gitea.com/installation/install-from-binary' } },
+      { gui: 'In the platform repository create two folders: targets/ (one Prometheus file_sd file per team, initially empty) and alertmanager/ (one receiver stub per team). Grant every team organisation write access to those two folders through a pull-request rule, and nothing else.', explain: 'This is how a team onboards without a ticket to the instructor: it commits its targets file and its receiver, and the Core pulls the repository every five minutes.' },
+      { cmd: 'qm create 111 --name obs --memory 12288 --cores 4 --net0 virtio,bridge=vmbr9 --net1 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci --scsi0 local-lvm:400 --ide2 local:iso/ubuntu-24.04-live-server-amd64.iso,media=cdrom --boot order=scsi0', explain: 'obs.lab, dual-homed: net0 on the ops network at 10.20.0.11 for the server fleet, net1 on the campus LAN so student browsers reach Grafana and the workstations can be collected. Install Ubuntu, then Prometheus, Grafana, Loki and Alertmanager from the Grafana and Ubuntu repositories as the Week 5 procedures show.' },
+      { cmd: `cat > /etc/prometheus/prometheus.yml <<'EOF'
+global:
+  scrape_interval: 30s
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['localhost:9093']
+rule_files:
+  - /etc/prometheus/rules/*.yml
+scrape_configs:
+  - job_name: 'fleet'
+    file_sd_configs:
+      - files: ['/etc/prometheus/targets/team-*.yml']
+        refresh_interval: 1m
+EOF
+cat > /etc/cron.d/platform-pull <<'EOF'
+*/5 * * * * root cd /srv/platform && git pull -q && rsync -a --delete targets/ /etc/prometheus/targets/ && rsync -a --delete alertmanager/ /etc/alertmanager/teams/ && systemctl reload alertmanager
+EOF
+systemctl restart prometheus`, explain: 'On obs.lab, with the platform repository cloned to /srv/platform. Prometheus discovers targets from files, and the files come from Git — so a team’s commit is what puts its hosts on the Targets page. The three fleet alert rules (InstanceDown, DiskAlmostFull, ServiceDown) go in the rules folder, each carrying the team label through.', doc: { label: 'Prometheus file_sd', href: 'https://prometheus.io/docs/prometheus/latest/configuration/configuration/#file_sd_config' } },
+      { cmd: 'qm create 112 --name xdr --memory 16384 --cores 8 --net0 virtio,bridge=vmbr9 --net1 virtio,bridge=vmbr0 --scsihw virtio-scsi-pci --scsi0 local-lvm:300 --ide2 local:iso/ubuntu-24.04-live-server-amd64.iso,media=cdrom --boot order=scsi0', explain: 'xdr.lab at 10.20.0.12, also dual-homed. The heaviest component: 16 GB is the working floor for a manager that takes a hundred agents. Run the Wazuh assisted installer exactly as the Week 5 procedure does, then under Agents → Groups create team-01 through team-16.' },
+      { cmd: `qm create 113 --name pbs --memory 8192 --cores 4 --net0 virtio,bridge=vmbr9 --scsihw virtio-scsi-pci --scsi0 local-lvm:64 --scsi1 local-lvm:2048 --ide2 local:iso/proxmox-backup-server_3.3-1.iso,media=cdrom --boot order=scsi0
+# after the PBS install, on pbs.lab:
+proxmox-backup-manager datastore create vault /mnt/datastore/vault
+for t in $(seq -w 1 16); do proxmox-backup-manager namespace create --store vault --ns team$t; done
+proxmox-backup-manager cert info | grep -i fingerprint`, explain: 'pbs.lab at 10.20.0.13 with the biggest disk you have: deduplication wants disk, not memory. One namespace per team keeps sixteen sites apart in one datastore. The fingerprint goes on every team’s handout — it is how a team node trusts the vault.', doc: { label: 'Proxmox Backup Server — namespaces', href: 'https://pbs.proxmox.com/docs/storage.html#backup-namespaces' } },
+      { cmd: `wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img
+qm create 9000 --name ubuntu-2404-tmpl --memory 2048 --cores 2 --net0 virtio,bridge=vmbr9 --net1 virtio,bridge=vmbr2 --scsihw virtio-scsi-pci
+qm importdisk 9000 noble-server-cloudimg-amd64.img local-lvm
+qm set 9000 --scsi0 local-lvm:vm-9000-disk-0 --ide2 local-lvm:cloudinit --boot order=scsi0 --serial0 socket --vga serial0 --agent enabled=1
+qm template 9000
+vzdump 9000 --storage cache-templates --mode stop`, explain: 'The golden template, built once with two NICs — ops first, client private second — and published as a backup archive on cache.lab so every team restores the same image as VM 9000 on its own node. Identical clones are what make sixteen Terraform runs behave the same.', doc: { label: 'Proxmox cloud-init support', href: 'https://pve.proxmox.com/wiki/Cloud-Init_Support' } },
+      { gui: 'Print one handout per team: team number, node address on the campus LAN and on the ops network, the Gitea organisation and its first-login link, the PBS namespace and fingerprint, the Wazuh group name, and the ops subnet. Then stop. Everything from here is student work.', explain: 'Eight numbers on a card. A team that has them can finish the week without asking you anything; a team that does not will ask sixteen times.' },
+    ],
+  },
+  {
+    id: 'ops-network-spine',
+    week: 6,
+    title: 'Wire the ops network: the bridge, the second NICs, the ping',
+    where: 'The Proxmox host shell, then every server VM',
+    summary:
+      'Every team’s DMZ and private zone are identical islands — Team 3’s winserver and Team 9’s are both 192.168.0.2 — and that was fine while nothing crossed them. The Core has to cross them. So the host and every server VM get a second interface on the shared VLAN, and the third octet is the team number. Prove the path to the Core before anything else this week.',
+    steps: [
+      { cmd: `cat >> /etc/network/interfaces <<'EOF'
+
+auto vmbr9
+iface vmbr9 inet static
+    address 10.20.T.1/24
+    bridge_ports eno2.20
+    bridge_stp off
+    bridge_fd 0
+EOF
+ifreload -a && ip -br a show vmbr9`, explain: 'On the host, with T replaced by your team number — or set your ops subnet in Lab access and it is already replaced. eno2.20 is the second NIC tagged VLAN 20; with one NIC, trunk the port and use eno1.20 instead. The host’s own .1 is what the backup vault, the exporter and Ansible’s inventory will reach.' },
+      { cmd: 'ping -c 3 10.20.0.11', explain: 'From the host. Three replies from obs.lab means the switch is trunking VLAN 20 to your port. No reply means it is not, and nothing else this week will work until it does — the Networking deep-dive owns that trunk.' },
+      { gui: 'For websrv, winserver and linuxsrv (and secmon, wazuh and tools if you built Week 5): VM → Hardware → Add → Network Device, Bridge vmbr9, Model VirtIO. Then inside each VM give the new interface the same host octet it has in its zone, moved into your block: winserver 10.20.T.2, linuxsrv 10.20.T.3, websrv 10.20.T.10 — /24, no gateway.', explain: 'One number per machine, whichever network you meet it on. No gateway on the ops leg: the client zones keep routing out through vmbr0 as before, and the ops network carries only management traffic — scraping, logs, backups, SSH.' },
+      { cmd: `cat > /etc/netplan/60-ops.yaml <<'EOF'
+network:
+  version: 2
+  ethernets:
+    ens19:
+      addresses: [10.20.T.3/24]
+EOF
+netplan apply && ping -c 3 10.20.0.11`, explain: 'On linuxsrv as the worked example — the second VirtIO device appears as ens19. The same file with .10 on websrv. On winserver it is Network Connections → the new adapter → IPv4 → static, no gateway, no DNS.' },
+      { gui: 'Open the Architecture Brief and add the ops VM (next procedure) as a machine; open the IP Plan and add one row per ops-network address, including the host’s .1. Then run the connectivity proof for the new path: every server VM reaches 10.20.0.11.', explain: 'The Week 3 forms hold the site’s addressing; the ops network is part of it now. The hostref columns in later forms can only name a machine the brief knows.' },
+    ],
+  },
+  {
+    id: 'ops-vm-build',
+    week: 6,
+    title: 'The ops VM: a permanent home for the toolchain',
+    where: 'The Proxmox web console, then the new ops VM',
+    summary:
+      'Classroom workstations get reimaged, reassigned and shared. Terraform state, SSH keys and playbooks that live on one disappear. So the team’s toolchain lives on a small VM on the team’s own node, with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures. The workstation becomes a window.',
+    steps: [
+      { gui: 'Create a VM named ops: Ubuntu Server ISO, 2 cores, 2048 MB, 32 GB disk, net0 on vmbr0 (DHCP from the campus), net1 on vmbr9. Install Ubuntu with the ops user, OpenSSH enabled, and net1 static at 10.20.T.30/24 with no gateway.', explain: 'Dual-homed on purpose. Terraform and the dynamic inventory talk to the Proxmox API over the campus LAN; Ansible talks to the VMs over the ops network. Mixing the two paths up is the most common first-day blocker.' },
+      { cmd: 'echo "Acquire::http::Proxy \\"http://10.20.0.14:3142\\";" | sudo tee /etc/apt/apt.conf.d/01proxy && sudo apt update && sudo apt install -y git ansible python3-proxmoxer python3-requests', explain: 'Point apt at the Core’s package cache first — from here on every install on this VM and every VM Ansible builds comes from the cache. Then Git, Ansible and the Python libraries the Proxmox inventory plugin needs.' },
+      { cmd: 'wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list && sudo apt update && sudo apt install -y terraform && terraform -version && ansible --version', explain: 'Terraform from HashiCorp’s repository (OpenTofu works with the same provider; pick one for the whole team). Both version lines printing is the check.', doc: { label: 'Install Terraform', href: 'https://developer.hashicorp.com/terraform/install' } },
+      { cmd: 'ssh-keygen -t ed25519 -C "team07-ops" -f ~/.ssh/id_ed25519 -N "" && cat ~/.ssh/id_ed25519.pub', explain: 'The fleet key, with your own team number in the comment. Its public half goes into every VM cloud-init builds; its private half never leaves this VM. Copy the public key — the Terraform template and the Ansible base role both need it.' },
+      { cmd: 'curl -sk https://10.10.30.T:8006/api2/json/version && ping -c 3 10.20.0.11', explain: 'The two paths, proven from the VM that will use them: the API answers over the campus LAN, the Core answers over the ops network. If either fails, fix it now — every later step depends on both.' },
+      { cmd: 'cd ~/ServerPlus_Capstone/00_Planning/terraform 2>/dev/null && scp -r . ops@10.20.T.30:~/tf-week5/ ; echo done', explain: 'Only if you did Week 5: from the workstation that ran Terraform, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage.' },
+    ],
+  },
+  {
+    id: 'gitea-team-repo',
+    week: 6,
+    title: 'Put the infrastructure in Git',
+    where: 'The ops VM, and Gitea in a browser',
+    summary:
+      'Infrastructure as code that is not in version control is scripts on someone’s laptop. Git gives the team history, review, rollback and one source of truth. The layout is boring and identical across teams on purpose; the .gitignore is written before the first commit because a secret pushed once is in the history forever.',
+    steps: [
+      { gui: 'Browse to http://10.20.0.10, sign in with the account on your handout, open your team organisation and create a repository named team07-infra (your own team number), private, no initialisation.', explain: 'One repository per team, owned by the organisation rather than a person, so the person who leaves does not take it with them.' },
+      { cmd: `mkdir -p ~/team07-infra && cd ~/team07-infra && git init -b main && mkdir -p terraform ansible/roles/{base,monitoring,wazuh_agent} docs && cat > .gitignore <<'EOF'
+*.tfvars
+*.tfstate
+*.tfstate.*
+.terraform/
+.vault-pass
+*.pem
+id_ed25519*
+EOF
+git add .gitignore && git commit -m "Ignore secrets and state before anything else"`, explain: 'The first commit is the ignore file, alone. Token files, state files, the vault password and keys can never be added by accident after this — and the state file in particular describes every VM you own, which is not for a shared server.' },
+      { cmd: `cat > README.md <<'EOF'
+# team07-infra
+
+The Granite Peak client site, as code.
+
+1. Clone this on the ops VM (10.20.T.30 — your team's ops subnet).
+2. terraform/: cp terraform.tfvars.example terraform.tfvars, fill the API token, terraform init && terraform apply.
+3. ansible/: export PVE_TOKEN=..., ansible-playbook -i inventory.proxmox.yml site.yml
+4. Everything the site runs is in roles/. Nothing is configured by hand.
+EOF
+git add README.md && git commit -m "README a stranger could follow"`, explain: 'Written for the person who arrives after you. The test of a README is whether someone who has never seen this site can rebuild it from the four lines.' },
+      { cmd: 'git remote add origin http://10.20.0.10/team07/team07-infra.git && git push -u origin main', explain: 'Gitea asks for your username and a token the first time; create one under Settings → Applications. Every teammate clones from here and commits under their own name — the log is part of the deliverable.' },
+      { cmd: 'git grep -iE "password|token|secret" -- . ":!README.md" ; echo "exit $?"', explain: 'Run this before every push. exit 1 means no match — nothing that looks like a credential is tracked. A match is a leak: remove it, rotate it, and only then commit.' },
+    ],
+  },
+  {
+    id: 'fleet-template-and-terraform',
+    week: 6,
+    title: 'The site from the golden template, in Terraform',
+    where: 'The Proxmox host shell, then the ops VM',
+    summary:
+      'An ISO install takes twenty minutes and is different every time. A clone of the Core’s golden template takes seconds and is identical every time — which is what makes Terraform worth using. The provider block, the token in a file Git never sees, the server VMs described once, applied, and then a second plan that has nothing to do.',
+    steps: [
+      { gui: 'On your node, Datacenter → Storage → Add → the Core’s template store (Directory or NFS, the address is on your handout). Then Storage → Backups → the ubuntu-2404-tmpl archive → Restore, as VM 9000. Convert it: right-click → Convert to template.', explain: 'Every team restores the same image as the same ID. Two NICs are already on it — net0 ops, net1 client private — so cloud-init can address both.' },
+      { cmd: 'pveum user add terraform@pve 2>/dev/null; pveum aclmod / -user terraform@pve -role Terraform && pveum user token add terraform@pve fleet --privsep=0', explain: 'On the host. The Terraform role from Week 5 already exists if you did it; if not, create it with the privileges the provider documents first. A new token named fleet — copy the value the moment it prints, it is shown once.' },
+      { cmd: `cd ~/team07-infra/terraform && cat > providers.tf <<'EOF'
+terraform {
+  required_providers {
+    proxmox = { source = "bpg/proxmox", version = "~> 0.66" }
+  }
+}
+variable "pve_token" { sensitive = true }
+variable "team" { default = 7 }
+provider "proxmox" {
+  endpoint  = "https://10.10.30.T:8006/"
+  api_token = var.pve_token
+  insecure  = true
+}
+EOF
+cat > terraform.tfvars.example <<'EOF'
+pve_token = "terraform@pve!fleet=PASTE_THE_TOKEN_VALUE_HERE"
+EOF
+cp terraform.tfvars.example terraform.tfvars`, explain: 'On the ops VM. The token goes in terraform.tfvars, which .gitignore already excludes; the .example file is what gets committed. Set team to your own number — every address below is built from it.', doc: { label: 'bpg/proxmox provider', href: 'https://registry.terraform.io/providers/bpg/proxmox/latest/docs' } },
+      { cmd: `cat > main.tf <<'EOF'
+locals {
+  node    = "pve-host"
+  ops_key = file("~/.ssh/id_ed25519.pub")
+  servers = {
+    websrv   = { octet = 10, client_bridge = "vmbr1", client_ip = "172.16.0.10/24",  gw = "172.16.0.1",  memory = 2048 }
+    linuxsrv = { octet = 3,  client_bridge = "vmbr2", client_ip = "192.168.0.3/24",  gw = "192.168.0.1", memory = 2048 }
+  }
+}
+
+resource "proxmox_virtual_environment_vm" "server" {
+  for_each  = local.servers
+  name      = each.key
+  node_name = local.node
+  clone { vm_id = 9000 }
+  cpu    { cores = 2 }
+  memory { dedicated = each.value.memory }
+  agent  { enabled = true }
+  network_device { bridge = "vmbr9" }
+  network_device { bridge = each.value.client_bridge }
+  initialization {
+    ip_config { ipv4 { address = "10.20.\${var.team}.\${each.value.octet}/24" } }
+    ip_config { ipv4 { address = each.value.client_ip, gateway = each.value.gw } }
+    user_account { username = "ops", keys = [local.ops_key] }
+  }
+}
+EOF
+terraform init && terraform plan`, explain: 'The Linux servers, described once each: first NIC and first ip_config are the ops leg, second are the client zone. winserver stays a hand-built import — cloud-init does not build Windows — and is imported exactly as in Week 5. Plan lists two to add.' },
+      { cmd: 'terraform apply -auto-approve && terraform plan', explain: 'Two clones, up in under a minute each. Then the real proof: the second plan says No changes. If it wants to change something, the file and reality disagree — fix the file, never the VM.' },
+      { cmd: 'ssh ops@10.20.T.3 hostname && git add providers.tf main.tf terraform.tfvars.example && git commit -m "The site from the template" && git push', explain: 'The fleet key gets you in without a password because cloud-init installed it. Commit the code — and notice git status never lists terraform.tfvars or the state.' },
+    ],
+  },
+  {
+    id: 'ansible-site-playbook',
+    week: 6,
+    title: 'Ansible: the hypervisor is the inventory, and the second run changes nothing',
+    where: 'The ops VM',
+    summary:
+      'Terraform makes the box; Ansible makes it a server. A playbook is idempotent — safe to run a hundred times — and that property is the whole point: the second run must report changed=0, or it is a shell script in disguise. The inventory is not a file you maintain; it is a question asked of the Proxmox API.',
+    steps: [
+      { cmd: 'pveum user add ansible@pve 2>/dev/null; pveum aclmod / -user ansible@pve -role PVEAuditor && pveum user token add ansible@pve inv --privsep=0', explain: 'On the host. The inventory only reads, so PVEAuditor is enough. Copy the token value.' },
+      { cmd: `cd ~/team07-infra/ansible && cat > inventory.proxmox.yml <<'EOF'
+plugin: community.general.proxmox
+url: https://10.10.30.T:8006
+user: ansible@pve
+token_id: inv
+token_secret: "{{ lookup('env', 'PVE_TOKEN') }}"
+validate_certs: false
+want_facts: true
+keyed_groups:
+  - key: proxmox_tags_parsed
+    prefix: tag
+compose:
+  ansible_host: proxmox_agent_interfaces | selectattr('name', 'equalto', 'eth0') | map(attribute='ip-addresses') | first | map(attribute='ip-address') | select('match', '^10\\.20\\.') | first
+EOF
+export PVE_TOKEN=PASTE_THE_TOKEN_VALUE_HERE && ansible-inventory -i inventory.proxmox.yml --graph`, explain: 'The plugin asks the API which VMs exist and, through the guest agent, which addresses they hold; compose picks the ops-network one. The token is an environment variable, never a line in the file. The graph lists every running VM on your node.', doc: { label: 'community.general.proxmox inventory', href: 'https://docs.ansible.com/ansible/latest/collections/community/general/proxmox_inventory.html' } },
+      { cmd: `mkdir -p roles/base/tasks && cat > roles/base/tasks/main.yml <<'EOF'
+- name: apt through the Core cache
+  copy: { dest: /etc/apt/apt.conf.d/01proxy, content: 'Acquire::http::Proxy "http://10.20.0.14:3142";' }
+- name: chrony to the Core
+  apt: { name: chrony, state: present }
+- name: one time source
+  copy: { dest: /etc/chrony/sources.d/core.sources, content: "server 10.20.0.11 iburst\\n" }
+  notify: restart chrony
+- name: ops user has the fleet key only
+  authorized_key: { user: ops, key: "{{ lookup('file', '~/.ssh/id_ed25519.pub') }}", exclusive: true }
+- name: sshd forbids passwords
+  lineinfile: { path: /etc/ssh/sshd_config, regexp: '^#?PasswordAuthentication', line: 'PasswordAuthentication no' }
+  notify: restart sshd
+EOF
+mkdir -p roles/base/handlers && cat > roles/base/handlers/main.yml <<'EOF'
+- name: restart chrony
+  service: { name: chrony, state: restarted }
+- name: restart sshd
+  service: { name: ssh, state: restarted }
+EOF`, explain: 'The base role: the cache, one clock, the fleet key and no passwords. Skewed clocks silently break TLS, Kerberos and log correlation — chrony to the Core is the cheapest fix in the week. Every task is written so that running it again does nothing.' },
+      { cmd: `mkdir -p roles/monitoring/tasks roles/monitoring/templates && cat > roles/monitoring/tasks/main.yml <<'EOF'
+- name: exporter and Alloy
+  apt: { name: [prometheus-node-exporter, alloy], state: present, update_cache: true }
+- name: Alloy ships to the Core with the team label
+  template: { src: config.alloy.j2, dest: /etc/alloy/config.alloy }
+  notify: restart alloy
+- name: both running
+  service: { name: "{{ item }}", state: started, enabled: true }
+  loop: [prometheus-node-exporter, alloy]
+EOF
+cat > roles/monitoring/templates/config.alloy.j2 <<'EOF'
+loki.source.journal "sys" {
+  forward_to = [loki.write.core.receiver]
+  labels     = { team = "{{ team }}", host = "{{ inventory_hostname }}" }
+}
+loki.write "core" {
+  endpoint { url = "http://10.20.0.11:3100/loki/api/v1/push" }
+}
+EOF
+mkdir -p roles/monitoring/handlers && printf -- '- name: restart alloy\\n  service: { name: alloy, state: restarted }\\n' > roles/monitoring/handlers/main.yml`, explain: 'The monitoring role: the node exporter on 9100 and Alloy shipping the journal to the Core’s Loki, every line labelled with the team. The Grafana repository the Week 5 procedure adds is a task in the base role — add it there. Week 5 teams keep their own Loki by adding a second loki.write block.' },
+      { cmd: `mkdir -p roles/wazuh_agent/tasks && cat > roles/wazuh_agent/tasks/main.yml <<'EOF'
+- name: Wazuh repository
+  apt_repository: { repo: "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main", state: present }
+- name: agent, enrolled into the team group
+  apt: { name: wazuh-agent, state: present }
+  environment: { WAZUH_MANAGER: "10.20.0.12", WAZUH_AGENT_GROUP: "team-{{ '%02d' | format(team | int) }}", WAZUH_AGENT_NAME: "team{{ '%02d' | format(team | int) }}-{{ inventory_hostname }}" }
+- name: running
+  service: { name: wazuh-agent, state: started, enabled: true }
+EOF
+cat > site.yml <<'EOF'
+- hosts: all
+  become: true
+  vars: { team: 7 }
+  roles: [base, monitoring, wazuh_agent]
+EOF
+cat > ansible.cfg <<'EOF'
+[defaults]
+inventory = inventory.proxmox.yml
+remote_user = ops
+host_key_checking = false
+EOF`, explain: 'The wazuh_agent role enrols into the Core manager under the team group with a name built from the team number and the host — two agents with the same name means one silently never reports. Set team in site.yml to your own number; the key import from Week 5 is a task in the base role.' },
+      { cmd: 'ansible-playbook site.yml && ansible-playbook site.yml | tail -n 4', explain: 'Twice, on purpose. The first run changes many things. The second run must end with changed=0 on every host — that line is the deliverable. A non-zero second run is a task written as a command instead of a state; find it and rewrite it.' },
+      { cmd: 'git add . && git commit -m "site.yml: base, monitoring, wazuh_agent — changed=0 on the second run" && git push', explain: 'Everything the site is, in Git. From now on a change made in the console instead of the repository is drift, and the next run may revert it. If it is not in code, it does not exist.' },
+    ],
+  },
+  {
+    id: 'core-onboarding-observability',
+    week: 6,
+    title: 'Onboard the site into the Core’s observability plane',
+    where: 'The ops VM, then Grafana on the Core in a browser',
+    summary:
+      'The Core scrapes what the platform repository tells it to. A team onboards by committing one targets file with its label, and five minutes later its hosts are on the Targets page; the same commit carries the receiver Alertmanager pages. One dashboard with a team variable serves the whole class; the alerts route by the label.',
+    steps: [
+      { cmd: 'apt install -y prometheus-node-exporter && ss -ltn | grep 9100', explain: 'On the Proxmox host, as root — it is Debian underneath, so the same exporter the VMs run works on it. The hypervisor is the one target that says the whole site is in trouble before every VM alert fires at once.' },
+      { cmd: `git clone http://10.20.0.10/instructor/platform.git ~/platform && cd ~/platform && cat > targets/team-07.yml <<'EOF'
+- targets: ['10.20.T.1:9100', '10.20.T.2:9182', '10.20.T.3:9100', '10.20.T.10:9100', '10.20.T.30:9100']
+  labels:
+    team: "07"
+    client: "granite-peak"
+EOF
+git add targets/team-07.yml && git commit -m "team-07: onboard five targets" && git push`, explain: 'Your own file, named for your team: the host and every Linux machine on 9100, winserver on 9182. The team label is what makes sixteen teams manageable — one dashboard, one rule set, routed by label. Add secmon, wazuh and tools if you built them.' },
+      { cmd: `cat > alertmanager/team-07.yml <<'EOF'
+- name: team-07
+  email_configs:
+    - to: team07@its.lan
+EOF
+git add alertmanager/team-07.yml && git commit -m "team-07: alert receiver" && git push`, explain: 'Where the Core pages you. The instructor’s route matches on the team label and hands the alert to this receiver. A webhook to a chat room works the same way — the Management deep-dive decides who is paged and writes it down.' },
+      { gui: 'Wait five minutes. Browse to http://10.20.0.11:9090/targets and filter on team="07": every endpoint reads UP. Then Grafana at http://10.20.0.11:3000 → the Fleet dashboard → set the team variable to yours: live CPU, memory and disk for every host, and the Logs panel shows your journal lines.', explain: 'The Core found your hosts from a commit, not a ticket. A DOWN target is almost always the exporter listening on the wrong interface or a firewall rule from Week 4 — allow the port from the Core’s address on the ops leg.' },
+      { cmd: 'sudo systemctl stop nginx', explain: 'On websrv. Note the time. Within five minutes ServiceDown fires for team 07 and the receiver gets it: screenshot the alert in Alertmanager at http://10.20.0.11:9093 and the email or message.' },
+      { cmd: 'sudo systemctl start nginx', explain: 'Put it back; note the time the alert resolves. Both times go into the As-Built, beside the Week 5 pair — this time the detection came from a plane you do not run.' },
+    ],
+  },
+  {
+    id: 'pbs-vault-and-restore',
+    week: 6,
+    title: 'Back up to the vault, verify it, and restore against the clock',
+    where: 'The Proxmox web console, then the host shell',
+    summary:
+      'Week 4 restored a file. The vault restores a machine, and its verify jobs prove a backup is readable before you need it. The team node trusts the vault by fingerprint, backs up every VM including the ops VM into its own namespace nightly, and then times a full restore against the RTO the DR plan promised.',
+    steps: [
+      { gui: 'Datacenter → Storage → Add → Proxmox Backup Server: ID vault, Server 10.20.0.13, Username team07@pbs, the password and the Fingerprint from your handout, Datastore vault, Namespace team07. Content: VZDump backup file.', explain: 'The fingerprint is how your node knows it is talking to the real vault and not something answering on its address. One namespace per team keeps sixteen sites apart inside one datastore.' },
+      { gui: 'Datacenter → Backup → Add: Storage vault, Schedule 02:00 daily, Selection mode All, Mode Snapshot, Retention keep-daily 7 keep-weekly 4. Make sure the ops VM is in the selection. Then select the job → Run now.', explain: 'The ops VM holds the Terraform state. Lose it and Terraform no longer knows what it owns; it must be in every backup. Deduplication means the second night’s backup is a fraction of the first.', doc: { label: 'Proxmox VE backup and restore', href: 'https://pve.proxmox.com/wiki/Backup_and_Restore' } },
+      { gui: 'In the vault’s own UI at https://10.20.0.13:8007 → Datastore vault → Verify Jobs: the instructor’s nightly verify covers every namespace. After your backup finishes, open Content → your namespace and confirm each group shows a green verified tick.', explain: 'A verify job re-reads every chunk and checks it against its hash. A backup that has never been verified is a hope, and the handover promised a number, not a hope.' },
+      { cmd: 'date +%T && qm stop 102 && qm destroy 102 --purge', explain: 'On the host. linuxsrv, gone, for real — note the time. This is the Week 4 drill at machine scale: the DR plan says how long a server takes to come back, and the number has never been measured.' },
+      { gui: 'Storage vault → Backups → the latest linuxsrv backup → Restore, VM ID 102, Start after restore ticked. Watch the task log until it reads TASK OK, then ssh ops@10.20.T.3 and run mariadb -e "SHOW DATABASES".', explain: 'The service answering is the finish line, not the VM booting. The database that was in the backup is the database that came back.' },
+      { cmd: 'date +%T', explain: 'Stop the clock. Restore time is the difference; write it into the DR plan beside the RTO from Week 4 and say which is bigger. If the restore is slower than the promise, the promise was wrong — change the number, and say why.' },
+    ],
+  },
+  {
+    id: 'wazuh-fleet-agents',
+    week: 6,
+    title: 'The MSP’s XDR over the fleet endpoints',
+    where: 'The Proxmox host shell, the ops VM, and Wazuh on the Core in a browser',
+    summary:
+      'An agent reports to one manager. The client site’s servers stay on the client’s own SIEM from Week 5 — that is the client’s data. The MSP’s XDR on the Core takes the fleet endpoints: the hypervisor, the ops VM, and with school IT’s sign-off the workstations, all in the team’s group. Then SCA scores the hardening and FIM proves the pipeline.',
+    steps: [
+      { cmd: `curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg && echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" > /etc/apt/sources.list.d/wazuh.list && apt-get update
+WAZUH_MANAGER="10.20.0.12" WAZUH_AGENT_GROUP="team-07" WAZUH_AGENT_NAME="team07-pve-host" apt-get install -y wazuh-agent && systemctl enable --now wazuh-agent && tail -n 3 /var/ossec/logs/ossec.log`, explain: 'On the Proxmox host itself, as root, with your own team number in both names. The hypervisor is the machine whose compromise takes every client VM with it; it reports to the MSP, not the client. Connected to the server (10.20.0.12:1514) is the line you want.' },
+      { cmd: 'cd ~/team07-infra/ansible && ansible-playbook site.yml -l ops', explain: 'On the ops VM: the wazuh_agent role already enrols whatever it runs on into the Core group, so running it against the ops VM itself is the second fleet endpoint. Sign-off in hand, the same role points at workstations — named from the asset tag, never the hostname, because reimaged machines come back with the same hostname and a stale duplicate.' },
+      { gui: 'Browse to https://10.20.0.12, sign in with the handout account, Agents → filter group team-07: the host and the ops VM read Active. Open the host → Security configuration assessment: note the score for the CIS benchmark before hardening.', explain: 'SCA runs the benchmark checks and gives a percentage. It is the number the Windows and Linux deep-dives move this week: the base role is the hardening standard, and the score is how you show it did something.' },
+      { cmd: 'echo "# fim test $(date +%T)" | sudo tee -a /etc/hosts.allow', explain: 'On the ops VM. FIM watches /etc by default; a watched file changed. Within a minute Wazuh raises an integrity checksum changed alert for team07-ops with the file, the time and the user.' },
+      { gui: 'Threat Hunting → Events, filter agent.group: team-07 and rule.groups: syscheck: the FIM event. Then Vulnerability Detection → the ops VM: the CVE list for its packages. Screenshot both into 08_Evidence.', explain: 'One detection, one vulnerability list, one SCA score: the security posture report the As-Built asks for, from a platform someone else runs. That is what an MSP hands a client every month.' },
+    ],
+  },
+  {
+    id: 'rebuild-from-git',
+    week: 6,
+    title: 'Destroy a server and rebuild it from the repository alone',
+    where: 'The Proxmox host shell, then the ops VM, then the Core in a browser',
+    summary:
+      'The standard for the track, and the demo that proves the whole week: delete a VM, rebuild it from Git with two commands, and watch it reappear in Grafana and Wazuh without anyone touching a console. If the team can do that, it can run a fleet.',
+    steps: [
+      { cmd: 'date +%T && qm stop 102 && qm destroy 102 --purge', explain: 'On the host: linuxsrv again, gone. Note the time. Nobody opens the backup this time.' },
+      { cmd: 'cd ~/team07-infra/terraform && terraform apply -auto-approve', explain: 'On the ops VM. Terraform refreshes, finds linuxsrv missing, and clones it from the template with both NICs and both addresses. Under a minute.' },
+      { cmd: 'cd ../ansible && ansible-playbook site.yml -l linuxsrv', explain: 'The base, monitoring and wazuh_agent roles, on a machine that did not exist two minutes ago. The database role, if you wrote one, restores the schema; if not, restore the dump from Week 4 as the runbook says.' },
+      { gui: 'Grafana → Fleet dashboard → your team: linuxsrv’s panels go green on their own. Wazuh → Agents → team-07: a new linuxsrv agent, Active. Prometheus Targets: the same address, UP, without your targets file changing.', explain: 'Nothing was re-registered by hand. The address came from the code, the exporter from the role, the enrolment from the role — the platform saw the machine because the machine was built to be seen.' },
+      { cmd: 'date +%T && git tag -a v1.0-handover -m "Rebuilt linuxsrv from this tag" && git push --tags', explain: 'Stop the clock; the rebuild time goes in the As-Built beside the restore time — usually faster, and the comparison is the SLO report’s best line. Tag the repository: this exact history is what you hand over.' },
     ],
   },
 ];

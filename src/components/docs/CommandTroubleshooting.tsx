@@ -2,7 +2,7 @@
 
 import { Terminal, AlertTriangle, ClipboardPaste } from 'lucide-react';
 import { hasLabAccess, labProfile } from '@/lib/labAccess';
-import { HOST } from '@/lib/serverTopology';
+import { HOST, OPS } from '@/lib/serverTopology';
 
 /**
  * Two beginner references that live on the Guide and are linked from every step
@@ -52,7 +52,7 @@ interface ErrorRow {
 /** What this course's lab gives a student, so a fix never names something they
  *  do not have. Derived from the course's own lab profile — a course that drops
  *  the attacker or the whole panel loses the matching sentences automatically. */
-function labShape(courseId: string): { panel: boolean; attackTools: boolean; remote: boolean } {
+function labShape(courseId: string): { panel: boolean; attackTools: boolean; remote: boolean; ops: boolean } {
   return {
     panel: hasLabAccess(courseId),
     attackTools: labProfile(courseId).fields.some((f) => f.key === 'ATTACKER_IP'),
@@ -60,11 +60,13 @@ function labShape(courseId: string): { panel: boolean; attackTools: boolean; rem
     // field key rather than the course id is this file's own convention: drop
     // the field and the remote-access rows go with it.
     remote: labProfile(courseId).fields.some((f) => f.key === 'PVE_TAILSCALE'),
+    // Week 6's shared ops network — the same convention.
+    ops: labProfile(courseId).fields.some((f) => f.key === 'OPS_SUBNET'),
   };
 }
 
 function commonErrors(courseId: string): ErrorRow[] {
-  const { panel, attackTools, remote } = labShape(courseId);
+  const { panel, attackTools, remote, ops } = labShape(courseId);
   const rows: ErrorRow[] = [
     {
       symptom: 'command not found',
@@ -137,7 +139,14 @@ function commonErrors(courseId: string): ErrorRow[] {
         fix: 'Run ssh -v to see which key is offered, and confirm you are connecting as the right user. Password login is still enabled until Week 4 hardens it, so you have a way back in — use it rather than locking yourself out further.',
       }
     );
+  }  if (ops) {
+    rows.push({
+      symptom: `ping ${OPS.core.obs} fails from a VM (Week 6)`,
+      meaning: 'The VM cannot reach the Core over the ops network — the second NIC, the VLAN tag or the bridge is wrong.',
+      fix: `On the host, ip -br a must show ${OPS.bridge} UP with the team’s ${OPS.team.node} address. Inside the VM, the second interface needs its ${OPS.team.rule}.x address and no gateway. Still nothing: the switch port is not trunking VLAN ${OPS.vlan} — the Networking deep-dive owns that.`,
+    });
   }
+
 
   rows.push(
     {

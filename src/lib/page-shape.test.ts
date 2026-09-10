@@ -184,6 +184,15 @@ const REGISTRY: {
   { literal: '192.168.0.20', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: '192.168.0.21', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: 'capstone_db', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  // Week 6's ops network. The team rule is three octets; the Core addresses are
+  // the five services every team's commands point at. Same SSOT, same reason.
+  { literal: '10.20.0.0/16', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '10.20.T', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '10.20.0.10', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '10.20.0.11', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '10.20.0.12', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '10.20.0.13', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '10.20.0.14', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   // The campus gateway. It had NO row until it was found wrong: the code said
   // 10.10.0.1 while the classroom gateway is 10.10.10.1, restated by hand in
   // twelve places across six files and asserted by nothing, which is precisely
@@ -224,6 +233,32 @@ describe('single source of truth', () => {
       .filter((f) => !allowed.some((a) => f.startsWith(a)))
       .filter((f) => (commandsExempt ? withoutStepText(code(f)) : read(f)).includes(literal));
     expect(offenders, `${literal} should be imported from ${home}, not restated`).toEqual([]);
+  });
+
+  /**
+   * Week 6's ops network is a management plane, not a client zone. `ZONE_BRIDGES`
+   * filters `BRIDGES` at runtime on "everything but vmbr0", so if someone ever
+   * adds vmbr9 there it renders as a third zone in the diagram, the guide table
+   * and TEAM_VM_START — whatever the type says. The plane has its own export.
+   */
+  it('the ops bridge is not a zone', () => {
+    const src = read('src/lib/serverTopology.ts');
+    expect(src).toMatch(/export const OPS = \{/);
+    // No BRIDGES entry may carry the ops bridge id.
+    const bridgesBlock = src.slice(src.indexOf('export const BRIDGES'), src.indexOf('export function bridge('));
+    expect(bridgesBlock).not.toContain('vmbr9');
+  });
+
+  /**
+   * The team block on Home runs every DoD check of every form with no week
+   * filter, so a team that finished the four graded weeks read as incomplete
+   * the moment an advanced week added checks to the As-Built. It now skips
+   * checks that belong to an advanced week; the Deliverables page keeps its
+   * own per-week view.
+   */
+  it('the team block ignores advanced-week checks', () => {
+    const src = read('src/components/TeamBlock.tsx');
+    expect(src).toMatch(/isAdvancedWeek\(course, c\.week\)/);
   });
 });
 

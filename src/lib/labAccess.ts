@@ -2,7 +2,7 @@
 
 import { useClientStore, notifyStore } from './useClientStore';
 import { labAccessRepo, progressRepo } from './data';
-import { HOST } from './serverTopology';
+import { HOST, OPS } from './serverTopology';
 
 // Personal lab access: the target IPs/credentials each student gets from their
 // instructor, plus a quick reachability checklist. Values are substituted into
@@ -41,7 +41,7 @@ export const LAB_CHECKS: { key: string; label: string }[] = [
 ];
 
 /**
- * The build course's two numbers.
+ * The build course's three numbers.
  *
  * Server+ has no target range, but it does have the one thing this mechanism
  * exists for: an address that is different for every team and appears in the
@@ -52,10 +52,16 @@ export const LAB_CHECKS: { key: string; label: string }[] = [
  *
  * `<tailscale-ip>` is the spelling the Week-1 remote-access step and its guide
  * procedure already use; registering it here is what makes them fill in.
+ *
+ * The third is Week 6's ops subnet, `10.20.T` — three octets, because the
+ * fourth is the machine's. It is a substring of every ops address a Week 6
+ * command names (`10.20.T.30`, `10.20.T.1`), and of no Core address (those sit
+ * in `10.20.0.`), so a plain split/join fills exactly the team's block.
  */
 export const SERVER_FIELDS: typeof LAB_FIELDS = [
   { key: 'PVE_HOST', label: 'Your Proxmox host address', placeholder: `e.g. ${HOST.exampleAddress}`, tokens: ['<PVE_HOST>', HOST.rule] },
   { key: 'PVE_TAILSCALE', label: 'Your host’s Tailscale address', placeholder: 'e.g. 100.101.102.103', tokens: ['<PVE_TAILSCALE>', '<tailscale-ip>'] },
+  { key: 'OPS_SUBNET', label: 'Your ops subnet (Week 6)', placeholder: 'e.g. 10.20.7 — three octets', tokens: ['<OPS_SUBNET>', OPS.team.rule] },
 ];
 
 export const SERVER_CHECKS: typeof LAB_CHECKS = [

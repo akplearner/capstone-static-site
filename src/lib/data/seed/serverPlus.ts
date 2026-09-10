@@ -95,8 +95,10 @@ const roles: RoleDef[] = [
 
 /**
  * The engagement arc, in four phases: plan & analyze → build & deploy →
- * network & connect → secure & DRP — and an advanced fifth, Automate &
- * Observe, for students who finish early. `stage` is the cut of the Capstone Stone
+ * network & connect → secure & DRP — and two advanced weeks for students who
+ * finish early: Automate & Observe (the team's own tools on its own server) and
+ * Run It as a Fleet (the same site, run from the instructor's Core node the way
+ * an MSP runs sixteen clients). `stage` is the cut of the Capstone Stone
  * each week produces (1→4, unique and non-decreasing); `phase` is the verb
  * shown above the week title. No week is locked — `noGatekeeping` on the
  * course opens all four from the start. Weeks 1, 3 and 4 are scoped to ~2
@@ -183,6 +185,18 @@ const weeks: WeekDef[] = [
     difficulty: 4,
     flow: ['Design the hosts in', 'Watch everything', 'Your own SIEM', 'The lab as code', 'Registers as systems'],
     milestone: 'The lab is defined in code and a plan reports no changes, every host is watched and alerting, every VM reports to your own Wazuh, and the registers you kept on paper now live in NetBox and GLPI.',
+  },
+  {
+    number: 6,
+    title: 'Run It as a Fleet',
+    theme: 'Sixteen clients, one console',
+    objective: 'Put the site in Git, build it from the Core’s template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the instructor’s Core node. Then destroy a VM and watch the repository bring it back.',
+    runs: 'Week 6',
+    advanced: true,
+    phase: 'Run It as a Fleet',
+    difficulty: 4,
+    flow: ['Wire the spine', 'The site as code', 'Onboard into the Core', 'Vault and XDR', 'Rebuild from Git'],
+    milestone: 'Your site is defined in a Git repository, configured by a playbook that changes nothing the second time, watched and alerted from the Core, backed up to the vault with a restore inside RTO — and you rebuilt a VM from the repository alone and watched it reappear.',
   },
 ];
 
@@ -2227,6 +2241,635 @@ No changes. Your infrastructure matches the configuration.`,
       },
     ],
   },
+
+  // ── Week 6 — Run It as a Fleet (the second advanced week) ─────────────────
+  //
+  // Week 5 gave the team its own tools on its own server. Week 6 is the MSP
+  // question: now do that for sixteen clients without clicking through sixteen
+  // consoles. The instructor runs one Core node; every team onboards into it
+  // over a shared ops network, and proves the week by destroying a VM and
+  // rebuilding it from the repository alone. The Day-0 Core build is in the
+  // guide, badged Instructor — students read it so they know what they join.
+  {
+    id: 'sp-w6-spine',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'Wire the ops network',
+    objective: 'A second interface on the host and on every server VM, on the shared VLAN, with the team number as the third octet — and a ping to the Core that works before anything else is built.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['05_IP_Plan_and_Proof.md'],
+    estimatedTime: '45 min',
+    difficulty: 3,
+    learn: ['Out-of-band management', 'Why identical islands need one unique network', 'VLAN-tagged bridges'],
+    tools: ['Proxmox networking', 'netplan', 'The Core node (read the instructor procedure first)'],
+    prerequisites: ['Weeks 1–4 finished', 'Your team handout from the instructor: node address, team number, ops subnet, Gitea organisation, PBS namespace and fingerprint, Wazuh group'],
+    definitionOfDone: [
+      'vmbr9 on the host holds your .1 on the ops subnet and reaches obs.lab',
+      'Every server VM has a second interface on the ops network at its own host octet',
+      'The ops addresses and the ops VM are in the IP Plan and the Architecture Brief',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-spine-s0',
+        title: 'Read what you are joining',
+        description: 'The Core node, in the instructor’s own procedure.',
+        instruction: 'Open the Instructor, Day 0 procedure in the Guide and read it end to end. Do not run any of it. Then check your handout has all eight numbers.',
+        guideRef: { procedureId: 'core-node-day-zero', label: 'What the instructor built' },
+        whatItMeans: 'Onboarding into a platform someone else runs is the actual MSP job. Knowing what is on the other end of the wire is how you debug it later.',
+        frameworks: ['NIST_CSF'],
+      },
+      {
+        id: 'sp-w6-spine-s1',
+        title: 'The bridge on the host, and the ping',
+        description: 'vmbr9 with a physical uplink, and proof the switch trunks VLAN 20 to your port.',
+        where: 'The Proxmox host shell',
+        instruction: 'Add vmbr9 to the host with your ops address and the VLAN-20 uplink, reload, and ping the Core. Nothing else this week starts until the ping answers.',
+        guideRef: { procedureId: 'ops-network-spine' },
+        commands: [
+          { cmd: 'ifreload -a && ip -br a show vmbr9', explain: 'After the stanza the guide shows is in /etc/network/interfaces. UP, with your 10.20.T.1/24.' },
+          { cmd: 'ping -c 3 10.20.0.11', explain: 'Three replies from obs.lab. This is the whole ops path — bridge, tag, trunk, Core — in one line.' },
+        ],
+        whatItMeans: 'A bridge with no physical port is one host talking to itself. The ops network spans every rack server, so it needs real wire and a switch that carries the tag.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: `$ ip -br a show vmbr9
+vmbr9            UP             10.20.7.1/24
+$ ping -c 3 10.20.0.11
+64 bytes from 10.20.0.11: icmp_seq=1 ttl=64 time=0.41 ms
+64 bytes from 10.20.0.11: icmp_seq=2 ttl=64 time=0.38 ms
+64 bytes from 10.20.0.11: icmp_seq=3 ttl=64 time=0.36 ms
+
+--- 10.20.0.11 ping statistics ---
+3 packets transmitted, 3 received, 0% packet loss`,
+        outputHighlights: [
+          { text: '3 received', label: 'the Core answers over VLAN 20. If this is 0 received, stop here and fix the trunk — nothing later can work.' },
+        ],
+        verify: ['3 received'],
+        fixes: [
+          { symptom: 'vmbr9 is UP but 0 received?', fix: 'The switch port is not carrying VLAN 20. On one NIC, the port must be a trunk with vmbr0 native; the Networking deep-dive configures it. Confirm with a teammate’s node that already pings.' },
+          { symptom: 'ifreload says no such interface eno2?', fix: 'ip -br link lists your NIC names. A single-NIC server uses eno1.20 on the same trunked port as vmbr0.' },
+        ],
+      },
+      {
+        id: 'sp-w6-spine-s2',
+        title: 'A second NIC on every server VM',
+        description: 'Same host octet as its zone, moved into your team block, no gateway.',
+        where: 'The Proxmox web console, then each VM',
+        instruction: 'Add a VirtIO device on vmbr9 to websrv, winserver and linuxsrv (and the Week 5 hosts if you built them), address each inside the VM, and ping the Core from each.',
+        guideRef: { procedureId: 'ops-network-spine' },
+        commands: [
+          { cmd: 'netplan apply && ping -c 3 10.20.0.11', explain: 'On each Linux VM, after writing the 60-ops.yaml the guide shows for the new ens19 device. No gateway on the ops leg — the zone still routes out through vmbr0.' },
+          { cmd: 'Test-NetConnection 10.20.0.11', explain: 'On winserver, after the static address on the new adapter. PingSucceeded : True.' },
+        ],
+        whatItMeans: 'One number per machine, whichever network you meet it on: linuxsrv is .3 in the private zone and .3 in your ops block. Alerts become readable without a lookup.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'Every server VM pings obs.lab from its ops-network address, and the ops leg has no default route.',
+        outputKind: 'result',
+        fixes: [
+          { symptom: 'The VM pings but its website or database stopped answering?', fix: 'You gave the ops leg a gateway and it took over the default route. Remove it: the ops network carries management traffic only.' },
+        ],
+      },
+      {
+        id: 'sp-w6-spine-s3',
+        title: 'Put the ops network in the plan',
+        description: 'The IP Plan and the Architecture Brief grow to include what the Core will reach.',
+        instruction: 'Add one IP Plan row per ops address — the host’s .1, each VM, and the ops VM at .30 — and the ops VM as a machine in the Architecture Brief.',
+        instructionList: [
+          'IP Plan: a row per ops-network address, zone "ops", with the Core address it must reach in the connectivity proof.',
+          'Architecture Brief: the ops VM — 2 vCPU, 2 GB, 32 GB — dual-homed, purpose "the team toolchain".',
+          'Re-run the connectivity proof with the new path: every server VM to obs.lab.',
+        ],
+        usesForm: 'IP Plan & Connectivity Proof',
+        producesDeliverable: '05_IP_Plan_and_Proof.md',
+        whatItMeans: 'Later forms name machines from the brief. A VM the brief does not know cannot be a hostref, so the plan comes before the build, as in Week 2.',
+        frameworks: ['NIST_CSF'],
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-ops',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'The ops VM: a home for the toolchain',
+    objective: 'A small VM on your own node with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures — Terraform, Ansible, Git and the fleet key on it, and nothing on the workstation.',
+    frameworks: ['NIST_CSF', 'CIS'],
+    deliverables: ['03_Server_Bring_Up.md'],
+    estimatedTime: '40 min',
+    difficulty: 3,
+    learn: ['Stateless workstations', 'Which path each tool uses', 'SSH keys as the fleet credential'],
+    tools: ['Terraform', 'Ansible', 'git', 'The Core package cache'],
+    prerequisites: ['The ops network reaches the Core (the task above)'],
+    definitionOfDone: [
+      'The ops VM answers at your .30 and reaches both the API on 8006 and obs.lab',
+      'terraform -version and ansible --version both print',
+      'The fleet key exists on the ops VM and nowhere else',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-ops-s0',
+        title: 'Build it dual-homed and install the toolchain',
+        description: 'The VM, the package cache, Terraform and Ansible, and the key.',
+        where: 'The Proxmox web console, then the ops VM',
+        instruction: 'Create the ops VM with net0 on vmbr0 and net1 on vmbr9, point apt at the Core cache, install Git, Ansible and Terraform, and generate the fleet key.',
+        guideRef: { procedureId: 'ops-vm-build' },
+        commands: [
+          { cmd: 'sudo apt update && sudo apt install -y git ansible python3-proxmoxer python3-requests', explain: 'After the apt proxy line the guide shows. Through the cache, this takes seconds.' },
+          { cmd: 'terraform -version && ansible --version', explain: 'After the HashiCorp repository. Both version lines print.' },
+          { cmd: 'ssh-keygen -t ed25519 -C "team07-ops" -f ~/.ssh/id_ed25519 -N ""', explain: 'Your own team number in the comment. The public half goes into every VM you build; the private half never leaves this machine.' },
+        ],
+        whatItMeans: 'Terraform talks to the API over the campus LAN; Ansible talks to VMs over the ops network. A VM with a leg on each is the only place both tools work.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: `$ terraform -version && ansible --version
+Terraform v1.9.8
+on linux_amd64
+ansible [core 2.16.3]
+  config file = None
+  python version = 3.12.3`,
+        verify: ['Terraform v', 'ansible [core'],
+        fixes: [
+          { symptom: 'apt hangs on the cache?', fix: 'The proxy line has the Core’s cache address and port 3142, and the VM’s ops leg pings 10.20.0.14. A typo in the proxy line makes every apt call wait, not fail.' },
+        ],
+      },
+      {
+        id: 'sp-w6-ops-s1',
+        title: 'Prove both paths, and move Week 5 state here',
+        description: 'The API over the campus LAN, the Core over the ops network, from the VM that will use both.',
+        where: 'The ops VM',
+        instruction: 'From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 5, move the Terraform folder and its state from the workstation onto this VM.',
+        guideRef: { procedureId: 'ops-vm-build' },
+        commands: [
+          { cmd: 'curl -sk https://10.10.30.T:8006/api2/json/version', explain: 'A JSON line with the Proxmox version. Terraform and the Ansible inventory use this path.' },
+          { cmd: 'ping -c 3 10.20.0.11', explain: 'Ansible, Alloy and the backup job use this one.' },
+        ],
+        usesForm: 'Server Bring-Up Log',
+        producesDeliverable: '03_Server_Bring_Up.md',
+        whatItMeans: 'Terraform state that lives on a workstation disappears at the next reimage. Terraform without its state no longer knows what it owns.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: `$ curl -sk https://10.10.30.T:8006/api2/json/version
+{"data":{"release":"8.2","version":"8.2.4","repoid":"faa83925c9641325"}}
+$ ping -c 3 10.20.0.11
+3 packets transmitted, 3 received, 0% packet loss`,
+        verify: ['"release"', '3 received'],
+        fixes: [
+          { symptom: 'curl fails but ping works, or the reverse?', fix: 'Each path is its own NIC. The API path is net0 on vmbr0 with a DHCP address from campus; the Core path is net1 on vmbr9 with your static .30. Check ip -br a shows both.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-git',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'Put the infrastructure in Git',
+    objective: 'A repository in the Core’s Gitea, owned by the team organisation, with the standard layout, an ignore file committed before anything else, a README a stranger could follow, and a grep that proves no secret is tracked.',
+    frameworks: ['NIST_CSF', 'CIS'],
+    deliverables: ['07_Operations_and_SOPs.md'],
+    estimatedTime: '30 min',
+    difficulty: 2,
+    learn: ['Version control as the source of truth', 'Secrets never enter history', 'Writing for the next person'],
+    tools: ['git', 'Gitea on the Core'],
+    prerequisites: ['The ops VM', 'Your Gitea organisation from the handout'],
+    definitionOfDone: [
+      'team-infra exists under the team organisation with terraform/, ansible/ and docs/',
+      '.gitignore is the first commit and covers tfvars, state, vault password and keys',
+      'git grep for password, token and secret returns nothing tracked',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-git-s0',
+        title: 'The repository, the ignore file, the README',
+        description: 'Boring, identical to every other team, and safe before the first real commit.',
+        where: 'Gitea in a browser, then the ops VM',
+        instruction: 'Create the repository under your organisation, lay out the folders, commit the ignore file alone, write the README, push, and run the secrets grep.',
+        guideRef: { procedureId: 'gitea-team-repo' },
+        commands: [
+          { cmd: 'git init -b main && git add .gitignore && git commit -m "Ignore secrets and state before anything else"', explain: 'The ignore file, alone, first. After this a token file cannot be added by accident.' },
+          { cmd: 'git remote add origin http://10.20.0.10/team07/team07-infra.git && git push -u origin main', explain: 'Your organisation and repository name. Gitea asks for a token on first push; make one under Settings → Applications.' },
+          { cmd: 'git grep -iE "password|token|secret" -- . ":!README.md" ; echo "exit $?"', explain: 'Before every push. exit 1 means nothing matched.' },
+        ],
+        whatItMeans: 'A secret pushed once is in the history forever, on a server other teams can reach. The ignore file is the cheapest control in the course.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: `$ git grep -iE "password|token|secret" -- . ":!README.md" ; echo "exit $?"
+exit 1`,
+        verify: ['exit 1'],
+        fixes: [
+          { symptom: 'exit 0 with a match?', fix: 'Something that looks like a credential is tracked. git rm --cached it, add its pattern to .gitignore, rotate the value on the host, and only then commit. History that already holds it needs the instructor.' },
+        ],
+      },
+      {
+        id: 'sp-w6-git-s1',
+        title: 'Write the repository runbook',
+        description: 'The Operations Log gains the procedure for the thing that now runs the site.',
+        instruction: 'In the Operations Log & SOPs add a runbook: how to clone, apply and run the repository from zero, with the check and the way back.',
+        instructionList: [
+          'Procedure "Rebuild the site from Git": clone on the ops VM, fill terraform.tfvars, terraform apply, ansible-playbook site.yml.',
+          'Verify: a second terraform plan reports no changes; the dashboard shows every host.',
+          'Rollback: git checkout the previous tag and apply again — the history is the way back.',
+        ],
+        usesForm: 'Operations Log & SOPs',
+        producesDeliverable: '07_Operations_and_SOPs.md',
+        whatItMeans: 'The README is for the person at the keyboard. The runbook is for the person on call at 2am who has never opened the repository.',
+        frameworks: ['NIST_CSF'],
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-terraform',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'The site from the golden template',
+    objective: 'The Core’s cloud-init template restored on your node, the provider pointed at your host with the token in a file Git never sees, the Linux servers described once with both NICs, applied, and a second plan that has nothing to do.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['03_Server_Bring_Up.md'],
+    estimatedTime: '60 min',
+    difficulty: 4,
+    learn: ['Golden images', 'Declarative infrastructure', 'Drift, and why a quiet plan matters'],
+    tools: ['Terraform', 'bpg/proxmox provider', 'cloud-init'],
+    prerequisites: ['The repository', 'Template 9000 published on the Core'],
+    definitionOfDone: [
+      'terraform.tfvars holds the token and is ignored; terraform.tfvars.example is committed',
+      'websrv and linuxsrv were built by terraform apply from template 9000 with both NICs',
+      'A second terraform plan reports no changes',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-terraform-s0',
+        title: 'Template, token, provider',
+        description: 'The same image every team clones, and a credential Terraform may use.',
+        where: 'The Proxmox web console and host shell, then the ops VM',
+        instruction: 'Restore the golden template as VM 9000, create the fleet token on the host, write providers.tf with the token in the ignored tfvars file, and initialise.',
+        guideRef: { procedureId: 'fleet-template-and-terraform' },
+        commands: [
+          { cmd: 'pveum user token add terraform@pve fleet --privsep=0', explain: 'On the host. The Week 5 role and user if you have them, created fresh if not. The value prints once.' },
+          { cmd: 'cp terraform.tfvars.example terraform.tfvars && terraform init && terraform plan', explain: 'On the ops VM, in the repository’s terraform folder, with the token pasted into terraform.tfvars. init fetches the provider; plan authenticates.' },
+        ],
+        whatItMeans: 'The example file is committed; the real one is ignored. Both exist so the next person knows exactly which file to create and what goes in it.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: `$ terraform plan
+
+No changes. Your infrastructure matches the configuration.`,
+        verify: ['No changes'],
+        fixes: [
+          { symptom: 'Error: authentication failed?', fix: 'The token string is user!tokenname=value, all three parts, and the endpoint carries your own host address, not the 10.10.30.T rule.' },
+          { symptom: 'git status lists terraform.tfvars?', fix: 'Your .gitignore does not cover *.tfvars. Fix it before you commit anything else.' },
+        ],
+      },
+      {
+        id: 'sp-w6-terraform-s1',
+        title: 'Describe the servers once, apply, and plan again',
+        description: 'websrv and linuxsrv from the template with both NICs and both addresses, then the proof.',
+        where: 'The ops VM',
+        instruction: 'Write main.tf with the servers map the guide shows, apply it, then run plan a second time and SSH into a machine you did not install.',
+        guideRef: { procedureId: 'fleet-template-and-terraform' },
+        commands: [
+          { cmd: 'terraform apply -auto-approve', explain: 'Two clones, up in under a minute each. Their first NIC and first ip_config are the ops leg; the second pair is the client zone.' },
+          { cmd: 'terraform plan', explain: 'The finish line: No changes. If it wants to change something, fix the file, never the VM.' },
+          { cmd: 'ssh ops@10.20.T.3 hostname', explain: 'In without a password, because cloud-init installed the fleet key.' },
+        ],
+        usesForm: 'Server Bring-Up Log',
+        producesDeliverable: '03_Server_Bring_Up.md',
+        whatItMeans: 'A hand-built server is what someone did. A described server is what is — and a plan that is quiet is the only as-built that checks itself.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: `$ terraform plan
+proxmox_virtual_environment_vm.server["linuxsrv"]: Refreshing state... [id=102]
+proxmox_virtual_environment_vm.server["websrv"]: Refreshing state... [id=100]
+
+No changes. Your infrastructure matches the configuration.`,
+        outputHighlights: [
+          { text: 'No changes', label: 'the file and the node agree. Save this line and the apply output into the Bring-Up Log.' },
+        ],
+        verify: ['No changes'],
+        fixes: [
+          { symptom: 'plan wants to replace a VM every time?', fix: 'A field disagrees with what the clone produced — usually the disk size or the boot order. terraform state show the resource and copy the real value into the file.' },
+          { symptom: 'The clone has no ops address?', fix: 'The template’s first NIC must be vmbr9 and the first ip_config block is the ops leg. Order matters in both lists.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-ansible',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'Configuration as code',
+    objective: 'An inventory that asks the hypervisor what exists, three roles — base, monitoring, wazuh_agent — and a playbook whose second run changes nothing.',
+    frameworks: ['NIST_CSF', 'CIS'],
+    deliverables: ['06_Baselines_and_Policies.md'],
+    estimatedTime: '75 min',
+    difficulty: 4,
+    learn: ['Idempotence', 'Dynamic inventory', 'Roles as the hardening standard'],
+    tools: ['Ansible', 'community.general.proxmox inventory', 'Grafana Alloy', 'Wazuh agent'],
+    prerequisites: ['The servers built by Terraform', 'The fleet key on the ops VM'],
+    definitionOfDone: [
+      'ansible-inventory --graph lists every running VM with its ops address',
+      'The base role sets the cache, chrony to the Core, the fleet key and no password logins',
+      'The second run of site.yml ends with changed=0 on every host',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-ansible-s0',
+        title: 'The hypervisor is the inventory',
+        description: 'A read-only token and a plugin that asks the API what hosts exist.',
+        where: 'The Proxmox host shell, then the ops VM',
+        instruction: 'Create the ansible user and token on the host, write inventory.proxmox.yml with the token read from the environment, and graph the inventory.',
+        guideRef: { procedureId: 'ansible-site-playbook' },
+        commands: [
+          { cmd: 'pveum user add ansible@pve && pveum aclmod / -user ansible@pve -role PVEAuditor && pveum user token add ansible@pve inv --privsep=0', explain: 'On the host. The inventory only reads.' },
+          { cmd: 'export PVE_TOKEN=PASTE_THE_TOKEN_VALUE_HERE && ansible-inventory -i inventory.proxmox.yml --graph', explain: 'On the ops VM. The token is an environment variable; the file names only the token id.' },
+        ],
+        whatItMeans: 'A hand-maintained host list is wrong the day after you write it. The API is never wrong about which VMs exist.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: `$ ansible-inventory -i inventory.proxmox.yml --graph
+@all:
+  |--@proxmox_all_running:
+  |  |--linuxsrv
+  |  |--ops
+  |  |--websrv
+  |  |--winserver`,
+        verify: ['proxmox_all_running'],
+        fixes: [
+          { symptom: 'The graph is empty or shows only names with no address?', fix: 'The guest agent is not running in the VM, so the API has no addresses to hand over. The template enables it; a hand-built VM needs qemu-guest-agent installed and the Agent option on.' },
+        ],
+      },
+      {
+        id: 'sp-w6-ansible-s1',
+        title: 'Three roles, and the second run',
+        description: 'base, monitoring and wazuh_agent, then site.yml twice.',
+        where: 'The ops VM',
+        instruction: 'Write the three roles as the guide shows, set your team number in site.yml, run the playbook twice, and commit the roles with both summary lines.',
+        guideRef: { procedureId: 'ansible-site-playbook' },
+        commands: [
+          { cmd: 'ansible-playbook site.yml', explain: 'The first run. Many tasks change — that is the site being configured.' },
+          { cmd: 'ansible-playbook site.yml | tail -n 4', explain: 'The second run. Every host: changed=0. Paste this into the Baselines form as the evidence.' },
+          { cmd: 'git add . && git commit -m "site.yml: base, monitoring, wazuh_agent" && git push', explain: 'The site is now in Git. A change made in the console instead is drift.' },
+        ],
+        usesForm: 'Baselines, Policies & Standards',
+        producesDeliverable: '06_Baselines_and_Policies.md',
+        whatItMeans: 'A playbook that changes something on the second run is a shell script in disguise. changed=0 is the property that makes it safe to run every night.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: `$ ansible-playbook site.yml | tail -n 4
+PLAY RECAP *********************************************************************
+linuxsrv    : ok=12   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+ops         : ok=12   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+websrv      : ok=12   changed=0    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0`,
+        outputHighlights: [
+          { text: 'changed=0', label: 'on every line. This is the deliverable — the summary of a run that had nothing to do.' },
+        ],
+        verify: ['changed=0'],
+        fixes: [
+          { symptom: 'changed=1 on every second run?', fix: 'One task is written as a command instead of a state — usually a shell: or command: task. Rewrite it with the module that owns that state (copy, lineinfile, apt, service), or add a creates: argument.' },
+          { symptom: 'winserver is unreachable?', fix: 'The Linux roles cannot manage Windows over SSH. Exclude it with -l "!winserver" for now; the Windows deep-dive brings it under WinRM.' },
+        ],
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-observe',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'Onboard the site into the Core plane',
+    objective: 'One targets file with your team label committed to the platform repository, every target UP on the Core, your journal in the Core’s Loki, one dashboard filtered to your team, and an alert that fired, paged you and resolved.',
+    frameworks: ['NIST_CSF', 'CIS'],
+    deliverables: ['08_DR_and_As_Built.md'],
+    estimatedTime: '45 min',
+    difficulty: 3,
+    learn: ['Labels and tenancy', 'File-based service discovery', 'Onboarding by commit, not by ticket'],
+    tools: ['Prometheus', 'Grafana', 'Loki', 'Alertmanager', 'Gitea'],
+    prerequisites: ['The monitoring role applied', 'Read access to the platform repository'],
+    definitionOfDone: [
+      'targets/team-NN.yml is merged and every endpoint in it reads UP on the Core',
+      'The Fleet dashboard filtered to your team shows every host with logs flowing',
+      'ServiceDown fired for your team, reached your receiver, and resolved',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-observe-s0',
+        title: 'The targets file and the receiver',
+        description: 'Two small files in the platform repository, and five minutes.',
+        where: 'The ops VM, then a browser on the Core',
+        instruction: 'Put the node exporter on the host, commit your team’s targets file and alert receiver to the platform repository, wait five minutes, and check the Targets page and the dashboard.',
+        guideRef: { procedureId: 'core-onboarding-observability' },
+        commands: [
+          { cmd: 'apt install -y prometheus-node-exporter', explain: 'On the Proxmox host. It is Debian underneath.' },
+          { cmd: 'git add targets/team-07.yml alertmanager/team-07.yml && git commit -m "team-07: onboard" && git push', explain: 'In your clone of the platform repository, with your own team number. The Core pulls every five minutes.' },
+        ],
+        whatItMeans: 'The Core found your hosts from a commit. Every target carries your team label, which is why one dashboard and one rule set serve sixteen clients.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'On the Core’s Targets page, filtered to your team, every endpoint reads UP; the Fleet dashboard set to your team shows live CPU, memory, disk and log lines for every host.',
+        outputKind: 'result',
+        fixes: [
+          { symptom: 'A target reads DOWN with connection refused?', fix: 'The exporter listens, but not on the ops interface, or the Week 4 firewall blocks it. Allow 9100 (9182 on Windows) from the Core’s address on the ops leg.' },
+          { symptom: 'Nothing appears after ten minutes?', fix: 'Your file is not merged, or its name does not match team-*.yml. Check the pull request in Gitea and the filename.' },
+        ],
+      },
+      {
+        id: 'sp-w6-observe-s1',
+        title: 'Fire an alert through a plane you do not run',
+        description: 'ServiceDown, routed by your label to your receiver.',
+        where: 'websrv, then Alertmanager on the Core',
+        instruction: 'Stop nginx on websrv, note the time, watch ServiceDown fire for your team and reach your receiver, then start it and note when it resolves.',
+        guideRef: { procedureId: 'core-onboarding-observability' },
+        commands: [
+          { cmd: 'sudo systemctl stop nginx', explain: 'On websrv. Note the time.' },
+          { cmd: 'sudo systemctl start nginx', explain: 'After the alert has fired and been received. Note the time it resolves.' },
+        ],
+        usesForm: 'DR Plan & As-Built Handover',
+        producesDeliverable: '08_DR_and_As_Built.md',
+        whatItMeans: 'Week 5’s alert came from a tool you built. This one came from the MSP’s platform, routed to you by a label. Both times go in the As-Built.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: 'ServiceDown for team 07 shows firing in Alertmanager, the receiver got it, and it shows resolved after nginx returns; both times and both screenshots are in the As-Built.',
+        outputKind: 'result',
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-vault',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'Back up to the vault',
+    objective: 'The Core’s backup server added to your node by fingerprint, a nightly job into your namespace that includes the ops VM, a verify job that passes, and a full-VM restore timed against the RTO you promised in Week 4.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['08_DR_and_As_Built.md'],
+    estimatedTime: '50 min',
+    difficulty: 3,
+    learn: ['Deduplicated backup', 'Verify before you need it', 'Measured recovery time'],
+    tools: ['Proxmox Backup Server', 'Proxmox backup jobs'],
+    prerequisites: ['The PBS namespace and fingerprint from your handout', 'The DR plan’s RTO from Week 4'],
+    definitionOfDone: [
+      'Storage vault on the node, namespace teamNN, added with the fingerprint',
+      'A nightly job covers every VM including ops, and its verify shows green',
+      'linuxsrv was destroyed and restored from the vault, and the time is in the DR plan beside the RTO',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-vault-s0',
+        title: 'Add the vault and run the first backup',
+        description: 'Trust by fingerprint, a nightly job, and a verify tick.',
+        where: 'The Proxmox web console, then the vault’s UI',
+        instruction: 'Add the PBS storage with the fingerprint and your namespace, create the nightly job covering every VM, run it now, and confirm the verify tick on the vault.',
+        guideRef: { procedureId: 'pbs-vault-and-restore' },
+        commands: [
+          { cmd: 'pvesm status | grep vault', explain: 'On the host, after adding the storage. active, with free space reported from the Core.' },
+          { cmd: 'vzdump --all --storage vault --mode snapshot', explain: 'Or the job’s Run now button. The first backup is the full one; the second night is a fraction of it.' },
+        ],
+        whatItMeans: 'A backup that has never been verified is a hope. The verify job re-reads every chunk against its hash, so the handover promises a number, not a hope.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: `$ pvesm status | grep vault
+vault           pbs      active      2147483648       104857600      2042626048    4.88%`,
+        verify: ['active'],
+        fixes: [
+          { symptom: 'fingerprint mismatch or certificate error?', fix: 'The fingerprint is from the handout, typed exactly, colons and all. The vault regenerated its certificate if the instructor rebuilt it — ask for the new one.' },
+          { symptom: 'permission denied on the namespace?', fix: 'Your PBS user is scoped to teamNN. The Namespace field must match your own, two digits.' },
+        ],
+      },
+      {
+        id: 'sp-w6-vault-s1',
+        title: 'Destroy linuxsrv and restore it against the clock',
+        description: 'The Week 4 drill at machine scale, measured.',
+        where: 'The Proxmox host shell, then the web console',
+        instruction: 'Note the time, destroy linuxsrv, restore it from the vault with Start after restore, prove the database answers, and stop the clock.',
+        guideRef: { procedureId: 'pbs-vault-and-restore' },
+        commands: [
+          { cmd: 'date +%T && qm stop 102 && qm destroy 102 --purge', explain: 'Gone, for real. Note the time.' },
+          { cmd: 'ssh ops@10.20.T.3 "mariadb -e \'SHOW DATABASES\'" && date +%T', explain: 'After the restore task reads TASK OK. The database answering is the finish line; the second time stamp stops the clock.' },
+        ],
+        usesForm: 'DR Plan & As-Built Handover',
+        producesDeliverable: '08_DR_and_As_Built.md',
+        whatItMeans: 'The RTO in the DR plan has never been measured against a whole server. Now it has. If the restore is slower than the promise, change the promise and say why.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'linuxsrv restored from the vault and its database answers; the restore time is in the DR plan beside the Week 4 RTO with a sentence on which is bigger.',
+        outputKind: 'result',
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-xdr',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'The MSP’s XDR over the fleet',
+    objective: 'The hypervisor and the ops VM — and, with school IT’s sign-off, the workstations — enrolled into the Core’s Wazuh in your team group, named from the asset tag; an SCA score before and after the base role; one FIM detection; the CVE list.',
+    frameworks: ['NIST_CSF', 'CIS'],
+    deliverables: ['08_DR_and_As_Built.md'],
+    estimatedTime: '45 min',
+    difficulty: 3,
+    learn: ['Tenancy: whose SIEM gets which host', 'SCA as a hardening score', 'Agent naming for reimaged machines'],
+    tools: ['Wazuh agent', 'Wazuh on the Core'],
+    prerequisites: ['The wazuh_agent role', 'Your Wazuh group from the handout'],
+    definitionOfDone: [
+      'The host and the ops VM read Active in group team-NN on the Core',
+      'An SCA score is recorded before and after the base role',
+      'One FIM event and the vulnerability list are screenshotted into 08_Evidence',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-xdr-s0',
+        title: 'Decide the tenancy, then enrol the fleet endpoints',
+        description: 'The client’s servers stay on the client’s SIEM. The MSP’s XDR takes the hypervisor and the ops VM.',
+        where: 'The Proxmox host shell, then the ops VM, then Wazuh on the Core',
+        instruction: 'Enrol the Proxmox host by hand and the ops VM through the role into the Core manager under your group, then read the host’s SCA score before hardening.',
+        guideRef: { procedureId: 'wazuh-fleet-agents' },
+        commands: [
+          { cmd: 'WAZUH_MANAGER="10.20.0.12" WAZUH_AGENT_GROUP="team-07" WAZUH_AGENT_NAME="team07-pve-host" apt-get install -y wazuh-agent && systemctl enable --now wazuh-agent', explain: 'On the host, as root, after the Wazuh repository, with your own team number in both names.' },
+          { cmd: 'tail -n 3 /var/ossec/logs/ossec.log', explain: 'Connected to the server (10.20.0.12:1514) is the line you want.' },
+          { cmd: 'cd ~/team07-infra/ansible && ansible-playbook site.yml -l ops', explain: 'On the ops VM: the role enrols whatever it runs on. This is the second fleet endpoint.' },
+        ],
+        whatItMeans: 'An agent has one manager. The Week 5 servers report to the client’s own SIEM because that is the client’s data; the hypervisor reports to the MSP because its compromise takes every client with it.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: `$ tail -n 3 /var/ossec/logs/ossec.log
+2026/09/14 10:12:04 wazuh-agentd: INFO: Requesting a key from server: 10.20.0.12
+2026/09/14 10:12:05 wazuh-agentd: INFO: Valid key received
+2026/09/14 10:12:07 wazuh-agentd: INFO: (4102): Connected to the server (10.20.0.12:1514/tcp).`,
+        verify: ['Connected to the server'],
+        fixes: [
+          { symptom: 'Unable to connect to enrollment service?', fix: 'The host reaches the Core over the ops leg — ping 10.20.0.12 from the host. If it answers, the group name is wrong: it must exist on the Core exactly as the handout spells it.' },
+          { symptom: 'Two agents with the same name?', fix: 'The second one silently never reports. Name from the asset tag, prefixed with the team; delete the stale entry on the Core.' },
+        ],
+      },
+      {
+        id: 'sp-w6-xdr-s1',
+        title: 'SCA after hardening, one FIM event, the CVE list',
+        description: 'Three screenshots that make the security posture report.',
+        where: 'The ops VM, then Wazuh on the Core',
+        instruction: 'Re-read the SCA score now the base role has run, change a watched file on the ops VM and find the FIM event, and open the vulnerability list.',
+        guideRef: { procedureId: 'wazuh-fleet-agents' },
+        commands: [
+          { cmd: 'echo "# fim test $(date +%T)" | sudo tee -a /etc/hosts.allow', explain: 'On the ops VM. A watched file changed; within a minute Wazuh says so, with the user and the time.' },
+        ],
+        usesForm: 'DR Plan & As-Built Handover',
+        producesDeliverable: '08_DR_and_As_Built.md',
+        whatItMeans: 'A score before, a score after, a detection and a list of what is vulnerable: the report an MSP hands a client every month, from a platform someone else runs.',
+        frameworks: ['NIST_CSF', 'CIS'],
+        expectedOutput: 'Both agents Active in your group; the SCA score moved after the base role; the integrity checksum changed event for the ops VM and its CVE list are in 08_Evidence.',
+        outputKind: 'result',
+      },
+    ],
+  },
+  {
+    id: 'sp-w6-rebuild',
+    role: 'mgmt',
+    shared: true,
+    week: 6,
+    title: 'Destroy it and rebuild it from Git',
+    objective: 'The standard for the track: delete linuxsrv, bring it back with terraform apply and ansible-playbook, and watch it reappear in Grafana and Wazuh on its own. Then the SLO line, the alerting runbook, and the Fleet section of the As-Built.',
+    frameworks: ['NIST_CSF'],
+    deliverables: ['08_DR_and_As_Built.md'],
+    estimatedTime: '40 min',
+    difficulty: 3,
+    learn: ['Reproducibility as the deliverable', 'Availability as a number', 'Handing over a repository'],
+    tools: ['Terraform', 'Ansible', 'git', 'DR Plan & As-Built Handover form'],
+    prerequisites: ['Everything above this week'],
+    definitionOfDone: [
+      'linuxsrv was destroyed and rebuilt from the repository with no console work, and reappeared in monitoring and XDR',
+      'The repository is tagged for handover',
+      'The Fleet operations section of the As-Built is filled, with the numbers',
+    ],
+    steps: [
+      {
+        id: 'sp-w6-rebuild-s0',
+        title: 'The demo',
+        description: 'Two commands and a machine that comes back on its own.',
+        where: 'The Proxmox host shell, then the ops VM, then the Core in a browser',
+        instruction: 'Note the time, destroy linuxsrv, run terraform apply then the playbook limited to linuxsrv, and watch its panels and its agent return on the Core. Stop the clock and tag the repository.',
+        guideRef: { procedureId: 'rebuild-from-git' },
+        commands: [
+          { cmd: 'date +%T && qm stop 102 && qm destroy 102 --purge', explain: 'On the host. Nobody opens the backup this time.' },
+          { cmd: 'cd ~/team07-infra/terraform && terraform apply -auto-approve && cd ../ansible && ansible-playbook site.yml -l linuxsrv', explain: 'On the ops VM. Terraform notices it is missing and clones it; Ansible makes it a server again.' },
+          { cmd: 'date +%T && git tag -a v1.0-handover -m "Rebuilt linuxsrv from this tag" && git push --tags', explain: 'Stop the clock. The tag is the exact history you hand over.' },
+        ],
+        whatItMeans: 'Nothing was re-registered by hand. The platform saw the machine because the machine was built to be seen — that is what running a fleet means.',
+        frameworks: ['NIST_CSF'],
+        expectedOutput: 'linuxsrv’s panels on the Fleet dashboard go green, a new Active agent appears in your Wazuh group, and its target reads UP — with your targets file unchanged and the rebuild time noted.',
+        outputKind: 'result',
+        fixes: [
+          { symptom: 'Terraform says the VM already exists?', fix: 'qm destroy without --purge leaves the ID’s config behind. Purge it, or terraform state rm the resource and apply again.' },
+          { symptom: 'The agent comes back as a duplicate?', fix: 'The old linuxsrv entry on the Core is stale. Remove it there; the role enrols the new machine under the same name.' },
+        ],
+      },
+      {
+        id: 'sp-w6-rebuild-s1',
+        title: 'The Fleet section, the SLO line, the alerting runbook',
+        description: 'The numbers into the As-Built, and each alert into the Operations Log.',
+        instruction: 'Fill the Fleet operations section of the As-Built and add one alerting-runbook row per fleet alert to the Operations Log, then hash every Week 6 screenshot into the evidence appendix.',
+        instructionList: [
+          'As-Built: the repository URL and tag, the changed=0 line, targets UP on the Core, the verify result, restore time beside the RTO, the rebuild time, agent coverage.',
+          'The SLO line: this term’s availability for the client, from the Fleet dashboard’s uptime panel, as a percentage and a sentence.',
+          'Operations Log, Alerting runbook: for InstanceDown, DiskAlmostFull and ServiceDown — what it means, who is paged, the first three steps.',
+          'Hash every screenshot and export from this week into the evidence appendix.',
+        ],
+        usesForm: 'DR Plan & As-Built Handover',
+        producesDeliverable: '08_DR_and_As_Built.md',
+        whatItMeans: 'The client is not being handed a repository. They are being handed a site that can be rebuilt from it, a number for how available it was, and what to do when it is not.',
+        frameworks: ['NIST_CSF'],
+        isEvidenceStep: true,
+      },
+    ],
+  },
 ];
 
 /**
@@ -2479,6 +3122,53 @@ const FOCUS: {
     ],
     meaning: 'A procedure that lives in a document is followed when someone remembers. One that lives in the tool is followed every time.',
   },
+
+  // ── Week 6 — the fleet track, one deep-dive per focus ────────────────────
+  {
+    role: 'net', week: 6, title: 'Deep-dive: the trunk and the fence',
+    section: 'the ops-network rows', form: 'IP Plan & Connectivity Proof', file: '05_IP_Plan_and_Proof.md',
+    instruction: 'VLAN 20 trunked to your server port on the Cisco switch, and a firewall on the ops network that lets your node reach the Core and not another team’s node.',
+    commands: [
+      { cmd: 'show interfaces trunk', explain: 'On the switch, in enable mode. Your server port lists 20 under Vlans allowed and active. If it is an access port, configure it: switchport mode trunk, switchport trunk allowed vlan add 20, native vlan 1 for vmbr0.' },
+      { cmd: 'N=8; ping -c 2 10.20.0.11 && ping -c 2 -W 1 10.20.$N.1; echo "exit $?"', explain: 'From your host, with N set to any other team’s number: the Core answers; that team’s node does not, because the Proxmox firewall on vmbr9 permits only the Core block. exit 1 is the fence working.' },
+    ],
+    expectedOutput: 'The trunk shows VLAN 20 active on your port, the Core answers, and a ping to another team’s ops block times out — both results recorded as rows in the connectivity proof.',
+    meaning: 'A management network every tenant can reach is a management network for the first tenant who is compromised. The fence is the design; the trunk is what makes the design real.',
+  },
+  {
+    role: 'win', week: 6, title: 'Deep-dive: winserver under Ansible',
+    section: 'the Windows rows', form: 'Baselines, Policies & Standards', file: '06_Baselines_and_Policies.md',
+    instruction: 'winserver managed by the same playbook as the Linux hosts, over WinRM: the exporter, the Wazuh agent into the Core group, and an SCA score before and after.',
+    commands: [
+      { cmd: 'Enable-PSRemoting -Force; Set-Item WSMan:\\localhost\\Service\\Auth\\Basic -Value $true; Set-Item WSMan:\\localhost\\Service\\AllowUnencrypted -Value $true; New-NetFirewallRule -Name ops-winrm -DisplayName "WinRM from ops" -Direction Inbound -Protocol TCP -LocalPort 5985 -RemoteAddress 10.20.T.30 -Action Allow', explain: 'In an elevated PowerShell on winserver. WinRM on the ops leg only, from the ops VM only. Lab-grade transport — the Baselines form says so and names the fix (HTTPS listener) as the standard.' },
+      { cmd: 'ansible winserver -m win_ping -e "ansible_connection=winrm ansible_winrm_transport=basic ansible_port=5985 ansible_user=Administrator"', explain: 'From the ops VM, with the password from the vault file. pong means Ansible can manage Windows. Then a win_ role: chocolatey installs windows_exporter and wazuh-agent with the Core manager and your group.' },
+    ],
+    expectedOutput: 'win_ping returns pong, the second run of the Windows play reports changed=0, and winserver reads Active in your Core group with an SCA score recorded before and after.',
+    meaning: 'A fleet with a Windows host managed by hand is a fleet with one machine that will drift. Bringing it under the playbook is the deep-dive; the SCA score is how you show it mattered.',
+  },
+  {
+    role: 'lnx', week: 6, title: 'Deep-dive: the base role as the hardening standard',
+    section: 'the host rows', form: 'Server Bring-Up Log', file: '03_Server_Bring_Up.md',
+    instruction: 'Prove the base role is the Week 4 hardening, as code: idempotent on every Linux host, clocks agreeing with the Core, packages through the cache, and the Terraform state inside the vault.',
+    commands: [
+      { cmd: 'ansible all -m shell -a "chronyc tracking | grep -E \'Reference ID|System time\'" -l "!winserver"', explain: 'Every host references the Core and its offset is milliseconds. Skewed clocks silently break TLS, Kerberos and every log correlation you will ever try.' },
+      { cmd: 'ansible all -m shell -a "grep -c 10.20.0.14 /etc/apt/apt.conf.d/01proxy && sshd -T | grep -i passwordauthentication" -l "!winserver"', explain: 'The cache on every host, and passwordauthentication no on every host — Week 4’s hardening, now enforced by a role instead of remembered by a person.' },
+      { cmd: 'proxmox-backup-client list --repository team07@pbs@10.20.0.13:vault --ns team07 | grep ops', explain: 'On the host, with your team in three places. The ops VM is in the vault, so the Terraform state is too. Lose the state and Terraform no longer knows what it owns.' },
+    ],
+    expectedOutput: 'Every Linux host tracks the Core clock, proxies apt through the cache and refuses password logins, and the ops VM appears in the vault listing — the Bring-Up Log records the role as the standard.',
+    meaning: 'Week 4 hardened three servers by hand. The base role hardens every server that will ever exist here, including the one you build next term.',
+  },
+  {
+    role: 'mgmt', week: 6, title: 'Deep-dive: the runbook, the SLO and the demo',
+    section: 'the alerting rows', form: 'Operations Log & SOPs', file: '07_Operations_and_SOPs.md',
+    instruction: 'Each fleet alert has a runbook row, the availability the client actually got this term is a number with a sentence, and the rebuild demo is the handover’s proof.',
+    instructionList: [
+      'Alerting runbook: for InstanceDown, DiskAlmostFull and ServiceDown — what it means, who is paged, the first three steps. Name the role, not the person.',
+      'The SLO line in the As-Built: the Fleet dashboard’s availability panel for your client this term, as a percentage, and one sentence on the biggest outage.',
+      'Run the rebuild demo for the instructor from the tagged repository, timed, and write the time beside the vault restore time and the RTO: three numbers, one story.',
+    ],
+    meaning: 'An MSP is judged on three things: did the alert reach someone who knew what to do, what availability did the client get, and can you rebuild it. The deep-dive writes all three down.',
+  },
 ];
 
 const focusTasks: Task[] = FOCUS.map((f) => ({
@@ -2521,7 +3211,7 @@ export const SERVER_PLUS: Course = {
   vendor: 'CompTIA',
   certification: 'Server+',
   level: 'associate',
-  audience: 'Plan, build and document your own rack-mount server in four phases — everyone builds the same, each focus documents its part deeper. An advanced fifth week puts the records into running tools.',
+  audience: 'Plan, build and document your own rack-mount server in four phases — everyone builds the same, each focus documents its part deeper. Two advanced weeks put the records into running tools, then run the site as one of a fleet.',
   description:
     'You are the only IT person at a startup where nothing is documented, and the server you have been given does not even POST. Diagnose it, build the platform on it, network it, secure it, and leave behind the records and procedures the company never had — two to three and a half hours a week, with Weeks 1 and 2 the long ones.',
   roles,

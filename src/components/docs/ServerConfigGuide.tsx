@@ -199,7 +199,7 @@ export function ServerConfigGuide() {
           </table>
         </div>
         <p className="border-t border-line bg-panel px-4 py-2 text-xs text-muted">
-          The advanced track (Week 5) reserves{' '}
+          The advanced track (Weeks 5–6) reserves{' '}
           {ADVANCED_HOSTS.map((v, i) => (
             <span key={v.hostname}>
               {i > 0 && (i === ADVANCED_HOSTS.length - 1 ? ' and ' : ', ')}
@@ -249,7 +249,7 @@ export function ServerConfigGuide() {
               not wear Week 1's colour. w1–w4 are the four phases. */}
           <span
             className="font-mono text-3xs font-semibold uppercase leading-none tracking-wider"
-            style={{ color: active.number === 0 ? 'var(--color-muted)' : `var(--color-w${Math.min(5, active.number)})` }}
+            style={{ color: active.number === 0 ? 'var(--color-muted)' : `var(--color-w${Math.min(6, active.number)})` }}
           >
             {active.phase}
           </span>

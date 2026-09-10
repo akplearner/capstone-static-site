@@ -821,7 +821,9 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
     shared: true,
     folder: '06_Operations',
     standard: 'Change & patch management, standard operating procedures',
-    weeks: [2, 3, 4],
+    // Week 6 (advanced) adds the alerting runbook — one row per fleet alert —
+    // and its own `week: 6` check, so the Week-4 view still reads complete.
+    weeks: [2, 3, 4, 6],
     kind: 'form',
     exportFormat: 'md',
     purpose:
@@ -907,6 +909,23 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           ],
         },
       },
+      {
+        kind: 'group',
+        group: {
+          group: 'alerts',
+          label: 'Alerting runbook — Week 6, the fleet track',
+          help: 'One row per alert the Core can raise for this site. Written for whoever is paged: what the alert means, who that is, and the first three things they do before anything else.',
+          columns: [
+            c('alert', 'Alert', 'select', { options: ['InstanceDown', 'DiskAlmostFull', 'ServiceDown'] }),
+            c('meaning', 'What it means', 'text', { placeholder: 'A host stopped answering its exporter for five minutes', help: 'In one sentence, for someone who has never read the rule.' }),
+            c('pages', 'Who is paged', 'text', { placeholder: 'On-call IT administrator (team receiver)', help: 'The role and the receiver, not a person.' }),
+            c('first_steps', 'First three steps', 'area', { placeholder: '1) Ping the host on its ops address 2) Check it in the Proxmox console — running or stopped? 3) If stopped, start it and watch the alert resolve; if running, SSH in and check the exporter service', help: 'Numbered. What to do in the first five minutes, before the runbook for the actual fault.' }),
+          ],
+          seed: [
+            { alert: 'ServiceDown', meaning: 'The website or the database stopped answering its probe from the Core', pages: 'On-call IT administrator, via the team receiver', first_steps: '1) curl the service from the ops VM 2) systemctl status the service on the host 3) If it is stopped, start it and confirm the alert resolves; if it is running, check the firewall on the ops leg' },
+          ],
+        },
+      },
     ],
     dod: [
       { label: 'Changes are logged with an approver and a back-out plan', test: (d) => (d.groups.changes ?? []).filter((r) => !!r.change && !!r.rollback && !!r.approved_by).length >= 1 },
@@ -915,6 +934,8 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       { label: 'At least two patch rounds are recorded', test: (d) => (d.groups.patches ?? []).filter((r) => !!r.system && !!r.patch).length >= 2, week: 4 },
       { label: 'Patches were snapshotted before being applied', test: (d) => (d.groups.patches ?? []).length > 0 && (d.groups.patches ?? []).every((r) => r.snapshot === 'Yes'), week: 4 },
       { label: 'At least three runbooks have ordered steps, a check and a way back', test: (d) => (d.groups.sops ?? []).filter((r) => !!r.name && !!r.steps && !!r.who && !!r.verify && !!r.rollback).length >= 3, week: 3 },
+      // Week 6 only — the fleet alerts, each with someone to page.
+      { label: 'Every fleet alert has a runbook row: meaning, who is paged, first steps', test: (d) => new Set((d.groups.alerts ?? []).filter((r) => !!r.alert && !!r.meaning && !!r.pages && !!r.first_steps).map((r) => r.alert)).size >= 3, week: 6 },
     ],
   },
 
@@ -937,10 +958,10 @@ const AS_BUILT: DeliverableDef[] = [
     shared: true,
     folder: '07_Handover',
     standard: 'Disaster recovery & as-built handover documentation',
-    // Week 5 is the advanced track: it adds a section and its own DoD checks
-    // (`week: 5`), so the Week-4 view still reads complete and only a student
-    // who opens Week 5 is asked for more.
-    weeks: [4, 5],
+    // Weeks 5 and 6 are the advanced track: each adds a section and its own DoD
+    // checks (`week: 5` / `week: 6`), so the Week-4 view still reads complete
+    // and only a student who opens an advanced week is asked for more.
+    weeks: [4, 5, 6],
     kind: 'form',
     exportFormat: 'md',
     purpose:
@@ -1049,7 +1070,7 @@ const AS_BUILT: DeliverableDef[] = [
           label: 'What replaced the paperwork',
           help: 'One row per tool: which host it runs on, where a person opens it, and which paper record it now holds. This is the map the client needs.',
           columns: [
-            c('tool', 'Tool', 'select', { options: ['Terraform', 'Prometheus', 'Grafana', 'Loki', 'Pulse', 'Wazuh', 'NetBox', 'GLPI'] }),
+            c('tool', 'Tool', 'select', { options: ['Terraform', 'Prometheus', 'Grafana', 'Loki', 'Pulse', 'Wazuh', 'NetBox', 'GLPI', 'Gitea', 'Ansible', 'Proxmox Backup Server', 'Alertmanager'] }),
             c('host', 'Runs on', 'hostref', { placeholder: 'secmon', help: 'The hostname from the Architecture Brief.' }),
             c('url', 'Open it at', 'text', { placeholder: 'http://192.168.0.4:3000', help: 'The address a person types. Terraform has none — write "workstation".' }),
             c('replaces', 'Holds the record that used to be…', 'select', { options: ['Server Bring-Up Log', 'Rack, Power & Asset Register', 'IP Plan & Connectivity Proof', 'Baselines, Policies & Standards', 'Operations Log & SOPs', 'DR Plan & As-Built Handover'] }),
@@ -1060,6 +1081,20 @@ const AS_BUILT: DeliverableDef[] = [
             { tool: 'GLPI', host: 'tools', url: 'http://192.168.0.21:8080', replaces: 'Rack, Power & Asset Register', evidence: '20260915_Team03_glpi_assets.png' },
           ],
         },
+      },
+      {
+        kind: 'fields',
+        title: 'Fleet operations — Week 6, the fleet track',
+        fields: [
+          { field: 'repo', label: 'The repository and the handover tag', type: 'text', placeholder: 'http://10.20.0.10/team03/team03-infra — tag v1.0-handover', help: 'The Gitea URL and the tag the site was rebuilt from.' },
+          { field: 'idempotent', label: 'The second-run line', type: 'text', placeholder: 'linuxsrv : ok=12 changed=0 unreachable=0 failed=0 (every host)', help: 'The PLAY RECAP of the second run of site.yml. changed=0 on every host.' },
+          { field: 'core_targets', label: 'Targets reading UP on the Core', type: 'number', unit: 'targets', placeholder: '5', help: 'The Core’s Targets page filtered to your team.' },
+          { field: 'verify_result', label: 'The vault’s verify result', type: 'text', placeholder: 'Verify job 2026-09-14 02:40 — all 4 groups OK in namespace team03', help: 'From the vault’s Verify Jobs page: the date and the result.' },
+          { field: 'restore_time', label: 'Full-VM restore time vs the RTO', type: 'text', placeholder: 'linuxsrv restored from the vault in 6 min 40 s; RTO from Week 4 was 30 min', help: 'Both numbers, and which is bigger.' },
+          { field: 'rebuild_time', label: 'Rebuild-from-Git time', type: 'text', placeholder: 'linuxsrv destroyed 14:02, back in Grafana and Wazuh 14:09 — 7 min, no console work', help: 'From qm destroy to the panels going green, with no hand steps.' },
+          { field: 'fleet_agents', label: 'Fleet endpoints Active in your Core group', type: 'number', unit: 'agents', placeholder: '2', help: 'The host and the ops VM at least; workstations if school IT signed off.' },
+          { field: 'slo', label: 'The SLO line', type: 'area', placeholder: 'Availability this term for Granite Peak: 99.6% (Fleet dashboard, uptime panel). The biggest outage was the 31-minute planned patch window on 9 September.', help: 'A percentage from the dashboard and one sentence on the biggest outage.' },
+        ],
       },
       custodySection({
         label: 'Evidence appendix — log every photo & screenshot you hand over',
@@ -1085,6 +1120,11 @@ const AS_BUILT: DeliverableDef[] = [
       { label: 'At least five Prometheus targets and three Wazuh agents are live', test: (d) => Number(d.fields.monitoring_targets) >= 5 && Number(d.fields.wazuh_agents) >= 3, week: 5 },
       { label: 'One failure was caused on purpose and something noticed it', test: (d) => !!d.fields.alert_tested, week: 5 },
       { label: 'Every tool is mapped to the host it runs on and the record it now holds', test: (d) => (d.groups.tooling ?? []).filter((r) => !!r.tool && !!r.host && !!r.replaces).length >= 6, week: 5 },
+      // Week 6 only — see `weeks` above.
+      { label: 'The site is in Git, tagged for handover, and the second run changed nothing', test: (d) => !!d.fields.repo && /changed=0/.test(d.fields.idempotent ?? ''), week: 6 },
+      { label: 'At least five targets read UP on the Core and the vault verified the backup', test: (d) => Number(d.fields.core_targets) >= 5 && !!d.fields.verify_result, week: 6 },
+      { label: 'A full-VM restore and a rebuild from Git were both timed', test: (d) => !!(d.fields.restore_time && d.fields.rebuild_time), week: 6 },
+      { label: 'The fleet endpoints report to the Core and the SLO line is written', test: (d) => Number(d.fields.fleet_agents) >= 2 && !!d.fields.slo, week: 6 },
     ],
   },
 ];

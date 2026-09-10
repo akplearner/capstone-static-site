@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { fillPlaceholders, hasUnfilled, labProfile, hasLabAccess, SERVER_FIELDS } from './labAccess';
 import { SERVER_PLUS } from './data/seed/serverPlus';
 import { PROCEDURES } from './docs/serverProcedures';
-import { HOST } from './serverTopology';
+import { HOST, OPS } from './serverTopology';
 
 describe('fillPlaceholders', () => {
   it('replaces every token for a filled field', () => {
@@ -60,10 +60,21 @@ describe('hasUnfilled', () => {
  * so the rule in a command becomes the student's own number.
  */
 describe('the Server+ profile', () => {
-  it('collects the two addresses that differ per team', () => {
+  it('collects the three addresses that differ per team', () => {
     expect(hasLabAccess('server-plus')).toBe(true);
     const keys = labProfile('server-plus').fields.map((f) => f.key);
-    expect(keys).toEqual(['PVE_HOST', 'PVE_TAILSCALE']);
+    expect(keys).toEqual(['PVE_HOST', 'PVE_TAILSCALE', 'OPS_SUBNET']);
+  });
+
+  // Week 6: the ops subnet is three octets, and the Core addresses share the
+  // first two of them. A careless token would turn 10.20.0.11 into the team's
+  // own block; the token is the rule, so only the team's own addresses fill.
+  it('fills the ops subnet into team addresses and leaves the Core alone', () => {
+    const values = { OPS_SUBNET: '10.20.7' };
+    expect(fillPlaceholders(`ssh ops@${OPS.team.opsVm}`, values)).toBe('ssh ops@10.20.7.30');
+    expect(fillPlaceholders(`ping ${OPS.core.obs}`, values)).toBe(`ping ${OPS.core.obs}`);
+    expect(hasUnfilled(`ssh ops@${OPS.team.opsVm}`)).toBe(true);
+    expect(hasUnfilled(`ping ${OPS.core.obs}`)).toBe(false);
   });
 
   it('names what it collects, rather than the attack lab’s targets', () => {

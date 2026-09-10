@@ -127,7 +127,7 @@ export interface BaseVm {
   runs: string;
   /** The services it carries, for the addressing table and the IP plan. */
   services: string[];
-  /** The advanced track (Week 5) — a real host, but not required to pass. */
+  /** The advanced track (Weeks 5–6) — a real host, but not required to pass. */
   optional?: boolean;
 }
 
@@ -204,7 +204,7 @@ export function baseVmsOn(id: Bridge['id']): BaseVm[] {
 /** The advanced-track monitoring host. It owns .4; teams start at .5. */
 export const MONITORING_HOST = vm('secmon');
 
-/** Every advanced-track host, for the Week 5 guide and the addressing table. */
+/** Every advanced-track host, for the advanced-week guide and the addressing table. */
 export const ADVANCED_HOSTS: BaseVm[] = BASE_VMS.filter((v) => v.optional);
 
 
@@ -222,3 +222,50 @@ export const TEAM_VM_START: Record<ZoneBridgeId, string> = {
 
 /** The physical rack the one server is built into. */
 export const RACK_UNITS = 24;
+
+/**
+ * The ops network — Week 6, the fleet track.
+ *
+ * Every team's DMZ and private zone are identical islands on purpose (Team 3's
+ * winserver is 192.168.0.2, and so is Team 9's), because nothing ever crosses
+ * them. Week 6 needs one thing to cross: the instructor's Core node has to
+ * scrape, back up and enrol every team's machines, and Ansible has to reach
+ * them. So every server VM gets a SECOND interface on a shared VLAN, and that
+ * address is the one that is unique per team — `10.20.T.x`, with T the team
+ * number and x the host octet the VM already has in the private zone.
+ *
+ * This is deliberately NOT a `Bridge` in `BRIDGES`: `ZONE_BRIDGES` filters at
+ * runtime on "everything but vmbr0", so an entry there would render as a third
+ * client zone in the diagram, the guide table and `TEAM_VM_START`. It is a
+ * management plane, not a zone, and it has its own shape.
+ */
+export const OPS = {
+  bridge: 'vmbr9',
+  vlan: 20,
+  /** The tagged sub-interface the bridge hangs off — the second NIC, VLAN 20. */
+  uplink: 'eno2.20',
+  cidr: '10.20.0.0/16',
+  /** The instructor's Core node. Team 0, so no team's block can collide with it. */
+  core: {
+    git: '10.20.0.10',
+    obs: '10.20.0.11',
+    xdr: '10.20.0.12',
+    pbs: '10.20.0.13',
+    cache: '10.20.0.14',
+  },
+  team: {
+    /** The rule as it is printed to students: the third octet is the team number. */
+    rule: '10.20.T',
+    /** The Proxmox host's own address on the ops network. PBS, the exporter and the API use it. */
+    node: '10.20.T.1',
+    /** The team's ops VM — Terraform, Ansible and the repo clone live here. */
+    opsVm: '10.20.T.30',
+  },
+} as const;
+
+/** A server VM's address on the ops network: its private-zone host octet, moved
+ *  into the team's block. websrv keeps .10 for the same reason — one number per
+ *  machine, whichever network you meet it on. */
+export function opsAddress(v: BaseVm): string {
+  return `${OPS.team.rule}.${v.address.split('.')[3]}`;
+}

@@ -160,6 +160,15 @@ describe('advanced weeks', () => {
     expect(isGradedWeek(withAdvanced, 9)).toBe(false);
   });
 
+  it('Server+ ships two of them, and exactly two', () => {
+    // Week 5 (the team's own tools) and Week 6 (the fleet). Both are extra
+    // work; neither counts toward finishing. A third would need a colour, a
+    // rail chip and a rubric page before it could be added here.
+    const advanced = SERVER_PLUS.weeks.filter((w) => isAdvancedWeek(SERVER_PLUS, w.number)).map((w) => w.number);
+    expect(advanced).toEqual([5, 6]);
+    for (const n of advanced) expect(isGradedWeek(SERVER_PLUS, n)).toBe(false);
+  });
+
   it('every other week is exactly one of setup or graded', () => {
     for (const course of [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS]) {
       for (const w of course.weeks) {
