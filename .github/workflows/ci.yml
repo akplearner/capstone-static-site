@@ -20,5 +20,7 @@ jobs:
       - run: npx tsc --noEmit
       - run: npm run lint
       - run: npm run test
+      # The JSON snapshot of every course must match the seeds it was generated from.
+      - run: npm run content:export && git diff --exit-code -- content/
       # Build runs in localStorage mode (no Supabase env needed).
       - run: npm run build

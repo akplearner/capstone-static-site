@@ -1,0 +1,2075 @@
+{
+  "schema": "capstone-course-dto/1",
+  "generatedFrom": [
+    "src/lib/data/seed/mssp.ts",
+    "src/lib/docs/msspDeliverables.ts"
+  ],
+  "course": {
+    "id": "mssp",
+    "title": "MSSP: SOC 2 + ISO 27001 Engagement",
+    "slug": "mssp",
+    "vendor": "Engagement",
+    "certification": "SOC 2 + ISO 27001",
+    "level": "professional",
+    "audience": "Run a real client engagement — SOC 2 + ISO 27001 compliance as an MSSP analyst.",
+    "description": "A full client engagement: scope the work, assess the gaps, implement and test controls, then assemble the audit evidence package. Three roles, mapped to SOC 2 and ISO/IEC 27001.",
+    "roles": [
+      {
+        "id": "red",
+        "name": "Offensive Security (Red)",
+        "mission": "Penetration testing and control validation for the client.",
+        "color": "#dc2626",
+        "icon": "Target",
+        "label": "🎯 Offensive Security"
+      },
+      {
+        "id": "blue",
+        "name": "Managed Detection & Response (Blue)",
+        "mission": "Hardening, detection engineering, and incident response.",
+        "color": "#2563eb",
+        "icon": "Shield",
+        "label": "🛡️ Managed Detection & Response"
+      },
+      {
+        "id": "grc",
+        "name": "GRC / vCISO",
+        "mission": "Scope, risk, controls, and audit evidence — the compliance spine.",
+        "color": "#16a34a",
+        "icon": "ClipboardList",
+        "label": "📋 GRC / vCISO"
+      }
+    ],
+    "weeks": [
+      {
+        "number": 0,
+        "title": "Onboarding & Scoping",
+        "theme": "Agree the boundary",
+        "objective": "Sign the engagement and define the system / ISMS scope.",
+        "runs": "Phase P0",
+        "setup": true,
+        "stage": 0,
+        "phase": "Scope & Agree",
+        "difficulty": 1,
+        "flow": [
+          "Sign the engagement",
+          "Define the scope"
+        ],
+        "milestone": "The engagement letter is signed and the system / ISMS boundary is written down and agreed."
+      },
+      {
+        "number": 1,
+        "title": "Gap Assessment",
+        "theme": "Know the gaps",
+        "objective": "Assess current state vs SOC 2 + ISO 27001 and pick the controls.",
+        "runs": "Phase P1",
+        "stage": 1,
+        "phase": "Survey & Assess",
+        "difficulty": 2,
+        "flow": [
+          "Assess current state",
+          "List the gaps",
+          "Select controls"
+        ],
+        "milestone": "Every SOC 2 and ISO 27001 requirement is marked met or gap, and the SoA names the selected controls."
+      },
+      {
+        "number": 2,
+        "title": "Control Implementation",
+        "theme": "Build the controls",
+        "objective": "Stand up the missing controls and write the control matrix.",
+        "runs": "Phase P2",
+        "stage": 2,
+        "phase": "Build & Establish",
+        "difficulty": 3,
+        "flow": [
+          "Implement controls",
+          "Map to requirements",
+          "Assign owners"
+        ],
+        "milestone": "Each gap has a control in place, and the matrix says which requirement it satisfies and who owns it."
+      },
+      {
+        "number": 3,
+        "title": "Validation & Testing",
+        "theme": "Prove it works",
+        "objective": "Pentest, detect, and evidence that the controls operate.",
+        "runs": "Phase P3",
+        "stage": 3,
+        "phase": "Test & Prove",
+        "difficulty": 3,
+        "flow": [
+          "Pentest",
+          "Detect",
+          "Evidence the controls"
+        ],
+        "milestone": "Testing is complete and every control has evidence that it actually operates, not just that it exists."
+      },
+      {
+        "number": 4,
+        "title": "Audit Readiness",
+        "theme": "Get audit-ready",
+        "objective": "Internal audit and assemble the evidence package (Type I / Stage 1).",
+        "runs": "Phase P4",
+        "stage": 4,
+        "phase": "Audit & Package",
+        "difficulty": 2,
+        "flow": [
+          "Assemble evidence",
+          "Readiness review",
+          "Report"
+        ],
+        "milestone": "The Type I readiness package is assembled and the client has the findings report."
+      }
+    ],
+    "gates": [
+      {
+        "id": 1,
+        "week": 1,
+        "title": "Scope & SoA signed",
+        "description": "The engagement agreement is signed and the Statement of Applicability defines which controls are in scope. Nothing is implemented before this.",
+        "requiredArtifactTypes": [
+          "01_Engagement_and_Scope.md",
+          "02_Statement_of_Applicability.csv"
+        ],
+        "requiredTasks": [
+          "mg-w0",
+          "mg-w1",
+          "mr-w1",
+          "mb-w1"
+        ],
+        "handoffs": [
+          {
+            "from": "grc",
+            "to": "blue",
+            "artifact": "Statement of Applicability",
+            "label": "GRC → Blue: which controls to implement"
+          },
+          {
+            "from": "grc",
+            "to": "red",
+            "artifact": "Engagement scope",
+            "label": "GRC → Red: what may be tested"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "week": 2,
+        "title": "Controls implemented",
+        "description": "Every applicable control is implemented and mapped in the Control Matrix with an owner and its evidence source.",
+        "requiredArtifactTypes": [
+          "03_Control_Matrix.csv"
+        ],
+        "requiredTasks": [
+          "mg-w2",
+          "mb-w2",
+          "mr-w2"
+        ],
+        "handoffs": [
+          {
+            "from": "blue",
+            "to": "grc",
+            "artifact": "Implemented controls",
+            "label": "Blue → GRC: controls + evidence"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "week": 3,
+        "title": "Validation complete",
+        "description": "The controls have been tested rather than merely built: findings recorded with remediations, detections written and shown to fire against the test, and evidence collection under way.",
+        "requiredArtifactTypes": [
+          "04_Retest_and_Validation.md",
+          "05_Detection_Rules.csv"
+        ],
+        "requiredTasks": [
+          "mr-w3",
+          "mb-w3",
+          "mg-w3"
+        ],
+        "handoffs": [
+          {
+            "from": "red",
+            "to": "blue",
+            "artifact": "Attack telemetry",
+            "label": "Red → Blue: what to detect"
+          },
+          {
+            "from": "red",
+            "to": "grc",
+            "artifact": "Retest results",
+            "label": "Red → GRC: what closed"
+          }
+        ]
+      },
+      {
+        "id": 4,
+        "week": 4,
+        "title": "Type I readiness / operating effectiveness",
+        "description": "Controls are tested, detections validated, metrics reported, an internal audit is complete, and the evidence packet is assembled — ready for the external Type I / Stage 1 auditor.",
+        "requiredArtifactTypes": [
+          "04_Retest_and_Validation.md",
+          "06_Detection_and_Response_Metrics.md",
+          "07_Internal_Audit_Report.md",
+          "08_Audit_Evidence_Packet.csv"
+        ],
+        "requiredTasks": [
+          "mr-w3",
+          "mr-w4",
+          "mb-w3",
+          "mb-w4",
+          "mg-w4a",
+          "mg-w4b"
+        ]
+      }
+    ],
+    "tasks": [
+      {
+        "id": "mg-w0",
+        "role": "grc",
+        "week": 0,
+        "title": "Kick-off & scope the engagement",
+        "objective": "Sign the engagement paperwork and define exactly what the SOC 2 / ISO 27001 attestation covers.",
+        "frameworks": [
+          "SOC_2",
+          "ISO_27001"
+        ],
+        "deliverables": [
+          "01_Engagement_and_Scope.md"
+        ],
+        "estimatedTime": "90 min",
+        "learn": [
+          "SOC 2 system description vs ISO 27001 Clause 4 scope",
+          "Type I vs Type II",
+          "Why the boundary drives everything"
+        ],
+        "tools": [
+          "Engagement Agreement form",
+          "GRC platform (Vanta/Drata)"
+        ],
+        "definitionOfDone": [
+          "MSA/SOW/NDA recorded",
+          "System / ISMS boundary written",
+          "Sign-off captured"
+        ],
+        "handoff": [
+          {
+            "to": "red",
+            "artifact": "Engagement scope",
+            "note": "Red tests only what is in scope."
+          },
+          {
+            "to": "blue",
+            "artifact": "System boundary",
+            "note": "Blue instruments only in-scope systems."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mg-w0-s1",
+            "title": "Record the engagement agreement",
+            "description": "Capture the client, engagement type, and terms.",
+            "instruction": "Fill the Engagement Agreement & Scope form: client, engagement type (SOC 2 / ISO / combined), NDA, and sign-off.",
+            "usesForm": "Engagement Agreement & Scope",
+            "whatItMeans": "This is the contractual and ethical anchor — like the Scope & RoE in a pentest, nothing proceeds until it is signed.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ]
+          },
+          {
+            "id": "mg-w0-s2",
+            "title": "Define the system / ISMS boundary",
+            "description": "Draw the exact boundary the attestation covers.",
+            "instruction": "In the same form, write the in-scope systems, data and locations, plus what is explicitly out of scope.",
+            "usesForm": "Engagement Agreement & Scope",
+            "whatItMeans": "The boundary determines which controls apply, what Red may test, and what evidence the auditor samples. Too wide wastes effort; too narrow fails the audit.",
+            "frameworks": [
+              "ISO_27001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mr-w0",
+        "role": "red",
+        "week": 0,
+        "title": "Confirm rules of engagement",
+        "objective": "Agree the testing targets, windows, and written authorization before any scanning.",
+        "frameworks": [
+          "NIST_800_115"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "prerequisites": [
+          "GRC has recorded the engagement scope"
+        ],
+        "learn": [
+          "PTES pre-engagement",
+          "Written authorization / get-out-of-jail"
+        ],
+        "tools": [
+          "Engagement scope"
+        ],
+        "definitionOfDone": [
+          "Targets + windows confirmed against scope",
+          "Authorization in writing"
+        ],
+        "steps": [
+          {
+            "id": "mr-w0-s1",
+            "title": "Confirm targets and authorization",
+            "description": "Cross-check the in-scope hosts and get written testing authorization.",
+            "instruction": "Read GRC’s engagement scope; confirm the exact hosts/URLs, allowed test windows, and that you have written authorization to test them.",
+            "whatItMeans": "Testing outside the authorized scope is illegal and voids the engagement — the PTES pre-engagement step exists to prevent exactly that.",
+            "frameworks": [
+              "NIST_800_115"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mb-w0",
+        "role": "blue",
+        "week": 0,
+        "title": "Stand up logging & sensors",
+        "objective": "Centralize logs and baseline “normal” so later detections and evidence have data to work with.",
+        "frameworks": [
+          "SOC_2",
+          "ISO_27001"
+        ],
+        "deliverables": [],
+        "estimatedTime": "60 min",
+        "prerequisites": [
+          "GRC has defined the system boundary"
+        ],
+        "learn": [
+          "SOC 2 CC7.2 monitoring",
+          "ISO A.8.15 logging",
+          "Baselining normal"
+        ],
+        "tools": [
+          "auditd",
+          "journalctl",
+          "SIEM"
+        ],
+        "definitionOfDone": [
+          "Logs centralized for in-scope systems",
+          "A baseline of normal activity captured"
+        ],
+        "steps": [
+          {
+            "id": "mb-w0-s1",
+            "title": "Enable and centralize auditing",
+            "description": "Turn on host auditing and confirm logs flow.",
+            "command": "sudo systemctl enable --now auditd && sudo ausearch -m USER_LOGIN -ts today",
+            "expectedOutput": "$ sudo ausearch -m USER_LOGIN -ts today\n----\ntime->Mon Aug  5 09:12:44 2026\ntype=USER_LOGIN msg=audit(1754384: pid=1442 uid=0 auid=1000\n msg='op=login id=1000 exe=\"/usr/sbin/sshd\" hostname=10.10.100.5\n res=success'",
+            "outputHighlights": [
+              {
+                "text": "type=USER_LOGIN",
+                "label": "a real audit record. Its presence proves auditd is not just running but actually recording — an active service with no events is a silent gap."
+              },
+              {
+                "text": "res=success",
+                "label": "the outcome field. Auditing both success and failure is what SOC 2 CC7 and ISO A.8.15 expect — a failed-login record would read res=failed here."
+              },
+              {
+                "text": "exe=\"/usr/sbin/sshd\"",
+                "label": "what caused the event. Tying an event to the program behind it is the difference between a log and evidence an auditor will accept."
+              }
+            ],
+            "whatItMeans": "Central, tamper-evident logging is the foundation of SOC 2 CC7 monitoring and ISO A.8.15 — you cannot detect or evidence what you do not log.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ],
+            "troubleshooting": "No output → auditd may not be installed: `sudo apt install auditd`. On a container, use journald: `journalctl -u ssh --since today`.",
+            "verify": [
+              "USER_LOGIN"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mg-w1",
+        "role": "grc",
+        "week": 1,
+        "title": "Risk assessment & Statement of Applicability",
+        "objective": "Assess the client against the frameworks and decide which controls apply (the SoA).",
+        "frameworks": [
+          "ISO_27001",
+          "SOC_2"
+        ],
+        "deliverables": [
+          "02_Statement_of_Applicability.csv"
+        ],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "Engagement scope signed (Gate 1 depends on this)"
+        ],
+        "learn": [
+          "ISO 27005 risk assessment",
+          "Annex A 93 controls / 4 themes",
+          "Statement of Applicability"
+        ],
+        "tools": [
+          "Statement of Applicability form",
+          "Risk register"
+        ],
+        "definitionOfDone": [
+          "≥3 Annex A controls with applicability decisions",
+          "Every applicable control justified"
+        ],
+        "handoff": [
+          {
+            "to": "blue",
+            "artifact": "Applicable controls",
+            "note": "Blue implements the technical controls the SoA marks applicable."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mg-w1-s1",
+            "title": "Assess risk and decide applicability",
+            "description": "For each Annex A control, decide whether it applies and why.",
+            "instruction": "Fill the Statement of Applicability form: add each Annex A control in scope, its applicability (Yes/No), the justification, and its status.",
+            "usesForm": "Statement of Applicability (SoA)",
+            "whatItMeans": "The SoA is the ISO 27001 centrepiece — the auditor reads it first to see what you claim and why. It also feeds the SOC 2 control set.",
+            "frameworks": [
+              "ISO_27001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mr-w1",
+        "role": "red",
+        "week": 1,
+        "title": "External attack-surface assessment",
+        "objective": "Map the in-scope external attack surface to feed the gap analysis.",
+        "frameworks": [
+          "NIST_800_115",
+          "OWASP"
+        ],
+        "deliverables": [],
+        "estimatedTime": "90 min",
+        "prerequisites": [
+          "Rules of engagement confirmed"
+        ],
+        "learn": [
+          "Attack-surface enumeration",
+          "TLS/config hygiene"
+        ],
+        "tools": [
+          "nmap",
+          "testssl.sh"
+        ],
+        "definitionOfDone": [
+          "In-scope hosts port-scanned",
+          "TLS/exposure issues noted for the gap analysis"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Attack-surface findings",
+            "note": "GRC folds exposure gaps into the risk assessment."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mr-w1-s1",
+            "title": "Scan the in-scope hosts",
+            "description": "Enumerate services on the authorized targets.",
+            "commands": [
+              {
+                "cmd": "nmap -sV -Pn <IN_SCOPE_HOST>",
+                "explain": "Service/version scan of one authorized host.",
+                "flags": [
+                  {
+                    "flag": "-sV",
+                    "meaning": "Probe open ports for service/version."
+                  },
+                  {
+                    "flag": "-Pn",
+                    "meaning": "Skip host discovery (treat as up)."
+                  }
+                ]
+              }
+            ],
+            "expectedOutput": "Nmap scan report for 10.10.100.30\nHost is up (0.00051s latency).\n\nPORT    STATE SERVICE VERSION\n22/tcp  open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.7\n443/tcp open  ssl/http nginx 1.14.0 (Ubuntu)\n3389/tcp open ms-wbt-server Microsoft Terminal Services\n\nService detection performed. Nmap done: 1 IP address (1 host up)",
+            "outputHighlights": [
+              {
+                "text": "OpenSSH 7.6p1",
+                "label": "an old SSH version. In a gap assessment the exact version is the finding — it maps to specific advisories the client must patch."
+              },
+              {
+                "text": "3389/tcp open ms-wbt-server",
+                "label": "RDP exposed to the network. Remote Desktop reachable externally is a classic high-risk gap that goes straight into the risk assessment."
+              },
+              {
+                "text": "1 host up",
+                "label": "you scanned exactly the one authorised host. Anything more would be outside the agreed scope and window."
+              }
+            ],
+            "whatItMeans": "A repeatable, authorized scan (NIST 800-115) is the credible basis for the “technical vulnerability” side of the gap assessment.",
+            "frameworks": [
+              "NIST_800_115"
+            ],
+            "troubleshooting": "“Host seems down” → keep `-Pn`. No permission/blocked → confirm the host is in the authorized scope and window.",
+            "verify": [
+              "open"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mb-w1",
+        "role": "blue",
+        "week": 1,
+        "title": "CIS baseline gap scan",
+        "objective": "Measure current hardening against the CIS Benchmarks to find the control gaps.",
+        "prerequisites": [
+          "Log centralization from Week 0 done",
+          "SSH / console access to the in-scope hosts",
+          "The relevant CIS Benchmark PDF to score against"
+        ],
+        "frameworks": [
+          "CIS",
+          "ISO_27001"
+        ],
+        "deliverables": [],
+        "estimatedTime": "60 min",
+        "learn": [
+          "CIS Benchmarks",
+          "Configuration hardening baselines"
+        ],
+        "tools": [
+          "lynis"
+        ],
+        "definitionOfDone": [
+          "Baseline scan run",
+          "Top hardening gaps recorded for Week 2"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Hardening gaps",
+            "note": "GRC references gaps when building the control matrix."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mb-w1-s1",
+            "title": "Run a hardening audit",
+            "description": "Scan the host against a CIS-style baseline.",
+            "command": "sudo lynis audit system --quick",
+            "expectedOutput": "[+] Results\n  Warnings (1):\n  ! SSH root login is permitted [SSH-7412]\n  Suggestions (14):\n  * Set a password on GRUB bootloader [BOOT-5122]\n  * Disable core dumps for setuid programs [KRNL-5820]\n\n  Hardening index : 58 [###########         ]",
+            "outputHighlights": [
+              {
+                "text": "Hardening index : 58",
+                "label": "the baseline score. Its whole value is the before/after pair — record it now so Week 2’s fixes have something to be measured against."
+              },
+              {
+                "text": "SSH root login is permitted",
+                "label": "a warning, and warnings are your priority gaps. This one maps directly to SOC 2 CC6 access controls."
+              },
+              {
+                "text": "SSH-7412",
+                "label": "the test ID. Quoting it makes the gap traceable in the control matrix — an auditor can look up exactly what was checked."
+              }
+            ],
+            "whatItMeans": "Gaps against CIS map directly to SOC 2 CC6 and ISO A.8 controls, turning “harden the box” into auditable control work.",
+            "frameworks": [
+              "CIS"
+            ],
+            "troubleshooting": "`lynis: command not found` → `sudo apt install lynis` (or run from a cloned copy).",
+            "verify": [
+              "Hardening index"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mg-w2",
+        "role": "grc",
+        "week": 2,
+        "title": "Build the control matrix",
+        "objective": "Map every control to its SOC 2 CC and ISO Annex A references, assign an owner, and name the evidence.",
+        "frameworks": [
+          "SOC_2",
+          "ISO_27001"
+        ],
+        "deliverables": [
+          "03_Control_Matrix.csv"
+        ],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "SoA complete (Gate 1)"
+        ],
+        "learn": [
+          "SOC 2 ↔ ISO ↔ NIST CSF crosswalk",
+          "Control ownership",
+          "Evidence-by-design"
+        ],
+        "tools": [
+          "Control Matrix form"
+        ],
+        "definitionOfDone": [
+          "≥3 controls with SOC 2 or ISO references",
+          "Every control has an owner + evidence source"
+        ],
+        "handoff": [
+          {
+            "to": "blue",
+            "artifact": "Control assignments",
+            "note": "Blue implements and evidences the controls it owns."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mg-w2-s1",
+            "title": "Map controls and assign owners",
+            "description": "Create the working crosswalk of controls.",
+            "instruction": "Fill the Control Matrix form: one row per control with its SOC 2 CC, ISO Annex A, owner, status, and the evidence an auditor would sample.",
+            "usesForm": "Control Matrix",
+            "whatItMeans": "Build the control once and satisfy both frameworks — the matrix is how a multi-framework MSSP avoids doing the work twice.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mb-w2",
+        "role": "blue",
+        "week": 2,
+        "title": "Implement the technical controls",
+        "objective": "Stand up the missing controls GRC assigned and record what changed.",
+        "frameworks": [
+          "CIS",
+          "SOC_2",
+          "ISO_27001"
+        ],
+        "deliverables": [],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "Control Matrix assigns Blue’s controls"
+        ],
+        "learn": [
+          "Host firewall & access controls",
+          "Change discipline"
+        ],
+        "tools": [
+          "ufw",
+          "auditctl"
+        ],
+        "definitionOfDone": [
+          "Assigned controls implemented",
+          "Each change recorded for the evidence trail"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Implemented controls",
+            "note": "GRC updates the matrix status to Implemented/Operating with evidence."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mb-w2-s1",
+            "title": "Enforce baseline access controls",
+            "description": "Apply a default-deny firewall and log the change.",
+            "commands": [
+              {
+                "cmd": "sudo ufw default deny incoming",
+                "explain": "Block all inbound by default."
+              },
+              {
+                "cmd": "sudo ufw allow 22/tcp",
+                "explain": "Permit only the services you intend to expose."
+              },
+              {
+                "cmd": "sudo ufw --force enable",
+                "explain": "Turn the firewall on."
+              }
+            ],
+            "expectedOutput": "$ sudo ufw status verbose\nStatus: active\nDefault: deny (incoming), allow (outgoing), disabled (routed)\n\nTo         Action      From\n--         ------      ----\n22/tcp     ALLOW IN    Anywhere",
+            "outputHighlights": [
+              {
+                "text": "Status: active",
+                "label": "the control is actually enforcing. An \"inactive\" firewall with correct rules is a control that exists on paper but not in operation — the exact thing an auditor tests for."
+              },
+              {
+                "text": "deny (incoming)",
+                "label": "the default-deny posture CC6.6 and ISO A.8.20 expect. Everything is blocked unless explicitly allowed below."
+              },
+              {
+                "text": "22/tcp     ALLOW IN",
+                "label": "the one justified exception. A short, reasoned allow-list is the evidence — a long one undermines the default-deny claim."
+              }
+            ],
+            "whatItMeans": "This is a control implementation, not just a config — record it so it becomes sampled evidence in the matrix and packet.",
+            "frameworks": [
+              "CIS",
+              "SOC_2"
+            ],
+            "troubleshooting": "Locked out of SSH? Always `ufw allow 22/tcp` BEFORE enabling. On a remote box, keep an open session while you test.",
+            "verify": [
+              "Status: active"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mr-w2",
+        "role": "red",
+        "week": 2,
+        "title": "Threat-model the proposed controls",
+        "objective": "Check the controls being implemented against the attack paths found in Week 1, and say which ones actually close them.",
+        "frameworks": [
+          "NIST_800_115",
+          "OWASP",
+          "SOC_2"
+        ],
+        "deliverables": [],
+        "estimatedTime": "90 min",
+        "prerequisites": [
+          "Attack-surface findings from Week 1",
+          "Control Matrix with owners assigned (in progress)"
+        ],
+        "learn": [
+          "Threat modelling against a control set",
+          "Control efficacy vs control existence",
+          "Compensating controls"
+        ],
+        "tools": [
+          "Control Matrix",
+          "Week-1 scan output"
+        ],
+        "definitionOfDone": [
+          "Every Week-1 finding mapped to the control that is meant to close it",
+          "Any finding with no control covering it raised to GRC before the gate"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Control coverage assessment",
+            "note": "GRC records the uncovered findings in the matrix as gaps or accepted risks, with a reason."
+          },
+          {
+            "to": "blue",
+            "artifact": "Which controls to prioritise",
+            "note": "Blue implements the controls that close a real finding first."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mr-w2-s1",
+            "title": "Map each finding to the control that closes it",
+            "description": "Walk the Week-1 findings against the control matrix.",
+            "instruction": "Walk your Week-1 findings against the control matrix.",
+            "instructionList": [
+              "For each finding, name the control in the matrix meant to close it.",
+              "Say how you would retest that finding once the control is in.",
+              "Where no control closes a finding, write it down and tell GRC."
+            ],
+            "whatItMeans": "An auditor asks whether a control addresses the risk it claims to. Checking that while the controls are still being built beats finding out in Week 4 that one closes nothing.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mr-w3",
+        "role": "red",
+        "week": 3,
+        "title": "Penetration test & retest",
+        "objective": "Test the implemented controls, then retest every fix to prove closure.",
+        "frameworks": [
+          "NIST_800_115",
+          "OWASP"
+        ],
+        "deliverables": [
+          "04_Retest_and_Validation.md"
+        ],
+        "estimatedTime": "3 hours",
+        "prerequisites": [
+          "Controls implemented (Gate 2)"
+        ],
+        "learn": [
+          "PTES / OWASP WSTG",
+          "Remediation validation",
+          "Operating-effectiveness evidence"
+        ],
+        "tools": [
+          "Burp",
+          "sqlmap",
+          "Retest & Validation form"
+        ],
+        "definitionOfDone": [
+          "Findings tested",
+          "Every high/critical retested and recorded Closed/Open/Risk-accepted"
+        ],
+        "handoff": [
+          {
+            "to": "blue",
+            "artifact": "Attack telemetry",
+            "note": "Blue uses the attack timeline to validate detections."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mr-w3-s1",
+            "title": "Test and record findings",
+            "description": "Run the authorized test against the in-scope app.",
+            "instruction": "Perform the authorized test; for each finding, record severity, remediation, and (after the fix) the retest result in the form.",
+            "usesForm": "Retest & Remediation-Validation Report",
+            "whatItMeans": "A finding that is fixed and retested Closed is the strongest operating-effectiveness evidence for CC4.1 / A.8.8 — “we test, and the fixes hold”.",
+            "frameworks": [
+              "NIST_800_115"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mb-w3",
+        "role": "blue",
+        "week": 3,
+        "title": "Detection engineering",
+        "objective": "Write detections mapped to ATT&CK and validate them against the Red team’s activity.",
+        "frameworks": [
+          "NIST_CSF",
+          "SOC_2"
+        ],
+        "deliverables": [
+          "05_Detection_Rules.csv"
+        ],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "Red is running the test (attack telemetry available)"
+        ],
+        "learn": [
+          "Sigma rules",
+          "MITRE ATT&CK mapping",
+          "Detection validation"
+        ],
+        "tools": [
+          "Sigma",
+          "grep",
+          "SIEM",
+          "Detection Rules form"
+        ],
+        "definitionOfDone": [
+          "≥2 detections mapped to ATT&CK",
+          "≥1 validated as Fired against Red’s test"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Validated detections",
+            "note": "GRC references validated detections as CC7 evidence."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mb-w3-s1",
+            "title": "Write and validate detections",
+            "description": "Author detections for the attacks Red is running.",
+            "instruction": "For each attack technique, add a detection to the Detection Rules form — log source, ATT&CK id, logic — then mark whether it fired during Red’s test.",
+            "usesForm": "Detection Rules",
+            "whatItMeans": "Detections that provably catch a real attack satisfy SOC 2 CC7.2/7.3 monitoring — not “we have a SIEM” but “our monitoring works”.",
+            "frameworks": [
+              "NIST_CSF",
+              "SOC_2"
+            ]
+          },
+          {
+            "id": "mb-w3-s2",
+            "title": "Spot the attack in the logs",
+            "description": "Confirm the attack is visible in your log source.",
+            "command": "grep -Ei 'union.*select|or 1=1' /var/log/apache2/access.log",
+            "expectedOutput": "10.10.100.40 - - [05/Aug/2026:14:22:10 +0000] \"GET /login?u=1' OR 1=1-- HTTP/1.1\" 200 512\n10.10.100.40 - - [05/Aug/2026:14:22:14 +0000] \"GET /search?q=1 UNION SELECT null,version()-- HTTP/1.1\" 200 743",
+            "outputHighlights": [
+              {
+                "text": "OR 1=1",
+                "label": "a classic injection probe in a URL. Real users never send this — a match is what proves your detection has genuine attack data to fire on, not a hypothetical."
+              },
+              {
+                "text": "10.10.100.40",
+                "label": "the attacker’s IP during the test window. Record it and the timestamp — these become the metrics that show the detection actually caught Red’s activity."
+              },
+              {
+                "text": "UNION SELECT null,version()",
+                "label": "a second, different technique. Two distinct payloads landing lets you map more than one ATT&CK id to real evidence."
+              }
+            ],
+            "whatItMeans": "Seeing the attack in the logs is the difference between a theoretical rule and a validated detection.",
+            "frameworks": [
+              "NIST_CSF"
+            ],
+            "troubleshooting": "No matches → check the correct log path (`/var/log/nginx/access.log`) and that the test actually hit this host.",
+            "verify": [
+              "union"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mg-w3",
+        "role": "grc",
+        "week": 3,
+        "title": "Coordinate validation & collect evidence",
+        "objective": "Track remediation to closure and start collecting the evidence each control needs.",
+        "prerequisites": [
+          "Retest results from Red (what closed, what remains)",
+          "Control Matrix with an owner and evidence named per control (Gate 2)"
+        ],
+        "frameworks": [
+          "SOC_2",
+          "ISO_27001"
+        ],
+        "deliverables": [],
+        "estimatedTime": "90 min",
+        "learn": [
+          "Remediation tracking",
+          "Evidence collection discipline"
+        ],
+        "tools": [
+          "Control Matrix",
+          "ticketing"
+        ],
+        "definitionOfDone": [
+          "Findings tracked to closure",
+          "Evidence gathered for each implemented control"
+        ],
+        "steps": [
+          {
+            "id": "mg-w3-s1",
+            "title": "Track remediation and gather evidence",
+            "description": "Update control status and collect the sampled artifacts.",
+            "instruction": "For each control in the matrix, move status toward Operating and collect the concrete evidence artifact (config, log, ticket, report).",
+            "whatItMeans": "Auditors sample evidence, not intentions — collecting it as you go turns Week 4 from a scramble into an assembly job.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mr-w4",
+        "role": "red",
+        "week": 4,
+        "title": "Close out the retest and attest",
+        "objective": "Finish the Retest & Validation report — every finding resolved one way or another — and attest to the result for the evidence packet.",
+        "frameworks": [
+          "NIST_800_115",
+          "SOC_2"
+        ],
+        "deliverables": [
+          "04_Retest_and_Validation.md"
+        ],
+        "estimatedTime": "90 min",
+        "prerequisites": [
+          "Week-3 findings recorded with remediations",
+          "Fixes deployed by Blue"
+        ],
+        "learn": [
+          "Remediation validation to closure",
+          "Risk acceptance with a named owner",
+          "Tester attestation"
+        ],
+        "tools": [
+          "Retest & Validation form"
+        ],
+        "definitionOfDone": [
+          "Every finding reads Closed, Open or Risk accepted — none left blank",
+          "The methodology section states how each retest was performed",
+          "Anything still Open or Risk accepted names who accepted it and why"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Signed-off retest report",
+            "note": "GRC files it in the evidence packet as the operating-effectiveness evidence for CC4.1 / A.8.8."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mr-w4-s1",
+            "title": "Resolve every finding and attest",
+            "description": "Retest what is still open, then attest to the result.",
+            "instruction": "Take the report from “tested” to “closed out”.",
+            "instructionList": [
+              "Retest anything still open from Week 3 and set its result.",
+              "For each Open or Risk-accepted finding, record who accepted it and why.",
+              "Fill the methodology section: how the retests were done, not just that they were."
+            ],
+            "usesForm": "Retest & Remediation-Validation Report",
+            "whatItMeans": "The auditor’s question is not “did you test?” but “what happened to what you found?”. A blank retest column is an open finding by default, and a risk accepted without a named owner is an omission, not an acceptance.",
+            "frameworks": [
+              "NIST_800_115",
+              "SOC_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mb-w4",
+        "role": "blue",
+        "week": 4,
+        "title": "Report detection & response metrics",
+        "objective": "Compute the MTTD/MTTR and coverage numbers a Type II auditor samples for CC7.",
+        "prerequisites": [
+          "Detections deployed and validated against Red’s activity (Week 3)",
+          "Alert/incident timestamps available to compute MTTD/MTTR"
+        ],
+        "frameworks": [
+          "SOC_2"
+        ],
+        "deliverables": [
+          "06_Detection_and_Response_Metrics.md"
+        ],
+        "estimatedTime": "60 min",
+        "learn": [
+          "MTTD/MTTR",
+          "ATT&CK coverage",
+          "Operating-effectiveness metrics"
+        ],
+        "tools": [
+          "SIEM dashboards",
+          "Detection & Response Metrics form"
+        ],
+        "definitionOfDone": [
+          "MTTD and MTTR recorded",
+          "Coverage + window set"
+        ],
+        "steps": [
+          {
+            "id": "mb-w4-s1",
+            "title": "Report the response metrics",
+            "description": "Summarize detection/response performance over the window.",
+            "instruction": "Fill the Detection & Response Metrics form from your SIEM/IR tickets: incidents, MTTD, MTTR, coverage, false-positive rate.",
+            "usesForm": "Detection & Response Metrics",
+            "whatItMeans": "Numbers over an observation window are what turns a Type I “designed” control into Type II “operating effectively”.",
+            "frameworks": [
+              "SOC_2"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mg-w4a",
+        "role": "grc",
+        "week": 4,
+        "title": "Run the internal audit",
+        "objective": "Do the mandatory ISO 9.2 internal audit before the external auditor arrives.",
+        "frameworks": [
+          "ISO_27001",
+          "SOC_2"
+        ],
+        "deliverables": [
+          "07_Internal_Audit_Report.md"
+        ],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "Control Matrix + evidence collected"
+        ],
+        "learn": [
+          "ISO Clause 9.2 internal audit",
+          "Nonconformities & corrective action",
+          "Management review (9.3)"
+        ],
+        "tools": [
+          "Internal Audit Report form"
+        ],
+        "definitionOfDone": [
+          "Findings recorded with results",
+          "Every nonconformity has a corrective action"
+        ],
+        "handoff": [
+          {
+            "to": "grc",
+            "artifact": "Corrective actions",
+            "note": "Fix nonconformities before assembling the packet."
+          }
+        ],
+        "steps": [
+          {
+            "id": "mg-w4a-s1",
+            "title": "Audit your own controls",
+            "description": "Independently review each control against its evidence.",
+            "instruction": "Fill the Internal Audit Report form: for each control, record conformity / minor NC / major NC and a corrective action with an owner.",
+            "usesForm": "Internal Audit Report",
+            "whatItMeans": "Finding and fixing your own nonconformities first is the whole point of the internal audit — it is far cheaper than the external auditor finding them.",
+            "frameworks": [
+              "ISO_27001"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "mg-w4b",
+        "role": "grc",
+        "week": 4,
+        "title": "Assemble the audit evidence packet",
+        "objective": "Index every control to its evidence artifact so the external auditor can sample it.",
+        "frameworks": [
+          "SOC_2",
+          "ISO_27001"
+        ],
+        "deliverables": [
+          "08_Audit_Evidence_Packet.csv"
+        ],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "Internal audit complete",
+          "All role deliverables in"
+        ],
+        "learn": [
+          "SOC 2 Type I/II evidence",
+          "ISO Stage 1/2",
+          "Building a defensible audit trail"
+        ],
+        "tools": [
+          "Audit Evidence Packet form",
+          "Team package export"
+        ],
+        "definitionOfDone": [
+          "≥3 evidence items tied to controls",
+          "Every item has an owner + location",
+          "Team package exported"
+        ],
+        "steps": [
+          {
+            "id": "mg-w4b-s1",
+            "title": "Index the evidence to controls",
+            "description": "Build the auditor’s index of evidence.",
+            "instruction": "Fill the Audit Evidence Packet form: one row per evidence artifact, tied to its SOC 2 CC / ISO Annex A control, with owner, type, location and period.",
+            "usesForm": "Audit Evidence Packet",
+            "whatItMeans": "A control mapped to concrete evidence is a control an auditor can pass. This packet is the deliverable that gets the client through Type I / Stage 1.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ]
+          },
+          {
+            "id": "mg-w4b-s2",
+            "title": "Export the engagement package",
+            "description": "Produce the final submission bundle.",
+            "instruction": "On the Deliverables page, click Download team package to produce the zip of all eight engagement deliverables.",
+            "whatItMeans": "One clean package — agreement, SoA, control matrix, validation, detections, metrics, internal audit, evidence — is what you hand the auditor.",
+            "frameworks": [
+              "SOC_2",
+              "ISO_27001"
+            ]
+          }
+        ]
+      }
+    ],
+    "framing": "engagement",
+    "isSeed": true,
+    "version": 1,
+    "locked": true,
+    "teamCount": 16,
+    "teamCapacity": 6
+  },
+  "deliverables": [
+    {
+      "id": "mssp_engagement",
+      "feeds": [
+        "mssp_soa"
+      ],
+      "courseId": "mssp",
+      "num": 1,
+      "file": "01_Engagement_and_Scope.md",
+      "title": "Engagement Agreement & Scope",
+      "owner": "grc",
+      "folder": "01_Engagement_and_Scope",
+      "standard": "MSA / SOW / NDA",
+      "framework": "SOC_2",
+      "weeks": [
+        0
+      ],
+      "gate": 1,
+      "kind": "template",
+      "exportFormat": "md",
+      "purpose": "Define the client, the system boundary, and the terms of the engagement — the equivalent of the SOC 2 “system description” scope and the ISO 27001 Clause 4 scope statement.",
+      "howTo": "Fill every field. The in-scope systems/data boundary drives every later control, test, and evidence item. Nothing is assessed until the agreement is signed off.",
+      "sections": [
+        {
+          "kind": "fields",
+          "fields": [
+            {
+              "field": "client",
+              "label": "Client / organisation",
+              "type": "text",
+              "required": true,
+              "placeholder": "Acme SaaS Ltd"
+            },
+            {
+              "field": "engagement_type",
+              "label": "Engagement",
+              "type": "select",
+              "options": [
+                "SOC 2 Type I readiness",
+                "SOC 2 Type II",
+                "ISO 27001 Stage 1",
+                "ISO 27001 certification",
+                "Combined SOC 2 + ISO 27001"
+              ]
+            },
+            {
+              "field": "trust_categories",
+              "label": "SOC 2 categories in scope",
+              "type": "text",
+              "placeholder": "Security (required) + Availability, Confidentiality"
+            },
+            {
+              "field": "system_boundary",
+              "label": "System / ISMS boundary",
+              "type": "area",
+              "required": true,
+              "help": "The systems, services, data and locations the attestation covers.",
+              "placeholder": "Production AWS account, the customer web app + API, the supporting CI/CD, the corporate identity provider."
+            },
+            {
+              "field": "out_of_scope",
+              "label": "Explicitly out of scope",
+              "type": "area",
+              "placeholder": "Marketing website, internal HR systems."
+            },
+            {
+              "field": "start_date",
+              "label": "Engagement start",
+              "type": "date",
+              "required": true
+            },
+            {
+              "field": "observation_window",
+              "label": "Type II observation window",
+              "type": "text",
+              "placeholder": "3 months (Type I first, then observe)"
+            },
+            {
+              "field": "nda",
+              "label": "NDA / confidentiality",
+              "type": "select",
+              "options": [
+                "Signed",
+                "Pending"
+              ]
+            },
+            {
+              "field": "authorization",
+              "label": "Authorization / sign-off",
+              "type": "text",
+              "required": true,
+              "placeholder": "Client CISO approved — [name], [date]"
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "Client, system boundary and sign-off are filled in",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Engagement type and start date are set",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_soa",
+      "feeds": [
+        "mssp_control_matrix"
+      ],
+      "courseId": "mssp",
+      "num": 2,
+      "file": "02_Statement_of_Applicability.csv",
+      "title": "Statement of Applicability (SoA)",
+      "owner": "grc",
+      "folder": "01_Engagement_and_Scope",
+      "standard": "ISO 27001:2022 Clause 6.1.3",
+      "framework": "ISO_27001",
+      "weeks": [
+        1
+      ],
+      "gate": 1,
+      "kind": "form",
+      "exportFormat": "csv",
+      "purpose": "The centrepiece ISO 27001 document — for each Annex A control, state whether it applies, why, and its implementation status. The auditor reads this first.",
+      "howTo": "Add a row per Annex A control you are addressing. Justify inclusion/exclusion. “Status” tracks design → operation.",
+      "source": "Risk assessment (which controls treat which risks)",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "controls",
+            "label": "Annex A controls",
+            "help": "ISO/IEC 27001:2022 Annex A has 93 controls across 4 themes (Organizational, People, Physical, Technological).",
+            "columns": [
+              {
+                "field": "annex",
+                "label": "Annex A ref",
+                "type": "text",
+                "placeholder": "A.8.9"
+              },
+              {
+                "field": "control",
+                "label": "Control",
+                "type": "text",
+                "placeholder": "Configuration management"
+              },
+              {
+                "field": "theme",
+                "label": "Theme",
+                "type": "select",
+                "options": [
+                  "Organizational",
+                  "People",
+                  "Physical",
+                  "Technological"
+                ]
+              },
+              {
+                "field": "applicable",
+                "label": "Applicable?",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "field": "justification",
+                "label": "Justification",
+                "type": "text",
+                "placeholder": "Treats the “insecure default config” risk (R-03)."
+              },
+              {
+                "field": "status",
+                "label": "Status",
+                "type": "select",
+                "options": [
+                  "Not started",
+                  "In progress",
+                  "Implemented",
+                  "Operating"
+                ]
+              }
+            ],
+            "seed": [
+              {
+                "annex": "A.8.9",
+                "control": "Configuration management",
+                "theme": "Technological",
+                "applicable": "Yes",
+                "justification": "Hardened baselines treat R-03 (insecure defaults).",
+                "status": "Implemented"
+              },
+              {
+                "annex": "A.8.15",
+                "control": "Logging",
+                "theme": "Technological",
+                "applicable": "Yes",
+                "justification": "Central logging supports detection (SOC 2 CC7).",
+                "status": "Operating"
+              },
+              {
+                "annex": "A.7.4",
+                "control": "Physical security monitoring",
+                "theme": "Physical",
+                "applicable": "No",
+                "justification": "Cloud-hosted; inherited from AWS (CSP responsibility).",
+                "status": "Not started"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least three Annex A controls with an applicability decision",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Every applicable control has a justification",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_control_matrix",
+      "feeds": [
+        "mssp_internal_audit",
+        "mssp_evidence_packet"
+      ],
+      "courseId": "mssp",
+      "num": 3,
+      "file": "03_Control_Matrix.csv",
+      "title": "Control Matrix",
+      "owner": "grc",
+      "folder": "02_Risk_and_Controls",
+      "standard": "SOC 2 TSC ↔ ISO 27001",
+      "framework": "SOC_2",
+      "weeks": [
+        2
+      ],
+      "gate": 2,
+      "kind": "form",
+      "exportFormat": "csv",
+      "purpose": "The working crosswalk — each control mapped to its SOC 2 Common Criteria and ISO Annex A references, with an owner, its implementation status, and the evidence that proves it operates.",
+      "howTo": "One row per control. “Evidence” names the artifact an auditor would sample (a config, a log, a ticket, a report).",
+      "source": "SoA + the hardening/detection work Blue implements",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "controls",
+            "label": "Controls",
+            "columns": [
+              {
+                "field": "control",
+                "label": "Control",
+                "type": "text",
+                "placeholder": "MFA enforced on all admin access"
+              },
+              {
+                "field": "soc2",
+                "label": "SOC 2 (CC)",
+                "type": "text",
+                "placeholder": "CC6.1"
+              },
+              {
+                "field": "iso",
+                "label": "ISO Annex A",
+                "type": "text",
+                "placeholder": "A.8.5"
+              },
+              {
+                "field": "owner",
+                "label": "Owner",
+                "type": "select",
+                "options": [
+                  "Red",
+                  "Blue",
+                  "GRC",
+                  "Client"
+                ]
+              },
+              {
+                "field": "status",
+                "label": "Status",
+                "type": "select",
+                "options": [
+                  "Not started",
+                  "In progress",
+                  "Implemented",
+                  "Operating"
+                ]
+              },
+              {
+                "field": "evidence",
+                "label": "Evidence",
+                "type": "text",
+                "placeholder": "IdP MFA policy export + access review log"
+              }
+            ],
+            "seed": [
+              {
+                "control": "MFA on all administrative access",
+                "soc2": "CC6.1",
+                "iso": "A.8.5",
+                "owner": "Blue",
+                "status": "Operating",
+                "evidence": "IdP policy export + Q2 access review"
+              },
+              {
+                "control": "Centralised logging & alerting",
+                "soc2": "CC7.2",
+                "iso": "A.8.15/A.8.16",
+                "owner": "Blue",
+                "status": "Operating",
+                "evidence": "SIEM rule pack + sample alert ticket"
+              },
+              {
+                "control": "Annual penetration test",
+                "soc2": "CC4.1",
+                "iso": "A.8.8",
+                "owner": "Red",
+                "status": "Implemented",
+                "evidence": "Pentest report + retest"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least three controls, each with a SOC 2 or ISO reference",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Every control names an owner and evidence",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_retest",
+      "feeds": [
+        "mssp_internal_audit",
+        "mssp_evidence_packet"
+      ],
+      "courseId": "mssp",
+      "num": 4,
+      "file": "04_Retest_and_Validation.md",
+      "title": "Retest & Remediation-Validation Report",
+      "owner": "red",
+      "folder": "03_Validation",
+      "standard": "NIST SP 800-115 · PTES",
+      "framework": "NIST_800_115",
+      "weeks": [
+        3,
+        4
+      ],
+      "gate": 3,
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "Prove the controls actually work: for each finding from the assessment, record the fix and the retest result. This is the “operating effectiveness” evidence a Type II / Stage 2 auditor wants.",
+      "howTo": "One row per finding. Retest each after remediation and record Closed / Open / Risk-accepted with the retest date.",
+      "source": "The engagement’s penetration test findings",
+      "sections": [
+        {
+          "kind": "fields",
+          "fields": [
+            {
+              "field": "methodology",
+              "label": "Methodology",
+              "type": "area",
+              "help": "How you tested and retested.",
+              "placeholder": "PTES + OWASP WSTG; authenticated + unauthenticated; retest of every high/critical after remediation."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "findings",
+            "label": "Findings & retest",
+            "columns": [
+              {
+                "field": "finding",
+                "label": "Finding",
+                "type": "text",
+                "placeholder": "SQL injection on /login"
+              },
+              {
+                "field": "severity",
+                "label": "Severity",
+                "type": "select",
+                "options": [
+                  "Critical",
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              },
+              {
+                "field": "remediation",
+                "label": "Remediation",
+                "type": "text",
+                "placeholder": "Parameterised queries + WAF rule"
+              },
+              {
+                "field": "retest",
+                "label": "Retest result",
+                "type": "select",
+                "options": [
+                  "Closed",
+                  "Open",
+                  "Risk accepted"
+                ]
+              },
+              {
+                "field": "retest_date",
+                "label": "Retest date",
+                "type": "text",
+                "placeholder": "2026-07-05"
+              }
+            ],
+            "seed": [
+              {
+                "finding": "SQL injection — auth bypass on /login",
+                "severity": "Critical",
+                "remediation": "Parameterised queries; WAF signature; input validation",
+                "retest": "Closed",
+                "retest_date": "2026-07-05"
+              },
+              {
+                "finding": "Verbose error stack traces",
+                "severity": "Low",
+                "remediation": "Disable debug in prod",
+                "retest": "Closed",
+                "retest_date": "2026-07-05"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least one finding with a retest result",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Every critical/high finding has a remediation recorded",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_detection_rules",
+      "feeds": [
+        "mssp_metrics",
+        "mssp_evidence_packet"
+      ],
+      "courseId": "mssp",
+      "num": 5,
+      "file": "05_Detection_Rules.csv",
+      "title": "Detection Rules",
+      "owner": "blue",
+      "folder": "03_Validation",
+      "standard": "Sigma · MITRE ATT&CK",
+      "framework": "NIST_CSF",
+      "weeks": [
+        3
+      ],
+      "gate": 3,
+      "kind": "form",
+      "exportFormat": "csv",
+      "purpose": "The MDR detection content that satisfies SOC 2 CC7.2/CC7.3 (“monitoring for anomalies”) and ISO A.8.16 — each rule mapped to the ATT&CK technique it detects and validated against the Red team’s activity.",
+      "howTo": "One row per detection. Map to an ATT&CK technique and note whether it fired during the validation test.",
+      "source": "The Red team’s test activity (detections must catch it)",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "rules",
+            "label": "Detections",
+            "columns": [
+              {
+                "field": "name",
+                "label": "Rule",
+                "type": "text",
+                "placeholder": "SQLi UNION in web logs"
+              },
+              {
+                "field": "logsource",
+                "label": "Log source",
+                "type": "text",
+                "placeholder": "Apache access log"
+              },
+              {
+                "field": "attack",
+                "label": "ATT&CK technique",
+                "type": "text",
+                "placeholder": "T1190 Exploit Public-Facing App"
+              },
+              {
+                "field": "logic",
+                "label": "Detection logic",
+                "type": "text",
+                "placeholder": "grep -Ei 'union.*select' access.log → alert"
+              },
+              {
+                "field": "validated",
+                "label": "Validated?",
+                "type": "select",
+                "options": [
+                  "Fired",
+                  "Missed",
+                  "Not tested"
+                ]
+              }
+            ],
+            "seed": [
+              {
+                "name": "SQLi UNION/SELECT in web logs",
+                "logsource": "Apache access log",
+                "attack": "T1190",
+                "logic": "regex 'union.*select|or 1=1' on URI → high alert",
+                "validated": "Fired"
+              },
+              {
+                "name": "SSH brute force",
+                "logsource": "auth.log",
+                "attack": "T1110",
+                "logic": ">10 failed logins / 1 min from one IP → alert",
+                "validated": "Fired"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least two detections mapped to an ATT&CK technique",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "At least one detection validated as “Fired”",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_metrics",
+      "feeds": [
+        "mssp_internal_audit"
+      ],
+      "courseId": "mssp",
+      "num": 6,
+      "file": "06_Detection_and_Response_Metrics.md",
+      "title": "Detection & Response Metrics",
+      "owner": "blue",
+      "folder": "04_Audit_Readiness",
+      "standard": "SOC 2 CC7 · ISO 9.1",
+      "framework": "SOC_2",
+      "weeks": [
+        4
+      ],
+      "gate": 4,
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "Operating-effectiveness metrics for the monitoring & response controls — MTTD/MTTR and detection coverage over the observation window, the numbers a Type II auditor samples for CC7.",
+      "howTo": "Fill the metric fields from the SIEM/IR tickets over the observation window.",
+      "source": "SIEM dashboards + incident tickets",
+      "sections": [
+        {
+          "kind": "fields",
+          "fields": [
+            {
+              "field": "window",
+              "label": "Observation window",
+              "type": "text",
+              "placeholder": "Apr–Jun 2026"
+            },
+            {
+              "field": "incidents",
+              "label": "Incidents handled",
+              "type": "text",
+              "placeholder": "7"
+            },
+            {
+              "field": "mttd",
+              "label": "Mean time to detect (MTTD)",
+              "type": "text",
+              "placeholder": "18 min"
+            },
+            {
+              "field": "mttr",
+              "label": "Mean time to respond (MTTR)",
+              "type": "text",
+              "placeholder": "2h 40m"
+            },
+            {
+              "field": "coverage",
+              "label": "ATT&CK detection coverage",
+              "type": "text",
+              "placeholder": "62% of in-scope techniques"
+            },
+            {
+              "field": "false_positive",
+              "label": "False-positive rate",
+              "type": "text",
+              "placeholder": "11%"
+            },
+            {
+              "field": "commentary",
+              "label": "Commentary / trend",
+              "type": "area",
+              "placeholder": "MTTR down 30% after the IR runbook rollout; coverage gap on lateral-movement techniques."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "MTTD and MTTR are recorded",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Observation window and coverage are set",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_internal_audit",
+      "feeds": [
+        "mssp_evidence_packet"
+      ],
+      "courseId": "mssp",
+      "num": 7,
+      "file": "07_Internal_Audit_Report.md",
+      "title": "Internal Audit Report",
+      "owner": "grc",
+      "folder": "04_Audit_Readiness",
+      "standard": "ISO 27001 Clause 9.2 · 9.3",
+      "framework": "ISO_27001",
+      "weeks": [
+        4
+      ],
+      "gate": 4,
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "The mandatory ISO internal audit (Clause 9.2) run before the external auditor — find your own nonconformities and fix them first. Feeds the management review (9.3).",
+      "howTo": "Record findings against controls: conformity, minor or major nonconformity, with the corrective action and owner.",
+      "source": "The Control Matrix + evidence review",
+      "sections": [
+        {
+          "kind": "fields",
+          "fields": [
+            {
+              "field": "auditor",
+              "label": "Internal auditor",
+              "type": "text",
+              "placeholder": "GRC lead (independent of the control owner)"
+            },
+            {
+              "field": "scope",
+              "label": "Audit scope",
+              "type": "area",
+              "placeholder": "All applicable Annex A controls + SOC 2 CC1–CC9."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "findings",
+            "label": "Audit findings",
+            "columns": [
+              {
+                "field": "control",
+                "label": "Control",
+                "type": "text",
+                "placeholder": "A.8.8 Vulnerability management"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Conformity",
+                  "Minor NC",
+                  "Major NC",
+                  "Opportunity"
+                ]
+              },
+              {
+                "field": "finding",
+                "label": "Finding",
+                "type": "text",
+                "placeholder": "Two highs open past SLA"
+              },
+              {
+                "field": "action",
+                "label": "Corrective action",
+                "type": "text",
+                "placeholder": "Patch + tighten SLA; re-audit in 2 weeks"
+              },
+              {
+                "field": "owner",
+                "label": "Owner",
+                "type": "text",
+                "placeholder": "Blue lead"
+              }
+            ],
+            "seed": [
+              {
+                "control": "A.8.8 Vulnerability management",
+                "result": "Minor NC",
+                "finding": "Two high findings open past the 30-day SLA",
+                "action": "Remediate + add SLA alerting; re-audit in 2 weeks",
+                "owner": "Blue lead"
+              },
+              {
+                "control": "CC1.4 Competence",
+                "result": "Conformity",
+                "finding": "Security training records complete",
+                "action": "—",
+                "owner": "GRC"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least one audit finding with a result and corrective action",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Every nonconformity has a corrective action",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_evidence_packet",
+      "courseId": "mssp",
+      "capstone": true,
+      "num": 8,
+      "file": "08_Audit_Evidence_Packet.csv",
+      "title": "Audit Evidence Packet",
+      "owner": "grc",
+      "folder": "04_Audit_Readiness",
+      "standard": "SOC 2 Type I/II · ISO Stage 1/2",
+      "framework": "SOC_2",
+      "weeks": [
+        4
+      ],
+      "gate": 4,
+      "kind": "form",
+      "exportFormat": "csv",
+      "purpose": "The index the auditor works from — every control mapped to the concrete evidence artifact, who owns it, and where it lives. Turns a pile of files into a defensible audit trail.",
+      "howTo": "One row per evidence item. Reference the control (SOC 2 CC / ISO Annex A) and the exact artifact + location.",
+      "source": "The Control Matrix + all role deliverables",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "evidence",
+            "label": "Evidence index",
+            "columns": [
+              {
+                "field": "control",
+                "label": "Control",
+                "type": "text",
+                "placeholder": "CC6.1 / A.8.5 — MFA"
+              },
+              {
+                "field": "artifact",
+                "label": "Evidence artifact",
+                "type": "text",
+                "placeholder": "IdP MFA policy export (PDF)"
+              },
+              {
+                "field": "type",
+                "label": "Type",
+                "type": "select",
+                "options": [
+                  "Config",
+                  "Log",
+                  "Report",
+                  "Ticket",
+                  "Policy",
+                  "Screenshot"
+                ]
+              },
+              {
+                "field": "owner",
+                "label": "Owner",
+                "type": "select",
+                "options": [
+                  "Red",
+                  "Blue",
+                  "GRC"
+                ]
+              },
+              {
+                "field": "location",
+                "label": "Location",
+                "type": "text",
+                "placeholder": "04_Audit_Readiness/Evidence/"
+              },
+              {
+                "field": "period",
+                "label": "Covers period",
+                "type": "text",
+                "placeholder": "Apr–Jun 2026"
+              }
+            ],
+            "seed": [
+              {
+                "control": "CC6.1 / A.8.5 — MFA",
+                "artifact": "IdP MFA policy export + access review",
+                "type": "Config",
+                "owner": "Blue",
+                "location": "04_Audit_Readiness/Evidence/",
+                "period": "Apr–Jun 2026"
+              },
+              {
+                "control": "CC4.1 / A.8.8 — Pentest",
+                "artifact": "Retest & Validation report",
+                "type": "Report",
+                "owner": "Red",
+                "location": "03_Validation/",
+                "period": "Jun 2026"
+              },
+              {
+                "control": "CC7.3 — Detection",
+                "artifact": "SIEM rule pack + sample alert ticket",
+                "type": "Log",
+                "owner": "Blue",
+                "location": "03_Validation/",
+                "period": "Apr–Jun 2026"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least three evidence items, each tied to a control",
+          "test": {
+            "$fn": "test"
+          }
+        },
+        {
+          "label": "Every evidence item names an owner and location",
+          "test": {
+            "$fn": "test"
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,49 @@
+{
+  "schema": "capstone-course-dto/1",
+  "courses": [
+    {
+      "id": "security-plus",
+      "title": "Security+ Capstone Lab",
+      "version": 1,
+      "file": "security-plus.json",
+      "weeks": 5,
+      "tasks": 15,
+      "steps": 66,
+      "deliverables": 14,
+      "procedures": 0
+    },
+    {
+      "id": "mssp",
+      "title": "MSSP: SOC 2 + ISO 27001 Engagement",
+      "version": 1,
+      "file": "mssp.json",
+      "weeks": 5,
+      "tasks": 16,
+      "steps": 19,
+      "deliverables": 8,
+      "procedures": 0
+    },
+    {
+      "id": "cysa-plus",
+      "title": "CySA+ SOC Capstone",
+      "version": 2,
+      "file": "cysa-plus.json",
+      "weeks": 5,
+      "tasks": 16,
+      "steps": 62,
+      "deliverables": 12,
+      "procedures": 0
+    },
+    {
+      "id": "server-plus",
+      "title": "Server+ Build & Handover",
+      "version": 6,
+      "file": "server-plus.json",
+      "weeks": 7,
+      "tasks": 59,
+      "steps": 112,
+      "deliverables": 8,
+      "procedures": 49
+    }
+  ]
+}
