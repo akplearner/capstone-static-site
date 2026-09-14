@@ -36,10 +36,10 @@ export function StepsEditor({
         <Button size="sm" variant="secondary" onClick={add} className="flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add step</Button>
       </div>
       {steps.map((s, i) => (
-        <div key={i} className="space-y-2 rounded-md border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-700/40">
+        <div key={i} className="space-y-2 rounded-md border border-line bg-panel-2 p-3">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-gray-500">Step {i + 1}</span>
-            <button type="button" aria-label={`Remove step ${i + 1}`} onClick={() => onChange(steps.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+            <span className="text-xs text-muted">Step {i + 1}</span>
+            <button type="button" aria-label={`Remove step ${i + 1}`} onClick={() => onChange(steps.filter((_, idx) => idx !== i))} className="text-muted hover:text-danger">
               <Trash2 className="h-3.5 w-3.5" aria-hidden />
             </button>
           </div>
@@ -59,7 +59,7 @@ export function StepsEditor({
             <TextField label="Produces deliverable" value={s.producesDeliverable || ''} onChange={(v) => update(i, { producesDeliverable: v || undefined })} mono />
           </div>
           <label className="flex items-center gap-2 text-sm text-body">
-            <input type="checkbox" checked={!!s.isEvidenceStep} onChange={(e) => update(i, { isEvidenceStep: e.target.checked })} className="h-4 w-4 accent-blue-600" />
+            <input type="checkbox" checked={!!s.isEvidenceStep} onChange={(e) => update(i, { isEvidenceStep: e.target.checked })} className="h-4 w-4 accent-accent" />
             Evidence step
           </label>
         </div>
@@ -79,7 +79,7 @@ function FlagsEditor({
     onChange(flags.map((f, idx) => (idx === i ? { ...f, ...patch } : f)));
 
   return (
-    <div className="space-y-2 rounded-md border border-dashed border-gray-300 p-2 dark:border-gray-600">
+    <div className="space-y-2 rounded-md border border-dashed border-line p-2">
       <div className="flex items-center justify-between">
         <span className="eyebrow-muted">
           Flag breakdown ({flags.length})
@@ -94,15 +94,15 @@ function FlagsEditor({
             value={f.flag}
             onChange={(e) => set(i, { flag: e.target.value })}
             placeholder="-sV"
-            className="w-28 shrink-0 rounded border border-gray-300 bg-white px-2 py-1 font-mono text-xs dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="w-28 shrink-0 rounded border border-line bg-panel px-2 py-1 font-mono text-xs text-ink"
           />
           <input
             value={f.meaning}
             onChange={(e) => set(i, { meaning: e.target.value })}
             placeholder="what this flag does"
-            className="flex-1 rounded border border-gray-300 bg-white px-2 py-1 text-sm dark:border-gray-600 dark:bg-gray-700 dark:text-white"
+            className="flex-1 rounded border border-line bg-panel px-2 py-1 text-sm text-ink"
           />
-          <button type="button" aria-label={`Remove flag ${i + 1}`} onClick={() => onChange(flags.filter((_, idx) => idx !== i))} className="mt-1 text-gray-400 hover:text-red-600">
+          <button type="button" aria-label={`Remove flag ${i + 1}`} onClick={() => onChange(flags.filter((_, idx) => idx !== i))} className="mt-1 text-muted hover:text-danger">
             <Trash2 className="h-3.5 w-3.5" aria-hidden />
           </button>
         </div>

@@ -292,9 +292,9 @@ export function StepDetail({
   return (
     <div className="space-y-3">
       {optional && (
-        <div className="flex items-start gap-2 rounded-md border border-violet-200 bg-violet-50 px-3 py-2 dark:border-violet-800 dark:bg-violet-900/20">
-          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-violet-600 dark:text-violet-400" />
-          <p className="text-sm text-violet-900 dark:text-violet-200">
+        <div className="flex items-start gap-2 rounded-md border border-info-line bg-info-soft px-3 py-2">
+          <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-info" />
+          <p className="text-sm text-ink">
             <span className="font-semibold">Optional step.</span> Great practice, but it doesn&apos;t
             count toward your progress or gates — do it to go deeper.
           </p>
@@ -534,8 +534,8 @@ export function StepDetail({
                   </p>
                 )}
                 {troubleshooting && (
-                  <p className="flex gap-2 text-sm text-rose-900 dark:text-rose-200">
-                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                  <p className="flex gap-2 text-sm text-ink">
+                    <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
                     <span><span className="font-medium">If it doesn&apos;t work:</span> {troubleshooting}</span>
                   </p>
                 )}
@@ -543,15 +543,15 @@ export function StepDetail({
                     for their symptom has to be able to find it. */}
                 {fixes && fixes.length > 0 && (
                   <div className="space-y-1.5">
-                    <div className="flex items-center gap-2 text-sm font-medium text-rose-900 dark:text-rose-200">
-                      <AlertTriangle className="h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+                    <div className="flex items-center gap-2 text-sm font-medium text-danger">
+                      <AlertTriangle className="h-4 w-4 shrink-0 text-danger" />
                       If it doesn&apos;t work
                     </div>
                     <ul className="space-y-1.5">
                       {fixes.map((f, i) => (
-                        <li key={i} className="text-sm text-rose-900 dark:text-rose-200">
+                        <li key={i} className="text-sm text-ink">
                           <span className="font-medium">{f.symptom}</span>{' '}
-                          <span className="text-rose-800/90 dark:text-rose-200/80">
+                          <span className="text-body">
                             <GlossaryText text={f.fix} />
                           </span>
                         </li>
@@ -681,7 +681,7 @@ export function ChecklistItem({
               )}
               {title}
               {optional && (
-                <span className="rounded-full bg-violet-100 px-2 py-0.5 text-2xs font-medium text-violet-700 no-underline dark:bg-violet-900/40 dark:text-violet-300">
+                <span className="rounded-full bg-info-soft px-2 py-0.5 text-2xs font-medium text-info no-underline">
                   Optional
                 </span>
               )}

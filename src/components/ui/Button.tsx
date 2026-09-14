@@ -3,12 +3,11 @@
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { SPRING } from '@/lib/motion';
 
-// Card, Badge, Tabs and Collapsible used to live in this file, which made them
-// invisible — pages hand-rolled card markup (and raw gray-* classes with it)
-// rather than importing a primitive nobody could find under "Button". Each now
-// has its own file; the re-exports keep every existing import working.
-export { Card } from './Card';
-export { Badge } from './Badge';
+// Tabs and Collapsible used to live in this file, which made them invisible —
+// pages hand-rolled markup rather than importing a primitive nobody could find
+// under "Button". Each now has its own file; the re-exports keep every existing
+// import working. (Card and Badge were retired in R68: the card is `Surface`,
+// the chip is `PixelBadge`.)
 export { Tabs } from './Tabs';
 export { Collapsible } from './Collapsible';
 

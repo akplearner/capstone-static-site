@@ -26,11 +26,11 @@ export function RolesEditor({ course, onChange }: { course: Course; onChange: (c
         <Button size="sm" onClick={add} className="flex items-center gap-1"><Plus className="h-4 w-4" /> Add role</Button>
       </div>
       {course.roles.map((r, i) => (
-        <div key={i} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+        <div key={i} className="space-y-3 rounded-lg border border-line p-4">
           <div className="flex items-center gap-2">
             <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
             <span className="font-medium text-ink">{r.name || r.id}</span>
-            <button type="button" aria-label={`Remove role ${r.name || r.id}`} onClick={() => setRoles(course.roles.filter((_, idx) => idx !== i))} className="ml-auto text-gray-400 hover:text-red-600">
+            <button type="button" aria-label={`Remove role ${r.name || r.id}`} onClick={() => setRoles(course.roles.filter((_, idx) => idx !== i))} className="ml-auto text-muted hover:text-danger">
               <Trash2 className="h-4 w-4" aria-hidden />
             </button>
           </div>
@@ -42,7 +42,7 @@ export function RolesEditor({ course, onChange }: { course: Course; onChange: (c
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="block text-xs font-medium text-muted">Color</span>
-              <input type="color" value={r.color} onChange={(e) => update(i, { color: e.target.value })} className="mt-1 h-9 w-full rounded border border-gray-300 dark:border-gray-600" />
+              <input type="color" value={r.color} onChange={(e) => update(i, { color: e.target.value })} className="mt-1 h-9 w-full rounded border border-line" />
             </label>
             <SelectField
               label="Icon"

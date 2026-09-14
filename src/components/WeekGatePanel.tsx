@@ -6,7 +6,7 @@ import { getRoleDef, getTaskById } from '@/lib/course-helpers';
 
 const STATUS_PILL: Record<GateStatus, string> = {
   locked: 'bg-panel-2 text-muted',
-  ready: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300',
+  ready: 'bg-panel-2 text-warn',
   passed: 'bg-ok-soft text-ok',
 };
 

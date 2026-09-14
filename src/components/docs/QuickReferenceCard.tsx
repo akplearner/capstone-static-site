@@ -30,7 +30,7 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
         <ol className="space-y-0.5">
           {defs.map((d) => (
             <li key={d.id}>
-              <span className="text-gray-400">{d.num}.</span> {d.title}
+              <span className="text-muted">{d.num}.</span> {d.title}
             </li>
           ))}
         </ol>
@@ -70,15 +70,15 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
   ];
 
   return (
-    <div className="rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+    <div className="rounded-lg border border-line bg-panel p-5">
       <h3 className="text-sm font-semibold text-ink">Quick reference card</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {panels.map((p) => (
           <div
             key={p.title}
-            className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-900/40"
+            className="rounded-lg border border-line bg-panel-2 p-3"
           >
-            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-300">
+            <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-info">
               <p.icon className="h-4 w-4" />
               {p.title}
             </div>

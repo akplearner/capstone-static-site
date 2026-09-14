@@ -3,7 +3,16 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
-import type { EvidenceArtifact, LabAccessData, StepEvidence, UserCourseState } from './types';
+import type {
+  EvidenceArtifact,
+  LabAccessData,
+  StepEvidence,
+  UserCourseState,
+  DeliverableReview,
+  Cohort,
+  StepNote,
+  StuckFlag,
+} from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { KEYS } from './keys';
@@ -37,6 +46,12 @@ const userStateByCourse = new Map<string, UserCourseState>();
 const stepEvidenceByKey = new Map<string, StepEvidence>();
 const artifactsByHash = new Map<string, EvidenceArtifact>(); // `${courseId}::${sha256}`
 let chosenPath: { pathId: string; chosenAt: number } | null = null;
+// R68. Reviews are team-scoped like docs; a cohort is one row per (course,
+// cohort); notes are the caller's own (RLS); flags are everyone's on the course.
+const reviewsByTeam = new Map<string, DeliverableReview[]>(); // `${courseId}::${teamId}`
+const cohortsByKey = new Map<string, Cohort>(); // `${courseId}::${cohort}`
+const stepNotesByKey = new Map<string, StepNote>(); // `${courseId}::${taskId}::${stepId}`
+const stuckByCourse = new Map<string, StuckFlag[]>();
 
 const hydratedCourses = new Set<string>();
 const channels = new Map<string, RealtimeChannel>();
@@ -66,6 +81,10 @@ export function setCurrentUserId(id: string | null) {
     hydratedCourses.clear();
     channels.forEach((ch) => ch.unsubscribe());
     channels.clear();
+    reviewsByTeam.clear();
+    cohortsByKey.clear();
+    stepNotesByKey.clear();
+    stuckByCourse.clear();
     notifyStore();
   }
 }
@@ -149,6 +168,50 @@ export const cache = {
   setPath(next: { pathId: string; chosenAt: number } | null) {
     chosenPath = next;
   },
+  reviews(courseId: string, teamId: string): DeliverableReview[] {
+    return reviewsByTeam.get(teamKey(courseId, teamId)) ?? [];
+  },
+  setReview(review: DeliverableReview) {
+    const k = teamKey(review.courseId, review.teamId);
+    const next = (reviewsByTeam.get(k) ?? []).filter((r) => !(r.deliverableId === review.deliverableId && r.week === review.week));
+    next.push(review);
+    reviewsByTeam.set(k, next);
+  },
+  cohort(courseId: string, cohort: string): Cohort | null {
+    return cohortsByKey.get(`${courseId}::${cohort}`) ?? null;
+  },
+  setCohort(c: Cohort) {
+    cohortsByKey.set(`${c.courseId}::${c.cohort}`, c);
+  },
+  stepNotes(courseId: string): Record<string, StepNote> {
+    const out: Record<string, StepNote> = {};
+    stepNotesByKey.forEach((v, k) => {
+      if (k.startsWith(`${courseId}::`)) out[`${v.taskId}::${v.stepId}`] = v;
+    });
+    return out;
+  },
+  setStepNote(note: StepNote) {
+    stepNotesByKey.set(`${note.courseId}::${note.taskId}::${note.stepId}`, note);
+    // The caller's own flag shows in the team view immediately.
+    if (currentUserId) {
+      const me = currentUserId;
+      const flags = (stuckByCourse.get(note.courseId) ?? []).filter(
+        (f) => !(f.memberId === me && f.taskId === note.taskId && f.stepId === note.stepId)
+      );
+      if (note.stuck) flags.push({ memberId: me, taskId: note.taskId, stepId: note.stepId, at: note.at });
+      stuckByCourse.set(note.courseId, flags);
+    }
+  },
+  stuckFlags(courseId: string): StuckFlag[] {
+    return stuckByCourse.get(courseId) ?? [];
+  },
+  clearStepNotes(courseId: string) {
+    [...stepNotesByKey.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => stepNotesByKey.delete(k));
+    if (currentUserId) {
+      const me = currentUserId;
+      stuckByCourse.set(courseId, (stuckByCourse.get(courseId) ?? []).filter((f) => f.memberId !== me));
+    }
+  },
   upsertRosterEntry(courseId: string, entry: RosterEntry) {
     const list = (rosterByCourse.get(courseId) ?? []).filter((e) => e.memberId !== entry.memberId);
     list.push(entry);
@@ -161,7 +224,7 @@ export const cache = {
 
 // ---- hydration -------------------------------------------------------------
 
-function rosterFromRow(r: Record<string, unknown>): RosterEntry {
+export function rosterFromRow(r: Record<string, unknown>): RosterEntry {
   return {
     memberId: String(r.user_id),
     teamId: String(r.team_id),
@@ -177,7 +240,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -191,6 +254,12 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // `.maybeSingle()`, which would error on the second row.
       supabase.from('step_evidence').select('*').eq('course_id', courseId),
       supabase.from('evidence_artifacts').select('*').eq('course_id', courseId),
+      // R68. Reviews and flags are team-readable (RLS scopes them); notes are
+      // owner-only; cohorts are readable by anyone signed in.
+      supabase.from('deliverable_reviews').select('*').eq('course_id', courseId),
+      supabase.from('cohorts').select('*').eq('course_id', courseId),
+      supabase.from('step_notes').select('*').eq('course_id', courseId),
+      supabase.from('step_flags').select('*').eq('course_id', courseId).eq('stuck', true),
     ]);
 
   if (memberships.data) {
@@ -251,13 +320,52 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   if (evidence.data) evidence.data.forEach((r) => cache.setStepEvidence(stepEvidenceFromRow(r)));
   if (artifacts.data) artifacts.data.forEach((r) => cache.setArtifact(artifactFromRow(r)));
 
+  if (reviews.data) {
+    [...reviewsByTeam.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => reviewsByTeam.delete(k));
+    reviews.data.forEach((r) => cache.setReview(reviewFromRow(r)));
+  }
+  if (cohorts.data) cohorts.data.forEach((r) => cache.setCohort({ courseId, cohort: String(r.cohort), startsOn: String(r.starts_on) }));
+  if (notes.data) {
+    // The text from its own table; the flag is folded in from step_flags below.
+    notes.data.forEach((r) => {
+      const k = `${courseId}::${String(r.task_id)}::${String(r.step_id)}`;
+      const prev = stepNotesByKey.get(k);
+      stepNotesByKey.set(k, { courseId, taskId: String(r.task_id), stepId: String(r.step_id), note: String(r.note ?? ''), stuck: prev?.stuck ?? false, at: r.updated_at ? Date.parse(String(r.updated_at)) : 0 });
+    });
+  }
+  if (flags.data) {
+    stuckByCourse.set(
+      courseId,
+      flags.data.map((r) => ({ memberId: String(r.user_id), taskId: String(r.task_id), stepId: String(r.step_id), at: r.updated_at ? Date.parse(String(r.updated_at)) : 0 }))
+    );
+    flags.data.forEach((r) => {
+      if (String(r.user_id) !== currentUserId) return;
+      const k = `${courseId}::${String(r.task_id)}::${String(r.step_id)}`;
+      const prev = stepNotesByKey.get(k);
+      stepNotesByKey.set(k, { courseId, taskId: String(r.task_id), stepId: String(r.step_id), note: prev?.note ?? '', stuck: true, at: prev?.at ?? (r.updated_at ? Date.parse(String(r.updated_at)) : 0) });
+    });
+  }
+
   hydratedCourses.add(courseId);
   notifyStore();
 
   subscribeRealtime(courseId);
 }
 
-function stepEvidenceFromRow(r: Record<string, unknown>): StepEvidence {
+export function reviewFromRow(r: Record<string, unknown>): DeliverableReview {
+  return {
+    courseId: String(r.course_id),
+    teamId: String(r.team_id),
+    deliverableId: String(r.deliverable_id),
+    week: Number(r.week ?? 0),
+    status: (r.status as DeliverableReview['status']) ?? 'pending',
+    comment: String(r.comment ?? ''),
+    reviewer: String(r.reviewer ?? ''),
+    at: r.reviewed_at ? Date.parse(String(r.reviewed_at)) : 0,
+  };
+}
+
+export function stepEvidenceFromRow(r: Record<string, unknown>): StepEvidence {
   return {
     courseId: String(r.course_id),
     taskId: String(r.task_id),
@@ -386,6 +494,18 @@ function subscribeRealtime(courseId: string) {
     // subscribed — there is no second party to notify, and putting credentials on
     // a realtime channel would be a cost with no benefit.
     .on('postgres_changes', { event: '*', schema: 'public', table: 'grc_registers', filter: `course_id=eq.${courseId}` }, () => {
+      void hydrateCourse(courseId);
+    })
+    // R68: an instructor's review must reach the team; a teammate's stuck flag
+    // must reach the team; a cohort date set in the studio must reach the class.
+    // step_notes stays off the channel — it is owner-only, like lab_access.
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_reviews', filter: `course_id=eq.${courseId}` }, () => {
+      void hydrateCourse(courseId);
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_flags', filter: `course_id=eq.${courseId}` }, () => {
+      void hydrateCourse(courseId);
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cohorts', filter: `course_id=eq.${courseId}` }, () => {
       void hydrateCourse(courseId);
     })
     .subscribe();

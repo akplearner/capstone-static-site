@@ -111,11 +111,11 @@ export function ArchitectureDiagram({ roles, highlightRole, week }: Architecture
         {/* Windows host (optional Blue track) */}
         {showWindows && (
           <g>
-            <rect x="420" y="165" width="140" height="76" rx="10" className="fill-[var(--color-panel)] stroke-violet-400" strokeWidth="2" strokeDasharray="6 4" />
+            <rect x="420" y="165" width="140" height="76" rx="10" className="fill-[var(--color-panel)] stroke-[var(--color-info)]" strokeWidth="2" strokeDasharray="6 4" />
             <text x="490" y="187" textAnchor="middle" fontSize="11.5" fontWeight="700" className="fill-[var(--color-ink)]">{windows.name}</text>
             <text x="490" y="201" textAnchor="middle" fontSize="9" className="fill-[var(--color-muted)]">Blue defends · optional · {windows.ip}</text>
-            <rect x="452" y="213" width="76" height="18" rx="4" className="fill-violet-100 stroke-violet-300 dark:fill-violet-900/40 dark:stroke-violet-700" />
-            <text x="490" y="226" textAnchor="middle" fontSize="8.5" className="fill-violet-700 dark:fill-violet-300">Defender · RDP</text>
+            <rect x="452" y="213" width="76" height="18" rx="4" className="fill-[var(--color-info-soft)] stroke-[var(--color-info-line)]" />
+            <text x="490" y="226" textAnchor="middle" fontSize="8.5" className="fill-[var(--color-info)]">Defender · RDP</text>
           </g>
         )}
 

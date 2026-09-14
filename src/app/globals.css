@@ -27,7 +27,7 @@
   --color-ink: #161c26;       /* primary text */
   --color-body: #374151;      /* body copy / form labels — one step lighter than ink */
   --color-muted: #5a6472;     /* secondary text */
-  --color-line: #d7dde6;      /* borders / hairlines */
+  --color-line: #e2e7ee;      /* borders / hairlines — soft: a card chooses a line OR elevation, never both */
 
   /* Accent — the SOC teal */
   --color-accent: #0f6f8c;
@@ -104,6 +104,35 @@
   --shadow-3: 0 8px 16px rgba(16, 24, 38, 0.1), 0 24px 56px rgba(16, 24, 38, 0.16);
   --shadow-card: var(--shadow-1);
 
+  /* Glass — the frosted material the sticky bars and the one floating panel
+     (Dialog) are made of. The alpha sits on --color-panel, which every theme
+     and seam already re-declares, so the bar is dark-safe and course-tinted
+     for free. Plain custom properties (no --color- prefix): Tailwind emits no
+     utilities for them, and `.glass` below is the only consumer. */
+  --glass-bg: color-mix(in oklab, var(--color-panel) 72%, transparent);
+  --glass-line: color-mix(in oklab, var(--color-line) 70%, transparent);
+  --glass-blur: 14px;
+
+  /* Glow — a ring plus a soft bloom in the accent or the week's phase colour,
+     for the one panel on a screen that is the point of it (the stone being
+     cut, the course card). A box-shadow value, so it composes with Surface
+     via shadow-[var(--glow-accent)] and re-themes like the elevation ramp. */
+  --glow-accent:
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 18%, transparent),
+    0 24px 64px -28px color-mix(in oklab, var(--color-accent) 38%, transparent);
+  --glow-week:
+    0 0 0 1px color-mix(in oklab, var(--week, var(--color-accent)) 18%, transparent),
+    0 24px 64px -28px color-mix(in oklab, var(--week, var(--color-accent)) 38%, transparent);
+
+  /* Mesh — three radial washes behind the landing hero, from the accent and the
+     first two phase colours. Seams re-declare --color-w1/w2, so inside a course
+     the same wash takes that course's own hues. Token-only: no library, no
+     image, and the alphas are the whole design. */
+  --mesh-hero:
+    radial-gradient(52% 48% at 12% 0%, color-mix(in oklab, var(--color-accent) 16%, transparent), transparent 70%),
+    radial-gradient(40% 40% at 88% 10%, color-mix(in oklab, var(--color-w2) 12%, transparent), transparent 70%),
+    radial-gradient(60% 50% at 50% 100%, color-mix(in oklab, var(--color-w1) 10%, transparent), transparent 75%);
+
   /* Radius. One token used to serve everything, and it lost 4:1 to a raw
      `rounded-lg` — with a hand-picked 10px inside .stratum-task that existed
      only to be "slightly less than 12".
@@ -155,7 +184,7 @@
   --color-ink: #e6edf5;
   --color-body: #d1d5db;
   --color-muted: #9fb0c4;
-  --color-line: #26303f;
+  --color-line: #212b39;
 
   --color-accent: #35b6d6;
   --color-accent-strong: #1fb6d6;
@@ -194,6 +223,22 @@
   --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 12px 28px rgba(0, 0, 0, 0.4);
   --shadow-3: 0 10px 20px rgba(0, 0, 0, 0.5), 0 28px 64px rgba(0, 0, 0, 0.55);
   --shadow-card: var(--shadow-1);
+
+  /* Glass reads more opaque on a dark page (scrolling content shows through
+     a dark tint far more than a light one); the dark accents are already
+     lightened, so the glows drop alpha rather than gain it. */
+  --glass-bg: color-mix(in oklab, var(--color-panel) 64%, transparent);
+  --glass-line: color-mix(in oklab, var(--color-line) 80%, transparent);
+  --glow-accent:
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 22%, transparent),
+    0 24px 72px -28px color-mix(in oklab, var(--color-accent) 28%, transparent);
+  --glow-week:
+    0 0 0 1px color-mix(in oklab, var(--week, var(--color-accent)) 22%, transparent),
+    0 24px 72px -28px color-mix(in oklab, var(--week, var(--color-accent)) 28%, transparent);
+  --mesh-hero:
+    radial-gradient(52% 48% at 12% 0%, color-mix(in oklab, var(--color-accent) 12%, transparent), transparent 70%),
+    radial-gradient(40% 40% at 88% 10%, color-mix(in oklab, var(--color-w2) 9%, transparent), transparent 70%),
+    radial-gradient(60% 50% at 50% 100%, color-mix(in oklab, var(--color-w1) 8%, transparent), transparent 75%);
 }
 
 /* ── Quarry regions ─────────────────────────────────────────────────────────
@@ -738,6 +783,61 @@ select {
    sub-nav under it. */
 .scroll-under-chrome {
   scroll-margin-top: calc(var(--nav-h, 0px) + 3.5rem);
+}
+
+/* ── Glass ────────────────────────────────────────────────────────────────
+   One frosted recipe. Four sticky bars used to hand-roll their own
+   translucency at three different alphas (bg-panel/90, bg-surface/95 ×3);
+   the guard in page-shape.test.ts now keeps backdrop-blur out of components
+   entirely. Where the browser cannot blur, the bar goes opaque rather than
+   see-through: text on a bar must never sit on scrolling content. */
+.glass {
+  background: var(--glass-bg);
+  border-color: var(--glass-line);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+  backdrop-filter: blur(var(--glass-blur)) saturate(140%);
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .glass {
+    background: var(--color-panel);
+  }
+}
+
+/* The hero's wash. Static by default; `data-drift='true'` opts a hero into a
+   slow drift, and only when the visitor has not asked for less motion (the
+   global reduced-motion block below also zeroes every animation-duration). */
+.hero-wash {
+  background-image: var(--mesh-hero);
+  background-repeat: no-repeat;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hero-wash[data-drift='true'] {
+    animation: mesh-drift 24s ease-in-out infinite alternate;
+  }
+}
+@keyframes mesh-drift {
+  to {
+    background-position: 4% 6%, -3% 2%, 0 -4%;
+  }
+}
+
+/* The skip link: the first tab stop on every page, invisible until focused.
+   With a sticky header, a sub-nav and a week rail all pinned, a keyboard user
+   was tabbing through the entire chrome on every page before reaching content. */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 60;
+}
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--color-panel);
+  color: var(--color-ink);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-md);
 }
 
 /* ── Phase colour ─────────────────────────────────────────────────────────

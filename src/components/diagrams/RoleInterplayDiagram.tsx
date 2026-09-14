@@ -39,14 +39,14 @@ export function RoleInterplayDiagram({ roles, highlightRole }: RoleInterplayDiag
               y1={p.y}
               x2={cx}
               y2={cy}
-              className="stroke-gray-300 dark:stroke-gray-600"
+              className="stroke-[var(--color-line)]"
               strokeWidth={2}
             />
           ))}
 
         {/* center hub */}
         {roles.length > 1 && (
-          <circle cx={cx} cy={cy} r={6} className="fill-gray-400 dark:fill-gray-500" />
+          <circle cx={cx} cy={cy} r={6} className="fill-[var(--color-muted)]" />
         )}
 
         {roles.map((role, i) => {
@@ -78,7 +78,7 @@ export function RoleInterplayDiagram({ roles, highlightRole }: RoleInterplayDiag
                   y={p.y + 8 + li * 10}
                   textAnchor="middle"
                   fontSize="8"
-                  className="fill-gray-600 dark:fill-gray-300"
+                  className="fill-[var(--color-muted)]"
                 >
                   {line}
                 </text>
@@ -89,7 +89,7 @@ export function RoleInterplayDiagram({ roles, highlightRole }: RoleInterplayDiag
 
         {/* center hub label */}
         {roles.length > 1 && (
-          <text x={cx} y={cy + 18} textAnchor="middle" fontSize="8" className="fill-gray-400 dark:fill-gray-500">
+          <text x={cx} y={cy + 18} textAnchor="middle" fontSize="8" className="fill-[var(--color-muted)]">
             shared work
           </text>
         )}

@@ -788,9 +788,9 @@ function FormSection({
       )}
 
       {locked ? (
-        <div className="flex items-start gap-3 rounded-lg border border-dashed border-amber-300 bg-amber-50 p-4 dark:border-amber-700 dark:bg-amber-900/20">
+        <div className="flex items-start gap-3 rounded-lg border border-dashed border-warn-line bg-warn-soft p-4">
           <Lock className="mt-0.5 h-5 w-5 shrink-0 text-warn" />
-          <div className="text-sm text-amber-800 dark:text-amber-200">
+          <div className="text-sm text-ink">
             <p className="font-semibold">Locked until scope is authorized</p>
             <p className="mt-1">
               No scanning or testing begins until your team&apos;s <strong>Scope &amp; Rules of

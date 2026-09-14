@@ -26,10 +26,10 @@ export function WeeksEditor({ course, onChange }: { course: Course; onChange: (c
         .map((w, i) => ({ w, i }))
         .sort((a, b) => a.w.number - b.w.number)
         .map(({ w, i }) => (
-          <div key={i} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+          <div key={i} className="space-y-3 rounded-lg border border-line p-4">
             <div className="flex items-center justify-between">
               <span className="font-medium text-ink">Week {w.number}: {w.title}</span>
-              <button type="button" aria-label={`Remove week ${w.number}`} onClick={() => setWeeks(course.weeks.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+              <button type="button" aria-label={`Remove week ${w.number}`} onClick={() => setWeeks(course.weeks.filter((_, idx) => idx !== i))} className="text-muted hover:text-danger">
                 <Trash2 className="h-4 w-4" aria-hidden />
               </button>
             </div>

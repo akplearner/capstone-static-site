@@ -35,7 +35,7 @@ function Table() {
       </p>
       <table className="w-full min-w-[560px] text-sm">
         <thead>
-          <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
+          <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
             <th scope="col" className="py-2 pr-3">Old working files</th>
             <th scope="col" className="py-2 pr-3" />
             <th scope="col" className="py-2 pr-3">New deliverable</th>
@@ -45,16 +45,16 @@ function Table() {
           {MAP.map((m) => {
             const def = getDeliverable(m.id);
             return (
-              <tr key={m.id} className="border-b border-gray-100 align-top dark:border-gray-700/60">
+              <tr key={m.id} className="border-b border-line align-top">
                 <td className="py-1.5 pr-3 font-mono text-xs text-muted">
                   {m.old.join(' · ')}
                 </td>
-                <td className="py-1.5 pr-3 text-gray-300 dark:text-gray-600">
+                <td className="py-1.5 pr-3 text-muted">
                   <ArrowRight className="h-4 w-4" />
                 </td>
                 <td className="py-1.5 pr-3 font-medium text-ink">
                   {def?.num}. {def?.title}{' '}
-                  <span className="font-mono text-xs font-normal text-gray-400">{def?.file}</span>
+                  <span className="font-mono text-xs font-normal text-muted">{def?.file}</span>
                 </td>
               </tr>
             );
@@ -63,7 +63,7 @@ function Table() {
             <td className="py-1.5 pr-3 font-mono text-xs text-muted">
               {ADMIN.join(' · ')}
             </td>
-            <td className="py-1.5 pr-3 text-gray-300 dark:text-gray-600">
+            <td className="py-1.5 pr-3 text-muted">
               <ArrowRight className="h-4 w-4" />
             </td>
             <td className="py-1.5 pr-3 text-muted">
@@ -80,7 +80,7 @@ function Table() {
 export function DocsReductionTable({ collapsible = false }: { collapsible?: boolean }) {
   if (collapsible) {
     return (
-      <div className="rounded-lg border border-gray-200 bg-white px-5 dark:border-gray-700 dark:bg-gray-800">
+      <div className="rounded-lg border border-line bg-panel px-5">
         <Collapsible title="From 17 loose files to graded deliverables" defaultOpen={false}>
           <Table />
         </Collapsible>

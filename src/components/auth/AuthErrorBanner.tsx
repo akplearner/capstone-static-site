@@ -46,15 +46,15 @@ export function AuthErrorBanner() {
   return (
     <div
       role="alert"
-      className="mb-6 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-900 dark:border-rose-900 dark:bg-rose-900/20 dark:text-rose-200"
+      className="mb-6 flex items-start gap-2 rounded-lg border border-danger-line bg-danger-soft px-4 py-3 text-sm text-ink"
     >
-      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-rose-600 dark:text-rose-400" />
+      <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-danger" />
       <span className="flex-1">{REASONS[reason] ?? FALLBACK}</span>
       <button
         type="button"
         onClick={() => setReason(null)}
         aria-label="Dismiss"
-        className="shrink-0 rounded p-0.5 text-rose-500 hover:text-rose-700 dark:hover:text-rose-300"
+        className="shrink-0 rounded p-0.5 text-danger hover:text-ink"
       >
         <X className="h-4 w-4" />
       </button>

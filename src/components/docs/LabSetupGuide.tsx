@@ -38,12 +38,12 @@ export function LabSetupGuide() {
       {/* VMs */}
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Cpu className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Virtual machines
+          <Cpu className="h-4 w-4 text-info" /> Virtual machines
         </h3>
-        <div className="mt-2 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mt-2 overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
+              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
                 <th scope="col" className="px-3 py-2">VM</th>
                 <th scope="col" className="px-3 py-2">Role</th>
                 <th scope="col" className="px-3 py-2">Suggested specs</th>
@@ -52,7 +52,7 @@ export function LabSetupGuide() {
             </thead>
             <tbody>
               {VMS.map((vm) => (
-                <tr key={vm.name} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                <tr key={vm.name} className="border-b border-line last:border-0">
                   <td className="px-3 py-2 font-medium text-ink">{vm.name}</td>
                   <td className="px-3 py-2 text-body">{vm.role}</td>
                   <td className="px-3 py-2 font-mono text-xs text-body">{vm.specs}</td>
@@ -70,19 +70,19 @@ export function LabSetupGuide() {
       {/* Network */}
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Network className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Network
+          <Network className="h-4 w-4 text-info" /> Network
         </h3>
         <ul className="mt-2 space-y-1.5 text-sm text-body">
-          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /><span className="min-w-0">Put every VM on ONE isolated network — VirtualBox <span className="font-mono text-xs">Host-Only</span> or <span className="font-mono text-xs">Internal</span>, VMware <span className="font-mono text-xs">Host-Only</span>. Avoid Bridged so the lab never touches your home/work LAN.</span></li>
-          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /><span className="min-w-0">Use one subnet, e.g. <span className="font-mono text-xs">10.10.10.0/24</span>, with static IPs (Kali .10, Ubuntu .5, Windows .6) — then record them in Lab access.</span></li>
-          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" /><span className="min-w-0">Confirm reachability: from Kali, <span className="font-mono text-xs">ping &lt;UBUNTU_IP&gt;</span> must reply before Week 1.</span></li>
+          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-info" /><span className="min-w-0">Put every VM on ONE isolated network — VirtualBox <span className="font-mono text-xs">Host-Only</span> or <span className="font-mono text-xs">Internal</span>, VMware <span className="font-mono text-xs">Host-Only</span>. Avoid Bridged so the lab never touches your home/work LAN.</span></li>
+          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-info" /><span className="min-w-0">Use one subnet, e.g. <span className="font-mono text-xs">10.10.10.0/24</span>, with static IPs (Kali .10, Ubuntu .5, Windows .6) — then record them in Lab access.</span></li>
+          <li className="flex gap-2"><span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-info" /><span className="min-w-0">Confirm reachability: from Kali, <span className="font-mono text-xs">ping &lt;UBUNTU_IP&gt;</span> must reply before Week 1.</span></li>
         </ul>
       </div>
 
       {/* DVWA lifecycle */}
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Server className="h-4 w-4 text-blue-600 dark:text-blue-400" /> DVWA target (Docker) — quick reference
+          <Server className="h-4 w-4 text-info" /> DVWA target (Docker) — quick reference
         </h3>
         <p className="mt-1 mb-2 text-sm text-muted">
           On the Ubuntu host. Run it once (named <span className="font-mono text-xs">dvwa</span>), then start/stop
@@ -108,7 +108,7 @@ export function LabSetupGuide() {
         <ul className="mt-2 space-y-1.5">
           {PREFLIGHT.map((p) => (
             <li key={p} className="flex items-start gap-2 text-sm text-body">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" /> {p}
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ok" /> {p}
             </li>
           ))}
         </ul>

@@ -20,7 +20,7 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
       return (
         <div className="mx-auto max-w-md space-y-5 py-16">
           <div className="text-center">
-            <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+            <div className="mx-auto inline-flex rounded-full bg-panel-2 p-3 text-muted">
               <ShieldAlert className="h-6 w-6" />
             </div>
             <h1 className="mt-3 text-2xl font-bold text-ink">Instructor Studio</h1>
@@ -41,13 +41,13 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
     if (!auth.passcodeSet) {
       return (
         <div className="mx-auto max-w-md space-y-5 py-16 text-center">
-          <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+          <div className="mx-auto inline-flex rounded-full bg-panel-2 p-3 text-muted">
             <Lock className="h-6 w-6" />
           </div>
           <h1 className="mt-3 text-2xl font-bold text-ink">Instructor Studio</h1>
           <p className="mt-1 text-sm text-muted">
             The studio is locked. To enable it, set{' '}
-            <code className="rounded bg-gray-100 px-1 py-0.5 text-xs dark:bg-gray-800">
+            <code className="rounded bg-panel-2 px-1 py-0.5 text-xs">
               NEXT_PUBLIC_INSTRUCTOR_PASSCODE
             </code>{' '}
             for local use, or connect Supabase for account-based instructor access.
@@ -60,7 +60,7 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
     return (
       <div className="mx-auto max-w-sm space-y-5 py-16">
         <div className="text-center">
-          <div className="mx-auto inline-flex rounded-full bg-gray-100 p-3 text-gray-600 dark:bg-gray-800 dark:text-gray-300">
+          <div className="mx-auto inline-flex rounded-full bg-panel-2 p-3 text-muted">
             <Lock className="h-6 w-6" />
           </div>
           <h1 className="mt-3 text-2xl font-bold text-ink">Instructor Studio</h1>
@@ -82,14 +82,14 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
             }}
             placeholder="Passcode"
             aria-invalid={error}
-            className={`w-full rounded-lg border bg-white px-4 py-2 dark:bg-gray-700 dark:text-white ${
-              error ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+            className={`w-full rounded-lg border bg-panel px-4 py-2 text-ink ${
+              error ? 'border-danger' : 'border-line'
             }`}
           />
-          {error && <p className="text-sm text-red-600 dark:text-red-400">Incorrect passcode.</p>}
+          {error && <p className="text-sm text-danger">Incorrect passcode.</p>}
           <Button type="submit" className="w-full">Unlock</Button>
         </form>
-        <p className="text-center text-xs text-gray-400">
+        <p className="text-center text-xs text-muted">
           This is a temporary gate. Set Supabase env vars to switch to account-based instructor access.
         </p>
       </div>
@@ -102,7 +102,7 @@ export function InstructorGate({ children }: { children: React.ReactNode }) {
         <div className="flex justify-end">
           <button
             onClick={auth.lock}
-            className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white"
+            className="inline-flex items-center gap-1 text-sm text-muted hover:text-ink"
           >
             <LogOut className="h-4 w-4" /> Lock studio
           </button>

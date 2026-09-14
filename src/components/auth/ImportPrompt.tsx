@@ -205,10 +205,10 @@ export function ImportPrompt({ course }: { course: Course }) {
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex items-start justify-between gap-3 rounded-lg border border-violet-200 bg-violet-50 p-4 dark:border-violet-800 dark:bg-violet-900/15"
+      className="flex items-start justify-between gap-3 rounded-lg border border-info-line bg-info-soft p-4"
     >
       <div className="flex items-start gap-2">
-        <Upload className="mt-0.5 h-5 w-5 shrink-0 text-violet-600 dark:text-violet-400" />
+        <Upload className="mt-0.5 h-5 w-5 shrink-0 text-info" />
         <div>
           <h3 className="text-sm font-semibold text-ink">
             Import your saved progress?
@@ -220,7 +220,7 @@ export function ImportPrompt({ course }: { course: Course }) {
           {/* The import is only marked done once the server confirms it, so this
               message means the local data is still intact and safe to retry. */}
           {failed && (
-            <p className="mt-1.5 flex items-start gap-1.5 text-sm text-rose-700 dark:text-rose-300">
+            <p className="mt-1.5 flex items-start gap-1.5 text-sm text-danger">
               <AlertCircle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
               The import didn’t finish, so nothing was marked as done. Your progress on this device is
               untouched — check your connection and try again.
@@ -232,7 +232,7 @@ export function ImportPrompt({ course }: { course: Course }) {
         <button
           onClick={runImport}
           disabled={busy}
-          className="inline-flex items-center gap-1.5 rounded-md bg-violet-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-violet-700 disabled:opacity-60"
+          className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-1.5 text-xs font-medium text-accent-contrast hover:bg-accent-strong disabled:opacity-60"
         >
           {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
           {failed ? 'Try again' : 'Import'}
@@ -240,7 +240,7 @@ export function ImportPrompt({ course }: { course: Course }) {
         <button
           onClick={dismiss}
           aria-label="Dismiss import"
-          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+          className="text-muted hover:text-ink"
         >
           <X className="h-4 w-4" />
         </button>

@@ -2,15 +2,15 @@ import { Framework } from './types';
 import { EVIDENCE_NAMING } from './evidence';
 
 const FRAMEWORK_COLORS: Record<Framework, string> = {
-  'NIST_CSF': 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300',
-  'CIS': 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300',
-  'OWASP': 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300',
-  'CVSS': 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300',
-  'NIST_800_61': 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300',
-  'NIST_800_115': 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-300',
-  'ISO_27001': 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300',
-  'SOC_2': 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-300',
-  'STRIDE': 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-300',
+  'NIST_CSF': 'bg-info-soft text-info',
+  'CIS': 'bg-accent-soft text-accent-ink',
+  'OWASP': 'bg-warn-soft text-warn',
+  'CVSS': 'bg-danger-soft text-danger',
+  'NIST_800_61': 'bg-warn-soft text-warn',
+  'NIST_800_115': 'bg-ok-soft text-ok',
+  'ISO_27001': 'bg-ok-soft text-ok',
+  'SOC_2': 'bg-info-soft text-info',
+  'STRIDE': 'bg-danger-soft text-danger',
 };
 
 const FRAMEWORK_LABELS: Record<Framework, string> = {
@@ -62,7 +62,7 @@ const FRAMEWORK_WHY: Record<Framework, string> = {
 };
 
 const FRAMEWORK_FALLBACK_COLOR =
-  'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300';
+  'bg-panel-2 text-muted';
 
 // Framework is now an open string (instructors can add their own), so these
 // fall back gracefully when a framework id isn't one of the built-ins.

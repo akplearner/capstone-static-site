@@ -185,7 +185,7 @@ export function OutcomeCard({
                   >
                     <MarkerBadge n={i + 1} />
                     <span>
-                      <code className="rounded bg-white/70 px-1 py-0.5 font-mono text-[0.85em] dark:bg-black/25">
+                      <code className="rounded bg-panel/70 px-1 py-0.5 font-mono text-[0.85em]">
                         {t.text}
                       </code>{' '}
                       — <GlossaryText text={t.label} />

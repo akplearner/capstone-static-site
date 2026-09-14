@@ -367,7 +367,7 @@ export function DeliverableChainDiagram({
               <span
                 className={`rounded-full px-2 py-0.5 text-2xs font-semibold ${
                   activeNode.filed
-                    ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                    ? 'bg-ok-soft text-ok'
                     : 'bg-panel text-muted'
                 }`}
               >

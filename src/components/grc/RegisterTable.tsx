@@ -14,11 +14,11 @@ const inputClass =
 function badgeClass(value: string): string {
   switch (value) {
     case 'Critical':
-      return 'bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300';
+      return 'bg-danger-soft text-danger';
     case 'High':
-      return 'bg-orange-100 text-orange-800 dark:bg-orange-900/40 dark:text-orange-300';
+      return 'bg-warn-soft text-warn';
     case 'Medium':
-      return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/40 dark:text-yellow-300';
+      return 'bg-panel-2 text-warn';
     case 'Low':
     case 'Proven':
       return 'bg-ok-soft text-ok';

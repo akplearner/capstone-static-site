@@ -44,4 +44,10 @@ export const KEYS = {
     `${STORAGE_PREFIX}${courseId}_artifacts_${memberId}`,
   // Global (not course-scoped): the career track spans courses.
   path: (memberId: string) => `${STORAGE_PREFIX}path_${memberId}`,
+  // R68. Instructor reviews are team-scoped like the forms they judge; the
+  // cohort calendar is one date per (course, cohort); step notes are one blob
+  // per (course, member) — read whole, like the evidence ledger.
+  reviews: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_reviews_${teamId}`,
+  cohortCalendar: (courseId: string, cohort: string) => `${STORAGE_PREFIX}${courseId}_cohort_${cohort}`,
+  stepNotes: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_notes_${memberId}`,
 };

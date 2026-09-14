@@ -30,9 +30,9 @@ function ownerLabel(owner: string, roles?: RoleDef[]): string {
 }
 
 const ROLE_TEXT: Record<string, string> = {
-  red: 'text-red-600 dark:text-red-400',
-  blue: 'text-blue-600 dark:text-blue-400',
-  grc: 'text-green-600 dark:text-green-400',
+  red: 'text-danger',
+  blue: 'text-info',
+  grc: 'text-ok',
 };
 
 /** Example evidence filenames a course expects, pulled from fileref placeholders. */
@@ -122,12 +122,12 @@ function buildWeekTree(courseId: string, week: number, roles?: RoleDef[]): Node 
 export function NodeIcon({ node }: { node: Node }) {
   const cls = 'h-3.5 w-3.5 shrink-0';
   if (node.kind === 'root' || node.kind === 'folder')
-    return <Folder className={`${cls} text-amber-500`} />;
-  if (node.format === 'csv') return <FileSpreadsheet className={`${cls} text-emerald-500`} />;
-  if (node.format === 'img') return <ImageIcon className={`${cls} text-violet-500`} />;
+    return <Folder className={`${cls} text-warn`} />;
+  if (node.format === 'csv') return <FileSpreadsheet className={`${cls} text-ok`} />;
+  if (node.format === 'img') return <ImageIcon className={`${cls} text-accent`} />;
   if (node.label.startsWith('README') || node.label.startsWith('Team_Roles'))
-    return <BookText className={`${cls} text-gray-400`} />;
-  return <FileText className={`${cls} text-sky-500`} />;
+    return <BookText className={`${cls} text-muted`} />;
+  return <FileText className={`${cls} text-info`} />;
 }
 
 export function TreeNode({ node, depth = 0, index = 0, roles }: { node: Node; depth?: number; index?: number; roles?: RoleDef[] }) {
@@ -153,7 +153,7 @@ export function TreeNode({ node, depth = 0, index = 0, roles }: { node: Node; de
         )}
       </span>
       {node.children && (
-        <ul className="ml-4 mt-1 space-y-1 border-l border-gray-200 pl-3 dark:border-gray-700">
+        <ul className="ml-4 mt-1 space-y-1 border-l border-line pl-3">
           {node.children.map((c, i) => (
             <TreeNode key={c.label} node={c} depth={depth + 1} index={i} roles={roles} />
           ))}
@@ -177,7 +177,7 @@ export function FolderTree({
   const isWeek = variant === 'week' && week !== undefined;
   const tree = isWeek ? buildWeekTree(courseId, week!, roles) : buildCourseTree(courseId);
   return (
-    <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
+    <div className="overflow-x-auto rounded-lg border border-line bg-panel p-5">
       <h3 className="text-sm font-semibold text-ink">
         {isWeek ? `Week ${week} submission — what your zip contains` : 'Submission folder structure'}
       </h3>
@@ -203,9 +203,9 @@ export function FolderTree({
             <span className="h-2 w-2 rounded-full" style={{ background: r.color }} /> {r.name}
           </span>
         ))}
-        <span className="flex items-center gap-1"><FileText className="h-3 w-3 text-sky-500" /> .md</span>
-        <span className="flex items-center gap-1"><FileSpreadsheet className="h-3 w-3 text-emerald-500" /> .csv</span>
-        <span className="flex items-center gap-1"><ImageIcon className="h-3 w-3 text-violet-500" /> evidence</span>
+        <span className="flex items-center gap-1"><FileText className="h-3 w-3 text-info" /> .md</span>
+        <span className="flex items-center gap-1"><FileSpreadsheet className="h-3 w-3 text-ok" /> .csv</span>
+        <span className="flex items-center gap-1"><ImageIcon className="h-3 w-3 text-accent" /> evidence</span>
       </div>
     </div>
   );

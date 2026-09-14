@@ -38,14 +38,14 @@ export function EngagementBanner({
 
   if (!client) {
     return (
-      <div className="rounded-xl border border-dashed border-indigo-300 bg-indigo-50 p-4 dark:border-indigo-800 dark:bg-indigo-950/40">
+      <div className="rounded-xl border border-dashed border-info-line bg-info-soft p-4">
         <div className="flex items-start gap-3">
-          <FileSignature className="mt-0.5 h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-300" />
+          <FileSignature className="mt-0.5 h-5 w-5 shrink-0 text-info" />
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-indigo-900 dark:text-indigo-100">
+            <p className="text-sm font-semibold text-ink">
               No client engagement defined yet
             </p>
-            <p className="mt-0.5 text-sm text-indigo-800 dark:text-indigo-200">
+            <p className="mt-0.5 text-sm text-body">
               Every engagement starts by signing the agreement and drawing the system boundary.{' '}
               <Link href={defineHref} className="font-medium underline underline-offset-2">
                 Define your engagement scope →
@@ -58,22 +58,22 @@ export function EngagementBanner({
   }
 
   return (
-    <div className="overflow-hidden rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white dark:border-indigo-900 dark:from-indigo-950/50 dark:to-gray-900">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-indigo-100 px-4 py-2.5 dark:border-indigo-900/60">
+    <div className="overflow-hidden rounded-xl border border-info-line bg-gradient-to-r from-info-soft to-panel">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-info-line px-4 py-2.5">
         <div className="flex items-center gap-2 min-w-0">
-          <Building2 className="h-5 w-5 shrink-0 text-indigo-600 dark:text-indigo-300" />
+          <Building2 className="h-5 w-5 shrink-0 text-info" />
           <span className="truncate text-sm font-semibold text-ink">{client}</span>
           {type && (
-            <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-2xs font-medium text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200">
+            <span className="rounded-full bg-info-soft px-2 py-0.5 text-2xs font-medium text-info">
               {type}
             </span>
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="rounded-md bg-gray-900 px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-white dark:bg-white dark:text-gray-900">
+          <span className="rounded-md bg-ink px-2 py-0.5 text-2xs font-semibold uppercase tracking-wide text-panel">
             {phase}
           </span>
-          <span className="text-2xs font-semibold uppercase tracking-wide text-amber-600 dark:text-amber-400">
+          <span className="text-2xs font-semibold uppercase tracking-wide text-warn">
             Confidential
           </span>
         </div>
@@ -81,7 +81,7 @@ export function EngagementBanner({
       <div className="grid gap-3 px-4 py-3 sm:grid-cols-2">
         {trust && (
           <div className="flex items-start gap-2">
-            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-green-600 dark:text-green-400" />
+            <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-ok" />
             <div className="min-w-0">
               <div className="eyebrow-muted">Attestation scope</div>
               <div className="text-sm text-body">{trust}</div>
@@ -90,7 +90,7 @@ export function EngagementBanner({
         )}
         {scope && (
           <div className="flex items-start gap-2">
-            <Target className="mt-0.5 h-4 w-4 shrink-0 text-indigo-600 dark:text-indigo-400" />
+            <Target className="mt-0.5 h-4 w-4 shrink-0 text-info" />
             <div className="min-w-0">
               <div className="eyebrow-muted">System boundary</div>
               <div className="line-clamp-2 text-sm text-body">{scope}</div>

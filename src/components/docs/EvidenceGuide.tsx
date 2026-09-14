@@ -22,12 +22,12 @@ export function EvidenceGuide() {
   return (
     <div className="space-y-5">
       <p className="flex items-start gap-2 text-sm text-muted">
-        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-blue-600 dark:text-blue-400" />
+        <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-info" />
         Your proof stays on your machine — handle it like a real case so it would hold up under scrutiny.
         Hash it, log every artifact and hand-off, and keep it in one place.
       </p>
 
-      <div className="rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-200">
+      <div className="rounded-md border border-info-line bg-info-soft p-3 text-sm text-ink">
         <span className="font-semibold">Where it lives (one rule): </span>
         {EVIDENCE_LOCATION_RULE}
       </div>
@@ -71,13 +71,13 @@ export function EvidenceGuide() {
         <div className="mt-2 flex flex-wrap gap-2">
           <button
             onClick={() => downloadText('CHAIN_OF_CUSTODY.md', custodyLogMarkdown())}
-            className="inline-flex items-center gap-1.5 rounded-md bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
+            className="inline-flex items-center gap-1.5 rounded-md bg-accent px-3 py-2 text-sm font-medium text-accent-contrast hover:bg-accent-strong"
           >
             <Download className="h-4 w-4" /> Chain-of-custody log (.md)
           </button>
           <button
             onClick={() => downloadText('CHAIN_OF_CUSTODY.csv', custodyLogCSV(), 'text/csv;charset=utf-8')}
-            className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
+            className="inline-flex items-center gap-1.5 rounded-md border border-line px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
           >
             <FileText className="h-4 w-4" /> .csv version
           </button>
@@ -89,12 +89,12 @@ export function EvidenceGuide() {
         <ul className="mt-2 space-y-1.5">
           {CUSTODY_RULES.map((r) => (
             <li key={r} className="flex gap-2 text-sm text-body">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-info" />
               <span>{r}</span>
             </li>
           ))}
         </ul>
-        <p className="mt-3 text-xs text-gray-400">
+        <p className="mt-3 text-xs text-muted">
           Aligned with NIST SP 800-61 (incident handling) and ISO/IEC 27037 (digital evidence).
         </p>
       </div>
@@ -104,7 +104,7 @@ export function EvidenceGuide() {
         <ul className="mt-2 space-y-1.5">
           {EVIDENCE_HANDLING.map((r) => (
             <li key={r} className="flex gap-2 text-sm text-body">
-              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500" />
+              <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-warn" />
               <span>{r}</span>
             </li>
           ))}

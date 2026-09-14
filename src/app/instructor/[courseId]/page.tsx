@@ -103,14 +103,14 @@ export default function CourseEditorPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <Link href="/instructor" className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline dark:text-blue-400">
+          <Link href="/instructor" className="inline-flex items-center gap-1 text-sm text-accent hover:underline">
             <ArrowLeft className="h-4 w-4" /> All courses
           </Link>
           <h1 className="mt-1 text-2xl font-bold text-ink">{draft.title || 'Untitled course'}</h1>
         </div>
         <div className="flex items-center gap-2">
           {saved && (
-            <span className="inline-flex items-center gap-1 text-sm text-green-600 dark:text-green-400">
+            <span className="inline-flex items-center gap-1 text-sm text-ok">
               <CheckCircle2 className="h-4 w-4" /> Saved
             </span>
           )}
@@ -123,13 +123,13 @@ export default function CourseEditorPage() {
       </div>
 
       {draft.isSeed && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+        <div className="rounded-lg border border-warn-line bg-warn-soft p-3 text-sm text-ink">
           This is a built-in course. Saving will create an editable copy that overrides the built-in version on this device.
         </div>
       )}
 
       {errors.length > 0 && (
-        <div className="space-y-1 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+        <div className="space-y-1 rounded-lg border border-danger-line bg-danger-soft p-3 text-sm text-ink">
           <div className="flex items-center gap-1 font-semibold"><AlertTriangle className="h-4 w-4" /> Fix before saving:</div>
           <ul className="list-inside list-disc">
             {errors.map((e, i) => <li key={i}>{e}</li>)}
@@ -137,15 +137,15 @@ export default function CourseEditorPage() {
         </div>
       )}
 
-      <div className="flex flex-wrap gap-1 border-b border-gray-200 dark:border-gray-700">
+      <div className="flex flex-wrap gap-1 border-b border-line">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
               tab === t.id
-                ? 'border-b-2 border-blue-600 text-blue-600 dark:border-blue-400 dark:text-blue-400'
-                : 'text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white'
+                ? 'border-b-2 border-accent text-accent'
+                : 'text-muted hover:text-ink'
             }`}
           >
             {t.label}
@@ -160,7 +160,7 @@ export default function CourseEditorPage() {
             <TextField label="Slug / ID" value={draft.slug} onChange={(v) => setDraft({ ...draft, slug: v })} mono />
             <TextArea label="Description" value={draft.description} onChange={(v) => setDraft({ ...draft, description: v })} rows={3} />
 
-            <div className="space-y-4 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+            <div className="space-y-4 rounded-lg border border-line p-4">
               <h3 className="text-sm font-semibold text-ink">Enrollment</h3>
               <Toggle
                 label={draft.locked ? 'Locked' : 'Open'}

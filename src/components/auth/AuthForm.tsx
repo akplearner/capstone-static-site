@@ -80,7 +80,7 @@ export function AuthForm({
 
   if (!supabase) {
     return (
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+      <div className="rounded-lg border border-warn-line bg-warn-soft p-4 text-sm text-ink">
         Accounts aren’t configured on this deployment yet, so there’s nothing to sign in to. Your work
         is being saved locally on this device only.
       </div>

@@ -41,10 +41,10 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
         <Button size="sm" onClick={add} className="flex items-center gap-1"><Plus className="h-4 w-4" /> Add gate</Button>
       </div>
       {course.gates.map((g, i) => (
-        <div key={i} className="space-y-3 rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+        <div key={i} className="space-y-3 rounded-lg border border-line p-4">
           <div className="flex items-center justify-between">
             <span className="font-medium text-ink">{g.title}</span>
-            <button type="button" aria-label={`Remove gate ${g.title}`} onClick={() => setGates(course.gates.filter((_, idx) => idx !== i))} className="text-gray-400 hover:text-red-600">
+            <button type="button" aria-label={`Remove gate ${g.title}`} onClick={() => setGates(course.gates.filter((_, idx) => idx !== i))} className="text-muted hover:text-danger">
               <Trash2 className="h-4 w-4" aria-hidden />
             </button>
           </div>
@@ -59,13 +59,13 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
           <TextField label="Required artifact types (comma-separated)" value={listToText(g.requiredArtifactTypes)} onChange={(v) => update(i, { requiredArtifactTypes: textToList(v) })} />
           <div>
             <span className="block text-xs font-medium text-muted">Required tasks</span>
-            <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-gray-200 p-2 dark:border-gray-700">
-              {course.tasks.length === 0 && <p className="text-xs text-gray-400">No tasks yet.</p>}
+            <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-line p-2">
+              {course.tasks.length === 0 && <p className="text-xs text-muted">No tasks yet.</p>}
               {course.tasks.map((t) => (
                 <label key={t.id} className="flex items-center gap-2 text-sm text-body">
-                  <input type="checkbox" checked={g.requiredTasks.includes(t.id)} onChange={() => toggleTask(i, t.id)} className="h-4 w-4 accent-blue-600" />
+                  <input type="checkbox" checked={g.requiredTasks.includes(t.id)} onChange={() => toggleTask(i, t.id)} className="h-4 w-4 accent-accent" />
                   <span className="font-mono text-xs">{t.id}</span>
-                  <span className="text-xs text-gray-500">— {t.title}</span>
+                  <span className="text-xs text-muted">— {t.title}</span>
                 </label>
               ))}
             </div>

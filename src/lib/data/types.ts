@@ -178,3 +178,70 @@ export interface ProgressRepository {
 
   resetCourse(courseId: string, memberId: string): void;
 }
+
+// ── R68: reviews, the cohort calendar, step notes ────────────────────────────
+
+/** An instructor's verdict on one team form for one week. */
+export type ReviewStatus = 'approved' | 'revise' | 'pending';
+
+export interface DeliverableReview {
+  courseId: string;
+  teamId: string;
+  deliverableId: string;
+  week: number;
+  status: ReviewStatus;
+  comment: string;
+  /** Who reviewed — an email or a display name; never a secret. */
+  reviewer: string;
+  at: number;
+}
+
+/** Team-scoped, like deliverables: every member reads their team's reviews;
+ *  only an instructor writes them (RLS in 0004). */
+export interface ReviewRepository {
+  list(courseId: string, teamId: string): DeliverableReview[];
+  save(review: DeliverableReview): void;
+}
+
+/** A cohort's calendar: the one date everything else is derived from. Seeds
+ *  carry no dates — a course is reused every term; the cohort is what starts. */
+export interface Cohort {
+  courseId: string;
+  /** `YYYY-MM`, the prefix of every team id in the cohort. */
+  cohort: string;
+  /** `YYYY-MM-DD`, local. Week N is due 7·N days later. */
+  startsOn: string;
+}
+
+export interface CohortRepository {
+  get(courseId: string, cohort: string): Cohort | null;
+  save(cohort: Cohort): void;
+}
+
+/** A student's private note on one step, and the one bit of it teammates may
+ *  see: that they are stuck. */
+export interface StepNote {
+  courseId: string;
+  taskId: string;
+  stepId: string;
+  note: string;
+  stuck: boolean;
+  at: number;
+}
+
+/** The shareable half of a note. Never carries the note text. */
+export interface StuckFlag {
+  memberId: string;
+  taskId: string;
+  stepId: string;
+  at: number;
+}
+
+export interface StepNotesRepository {
+  /** The member's own notes for a course, keyed `${taskId}::${stepId}`. */
+  getAll(courseId: string, memberId: string): Record<string, StepNote>;
+  save(memberId: string, note: StepNote): void;
+  /** Who on the team is stuck where. Flags only — no note text, ever. */
+  teamStuck(courseId: string, teamId: string): StuckFlag[];
+  resetCourse(courseId: string, memberId: string): void;
+}

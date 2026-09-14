@@ -295,7 +295,7 @@ function JoinPanel({
         </div>
       )}
 
-      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex items-center gap-3">
         <Button onClick={submit} size="lg">

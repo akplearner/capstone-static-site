@@ -33,12 +33,12 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
 
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Cpu className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Machines
+          <Cpu className="h-4 w-4 text-info" /> Machines
         </h3>
-        <div className="mt-2 overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
+        <div className="mt-2 overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-muted dark:border-gray-700">
+              <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
                 <th scope="col" className="px-3 py-2">Machine</th>
                 <th scope="col" className="px-3 py-2">Role</th>
                 <th scope="col" className="px-3 py-2">Address</th>
@@ -47,7 +47,7 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
             </thead>
             <tbody>
               {VMS.map((vm) => (
-                <tr key={vm.name} className="border-b border-gray-100 last:border-0 dark:border-gray-700/50">
+                <tr key={vm.name} className="border-b border-line last:border-0">
                   <td className="px-3 py-2 font-medium text-ink">{vm.name}</td>
                   <td className="px-3 py-2 text-body">{vm.role}</td>
                   <td className="px-3 py-2 font-mono text-xs text-body">{vm.addr}</td>
@@ -61,13 +61,13 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
 
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Server className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Building it (instructor / builder)
+          <Server className="h-4 w-4 text-info" /> Building it (instructor / builder)
         </h3>
         <p className="mt-1 text-sm text-muted">
           The full build — Wazuh all-in-one install, DVWA + Suricata on the Ubuntu template, Sysmon on the
           Windows template, then cloning ×16 — is a guided task with copy-paste commands and the required files
           in <span className="font-medium">Week&nbsp;0 · Environment build</span> on the{' '}
-          <a href={`/courses/${courseId}?tab=tasks`} className="font-medium text-blue-600 underline dark:text-blue-400">
+          <a href={`/courses/${courseId}?tab=tasks`} className="font-medium text-accent underline">
             Tasks
           </a>{' '}
           page.
@@ -76,12 +76,12 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
 
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Network className="h-4 w-4 text-blue-600 dark:text-blue-400" /> Before Week 1 — pre-flight
+          <Network className="h-4 w-4 text-info" /> Before Week 1 — pre-flight
         </h3>
         <ul className="mt-2 space-y-1.5">
           {PREFLIGHT.map((p) => (
             <li key={p} className="flex items-start gap-2 text-sm text-body">
-              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-green-600" /> {p}
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ok" /> {p}
             </li>
           ))}
         </ul>

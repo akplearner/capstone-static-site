@@ -280,15 +280,32 @@ describe('design tokens — palette classes do not come back', () => {
   });
 
   it('the number of files using raw gray-* only goes down', () => {
-    // 22 files — 26 at the end of R38, 25 after R41 rewrote RoleExtractionGuide
+    // 0 files — 26 at the end of R38, 25 after R41 rewrote RoleExtractionGuide
     // as a tokenized table, 22 after R63 tokenized Badge's violet and the
     // Deliverables page's green/amber icons. The cap said 25 until R64 noticed
     // it was three regressions loose: a ratchet that is not tightened when the
-    // number falls stops being a ratchet. Instructor tools and a few
-    // reference-page components are what remain, none student-critical. Fixing
-    // an old file lowers the number, and then THIS number is lowered to match.
-    const offenders = collectSourceFiles('src').filter((f) => /\bgray-[0-9]/.test(code(f)));
-    expect(offenders.length).toBeLessThanOrEqual(22);
+    // number falls stops being a ratchet. R68 swept the last 22 — the
+    // instructor tools, the reference-page components, the two SVG diagrams
+    // and the framework colour map — so the ratchet is now a wall: the whole
+    // RAW set (gray-*, bg-white, blue-600) is banned everywhere under src.
+    const offenders = collectSourceFiles('src').filter((f) => RAW.test(code(f)));
+    expect(offenders.length).toBeLessThanOrEqual(0);
+  });
+
+  it('no dark: variants — tokens re-theme', () => {
+    // `.dark` re-declares the same custom properties, so a `dark:` twin is
+    // never needed where a token exists — and after R68 a token always exists.
+    // A `dark:` variant is never followed by whitespace; the `\S` keeps the
+    // TypeScript parameter `setTheme(dark: boolean)` in ThemeToggle out of it.
+    const offenders = collectSourceFiles('src').filter((f) => /\bdark:\S/.test(code(f)));
+    expect(offenders, 'dark: variants must not come back — use a token').toEqual([]);
+  });
+
+  it('no raw palette hue survives', () => {
+    const HUE =
+      /\b(bg|text|border|ring|from|to|fill|stroke|divide|placeholder)-(rose|amber|emerald|violet|green|red|yellow|blue|slate|zinc|indigo|sky|teal|orange|purple|gray)-[0-9]/;
+    const offenders = collectSourceFiles('src').filter((f) => HUE.test(code(f)));
+    expect(offenders, 'raw palette hues must map to ok/warn/danger/info/accent tokens').toEqual([]);
   });
 
   /**

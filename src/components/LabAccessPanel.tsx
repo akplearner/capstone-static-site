@@ -111,7 +111,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                     ) : (
                       <Circle className="h-4 w-4 shrink-0 text-line" />
                     )}
-                    <span className={lab.checks[c.key] ? 'text-muted line-through dark:text-muted' : ''}>
+                    <span className={lab.checks[c.key] ? 'text-muted line-through' : ''}>
                       {c.label}
                     </span>
                   </button>

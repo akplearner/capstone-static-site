@@ -8,7 +8,7 @@ import { InfoTip } from './InfoTip';
 export function GlossaryTerm({ term, definition }: { term: string; definition: string }) {
   return (
     <span className="inline-flex items-baseline gap-0.5">
-      <span className="underline decoration-dotted decoration-gray-400 underline-offset-2 dark:decoration-gray-500">
+      <span className="underline decoration-dotted decoration-muted underline-offset-2">
         {term}
       </span>
       <InfoTip label={`${term}: ${definition}`} />
