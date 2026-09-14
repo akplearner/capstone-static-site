@@ -211,6 +211,11 @@ export default function InstructorHomePage() {
               <Button size="sm" variant="secondary" onClick={() => handleExport(course)} className="flex items-center gap-1">
                 <Download className="h-3.5 w-3.5" /> Export
               </Button>
+              <Link href={`/instructor/${course.id}/cohort`}>
+                <Button size="sm" variant="secondary" className="flex items-center gap-1">
+                  <Users className="h-3.5 w-3.5" /> Cohort
+                </Button>
+              </Link>
               {!course.isSeed && (
                 <>
                   <Button size="sm" variant="secondary" onClick={() => startDuplicate(course)} className="flex items-center gap-1">

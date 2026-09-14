@@ -63,6 +63,9 @@ const csp = [
   `base-uri 'self'`,
   `form-action 'self'`,
   `object-src 'none'`,
+  // The service worker and the web manifest are first-party files.
+  `worker-src 'self'`,
+  `manifest-src 'self'`,
   `upgrade-insecure-requests`,
 ].join("; ");
 
@@ -80,6 +83,13 @@ const nextConfig: NextConfig = {
 
   async headers() {
     return [
+      {
+        // The worker file must never be served from a long-lived cache: the
+        // browser re-fetches it to detect a new version, and a cached copy
+        // would pin students to an old worker.
+        source: "/sw.js",
+        headers: [{ key: "Cache-Control", value: "no-cache, max-age=0, must-revalidate" }],
+      },
       {
         source: "/:path*",
         headers: [

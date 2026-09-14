@@ -40,6 +40,7 @@ export function EngagementStatus({
   nextTask,
   onContinue,
   due,
+  onCalendar,
   subtitle,
   complete,
 }: {
@@ -55,6 +56,8 @@ export function EngagementStatus({
   onContinue: () => void;
   /** The cohort calendar's line for this week, when a start date is set. */
   due?: { text: string; tone: DueTone };
+  /** Downloads the cohort's .ics — shown only when a calendar exists. */
+  onCalendar?: () => void;
   /** An engagement-framed course's client and scope line. */
   subtitle?: ReactNode;
   /** The finished state, rendered in place of "next". */
@@ -110,6 +113,11 @@ export function EngagementStatus({
         <Link href={`/courses/${course.id}/guide`} className="font-medium text-muted hover:text-ink hover:underline">
           Guide
         </Link>
+        {onCalendar && (
+          <button type="button" onClick={onCalendar} className="ml-auto font-medium text-muted hover:text-ink hover:underline">
+            Add the weeks to your calendar (.ics)
+          </button>
+        )}
       </div>
     </Surface>
   );

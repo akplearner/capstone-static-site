@@ -14,6 +14,8 @@ export interface MemberProgress {
   overall: number;
   weeks: { week: number; pct: number }[];
   isYou: boolean;
+  /** Steps this member has flagged as stuck (R68). */
+  stuck?: number;
 }
 
 export interface DeliverableStatus {
@@ -21,6 +23,8 @@ export interface DeliverableStatus {
   title: string;
   owner: string;
   complete: boolean;
+  /** The instructor's latest verdict, when there is one (R68). */
+  review?: 'approved' | 'revise' | 'pending';
 }
 
 function pctColor(p: number) {
@@ -74,6 +78,11 @@ export function TeamProgressTable({
                       {m.isYou && (
                         <span className="rounded-full bg-accent-soft px-2 py-0.5 text-3xs font-medium text-accent-ink">
                           You
+                        </span>
+                      )}
+                      {!!m.stuck && (
+                        <span className="rounded-full bg-warn-soft px-2 py-0.5 text-3xs font-medium text-warn" title="Steps flagged as stuck">
+                          {m.stuck} stuck
                         </span>
                       )}
                     </div>
@@ -138,6 +147,15 @@ export function TeamProgressTable({
                 <span className={`flex-1 text-sm ${d.complete ? 'text-muted' : 'text-ink'}`}>
                   {d.title}
                 </span>
+                {d.review && (
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-3xs font-medium ${
+                      d.review === 'approved' ? 'bg-ok-soft text-ok' : d.review === 'revise' ? 'bg-warn-soft text-warn' : 'bg-info-soft text-info'
+                    }`}
+                  >
+                    {d.review === 'approved' ? 'Approved' : d.review === 'revise' ? 'Revise' : 'In review'}
+                  </span>
+                )}
                 <span className="flex items-center gap-1 text-2xs text-muted">
                   <RoleIcon iconName={rd?.icon} className="h-3 w-3" color={rd?.color} />
                   {rd?.name ?? d.owner}

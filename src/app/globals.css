@@ -227,7 +227,7 @@
   /* Glass reads more opaque on a dark page (scrolling content shows through
      a dark tint far more than a light one); the dark accents are already
      lightened, so the glows drop alpha rather than gain it. */
-  --glass-bg: color-mix(in oklab, var(--color-panel) 64%, transparent);
+  --glass-bg: color-mix(in oklab, var(--color-panel) 74%, transparent);
   --glass-line: color-mix(in oklab, var(--color-line) 80%, transparent);
   --glow-accent:
     0 0 0 1px color-mix(in oklab, var(--color-accent) 22%, transparent),

@@ -5,6 +5,8 @@ import { SiteNav } from '@/components/SiteNav';
 import { SiteFooter } from '@/components/SiteFooter';
 import { MotionProvider } from '@/components/MotionProvider';
 import { ToastProvider } from '@/components/ui/Toast';
+import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
+import { OfflineBanner } from '@/components/pwa/OfflineBanner';
 // Applies the saved theme before first paint. Shared with next.config.ts, which
 // whitelists it in the CSP by hash — see src/lib/themeScript.ts.
 import { THEME_SCRIPT } from '@/lib/themeScript';
@@ -74,6 +76,8 @@ export default function RootLayout({
               Skip to content
             </a>
             <SiteNav />
+            <OfflineBanner />
+            <ServiceWorkerRegistrar />
             <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none">
               {children}
             </main>

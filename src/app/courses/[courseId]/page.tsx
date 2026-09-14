@@ -44,7 +44,7 @@ import { useAuth } from '@/lib/useAuth';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { progressRepo, userStateRepo, docsRepo, evidenceRepo } from '@/lib/data';
+import { progressRepo, userStateRepo, docsRepo, evidenceRepo, stepNotesRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, getTasksByRole, getWeekTasks, isAdvancedWeek, isEngagement, isGradedWeek, isSetupWeek, phaseTag, taskCard, unitWord } from '@/lib/course-helpers';
 import { clearResume, readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
@@ -58,7 +58,8 @@ import { EngagementBanner } from '@/components/EngagementBanner';
 import { EngagementStatus } from '@/components/EngagementStatus';
 import { Surface } from '@/components/ui/Surface';
 import { cohortRepo } from '@/lib/data';
-import { dueLabel, weekDue } from '@/lib/calendar';
+import { buildIcs, dueLabel, weekDue } from '@/lib/calendar';
+import { downloadText } from '@/lib/download';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { hasSpecificGuide, roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -547,6 +548,7 @@ function TaskRow({
   onToggle,
   isNext,
   number,
+  stuckCount,
   focus,
   renderBody,
 }: {
@@ -566,6 +568,8 @@ function TaskRow({
    *  Continuous across the shared lane then the focus lane — the same order
    *  the removed WeekTaskFlow cards displayed. Reference tasks: unnumbered. */
   number?: number;
+  /** Teammates who have flagged a step of this task as stuck (R68). */
+  stuckCount?: number;
   /**
    * The body, as a thunk rather than an element.
    *
@@ -611,6 +615,11 @@ function TaskRow({
               <span className="font-mono text-sm font-semibold text-muted">{number}.</span>
             )}
             <span className="font-medium text-ink">{task.title}</span>
+            {!!stuckCount && (
+              <span className="shrink-0 rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-semibold text-warn" title="Teammates stuck on a step here">
+                {stuckCount} stuck
+              </span>
+            )}
             {focus && (
               <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">
                 Your focus
@@ -763,14 +772,29 @@ export default function CoursePage() {
   }, []);
   // Scroll to a deep-linked task or step only once it exists in the DOM —
   // which is after the week it lives in has rendered and the row has opened.
+  // The Tasks panel arrives behind an AnimatePresence exit (mode="wait"), so
+  // the element can be a few frames away from the commit that set the state:
+  // retry on a short timer, up to two seconds, then give up quietly.
   useEffect(() => {
-    const id = pendingScroll.current;
-    if (!id) return;
-    const el = document.getElementById(id);
-    if (!el) return;
-    pendingScroll.current = null;
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    focusById(id);
+    if (!pendingScroll.current) return;
+    let tries = 0;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const attempt = () => {
+      const id = pendingScroll.current;
+      if (!id) return;
+      const el = document.getElementById(id);
+      if (el) {
+        pendingScroll.current = null;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        focusById(id);
+        return;
+      }
+      if (tries++ < 16) timer = setTimeout(attempt, 120);
+    };
+    attempt();
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [expanded, selectedWeek, tab, deepStep]);
 
   // Progress writes broadcast through the store; useClientStore re-reads below.
@@ -875,6 +899,18 @@ export default function CoursePage() {
     setTimeout(() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }, [member]);
 
+  // Teammates' stuck flags, folded per task for the chip on the row (R68).
+  const stuckByTask = useClientStore<Record<string, number>>(() => {
+    if (!member) return EMPTY_OBJECT;
+    const out: Record<string, number> = {};
+    for (const f of stepNotesRepo.teamStuck(course.id, member.teamId)) out[f.taskId] = (out[f.taskId] ?? 0) + 1;
+    return out;
+  }, EMPTY_OBJECT);
+  // The cohort calendar, when the instructor has set a start date: "due Fri
+  // 20 Sep · in 3 days" for the week the student is standing in.
+  const cohortKey = member ? (parseTeamId(member.teamId).cohort ?? member.cohort) : null;
+  const cohortCal = useClientStore(() => (cohortKey ? cohortRepo.get(course.id, cohortKey) : null), null);
+
   if (loading) return <CoursePageSkeleton />;
 
   const joined = !!member;
@@ -896,10 +932,6 @@ export default function CoursePage() {
   const gradedForCompletion = course.weeks.filter((w) => isGradedWeek(course, w.number));
   const allWeeksComplete =
     joined && gradedForCompletion.length > 0 && gradedForCompletion.every((w) => (weekStats[w.number] ?? 0) >= 100);
-  // The cohort calendar, when the instructor has set a start date: "due Fri
-  // 20 Sep · in 3 days" for the week the student is standing in.
-  const cohortKey = member ? (parseTeamId(member.teamId).cohort ?? member.cohort) : null;
-  const cohortCal = cohortKey ? cohortRepo.get(course.id, cohortKey) : null;
   const dueLine = cohortCal
     ? dueLabel(weekDue(cohortCal.startsOn, activeWeek), undefined, (weekStats[activeWeek] ?? 0) >= 100)
     : undefined;
@@ -1015,6 +1047,7 @@ export default function CoursePage() {
     if (!member) return;
     progressRepo.resetCourse(course.id, member.memberId);
     evidenceRepo.resetCourse(course.id, member.memberId);
+    stepNotesRepo.resetCourse(course.id, member.memberId);
     clearResume(course.id, member.memberId);
     setExpanded(new Set());
     setConfirmingReset(false);
@@ -1280,6 +1313,11 @@ export default function CoursePage() {
           nextTask={nextTask}
           onContinue={() => nextTask && goToTask(nextTask)}
           due={dueLine}
+          onCalendar={
+            cohortCal && cohortKey
+              ? () => downloadText(`${course.id}_${cohortKey}.ics`, buildIcs({ course, cohort: cohortKey, startsOn: cohortCal.startsOn }), 'text/calendar;charset=utf-8')
+              : undefined
+          }
           subtitle={isEngagement(course) ? <EngagementBanner courseId={course.id} teamId={member.teamId} phase={phaseTag(course, activeWeek)} /> : undefined}
           complete={
             allGatesPassed ? (
@@ -1567,6 +1605,7 @@ export default function CoursePage() {
               locked: weekLocked(w.number),
               pulse: w.number === activeWeek && (weekStats[w.number] ?? 0) < 100,
               advanced: isAdvancedWeek(course, w.number),
+              hint: cohortCal ? dueLabel(weekDue(cohortCal.startsOn, w.number), undefined, (weekStats[w.number] ?? 0) >= 100).text : undefined,
             }))}
           />
 
@@ -1653,6 +1692,7 @@ export default function CoursePage() {
                         joined={joined}
                         open={expanded.has(task.id)}
                         isNext={task.id === nextTask?.id}
+                        stuckCount={stuckByTask[task.id]}
                         focus={!!course.sharedTrack && !task.shared}
                         percent={taskStats[task.id] ?? 0}
                         onToggle={() => toggleTask(task)}

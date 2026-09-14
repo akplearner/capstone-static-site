@@ -2,7 +2,7 @@
 
 import { Info, Users } from 'lucide-react';
 import { TeamProgressTable, type MemberProgress, type DeliverableStatus } from '@/components/TeamProgressTable';
-import { progressRepo, docsRepo } from '@/lib/data';
+import { progressRepo, docsRepo, stepNotesRepo, reviewRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { getRequiredStepCount, getTasksByRole, isAdvancedWeek } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
@@ -41,7 +41,8 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
           week,
           pct: progressRepo.getWeekCompletion(course, m.memberId, m.role, week, keySet),
         }));
-      return { memberId: m.memberId, displayName: m.displayName, role: m.role, overall, weeks, isYou: member.memberId === m.memberId };
+      const stuck = stepNotesRepo.teamStuck(course.id, teamId).filter((f) => f.memberId === m.memberId).length;
+      return { memberId: m.memberId, displayName: m.displayName, role: m.role, overall, weeks, isYou: member.memberId === m.memberId, stuck };
     });
   }, EMPTY_ARRAY);
 
@@ -63,7 +64,12 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
           Object.values(data.fields ?? {}).some((v) => v && v.trim()) ||
           Object.values(data.groups ?? {}).some((rowsArr) => rowsArr.length > 0);
       }
-      return { id: d.id, title: d.title, owner: d.owner, complete };
+      // The instructor's latest verdict on this form, whichever week it was for.
+      const review = reviewRepo
+        .list(course.id, teamId)
+        .filter((r) => r.deliverableId === d.id)
+        .sort((a, b) => b.at - a.at)[0]?.status;
+      return { id: d.id, title: d.title, owner: d.owner, complete, review };
     });
   }, EMPTY_ARRAY);
 

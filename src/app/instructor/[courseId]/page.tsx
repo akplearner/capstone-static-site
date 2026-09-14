@@ -16,6 +16,7 @@ import { TextField, TextArea, NumberField, Toggle } from '@/components/instructo
 import { courseRepo } from '@/lib/data';
 import { useClientStore, useHydrated, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
+import { CohortCalendar } from '@/components/instructor/CohortCalendar';
 
 type Tab = 'details' | 'roles' | 'weeks' | 'tasks' | 'gates';
 const TABS: Array<{ id: Tab; label: string }> = [
@@ -181,6 +182,10 @@ export default function CourseEditorPage() {
                 />
               </div>
             </div>
+
+            {/* R68: the cohort's start date is runtime data, not course
+                content — it is saved on its own, not with the draft. */}
+            <CohortCalendar course={draft} />
           </div>
         )}
         {tab === 'roles' && <RolesEditor course={draft} onChange={setDraft} />}

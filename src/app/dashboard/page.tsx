@@ -30,6 +30,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import type { Course, Member } from '@/lib/types';
 import type { CrewProgress } from '@/lib/game';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { InstallPrompt } from '@/components/pwa/InstallPrompt';
 import { DUR, EASE } from '@/lib/motion';
 import { Surface, surfaceVariants } from '@/components/ui/Surface';
 
@@ -144,6 +145,7 @@ export default function DashboardPage() {
         />
       ) : (
         <>
+          <InstallPrompt />
           {/* What you've proved overall. The two stats that are ratios with a
               known denominator draw as rings — a 42-of-96 is legible at a
               glance where "42 / of 96 checkable" as two lines of text was not.

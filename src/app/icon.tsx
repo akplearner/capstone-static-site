@@ -23,6 +23,11 @@ export const size = { width: 512, height: 512 };
 export const contentType = 'image/png';
 
 export default function Icon() {
+  return renderIcon(size);
+}
+
+/** The same mark at any square size — the manifest's 192px icon reuses it. */
+export function renderIcon(box: { width: number; height: number }) {
   return new ImageResponse(
     (
       <div
@@ -35,7 +40,7 @@ export default function Icon() {
           background: STATIC_PALETTE.ground,
         }}
       >
-        <svg width="512" height="512" viewBox="0 0 120 120">
+        <svg width={box.width} height={box.height} viewBox="0 0 120 120">
           <path d={SILHOUETTE.cut} fill={STATIC_PALETTE.rock} />
           {facetsFor('cut').map((f) => {
             const { fill, opacity } = facetHex(f.tone);
@@ -58,6 +63,6 @@ export default function Icon() {
         </svg>
       </div>
     ),
-    size
+    box
   );
 }

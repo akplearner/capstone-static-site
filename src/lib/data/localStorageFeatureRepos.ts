@@ -1,5 +1,6 @@
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
+import { notifyStore } from '../useClientStore';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import type {
   Cohort,
@@ -48,6 +49,7 @@ export const localStorageReviewRepo: ReviewRepository = {
     );
     next.push(review);
     safeSetItem(key, JSON.stringify(next));
+    notifyStore();
   },
 };
 
@@ -59,6 +61,7 @@ export const localStorageCohortRepo: CohortRepository = {
   save(cohort: Cohort): void {
     if (!hasWindow()) return;
     safeSetItem(KEYS.cohortCalendar(cohort.courseId, cohort.cohort), JSON.stringify(cohort));
+    notifyStore();
   },
 };
 
@@ -77,6 +80,7 @@ export const localStorageStepNotesRepo: StepNotesRepository = {
     const all = readJson<Record<string, StepNote>>(key, {});
     all[stepNoteKey(note.taskId, note.stepId)] = note;
     safeSetItem(key, JSON.stringify(all));
+    notifyStore();
   },
 
   // On one device the "team" is whoever joined on this browser, which is the
@@ -98,5 +102,6 @@ export const localStorageStepNotesRepo: StepNotesRepository = {
   resetCourse(courseId: string, memberId: string): void {
     if (!hasWindow()) return;
     localStorage.removeItem(KEYS.stepNotes(courseId, memberId));
+    notifyStore();
   },
 };

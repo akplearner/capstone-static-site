@@ -22,6 +22,16 @@ export function notifyStore(): void {
   if (typeof window !== 'undefined') window.dispatchEvent(new Event(STORE_EVENT));
 }
 
+/**
+ * Subscribe a plain callback to the same channel `useClientStore` listens on:
+ * any `notifyStore()` broadcast and cross-tab `storage` events. Returns the
+ * unsubscribe. For pages that load their data asynchronously (the cohort
+ * dashboard) and want to re-read after a write on this device.
+ */
+export function subscribeStore(onChange: () => void): () => void {
+  return subscribe(onChange);
+}
+
 function subscribe(onChange: () => void): () => void {
   if (typeof window === 'undefined') return () => {};
   window.addEventListener(STORE_EVENT, onChange);

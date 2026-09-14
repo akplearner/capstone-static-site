@@ -652,4 +652,39 @@ describe('R68 — the shape of the modernised platform', () => {
     // The role surface holds the team; the team block is mounted once.
     expect(page.match(/<TeamBlock /g)?.length).toBe(1);
   });
+
+  it('the review loop, notes and stuck flag are mounted where the student works', () => {
+    expect(code(DOCS)).toContain('<ReviewBanner');
+    expect(code('src/components/TaskComponents.tsx')).toContain('<StepNotes');
+    expect(code('src/components/StepNotes.tsx')).toContain('aria-pressed');
+    // A course reset clears the notes too, or the next student inherits them.
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('stepNotesRepo.resetCourse');
+  });
+
+  it('the offline layer is a first-party worker the policy allows', () => {
+    const config = read('next.config.ts');
+    expect(config).toContain("`worker-src 'self'`");
+    expect(config).toContain("`manifest-src 'self'`");
+    expect(config).toContain('source: "/sw.js"');
+    const sw = read('public/sw.js');
+    expect(sw).toContain("request.method !== 'GET'");
+    expect(sw).toContain("headers.get('RSC')");
+    expect(sw).toContain('caches.delete');
+    expect(sw).toContain("event.data.type === 'clear'");
+    const layout = code('src/app/layout.tsx');
+    expect(layout).toContain('<ServiceWorkerRegistrar />');
+    expect(layout).toContain('<OfflineBanner />');
+    expect(code('src/lib/useAuth.ts')).toContain('clearOfflineCaches()');
+    // Never in development: a caching worker under the dev server serves stale chunks.
+    expect(code('src/components/pwa/ServiceWorkerRegistrar.tsx')).toContain("process.env.NODE_ENV === 'production'");
+  });
+
+  it('the cohort dashboard loads the whole course, not the caller’s cache', () => {
+    const loader = code('src/lib/data/cohortLoader.ts');
+    // Row shapers are shared; the cache itself (keyed without a user id) is not.
+    expect(loader).not.toMatch(/\bcache\b|hydrateCourse/);
+    expect(loader).toContain("supabase.from('step_evidence').select('*').eq('course_id', course.id)");
+    expect(loader).toContain("supabase.from('step_flags')");
+    expect(code('src/app/instructor/[courseId]/cohort/page.tsx')).toContain('cohortCsv(');
+  });
 });

@@ -36,6 +36,7 @@ import { AnnotatedTerminal, OutcomeCard, StepImages } from './StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { Collapsible } from './ui/Button';
 import { DUR, EASE } from '@/lib/motion';
+import { StepNotes } from './StepNotes';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -457,6 +458,10 @@ export function StepDetail({
           {/* No `hasCommand` guard: a dashboard step has verify tokens too, and
               gating on a command silently hid the check on every GUI step. */}
           {verify && verify.length > 0 && <OutputVerify verify={verify} ledger={ledger} />}
+          {/* R68: the student's private note and the team-visible stuck flag.
+              Only on a step that records — a read-only view of another role's
+              task has nowhere to write. */}
+          {ledger && <StepNotes ledger={ledger} />}
         </div>
       </div>
 

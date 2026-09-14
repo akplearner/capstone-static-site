@@ -118,7 +118,12 @@ additive, none requiring a rewrite.
 | Environment | implicit in prose + Lab Setup guide | **Absent** as an entity |
 | Scenario | implicit (week theme + gate) | **Minimal** |
 | Benchmark / SOP / Policy | exist as deliverable files | **Implicit** (not entities) |
-| Evidence ledger (step verification + artifact hashes) | `step_evidence`, `evidence_artifacts`, `src/lib/evidenceLedger.ts` | **Partial** (records proof; not an event log) |
+| Evidence ledger (step verification + artifact hashes) | `step_evidence`, `evidence_artifacts`, `src/lib/evidenceLedger.ts`; browsable at `/courses/<id>/ledger` (`src/lib/ledgerView.ts`) | **Partial** (records proof; not an event log) |
+| Review (instructor verdict on a form, per week) | `deliverable_reviews`, `reviewRepo`, `ReviewBanner` / `ReviewCell` | **Present** (R68) |
+| Cohort (start date → week due dates, .ics) | `cohorts`, `cohortRepo`, `src/lib/calendar.ts` | **Present** (R68; one date per cohort, seeds carry none) |
+| Step note / stuck flag | `step_notes` (owner-only) + `step_flags` (team + instructor), `stepNotesRepo` | **Present** (R68) |
+| Rubric points (70 TEAM / 30 FOCUS per week) | `src/lib/rubric.ts`, `src/lib/cohort.ts` (CSV) | **Partial** (the platform's share; quality is still marked by hand) |
+| Course snapshot (JSON DTO) | `content/courses/<id>.json`, `src/lib/content/dto.ts`, `npm run content:export` | **Present** (generated; the TS seeds stay the source of truth) |
 | Event / Attestation / Consent | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |
 
@@ -134,3 +139,7 @@ additive, none requiring a rewrite.
 - **Schema:** `supabase/migrations/` (tables + RLS to extend with `events`, `tenant_id`, consent).
 - **Evidence:** `src/lib/docs/custodyTemplate.ts`, `package.ts`, `validateEvidenceFileName` in `utils.ts`.
 - **Identity:** `src/lib/useAuth.ts`, `src/lib/supabase/*`, `profiles.is_instructor`.
+- **Instructor view:** `src/lib/data/cohortLoader.ts` reads a whole course (six selects, bypassing the
+  per-user cache) for `/instructor/<course>/cohort`; `src/lib/search.ts` is the ⌘K index.
+- **Offline:** `public/sw.js` (hand-written; navigations network-first, `/_next/static` cache-first,
+  RSC and Supabase never cached), `src/lib/pwa.ts`, `src/components/pwa/*`; `/offline` is the fallback.

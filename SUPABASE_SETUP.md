@@ -265,8 +265,10 @@ honestly reports that the login itself could not be removed.
 
 Teammates seeing each other's progress update without refreshing is already
 configured by step 2. Confirm under **Database → Replication** if you want to check.
-`lab_access` and `user_course_state` are deliberately excluded — they are private to
-one student, so there is nobody to notify.
+`lab_access`, `user_course_state` and `step_notes` are deliberately excluded — they
+are private to one student, so there is nobody to notify. Reviews, the cohort
+calendar and stuck flags (`deliverable_reviews`, `cohorts`, `step_flags`) are
+included, so a review appears on the team's Deliverables page as it is saved.
 
 ---
 
@@ -289,10 +291,16 @@ before real students:
 | Deliverables, gate status, registers | your team |
 | Personal state, evidence, chosen path | **you only** |
 | Lab access notes | **you only** — not teammates, not instructors |
+| Step notes | **you only** |
+| "I'm stuck" flags | you, your teammates, and the instructor |
+| Instructor reviews of a form | your team (read); the instructor writes |
+| Cohort calendar (start date) | anyone signed in (read); the instructor writes |
 
 Lab notes are the strictest on purpose: that is where students record lab details.
-Instructors can read membership, completions and deliverables — never lab
-credentials.
+Instructors can read membership, completions, deliverables, the evidence ledger
+(hashes and counts, never pasted output) and gate status — that is what the
+cohort dashboard at `/instructor/<course>/cohort` is built from. Never lab
+credentials, never a student's step notes.
 
 A team is a team **within one class session**: Team 1 of the January cohort and
 Team 1 of March are separate teams with separate documents.

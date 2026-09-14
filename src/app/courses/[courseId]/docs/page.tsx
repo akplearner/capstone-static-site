@@ -26,8 +26,8 @@ import { readResume } from '@/lib/resume';
 import { useMember } from '@/lib/useMember';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { useSupabaseSync } from '@/lib/useSupabaseSync';
-import { docsRepo, evidenceRepo } from '@/lib/data';
-import { useClientStore, notifyStore, EMPTY_OBJECT } from '@/lib/useClientStore';
+import { docsRepo, evidenceRepo, reviewRepo } from '@/lib/data';
+import { useClientStore, notifyStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
 import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable, withoutSeedRows } from '@/lib/docs/definitions';
 import { applyCarryForward, buildFormContext } from '@/lib/docs/formContext';
@@ -41,6 +41,8 @@ import { parseTeamId, teamLabel } from '@/lib/team';
 import { DeliverablesSkeleton } from '@/components/ui/Skeletons';
 import { WeekRail } from '@/components/WeekRail';
 import { localDay } from '@/lib/localDate';
+import { ReviewBanner } from '@/components/docs/ReviewBanner';
+import type { DeliverableReview } from '@/lib/data/types';
 
 type DocsMap = Record<string, DeliverableData>;
 
@@ -143,6 +145,12 @@ export default function DeliverablesPage() {
   const stored = useClientStore<DocsMap>(
     () => (member ? docsRepo.get(course.id, member.teamId) ?? EMPTY_OBJECT : EMPTY_OBJECT),
     EMPTY_OBJECT
+  );
+  // The instructor's verdicts on this team's forms (R68), live: a review saved
+  // from the cohort dashboard reaches the form without a reload.
+  const reviews = useClientStore<DeliverableReview[]>(
+    () => (member ? reviewRepo.list(course.id, member.teamId) : EMPTY_ARRAY),
+    EMPTY_ARRAY
   );
 
   // Deliverables are the team's shared documents — they have to belong to an
@@ -256,6 +264,11 @@ export default function DeliverablesPage() {
     return due.length > 0 && due.every((c) => c.test(own(def.id, def)));
   };
   const isDone = (def: (typeof courseDefs)[number]) => isDoneBy(def, selectedWeek);
+  // The instructor's verdict on a form, for the week on screen first, else the
+  // latest one — a "revise" from Week 3 still needs answering in Week 4.
+  const reviewFor = (id: string) =>
+    reviews.find((r) => r.deliverableId === id && r.week === selectedWeek) ??
+    reviews.filter((r) => r.deliverableId === id).sort((a, b) => b.at - a.at)[0];
 
   // Which form is showing. A ?form= deep-link wins, then the student's own click,
   // then the first form they haven't finished — so opening the page mid-week lands
@@ -531,6 +544,7 @@ export default function DeliverablesPage() {
             noGatekeeping={course.noGatekeeping}
             meta={meta}
             onChange={setDoc}
+            review={reviewFor(currentDef.id)}
           />
         ) : (
           // More than one form this week — Security+ GRC Week 1 owns five, which
@@ -565,6 +579,7 @@ export default function DeliverablesPage() {
                   noGatekeeping={course.noGatekeeping}
                   meta={meta}
                   onChange={setDoc}
+                  review={reviewFor(currentDef.id)}
                 />
               </div>
             )}
@@ -638,6 +653,7 @@ function FormSection({
   noGatekeeping,
   meta,
   onChange,
+  review,
 }: {
   def: DeliverableDef;
   saved: DocsMap;
@@ -646,6 +662,8 @@ function FormSection({
   noGatekeeping?: boolean;
   meta: { team: string; cohort: string; date: string; courseId: string };
   onChange: (id: string, data: DeliverableData) => void;
+  /** The instructor's latest verdict on this form (R68). */
+  review?: DeliverableReview;
 }) {
   // A form only has a "worked example" when a group carries seed rows; field-only
   // forms (e.g. Detection Record) have none, so no badge/toggle.
@@ -673,6 +691,7 @@ function FormSection({
       id={`form-${def.id}`}
       className="stratum-week scroll-under-chrome space-y-4 p-5"
     >
+      {review && <ReviewBanner review={review} />}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">

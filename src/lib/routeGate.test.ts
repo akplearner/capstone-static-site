@@ -8,6 +8,7 @@ import { isProtected } from './routeGate';
 
 describe('isProtected', () => {
   it('protects the personal surfaces', () => {
+    expect(isProtected('/instructor/server-plus/cohort')).toBe(true);
     expect(isProtected('/dashboard')).toBe(true);
     expect(isProtected('/dashboard/anything')).toBe(true);
     expect(isProtected('/portfolio')).toBe(true);
@@ -23,6 +24,8 @@ describe('isProtected', () => {
     expect(isProtected('/register')).toBe(false);
     expect(isProtected('/legal/terms')).toBe(false);
     expect(isProtected('/legal/privacy')).toBe(false);
+    // R68: the service worker's fallback page must be reachable without a session.
+    expect(isProtected('/offline')).toBe(false);
   });
 
   it('leaves the course DASHBOARD public — it is how someone decides to enrol', () => {
@@ -36,6 +39,8 @@ describe('isProtected', () => {
     expect(isProtected('/courses/cysa-plus/guide')).toBe(true);
     expect(isProtected('/courses/cysa-plus/guide/reference')).toBe(true);
     expect(isProtected('/courses/cysa-plus/team/alpha')).toBe(true);
+    // R68: the evidence ledger is course material too.
+    expect(isProtected('/courses/server-plus/ledger')).toBe(true);
   });
 
   it('protects a course sub-route that does not exist yet', () => {

@@ -127,6 +127,40 @@ export function DeliverablesSkeleton() {
   );
 }
 
+/** The evidence ledger — header, the week filter, two tables. */
+export function LedgerSkeleton() {
+  return (
+    <div className="space-y-8" aria-busy="true" aria-label="Loading evidence ledger">
+      <SubNavSkeleton />
+      <HeaderSkeleton />
+      <WeekRailSkeleton />
+      {[0, 1].map((i) => (
+        <div key={i} className="space-y-3">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-40 w-full rounded-[var(--radius-card)]" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/** The cohort dashboard — header, filters, one table per team. */
+export function CohortSkeleton() {
+  return (
+    <div className="space-y-8" aria-busy="true" aria-label="Loading cohort">
+      <HeaderSkeleton />
+      <div className="flex flex-wrap gap-2">
+        {[120, 120, 160].map((w, i) => (
+          <Skeleton key={i} className="h-8 rounded-md" style={{ width: w }} />
+        ))}
+      </div>
+      {[0, 1].map((i) => (
+        <Skeleton key={i} className="h-48 w-full rounded-[var(--radius-card)]" />
+      ))}
+    </div>
+  );
+}
+
 /** The Guide — orientation, then the manual's section index. */
 export function GuideSkeleton() {
   return (

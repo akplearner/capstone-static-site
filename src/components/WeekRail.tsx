@@ -47,6 +47,8 @@ export interface WeekRailItem {
   /** An advanced week: on the rail like any other, marked so nobody reads it
    *  as required. Never counted toward completion (see `isGradedWeek`). */
   advanced?: boolean;
+  /** A tooltip — the cohort calendar's "due Fri 20 Sep · in 3 days" (R68). */
+  hint?: string;
 }
 
 export function WeekRail({
@@ -98,6 +100,7 @@ export function WeekRail({
             type="button"
             onClick={() => onSelect(it.week)}
             aria-current={on ? 'true' : undefined}
+            title={it.hint}
             className={`relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
               on ? 'text-accent-contrast' : 'text-muted hover:bg-panel-2 hover:text-ink'
             }`}
