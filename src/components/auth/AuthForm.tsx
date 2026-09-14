@@ -206,7 +206,7 @@ export function AuthForm({
           the field away from magic link too. */}
       {emailField && (
         <label className="block">
-          <span className="eyebrow-muted">Email</span>
+          <span className="text-sm font-medium text-body">Email</span>
           <input
             type="email"
             required
@@ -223,7 +223,7 @@ export function AuthForm({
       {passwordAuth && (
         <form id="auth-password-form" onSubmit={withPassword} className="space-y-3">
           <label className="block">
-            <span className="eyebrow-muted">Password</span>
+            <span className="text-sm font-medium text-body">Password</span>
             <input
               type="password"
               required

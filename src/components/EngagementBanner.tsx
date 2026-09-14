@@ -83,7 +83,7 @@ export function EngagementBanner({
           <div className="flex items-start gap-2">
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-ok" />
             <div className="min-w-0">
-              <div className="eyebrow-muted">Attestation scope</div>
+              <div className="text-xs font-semibold text-muted">Attestation scope</div>
               <div className="text-sm text-body">{trust}</div>
             </div>
           </div>
@@ -92,7 +92,7 @@ export function EngagementBanner({
           <div className="flex items-start gap-2">
             <Target className="mt-0.5 h-4 w-4 shrink-0 text-info" />
             <div className="min-w-0">
-              <div className="eyebrow-muted">System boundary</div>
+              <div className="text-xs font-semibold text-muted">System boundary</div>
               <div className="line-clamp-2 text-sm text-body">{scope}</div>
             </div>
           </div>

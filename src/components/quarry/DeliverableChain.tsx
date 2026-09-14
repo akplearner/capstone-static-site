@@ -381,17 +381,17 @@ export function DeliverableChainDiagram({
             </div>
             <p className="font-medium text-ink">{activeNode.title}</p>
             <dl className="grid gap-x-4 gap-y-1 sm:grid-cols-[auto_1fr]">
-              <dt className="eyebrow-muted">Produced by</dt>
+              <dt className="text-xs font-semibold text-muted">Produced by</dt>
               <dd style={{ color: roleColor(activeNode.owner) }} className="font-medium">
                 {roleName(activeNode.owner)}
               </dd>
               {activeDef?.source && (
                 <>
-                  <dt className="eyebrow-muted">Built from</dt>
+                  <dt className="text-xs font-semibold text-muted">Built from</dt>
                   <dd className="text-muted">{activeDef.source}</dd>
                 </>
               )}
-              <dt className="eyebrow-muted">Connects to</dt>
+              <dt className="text-xs font-semibold text-muted">Connects to</dt>
               <dd className="text-muted">
                 {activeDownstream.length > 0 ? (
                   <span className="flex flex-wrap items-center gap-x-1 gap-y-1">
@@ -412,7 +412,7 @@ export function DeliverableChainDiagram({
               </dd>
               {activeDef?.useIt && (
                 <>
-                  <dt className="eyebrow-muted">Why</dt>
+                  <dt className="text-xs font-semibold text-muted">Why</dt>
                   <dd className="text-muted">{activeDef.useIt}</dd>
                 </>
               )}

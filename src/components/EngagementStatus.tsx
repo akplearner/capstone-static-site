@@ -1,36 +1,47 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, CheckCircle2, Circle, FileText, Sparkles } from 'lucide-react';
+import type { ReactNode } from 'react';
+import { ArrowRight, FileText } from 'lucide-react';
 import { ProgressRing } from '@/components/ui/ProgressRing';
-import { isAdvancedWeek } from '@/lib/course-helpers';
+import { Surface } from '@/components/ui/Surface';
 import type { Course, Task } from '@/lib/types';
+import type { DueTone } from '@/lib/calendar';
+
+const TONE: Record<DueTone, string> = {
+  muted: 'text-muted',
+  ok: 'text-ok',
+  warn: 'text-warn',
+  danger: 'text-danger',
+};
 
 /**
  * The four questions a student opens the course with: where am I, how far
  * through, what have I filed, and what do I do next.
  *
- * The Overview could answer none of them. It described the course — the roles,
- * the topology, the phases — all of which a student needs once, on day one, and
- * never again. The state they actually come back for was spread across the
- * Weekly Tasks, Deliverables and Team tabs.
+ * R68 removed the row of week pills it used to carry underneath — a second
+ * week selector in a second visual language, directly above the WeekRail that
+ * is the week selector. In its place: the actions a student reaches for from
+ * here (Deliverables, the evidence ledger), the cohort's due line when the
+ * instructor has set a start date, and the course-complete state rendered
+ * INSIDE this surface rather than as a fifth box below it.
  *
  * Nothing here computes new state. Week completion, task percentages, the
- * resume pointer and the filed-document set are all already derived on the
- * course page; this is a presentation of them in one row.
+ * resume pointer and the filed-document set are all derived on the course
+ * page; this is a presentation of them in one row.
  */
 export function EngagementStatus({
   course,
   weekNumber,
   phase,
   percent,
-  weeks,
-  weekPercent,
   docsFiled,
   docsTotal,
   nextTask,
-  onGoToWeek,
   onContinue,
+  due,
+  subtitle,
+  complete,
 }: {
   course: Course;
   /** The week the student is standing in. */
@@ -38,47 +49,46 @@ export function EngagementStatus({
   phase?: string;
   /** Overall completion across this student's own tasks, 0-100. */
   percent: number;
-  /** Every week number in order, setup week included. */
-  weeks: number[];
-  /** Completion per week number, 0-100. */
-  weekPercent: (w: number) => number;
   docsFiled: number;
   docsTotal: number;
   nextTask?: Task;
-  onGoToWeek: (w: number) => void;
   onContinue: () => void;
+  /** The cohort calendar's line for this week, when a start date is set. */
+  due?: { text: string; tone: DueTone };
+  /** An engagement-framed course's client and scope line. */
+  subtitle?: ReactNode;
+  /** The finished state, rendered in place of "next". */
+  complete?: ReactNode;
 }) {
   return (
-    <section
-      aria-label="Where you are"
-      className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-panel"
-    >
-      <div className="flex flex-wrap items-center gap-x-6 gap-y-4 border-b border-line px-4 py-3.5">
+    <Surface as="section" aria-label="Where you are" id="home-head" tabIndex={-1} padding="none" className="overflow-hidden outline-none">
+      <div className="flex flex-wrap items-center gap-x-6 gap-y-4 px-5 py-4">
         <div className="flex items-center gap-3">
           <ProgressRing value={percent} max={100} size={52} label="Overall completion" />
           <div className="min-w-0">
-            <div className="eyebrow-muted">You are on</div>
-            <div className="text-lg font-bold leading-tight text-ink">
+            <div className="text-sm text-muted">You are on</div>
+            <div className="text-lg font-semibold leading-tight text-ink">
               Week {weekNumber}
               {phase && <span className="ml-2 text-sm font-medium text-muted">{phase}</span>}
             </div>
+            {due && <div className={`mt-0.5 text-sm ${TONE[due.tone]}`}>{due.text}</div>}
           </div>
         </div>
 
         <div className="min-w-0">
-          <div className="eyebrow-muted">Documents filed</div>
-          <div className="flex items-baseline gap-1.5 text-lg font-bold leading-tight text-ink">
+          <div className="text-sm text-muted">Documents filed</div>
+          <div className="flex items-baseline gap-1.5 text-lg font-semibold leading-tight text-ink">
             <FileText className="h-4 w-4 shrink-0 text-muted" aria-hidden />
             {docsFiled}
             <span className="text-sm font-medium text-muted">of {docsTotal}</span>
           </div>
         </div>
 
-        {nextTask && (
+        {nextTask && !complete && (
           <button
             type="button"
             onClick={onContinue}
-            className="ml-auto inline-flex max-w-full items-center gap-2 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+            className="ml-auto inline-flex max-w-full items-center gap-2 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong"
           >
             <span className="truncate">Next: {nextTask.title}</span>
             <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
@@ -86,47 +96,21 @@ export function EngagementStatus({
         )}
       </div>
 
-      {/* The arc, as a rail rather than a sentence. Each week is a target you can
-          jump to, and its state is readable without opening it. */}
-      <ol className="flex flex-wrap gap-2 px-4 py-3">
-        {weeks.map((w) => {
-          const pct = weekPercent(w);
-          const done = pct >= 100;
-          const here = w === weekNumber;
-          return (
-            <li key={w}>
-              <button
-                type="button"
-                onClick={() => onGoToWeek(w)}
-                aria-current={here ? 'step' : undefined}
-                className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                  here
-                    ? 'border-accent bg-accent-soft text-accent-ink'
-                    : done
-                      ? 'border-ok-line bg-ok-soft text-ink'
-                      : 'border-line bg-panel-2 text-body hover:border-accent hover:text-accent'
-                }`}
-              >
-                {done ? (
-                  <CheckCircle2 className="h-3.5 w-3.5 text-ok" aria-hidden />
-                ) : (
-                  <Circle className="h-3.5 w-3.5 text-muted" aria-hidden />
-                )}
-                {w === 0 ? 'Setup' : `Week ${w}`}
-                {isAdvancedWeek(course, w) && <Sparkles className="h-3.5 w-3.5 text-muted" aria-label="advanced, optional" />}
-              </button>
-            </li>
-          );
-        })}
-        <li className="ml-auto self-center">
-          <Link
-            href={`/courses/${course.id}/docs`}
-            className="text-xs font-medium text-accent hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-accent"
-          >
-            Open Deliverables →
-          </Link>
-        </li>
-      </ol>
-    </section>
+      {subtitle && <div className="border-t border-line px-5 py-2.5 text-sm text-body">{subtitle}</div>}
+
+      {complete && <div className="border-t border-line px-5 py-4">{complete}</div>}
+
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-1 border-t border-line bg-panel-2/60 px-5 py-2.5 text-sm">
+        <Link href={`/courses/${course.id}/docs`} className="font-medium text-accent hover:underline">
+          Open Deliverables →
+        </Link>
+        <Link href={`/courses/${course.id}/ledger`} className="font-medium text-accent hover:underline">
+          Evidence ledger →
+        </Link>
+        <Link href={`/courses/${course.id}/guide`} className="font-medium text-muted hover:text-ink hover:underline">
+          Guide
+        </Link>
+      </div>
+    </Surface>
   );
 }

@@ -31,6 +31,7 @@ import type { Course, Member } from '@/lib/types';
 import type { CrewProgress } from '@/lib/game';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { DUR, EASE } from '@/lib/motion';
+import { Surface, surfaceVariants } from '@/components/ui/Surface';
 
 // The signed-in home: every capstone you've started, how far each stone is cut,
 // and — the number that actually matters — how much of it you proved against
@@ -149,7 +150,9 @@ export default function DashboardPage() {
               Evidence and days have no denominator, so they stay numbers. */}
           <section aria-labelledby="dash-record" className="space-y-3">
             <SectionLabel id="dash-record">Your record</SectionLabel>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {/* One flat strip, not four boxes: a summary should be readable,
+                not the heaviest object on the page. */}
+            <Surface as="dl" variant="flat" padding="none" className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
             <Stat
               icon={ShieldCheck}
               label="Steps verified"
@@ -176,7 +179,7 @@ export default function DashboardPage() {
               value={`${summary.activeDays}`}
               sub="measured, never scored"
             />
-            </div>
+            </Surface>
           </section>
 
           <section aria-labelledby="dash-path" className="space-y-3">
@@ -203,7 +206,7 @@ export default function DashboardPage() {
             </div>
           </section>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-[var(--radius-card)] border border-line bg-panel-2 p-5">
+          <Surface variant="inset" className="flex flex-wrap items-center justify-between gap-3">
             <p className="text-sm text-muted">
               Ready to show this to someone? Your portfolio collects every verified step and hashed
               artifact into one page.
@@ -220,7 +223,7 @@ export default function DashboardPage() {
                 </Button>
               </Link>
             </div>
-          </div>
+          </Surface>
         </>
       )}
     </div>
@@ -260,26 +263,21 @@ function Stat({
   ring?: { value: number; max: number };
 }) {
   return (
-    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4 transition-colors hover:border-accent">
-      <div className="flex items-center gap-2">
-        <Icon className="h-4 w-4 text-accent" />
-        <span className="eyebrow">{label}</span>
-      </div>
+    <div className="px-4 py-3 sm:px-5">
+      <dt className="flex items-center gap-2 text-sm text-muted">
+        <Icon className="h-4 w-4 text-accent" aria-hidden />
+        {label}
+      </dt>
       {ring ? (
-        <div className="mt-2 flex items-center gap-3">
+        <dd className="mt-2 flex items-center gap-3">
           <ProgressRing value={ring.value} max={ring.max} label={label} />
-          <div className="text-xs text-muted">{sub}</div>
-        </div>
+          <span className="text-sm text-muted">{sub}</span>
+        </dd>
       ) : (
-        <>
-          {/* text-xl semibold, not 2xl bold. These four numbers were the
-              typographically heaviest thing on the page — heavier than the
-              course titles they are a summary OF — so the eye landed on a
-              tally before the work. A summary strip should be readable, not
-              loudest. */}
-          <div className="mt-1 text-xl font-semibold text-ink">{value}</div>
-          <div className="text-xs text-muted">{sub}</div>
-        </>
+        <dd className="mt-1">
+          <span className="block text-2xl font-semibold tabular-nums text-ink">{value}</span>
+          <span className="text-sm text-muted">{sub}</span>
+        </dd>
       )}
     </div>
   );
@@ -303,9 +301,10 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
       data-week={activeWeek}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ y: -2 }}
       transition={{ delay: index * 0.06, duration: DUR.reveal, ease: EASE.out }}
-      className="group flex flex-col rounded-[var(--radius-card)] border border-line border-l-4 border-l-[var(--week,var(--color-accent))] bg-panel p-6 shadow-[var(--shadow-card)] transition-colors hover:border-accent"
+      // The week seam and the week glow: the card wears the phase the student
+      // is in. Nothing lifts on hover; the border tints.
+      className={`group flex flex-col transition-colors hover:border-accent ${surfaceVariants({ accent: 'week', glow: 'week', padding: 'lg' })}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
@@ -329,7 +328,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
         {crew.weeksTotal > 0 && (
           <div className="flex shrink-0 flex-col items-center gap-1">
             <SealLedger sealed={crew.weeksCleared} total={crew.weeksTotal} size={64} />
-            <span className="font-mono text-3xs text-muted">
+            <span className="text-xs text-muted">
               {crew.weeksCleared}/{crew.weeksTotal} sealed
             </span>
           </div>
@@ -369,7 +368,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
 function Mini({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-mono text-3xs uppercase tracking-wider text-muted">{label}</dt>
+      <dt className="text-xs text-muted">{label}</dt>
       <dd className="text-sm font-semibold text-ink">{value}</dd>
     </div>
   );

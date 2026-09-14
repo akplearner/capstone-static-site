@@ -27,6 +27,8 @@ import { toast } from '@/components/ui/Toast';
 import { StepDetail } from '@/components/TaskComponents';
 import { GuidedTaskRunner } from '@/components/GuidedTaskRunner';
 import { CourseSubNav } from '@/components/CourseSubNav';
+import { Crumbs } from '@/components/SiteNav';
+import { focusById } from '@/lib/focus';
 import { socTopology } from '@/lib/labTopology';
 import { WeekGatePanel } from '@/components/WeekGatePanel';
 import { WeekMilestoneHeader } from '@/components/WeekMilestoneHeader';
@@ -54,6 +56,9 @@ import { isCapstoneFiled, isDeliverableFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { EngagementBanner } from '@/components/EngagementBanner';
 import { EngagementStatus } from '@/components/EngagementStatus';
+import { Surface } from '@/components/ui/Surface';
+import { cohortRepo } from '@/lib/data';
+import { dueLabel, weekDue } from '@/lib/calendar';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { hasSpecificGuide, roleGuide, worksLabel } from '@/lib/roleGuide';
 import { getFrameworkColor, getFrameworkLabel, getMonthlyCohorts } from '@/lib/utils';
@@ -317,7 +322,7 @@ function TaskReference({ task }: { task: Task }) {
     <div className="space-y-3">
       {task.steps.map((s, i) => (
         <div key={s.id} className="rounded-lg border border-line bg-panel-2 p-4">
-          <div className="eyebrow-muted">
+          <div className="text-xs font-semibold text-muted">
             Step {i + 1}
           </div>
           <h4 className="mt-0.5 font-semibold text-ink">{s.title}</h4>
@@ -407,7 +412,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
     <div className="space-y-3">
       {done.length > 0 && (
         <div>
-          <div className="flex items-center gap-1.5 eyebrow-muted">
+          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
             <CheckCircle2 className="h-3.5 w-3.5" /> Done when
           </div>
           <ul className="mt-1.5 space-y-1 text-sm text-ink">
@@ -476,7 +481,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
         <div className="space-y-3 border-t border-line pt-3">
           {task.tools && task.tools.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="flex items-center gap-1 eyebrow-muted">
+              <span className="flex items-center gap-1 text-xs font-semibold text-muted">
                 <Wrench className="h-3.5 w-3.5" /> Tools
               </span>
               {task.tools.map((tool) => (
@@ -491,7 +496,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
           )}
           {task.learn && task.learn.length > 0 && (
             <div>
-              <div className="flex items-center gap-1.5 eyebrow-muted">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
                 <GraduationCap className="h-3.5 w-3.5" /> What you&apos;ll learn
               </div>
               <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-body">
@@ -503,7 +508,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
           )}
           {task.frameworks.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
-              <span className="flex items-center gap-1 eyebrow-muted">
+              <span className="flex items-center gap-1 text-xs font-semibold text-muted">
                 <Tag className="h-3.5 w-3.5" /> Frameworks
               </span>
               {task.frameworks.map((fw) => (
@@ -720,22 +725,53 @@ export default function CoursePage() {
   // the student actually stopped inside Setup. In class the lab already exists.
   const [setupOpen, setSetupOpen] = useState<boolean | null>(null);
   const [tab, setTabState] = useState<'home' | 'tasks'>('home');
+  // The step a deep link named (`?step=`), handed to the runner so it opens
+  // on that step rather than the first incomplete one.
+  const [deepStep, setDeepStep] = useState<{ taskId: string; stepId?: string } | null>(null);
+  // Something to scroll to once the week and the task have rendered. Consumed
+  // by the effect below, after the commit — the ServerConfigGuide pattern.
+  const pendingScroll = useRef<string | null>(null);
   // Honor `?tab=tasks` (and the older `?tab=weeks`, which bookmarks still
-  // carry) plus `?week=N`. In an effect, not a lazy initializer, so server and
-  // client first render match; the one-shot sync on mount is intentional.
+  // carry) plus `?week=N`, and since R68 `?task=<id>` and `?step=<id>` — the
+  // palette's and the ledger's deep links. Read on mount and on every
+  // popstate (Back, or the palette's same-page navigation). In an effect, not
+  // a lazy initializer, so server and client first render match.
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const t = params.get('tab');
-    const w = params.get('week');
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (t === 'tasks' || t === 'weeks') setTabState('tasks');
-    if (w !== null && Number.isFinite(Number(w))) setSelectedWeek(Number(w));
-    // Write the current spelling back, so a copied URL carries `tasks`.
-    if (t === 'weeks') {
-      params.set('tab', 'tasks');
-      window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`);
-    }
+    const readDeepLink = () => {
+      const params = new URLSearchParams(window.location.search);
+      const t = params.get('tab');
+      const w = params.get('week');
+      const taskId = params.get('task');
+      const stepId = params.get('step');
+      if (t === 'tasks' || t === 'weeks') setTabState('tasks');
+      if (w !== null && Number.isFinite(Number(w))) setSelectedWeek(Number(w));
+      if (taskId) {
+        setTabState('tasks');
+        setExpanded((prev) => new Set(prev).add(taskId));
+        setDeepStep({ taskId, stepId: stepId ?? undefined });
+        pendingScroll.current = stepId ? `step-${stepId}` : `task-${taskId}`;
+      }
+      // Write the current spelling back, so a copied URL carries `tasks`.
+      if (t === 'weeks') {
+        params.set('tab', 'tasks');
+        window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}${window.location.hash}`);
+      }
+    };
+    readDeepLink();
+    window.addEventListener('popstate', readDeepLink);
+    return () => window.removeEventListener('popstate', readDeepLink);
   }, []);
+  // Scroll to a deep-linked task or step only once it exists in the DOM —
+  // which is after the week it lives in has rendered and the row has opened.
+  useEffect(() => {
+    const id = pendingScroll.current;
+    if (!id) return;
+    const el = document.getElementById(id);
+    if (!el) return;
+    pendingScroll.current = null;
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    focusById(id);
+  }, [expanded, selectedWeek, tab, deepStep]);
 
   // Progress writes broadcast through the store; useClientStore re-reads below.
   const onProgressChange = useCallback(() => notifyStore(), []);
@@ -860,6 +896,13 @@ export default function CoursePage() {
   const gradedForCompletion = course.weeks.filter((w) => isGradedWeek(course, w.number));
   const allWeeksComplete =
     joined && gradedForCompletion.length > 0 && gradedForCompletion.every((w) => (weekStats[w.number] ?? 0) >= 100);
+  // The cohort calendar, when the instructor has set a start date: "due Fri
+  // 20 Sep · in 3 days" for the week the student is standing in.
+  const cohortKey = member ? (parseTeamId(member.teamId).cohort ?? member.cohort) : null;
+  const cohortCal = cohortKey ? cohortRepo.get(course.id, cohortKey) : null;
+  const dueLine = cohortCal
+    ? dueLabel(weekDue(cohortCal.startsOn, activeWeek), undefined, (weekStats[activeWeek] ?? 0) >= 100)
+    : undefined;
   const allGatesPassed = course.noGatekeeping
     ? allWeeksComplete
     : joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
@@ -884,8 +927,12 @@ export default function CoursePage() {
       params.delete('tab');
       params.delete('week');
     }
+    params.delete('task');
+    params.delete('step');
     const qs = params.toString();
     window.history.replaceState(null, '', `${window.location.pathname}${qs ? `?${qs}` : ''}${window.location.hash}`);
+    // Tell the keyboard and the screen reader where the new content starts.
+    setTimeout(() => focusById(t === 'tasks' ? 'tasks-head' : 'home-head'), 0);
   };
 
   /** Show one week on the Tasks tab. Setup is not a week on the rail — it is the
@@ -901,7 +948,10 @@ export default function CoursePage() {
     const params = new URLSearchParams(window.location.search);
     params.set('tab', 'tasks');
     params.set('week', String(n));
+    params.delete('task');
+    params.delete('step');
     window.history.replaceState(null, '', `${window.location.pathname}?${params.toString()}`);
+    setTimeout(() => focusById('tasks-head'), 0);
   };
 
   const openAndScrollWeek = (n: number) => {
@@ -1073,6 +1123,7 @@ export default function CoursePage() {
               task={task}
               courseId={course.id}
               memberId={member.memberId}
+              initialStepId={deepStep?.taskId === task.id ? deepStep.stepId : undefined}
               about={<TaskAboutPanel course={course} task={task} />}
               onProgressChange={onProgressChange}
               nextLabel={following ? 'Next task →' : 'Review & finish →'}
@@ -1123,12 +1174,15 @@ export default function CoursePage() {
           and the Guide, where none of it is what the student came for. The
           identity now lives once, on Overview. */}
       <div className="space-y-2">
+        {/* The page's place in the site, now that the global bar carries no
+            breadcrumb row. */}
+        <Crumbs items={[{ label: 'Home', href: '/' }, { label: course.title }]} />
         <div className="flex flex-wrap items-center gap-3">
           {/* 4xl only once there is room for it. At 390px the title plus the
               description below ran to roughly 400px — more than half the first
               screen — before the sub-nav, on the page a student opens to do
               this week's work. */}
-          <h1 className="text-2xl font-bold tracking-tight text-ink sm:text-4xl">{course.title}</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">{course.title}</h1>
           {/* Vendor + credential, in the course's own accent — the fastest way
               to tell which product you're looking at. Also the only place the
               certification code belongs; it used to appear three times. */}
@@ -1209,114 +1263,81 @@ export default function CoursePage() {
         exit="exit"
       >
       {/* Where you are, before anything else. Home is the dashboard: status,
-          the stone, your role, your team. Everything that DESCRIBED the course —
-          the role cards, the lab and build pictures, the arc — lives once now,
-          on the Guide, which is the page a student visits to be oriented. This
-          is the page they come back to. */}
+          the stone, your role and your team, and what the other focuses are
+          documenting. Four surfaces — it was ten stacked boxes in five card
+          treatments. Everything that DESCRIBED the course lives once, on the
+          Guide; this is the page a student comes back to. */}
       {joined && member && (
         <EngagementStatus
           course={course}
           weekNumber={activeWeek}
           phase={phaseForWeek(course, activeWeek) ?? undefined}
           percent={crew.stepsTotal > 0 ? Math.round((crew.stepsDone / crew.stepsTotal) * 100) : 0}
-          weeks={sortedWeeks.map((w) => w.number)}
-          weekPercent={(w) => weekStats[w] ?? 0}
           docsFiled={
             deliverablesForCourse(course.id).filter((d) => isDeliverableFiled(savedDocs?.[d.id])).length
           }
           docsTotal={deliverablesForCourse(course.id).length}
           nextTask={nextTask}
-          onGoToWeek={openAndScrollWeek}
           onContinue={() => nextTask && goToTask(nextTask)}
+          due={dueLine}
+          subtitle={isEngagement(course) ? <EngagementBanner courseId={course.id} teamId={member.teamId} phase={phaseTag(course, activeWeek)} /> : undefined}
+          complete={
+            allGatesPassed ? (
+              <Alert variant="success">
+                <div className="space-y-2">
+                  <div className="font-semibold">
+                    {course.noGatekeeping
+                      ? 'Course complete — every week finished.'
+                      : `Engagement complete — all ${course.gates.length} gates passed.`}
+                  </div>
+                  <p className="text-sm text-body">
+                    You&apos;ve finished {tasksComplete} of {ownTasksAll.length} tasks across every week as{' '}
+                    {ownRole?.name ?? member?.role}. Compile your deliverables into the final package and hand it in.
+                  </p>
+                  <div className="flex flex-wrap gap-3 text-sm">
+                    <Link href={`/courses/${course.id}/docs`} className="font-medium text-accent hover:underline">
+                      Open Deliverables →
+                    </Link>
+                    <a href="#team" className="font-medium text-accent hover:underline">
+                      Review team progress →
+                    </a>
+                  </div>
+                </div>
+              </Alert>
+            ) : undefined
+          }
         />
       )}
 
-      {/* The capstone's overall progress — where the whole project stands. */}
+      {/* The stone — the one glow on the page: the artefact being cut is the
+          point of the whole thing. */}
       {joined && member && (
-        <div className="rounded-[var(--radius-card)] border border-line bg-panel p-4">
+        <Surface glow="accent" padding="lg">
           <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
-        </div>
-      )}
-      {allGatesPassed && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="rounded-lg border border-ok-line bg-ok-soft p-6"
-        >
-          <div className="flex items-start gap-3">
-            <div className="rounded-full bg-ok-soft p-2 text-ok">
-              <CheckCircle2 className="h-6 w-6" />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-xl font-bold text-ink">
-                {course.noGatekeeping
-                  ? 'Course complete — every week finished 🎉'
-                  : `Engagement complete — all ${course.gates.length} gates passed 🎉`}
-              </h2>
-              <p className="mt-1 text-sm text-muted">
-                You&apos;ve finished {tasksComplete} of {ownTasksAll.length} tasks across every week as{' '}
-                {ownRole?.name ?? member?.role}. Compile your deliverables into the final package and
-                hand it in.
-              </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                {member && (
-                  <Link
-                    href={`/courses/${course.id}/docs`}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-ok px-3 py-2 text-sm font-medium text-white hover:opacity-90"
-                  >
-                    <FileText className="h-4 w-4" /> Open Deliverables
-                  </Link>
-                )}
-                {member && (
-                  <a
-                    href="#team"
-                    className="inline-flex items-center gap-1.5 rounded-md border border-ok-line px-3 py-2 text-sm font-medium text-ok hover:bg-ok-soft"
-                  >
-                    <Users className="h-4 w-4" /> Review team progress
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </motion.div>
+        </Surface>
       )}
 
-      {/* Engagement banner — client + scope + phase for engagement-framed courses */}
-      {joined && member && isEngagement(course) && (
-        <EngagementBanner courseId={course.id} teamId={member.teamId} phase={phaseTag(course, activeWeek)} />
-      )}
-
-      {/* Role "this week" hero — connects your role to what's left right now */}
+      {/* Your role and your team, on one surface with the role's seam. */}
       {joined && member && ownRole && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05, duration: DUR.reveal, ease: EASE.out }}
-          whileHover={{ y: -2 }}
-          className="rounded-[var(--radius-card)] border border-l-4 border-line bg-panel p-5 shadow-[var(--shadow-1)] transition-shadow hover:shadow-[var(--shadow-2)]"
-          style={{ borderLeftColor: ownRole.color }}
-        >
+        <Surface accent="role" seamColor={ownRole.color} className="space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <RoleIcon iconName={ownRole.icon} className="h-9 w-9 shrink-0" color={ownRole.color} />
               <div>
-                <div className="text-lg font-bold text-ink">
-                  You&apos;re {ownRole.name}
-                </div>
+                <div className="text-lg font-semibold text-ink">You&apos;re {ownRole.name}</div>
                 <div className="text-sm text-muted">
                   {phaseTag(course, activeWeek)} of {contentWeeks.length}
                 </div>
               </div>
             </div>
-            {/* Next-action lives in the always-visible sticky bar; the hero only
-                confirms the done state to avoid a second competing Continue. */}
             {!nextTask && (
               <span className="inline-flex items-center gap-2 rounded-lg bg-ok-soft px-4 py-2 text-sm font-medium text-ok">
                 <Sparkles className="h-4 w-4" /> All your tasks complete!
               </span>
             )}
           </div>
-        </motion.div>
+          <TeamBlock course={course} member={member} />
+        </Surface>
       )}
 
       {/* Join front-and-center for newcomers — the first action, above everything else. */}
@@ -1337,14 +1358,13 @@ export default function CoursePage() {
           member's team and renders here, behind the join. `/team/<id>`
           redirects to `#team`. Private route material stays behind `joined`:
           the bare dashboard is public. */}
-      {joined && member && <TeamBlock course={course} member={member} />}
 
       {/* Shared track: the deep-dives the other focuses add this week. Titles
           only — the glance. Tasks carries the same three under the same heading,
           with their steps, and the link goes there: a title tells you the slot
           is covered, but a hand-off can only be checked against the steps. */}
       {otherFocuses.length > 0 && (
-        <section className="space-y-2">
+        <Surface as="section" variant="inset" className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="text-lg font-semibold text-ink">What the other focuses document this {unit}</h2>
             <button
@@ -1361,7 +1381,7 @@ export default function CoursePage() {
           </div>
           <ul className="grid gap-2 sm:grid-cols-3">
             {otherFocuses.map(({ role, titles }) => (
-              <li key={role.id} className="rounded-lg border border-line bg-panel px-3 py-2 text-sm">
+              <li key={role.id} className="rounded-lg bg-panel px-3 py-2 text-sm">
                 <div className="flex items-center gap-2 font-semibold text-ink">
                   <RoleIcon iconName={role.icon} className="h-4 w-4" color={role.color} />
                   {role.name}
@@ -1374,7 +1394,7 @@ export default function CoursePage() {
               </li>
             ))}
           </ul>
-        </section>
+        </Surface>
       )}
 
       {/* One-time migration of this device's local progress into the account */}
@@ -1447,6 +1467,9 @@ export default function CoursePage() {
               naming the week you are on, the "do once" setup strip, a rail to
               switch weeks, and the week's tasks in the order you do them. */}
           <PageHeader
+            id="tasks-head"
+            tabIndex={-1}
+            className="outline-none"
             level={2}
             eyebrow="Tasks"
             title={`${phaseTag(course, viewWeek)} · ${viewWeekDef?.title ?? ''}`}

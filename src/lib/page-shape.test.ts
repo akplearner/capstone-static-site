@@ -396,7 +396,7 @@ describe('design tokens — palette classes do not come back', () => {
     const MOCK_UI = 'src/components/diagrams/WazuhWalkthrough.tsx';
     const offenders = collectSourceFiles('src')
       .filter((f) => f !== MOCK_UI)
-      .filter((f) => /text-\[\d+px\]/.test(code(f)));
+      .filter((f) => /text-\[\d+(?:\.\d+)?(?:px|rem)\]/.test(code(f)));
     expect(offenders, 'use text-2xs / text-3xs — an arbitrary size is a token nobody can change').toEqual(
       []
     );
@@ -568,3 +568,88 @@ function collectSourceFiles(dir: string): string[] {
   }
   return out;
 }
+
+/**
+ * R68 — the modernisation's shape, held.
+ *
+ * Every rule below was true on the day it was written and would drift back
+ * quietly without a guard: the card recipe re-typed in a page, a fourth
+ * translucency on a bar, a `dark:` twin, an eyebrow inside a card, a second
+ * week selector on the status surface.
+ */
+describe('R68 — the shape of the modernised platform', () => {
+  const files = collectSourceFiles('src');
+
+  it('Surface is the only file that spells the card', () => {
+    const CARD = 'rounded-[var(--radius-card)] border border-line bg-panel';
+    const offenders = files.filter((f) => f !== 'src/components/ui/Surface.tsx' && code(f).includes(CARD));
+    expect(offenders, 'render <Surface> or surfaceVariants() instead of the class string').toEqual([]);
+  });
+
+  it('glass is a recipe, not a utility', () => {
+    // No hand-rolled translucency and no backdrop-blur outside globals.css:
+    // the three sticky bars, the palette and the dialog all wear `.glass`.
+    const offenders = files.filter((f) => /\bbackdrop-blur\b|\bbg-(panel|surface)\/\d+/.test(code(f)));
+    expect(offenders).toEqual([]);
+    const css = read('src/app/globals.css');
+    for (const t of ['--glass-bg', '--glass-line', '--glow-accent', '--glow-week', '--mesh-hero']) {
+      expect((css.match(new RegExp(`${t}:`, 'g')) ?? []).length, `${t} needs a light and a dark value`).toBeGreaterThanOrEqual(2);
+    }
+    expect(css).toContain('@supports not (backdrop-filter');
+    // The mesh drifts only when the visitor allows motion — and only on opt-in.
+    expect(css).toMatch(/prefers-reduced-motion: no-preference\)[\s\S]*?mesh-drift/);
+    expect(css).toContain(".hero-wash[data-drift='true']");
+  });
+
+  it('every page has a skip-link target', () => {
+    const layout = code('src/app/layout.tsx');
+    expect(layout).toContain('href="#main"');
+    expect(layout).toContain('id="main"');
+    expect(layout).toContain('tabIndex={-1}');
+    expect(read('src/app/globals.css')).toContain('.skip-link:focus');
+  });
+
+  it('eyebrows are section labels, not card furniture', () => {
+    // 50 class uses before R68; 13 after. Lower the cap when it falls.
+    const n = files.reduce((sum, f) => sum + (code(f).match(/className=["{][^"}]*\beyebrow(-muted)?\b/g)?.length ?? 0), 0);
+    expect(n).toBeLessThanOrEqual(16);
+  });
+
+  it('the status surface is not a second week selector', () => {
+    expect(code('src/components/EngagementStatus.tsx')).not.toContain('onGoToWeek');
+    expect(code('src/components/EngagementStatus.tsx')).toContain('id="home-head"');
+  });
+
+  it('the brand does not ping and the links carry no desktop icons', () => {
+    const nav = code('src/components/SiteNav.tsx');
+    expect(nav).not.toContain('animate-ping');
+    expect(nav).toContain("const icon = 'h-4 w-4 sm:hidden'");
+    expect(nav).toContain("e.key.toLowerCase() === 'k'");
+  });
+
+  it('a deep link can name a task and a step', () => {
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toContain("params.get('task')");
+    expect(page).toContain("params.get('step')");
+    expect(page).toContain("window.addEventListener('popstate', readDeepLink)");
+    expect(code('src/components/TaskComponents.tsx')).toContain('id={`step-${stepId}`}');
+    expect(code('src/components/GuidedTaskRunner.tsx')).toContain('initialStepId');
+  });
+
+  it('tab and week changes move focus to the new heading', () => {
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toMatch(/focusById\(t === 'tasks' \? 'tasks-head' : 'home-head'\)/);
+    expect(page).toContain('id="tasks-head"');
+    expect(code(DOCS)).toContain("focusById('week-head')");
+    expect(code(DOCS)).toContain('id="week-head"');
+  });
+
+  it('the course Home is four surfaces, not ten boxes', () => {
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toContain('<Surface glow="accent" padding="lg">');
+    expect(page).toContain('<Surface accent="role" seamColor={ownRole.color}');
+    expect(page).not.toContain('🎉');
+    // The role surface holds the team; the team block is mounted once.
+    expect(page.match(/<TeamBlock /g)?.length).toBe(1);
+  });
+});

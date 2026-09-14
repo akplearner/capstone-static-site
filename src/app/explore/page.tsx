@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Compass } from 'lucide-react';
 import { CatalogCard } from '@/components/catalog/CatalogCard';
 import { ToolTierIcon } from '@/components/quarry/items';
 import { VENDORS, LEVELS, catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
@@ -14,6 +13,7 @@ import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { useUserSync } from '@/lib/useUserSync';
 import type { Level } from '@/lib/types';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { Surface } from '@/components/ui/Surface';
 
 // Sections theme themselves from `vendor.region` (a `[data-region=…]` key), so the
 // stone in each card inherits that vendor's rock + mineral with no per-card logic.
@@ -77,26 +77,22 @@ export default function ExplorePage() {
 
   return (
     <div className="space-y-8">
-      <div className="space-y-3">
-        <div className="inline-flex rounded-2xl bg-accent-soft p-3 text-accent">
-          <Compass className="h-7 w-7" />
-        </div>
-        <PageHeader
-          title="Explore certs"
-          lede="Every vendor is a region of the quarry, and every credential is a stone to cut. Lit stones are live capstones you can start now; the rough rock is on the map and coming."
-          trailing={
-            <p className="font-mono text-xs text-muted">
-              {summary.available} live · {summary.total} on the map · {summary.vendors} regions
-            </p>
-          }
-        />
-      </div>
+      <PageHeader
+        eyebrow="Explore"
+        title="Explore certs"
+        lede="Every vendor is a region of the quarry, and every credential is a stone to cut. Lit stones are live capstones you can start now; the rough rock is on the map and coming."
+        trailing={
+          <p className="text-sm text-muted">
+            {summary.available} live · {summary.total} on the map · {summary.vendors} regions
+          </p>
+        }
+      />
 
       {/* Filters. Sticky, because the grid is long enough that re-filtering
           otherwise means scrolling back to the top every time. */}
       <div
         style={{ top: 'var(--nav-h, 0px)' }}
-        className="sticky z-10 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-3 backdrop-blur"
+        className="glass sticky z-10 -mx-4 space-y-2 border-b px-4 py-3"
       >
         <FilterRow
           label="Region"
@@ -113,9 +109,9 @@ export default function ExplorePage() {
       </div>
 
       {groups.length === 0 ? (
-        <p className="rounded-[var(--radius-card)] border border-dashed border-line bg-panel-2/40 p-8 text-center text-muted">
+        <Surface variant="inset" padding="none" className="p-8 text-center text-muted">
           Nothing on the map for that filter yet.
-        </p>
+        </Surface>
       ) : (
         <div className="space-y-10">
           {groups.map((group) => (
@@ -140,8 +136,8 @@ export default function ExplorePage() {
                     {/* The level's mining tool: hand pick → steel pick → drill →
                         core rig. Depth of tooling = depth of the work. */}
                     <ToolTierIcon level={cell.level.id} size={26} className="shrink-0" />
-                    <span className="eyebrow">{cell.level.name}</span>
-                    <span className="text-xs text-muted">{cell.level.blurb}</span>
+                    <span className="text-sm font-semibold text-ink">{cell.level.name}</span>
+                    <span className="text-sm text-muted">{cell.level.blurb}</span>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {cell.entries.map((entry, i) => (

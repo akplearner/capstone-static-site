@@ -151,7 +151,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
 
   return (
     <div className="rounded-md border border-line bg-panel p-2">
-      <label className="eyebrow-muted">
+      <label className="text-xs font-semibold text-muted">
         Verify — paste your actual output
       </label>
       <textarea
@@ -361,7 +361,7 @@ export function StepDetail({
       {/* What the step should leave on disk — a small example directory tree. */}
       {tree && (
         <div>
-          <div className="eyebrow-muted">
+          <div className="text-xs font-semibold text-muted">
             What your files should look like
           </div>
           <ul className="mt-1.5 space-y-1 rounded-md border border-line bg-panel-2 p-3">
@@ -375,7 +375,7 @@ export function StepDetail({
         <div className="space-y-3">
           {(instruction || description || where) && (
             <div>
-              <div className="eyebrow-muted">
+              <div className="text-xs font-semibold text-muted">
                 What to do
               </div>
               {where && (
@@ -423,7 +423,7 @@ export function StepDetail({
         <div className="space-y-2">
           {(expectedOutput || outputExplanation || walkthrough || images) && (
             <div>
-              <div className="eyebrow-muted">
+              <div className="text-xs font-semibold text-muted">
                 What you should see
               </div>
               {/* A GUI step shows the screen itself, with the thing to click or
@@ -612,6 +612,7 @@ interface ChecklistItemProps {
 }
 
 export function ChecklistItem({
+  stepId,
   title,
   instruction,
   instructionList,
@@ -662,8 +663,9 @@ export function ChecklistItem({
       // `layout` used to sit here. Without a LayoutGroup coordinating them it
       // animated nothing, and it made every one of a task's steps re-measure on
       // every global store event — which fires on each keystroke and each tick.
+      id={`step-${stepId}`}
       data-done={isComplete ? 'true' : 'false'}
-      className="stratum-step py-3"
+      className="stratum-step scroll-under-chrome py-3"
     >
       <div className="flex items-start gap-4">
         <motion.input
@@ -866,7 +868,7 @@ export function CommandBlock({
   return (
     <div>
       <div className="flex items-center justify-between gap-2">
-        <div className="eyebrow-muted">
+        <div className="text-xs font-semibold text-muted">
           {multi ? `Commands · run one at a time` : 'Command'}
         </div>
         {multi && <CopyButton text={allText} label="Copy all" />}

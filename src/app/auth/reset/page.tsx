@@ -92,7 +92,7 @@ export default function ResetPage() {
       ) : inRecovery ? (
         <form onSubmit={update} className="space-y-3">
           <label className="block">
-            <span className="eyebrow-muted">New password</span>
+            <span className="text-sm font-medium text-body">New password</span>
             <input
               type="password"
               required
@@ -123,7 +123,7 @@ export default function ResetPage() {
             Enter your email and we’ll send you a link to set a new password.
           </p>
           <label className="block">
-            <span className="eyebrow-muted">Email</span>
+            <span className="text-sm font-medium text-body">Email</span>
             <input
               type="email"
               required

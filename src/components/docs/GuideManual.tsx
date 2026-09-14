@@ -260,7 +260,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           out from the bottom of the configuration guide. */}
       <div
         style={{ top: 'calc(var(--nav-h, 0px) + 3rem)' }}
-        className="sticky z-20 -mx-4 space-y-2 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur"
+        className="glass sticky z-20 -mx-4 space-y-2 border-b px-4 py-2"
       >
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <h2 className="text-xl font-bold text-ink">The manual</h2>

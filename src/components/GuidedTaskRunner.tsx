@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useMemo, useState } from 'react';
+import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowLeft,
@@ -44,9 +44,12 @@ interface GuidedTaskRunnerProps {
   /** The task's non-step material — done-when list, prerequisites/outputs,
    *  tools & learning — rendered inside the "About this task" disclosure. */
   about?: ReactNode;
+  /** A deep link (`?step=`) or the palette named this step: open on it rather
+   *  than on the first incomplete one. */
+  initialStepId?: string;
 }
 
-export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about, initialStepId }: GuidedTaskRunnerProps) {
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
@@ -61,10 +64,19 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     courseId === 'cysa-plus' || courseId === 'server-plus' ? 'guided' : 'all'
   );
   const [currentIdx, setCurrentIdx] = useState(() => {
+    const asked = initialStepId ? task.steps.findIndex((s) => s.id === initialStepId) : -1;
+    if (asked >= 0) return asked;
     const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));
     return firstIncomplete === -1 ? 0 : firstIncomplete;
   });
+  // A later deep link to another step of the same open task.
+  useEffect(() => {
+    if (!initialStepId) return;
+    const idx = task.steps.findIndex((s) => s.id === initialStepId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    if (idx >= 0) setCurrentIdx(idx);
+  }, [initialStepId, task.steps]);
 
   const total = task.steps.length;
   const completedCount = completed.size;
@@ -253,11 +265,12 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           <AnimatePresence mode="wait">
             <motion.div
               key={current?.id}
+              id={current ? `step-${current.id}` : undefined}
               initial={{ opacity: 0, x: 16 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
               transition={{ duration: DUR.reveal }}
-              className="rounded-lg border border-line bg-panel-2 p-5"
+              className="scroll-under-chrome rounded-lg border border-line bg-panel-2 p-5"
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>

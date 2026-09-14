@@ -181,9 +181,9 @@ export function ServerConfigGuide() {
           <table className="w-full min-w-[34rem] border-collapse text-left">
             <thead>
               <tr className="border-b border-line bg-panel">
-                <th scope="col" className="px-4 py-2 eyebrow-muted font-semibold">Zone</th>
-                <th scope="col" className="px-4 py-2 eyebrow-muted font-semibold">Network</th>
-                <th scope="col" className="px-4 py-2 eyebrow-muted font-semibold">What lives there</th>
+                <th scope="col" className="px-4 py-2 text-xs font-semibold text-muted font-semibold">Zone</th>
+                <th scope="col" className="px-4 py-2 text-xs font-semibold text-muted font-semibold">Network</th>
+                <th scope="col" className="px-4 py-2 text-xs font-semibold text-muted font-semibold">What lives there</th>
               </tr>
             </thead>
             <tbody>
@@ -294,7 +294,7 @@ export function ServerConfigGuide() {
                     {p.optionalLabel ?? 'Advanced · optional'}
                   </span>
                 )}
-                <span className="ml-auto eyebrow-muted">{p.where}</span>
+                <span className="ml-auto text-xs text-muted">{p.where}</span>
               </div>
               <p className="mt-1 text-xs text-muted">{p.summary}</p>
             </div>

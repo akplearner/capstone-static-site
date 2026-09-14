@@ -8,6 +8,7 @@ import { GuideManual } from '@/components/docs/GuideManual';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { Crumbs } from '@/components/SiteNav';
 import { isEngagement, unitWord } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { useCourse } from '@/lib/useCourse';
@@ -46,7 +47,11 @@ export default function CourseGuidePage() {
     <div className="space-y-10">
       <CourseSubNav courseId={course.id} active="guide" teamId={member.teamId} />
 
-      <PageHeader eyebrow="Guide" title={`How ${course.title} works`} lede={course.description} />
+      <PageHeader
+        eyebrow={<Crumbs items={[{ label: 'Home', href: '/' }, { label: course.title, href: `/courses/${course.id}` }, { label: 'Guide' }]} />}
+        title={`How ${course.title} works`}
+        lede={course.description}
+      />
 
       <section className="space-y-3">
         <div>

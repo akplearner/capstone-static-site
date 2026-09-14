@@ -36,8 +36,10 @@ export function PageHeader({
     >
       <div className="min-w-0 space-y-1">
         {eyebrow && <div className="eyebrow-muted">{eyebrow}</div>}
-        <Heading className="text-2xl font-bold tracking-tight text-ink sm:text-3xl">{title}</Heading>
-        {lede && <p className="max-w-2xl text-sm text-muted">{lede}</p>}
+        <Heading className={level === 1 ? 'text-3xl font-bold tracking-tight text-ink sm:text-4xl' : 'text-2xl font-bold tracking-tight text-ink'}>
+          {title}
+        </Heading>
+        {lede && <p className="max-w-2xl text-base text-body">{lede}</p>}
       </div>
       {trailing && <div className="flex shrink-0 flex-wrap items-center gap-2">{trailing}</div>}
     </header>

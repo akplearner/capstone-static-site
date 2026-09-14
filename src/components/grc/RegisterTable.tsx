@@ -251,7 +251,7 @@ export function RegisterTable({
         {rows.map((row, i) => (
           <div key={i} className="rounded-lg border border-line bg-panel-2 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="eyebrow-muted">Row {i + 1}</span>
+              <span className="text-xs font-semibold text-muted">Row {i + 1}</span>
               <button
                 type="button"
                 onClick={() => removeRow(i)}

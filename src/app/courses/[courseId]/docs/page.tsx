@@ -6,6 +6,8 @@ import { useSearchParams } from 'next/navigation';
 import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { CourseSubNav } from '@/components/CourseSubNav';
+import { Crumbs } from '@/components/SiteNav';
+import { focusById } from '@/lib/focus';
 import { FrameworkBadge } from '@/components/TaskComponents';
 import { Collapsible, Tabs } from '@/components/ui/Button';
 import { Dialog } from '@/components/ui/Dialog';
@@ -214,6 +216,7 @@ export default function DeliverablesPage() {
     window.history.replaceState(null, '', `?${next.toString()}`);
     setActiveForm(null);
     notifyStore();
+    setTimeout(() => focusById('week-head'), 0);
   };
 
   if (loading) return <DeliverablesSkeleton />;
@@ -345,8 +348,11 @@ export default function DeliverablesPage() {
           the shape guard reads. */}
       <PageHeader
         data-block="week-head"
+        id="week-head"
+        tabIndex={-1}
+        className="outline-none"
         trailing={<SaveState status={saveStatus} />}
-        eyebrow="Deliverables"
+        eyebrow={<Crumbs items={[{ label: 'Home', href: '/' }, { label: course.title, href: `/courses/${course.id}` }, { label: 'Deliverables' }]} />}
         title={`${weekWord} · ${dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}`}
         lede={
           <>
@@ -756,7 +762,7 @@ function FormSection({
               <p><GlossaryText text={def.howTo} /></p>
               {def.buildSteps && (
                 <div>
-                  <div className="eyebrow-muted">Build it — where each value comes from</div>
+                  <div className="text-sm font-semibold text-ink">Build it — where each value comes from</div>
                   <ol className="mt-1 list-decimal space-y-1 pl-5">
                     {def.buildSteps.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
                   </ol>
@@ -764,19 +770,19 @@ function FormSection({
               )}
               {def.meaning && (
                 <div>
-                  <div className="eyebrow-muted">What it means &amp; what a good one looks like</div>
+                  <div className="text-sm font-semibold text-ink">What it means &amp; what a good one looks like</div>
                   <p className="mt-1"><GlossaryText text={def.meaning} /></p>
                 </div>
               )}
               {def.useIt && (
                 <div>
-                  <div className="eyebrow-muted">What it feeds next</div>
+                  <div className="text-sm font-semibold text-ink">What it feeds next</div>
                   <p className="mt-1"><GlossaryText text={def.useIt} /></p>
                 </div>
               )}
               {def.pitfalls && (
                 <div>
-                  <div className="eyebrow-muted">Common mistakes to avoid</div>
+                  <div className="text-sm font-semibold text-ink">Common mistakes to avoid</div>
                   <ul className="mt-1 list-disc space-y-1 pl-5">
                     {def.pitfalls.map((s, i) => <li key={i}><GlossaryText text={s} /></li>)}
                   </ul>

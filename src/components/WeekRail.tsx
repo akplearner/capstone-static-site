@@ -83,7 +83,7 @@ export function WeekRail({
       className={[
         'flex flex-wrap items-center gap-1.5',
         sticky
-          ? 'sticky z-20 -mx-4 border-b border-line bg-surface/95 px-4 py-2 backdrop-blur'
+          ? 'glass sticky z-20 -mx-4 border-b px-4 py-2'
           : 'scroll-under-chrome',
         className,
       ]

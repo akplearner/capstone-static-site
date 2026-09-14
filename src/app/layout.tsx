@@ -67,8 +67,16 @@ export default function RootLayout({
       <body className={`${plexSans.variable} ${plexMono.variable} bg-surface`}>
         <MotionProvider>
           <ToastProvider>
+            {/* The first tab stop on every page: with three bars pinned above
+                the content, a keyboard user was tabbing through all of them
+                on every page before reaching the work. */}
+            <a href="#main" className="skip-link">
+              Skip to content
+            </a>
             <SiteNav />
-            <main className="mx-auto max-w-6xl px-4 py-8">{children}</main>
+            <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none">
+              {children}
+            </main>
             <SiteFooter />
           </ToastProvider>
         </MotionProvider>

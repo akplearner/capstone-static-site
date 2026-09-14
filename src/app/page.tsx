@@ -19,6 +19,7 @@ import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
 import { useAuth } from '@/lib/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
+import { surfaceVariants } from '@/components/ui/Surface';
 
 // The platform landing. It sells one idea — you cut a real capstone, you don't
 // memorise an exam — in the quarry's own language. Signed-in users don't need the
@@ -49,10 +50,7 @@ import { catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
  * further, and the border takes the accent); it just is not the entire
  * difference between "flat page" and "cards".
  */
-const CARD =
-  'rounded-[var(--radius-card)] border border-line bg-panel shadow-[var(--shadow-1)] ' +
-  'transition-[transform,box-shadow,border-color] duration-200 ease-out ' +
-  'hover:-translate-y-0.5 hover:border-accent hover:shadow-[var(--shadow-2)]';
+const CARD = `${surfaceVariants({ variant: 'card', padding: 'none' })} transition-colors hover:border-accent`;
 
 /** Eyebrow → title → lead, with an optional action on the right. Written once so
  *  the three sections below actually line up with each other. */
@@ -132,7 +130,10 @@ export default function HomePage() {
       <AuthErrorBanner />
 
       {/* ── Hero ────────────────────────────────────────────────────────── */}
-      <section className="grid items-center gap-10 md:grid-cols-[1.05fr_1fr]">
+      {/* The hero sits on the mesh wash — three radial layers from the accent
+          and the first two phase colours, token-only, static unless the visitor
+          allows motion AND the hero opts in (it does not). */}
+      <section className="hero-wash -mx-4 grid items-center gap-10 rounded-[var(--radius-card)] px-4 py-10 sm:py-14 md:grid-cols-[1.05fr_1fr]">
         <div className="space-y-6">
           <motion.p {...reveal(0)} className="eyebrow">
             Build it · Prove it · Keep it
@@ -151,7 +152,7 @@ export default function HomePage() {
           */}
           <motion.h1
             {...reveal(1)}
-            className="max-w-[16ch] text-balance text-[2.7rem] font-bold leading-[1.06] tracking-[-0.025em] text-ink sm:text-[3.5rem]"
+            className="max-w-[16ch] text-balance text-5xl font-bold leading-[1.05] tracking-tight text-ink sm:text-6xl"
           >
             Cut the stone. <span className="text-body">Don&rsquo;t cram for the exam.</span>
           </motion.h1>
@@ -240,26 +241,22 @@ export default function HomePage() {
           />
         </motion.div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Four moves as a list, not four boxes: a numbered rhythm reads as a
+            loop; four bordered tiles read as four products. */}
+        <ol className="divide-y divide-line border-y border-line">
           {STEPS.map((s, i) => (
-            <motion.div key={s.title} {...reveal(i)} className={`group relative p-5 ${CARD}`}>
-              {/* Inside the padding box, not hanging off the corner: the card
-                  clips its own overflow, so the old -right-2 -top-3 numeral was
-                  rendered with its edges cut off. */}
-              <span
-                aria-hidden
-                className="pointer-events-none absolute right-3 top-1 select-none text-5xl font-bold leading-none text-line/70 transition-colors group-hover:text-accent-soft"
-              >
-                {i + 1}
+            <motion.li key={s.title} {...reveal(i)} className="grid gap-x-6 gap-y-1 py-5 sm:grid-cols-[4rem_minmax(0,14rem)_1fr] sm:items-baseline">
+              <span aria-hidden className="font-mono text-2xl font-semibold tabular-nums text-accent">
+                0{i + 1}
               </span>
-              <div className="relative inline-flex rounded-xl bg-accent-soft p-2.5 text-accent">
-                <s.icon className="h-5 w-5" />
-              </div>
-              <h3 className="relative mt-3 font-semibold text-ink">{s.title}</h3>
-              <p className="relative mt-1 text-sm leading-relaxed text-muted">{s.body}</p>
-            </motion.div>
+              <h3 className="flex items-center gap-2 text-lg font-semibold text-ink">
+                <s.icon className="h-4 w-4 text-accent" aria-hidden />
+                {s.title}
+              </h3>
+              <p className="text-base leading-relaxed text-body">{s.body}</p>
+            </motion.li>
           ))}
-        </div>
+        </ol>
       </section>
 
       {/* ── The proof ────────────────────────────────────────────────────── */}
@@ -282,7 +279,7 @@ export default function HomePage() {
 
         <motion.div
           {...reveal(1)}
-          className="overflow-hidden rounded-[var(--radius-card)] border border-line bg-panel shadow-[var(--shadow-card)]"
+          className={`overflow-hidden ${surfaceVariants({ variant: 'raised', glow: 'accent', padding: 'none' })}`}
         >
           <div className="flex items-center justify-between border-b border-line bg-panel-2 px-4 py-2.5">
             <span className="flex items-center gap-2 text-sm font-semibold text-ink">

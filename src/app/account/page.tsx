@@ -176,7 +176,7 @@ export default function AccountPage() {
           evidence ledger and hashed artifacts. This cannot be undone. Export first if you want a copy.
         </p>
         <label className="mt-4 block max-w-sm">
-          <span className="eyebrow-muted">Type DELETE to confirm</span>
+          <span className="text-sm font-medium text-body">Type DELETE to confirm</span>
           <input
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}

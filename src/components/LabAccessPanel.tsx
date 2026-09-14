@@ -95,7 +95,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
           </div>
 
           <div>
-            <div className="eyebrow-muted">
+            <div className="text-xs font-semibold text-muted">
               Reachability check
             </div>
             <ul className="mt-2 space-y-1.5">

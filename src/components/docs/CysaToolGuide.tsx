@@ -138,12 +138,12 @@ export function CysaToolGuide() {
 
               <p className="mt-2 text-sm text-muted">{p.what}</p>
 
-              <div className="mt-3 eyebrow-muted">
+              <div className="mt-3 text-xs font-semibold text-muted">
                 Config
               </div>
               <p className="mt-1 text-sm text-muted">{p.config}</p>
 
-              <div className="mt-3 eyebrow-muted">
+              <div className="mt-3 text-xs font-semibold text-muted">
                 {p.rowsTitle}
               </div>
               <ul className="mt-1 space-y-1.5">
@@ -157,7 +157,7 @@ export function CysaToolGuide() {
                 ))}
               </ul>
 
-              <div className="mt-3 eyebrow-muted">
+              <div className="mt-3 text-xs font-semibold text-muted">
                 Documentation
               </div>
               <ul className="mt-1 space-y-1">
