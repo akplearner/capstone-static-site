@@ -1,4 +1,5 @@
 import { Skeleton } from './Spinner';
+import { Surface } from './Surface';
 
 /**
  * Loading states shaped like the thing that is loading.
@@ -85,14 +86,14 @@ export function CoursePageSkeleton() {
       <HeaderSkeleton eyebrow={false} />
       <SubNavSkeleton />
       {/* The status strip: where you are, what is filed, what is next. */}
-      <div className="flex items-center gap-6 rounded-[var(--radius-card)] border border-line bg-panel p-5">
+      <Surface className="flex items-center gap-6">
         <Skeleton className="h-12 w-12 rounded-full" />
         <div className="flex-1 space-y-2">
           <Skeleton className="h-3 w-24" />
           <Skeleton className="h-5 w-48" />
         </div>
         <Skeleton className="h-9 w-48 rounded-lg" />
-      </div>
+      </Surface>
       <WeekRailSkeleton />
       <div className="stratum-week space-y-3 p-5">
         <Skeleton className="h-5 w-72 max-w-full" />
@@ -111,7 +112,7 @@ export function DeliverablesSkeleton() {
       <SubNavSkeleton />
       <HeaderSkeleton />
       <WeekRailSkeleton />
-      <div className="space-y-4 rounded-[var(--radius-card)] border border-line bg-panel p-6">
+      <Surface padding="lg" className="space-y-4">
         <Skeleton className="h-5 w-56" />
         <Skeleton className="h-3 w-full max-w-xl" />
         {/* Field rows: label above input, which is what the form actually is. */}
@@ -121,7 +122,7 @@ export function DeliverablesSkeleton() {
             <Skeleton className="h-9 w-full rounded-lg" />
           </div>
         ))}
-      </div>
+      </Surface>
     </div>
   );
 }

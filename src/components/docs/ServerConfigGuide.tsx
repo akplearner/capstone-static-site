@@ -15,6 +15,8 @@ import {
   bridge,
 } from '@/lib/serverTopology';
 import { PROCEDURES, WEEKS, procedureById } from '@/lib/docs/serverProcedures';
+import { Surface } from '@/components/ui/Surface';
+import { surfaceVariants } from '@/components/ui/Surface';
 
 /**
  * The Server+ build procedures, in the platform.
@@ -170,7 +172,7 @@ export function ServerConfigGuide() {
           against it and a student who skips it will type the wrong subnet into
           the installer — the one mistake that is expensive to undo. A table,
           not prose: four zones with the same three facts each is a table. */}
-      <div className="overflow-hidden rounded-[var(--radius-card)] border border-line">
+      <Surface padding="none" className="overflow-hidden">
         <div className="flex flex-wrap items-baseline gap-x-3 border-b border-line bg-panel-2 px-4 py-2">
           <h3 className="text-sm font-semibold text-ink">The addressing rule</h3>
           <span className="text-xs text-muted">Worked examples use Team 1 — substitute your own team number for T.</span>
@@ -210,7 +212,7 @@ export function ServerConfigGuide() {
           <span className="font-mono">{TEAM_VM_START.vmbr2}</span> in the private zone and{' '}
           <span className="font-mono">{TEAM_VM_START.vmbr1}</span> in the DMZ.
         </p>
-      </div>
+      </Surface>
 
       {/* Week switcher. Buttons rather than anchors: the anchor still exists on
           the section below for deep links, but clicking here should swap the
@@ -282,7 +284,7 @@ export function ServerConfigGuide() {
           <article
             key={p.id}
             id={p.id}
-            className="scroll-under-chrome overflow-hidden rounded-[var(--radius-card)] border border-line"
+            className={`scroll-under-chrome overflow-hidden ${surfaceVariants({ padding: 'none' })}`}
           >
             <div className="border-b border-line bg-panel-2 px-4 py-2.5">
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">

@@ -8,6 +8,7 @@ import { AuthForm } from '@/components/auth/AuthForm';
 import { needsEmailField } from '@/lib/supabase/config';
 import { safeNextPath } from '@/lib/safeRedirect';
 import { Skeleton } from '@/components/ui/Spinner';
+import { Surface } from '@/components/ui/Surface';
 
 // Registration. Kept as its own route rather than a tab on /login so it can be
 // linked to directly from the landing CTA and indexed as the signup entry point.
@@ -37,9 +38,9 @@ function RegisterInner() {
         </p>
       </div>
 
-      <div className="rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)]">
+      <Surface variant="raised" padding="lg">
         <AuthForm mode="register" next={next} />
-      </div>
+      </Surface>
 
       <ul className="mt-5 space-y-1.5 text-sm text-muted">
         {[

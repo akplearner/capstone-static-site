@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { AuthForm } from './AuthForm';
+import { surfaceVariants } from '@/components/ui/Surface';
 
 // The contextual sign-in surface: rendered inline wherever a signed-out visitor
 // hits something that needs an account, so they don't lose their place.
@@ -27,7 +28,7 @@ export function SignInPanel({
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      className="rounded-[var(--radius-card)] border border-line bg-panel-2 p-5"
+      className={surfaceVariants({ variant: 'inset' })}
     >
       <h3 className="text-base font-semibold text-ink">
         {mode === 'register' ? 'Create an account' : title}

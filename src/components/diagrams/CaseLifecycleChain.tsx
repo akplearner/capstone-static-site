@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { DUR, EASE } from '@/lib/motion';
+import { Surface } from '@/components/ui/Surface';
 
 export type LifecycleStage = string | { label: string; detail?: string };
 
@@ -22,7 +23,7 @@ export function CaseLifecycleChain({
   const norm = stages.map((s) => (typeof s === 'string' ? { label: s } : s));
   const hasDetail = norm.some((s) => s.detail);
   return (
-    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-3.5 shadow-[var(--shadow-card)]">
+    <Surface variant="raised" padding="none" className="p-3.5">
       <span className="mb-2 block font-mono text-xs uppercase tracking-wider text-muted">{caption}</span>
       <div className={`flex flex-wrap ${hasDetail ? 'items-stretch gap-2' : 'items-center gap-1.5'}`}>
         {norm.map((stage, i) => (
@@ -46,6 +47,6 @@ export function CaseLifecycleChain({
           </span>
         ))}
       </div>
-    </div>
+    </Surface>
   );
 }

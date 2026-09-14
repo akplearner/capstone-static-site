@@ -7,6 +7,7 @@ import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { courseHref, type CatalogEntry } from '@/lib/catalog';
 import { levelDef } from '@/lib/catalog/levels';
 import { DUR, EASE } from '@/lib/motion';
+import { surfaceVariants } from '@/components/ui/Surface';
 
 /**
  * One credential in the catalog, drawn as a stone card.
@@ -41,13 +42,12 @@ export function CatalogCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: Math.min(index * 0.04, 0.3), duration: DUR.reveal, ease: EASE.out }}
-      className={`group relative flex h-full flex-col rounded-[var(--radius-card)] border p-4 transition-colors ${
-        available
-          ? `bg-panel shadow-[var(--shadow-card)] hover:border-accent ${
-              onPath ? 'border-accent/60 ring-1 ring-accent/25' : 'border-line'
-            }`
-          : `border-dashed bg-panel-2/40 ${onPath ? 'border-accent/40' : 'border-line'}`
-      }`}
+      // A live stone is a card; a coming-soon one is an inset, muted — no
+      // dashed border, which read as a placeholder rather than as a plan.
+      className={`group relative flex h-full flex-col transition-colors ${surfaceVariants({
+        variant: available ? 'card' : 'inset',
+        padding: 'sm',
+      })} ${available ? `hover:border-accent ${onPath ? 'border-accent/60 ring-1 ring-accent/25' : ''}` : onPath ? 'border-accent/40' : 'opacity-80'}`}
     >
       {onPath && (
         <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 font-mono text-3xs font-semibold uppercase tracking-wider text-accent-ink">

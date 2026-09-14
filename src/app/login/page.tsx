@@ -7,6 +7,7 @@ import { ShieldCheck } from 'lucide-react';
 import { AuthForm } from '@/components/auth/AuthForm';
 import { safeNextPath } from '@/lib/safeRedirect';
 import { Skeleton } from '@/components/ui/Spinner';
+import { Surface } from '@/components/ui/Surface';
 
 // The dedicated sign-in route. The proxy redirects here with `?next=` when a
 // signed-out visitor asks for a gated page, so landing here is usually the result
@@ -30,9 +31,9 @@ function LoginInner() {
         </p>
       </div>
 
-      <div className="rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)]">
+      <Surface variant="raised" padding="lg">
         <AuthForm mode="signin" next={next} />
-      </div>
+      </Surface>
 
       <p className="mt-4 text-center text-xs text-muted">
         By continuing you agree to our{' '}

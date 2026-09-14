@@ -5,6 +5,7 @@ import { HardDrive } from 'lucide-react';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { useAuth } from '@/lib/useAuth';
 import { useHydrated } from '@/lib/useClientStore';
+import { surfaceVariants } from '@/components/ui/Surface';
 
 /**
  * "This is a demo, and here's exactly what that costs you."
@@ -31,7 +32,7 @@ export function DemoBanner() {
   return (
     <div
       role="status"
-      className="mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-[var(--radius-card)] border border-dashed border-line bg-panel-2 px-4 py-3 text-sm"
+      className={`mb-6 flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3 text-sm ${surfaceVariants({ variant: 'inset', padding: 'none' })}`}
     >
       <HardDrive className="h-4 w-4 shrink-0 text-muted" />
       <span className="text-ink">

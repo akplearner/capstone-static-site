@@ -6,6 +6,7 @@ import { AlertCircle, CheckCircle2, KeyRound, Loader2 } from 'lucide-react';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { isMethodEnabled } from '@/lib/supabase/config';
 import { useAuth } from '@/lib/useAuth';
+import { Surface } from '@/components/ui/Surface';
 
 /**
  * Password reset — one route handling both halves of the flow.
@@ -161,9 +162,9 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
   return (
     <div className="mx-auto max-w-md py-10">
       <h1 className="mb-5 text-center text-2xl font-bold tracking-tight text-ink">{title}</h1>
-      <div className="rounded-[var(--radius-card)] border border-line bg-panel p-6 shadow-[var(--shadow-card)]">
+      <Surface variant="raised" padding="lg">
         {children}
-      </div>
+      </Surface>
     </div>
   );
 }

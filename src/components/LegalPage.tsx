@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { AlertTriangle } from 'lucide-react';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { surfaceVariants } from '@/components/ui/Surface';
 
 /**
  * Shared shell for the legal pages, so privacy and terms read as one document
@@ -57,12 +58,7 @@ export function LegalSection({
 }) {
   return (
     <section
-      className={
-        tone === 'warn'
-          ? 'rounded-[var(--radius-card)] border p-5'
-          : ''
-      }
-      style={tone === 'warn' ? { borderColor: 'var(--color-danger)' } : undefined}
+      className={tone === 'warn' ? `${surfaceVariants({ variant: 'card' })} border-danger-line bg-danger-soft` : ''}
     >
       <h2
         className="flex items-center gap-2 text-lg font-bold"

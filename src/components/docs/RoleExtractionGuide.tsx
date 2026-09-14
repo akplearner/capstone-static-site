@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { deliverablesForRole } from '@/lib/docs/definitions';
+import { Surface } from '@/components/ui/Surface';
 
 /**
  * The index of the forms you fill — one compact row each, linking to the form.
@@ -31,7 +32,7 @@ export function RoleExtractionGuide({
   const label = roleLabel ?? role.toUpperCase();
 
   return (
-    <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+    <Surface>
       <h3 className="text-sm font-semibold text-ink">The forms {label} fills</h3>
       <p className="mt-1 text-sm text-muted">
         Each one opens on the Deliverables page, where its guidance and worked examples sit beside
@@ -74,6 +75,6 @@ export function RoleExtractionGuide({
           </tbody>
         </table>
       </div>
-    </div>
+    </Surface>
   );
 }

@@ -27,6 +27,7 @@ import { buildDeliverableChain } from '@/lib/deliverableChain';
 import { getFrameworkLabel, getFrameworkDescription, getFrameworkWhy, getFrameworkColor } from '@/lib/utils';
 import type { Course, Member } from '@/lib/types';
 import { Alert } from '@/components/ui/Alert';
+import { Surface } from '@/components/ui/Surface';
 
 /**
  * The course manual — everything you look up rather than read.
@@ -111,9 +112,9 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           ) : isServerDeployment ? (
             <>
               <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />
-              <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+              <Surface>
                 <ServerTopologyDiagram business={teamBusiness} />
-              </div>
+              </Surface>
             </>
           ) : (
             <ArchitectureDiagram roles={course.roles} highlightRole={member.role} />
@@ -207,9 +208,9 @@ export function GuideManual({ course, member }: { course: Course; member: Member
             blurb:
               'Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them.',
             body: (
-              <div className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+              <Surface>
                 <RoleInterplayDiagram roles={course.roles} highlightRole={member.role} />
-              </div>
+              </Surface>
             ),
           },
         ]

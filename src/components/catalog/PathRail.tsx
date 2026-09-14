@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/Button';
 import { PATHS, resolvePath, type CareerPath } from '@/lib/catalog/paths';
 import { vendorById } from '@/lib/catalog';
 import { DUR, EASE } from '@/lib/motion';
+import { Surface } from '@/components/ui/Surface';
 
 /**
  * The career track, drawn as a run of stones.
@@ -30,7 +31,7 @@ export function PathRail({
   const done = rungs.filter((r) => r.complete).length;
 
   return (
-    <section className="rounded-[var(--radius-card)] border border-line bg-panel p-5 shadow-[var(--shadow-card)]">
+    <Surface as="section">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <p className="eyebrow">Your path</p>
@@ -103,14 +104,14 @@ export function PathRail({
           );
         })}
       </ol>
-    </section>
+    </Surface>
   );
 }
 
 /** Shown when no path is chosen yet — picking one is optional, never forced. */
 export function PathPicker({ onPick }: { onPick: (pathId: string) => void }) {
   return (
-    <section className="rounded-[var(--radius-card)] border border-line bg-panel p-5 shadow-[var(--shadow-card)]">
+    <Surface as="section">
       <div className="flex items-center gap-2">
         <Compass className="h-5 w-5 text-accent" />
         <h2 className="text-lg font-bold text-ink">Choose a path</h2>
@@ -132,6 +133,6 @@ export function PathPicker({ onPick }: { onPick: (pathId: string) => void }) {
           </button>
         ))}
       </div>
-    </section>
+    </Surface>
   );
 }

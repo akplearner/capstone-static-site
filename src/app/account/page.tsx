@@ -13,6 +13,7 @@ import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, userStateRepo, labAccessRepo } from '@/lib/data';
 import { toast } from '@/lib/toastBus';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { Surface } from '@/components/ui/Surface';
 
 /**
  * Account settings — and the two rights that are not optional once signups are
@@ -143,7 +144,7 @@ export default function AccountPage() {
 
   return (
     <Shell>
-      <section className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+      <Surface as="section">
         <h2 className="text-lg font-bold text-ink">Signed in</h2>
         <p className="mt-1 font-mono text-sm text-muted">{user.email}</p>
         <div className="mt-4">
@@ -151,9 +152,9 @@ export default function AccountPage() {
             <LogOut className="h-4 w-4" /> Sign out
           </Button>
         </div>
-      </section>
+      </Surface>
 
-      <section className="rounded-[var(--radius-card)] border border-line bg-panel p-5">
+      <Surface as="section">
         <h2 className="text-lg font-bold text-ink">Your data</h2>
         <p className="mt-1 text-sm text-muted">
           Download everything this account holds — progress, deliverables, your evidence ledger and
@@ -164,9 +165,9 @@ export default function AccountPage() {
             <Download className="h-4 w-4" /> Export my data
           </Button>
         </div>
-      </section>
+      </Surface>
 
-      <section className="rounded-[var(--radius-card)] border p-5" style={{ borderColor: 'var(--color-danger)' }}>
+      <Surface as="section" className="border-danger-line bg-danger-soft">
         <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--color-danger)' }}>
           <AlertTriangle className="h-5 w-5" /> Delete account
         </h2>
@@ -197,7 +198,7 @@ export default function AccountPage() {
         {deleteError && (
           <p className="mt-3 text-sm" style={{ color: 'var(--color-danger)' }}>{deleteError}</p>
         )}
-      </section>
+      </Surface>
     </Shell>
   );
 }

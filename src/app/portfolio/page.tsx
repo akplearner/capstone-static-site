@@ -23,6 +23,7 @@ import { useUserSync } from '@/lib/useUserSync';
 import type { EvidenceArtifact } from '@/lib/data';
 import type { StoneStage } from '@/lib/quarry';
 import { PageHeader } from '@/components/ui/PageHeader';
+import { Surface } from '@/components/ui/Surface';
 
 /**
  * The showcase — private by default, exported by choice.
@@ -167,7 +168,7 @@ export default function PortfolioPage() {
         }
       />
 
-      <article className="space-y-8 rounded-[var(--radius-card)] border border-line bg-panel p-8 print:border-0 print:p-0">
+      <Surface as="article" padding="none" className="space-y-8 p-8 print:border-0 print:p-0">
         <header className="border-b border-line pb-5">
           <p className="eyebrow">Capstone evidence record</p>
           <h2 className="mt-1 text-2xl font-bold text-ink">{name}</h2>
@@ -296,7 +297,7 @@ export default function PortfolioPage() {
           Verification is client-side self-verification against expected output; it is not a claim
           that commands were executed on audited infrastructure.
         </footer>
-      </article>
+      </Surface>
 
       <div className="print:hidden">
         <Link href="/dashboard">

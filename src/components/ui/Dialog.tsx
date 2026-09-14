@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Button } from './Button';
 import { DUR } from '@/lib/motion';
+import { surfaceVariants } from './Surface';
 
 /**
  * Accessible modal: role="dialog" + aria-modal, Escape to close, backdrop click,
@@ -90,7 +91,7 @@ export function Dialog({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.98 }}
             transition={{ duration: DUR.disclosure }}
-            className="relative z-10 w-full max-w-md rounded-[var(--radius-card)] border border-line bg-panel p-5 shadow-[var(--shadow-3)]"
+            className={`relative z-10 w-full max-w-md shadow-[var(--shadow-3)] ${surfaceVariants({ variant: 'glass' })}`}
           >
             <div className="mb-2 flex items-start justify-between gap-4">
               <h2 id={labelledBy} className="text-lg font-semibold text-ink">

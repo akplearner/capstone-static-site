@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { CheckCircle2, Info, AlertTriangle, XCircle, X } from 'lucide-react';
 import { toast, subscribeToasts, type ToastInput, type ToastVariant } from '@/lib/toastBus';
 import { DUR } from '@/lib/motion';
+import { surfaceVariants } from './Surface';
 
 export { toast };
 export type { ToastInput, ToastVariant };
@@ -71,7 +72,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: DUR.disclosure }}
-                className={`pointer-events-auto flex items-start gap-2 rounded-[var(--radius-card)] border bg-panel p-3 shadow-[var(--shadow-3)] ${s.ring}`}
+                className={`pointer-events-auto flex items-start gap-2 border p-3 shadow-[var(--shadow-3)] ${surfaceVariants({ variant: 'flat', padding: 'none' })} ${s.ring}`}
                 role={t.variant === 'error' ? 'alert' : 'status'}
               >
                 <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor[t.variant]}`} aria-hidden />
