@@ -83,6 +83,19 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
             {fields.map((f) => (
               <label key={f.key} className="block">
                 <span className="block text-xs font-medium text-body">{f.label}</span>
+                {f.kind === 'select' ? (
+                  <select
+                    value={lab.values[f.key] ?? f.options?.[0]?.value ?? ''}
+                    onChange={(e) => setValue(f.key, e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
+                  >
+                    {f.options?.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
                 <input
                   type="text"
                   value={lab.values[f.key] ?? ''}
@@ -90,6 +103,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                   placeholder={f.placeholder}
                   className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-1.5 font-mono text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
                 />
+                )}
               </label>
             ))}
           </div>

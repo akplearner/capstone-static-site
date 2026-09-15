@@ -1057,7 +1057,7 @@ const AS_BUILT: DeliverableDef[] = [
         kind: 'fields',
         title: 'Automation & observability — Week 5, the advanced track',
         fields: [
-          { field: 'iac_state', label: 'What Terraform manages', type: 'area', placeholder: 'main.tf in 00_Planning creates the tools VM from the cloud-init template; websrv, winserver and linuxsrv imported. terraform plan reports no changes.', help: 'Name the file, the VMs under state, and the proof: a plan with nothing to do.' },
+          { field: 'iac_state', label: 'What Terraform or OpenTofu manages', type: 'area', placeholder: 'main.tf in 00_Planning creates the tools VM from the cloud-init template; websrv, winserver and linuxsrv imported. terraform plan reports no changes.', help: 'Name the tool (Terraform or OpenTofu), the file, the VMs under state, and the proof: a plan with nothing to do.' },
           { field: 'monitoring_targets', label: 'Prometheus targets reading UP', type: 'number', unit: 'targets', placeholder: '5', help: 'The Targets page count. The host itself (pve-exporter) is one of them.' },
           { field: 'wazuh_agents', label: 'Wazuh agents Active', type: 'number', unit: 'agents', placeholder: '3', help: 'Agents → the count showing Active. Disconnected agents do not count.' },
           { field: 'alert_tested', label: 'The alert you fired on purpose, and what noticed it', type: 'area', placeholder: 'Stopped nginx on websrv at 14:02; Grafana "Service down" fired 14:04; Wazuh logged the SSH brute force from the workstation as rule 5712.', help: 'One real failure, one real detection, with the times.' },
@@ -1070,9 +1070,9 @@ const AS_BUILT: DeliverableDef[] = [
           label: 'What replaced the paperwork',
           help: 'One row per tool: which host it runs on, where a person opens it, and which paper record it now holds. This is the map the client needs.',
           columns: [
-            c('tool', 'Tool', 'select', { options: ['Terraform', 'Prometheus', 'Grafana', 'Loki', 'Pulse', 'Wazuh', 'NetBox', 'GLPI', 'Gitea', 'Ansible', 'Proxmox Backup Server', 'Alertmanager'] }),
+            c('tool', 'Tool', 'select', { options: ['Terraform', 'OpenTofu', 'Prometheus', 'Grafana', 'Loki', 'Pulse', 'Wazuh', 'NetBox', 'GLPI', 'Gitea', 'Ansible', 'Proxmox Backup Server', 'Alertmanager'] }),
             c('host', 'Runs on', 'hostref', { placeholder: 'secmon', help: 'The hostname from the Architecture Brief.' }),
-            c('url', 'Open it at', 'text', { placeholder: 'http://192.168.0.4:3000', help: 'The address a person types. Terraform has none — write "workstation".' }),
+            c('url', 'Open it at', 'text', { placeholder: 'http://192.168.0.4:3000', help: 'The address a person types. Terraform and OpenTofu have none — write "workstation".' }),
             c('replaces', 'Holds the record that used to be…', 'select', { options: ['Server Bring-Up Log', 'Rack, Power & Asset Register', 'IP Plan & Connectivity Proof', 'Baselines, Policies & Standards', 'Operations Log & SOPs', 'DR Plan & As-Built Handover'] }),
             c('evidence', 'Evidence file', 'evidence', { placeholder: '20260915_Team03_netbox_ipam.png', help: 'The screenshot or export in 08_Evidence, hashed and logged below.' }),
           ],
@@ -1116,7 +1116,7 @@ const AS_BUILT: DeliverableDef[] = [
       { label: 'Handover is dated and signed off', test: (d) => !!(d.fields.handover_date && d.fields.signoff) },
       { label: 'Every handover artifact is logged (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
       // Week 5 only — see `weeks` above.
-      { label: 'Terraform manages the lab and a plan reports no changes', test: (d) => !!d.fields.iac_state, week: 5 },
+      { label: 'Terraform or OpenTofu manages the lab and a plan reports no changes', test: (d) => !!d.fields.iac_state, week: 5 },
       { label: 'At least five Prometheus targets and three Wazuh agents are live', test: (d) => Number(d.fields.monitoring_targets) >= 5 && Number(d.fields.wazuh_agents) >= 3, week: 5 },
       { label: 'One failure was caused on purpose and something noticed it', test: (d) => !!d.fields.alert_tested, week: 5 },
       { label: 'Every tool is mapped to the host it runs on and the record it now holds', test: (d) => (d.groups.tooling ?? []).filter((r) => !!r.tool && !!r.host && !!r.replaces).length >= 6, week: 5 },

@@ -20,7 +20,8 @@ import {
 import { FolderNode, Step } from '@/lib/types';
 import { procedureTitle } from '@/lib/docs/serverProcedures';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
-import { useLabAccess, fillPlaceholders, hasLabAccess, hasUnfilled, labProfile } from '@/lib/labAccess';
+import { useLabAccess, useIacTool, fillPlaceholders, hasLabAccess, hasUnfilled, labProfile } from '@/lib/labAccess';
+import { applyIacTool, commandFor } from '@/lib/iacTool';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
 import { evidenceRepo } from '@/lib/data';
 import type { StepEvidence } from '@/lib/data';
@@ -218,7 +219,7 @@ export function StepDetail({
   commands,
   commandExplanation,
   commandFlags,
-  expectedOutput,
+  expectedOutput: expectedOutputRaw,
   outputExplanation,
   whatItMeans,
   deliverable,
@@ -226,7 +227,7 @@ export function StepDetail({
   danger,
   troubleshooting,
   fixes,
-  verify,
+  verify: verifyRaw,
   ledger,
   optional,
   where,
@@ -235,7 +236,7 @@ export function StepDetail({
   tree,
   walkthrough,
   images,
-  outputHighlights,
+  outputHighlights: outputHighlightsRaw,
   outputKind,
 }: {
   instruction?: string;
@@ -271,6 +272,15 @@ export function StepDetail({
 }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
+  // Under OpenTofu the expected output and the verify tokens read `tofu plan`
+  // and `OpenTofu v`, so what the student pastes is what the step expects.
+  const tool = useIacTool(courseId);
+  const expectedOutput = expectedOutputRaw && applyIacTool(expectedOutputRaw, tool);
+  const verify = React.useMemo(() => verifyRaw?.map((v) => applyIacTool(v, tool)), [verifyRaw, tool]);
+  const outputHighlights = React.useMemo(
+    () => outputHighlightsRaw?.map((h) => ({ ...h, text: applyIacTool(h.text, tool) })),
+    [outputHighlightsRaw, tool]
+  );
   const usingStructured = !!(commands && commands.length > 0);
   const hasCommand = usingStructured || !!command;
   // For a legacy single-command step, fold its explanation + flags INTO the command
@@ -841,6 +851,7 @@ export function CommandBlock({
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   const lab = useLabAccess(courseId);
+  const tool = useIacTool(courseId);
 
   const raw: CommandEntry[] =
     commands && commands.length > 0
@@ -850,7 +861,9 @@ export function CommandBlock({
         : [];
   if (raw.length === 0) return null;
   // Substitute the student's lab values (target IPs, etc.) into the commands.
-  const list = raw.map((c) => ({ ...c, cmd: fillPlaceholders(c.cmd, lab.values) }));
+  // The student's IaC tool first (terraform → tofu where the binary is invoked,
+  // or the authored OpenTofu install line), then their lab values.
+  const list = raw.map((c) => ({ ...c, cmd: fillPlaceholders(commandFor(c, tool), lab.values) }));
   const multi = list.length > 1;
   const allText = list.map((c) => c.cmd).join('\n');
   // Warn when a command still carries an unfilled placeholder (e.g. <YOUR_TARGET_IP>,

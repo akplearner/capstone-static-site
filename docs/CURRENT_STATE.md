@@ -141,5 +141,8 @@ additive, none requiring a rewrite.
 - **Identity:** `src/lib/useAuth.ts`, `src/lib/supabase/*`, `profiles.is_instructor`.
 - **Instructor view:** `src/lib/data/cohortLoader.ts` reads a whole course (six selects, bypassing the
   per-user cache) for `/instructor/<course>/cohort`; `src/lib/search.ts` is the ⌘K index.
+- **IaC tool choice:** `src/lib/iacTool.ts` derives the OpenTofu form of every Terraform command, expected
+  output and verify token at render time (`commandFor`/`applyIacTool`); the install line is authored twice
+  (`opentofu` on a command entry); the choice is a Lab access field (`IAC_TOOL`) in `src/lib/labAccess.ts`.
 - **Offline:** `public/sw.js` (hand-written; navigations network-first, `/_next/static` cache-first,
   RSC and Supabase never cached), `src/lib/pwa.ts`, `src/components/pwa/*`; `/offline` is the fallback.

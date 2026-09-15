@@ -230,7 +230,7 @@ ops VM  net0 → vmbr0  (10.10.10.x)   → Proxmox API :8006   [Terraform, inven
 
 ✅ **Proxmox VE 8.x / 9.x — this is what the class installs from the new USB media.**
 
-The maintained Terraform provider (`bpg/terraform-provider-proxmox`) supports
+The maintained Terraform/OpenTofu provider (`bpg/terraform-provider-proxmox`) supports
 **Proxmox VE 8.x and 9.x** (9.x is the primary test target; 8.x supported with some
 limits) and **does not support 7.x or earlier**. Running 8.x/9.x is therefore the
 correct choice and no provider workaround is needed.
@@ -243,7 +243,7 @@ correct choice and no provider workaround is needed.
 Other version notes worth knowing:
 
 - **Use Grafana Alloy, not Promtail.** Promtail was deprecated in Feb 2025 and reached **end-of-life on March 2, 2026**. It receives no fixes. Alloy is Grafana's OpenTelemetry-based successor and handles logs *and* metrics in one agent. (If you inherit a Promtail config: `alloy convert --source-format=promtail …`.)
-- **Terraform vs OpenTofu** — the bpg provider works with both. Either is fine; pick one for the whole class.
+- **Terraform vs OpenTofu** — the bpg provider works with both. Either is fine; pick one for the whole class. On the platform each team sets it under Lab access on the course page, and every `terraform` line becomes `tofu`.
 
 ---
 

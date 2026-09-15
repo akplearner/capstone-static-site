@@ -258,7 +258,7 @@ export const OPS = {
     rule: '10.20.T',
     /** The Proxmox host's own address on the ops network. PBS, the exporter and the API use it. */
     node: '10.20.T.1',
-    /** The team's ops VM — Terraform, Ansible and the repo clone live here. */
+    /** The team's ops VM — Terraform or OpenTofu, Ansible and the repo clone live here. */
     opsVm: '10.20.T.30',
   },
 } as const;

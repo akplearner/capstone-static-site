@@ -60,10 +60,15 @@ describe('hasUnfilled', () => {
  * so the rule in a command becomes the student's own number.
  */
 describe('the Server+ profile', () => {
-  it('collects the three addresses that differ per team', () => {
+  it('collects the three addresses that differ per team, and the IaC tool choice', () => {
     expect(hasLabAccess('server-plus')).toBe(true);
-    const keys = labProfile('server-plus').fields.map((f) => f.key);
-    expect(keys).toEqual(['PVE_HOST', 'PVE_TAILSCALE', 'OPS_SUBNET']);
+    const fields = labProfile('server-plus').fields;
+    expect(fields.map((f) => f.key)).toEqual(['PVE_HOST', 'PVE_TAILSCALE', 'OPS_SUBNET', 'IAC_TOOL']);
+    // The tool is a preference, not a substitution: no tokens, a fixed choice.
+    const tool = fields.find((f) => f.key === 'IAC_TOOL')!;
+    expect(tool.kind).toBe('select');
+    expect(tool.tokens).toEqual([]);
+    expect(tool.options?.map((o) => o.value)).toEqual(['terraform', 'opentofu']);
   });
 
   // Week 6: the ops subnet is three octets, and the Core addresses share the

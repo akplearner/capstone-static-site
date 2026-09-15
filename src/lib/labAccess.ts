@@ -3,6 +3,7 @@
 import { useClientStore, notifyStore } from './useClientStore';
 import { labAccessRepo, progressRepo } from './data';
 import { HOST, OPS } from './serverTopology';
+import { IAC_TOOL_KEY, IAC_TOOLS, iacToolOf, type IacTool } from './iacTool';
 
 // Personal lab access: the target IPs/credentials each student gets from their
 // instructor, plus a quick reachability checklist. Values are substituted into
@@ -23,7 +24,18 @@ export interface LabAccess {
 const EMPTY: LabAccess = { values: {}, checks: {}, notes: '' };
 
 // Fields the student fills; `tokens` are the placeholders replaced in commands.
-export const LAB_FIELDS: { key: string; label: string; placeholder: string; tokens: string[] }[] = [
+export interface LabField {
+  key: string;
+  label: string;
+  placeholder: string;
+  /** Placeholders replaced in commands. A field with none is a preference, not a substitution. */
+  tokens: string[];
+  /** A `select` renders a fixed choice instead of a text box. */
+  kind?: 'text' | 'select';
+  options?: { value: string; label: string }[];
+}
+
+export const LAB_FIELDS: LabField[] = [
   { key: 'YOUR_TARGET_IP', label: 'Your target IP', placeholder: 'e.g. 10.10.100.7', tokens: ['<YOUR_TARGET_IP>', '10.10.100.X', '10.10.100.x'] },
   { key: 'UBUNTU_IP', label: 'Ubuntu host IP', placeholder: 'e.g. 10.10.100.7', tokens: ['<UBUNTU_IP>'] },
   { key: 'WINDOWS_IP', label: 'Windows host IP', placeholder: 'e.g. 10.10.20.7', tokens: ['<WINDOWS_IP>'] },
@@ -62,6 +74,20 @@ export const SERVER_FIELDS: typeof LAB_FIELDS = [
   { key: 'PVE_HOST', label: 'Your Proxmox host address', placeholder: `e.g. ${HOST.exampleAddress}`, tokens: ['<PVE_HOST>', HOST.rule] },
   { key: 'PVE_TAILSCALE', label: 'Your host’s Tailscale address', placeholder: 'e.g. 100.101.102.103', tokens: ['<PVE_TAILSCALE>', '<tailscale-ip>'] },
   { key: 'OPS_SUBNET', label: 'Your ops subnet (Week 6)', placeholder: 'e.g. 10.20.7 — three octets', tokens: ['<OPS_SUBNET>', OPS.team.rule] },
+  // Not a substitution — a preference. Weeks 5 and 6 are written for Terraform;
+  // a team on OpenTofu picks it here and every terraform line becomes tofu
+  // (src/lib/iacTool.ts). No tokens, so fillPlaceholders never sees it.
+  {
+    key: IAC_TOOL_KEY,
+    label: 'Infrastructure-as-code tool (Weeks 5–6)',
+    placeholder: '',
+    tokens: [],
+    kind: 'select',
+    options: [
+      { value: 'terraform', label: `${IAC_TOOLS.terraform.name} (HashiCorp)` },
+      { value: 'opentofu', label: `${IAC_TOOLS.opentofu.name} (open-source fork)` },
+    ],
+  },
 ];
 
 export const SERVER_CHECKS: typeof LAB_CHECKS = [
@@ -117,7 +143,7 @@ const LAB_PROFILES: Record<string, LabProfile> = {
     fields: SERVER_FIELDS,
     checks: SERVER_CHECKS,
     title: 'Your server — addresses & reachability',
-    intro: `Enter your own host addresses and every command below fills them in for you, instead of the ${HOST.rule} rule. Saved to your account, visible only to you.`,
+    intro: `Enter your own host addresses and every command below fills them in for you, instead of the ${HOST.rule} rule — and pick which IaC tool every Week 5–6 line uses. Saved to your account, visible only to you.`,
   },
 };
 
@@ -156,6 +182,11 @@ export function saveLabAccess(courseId: string, data: LabAccess): void {
 
 export function useLabAccess(courseId: string): LabAccess {
   return useClientStore<LabAccess>(() => getLabAccess(courseId), EMPTY);
+}
+
+/** Terraform unless the student chose OpenTofu in Lab access. */
+export function useIacTool(courseId: string): IacTool {
+  return useClientStore<IacTool>(() => iacToolOf(getLabAccess(courseId).values), 'terraform');
 }
 
 /** Replace lab placeholders (e.g. <YOUR_TARGET_IP>, 10.10.100.X) with the student's

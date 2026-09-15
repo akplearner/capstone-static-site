@@ -688,3 +688,22 @@ describe('R68 — the shape of the modernised platform', () => {
     expect(code('src/app/instructor/[courseId]/cohort/page.tsx')).toContain('cohortCsv(');
   });
 });
+
+describe('R69 — Terraform or OpenTofu is the student’s choice', () => {
+  it('the choice is a Lab access select, and every command site honours it', () => {
+    expect(code('src/components/LabAccessPanel.tsx')).toContain("f.kind === 'select'");
+    expect(code('src/lib/labAccess.ts')).toContain('export function useIacTool(');
+    expect(code('src/components/TaskComponents.tsx')).toContain('commandFor(c, tool)');
+    expect(code('src/components/TaskComponents.tsx')).toContain('verifyRaw?.map((v) => applyIacTool(v, tool))');
+    expect(code('src/components/docs/ServerConfigGuide.tsx')).toContain('commandFor(step, tool)');
+  });
+
+  it('the content names both tools and authors the install line twice', () => {
+    const seed = code('src/lib/data/seed/serverPlus.ts');
+    const guide = code('src/lib/docs/serverProcedures.ts');
+    expect(seed).not.toContain("tools: ['Terraform',");
+    expect(guide.match(/opentofu: \{ cmd: "curl --proto '=https' --tlsv1.2 -fsSL https:\/\/get.opentofu.org/g)?.length).toBe(2);
+    expect(code('src/lib/glossary.ts')).toContain('OpenTofu:');
+    expect(code('src/lib/docs/serverPlusDeliverables.ts')).toContain("options: ['Terraform', 'OpenTofu',");
+  });
+});

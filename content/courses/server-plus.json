@@ -3291,7 +3291,7 @@
         "shared": true,
         "week": 5,
         "title": "The lab as code",
-        "objective": "Terraform on your workstation, a token it may use, a template it clones from, the tools VM built from a file, and the three existing servers imported — until a plan says there is nothing to do.",
+        "objective": "Terraform — or OpenTofu, the open-source fork that reads the same code — on your workstation, a token it may use, a template it clones from, the tools VM built from a file, and the three existing servers imported — until a plan says there is nothing to do.",
         "frameworks": [
           "NIST_CSF"
         ],
@@ -3302,12 +3302,13 @@
         "difficulty": 4,
         "learn": [
           "Infrastructure as code",
+          "Terraform vs OpenTofu",
           "API tokens and least privilege",
           "cloud-init templates",
           "State, plan and import"
         ],
         "tools": [
-          "Terraform",
+          "Terraform or OpenTofu",
           "bpg/proxmox provider",
           "cloud-init"
         ],
@@ -3317,16 +3318,16 @@
         ],
         "definitionOfDone": [
           "main.tf in 00_Planning holds the provider and four VMs, and no secret",
-          "The tools VM was created by terraform apply, not by hand",
-          "terraform plan reports no changes"
+          "The tools VM was created by terraform apply (tofu apply on OpenTofu), not by hand",
+          "terraform plan — or tofu plan — reports no changes"
         ],
         "steps": [
           {
             "id": "sp-w5-terraform-s0",
             "title": "A token, a provider, a plan",
-            "description": "The credential Terraform may use, and the proof it can reach your host.",
+            "description": "The credential the tool may use, and the proof it can reach your host. Terraform or OpenTofu — same code, same provider; pick one for the whole team in Lab access and every line here follows.",
             "where": "The Proxmox host shell, then your workstation",
-            "instruction": "Create a terraform user with the provider’s documented privileges and a token, install Terraform, write the provider block, and run the first plan.",
+            "instruction": "Create a terraform user with the provider’s documented privileges and a token, install Terraform or OpenTofu, write the provider block, and run the first plan.",
             "guideRef": {
               "procedureId": "terraform-proxmox-provider"
             },
@@ -3367,6 +3368,10 @@
               {
                 "symptom": "x509 certificate error?",
                 "fix": "insecure = true in the provider block. The host uses its self-signed certificate."
+              },
+              {
+                "symptom": "Using OpenTofu?",
+                "fix": "Pick it in Lab access on the course page: every terraform line on this page becomes tofu and the guide’s install step swaps to the OpenTofu installer. Same provider, same files, same state."
               }
             ]
           },
@@ -3407,7 +3412,7 @@
             "outputHighlights": [
               {
                 "text": "Refreshing state",
-                "label": "four times — Terraform asked the host about every VM in the file and found them."
+                "label": "four times — the tool asked the host about every VM in the file and found them."
               },
               {
                 "text": "No changes",
@@ -3451,7 +3456,7 @@
           "Docker"
         ],
         "prerequisites": [
-          "The tools VM, ideally the one Terraform built",
+          "The tools VM, ideally the one Terraform or OpenTofu built",
           "Your Rack, Power & Asset Register and IP Plan"
         ],
         "definitionOfDone": [
@@ -3574,7 +3579,7 @@
         "shared": true,
         "week": 5,
         "title": "Record it in the As-Built",
-        "objective": "The Week-5 section of the handover: what Terraform manages, what is watched, what reports to Wazuh, which tool now holds which record — and the evidence, hashed.",
+        "objective": "The Week-5 section of the handover: what Terraform or OpenTofu manages, what is watched, what reports to Wazuh, which tool now holds which record — and the evidence, hashed.",
         "frameworks": [
           "NIST_CSF"
         ],
@@ -3604,7 +3609,7 @@
             "description": "The numbers, the map of tools to records, and the evidence.",
             "instruction": "In the DR Plan & As-Built Handover, fill the Week-5 section and the tooling table, then hash every Week-5 screenshot and export into the evidence appendix.",
             "instructionList": [
-              "What Terraform manages, and that plan reports no changes.",
+              "What Terraform or OpenTofu manages, and that plan reports no changes.",
               "Targets UP and agents Active — the two counts.",
               "The failure you caused on purpose, and the two times: when it happened, when something noticed.",
               "One tooling row per tool: host, URL, and which paper form it now holds.",
@@ -3770,7 +3775,7 @@
         "shared": true,
         "week": 6,
         "title": "The ops VM: a home for the toolchain",
-        "objective": "A small VM on your own node with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures — Terraform, Ansible, Git and the fleet key on it, and nothing on the workstation.",
+        "objective": "A small VM on your own node with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures — Terraform or OpenTofu, Ansible, Git and the fleet key on it, and nothing on the workstation.",
         "frameworks": [
           "NIST_CSF",
           "CIS"
@@ -3786,7 +3791,7 @@
           "SSH keys as the fleet credential"
         ],
         "tools": [
-          "Terraform",
+          "Terraform or OpenTofu",
           "Ansible",
           "git",
           "The Core package cache"
@@ -3796,16 +3801,16 @@
         ],
         "definitionOfDone": [
           "The ops VM answers at your .30 and reaches both the API on 8006 and obs.lab",
-          "terraform -version and ansible --version both print",
+          "terraform -version (tofu -version on OpenTofu) and ansible --version both print",
           "The fleet key exists on the ops VM and nowhere else"
         ],
         "steps": [
           {
             "id": "sp-w6-ops-s0",
             "title": "Build it dual-homed and install the toolchain",
-            "description": "The VM, the package cache, Terraform and Ansible, and the key.",
+            "description": "The VM, the package cache, Terraform or OpenTofu and Ansible, and the key.",
             "where": "The Proxmox web console, then the ops VM",
-            "instruction": "Create the ops VM with net0 on vmbr0 and net1 on vmbr9, point apt at the Core cache, install Git, Ansible and Terraform, and generate the fleet key.",
+            "instruction": "Create the ops VM with net0 on vmbr0 and net1 on vmbr9, point apt at the Core cache, install Git, Ansible and Terraform or OpenTofu, and generate the fleet key.",
             "guideRef": {
               "procedureId": "ops-vm-build"
             },
@@ -3816,14 +3821,14 @@
               },
               {
                 "cmd": "terraform -version && ansible --version",
-                "explain": "After the HashiCorp repository. Both version lines print."
+                "explain": "After the HashiCorp repository — or the OpenTofu installer — the guide shows. Both version lines print."
               },
               {
                 "cmd": "ssh-keygen -t ed25519 -C \"team07-ops\" -f ~/.ssh/id_ed25519 -N \"\"",
                 "explain": "Your own team number in the comment. The public half goes into every VM you build; the private half never leaves this machine."
               }
             ],
-            "whatItMeans": "Terraform talks to the API over the campus LAN; Ansible talks to VMs over the ops network. A VM with a leg on each is the only place both tools work.",
+            "whatItMeans": "Terraform or OpenTofu talks to the API over the campus LAN; Ansible talks to VMs over the ops network. A VM with a leg on each is the only place both tools work.",
             "frameworks": [
               "NIST_CSF",
               "CIS"
@@ -3845,14 +3850,14 @@
             "title": "Prove both paths, and move Week 5 state here",
             "description": "The API over the campus LAN, the Core over the ops network, from the VM that will use both.",
             "where": "The ops VM",
-            "instruction": "From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 5, move the Terraform folder and its state from the workstation onto this VM.",
+            "instruction": "From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 5, move the Terraform or OpenTofu folder and its state from the workstation onto this VM.",
             "guideRef": {
               "procedureId": "ops-vm-build"
             },
             "commands": [
               {
                 "cmd": "curl -sk https://10.10.30.T:8006/api2/json/version",
-                "explain": "A JSON line with the Proxmox version. Terraform and the Ansible inventory use this path."
+                "explain": "A JSON line with the Proxmox version. Terraform or OpenTofu and the Ansible inventory use this path."
               },
               {
                 "cmd": "ping -c 3 10.20.0.11",
@@ -3861,7 +3866,7 @@
             ],
             "usesForm": "Server Bring-Up Log",
             "producesDeliverable": "03_Server_Bring_Up.md",
-            "whatItMeans": "Terraform state that lives on a workstation disappears at the next reimage. Terraform without its state no longer knows what it owns.",
+            "whatItMeans": "IaC state that lives on a workstation disappears at the next reimage. Terraform or OpenTofu without its state no longer knows what it owns.",
             "frameworks": [
               "NIST_CSF"
             ],
@@ -3959,8 +3964,8 @@
             "description": "The Operations Log gains the procedure for the thing that now runs the site.",
             "instruction": "In the Operations Log & SOPs add a runbook: how to clone, apply and run the repository from zero, with the check and the way back.",
             "instructionList": [
-              "Procedure \"Rebuild the site from Git\": clone on the ops VM, fill terraform.tfvars, terraform apply, ansible-playbook site.yml.",
-              "Verify: a second terraform plan reports no changes; the dashboard shows every host.",
+              "Procedure \"Rebuild the site from Git\": clone on the ops VM, fill terraform.tfvars, terraform apply (or tofu apply), ansible-playbook site.yml.",
+              "Verify: a second terraform plan (tofu plan) reports no changes; the dashboard shows every host.",
               "Rollback: git checkout the previous tag and apply again — the history is the way back."
             ],
             "usesForm": "Operations Log & SOPs",
@@ -3993,7 +3998,7 @@
           "Drift, and why a quiet plan matters"
         ],
         "tools": [
-          "Terraform",
+          "Terraform or OpenTofu",
           "bpg/proxmox provider",
           "cloud-init"
         ],
@@ -4003,14 +4008,14 @@
         ],
         "definitionOfDone": [
           "terraform.tfvars holds the token and is ignored; terraform.tfvars.example is committed",
-          "websrv and linuxsrv were built by terraform apply from template 9000 with both NICs",
-          "A second terraform plan reports no changes"
+          "websrv and linuxsrv were built by terraform apply (or tofu apply) from template 9000 with both NICs",
+          "A second terraform plan — or tofu plan — reports no changes"
         ],
         "steps": [
           {
             "id": "sp-w6-terraform-s0",
             "title": "Template, token, provider",
-            "description": "The same image every team clones, and a credential Terraform may use.",
+            "description": "The same image every team clones, and a credential Terraform or OpenTofu may use.",
             "where": "The Proxmox web console and host shell, then the ops VM",
             "instruction": "Restore the golden template as VM 9000, create the fleet token on the host, write providers.tf with the token in the ignored tfvars file, and initialise.",
             "guideRef": {
@@ -4126,7 +4131,7 @@
           "Wazuh agent"
         ],
         "prerequisites": [
-          "The servers built by Terraform",
+          "The servers built by Terraform or OpenTofu",
           "The fleet key on the ops VM"
         ],
         "definitionOfDone": [
@@ -4540,7 +4545,7 @@
         "shared": true,
         "week": 6,
         "title": "Destroy it and rebuild it from Git",
-        "objective": "The standard for the track: delete linuxsrv, bring it back with terraform apply and ansible-playbook, and watch it reappear in Grafana and Wazuh on its own. Then the SLO line, the alerting runbook, and the Fleet section of the As-Built.",
+        "objective": "The standard for the track: delete linuxsrv, bring it back with terraform apply (tofu apply) and ansible-playbook, and watch it reappear in Grafana and Wazuh on its own. Then the SLO line, the alerting runbook, and the Fleet section of the As-Built.",
         "frameworks": [
           "NIST_CSF"
         ],
@@ -4555,7 +4560,7 @@
           "Handing over a repository"
         ],
         "tools": [
-          "Terraform",
+          "Terraform or OpenTofu",
           "Ansible",
           "git",
           "DR Plan & As-Built Handover form"
@@ -4574,7 +4579,7 @@
             "title": "The demo",
             "description": "Two commands and a machine that comes back on its own.",
             "where": "The Proxmox host shell, then the ops VM, then the Core in a browser",
-            "instruction": "Note the time, destroy linuxsrv, run terraform apply then the playbook limited to linuxsrv, and watch its panels and its agent return on the Core. Stop the clock and tag the repository.",
+            "instruction": "Note the time, destroy linuxsrv, run terraform apply (or tofu apply) then the playbook limited to linuxsrv, and watch its panels and its agent return on the Core. Stop the clock and tag the repository.",
             "guideRef": {
               "procedureId": "rebuild-from-git"
             },
@@ -4585,7 +4590,7 @@
               },
               {
                 "cmd": "cd ~/team07-infra/terraform && terraform apply -auto-approve && cd ../ansible && ansible-playbook site.yml -l linuxsrv",
-                "explain": "On the ops VM. Terraform notices it is missing and clones it; Ansible makes it a server again."
+                "explain": "On the ops VM. Terraform or OpenTofu notices it is missing and clones it; Ansible makes it a server again."
               },
               {
                 "cmd": "date +%T && git tag -a v1.0-handover -m \"Rebuilt linuxsrv from this tag\" && git push --tags",
@@ -4600,8 +4605,8 @@
             "outputKind": "result",
             "fixes": [
               {
-                "symptom": "Terraform says the VM already exists?",
-                "fix": "qm destroy without --purge leaves the ID’s config behind. Purge it, or terraform state rm the resource and apply again."
+                "symptom": "Terraform or OpenTofu says the VM already exists?",
+                "fix": "qm destroy without --purge leaves the ID’s config behind. Purge it, or terraform state rm (tofu state rm) the resource and apply again."
               },
               {
                 "symptom": "The agent comes back as a duplicate?",
@@ -5558,7 +5563,7 @@
             "id": "sp-w5-lnx-s1",
             "title": "Document state that matches reality, logs that reach Loki",
             "description": "Your focus area, in the host rows.",
-            "instruction": "All four VMs under Terraform state with a quiet plan, and auth.log from every Linux host queryable in Loki.",
+            "instruction": "All four VMs under Terraform or OpenTofu state with a quiet plan, and auth.log from every Linux host queryable in Loki.",
             "usesForm": "Server Bring-Up Log",
             "producesDeliverable": "03_Server_Bring_Up.md",
             "whatItMeans": "Import is where IaC gets honest: the file has to describe what someone built by hand, exactly, or plan will try to change it.",
@@ -5614,7 +5619,7 @@
             "instructionList": [
               "One GLPI change per Week-4 change-log row, each with the rollback in the Rollback plan field and a named validator.",
               "In the DR Plan, replace \"check the backup ran\" with what Pulse shows and where its alert goes.",
-              "In the As-Built numbers: targets UP, agents Active, VMs under Terraform state, changes in GLPI."
+              "In the As-Built numbers: targets UP, agents Active, VMs under Terraform or OpenTofu state, changes in GLPI."
             ],
             "usesForm": "Operations Log & SOPs",
             "producesDeliverable": "07_Operations_and_SOPs.md",
@@ -5759,7 +5764,7 @@
             "id": "sp-w6-lnx-s1",
             "title": "Document the base role as the hardening standard",
             "description": "Your focus area, in the host rows.",
-            "instruction": "Prove the base role is the Week 4 hardening, as code: idempotent on every Linux host, clocks agreeing with the Core, packages through the cache, and the Terraform state inside the vault.",
+            "instruction": "Prove the base role is the Week 4 hardening, as code: idempotent on every Linux host, clocks agreeing with the Core, packages through the cache, and the Terraform or OpenTofu state inside the vault.",
             "usesForm": "Server Bring-Up Log",
             "producesDeliverable": "03_Server_Bring_Up.md",
             "whatItMeans": "Week 4 hardened three servers by hand. The base role hardens every server that will ever exist here, including the one you build next term.",
@@ -5774,7 +5779,7 @@
               },
               {
                 "cmd": "proxmox-backup-client list --repository team07@pbs@10.20.0.13:vault --ns team07 | grep ops",
-                "explain": "On the host, with your team in three places. The ops VM is in the vault, so the Terraform state is too. Lose the state and Terraform no longer knows what it owns."
+                "explain": "On the host, with your team in three places. The ops VM is in the vault, so the Terraform or OpenTofu state is too. Lose the state and the tool no longer knows what it owns."
               }
             ],
             "expectedOutput": "Every Linux host tracks the Core clock, proxies apt through the cache and refuses password logins, and the ops VM appears in the vault listing — the Bring-Up Log records the role as the standard.",
@@ -8464,10 +8469,10 @@
           "fields": [
             {
               "field": "iac_state",
-              "label": "What Terraform manages",
+              "label": "What Terraform or OpenTofu manages",
               "type": "area",
               "placeholder": "main.tf in 00_Planning creates the tools VM from the cloud-init template; websrv, winserver and linuxsrv imported. terraform plan reports no changes.",
-              "help": "Name the file, the VMs under state, and the proof: a plan with nothing to do."
+              "help": "Name the tool (Terraform or OpenTofu), the file, the VMs under state, and the proof: a plan with nothing to do."
             },
             {
               "field": "monitoring_targets",
@@ -8507,6 +8512,7 @@
                 "type": "select",
                 "options": [
                   "Terraform",
+                  "OpenTofu",
                   "Prometheus",
                   "Grafana",
                   "Loki",
@@ -8532,7 +8538,7 @@
                 "label": "Open it at",
                 "type": "text",
                 "placeholder": "http://192.168.0.4:3000",
-                "help": "The address a person types. Terraform has none — write \"workstation\"."
+                "help": "The address a person types. Terraform and OpenTofu have none — write \"workstation\"."
               },
               {
                 "field": "replaces",
@@ -8765,7 +8771,7 @@
           }
         },
         {
-          "label": "Terraform manages the lab and a plan reports no changes",
+          "label": "Terraform or OpenTofu manages the lab and a plan reports no changes",
           "test": {
             "$fn": "test"
           },
@@ -10451,7 +10457,7 @@
       "summary": "One VM, one script: the Wazuh assisted installer puts the manager, the indexer and the dashboard on a single host. Four GB of RAM is the floor — the indexer will not start on less. When it finishes you have the same SIEM the CySA+ course runs, except this one is yours.",
       "steps": [
         {
-          "gui": "In the Proxmox web console create a VM named wazuh: Ubuntu Server ISO, 2 cores, 4096 MB RAM, 50 GB disk, Bridge vmbr2. Install Ubuntu with the static address 192.168.0.20/24, gateway 192.168.0.1, DNS 192.168.0.2. Or create it with Terraform — the point of the track.",
+          "gui": "In the Proxmox web console create a VM named wazuh: Ubuntu Server ISO, 2 cores, 4096 MB RAM, 50 GB disk, Bridge vmbr2. Install Ubuntu with the static address 192.168.0.20/24, gateway 192.168.0.1, DNS 192.168.0.2. Or create it with Terraform or OpenTofu — the point of the track.",
           "explain": "Matches the wazuh row in the Architecture Brief. Private zone: a SIEM holds every host’s security events and is never exposed."
         },
         {
@@ -10544,13 +10550,13 @@
     {
       "id": "terraform-proxmox-provider",
       "week": 5,
-      "title": "Terraform: a token, a provider, a plan",
+      "title": "Terraform or OpenTofu: a token, a provider, a plan",
       "where": "The Proxmox host shell, then your workstation",
-      "summary": "Infrastructure as code starts with a credential Terraform may use and a provider that speaks Proxmox. The token lives in an environment variable and never in a file you might commit; the provider block goes in main.tf; the first plan proves the two can talk.",
+      "summary": "Infrastructure as code starts with a credential the tool may use and a provider that speaks Proxmox. Terraform and OpenTofu are the same tool for this course — the same HCL, the same bpg provider, the same files and state — and differ at the prompt (terraform or tofu) and in where you install from. Pick one for the whole team, set it in Lab access on the course page, and every line below follows. The token lives in an environment variable and never in a file you might commit; the provider block goes in main.tf; the first plan proves the two can talk.",
       "steps": [
         {
           "cmd": "pveum user add terraform@pve --comment \"Terraform provider\"",
-          "explain": "On the Proxmox host. Terraform gets its own identity so its changes are attributable in the task log."
+          "explain": "On the Proxmox host. The tool gets its own identity so its changes are attributable in the task log. The user is named terraform whichever tool you run — OpenTofu reads the same token."
         },
         {
           "cmd": "pveum role add Terraform -privs \"Datastore.Allocate Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify SDN.Use VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.Cloudinit VM.Config.CPU VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.Monitor VM.PowerMgmt User.Modify\"",
@@ -10570,10 +10576,17 @@
         },
         {
           "cmd": "sudo apt update && sudo apt install -y gnupg software-properties-common && wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && echo \"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/hashicorp.list && sudo apt update && sudo apt install -y terraform",
-          "explain": "On your workstation (Ubuntu shown; the Windows installer is on the same page). Terraform runs where you type, against the host’s API.",
+          "explain": "On your workstation (Ubuntu shown; the Windows installer is on the same page). The tool runs where you type, against the host’s API. Terraform installs from HashiCorp’s repository; OpenTofu from its own installer — pick the tool in Lab access and this line becomes the right one.",
           "doc": {
             "label": "Install Terraform",
             "href": "https://developer.hashicorp.com/terraform/install"
+          },
+          "opentofu": {
+            "cmd": "curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh && chmod +x install-opentofu.sh && ./install-opentofu.sh --install-method deb && rm -f install-opentofu.sh",
+            "doc": {
+              "label": "Install OpenTofu",
+              "href": "https://opentofu.org/docs/intro/install/"
+            }
           }
         },
         {
@@ -10586,16 +10599,16 @@
         },
         {
           "cmd": "terraform init && terraform plan",
-          "explain": "init downloads the provider; plan authenticates and, with no resources yet, reports No changes. An authentication error here is the token, the endpoint, or the T you forgot to replace."
+          "explain": "init downloads the provider; plan authenticates and, with no resources yet, reports No changes. Under OpenTofu the two commands are tofu init and tofu plan — same provider, same output. An authentication error here is the token, the endpoint, or the T you forgot to replace."
         }
       ]
     },
     {
       "id": "terraform-first-vm-and-import",
       "week": 5,
-      "title": "Terraform: a template, a VM from code, and the existing three imported",
+      "title": "Terraform or OpenTofu: a template, a VM from code, and the existing three imported",
       "where": "The Proxmox host shell, then your workstation",
-      "summary": "A cloud-init template makes a VM a clone rather than an install. main.tf then creates the tools VM from it — a machine you never clicked through — and terraform import brings websrv, winserver and linuxsrv under the same state, so the whole lab is described in one file that plan can check against reality.",
+      "summary": "A cloud-init template makes a VM a clone rather than an install. main.tf then creates the tools VM from it — a machine you never clicked through — and terraform import (tofu import on OpenTofu) brings websrv, winserver and linuxsrv under the same state, so the whole lab is described in one file that plan can check against reality.",
       "steps": [
         {
           "cmd": "cd /var/lib/vz/template/iso && wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img",
@@ -10780,7 +10793,7 @@
         },
         {
           "cmd": "wget -q https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img\nqm create 9000 --name ubuntu-2404-tmpl --memory 2048 --cores 2 --net0 virtio,bridge=vmbr9 --net1 virtio,bridge=vmbr2 --scsihw virtio-scsi-pci\nqm importdisk 9000 noble-server-cloudimg-amd64.img local-lvm\nqm set 9000 --scsi0 local-lvm:vm-9000-disk-0 --ide2 local-lvm:cloudinit --boot order=scsi0 --serial0 socket --vga serial0 --agent enabled=1\nqm template 9000\nvzdump 9000 --storage cache-templates --mode stop",
-          "explain": "The golden template, built once with two NICs — ops first, client private second — and published as a backup archive on cache.lab so every team restores the same image as VM 9000 on its own node. Identical clones are what make sixteen Terraform runs behave the same.",
+          "explain": "The golden template, built once with two NICs — ops first, client private second — and published as a backup archive on cache.lab so every team restores the same image as VM 9000 on its own node. Identical clones are what make sixteen Terraform or OpenTofu runs behave the same.",
           "doc": {
             "label": "Proxmox cloud-init support",
             "href": "https://pve.proxmox.com/wiki/Cloud-Init_Support"
@@ -10826,11 +10839,11 @@
       "week": 6,
       "title": "The ops VM: a permanent home for the toolchain",
       "where": "The Proxmox web console, then the new ops VM",
-      "summary": "Classroom workstations get reimaged, reassigned and shared. Terraform state, SSH keys and playbooks that live on one disappear. So the team’s toolchain lives on a small VM on the team’s own node, with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures. The workstation becomes a window.",
+      "summary": "Classroom workstations get reimaged, reassigned and shared. Terraform or OpenTofu state, SSH keys and playbooks that live on one disappear. So the team’s toolchain lives on a small VM on the team’s own node, with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures. The workstation becomes a window.",
       "steps": [
         {
           "gui": "Create a VM named ops: Ubuntu Server ISO, 2 cores, 2048 MB, 32 GB disk, net0 on vmbr0 (DHCP from the campus), net1 on vmbr9. Install Ubuntu with the ops user, OpenSSH enabled, and net1 static at 10.20.T.30/24 with no gateway.",
-          "explain": "Dual-homed on purpose. Terraform and the dynamic inventory talk to the Proxmox API over the campus LAN; Ansible talks to the VMs over the ops network. Mixing the two paths up is the most common first-day blocker."
+          "explain": "Dual-homed on purpose. Terraform or OpenTofu and the dynamic inventory talk to the Proxmox API over the campus LAN; Ansible talks to the VMs over the ops network. Mixing the two paths up is the most common first-day blocker."
         },
         {
           "cmd": "echo \"Acquire::http::Proxy \\\"http://10.20.0.14:3142\\\";\" | sudo tee /etc/apt/apt.conf.d/01proxy && sudo apt update && sudo apt install -y git ansible python3-proxmoxer python3-requests",
@@ -10838,15 +10851,22 @@
         },
         {
           "cmd": "wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && echo \"deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main\" | sudo tee /etc/apt/sources.list.d/hashicorp.list && sudo apt update && sudo apt install -y terraform && terraform -version && ansible --version",
-          "explain": "Terraform from HashiCorp’s repository (OpenTofu works with the same provider; pick one for the whole team). Both version lines printing is the check.",
+          "explain": "Terraform from HashiCorp’s repository, or OpenTofu from its installer — the same provider, the same files; pick one for the whole team in Lab access and this line follows. Both version lines printing is the check.",
           "doc": {
             "label": "Install Terraform",
             "href": "https://developer.hashicorp.com/terraform/install"
+          },
+          "opentofu": {
+            "cmd": "curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh && chmod +x install-opentofu.sh && ./install-opentofu.sh --install-method deb && rm -f install-opentofu.sh && tofu -version && ansible --version",
+            "doc": {
+              "label": "Install OpenTofu",
+              "href": "https://opentofu.org/docs/intro/install/"
+            }
           }
         },
         {
           "cmd": "ssh-keygen -t ed25519 -C \"team07-ops\" -f ~/.ssh/id_ed25519 -N \"\" && cat ~/.ssh/id_ed25519.pub",
-          "explain": "The fleet key, with your own team number in the comment. Its public half goes into every VM cloud-init builds; its private half never leaves this VM. Copy the public key — the Terraform template and the Ansible base role both need it."
+          "explain": "The fleet key, with your own team number in the comment. Its public half goes into every VM cloud-init builds; its private half never leaves this VM. Copy the public key — the VM template in your IaC code and the Ansible base role both need it."
         },
         {
           "cmd": "curl -sk https://10.10.30.T:8006/api2/json/version && ping -c 3 10.20.0.11",
@@ -10854,7 +10874,7 @@
         },
         {
           "cmd": "cd ~/ServerPlus_Capstone/00_Planning/terraform 2>/dev/null && scp -r . ops@10.20.T.30:~/tf-week5/ ; echo done",
-          "explain": "Only if you did Week 5: from the workstation that ran Terraform, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage."
+          "explain": "Only if you did Week 5: from the workstation that ran Terraform or OpenTofu, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage."
         }
       ]
     },
@@ -10871,7 +10891,7 @@
         },
         {
           "cmd": "mkdir -p ~/team07-infra && cd ~/team07-infra && git init -b main && mkdir -p terraform ansible/roles/{base,monitoring,wazuh_agent} docs && cat > .gitignore <<'EOF'\n*.tfvars\n*.tfstate\n*.tfstate.*\n.terraform/\n.vault-pass\n*.pem\nid_ed25519*\nEOF\ngit add .gitignore && git commit -m \"Ignore secrets and state before anything else\"",
-          "explain": "The first commit is the ignore file, alone. Token files, state files, the vault password and keys can never be added by accident after this — and the state file in particular describes every VM you own, which is not for a shared server."
+          "explain": "The first commit is the ignore file, alone. OpenTofu uses the same file names, so the list is the same for either tool. Token files, state files, the vault password and keys can never be added by accident after this — and the state file in particular describes every VM you own, which is not for a shared server."
         },
         {
           "cmd": "cat > README.md <<'EOF'\n# team07-infra\n\nThe Granite Peak client site, as code.\n\n1. Clone this on the ops VM (10.20.T.30 — your team's ops subnet).\n2. terraform/: cp terraform.tfvars.example terraform.tfvars, fill the API token, terraform init && terraform apply.\n3. ansible/: export PVE_TOKEN=..., ansible-playbook -i inventory.proxmox.yml site.yml\n4. Everything the site runs is in roles/. Nothing is configured by hand.\nEOF\ngit add README.md && git commit -m \"README a stranger could follow\"",
@@ -10890,9 +10910,9 @@
     {
       "id": "fleet-template-and-terraform",
       "week": 6,
-      "title": "The site from the golden template, in Terraform",
+      "title": "The site from the golden template, in Terraform or OpenTofu",
       "where": "The Proxmox host shell, then the ops VM",
-      "summary": "An ISO install takes twenty minutes and is different every time. A clone of the Core’s golden template takes seconds and is identical every time — which is what makes Terraform worth using. The provider block, the token in a file Git never sees, the server VMs described once, applied, and then a second plan that has nothing to do.",
+      "summary": "An ISO install takes twenty minutes and is different every time. A clone of the Core’s golden template takes seconds and is identical every time — which is what makes Terraform, or OpenTofu, worth using. The two read the same code below; only the command name differs. The provider block, the token in a file Git never sees, the server VMs described once, applied, and then a second plan that has nothing to do.",
       "steps": [
         {
           "gui": "On your node, Datacenter → Storage → Add → the Core’s template store (Directory or NFS, the address is on your handout). Then Storage → Backups → the ubuntu-2404-tmpl archive → Restore, as VM 9000. Convert it: right-click → Convert to template.",
@@ -10900,7 +10920,7 @@
         },
         {
           "cmd": "pveum user add terraform@pve 2>/dev/null; pveum aclmod / -user terraform@pve -role Terraform && pveum user token add terraform@pve fleet --privsep=0",
-          "explain": "On the host. The Terraform role from Week 5 already exists if you did it; if not, create it with the privileges the provider documents first. A new token named fleet — copy the value the moment it prints, it is shown once."
+          "explain": "On the host. The Terraform role from Week 5 (the same role serves OpenTofu) already exists if you did it; if not, create it with the privileges the provider documents first. A new token named fleet — copy the value the moment it prints, it is shown once."
         },
         {
           "cmd": "cd ~/team07-infra/terraform && cat > providers.tf <<'EOF'\nterraform {\n  required_providers {\n    proxmox = { source = \"bpg/proxmox\", version = \"~> 0.66\" }\n  }\n}\nvariable \"pve_token\" { sensitive = true }\nvariable \"team\" { default = 7 }\nprovider \"proxmox\" {\n  endpoint  = \"https://10.10.30.T:8006/\"\n  api_token = var.pve_token\n  insecure  = true\n}\nEOF\ncat > terraform.tfvars.example <<'EOF'\npve_token = \"terraform@pve!fleet=PASTE_THE_TOKEN_VALUE_HERE\"\nEOF\ncp terraform.tfvars.example terraform.tfvars",
@@ -10912,7 +10932,7 @@
         },
         {
           "cmd": "cat > main.tf <<'EOF'\nlocals {\n  node    = \"pve-host\"\n  ops_key = file(\"~/.ssh/id_ed25519.pub\")\n  servers = {\n    websrv   = { octet = 10, client_bridge = \"vmbr1\", client_ip = \"172.16.0.10/24\",  gw = \"172.16.0.1\",  memory = 2048 }\n    linuxsrv = { octet = 3,  client_bridge = \"vmbr2\", client_ip = \"192.168.0.3/24\",  gw = \"192.168.0.1\", memory = 2048 }\n  }\n}\n\nresource \"proxmox_virtual_environment_vm\" \"server\" {\n  for_each  = local.servers\n  name      = each.key\n  node_name = local.node\n  clone { vm_id = 9000 }\n  cpu    { cores = 2 }\n  memory { dedicated = each.value.memory }\n  agent  { enabled = true }\n  network_device { bridge = \"vmbr9\" }\n  network_device { bridge = each.value.client_bridge }\n  initialization {\n    ip_config { ipv4 { address = \"10.20.${var.team}.${each.value.octet}/24\" } }\n    ip_config { ipv4 { address = each.value.client_ip, gateway = each.value.gw } }\n    user_account { username = \"ops\", keys = [local.ops_key] }\n  }\n}\nEOF\nterraform init && terraform plan",
-          "explain": "The Linux servers, described once each: first NIC and first ip_config are the ops leg, second are the client zone. winserver stays a hand-built import — cloud-init does not build Windows — and is imported exactly as in Week 5. Plan lists two to add."
+          "explain": "The Linux servers, described once each — the terraform block at the top of providers.tf is valid OpenTofu too. First NIC and first ip_config are the ops leg, second are the client zone. winserver stays a hand-built import — cloud-init does not build Windows — and is imported exactly as in Week 5. Plan lists two to add."
         },
         {
           "cmd": "terraform apply -auto-approve && terraform plan",
@@ -10929,7 +10949,7 @@
       "week": 6,
       "title": "Ansible: the hypervisor is the inventory, and the second run changes nothing",
       "where": "The ops VM",
-      "summary": "Terraform makes the box; Ansible makes it a server. A playbook is idempotent — safe to run a hundred times — and that property is the whole point: the second run must report changed=0, or it is a shell script in disguise. The inventory is not a file you maintain; it is a question asked of the Proxmox API.",
+      "summary": "Terraform or OpenTofu makes the box; Ansible makes it a server. A playbook is idempotent — safe to run a hundred times — and that property is the whole point: the second run must report changed=0, or it is a shell script in disguise. The inventory is not a file you maintain; it is a question asked of the Proxmox API.",
       "steps": [
         {
           "cmd": "pveum user add ansible@pve 2>/dev/null; pveum aclmod / -user ansible@pve -role PVEAuditor && pveum user token add ansible@pve inv --privsep=0",
@@ -11011,7 +11031,7 @@
         },
         {
           "gui": "Datacenter → Backup → Add: Storage vault, Schedule 02:00 daily, Selection mode All, Mode Snapshot, Retention keep-daily 7 keep-weekly 4. Make sure the ops VM is in the selection. Then select the job → Run now.",
-          "explain": "The ops VM holds the Terraform state. Lose it and Terraform no longer knows what it owns; it must be in every backup. Deduplication means the second night’s backup is a fraction of the first.",
+          "explain": "The ops VM holds the Terraform or OpenTofu state. Lose it and the tool no longer knows what it owns; it must be in every backup. Deduplication means the second night’s backup is a fraction of the first.",
           "doc": {
             "label": "Proxmox VE backup and restore",
             "href": "https://pve.proxmox.com/wiki/Backup_and_Restore"
@@ -11077,7 +11097,7 @@
         },
         {
           "cmd": "cd ~/team07-infra/terraform && terraform apply -auto-approve",
-          "explain": "On the ops VM. Terraform refreshes, finds linuxsrv missing, and clones it from the template with both NICs and both addresses. Under a minute."
+          "explain": "On the ops VM. Terraform (or OpenTofu) refreshes, finds linuxsrv missing, and clones it from the template with both NICs and both addresses. Under a minute."
         },
         {
           "cmd": "cd ../ansible && ansible-playbook site.yml -l linuxsrv",

@@ -3,7 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
 import { CopyButton } from '@/components/TaskComponents';
-import { fillPlaceholders, useLabAccess } from '@/lib/labAccess';
+import { fillPlaceholders, useIacTool, useLabAccess } from '@/lib/labAccess';
+import { commandFor, type IacTool } from '@/lib/iacTool';
 import {
   ADVANCED_HOSTS,
   CAMPUS_LAN,
@@ -82,8 +83,13 @@ const ADDRESSING: { zone: string; net: string; hosts: string; note?: string }[] 
  *  a student who has set their host address in Lab access copies THEIR address
  *  here too. Without this the identical command filled in the task and stayed a
  *  placeholder in the guide, which reads as a bug rather than a distinction. */
-function CommandLine({ cmd, values }: { cmd: string; values: Record<string, string> }) {
-  cmd = fillPlaceholders(cmd, values);
+/** The doc link for the tool in use: the OpenTofu twin's when there is one. */
+function docFor(step: { doc?: { label: string; href: string }; opentofu?: { doc?: { label: string; href: string } } }, tool: IacTool) {
+  return tool === 'opentofu' && step.opentofu?.doc ? step.opentofu.doc : step.doc;
+}
+
+function CommandLine({ step, tool, values }: { step: { cmd: string; opentofu?: { cmd: string } }; tool: IacTool; values: Record<string, string> }) {
+  const cmd = fillPlaceholders(commandFor(step, tool), values);
   return (
     <div
       className="relative rounded-lg p-3 pr-20 font-mono text-xs"
@@ -109,6 +115,7 @@ export function ServerConfigGuide() {
   // procedure they promise rather than on a panel that is closed.
   const [week, setWeek] = useState(1);
   const lab = useLabAccess('server-plus');
+  const tool = useIacTool('server-plus');
 
   //
   // A procedure anchor (`#create-raid-virtual-disk`) works the same way, because
@@ -317,18 +324,18 @@ export function ServerConfigGuide() {
                       <td className="w-8 py-2 pl-4 pr-1 font-mono text-3xs leading-6 text-muted">{i + 1}</td>
                       <td className="w-[55%] py-2 pr-3">
                         {s.cmd ? (
-                          <CommandLine cmd={s.cmd} values={lab.values} />
+                          <CommandLine step={{ cmd: s.cmd, opentofu: s.opentofu }} tool={tool} values={lab.values} />
                         ) : (
                           /* A click-path that names an address names YOURS too,
                              for the same reason the commands do. */
                           <span className="text-sm text-body">{fillPlaceholders(s.gui ?? '', lab.values)}</span>
                         )}
-                        {s.doc && (
+                        {docFor(s, tool) && (
                           <a
-                            href={s.doc.href}
+                            href={docFor(s, tool)!.href}
                             className="mt-1 inline-flex items-center gap-1 text-xs font-medium text-accent hover:underline"
                           >
-                            {s.doc.label} <ExternalLink className="h-3 w-3 shrink-0" />
+                            {docFor(s, tool)!.label} <ExternalLink className="h-3 w-3 shrink-0" />
                           </a>
                         )}
                       </td>

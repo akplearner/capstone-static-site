@@ -90,7 +90,14 @@ export interface Step {
    *  one opaque block — clearer than a single `&&`-chained string, and lets beginners
    *  see what each flag does right under the command. Use `command` for single-statement
    *  steps. `flags` reuses the same `{flag, meaning}` shape as step-level `commandFlags`. */
-  commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
+  commands?: {
+    cmd: string;
+    explain?: string;
+    flags?: { flag: string; meaning: string }[];
+    /** The OpenTofu form of `cmd`, only where it cannot be derived — the install
+     *  line. Everything else is rewritten at render time (src/lib/iacTool.ts). */
+    opentofu?: string;
+  }[];
   /** Plain-English breakdown of the command and its key options/flags. */
   commandExplanation?: string;
   /** Structured per-flag reference: each flag/operator and what it does. */
