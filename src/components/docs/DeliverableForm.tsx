@@ -178,7 +178,7 @@ function SingleField({
         />
       )}
       {badAddress && touched && (
-        <span className="mt-1 block text-xs text-warn">Four numbers, 0–255, e.g. 172.16.0.10</span>
+        <span className="mt-1 block text-xs text-warn">Four numbers, 0–255, e.g. 192.0.2.10</span>
       )}
       {f.help && <span className="mt-1 block text-xs text-muted">{f.help}</span>}
       {f.required && empty && touched && (

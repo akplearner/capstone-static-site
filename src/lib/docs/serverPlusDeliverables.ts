@@ -1,6 +1,7 @@
 import { Column } from '../grc/templates';
 import { DeliverableDef } from './types';
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
+import { PUBLISHED_PORTS, vm } from '@/lib/serverTopology';
 
 /**
  * Client deliverables for the CompTIA Server+ capstone.
@@ -164,7 +165,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('serves', 'Which business need it serves', 'text', { help: 'Quote the line from the section above that this machine exists for.', placeholder: 'Sell online' }),
           ],
           seed: [
-            { hostname: 'websrv', os: 'Ubuntu Server 24.04', job: 'Public website (NGINX)', zone: 'vmbr1 — DMZ', why_zone: 'Reachable from outside, so it is kept away from internal systems', serves: 'Sell online' },
+            { hostname: 'websrv', os: 'Ubuntu Server 24.04', job: 'Public website (NGINX)', zone: 'vmbr1 — DMZ', why_zone: 'Reachable from outside — the campus at http://10.10.30.T through the host — so it is kept away from internal systems', serves: 'Sell online' },
             { hostname: 'winserver', os: 'Windows Server 2022', job: 'AD DS, DNS and DHCP — staff logins', zone: 'vmbr2 — private', why_zone: 'Holds every user account; must never be reachable from outside', serves: 'Give every member of staff a login' },
             { hostname: 'linuxsrv', os: 'Ubuntu Server 24.04', job: 'MariaDB — customer and order records', zone: 'vmbr2 — private', why_zone: 'Business data; only the website reaches it, never the public', serves: 'Keep customer and order records' },
             { hostname: 'secmon', os: 'Ubuntu Server 24.04', job: 'Monitoring (Week 5, advanced)', zone: 'vmbr2 — private', why_zone: 'Watches the other machines; no reason to expose it', serves: 'Know when something breaks' },
@@ -545,8 +546,8 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           ],
           seed: [
             { asset_id: 'SRV-001', name: 'pve-host', type: 'Physical server', identifier: 'Dell R630 — tag 7XK2M13', owner: 'IT (you)' },
-            { asset_id: 'VM-001', name: 'websrv', type: 'Virtual machine', identifier: 'VMID 101', owner: 'IT (you)' },
-            { asset_id: 'VM-002', name: 'winserver', type: 'Virtual machine', identifier: 'VMID 102', owner: 'IT (you)' },
+            { asset_id: 'VM-001', name: 'websrv', type: 'Virtual machine', identifier: 'VMID 100', owner: 'IT (you)' },
+            { asset_id: 'VM-002', name: 'winserver', type: 'Virtual machine', identifier: 'VMID 101', owner: 'IT (you)' },
             { asset_id: 'NET-001', name: 'Access switch', type: 'Network device', identifier: 'Cisco CBS350, FOC2481', owner: 'IT (you)' },
           ],
         },
@@ -588,8 +589,10 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       'On each host, read the address the machine actually holds and record it.',
       'Record the gateway and the DNS server each host is using, not the ones you meant to set.',
       'Reboot one host and re-check — an address that does not survive a reboot was never configured, only typed.',
+      'Record every port the host publishes to the campus, what answers behind it, and why it exists — a forward you cannot justify is closed.',
       'Then prove the paths: each row is a test you ran, with the command and what came back.',
-      'Any path that fails stays in the table with its failure recorded, until you fix it and re-run.',
+      'Any path that fails stays in the table with its failure recorded, until you fix it and re-run — and a path that should fail is recorded as a pass when it does.',
+      'Record the site the campus reaches: its URL at the host, what it contains, and a screenshot from a machine that is not yours.',
     ],
     meaning:
       'A plan says what should be true. This says what is true, and shows the command that proves it. When something breaks later, this is the last known-good picture of the network.',
@@ -598,7 +601,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
     pitfalls: [
       'Copying the Week 1 plan across. The whole point is to find where reality differs.',
       'Recording an address you set but never rebooted into. Netplan applied and netplan persisted are different things.',
-      'Only testing what you expect to work. The interesting rows are the ones that should FAIL — the DMZ reaching the private zone, for instance.',
+      'Only testing what you expect to work. The interesting rows are the ones that should FAIL — the DMZ opening SSH into the private zone, for instance.',
     ],
     sections: [
       {
@@ -631,6 +634,29 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       {
         kind: 'group',
         group: {
+          group: 'published',
+          label: 'Published ports — what the campus LAN reaches through the host',
+          help: 'One row per DNAT rule in the host’s rules file. Each is a deliberate hole in the segmentation: say what answers behind it and why anyone outside needs it. A row you cannot justify is a rule you remove.',
+          columns: [
+            c('host_port', 'Host port', 'text', { placeholder: '80/tcp', help: 'The port on the host’s campus address (10.10.30.T) that a campus machine connects to.' }),
+            c('to', 'Forwarded to', 'text', { placeholder: 'websrv:80', help: 'The VM and port the DNAT rule hands the packet to — read it off iptables -t nat -L PREROUTING -n.' }),
+            c('service', 'Service', 'text', { placeholder: 'nginx', help: 'What is listening at the far end. "nothing yet" is a valid — and important — answer.' }),
+            c('why', 'Why it is published', 'text', { placeholder: 'The public site — anyone on the campus', help: 'Who needs it and from where. This column is what the instructor reads.' }),
+            c('proof', 'Proven with', 'text', { placeholder: 'curl -I http://10.10.30.T', help: 'The command you ran from a campus machine, and it worked.' }),
+          ],
+          seed: PUBLISHED_PORTS.map((p) => ({
+            host_port: `${p.hostPort}/${p.proto}`,
+            to: `${p.to}:${p.port}`,
+            service: p.port === 22 ? 'sshd' : p.port === 443 ? 'nginx — nothing until Week 4' : 'nginx',
+            why: p.purpose,
+            proof:
+              p.port === 22 ? `ssh -p ${p.hostPort} ubuntu@10.10.30.T hostname` : p.port === 443 ? 'curl -kI https://10.10.30.T (Week 4)' : 'curl -I http://10.10.30.T',
+          })),
+        },
+      },
+      {
+        kind: 'group',
+        group: {
           group: 'proof',
           label: 'Connectivity proof — including what must NOT work',
           help: 'One row per test. A segmented network is only proven when you have also shown the paths that are supposed to be blocked really are.',
@@ -644,11 +670,22 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('verdict', 'Verdict', 'text', { derived: (r) => (r.matches === 'Yes' ? 'Proven' : r.matches === 'No' ? 'Finding' : ''), help: 'Computed from the answer beside it. A test that did not match expectation is a finding to fix, not a box to tick.' }),
           ],
           seed: [
-            { from: 'Campus LAN', to: 'the website via the host', command: 'curl -I http://10.10.30.1', expected: 'Should work', result: 'HTTP/1.1 200 OK', matches: 'Yes' },
-            { from: 'websrv', to: 'linuxsrv 192.168.0.3', command: 'ping -c 4 192.168.0.3', expected: 'Should be blocked', result: '4 transmitted, 0 received — the DMZ cannot reach the private zone', matches: 'Yes' },
+            { from: 'Campus LAN', to: 'the site via the host', command: 'curl -I http://10.10.30.T', expected: 'Should work', result: 'HTTP/1.1 200 OK — our own title in the body', matches: 'Yes' },
+            { from: 'pve-host', to: 'websrv and linuxsrv over SSH', command: `ssh ubuntu@${vm('websrv').address} hostname && ssh ubuntu@${vm('linuxsrv').address} hostname`, expected: 'Should work', result: 'Both hostnames print — the host reaches every zone directly', matches: 'Yes' },
+            { from: 'websrv', to: `linuxsrv ${vm('linuxsrv').address} port 3306`, command: `nc -vz -w 3 ${vm('linuxsrv').address} 3306`, expected: 'Should work', result: 'succeeded — the one database path the rules allow', matches: 'Yes' },
+            { from: 'websrv', to: `linuxsrv ${vm('linuxsrv').address} port 22`, command: `nc -vz -w 3 ${vm('linuxsrv').address} 22`, expected: 'Should be blocked', result: 'timed out — FWD-DROP in the host kernel log', matches: 'Yes' },
             { from: 'linuxsrv', to: 'the internet', command: 'ping -c 4 1.1.1.1', expected: 'Should work', result: '4 received, via the host NAT', matches: 'Yes' },
           ],
         },
+      },
+      {
+        kind: 'fields',
+        title: 'The site the campus reaches',
+        fields: [
+          { field: 'site_url', label: 'Where the campus opens it', type: 'text', placeholder: 'http://10.10.30.T', help: 'The host’s campus address. The visitor never sees the DMZ address — that is the point of the forward.' },
+          { field: 'site_pages', label: 'What the site contains', type: 'area', placeholder: 'index.html: the business, what it does, contact, the three machines. style.css. Uploaded with scp through port 2200.', help: 'The pages you wrote and how they got onto websrv.' },
+          { field: 'site_evidence', label: 'Screenshot from another campus machine', type: 'evidence', placeholder: '20260915_Team03_site_from_campus.png', help: 'Taken on a classmate’s machine, browser address bar visible, hashed and logged in the evidence appendix.' },
+        ],
       },
     ],
     dod: [
@@ -656,6 +693,8 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       { label: 'Each address was confirmed to survive a reboot', test: (d) => (d.groups.addresses ?? []).length > 0 && (d.groups.addresses ?? []).every((r) => r.survives === 'Yes') },
       { label: 'At least four paths are tested with the command recorded', test: (d) => (d.groups.proof ?? []).filter((r) => !!r.command && !!r.result).length >= 4 },
       { label: 'At least one test proves a path is correctly BLOCKED', test: (d) => (d.groups.proof ?? []).some((r) => r.expected === 'Should be blocked' && r.matches === 'Yes') },
+      { label: 'Every port the host publishes is listed with a reason and a proof', test: (d) => (d.groups.published ?? []).filter((r) => !!r.to && !!r.why && !!r.proof).length >= 4 },
+      { label: 'The site is recorded: its URL at the host and a screenshot from another campus machine', test: (d) => !!d.fields.site_url && !!d.fields.site_evidence },
     ],
   },
 
@@ -751,8 +790,9 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('decision', 'Decision', 'select', { options: ['Keep — justified', 'Restrict', 'Close'], help: 'Anything you cannot justify in the previous column gets closed.' }),
           ],
           seed: [
-            { host: 'websrv', port: '80/tcp', service: 'nginx', who: 'Anywhere — it is the public website', decision: 'Keep — justified' },
-            { host: 'websrv', port: '22/tcp', service: 'sshd', who: 'Campus LAN and the two internal zones only', decision: 'Restrict' },
+            { host: 'websrv', port: '80/tcp', service: 'nginx', who: 'Anywhere — it is the public website, published by the host', decision: 'Keep — justified' },
+            { host: 'websrv', port: '443/tcp', service: 'nginx', who: 'Anywhere — the same site over TLS, published by the host', decision: 'Keep — justified' },
+            { host: 'websrv', port: '22/tcp', service: 'sshd', who: 'The host at 172.16.0.1, the two internal zones, and the campus through the host’s port 2200 (uploads)', decision: 'Restrict' },
             { host: 'linuxsrv', port: '3306/tcp', service: 'mariadb', who: 'websrv only — it is the only thing that queries it', decision: 'Restrict' },
           ],
         },
@@ -791,7 +831,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
           ],
           seed: [
             { thing: 'Virtual machines', rule: 'role + purpose, lowercase, no spaces', example: 'websrv, linuxsrv, winserver' },
-            { thing: 'VM IDs', rule: '1xx for the base build, 2xx for business VMs', example: '101 websrv, 102 winserver, 201 fileserver' },
+            { thing: 'VM IDs', rule: '1xx for the base build, 2xx for business VMs', example: '100 websrv, 101 winserver, 201 fileserver' },
             { thing: 'Snapshots', rule: 'reason-YYYY-MM-DD, no spaces', example: 'pre-patch-2026-03-09' },
             { thing: 'Cables', rule: 'rack letter + sequence, both ends labelled the same', example: 'A-01, A-02, S-01' },
             { thing: 'Admin accounts', rule: 'purpose + admin, never shared, never root', example: 'webadmin, dbadmin' },

@@ -141,6 +141,9 @@ additive, none requiring a rewrite.
 - **Identity:** `src/lib/useAuth.ts`, `src/lib/supabase/*`, `profiles.is_instructor`.
 - **Instructor view:** `src/lib/data/cohortLoader.ts` reads a whole course (six selects, bypassing the
   per-user cache) for `/instructor/<course>/cohort`; `src/lib/search.ts` is the ⌘K index.
+- **The host's holes:** `PUBLISHED_PORTS`, `CROSS_ZONE_ALLOW` and `hostRulesFile()` in `src/lib/serverTopology.ts`
+  render the Proxmox host's iptables-restore file; the Week-2/3 seed steps, the guide, the topology diagram
+  and the IP Plan's published-ports table all read that one model.
 - **IaC tool choice:** `src/lib/iacTool.ts` derives the OpenTofu form of every Terraform command, expected
   output and verify token at render time (`commandFor`/`applyIacTool`); the install line is authored twice
   (`opentofu` on a command entry); the choice is a Lab access field (`IAC_TOOL`) in `src/lib/labAccess.ts`.

@@ -3,13 +3,26 @@
 import { DiagramFrame } from './DiagramFrame';
 import {
   CAMPUS_LAN,
+  CROSS_ZONE_ALLOW,
   HOST,
+  PUBLISHED_PORTS,
   RACK_UNITS,
   TEAM_VM_START,
   ZONE_BRIDGES,
   baseVmsOn,
   type Bridge,
 } from '@/lib/serverTopology';
+
+/** The published ports grouped by the VM that answers, in declaration order. */
+const PUBLISHED_BY_VM = PUBLISHED_PORTS.reduce<{ to: string; ports: number[] }[]>((acc, p) => {
+  const row = acc.find((r) => r.to === p.to);
+  if (row) row.ports.push(p.hostPort);
+  else acc.push({ to: p.to, ports: [p.hostPort] });
+  return acc;
+}, []);
+
+/** What the DMZ may open into the private zone, as a short phrase. */
+const CROSS_ZONE_LABEL = [...new Set(CROSS_ZONE_ALLOW.map((r) => r.purpose))].join(' · ');
 
 /**
  * The Server+ picture: a physical 24U rack elevation beside the small virtual
@@ -161,7 +174,19 @@ export function ServerTopologyDiagram({
             <span className="text-xs font-semibold text-ink">Campus LAN</span>
             <span className="ml-2 font-mono text-2xs text-muted">{CAMPUS_LAN.cidr}</span>
           </div>
-          <div className="mx-auto h-4 w-px bg-line" aria-hidden />
+          <div className="mx-auto h-3 w-px bg-line" aria-hidden />
+
+          {/* What the campus reaches THROUGH the host: the published ports, from
+              the same model the host's rules file is rendered from. */}
+          <div className="rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted">
+            <span className="font-semibold text-ink">Published through the host at {HOST.rule}</span>
+            {PUBLISHED_BY_VM.map((r) => (
+              <span key={r.to} className="ml-2 whitespace-nowrap font-mono">
+                {r.ports.map((p) => `:${p}`).join(' ')} → {r.to}
+              </span>
+            ))}
+          </div>
+          <div className="mx-auto h-3 w-px bg-line" aria-hidden />
 
           {/* The host */}
           <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center">
@@ -188,7 +213,9 @@ export function ServerTopologyDiagram({
                   <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
                     {z.bridge.id} · {z.bridge.zone}
                   </span>
-                  <span className="font-mono text-3xs text-muted">{z.bridge.cidr}</span>
+                  <span className="font-mono text-3xs text-muted">
+                    {z.bridge.cidr} · gw {z.bridge.gateway}
+                  </span>
                 </div>
                 <div className="mt-1.5 space-y-1">
                   {z.vms.map((vm) => (
@@ -215,6 +242,11 @@ export function ServerTopologyDiagram({
                     </span>
                   </div>
                 </div>
+                {z.bridge.id === 'vmbr1' && (
+                  <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted">
+                    → private zone: <span className="font-semibold text-ink">{CROSS_ZONE_LABEL}</span> only — everything else the DMZ tries is dropped and logged
+                  </div>
+                )}
                 {z.bridge.id === 'vmbr2' && (
                   <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted">
                     later phase: physical NIC →{' '}

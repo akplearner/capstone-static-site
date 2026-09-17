@@ -564,7 +564,7 @@ The advanced work layers *on top of* the base weeks — it doesn't replace them.
 | Week | Base track | **Advanced Core adds** | Advanced gate |
 |---|---|---|---|
 | **1** Discovery & Foundation | Assess, design, Proxmox, bridges | ops VM · Git repo · **golden template** · Terraform builds the VMs | `terraform apply` builds the environment; second `plan` = no changes |
-| **2** Service Deployment | DNS/DHCP/IIS, NGINX/MariaDB | **Ansible roles** configure the services · exporters + Alloy · Grafana dashboard | Playbook runs twice with **`changed=0`**; dashboard live |
+| **2** Service Deployment | DNS/DHCP, NGINX/MariaDB | **Ansible roles** configure the services · exporters + Alloy · Grafana dashboard | Playbook runs twice with **`changed=0`**; dashboard live |
 | **3** Security & Resilience | Hardening, firewall, backups | **Wazuh** agents + SCA · **PBS** backup + verify jobs · Alertmanager rules | Alert fires and resolves; verify job passes; SCA score improved by a hardening role |
 | **4** Validation & Handover | DR test, as-built, demo | **PBS full-VM restore with measured RTO** · rebuild-from-code demo · SLO report | Environment rebuilt from Git alone; restore inside RTO |
 

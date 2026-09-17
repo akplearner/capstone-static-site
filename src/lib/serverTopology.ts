@@ -269,3 +269,113 @@ export const OPS = {
 export function opsAddress(v: BaseVm): string {
   return `${OPS.team.rule}.${v.address.split('.')[3]}`;
 }
+
+/**
+ * The holes in the segmentation — modelled once, rendered everywhere.
+ *
+ * This is the one exception to "command bodies stay inline". The host's
+ * iptables ruleset used to be thirteen `iptables -A` lines typed in Week 3 and
+ * copied by hand into the guide, and the two copies had already drifted. A rules
+ * FILE assembled from the addresses above is exactly the drift this module
+ * exists to stop: `hostRulesFile()` renders the complete `iptables-restore`
+ * input, the seed step and the guide procedure both embed it, the diagram draws
+ * the published ports from `PUBLISHED_PORTS`, and the IP Plan seeds its
+ * published-ports table from the same list. Change a port here and every
+ * surface follows.
+ */
+export interface PublishedPort {
+  /** The port on the host's campus address (`HOST.rule`) a campus machine connects to. */
+  hostPort: number;
+  proto: 'tcp';
+  /** Which base VM answers, and on which of its own ports. */
+  to: BaseVm['hostname'];
+  port: number;
+  purpose: string;
+}
+
+/** What anyone on the campus LAN reaches at `http(s)://10.10.30.T` and beyond. */
+export const PUBLISHED_PORTS: PublishedPort[] = [
+  { hostPort: 80, proto: 'tcp', to: 'websrv', port: 80, purpose: 'The website — the site your team builds and uploads' },
+  { hostPort: 443, proto: 'tcp', to: 'websrv', port: 443, purpose: 'The website over TLS — published now, served from Week 4' },
+  { hostPort: 2200, proto: 'tcp', to: 'websrv', port: 22, purpose: 'Upload the site — scp straight to the DMZ host' },
+  { hostPort: 2222, proto: 'tcp', to: 'linuxsrv', port: 22, purpose: 'SSH to the database host' },
+];
+
+export interface CrossZoneAllow {
+  from: ZoneBridgeId;
+  to: BaseVm['hostname'];
+  proto: 'tcp' | 'udp';
+  port: number;
+  purpose: string;
+}
+
+/** The only paths the DMZ may open into the private zone. Everything else is dropped and logged. */
+export const CROSS_ZONE_ALLOW: CrossZoneAllow[] = [
+  { from: 'vmbr1', to: 'winserver', proto: 'udp', port: 53, purpose: 'DNS' },
+  { from: 'vmbr1', to: 'winserver', proto: 'tcp', port: 53, purpose: 'DNS' },
+  { from: 'vmbr1', to: 'linuxsrv', proto: 'tcp', port: 3306, purpose: 'The database' },
+];
+
+/** Where iptables-persistent reads the ruleset from at boot. The file IS the ruleset. */
+export const HOST_RULES_FILE = '/etc/iptables/rules.v4';
+
+/** The site the team builds: where it lives on websrv and how it gets there. */
+export const SITE = {
+  root: '/var/www/html',
+  /** The user created during the websrv Ubuntu install; Week 4 adds the named admin. */
+  uploadUser: 'ubuntu',
+  uploadPort: PUBLISHED_PORTS.find((p) => p.to === 'websrv' && p.port === 22)!.hostPort,
+};
+
+/** The two shapes the ruleset takes: Week 2 gives the guests a way out; Week 3 adds the holes. */
+export type HostRulesPhase = 'the-way-out' | 'the-holes';
+
+/**
+ * The complete `iptables-restore` file for the host.
+ *
+ * Restore is atomic and idempotent — applying the file twice yields one
+ * ruleset — so there is no "did I add that rule already" and no flush-and-retype.
+ * The FORWARD policy is DROP from the first day: every ACCEPT below it is a
+ * decision a student can name, and the LOG line at the end turns a blocked path
+ * into a kernel-log line they can show as evidence.
+ */
+export function hostRulesFile(phase: HostRulesPhase): string {
+  const holes = phase === 'the-holes';
+  const filter: string[] = [
+    '*filter',
+    ':INPUT ACCEPT [0:0]',
+    ':FORWARD DROP [0:0]',
+    ':OUTPUT ACCEPT [0:0]',
+    '# Replies to anything already allowed, in either direction',
+    '-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT',
+    '# Both zones reach the campus LAN, and the internet beyond it, through the host',
+    ...ZONE_BRIDGES.map((z) => `-A FORWARD -i ${z.id} -o vmbr0 -j ACCEPT`),
+  ];
+  const nat: string[] = ['*nat', ':PREROUTING ACCEPT [0:0]', ':INPUT ACCEPT [0:0]', ':OUTPUT ACCEPT [0:0]', ':POSTROUTING ACCEPT [0:0]'];
+  if (holes) {
+    filter.push(
+      '# Staff in the private zone open the website',
+      '-A FORWARD -i vmbr2 -o vmbr1 -j ACCEPT',
+      '# The DMZ reaches the private zone for DNS and the database, and for nothing else',
+      ...CROSS_ZONE_ALLOW.map((r) => `-A FORWARD -i ${r.from} -o ${vm(r.to).bridge} -d ${vm(r.to).address} -p ${r.proto} --dport ${r.port} -j ACCEPT`),
+      '# The published ports, after PREROUTING has rewritten the destination',
+      ...PUBLISHED_PORTS.map((p) => `-A FORWARD -i vmbr0 -o ${vm(p.to).bridge} -d ${vm(p.to).address} -p ${p.proto} --dport ${p.port} -j ACCEPT`),
+    );
+    nat.push(
+      `# Published from the campus LAN: the host's own address, port by port`,
+      ...PUBLISHED_PORTS.map((p) => `-A PREROUTING -i vmbr0 -p ${p.proto} --dport ${p.hostPort} -j DNAT --to-destination ${vm(p.to).address}:${p.port}`),
+    );
+  }
+  filter.push(
+    '# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible',
+    '-A FORWARD -m limit --limit 5/min -j LOG --log-prefix "FWD-DROP " --log-level 4',
+    'COMMIT',
+  );
+  nat.push('# Both zones leave as the host\'s campus address', '-A POSTROUTING -o vmbr0 -j MASQUERADE', 'COMMIT');
+  return [...filter, ...nat].join('\n') + '\n';
+}
+
+/** The shell line that writes the file and makes it live — one command, copied whole. */
+export function hostRulesCommand(phase: HostRulesPhase): string {
+  return `cat > ${HOST_RULES_FILE} <<'EOF'\n${hostRulesFile(phase)}EOF\niptables-restore < ${HOST_RULES_FILE}`;
+}

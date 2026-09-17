@@ -184,6 +184,13 @@ const REGISTRY: {
   { literal: '192.168.0.20', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: '192.168.0.21', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   { literal: 'capstone_db', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  // R70: the four base-build addresses the host's rules file, the diagram and
+  // the IP Plan all render. They were the most-restated Server+ literals and
+  // had no row; the published-ports model made restating them a live risk.
+  { literal: '172.16.0.10', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '172.16.0.1', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.2', home: 'src/lib/serverTopology.ts', commandsExempt: true },
+  { literal: '192.168.0.3', home: 'src/lib/serverTopology.ts', commandsExempt: true },
   // Week 6's ops network. The team rule is three octets; the Core addresses are
   // the five services every team's commands point at. Same SSOT, same reason.
   { literal: '10.20.0.0/16', home: 'src/lib/serverTopology.ts', commandsExempt: true },
@@ -705,5 +712,26 @@ describe('R69 — Terraform or OpenTofu is the student’s choice', () => {
     expect(guide.match(/opentofu: \{ cmd: "curl --proto '=https' --tlsv1.2 -fsSL https:\/\/get.opentofu.org/g)?.length).toBe(2);
     expect(code('src/lib/glossary.ts')).toContain('OpenTofu:');
     expect(code('src/lib/docs/serverPlusDeliverables.ts')).toContain("options: ['Terraform', 'OpenTofu',");
+  });
+});
+
+describe('R70 — the DMZ site is built, uploaded, and published through one model of the host', () => {
+  it('the diagram, the form and the glossary render the published ports rather than restate them', () => {
+    const diagram = code('src/components/diagrams/ServerTopologyDiagram.tsx');
+    expect(diagram).toContain('PUBLISHED_PORTS');
+    expect(diagram).toContain('CROSS_ZONE_ALLOW');
+    expect(diagram).toContain('z.bridge.gateway');
+    const form = code('src/lib/docs/serverPlusDeliverables.ts');
+    expect(form).toContain("group: 'published'");
+    expect(form).toContain('seed: PUBLISHED_PORTS.map(');
+    expect(form).toContain("field: 'site_evidence'");
+    expect(code('src/lib/glossary.ts')).toContain('DNAT:');
+  });
+
+  it('no Server+ surface types iptables -A any more — the file is the ruleset', () => {
+    expect(code('src/lib/data/seed/serverPlus.ts')).not.toMatch(/iptables -A |iptables -t nat -A /);
+    expect(code('src/lib/docs/serverProcedures.ts')).not.toMatch(/iptables -A |iptables -t nat -A /);
+    expect(code('src/lib/data/seed/serverPlus.ts').match(/hostRulesCommand\('the-(way-out|holes)'\)/g)?.length).toBe(2);
+    expect(code('src/lib/docs/serverProcedures.ts').match(/hostRulesCommand\('the-(way-out|holes)'\)/g)?.length).toBe(2);
   });
 });
