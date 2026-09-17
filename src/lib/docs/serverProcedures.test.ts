@@ -97,7 +97,7 @@ describe('the base-build guide stays short enough to follow', () => {
   });
 
   it('every explain is under 40 words', () => {
-    const over = base.flatMap((p) => p.steps.filter((s) => prose(s.explain) >= 40).map((s) => `${p.id}: ${(s.cmd ?? s.gui ?? '').slice(0, 40)} (${prose(s.explain)}w)`));
+    const over = base.flatMap((p) => p.steps.filter((s) => prose(s.explain ?? '') >= 40).map((s) => `${p.id}: ${(s.cmd ?? s.gui ?? '').slice(0, 40)} (${prose(s.explain ?? '')}w)`));
     expect(over, `cut these: ${over.join(', ')}`).toEqual([]);
   });
 
@@ -173,5 +173,49 @@ describe('the ops network is a plane, not a zone', () => {
     for (const addr of Object.values(OPS.core)) expect(addr.startsWith('10.20.0.')).toBe(true);
     expect(OPS.team.node.startsWith(OPS.team.rule + '.')).toBe(true);
     expect(OPS.team.opsVm.startsWith(OPS.team.rule + '.')).toBe(true);
+  });
+});
+
+/**
+ * R72: nothing overwrites a config file without a way back.
+ *
+ * `backupOf` marks a command that rewrites something a student cannot easily
+ * reconstruct — the interfaces file, the ruleset, netplan, sshd_config, the
+ * NGINX site, a firewall, winserver's DNS zone. Before any of them runs, the
+ * same step (and the same guide procedure) must already have taken a copy.
+ * Students lost whole evenings to a netplan file they could not get back.
+ */
+describe('R72 — back up before you change it', () => {
+  // A copy under any name that reads as a backup, a Proxmox snapshot, a
+  // Windows export, or a capture of the current state into a file.
+  const TAKES_BACKUP = /\bcp\b[^\n]*\.(bak|week2|orig)|\bcp\b[^\n]*baseline\/|\bcp\b[^\n]*\.bak\b|qm snapshot|Export-|tar -czf|>\s*\S*(before|baseline)\S*/;
+
+  const unbacked = (list: { cmd: string; backupOf?: string }[]) => {
+    const out: string[] = [];
+    let safe = false;
+    for (const c of list) {
+      if (TAKES_BACKUP.test(c.cmd)) safe = true;
+      if (c.backupOf && !safe) out.push(`${c.cmd.split('\n')[0].slice(0, 60)} → ${c.backupOf}`);
+    }
+    return out;
+  };
+
+  it('every Server+ step that rewrites config copies it first', () => {
+    const bad: string[] = [];
+    for (const t of SERVER_PLUS.tasks) {
+      for (const s of t.steps) {
+        for (const line of unbacked(s.commands ?? [])) bad.push(`${s.id}: ${line}`);
+      }
+    }
+    expect(bad, `take a copy before these: ${bad.join(' | ')}`).toEqual([]);
+  });
+
+  it('every guide procedure that rewrites config copies it first', () => {
+    const bad: string[] = [];
+    for (const p of PROCEDURES) {
+      const cmds = p.steps.filter((s) => s.cmd).map((s) => ({ cmd: s.cmd!, backupOf: s.backupOf }));
+      for (const line of unbacked(cmds)) bad.push(`${p.id}: ${line}`);
+    }
+    expect(bad, `take a copy before these: ${bad.join(' | ')}`).toEqual([]);
   });
 });

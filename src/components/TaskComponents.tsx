@@ -16,6 +16,7 @@ import {
   FileCheck2,
   Sparkles,
   SquarePen,
+  Eye,
 } from 'lucide-react';
 import { FolderNode, Step } from '@/lib/types';
 import { procedureTitle } from '@/lib/docs/serverProcedures';
@@ -39,6 +40,8 @@ import { Collapsible } from './ui/Button';
 import { DUR, EASE } from '@/lib/motion';
 import { StepNotes } from './StepNotes';
 import type { StepDensity } from '@/lib/stepDensity';
+import { MachineChip } from './MachineChip';
+import { MACHINES, shellPrompt, type MachineId } from '@/lib/serverTopology';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
  *  rather than prose or a URL. Matches common lab CLI verbs at the start. */
@@ -247,7 +250,7 @@ export function StepDetail({
   guideRef?: Step['guideRef'];
   description?: string;
   command?: string;
-  commands?: { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] }[];
+  commands?: CommandEntry[];
   commandExplanation?: string;
   commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
@@ -598,7 +601,7 @@ interface ChecklistItemProps {
   guideRef?: Step['guideRef'];
   description?: string;
   command?: string;
-  commands?: { cmd: string; explain?: string }[];
+  commands?: CommandEntry[];
   commandExplanation?: string;
   commandFlags?: { flag: string; meaning: string }[];
   expectedOutput?: string;
@@ -806,7 +809,15 @@ export function ChecklistItem({
  * string is auto-split for visual clarity. A "Copy all" appears for multi-statement
  * commands so students can still paste the whole sequence at once.
  */
-type CommandEntry = { cmd: string; explain?: string; flags?: { flag: string; meaning: string }[] };
+type CommandEntry = {
+  cmd: string;
+  explain?: string;
+  flags?: { flag: string; meaning: string }[];
+  /** Which machine this line is typed into — see `MACHINES`. */
+  on?: string;
+  /** What it prints when it worked, behind one press. */
+  sample?: string;
+};
 
 // IP-like tokens (incl. lab placeholders such as 10.10.100.N / .X / .<#>).
 const IP_TOKEN = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.[0-9A-Za-z<>#/.N-]*)/g;
@@ -856,13 +867,12 @@ export function CommandBlock({
 }: {
   command?: string;
   commands?: CommandEntry[];
-  /** Hide the per-command `explain` lines behind one "Explain these" press.
-   *  The key-points view: the lines to type, the check, and the reasons one
-   *  tap away rather than between every command. */
+  /** The key-points view. It does NOT hide the reason a command exists — that
+   *  was R71's mistake and the first thing students noticed. It hides the
+   *  sample output and the flag breakdowns, which are reference, not reading. */
   compact?: boolean;
 }) {
   const params = useParams();
-  const [explainOpen, setExplainOpen] = React.useState(false);
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   const lab = useLabAccess(courseId);
   const tool = useIacTool(courseId);
@@ -896,29 +906,13 @@ export function CommandBlock({
   // lower-casing the lot turned "Your Proxmox host address" into "proxmox".
   const rawLabel = labProfile(courseId).fields[0]?.label ?? 'Your target IP';
   const exampleLabel = rawLabel.charAt(0).toLowerCase() + rawLabel.slice(1);
-  const explainCount = list.filter((c) => c.explain).length;
-  const showExplain = !compact || explainOpen;
-
   return (
     <div>
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs font-semibold text-muted">
           {multi ? `Commands · run one at a time` : 'Command'}
         </div>
-        <div className="flex items-center gap-2">
-          {compact && explainCount > 0 && (
-            <button
-              type="button"
-              onClick={() => setExplainOpen((v) => !v)}
-              aria-expanded={explainOpen}
-              className="inline-flex items-center gap-1 text-2xs font-medium text-ok hover:opacity-80"
-            >
-              {explainOpen ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              {explainOpen ? 'Hide the reasons' : 'Explain these'}
-            </button>
-          )}
-          {multi && <CopyButton text={allText} label="Copy all" />}
-        </div>
+        {multi && <CopyButton text={allText} label="Copy all" />}
       </div>
       {stillUnfilled && (
         <Link
@@ -935,23 +929,38 @@ export function CommandBlock({
       )}
       <div className="mt-1 space-y-2">
         {list.map((c, i) => (
-          <CommandRow key={i} c={c} index={i} multi={multi} showExplain={showExplain} />
+          <CommandRow key={i} c={c} index={i} multi={multi} compact={compact} />
         ))}
       </div>
     </div>
   );
 }
 
-/** One command: the copyable line + its one-line `explain` (both Core), with the
- *  flag-by-flag breakdown tucked behind a "what each part means" toggle so a
- *  command-heavy step stays short by default but every flag is one tap away. */
-function CommandRow({ c, index, multi, showExplain = true }: { c: CommandEntry; index: number; multi: boolean; showExplain?: boolean }) {
+/**
+ * One command, with the three things a student needs before they type it:
+ * WHICH MACHINE (the chip on top), WHAT IT DOES (`explain`, always visible),
+ * and WHAT IT SHOULD PRINT (`sample`, one press away).
+ *
+ * The chip is not decoration. Steps span machines, and a PowerShell line and a
+ * bash line are the same green text without it — which is exactly how a student
+ * ends up running the Windows DNS cmdlet on the Proxmox host.
+ *
+ * `compact` (the key-points view) hides the sample and the flag breakdown. It
+ * never hides `explain`: a command with no reason beside it is the thing this
+ * course was criticised for.
+ */
+function CommandRow({ c, index, multi, compact = false }: { c: CommandEntry; index: number; multi: boolean; compact?: boolean }) {
   const [showFlags, setShowFlags] = React.useState(false);
-  const hasFlags = !!(c.flags && c.flags.length > 0);
+  const [showSample, setShowSample] = React.useState(false);
+  // Key points keeps the reason and the sample; the flag-by-flag breakdown is
+  // reference material, so that is what it folds away.
+  const hasFlags = !compact && !!(c.flags && c.flags.length > 0);
+  const on = c.on && c.on in MACHINES ? (c.on as MachineId) : undefined;
   return (
     <div>
+      {on && <MachineChip on={on} />}
       <div
-        className="relative rounded-lg p-3 pr-20 font-mono text-sm"
+        className={`relative p-3 pr-20 font-mono text-sm ${on ? 'rounded-b-lg rounded-tr-lg' : 'rounded-lg'}`}
         style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
       >
         <div className="absolute right-2 top-2">
@@ -962,11 +971,42 @@ function CommandRow({ c, index, multi, showExplain = true }: { c: CommandEntry; 
         )}
         <HighlightedCommand cmd={c.cmd} />
       </div>
-      {c.explain && showExplain && (
+      {c.explain && (
         <p className="mt-1 flex gap-1.5 pl-1 text-xs text-muted">
           <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
           <span>{c.explain}</span>
         </p>
+      )}
+      {/* What the screen should show. A beginner cannot tell a working command
+          from a broken one without this, and pasting the whole expected screen
+          under every line would bury the commands — so it is one press. */}
+      {c.sample && (
+        <div className="mt-1 pl-6">
+          <button
+            type="button"
+            onClick={() => setShowSample((v) => !v)}
+            aria-expanded={showSample}
+            className="inline-flex items-center gap-1 text-2xs font-medium text-ok hover:opacity-80"
+          >
+            <Eye className="h-3 w-3" />
+            {showSample ? 'Hide what it prints' : 'What it prints'}
+          </button>
+          {showSample && (
+            <pre
+              className="mt-1 overflow-x-auto rounded-md p-2.5 font-mono text-2xs leading-relaxed"
+              style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-dim)' }}
+            >
+              {on && (
+                <span className="select-none" style={{ color: 'var(--color-term-ip)' }}>
+                  {shellPrompt(on)}{' '}
+                </span>
+              )}
+              <span className="select-none">{c.cmd.split('\n')[0]}</span>
+              {'\n'}
+              <span style={{ color: 'var(--color-term-tx)' }}>{c.sample}</span>
+            </pre>
+          )}
+        </div>
       )}
       {hasFlags && (
         <div className="mt-1 pl-6">

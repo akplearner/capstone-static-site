@@ -4,6 +4,8 @@ import { Clock, Flag } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { formatMinutes, weekSummary } from '@/lib/course-helpers';
 import { GlossaryText } from './GlossaryText';
+import { TopologyFocus, focusOf } from './diagrams/TopologyFocus';
+import { getTasksByRole } from '@/lib/course-helpers';
 
 /**
  * The week's finish line, and nothing else: "Done when: <milestone>" plus a
@@ -35,27 +37,37 @@ export function WeekMilestoneHeader({
   percent: number;
 }) {
   const s = weekSummary(course, role, week);
+  // Every machine this week's tasks type into — the week's half of the same
+  // question the per-task strip answers: which boxes am I working on.
+  const weekFocus = focusOf(getTasksByRole(course, role, week).flatMap((t) => t.steps));
   if (s.taskCount === 0 || !s.milestone) return null;
 
   const cleared = percent >= 100;
 
   return (
     <div
-      className={`flex flex-wrap items-center gap-x-3 gap-y-1.5 rounded-md border px-3 py-2 ${
+      className={`rounded-md border px-3 py-2 ${
         cleared ? 'border-ok-line bg-ok-soft' : 'border-line bg-panel-2'
       }`}
     >
-      <Flag className={`h-4 w-4 shrink-0 ${cleared ? 'text-ok' : 'text-muted'}`} aria-hidden />
-      <p className="min-w-0 flex-1 text-sm text-ink">
-        <span className="font-semibold">
-          {cleared ? `You've completed Week ${week} — ` : 'Done when: '}
-        </span>
-        <GlossaryText text={s.milestone} />
-      </p>
-      {s.minutes != null && (
-        <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-muted">
-          <Clock className="h-3.5 w-3.5" /> ~{formatMinutes(s.minutes)}
-        </span>
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
+        <Flag className={`h-4 w-4 shrink-0 ${cleared ? 'text-ok' : 'text-muted'}`} aria-hidden />
+        <p className="min-w-0 flex-1 text-sm text-ink">
+          <span className="font-semibold">
+            {cleared ? `You've completed Week ${week} — ` : 'Done when: '}
+          </span>
+          <GlossaryText text={s.milestone} />
+        </p>
+        {s.minutes != null && (
+          <span className="inline-flex shrink-0 items-center gap-1.5 text-xs text-muted">
+            <Clock className="h-3.5 w-3.5" /> ~{formatMinutes(s.minutes)}
+          </span>
+        )}
+      </div>
+      {weekFocus.length > 0 && (
+        <div className="mt-2 border-t border-dashed border-line pt-2">
+          <TopologyFocus focus={weekFocus} caption="the machines this week touches" />
+        </div>
       )}
     </div>
   );

@@ -151,7 +151,7 @@ const SEED_CONTENT = [
  * comment explaining which address moved where must be able to name the address.
  */
 const STEP_TEXT =
-  /\b(?:title|where|summary|cmd|gui|explain):\s*(?:`[^`]*`|'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")/g;
+  /\b(?:title|where|summary|cmd|gui|explain|k|sample|backupOf):\s*(?:`[^`]*`|'(?:[^'\\\n]|\\.)*'|"(?:[^"\\\n]|\\.)*")/g;
 const withoutStepText = (src: string) => src.replace(STEP_TEXT, '');
 
 const REGISTRY: {
@@ -750,7 +750,6 @@ describe('R71 — a course you can follow: the build map, the key-points view, a
     expect(runner).toContain('onDensityChange');
     expect(runner).not.toMatch(/courseId === 'cysa-plus'/);
     const components = code('src/components/TaskComponents.tsx');
-    expect(components).toContain("'Explain these'");
     expect(components).toContain('compact={density');
   });
 

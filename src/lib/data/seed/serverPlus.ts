@@ -1,4 +1,5 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
+import { withCommandDetail } from '@/lib/docs/serverCommands';
 import { HOST, hostRulesCommand } from '../../serverTopology';
 import { NGINX_TLS_SITE_CMD, SITE_CSS_CMD, SITE_HTML_CMD, SITE_UPLOAD_CMD } from '../../docs/siteStarter';
 
@@ -544,7 +545,7 @@ const sharedTasks: Task[] = [
         where: 'The server, booted from a Linux live USB',
         instruction: 'Boot from a live USB and run each command. Record the firmware dates, and for every component that must work with your hypervisor, the driver it uses and whether it is supported.',
         commands: [
-          { cmd: 'sudo dmidecode -s bios-version -s bios-release-date', explain: 'The BIOS version and when it was released. The date matters more than the number — it is how many years of fixes you are missing.' },
+          { cmd: 'sudo dmidecode -s bios-version && sudo dmidecode -s bios-release-date', explain: 'The BIOS version and when it was released. The date matters more than the number — it is how many years of fixes you are missing.' },
           { cmd: 'sudo dmidecode -s system-serial-number', explain: 'The service tag, confirmed from the machine rather than the sticker. This is what you look support up with.' },
           { cmd: 'lscpu | grep -i virt', explain: 'Confirms the virtualization extensions are present AND switched on.' },
           { cmd: 'sudo dmidecode -t memory', explain: 'RAM size, type, whether it is ECC, and how many slots are populated.' },
@@ -1093,6 +1094,7 @@ const sharedTasks: Task[] = [
           { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "linuxsrv" -IPv4Address "192.168.0.3"', explain: 'The private-zone database host.' },
           { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "websrv" -IPv4Address "172.16.0.10"', explain: 'The DMZ website. The record lives in the same zone even though the host is in a different subnet — DNS zones and network zones are unrelated.' },
           { cmd: 'nslookup websrv.team1.local 192.168.0.2', explain: 'Query the server explicitly. Returning 172.16.0.10 is what proves cross-zone name resolution works.' },
+          { cmd: `Export-DnsServerZone -Name \"team1.local\" -FileName \"team1.local.pre-forwarder.dns\"` },
           { cmd: 'Add-DnsServerForwarder -IPAddress 10.10.10.1', explain: 'The campus resolver, for every name that is not team1.local. Without it the zones lose internet names in Week 3, when the temporary 1.1.1.1 goes.' },
           { cmd: 'Resolve-DnsName archive.ubuntu.com -Server 192.168.0.2', explain: 'An internet name through winserver. An answer proves the forwarder; every VM resolves the package archive this way after Week 3.' },
           { cmd: 'Install-WindowsFeature -Name DHCP -IncludeManagementTools', explain: 'The DHCP role install in PowerShell.' },
@@ -1225,6 +1227,7 @@ const sharedTasks: Task[] = [
         commands: [
           { cmd: 'ip -br addr show vmbr0 vmbr1 vmbr2', explain: 'On the host. Expect 10.10.30.T/16, 172.16.0.1/24 and 192.168.0.1/24. Wrong? Edit /etc/network/interfaces and run "ifreload -a" — the host is never a DHCP client.' },
           { cmd: 'ip -br link', explain: 'Inside each Ubuntu guest, to learn the real interface name. A VirtIO NIC usually appears as ens18 — do not copy an interface name out of a guide.' },
+          { cmd: 'sudo cp -r /etc/netplan /root/netplan.bak' },
           { cmd: 'sudo tee /etc/netplan/01-capstone.yaml > /dev/null <<\'EOF\'\nnetwork:\n  version: 2\n  ethernets:\n    ens18:\n      dhcp4: false\n      addresses: [172.16.0.10/24]\n      routes:\n        - to: default\n          via: 172.16.0.1\n      nameservers:\n        addresses: [192.168.0.2]\nEOF', explain: 'websrv, in the DMZ; substitute the interface name you read. For linuxsrv use 192.168.0.3/24 via 192.168.0.1. One nameserver now — winserver carries DNS.' },
           { cmd: 'sudo chmod 600 /etc/netplan/01-capstone.yaml', explain: 'Netplan warns loudly about world-readable configs.' },
           { cmd: 'sudo netplan apply', explain: 'Applies immediately and persists across reboots.' },
@@ -1300,6 +1303,7 @@ const sharedTasks: Task[] = [
         fixes: [
           { symptom: 'http://10.10.30.T does not open from a VM, or from the host itself?', fix: 'It cannot: the forward applies only to packets arriving on vmbr0. Test from a campus PC or a classmate\'s laptop — that is the check.' },
           { symptom: 'scp says permission denied?', fix: 'The Week-2 chown on /var/www/html was skipped. On websrv: sudo chown -R ubuntu:www-data /var/www/html && sudo chmod -R g+w /var/www/html.' },
+          { symptom: 'Tried root@ instead of ubuntu@?', fix: 'It will be refused. Port 2200 lands on websrv, an Ubuntu Server, which ships with root SSH login disabled and no root password — and Week 4 turns root off there for good. The Proxmox host is the only machine in this course you log in to as root; the chip above each command says which machine you are on.' },
         ],
       },
       {
@@ -1310,9 +1314,11 @@ const sharedTasks: Task[] = [
         instruction: 'Route 172.16.0.0/24 via the private gateway on both private-zone hosts, and persist it. Both of the obvious commands are non-persistent by default.',
         guideRef: { procedureId: 'static-routes-reverse' },
         commands: [
+          { cmd: `route print -4 > C:\\baseline\\routes-before.txt` },
           { cmd: 'route -p add 172.16.0.0 mask 255.255.255.0 192.168.0.1', explain: 'On winserver, elevated. The -p flag is what makes the route persistent; without it the route is gone at the next reboot.' },
           { cmd: 'route print -4', explain: 'Confirm the 172.16.0.0 entry is listed, and that it appears under Persistent Routes.' },
           { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', explain: 'On linuxsrv. Takes effect immediately but does NOT survive a reboot on its own.' },
+          { cmd: 'sudo cp /etc/netplan/01-capstone.yaml /etc/netplan/01-capstone.yaml.bak' },
           { cmd: 'sudo nano /etc/netplan/01-capstone.yaml', explain: 'The route belongs inside the existing routes: list, so this is an edit, not an append — an appended entry lands outside every block.' },
           { cmd: 'network:\n  version: 2\n  ethernets:\n    ens18:\n      dhcp4: false\n      addresses: [192.168.0.3/24]\n      routes:\n        - to: default\n          via: 192.168.0.1\n        - to: 172.16.0.0/24\n          via: 192.168.0.1\n      nameservers:\n        addresses: [192.168.0.2]', explain: 'The complete linuxsrv file — address, both routes, resolver. Make yours match, substituting your interface name; save with Ctrl+O, exit with Ctrl+X.' },
           { cmd: 'sudo netplan apply && ip route show', explain: 'Applies and confirms. The 172.16.0.0/24 via 192.168.0.1 line must appear.' },
@@ -1518,6 +1524,7 @@ const sharedTasks: Task[] = [
           { cmd: 'sudo ufw allow from 172.16.0.1 to any port 22 proto tcp', explain: 'The host\'s own DMZ address on its own line. The /24 covers it, but the allow-list should say the hypervisor may always get in.' },
           { cmd: 'sudo ufw allow 80/tcp', explain: 'The website is public-facing, so port 80 is open to everyone — unlike SSH, which is restricted to the networks above.' },
           { cmd: 'sudo ufw allow 443/tcp', explain: 'The TLS port the host has published since Week 3. Until now it was published with nobody listening; the next two lines fix that.' },
+          { cmd: `sudo cp -r /etc/ufw /root/ufw.bak && sudo ufw status verbose > /root/ufw-before.txt` },
           { cmd: 'sudo ufw enable', explain: 'It warns that this may disrupt existing SSH connections. You have already allowed SSH from all three networks, so answer y.' },
           { cmd: 'sudo ufw status numbered', explain: 'Read the whole ruleset back and screenshot it for the Server Bring-Up Log.' },
           { cmd: 'sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/websrv.key -out /etc/ssl/certs/websrv.crt -subj "/CN=websrv"', explain: 'A self-signed certificate. Browsers will warn — there is no public CA in this lab — but the traffic is encrypted, and the warning is the lesson.' },
@@ -1543,6 +1550,7 @@ const sharedTasks: Task[] = [
           'Now open the Operations Log & SOPs and write it as a runbook: the steps, how you verify it worked, and the way back if it does not.',
         ],
         commands: [
+          { cmd: `sudo cp -r /etc/ufw /root/ufw.bak && sudo ufw status verbose > /root/ufw-before.txt` },
           { cmd: 'sudo ufw default deny incoming && sudo ufw default allow outgoing', explain: 'Do this FIRST. Until the default is deny, every allow rule you add is describing what was already permitted.' },
           { cmd: 'sudo adduser dbadmin && sudo usermod -aG sudo dbadmin', explain: 'The non-root admin. Log in as it and run one sudo command BEFORE disabling root — this account becomes your only way in.' },
           { cmd: 'sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp', explain: 'The campus LAN, for the later phase when the private zone hangs off the Cisco router. Today nothing on the campus reaches this host.' },
@@ -1646,7 +1654,8 @@ const sharedTasks: Task[] = [
           { cmd: 'Install-Module PSWindowsUpdate -Force -Scope AllUsers', explain: 'In an elevated PowerShell. If the module cannot be reached, use sconfig option 6 or the Settings GUI instead.' },
           { cmd: 'Get-WindowsUpdate -Install -AcceptAll -AutoReboot', explain: 'Applies every available update and reboots if required.' },
           { cmd: 'Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5', explain: 'Lists what actually landed, for the Operations Log & SOPs.' },
-          { cmd: 'systemctl status nginx mariadb --no-pager', explain: 'Run the relevant half on websrv and on linuxsrv. Every service must still be running.' },
+          { cmd: 'systemctl status nginx --no-pager', explain: 'On websrv. NGINX must still be running after the update — that check is the point of patching with a rollback. On linuxsrv ask about mariadb instead.' },
+          { cmd: 'systemctl status mariadb --no-pager', explain: 'The same check on linuxsrv. A service that did not come back after a patch is what the snapshot is for.' },
           { cmd: 'Get-Service NTDS, DNS, DHCPServer | Select-Object Name, Status', explain: 'On winserver: all three roles must read Running after the reboot.' },
           { cmd: 'qm rollback 101 pre-patch-2026-03-09', explain: 'ONLY if an update broke something. The VM must be stopped first — this is why the snapshot came before the patch.' },
         ],
@@ -3072,7 +3081,7 @@ const FOCUS: {
     commands: [
       { cmd: 'lscpu | grep -i -e "model name" -e virtualization', explain: 'The CPU and whether VT-x/AMD-V is exposed. Absent here means it is off in the BIOS, not missing from the chip.' },
       { cmd: 'lspci -nnk | grep -iA3 -e raid -e ethernet', explain: 'The "Kernel driver in use" line is the whole answer: no driver, no support.' },
-      { cmd: 'sudo dmidecode -s bios-version -s bios-release-date', explain: 'How far behind the firmware is — the gaps table needs this to justify a flash.' },
+      { cmd: 'sudo dmidecode -s bios-version && sudo dmidecode -s bios-release-date', explain: 'How far behind the firmware is — the gaps table needs this to justify a flash.' },
     ],
     expectedOutput: 'Virtualization is reported as enabled, and both the storage controller and each NIC name a driver in use.',
     meaning: 'Supported and enabled are different facts, and the hypervisor only cares about the second.',
@@ -3106,6 +3115,7 @@ const FOCUS: {
     section: 'the port rows', form: 'Baselines, Policies & Standards', file: '06_Baselines_and_Policies.md',
     instruction: 'Turn the firewall into a real allow-list: default deny first, then justify every port still listening. Then prove a snapshot rollback actually recovers the service.',
     commands: [
+      { cmd: `sudo cp -r /etc/ufw /root/ufw.bak && sudo ufw status verbose > /root/ufw-before.txt`, explain: 'The firewall as it stands, before you change the default. The console restores this if a rule locks you out.' },
       { cmd: 'sudo ufw default deny incoming && sudo ufw default allow outgoing', explain: 'Without this the allow rules are decorative — everything was already permitted.' },
       { cmd: 'sudo ss -tulpn', explain: 'Every listening socket with the process holding it. Account for every line in the port table, or close it.' },
       { cmd: 'sudo ufw status numbered', explain: 'Read the final ruleset back. "Default: deny (incoming)" is the line that matters.' },
@@ -3267,7 +3277,7 @@ const focusTasks: Task[] = FOCUS.map((f) => ({
 
 const tasks: Task[] = [...sharedTasks, ...focusTasks];
 
-export const SERVER_PLUS: Course = {
+const RAW_SERVER_PLUS: Course = {
   id: 'server-plus',
   title: 'Server+ Build & Handover',
   slug: 'server-plus',
@@ -3311,3 +3321,12 @@ export const SERVER_PLUS: Course = {
   teamCount: 16,
   teamCapacity: 4,
 };
+
+/**
+ * The course, with every base-build command filled in from `serverCommands.ts`:
+ * which machine types it, what it prints, and whether it overwrites something
+ * that needs backing up first. Weeks 5-6 pass through untouched — the registry
+ * covers the base build, and a command it does not know is left exactly as
+ * authored here.
+ */
+export const SERVER_PLUS: Course = withCommandDetail(RAW_SERVER_PLUS);

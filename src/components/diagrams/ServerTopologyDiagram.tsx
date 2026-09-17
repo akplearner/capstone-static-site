@@ -5,13 +5,25 @@ import {
   CAMPUS_LAN,
   CROSS_ZONE_ALLOW,
   HOST,
+  MACHINES,
   PUBLISHED_PORTS,
   RACK_UNITS,
+  REMOTE_ADMIN,
   TEAM_VM_START,
   ZONE_BRIDGES,
   baseVmsOn,
-  type Bridge,
+  type MachineId,
 } from '@/lib/serverTopology';
+import { ZONE_COLOR } from './topologyStyle';
+
+/**
+ * Which week each part of the picture arrives in.
+ *
+ * `builtThrough` dims what a student has not built yet and tags it with the
+ * week it shows up, so the Home tab's picture fills in as the build does
+ * instead of showing a finished design on day one.
+ */
+const ARRIVES = { host: 1, zones: 2, vms: 2, published: 3, crossZone: 3, tailnet: 3 } as const;
 
 /** The published ports grouped by the VM that answers, in declaration order. */
 const PUBLISHED_BY_VM = PUBLISHED_PORTS.reduce<{ to: string; ports: number[] }[]>((acc, p) => {
@@ -71,14 +83,6 @@ const KIND_COLOR: Record<RackKind, string> = {
   blank: 'var(--color-line)',
 };
 
-// The two segmented zones, straight off the topology module. Only the colour is
-// this diagram's own business — everything else is shared data.
-const ZONE_COLOR: Record<Bridge['id'], string> = {
-  vmbr0: 'var(--color-accent)',
-  vmbr1: 'var(--color-w3)',
-  vmbr2: 'var(--color-w1)',
-};
-
 const ZONES = ZONE_BRIDGES.map((b) => ({
   bridge: b,
   color: ZONE_COLOR[b.id],
@@ -89,12 +93,37 @@ const ZONES = ZONE_BRIDGES.map((b) => ({
 
 export function ServerTopologyDiagram({
   business,
+  highlight,
+  builtThrough,
 }: {
   /** The team's chosen business, from the Business Requirements record — the
    *  topology is generic until a team says who it is building for. */
   business?: { name?: string; industry?: string };
+  /** Machines to keep at full contrast; everything else fades back. The guide
+   *  passes the week's machines, so each week block shows the whole design with
+   *  that week's part lit. Omitted = nothing dimmed. */
+  highlight?: MachineId[];
+  /** The furthest week this student has finished. Parts that arrive later are
+   *  dimmed and tagged `Week N`. Omitted = the finished design. */
+  builtThrough?: number;
 } = {}) {
   const businessLabel = [business?.name, business?.industry].filter(Boolean).join(' · ');
+  // Highlight and build-through are two different kinds of "not now": one is
+  // "not this week's subject", the other is "you have not built this yet".
+  // Both resolve to the same visual — reduced contrast — so they compose.
+  const lit = highlight?.length
+    ? new Set(highlight.map((m) => MACHINES[m]?.node).filter(Boolean) as string[])
+    : null;
+  const built = (week: number) => builtThrough == null || builtThrough >= week;
+  const dim = (on: boolean) => (on ? '' : 'opacity-40');
+  const vmDim = (hostname: string) =>
+    dim(built(ARRIVES.vms) && (!lit || lit.has(hostname)));
+  const weekTag = (week: number) =>
+    built(week) ? null : (
+      <span className="ml-1 rounded-full border border-line px-1 py-px font-mono text-3xs text-muted">
+        Week {week}
+      </span>
+    );
   return (
     <DiagramFrame
       title={`What you build — one server in a ${RACK_UNITS}U rack`}
@@ -178,8 +207,9 @@ export function ServerTopologyDiagram({
 
           {/* What the campus reaches THROUGH the host: the published ports, from
               the same model the host's rules file is rendered from. */}
-          <div className="rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted">
+          <div className={`rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.published))}`}>
             <span className="font-semibold text-ink">Published through the host at {HOST.rule}</span>
+            {weekTag(ARRIVES.published)}
             {PUBLISHED_BY_VM.map((r) => (
               <span key={r.to} className="ml-2 whitespace-nowrap font-mono">
                 {r.ports.map((p) => `:${p}`).join(' ')} → {r.to}
@@ -189,7 +219,7 @@ export function ServerTopologyDiagram({
           <div className="mx-auto h-3 w-px bg-line" aria-hidden />
 
           {/* The host */}
-          <div className="rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center">
+          <div className={`rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center ${dim(built(ARRIVES.host) && (!lit || lit.has('host')))}`}>
             <div className="text-sm font-bold text-ink">Proxmox host</div>
             <div className="font-mono text-2xs text-muted">
               vmbr0 · {HOST.rule.slice(0, -HOST.teamMarker.length)}
@@ -208,10 +238,15 @@ export function ServerTopologyDiagram({
 
           <div className="grid gap-3 sm:grid-cols-2">
             {ZONES.map((z) => (
-              <div key={z.bridge.id} className="flex flex-col rounded-lg border-2 bg-panel px-2.5 py-2" style={{ borderColor: z.color }}>
+              <div
+                key={z.bridge.id}
+                className={`flex flex-col rounded-lg border-2 bg-panel px-2.5 py-2 ${dim(built(ARRIVES.zones))}`}
+                style={{ borderColor: z.color }}
+              >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                   <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
                     {z.bridge.id} · {z.bridge.zone}
+                    {weekTag(ARRIVES.zones)}
                   </span>
                   <span className="font-mono text-3xs text-muted">
                     {z.bridge.cidr} · gw {z.bridge.gateway}
@@ -219,7 +254,7 @@ export function ServerTopologyDiagram({
                 </div>
                 <div className="mt-1.5 space-y-1">
                   {z.vms.map((vm) => (
-                    <div key={vm.hostname} className="rounded-md border border-line bg-panel-2 px-2 py-1">
+                    <div key={vm.hostname} className={`rounded-md border bg-panel-2 px-2 py-1 ${vmDim(vm.hostname)} ${lit?.has(vm.hostname) ? 'border-2' : 'border-line'}`} style={lit?.has(vm.hostname) ? { borderColor: z.color } : undefined}>
                       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                         <span className="font-mono text-2xs font-bold text-ink">{vm.hostname}</span>
                         <span className="font-mono text-3xs text-muted">{vm.address}</span>
@@ -243,8 +278,9 @@ export function ServerTopologyDiagram({
                   </div>
                 </div>
                 {z.bridge.id === 'vmbr1' && (
-                  <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted">
+                  <div className={`mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.crossZone))}`}>
                     → private zone: <span className="font-semibold text-ink">{CROSS_ZONE_LABEL}</span> only — everything else the DMZ tries is dropped and logged
+                    {weekTag(ARRIVES.crossZone)}
                   </div>
                 )}
                 {z.bridge.id === 'vmbr2' && (
@@ -256,6 +292,23 @@ export function ServerTopologyDiagram({
                 )}
               </div>
             ))}
+          </div>
+
+          {/* The tailnet. It has been in the model since the host became a
+              subnet router, but it was never in the picture — so the one path
+              that reaches every zone was the one path students could not see. */}
+          <div className={`mt-3 rounded-lg border border-dashed px-3 py-1.5 text-3xs ${dim(built(ARRIVES.tailnet))}`} style={{ borderColor: 'var(--color-w4)' }}>
+            <div className="text-center">
+              <span className="font-semibold" style={{ color: 'var(--color-w4)' }}>
+                {MACHINES.laptop.label}, off campus
+              </span>
+              <span className="text-muted"> → tailnet → the host → both zones</span>
+              {weekTag(ARRIVES.tailnet)}
+            </div>
+            <div className="mt-0.5 text-center text-muted">
+              Administration only: {REMOTE_ADMIN.allow.map((a) => a.purpose).join(' · ')}. Nothing in
+              the private zone is published to the campus.
+            </div>
           </div>
 
           <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-3xs text-muted">

@@ -71,6 +71,7 @@ import { DUR, EASE, meter, swap } from '@/lib/motion';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 import { WeekRail } from '@/components/WeekRail';
 import { BuildMap } from '@/components/BuildMap';
+import { TopologyFocus, focusOf } from '@/components/diagrams/TopologyFocus';
 import { useStepDensity, saveStepDensity } from '@/lib/stepDensity';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
@@ -589,6 +590,8 @@ function TaskRow({
   renderBody: () => React.ReactNode;
 }) {
   const canOpen = joined;
+  // The machines this task touches. Derived, so it cannot drift from the steps.
+  const taskFocus = useMemo(() => focusOf(task.steps), [task.steps]);
   const card = taskCard(course, task, percent);
   const steps = card.steps.total;
   const doneSteps = card.steps.done;
@@ -639,6 +642,15 @@ function TaskRow({
           <span className="mt-0.5 block truncate text-sm text-muted">
             {task.objective}
           </span>
+
+          {/* Which machines this task actually types into, derived from its
+              commands. Students could not tell which box a task was about;
+              this is that answer, in one row, before they open anything. */}
+          {taskFocus.length > 0 && (
+            <span className="mt-1.5 block">
+              <TopologyFocus focus={taskFocus} />
+            </span>
+          )}
 
           {/* Scannable meta row — only what's specific to this closed task:
               progress and time. Difficulty lives on the week glance card (a

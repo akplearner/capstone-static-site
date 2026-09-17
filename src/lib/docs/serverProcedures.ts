@@ -21,14 +21,25 @@
  * has to hand the student the line they will actually type.
  */
 
-import { HOST_CONSOLE_URL, HOST_ROOT_LOGIN, hostRulesCommand } from '@/lib/serverTopology';
+import { HOST_CONSOLE_URL, HOST_ROOT_LOGIN, hostRulesCommand, type MachineId } from '@/lib/serverTopology';
 import { NGINX_TLS_SITE_CMD, SITE_CSS_CMD, SITE_HTML_CMD, SITE_UPLOAD_CMD } from './siteStarter';
+import { withProcedureDetail } from './serverCommands';
 
 export type Step = {
   /** Exactly one of `cmd` or `gui` — a line you type, or a thing you click. */
   cmd?: string;
   gui?: string;
-  explain: string;
+  /** Why the line exists. Optional on a command the registry already explains:
+   *  `withProcedureDetail` fills it in, so the sentence is written once. */
+  explain?: string;
+  /** Which machine this line is typed into. Drives the chip above the command
+   *  and the week's focus diagram. See `MACHINES` in `@/lib/serverTopology`. */
+  on?: MachineId;
+  /** What it prints when it worked, behind one press. */
+  sample?: string;
+  /** Names the config file or firewall this line rewrites, so the backup guard
+   *  can insist a `cp … .bak` (or snapshot) came first in the same procedure. */
+  backupOf?: string;
   doc?: { label: string; href: string };
   /** The OpenTofu form of `cmd` where it cannot be derived (the install line),
    *  with its own doc link. Every other terraform line is rewritten at render
@@ -75,7 +86,7 @@ export const WEEKS: WeekBlock[] = [
   { number: 6, title: 'Run It as a Fleet', phase: 'Run It as a Fleet', lead: 'Put the site in Git, build it from a template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the Core. Then destroy a VM and watch the repository bring it back.' },
 ];
 
-export const PROCEDURES: Procedure[] = [
+const RAW_PROCEDURES: Procedure[] = [
   {
     id: 'verify-pxe-imaged-workstation',
     week: 0,
@@ -92,9 +103,9 @@ export const PROCEDURES: Procedure[] = [
       },
       { gui: 'At the disk selection screen, install to the 932 GB drive — never the 238 GB SSD. Go by size, not by disk number. This is the point of no return: read the size twice.', explain: 'Imaging erases the disk you pick, and the SSD is not yours to overwrite.' },
       { gui: 'Set the computer name to the desk label with the space typed as a hyphen (CIT6 R1C3 becomes CIT6-R1C3), then join ITS.lan in full and sign in as ITS\\yourusername.', explain: 'The desk label is the naming convention for the whole lab; a WORKGROUP machine is not finished.' },
-      { cmd: 'hostname', explain: 'Must print the desk label with the hyphen.' },
-      { cmd: 'systeminfo | findstr /C:"Domain" /C:"OS Name"', explain: 'Domain must read ITS.lan, not WORKGROUP.' },
-      { cmd: 'ping itsdc3', explain: 'The domain controller and the ISO share host must answer — you will pull the Proxmox and OS ISOs off \\\\itsdc3\\its in Week 2.' },
+      { cmd: 'hostname', },
+      { cmd: 'systeminfo | findstr /C:"Domain" /C:"OS Name"', },
+      { cmd: 'ping itsdc3', },
     ],
   },
   {
@@ -139,7 +150,7 @@ export const PROCEDURES: Procedure[] = [
       'Write the Proxmox VE installer ISO to a USB drive with Rufus in DD mode, choosing the partition scheme that matches the boot mode you recorded in Week 1.',
     steps: [
       { gui: 'Plug a USB drive of at least 4 GB into a school workstation.', explain: 'The installer image is written raw, so anything already on the stick is destroyed.' },
-      { cmd: 'explorer \\\\itsdc3\\its', explain: 'Opens the ISO share the course keeps its images on — Rufus and the Proxmox VE ISO both live here.' },
+      { cmd: 'explorer \\\\itsdc3\\its', },
       { gui: 'Open Rufus (Rufus-4.7 or later) from the share.', explain: 'Rufus does not need installing; run it from the share.' },
       { gui: 'Under Device, select your USB drive. Tick "List USB Hard Drives" if the stick does not appear.', explain: 'Confirm the drive letter and size — Rufus will happily overwrite the wrong device.' },
       { gui: 'Click SELECT, navigate to the ISO share and choose the Proxmox VE ISO your instructor supplies.', explain: 'Use whichever Proxmox VE release the instructor hands out; the platform standard is Proxmox VE 8.2.' },
@@ -195,10 +206,10 @@ export const PROCEDURES: Procedure[] = [
       { gui: `Set the country, time zone and keyboard layout, then set the root password to ${HOST_ROOT_LOGIN.password} and add an administrative email address.`, explain: 'One classroom password for every team, so an instructor can help at any bench. Record it in the Server Bring-Up Log anyway — a real deployment rotates it during hardening.' },
       { gui: 'At Management Network Configuration set: Hostname pve-host.teamX.local; IP address 10.10.30.T/16 where T is your team number (Team 1 = 10.10.30.1/16); Gateway 10.10.10.1; DNS server as your instructor supplies.', explain: 'This is the campus LAN 10.10.0.0/16 and it becomes vmbr0, the management bridge. The prefix is /16 (netmask 255.255.0.0), not /24 — a /24 here cannot reach the 10.10.10.1 gateway.' },
       { gui: 'Confirm the summary, let the install run, then remove the USB drive and reboot.', explain: 'Leaving the stick in sends the server straight back into the installer.' },
-      { cmd: 'ip -4 addr show vmbr0', explain: 'Run at the host console after the reboot. Must show 10.10.30.T/16 on vmbr0.' },
-      { cmd: 'ping -c 4 10.10.10.1', explain: 'Proves the host reaches the campus gateway. If this fails the prefix or the cable is wrong, not the install.' },
+      { cmd: 'ip -4 addr show vmbr0', },
+      { cmd: 'ping -c 4 10.10.10.1', },
       { gui: `From a school desktop, browse to ${HOST_CONSOLE_URL}, accept the self-signed certificate warning, set Realm to "Linux PAM standard authentication" and log in as ${HOST_ROOT_LOGIN.user} / ${HOST_ROOT_LOGIN.password}.`, explain: 'This is the console every remaining procedure in the course is driven from.' },
-      { cmd: 'systemctl status pveproxy --no-pager', explain: 'If the browser cannot reach the console, check the service is active before blaming the network.' },
+      { cmd: 'systemctl status pveproxy --no-pager', },
     ],
   },
   // Remote access closes Week 1: the host has an address and the console
@@ -247,7 +258,7 @@ export const PROCEDURES: Procedure[] = [
       { gui: 'Tailnet: the owner opens the Tailscale admin console and invites the other three teammates and the instructor. Each installs Tailscale on their own laptop, signs in with that invitation, and confirms the host shows up in their own device list.', explain: 'Being a user of the tailnet is what makes the host’s 100.x address reachable for them. Passing one person’s Tailscale login around would undo the naming you just did on the host.' },
       { cmd: 'ssh-keygen -t ed25519 -C "alex@capstone"', explain: 'Run this on YOUR OWN laptop, not on the server. It makes a key pair: a private half that never leaves your machine and a public half you are about to hand to the host. Give it a passphrase.' },
       { cmd: 'ssh-copy-id alex@<tailscale-ip>', explain: 'Also from your laptop, over the tailnet. It appends your public key to that account\'s authorized_keys on the host, asking for the password one last time.' },
-      { cmd: 'ssh alex@<tailscale-ip>', explain: 'Log in again. No password prompt means key authentication works. Every teammate does this with their own key on their own laptop — a shared key is a shared login.' },
+      { cmd: 'ssh alex@<tailscale-ip>', },
       { gui: 'STOP before going further: do not disable password authentication and do not lock the root account until every teammate has proved their own account signs in and runs sudo.', explain: 'You can now reach this server from anywhere, which means you can also lock yourself out of it from anywhere. Week 4 hardens SSH deliberately, with a way back.' },
       { gui: `Last: change the root password away from the classroom one (${HOST_ROOT_LOGIN.password}) now that everyone has their own account, and record in the Bring-Up Log that you did.`, explain: 'It was typed in front of the room on install day and is written in the course material. Rotating it is the moment the named accounts start to mean something.' },
     ],
@@ -263,8 +274,8 @@ export const PROCEDURES: Procedure[] = [
       { gui: 'In the Proxmox web console, expand Datacenter → pve-host → local (pve-host) in the left sidebar.', explain: '"local" is the directory storage that holds ISO images and container templates.' },
       { gui: 'Select ISO Images in the centre pane and click Upload.', explain: 'The upload goes to /var/lib/vz/template/iso on the host.' },
       { gui: 'Click Select File, navigate to the ISO share, choose the ISO and click Upload. Repeat for every image you plan to use — Windows Server and Ubuntu Server at minimum.', explain: 'You need Ubuntu Server for websrv and linuxsrv, and Windows Server for winserver. Add any image your own extra business VMs need.' },
-      { cmd: 'scp ubuntu-22.04.5-live-server-amd64.iso root@10.10.30.1:/var/lib/vz/template/iso/', explain: 'Alternative from a Linux workstation — substitute your own team host address and the exact ISO filename. Faster than the browser upload for large images.' },
-      { cmd: 'ls -lh /var/lib/vz/template/iso/', explain: 'Run on the host to confirm every image landed at its full size; a truncated upload fails silently in the VM wizard.' },
+      { cmd: 'scp ubuntu-22.04.5-live-server-amd64.iso root@10.10.30.1:/var/lib/vz/template/iso/', },
+      { cmd: 'ls -lh /var/lib/vz/template/iso/', },
     ],
   },
   {
@@ -275,7 +286,7 @@ export const PROCEDURES: Procedure[] = [
     summary:
       'Add the two internal bridges: vmbr1 is the DMZ at 172.16.0.0/24 (host 172.16.0.1) and vmbr2 the private zone at 192.168.0.0/24 (host 192.168.0.1). Then give both a way out through the host with one rules file, FORWARD DROP from day one — every apt install this week has to reach the archive. Leave Datacenter → Firewall off; it would fight this file.',
     steps: [
-      { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak', explain: 'Back up before editing. A malformed interfaces file can leave the host unreachable, and this file is your way back.' },
+      { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak', },
       {
         cmd: `cat >> /etc/network/interfaces <<'EOF'
 
@@ -295,17 +306,17 @@ iface vmbr2 inet static
         bridge-fd 0
 #       Private zone — carries winserver (192.168.0.2) and linuxsrv (192.168.0.3)
 EOF`,
-        explain: 'Appends both bridge stanzas in one go. bridge-ports none means the bridge has no physical NIC yet — it is internal to the host. The host address on each bridge is that zone gateway.',
+        
       },
-      { cmd: 'cat /etc/network/interfaces', explain: 'Read the whole file back before applying. Check you have not appended inside another stanza and that vmbr0 is untouched.' },
-      { cmd: 'ifreload -a', explain: 'Applies the change without dropping the host. Proxmox VE 8 ships ifupdown2, which reloads interfaces in place; on an older host without it use systemctl restart networking and be ready to reboot.' },
-      { cmd: 'ip -br addr show vmbr1 vmbr2', explain: 'Both bridges must show UP with 172.16.0.1/24 and 192.168.0.1/24 respectively.' },
-      { cmd: 'ip -br addr show vmbr0', explain: 'Confirm the management bridge still holds 10.10.30.T/16 — you have not disturbed your own way in.' },
-      { cmd: 'sysctl -w net.ipv4.ip_forward=1', explain: 'Turns the host into a router between its own bridges. Until this is on, a guest on vmbr1 or vmbr2 cannot get a packet past the host — DNS, apt, nothing.' },
-      { cmd: 'echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/99-capstone-forward.conf && sysctl --system', explain: 'Makes forwarding survive a reboot. A drop-in file is cleaner than appending to /etc/sysctl.conf and is easy to remove again.' },
-      { cmd: 'DEBIAN_FRONTEND=noninteractive apt install -y iptables-persistent', explain: 'The package that restores /etc/iptables/rules.v4 at boot. Non-interactive skips its offer to save the current (empty) rules — the file you write next is the ruleset, and it is the only thing that ever should be.' },
+      { cmd: 'cat /etc/network/interfaces', },
+      { cmd: 'ifreload -a', },
+      { cmd: 'ip -br addr show vmbr1 vmbr2', },
+      { cmd: 'ip -br addr show vmbr0', },
+      { cmd: 'sysctl -w net.ipv4.ip_forward=1', },
+      { cmd: 'echo "net.ipv4.ip_forward=1" > /etc/sysctl.d/99-capstone-forward.conf && sysctl --system', },
+      { cmd: 'DEBIAN_FRONTEND=noninteractive apt install -y iptables-persistent', },
       { cmd: hostRulesCommand('the-way-out'), explain: 'The whole ruleset, one file; restore makes it live and running it twice changes nothing. Every line is commented in the file itself.' },
-      { cmd: 'iptables -L FORWARD -n -v && iptables -t nat -L POSTROUTING -n -v', explain: 'Read it back: policy DROP, two zone ACCEPTs, one MASQUERADE out of vmbr0. Never run netfilter-persistent save — it rewrites the file from the live rules and drops the comments.' },
+      { cmd: 'iptables -L FORWARD -n -v && iptables -t nat -L POSTROUTING -n -v', },
     ],
   },
   {
@@ -322,8 +333,8 @@ EOF`,
       { gui: 'Finish the wizard, start the VM, open its Console, and run the Ubuntu Server installer.', explain: 'Everything from here is inside the guest.' },
       { gui: 'At the Ubuntu network configuration screen, edit the interface and choose Manual: Subnet 172.16.0.0/24, Address 172.16.0.10, Gateway 172.16.0.1, Name servers 192.168.0.2, 1.1.1.1.', explain: '172.16.0.10 is the fixed website address; DNS is winserver, where every name in this build lives. The second resolver is temporary — winserver has no DNS role yet — and Week 3 drops it.' },
       { gui: 'Select "Install OpenSSH server" when the installer offers it, complete the install, and reboot.', explain: 'You will harden this SSH service in Week 4; having it present now saves a console-only trip later.' },
-      { cmd: 'ip -4 addr show', explain: 'Run in the websrv console after reboot. Must show 172.16.0.10/24.' },
-      { cmd: 'ping -c 4 172.16.0.1', explain: 'Proves websrv reaches its gateway, which is the Proxmox host vmbr1 address.' },
+      { cmd: 'ip -4 addr show', },
+      { cmd: 'ping -c 4 172.16.0.1', },
     ],
   },
   {
@@ -334,14 +345,14 @@ EOF`,
     summary:
       'Install NGINX on the DMZ host — the one public-facing website, in the DMZ and nowhere else. This week a placeholder proves NGINX serves the document root; the site your team builds replaces it in Week 3, once the host publishes it to the campus.',
     steps: [
-      { cmd: 'sudo apt update', explain: 'Refresh the package lists first. websrv reaches the archive through the Proxmox host — the forwarding and the vmbr0 MASQUERADE you enabled when you created the bridges. If this hangs, that is the first thing to check.' },
-      { cmd: 'sudo apt install nginx -y', explain: 'Installs NGINX and enables the default site on port 80.' },
-      { cmd: 'sudo chown -R ubuntu:www-data /var/www/html && sudo chmod -R g+w /var/www/html', explain: 'Hands the document root to the install user, so the Week-3 upload over scp lands straight in it without sudo. NGINX keeps reading it as www-data.' },
-      { cmd: 'echo "<html><body><h1>Welcome to the Team X capstone website</h1></body></html>" | sudo tee /var/www/html/index.html', explain: 'A placeholder, not the site. It proves NGINX serves what is in the document root; the page your team builds replaces it in Week 3.' },
-      { cmd: 'sudo systemctl enable --now nginx', explain: 'Enables at boot and starts it in one command.' },
-      { cmd: 'systemctl status nginx --no-pager', explain: 'Confirm active (running) before you go looking for network problems.' },
-      { cmd: 'curl -I http://172.16.0.10', explain: 'From the Proxmox host shell, not websrv. The host holds 172.16.0.1 on vmbr1, so it reaches the DMZ with no routing. 200 OK proves the site answers across the network; the private zone reaches it in Week 3.' },
-      { cmd: 'curl http://172.16.0.10', explain: 'Again from the Proxmox host. Confirm your own welcome text comes back in the body, not the NGINX default page. Screenshot this — it is the evidence for the Server Bring-Up Log.' },
+      { cmd: 'sudo apt update', },
+      { cmd: 'sudo apt install nginx -y', },
+      { cmd: 'sudo chown -R ubuntu:www-data /var/www/html && sudo chmod -R g+w /var/www/html', },
+      { cmd: 'echo "<html><body><h1>Welcome to the Team X capstone website</h1></body></html>" | sudo tee /var/www/html/index.html', },
+      { cmd: 'sudo systemctl enable --now nginx', },
+      { cmd: 'systemctl status nginx --no-pager', },
+      { cmd: 'curl -I http://172.16.0.10', },
+      { cmd: 'curl http://172.16.0.10', },
     ],
   },
   {
@@ -357,8 +368,8 @@ EOF`,
       { gui: 'On the Network tab, set Bridge to vmbr2.', explain: 'This is the private zone. winserver must never sit on vmbr1 — directory services do not belong in the DMZ.' },
       { gui: 'Finish the wizard, start the VM, open the Console and install Windows Server (Desktop Experience unless your instructor says Core).', explain: 'The Server Manager click-paths in the later procedures assume Desktop Experience.' },
       { gui: 'In Windows, open Network and Sharing Center → Change adapter settings → the adapter → Properties → Internet Protocol Version 4 → Properties. Set IP address 192.168.0.2, Subnet mask 255.255.255.0, Default gateway 192.168.0.1, Preferred DNS server 127.0.0.1.', explain: '192.168.0.2 is the fixed directory-server address. DNS points at itself because this machine becomes the DNS server for the whole build.' },
-      { cmd: 'ipconfig /all', explain: 'Run in PowerShell or cmd. Confirm the address, mask, gateway and DNS server all read back as you set them.' },
-      { cmd: 'ping 192.168.0.1', explain: 'Proves winserver reaches its gateway, which is the Proxmox host vmbr2 address.' },
+      { cmd: 'ipconfig /all', },
+      { cmd: 'ping 192.168.0.1', },
     ],
   },
   {
@@ -374,8 +385,8 @@ EOF`,
       { gui: 'On the Network tab, set Bridge to vmbr2.', explain: 'Private zone. The database is never exposed in the DMZ.' },
       { gui: 'Finish the wizard, start the VM, open its Console and run the Ubuntu Server installer. At the network screen choose Manual: Subnet 192.168.0.0/24, Address 192.168.0.3, Gateway 192.168.0.1, Name servers 192.168.0.2, 1.1.1.1.', explain: '192.168.0.3 is the fixed database address; DNS is winserver. Same temporary second resolver as websrv, for the same reason.' },
       { gui: 'Select "Install OpenSSH server" when offered, finish the install and reboot.', explain: 'Nothing publishes this port. The host and the tailnet reach it from Week 3; nobody else does.' },
-      { cmd: 'ip -4 addr show', explain: 'Must show 192.168.0.3/24.' },
-      { cmd: 'ping -c 4 192.168.0.1', explain: 'Proves linuxsrv reaches its gateway on vmbr2.' },
+      { cmd: 'ip -4 addr show', },
+      { cmd: 'ping -c 4 192.168.0.1', },
     ],
   },
   {
@@ -386,11 +397,11 @@ EOF`,
     summary:
       'Install Active Directory Domain Services and promote winserver to the first domain controller of the teamX.local forest, which also stands up the DNS role and the forward lookup zone.',
     steps: [
-      { cmd: 'Rename-Computer -NewName "winserver" -Restart', explain: 'Set the hostname before promotion — renaming a domain controller afterwards is far more work. The machine reboots.' },
-      { cmd: 'Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools', explain: 'Installs the AD DS role and the management tools. Nothing is a domain controller yet.' },
-      { cmd: 'Install-ADDSForest -DomainName "team1.local" -DomainNetbiosName "TEAM1" -InstallDns -Force', explain: 'Substitute your team number for both team1 values. -InstallDns creates the DNS role and the zone in the same pass. Record the Restore Mode password it prompts for; the server reboots when done.' },
-      { cmd: 'Get-ADDomain | Select-Object DNSRoot, NetBIOSName, DomainMode', explain: 'After the reboot, confirms the domain exists and names it.' },
-      { cmd: 'Get-Service NTDS, DNS | Select-Object Name, Status', explain: 'Both must read Running before you move on to the DNS records and the DHCP scope.' },
+      { cmd: 'Rename-Computer -NewName "winserver" -Restart', },
+      { cmd: 'Install-WindowsFeature -Name AD-Domain-Services -IncludeManagementTools', },
+      { cmd: 'Install-ADDSForest -DomainName "team1.local" -DomainNetbiosName "TEAM1" -InstallDns -Force', },
+      { cmd: 'Get-ADDomain | Select-Object DNSRoot, NetBIOSName, DomainMode', },
+      { cmd: 'Get-Service NTDS, DNS | Select-Object Name, Status', },
     ],
   },
   {
@@ -402,15 +413,16 @@ EOF`,
       'Make sure the DNS role and the teamX.local forward lookup zone exist, add an A record for every named host in the build — winserver, linuxsrv and websrv — point the server at the campus resolver for every other name, and prove both work.',
     steps: [
       { gui: 'If you did not promote to a domain controller: Server Manager → Add Roles and Features → DNS Server role, then DNS Manager → right-click Forward Lookup Zones → New Zone → Primary, and name the zone teamX.local with your team number.', explain: 'If you ran the AD DS promotion, both the role and the zone already exist — skip straight to the records.' },
-      { cmd: 'Install-WindowsFeature -Name DNS -IncludeManagementTools', explain: 'PowerShell equivalent of the role install. Harmless to run if the role is already present.' },
-      { cmd: 'Add-DnsServerPrimaryZone -Name "team1.local" -ZoneFile "team1.local.dns"', explain: 'PowerShell equivalent of the New Zone wizard. Substitute your team number. Skip this if AD DS already created the zone.' },
-      { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "winserver" -IPv4Address "192.168.0.2"', explain: 'The directory / DNS / DHCP server itself.' },
-      { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "linuxsrv" -IPv4Address "192.168.0.3"', explain: 'The private-zone database host.' },
-      { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "websrv" -IPv4Address "172.16.0.10"', explain: 'The DMZ website. The record lives in the same zone even though the host is in a different subnet — DNS does not care about zones of the network kind.' },
-      { cmd: 'nslookup winserver.team1.local 192.168.0.2', explain: 'Query the server explicitly. Must return 192.168.0.2.' },
-      { cmd: 'nslookup websrv.team1.local 192.168.0.2', explain: 'Must return 172.16.0.10. Run it from linuxsrv too. This resolves the name; reaching the host is Week 3.' },
-      { cmd: 'Add-DnsServerForwarder -IPAddress 10.10.10.1', explain: 'Every name outside your zone goes to the campus resolver. Without this, nothing resolves the package archive once Week 3 removes the temporary resolver.' },
-      { cmd: 'Resolve-DnsName archive.ubuntu.com -Server 192.168.0.2', explain: 'An internet name answered by winserver. This is the proof the forwarder works.' },
+      { cmd: 'Install-WindowsFeature -Name DNS -IncludeManagementTools', },
+      { cmd: 'Add-DnsServerPrimaryZone -Name "team1.local" -ZoneFile "team1.local.dns"', },
+      { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "winserver" -IPv4Address "192.168.0.2"', },
+      { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "linuxsrv" -IPv4Address "192.168.0.3"', },
+      { cmd: 'Add-DnsServerResourceRecordA -ZoneName "team1.local" -Name "websrv" -IPv4Address "172.16.0.10"', },
+      { cmd: 'nslookup winserver.team1.local 192.168.0.2', },
+      { cmd: 'nslookup websrv.team1.local 192.168.0.2', },
+      { cmd: `Export-DnsServerZone -Name \"team1.local\" -FileName \"team1.local.pre-forwarder.dns\"` },
+      { cmd: 'Add-DnsServerForwarder -IPAddress 10.10.10.1', },
+      { cmd: 'Resolve-DnsName archive.ubuntu.com -Server 192.168.0.2', },
     ],
   },
   {
@@ -422,13 +434,13 @@ EOF`,
       'Install the DHCP Server role, create and activate a scope for the private zone that cannot collide with the reserved statics, hand out the right gateway and DNS server, and prove a client gets a lease.',
     steps: [
       { gui: 'In Server Manager → Add Roles and Features, install the DHCP Server role, then complete the post-deployment configuration when Server Manager prompts.', explain: 'The post-deployment step creates the security groups and authorizes the server in AD.' },
-      { cmd: 'Install-WindowsFeature -Name DHCP -IncludeManagementTools', explain: 'PowerShell equivalent of the role install.' },
-      { cmd: 'Add-DhcpServerv4Scope -Name "CapstoneScope" -StartRange 192.168.0.100 -EndRange 192.168.0.200 -SubnetMask 255.255.255.0 -State Active', explain: 'The range starts at .100 deliberately: .1 (gateway), .2 (winserver) and .3 (linuxsrv) are static, .4 is reserved for the optional secmon monitoring host, and .5 upward is where your own extra private-zone VMs go.' },
-      { cmd: 'Set-DhcpServerv4OptionValue -ScopeId 192.168.0.0 -Router 192.168.0.1 -DnsServer 192.168.0.2 -DnsDomain "team1.local"', explain: 'Option 3 (router) is the Proxmox host vmbr2 address; option 6 (DNS) is winserver itself. Substitute your team number in the domain.' },
-      { cmd: 'Add-DhcpServerInDC -DnsName "winserver.team1.local" -IPAddress 192.168.0.2', explain: 'Authorizes the DHCP server in Active Directory. An unauthorized DHCP server in a domain refuses to hand out leases.' },
+      { cmd: 'Install-WindowsFeature -Name DHCP -IncludeManagementTools', },
+      { cmd: 'Add-DhcpServerv4Scope -Name "CapstoneScope" -StartRange 192.168.0.100 -EndRange 192.168.0.200 -SubnetMask 255.255.255.0 -State Active', },
+      { cmd: 'Set-DhcpServerv4OptionValue -ScopeId 192.168.0.0 -Router 192.168.0.1 -DnsServer 192.168.0.2 -DnsDomain "team1.local"', },
+      { cmd: 'Add-DhcpServerInDC -DnsName "winserver.team1.local" -IPAddress 192.168.0.2', },
       { gui: 'Now build something to lease to. In the Proxmox web console click Create VM, name it client01, pick any desktop image (Ubuntu Desktop or Windows 10/11), 1 core / 2048 MB / 20 GB, Bridge vmbr2.', explain: 'The three servers are all static, so without this VM the scope cannot be tested. It is a throwaway; your own design may call for a different client.' },
       { gui: 'Leave client01 on DHCP — do not give it a static address. Boot it, let it request an address, and confirm what it gets lands inside 192.168.0.100-200 with gateway 192.168.0.1 and DNS 192.168.0.2.', explain: 'Taking a lease is the entire job of this VM. A scope with no client is untested.' },
-      { cmd: 'Get-DhcpServerv4Lease -ScopeId 192.168.0.0', explain: 'Lists the leases actually issued — client01 should be there. Screenshot this for the Server Bring-Up Log.' },
+      { cmd: 'Get-DhcpServerv4Lease -ScopeId 192.168.0.0', },
     ],
   },
   {
@@ -439,16 +451,16 @@ EOF`,
     summary:
       'Stand up the database server in the private zone: install MariaDB, secure it, create the capstone_db database and its application user, and prove the user can log in.',
     steps: [
-      { cmd: 'sudo apt update', explain: 'Refresh package lists. Like websrv, linuxsrv reaches the archive through the Proxmox host\'s forwarding and vmbr0 NAT.' },
-      { cmd: 'sudo apt install mariadb-server -y', explain: 'Installs the server and client.' },
-      { cmd: 'sudo systemctl enable --now mariadb', explain: 'Enables at boot and starts it.' },
-      { cmd: 'sudo mysql_secure_installation', explain: 'Sets the root password, removes the anonymous users and the test database, and disables remote root login. Answer yes to everything except leaving root auth as unix_socket if it offers.' },
-      { cmd: 'sudo mysql', explain: 'Opens the MariaDB shell as root over the unix socket. The next statements are typed inside it.' },
-      { cmd: 'CREATE DATABASE capstone_db;', explain: 'The application database.' },
-      { cmd: "CREATE USER 'capuser'@'localhost' IDENTIFIED BY 'ChangeThisPassword1!';", explain: 'Use a real password of your own and record it in the Server Bring-Up Log — never ship the example.' },
-      { cmd: "GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'localhost'; FLUSH PRIVILEGES; EXIT;", explain: 'Grants only on capstone_db, not on everything — then reloads the grant tables and leaves the shell.' },
-      { cmd: 'mysql -u capuser -p -e "SHOW DATABASES;"', explain: 'Log in as the application user and confirm capstone_db is listed. This is the proof step.' },
-      { cmd: `sudo mysql -e "CREATE USER 'capuser'@'172.16.0.10' IDENTIFIED BY 'ChangeThisPassword1!'; GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'172.16.0.10'; FLUSH PRIVILEGES;"`, explain: 'OPTIONAL — only if a VM of your own or a dynamic site on websrv needs the database across zones. Also bind MariaDB to the private address in 50-server.cnf. The base build does not need this.' },
+      { cmd: 'sudo apt update', },
+      { cmd: 'sudo apt install mariadb-server -y', },
+      { cmd: 'sudo systemctl enable --now mariadb', },
+      { cmd: 'sudo mysql_secure_installation', },
+      { cmd: 'sudo mysql', },
+      { cmd: 'CREATE DATABASE capstone_db;', },
+      { cmd: "CREATE USER 'capuser'@'localhost' IDENTIFIED BY 'ChangeThisPassword1!';", },
+      { cmd: "GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'localhost'; FLUSH PRIVILEGES; EXIT;", },
+      { cmd: 'mysql -u capuser -p -e "SHOW DATABASES;"', },
+      { cmd: `sudo mysql -e "CREATE USER 'capuser'@'172.16.0.10' IDENTIFIED BY 'ChangeThisPassword1!'; GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'172.16.0.10'; FLUSH PRIVILEGES;"`, },
     ],
   },
   {
@@ -478,7 +490,7 @@ EOF`,
       - targets: ['192.168.0.4:9100','192.168.0.3:9100','192.168.0.2:9182','172.16.0.10:9100']`,
         explain: 'Four targets — secmon and linuxsrv on 9100, winserver on 9182, websrv across the DMZ route on 9100. Paste it inside scrape_configs, two spaces before the dash, exactly as shown.',
       },
-      { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', explain: 'On secmon, and persist it in netplan exactly as you did on linuxsrv in Week 3. secmon is a private-zone host like any other: without this route it cannot reach websrv.' },
+      { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', },
       { cmd: 'sudo systemctl restart prometheus && systemctl status prometheus --no-pager', explain: 'Reloads the scrape config. A YAML error shows up here, not later.' },
       { gui: 'Browse to http://192.168.0.4:9090/targets and confirm all four targets read UP, then log into Grafana at http://192.168.0.4:3000 (admin/admin, change the password) and add Prometheus at http://localhost:9090 as a data source.', explain: 'Screenshot the targets page into 08_Evidence.' },
     ],
@@ -491,8 +503,9 @@ EOF`,
     summary:
       'Make reality match the IP plan: confirm or set the persistent static address, gateway and DNS server on every machine, using the right mechanism for each operating system.',
     steps: [
-      { cmd: 'ip -br addr show vmbr0 vmbr1 vmbr2', explain: 'On the Proxmox host. Expect 10.10.30.T/16, 172.16.0.1/24 and 192.168.0.1/24. If any is wrong, edit /etc/network/interfaces and run ifreload -a — the host addressing is not set from a DHCP client.' },
-      { cmd: 'ip -br link', explain: 'Run inside each Ubuntu guest first to learn the real interface name. A VirtIO NIC in Proxmox usually appears as ens18; do not copy an interface name out of a guide.' },
+      { cmd: 'ip -br addr show vmbr0 vmbr1 vmbr2', },
+      { cmd: 'ip -br link', },
+      { cmd: 'sudo cp -r /etc/netplan /root/netplan.bak' },
       {
         cmd: `sudo tee /etc/netplan/01-capstone.yaml > /dev/null <<'EOF'
 network:
@@ -507,15 +520,15 @@ network:
       nameservers:
         addresses: [192.168.0.2]
 EOF`,
-        explain: 'websrv, in the DMZ, with the interface name you just read. For linuxsrv: 192.168.0.3/24 and gateway 192.168.0.1. One nameserver now — winserver carries DNS and forwards the rest, so the temporary resolver goes.',
+        
       },
-      { cmd: 'sudo chmod 600 /etc/netplan/01-capstone.yaml', explain: 'Netplan warns loudly about world-readable configs.' },
-      { cmd: 'sudo netplan apply', explain: 'Applies immediately and persists across reboots. If you are connected over SSH and the address is wrong you will lose the session — use the Proxmox console for this.' },
-      { cmd: `ip -4 addr show && ip route show && resolvectl status | grep -A2 'DNS Servers'`, explain: 'Address, default route and resolver in one pass, on each Ubuntu host.' },
-      { cmd: 'Get-NetAdapter | Select-Object Name, Status, LinkSpeed', explain: 'On winserver, in an elevated PowerShell. Learn the InterfaceAlias before you set anything — it is usually "Ethernet".' },
-      { cmd: 'New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress 192.168.0.2 -PrefixLength 24 -DefaultGateway 192.168.0.1', explain: 'Sets the static address on winserver. If the adapter already holds a DHCP address, run Remove-NetIPAddress -InterfaceAlias "Ethernet" -Confirm:$false first.' },
-      { cmd: 'Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses 127.0.0.1', explain: 'winserver resolves against itself because it is the DNS server. Every other host points at 192.168.0.2.' },
-      { cmd: 'Get-NetIPConfiguration -InterfaceAlias "Ethernet"', explain: 'Reads back address, gateway and DNS. Log every address change in the Operations Log & SOPs as you make it.' },
+      { cmd: 'sudo chmod 600 /etc/netplan/01-capstone.yaml', },
+      { cmd: 'sudo netplan apply', },
+      { cmd: `ip -4 addr show && ip route show && resolvectl status | grep -A2 'DNS Servers'`, },
+      { cmd: 'Get-NetAdapter | Select-Object Name, Status, LinkSpeed', },
+      { cmd: 'New-NetIPAddress -InterfaceAlias "Ethernet" -IPAddress 192.168.0.2 -PrefixLength 24 -DefaultGateway 192.168.0.1', },
+      { cmd: 'Set-DnsClientServerAddress -InterfaceAlias "Ethernet" -ServerAddresses 127.0.0.1', },
+      { cmd: 'Get-NetIPConfiguration -InterfaceAlias "Ethernet"', },
     ],
   },
   {
@@ -526,12 +539,12 @@ EOF`,
     summary:
       'The host has forwarded since Week 2. Now the file gets its holes: 80, 443 and the upload port 2200 published to websrv, the DMZ allowed into the private zone for DNS and the database only, and the tailnet allowed in to administer. Nothing else is published. One file, one restore, a reboot to prove it comes back.',
     steps: [
-      { cmd: 'sysctl net.ipv4.ip_forward', explain: 'Expect 1 — you set it in Week 2. If it reads 0, re-run the two Week-2 sysctl lines first.' },
-      { cmd: 'cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.week2', explain: 'Keep the Week-2 file. iptables-restore from it puts you back on a host that only routes out.' },
+      { cmd: 'sysctl net.ipv4.ip_forward', },
+      { cmd: 'cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.week2', },
       { cmd: hostRulesCommand('the-holes'), explain: 'The whole ruleset, replaced in one go; every line is commented in the file itself. Three DNATs publish websrv; the private zone is published to nobody. Run it twice and nothing doubles.' },
-      { cmd: 'iptables -t nat -L PREROUTING -n', explain: 'Three DNAT lines, all to 172.16.0.10, and no others. 443 is published before anything listens — Week 4 adds the certificate.' },
-      { cmd: 'iptables -L FORWARD -n -v', explain: 'Policy DROP, then every ACCEPT is a decision you can name in the IP Plan. A refused path shows up as FWD-DROP in journalctl -k.' },
-      { cmd: 'systemctl reboot', explain: 'Once, to prove persistence. After the reboot, re-run both list commands and confirm nothing changed.' },
+      { cmd: 'iptables -t nat -L PREROUTING -n', },
+      { cmd: 'iptables -L FORWARD -n -v', },
+      { cmd: 'systemctl reboot', },
     ],
   },
   {
@@ -545,8 +558,8 @@ EOF`,
       { cmd: SITE_HTML_CMD, explain: 'The minimum page. Replace every "Your Business" and "Team X". index.html must exist — it is what NGINX serves for /.' },
       { cmd: SITE_CSS_CMD, explain: 'Enough style to show the site is yours — the client judges the build by this page first.' },
       { cmd: SITE_UPLOAD_CMD, explain: 'Port 2200 on the host is forwarded to sshd on websrv, and the document root has been writable by ubuntu since Week 2. scp is built into Windows 10+, macOS and Linux.' },
-      { cmd: 'curl -s http://10.10.30.T | grep -i "<title>"', explain: 'From a campus PC on vmbr0. It cannot work from a VM or from the host: the forward applies only to packets arriving on vmbr0. Open it in a browser too and screenshot it into 08_Evidence.' },
-      { cmd: 'curl -sI --max-time 5 https://10.10.30.T; echo "exit $?"', explain: 'Expected to fail — exit 7. 443 is published but nothing listens until Week 4 adds TLS. Published and listening are different questions; write this case into the Networking deep-dive.' },
+      { cmd: 'curl -s http://10.10.30.T | grep -i "<title>"', },
+      { cmd: 'curl -sI --max-time 5 https://10.10.30.T; echo "exit $?"', },
       { gui: 'In the IP Plan & Connectivity Proof, fill in the site’s URL, what it contains, and the screenshot from the other machine; then add the three published ports to the published-ports table with the reason each exists.', explain: 'The URL and screenshot prove the site is public; the table proves you know which holes you opened and why.' },
     ],
   },
@@ -558,12 +571,14 @@ EOF`,
     summary:
       'Let the private-zone VMs initiate connections back to the DMZ by routing 172.16.0.0/24 via the private gateway 192.168.0.1 — and make the route persist across a reboot. The host’s rules file already permits the private zone into the DMZ; these routes are how the private hosts find it.',
     steps: [
-      { cmd: 'route -p add 172.16.0.0 mask 255.255.255.0 192.168.0.1', explain: 'On winserver, in an elevated PowerShell or cmd. The -p flag makes the route persistent; without it the route is gone at the next reboot.' },
-      { cmd: 'route print -4', explain: 'Confirm the 172.16.0.0 entry is listed, and that it appears under Persistent Routes.' },
-      { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', explain: 'On linuxsrv. Takes effect immediately but does NOT survive a reboot on its own.' },
+      { cmd: `route print -4 > C:\\baseline\\routes-before.txt` },
+      { cmd: 'route -p add 172.16.0.0 mask 255.255.255.0 192.168.0.1', },
+      { cmd: 'route print -4', },
+      { cmd: 'sudo ip route add 172.16.0.0/24 via 192.168.0.1', },
+      { cmd: 'sudo cp /etc/netplan/01-capstone.yaml /etc/netplan/01-capstone.yaml.bak' },
       {
         cmd: 'sudo nano /etc/netplan/01-capstone.yaml',
-        explain: 'Open the file you wrote earlier. The route belongs INSIDE the existing routes: list — an edit, not an append. Appended below nameservers, netplan refuses the whole file.',
+        
       },
       {
         cmd: `network:
@@ -579,11 +594,11 @@ EOF`,
           via: 192.168.0.1
       nameservers:
         addresses: [192.168.0.2]`,
-        explain: 'The complete file for linuxsrv, with your interface name from ip -br link. The only change is the second entry under routes:, at the same indent as the default route.',
+        
       },
-      { cmd: 'sudo netplan apply && ip route show', explain: 'Applies and confirms. The 172.16.0.0/24 via 192.168.0.1 line must appear.' },
-      { cmd: 'ping -c 4 172.16.0.10', explain: 'From linuxsrv. Proves the private zone can now initiate to the DMZ web host.' },
-      { cmd: 'Test-NetConnection -ComputerName 172.16.0.10 -Port 80', explain: 'From winserver. TcpTestSucceeded : True proves the route and the forward rule both work.' },
+      { cmd: 'sudo netplan apply && ip route show', },
+      { cmd: 'ping -c 4 172.16.0.10', },
+      { cmd: 'Test-NetConnection -ComputerName 172.16.0.10 -Port 80', },
     ],
   },
   {
@@ -594,21 +609,21 @@ EOF`,
     summary:
       'Record every path the design promises — gateways, names through winserver, the site from the private zone and from a campus PC, the host into both zones — and the one it forbids: the DMZ opening anything private except DNS and the database.',
     steps: [
-      { cmd: 'ping -c 4 10.10.10.1', explain: 'From the Proxmox host. Management path to the campus gateway.' },
-      { cmd: 'ping -c 4 172.16.0.1 && ping -c 4 192.168.0.1', explain: 'From the Proxmox host. Both zone gateways are its own bridge addresses — this confirms both bridges are up.' },
-      { cmd: 'ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname', explain: 'From the Proxmox host, with the install users (both ubuntu in the worked example). The host holds an address on each bridge, so its own SSH is OUTPUT, never FORWARD — the DROP policy does not apply to it.' },
-      { cmd: 'ping -c 4 172.16.0.1', explain: 'From websrv. The DMZ host reaches its gateway.' },
-      { cmd: 'ping -c 4 192.168.0.1', explain: 'From linuxsrv. The private host reaches its gateway.' },
-      { cmd: 'ping 192.168.0.3', explain: 'From winserver, in PowerShell. Windows to Linux across the private zone.' },
-      { cmd: 'ping -c 4 192.168.0.2', explain: 'From linuxsrv. Linux to Windows, the reverse direction.' },
-      { cmd: 'nslookup winserver.team1.local 192.168.0.2', explain: 'From any host. Substitute your team number. Must return 192.168.0.2 — name resolution is working.' },
-      { cmd: 'nslookup websrv.team1.local 192.168.0.2', explain: 'Must return 172.16.0.10. Run from websrv, it also proves the DMZ’s DNS hole to winserver is open.' },
-      { cmd: 'nslookup archive.ubuntu.com 192.168.0.2', explain: 'From websrv. An internet name, answered through winserver’s forwarder — the temporary public resolver is gone and nothing broke.' },
-      { cmd: 'curl -I http://172.16.0.10', explain: 'From linuxsrv. HTTP/1.1 200 OK proves the private zone reaches the DMZ website over the static route you added and the vmbr2-to-vmbr1 rule.' },
-      { cmd: 'nc -vz -w 3 192.168.0.3 3306', explain: 'From websrv. The one thing the DMZ may open into the private zone besides DNS: "succeeded" means the database port answers through the host.' },
-      { cmd: 'nc -vz -w 3 192.168.0.3 22', explain: 'From websrv. Must FAIL — "timed out". On the host, journalctl -k | grep FWD-DROP shows the refused packet from websrv; screenshot that line. It is the proof the segmentation is real.' },
-      { cmd: 'curl -I http://10.10.30.T', explain: 'From a campus PC on vmbr0 — not a VM, not the host. The port-80 DNAT publishes the site to the campus LAN; open it in a browser and see your own page.' },
-      { cmd: 'ssh -p 2200 ubuntu@10.10.30.T hostname', explain: 'From a campus PC. It prints websrv — the one SSH port the campus reaches, justified in the IP Plan. Week 4 replaces ubuntu with webadmin.' },
+      { cmd: 'ping -c 4 10.10.10.1', },
+      { cmd: 'ping -c 4 172.16.0.1 && ping -c 4 192.168.0.1', },
+      { cmd: 'ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname', },
+      { cmd: 'ping -c 4 172.16.0.1', },
+      { cmd: 'ping -c 4 192.168.0.1', },
+      { cmd: 'ping 192.168.0.3', },
+      { cmd: 'ping -c 4 192.168.0.2', },
+      { cmd: 'nslookup winserver.team1.local 192.168.0.2', },
+      { cmd: 'nslookup websrv.team1.local 192.168.0.2', },
+      { cmd: 'nslookup archive.ubuntu.com 192.168.0.2', },
+      { cmd: 'curl -I http://172.16.0.10', },
+      { cmd: 'nc -vz -w 3 192.168.0.3 3306', },
+      { cmd: 'nc -vz -w 3 192.168.0.3 22', },
+      { cmd: 'curl -I http://10.10.30.T', },
+      { cmd: 'ssh -p 2200 ubuntu@10.10.30.T hostname', },
       { gui: 'Record the result of every check above in the IP Plan & Connectivity Proof — the refusal included, as a row whose expected result is "Should be blocked" — and screenshot the ones your instructor asks for into 08_Evidence.', explain: 'A diagram claims; a check proves. A segmented network is proven only when the paths that should fail have failed.' },
     ],
   },
@@ -663,13 +678,13 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
     summary:
       'Advertise both zone subnets from the host, approve them in the admin console, accept routes on your laptop, then SSH into a VM in each zone by its zone address. The rules file already allows it — port 22 to every VM and RDP to winserver, nothing more.',
     steps: [
-      { cmd: 'tailscale up --advertise-routes=172.16.0.0/24,192.168.0.0/24 --ssh', explain: 'On the host. --ssh keeps the login you already use; the routes are what change.' },
+      { cmd: 'tailscale up --advertise-routes=172.16.0.0/24,192.168.0.0/24 --ssh', },
       { gui: 'In the Tailscale admin console open the host, then Routes, and approve both subnets.', explain: 'Advertised is not approved. Until an admin approves them, no device routes through the host.' },
-      { cmd: 'tailscale debug prefs | grep -A3 AdvertiseRoutes', explain: 'Both subnets listed. If not, re-run the up command with both routes on one line.' },
-      { cmd: 'tailscale up --accept-routes', explain: 'On your laptop (Windows and macOS: Settings → Use subnet routes). Now 172.16.0.x and 192.168.0.x route through the host.' },
-      { cmd: 'ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname', explain: 'From your laptop, off campus. Both hostnames print: the rules file lets tailscale0 into each zone on port 22, and the VMs see the host’s bridge address.' },
-      { cmd: 'mstsc /v:192.168.0.2', explain: 'From a Windows laptop: RDP to winserver over the tailnet — the one other admin path the rules allow into the private zone.' },
-      { cmd: 'ssh alex@<tailscale-ip>', explain: 'The host itself — the vmbr0 device — by its tailnet address or MagicDNS name, exactly as in Week 1.' },
+      { cmd: 'tailscale debug prefs | grep -A3 AdvertiseRoutes', },
+      { cmd: 'tailscale up --accept-routes', },
+      { cmd: 'ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname', },
+      { cmd: 'mstsc /v:192.168.0.2', },
+      { cmd: 'ssh alex@<tailscale-ip>', },
       { gui: 'Record in the IP Plan & Connectivity Proof: a proof row for the tailnet SSH, and the two routes in the Bring-Up Log’s remote-access section.', explain: 'Nothing private is published. Administrators come in over the tailnet, and the rules file names exactly what they may reach.' },
     ],
   },
@@ -687,15 +702,15 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
     optional: true,
     optionalLabel: 'Later phase · optional',
     steps: [
-      { cmd: 'ip -br link show', explain: 'Identify the second physical NIC by name (enp1s0f1, eno2 and so on). Cross-check against the NIC inventory you took in Week 1 — do not guess which port is which.' },
+      { cmd: 'ip -br link show', },
       { gui: 'Patch that NIC through the patch panel to an access port on the Cisco switch, and log the cable at both ends in the Rack, Power & Asset Register.', explain: 'The cable schedule is what lets anyone trace this link later without pulling the rack apart.' },
       { gui: 'On the Cisco router, configure the interface facing this switch as 192.168.0.1/24 and give it the outbound path (default route / NAT) to the internet.', explain: 'The router takes over as the private-zone gateway. This is the servers only internet path in the finished design.' },
-      { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak-prephys', explain: 'Back up again before this change — it can take the private zone offline if you get it wrong.' },
-      { cmd: 'nano /etc/network/interfaces', explain: 'In the vmbr2 stanza, change bridge-ports none to your physical NIC name, and REMOVE the address 192.168.0.1/24 line — the Cisco router now owns that address. Two devices holding 192.168.0.1 is a duplicate-address outage, not redundancy.' },
-      { cmd: 'ifreload -a', explain: 'Applies the bridge change in place.' },
-      { cmd: 'bridge link show | grep vmbr2', explain: 'The physical NIC must now appear as a member of vmbr2.' },
-      { cmd: 'ping -c 4 192.168.0.1', explain: 'Run from linuxsrv. The gateway must still answer — but now it is the Cisco router answering, not the Proxmox host. Note that change in the Operations Log & SOPs: the address did not move, the device holding it did.' },
-      { cmd: 'ping -c 4 8.8.8.8', explain: 'Run from linuxsrv. This is the point of the whole phase: the private-zone servers now reach the internet through the Cisco router.' },
+      { cmd: 'cp /etc/network/interfaces /etc/network/interfaces.bak-prephys', },
+      { cmd: 'nano /etc/network/interfaces', },
+      { cmd: 'ifreload -a', },
+      { cmd: 'bridge link show | grep vmbr2', },
+      { cmd: 'ping -c 4 192.168.0.1', },
+      { cmd: 'ping -c 4 8.8.8.8', },
     ],
   },
   // The host is hardened FIRST in Week 4, because it is the one machine that is
@@ -711,12 +726,12 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
       'Close the root password door on the hypervisor now that every teammate has a named account and a key. Keys stay, root passwords go, and the console and the physical keyboard remain as the way back.',
     steps: [
       { gui: 'Before you change anything, name your two ways back in and check both: the Proxmox web console in a browser, and the physical keyboard at the rack.', explain: 'This is the procedure with the most potential to lock four people out of one server. Neither way back depends on SSH, which is what you are about to change.' },
-      { cmd: 'ssh alex@<tailscale-ip>', explain: 'Prove key login works for a named account, from the machine you will use later. A password prompt means the key is not in place: stop here and redo Week 1’s ssh-copy-id.' },
-      { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', explain: 'Back up before editing, exactly as you did on websrv. This file is how you get in.' },
-      { cmd: `sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config`, explain: 'prohibit-password, not no: root can still log in WITH A KEY, which keeps an emergency route for whoever holds it, but the root password stops being a way in over the network.' },
-      { cmd: `grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config`, explain: 'Read it back. PasswordAuthentication stays yes on this host: your teammates\' named accounts still need it until every one of them has a working key, and turning it off early is how a team loses its own server.' },
-      { cmd: 'sudo sshd -t', explain: 'Validates the file. Silence means valid. A typo caught here is a typo that never locked anybody out.' },
-      { cmd: 'sudo systemctl restart ssh', explain: 'Applies it. KEEP YOUR CURRENT SESSION OPEN and prove a new one works in a second window before you close this one.' },
+      { cmd: 'ssh alex@<tailscale-ip>', },
+      { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', },
+      { cmd: `sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin prohibit-password/' /etc/ssh/sshd_config`, },
+      { cmd: `grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config`, },
+      { cmd: 'sudo sshd -t', },
+      { cmd: 'sudo systemctl restart ssh', },
       { gui: 'Datacenter → Firewall: read the rules before you enable enforcement, and leave it off unless you have deliberately allowed 22 and 8006 from the tailnet.', explain: 'The instructor SOP is explicit about this one: enabling the Proxmox firewall blindly while you depend on remote administration is the fastest way to lose the server you are administering.' },
       { gui: 'Optional: Datacenter → Permissions → Two Factor, add TOTP to each named account.', explain: 'Worth doing on a host reachable from anywhere. On a shared server, a lost TOTP secret locks four people out — record the recovery keys where the team can reach them.' },
     ],
@@ -729,36 +744,36 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
     summary:
       'websrv is what the campus reaches, on 80, 443 and 2200. linuxsrv is reached by nobody outside — the host and the tailnet only — and is hardened because a compromised websrv sits one hop away. Each gets a non-root admin, root login off and a ufw ruleset; websrv serves the site over TLS.',
     steps: [
-      { cmd: 'sudo apt update && sudo apt install openssh-server -y', explain: 'Skip if you selected OpenSSH during the Ubuntu install; harmless to run either way.' },
-      { cmd: 'sudo systemctl enable --now ssh', explain: 'Enables at boot and starts it.' },
-      { cmd: 'sudo adduser webadmin', explain: 'Pick your own name and record it in the Server Bring-Up Log. You are about to disable root login; this account becomes your only way in.' },
-      { cmd: 'sudo usermod -aG sudo webadmin', explain: 'Do this BEFORE disabling root, and test it — no sudo plus no root login means a console-only recovery.' },
-      { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', explain: 'Back up before editing.' },
-      { cmd: `sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/; s/^#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config`, explain: 'Sets both directives and uncomments them if they were commented. Editing by hand with sudo nano /etc/ssh/sshd_config is equally fine.' },
-      { cmd: `grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config`, explain: 'Read back exactly what you set.' },
-      { cmd: 'sudo sshd -t', explain: 'Silence means valid. Never restart sshd on a config that has not passed this.' },
-      { cmd: 'sudo systemctl restart ssh', explain: 'Applies the change. Keep your existing session open and prove a new one works before closing it.' },
-      { cmd: 'sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp', explain: 'SSH from the campus LAN. This is the corrected campus supernet.' },
-      { cmd: 'sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp', explain: 'SSH from the private zone.' },
-      { cmd: 'sudo ufw allow from 172.16.0.0/24 to any port 22 proto tcp', explain: 'SSH from within the DMZ itself.' },
-      { cmd: 'sudo ufw allow from 172.16.0.1 to any port 22 proto tcp', explain: 'The host’s own address on the DMZ bridge, on its own line. The tailnet arrives from this address too, so this one rule is what lets remote admins in.' },
-      { cmd: 'sudo ufw allow 80/tcp', explain: 'The website is public-facing, so port 80 is open to everyone — unlike SSH, which is restricted to the networks above.' },
-      { cmd: 'sudo ufw allow 443/tcp', explain: 'The TLS port the host has published since Week 3. Until now it was published with nobody listening; the certificate and the server block below fix that.' },
-      { cmd: 'sudo ufw enable', explain: 'It warns that this may disrupt SSH — you have already allowed it from every trusted network, so answer y.' },
-      { cmd: 'sudo ufw status numbered', explain: 'Read the whole ruleset back. Screenshot it for the Server Bring-Up Log.' },
-      { cmd: 'sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/websrv.key -out /etc/ssl/certs/websrv.crt -subj "/CN=websrv"', explain: 'A self-signed certificate, one year, no passphrase. Browsers warn because no public CA signed it; the traffic is still encrypted. Write that lesson into the Baselines form.' },
+      { cmd: 'sudo apt update && sudo apt install openssh-server -y', },
+      { cmd: 'sudo systemctl enable --now ssh', },
+      { cmd: 'sudo adduser webadmin', },
+      { cmd: 'sudo usermod -aG sudo webadmin', },
+      { cmd: 'sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak', },
+      { cmd: `sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/; s/^#\\?PasswordAuthentication.*/PasswordAuthentication yes/' /etc/ssh/sshd_config`, },
+      { cmd: `grep -E '^(PermitRootLogin|PasswordAuthentication)' /etc/ssh/sshd_config`, },
+      { cmd: 'sudo sshd -t', },
+      { cmd: 'sudo systemctl restart ssh', },
+      { cmd: 'sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw allow from 172.16.0.0/24 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw allow from 172.16.0.1 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw allow 80/tcp', },
+      { cmd: 'sudo ufw allow 443/tcp', },
+      { cmd: 'sudo ufw enable', },
+      { cmd: 'sudo ufw status numbered', },
+      { cmd: 'sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/websrv.key -out /etc/ssl/certs/websrv.crt -subj "/CN=websrv"', },
       { cmd: NGINX_TLS_SITE_CMD, explain: 'One server block serving the same root on 80 and 443 with the certificate you just made. nginx -t validates before the reload.' },
-      { cmd: 'curl -I http://172.16.0.10', explain: 'From the Proxmox host or from linuxsrv. Confirm the firewall did not break the site you uploaded in Week 3.' },
-      { cmd: 'curl -kI https://10.10.30.T', explain: 'From a campus PC. -k accepts the self-signed certificate. 200 OK means the 443 forward now reaches a listener — the published-but-not-listening row in your IP Plan closes here.' },
+      { cmd: 'curl -I http://172.16.0.10', },
+      { cmd: 'curl -kI https://10.10.30.T', },
       { gui: 'Now switch to the linuxsrv console and run the same shape again. Nothing publishes this host, but websrv can reach its database port, and a compromised websrv is one hop away.', explain: 'The older jump-box guides hardened only the exposed host. Here the private host is hardened for what sits beside it.' },
-      { cmd: 'sudo adduser dbadmin', explain: 'On linuxsrv. Pick your own name, record it in the Bring-Up Log, give it sudo with usermod -aG sudo dbadmin, and test it from the console BEFORE you disable root.' },
-      { cmd: `sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak && sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && grep -E '^PermitRootLogin' /etc/ssh/sshd_config`, explain: 'Back up, set the directive, read it straight back. Same edit as websrv.' },
-      { cmd: 'sudo sshd -t && sudo systemctl restart ssh', explain: 'Validate, then apply. Silence from sshd -t means valid.' },
-      { cmd: 'sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp', explain: 'The campus LAN, for the later phase when the private zone hangs off the Cisco router. Today nothing on the campus reaches this host.' },
-      { cmd: 'sudo ufw allow from 192.168.0.1 to any port 22 proto tcp', explain: 'The host’s own address on the private bridge: the hypervisor, and the tailnet through it, can always SSH in.' },
-      { cmd: 'sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp', explain: 'SSH from within the private zone. No 80 and no 3306 rule: the base build has no cross-zone grant to allow.' },
-      { cmd: 'sudo ufw enable && sudo ufw status numbered', explain: 'Turn it on and read the whole ruleset back. Screenshot it for the Server Bring-Up Log.' },
-      { cmd: 'ssh dbadmin@192.168.0.3', explain: 'From a tailnet laptop with subnet routes, or from the host, with your own user name. The hardened path still works — that is the proof this step is finished.' },
+      { cmd: 'sudo adduser dbadmin', },
+      { cmd: `sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak && sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && grep -E '^PermitRootLogin' /etc/ssh/sshd_config`, },
+      { cmd: 'sudo sshd -t && sudo systemctl restart ssh', },
+      { cmd: 'sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw allow from 192.168.0.1 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp', },
+      { cmd: 'sudo ufw enable && sudo ufw status numbered', },
+      { cmd: 'ssh dbadmin@192.168.0.3', },
     ],
   },
   {
@@ -769,20 +784,21 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
     summary:
       'Take the rollback first, then bring the hypervisor and all three guests to a known patch level, confirm every service still runs, and record the new level.',
     steps: [
-      { cmd: 'qm list', explain: 'On the Proxmox host. Lists every VM with its ID, name and state — you need the IDs for the next command.' },
-      { cmd: 'qm snapshot 101 pre-patch-2026-03-09 --description "Pre-patch rollback point"', explain: 'Substitute the real VM ID and today date. Repeat for every VM before you touch any of them. Snapshot names cannot contain spaces.' },
-      { cmd: 'qm listsnapshot 101', explain: 'Confirm the snapshot exists before patching. An unverified rollback is not a rollback.' },
-      { cmd: 'apt update && apt dist-upgrade -y', explain: 'On the Proxmox host itself. The hypervisor gets patched too — it is the machine everything else depends on.' },
-      { cmd: 'pveversion -v | head -n 3', explain: 'Records the new hypervisor version for the Operations Log & SOPs.' },
-      { cmd: 'sudo apt update && sudo apt full-upgrade -y', explain: 'On websrv and linuxsrv. full-upgrade will remove packages when a dependency change requires it, which is what you want on a maintained server.' },
-      { cmd: 'sudo apt autoremove --purge -y && [ -f /var/run/reboot-required ] && sudo reboot', explain: 'Cleans up, then reboots only if the update actually needs it (a kernel update, typically).' },
-      { cmd: 'lsb_release -d && uname -r', explain: 'On each Ubuntu host after the reboot. Distribution and kernel version for the Operations Log & SOPs.' },
-      { cmd: 'Install-Module PSWindowsUpdate -Force -Scope AllUsers', explain: 'On winserver, in an elevated PowerShell. Gives you Windows Update from the command line. If the module cannot be reached, use sconfig option 6 or the Settings GUI instead.' },
-      { cmd: 'Get-WindowsUpdate -Install -AcceptAll -AutoReboot', explain: 'Applies every available update and reboots if required.' },
-      { cmd: 'Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5', explain: 'Lists what actually landed, for the Operations Log & SOPs.' },
-      { cmd: 'systemctl status nginx mariadb --no-pager', explain: 'Run the relevant half on websrv and linuxsrv. Every service must still be running after the update — that check is the point of patching with a rollback.' },
-      { cmd: 'Get-Service NTDS, DNS, DHCPServer | Select-Object Name, Status', explain: 'On winserver. All three roles must read Running after the reboot.' },
-      { cmd: 'qm rollback 101 pre-patch-2026-03-09', explain: 'ONLY if an update broke something. The VM must be stopped first. This is why the snapshot came before the patch.' },
+      { cmd: 'qm list', },
+      { cmd: 'qm snapshot 101 pre-patch-2026-03-09 --description "Pre-patch rollback point"', },
+      { cmd: 'qm listsnapshot 101', },
+      { cmd: 'apt update && apt dist-upgrade -y', },
+      { cmd: 'pveversion -v | head -n 3', },
+      { cmd: 'sudo apt update && sudo apt full-upgrade -y', },
+      { cmd: 'sudo apt autoremove --purge -y && [ -f /var/run/reboot-required ] && sudo reboot', },
+      { cmd: 'lsb_release -d && uname -r', },
+      { cmd: 'Install-Module PSWindowsUpdate -Force -Scope AllUsers', },
+      { cmd: 'Get-WindowsUpdate -Install -AcceptAll -AutoReboot', },
+      { cmd: 'Get-HotFix | Sort-Object InstalledOn -Descending | Select-Object -First 5', },
+      { cmd: 'systemctl status nginx --no-pager' },
+      { cmd: 'systemctl status mariadb --no-pager' },
+      { cmd: 'Get-Service NTDS, DNS, DHCPServer | Select-Object Name, Status', },
+      { cmd: 'qm rollback 101 pre-patch-2026-03-09', },
       { gui: 'Record each system starting level, schedule, rollback method, what you applied, the date and the result in the Operations Log & SOPs, and add a change row for the patch run.', explain: 'Without the recorded level you cannot tell what is still exposed.' },
     ],
   },
@@ -794,15 +810,15 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
     summary:
       'Destroy something on purpose, restore it from the snapshot you took, time it, and confirm the data came back. The failure and the snapshot must be the same machine — deleting a file on websrv and rolling back linuxsrv restores nothing. linuxsrv is the usual choice: its data is the database.',
     steps: [
-      { cmd: `mysql -u capuser -p -e "SHOW DATABASES;"`, explain: 'On linuxsrv. capstone_db must be listed. This is the "before" reading you compare against after the restore, and it is your data-integrity proof.' },
-      { cmd: 'date +%T', explain: 'Note the wall-clock time before you break anything. This is the start of your measured recovery window.' },
-      { cmd: `sudo mysql -e "DROP DATABASE capstone_db;"`, explain: 'The deliberate failure, on the machine you are about to roll back. Substitute whatever your DR plan names as the test — a dropped database, a deleted file, a stopped service — as long as it is on this VM.' },
-      { cmd: `mysql -u capuser -p -e "SHOW DATABASES;"`, explain: 'Confirm the damage is real before you restore it. capstone_db is gone.' },
-      { cmd: 'qm stop 102', explain: 'On the Proxmox host, substituting the linuxsrv VM ID. A VM must be stopped before it can be rolled back.' },
-      { cmd: 'qm rollback 102 pre-patch-2026-03-09', explain: 'Restores that same VM to the snapshot. Substitute your own snapshot name from qm listsnapshot.' },
-      { cmd: 'qm start 102 && qm status 102', explain: 'Bring it back up and confirm it is running.' },
-      { cmd: 'date +%T', explain: 'Note the time again once MariaDB is actually answering, not just when the VM booted. The difference between the two timestamps is your measured recovery time.' },
-      { cmd: `mysql -u capuser -p -e "SHOW DATABASES;"`, explain: 'The "after" reading — capstone_db is back. A restore that comes back missing data has not succeeded.' },
+      { cmd: `mysql -u capuser -p -e "SHOW DATABASES;"`, },
+      { cmd: 'date +%T', },
+      { cmd: `sudo mysql -e "DROP DATABASE capstone_db;"`, },
+      { cmd: `mysql -u capuser -p -e "SHOW DATABASES;"`, },
+      { cmd: 'qm stop 102', },
+      { cmd: 'qm rollback 102 pre-patch-2026-03-09', },
+      { cmd: 'qm start 102 && qm status 102', },
+      { cmd: 'date +%T', },
+      { cmd: `mysql -u capuser -p -e "SHOW DATABASES;"`, },
       { gui: 'Record the measured recovery time against your target RTO and MTTR in the DR Plan & As-Built Handover, and note explicitly that data integrity was confirmed and how.', explain: 'A DR plan marked "passed" with no measured time is worth nothing — the number is the deliverable.' },
     ],
   },
@@ -1425,7 +1441,7 @@ git add alertmanager/team-07.yml && git commit -m "team-07: alert receiver" && g
       { gui: 'In the vault’s own UI at https://10.20.0.13:8007 → Datastore vault → Verify Jobs: the instructor’s nightly verify covers every namespace. After your backup finishes, open Content → your namespace and confirm each group shows a green verified tick.', explain: 'A verify job re-reads every chunk and checks it against its hash. A backup that has never been verified is a hope, and the handover promised a number, not a hope.' },
       { cmd: 'date +%T && qm stop 102 && qm destroy 102 --purge', explain: 'On the host. linuxsrv, gone, for real — note the time. This is the Week 4 drill at machine scale: the DR plan says how long a server takes to come back, and the number has never been measured.' },
       { gui: 'Storage vault → Backups → the latest linuxsrv backup → Restore, VM ID 102, Start after restore ticked. Watch the task log until it reads TASK OK, then ssh ops@10.20.T.3 and run mariadb -e "SHOW DATABASES".', explain: 'The service answering is the finish line, not the VM booting. The database that was in the backup is the database that came back.' },
-      { cmd: 'date +%T', explain: 'Stop the clock. Restore time is the difference; write it into the DR plan beside the RTO from Week 4 and say which is bigger. If the restore is slower than the promise, the promise was wrong — change the number, and say why.' },
+      { cmd: 'date +%T', },
     ],
   },
   {
@@ -1460,6 +1476,16 @@ WAZUH_MANAGER="10.20.0.12" WAZUH_AGENT_GROUP="team-07" WAZUH_AGENT_NAME="team07-
     ],
   },
 ];
+
+/**
+ * Every command step, filled in from the one place a command is written down.
+ *
+ * `withProcedureDetail` matches on the command text and supplies the machine it
+ * runs on, a sample of what it prints, the backup marker, and — where the step
+ * does not author its own — the explanation. So the guide and the course step
+ * cannot disagree about any of them, and none of it is typed twice.
+ */
+export const PROCEDURES: Procedure[] = withProcedureDetail(RAW_PROCEDURES);
 
 /** Look a procedure up by the id a step's `guideRef` names. */
 export function procedureById(id: string): Procedure | undefined {

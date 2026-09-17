@@ -339,6 +339,122 @@ export const CROSS_ZONE_ALLOW: CrossZoneAllow[] = [
 /** Where iptables-persistent reads the ruleset from at boot. The file IS the ruleset. */
 export const HOST_RULES_FILE = '/etc/iptables/rules.v4';
 
+/**
+ * Where a command is typed, and in which shell.
+ *
+ * Students kept pasting a line into the wrong machine. The course had one
+ * `where` per STEP, but a step legitimately spans machines ("run this on the
+ * host, then this one on websrv"), and 46 of the base build's command lines are
+ * PowerShell rendered in exactly the same terminal-green block as bash. So the
+ * machine belongs on the COMMAND, not the step, and it is drawn from here so the
+ * chip above a command, the focus diagram and the topology picture all name the
+ * same boxes.
+ *
+ * `node` is the diagram node this machine lights up: a VM hostname, a bridge id,
+ * or `campus` for anything out on the campus LAN. Machines with no node (your
+ * own laptop, the physical console) highlight nothing.
+ */
+export type MachineId =
+  | 'workstation'
+  | 'console'
+  | 'pve-ui'
+  | 'host'
+  | 'websrv'
+  | 'winserver'
+  | 'linuxsrv'
+  | 'laptop'
+  | 'campus';
+
+export interface Machine {
+  id: MachineId;
+  /** The chip label — short enough to sit above a command line. */
+  label: string;
+  /** What the student is typing into. Decides the prompt shown with a sample. */
+  shell: 'bash' | 'powershell' | 'gui';
+  /** How you get there, for the machine tooltip. */
+  how: string;
+  /** The diagram node this machine is, when it is one. */
+  node?: BaseVm['hostname'] | 'host' | 'campus';
+}
+
+export const MACHINES: Record<MachineId, Machine> = {
+  workstation: {
+    id: 'workstation',
+    label: 'Your workstation',
+    shell: 'powershell',
+    how: 'The classroom PC at your desk, imaged and joined to the domain in Week 0.',
+    node: 'campus',
+  },
+  console: {
+    id: 'console',
+    label: 'Server console',
+    shell: 'gui',
+    how: 'Keyboard and monitor plugged into the server itself, at the rack.',
+    node: 'host',
+  },
+  'pve-ui': {
+    id: 'pve-ui',
+    label: 'Proxmox web console',
+    shell: 'gui',
+    how: `A browser at ${HOST_CONSOLE_URL} — the point-and-click side of the host.`,
+    node: 'host',
+  },
+  host: {
+    id: 'host',
+    label: 'Proxmox host',
+    shell: 'bash',
+    how: 'A shell on the hypervisor: the Proxmox console, or ssh as root over the tailnet. The only machine in this course you log into as root.',
+    node: 'host',
+  },
+  websrv: {
+    id: 'websrv',
+    label: 'websrv',
+    shell: 'bash',
+    how: `The DMZ web host at ${vm('websrv').address} — its Proxmox console, or ssh as the install user.`,
+    node: 'websrv',
+  },
+  winserver: {
+    id: 'winserver',
+    label: 'winserver',
+    shell: 'powershell',
+    how: `The Windows server at ${vm('winserver').address} — PowerShell as Administrator, in its Proxmox console or over RDP.`,
+    node: 'winserver',
+  },
+  linuxsrv: {
+    id: 'linuxsrv',
+    label: 'linuxsrv',
+    shell: 'bash',
+    how: `The private-zone database host at ${vm('linuxsrv').address} — its Proxmox console, or ssh as the install user.`,
+    node: 'linuxsrv',
+  },
+  laptop: {
+    id: 'laptop',
+    label: 'Your laptop',
+    shell: 'bash',
+    how: 'Your own machine, wherever you are. Off campus it reaches the build over the tailnet.',
+  },
+  campus: {
+    id: 'campus',
+    label: 'A campus PC',
+    shell: 'bash',
+    how: 'Any other machine on the campus LAN (vmbr0) — a classmate\u2019s desk, a lab PC. Not a VM, and not the host.',
+    node: 'campus',
+  },
+};
+
+export function machine(id: MachineId): Machine {
+  return MACHINES[id];
+}
+
+/** The prompt a sample output opens with, so a sample looks like the real screen. */
+export function shellPrompt(id: MachineId): string {
+  const m = MACHINES[id];
+  if (m.shell === 'powershell') return 'PS C:\\Users\\Administrator>';
+  if (id === 'host') return 'root@pve-host:~#';
+  if (id === 'websrv' || id === 'linuxsrv') return `${SITE.uploadUser}@${id}:~$`;
+  return '$';
+}
+
 /** The site the team builds: where it lives on websrv and how it gets there. */
 export const SITE = {
   root: '/var/www/html',

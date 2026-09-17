@@ -97,6 +97,21 @@ export interface Step {
     /** The OpenTofu form of `cmd`, only where it cannot be derived — the install
      *  line. Everything else is rewritten at render time (src/lib/iacTool.ts). */
     opentofu?: string;
+    /** WHICH MACHINE this line is typed into, and therefore which shell. A
+     *  `MachineId` from `src/lib/serverTopology.ts`. The step-level `where` says
+     *  where the step happens; this says it per line, because a step routinely
+     *  spans two machines and a PowerShell line otherwise renders identically to
+     *  a bash one. Typed loosely here so the platform types stay course-agnostic;
+     *  `content-integrity.test.ts` holds Server+ to real ids. */
+    on?: string;
+    /** What the line prints when it worked — shown behind one press, under the
+     *  command. Display only: `Step.expectedOutput` + `verify` remain the thing
+     *  the evidence ledger scores, and are untouched by this. */
+    sample?: string;
+    /** Set when the line changes a config file or firewall that a student would
+     *  have to rebuild by hand. Names the thing at risk, e.g.
+     *  '/etc/ssh/sshd_config'. A guard requires a backup command before it. */
+    backupOf?: string;
   }[];
   /** Plain-English breakdown of the command and its key options/flags. */
   commandExplanation?: string;
