@@ -144,6 +144,11 @@ additive, none requiring a rewrite.
 - **The host's holes:** `PUBLISHED_PORTS`, `CROSS_ZONE_ALLOW` and `hostRulesFile()` in `src/lib/serverTopology.ts`
   render the Proxmox host's iptables-restore file; the Week-2/3 seed steps, the guide, the topology diagram
   and the IP Plan's published-ports table all read that one model.
+- **Remote administration:** `REMOTE_ADMIN` in `src/lib/serverTopology.ts` is the tailnet's way into the zones
+  (the host advertises both subnets; `hostRulesFile('the-holes')` allows `tailscale0` forward for SSH and RDP only).
+- **Following the build:** `Course.buildMap` (one milestone per week) renders as `src/components/BuildMap.tsx` above
+  the Tasks list; `Course.stepDensity` / `Course.guidedDefault` set a course's default view, and
+  `src/lib/stepDensity.ts` keeps the student's own choice in `UserCourseState.stepDensity`.
 - **IaC tool choice:** `src/lib/iacTool.ts` derives the OpenTofu form of every Terraform command, expected
   output and verify token at render time (`commandFor`/`applyIacTool`); the install line is authored twice
   (`opentofu` on a command entry); the choice is a Lab access field (`IAC_TOOL`) in `src/lib/labAccess.ts`.

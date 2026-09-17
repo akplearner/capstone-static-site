@@ -82,6 +82,31 @@ const SERVER_PLUS_SOURCES = [
 ];
 const readSource = (p: string) => readFileSync(resolve(process.cwd(), p), 'utf8');
 
+/**
+ * R71: the guide adds 10,400 explain words to the seed's. The base build is
+ * Weeks 1–4, and a student follows it with the guide open beside the step, so
+ * each explain is one line and each summary is a paragraph, not a page. The
+ * budgets bind only the base build; the advanced weeks are a reference.
+ */
+describe('the base-build guide stays short enough to follow', () => {
+  const prose = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+  const base = PROCEDURES.filter((p) => p.week <= 4);
+
+  it('has base-build procedures to measure', () => {
+    expect(base.length).toBeGreaterThan(20);
+  });
+
+  it('every explain is under 40 words', () => {
+    const over = base.flatMap((p) => p.steps.filter((s) => prose(s.explain) >= 40).map((s) => `${p.id}: ${(s.cmd ?? s.gui ?? '').slice(0, 40)} (${prose(s.explain)}w)`));
+    expect(over, `cut these: ${over.join(', ')}`).toEqual([]);
+  });
+
+  it('every summary is under 60 words', () => {
+    const over = base.filter((p) => prose(p.summary) >= 60).map((p) => `${p.id} (${prose(p.summary)}w)`);
+    expect(over, `cut these: ${over.join(', ')}`).toEqual([]);
+  });
+});
+
 describe('the host address is always the team’s own', () => {
   it.each(SERVER_PLUS_SOURCES)('%s writes only the rule or the Team 1 example', (path) => {
     const found = Array.from(readSource(path).matchAll(/10\.10\.30\.(\d+|[A-Za-z])/g)).map((m) => m[0]);

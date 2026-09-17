@@ -386,6 +386,29 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
     expect(over, `split these into fixes rows: ${over.join(', ')}`).toHaveLength(0);
   });
 
+  // R71: Server+ students said the course was too much to follow. Measured,
+  // `commands[].explain` was 34% of every word in the seed and the one large
+  // field with no guard; `description` is the card subtitle and reads twice.
+  // Weeks 0–4 are the base build every student must finish, so they carry the
+  // tighter budgets; the advanced weeks keep the general guard above. Only
+  // tokens with a letter or digit count, so a dash is not a word.
+  const prose = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
+  const baseBuild = ({ task }: { task: { week: number } }) => course.id === 'server-plus' && task.week <= 4;
+  it('Server+ base-build command explanations stay one line each', () => {
+    const over = allSteps(course)
+      .filter(baseBuild)
+      .flatMap(({ step }) => (step.commands ?? []).filter((c) => prose(c.explain ?? '') >= 36).map((c) => `${step.id}: ${c.cmd.slice(0, 40)} (${prose(c.explain ?? '')}w)`));
+    expect(over, `cut these explains under 36 words: ${over.join(', ')}`).toHaveLength(0);
+  });
+
+  it('Server+ base-build step descriptions stay a subtitle', () => {
+    const over = allSteps(course)
+      .filter(baseBuild)
+      .filter(({ step }) => prose(step.description ?? '') >= 30)
+      .map(({ step }) => `${step.id} (${prose(step.description ?? '')}w)`);
+    expect(over, `cut these descriptions under 30 words: ${over.join(', ')}`).toHaveLength(0);
+  });
+
   it('no `whatItMeans` runs long', () => {
     const over = allSteps(course)
       .filter(({ step }) => words(step.whatItMeans ?? '') >= WORD_BUDGET)

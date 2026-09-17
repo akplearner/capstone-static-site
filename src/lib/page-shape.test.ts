@@ -735,3 +735,29 @@ describe('R70 — the DMZ site is built, uploaded, and published through one mod
     expect(code('src/lib/docs/serverProcedures.ts').match(/hostRulesCommand\('the-(way-out|holes)'\)/g)?.length).toBe(2);
   });
 });
+
+describe('R71 — a course you can follow: the build map, the key-points view, and no door into the private zone', () => {
+  it('the Tasks tab keeps the topology goal in front of the student', () => {
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toContain('<BuildMap');
+    expect(page).toContain('useStepDensity(');
+    expect(page).toContain('saveStepDensity(');
+  });
+
+  it('the step density is a course flag with a per-student override, not a course-id ternary', () => {
+    const runner = code('src/components/GuidedTaskRunner.tsx');
+    expect(runner).toContain('guidedDefault');
+    expect(runner).toContain('onDensityChange');
+    expect(runner).not.toMatch(/courseId === 'cysa-plus'/);
+    const components = code('src/components/TaskComponents.tsx');
+    expect(components).toContain("'Explain these'");
+    expect(components).toContain('compact={density');
+  });
+
+  it('nothing in the private zone is published — 2222 is gone from every Server+ surface', () => {
+    for (const f of ['src/lib/data/seed/serverPlus.ts', 'src/lib/docs/serverProcedures.ts', 'src/lib/docs/serverPlusDeliverables.ts', 'src/lib/serverTopology.ts']) {
+      expect(code(f), f).not.toContain('2222');
+    }
+    expect(code('src/lib/serverTopology.ts')).toContain('REMOTE_ADMIN');
+  });
+});

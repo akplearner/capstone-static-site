@@ -298,8 +298,28 @@ export const PUBLISHED_PORTS: PublishedPort[] = [
   { hostPort: 80, proto: 'tcp', to: 'websrv', port: 80, purpose: 'The website — the site your team builds and uploads' },
   { hostPort: 443, proto: 'tcp', to: 'websrv', port: 443, purpose: 'The website over TLS — published now, served from Week 4' },
   { hostPort: 2200, proto: 'tcp', to: 'websrv', port: 22, purpose: 'Upload the site — scp straight to the DMZ host' },
-  { hostPort: 2222, proto: 'tcp', to: 'linuxsrv', port: 22, purpose: 'SSH to the database host' },
 ];
+
+/**
+ * Remote administration: the tailnet reaches every zone THROUGH the host.
+ *
+ * Nothing in the private zone is ever published to the campus. An administrator
+ * off campus joins the tailnet, the host advertises both zone subnets as a
+ * Tailscale subnet router, and the rules file lets admin traffic from the
+ * tailnet interface into the zones — SSH to every VM, RDP to winserver. The
+ * host itself is the vmbr0 device: its tailnet address and MagicDNS name.
+ * Tailscale source-NATs subnet-routed traffic by default, so a VM sees the
+ * host's own bridge address, which the Week-4 host firewalls already allow.
+ */
+export const REMOTE_ADMIN = {
+  iface: 'tailscale0',
+  /** The routes the host advertises: both zones, never the campus. */
+  routes: ZONE_BRIDGES.map((z) => z.cidr),
+  allow: [
+    { port: 22, proto: 'tcp', purpose: 'SSH to every VM' },
+    { to: 'winserver' as BaseVm['hostname'], port: 3389, proto: 'tcp', purpose: 'RDP to winserver' },
+  ] as { to?: BaseVm['hostname']; port: number; proto: 'tcp'; purpose: string }[],
+};
 
 export interface CrossZoneAllow {
   from: ZoneBridgeId;
@@ -360,6 +380,12 @@ export function hostRulesFile(phase: HostRulesPhase): string {
       ...CROSS_ZONE_ALLOW.map((r) => `-A FORWARD -i ${r.from} -o ${vm(r.to).bridge} -d ${vm(r.to).address} -p ${r.proto} --dport ${r.port} -j ACCEPT`),
       '# The published ports, after PREROUTING has rewritten the destination',
       ...PUBLISHED_PORTS.map((p) => `-A FORWARD -i vmbr0 -o ${vm(p.to).bridge} -d ${vm(p.to).address} -p ${p.proto} --dport ${p.port} -j ACCEPT`),
+      '# Administrators on the tailnet, through the host, into both zones',
+      ...REMOTE_ADMIN.allow.flatMap((r) =>
+        r.to
+          ? [`-A FORWARD -i ${REMOTE_ADMIN.iface} -o ${vm(r.to).bridge} -d ${vm(r.to).address} -p ${r.proto} --dport ${r.port} -j ACCEPT`]
+          : ZONE_BRIDGES.map((z) => `-A FORWARD -i ${REMOTE_ADMIN.iface} -o ${z.id} -p ${r.proto} --dport ${r.port} -j ACCEPT`),
+      ),
     );
     nat.push(
       `# Published from the campus LAN: the host's own address, port by port`,
@@ -372,7 +398,11 @@ export function hostRulesFile(phase: HostRulesPhase): string {
     'COMMIT',
   );
   nat.push('# Both zones leave as the host\'s campus address', '-A POSTROUTING -o vmbr0 -j MASQUERADE', 'COMMIT');
-  return [...filter, ...nat].join('\n') + '\n';
+  // Two published ports that land on the same VM port would emit one FORWARD
+  // line twice; restore accepts it, but a duplicate rule is what this file exists to avoid.
+  const seen = new Set<string>();
+  const lines = [...filter, ...nat].filter((l) => !l.startsWith('-A') || (!seen.has(l) && (seen.add(l), true)));
+  return lines.join('\n') + '\n';
 }
 
 /** The shell line that writes the file and makes it live — one command, copied whole. */

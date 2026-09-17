@@ -70,6 +70,8 @@ import { Alert } from '@/components/ui/Alert';
 import { DUR, EASE, meter, swap } from '@/lib/motion';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
 import { WeekRail } from '@/components/WeekRail';
+import { BuildMap } from '@/components/BuildMap';
+import { useStepDensity, saveStepDensity } from '@/lib/stepDensity';
 
 // Monthly cohorts (YYYY-MM), generated for the next 12 months.
 const COHORTS = getMonthlyCohorts(12);
@@ -911,6 +913,8 @@ export default function CoursePage() {
   const cohortKey = member ? (parseTeamId(member.teamId).cohort ?? member.cohort) : null;
   const cohortCal = useClientStore(() => (cohortKey ? cohortRepo.get(course.id, cohortKey) : null), null);
 
+  // How much of a step this student reads (Server+ starts on key points).
+  const density = useStepDensity(course, member?.memberId);
   if (loading) return <CoursePageSkeleton />;
 
   const joined = !!member;
@@ -1157,6 +1161,9 @@ export default function CoursePage() {
               courseId={course.id}
               memberId={member.memberId}
               initialStepId={deepStep?.taskId === task.id ? deepStep.stepId : undefined}
+              guidedDefault={course.guidedDefault}
+              density={density}
+              onDensityChange={(d) => saveStepDensity(course.id, member.memberId, d)}
               about={<TaskAboutPanel course={course} task={task} />}
               onProgressChange={onProgressChange}
               nextLabel={following ? 'Next task →' : 'Review & finish →'}
@@ -1525,6 +1532,16 @@ export default function CoursePage() {
                 <span className="text-xs font-medium text-muted">{viewPct}%</span>
               </span>
             }
+          />
+
+          {/* The thread through the weeks: what you are building, one chip per
+              week, and how you will know this week's piece is built. */}
+          <BuildMap
+            course={course}
+            weeks={gradedWeeks.map((w) => w.number)}
+            current={viewWeek}
+            percentOf={(w) => weekStats[w] ?? 0}
+            onPick={pickWeek}
           />
 
           {/* Setup is "do once", not a week. It used to be Week 0 on the rail,

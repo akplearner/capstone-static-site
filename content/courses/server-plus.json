@@ -986,7 +986,7 @@
               },
               {
                 "cmd": "tailscale ip -4",
-                "explain": "Your host's own 100.x address. Write it into the Bring-Up Log: it is how the team reaches this server from off campus, and it does not change. Another team's server has a different one."
+                "explain": "Your host's own 100.x address — write it into the Bring-Up Log. It is how the team reaches this server from off campus."
               },
               {
                 "cmd": "systemctl is-active tailscaled",
@@ -1375,11 +1375,11 @@
               },
               {
                 "cmd": "cat > /etc/iptables/rules.v4 <<'EOF'\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n# Replies to anything already allowed, in either direction\n-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n# Both zones reach the campus LAN, and the internet beyond it, through the host\n-A FORWARD -i vmbr1 -o vmbr0 -j ACCEPT\n-A FORWARD -i vmbr2 -o vmbr0 -j ACCEPT\n# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible\n-A FORWARD -m limit --limit 5/min -j LOG --log-prefix \"FWD-DROP \" --log-level 4\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n# Both zones leave as the host's campus address\n-A POSTROUTING -o vmbr0 -j MASQUERADE\nCOMMIT\nEOF\niptables-restore < /etc/iptables/rules.v4",
-                "explain": "The whole ruleset as one file, then restore makes it live. FORWARD is DROP from day one: the two ACCEPT lines are the guests' way out to the campus and the archive, the MASQUERADE hides them behind the host's address, and the LOG line shows anything refused. Restore is idempotent — run it twice and you still have one ruleset."
+                "explain": "The whole ruleset in one file; restore makes it live, twice changes nothing, every line is commented. Leave Datacenter → Firewall off — it would fight this file."
               },
               {
                 "cmd": "iptables -L FORWARD -n -v && iptables -t nat -L POSTROUTING -n -v",
-                "explain": "Read it back: policy DROP, the two zone ACCEPTs, and exactly one MASQUERADE out of vmbr0. Never run netfilter-persistent save here — the file is the source, not the live rules."
+                "explain": "Read it back: policy DROP, two zone ACCEPTs, one MASQUERADE out of vmbr0. Never run netfilter-persistent save — the file is the source."
               },
               {
                 "cmd": "scp ubuntu-22.04.5-live-server-amd64.iso root@10.10.30.1:/var/lib/vz/template/iso/",
@@ -1504,7 +1504,7 @@
           {
             "id": "sp-w2-deploy-s1",
             "title": "Publish the website on websrv with NGINX",
-            "description": "The one public-facing site in the design — in the DMZ, not on Windows and not on the database host. This week a placeholder proves NGINX answers; in Week 3, once the host publishes it, the site your team builds replaces it.",
+            "description": "The one public site in the design, in the DMZ. A placeholder this week; the site your team builds replaces it in Week 3.",
             "where": "The websrv console (172.16.0.10)",
             "instruction": "Install NGINX on the DMZ host, hand its document root to the user who will upload the site, put a placeholder page there, then prove it answers from another machine rather than from itself.",
             "guideRef": {
@@ -1537,7 +1537,7 @@
               },
               {
                 "cmd": "curl -I http://172.16.0.10",
-                "explain": "Run this one from the Proxmox host shell, not from websrv itself. The host holds 172.16.0.1 on vmbr1, so it needs no routing to reach the DMZ. The private-zone hosts cannot reach it until the Week-3 static routes."
+                "explain": "From the Proxmox host shell, not websrv: the host holds 172.16.0.1 on vmbr1, so it reaches the DMZ directly. Private-zone hosts cannot until Week 3."
               }
             ],
             "whatItMeans": "IIS is not part of this build: winserver runs directory services instead, and linuxsrv runs only the database. One website, and it lives in the DMZ.",
@@ -1604,6 +1604,14 @@
               {
                 "cmd": "nslookup websrv.team1.local 192.168.0.2",
                 "explain": "Query the server explicitly. Returning 172.16.0.10 is what proves cross-zone name resolution works."
+              },
+              {
+                "cmd": "Add-DnsServerForwarder -IPAddress 10.10.10.1",
+                "explain": "The campus resolver, for every name that is not team1.local. Without it the zones lose internet names in Week 3, when the temporary 1.1.1.1 goes."
+              },
+              {
+                "cmd": "Resolve-DnsName archive.ubuntu.com -Server 192.168.0.2",
+                "explain": "An internet name through winserver. An answer proves the forwarder; every VM resolves the package archive this way after Week 3."
               },
               {
                 "cmd": "Install-WindowsFeature -Name DHCP -IncludeManagementTools",
@@ -1819,8 +1827,8 @@
         ],
         "definitionOfDone": [
           "Every host holds its planned address persistently, across a reboot",
-          "The host forwards between the zones by one rules file: 80, 443, 2200 and 2222 published, the DMZ allowed only DNS and the database inside",
-          "The site your team built answers on http://10.10.30.T from any campus machine, and SSH reaches linuxsrv on port 2222",
+          "One rules file on the host: 80, 443 and 2200 published to websrv, nothing published into the private zone, the DMZ allowed only DNS and the database",
+          "The site your team built opens at http://10.10.30.T from a campus PC, and the tailnet reaches every VM through the host",
           "Every network change has a change-log row"
         ],
         "steps": [
@@ -1841,7 +1849,7 @@
               },
               {
                 "cmd": "sudo tee /etc/netplan/01-capstone.yaml > /dev/null <<'EOF'\nnetwork:\n  version: 2\n  ethernets:\n    ens18:\n      dhcp4: false\n      addresses: [172.16.0.10/24]\n      routes:\n        - to: default\n          via: 172.16.0.1\n      nameservers:\n        addresses: [192.168.0.2]\nEOF",
-                "explain": "websrv, in the DMZ. Substitute the interface name you just read. For linuxsrv use 192.168.0.3/24 via 192.168.0.1. Note the single nameserver: winserver carries the DNS role now, so the temporary public resolver you set at install time goes away here."
+                "explain": "websrv, in the DMZ; substitute the interface name you read. For linuxsrv use 192.168.0.3/24 via 192.168.0.1. One nameserver now — winserver carries DNS."
               },
               {
                 "cmd": "sudo chmod 600 /etc/netplan/01-capstone.yaml",
@@ -1904,7 +1912,7 @@
           {
             "id": "sp-w3-connect-s3",
             "title": "Complete the ruleset: the published ports and the segmentation",
-            "description": "The host has forwarded since Week 2 so the guests could install packages. Now the rules file gets its holes: four published ports, staff into the DMZ, and DNS plus the database from the DMZ — nothing else crosses.",
+            "description": "The rules file gets its holes: three ports to websrv, staff into the DMZ, DNS and the database from the DMZ — nothing else crosses.",
             "where": "Proxmox host shell",
             "instruction": "Confirm forwarding is still on, keep a copy of the Week-2 file, write the Week-3 file and restore it, then read both chains back before you trust them.",
             "guideRef": {
@@ -1920,40 +1928,39 @@
                 "explain": "The Week-2 file, kept. If the new one misbehaves, restore this copy and you are back to a host that only routes out."
               },
               {
-                "cmd": "cat > /etc/iptables/rules.v4 <<'EOF'\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n# Replies to anything already allowed, in either direction\n-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n# Both zones reach the campus LAN, and the internet beyond it, through the host\n-A FORWARD -i vmbr1 -o vmbr0 -j ACCEPT\n-A FORWARD -i vmbr2 -o vmbr0 -j ACCEPT\n# Staff in the private zone open the website\n-A FORWARD -i vmbr2 -o vmbr1 -j ACCEPT\n# The DMZ reaches the private zone for DNS and the database, and for nothing else\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p udp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p tcp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.3 -p tcp --dport 3306 -j ACCEPT\n# The published ports, after PREROUTING has rewritten the destination\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 80 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 443 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 22 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr2 -d 192.168.0.3 -p tcp --dport 22 -j ACCEPT\n# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible\n-A FORWARD -m limit --limit 5/min -j LOG --log-prefix \"FWD-DROP \" --log-level 4\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n# Published from the campus LAN: the host's own address, port by port\n-A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to-destination 172.16.0.10:80\n-A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to-destination 172.16.0.10:443\n-A PREROUTING -i vmbr0 -p tcp --dport 2200 -j DNAT --to-destination 172.16.0.10:22\n-A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to-destination 192.168.0.3:22\n# Both zones leave as the host's campus address\n-A POSTROUTING -o vmbr0 -j MASQUERADE\nCOMMIT\nEOF\niptables-restore < /etc/iptables/rules.v4",
-                "explain": "The complete ruleset, replaced in one atomic restore. PREROUTING publishes 80, 443 and 2200 to websrv and 2222 to linuxsrv at your host's campus address; FORWARD lets the private zone open the site, lets the DMZ reach only DNS on winserver and MariaDB on linuxsrv, and drops everything else with a log line. Run it twice and nothing doubles."
+                "cmd": "cat > /etc/iptables/rules.v4 <<'EOF'\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n# Replies to anything already allowed, in either direction\n-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n# Both zones reach the campus LAN, and the internet beyond it, through the host\n-A FORWARD -i vmbr1 -o vmbr0 -j ACCEPT\n-A FORWARD -i vmbr2 -o vmbr0 -j ACCEPT\n# Staff in the private zone open the website\n-A FORWARD -i vmbr2 -o vmbr1 -j ACCEPT\n# The DMZ reaches the private zone for DNS and the database, and for nothing else\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p udp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p tcp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.3 -p tcp --dport 3306 -j ACCEPT\n# The published ports, after PREROUTING has rewritten the destination\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 80 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 443 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 22 -j ACCEPT\n# Administrators on the tailnet, through the host, into both zones\n-A FORWARD -i tailscale0 -o vmbr1 -p tcp --dport 22 -j ACCEPT\n-A FORWARD -i tailscale0 -o vmbr2 -p tcp --dport 22 -j ACCEPT\n-A FORWARD -i tailscale0 -o vmbr2 -d 192.168.0.2 -p tcp --dport 3389 -j ACCEPT\n# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible\n-A FORWARD -m limit --limit 5/min -j LOG --log-prefix \"FWD-DROP \" --log-level 4\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n# Published from the campus LAN: the host's own address, port by port\n-A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to-destination 172.16.0.10:80\n-A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to-destination 172.16.0.10:443\n-A PREROUTING -i vmbr0 -p tcp --dport 2200 -j DNAT --to-destination 172.16.0.10:22\n# Both zones leave as the host's campus address\n-A POSTROUTING -o vmbr0 -j MASQUERADE\nCOMMIT\nEOF\niptables-restore < /etc/iptables/rules.v4",
+                "explain": "The whole ruleset in one file; restore makes it live and running it twice changes nothing. Every line is commented in the file itself."
               },
               {
                 "cmd": "iptables -t nat -L PREROUTING -n",
-                "explain": "Four DNAT lines — the published ports, and no others. 443 is published before anything listens on it; Week 4 fixes that, and the Networking deep-dive asks you to say so."
+                "explain": "Three DNAT lines, all to websrv, none into the private zone. 443 is published before anything listens — Week 4 fixes that."
               },
               {
                 "cmd": "iptables -L FORWARD -n -v",
-                "explain": "Policy DROP, then every ACCEPT is a decision you can name. The last line is the LOG: a path that is refused shows up in journalctl -k as FWD-DROP."
+                "explain": "Policy DROP, so every ACCEPT is a decision. The last line logs what is refused: journalctl -k shows it as FWD-DROP."
               },
               {
                 "cmd": "systemctl reboot",
                 "explain": "Once, to prove it: iptables-persistent restores the same file at boot. After the reboot, re-run the two list commands."
               }
             ],
-            "whatItMeans": "Segmentation is only useful with deliberate holes in it. The file is the list of holes: four published ports, and DNS plus the database from the DMZ. Everything else the DMZ tries is dropped and logged.",
+            "whatItMeans": "Segmentation is deliberate holes. The file lists them: three ports to websrv, DNS and the database from the DMZ, admin from the tailnet. Everything else is dropped and logged.",
             "frameworks": [
               "NIST_CSF",
               "CIS"
             ],
-            "expectedOutput": "Chain PREROUTING (policy ACCEPT)\ntarget     prot opt source       destination\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:80 to:172.16.0.10:80\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:443 to:172.16.0.10:443\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:2200 to:172.16.0.10:22\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:2222 to:192.168.0.3:22",
+            "expectedOutput": "Chain PREROUTING (policy ACCEPT)\ntarget     prot opt source       destination\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:80 to:172.16.0.10:80\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:443 to:172.16.0.10:443\nDNAT       tcp  --  0.0.0.0/0    0.0.0.0/0    tcp dpt:2200 to:172.16.0.10:22",
             "verify": [
               "to:172.16.0.10:80",
               "to:172.16.0.10:443",
-              "to:172.16.0.10:22",
-              "to:192.168.0.3:22"
+              "to:172.16.0.10:22"
             ]
           },
           {
             "id": "sp-w3-connect-s3b",
             "title": "Build your team's site and upload it through port 2200",
-            "description": "The page the campus sees. Two files you write on your workstation — the business from the Architecture Brief, what it does, how to reach it, and the machines that run it — copied to websrv through the port the host now publishes.",
-            "where": "Your workstation, then any classmate's machine on the campus LAN",
+            "description": "Two files you write on your workstation, copied to websrv through the port the host publishes — the page the campus sees.",
+            "where": "Your workstation, then a campus PC on vmbr0 — not a VM, not the host",
             "instruction": "Write index.html and style.css in a site folder, upload them with scp through port 2200, then open http://10.10.30.T from a classmate's machine and record the URL and a screenshot in the IP Plan.",
             "guideRef": {
               "procedureId": "build-and-upload-site"
@@ -1961,7 +1968,7 @@
             "commands": [
               {
                 "cmd": "mkdir -p site && cat > site/index.html <<'EOF'\n<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Your Business — built by Team X</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header>\n    <h1>Your Business</h1>\n    <p>Built, networked and run by Team X for the Server+ capstone.</p>\n  </header>\n  <main>\n    <section>\n      <h2>What we do</h2>\n      <p>One sentence from your Architecture Brief: what this business sells or does.</p>\n    </section>\n    <section>\n      <h2>What runs it</h2>\n      <ul>\n        <li>websrv, in the DMZ: this site</li>\n        <li>winserver, private: staff logins, DNS and DHCP</li>\n        <li>linuxsrv, private: the database</li>\n      </ul>\n    </section>\n    <section>\n      <h2>Contact</h2>\n      <p>The address your Architecture Brief names — a person, a desk, a mailbox.</p>\n    </section>\n  </main>\n  <footer>Team X · Week 3 · served from the DMZ through the Proxmox host</footer>\n</body>\n</html>\nEOF",
-                "explain": "The minimum: a title, the business, what it does, a contact line, and the three machines that run it. Replace every \"Your Business\" and \"Team X\"; add pages if you like, but this one must exist."
+                "explain": "A title, the business, what it does, a contact line, the three machines. Replace every \"Your Business\" and \"Team X\"; add pages if you like."
               },
               {
                 "cmd": "cat > site/style.css <<'EOF'\nbody { font-family: system-ui, sans-serif; margin: 0; color: darkslategray; background: whitesmoke; }\nheader { background: darkslategray; color: white; padding: 2rem; }\nheader p { margin: 0.5rem 0 0; opacity: 0.85; }\nmain { max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }\nsection { background: white; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1rem; }\nfooter { text-align: center; color: dimgray; padding: 2rem; font-size: 0.9rem; }\nEOF",
@@ -1969,7 +1976,7 @@
               },
               {
                 "cmd": "scp -P 2200 -r site/* ubuntu@10.10.30.T:/var/www/html/",
-                "explain": "Through the host: port 2200 on your team's campus address is forwarded to sshd on websrv, and the document root has been writable by the install user since Week 2. Windows 10 and later have scp built in."
+                "explain": "Port 2200 on your host's campus address is forwarded to sshd on websrv; the document root is writable by the install user since Week 2."
               },
               {
                 "cmd": "curl -s http://10.10.30.T | grep -i \"<title>\"",
@@ -1988,7 +1995,17 @@
               "NIST_CSF"
             ],
             "expectedOutput": "Your own title comes back from a classmate's machine at http://10.10.30.T, https://10.10.30.T is refused — published, nobody listening yet — and the IP Plan carries the site URL, what it contains, and a screenshot from another campus machine.",
-            "outputKind": "result"
+            "outputKind": "result",
+            "fixes": [
+              {
+                "symptom": "http://10.10.30.T does not open from a VM, or from the host itself?",
+                "fix": "It cannot: the forward applies only to packets arriving on vmbr0. Test from a campus PC or a classmate's laptop — that is the check."
+              },
+              {
+                "symptom": "scp says permission denied?",
+                "fix": "The Week-2 chown on /var/www/html was skipped. On websrv: sudo chown -R ubuntu:www-data /var/www/html && sudo chmod -R g+w /var/www/html."
+              }
+            ]
           },
           {
             "id": "sp-w3-connect-s4",
@@ -2014,11 +2031,11 @@
               },
               {
                 "cmd": "sudo nano /etc/netplan/01-capstone.yaml",
-                "explain": "Open the file you wrote when you applied the IP plan. The route belongs inside the interface's existing routes: list, which is why this is an editor step and not an append — appending would land the entry at the end of the file, outside every block."
+                "explain": "The route belongs inside the existing routes: list, so this is an edit, not an append — an appended entry lands outside every block."
               },
               {
                 "cmd": "network:\n  version: 2\n  ethernets:\n    ens18:\n      dhcp4: false\n      addresses: [192.168.0.3/24]\n      routes:\n        - to: default\n          via: 192.168.0.1\n        - to: 172.16.0.0/24\n          via: 192.168.0.1\n      nameservers:\n        addresses: [192.168.0.2]",
-                "explain": "The complete file for linuxsrv — address, both routes, resolver. Make the file read exactly this (substituting your interface name), save with Ctrl+O and exit with Ctrl+X. The second routes entry is the only thing that is new."
+                "explain": "The complete linuxsrv file — address, both routes, resolver. Make yours match, substituting your interface name; save with Ctrl+O, exit with Ctrl+X."
               },
               {
                 "cmd": "sudo netplan apply && ip route show",
@@ -2042,7 +2059,7 @@
             "id": "sp-w3-connect-s5",
             "title": "Prove connectivity across all three zones — and the paths that must fail",
             "description": "Every path the design promises, demonstrated from the right machine, plus the one it forbids, demonstrated too.",
-            "where": "Every host, plus a campus workstation",
+            "where": "Every host, plus a campus PC on vmbr0",
             "instruction": "Run each check from the machine named in its explanation — a ping that passes from the wrong host proves nothing — then record every result, including the refusal, in the IP Plan & Connectivity Proof.",
             "guideRef": {
               "procedureId": "prove-connectivity"
@@ -2058,7 +2075,7 @@
               },
               {
                 "cmd": "ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname",
-                "explain": "From the Proxmox host, with the users you created at install. The host holds an address on each zone bridge, so its own SSH into a VM is OUTPUT, never FORWARD — the DROP policy does not apply to it."
+                "explain": "From the Proxmox host, with the install users. The host sits on every zone bridge, so its own SSH is never forwarded — the DROP policy does not apply."
               },
               {
                 "cmd": "ping -c 4 192.168.0.2",
@@ -2067,6 +2084,10 @@
               {
                 "cmd": "nslookup websrv.team1.local 192.168.0.2",
                 "explain": "From any host, with your team number. Returning 172.16.0.10 proves the private-zone DNS server resolves the DMZ host."
+              },
+              {
+                "cmd": "nslookup archive.ubuntu.com 192.168.0.2",
+                "explain": "From websrv: an internet name answered by winserver through its forwarder — the DMZ's DNS hole and the forwarder proven in one line."
               },
               {
                 "cmd": "curl -I http://172.16.0.10",
@@ -2078,15 +2099,15 @@
               },
               {
                 "cmd": "nc -vz -w 3 192.168.0.3 22",
-                "explain": "From websrv: must FAIL. SSH from the DMZ into the private zone is not a hole you opened. On the host, journalctl -k | grep FWD-DROP shows the packet being refused — screenshot that line."
+                "explain": "From websrv: must FAIL. The DMZ has no SSH hole into the private zone. journalctl -k | grep FWD-DROP on the host shows the refusal — screenshot it."
               },
               {
                 "cmd": "curl -I http://10.10.30.T",
-                "explain": "From a campus workstation: proves the port-80 DNAT publishes the site to the campus LAN."
+                "explain": "From a campus PC on vmbr0: proves the port-80 DNAT publishes the site to the campus LAN."
               },
               {
-                "cmd": "ssh -p 2200 ubuntu@10.10.30.T hostname && ssh -p 2222 ubuntu@10.10.30.T hostname",
-                "explain": "From a campus workstation: 2200 lands on websrv, 2222 on linuxsrv — each prints its own hostname. Two published SSH ports, two machines, both justified in the IP Plan."
+                "cmd": "ssh -p 2200 ubuntu@10.10.30.T hostname",
+                "explain": "From a campus PC: 2200 lands on websrv and prints its hostname — the only SSH the campus reaches. linuxsrv has no published port at all."
               }
             ],
             "usesForm": "IP Plan & Connectivity Proof",
@@ -2095,8 +2116,56 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "Each host reaches its gateway, names resolve through winserver, the website answers from the private zone and from the campus LAN, the DMZ reaches the database port and is refused on SSH, and each result is a row in the IP Plan & Connectivity Proof.",
+            "expectedOutput": "Each host reaches its gateway, names resolve through winserver — internet names too — the website answers from the private zone and from the campus LAN, the DMZ reaches the database port and is refused on SSH, and each result is a row in the IP Plan & Connectivity Proof.",
             "outputKind": "result"
+          },
+          {
+            "id": "sp-w3-connect-s6",
+            "title": "Reach every zone from home: the host as a Tailscale subnet router",
+            "description": "The host is already on the tailnet. Advertise both zones through it and every teammate reaches every VM from off campus.",
+            "where": "The Proxmox host shell, then your own laptop on the tailnet",
+            "instruction": "Advertise both zone subnets from the host, approve them in the Tailscale admin console, accept routes on your laptop, then SSH into a VM in each zone by its zone address.",
+            "guideRef": {
+              "procedureId": "tailscale-subnet-router"
+            },
+            "commands": [
+              {
+                "cmd": "tailscale up --advertise-routes=172.16.0.0/24,192.168.0.0/24 --ssh",
+                "explain": "On the host. --ssh keeps the tailnet login you already use; the routes are what change. Approve them in the admin console under the host's Routes."
+              },
+              {
+                "cmd": "tailscale debug prefs | grep -A3 AdvertiseRoutes",
+                "explain": "Both subnets listed. If not, re-run the up command with both routes on one line."
+              },
+              {
+                "cmd": "tailscale up --accept-routes",
+                "explain": "On your laptop (Windows and macOS: Settings → Use subnet routes). Now 172.16.0.x and 192.168.0.x route through the host."
+              },
+              {
+                "cmd": "ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname",
+                "explain": "From your laptop, off campus. Both hostnames print: the rules file lets the tailnet into each zone on port 22, and the VMs see the host's bridge address."
+              },
+              {
+                "cmd": "mstsc /v:192.168.0.2",
+                "explain": "From a Windows laptop: RDP to winserver over the tailnet — the one other admin path the rules allow into the private zone."
+              },
+              {
+                "cmd": "ssh alex@<tailscale-ip>",
+                "explain": "The host itself — the vmbr0 device — by its tailnet address or MagicDNS name, exactly as in Week 1."
+              }
+            ],
+            "usesForm": "IP Plan & Connectivity Proof",
+            "producesDeliverable": "05_IP_Plan_and_Proof.md",
+            "whatItMeans": "Nothing in the private zone is published to anyone. Administrators come in through the host over the tailnet, and the rules file names exactly what they may reach.",
+            "frameworks": [
+              "NIST_CSF",
+              "CIS"
+            ],
+            "expectedOutput": "root@pve-host:~# tailscale debug prefs | grep -A3 AdvertiseRoutes\n  \"AdvertiseRoutes\": [\n    \"172.16.0.0/24\",\n    \"192.168.0.0/24\"\n  ],",
+            "verify": [
+              "172.16.0.0/24",
+              "192.168.0.0/24"
+            ]
           },
           {
             "id": "sp-w3-connect-s7",
@@ -2304,7 +2373,7 @@
                 "explain": "Applies the change. Keep your existing session open and prove a new one works before closing it."
               }
             ],
-            "whatItMeans": "websrv answers the campus LAN on port 80, so it is the one to harden first. linuxsrv is next: the Week-3 DNAT publishes its sshd on port 2222.",
+            "whatItMeans": "websrv answers the campus on 80, 443 and 2200, so it is hardened first. linuxsrv is next: unreachable from the campus, but one hop from a DMZ host.",
             "frameworks": [
               "NIST_CSF",
               "CIS"
@@ -2317,7 +2386,7 @@
           {
             "id": "sp-w4-secure-s2",
             "title": "Restrict the DMZ host with ufw, and serve the site over TLS",
-            "description": "Ports 80 and 443 open to everyone, SSH only from the networks you own — and the site finally answering on the 443 the host has published since Week 3.",
+            "description": "Ports 80 and 443 open to everyone, SSH only from networks you own, and the site finally served over TLS.",
             "where": "The websrv console (172.16.0.10)",
             "instruction": "Add every allow rule before you enable the firewall, read the whole ruleset back, then give NGINX a certificate and a 443 listener and confirm the site answers on both ports.",
             "guideRef": {
@@ -2338,7 +2407,7 @@
               },
               {
                 "cmd": "sudo ufw allow from 172.16.0.1 to any port 22 proto tcp",
-                "explain": "The host's own address on the DMZ bridge, on its own line: the /24 rule already covers it, but your allow-list should say in so many words that the hypervisor may always get in."
+                "explain": "The host's own DMZ address on its own line. The /24 covers it, but the allow-list should say the hypervisor may always get in."
               },
               {
                 "cmd": "sudo ufw allow 80/tcp",
@@ -2362,7 +2431,7 @@
               },
               {
                 "cmd": "sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOF'\nserver {\n    listen 80 default_server;\n    listen 443 ssl default_server;\n    ssl_certificate /etc/ssl/certs/websrv.crt;\n    ssl_certificate_key /etc/ssl/private/websrv.key;\n    root /var/www/html;\n    index index.html;\n    server_name _;\n    location / {\n        try_files $uri $uri/ =404;\n    }\n}\nEOF\nsudo nginx -t && sudo systemctl reload nginx",
-                "explain": "One server block serving the site on both ports from the same document root. nginx -t validates before the reload — never reload on a config that has not passed it."
+                "explain": "One server block, both ports, one document root. nginx -t validates before the reload — never reload a config that has not passed."
               },
               {
                 "cmd": "curl -I http://172.16.0.10",
@@ -2394,7 +2463,7 @@
             "instructionList": [
               "Same commands as websrv, with two differences: no port 80 rule, and the admin user is yours to name.",
               "Do the user and sudo pass at the console, not over SSH — a lockout here is a console-only recovery.",
-              "The Week-3 DNAT publishes port 2222 to this host, so hardening only websrv leaves that door open.",
+              "Nothing publishes this host to the campus — it is reached from the host and over the tailnet — but a DMZ host is one hop away, so harden it anyway.",
               "Now open the Operations Log & SOPs and write it as a runbook: the steps, how you verify it worked, and the way back if it does not."
             ],
             "commands": [
@@ -2408,7 +2477,7 @@
               },
               {
                 "cmd": "sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp",
-                "explain": "The campus LAN. The host's 2222 DNAT does not rewrite the source, so this is what a forwarded session arrives as."
+                "explain": "The campus LAN, for the later phase when the private zone hangs off the Cisco router. Today nothing on the campus reaches this host."
               },
               {
                 "cmd": "sudo ufw allow from 192.168.0.1 to any port 22 proto tcp",
@@ -2419,8 +2488,8 @@
                 "explain": "Read it back. The line that matters is \"Default: deny (incoming)\" — without it the rest is decoration."
               },
               {
-                "cmd": "ssh -p 2222 dbadmin@10.10.30.1",
-                "explain": "From a campus workstation: the hardened path still works end to end. Do this before you close the console."
+                "cmd": "ssh dbadmin@192.168.0.3",
+                "explain": "From a tailnet laptop with subnet routes, or from the host: the hardened path still works. Do this before you close the console."
               }
             ],
             "expectedOutput": "ufw reports Default: deny (incoming), SSH is allowed only from the networks you named, and the published path still logs in as your named admin.",
@@ -2794,7 +2863,7 @@
               },
               {
                 "cmd": "sudo mysql -e \"DROP DATABASE capstone_db;\"",
-                "explain": "The deliberate failure, on the machine you are about to roll back. Substitute whatever your DR plan names — a dropped database, a deleted file, a stopped service — as long as it is on this VM."
+                "explain": "The deliberate failure, on the machine you are about to roll back. Substitute whatever your DR plan names — as long as it is on this VM."
               },
               {
                 "cmd": "mysql -u capuser -p -e \"SHOW DATABASES;\"",
@@ -4851,7 +4920,7 @@
               },
               {
                 "cmd": "sudo iptables -t nat -L PREROUTING -n --line-numbers",
-                "explain": "Every port published from outside — four in this design: 80, 443 and 2200 to websrv, 2222 to linuxsrv. Each line is a deliberate hole; name why it exists, and which one has nobody listening yet."
+                "explain": "Every port published from outside — three here, all to websrv: 80, 443, 2200. Name why each exists, and which one has nobody listening yet."
               },
               {
                 "cmd": "sudo iptables -L FORWARD -n -v",
@@ -5916,6 +5985,45 @@
       }
     ],
     "noGatekeeping": true,
+    "guidedDefault": true,
+    "stepDensity": "simple",
+    "buildMap": [
+      {
+        "week": 0,
+        "label": "Your workstation and your team",
+        "check": "the platform knows your focus and your host address"
+      },
+      {
+        "week": 1,
+        "label": "Proxmox on the rack at 10.10.30.T",
+        "check": "the console answers from a campus PC and over Tailscale"
+      },
+      {
+        "week": 2,
+        "label": "Two zones, three VMs, the services",
+        "check": "websrv serves NGINX, winserver runs AD, DNS and DHCP, linuxsrv runs the database"
+      },
+      {
+        "week": 3,
+        "label": "Site published, zones segmented, tailnet into every zone",
+        "check": "your site opens at http://10.10.30.T from a campus PC and the DMZ cannot SSH into the private zone"
+      },
+      {
+        "week": 4,
+        "label": "Hardened, patched, restorable",
+        "check": "root SSH is off everywhere, every host has a baseline, and a restore was timed"
+      },
+      {
+        "week": 5,
+        "label": "Advanced: the lab as code, watched",
+        "check": "a plan reports no changes and every host is on the dashboard"
+      },
+      {
+        "week": 6,
+        "label": "Advanced: run it as a fleet",
+        "check": "linuxsrv was destroyed and came back from Git alone"
+      }
+    ],
     "sharedTrack": true,
     "lifecyclePath": [
       {
@@ -6789,6 +6897,13 @@
               "help": "One tailnet per team. Name the owner, because they are who adds or removes people later."
             },
             {
+              "field": "remote_routes",
+              "label": "Zones reachable through the host (Week 3)",
+              "type": "text",
+              "placeholder": "172.16.0.0/24 and 192.168.0.0/24 approved; SSH to websrv and linuxsrv from home",
+              "help": "Set in Week 3, when the host becomes a Tailscale subnet router. Until then, write \"host only\"."
+            },
+            {
               "field": "remote_proof",
               "label": "Proof it works from off campus",
               "type": "text",
@@ -7434,13 +7549,6 @@
                 "service": "sshd",
                 "why": "Upload the site — scp straight to the DMZ host",
                 "proof": "ssh -p 2200 ubuntu@10.10.30.T hostname"
-              },
-              {
-                "host_port": "2222/tcp",
-                "to": "linuxsrv:22",
-                "service": "sshd",
-                "why": "SSH to the database host",
-                "proof": "ssh -p 2222 ubuntu@10.10.30.T hostname"
               }
             ]
           }
@@ -7544,11 +7652,27 @@
                 "matches": "Yes"
               },
               {
+                "from": "websrv",
+                "to": "an internet name, through winserver",
+                "command": "nslookup archive.ubuntu.com 192.168.0.2",
+                "expected": "Should work",
+                "result": "Answered — the forwarder on winserver works",
+                "matches": "Yes"
+              },
+              {
                 "from": "linuxsrv",
                 "to": "the internet",
                 "command": "ping -c 4 1.1.1.1",
                 "expected": "Should work",
                 "result": "4 received, via the host NAT",
+                "matches": "Yes"
+              },
+              {
+                "from": "Tailnet laptop",
+                "to": "websrv and linuxsrv by zone address",
+                "command": "ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname",
+                "expected": "Should work",
+                "result": "Both hostnames print — subnet routes through the host",
                 "matches": "Yes"
               }
             ]
@@ -9194,7 +9318,7 @@
         },
         {
           "gui": "Note the RAID levels YOUR controller lists, and how many drive bays are populated versus total.",
-          "explain": "This differs by card and it matters: a PERC offers 0/1/5/6/10, while an LSI SAS BIOS in IR mode usually offers only IS (RAID 0), IM (RAID 1) and IME (RAID 1E). Plan a level your card can actually build. Empty bays are upgrade headroom."
+          "explain": "It differs by card: a PERC offers 0/1/5/6/10; an LSI SAS BIOS in IR mode usually only IS (RAID 0), IM (RAID 1) and IME (RAID 1E). Plan a level your card can build."
         },
         {
           "gui": "Press Esc, choose Exit and confirm. Do NOT delete, create or initialize anything on this trip.",
@@ -9371,7 +9495,7 @@
       "week": 1,
       "title": "Reach your host from home with Tailscale",
       "where": "The Proxmox host shell, then your own laptop",
-      "summary": "Put the host on a private Tailscale network so the team can administer it from off campus — SSH and the web console over an encrypted path, with no router port-forward and nothing new exposed to the Internet.",
+      "summary": "Put the host on a private Tailscale network so the team can administer it from off campus — SSH and the web console over an encrypted path, with no router port-forward and nothing new exposed to the Internet. In Week 3 the same host becomes a subnet router, and the tailnet reaches every VM through it.",
       "steps": [
         {
           "cmd": "timedatectl status",
@@ -9391,7 +9515,7 @@
         },
         {
           "cmd": "tailscale ip -4",
-          "explain": "Your host’s own Tailscale address, a 100.x address that belongs to this machine and does not change. Write it into the Server Bring-Up Log — it is how the team reaches this server from off campus. It is yours; another team’s server has a different one."
+          "explain": "Your host’s own 100.x address; it does not change. Write it into the Server Bring-Up Log — it is how the team reaches this server from off campus."
         },
         {
           "cmd": "tailscale status",
@@ -9460,7 +9584,7 @@
         },
         {
           "gui": "Datacenter → Permissions → Users → Add. Set Realm to \"Linux PAM standard authentication\", User name to the Linux account you just created, and Group to teamadmins. Repeat for each teammate.",
-          "explain": "The pam realm points Proxmox at the host’s own Linux users, so each person has ONE identity that works for both SSH and the console. The pve realm is a separate Proxmox-only user database — real, but it would hand everybody a second password to lose."
+          "explain": "The pam realm points Proxmox at the host’s own Linux users: one identity for SSH and the console. The pve realm is a separate user database — a second password to lose."
         },
         {
           "cmd": "pveum user list",
@@ -9476,11 +9600,11 @@
         },
         {
           "cmd": "ssh-copy-id alex@<tailscale-ip>",
-          "explain": "Also from your laptop, over the tailnet. It appends your public key to that account's authorized_keys on the host. It asks for the password one last time — that is the point at which the password stops being the only way in."
+          "explain": "Also from your laptop, over the tailnet. It appends your public key to that account's authorized_keys on the host, asking for the password one last time."
         },
         {
           "cmd": "ssh alex@<tailscale-ip>",
-          "explain": "Log in again. If it does not ask for the account password, key authentication is working. Every teammate does this with their own key, on their own laptop — a key that two people share is a shared login wearing a different hat."
+          "explain": "Log in again. No password prompt means key authentication works. Every teammate does this with their own key on their own laptop — a shared key is a shared login."
         },
         {
           "gui": "STOP before going further: do not disable password authentication and do not lock the root account until every teammate has proved their own account signs in and runs sudo.",
@@ -9526,7 +9650,7 @@
       "week": 2,
       "title": "Create the vmbr1 (DMZ) and vmbr2 (private) bridges",
       "where": "Proxmox host shell",
-      "summary": "Add the two internal Linux bridges that carry the segmented zones: vmbr1 is the DMZ at 172.16.0.0/24 with the host holding gateway 172.16.0.1, and vmbr2 is the private zone at 192.168.0.0/24 with the host holding 192.168.0.1 — then give both zones a way out through the host with one rules file, FORWARD policy DROP from the first day, because a bridge with bridge-ports none reaches nothing on its own and every apt install you run this week has to reach the archive.",
+      "summary": "Add the two internal bridges: vmbr1 is the DMZ at 172.16.0.0/24 (host 172.16.0.1) and vmbr2 the private zone at 192.168.0.0/24 (host 192.168.0.1). Then give both a way out through the host with one rules file, FORWARD DROP from day one — every apt install this week has to reach the archive. Leave Datacenter → Firewall off; it would fight this file.",
       "steps": [
         {
           "cmd": "cp /etc/network/interfaces /etc/network/interfaces.bak",
@@ -9566,11 +9690,11 @@
         },
         {
           "cmd": "cat > /etc/iptables/rules.v4 <<'EOF'\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n# Replies to anything already allowed, in either direction\n-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n# Both zones reach the campus LAN, and the internet beyond it, through the host\n-A FORWARD -i vmbr1 -o vmbr0 -j ACCEPT\n-A FORWARD -i vmbr2 -o vmbr0 -j ACCEPT\n# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible\n-A FORWARD -m limit --limit 5/min -j LOG --log-prefix \"FWD-DROP \" --log-level 4\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n# Both zones leave as the host's campus address\n-A POSTROUTING -o vmbr0 -j MASQUERADE\nCOMMIT\nEOF\niptables-restore < /etc/iptables/rules.v4",
-          "explain": "The whole ruleset as one file, then iptables-restore makes it live. FORWARD is DROP from day one: the two ACCEPT lines are the guests’ way out to the campus and the archive, the MASQUERADE hides them behind the host’s campus address, and the LOG line makes anything refused visible in journalctl -k. Restore is idempotent — run it twice and you still have exactly one ruleset, which is why nothing in this course ever appends a rule by hand again."
+          "explain": "The whole ruleset, one file; restore makes it live and running it twice changes nothing. Every line is commented in the file itself."
         },
         {
           "cmd": "iptables -L FORWARD -n -v && iptables -t nat -L POSTROUTING -n -v",
-          "explain": "Read it back: policy DROP, the two zone ACCEPTs, exactly one MASQUERADE out of vmbr0. Never run netfilter-persistent save — that rewrites the file from the live rules and drops the comments. The file is the source; restore is how it becomes live."
+          "explain": "Read it back: policy DROP, two zone ACCEPTs, one MASQUERADE out of vmbr0. Never run netfilter-persistent save — it rewrites the file from the live rules and drops the comments."
         }
       ]
     },
@@ -9603,7 +9727,7 @@
         },
         {
           "gui": "At the Ubuntu network configuration screen, edit the interface and choose Manual: Subnet 172.16.0.0/24, Address 172.16.0.10, Gateway 172.16.0.1, Name servers 192.168.0.2, 1.1.1.1.",
-          "explain": "172.16.0.10 is the fixed website address, and DNS points at winserver because name resolution for the whole build lives there. The second resolver is deliberate and temporary: winserver does not carry the DNS role yet, so nothing would resolve the package archive without it. Week 3 drops it when you apply netplan."
+          "explain": "172.16.0.10 is the fixed website address; DNS is winserver, where every name in this build lives. The second resolver is temporary — winserver has no DNS role yet — and Week 3 drops it."
         },
         {
           "gui": "Select \"Install OpenSSH server\" when the installer offers it, complete the install, and reboot.",
@@ -9624,7 +9748,7 @@
       "week": 2,
       "title": "Publish the website on websrv with NGINX",
       "where": "The websrv console (172.16.0.10)",
-      "summary": "Install NGINX on the DMZ host — this is the one public-facing website in the design, and it lives in the DMZ, not on Windows and not on the private Linux server. This week a placeholder page proves NGINX serves the document root; the site your team builds replaces it in Week 3, once the host publishes port 80 and the upload port to the campus.",
+      "summary": "Install NGINX on the DMZ host — the one public-facing website, in the DMZ and nowhere else. This week a placeholder proves NGINX serves the document root; the site your team builds replaces it in Week 3, once the host publishes it to the campus.",
       "steps": [
         {
           "cmd": "sudo apt update",
@@ -9652,7 +9776,7 @@
         },
         {
           "cmd": "curl -I http://172.16.0.10",
-          "explain": "Run this one from the Proxmox host shell, not from websrv itself. The host holds 172.16.0.1 on vmbr1, so it reaches the DMZ with no routing at all. HTTP/1.1 200 OK proves the site answers across the network. The private-zone hosts cannot reach it yet — that needs the Week-3 static routes, and it is proven there."
+          "explain": "From the Proxmox host shell, not websrv. The host holds 172.16.0.1 on vmbr1, so it reaches the DMZ with no routing. 200 OK proves the site answers across the network; the private zone reaches it in Week 3."
         },
         {
           "cmd": "curl http://172.16.0.10",
@@ -9726,11 +9850,11 @@
         },
         {
           "gui": "Finish the wizard, start the VM, open its Console and run the Ubuntu Server installer. At the network screen choose Manual: Subnet 192.168.0.0/24, Address 192.168.0.3, Gateway 192.168.0.1, Name servers 192.168.0.2, 1.1.1.1.",
-          "explain": "192.168.0.3 is the fixed database address, and DNS is winserver — every machine in this build resolves through it. Same temporary second resolver as websrv, for the same reason: the package archive has to resolve before winserver carries the DNS role."
+          "explain": "192.168.0.3 is the fixed database address; DNS is winserver. Same temporary second resolver as websrv, for the same reason."
         },
         {
           "gui": "Select \"Install OpenSSH server\" when offered, finish the install and reboot.",
-          "explain": "linuxsrv is the SSH-reachable internal host the Week-3 port-forward rule targets."
+          "explain": "Nothing publishes this port. The host and the tailnet reach it from Week 3; nobody else does."
         },
         {
           "cmd": "ip -4 addr show",
@@ -9759,7 +9883,7 @@
         },
         {
           "cmd": "Install-ADDSForest -DomainName \"team1.local\" -DomainNetbiosName \"TEAM1\" -InstallDns -Force",
-          "explain": "Substitute your own team number for both team1 values. -InstallDns installs the DNS role and creates the forward lookup zone in the same pass. Record the Directory Services Restore Mode password it prompts for. The server reboots when it finishes."
+          "explain": "Substitute your team number for both team1 values. -InstallDns creates the DNS role and the zone in the same pass. Record the Restore Mode password it prompts for; the server reboots when done."
         },
         {
           "cmd": "Get-ADDomain | Select-Object DNSRoot, NetBIOSName, DomainMode",
@@ -9776,7 +9900,7 @@
       "week": 2,
       "title": "Configure DNS and the teamX.local host records",
       "where": "winserver (192.168.0.2) — Server Manager and PowerShell",
-      "summary": "Make sure the DNS role and the teamX.local forward lookup zone exist, then add an A record for every named host in the build — winserver, linuxsrv and websrv — and prove resolution works.",
+      "summary": "Make sure the DNS role and the teamX.local forward lookup zone exist, add an A record for every named host in the build — winserver, linuxsrv and websrv — point the server at the campus resolver for every other name, and prove both work.",
       "steps": [
         {
           "gui": "If you did not promote to a domain controller: Server Manager → Add Roles and Features → DNS Server role, then DNS Manager → right-click Forward Lookup Zones → New Zone → Primary, and name the zone teamX.local with your team number.",
@@ -9808,7 +9932,15 @@
         },
         {
           "cmd": "nslookup websrv.team1.local 192.168.0.2",
-          "explain": "Must return 172.16.0.10 — this is what proves cross-zone name resolution works. Run it from linuxsrv as well as from winserver: both sit in the private zone, so both reach the DNS server directly. This resolves the name, it does not reach the host — that path arrives in Week 3."
+          "explain": "Must return 172.16.0.10. Run it from linuxsrv too. This resolves the name; reaching the host is Week 3."
+        },
+        {
+          "cmd": "Add-DnsServerForwarder -IPAddress 10.10.10.1",
+          "explain": "Every name outside your zone goes to the campus resolver. Without this, nothing resolves the package archive once Week 3 removes the temporary resolver."
+        },
+        {
+          "cmd": "Resolve-DnsName archive.ubuntu.com -Server 192.168.0.2",
+          "explain": "An internet name answered by winserver. This is the proof the forwarder works."
         }
       ]
     },
@@ -9841,7 +9973,7 @@
         },
         {
           "gui": "Now build something to lease to. In the Proxmox web console click Create VM, name it client01, pick any desktop image (Ubuntu Desktop or Windows 10/11), 1 core / 2048 MB / 20 GB, Bridge vmbr2.",
-          "explain": "Nothing else in the base build is a DHCP client — the three servers are all static — so without this VM the scope cannot be tested. It is a throwaway; your own business design may call for a different client, which is fine."
+          "explain": "The three servers are all static, so without this VM the scope cannot be tested. It is a throwaway; your own design may call for a different client."
         },
         {
           "gui": "Leave client01 on DHCP — do not give it a static address. Boot it, let it request an address, and confirm what it gets lands inside 192.168.0.100-200 with gateway 192.168.0.1 and DNS 192.168.0.2.",
@@ -9898,7 +10030,7 @@
         },
         {
           "cmd": "sudo mysql -e \"CREATE USER 'capuser'@'172.16.0.10' IDENTIFIED BY 'ChangeThisPassword1!'; GRANT ALL PRIVILEGES ON capstone_db.* TO 'capuser'@'172.16.0.10'; FLUSH PRIVILEGES;\"",
-          "explain": "OPTIONAL — only if one of your own business VMs or a dynamic site on websrv needs the database across zones. You must also bind MariaDB to the private address in /etc/mysql/mariadb.conf.d/50-server.cnf and allow the traffic. The base build does not need this."
+          "explain": "OPTIONAL — only if a VM of your own or a dynamic site on websrv needs the database across zones. Also bind MariaDB to the private address in 50-server.cnf. The base build does not need this."
         }
       ]
     },
@@ -9984,7 +10116,7 @@
         },
         {
           "cmd": "sudo tee /etc/netplan/01-capstone.yaml > /dev/null <<'EOF'\nnetwork:\n  version: 2\n  ethernets:\n    ens18:\n      dhcp4: false\n      addresses: [172.16.0.10/24]\n      routes:\n        - to: default\n          via: 172.16.0.1\n      nameservers:\n        addresses: [192.168.0.2]\nEOF",
-          "explain": "websrv, in the DMZ. Substitute the interface name you just read. For linuxsrv change the address to 192.168.0.3/24 and the gateway to 192.168.0.1. Note the single nameserver: winserver carries the DNS role now, so the temporary public resolver you set at install time goes away here."
+          "explain": "websrv, in the DMZ, with the interface name you just read. For linuxsrv: 192.168.0.3/24 and gateway 192.168.0.1. One nameserver now — winserver carries DNS and forwards the rest, so the temporary resolver goes."
         },
         {
           "cmd": "sudo chmod 600 /etc/netplan/01-capstone.yaml",
@@ -10021,31 +10153,31 @@
       "week": 3,
       "title": "Publish the site and segment the zones: the host’s rules file",
       "where": "Proxmox host shell",
-      "summary": "The host has been forwarding since Week 2, when the rules file gave the guests their way out. Now the file gets its holes, and nothing else changes: four ports published from the host’s campus address (80 and 443 to websrv, 2200 to websrv’s SSH for uploads, 2222 to linuxsrv’s SSH), the private zone allowed to open the site, and the DMZ allowed into the private zone for DNS and the database only — everything else it tries is dropped and logged. One file, one restore, and a reboot to prove it comes back.",
+      "summary": "The host has forwarded since Week 2. Now the file gets its holes: 80, 443 and the upload port 2200 published to websrv, the DMZ allowed into the private zone for DNS and the database only, and the tailnet allowed in to administer. Nothing else is published. One file, one restore, a reboot to prove it comes back.",
       "steps": [
         {
           "cmd": "sysctl net.ipv4.ip_forward",
-          "explain": "You turned this on when you created the bridges in Week 2, and the drop-in file made it persistent. Expect 1. If it reads 0, re-run the two Week-2 sysctl lines before going any further."
+          "explain": "Expect 1 — you set it in Week 2. If it reads 0, re-run the two Week-2 sysctl lines first."
         },
         {
           "cmd": "cp /etc/iptables/rules.v4 /etc/iptables/rules.v4.week2",
-          "explain": "Keep the Week-2 file. If the new ruleset misbehaves, iptables-restore < /etc/iptables/rules.v4.week2 puts you back on a host that only routes out."
+          "explain": "Keep the Week-2 file. iptables-restore from it puts you back on a host that only routes out."
         },
         {
-          "cmd": "cat > /etc/iptables/rules.v4 <<'EOF'\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n# Replies to anything already allowed, in either direction\n-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n# Both zones reach the campus LAN, and the internet beyond it, through the host\n-A FORWARD -i vmbr1 -o vmbr0 -j ACCEPT\n-A FORWARD -i vmbr2 -o vmbr0 -j ACCEPT\n# Staff in the private zone open the website\n-A FORWARD -i vmbr2 -o vmbr1 -j ACCEPT\n# The DMZ reaches the private zone for DNS and the database, and for nothing else\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p udp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p tcp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.3 -p tcp --dport 3306 -j ACCEPT\n# The published ports, after PREROUTING has rewritten the destination\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 80 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 443 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 22 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr2 -d 192.168.0.3 -p tcp --dport 22 -j ACCEPT\n# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible\n-A FORWARD -m limit --limit 5/min -j LOG --log-prefix \"FWD-DROP \" --log-level 4\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n# Published from the campus LAN: the host's own address, port by port\n-A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to-destination 172.16.0.10:80\n-A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to-destination 172.16.0.10:443\n-A PREROUTING -i vmbr0 -p tcp --dport 2200 -j DNAT --to-destination 172.16.0.10:22\n-A PREROUTING -i vmbr0 -p tcp --dport 2222 -j DNAT --to-destination 192.168.0.3:22\n# Both zones leave as the host's campus address\n-A POSTROUTING -o vmbr0 -j MASQUERADE\nCOMMIT\nEOF\niptables-restore < /etc/iptables/rules.v4",
-          "explain": "The complete ruleset, replaced atomically. In *nat, PREROUTING publishes each port: a packet arriving on vmbr0 for the host’s port 80 has its destination rewritten to websrv:80 — that is what makes http://10.10.30.T the site — and 443, 2200 and 2222 the same way. In *filter, FORWARD stays DROP: replies pass by conntrack, both zones reach the campus, the private zone may open the DMZ, the DMZ may reach only DNS on winserver and MariaDB on linuxsrv, each published port is allowed through to the VM it names, and the LOG line records everything refused. Run it twice and nothing doubles."
+          "cmd": "cat > /etc/iptables/rules.v4 <<'EOF'\n*filter\n:INPUT ACCEPT [0:0]\n:FORWARD DROP [0:0]\n:OUTPUT ACCEPT [0:0]\n# Replies to anything already allowed, in either direction\n-A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT\n# Both zones reach the campus LAN, and the internet beyond it, through the host\n-A FORWARD -i vmbr1 -o vmbr0 -j ACCEPT\n-A FORWARD -i vmbr2 -o vmbr0 -j ACCEPT\n# Staff in the private zone open the website\n-A FORWARD -i vmbr2 -o vmbr1 -j ACCEPT\n# The DMZ reaches the private zone for DNS and the database, and for nothing else\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p udp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.2 -p tcp --dport 53 -j ACCEPT\n-A FORWARD -i vmbr1 -o vmbr2 -d 192.168.0.3 -p tcp --dport 3306 -j ACCEPT\n# The published ports, after PREROUTING has rewritten the destination\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 80 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 443 -j ACCEPT\n-A FORWARD -i vmbr0 -o vmbr1 -d 172.16.0.10 -p tcp --dport 22 -j ACCEPT\n# Administrators on the tailnet, through the host, into both zones\n-A FORWARD -i tailscale0 -o vmbr1 -p tcp --dport 22 -j ACCEPT\n-A FORWARD -i tailscale0 -o vmbr2 -p tcp --dport 22 -j ACCEPT\n-A FORWARD -i tailscale0 -o vmbr2 -d 192.168.0.2 -p tcp --dport 3389 -j ACCEPT\n# Everything else the host is asked to forward is dropped — and logged, so a blocked path is visible\n-A FORWARD -m limit --limit 5/min -j LOG --log-prefix \"FWD-DROP \" --log-level 4\nCOMMIT\n*nat\n:PREROUTING ACCEPT [0:0]\n:INPUT ACCEPT [0:0]\n:OUTPUT ACCEPT [0:0]\n:POSTROUTING ACCEPT [0:0]\n# Published from the campus LAN: the host's own address, port by port\n-A PREROUTING -i vmbr0 -p tcp --dport 80 -j DNAT --to-destination 172.16.0.10:80\n-A PREROUTING -i vmbr0 -p tcp --dport 443 -j DNAT --to-destination 172.16.0.10:443\n-A PREROUTING -i vmbr0 -p tcp --dport 2200 -j DNAT --to-destination 172.16.0.10:22\n# Both zones leave as the host's campus address\n-A POSTROUTING -o vmbr0 -j MASQUERADE\nCOMMIT\nEOF\niptables-restore < /etc/iptables/rules.v4",
+          "explain": "The whole ruleset, replaced in one go; every line is commented in the file itself. Three DNATs publish websrv; the private zone is published to nobody. Run it twice and nothing doubles."
         },
         {
           "cmd": "iptables -t nat -L PREROUTING -n",
-          "explain": "Four DNAT lines and no others. 443 is published before anything listens on it — Week 4 gives NGINX a certificate — and the Networking deep-dive asks you to name that gap."
+          "explain": "Three DNAT lines, all to 172.16.0.10, and no others. 443 is published before anything listens — Week 4 adds the certificate."
         },
         {
           "cmd": "iptables -L FORWARD -n -v",
-          "explain": "Policy DROP, then every ACCEPT is a decision you can name in the IP Plan. The last line is the LOG target: a refused path shows up as FWD-DROP in journalctl -k, which is how you prove a path is blocked rather than merely believe it."
+          "explain": "Policy DROP, then every ACCEPT is a decision you can name in the IP Plan. A refused path shows up as FWD-DROP in journalctl -k."
         },
         {
           "cmd": "systemctl reboot",
-          "explain": "Once, to prove persistence: iptables-persistent restores the same file at boot. After the reboot, re-run the two list commands and confirm nothing changed."
+          "explain": "Once, to prove persistence. After the reboot, re-run both list commands and confirm nothing changed."
         }
       ]
     },
@@ -10053,32 +10185,32 @@
       "id": "build-and-upload-site",
       "week": 3,
       "title": "Build your team’s site and upload it through port 2200",
-      "where": "Your workstation, then any classmate’s machine on the campus LAN",
-      "summary": "The page the campus sees. Two files written on your workstation — the business from the Architecture Brief, what it does, how to reach it, and the three machines that run it — copied into websrv’s document root through the SSH port the host now publishes, then proven from a machine that is not yours. This is the site the whole build exists to serve.",
+      "where": "Your workstation, then a campus PC on vmbr0 — not a VM, not the host",
+      "summary": "The page the campus sees. Two files written on your workstation — the business from the Architecture Brief, what it does, how to reach it, and the three machines that run it — copied into websrv’s document root through the SSH port the host publishes, then proven from a campus PC. This is the site the whole build exists to serve.",
       "steps": [
         {
           "cmd": "mkdir -p site && cat > site/index.html <<'EOF'\n<!doctype html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"utf-8\">\n  <title>Your Business — built by Team X</title>\n  <link rel=\"stylesheet\" href=\"style.css\">\n</head>\n<body>\n  <header>\n    <h1>Your Business</h1>\n    <p>Built, networked and run by Team X for the Server+ capstone.</p>\n  </header>\n  <main>\n    <section>\n      <h2>What we do</h2>\n      <p>One sentence from your Architecture Brief: what this business sells or does.</p>\n    </section>\n    <section>\n      <h2>What runs it</h2>\n      <ul>\n        <li>websrv, in the DMZ: this site</li>\n        <li>winserver, private: staff logins, DNS and DHCP</li>\n        <li>linuxsrv, private: the database</li>\n      </ul>\n    </section>\n    <section>\n      <h2>Contact</h2>\n      <p>The address your Architecture Brief names — a person, a desk, a mailbox.</p>\n    </section>\n  </main>\n  <footer>Team X · Week 3 · served from the DMZ through the Proxmox host</footer>\n</body>\n</html>\nEOF",
-          "explain": "The minimum page: a title, the business, what it does, a contact line, and the three machines that run it. Replace every \"Your Business\" and \"Team X\". Add more pages if you like — index.html must exist, because it is what NGINX serves for /."
+          "explain": "The minimum page. Replace every \"Your Business\" and \"Team X\". index.html must exist — it is what NGINX serves for /."
         },
         {
           "cmd": "cat > site/style.css <<'EOF'\nbody { font-family: system-ui, sans-serif; margin: 0; color: darkslategray; background: whitesmoke; }\nheader { background: darkslategray; color: white; padding: 2rem; }\nheader p { margin: 0.5rem 0 0; opacity: 0.85; }\nmain { max-width: 48rem; margin: 2rem auto; padding: 0 1rem; }\nsection { background: white; border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 1rem; }\nfooter { text-align: center; color: dimgray; padding: 2rem; font-size: 0.9rem; }\nEOF",
-          "explain": "Enough style to show the site is yours. A site is not the NGINX default page with a different heading; the client will judge the build by this page before anything else."
+          "explain": "Enough style to show the site is yours — the client judges the build by this page first."
         },
         {
           "cmd": "scp -P 2200 -r site/* ubuntu@10.10.30.T:/var/www/html/",
-          "explain": "Through the host: port 2200 on your team’s campus address is forwarded to sshd on websrv, and the document root has been writable by the install user since Week 2, so no sudo and no console. Windows 10 and later have scp built in; on macOS and Linux it is already there."
+          "explain": "Port 2200 on the host is forwarded to sshd on websrv, and the document root has been writable by ubuntu since Week 2. scp is built into Windows 10+, macOS and Linux."
         },
         {
           "cmd": "curl -s http://10.10.30.T | grep -i \"<title>\"",
-          "explain": "From a CLASSMATE’S machine, not your own: your title comes back through the host’s port-80 forward, which is the proof the site is public to the campus. Open it in a browser as well and screenshot the page into 08_Evidence."
+          "explain": "From a campus PC on vmbr0. It cannot work from a VM or from the host: the forward applies only to packets arriving on vmbr0. Open it in a browser too and screenshot it into 08_Evidence."
         },
         {
           "cmd": "curl -sI --max-time 5 https://10.10.30.T; echo \"exit $?\"",
-          "explain": "Expected to fail — exit 7, connection refused. 443 is published by the host but nothing listens on websrv until Week 4 adds TLS. Published and listening are different questions; the Networking deep-dive asks you to write down exactly this case."
+          "explain": "Expected to fail — exit 7. 443 is published but nothing listens until Week 4 adds TLS. Published and listening are different questions; write this case into the Networking deep-dive."
         },
         {
-          "gui": "In the IP Plan & Connectivity Proof, fill in the site’s URL, what it contains, and the screenshot from the other machine; then add the four published ports to the published-ports table with the reason each exists.",
-          "explain": "The URL and the screenshot are the evidence that the site is real and public; the published-ports table is the evidence that you know which holes you opened and why."
+          "gui": "In the IP Plan & Connectivity Proof, fill in the site’s URL, what it contains, and the screenshot from the other machine; then add the three published ports to the published-ports table with the reason each exists.",
+          "explain": "The URL and screenshot prove the site is public; the table proves you know which holes you opened and why."
         }
       ]
     },
@@ -10103,11 +10235,11 @@
         },
         {
           "cmd": "sudo nano /etc/netplan/01-capstone.yaml",
-          "explain": "Open the file you wrote earlier. The route belongs INSIDE the existing routes: list, so this is an edit, not an append — appending would drop it at the end of the file, below nameservers, where netplan reads it as a stray list item and refuses the whole config."
+          "explain": "Open the file you wrote earlier. The route belongs INSIDE the existing routes: list — an edit, not an append. Appended below nameservers, netplan refuses the whole file."
         },
         {
           "cmd": "network:\n  version: 2\n  ethernets:\n    ens18:\n      dhcp4: false\n      addresses: [192.168.0.3/24]\n      routes:\n        - to: default\n          via: 192.168.0.1\n        - to: 172.16.0.0/24\n          via: 192.168.0.1\n      nameservers:\n        addresses: [192.168.0.2]",
-          "explain": "The complete file for linuxsrv — type it so yours matches this exactly, substituting the interface name you read with ip -br link. The only change from what you wrote earlier is the second entry under routes:, at the same indent as the default route."
+          "explain": "The complete file for linuxsrv, with your interface name from ip -br link. The only change is the second entry under routes:, at the same indent as the default route."
         },
         {
           "cmd": "sudo netplan apply && ip route show",
@@ -10127,8 +10259,8 @@
       "id": "prove-connectivity",
       "week": 3,
       "title": "Prove connectivity across all three zones — and the paths that must fail",
-      "where": "Every host, plus a campus workstation",
-      "summary": "Demonstrate and record every path the design promises — each host to its gateway, name resolution through winserver, the site answering from the private zone and from the campus, management reachability into both zones — and the path the design forbids: the DMZ opening anything in the private zone except DNS and the database.",
+      "where": "Every host, plus a campus PC on vmbr0 — not a VM, not the host",
+      "summary": "Record every path the design promises — gateways, names through winserver, the site from the private zone and from a campus PC, the host into both zones — and the one it forbids: the DMZ opening anything private except DNS and the database.",
       "steps": [
         {
           "cmd": "ping -c 4 10.10.10.1",
@@ -10140,7 +10272,7 @@
         },
         {
           "cmd": "ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname",
-          "explain": "From the Proxmox host, with the users you created during the Ubuntu installs — the worked examples call both ubuntu. The host holds an address on each zone bridge, so its own SSH into a VM is OUTPUT, never FORWARD: the DROP policy does not apply to it, and this is the path an administrator on the hypervisor always has."
+          "explain": "From the Proxmox host, with the install users (both ubuntu in the worked example). The host holds an address on each bridge, so its own SSH is OUTPUT, never FORWARD — the DROP policy does not apply to it."
         },
         {
           "cmd": "ping -c 4 172.16.0.1",
@@ -10164,7 +10296,11 @@
         },
         {
           "cmd": "nslookup websrv.team1.local 192.168.0.2",
-          "explain": "Must return 172.16.0.10. This proves the private-zone DNS server resolves the DMZ host — and, run from websrv, that the DMZ’s DNS hole to winserver is open."
+          "explain": "Must return 172.16.0.10. Run from websrv, it also proves the DMZ’s DNS hole to winserver is open."
+        },
+        {
+          "cmd": "nslookup archive.ubuntu.com 192.168.0.2",
+          "explain": "From websrv. An internet name, answered through winserver’s forwarder — the temporary public resolver is gone and nothing broke."
         },
         {
           "cmd": "curl -I http://172.16.0.10",
@@ -10176,19 +10312,19 @@
         },
         {
           "cmd": "nc -vz -w 3 192.168.0.3 22",
-          "explain": "From websrv. Must FAIL — \"timed out\". SSH from the DMZ into the private zone is not a hole you opened. On the host, journalctl -k | grep FWD-DROP shows the refused packet with websrv as its source; screenshot that line, it is the proof the segmentation is real."
+          "explain": "From websrv. Must FAIL — \"timed out\". On the host, journalctl -k | grep FWD-DROP shows the refused packet from websrv; screenshot that line. It is the proof the segmentation is real."
         },
         {
           "cmd": "curl -I http://10.10.30.T",
-          "explain": "From a campus workstation. Proves the port-80 DNAT publishes the site to the campus LAN; the body carries your own title."
+          "explain": "From a campus PC on vmbr0 — not a VM, not the host. The port-80 DNAT publishes the site to the campus LAN; open it in a browser and see your own page."
         },
         {
-          "cmd": "ssh -p 2200 ubuntu@10.10.30.T hostname && ssh -p 2222 ubuntu@10.10.30.T hostname",
-          "explain": "From a campus workstation. 2200 lands on websrv and 2222 on linuxsrv, and each prints its own hostname — two published SSH ports, two machines, both justified in the IP Plan. The hardened webadmin and dbadmin accounts replace ubuntu in Week 4."
+          "cmd": "ssh -p 2200 ubuntu@10.10.30.T hostname",
+          "explain": "From a campus PC. It prints websrv — the one SSH port the campus reaches, justified in the IP Plan. Week 4 replaces ubuntu with webadmin."
         },
         {
           "gui": "Record the result of every check above in the IP Plan & Connectivity Proof — the refusal included, as a row whose expected result is \"Should be blocked\" — and screenshot the ones your instructor asks for into 08_Evidence.",
-          "explain": "A topology diagram claims; a connectivity check proves. A segmented network is only proven when the paths that should fail have been shown to fail."
+          "explain": "A diagram claims; a check proves. A segmented network is proven only when the paths that should fail have failed."
         }
       ]
     },
@@ -10238,11 +10374,52 @@
       ]
     },
     {
+      "id": "tailscale-subnet-router",
+      "week": 3,
+      "title": "Reach every zone from home: the host as a Tailscale subnet router",
+      "where": "The Proxmox host shell, then your own laptop on the tailnet",
+      "summary": "Advertise both zone subnets from the host, approve them in the admin console, accept routes on your laptop, then SSH into a VM in each zone by its zone address. The rules file already allows it — port 22 to every VM and RDP to winserver, nothing more.",
+      "steps": [
+        {
+          "cmd": "tailscale up --advertise-routes=172.16.0.0/24,192.168.0.0/24 --ssh",
+          "explain": "On the host. --ssh keeps the login you already use; the routes are what change."
+        },
+        {
+          "gui": "In the Tailscale admin console open the host, then Routes, and approve both subnets.",
+          "explain": "Advertised is not approved. Until an admin approves them, no device routes through the host."
+        },
+        {
+          "cmd": "tailscale debug prefs | grep -A3 AdvertiseRoutes",
+          "explain": "Both subnets listed. If not, re-run the up command with both routes on one line."
+        },
+        {
+          "cmd": "tailscale up --accept-routes",
+          "explain": "On your laptop (Windows and macOS: Settings → Use subnet routes). Now 172.16.0.x and 192.168.0.x route through the host."
+        },
+        {
+          "cmd": "ssh ubuntu@172.16.0.10 hostname && ssh ubuntu@192.168.0.3 hostname",
+          "explain": "From your laptop, off campus. Both hostnames print: the rules file lets tailscale0 into each zone on port 22, and the VMs see the host’s bridge address."
+        },
+        {
+          "cmd": "mstsc /v:192.168.0.2",
+          "explain": "From a Windows laptop: RDP to winserver over the tailnet — the one other admin path the rules allow into the private zone."
+        },
+        {
+          "cmd": "ssh alex@<tailscale-ip>",
+          "explain": "The host itself — the vmbr0 device — by its tailnet address or MagicDNS name, exactly as in Week 1."
+        },
+        {
+          "gui": "Record in the IP Plan & Connectivity Proof: a proof row for the tailnet SSH, and the two routes in the Bring-Up Log’s remote-access section.",
+          "explain": "Nothing private is published. Administrators come in over the tailnet, and the rules file names exactly what they may reach."
+        }
+      ]
+    },
+    {
       "id": "map-vmbr2-physical-nic",
       "week": 3,
       "title": "Later phase: map vmbr2 to a physical NIC on the Cisco router and switch",
       "where": "Proxmox host shell, and the rack",
-      "summary": "Move the private zone off the host internal bridge and onto real cable: attach vmbr2 to a second physical NIC patched into the Cisco switch, and hand the 192.168.0.1 gateway over to the Cisco router, which becomes the servers only internet path. Do this only once the connectivity proof above is complete and recorded — from here on the private gateway is the router, not the host, and every earlier check would have to be re-taken.",
+      "summary": "Move the private zone onto real cable: attach vmbr2 to a second physical NIC patched into the Cisco switch, and hand the 192.168.0.1 gateway to the Cisco router. Only once the connectivity proof is recorded — from here on the gateway is the router, and every earlier check would have to be re-taken.",
       "optional": true,
       "optionalLabel": "Later phase · optional",
       "steps": [
@@ -10297,7 +10474,7 @@
         },
         {
           "cmd": "ssh alex@<tailscale-ip>",
-          "explain": "Prove key login works for a named account, right now, from the machine you will use later. If this asks for a password, the key is not in place and you must stop here — Week 1 has the ssh-copy-id procedure."
+          "explain": "Prove key login works for a named account, from the machine you will use later. A password prompt means the key is not in place: stop here and redo Week 1’s ssh-copy-id."
         },
         {
           "cmd": "sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak",
@@ -10325,7 +10502,7 @@
         },
         {
           "gui": "Optional: Datacenter → Permissions → Two Factor, add TOTP to each named account.",
-          "explain": "Worth doing on a host reachable from anywhere. Worth thinking about first on a shared server: a lost TOTP secret on an account four people rely on locks all four out, so record the recovery keys where the team can reach them."
+          "explain": "Worth doing on a host reachable from anywhere. On a shared server, a lost TOTP secret locks four people out — record the recovery keys where the team can reach them."
         }
       ]
     },
@@ -10334,7 +10511,7 @@
       "week": 4,
       "title": "Harden the exposed hosts: SSH, ufw and TLS on websrv, then linuxsrv",
       "where": "The websrv console (172.16.0.10), then the linuxsrv console (192.168.0.3)",
-      "summary": "Lock down both machines the campus LAN can reach. websrv answers on 80, 443 and 2200 through the host’s forwards; linuxsrv answers on 2222 through the other one. Each gets a non-root administrative user, root login disabled over SSH, and a ufw ruleset that restricts SSH to the networks you own, with the hypervisor’s own bridge address named on its own line — websrv keeps 80 and 443 open to everyone and finally serves the site over TLS, linuxsrv opens nothing else at all.",
+      "summary": "websrv is what the campus reaches, on 80, 443 and 2200. linuxsrv is reached by nobody outside — the host and the tailnet only — and is hardened because a compromised websrv sits one hop away. Each gets a non-root admin, root login off and a ufw ruleset; websrv serves the site over TLS.",
       "steps": [
         {
           "cmd": "sudo apt update && sudo apt install openssh-server -y",
@@ -10346,11 +10523,11 @@
         },
         {
           "cmd": "sudo adduser webadmin",
-          "explain": "Creates the non-root administrative user and prompts for its password. Pick your own name and record it in the Server Bring-Up Log — you are about to disable root login and this account becomes your only way in."
+          "explain": "Pick your own name and record it in the Server Bring-Up Log. You are about to disable root login; this account becomes your only way in."
         },
         {
           "cmd": "sudo usermod -aG sudo webadmin",
-          "explain": "Gives the new user sudo. Do this BEFORE disabling root, and test it — an unprivileged-only account plus no root login means a console-only recovery."
+          "explain": "Do this BEFORE disabling root, and test it — no sudo plus no root login means a console-only recovery."
         },
         {
           "cmd": "sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak",
@@ -10366,7 +10543,7 @@
         },
         {
           "cmd": "sudo sshd -t",
-          "explain": "Validates the config. Silence means valid. Never restart sshd on a config that has not passed this — a syntax error can leave the service dead with you locked out."
+          "explain": "Silence means valid. Never restart sshd on a config that has not passed this."
         },
         {
           "cmd": "sudo systemctl restart ssh",
@@ -10386,7 +10563,7 @@
         },
         {
           "cmd": "sudo ufw allow from 172.16.0.1 to any port 22 proto tcp",
-          "explain": "The host’s own address on the DMZ bridge, on its own line. The /24 rule already covers it, but the allow-list in the Baselines form should say in so many words that the hypervisor may always get in — it is the path that survives every other mistake."
+          "explain": "The host’s own address on the DMZ bridge, on its own line. The tailnet arrives from this address too, so this one rule is what lets remote admins in."
         },
         {
           "cmd": "sudo ufw allow 80/tcp",
@@ -10398,7 +10575,7 @@
         },
         {
           "cmd": "sudo ufw enable",
-          "explain": "Turns the firewall on. It warns that this may disrupt existing SSH connections — you have already allowed SSH from all three trusted networks, so answer y."
+          "explain": "It warns that this may disrupt SSH — you have already allowed it from every trusted network, so answer y."
         },
         {
           "cmd": "sudo ufw status numbered",
@@ -10406,11 +10583,11 @@
         },
         {
           "cmd": "sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/ssl/private/websrv.key -out /etc/ssl/certs/websrv.crt -subj \"/CN=websrv\"",
-          "explain": "A self-signed certificate, one year, no passphrase. Browsers will warn because no public CA signed it — there is none in this lab — but the traffic is encrypted, and the warning is the lesson to write into the Baselines form."
+          "explain": "A self-signed certificate, one year, no passphrase. Browsers warn because no public CA signed it; the traffic is still encrypted. Write that lesson into the Baselines form."
         },
         {
           "cmd": "sudo tee /etc/nginx/sites-available/default > /dev/null <<'EOF'\nserver {\n    listen 80 default_server;\n    listen 443 ssl default_server;\n    ssl_certificate /etc/ssl/certs/websrv.crt;\n    ssl_certificate_key /etc/ssl/private/websrv.key;\n    root /var/www/html;\n    index index.html;\n    server_name _;\n    location / {\n        try_files $uri $uri/ =404;\n    }\n}\nEOF\nsudo nginx -t && sudo systemctl reload nginx",
-          "explain": "One server block serving the same document root on 80 and 443, with the certificate you just made. nginx -t validates the file before the reload — never reload NGINX on a config that has not passed it."
+          "explain": "One server block serving the same root on 80 and 443 with the certificate you just made. nginx -t validates before the reload."
         },
         {
           "cmd": "curl -I http://172.16.0.10",
@@ -10418,15 +10595,15 @@
         },
         {
           "cmd": "curl -kI https://10.10.30.T",
-          "explain": "From a campus workstation. -k accepts the self-signed certificate. HTTP/1.1 200 OK means the 443 forward the host has carried since Week 3 now reaches a listener — the published-but-not-listening row in your IP Plan closes here."
+          "explain": "From a campus PC. -k accepts the self-signed certificate. 200 OK means the 443 forward now reaches a listener — the published-but-not-listening row in your IP Plan closes here."
         },
         {
-          "gui": "Now switch to the linuxsrv console and run the same shape again. The Week-3 DNAT publishes this host sshd on port 2222, so the campus LAN reaches two machines, not one — hardening only websrv leaves that door standing open.",
-          "explain": "This is the correction to make against the older jump-box guides: they hardened the single exposed host, and this design exposes two."
+          "gui": "Now switch to the linuxsrv console and run the same shape again. Nothing publishes this host, but websrv can reach its database port, and a compromised websrv is one hop away.",
+          "explain": "The older jump-box guides hardened only the exposed host. Here the private host is hardened for what sits beside it."
         },
         {
           "cmd": "sudo adduser dbadmin",
-          "explain": "On linuxsrv. The non-root administrative user — pick your own name and record it in the Server Bring-Up Log. Give it sudo with sudo usermod -aG sudo dbadmin and test it BEFORE you disable root, from the console rather than over SSH."
+          "explain": "On linuxsrv. Pick your own name, record it in the Bring-Up Log, give it sudo with usermod -aG sudo dbadmin, and test it from the console BEFORE you disable root."
         },
         {
           "cmd": "sudo cp /etc/ssh/sshd_config /etc/ssh/sshd_config.bak && sudo sed -i 's/^#\\?PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config && grep -E '^PermitRootLogin' /etc/ssh/sshd_config",
@@ -10438,23 +10615,23 @@
         },
         {
           "cmd": "sudo ufw allow from 10.10.0.0/16 to any port 22 proto tcp",
-          "explain": "The campus LAN. The host 2222 DNAT does not rewrite the source address, so a forwarded session arrives here as its real campus address — this is the rule that lets it in."
+          "explain": "The campus LAN, for the later phase when the private zone hangs off the Cisco router. Today nothing on the campus reaches this host."
         },
         {
           "cmd": "sudo ufw allow from 192.168.0.1 to any port 22 proto tcp",
-          "explain": "The host’s own address on the private bridge, so the hypervisor can always SSH in — the same line websrv got."
+          "explain": "The host’s own address on the private bridge: the hypervisor, and the tailnet through it, can always SSH in."
         },
         {
           "cmd": "sudo ufw allow from 192.168.0.0/24 to any port 22 proto tcp",
-          "explain": "SSH from within the private zone itself. No port 80 rule and no 3306 rule: linuxsrv serves the database, and the base build has no cross-zone grant to allow."
+          "explain": "SSH from within the private zone. No 80 and no 3306 rule: the base build has no cross-zone grant to allow."
         },
         {
           "cmd": "sudo ufw enable && sudo ufw status numbered",
           "explain": "Turn it on and read the whole ruleset back. Screenshot it for the Server Bring-Up Log."
         },
         {
-          "cmd": "ssh -p 2222 dbadmin@10.10.30.1",
-          "explain": "From a campus workstation, with your team host address and your own user name. The hardened path still works end to end — that is the proof this step is finished."
+          "cmd": "ssh dbadmin@192.168.0.3",
+          "explain": "From a tailnet laptop with subnet routes, or from the host, with your own user name. The hardened path still works — that is the proof this step is finished."
         }
       ]
     },
@@ -10532,7 +10709,7 @@
       "week": 4,
       "title": "Run one real restore and time it",
       "where": "linuxsrv (192.168.0.3) and the Proxmox host",
-      "summary": "Destroy something on purpose, restore it from the snapshot you took, measure how long it actually took, and confirm the data came back intact. The failure and the snapshot must be the same machine — deleting a file on websrv and rolling back linuxsrv restores nothing. linuxsrv is the usual choice because its data is the database, which is the thing worth proving came back.",
+      "summary": "Destroy something on purpose, restore it from the snapshot you took, time it, and confirm the data came back. The failure and the snapshot must be the same machine — deleting a file on websrv and rolling back linuxsrv restores nothing. linuxsrv is the usual choice: its data is the database.",
       "steps": [
         {
           "cmd": "mysql -u capuser -p -e \"SHOW DATABASES;\"",

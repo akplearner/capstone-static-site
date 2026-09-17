@@ -10,6 +10,8 @@ import {
   ListChecks,
   Rows3,
   RotateCcw,
+  Sparkles,
+  BookOpen,
 } from 'lucide-react';
 import { Button, Collapsible } from './ui/Button';
 import { ChecklistItem, StepDetail } from './TaskComponents';
@@ -23,6 +25,7 @@ import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo, evidenceRepo } from '@/lib/data';
 import { selfAttested } from '@/lib/evidenceLedger';
 import { DUR } from '@/lib/motion';
+import type { StepDensity } from '@/lib/stepDensity';
 
 /** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
  *  inside a component-body function as render work, even when it only runs from
@@ -47,22 +50,29 @@ interface GuidedTaskRunnerProps {
   /** A deep link (`?step=`) or the palette named this step: open on it rather
    *  than on the first incomplete one. */
   initialStepId?: string;
+  /** Open on one step at a time (`Course.guidedDefault`). Off: the whole checklist. */
+  guidedDefault?: boolean;
+  /** How much of a step shows: 'simple' is commands and checks, explanations one
+   *  click away; 'full' is everything. The toggle renders only when the caller
+   *  can save the choice. */
+  density?: StepDensity;
+  onDensityChange?: (density: StepDensity) => void;
 }
 
-export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about, initialStepId }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about, initialStepId, guidedDefault, density = 'full', onDensityChange }: GuidedTaskRunnerProps) {
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
   // Bumped each time a step is newly ticked, to fire the one-shot cut beat.
   const [beat, setBeat] = useState(0);
   const { guard } = useRequireAuth();
-  // The two no-gatekeeping courses default to Guided: one step at a time is
-  // the smallest possible reading surface, which is what their students asked
-  // for. The "Show all" toggle sits right on the count row for anyone who
-  // prefers the full checklist. Gated courses keep the show-all default.
-  const [mode, setMode] = useState<'guided' | 'all'>(
-    courseId === 'cysa-plus' || courseId === 'server-plus' ? 'guided' : 'all'
-  );
+  // A course that says so defaults to Guided: one step at a time is the
+  // smallest possible reading surface, which is what those students asked for.
+  // The "Show all" toggle sits right on the count row for anyone who prefers
+  // the full checklist. Other courses keep the show-all default. This used to
+  // be a course-id ternary here; it is a course flag now, set in the seed.
+  const [mode, setMode] = useState<'guided' | 'all'>(guidedDefault ? 'guided' : 'all');
+  const simple = density === 'simple';
   const [currentIdx, setCurrentIdx] = useState(() => {
     const asked = initialStepId ? task.steps.findIndex((s) => s.id === initialStepId) : -1;
     if (asked >= 0) return asked;
@@ -225,6 +235,34 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
             <Rows3 className="h-3.5 w-3.5" /> Show all
           </button>
         </div>
+        {/* The second switch: how much of each step to read. "Key points" is
+            the title, where you are, the one-line instruction, the commands and
+            the check; every explanation sits behind one press. Nothing is
+            deleted — "Everything" is the whole step. Saved per course. */}
+        {onDensityChange && (
+          <div className="flex overflow-hidden rounded-lg border border-line" role="group" aria-label="How much to show">
+            <button
+              type="button"
+              onClick={() => onDensityChange('simple')}
+              aria-pressed={simple}
+              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                simple ? 'bg-accent text-accent-contrast' : 'bg-panel text-muted hover:bg-panel-2'
+              }`}
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Key points
+            </button>
+            <button
+              type="button"
+              onClick={() => onDensityChange('full')}
+              aria-pressed={!simple}
+              className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
+                !simple ? 'bg-accent text-accent-contrast' : 'bg-panel text-muted hover:bg-panel-2'
+              }`}
+            >
+              <BookOpen className="h-3.5 w-3.5" /> Everything
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Everything about the task that is not a step: the done-when list, the
@@ -290,7 +328,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   {/* The step's authored one-liner — unreachable for two rounds
                       (the body renders `instruction || description`, and every
                       step has both), now doing its job as the card's subtitle. */}
-                  {current?.description && (
+                  {current?.description && !simple && (
                     <p className="mt-0.5 text-sm text-muted">{current.description}</p>
                   )}
                 </div>
@@ -337,6 +375,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                   images={current.images}
                   outputHighlights={current.outputHighlights}
                   outputKind={current.outputKind}
+                  density={density}
                 />
               )}
             </motion.div>
@@ -396,6 +435,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                  this list mounted (`currentIdx` is initialized to it). Read
                  once — no re-open/re-close choreography as steps are ticked. */
               defaultOpen={i === currentIdx}
+              density={density}
               title={step.title}
               instruction={step.instruction}
               instructionList={step.instructionList}
