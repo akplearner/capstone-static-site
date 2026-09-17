@@ -736,6 +736,41 @@ describe('R70 — the DMZ site is built, uploaded, and published through one mod
   });
 });
 
+describe('R72 — every command says where it runs, and every week shows its part of the picture', () => {
+  it('the machine chip renders from the topology model, not from hand-typed names', () => {
+    const chip = code('src/components/MachineChip.tsx');
+    expect(chip).toContain('MACHINES');
+    expect(chip).toContain('machineChipLabel');
+    // One colour table for the diagram, the focus strip and the chip.
+    expect(code('src/components/diagrams/topologyStyle.ts')).toContain('ZONE_COLOR');
+    expect(code('src/components/diagrams/ServerTopologyDiagram.tsx')).toContain("from './topologyStyle'");
+  });
+
+  it('a command carries its machine and its sample through to the screen', () => {
+    const components = code('src/components/TaskComponents.tsx');
+    expect(components).toContain('<MachineChip on={on}');
+    expect(components).toContain("'What it prints'");
+    expect(components).toContain('shellPrompt(');
+  });
+
+  it('the task, the week and the guide all draw the part being built', () => {
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('<TopologyFocus');
+    expect(code('src/components/WeekMilestoneHeader.tsx')).toContain('<TopologyFocus');
+    const guide = code('src/components/docs/ServerConfigGuide.tsx');
+    expect(guide).toContain('<TopologyFocus');
+    expect(guide).toContain('<ServerTopologyDiagram highlight=');
+    // The focus set is derived from the commands, never authored twice.
+    expect(code('src/components/diagrams/TopologyFocus.tsx')).toContain('export function focusOf');
+  });
+
+  it('the full diagram can dim what has not been built and light one week', () => {
+    const diagram = code('src/components/diagrams/ServerTopologyDiagram.tsx');
+    expect(diagram).toContain('builtThrough');
+    expect(diagram).toContain('highlight');
+    expect(diagram).toContain('REMOTE_ADMIN');
+  });
+});
+
 describe('R71 — a course you can follow: the build map, the key-points view, and no door into the private zone', () => {
   it('the Tasks tab keeps the topology goal in front of the student', () => {
     const page = code('src/app/courses/[courseId]/page.tsx');

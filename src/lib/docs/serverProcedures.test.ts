@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { PROCEDURES, WEEKS, procedureById } from './serverProcedures';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
-import { HOST, OPS, ZONE_BRIDGES, BRIDGES } from '../serverTopology';
+import { HOST, OPS, ZONE_BRIDGES, BRIDGES, MACHINES } from '../serverTopology';
+import { COMMANDS } from './serverCommands';
 
 /**
  * Steps say WHAT; the guide says HOW.
@@ -217,5 +218,89 @@ describe('R72 — back up before you change it', () => {
       for (const line of unbacked(cmds)) bad.push(`${p.id}: ${line}`);
     }
     expect(bad, `take a copy before these: ${bad.join(' | ')}`).toEqual([]);
+  });
+});
+
+/**
+ * R72: a command is written down once.
+ *
+ * 157 of the base build's 219 commands used to exist in both the seed step and
+ * the guide procedure, each with its own hand-written sentence, and nothing
+ * stopped the two drifting. `serverCommands.ts` is the home now, and both sides
+ * are filled from it — so no command may carry its own explanation on BOTH
+ * sides, and every base-build command must be in the registry.
+ */
+describe('R72 — a command is written down once', () => {
+  const norm = (c: string) => c.replace(/\s+/g, ' ').trim();
+  const src = (f: string) => readFileSync(resolve(process.cwd(), f), 'utf8');
+
+  it('the registry is the home, and both sides read from it', () => {
+    expect(src('src/lib/data/seed/serverPlus.ts')).toContain('withCommandDetail');
+    expect(src('src/lib/docs/serverProcedures.ts')).toContain('withProcedureDetail');
+    expect(COMMANDS.length).toBeGreaterThan(200);
+  });
+
+  it('every base-build command is in the registry', () => {
+    const known = new Set(COMMANDS.map((c) => norm(c.k)));
+    const missing: string[] = [];
+    for (const t of SERVER_PLUS.tasks.filter((t) => t.week <= 4))
+      for (const s of t.steps)
+        for (const c of s.commands ?? [])
+          if (!known.has(norm(c.cmd))) missing.push(`${s.id}: ${c.cmd.slice(0, 50)}`);
+    expect(missing, `add to serverCommands.ts: ${missing.join(' | ')}`).toEqual([]);
+  });
+
+  it('no base-build command carries its own explanation on both sides', () => {
+    const seedOwn = new Map<string, string>();
+    for (const t of SERVER_PLUS.tasks.filter((t) => t.week <= 4))
+      for (const s of t.steps) for (const c of s.commands ?? []) if (c.explain) seedOwn.set(norm(c.cmd), c.explain);
+    // A guide step that still spells out its own sentence for a command the seed
+    // also explains is the duplication this round removed.
+    const raw = src('src/lib/docs/serverProcedures.ts');
+    const both: string[] = [];
+    for (const [cmd, explain] of seedOwn) {
+      if (raw.includes(explain) && COMMANDS.some((c) => norm(c.k) === cmd)) {
+        // Allowed only when the registry itself is where that sentence lives.
+        const inRegistry = src('src/lib/docs/serverCommands.ts').includes(explain);
+        if (!inRegistry) both.push(cmd.slice(0, 50));
+      }
+    }
+    expect(both, `written twice: ${both.join(' | ')}`).toEqual([]);
+  });
+
+  // The chip and the sentence have to agree. Four disagreed when the chip was
+  // first derived — the sentence said "inside each Ubuntu guest" while the chip
+  // said Proxmox host — and a chip that contradicts the text is worse than none.
+  // Only the FIRST machine a sentence names counts: several explanations end by
+  // pointing at the opposite box ("...run the reverse from winserver").
+  it('the machine chip agrees with the sentence beside it', () => {
+    const SAYS: [RegExp, string[]][] = [
+      [/\b(on|inside|from) (each |every )?(ubuntu )?guest/i, ['websrv', 'linuxsrv']],
+      [/\bon winserver\b|\bfrom winserver\b/i, ['winserver']],
+      [/\bon linuxsrv\b|\bfrom linuxsrv\b/i, ['linuxsrv']],
+      [/\bon websrv\b|\bfrom websrv\b/i, ['websrv']],
+      [/\bon the (proxmox )?host\b|\bfrom the (proxmox )?host\b/i, ['host']],
+      [/\bfrom a campus pc\b|\bcampus pc on vmbr0\b/i, ['campus']],
+      [/\bon your laptop\b|\bfrom your laptop\b/i, ['laptop']],
+    ];
+    const bad: string[] = [];
+    for (const c of COMMANDS) {
+      // Whichever machine the sentence names first is the one it is about.
+      let first: { at: number; allow: string[] } | null = null;
+      for (const [re, allow] of SAYS) {
+        const m = re.exec(c.explain);
+        if (m && (first === null || m.index < first.at)) first = { at: m.index, allow };
+      }
+      if (first && !first.allow.includes(c.on)) {
+        bad.push(`${c.k.slice(0, 45)} — chip says ${c.on}, text says ${first.allow.join('/')}`);
+      }
+    }
+    expect(bad, `chip and text disagree: ${bad.join(' | ')}`).toEqual([]);
+  });
+
+  it('every machine a command names is a real one', () => {
+    const ids = new Set(Object.keys(MACHINES));
+    const bad = COMMANDS.filter((c) => !ids.has(c.on)).map((c) => `${c.k.slice(0, 40)} → ${c.on}`);
+    expect(bad, `not a MachineId: ${bad.join(' | ')}`).toEqual([]);
   });
 });

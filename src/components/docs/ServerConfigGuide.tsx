@@ -17,6 +17,10 @@ import {
 } from '@/lib/serverTopology';
 import { PROCEDURES, WEEKS, procedureById } from '@/lib/docs/serverProcedures';
 import { Surface } from '@/components/ui/Surface';
+import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
+import { TopologyFocus } from '@/components/diagrams/TopologyFocus';
+import { MachineChip } from '@/components/MachineChip';
+import { MACHINES, shellPrompt, type MachineId } from '@/lib/serverTopology';
 import { surfaceVariants } from '@/components/ui/Surface';
 
 /**
@@ -116,6 +120,14 @@ export function ServerConfigGuide() {
   const [week, setWeek] = useState(1);
   const lab = useLabAccess('server-plus');
   const tool = useIacTool('server-plus');
+  // Which boxes this week's procedures touch. Derived from the commands, so the
+  // picture below cannot drift from the steps beside it.
+  const weekMachines = (w: number): MachineId[] => {
+    const seen = new Set<string>();
+    for (const p of PROCEDURES.filter((x) => x.week === w))
+      for (const st of p.steps) if (st.on) seen.add(st.on);
+    return (Object.keys(MACHINES) as MachineId[]).filter((m) => seen.has(m));
+  };
 
   //
   // A procedure anchor (`#create-raid-virtual-disk`) works the same way, because
@@ -268,6 +280,22 @@ export function ServerConfigGuide() {
         </div>
         <p className="text-sm text-muted">{active.lead}</p>
 
+        {/* The topology, with this week's part lit and everything the student
+            has not built yet dimmed and tagged with the week it arrives in.
+            The guide used to describe the design in a table and a paragraph and
+            never draw it, so "what am I building" was the one question the
+            manual could not answer at a glance. */}
+        {weekMachines(active.number).length > 0 && (
+          <Surface variant="inset" padding="sm" className="space-y-2">
+            <div className="flex flex-wrap items-baseline gap-x-2">
+              <h4 className="text-xs font-semibold text-ink">What Week {active.number} touches</h4>
+              <span className="text-2xs text-muted">lit boxes are this week; dimmed parts arrive later</span>
+            </div>
+            <TopologyFocus focus={weekMachines(active.number)} />
+            <ServerTopologyDiagram highlight={weekMachines(active.number)} builtThrough={active.number} />
+          </Surface>
+        )}
+
         {/* A jump table, so you can find the one procedure you came for without
             reading past the others. */}
         {procs.length > 1 && (
@@ -324,7 +352,10 @@ export function ServerConfigGuide() {
                       <td className="w-8 py-2 pl-4 pr-1 font-mono text-3xs leading-6 text-muted">{i + 1}</td>
                       <td className="w-[55%] py-2 pr-3">
                         {s.cmd ? (
-                          <CommandLine step={{ cmd: s.cmd, opentofu: s.opentofu }} tool={tool} values={lab.values} />
+                          <>
+                            {s.on && <MachineChip on={s.on} />}
+                            <CommandLine step={{ cmd: s.cmd, opentofu: s.opentofu }} tool={tool} values={lab.values} />
+                          </>
                         ) : (
                           /* A click-path that names an address names YOURS too,
                              for the same reason the commands do. */
@@ -339,7 +370,31 @@ export function ServerConfigGuide() {
                           </a>
                         )}
                       </td>
-                      <td className="py-2 pr-4 text-xs text-muted">{s.explain}</td>
+                      <td className="py-2 pr-4 text-xs text-muted">
+                        {s.explain}
+                        {s.sample && (
+                          <details className="mt-1">
+                            <summary className="cursor-pointer text-2xs font-medium text-ok hover:opacity-80">
+                              What it prints
+                            </summary>
+                            <pre
+                              className="mt-1 overflow-x-auto rounded-md p-2 font-mono text-3xs leading-relaxed"
+                              style={{ background: 'var(--color-term-bg)', color: 'var(--color-term-tx)' }}
+                            >
+                              {s.on && (
+                                <span className="select-none" style={{ color: 'var(--color-term-ip)' }}>
+                                  {shellPrompt(s.on)}{' '}
+                                </span>
+                              )}
+                              <span className="select-none" style={{ color: 'var(--color-term-dim)' }}>
+                                {(s.cmd ?? '').split('\n')[0]}
+                              </span>
+                              {'\n'}
+                              {s.sample}
+                            </pre>
+                          </details>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

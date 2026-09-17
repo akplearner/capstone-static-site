@@ -1501,7 +1501,7 @@
               {
                 "cmd": "ping -c 4 172.16.0.1",
                 "explain": "From websrv: its gateway is the host's vmbr1 address. The same check on linuxsrv is \"ping -c 4 192.168.0.1\".",
-                "on": "linuxsrv",
+                "on": "websrv",
                 "sample": "PING 172.16.0.1 (172.16.0.1) 56(84) bytes of data.\n64 bytes from 172.16.0.1: icmp_seq=1 ttl=64 time=0.412 ms\n...\n64 bytes from 172.16.0.1: icmp_seq=4 ttl=64 time=0.388 ms\n\n--- 172.16.0.1 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3052ms\nrtt min/avg/max/mdev = 0.371/0.398/0.412/0.016 ms"
               },
               {
@@ -2015,7 +2015,7 @@
               {
                 "cmd": "ip -br link",
                 "explain": "Inside each Ubuntu guest, to learn the real interface name. A VirtIO NIC usually appears as ens18 — do not copy an interface name out of a guide.",
-                "on": "host",
+                "on": "websrv",
                 "sample": "lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>\nens18            UP             bc:24:11:6a:3c:19 <BROADCAST,MULTICAST,UP,LOWER_UP>"
               },
               {
@@ -2335,7 +2335,7 @@
               {
                 "cmd": "ping -c 4 192.168.0.2",
                 "explain": "From linuxsrv: Linux to Windows across the private zone. Run \"ping 192.168.0.3\" from winserver for the reverse.",
-                "on": "host",
+                "on": "linuxsrv",
                 "sample": "PING 192.168.0.2 (192.168.0.2) 56(84) bytes of data.\n64 bytes from 192.168.0.2: icmp_seq=1 ttl=128 time=0.412 ms\n64 bytes from 192.168.0.2: icmp_seq=2 ttl=128 time=0.388 ms\n...\n--- 192.168.0.2 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3055ms\nrtt min/avg/max/mdev = 0.388/0.407/0.431/0.019 ms"
               },
               {
@@ -2347,7 +2347,7 @@
               {
                 "cmd": "nslookup archive.ubuntu.com 192.168.0.2",
                 "explain": "From websrv: an internet name answered by winserver through its forwarder — the DMZ's DNS hole and the forwarder proven in one line.",
-                "on": "winserver",
+                "on": "websrv",
                 "sample": "Server:\t\t192.168.0.2\nAddress:\t192.168.0.2#53\n\nNon-authoritative answer:\nName:\tarchive.ubuntu.com\nAddress: 185.125.190.36\nName:\tarchive.ubuntu.com\nAddress: 91.189.91.83"
               },
               {
@@ -2377,7 +2377,7 @@
               {
                 "cmd": "ssh -p 2200 ubuntu@10.10.30.T hostname",
                 "explain": "From a campus PC: 2200 lands on websrv and prints its hostname — the only SSH the campus reaches. linuxsrv has no published port at all.",
-                "on": "websrv",
+                "on": "campus",
                 "sample": "websrv"
               }
             ],
@@ -10338,7 +10338,7 @@
         },
         {
           "cmd": "ping -c 4 172.16.0.1",
-          "on": "linuxsrv",
+          "on": "websrv",
           "explain": "From websrv: its gateway is the host's vmbr1 address. The same check on linuxsrv is \"ping -c 4 192.168.0.1\".",
           "sample": "PING 172.16.0.1 (172.16.0.1) 56(84) bytes of data.\n64 bytes from 172.16.0.1: icmp_seq=1 ttl=64 time=0.412 ms\n...\n64 bytes from 172.16.0.1: icmp_seq=4 ttl=64 time=0.388 ms\n\n--- 172.16.0.1 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3052ms\nrtt min/avg/max/mdev = 0.371/0.398/0.412/0.016 ms"
         }
@@ -10806,7 +10806,7 @@
         },
         {
           "cmd": "ip -br link",
-          "on": "host",
+          "on": "websrv",
           "explain": "Inside each Ubuntu guest, to learn the real interface name. A VirtIO NIC usually appears as ens18 — do not copy an interface name out of a guide.",
           "sample": "lo               UNKNOWN        00:00:00:00:00:00 <LOOPBACK,UP,LOWER_UP>\nens18            UP             bc:24:11:6a:3c:19 <BROADCAST,MULTICAST,UP,LOWER_UP>"
         },
@@ -11054,7 +11054,7 @@
         },
         {
           "cmd": "ping -c 4 172.16.0.1",
-          "on": "linuxsrv",
+          "on": "websrv",
           "explain": "From websrv: its gateway is the host's vmbr1 address. The same check on linuxsrv is \"ping -c 4 192.168.0.1\".",
           "sample": "PING 172.16.0.1 (172.16.0.1) 56(84) bytes of data.\n64 bytes from 172.16.0.1: icmp_seq=1 ttl=64 time=0.412 ms\n...\n64 bytes from 172.16.0.1: icmp_seq=4 ttl=64 time=0.388 ms\n\n--- 172.16.0.1 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3052ms\nrtt min/avg/max/mdev = 0.371/0.398/0.412/0.016 ms"
         },
@@ -11072,7 +11072,7 @@
         },
         {
           "cmd": "ping -c 4 192.168.0.2",
-          "on": "host",
+          "on": "linuxsrv",
           "explain": "From linuxsrv: Linux to Windows across the private zone. Run \"ping 192.168.0.3\" from winserver for the reverse.",
           "sample": "PING 192.168.0.2 (192.168.0.2) 56(84) bytes of data.\n64 bytes from 192.168.0.2: icmp_seq=1 ttl=128 time=0.412 ms\n64 bytes from 192.168.0.2: icmp_seq=2 ttl=128 time=0.388 ms\n...\n--- 192.168.0.2 ping statistics ---\n4 packets transmitted, 4 received, 0% packet loss, time 3055ms\nrtt min/avg/max/mdev = 0.388/0.407/0.431/0.019 ms"
         },
@@ -11090,7 +11090,7 @@
         },
         {
           "cmd": "nslookup archive.ubuntu.com 192.168.0.2",
-          "on": "winserver",
+          "on": "websrv",
           "explain": "From websrv: an internet name answered by winserver through its forwarder — the DMZ's DNS hole and the forwarder proven in one line.",
           "sample": "Server:\t\t192.168.0.2\nAddress:\t192.168.0.2#53\n\nNon-authoritative answer:\nName:\tarchive.ubuntu.com\nAddress: 185.125.190.36\nName:\tarchive.ubuntu.com\nAddress: 91.189.91.83"
         },
@@ -11120,7 +11120,7 @@
         },
         {
           "cmd": "ssh -p 2200 ubuntu@10.10.30.T hostname",
-          "on": "websrv",
+          "on": "campus",
           "explain": "From a campus PC: 2200 lands on websrv and prints its hostname — the only SSH the campus reaches. linuxsrv has no published port at all.",
           "sample": "websrv"
         },

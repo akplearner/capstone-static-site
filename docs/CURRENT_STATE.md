@@ -144,6 +144,14 @@ additive, none requiring a rewrite.
 - **The host's holes:** `PUBLISHED_PORTS`, `CROSS_ZONE_ALLOW` and `hostRulesFile()` in `src/lib/serverTopology.ts`
   render the Proxmox host's iptables-restore file; the Week-2/3 seed steps, the guide, the topology diagram
   and the IP Plan's published-ports table all read that one model.
+- **One home per command:** `src/lib/docs/serverCommands.ts` holds every Server+ base-build command once —
+  which machine types it (`MACHINES` in `serverTopology.ts`), why it exists, what it prints, and whether it
+  overwrites config. The seed and the guide are filled from it at load (`withCommandDetail` /
+  `withProcedureDetail`); `serverProcedures.test.ts` fails if a command is explained in both files, if a chip
+  disagrees with its sentence, or if a config write has no backup before it.
+- **Drawing the part being built:** `TopologyFocus` (derived from the machines a task's commands name) sits on
+  the task row, the week header and each guide week; `ServerTopologyDiagram` takes `highlight` and
+  `builtThrough` to light one week and dim what has not been built yet.
 - **Remote administration:** `REMOTE_ADMIN` in `src/lib/serverTopology.ts` is the tailnet's way into the zones
   (the host advertises both subnets; `hostRulesFile('the-holes')` allows `tailscale0` forward for SSH and RDP only).
 - **Following the build:** `Course.buildMap` (one milestone per week) renders as `src/components/BuildMap.tsx` above

@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { MACHINES } from '../serverTopology';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
@@ -407,6 +408,37 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
       .filter(({ step }) => prose(step.description ?? '') >= 30)
       .map(({ step }) => `${step.id} (${prose(step.description ?? '')}w)`);
     expect(over, `cut these descriptions under 30 words: ${over.join(', ')}`).toHaveLength(0);
+  });
+
+  // R72: students could not tell which machine a line belonged to, and a
+  // beginner cannot tell a working command from a broken one with nothing to
+  // compare against. So every base-build command carries three facts, and all
+  // three come from `src/lib/docs/serverCommands.ts` — see that file for why
+  // they live in one place rather than two.
+  it('every Server+ base-build command says which machine it runs on', () => {
+    const missing = allSteps(course)
+      .filter(baseBuild)
+      .flatMap(({ step }) => (step.commands ?? []).filter((c) => !c.on).map((c) => `${step.id}: ${c.cmd.slice(0, 50)}`));
+    expect(missing, `add these to serverCommands.ts: ${missing.join(', ')}`).toHaveLength(0);
+  });
+
+  it('every Server+ base-build command names a machine that exists', () => {
+    const ids = new Set(Object.keys(MACHINES));
+    const bad = allSteps(course)
+      .filter(baseBuild)
+      .flatMap(({ step }) => (step.commands ?? []).filter((c) => c.on && !ids.has(c.on)).map((c) => `${step.id}: ${c.on}`));
+    expect(bad, `not a MachineId: ${bad.join(', ')}`).toHaveLength(0);
+  });
+
+  it('every Server+ base-build command shows what it prints and why it exists', () => {
+    const bare = allSteps(course)
+      .filter(baseBuild)
+      .flatMap(({ step }) =>
+        (step.commands ?? [])
+          .filter((c) => !c.sample || !c.explain)
+          .map((c) => `${step.id}: ${c.cmd.slice(0, 50)}${c.sample ? '' : ' [no sample]'}${c.explain ? '' : ' [no explain]'}`)
+      );
+    expect(bare, `fill these in: ${bare.join(', ')}`).toHaveLength(0);
   });
 
   it('no `whatItMeans` runs long', () => {
