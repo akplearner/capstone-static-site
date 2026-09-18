@@ -35,7 +35,8 @@ import { labProfile, hasLabAccess } from '@/lib/labAccess';
 import { IAC_TOOLS, IAC_TOOL_KEY } from '@/lib/iacTool';
 import { TEAM_WEIGHT, FOCUS_WEIGHT } from '@/lib/rubric';
 
-export const DTO_SCHEMA = 'capstone-course-dto/1';
+export { DTO_SCHEMA } from './schema';
+import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
 export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];

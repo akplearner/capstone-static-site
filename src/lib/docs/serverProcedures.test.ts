@@ -4,7 +4,8 @@ import { resolve } from 'node:path';
 import { PROCEDURES, WEEKS, procedureById } from './serverProcedures';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { HOST, OPS, ZONE_BRIDGES, BRIDGES, MACHINES } from '../serverTopology';
-import { COMMANDS } from './serverCommands';
+import { COMMANDS, RESOLVED } from './serverCommands';
+import { NOT_TOPOLOGY, literalToSymbol, resolveSymbols, symbolsIn } from '../topologySymbols';
 
 /**
  * Steps say WHAT; the guide says HOW.
@@ -241,7 +242,9 @@ describe('R72 — a command is written down once', () => {
   });
 
   it('every base-build command is in the registry', () => {
-    const known = new Set(COMMANDS.map((c) => norm(c.k)));
+    // RESOLVED, not COMMANDS: the registry is authored with topology symbols
+    // and the seed holds the addresses those resolve to.
+    const known = new Set(RESOLVED.map((c) => norm(c.k)));
     const missing: string[] = [];
     for (const t of SERVER_PLUS.tasks.filter((t) => t.week <= 4))
       for (const s of t.steps)
@@ -259,7 +262,7 @@ describe('R72 — a command is written down once', () => {
     const raw = src('src/lib/docs/serverProcedures.ts');
     const both: string[] = [];
     for (const [cmd, explain] of seedOwn) {
-      if (raw.includes(explain) && COMMANDS.some((c) => norm(c.k) === cmd)) {
+      if (raw.includes(explain) && RESOLVED.some((c) => norm(c.k) === cmd)) {
         // Allowed only when the registry itself is where that sentence lives.
         const inRegistry = src('src/lib/docs/serverCommands.ts').includes(explain);
         if (!inRegistry) both.push(cmd.slice(0, 50));
@@ -284,7 +287,7 @@ describe('R72 — a command is written down once', () => {
       [/\bon your laptop\b|\bfrom your laptop\b/i, ['laptop']],
     ];
     const bad: string[] = [];
-    for (const c of COMMANDS) {
+    for (const c of RESOLVED) {
       // Whichever machine the sentence names first is the one it is about.
       let first: { at: number; allow: string[] } | null = null;
       for (const [re, allow] of SAYS) {
@@ -302,5 +305,71 @@ describe('R72 — a command is written down once', () => {
     const ids = new Set(Object.keys(MACHINES));
     const bad = COMMANDS.filter((c) => !ids.has(c.on)).map((c) => `${c.k.slice(0, 40)} → ${c.on}`);
     expect(bad, `not a MachineId: ${bad.join(' | ')}`).toEqual([]);
+  });
+});
+
+/**
+ * R74: a command names an address, it does not carry one.
+ *
+ * The old rule was the opposite. `page-shape.test.ts` kept a registry of
+ * addresses that had to live in `serverTopology.ts`, and EXEMPTED command text
+ * from it (`commandsExempt`), because a copyable line has to read the way a
+ * student types it. That was right while there was one classroom, and it is
+ * exactly what stopped a procedure being reusable: point the build at a
+ * business on another subnet and every one of the 226 commands is wrong.
+ *
+ * So the exemption is gone and the rule is inverted. A command is authored
+ * against the model — `<vm.websrv.address>` — and `serverCommands.ts` resolves
+ * it once at load, so the student still reads a real address. A literal one in
+ * the authored source now fails here, and the failure names the symbol that
+ * belongs there.
+ */
+describe('R74 — commands name addresses through the model', () => {
+  const MAP = literalToSymbol();
+
+  it('the registry knows the addresses that must be symbols', () => {
+    expect(Object.keys(MAP).length).toBeGreaterThan(8);
+    for (const a of NOT_TOPOLOGY) expect(MAP[a]).toBeUndefined();
+  });
+
+  it('no authored command, sample or explanation carries a topology address', () => {
+    const bad: string[] = [];
+    for (const c of COMMANDS) {
+      for (const [field, text] of [['cmd', c.k], ['sample', c.sample], ['explain', c.explain]] as const) {
+        for (const [literal, symbol] of Object.entries(MAP)) {
+          // A bare address, never one inside a longer number.
+          if (new RegExp(`(?<![\\d.\\w])${literal.replace(/\./g, '\\.')}(?![\\d])`).test(text)) {
+            bad.push(`${c.k.slice(0, 40)} [${field}] has ${literal} — write ${symbol}`);
+          }
+        }
+      }
+    }
+    expect(bad, `use the symbol, not the address:\n${bad.join('\n')}`).toEqual([]);
+  });
+
+  it('every symbol used resolves, and none survives to a rendered command', () => {
+    const unknown: string[] = [];
+    for (const c of COMMANDS) {
+      for (const text of [c.k, c.sample, c.explain]) {
+        try {
+          resolveSymbols(text);
+        } catch {
+          unknown.push(`${c.k.slice(0, 40)}: ${symbolsIn(text).join(', ')}`);
+        }
+      }
+    }
+    expect(unknown, `unknown symbols: ${unknown.join(' | ')}`).toEqual([]);
+    // And nothing symbol-shaped is left once resolved.
+    for (const c of RESOLVED) {
+      expect(symbolsIn(c.k), c.k.slice(0, 40)).toEqual([]);
+      expect(symbolsIn(c.sample), c.k.slice(0, 40)).toEqual([]);
+    }
+  });
+
+  it('the symbols are actually used — this guard is not vacuous', () => {
+    const used = new Set(COMMANDS.flatMap((c) => symbolsIn(`${c.k} ${c.sample} ${c.explain}`)));
+    expect(used.size).toBeGreaterThan(8);
+    expect([...used].some((u) => u.startsWith('vm.'))).toBe(true);
+    expect([...used].some((u) => u.startsWith('bridge.'))).toBe(true);
   });
 });

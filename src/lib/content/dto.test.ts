@@ -1,7 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { SEED_COURSES, courseDto, courseIndex, toJson, DTO_SCHEMA, topologyData } from './dto';
+import { SEED_COURSES, courseDto, courseIndex, toJson, DTO_SCHEMA, topologyData, serialisable } from './dto';
+import { ContentError, courseFromJson, fnMarkerPaths, validateCourse } from './load';
+import {
+  getRequiredStepCount,
+  getTaskById,
+  getTasksByRole,
+  getWeekNumbers,
+  isGradedWeek,
+  weekSummary,
+} from '../course-helpers';
 import * as serverTopology from '@/lib/serverTopology';
 import * as labTopology from '@/lib/labTopology';
 import { GLOSSARY } from '@/lib/glossary';
@@ -132,5 +141,96 @@ describe('the DTO exports the whole model, not a remembered subset', () => {
     expect(fields.map((f) => f.key)).toContain('PVE_HOST');
     // …and the tool switch it offers, with both tools named.
     expect(Object.keys((dto.iacTools as { tools?: object })?.tools ?? {})).toEqual(['terraform', 'opentofu']);
+  });
+});
+
+/**
+ * R74: the course loads back out of its own JSON, and the app cannot tell.
+ *
+ * The snapshot test above proves the writer is current. It says nothing about
+ * whether the document is COMPLETE — a field the writer forgot would be missing
+ * from both sides and the test would still pass. This one reads the committed
+ * file back and runs the helpers the UI actually calls over the result, so a
+ * field the render path needs and the document lacks fails here.
+ *
+ * `serialisable` on both sides is deliberate rather than lazy: Definition-of-Done
+ * checks are still TypeScript functions, so the document holds a marker where a
+ * check was. The exact list of those paths is pinned below, which is what turns
+ * a known gap into a number that has to go down.
+ */
+describe('a course loads from its own document', () => {
+  const read = (id: string) => readFileSync(resolve(DIR, `${id}.json`), 'utf8');
+
+  it.each(SEED_COURSES.map((c) => c.id))('%s round-trips through JSON', (id) => {
+    const seed = SEED_COURSES.find((c) => c.id === id)!;
+    const loaded = courseFromJson(read(id));
+    expect(serialisable(loaded)).toEqual(serialisable(seed));
+  });
+
+  it.each(SEED_COURSES.map((c) => c.id))('%s renders the same through the UI helpers', (id) => {
+    const seed = SEED_COURSES.find((c) => c.id === id)!;
+    const loaded = courseFromJson(read(id));
+
+    // The derivations every course page runs, over both courses.
+    expect(getWeekNumbers(loaded)).toEqual(getWeekNumbers(seed));
+    for (const w of getWeekNumbers(seed)) {
+      expect(isGradedWeek(loaded, w), `week ${w} graded`).toBe(isGradedWeek(seed, w));
+      for (const role of seed.roles) {
+        const a = getTasksByRole(loaded, role.id, w).map((t) => t.id);
+        const b = getTasksByRole(seed, role.id, w).map((t) => t.id);
+        expect(a, `week ${w} / ${role.id}`).toEqual(b);
+        expect(weekSummary(loaded, role.id, w)).toEqual(weekSummary(seed, role.id, w));
+      }
+    }
+    for (const t of seed.tasks) {
+      const got = getTaskById(loaded, t.id);
+      expect(got, `task ${t.id} missing from the document`).toBeDefined();
+      expect(getRequiredStepCount(got!), `required steps of ${t.id}`).toBe(getRequiredStepCount(t));
+    }
+  });
+
+  it('every command survives the trip with its machine, sample and text', () => {
+    const loaded = courseFromJson(read('server-plus'));
+    const seed = SEED_COURSES.find((c) => c.id === 'server-plus')!;
+    const flat = (c: typeof seed) =>
+      c.tasks.flatMap((t) => t.steps.flatMap((s) => (s.commands ?? []).map((x) => [x.cmd, x.on, x.sample, x.explain])));
+    expect(flat(loaded)).toEqual(flat(seed));
+    // And the trip did not leave an unresolved topology symbol behind.
+    for (const [cmd] of flat(loaded)) expect(String(cmd)).not.toMatch(/<[a-z][a-zA-Z0-9]*\.[a-zA-Z0-9_.-]+>/);
+  });
+
+  it('rejects a document it cannot trust, naming where', () => {
+    expect(() => courseFromJson('not json')).toThrow(ContentError);
+    expect(() => courseFromJson(JSON.stringify({ schema: 'other/9', course: {} }))).toThrow(/document\.schema/);
+    const doc = JSON.parse(read('server-plus'));
+    delete doc.course.tasks[0].steps[0].id;
+    expect(() => courseFromJson(JSON.stringify(doc))).toThrow(/course\.tasks\[0\]\.steps\[0\]\.id/);
+    expect(() => validateCourse({ id: 'x' })).toThrow(/course\.title/);
+  });
+
+  it('pins what a document still cannot hold, so the gap has a number', () => {
+    // When checks and derived columns become declarative, these counts go to
+    // zero and a document holds everything the app renders.
+    const byCourse = Object.fromEntries(
+      SEED_COURSES.map((c) => [c.id, fnMarkerPaths(courseDto(c.id))])
+    );
+    // The counts are pinned so the gap cannot grow unnoticed, and so closing it
+    // is visible as these numbers falling to zero.
+    expect(Object.fromEntries(Object.entries(byCourse).map(([k, v]) => [k, v.length]))).toEqual({
+      'security-plus': 21,
+      mssp: 16,
+      'cysa-plus': 33,
+      'server-plus': 58,
+    });
+    // There are exactly two kinds, and knowing which is the point: a
+    // Definition-of-Done check, and a form column whose value is computed from
+    // the other columns. Both become declarative in the predicates round.
+    for (const paths of Object.values(byCourse)) {
+      for (const path of paths) {
+        expect(path, path).toMatch(
+          /^deliverables\[\d+\]\.(dod\[\d+\]\.test|sections\[\d+\]\.group\.columns\[\d+\]\.derived)$/
+        );
+      }
+    }
   });
 });

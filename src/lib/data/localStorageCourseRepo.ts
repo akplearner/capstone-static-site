@@ -2,6 +2,11 @@ import { Course } from '../types';
 import { CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
+import { courseFromDto } from '../content/load';
+import securityPlusDoc from '../../../content/courses/security-plus.json';
+import msspDoc from '../../../content/courses/mssp.json';
+import cysaDoc from '../../../content/courses/cysa-plus.json';
+import serverPlusDoc from '../../../content/courses/server-plus.json';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
@@ -9,7 +14,61 @@ import { SERVER_PLUS } from './seed/serverPlus';
 
 // Built-in courses shipped in code. They are never written to localStorage so
 // they stay upgradeable; an authored course with the same id overrides a seed.
-const SEEDS: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];
+
+/**
+ * Where the built-in courses come from: the TypeScript modules, or the JSON
+ * documents they export to.
+ *
+ * The documents in `content/courses/` are the content model made portable, and
+ * `content/dto.test.ts` proves the app behaves identically over either source —
+ * same week numbers, same tasks per role, same required step counts, same week
+ * summaries. This switch is what makes that provable claim usable: flip it and
+ * the whole app renders from files.
+ *
+ * It is OFF by default on purpose. The modules still hold the Definition-of-Done
+ * checks and derived form columns as functions, which a document cannot carry
+ * yet (128 of them, pinned in that test), so a JSON-sourced build would lose the
+ * gate checks. When those become declarative predicates the default flips and
+ * this constant goes away.
+ */
+const FROM_JSON = process.env.NEXT_PUBLIC_CONTENT_FROM_JSON === '1';
+
+let seedCache: Course[] | null = null;
+
+/**
+ * Resolved on first use, never at module load.
+ *
+ * Eager resolution ran while the seed modules were still initialising — the
+ * course graph is a web of cross-imports — and threw a temporal-dead-zone error
+ * that the catch below then swallowed into a silent fallback. Lazy is also free:
+ * `list()` caches, so this runs once either way.
+ */
+function loadSeeds(): Course[] {
+  if (seedCache) return seedCache;
+  if (!FROM_JSON) return (seedCache = SEED_MODULES);
+  try {
+    // Bundled at build time by the JSON loader, not read from disk at runtime,
+    // so this works the same in the browser and on the server.
+    seedCache = SEED_MODULES.map((m) => {
+      const doc = CONTENT_DOCS[m.id];
+      return doc ? courseFromDto(doc) : m;
+    });
+    return seedCache;
+  } catch (e) {
+    // A broken document must not take the app down: say so and use the modules.
+    console.error('[content] falling back to the compiled seeds:', e);
+    return (seedCache = SEED_MODULES);
+  }
+}
+
+/** The exported documents, keyed by course id. */
+const CONTENT_DOCS: Record<string, unknown> = {
+  'security-plus': securityPlusDoc,
+  mssp: msspDoc,
+  'cysa-plus': cysaDoc,
+  'server-plus': serverPlusDoc,
+};
 
 function hasWindow(): boolean {
   return typeof window !== 'undefined';
@@ -112,12 +171,12 @@ function validateCourse(c: unknown): { ok: true } | { ok: false; error: string }
 export const localStorageCourseRepo: CourseRepository = {
   list(): Course[] {
     // On the server, return seeds only so pages can prerender.
-    if (!hasWindow()) return SEEDS;
+    if (!hasWindow()) return loadSeeds();
     if (listCache && listCache.version === version) return listCache.value;
     const authored = readAuthored();
     const authoredIds = new Set(authored.map((c) => c.id));
     // Authored overrides a seed with the same id; otherwise seeds + authored.
-    const seedsKept = SEEDS.filter((s) => !authoredIds.has(s.id));
+    const seedsKept = loadSeeds().filter((s) => !authoredIds.has(s.id));
     const value = [...seedsKept, ...authored];
     listCache = { version, value };
     return value;

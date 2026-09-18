@@ -144,6 +144,17 @@ additive, none requiring a rewrite.
 - **The host's holes:** `PUBLISHED_PORTS`, `CROSS_ZONE_ALLOW` and `hostRulesFile()` in `src/lib/serverTopology.ts`
   render the Proxmox host's iptables-restore file; the Week-2/3 seed steps, the guide, the topology diagram
   and the IP Plan's published-ports table all read that one model.
+- **Topology symbols:** a Server+ command is authored against the model
+  (`<vm.websrv.address>`, `<bridge.vmbr1.gateway>`) and resolved once at module load by
+  `src/lib/topologySymbols.ts`, so the same procedure can be pointed at different addressing.
+  `serverProcedures.test.ts` fails on a literal topology address in any authored command, sample or
+  explanation, and names the symbol that belongs there — the inverse of the old `commandsExempt` rule.
+  The student's own numbers are a separate, later substitution (`fillPlaceholders`).
+- **Content loading:** `src/lib/content/load.ts` reads a course back out of `content/courses/<id>.json`
+  with a path-naming validator; `dto.test.ts` proves the UI helpers give identical answers over the loaded
+  course and the seed, and pins the 128 remaining function markers (Definition-of-Done checks and derived
+  form columns) so that gap can only shrink. `NEXT_PUBLIC_CONTENT_FROM_JSON=1` makes the app render from
+  the documents; off by default until those markers are declarative.
 - **Content export:** `src/lib/content/dto.ts` writes every course to `content/courses/<id>.json` — weeks, tasks,
   steps, commands, forms, guide procedures, the topology model, the glossary, the lab-access fields, the IaC
   tools and the marking split. The topology section is COMPUTED from the module (`topologyData`), not a
