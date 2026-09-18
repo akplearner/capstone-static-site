@@ -123,6 +123,14 @@ Six pieces of plumbing are shared by all three products. None is visible to a st
 
 ## Phased roadmap
 
+**Phase 1 is done (R74–R75).** Commands are authored against topology symbols and the address guard is
+inverted; `content/courses/*.json` loads back through `content/load.ts` and is what the app renders from,
+with the compiled modules as a loud fallback; the 128 function markers are zero, because Definition-of-Done
+checks and computed columns are a declarative predicate vocabulary (`docs/predicate.ts`) proven equivalent
+to the functions they replaced over a generated corpus; and the reference content is out of the components
+in five data modules, carried in the document's `content` section. Phase 2 — splitting Topology, Procedures
+and Curriculum into separate documents with a business overlay — is where to start next.
+
 Five phases, each shippable on its own and each unlocking the next. Phases 1 and 2 are foundations and change nothing a student sees. Phase 3 is where the capstone visibly improves. Phases 4 and 5 are the business and MSP products.
 
 | Phase | Ships | Unlocks | Depends on |

@@ -17,44 +17,44 @@ import { SERVER_PLUS } from './seed/serverPlus';
 const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];
 
 /**
- * Where the built-in courses come from: the TypeScript modules, or the JSON
- * documents they export to.
+ * Where the built-in courses come from: the JSON documents, with the TypeScript
+ * modules as the fallback.
  *
- * The documents in `content/courses/` are the content model made portable, and
- * `content/dto.test.ts` proves the app behaves identically over either source —
- * same week numbers, same tasks per role, same required step counts, same week
- * summaries. This switch is what makes that provable claim usable: flip it and
- * the whole app renders from files.
+ * This is the round the flag came out. `content/courses/*.json` is the content
+ * model made portable, and `content/dto.test.ts` proves the app behaves
+ * identically over either source — same week numbers, same tasks per role, same
+ * required step counts, same week summaries. Until R75 the documents could not
+ * carry the Definition-of-Done checks or the computed form columns (128 function
+ * markers), so a JSON-sourced build would have silently lost the gate checks and
+ * the switch stayed off behind `NEXT_PUBLIC_CONTENT_FROM_JSON`. Those are data
+ * now, the markers are zero, and the documents hold everything the app renders —
+ * so they are what it renders from.
  *
- * It is OFF by default on purpose. The modules still hold the Definition-of-Done
- * checks and derived form columns as functions, which a document cannot carry
- * yet (128 of them, pinned in that test), so a JSON-sourced build would lose the
- * gate checks. When those become declarative predicates the default flips and
- * this constant goes away.
+ * The modules stay compiled in as the fallback, and a fallback is LOUD: a
+ * document that fails to validate is a content bug someone has to fix, not a
+ * condition to paper over. The app keeps working; the console says why.
+ *
+ * Resolved on first use, never at module load. Eager resolution ran while the
+ * seed modules were still initialising — the course graph is a web of
+ * cross-imports — and threw a temporal-dead-zone error that the catch below then
+ * swallowed into a silent fallback. Lazy is also free: `list()` caches, so this
+ * runs once either way.
  */
-const FROM_JSON = process.env.NEXT_PUBLIC_CONTENT_FROM_JSON === '1';
-
 let seedCache: Course[] | null = null;
 
-/**
- * Resolved on first use, never at module load.
- *
- * Eager resolution ran while the seed modules were still initialising — the
- * course graph is a web of cross-imports — and threw a temporal-dead-zone error
- * that the catch below then swallowed into a silent fallback. Lazy is also free:
- * `list()` caches, so this runs once either way.
- */
 function loadSeeds(): Course[] {
   if (seedCache) return seedCache;
-  if (!FROM_JSON) return (seedCache = SEED_MODULES);
   try {
     // Bundled at build time by the JSON loader, not read from disk at runtime,
     // so this works the same in the browser and on the server.
-    seedCache = SEED_MODULES.map((m) => {
+    return (seedCache = SEED_MODULES.map((m) => {
       const doc = CONTENT_DOCS[m.id];
-      return doc ? courseFromDto(doc) : m;
-    });
-    return seedCache;
+      if (!doc) {
+        console.error(`[content] no document for '${m.id}': using the compiled module`);
+        return m;
+      }
+      return courseFromDto(doc);
+    }));
   } catch (e) {
     // A broken document must not take the app down: say so and use the modules.
     console.error('[content] falling back to the compiled seeds:', e);

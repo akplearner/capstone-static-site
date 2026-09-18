@@ -134,7 +134,11 @@ additive, none requiring a rewrite.
 - **Data seam:** `src/lib/data/index.ts` selects repo impls — the swap point for an event-sourced backend.
 - **Progress math:** `src/lib/data/localStorageProgressRepo.ts` / `supabaseProgressRepo.ts` — the
   projection functions to keep as read models.
-- **Validators:** `DodCheck` in `src/lib/docs/types.ts`; checks in `src/lib/docs/definitions.ts`.
+- **Validators:** `DodCheck.when` in `src/lib/docs/types.ts` is a `Predicate` — DATA, not a function —
+  evaluated by `src/lib/docs/predicate.ts`. The vocabulary is CLOSED (a field is filled, a table has at
+  least N rows, every/some row satisfies a row test, distinct values number at least N, plus all/any/not),
+  and `predicateErrors` rejects an unknown key with its JSON path, because `{ group: 'machines',
+  atleast: 4 }` would otherwise evaluate quietly as "at least one row" and mark a gate passed.
 - **Frameworks:** `src/lib/utils.ts` (helpers); `frameworks: [...]` on tasks/steps/deliverables.
 - **Schema:** `supabase/migrations/` (tables + RLS to extend with `events`, `tenant_id`, consent).
 - **Evidence:** `src/lib/docs/custodyTemplate.ts`, `package.ts`, `validateEvidenceFileName` in `utils.ts`.
@@ -150,22 +154,31 @@ additive, none requiring a rewrite.
   `serverProcedures.test.ts` fails on a literal topology address in any authored command, sample or
   explanation, and names the symbol that belongs there — the inverse of the old `commandsExempt` rule.
   The student's own numbers are a separate, later substitution (`fillPlaceholders`).
-- **Content loading:** `src/lib/content/load.ts` reads a course back out of `content/courses/<id>.json`
-  with a path-naming validator; `dto.test.ts` proves the UI helpers give identical answers over the loaded
-  course and the seed, and pins the 128 remaining function markers (Definition-of-Done checks and derived
-  form columns) so that gap can only shrink. `NEXT_PUBLIC_CONTENT_FROM_JSON=1` makes the app render from
-  the documents; off by default until those markers are declarative.
+- **Content loading — the documents ARE the source:** `localStorageCourseRepo` builds every built-in course
+  from `content/courses/<id>.json` through `src/lib/content/load.ts` (path-naming validator), with the
+  TypeScript modules compiled in as a LOUD fallback: a document that fails to validate logs what is wrong
+  and the app keeps working. `courseSource.test.ts` asserts the loaded object is not the module object, so
+  "the documents are live" is checked rather than assumed; `dto.test.ts` proves the UI helpers give
+  identical answers either way, and that the function-marker count is zero for all four courses.
 - **Content export:** `src/lib/content/dto.ts` writes every course to `content/courses/<id>.json` — weeks, tasks,
   steps, commands, forms, guide procedures, the topology model, the glossary, the lab-access fields, the IaC
   tools and the marking split. The topology section is COMPUTED from the module (`topologyData`), not a
   hand-kept list, because the hand-kept list silently missed nine constants across three rounds;
-  `dto.test.ts` fails if anyone goes back to listing names. The JSON is a snapshot for reading and diffing —
-  the app still renders from the TypeScript seeds through `courseRepo`.
+  `dto.test.ts` fails if anyone goes back to listing names. The same computed rule assembles the `content`
+  section (`contentData`), so a table added to a content module reaches the document by existing.
 - **One home per command:** `src/lib/docs/serverCommands.ts` holds every Server+ base-build command once —
   which machine types it (`MACHINES` in `serverTopology.ts`), why it exists, what it prints, and whether it
   overwrites config. The seed and the guide are filled from it at load (`withCommandDetail` /
   `withProcedureDetail`); `serverProcedures.test.ts` fails if a command is explained in both files, if a chip
   disagrees with its sentence, or if a config write has no backup before it.
+- **Content, not components:** five data modules hold the course's reference material — `serverDiagrams.ts`
+  (the 24U rack, the week each part of the topology arrives, every caption), `cysaContent.ts` (five diagrams,
+  the Wazuh/Suricata/Sysmon manual, the lab spec), `securityContent.ts` (the self-study lab, the 17-files map),
+  `manual.ts` (the manual's sections and the quick-reference card) and `troubleshooting.ts` (terminal basics
+  and the error rows, each with the lab capabilities it needs). The components render them and keep the
+  colours; `page-shape.test.ts` fails if one declares a table of rows or types a sentence beside the markup.
+  A manual section is gated on a CAPABILITY (`Course.manualSections`, plus what the course demonstrates),
+  never on a course id, so a course built from the deployment capstone gets its configuration guide.
 - **Drawing the part being built:** `TopologyFocus` (derived from the machines a task's commands name) sits on
   the task row, the week header and each guide week; `ServerTopologyDiagram` takes `highlight` and
   `builtThrough` to light one week and dim what has not been built yet.
