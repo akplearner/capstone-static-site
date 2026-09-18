@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
+import { TRIAGE, type TriageBranch } from '@/lib/docs/cysaContent';
 
 /**
  * The Week-2 triage decision, drawn.
@@ -13,42 +14,25 @@ import { DUR } from '@/lib/motion';
  * the graded artefact is the reason, not the verdict.
  */
 
-const BRANCHES: { q: string; verdict: string; write: string; tone: string }[] = [
-  {
-    q: 'It matches something in your baseline, at about the usual rate',
-    verdict: 'False positive',
-    write: 'Name the baseline row it matches. "Expected — matches sshd auth success, ~20/hr."',
-    tone: 'var(--color-w3)',
-  },
-  {
-    q: 'It is a type you never baselined, or a burst well above the usual rate',
-    verdict: 'True positive',
-    write: 'Give the count and the source. "412 auth failures from 10.10.30.7 in 2 min."',
-    tone: 'var(--color-w4)',
-  },
-  {
-    q: 'It looks real but you cannot prove what it did from the alert alone',
-    verdict: 'Escalate',
-    write: 'Say what you want checked. "SQLi attempt — needs the packet capture to confirm it succeeded."',
-    tone: 'var(--color-accent)',
-  },
-];
+const TONE: Record<TriageBranch['kind'], string> = {
+  'false-positive': 'var(--color-w3)',
+  'true-positive': 'var(--color-w4)',
+  escalate: 'var(--color-accent)',
+};
+
+const { copy: COPY, question: QUESTION, branches: BRANCHES } = TRIAGE;
 
 export function TriageDecisionTree() {
   return (
     <DiagramFrame
-      title="Deciding an alert: real, noise, or escalate"
-      subtitle="Every verdict is a comparison against the baseline you wrote in Week 1"
-      howToRead="Start with the alert in front of you and read the three tests top to bottom — the first one that fits is your verdict. The right-hand column is what actually gets marked: the reason, not the label."
-      legend={[
-        { label: 'False positive', color: 'var(--color-w3)' },
-        { label: 'True positive', color: 'var(--color-w4)' },
-        { label: 'Escalate', color: 'var(--color-accent)' },
-      ]}
+      title={COPY.title}
+      subtitle={COPY.subtitle}
+      howToRead={COPY.howToRead}
+      legend={COPY.legend?.map((l) => ({ label: l.label, color: TONE[l.kind as TriageBranch['kind']] }))}
     >
       <div className="min-w-[520px] space-y-2">
         <div className="rounded-md border border-line bg-panel-2 px-3 py-2 text-sm font-medium text-ink">
-          One alert · compare it against your Week-1 baseline
+          {QUESTION}
         </div>
         {BRANCHES.map((b, i) => (
           <motion.div
@@ -61,7 +45,7 @@ export function TriageDecisionTree() {
             <div className="rounded-md border border-line bg-panel px-3 py-2 text-sm text-muted">{b.q}</div>
             <div
               className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold"
-              style={{ background: b.tone, color: 'var(--color-surface)' }}
+              style={{ background: TONE[b.kind], color: 'var(--color-surface)' }}
             >
               {b.verdict}
             </div>

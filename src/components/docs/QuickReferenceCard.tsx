@@ -1,23 +1,21 @@
 'use client';
 
 import { FileStack, ClipboardList, Wrench, Tag, GraduationCap } from 'lucide-react';
+import { Runs, fillRuns } from '@/components/docs/Runs';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
+import { COURSE_TOOLS, QUICK_REFERENCE as COPY } from '@/lib/docs/manual';
 import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
+import type { Run } from '@/lib/docs/securityContent';
 
 /**
- * Spec §10 — the one-screen cheat sheet. Five panels students can glance at:
- * the files, the universal form flow, the tools, the naming rules, and what
- * the grade is actually based on. (Security+ course reference.)
+ * The one-screen cheat sheet: five panels a student can glance at — the files,
+ * the universal form flow, the tools, the naming rules, and what the grade is
+ * actually based on.
+ *
+ * Every word of it is content (`docs/manual.ts`); the file list and the count in
+ * the heading are computed from the course's own deliverables, and the naming
+ * rule comes from `evidence.ts`, so none of the three can drift.
  */
-// The tool set differs per course; fall back to the Security+ toolkit.
-const COURSE_TOOLS: Record<string, string> = {
-  'security-plus':
-    'whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum',
-  'cysa-plus':
-    'Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum',
-  'mssp':
-    'nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)',
-};
 
 export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: string }) {
   const defs = deliverablesForCourse(courseId);
@@ -25,7 +23,7 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
   const panels = [
     {
       icon: FileStack,
-      title: `${defs.length} FILES`,
+      title: COPY.filesTitle.replace('{n}', String(defs.length)),
       body: (
         <ol className="space-y-0.5">
           {defs.map((d) => (
@@ -38,40 +36,40 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
     },
     {
       icon: ClipboardList,
-      title: 'EVERY FORM',
+      title: COPY.everyFormTitle,
       body: (
         <p>
-          Run the tool → read the output → pull the 3 things (<em>what you found · the proof · why it
-          matters</em>) → enter in the form → Generate → save as PDF.
+          <Runs runs={COPY.everyForm as readonly Run[]} />
         </p>
       ),
     },
     {
       icon: Wrench,
-      title: 'EVERY TOOL',
+      title: COPY.everyToolTitle,
       body: <p className="font-mono text-2xs leading-relaxed">{tools}</p>,
     },
     {
       icon: Tag,
-      title: 'NAME IT',
+      title: COPY.nameItTitle,
       body: (
         <p>
-          Deliverables <span className="font-mono text-2xs">NN_Name.ext</span>; evidence{' '}
-          <span className="font-mono text-2xs">{EVIDENCE_NAMING_PNG}</span>; hash with{' '}
-          <span className="font-mono text-2xs">sha256sum</span>.
+          <Runs
+            runs={fillRuns(COPY.nameIt as readonly Run[], { evidence: EVIDENCE_NAMING_PNG })}
+            codeClass="font-mono text-2xs"
+          />
         </p>
       ),
     },
     {
       icon: GraduationCap,
-      title: 'GRADED ON',
-      body: <p>Process · documentation · evidence · ethics (staying in scope) — not speed.</p>,
+      title: COPY.gradedOnTitle,
+      body: <p>{COPY.gradedOn}</p>,
     },
   ];
 
   return (
     <div className="rounded-lg border border-line bg-panel p-5">
-      <h3 className="text-sm font-semibold text-ink">Quick reference card</h3>
+      <h3 className="text-sm font-semibold text-ink">{COPY.title}</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {panels.map((p) => (
           <div

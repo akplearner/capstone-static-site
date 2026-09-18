@@ -717,9 +717,16 @@ describe('R69 — Terraform or OpenTofu is the student’s choice', () => {
 
 describe('R70 — the DMZ site is built, uploaded, and published through one model of the host', () => {
   it('the diagram, the form and the glossary render the published ports rather than restate them', () => {
+    // The picture reads the model through its content module (R75-B moved the
+    // rack, the week-by-week arrival and every caption out of the component), so
+    // the chain to assert is data module → model, component → data module.
+    const content = code('src/lib/docs/serverDiagrams.ts');
+    expect(content).toContain('PUBLISHED_PORTS');
+    expect(content).toContain('CROSS_ZONE_ALLOW');
     const diagram = code('src/components/diagrams/ServerTopologyDiagram.tsx');
-    expect(diagram).toContain('PUBLISHED_PORTS');
-    expect(diagram).toContain('CROSS_ZONE_ALLOW');
+    expect(diagram).toContain("from '@/lib/docs/serverDiagrams'");
+    expect(diagram).toContain('PUBLISHED_BY_VM');
+    expect(diagram).toContain('CROSS_ZONE_LABEL');
     expect(diagram).toContain('z.bridge.gateway');
     const form = code('src/lib/docs/serverPlusDeliverables.ts');
     expect(form).toContain("group: 'published'");
@@ -793,5 +800,98 @@ describe('R71 — a course you can follow: the build map, the key-points view, a
       expect(code(f), f).not.toContain('2222');
     }
     expect(code('src/lib/serverTopology.ts')).toContain('REMOTE_ADMIN');
+  });
+});
+
+/**
+ * R75-B — the content is not in the components.
+ *
+ * Sixteen components held the course's reference material: six diagram data
+ * tables, the CySA+ tool manual, two lab specifications, the troubleshooting
+ * rows, the manual's own section blurbs and the quick-reference card. None of it
+ * reached `content/courses/*.json`, so a document described a course's forms and
+ * addressing in full and could not say what the course teaches.
+ *
+ * Each of these is a renderer over a data module now. The two things that would
+ * undo it are a new table typed back into a component, and a sentence typed
+ * beside the markup — so this looks for both.
+ */
+describe('R75-B — the content is not in the components', () => {
+  /** component → the content module it must read from. */
+  const RENDERERS: [string, string][] = [
+    ['src/components/diagrams/ServerTopologyDiagram.tsx', '@/lib/docs/serverDiagrams'],
+    ['src/components/diagrams/AttackPathDiagram.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/diagrams/IncidentTimelineDiagram.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/diagrams/LogPipelineDiagram.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/diagrams/TriageDecisionTree.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/diagrams/RiskMatrix.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/docs/CysaToolGuide.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/docs/CysaLabSetup.tsx', '@/lib/docs/cysaContent'],
+    ['src/components/docs/LabSetupGuide.tsx', '@/lib/docs/securityContent'],
+    ['src/components/docs/DocsReductionTable.tsx', '@/lib/docs/securityContent'],
+    ['src/components/docs/CommandTroubleshooting.tsx', '@/lib/docs/troubleshooting'],
+    ['src/components/docs/QuickReferenceCard.tsx', '@/lib/docs/manual'],
+    ['src/components/docs/GuideManual.tsx', '@/lib/docs/manual'],
+  ];
+
+  it('every emptied component reads its words from its content module', () => {
+    for (const [file, module] of RENDERERS) {
+      expect(code(file), file).toContain(`from '${module}'`);
+    }
+  });
+
+  it('none of them declares a table of content rows', () => {
+    // `const ROWS = [{ … }]` is the shape every one of them used to hold. A
+    // colour or icon map keyed by a kind is fine and stays — it is not content.
+    for (const [file] of RENDERERS) {
+      const src = code(file).replace(/\/\*[\s\S]*?\*\//g, '');
+      expect(src.match(/^const\s+\w+[^=\n]*=\s*\[\s*$/m)?.[0], file).toBeUndefined();
+      expect(src.match(/^const\s+\w+[^=\n]*=\s*\[\{/m)?.[0], file).toBeUndefined();
+    }
+  });
+
+  it('none of them types a sentence beside the markup', () => {
+    // A string with sentence punctuation in it is prose. A Tailwind class list
+    // is long but never has any, which is what makes this cheap to check.
+    const PROSE = /[a-z]{2}[.?!](\s|$)|\s—\s/;
+    for (const [file] of RENDERERS) {
+      const src = code(file)
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/^\s*\/\/.*$/gm, '');
+      const literals = [...src.matchAll(/'((?:[^'\\\n]|\\.)*)'|"((?:[^"\\\n]|\\.)*)"/g)].map(
+        (m) => m[1] ?? m[2]
+      );
+      const prose = literals.filter((l) => l.length > 40 && PROSE.test(l));
+      expect(prose, `${file} holds prose: ${prose[0]}`).toEqual([]);
+    }
+  });
+
+  it('the content modules hold the words, so the guard above is not vacuous', () => {
+    const modules = [
+      'src/lib/docs/serverDiagrams.ts',
+      'src/lib/docs/cysaContent.ts',
+      'src/lib/docs/securityContent.ts',
+      'src/lib/docs/troubleshooting.ts',
+      'src/lib/docs/manual.ts',
+    ];
+    for (const m of modules) {
+      const src = code(m).replace(/\/\*[\s\S]*?\*\//g, '');
+      const literals = [
+        ...[...src.matchAll(/'((?:[^'\\\n]|\\.)*)'/g)].map((x) => x[1]),
+        ...[...src.matchAll(/`([^`]*)`/g)].map((x) => x[1]),
+      ];
+      expect(literals.filter((l) => l.length > 60).length, m).toBeGreaterThan(3);
+    }
+  });
+
+  it('the lab addresses come from the model in the components that name them', () => {
+    // Five were typed: two pod addresses in the step flow and three in the CySA+
+    // lab table. The model has held all of them the whole time.
+    for (const f of ['src/components/diagrams/StepFlow.tsx', 'src/lib/docs/cysaContent.ts']) {
+      expect(code(f), f).not.toMatch(/'10\.10\.\d+\.[N\d]+'/);
+    }
+    expect(code('src/components/diagrams/StepFlow.tsx')).toContain('socTopology(');
+    expect(code('src/lib/docs/cysaContent.ts')).toContain('socTopology(');
+    expect(code('src/lib/docs/securityContent.ts')).toContain('LAB_SUBNET');
   });
 });

@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
+import { ATTACK_PATH } from '@/lib/docs/cysaContent';
 
 /**
  * The attack the course actually runs, end to end.
@@ -14,30 +15,25 @@ import { DUR } from '@/lib/motion';
  * isolated row.
  */
 
-const HOPS: { stage: string; what: string; attck?: string; week: number; sees: string }[] = [
-  { stage: 'Recon', what: 'nmap scans your pod from Kali', attck: 'T1046', week: 2, sees: 'Suricata: ET SCAN signatures' },
-  { stage: 'Exploit', what: 'SQL injection against DVWA', attck: 'T1190', week: 2, sees: 'Apache access.log + web rules' },
-  { stage: 'Brute force', what: 'hydra guesses the SSH password', attck: 'T1110', week: 2, sees: 'repeated authentication_failed' },
-  { stage: 'Detect', what: 'the SOC raises the first alert', week: 4, sees: 'your incident start time' },
-  { stage: 'Investigate', what: 'pivot on the source address', week: 4, sees: 'everything that IP touched' },
-  { stage: 'Contain', what: 'block the attacker at the firewall', week: 4, sees: 'ufw DENY, rule position 1' },
-];
+/** Whose move a hop is, in colour. The words are content; this is not. */
+const TONE = {
+  attacker: 'var(--color-w4)',
+  response: 'var(--color-accent)',
+} as const;
+
+const { copy: COPY, hops: HOPS } = ATTACK_PATH;
 
 export function AttackPathDiagram() {
   return (
     <DiagramFrame
-      title="The attack, end to end"
-      subtitle="The same chain you generate, detect, prove and stop across Weeks 2-4"
-      howToRead="Read left to right: the first three hops are what the attacker does (you run them yourself against your own pod), the last three are what you do about it. The bottom line of each box is the evidence that hop leaves behind — that is what you search for."
-      legend={[
-        { label: 'Attacker action', color: 'var(--color-w4)' },
-        { label: 'Your response', color: 'var(--color-accent)' },
-      ]}
+      title={COPY.title}
+      subtitle={COPY.subtitle}
+      howToRead={COPY.howToRead}
+      legend={COPY.legend?.map((l) => ({ label: l.label, color: TONE[l.kind as keyof typeof TONE] }))}
     >
       <ol className="flex min-w-[720px] items-stretch gap-1.5">
         {HOPS.map((h, i) => {
-          const attacker = i < 3;
-          const tone = attacker ? 'var(--color-w4)' : 'var(--color-accent)';
+          const tone = TONE[h.side];
           return (
             <li key={h.stage} className="flex items-stretch gap-1.5">
               <motion.div

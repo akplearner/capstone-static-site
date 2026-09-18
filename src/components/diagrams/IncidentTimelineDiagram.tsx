@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
+import { INCIDENT_TIMELINE, type TimelineEvent } from '@/lib/docs/cysaContent';
 
 /**
  * What an incident timeline looks like, on an actual time axis.
@@ -17,23 +18,13 @@ import { DUR } from '@/lib/motion';
  * diagram and the form agree.
  */
 
-type Event = { t: string; min: number; label: string; source: string; kind: 'attack' | 'detect' | 'respond' };
-
-const EVENTS: Event[] = [
-  { t: '14:20', min: 0, label: 'Port scan begins', source: 'Suricata', kind: 'attack' },
-  { t: '14:22', min: 2, label: 'SQL injection against DVWA', source: 'Apache access.log', kind: 'attack' },
-  { t: '14:29', min: 9, label: 'First alert raised', source: 'Wazuh Security events', kind: 'detect' },
-  { t: '14:31', min: 11, label: 'Web shell uploaded', source: 'Integrity monitoring', kind: 'attack' },
-  { t: '14:41', min: 21, label: 'Attacker blocked at the firewall', source: 'ufw', kind: 'respond' },
-];
-
-const TONE: Record<Event['kind'], string> = {
+const TONE: Record<TimelineEvent['kind'], string> = {
   attack: 'var(--color-w4)',
   detect: 'var(--color-accent)',
   respond: 'var(--color-w3)',
 };
 
-const SPAN = 24; // minutes on the axis
+const { copy: COPY, span: SPAN, events: EVENTS } = INCIDENT_TIMELINE;
 
 export function IncidentTimelineDiagram() {
   const pct = (m: number) => (m / SPAN) * 100;
@@ -42,14 +33,10 @@ export function IncidentTimelineDiagram() {
 
   return (
     <DiagramFrame
-      title="An incident on a time axis"
-      subtitle="The worked example from the Incident Response Report — and where MTTD and MTTR come from"
-      howToRead="Every row is one line of your timeline table: a time, what happened, and the source that proves it. MTTD is the gap from the attack starting to the first alert; MTTR is from that alert to containment. Both are subtractions you can read straight off this line."
-      legend={[
-        { label: 'Attacker action', color: 'var(--color-w4)' },
-        { label: 'Detection', color: 'var(--color-accent)' },
-        { label: 'Response', color: 'var(--color-w3)' },
-      ]}
+      title={COPY.title}
+      subtitle={COPY.subtitle}
+      howToRead={COPY.howToRead}
+      legend={COPY.legend?.map((l) => ({ label: l.label, color: TONE[l.kind as TimelineEvent['kind']] }))}
     >
       <div className="min-w-[560px] pb-1">
         {/* The measured intervals, above the axis. */}

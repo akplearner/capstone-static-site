@@ -3,6 +3,9 @@
   "generatedFrom": [
     "src/lib/data/seed/securityPlus.ts",
     "src/lib/docs/definitions.ts",
+    "src/lib/docs/manual.ts",
+    "src/lib/docs/securityContent.ts",
+    "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
     "src/lib/labAccess.ts"
@@ -5201,6 +5204,482 @@
       ]
     }
   ],
+  "content": {
+    "manual": {
+      "COURSE_TOOLS": {
+        "security-plus": "whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum",
+        "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
+        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)"
+      },
+      "MANUAL_COPY": {
+        "title": "The manual",
+        "subtitle": "Look things up here. Everything is open, so search the page.",
+        "navLabel": "Manual sections"
+      },
+      "MANUAL_SECTIONS": [
+        {
+          "id": "lab",
+          "when": "config-guide",
+          "title": "The build",
+          "blurb": "One rack-mount server on the campus LAN running a hypervisor with two zones — a DMZ for the website, a private network for the Windows server and the Linux database. Your host is 10.10.30.T (T = your team number)."
+        },
+        {
+          "id": "lab",
+          "when": "always",
+          "title": "The lab",
+          "blurb": "Every machine in the environment, what runs on it, and how to confirm you can reach it before Week 1."
+        },
+        {
+          "id": "config-guide",
+          "when": "config-guide",
+          "title": "Configuration guide",
+          "blurb": "Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology. The task steps say what to do; this is how."
+        },
+        {
+          "id": "tools",
+          "when": "tools",
+          "title": "Using the tools — Wazuh, Suricata & Sysmon",
+          "blurb": "What each tool is, how it is configured, and the exact searches and event IDs you reuse all course. The step-by-step commands live in each week’s task."
+        },
+        {
+          "id": "terminal",
+          "when": "commands",
+          "title": "Running commands & getting unstuck",
+          "blurb": "How to use a terminal, and the fixes for the errors almost every beginner hits."
+        },
+        {
+          "id": "evidence",
+          "when": "always",
+          "title": "Evidence & chain of custody",
+          "blurb": "How to name, hash, log and hand off an artifact so it would hold up under scrutiny — and a ready-to-fill custody log."
+        },
+        {
+          "id": "forms",
+          "when": "always",
+          "title": "The forms, and how they connect",
+          "blurb": "Every form in the course, which one feeds the next, where its content comes from, and the folder layout you submit. The forms themselves are filled on the Deliverables tab."
+        },
+        {
+          "id": "roles",
+          "when": "multi-role",
+          "title": "How the roles hand off",
+          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them."
+        },
+        {
+          "id": "lifecycle",
+          "when": "lifecycle",
+          "title": "The case lifecycle",
+          "blurb": "The path every case follows, whatever raised it. The specific attack this course runs is drawn above, under the arc."
+        },
+        {
+          "id": "frameworks",
+          "when": "frameworks",
+          "title": "Frameworks",
+          "blurb": "Every task is mapped to a recognized standard. The tags on a task aren’t decoration — they say how an auditor or employer would read your work."
+        }
+      ],
+      "QUICK_REFERENCE": {
+        "title": "Quick reference card",
+        "filesTitle": "{n} FILES",
+        "everyFormTitle": "EVERY FORM",
+        "everyForm": [
+          "Run the tool → read the output → pull the 3 things (",
+          {
+            "em": "what you found · the proof · why it matters"
+          },
+          ") → enter in the form → Generate → save as PDF."
+        ],
+        "everyToolTitle": "EVERY TOOL",
+        "nameItTitle": "NAME IT",
+        "nameIt": [
+          "Deliverables ",
+          {
+            "code": "NN_Name.ext"
+          },
+          "; evidence ",
+          {
+            "code": "{evidence}"
+          },
+          "; hash with ",
+          {
+            "code": "sha256sum"
+          },
+          "."
+        ],
+        "gradedOnTitle": "GRADED ON",
+        "gradedOn": "Process · documentation · evidence · ethics (staying in scope) — not speed."
+      }
+    },
+    "security": {
+      "DOCS_REDUCTION": [
+        {
+          "id": "scope_roe",
+          "old": [
+            "Case_Overview",
+            "Scope_and_Rules"
+          ]
+        },
+        {
+          "id": "asset_inventory",
+          "old": [
+            "Asset_List.csv"
+          ]
+        },
+        {
+          "id": "risk_register",
+          "old": [
+            "Simple_Risk_List.csv",
+            "Threat_Notes"
+          ]
+        },
+        {
+          "id": "hardening_baseline",
+          "old": [
+            "Hardening_Checklist",
+            "Firewall_Notes",
+            "Logging_Notes"
+          ]
+        },
+        {
+          "id": "change_log",
+          "old": [
+            "Change_Log"
+          ]
+        },
+        {
+          "id": "pentest_report",
+          "old": [
+            "Scan_Results",
+            "Exploit_Notes",
+            "Findings_Summary"
+          ]
+        },
+        {
+          "id": "incident_report",
+          "old": [
+            "IR_Awareness_Notes"
+          ]
+        },
+        {
+          "id": "final_report",
+          "old": [
+            "Final_Presentation",
+            "Recommendations"
+          ]
+        }
+      ],
+      "DOCS_REDUCTION_ADMIN": [
+        "Team_Roles",
+        "README"
+      ],
+      "DOCS_REDUCTION_COPY": {
+        "collapsedTitle": "From 17 loose files to graded deliverables",
+        "summary": [
+          "The old course produced ",
+          {
+            "strong": "{old} loose files"
+          },
+          ". They now consolidate into ",
+          {
+            "strong": "{new} graded deliverables"
+          },
+          " (plus a README and Team_Roles) — same work, one clear set of documents."
+        ],
+        "columns": [
+          "Old working files",
+          "New deliverable"
+        ],
+        "adminRow": [
+          "Admin files — kept as ",
+          {
+            "code": "README.md"
+          },
+          " & ",
+          {
+            "code": "Team_Roles.md"
+          }
+        ]
+      },
+      "DVWA": {
+        "title": "DVWA target (Docker) — quick reference",
+        "intro": [
+          "On the Ubuntu host. Run it once (named ",
+          {
+            "code": "dvwa"
+          },
+          "), then start/stop it as needed. First run: open ",
+          {
+            "code": "/setup.php"
+          },
+          " → “Create / Reset Database”, then set Security = Low at ",
+          {
+            "code": "/security.php"
+          },
+          ". Login ",
+          {
+            "code": "admin / password"
+          },
+          "."
+        ],
+        "commands": [
+          {
+            "cmd": "sudo apt install -y docker.io && sudo systemctl enable --now docker",
+            "explain": "Install Docker and start it (first time only)."
+          },
+          {
+            "cmd": "sudo docker run -d --name dvwa --restart unless-stopped -p 80:80 vulnerables/web-dvwa",
+            "explain": "Create + start the named DVWA container on port 80."
+          },
+          {
+            "cmd": "sudo docker start dvwa",
+            "explain": "Start the existing container again (after a reboot/stop)."
+          },
+          {
+            "cmd": "sudo docker stop dvwa",
+            "explain": "Stop it when you are done."
+          },
+          {
+            "cmd": "sudo docker ps",
+            "explain": "List running containers — confirm dvwa is up."
+          },
+          {
+            "cmd": "sudo docker logs dvwa",
+            "explain": "Check logs if it exited or the page will not load."
+          }
+        ]
+      },
+      "HYPERVISORS": [
+        "VirtualBox (free, Windows/Linux/Intel Mac)",
+        "VMware Workstation / Fusion",
+        "UTM or Parallels (Apple Silicon Macs)",
+        "Proxmox / KVM (lab server)"
+      ],
+      "LAB_NETWORK": [
+        [
+          "Put every VM on ONE isolated network — VirtualBox ",
+          {
+            "code": "Host-Only"
+          },
+          " or ",
+          {
+            "code": "Internal"
+          },
+          ", VMware ",
+          {
+            "code": "Host-Only"
+          },
+          ". Avoid Bridged so the lab never touches your home/work LAN."
+        ],
+        [
+          "Use one subnet, e.g. ",
+          {
+            "code": "10.10.10.0/24"
+          },
+          ", with static IPs (Kali .10, Ubuntu .5, Windows .6) — then record them in Lab access."
+        ],
+        [
+          "Confirm reachability: from Kali, ",
+          {
+            "code": "ping <UBUNTU_IP>"
+          },
+          " must reply before Week 1."
+        ]
+      ],
+      "LAB_PREFLIGHT": [
+        "All VMs powered on and on the SAME isolated lab network/subnet",
+        "Kali can ping the Ubuntu (and Windows) target",
+        "DVWA login page loads at http://<UBUNTU_IP>/ (admin / password)",
+        "“pre-hardening” snapshots taken of the target VMs",
+        "Target IPs recorded in the Lab access panel; Rules of Engagement read"
+      ],
+      "LAB_SETUP_COPY": {
+        "intro": [
+          "You run a small isolated lab of 2–3 VMs. Build them once, put them on one private network, and record their IPs in the ",
+          {
+            "medium": "Lab access"
+          },
+          " panel (Tasks)."
+        ],
+        "vmsTitle": "Virtual machines",
+        "vmsColumns": [
+          "VM",
+          "Role",
+          "Suggested specs",
+          "Notes"
+        ],
+        "hypervisorsLabel": "Hypervisor options:",
+        "networkTitle": "Network",
+        "preflightTitle": "Pre-flight checklist"
+      },
+      "LAB_VMS": [
+        {
+          "name": "Kali Linux",
+          "role": "Attacker (Red)",
+          "specs": "2 vCPU · 4 GB RAM · 30 GB",
+          "notes": "Recon & exploitation toolbox."
+        },
+        {
+          "name": "Ubuntu Server 22.04",
+          "role": "Target + DVWA (Blue)",
+          "specs": "2 vCPU · 2–4 GB RAM · 20 GB",
+          "notes": "Runs SSH, the web app (DVWA via Docker)."
+        },
+        {
+          "name": "Windows 10/11 (optional)",
+          "role": "Target (Blue)",
+          "specs": "2 vCPU · 4 GB RAM · 40 GB",
+          "notes": "RDP + Defender track; optional second host."
+        }
+      ]
+    },
+    "troubleshooting": {
+      "ERROR_ROWS": [
+        {
+          "symptom": "command not found",
+          "meaning": "The terminal doesn’t recognise the program — usually a typo or the tool isn’t installed.",
+          "fix": "Check the spelling. If it’s really missing, install it: sudo apt update && sudo apt install <tool>",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " (e.g. nmap, nikto, hydra).",
+              "otherwise": " — the step that first uses a tool says how to install it."
+            }
+          ]
+        },
+        {
+          "symptom": "Permission denied / Operation not permitted",
+          "meaning": "The command needs admin rights.",
+          "fix": "Add sudo in front on Linux (sudo <command>). On Windows/PowerShell, close it and reopen with “Run as administrator”."
+        },
+        {
+          "symptom": "Connection refused / No route to host / host seems down",
+          "meaning": "You can’t reach the target — it’s off, the IP is wrong, or you’re not on the right network.",
+          "fix": "ping the address first. Confirm the machine is powered on and that you are on the same subnet as it",
+          "variants": [
+            {
+              "when": "panel",
+              "then": ", and that you set the right IP in Lab access.",
+              "otherwise": " — a host in another zone only answers once the route between them exists."
+            },
+            {
+              "when": "attackTools",
+              "then": " For nmap, add -Pn to scan a host that blocks ping."
+            }
+          ]
+        },
+        {
+          "symptom": "No such file or directory",
+          "meaning": "You’re in the wrong folder, or the path/filename is wrong.",
+          "fix": "Run pwd to see where you are and cd ~ to go home.",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " For hydra, rockyou is gzipped by default — unzip it once: sudo gunzip /usr/share/wordlists/rockyou.txt.gz",
+              "otherwise": " Check the file really exists with ls before you edit it — a config path is easy to mistype."
+            }
+          ]
+        },
+        {
+          "needs": [
+            "panel"
+          ],
+          "symptom": "The command still shows {token}",
+          "meaning": "That’s a placeholder, not a real address — you copied it literally.",
+          "fix": "Open the Lab access panel at the top of the Tasks tab and enter {label}; the site then fills it into every command automatically."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "ssh: connect to host … Operation timed out (from home)",
+          "meaning": "Your laptop is not on the tailnet, or the host is not.",
+          "fix": "Check the Tailscale client is signed in and connected on your laptop, then run tailscale status on the host — it must list the host as online. On campus you can still reach it on its 10.10.30.T address while you sort this out."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "The Proxmox console times out but SSH works",
+          "meaning": "The path is fine; the web service or the port is not.",
+          "fix": "Run systemctl status pveproxy --no-pager over SSH. Remember the console is on port 8006 and https, not http — a plain http:// URL simply hangs."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "It worked yesterday and not today",
+          "meaning": "The host rebooted and something did not come back, or your address changed.",
+          "fix": "systemctl is-active tailscaled on the host must read active. The host keeps the same Tailscale address across reboots, so if the address you saved has changed, you are looking at a rebuilt host that was re-authorised as a new device."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "Permission denied (publickey) after setting up keys",
+          "meaning": "The key is not where the server expects it, or the account is wrong.",
+          "fix": "Run ssh -v to see which key is offered, and confirm you are connecting as the right user. Password login is still enabled until Week 4 hardens it, so you have a way back in — use it rather than locking yourself out further."
+        },
+        {
+          "needs": [
+            "ops"
+          ],
+          "symptom": "ping 10.20.0.11 fails from a VM (Week 6)",
+          "meaning": "The VM cannot reach the Core over the ops network — the second NIC, the VLAN tag or the bridge is wrong.",
+          "fix": "On the host, ip -br a must show vmbr9 UP with the team’s 10.20.T.1 address. Inside the VM, the second interface needs its 10.20.T.x address and no gateway. Still nothing: the switch port is not trunking VLAN 20 — the Networking deep-dive owns that."
+        },
+        {
+          "symptom": "It just hangs / never finishes",
+          "meaning": "Some commands (a bare ping, a large download, a package install) run until you stop them, or they’re waiting on a slow or unreachable host.",
+          "fix": "Press Ctrl+C to stop it. Re-check reachability (ping), and give a genuinely long job a minute",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " — an all-port nmap is slow.",
+              "otherwise": " — an OS install or a big apt upgrade takes minutes, not seconds."
+            }
+          ]
+        },
+        {
+          "symptom": "Read the last line first",
+          "meaning": "When anything fails, the error’s last line usually names the real problem.",
+          "fix": "Match that line to the rows above. Also double-check you’re on the machine the step’s WHERE chip names — running the right command on the wrong host is the most common cause."
+        }
+      ],
+      "TERMINAL_BASICS": [
+        {
+          "label": "Open a terminal",
+          "body": "On a Linux desktop, click the black terminal icon or press Ctrl+Alt+T. On a server you reach over SSH, the terminal is the session itself. You type commands here and press Enter to run them."
+        },
+        {
+          "label": "The prompt",
+          "body": "A line ending in $ (or #) is the prompt — it means the terminal is waiting for you. You don’t type the $ itself."
+        },
+        {
+          "label": "Paste a command",
+          "body": "Copy from this site, then in the terminal press Ctrl+Shift+V (plain Ctrl+V often does nothing in a terminal). Right-click → Paste also works."
+        },
+        {
+          "label": "Run one line at a time",
+          "body": "When a step shows several numbered commands, run them one by one — paste one, press Enter, wait for it to finish, then the next."
+        },
+        {
+          "label": "sudo = run as admin",
+          "body": "sudo runs a command with admin rights (it may ask for your password — typing shows nothing, that’s normal). On Windows/PowerShell, instead right-click PowerShell → “Run as administrator”."
+        },
+        {
+          "label": "Stop a stuck command",
+          "body": "Press Ctrl+C to cancel a command that hangs or runs forever (e.g. a ping with no -c limit)."
+        }
+      ],
+      "TERMINAL_COPY": {
+        "title": "Terminal basics",
+        "intro": "New to the command line? These are the only things you need to know to run every command in this course.",
+        "errorsTitle": "When a command won’t run",
+        "errorsIntro": "The errors almost everyone hits, and the one-line fix for each. Match the message you see to a row.",
+        "fixLabel": "Fix: "
+      }
+    }
+  },
   "glossary": {
     "data.src_ip": "The Wazuh search field holding the source address of a network (Suricata) alert — who the traffic came from.",
     "data.srcip": "The Wazuh search field holding the source address of a host alert (logins, web requests). Its network twin is data.src_ip — search both.",

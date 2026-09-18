@@ -2043,6 +2043,9 @@ export const CYSA_PLUS: Course = {
     { label: 'Report', detail: 'Incident Responder: timeline, evidence, and a plain summary leadership can act on.' },
   ],
   noGatekeeping: true,
+  // The tool manual (Wazuh, Suricata, Sysmon) ships with this course, so the
+  // manual carries the tools section. See `docs/manual.ts`.
+  manualSections: ['tools'],
   guidedDefault: true,
   audience: 'Run a SOC — monitor, detect, investigate, and respond on a live Wazuh stack (CS0-003).',
   description:

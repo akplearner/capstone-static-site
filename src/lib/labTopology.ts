@@ -62,7 +62,10 @@ export interface SocTopology {
     ubuntu: { name: string; ip: string };
     windows: { name: string; ip: string };
   };
-  attacker: { name: string; note: string };
+  /** The attacker box each team drives, `N` = team number. Its address is here
+   *  rather than only in `spec` because the lab table and the step flow both
+   *  name it, and both used to type it out. */
+  attacker: { name: string; ip: string; note: string };
   browser: { name: string; note: string };
   /** How many team pods are cloned (drives the chip row). */
   teamCount: number;
@@ -83,7 +86,7 @@ export const SOC_TOPOLOGY_BY_COURSE: Record<string, SocTopology> = {
       ubuntu: { name: 'Ubuntu + DVWA + Suricata', ip: '10.10.100.N' },
       windows: { name: 'Windows 11 + Sysmon', ip: '10.10.20.N' },
     },
-    attacker: { name: 'Kali Linux', note: 'the attacker (you drive it)' },
+    attacker: { name: 'Kali Linux', ip: '10.10.30.N', note: 'the attacker (you drive it)' },
     browser: { name: 'Your browser', note: 'where analysts work' },
     teamCount: 16,
     spec: [

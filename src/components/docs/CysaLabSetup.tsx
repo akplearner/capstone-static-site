@@ -1,52 +1,46 @@
 'use client';
 
 import { CheckCircle2, Cpu, Network, Server } from 'lucide-react';
-import { SOC_IP, SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
+import { LAB_MACHINES, LAB_PREFLIGHT, LAB_SETUP_COPY as COPY } from '@/lib/docs/cysaContent';
 
-// CySA+ lab requirements — the shared Wazuh SOC + per-team pods. Unlike the
-// Security+ self-study lab, this is normally built once by the instructor/builder
-// (Week 0 · "Environment build"); students just get an account and their pod.
-
-const VMS: { name: string; role: string; addr: string; notes: string }[] = [
-  { name: 'Wazuh SOC', role: 'The dashboard everyone shares', addr: SOC_IP, notes: 'Wazuh manager + indexer + dashboard (all-in-one). You log in here in a browser.' },
-  { name: 'Ubuntu pod', role: 'Your team’s target', addr: '10.10.100.N', notes: 'DVWA web app + Suricata IDS + the Wazuh agent. N = your team number.' },
-  { name: 'Windows 11 pod', role: 'Your team’s target', addr: '10.10.20.N', notes: 'Sysmon + the Wazuh agent for rich Windows logging.' },
-  { name: 'Kali Linux', role: 'Your team’s attacker box', addr: '10.10.30.N', notes: 'You drive it yourself: the Week 2 traffic, the Week 3 scans and the Week 4 attack all start here — against your own pods only.' },
-];
-
-const PREFLIGHT = [
-  `The classroom SOC is already running — open ${SOC_URL} and sign in with ${SOC_LOGIN_LABEL}`,
-  'Both of your pods (Ubuntu 10.10.100.N and Windows 10.10.20.N) exist and you can sign in to them',
-  'You can SSH into your Ubuntu pod as the student user',
-  'Your pod numbers are recorded in the Lab access panel (Tasks); Rules of Engagement read',
-];
+/**
+ * CySA+ lab requirements — the shared Wazuh SOC plus per-team pods.
+ *
+ * Unlike the Security+ self-study lab, this is normally built once by the
+ * instructor (Week 0 · "Environment build"); students just get an account and
+ * their pod. The machine table, the pre-flight list and every sentence around
+ * them are content, in `lib/docs/cysaContent.ts` — including the three pod
+ * addresses that used to be typed here rather than read from `labTopology.ts`.
+ */
 
 export function CysaLabSetup({ courseId }: { courseId: string }) {
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted">
-        This course runs on a shared <span className="font-medium">Wazuh SOC</span> with one pod per team, on a
-        flat lab network (<span className="font-mono text-xs">10.10.0.0/16</span>). The build is done once — see
-        Week&nbsp;0 · <span className="font-medium">Environment build</span> — so as a student you mainly need your
-        account and your pod numbers.
+        {COPY.intro.before}
+        <span className="font-medium">{COPY.intro.strong}</span>
+        {COPY.intro.middle}
+        <span className="font-mono text-xs">{COPY.intro.subnet}</span>
+        {COPY.intro.after}
+        <span className="font-medium">{COPY.intro.week0}</span>
+        {COPY.intro.end}
       </p>
 
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Cpu className="h-4 w-4 text-info" /> Machines
+          <Cpu className="h-4 w-4 text-info" /> {COPY.machinesTitle}
         </h3>
         <div className="mt-2 overflow-x-auto rounded-lg border border-line">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
-                <th scope="col" className="px-3 py-2">Machine</th>
-                <th scope="col" className="px-3 py-2">Role</th>
-                <th scope="col" className="px-3 py-2">Address</th>
-                <th scope="col" className="px-3 py-2">What runs on it</th>
+                {COPY.machinesColumns.map((c) => (
+                  <th key={c} scope="col" className="px-3 py-2">{c}</th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {VMS.map((vm) => (
+              {LAB_MACHINES.map((vm) => (
                 <tr key={vm.name} className="border-b border-line last:border-0">
                   <td className="px-3 py-2 font-medium text-ink">{vm.name}</td>
                   <td className="px-3 py-2 text-body">{vm.role}</td>
@@ -61,25 +55,25 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
 
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Server className="h-4 w-4 text-info" /> Building it (instructor / builder)
+          <Server className="h-4 w-4 text-info" /> {COPY.buildTitle}
         </h3>
         <p className="mt-1 text-sm text-muted">
-          The full build — Wazuh all-in-one install, DVWA + Suricata on the Ubuntu template, Sysmon on the
-          Windows template, then cloning ×16 — is a guided task with copy-paste commands and the required files
-          in <span className="font-medium">Week&nbsp;0 · Environment build</span> on the{' '}
+          {COPY.build.before}
+          <span className="font-medium">{COPY.build.strong}</span>
+          {COPY.build.middle}
           <a href={`/courses/${courseId}?tab=tasks`} className="font-medium text-accent underline">
-            Tasks
-          </a>{' '}
-          page.
+            {COPY.build.link}
+          </a>
+          {COPY.build.after}
         </p>
       </div>
 
       <div>
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <Network className="h-4 w-4 text-info" /> Before Week 1 — pre-flight
+          <Network className="h-4 w-4 text-info" /> {COPY.preflightTitle}
         </h3>
         <ul className="mt-2 space-y-1.5">
-          {PREFLIGHT.map((p) => (
+          {LAB_PREFLIGHT.map((p) => (
             <li key={p} className="flex items-start gap-2 text-sm text-body">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-ok" /> {p}
             </li>

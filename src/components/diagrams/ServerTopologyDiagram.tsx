@@ -3,38 +3,25 @@
 import { DiagramFrame } from './DiagramFrame';
 import {
   CAMPUS_LAN,
-  CROSS_ZONE_ALLOW,
   HOST,
   MACHINES,
-  PUBLISHED_PORTS,
-  RACK_UNITS,
   REMOTE_ADMIN,
   TEAM_VM_START,
   ZONE_BRIDGES,
   baseVmsOn,
   type MachineId,
 } from '@/lib/serverTopology';
+import {
+  ARRIVES,
+  CROSS_ZONE_LABEL,
+  PUBLISHED_BY_VM,
+  RACK_ELEVATION,
+  RACK_LEGEND,
+  SERVER_DIAGRAM_COPY as COPY,
+  fillCopy,
+  type RackKind,
+} from '@/lib/docs/serverDiagrams';
 import { ZONE_COLOR } from './topologyStyle';
-
-/**
- * Which week each part of the picture arrives in.
- *
- * `builtThrough` dims what a student has not built yet and tags it with the
- * week it shows up, so the Home tab's picture fills in as the build does
- * instead of showing a finished design on day one.
- */
-const ARRIVES = { host: 1, zones: 2, vms: 2, published: 3, crossZone: 3, tailnet: 3 } as const;
-
-/** The published ports grouped by the VM that answers, in declaration order. */
-const PUBLISHED_BY_VM = PUBLISHED_PORTS.reduce<{ to: string; ports: number[] }[]>((acc, p) => {
-  const row = acc.find((r) => r.to === p.to);
-  if (row) row.ports.push(p.hostPort);
-  else acc.push({ to: p.to, ports: [p.hostPort] });
-  return acc;
-}, []);
-
-/** What the DMZ may open into the private zone, as a short phrase. */
-const CROSS_ZONE_LABEL = [...new Set(CROSS_ZONE_ALLOW.map((r) => r.purpose))].join(' · ');
 
 /**
  * The Server+ picture: a physical 24U rack elevation beside the small virtual
@@ -62,18 +49,6 @@ const CROSS_ZONE_LABEL = [...new Set(CROSS_ZONE_ALLOW.map((r) => r.purpose))].jo
  * those role ids, which describes nothing about a rack build — hence this own
  * picture.
  */
-
-// Bottom-up is how a rack is actually counted, but we render top-down, so the
-// array is ordered high U → low U. `span` is how many U the device occupies.
-type RackKind = 'panel' | 'switch' | 'server' | 'pdu' | 'blank';
-const RACK: { u: string; label: string; sub?: string; kind: RackKind; span: number }[] = [
-  { u: 'U24', label: '24-port patch panel', sub: 'Cat6 terminations from the office drops', kind: 'panel', span: 1 },
-  { u: 'U23', label: 'Access switch', sub: 'Uplink to the office LAN on port 24', kind: 'switch', span: 1 },
-  { u: 'U22', label: '', kind: 'blank', span: 1 },
-  { u: 'U20–U21', label: 'The server — Proxmox host', sub: '2U, on sliding rails · the one machine you build', kind: 'server', span: 2 },
-  { u: 'U2–U19', label: 'Expansion reserve — ≥20% kept free for growth', kind: 'blank', span: 1 },
-  { u: 'U1', label: 'Rack PDU', sub: '8-outlet · feeds every device above', kind: 'pdu', span: 1 },
-];
 
 const KIND_COLOR: Record<RackKind, string> = {
   panel: 'var(--color-w3)',
@@ -126,15 +101,12 @@ export function ServerTopologyDiagram({
     );
   return (
     <DiagramFrame
-      title={`What you build — one server in a ${RACK_UNITS}U rack`}
-      howToRead={`Left is the physical ${RACK_UNITS}U rack. Right is the network topology the one server carries: the campus LAN into vmbr0 management, a DMZ zone for public-facing services, and a private zone for internal systems. Dashed slots are where your team adds the VMs its business needs.`}
+      title={COPY.title}
+      howToRead={COPY.howToRead}
       legend={[
-        { label: 'Patch panel — structured cabling', color: 'var(--color-w3)' },
-        { label: 'Switch — the network', color: 'var(--color-w2)' },
-        { label: 'Server — the Proxmox host', color: 'var(--color-accent)' },
-        { label: 'PDU — power', color: 'var(--color-w1)' },
+        ...RACK_LEGEND.map((l) => ({ label: l.label, color: KIND_COLOR[l.kind] })),
         ...ZONES.map((z) => ({
-          label: `${z.bridge.id} — ${z.bridge.zone} zone`,
+          label: fillCopy(COPY.zoneLegend, { bridge: z.bridge.id, zone: z.bridge.zone }),
           color: z.color,
         })),
       ]}
@@ -143,11 +115,11 @@ export function ServerTopologyDiagram({
         {/* The physical rack elevation */}
         <div className="rounded-lg border border-line bg-panel-2 p-3">
           <div className="mb-2 flex items-baseline justify-between">
-            <span className="eyebrow-muted">Rack A · {RACK_UNITS}U</span>
-            <span className="text-2xs text-muted">front elevation</span>
+            <span className="eyebrow-muted">{COPY.rackHeading}</span>
+            <span className="text-2xs text-muted">{COPY.rackAspect}</span>
           </div>
           <div className="space-y-1">
-            {RACK.map((r) => {
+            {RACK_ELEVATION.map((r) => {
               const color = KIND_COLOR[r.kind];
               const isBlank = r.kind === 'blank';
               return (
@@ -183,9 +155,7 @@ export function ServerTopologyDiagram({
               );
             })}
           </div>
-          <div className="mt-2 text-center text-3xs text-muted">
-            Patch panel → switch → server NIC. Every lead is labelled and logged in the Rack, Power &amp; Asset Register.
-          </div>
+          <div className="mt-2 text-center text-3xs text-muted">{COPY.rackCaption}</div>
         </div>
 
         {/* The virtual side, drawn as a topology: LAN → host → the two zones,
@@ -194,13 +164,13 @@ export function ServerTopologyDiagram({
         <div className="flex flex-col">
           {businessLabel && (
             <div className="mb-2 self-start rounded-full bg-accent-soft px-3 py-1 text-2xs font-semibold text-accent-ink">
-              Building for: {businessLabel}
+              {fillCopy(COPY.buildingFor, { business: businessLabel })}
             </div>
           )}
 
           {/* Campus LAN */}
           <div className="rounded-lg border border-line bg-panel-2 px-3 py-1.5 text-center">
-            <span className="text-xs font-semibold text-ink">Campus LAN</span>
+            <span className="text-xs font-semibold text-ink">{COPY.campusLan}</span>
             <span className="ml-2 font-mono text-2xs text-muted">{CAMPUS_LAN.cidr}</span>
           </div>
           <div className="mx-auto h-3 w-px bg-line" aria-hidden />
@@ -208,7 +178,9 @@ export function ServerTopologyDiagram({
           {/* What the campus reaches THROUGH the host: the published ports, from
               the same model the host's rules file is rendered from. */}
           <div className={`rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.published))}`}>
-            <span className="font-semibold text-ink">Published through the host at {HOST.rule}</span>
+            <span className="font-semibold text-ink">
+              {fillCopy(COPY.publishedHeading, { host: HOST.rule })}
+            </span>
             {weekTag(ARRIVES.published)}
             {PUBLISHED_BY_VM.map((r) => (
               <span key={r.to} className="ml-2 whitespace-nowrap font-mono">
@@ -220,7 +192,7 @@ export function ServerTopologyDiagram({
 
           {/* The host */}
           <div className={`rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center ${dim(built(ARRIVES.host) && (!lit || lit.has('host')))}`}>
-            <div className="text-sm font-bold text-ink">Proxmox host</div>
+            <div className="text-sm font-bold text-ink">{COPY.hostHeading}</div>
             <div className="font-mono text-2xs text-muted">
               vmbr0 · {HOST.rule.slice(0, -HOST.teamMarker.length)}
               <span className="font-bold text-ink">{HOST.teamMarker}</span> ({HOST.teamMarker} = team #,
@@ -266,28 +238,31 @@ export function ServerTopologyDiagram({
                       this YOUR business, planned in the Architecture Brief. */}
                   <div className="rounded-md border border-dashed border-line px-2 py-1.5 text-center">
                     <span className="block text-2xs font-semibold text-muted">
-                      + {businessLabel ? `${business?.name ?? 'your business'}'s VMs` : 'your business\u2019s VMs'}
+                      {fillCopy(COPY.teamSlotHeading, {
+                        business: businessLabel ? (business?.name ?? 'your business') : 'your business',
+                      })}
                     </span>
                     <span className="block text-3xs text-muted/80">
-                      {z.bridge.zone === 'DMZ'
-                        ? 'public-facing services your business needs'
-                        : 'internal systems your business runs on'}{' '}
-                      — from <span className="font-mono">{z.teamStart}</span>, planned in the
-                      Architecture Brief
+                      {COPY.teamSlotBlurb[z.bridge.zone] ?? COPY.teamSlotBlurb.Private}{' '}
+                      {COPY.teamSlotWhere.before}
+                      <span className="font-mono">{z.teamStart}</span>
+                      {COPY.teamSlotWhere.after}
                     </span>
                   </div>
                 </div>
                 {z.bridge.id === 'vmbr1' && (
                   <div className={`mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.crossZone))}`}>
-                    → private zone: <span className="font-semibold text-ink">{CROSS_ZONE_LABEL}</span> only — everything else the DMZ tries is dropped and logged
+                    {COPY.crossZone.before}
+                    <span className="font-semibold text-ink">{CROSS_ZONE_LABEL}</span>
+                    {COPY.crossZone.after}
                     {weekTag(ARRIVES.crossZone)}
                   </div>
                 )}
                 {z.bridge.id === 'vmbr2' && (
                   <div className="mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted">
-                    later phase: physical NIC →{' '}
-                    <span className="font-semibold text-ink">Cisco router + switch</span> — the
-                    servers&rsquo; only internet path
+                    {COPY.vmbr2Later.before}
+                    <span className="font-semibold text-ink">{COPY.vmbr2Later.strong}</span>
+                    {COPY.vmbr2Later.after}
                   </div>
                 )}
               </div>
@@ -302,18 +277,18 @@ export function ServerTopologyDiagram({
               <span className="font-semibold" style={{ color: 'var(--color-w4)' }}>
                 {MACHINES.laptop.label}, off campus
               </span>
-              <span className="text-muted"> → tailnet → the host → both zones</span>
+              <span className="text-muted">{COPY.tailnetPath.after}</span>
               {weekTag(ARRIVES.tailnet)}
             </div>
             <div className="mt-0.5 text-center text-muted">
-              Administration only: {REMOTE_ADMIN.allow.map((a) => a.purpose).join(' · ')}. Nothing in
-              the private zone is published to the campus.
+              {fillCopy(COPY.tailnetNote, {
+                allow: REMOTE_ADMIN.allow.map((a) => a.purpose).join(' · '),
+              })}
             </div>
           </div>
 
           <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-3xs text-muted">
-            The Windows / Linux / website VMs are the base build — every team the same. Zone subnets
-            are worked examples; record yours in the IP Plan &amp; Connectivity Proof.
+            {COPY.footer}
           </div>
         </div>
       </div>

@@ -349,6 +349,16 @@ export interface Course {
    *  page shows you only `task.role === your role`, which for a shared build
    *  would leave three of four students with an empty week. Used by Server+. */
   sharedTrack?: boolean;
+  /**
+   * Manual sections this course ships the content for.
+   *
+   * The manual used to gate two of its sections on `course.id === 'server-plus'`
+   * and `course.id === 'cysa-plus'`, which meant a course built FROM one of them
+   * — a business instance of the deployment capstone — got no configuration
+   * guide however much of one it shipped. A course declares what it has instead;
+   * see `docs/manual.ts`.
+   */
+  manualSections?: ('config-guide' | 'tools')[];
   isSeed?: boolean;      // true for built-in courses shipped in code
   version?: number;      // export/import schema version
   updatedAt?: number;

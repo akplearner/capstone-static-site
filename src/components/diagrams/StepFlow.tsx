@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { SOC_IP } from '@/lib/labTopology';
+import { SOC_IP, socTopology } from '@/lib/labTopology';
 import { DUR } from '@/lib/motion';
 
 /**
@@ -16,11 +16,16 @@ import { DUR } from '@/lib/motion';
 
 type NodeColor = 'teal' | 'blue' | 'red' | 'slate';
 
+/** The pod addresses, read from the model rather than typed. They were typed
+ *  here — `10.10.100.N` and `10.10.20.N` — which is the drift the note further
+ *  down warns the next author about, in the same file that was doing it. */
+const POD = socTopology('cysa-plus')!.pod;
+
 const NODES: Record<string, { t: string; s: string; c: NodeColor }> = {
   build: { t: 'You (builder)', s: 'SSH / console', c: 'slate' },
   you: { t: 'You', s: 'browser / SSH', c: 'slate' },
-  ubuntu: { t: 'Ubuntu + DVWA', s: '10.10.100.N', c: 'blue' },
-  win: { t: 'Windows 11', s: '10.10.20.N', c: 'blue' },
+  ubuntu: { t: 'Ubuntu + DVWA', s: POD.ubuntu.ip, c: 'blue' },
+  win: { t: 'Windows 11', s: POD.windows.ip, c: 'blue' },
   soc: { t: 'Wazuh SOC', s: SOC_IP, c: 'teal' },
   dash: { t: 'Wazuh dashboard', s: 'in your browser', c: 'teal' },
   kali: { t: 'Kali', s: 'attacker', c: 'red' },

@@ -20,7 +20,7 @@ import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { TeamBusinessPicker } from '@/components/TeamBusinessPicker';
 import { socTopology } from '@/lib/labTopology';
-import { HOST } from '@/lib/serverTopology';
+import { MANUAL_COPY, manualHas, manualSectionsFor } from '@/lib/docs/manual';
 import { docsRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { buildDeliverableChain } from '@/lib/deliverableChain';
@@ -48,26 +48,20 @@ import { Surface } from '@/components/ui/Surface';
  * formerly the Team page — sits with the forms it connects.
  */
 
-interface Section {
-  id: string;
-  title: string;
-  blurb: string;
-  body: React.ReactNode;
-}
+/**
+ * The sections' titles, blurbs and course gating are content — see
+ * `lib/docs/manual.ts`. What is left here is each section's BODY: which
+ * diagrams and panels it composes, which is the one part of a manual section
+ * that is not text.
+ */
 
 export function GuideManual({ course, member }: { course: Course; member: Member }) {
   const topo = socTopology(course.id);
-  const isServerDeployment = course.id === 'server-plus';
-  const isCysa = course.id === 'cysa-plus';
+  // A deployment course is one that ships a build guide, not one with a
+  // particular id — the same test the manual's own gating uses.
+  const isServerDeployment = manualHas(course, 'config-guide');
+  const isCysa = manualHas(course, 'tools');
   const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
-
-  // What this course actually uses, derived from its own content rather than
-  // hardcoded by id. A build-and-document course has no commands at all, and
-  // rendering a full terminal-troubleshooting manual for it was the single
-  // biggest block of irrelevant reading on this page.
-  const hasCommands = course.tasks.some((t) =>
-    t.steps.some((s) => !!s.command || (s.commands?.length ?? 0) > 0)
-  );
 
   // The deliverable chain, with filed status recomputed whenever docs change,
   // so the diagram reads as a live status board rather than a static plan.
@@ -95,14 +89,10 @@ export function GuideManual({ course, member }: { course: Course; member: Member
 
   const frameworkIds = Array.from(new Set(course.tasks.flatMap((t) => t.frameworks))).sort();
 
-  const sections: Section[] = [
-    {
-      id: 'lab',
-      title: isServerDeployment ? 'The build' : 'The lab',
-      blurb: isServerDeployment
-        ? `One rack-mount server on the campus LAN running a hypervisor with two zones — a DMZ for the website, a private network for the Windows server and the Linux database. Your host is ${HOST.rule} (${HOST.teamMarker} = your team number).`
-        : 'Every machine in the environment, what runs on it, and how to confirm you can reach it before Week 1.',
-      body: (
+  /** Each section's body, by id. The manual renders the sections this course
+   *  has, in the order `manual.ts` declares, and looks each body up here. */
+  const bodies: Record<string, React.ReactNode> = {
+    lab: (
         <div className="space-y-6">
           {/* Three shapes, three diagrams. The generic ArchitectureDiagram draws a
               red/blue/grc attack lab and hardcodes those role ids, so it is the
@@ -132,63 +122,19 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           )}
         </div>
       ),
-    },
-    // Straight after the lab: that section shows what you are building, this one
-    // is how you build it. Every "Exact clicks →" row on a task step lands here.
-    ...(isServerDeployment
-      ? [
-          {
-            id: 'config-guide',
-            title: 'Configuration guide',
-            blurb:
-              'Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology. The task steps say what to do; this is how.',
-            body: <ServerConfigGuide />,
-          },
-        ]
-      : []),
-    ...(isCysa
-      ? [
-          {
-            id: 'tools',
-            title: 'Using the tools — Wazuh, Suricata & Sysmon',
-            blurb:
-              'What each tool is, how it is configured, and the exact searches and event IDs you reuse all course. The step-by-step commands live in each week’s task.',
-            body: (
-              <div className="space-y-6">
-                <LogPipelineDiagram />
-                <CysaToolGuide />
-              </div>
-            ),
-          },
-        ]
-      : []),
-    // Only for a course that actually runs commands. `#command-help` still
-    // resolves on those; a course with no CLI simply never links to it. The
-    // section composes its rows from that course's own lab, so the generic
+    'config-guide': <ServerConfigGuide />,
+    // The section composes its rows from that course's own lab, so the generic
     // terminal help renders everywhere while the panel- and tool-specific fixes
     // appear only where they are true. See `CommandTroubleshooting`.
-    ...(hasCommands
-      ? [
-          {
-            id: 'terminal',
-            title: 'Running commands & getting unstuck',
-            blurb: 'How to use a terminal, and the fixes for the errors almost every beginner hits.',
-            body: <CommandTroubleshooting courseId={course.id} />,
-          },
-        ]
-      : []),
-    {
-      id: 'evidence',
-      title: 'Evidence & chain of custody',
-      blurb:
-        'How to name, hash, log and hand off an artifact so it would hold up under scrutiny — and a ready-to-fill custody log.',
-      body: <EvidenceGuide />,
-    },
-    {
-      id: 'forms',
-      title: 'The forms, and how they connect',
-      blurb: 'Every form in the course, which one feeds the next, where its content comes from, and the folder layout you submit. The forms themselves are filled on the Deliverables tab.',
-      body: (
+    tools: (
+      <div className="space-y-6">
+        <LogPipelineDiagram />
+        <CysaToolGuide />
+      </div>
+    ),
+    terminal: <CommandTroubleshooting courseId={course.id} />,
+    evidence: <EvidenceGuide />,
+    forms: (
         <div className="space-y-6">
           <DeliverableChainDiagram course={course} chain={chain} highlightRole={member.role} />
           <RoleExtractionGuide role={member.role} courseId={course.id} />
@@ -199,58 +145,30 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           {course.id === 'security-plus' && <DocsReductionTable />}
         </div>
       ),
-    },
-    ...(course.roles.length > 1
-      ? [
-          {
-            id: 'roles',
-            title: 'How the roles hand off',
-            blurb:
-              'Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them.',
-            body: (
-              <Surface>
-                <RoleInterplayDiagram roles={course.roles} highlightRole={member.role} />
-              </Surface>
-            ),
-          },
-        ]
-      : []),
-    ...(course.lifecyclePath && course.lifecyclePath.length > 0
-      ? [
-          {
-            id: 'lifecycle',
-            title: 'The case lifecycle',
-            blurb: 'The path every case follows, whatever raised it. The specific attack this course runs is drawn above, under the arc.',
-            body: <CaseLifecycleChain stages={course.lifecyclePath} />,
-          },
-        ]
-      : []),
-    ...(frameworkIds.length > 0
-      ? [
-          {
-            id: 'frameworks',
-            title: 'Frameworks',
-            blurb:
-              'Every task is mapped to a recognized standard. The tags on a task aren’t decoration — they say how an auditor or employer would read your work.',
-            body: (
-              <div className="grid gap-3 md:grid-cols-2">
-                {frameworkIds.map((fw) => (
-                  <div key={fw} className="rounded-lg border border-line bg-panel p-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
-                        {getFrameworkLabel(fw)}
-                      </span>
-                      <span className="text-sm text-muted">{getFrameworkDescription(fw)}</span>
-                    </div>
-                    {getFrameworkWhy(fw) && <p className="mt-2 text-sm text-body">{getFrameworkWhy(fw)}</p>}
-                  </div>
-                ))}
-              </div>
-            ),
-          },
-        ]
-      : []),
-  ];
+    roles: (
+      <Surface>
+        <RoleInterplayDiagram roles={course.roles} highlightRole={member.role} />
+      </Surface>
+    ),
+    lifecycle: <CaseLifecycleChain stages={course.lifecyclePath ?? []} />,
+    frameworks: (
+      <div className="grid gap-3 md:grid-cols-2">
+        {frameworkIds.map((fw) => (
+          <div key={fw} className="rounded-lg border border-line bg-panel p-4">
+            <div className="flex items-center gap-2">
+              <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
+                {getFrameworkLabel(fw)}
+              </span>
+              <span className="text-sm text-muted">{getFrameworkDescription(fw)}</span>
+            </div>
+            {getFrameworkWhy(fw) && <p className="mt-2 text-sm text-body">{getFrameworkWhy(fw)}</p>}
+          </div>
+        ))}
+      </div>
+    ),
+  };
+
+  const sections = manualSectionsFor(course);
 
   return (
     <div data-manual className="space-y-8">
@@ -263,10 +181,10 @@ export function GuideManual({ course, member }: { course: Course; member: Member
         className="glass sticky z-20 -mx-4 space-y-2 border-b px-4 py-2"
       >
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <h2 className="text-xl font-bold text-ink">The manual</h2>
-          <span className="text-sm text-muted">Look things up here. Everything is open, so search the page.</span>
+          <h2 className="text-xl font-bold text-ink">{MANUAL_COPY.title}</h2>
+          <span className="text-sm text-muted">{MANUAL_COPY.subtitle}</span>
         </div>
-        <nav aria-label="Manual sections" className="flex flex-wrap gap-1.5">
+        <nav aria-label={MANUAL_COPY.navLabel} className="flex flex-wrap gap-1.5">
           {sections.map((s) => (
             <a
               key={s.id}
@@ -288,7 +206,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           {/* The Lab access panel and older bookmarks point at #command-help; keep
               it resolving rather than silently scrolling to the top of the page. */}
           {s.id === 'terminal' && <span id="command-help" className="sr-only" />}
-          {s.body}
+          {bodies[s.id]}
         </section>
       ))}
     </div>

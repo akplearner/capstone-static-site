@@ -14,10 +14,12 @@
  * diffs the folder after regenerating). The snapshot can never drift from the
  * seed; it can only be behind it, and the test says so.
  *
- * Functions are the one thing dropped on the way out. A DoD check keeps its
- * label and week; a derived column keeps its label and help. Both are replaced
- * by a `{ "$fn": "<name>" }` marker rather than silently vanishing, so a reader
- * can see that something computed lives there and where to find it.
+ * Functions used to be the one thing dropped on the way out — 128 of them, each
+ * leaving a `{ "$fn": "<name>" }` marker where a Definition-of-Done check or a
+ * computed column should be. They are data now (`docs/predicate.ts`), and
+ * `dto.test.ts` asserts no marker is left anywhere. The marker machinery stays
+ * because a future seed could still hold a function, and a document that says so
+ * is better than one that silently drops it.
  */
 
 import type { Course } from '@/lib/types';
@@ -34,6 +36,11 @@ import { GLOSSARY } from '@/lib/glossary';
 import { labProfile, hasLabAccess } from '@/lib/labAccess';
 import { IAC_TOOLS, IAC_TOOL_KEY } from '@/lib/iacTool';
 import { TEAM_WEIGHT, FOCUS_WEIGHT } from '@/lib/rubric';
+import * as manual from '@/lib/docs/manual';
+import * as serverDiagrams from '@/lib/docs/serverDiagrams';
+import * as cysaContent from '@/lib/docs/cysaContent';
+import * as securityContent from '@/lib/docs/securityContent';
+import * as troubleshooting from '@/lib/docs/troubleshooting';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
@@ -72,6 +79,20 @@ export interface CourseDto {
    * All four are content an instructor may want to read, diff or hand-edit.
    */
   glossary?: Record<string, string>;
+  /**
+   * The diagrams, manuals and guides the course renders — its reference content.
+   *
+   * Until R75-B this lived inside sixteen React components, so a document
+   * described a course's forms, tasks and addressing in full and could not say
+   * what the course TEACHES about reading an alert, ranking a finding or wiring
+   * a rack. Each entry is one content module's data, keyed by the module: the
+   * manual's own sections plus whichever of the per-course modules applies.
+   *
+   * Assembled by `contentData` below, which walks the module's exports rather
+   * than naming them, so a table added to a content module reaches the document
+   * without anyone remembering to add it here.
+   */
+  content?: Record<string, unknown>;
   labAccess?: Record<string, unknown>;
   iacTools?: Record<string, unknown>;
   marking?: { teamWeight: number; focusWeight: number };
@@ -140,6 +161,18 @@ export function topologyData(mod: Record<string, unknown>): Record<string, unkno
   return out;
 }
 
+/**
+ * Everything a content module holds as data, by export name.
+ *
+ * The same rule as `topologyData`: walk the module, keep the data, drop the
+ * helpers. A module that grows a table reaches the document by existing, which
+ * is the whole reason the content was moved out of the components — a table
+ * nobody remembered to register is a table the document does not have.
+ */
+export function contentData(mod: Record<string, unknown>): Record<string, unknown> {
+  return topologyData(mod);
+}
+
 export function courseDto(courseId: string): CourseDto {
   const course = SEED_COURSES.find((c) => c.id === courseId);
   if (!course) throw new Error(`no seed course '${courseId}'`);
@@ -165,6 +198,31 @@ export function courseDto(courseId: string): CourseDto {
     delete rest.SOC_TOPOLOGY_BY_COURSE;
     dto.topology = serialisable({ ...rest, SOC: SOC_TOPOLOGY_BY_COURSE[courseId] });
   }
+
+  // The reference content: the manual's sections for every course, plus the
+  // diagrams and guides of whichever family this one belongs to.
+  generatedFrom.push('src/lib/docs/manual.ts');
+  const content: Record<string, unknown> = { manual: contentData(manual) };
+  if (courseId === 'server-plus') {
+    generatedFrom.push('src/lib/docs/serverDiagrams.ts');
+    content.diagrams = contentData(serverDiagrams);
+  }
+  if (SOC_TOPOLOGY_BY_COURSE[courseId]) {
+    generatedFrom.push('src/lib/docs/cysaContent.ts');
+    content.cysa = contentData(cysaContent);
+  }
+  if (courseId === 'security-plus') {
+    generatedFrom.push('src/lib/docs/securityContent.ts');
+    content.security = contentData(securityContent);
+  }
+  // Every course that runs commands renders the troubleshooting manual, and the
+  // rows it renders depend on that course's lab — so the document carries the
+  // rows, not the ones this course happens to show.
+  if (course.tasks.some((t) => t.steps.some((st) => !!st.command || (st.commands?.length ?? 0) > 0))) {
+    generatedFrom.push('src/lib/docs/troubleshooting.ts');
+    content.troubleshooting = contentData(troubleshooting);
+  }
+  dto.content = serialisable(content);
 
   // Content every course renders that has no other home in this document.
   generatedFrom.push('src/lib/glossary.ts', 'src/lib/rubric.ts');

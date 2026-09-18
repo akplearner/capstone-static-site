@@ -3307,6 +3307,9 @@ const RAW_SERVER_PLUS: Course = {
     { week: 6, label: 'Advanced: run it as a fleet', check: 'linuxsrv was destroyed and came back from Git alone' },
   ],
   sharedTrack: true,
+  // A week-by-week build guide ships with this course, so the manual carries
+  // the configuration-guide section. See `docs/manual.ts`.
+  manualSections: ['config-guide'],
   lifecyclePath: [
     { label: 'Plan', detail: 'Profile the business, plan the 24U rack, and set the acceptance criteria.' },
     { label: 'Analyze', detail: 'Audit what the hardware can do and plan the justified upgrades.' },

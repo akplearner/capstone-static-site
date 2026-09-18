@@ -2,7 +2,12 @@
 
 import { Terminal, AlertTriangle, ClipboardPaste } from 'lucide-react';
 import { hasLabAccess, labProfile } from '@/lib/labAccess';
-import { HOST, OPS } from '@/lib/serverTopology';
+import {
+  TERMINAL_BASICS,
+  TERMINAL_COPY as COPY,
+  errorRowsFor,
+  type LabCapability,
+} from '@/lib/docs/troubleshooting';
 
 /**
  * Two beginner references that live on the Guide and are linked from every step
@@ -19,151 +24,43 @@ import { HOST, OPS } from '@/lib/serverTopology';
  * switched the section on for a course that has an EMPTY lab profile — so the
  * panel those fixes point at does not exist there, and neither do the tools.
  *
- * So the rows are composed from what the course actually has, read from
- * `labAccess.ts` rather than from a course-id list: `hasLabAccess` says whether
+ * The rows themselves — and the two-way sentences they grow or drop — are
+ * content, in `lib/docs/troubleshooting.ts`. They are composed from what the
+ * course actually has, read from `labAccess.ts` rather than from a course-id
+ * list: `hasLabAccess` says whether
  * there is a Lab access panel to send anyone to, and an ATTACKER_IP field says
  * whether this is an attack-and-defend lab where nmap/hydra are the tools in
  * hand. A course with neither still gets every generic terminal fix — which is
  * the whole point of the section — and never an instruction it cannot follow.
  */
 
-const TERMINAL_BASICS: { label: string; body: string }[] = [
-  // Named generically, not "on Kali": this component renders on every course,
-  // and a deployment course has no attacker box — its terminals are the
-  // hypervisor host's shell, the Proxmox console and the servers themselves.
-  { label: 'Open a terminal', body: 'On a Linux desktop, click the black terminal icon or press Ctrl+Alt+T. On a server you reach over SSH, the terminal is the session itself. You type commands here and press Enter to run them.' },
-  { label: 'The prompt', body: 'A line ending in $ (or #) is the prompt — it means the terminal is waiting for you. You don’t type the $ itself.' },
-  { label: 'Paste a command', body: 'Copy from this site, then in the terminal press Ctrl+Shift+V (plain Ctrl+V often does nothing in a terminal). Right-click → Paste also works.' },
-  { label: 'Run one line at a time', body: 'When a step shows several numbered commands, run them one by one — paste one, press Enter, wait for it to finish, then the next.' },
-  { label: 'sudo = run as admin', body: 'sudo runs a command with admin rights (it may ask for your password — typing shows nothing, that’s normal). On Windows/PowerShell, instead right-click PowerShell → “Run as administrator”.' },
-  { label: 'Stop a stuck command', body: 'Press Ctrl+C to cancel a command that hangs or runs forever (e.g. a ping with no -c limit).' },
-];
+/** What this course's lab gives a student, so a fix never names something they
+ *  do not have. Derived from the course's own lab profile — a course that drops
+ *  the attacker or the whole panel loses the matching sentences automatically. */
+function labShape(courseId: string): Record<LabCapability, boolean> {
+  const fields = labProfile(courseId).fields;
+  return {
+    panel: hasLabAccess(courseId),
+    attackTools: fields.some((f) => f.key === 'ATTACKER_IP'),
+    // A course whose lab is a server it reaches from off campus. Sniffing the
+    // field key rather than the course id is this file's own convention: drop
+    // the field and the remote-access rows go with it.
+    remote: fields.some((f) => f.key === 'PVE_TAILSCALE'),
+    // Week 6's shared ops network — the same convention.
+    ops: fields.some((f) => f.key === 'OPS_SUBNET'),
+  };
+}
 
 /** "Your Proxmox host address" → "your Proxmox host address": these labels start
  *  with "Your", and lower-casing the whole string mangles the product name. */
 const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
 
-interface ErrorRow {
-  symptom: string;
-  meaning: string;
-  fix: string;
-}
-
-/** What this course's lab gives a student, so a fix never names something they
- *  do not have. Derived from the course's own lab profile — a course that drops
- *  the attacker or the whole panel loses the matching sentences automatically. */
-function labShape(courseId: string): { panel: boolean; attackTools: boolean; remote: boolean; ops: boolean } {
-  return {
-    panel: hasLabAccess(courseId),
-    attackTools: labProfile(courseId).fields.some((f) => f.key === 'ATTACKER_IP'),
-    // A course whose lab is a server it reaches from off campus. Sniffing the
-    // field key rather than the course id is this file's own convention: drop
-    // the field and the remote-access rows go with it.
-    remote: labProfile(courseId).fields.some((f) => f.key === 'PVE_TAILSCALE'),
-    // Week 6's shared ops network — the same convention.
-    ops: labProfile(courseId).fields.some((f) => f.key === 'OPS_SUBNET'),
-  };
-}
-
-function commonErrors(courseId: string): ErrorRow[] {
-  const { panel, attackTools, remote, ops } = labShape(courseId);
-  const rows: ErrorRow[] = [
-    {
-      symptom: 'command not found',
-      meaning: 'The terminal doesn’t recognise the program — usually a typo or the tool isn’t installed.',
-      fix:
-        'Check the spelling. If it’s really missing, install it: sudo apt update && sudo apt install <tool>' +
-        (attackTools ? ' (e.g. nmap, nikto, hydra).' : ' — the step that first uses a tool says how to install it.'),
-    },
-    {
-      symptom: 'Permission denied / Operation not permitted',
-      meaning: 'The command needs admin rights.',
-      fix: 'Add sudo in front on Linux (sudo <command>). On Windows/PowerShell, close it and reopen with “Run as administrator”.',
-    },
-    {
-      symptom: 'Connection refused / No route to host / host seems down',
-      meaning: 'You can’t reach the target — it’s off, the IP is wrong, or you’re not on the right network.',
-      fix:
-        'ping the address first. Confirm the machine is powered on and that you are on the same subnet as it' +
-        (panel ? ', and that you set the right IP in Lab access.' : ' — a host in another zone only answers once the route between them exists.') +
-        (attackTools ? ' For nmap, add -Pn to scan a host that blocks ping.' : ''),
-    },
-    {
-      symptom: 'No such file or directory',
-      meaning: 'You’re in the wrong folder, or the path/filename is wrong.',
-      fix:
-        'Run pwd to see where you are and cd ~ to go home.' +
-        (attackTools
-          ? ' For hydra, rockyou is gzipped by default — unzip it once: sudo gunzip /usr/share/wordlists/rockyou.txt.gz'
-          : ' Check the file really exists with ls before you edit it — a config path is easy to mistype.'),
-    },
-  ];
-
-  // Only a course with a Lab access panel can be told to open one. Without the
-  // panel there is no placeholder substitution either, so the row has no subject.
-  if (panel) {
-    // The example and the thing to go and set are the course's own. This row
-    // used to name the attack lab's target IP on every course, including one
-    // whose panel never offered such a field.
-    const first = labProfile(courseId).fields[0];
-    rows.push({
-      symptom: `The command still shows ${first?.tokens[0] ?? '<YOUR_TARGET_IP>'}`,
-      meaning: 'That’s a placeholder, not a real address — you copied it literally.',
-      fix: `Open the Lab access panel at the top of the Tasks tab and enter ${lowerFirst(first?.label ?? 'Your target IP')}; the site then fills it into every command automatically.`,
-    });
-  }
-
-  // Remote administration: the host is reachable from off campus, so "I cannot
-  // reach my server" is a different problem from "this host is on the wrong
-  // network", and the answers are not the ones above.
-  if (remote) {
-    rows.push(
-      {
-        symptom: 'ssh: connect to host … Operation timed out (from home)',
-        meaning: 'Your laptop is not on the tailnet, or the host is not.',
-        fix: `Check the Tailscale client is signed in and connected on your laptop, then run tailscale status on the host — it must list the host as online. On campus you can still reach it on its ${HOST.rule} address while you sort this out.`,
-      },
-      {
-        symptom: 'The Proxmox console times out but SSH works',
-        meaning: 'The path is fine; the web service or the port is not.',
-        fix: 'Run systemctl status pveproxy --no-pager over SSH. Remember the console is on port 8006 and https, not http — a plain http:// URL simply hangs.',
-      },
-      {
-        symptom: 'It worked yesterday and not today',
-        meaning: 'The host rebooted and something did not come back, or your address changed.',
-        fix: 'systemctl is-active tailscaled on the host must read active. The host keeps the same Tailscale address across reboots, so if the address you saved has changed, you are looking at a rebuilt host that was re-authorised as a new device.',
-      },
-      {
-        symptom: 'Permission denied (publickey) after setting up keys',
-        meaning: 'The key is not where the server expects it, or the account is wrong.',
-        fix: 'Run ssh -v to see which key is offered, and confirm you are connecting as the right user. Password login is still enabled until Week 4 hardens it, so you have a way back in — use it rather than locking yourself out further.',
-      }
-    );
-  }  if (ops) {
-    rows.push({
-      symptom: `ping ${OPS.core.obs} fails from a VM (Week 6)`,
-      meaning: 'The VM cannot reach the Core over the ops network — the second NIC, the VLAN tag or the bridge is wrong.',
-      fix: `On the host, ip -br a must show ${OPS.bridge} UP with the team’s ${OPS.team.node} address. Inside the VM, the second interface needs its ${OPS.team.rule}.x address and no gateway. Still nothing: the switch port is not trunking VLAN ${OPS.vlan} — the Networking deep-dive owns that.`,
-    });
-  }
-
-
-  rows.push(
-    {
-      symptom: 'It just hangs / never finishes',
-      meaning: 'Some commands (a bare ping, a large download, a package install) run until you stop them, or they’re waiting on a slow or unreachable host.',
-      fix:
-        'Press Ctrl+C to stop it. Re-check reachability (ping), and give a genuinely long job a minute' +
-        (attackTools ? ' — an all-port nmap is slow.' : ' — an OS install or a big apt upgrade takes minutes, not seconds.'),
-    },
-    {
-      symptom: 'Read the last line first',
-      meaning: 'When anything fails, the error’s last line usually names the real problem.',
-      fix: 'Match that line to the rows above. Also double-check you’re on the machine the step’s WHERE chip names — running the right command on the wrong host is the most common cause.',
-    }
-  );
-
-  return rows;
+function commonErrors(courseId: string) {
+  const first = labProfile(courseId).fields[0];
+  return errorRowsFor(labShape(courseId), {
+    token: first?.tokens[0] ?? '<YOUR_TARGET_IP>',
+    label: lowerFirst(first?.label ?? 'Your target IP'),
+  });
 }
 
 /** The "terminal basics" reference on its own — reused inline on command steps
@@ -174,11 +71,9 @@ export function TerminalBasics() {
   return (
     <div className="rounded-lg border border-line bg-panel p-5">
       <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-        <Terminal className="h-4 w-4 text-accent" /> Terminal basics
+        <Terminal className="h-4 w-4 text-accent" /> {COPY.title}
       </h3>
-      <p className="mt-1 text-sm text-muted">
-        New to the command line? These are the only things you need to know to run every command in this course.
-      </p>
+      <p className="mt-1 text-sm text-muted">{COPY.intro}</p>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
         {TERMINAL_BASICS.map((b) => (
           <div key={b.label} className="rounded-md border border-line bg-panel-2 p-3">
@@ -202,18 +97,16 @@ export function CommandTroubleshooting({ courseId }: { courseId: string }) {
 
       <div className="rounded-lg border border-danger-line bg-danger-soft p-5">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
-          <AlertTriangle className="h-4 w-4 text-danger" /> When a command won’t run
+          <AlertTriangle className="h-4 w-4 text-danger" /> {COPY.errorsTitle}
         </h3>
-        <p className="mt-1 text-sm text-muted">
-          The errors almost everyone hits, and the one-line fix for each. Match the message you see to a row.
-        </p>
+        <p className="mt-1 text-sm text-muted">{COPY.errorsIntro}</p>
         <ul className="mt-3 space-y-2.5">
           {errors.map((e) => (
             <li key={e.symptom} className="rounded-md border border-danger-line bg-panel p-3">
               <p className="font-mono text-xs font-semibold text-danger">{e.symptom}</p>
               <p className="mt-0.5 text-sm text-muted">{e.meaning}</p>
               <p className="mt-1 text-sm text-body">
-                <span className="font-semibold">Fix: </span>
+                <span className="font-semibold">{COPY.fixLabel}</span>
                 {e.fix}
               </p>
             </li>

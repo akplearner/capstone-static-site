@@ -2,8 +2,8 @@
 
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
-import { SOC_IP } from '@/lib/labTopology';
 import { DUR } from '@/lib/motion';
+import { LOG_PIPELINE, type PipelineStage } from '@/lib/docs/cysaContent';
 
 /**
  * How a log actually reaches the dashboard — the mental model behind almost
@@ -16,31 +16,25 @@ import { DUR } from '@/lib/motion';
  * the diagram doubles as a fault-isolation checklist.
  */
 
-const STAGES: { n: number; label: string; sub: string; proof: string }[] = [
-  { n: 1, label: 'Your machine', sub: 'Ubuntu or Windows', proof: 'the activity happened at all' },
-  { n: 2, label: 'Sensor', sub: 'Suricata · Sysmon · system logs', proof: 'eve.json is growing' },
-  { n: 3, label: 'Wazuh agent', sub: 'reads the files it is told to', proof: 'systemctl status = active' },
-  { n: 4, label: 'Ports 1514 / 1515', sub: 'data · enrolment', proof: '"Connected to the server"' },
-  { n: 5, label: 'Wazuh manager', sub: SOC_IP, proof: 'agent shows Active' },
-  { n: 6, label: 'Rule fires', sub: 'gives it a rule.level', proof: 'the event has a level' },
-  { n: 7, label: 'Dashboard row', sub: 'Security events', proof: 'you can see it — check the time picker' },
-];
+const TONE: Record<PipelineStage['where'], string> = {
+  machine: 'var(--color-w1)',
+  transit: 'var(--color-accent)',
+  soc: 'var(--color-w3)',
+};
+
+const { copy: COPY, stages: STAGES } = LOG_PIPELINE;
 
 export function LogPipelineDiagram() {
   return (
     <DiagramFrame
-      title="How a log reaches the dashboard"
-      subtitle="Seven hops. When the table is empty, one of them broke — this is the order to check them in."
-      howToRead="Follow it left to right. Each box names what proves that hop is working. Start at the far right (is it just the time picker?) and walk backwards until you find the first hop that cannot prove itself — that is where the break is."
-      legend={[
-        { label: 'On your machine', color: 'var(--color-w1)' },
-        { label: 'In transit', color: 'var(--color-accent)' },
-        { label: 'On the SOC', color: 'var(--color-w3)' },
-      ]}
+      title={COPY.title}
+      subtitle={COPY.subtitle}
+      howToRead={COPY.howToRead}
+      legend={COPY.legend?.map((l) => ({ label: l.label, color: TONE[l.kind as PipelineStage['where']] }))}
     >
       <ol className="flex min-w-[680px] items-stretch gap-1.5">
         {STAGES.map((s, i) => {
-          const tone = i <= 1 ? 'var(--color-w1)' : i <= 3 ? 'var(--color-accent)' : 'var(--color-w3)';
+          const tone = TONE[s.where];
           return (
             <li key={s.n} className="flex items-stretch gap-1.5">
               <motion.div
