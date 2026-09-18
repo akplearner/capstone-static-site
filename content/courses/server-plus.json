@@ -4,7 +4,11 @@
     "src/lib/data/seed/serverPlus.ts",
     "src/lib/docs/serverPlusDeliverables.ts",
     "src/lib/docs/serverProcedures.ts",
-    "src/lib/serverTopology.ts"
+    "src/lib/serverTopology.ts",
+    "src/lib/glossary.ts",
+    "src/lib/rubric.ts",
+    "src/lib/labAccess.ts",
+    "src/lib/iacTool.ts"
   ],
   "course": {
     "id": "server-plus",
@@ -12508,44 +12512,46 @@
     }
   ],
   "topology": {
-    "CAMPUS_LAN": {
-      "cidr": "10.10.0.0/16",
-      "gateway": "10.10.10.1"
-    },
-    "HOST": {
-      "hostname": "pve-host",
-      "rule": "10.10.30.T",
-      "teamMarker": "T",
-      "consolePort": 8006,
-      "exampleTeam": 1,
-      "exampleAddress": "10.10.30.1"
-    },
-    "HOST_CONSOLE_URL": "https://10.10.30.T:8006",
-    "HOST_ROOT_LOGIN": {
-      "user": "root",
-      "password": "Pass@2026"
-    },
-    "BRIDGES": [
+    "ADVANCED_HOSTS": [
       {
-        "id": "vmbr0",
-        "zone": "Management",
-        "cidr": "10.10.0.0/16",
-        "gateway": "10.10.10.1",
-        "note": "The campus LAN. The host lives here and every other zone routes out through it."
+        "hostname": "secmon",
+        "address": "192.168.0.4",
+        "bridge": "vmbr2",
+        "os": "Ubuntu Server",
+        "runs": "Monitoring — the advanced track",
+        "services": [
+          "Prometheus",
+          "Grafana",
+          "Loki",
+          "Pulse"
+        ],
+        "optional": true
       },
       {
-        "id": "vmbr1",
-        "zone": "DMZ",
-        "cidr": "172.16.0.0/24",
-        "gateway": "172.16.0.1",
-        "note": "Public-facing only. The website answers here and nothing internal belongs in it."
+        "hostname": "wazuh",
+        "address": "192.168.0.20",
+        "bridge": "vmbr2",
+        "os": "Ubuntu Server",
+        "runs": "Wazuh — your own SIEM",
+        "services": [
+          "Wazuh manager",
+          "Wazuh indexer",
+          "Wazuh dashboard"
+        ],
+        "optional": true
       },
       {
-        "id": "vmbr2",
-        "zone": "Private",
-        "cidr": "192.168.0.0/24",
-        "gateway": "192.168.0.1",
-        "note": "Internal systems. Later mapped to a physical NIC into the Cisco router and switch."
+        "hostname": "tools",
+        "address": "192.168.0.21",
+        "bridge": "vmbr2",
+        "os": "Ubuntu Server",
+        "runs": "NetBox and GLPI — the registers, as software",
+        "services": [
+          "NetBox",
+          "GLPI",
+          "Docker"
+        ],
+        "optional": true
       }
     ],
     "BASE_VMS": [
@@ -12622,9 +12628,147 @@
         "optional": true
       }
     ],
-    "TEAM_VM_START": {
-      "vmbr1": "172.16.0.11",
-      "vmbr2": "192.168.0.5"
+    "BRIDGES": [
+      {
+        "id": "vmbr0",
+        "zone": "Management",
+        "cidr": "10.10.0.0/16",
+        "gateway": "10.10.10.1",
+        "note": "The campus LAN. The host lives here and every other zone routes out through it."
+      },
+      {
+        "id": "vmbr1",
+        "zone": "DMZ",
+        "cidr": "172.16.0.0/24",
+        "gateway": "172.16.0.1",
+        "note": "Public-facing only. The website answers here and nothing internal belongs in it."
+      },
+      {
+        "id": "vmbr2",
+        "zone": "Private",
+        "cidr": "192.168.0.0/24",
+        "gateway": "192.168.0.1",
+        "note": "Internal systems. Later mapped to a physical NIC into the Cisco router and switch."
+      }
+    ],
+    "CAMPUS_LAN": {
+      "cidr": "10.10.0.0/16",
+      "gateway": "10.10.10.1"
+    },
+    "CROSS_ZONE_ALLOW": [
+      {
+        "from": "vmbr1",
+        "to": "winserver",
+        "proto": "udp",
+        "port": 53,
+        "purpose": "DNS"
+      },
+      {
+        "from": "vmbr1",
+        "to": "winserver",
+        "proto": "tcp",
+        "port": 53,
+        "purpose": "DNS"
+      },
+      {
+        "from": "vmbr1",
+        "to": "linuxsrv",
+        "proto": "tcp",
+        "port": 3306,
+        "purpose": "The database"
+      }
+    ],
+    "HOST": {
+      "hostname": "pve-host",
+      "rule": "10.10.30.T",
+      "teamMarker": "T",
+      "consolePort": 8006,
+      "exampleTeam": 1,
+      "exampleAddress": "10.10.30.1"
+    },
+    "HOST_CONSOLE_URL": "https://10.10.30.T:8006",
+    "HOST_ROOT_LOGIN": {
+      "user": "root",
+      "password": "Pass@2026"
+    },
+    "HOST_RULES_FILE": "/etc/iptables/rules.v4",
+    "MACHINES": {
+      "workstation": {
+        "id": "workstation",
+        "label": "Your workstation",
+        "shell": "powershell",
+        "how": "The classroom PC at your desk, imaged and joined to the domain in Week 0.",
+        "node": "campus"
+      },
+      "console": {
+        "id": "console",
+        "label": "Server console",
+        "shell": "gui",
+        "how": "Keyboard and monitor plugged into the server itself, at the rack.",
+        "node": "host"
+      },
+      "pve-ui": {
+        "id": "pve-ui",
+        "label": "Proxmox web console",
+        "shell": "gui",
+        "how": "A browser at https://10.10.30.T:8006 — the point-and-click side of the host.",
+        "node": "host"
+      },
+      "host": {
+        "id": "host",
+        "label": "Proxmox host",
+        "shell": "bash",
+        "how": "A shell on the hypervisor: the Proxmox console, or ssh as root over the tailnet. The only machine in this course you log into as root.",
+        "node": "host"
+      },
+      "websrv": {
+        "id": "websrv",
+        "label": "websrv",
+        "shell": "bash",
+        "how": "The DMZ web host at 172.16.0.10 — its Proxmox console, or ssh as the install user.",
+        "node": "websrv"
+      },
+      "winserver": {
+        "id": "winserver",
+        "label": "winserver",
+        "shell": "powershell",
+        "how": "The Windows server at 192.168.0.2 — PowerShell as Administrator, in its Proxmox console or over RDP.",
+        "node": "winserver"
+      },
+      "linuxsrv": {
+        "id": "linuxsrv",
+        "label": "linuxsrv",
+        "shell": "bash",
+        "how": "The private-zone database host at 192.168.0.3 — its Proxmox console, or ssh as the install user.",
+        "node": "linuxsrv"
+      },
+      "laptop": {
+        "id": "laptop",
+        "label": "Your laptop",
+        "shell": "bash",
+        "how": "Your own machine, wherever you are. Off campus it reaches the build over the tailnet."
+      },
+      "campus": {
+        "id": "campus",
+        "label": "A campus PC",
+        "shell": "bash",
+        "how": "Any other machine on the campus LAN (vmbr0) — a classmate’s desk, a lab PC. Not a VM, and not the host.",
+        "node": "campus"
+      }
+    },
+    "MONITORING_HOST": {
+      "hostname": "secmon",
+      "address": "192.168.0.4",
+      "bridge": "vmbr2",
+      "os": "Ubuntu Server",
+      "runs": "Monitoring — the advanced track",
+      "services": [
+        "Prometheus",
+        "Grafana",
+        "Loki",
+        "Pulse"
+      ],
+      "optional": true
     },
     "OPS": {
       "bridge": "vmbr9",
@@ -12644,6 +12788,258 @@
         "opsVm": "10.20.T.30"
       }
     },
-    "RACK_UNITS": 24
+    "PUBLISHED_PORTS": [
+      {
+        "hostPort": 80,
+        "proto": "tcp",
+        "to": "websrv",
+        "port": 80,
+        "purpose": "The website — the site your team builds and uploads"
+      },
+      {
+        "hostPort": 443,
+        "proto": "tcp",
+        "to": "websrv",
+        "port": 443,
+        "purpose": "The website over TLS — published now, served from Week 4"
+      },
+      {
+        "hostPort": 2200,
+        "proto": "tcp",
+        "to": "websrv",
+        "port": 22,
+        "purpose": "Upload the site — scp straight to the DMZ host"
+      }
+    ],
+    "RACK_UNITS": 24,
+    "REMOTE_ADMIN": {
+      "iface": "tailscale0",
+      "routes": [
+        "172.16.0.0/24",
+        "192.168.0.0/24"
+      ],
+      "allow": [
+        {
+          "port": 22,
+          "proto": "tcp",
+          "purpose": "SSH to every VM"
+        },
+        {
+          "to": "winserver",
+          "port": 3389,
+          "proto": "tcp",
+          "purpose": "RDP to winserver"
+        }
+      ]
+    },
+    "SITE": {
+      "root": "/var/www/html",
+      "uploadUser": "ubuntu",
+      "uploadPort": 2200
+    },
+    "TEAM_VM_START": {
+      "vmbr1": "172.16.0.11",
+      "vmbr2": "192.168.0.5"
+    },
+    "ZONE_BRIDGES": [
+      {
+        "id": "vmbr1",
+        "zone": "DMZ",
+        "cidr": "172.16.0.0/24",
+        "gateway": "172.16.0.1",
+        "note": "Public-facing only. The website answers here and nothing internal belongs in it."
+      },
+      {
+        "id": "vmbr2",
+        "zone": "Private",
+        "cidr": "192.168.0.0/24",
+        "gateway": "192.168.0.1",
+        "note": "Internal systems. Later mapped to a physical NIC into the Cisco router and switch."
+      }
+    ]
+  },
+  "glossary": {
+    "data.src_ip": "The Wazuh search field holding the source address of a network (Suricata) alert — who the traffic came from.",
+    "data.srcip": "The Wazuh search field holding the source address of a host alert (logins, web requests). Its network twin is data.src_ip — search both.",
+    "ossec.conf": "The Wazuh agent's config file. It names the SOC to report to and any extra log files to ship.",
+    "hydra": "A password-guessing tool. In this lab you run it against your own pod so the SOC has a brute-force attack to detect.",
+    "tcpdump": "A command-line tool that records network traffic to a .pcap file you can open in Wireshark.",
+    "Wireshark": "A traffic viewer. Open a .pcap in it and \"Follow HTTP Stream\" to read the exact request an attacker sent.",
+    "Kali": "The attacker machine in your lab — a Linux build that ships with nmap, nikto, hydra and the rest.",
+    "Proxmox": "A hypervisor — an operating system whose job is to run virtual machines. In Server+ you install it on your own server; in the CySA lab it already runs the lab.",
+    "POST": "Power-On Self-Test — the hardware check a machine runs the moment you power it on, before any operating system. Beeps and blink codes are POST talking to you.",
+    "DIMM": "A memory stick. Which slots they go in is dictated by the motherboard manual, and the wrong slots can stop the machine starting at all.",
+    "ECC": "Error-Correcting Code memory — server RAM that detects and fixes single-bit corruption on the fly. Servers use it; desktops usually do not.",
+    "HCL": "Hardware Compatibility List — the check that the software you plan to run officially supports the exact hardware you have, before you build on it.",
+    "UEFI": "The modern replacement for the old BIOS firmware. Boot mode matters: an OS installed under UEFI will not boot if the firmware is later switched to legacy.",
+    "IOMMU": "The chip feature (Intel VT-d / AMD-Vi) that lets a virtual machine be handed a real piece of hardware, like a NIC, as its own.",
+    "VT-x": "Intel’s virtualization extensions. Present is not enough — they must be ENABLED in firmware setup, or the hypervisor cannot start a single VM.",
+    "stripe size": "How large a chunk of data a RAID array writes to one disk before moving to the next. The default is right for this build.",
+    "IDS": "Intrusion Detection System — software that watches traffic and raises an alert when it matches a known attack pattern. Suricata is yours.",
+    "NVD": "National Vulnerability Database — the public catalogue you search to find a CVE and its score for a given software version.",
+    "pod": "Your team’s pair of machines: one Ubuntu web server and one Windows PC.",
+    "escalate": "Pass an alert on for deeper investigation, with the reason written down, instead of closing it yourself.",
+    "SOC": "Security Operations Centre — the team (and dashboard) that watches for attacks around the clock.",
+    "SIEM": "Security Information and Event Management — software that gathers logs from everywhere and raises alerts. Wazuh is your SIEM.",
+    "IOC": "Indicator of Compromise — a clue an attacker leaves behind, like a bad IP address, file name, or hash.",
+    "CVE": "Common Vulnerabilities and Exposures — a public ID for one specific known software flaw, e.g. CVE-2021-41773.",
+    "CVSS": "A 0–10 score for how severe a vulnerability is, so you can rank what to fix first.",
+    "pcap": "A 'packet capture' — a saved recording of network traffic you can open in Wireshark.",
+    "SQLi": "SQL injection — tricking a website into running database commands it shouldn't, often to steal data.",
+    "WAF": "Web Application Firewall — a filter in front of a website that blocks common attacks like SQL injection.",
+    "POA&M": "Plan of Action & Milestones — a to-do list for fixing findings: what, who owns it, and by when.",
+    "PTES": "Penetration Testing Execution Standard — the agreed steps of a pentest: recon, scan, exploit, report.",
+    "STRIDE": "A checklist of threat types: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.",
+    "NIC": "Network Interface Card — a machine's network connection. On these VMs it's usually named ens18.",
+    "IaC": "Infrastructure as Code — describing machines in a text file a tool applies, so the build is repeatable and the file is the record. Terraform or OpenTofu is yours.",
+    "OpenTofu": "The open-source fork of Terraform, kept under the Linux Foundation after HashiCorp changed Terraform’s licence in 2023. Same HCL, same providers, same state files; the command is tofu instead of terraform.",
+    "exporter": "A small program on a host that publishes its metrics on an HTTP port for Prometheus to collect. node_exporter for Linux, windows_exporter for Windows.",
+    "IPAM": "IP Address Management — the tool that holds every subnet and address and who has it, so the plan and reality are the same document. NetBox is yours.",
+    "FIM": "File Integrity Monitoring — an agent that hashes important files and alerts when one changes, which is how a tampered config gets noticed.",
+    "cloud-init": "The first-boot setup a cloud image runs: hostname, user, keys and addressing handed in from outside, so a clone comes up configured instead of blank.",
+    "DNAT": "Destination NAT — the host rewriting where a packet is going. The rule that turns a request to the host’s campus address on port 80 into a request to websrv in the DMZ.",
+    "MASQUERADE": "Source NAT behind the host’s own address, so a reply from the campus LAN or the internet comes back to the host and is handed to the guest that asked.",
+    "published port": "A port on the host’s campus address that a DNAT rule hands to a VM behind it. Each one is a deliberate hole in the segmentation, and you should be able to say why it exists.",
+    "idempotent": "Running it twice gives the same result as running it once. The property that makes a playbook safe to run every night — and why changed=0 on the second run is the proof.",
+    "drift": "Reality diverging from what the code says — a change made in the console instead of the repository. terraform plan (tofu plan) detects it; the next apply may undo it.",
+    "dynamic inventory": "Ansible asking the hypervisor which hosts exist instead of reading a list someone typed. The list is never out of date because there is no list.",
+    "XDR": "Extended Detection and Response — one platform watching endpoints, logs and files across a whole fleet. Wazuh on the Core is the MSP’s.",
+    "verify job": "The backup server re-reading a backup, chunk by chunk, to confirm it is restorable before anyone needs it.",
+    "SLO": "Service Level Objective — the availability you promise a client, as a number. The SLA is the contract around it.",
+    "SCA": "Security Configuration Assessment — checking a machine's settings against a hardening benchmark.",
+    "Rules of Engagement": "The written agreement of what you're allowed to test, and when.",
+    "RoE": "Rules of Engagement — the written agreement of what you're allowed to test, and when.",
+    "triage": "Quickly sorting alerts into real vs noise and deciding what to escalate — like an ER nurse.",
+    "baseline": "A record of what 'normal' looks like, so you can spot what's abnormal later.",
+    "chain of custody": "A documented trail of who handled each piece of evidence and when — so it holds up as proof.",
+    "agent": "A small program installed on each machine that ships its logs to the SOC.",
+    "gate": "A checkpoint at the end of a week — finish its required work before the next week unlocks.",
+    "eve.json": "The file where Suricata writes its network alerts.",
+    "subnet": "A slice of a network sharing an address range, e.g. 10.10.100.x.",
+    "Wazuh": "The free, open-source SIEM/SOC platform this lab is built on.",
+    "Suricata": "An open-source network intrusion detector that watches traffic and raises alerts.",
+    "Sysmon": "A Windows tool that records detailed activity — processes, connections, file changes.",
+    "DVWA": "Damn Vulnerable Web App — a deliberately insecure web app used as a safe attack target.",
+    "nmap": "A scanner that finds open ports and what software is running on them.",
+    "nikto": "A scanner that checks a web server for known issues.",
+    "MITRE ATT&CK": "A public catalogue of attacker techniques, used to describe how an attack was carried out.",
+    "MTTD": "Mean Time To Detect — the average time from an attack starting to it being noticed.",
+    "MTTR": "Mean Time To Respond — the average time from detecting an attack to containing it.",
+    "rule.level": "Wazuh scores every alert 0–15 by severity; searching rule.level:>=7 keeps the ones that usually matter.",
+    "rule.groups": "The category tags Wazuh puts on an alert (e.g. authentication_failed, ids, web) — handy for filtering by attack type.",
+    "agent.name": "The Wazuh field naming which machine an alert came from (e.g. Team07-ubuntu) — use it to filter to one host.",
+    "event channel": "A named Windows log stream — Sysmon writes to Microsoft-Windows-Sysmon/Operational, which the agent forwards.",
+    "Emerging Threats ruleset": "The community alert rules Suricata downloads with suricata-update — without them it sees traffic but raises nothing.",
+    "DQL": "Dashboard Query Language — the field:value search syntax in the Wazuh/OpenSearch search bar (e.g. data.src_ip:10.10.30.7).",
+    "Discover": "The Wazuh/OpenSearch view that lists raw events in a table you can search, add columns to, and save.",
+    "time picker": "The date/time control (top-right) that sets which window of events you see — the #1 reason a correct search looks empty.",
+    "visualization": "A saved chart (bar, pie, table) built from a search — the building block you drop onto a dashboard.",
+    "dashboard": "A saved page of visualizations and searches you assemble to watch at a glance.",
+    "rule.description": "The Wazuh field holding the human-readable name of the rule that fired — useful to group and count alerts by.",
+    "syscheck": "Wazuh’s File Integrity Monitoring engine; its events carry syscheck.path and whether a file was added/modified/deleted.",
+    "sensor": "A program on a machine that watches activity and reports it to the SOC — your Wazuh agent, Suricata and Sysmon are all sensors.",
+    "endpoint": "Any individual computer on the network — a laptop, server or VM — as opposed to the network gear between them.",
+    "telemetry": "The stream of activity data a machine sends about itself — processes, logins, connections — that the SOC watches.",
+    "hash": "A short fingerprint calculated from a file; change one byte and the fingerprint changes, so it proves the file was not tampered with.",
+    "hashing": "Running a file through a formula to get its fixed-length fingerprint (its hash).",
+    "SHA-256": "A widely trusted hashing method that turns any file into a 64-character fingerprint.",
+    "false positive": "An alert that turned out to be harmless — the tool flagged something that was not actually an attack.",
+    "true positive": "An alert that was real — the flagged activity really was malicious.",
+    "enroll": "To register a machine with the SOC so its agent starts sending logs.",
+    "brute force": "Guessing a password by automatically trying huge numbers of combinations until one works.",
+    "port scan": "Probing a machine to list which network ports are open, to discover what services it is running.",
+    "SSH": "Secure Shell — a way to log in to and run commands on another machine over the network, from your terminal.",
+    "pivot": "To follow a clue (like an IP or username) from one log into related events, tracing an attacker’s movements.",
+    "hardening": "Making a machine harder to attack by closing unused services, fixing weak settings and applying updates.",
+    "containment": "Stopping an attack from spreading — e.g. isolating the affected machine — once you have detected it.",
+    "vulnerability": "A weakness in software or configuration that an attacker could exploit.",
+    "vuln": "Short for vulnerability — a weakness an attacker could exploit.",
+    "firewall": "A filter that allows or blocks network connections by rule, to keep unwanted traffic out.",
+    "ufw": "Uncomplicated Firewall — the simple command-line firewall on Ubuntu (e.g. ufw allow 22)."
+  },
+  "marking": {
+    "teamWeight": 70,
+    "focusWeight": 30
+  },
+  "labAccess": {
+    "fields": [
+      {
+        "key": "PVE_HOST",
+        "label": "Your Proxmox host address",
+        "placeholder": "e.g. 10.10.30.1",
+        "tokens": [
+          "<PVE_HOST>",
+          "10.10.30.T"
+        ]
+      },
+      {
+        "key": "PVE_TAILSCALE",
+        "label": "Your host’s Tailscale address",
+        "placeholder": "e.g. 100.101.102.103",
+        "tokens": [
+          "<PVE_TAILSCALE>",
+          "<tailscale-ip>"
+        ]
+      },
+      {
+        "key": "OPS_SUBNET",
+        "label": "Your ops subnet (Week 6)",
+        "placeholder": "e.g. 10.20.7 — three octets",
+        "tokens": [
+          "<OPS_SUBNET>",
+          "10.20.T"
+        ]
+      },
+      {
+        "key": "IAC_TOOL",
+        "label": "Infrastructure-as-code tool (Weeks 5–6)",
+        "placeholder": "",
+        "tokens": [],
+        "kind": "select",
+        "options": [
+          {
+            "value": "terraform",
+            "label": "Terraform (HashiCorp)"
+          },
+          {
+            "value": "opentofu",
+            "label": "OpenTofu (open-source fork)"
+          }
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "key": "console",
+        "label": "The Proxmox console answers on campus"
+      },
+      {
+        "key": "remote",
+        "label": "It answers from off campus over Tailscale"
+      },
+      {
+        "key": "named",
+        "label": "You sign in with your own account, not root"
+      }
+    ],
+    "title": "Your server — addresses & reachability",
+    "intro": "Enter your own host addresses and every command below fills them in for you, instead of the 10.10.30.T rule — and pick which IaC tool every Week 5–6 line uses. Saved to your account, visible only to you."
+  },
+  "iacTools": {
+    "key": "IAC_TOOL",
+    "tools": {
+      "terraform": {
+        "name": "Terraform",
+        "binary": "terraform",
+        "versionLine": "Terraform v",
+        "docs": "https://developer.hashicorp.com/terraform/install"
+      },
+      "opentofu": {
+        "name": "OpenTofu",
+        "binary": "tofu",
+        "versionLine": "OpenTofu v",
+        "docs": "https://opentofu.org/docs/intro/install/"
+      }
+    }
   }
 }

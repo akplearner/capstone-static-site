@@ -27,18 +27,13 @@ import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { PROCEDURES, WEEKS } from '@/lib/docs/serverProcedures';
-import {
-  CAMPUS_LAN,
-  HOST,
-  HOST_CONSOLE_URL,
-  HOST_ROOT_LOGIN,
-  BRIDGES,
-  BASE_VMS,
-  TEAM_VM_START,
-  OPS,
-  RACK_UNITS,
-} from '@/lib/serverTopology';
-import { LAB_SUBNET, LAB_HOSTS, WEEK_WIRE, SOC_TOPOLOGY_BY_COURSE, SOC_LOGIN } from '@/lib/labTopology';
+import * as serverTopology from '@/lib/serverTopology';
+import * as labTopology from '@/lib/labTopology';
+import { SOC_TOPOLOGY_BY_COURSE } from '@/lib/labTopology';
+import { GLOSSARY } from '@/lib/glossary';
+import { labProfile, hasLabAccess } from '@/lib/labAccess';
+import { IAC_TOOLS, IAC_TOOL_KEY } from '@/lib/iacTool';
+import { TEAM_WEIGHT, FOCUS_WEIGHT } from '@/lib/rubric';
 
 export const DTO_SCHEMA = 'capstone-course-dto/1';
 
@@ -68,6 +63,17 @@ export interface CourseDto {
   procedures?: Serialisable<typeof PROCEDURES>;
   /** The addressing single source of truth, per course family. */
   topology?: Record<string, unknown>;
+  /**
+   * The rest of the authored content a course renders, which used to reach the
+   * screen without ever reaching `content/`: the glossary terms the prose links,
+   * the lab-access fields a student fills in (and the tokens those fill into
+   * commands), the infrastructure-as-code tool choice, and the marking weights.
+   * All four are content an instructor may want to read, diff or hand-edit.
+   */
+  glossary?: Record<string, string>;
+  labAccess?: Record<string, unknown>;
+  iacTools?: Record<string, unknown>;
+  marking?: { teamWeight: number; focusWeight: number };
 }
 
 /**
@@ -107,6 +113,32 @@ const FORM_FILE: Record<string, string> = {
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
 };
 
+/**
+ * Everything `serverTopology.ts` holds as DATA, whatever that turns out to be.
+ *
+ * This used to be a hand-written list of nine names, which meant the export was
+ * only as current as the last person to remember to extend it — and nobody did.
+ * By the time anyone looked, `PUBLISHED_PORTS`, `CROSS_ZONE_ALLOW`,
+ * `REMOTE_ADMIN`, `SITE`, `MACHINES`, `HOST_RULES_FILE`, `ZONE_BRIDGES`,
+ * `MONITORING_HOST` and `ADVANCED_HOSTS` had all been added to the model and
+ * none of them reached `content/`. The addressing single source of truth was
+ * silently only two thirds exported.
+ *
+ * So the list is computed instead: take the module, drop the functions (they
+ * are behaviour, and `serialisable` would only leave a marker), and export what
+ * is left. A constant added to the topology is in the snapshot the moment it
+ * exists, and `dto.test.ts` fails until the file is regenerated.
+ */
+export function topologyData(mod: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(mod).sort()) {
+    const v = mod[key];
+    if (typeof v === 'function' || v === undefined) continue;
+    out[key] = v;
+  }
+  return out;
+}
+
 export function courseDto(courseId: string): CourseDto {
   const course = SEED_COURSES.find((c) => c.id === courseId);
   if (!course) throw new Error(`no seed course '${courseId}'`);
@@ -123,26 +155,29 @@ export function courseDto(courseId: string): CourseDto {
     generatedFrom.push('src/lib/docs/serverProcedures.ts', 'src/lib/serverTopology.ts');
     dto.procedureWeeks = serialisable(WEEKS);
     dto.procedures = serialisable(PROCEDURES);
-    dto.topology = serialisable({
-      CAMPUS_LAN,
-      HOST,
-      HOST_CONSOLE_URL,
-      HOST_ROOT_LOGIN,
-      BRIDGES,
-      BASE_VMS,
-      TEAM_VM_START,
-      OPS,
-      RACK_UNITS,
-    });
+    dto.topology = serialisable(topologyData(serverTopology));
   } else if (SOC_TOPOLOGY_BY_COURSE[courseId]) {
     generatedFrom.push('src/lib/labTopology.ts');
-    dto.topology = serialisable({
-      LAB_SUBNET,
-      LAB_HOSTS,
-      WEEK_WIRE,
-      SOC: SOC_TOPOLOGY_BY_COURSE[courseId],
-      SOC_LOGIN,
-    });
+    // Same rule as the Server+ side: everything the module holds as data, minus
+    // the per-course SOC table, which is narrowed to this course's own entry.
+    const rest = topologyData(labTopology);
+    delete rest.SOC_TOPOLOGY_BY_COURSE;
+    dto.topology = serialisable({ ...rest, SOC: SOC_TOPOLOGY_BY_COURSE[courseId] });
+  }
+
+  // Content every course renders that has no other home in this document.
+  generatedFrom.push('src/lib/glossary.ts', 'src/lib/rubric.ts');
+  dto.glossary = serialisable(GLOSSARY);
+  dto.marking = { teamWeight: TEAM_WEIGHT, focusWeight: FOCUS_WEIGHT };
+  if (hasLabAccess(courseId)) {
+    generatedFrom.push('src/lib/labAccess.ts');
+    dto.labAccess = serialisable(labProfile(courseId) as unknown as Record<string, unknown>);
+  }
+  // The tool switch is offered by whichever course's lab profile carries the
+  // field, so the profile decides rather than a second flag on the course.
+  if (labProfile(courseId).fields.some((f) => f.key === IAC_TOOL_KEY)) {
+    generatedFrom.push('src/lib/iacTool.ts');
+    dto.iacTools = serialisable({ key: IAC_TOOL_KEY, tools: IAC_TOOLS });
   }
   return dto;
 }

@@ -144,6 +144,12 @@ additive, none requiring a rewrite.
 - **The host's holes:** `PUBLISHED_PORTS`, `CROSS_ZONE_ALLOW` and `hostRulesFile()` in `src/lib/serverTopology.ts`
   render the Proxmox host's iptables-restore file; the Week-2/3 seed steps, the guide, the topology diagram
   and the IP Plan's published-ports table all read that one model.
+- **Content export:** `src/lib/content/dto.ts` writes every course to `content/courses/<id>.json` — weeks, tasks,
+  steps, commands, forms, guide procedures, the topology model, the glossary, the lab-access fields, the IaC
+  tools and the marking split. The topology section is COMPUTED from the module (`topologyData`), not a
+  hand-kept list, because the hand-kept list silently missed nine constants across three rounds;
+  `dto.test.ts` fails if anyone goes back to listing names. The JSON is a snapshot for reading and diffing —
+  the app still renders from the TypeScript seeds through `courseRepo`.
 - **One home per command:** `src/lib/docs/serverCommands.ts` holds every Server+ base-build command once —
   which machine types it (`MACHINES` in `serverTopology.ts`), why it exists, what it prints, and whether it
   overwrites config. The seed and the guide are filled from it at load (`withCommandDetail` /
