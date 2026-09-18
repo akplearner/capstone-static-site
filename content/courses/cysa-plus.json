@@ -3876,14 +3876,23 @@
       "dod": [
         {
           "label": "Agent-Active screenshot attached",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "agents_active"
+            ]
           }
         },
         {
           "label": "At least three routine alert types, each with a rough rate",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "baseline",
+            "where": {
+              "filled": [
+                "alert_type",
+                "per_hour"
+              ]
+            },
+            "atLeast": 3
           }
         }
       ]
@@ -4063,20 +4072,32 @@
       "dod": [
         {
           "label": "A pcap and its SHA-256 are recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "pcap_file",
+              "pcap_sha256"
+            ]
           }
         },
         {
           "label": "The attacker request is quoted with a Wireshark screenshot",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "request_quote",
+              "wireshark_shot"
+            ]
           }
         },
         {
           "label": "Every logged artifact has a SHA-256 (chain of custody)",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "evidence",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "sha256"
+              ]
+            }
           }
         }
       ]
@@ -4191,7 +4212,11 @@
                 "label": "Risk rating",
                 "type": "text",
                 "derived": {
-                  "$fn": "derived"
+                  "lookup": "riskLevel",
+                  "from": [
+                    "likelihood",
+                    "impact"
+                  ]
                 }
               },
               {
@@ -4317,20 +4342,64 @@
       "dod": [
         {
           "label": "Every finding has a CVE with a score or a written reason",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "findings",
+                "atLeast": 1
+              },
+              {
+                "group": "findings",
+                "every": {
+                  "any": [
+                    {
+                      "filled": [
+                        "cve"
+                      ]
+                    },
+                    {
+                      "filled": [
+                        "cvss"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Every finding has a likelihood, impact, fix and owner",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "findings",
+                "atLeast": 1
+              },
+              {
+                "group": "findings",
+                "every": {
+                  "filled": [
+                    "likelihood",
+                    "impact",
+                    "fix",
+                    "owner"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Every logged artifact has a SHA-256 (chain of custody)",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "evidence",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "sha256"
+              ]
+            }
           }
         }
       ]
@@ -4577,14 +4646,31 @@
       "dod": [
         {
           "label": "Executive summary and attacker IP are filled in",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "exec_summary",
+              "attacker_ip"
+            ]
           }
         },
         {
           "label": "Timeline has rows and every evidence item is hashed with a full custody entry",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "timeline",
+                "atLeast": 1
+              },
+              {
+                "group": "evidence",
+                "atLeast": 1,
+                "every": {
+                  "filled": [
+                    "sha256"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -4721,14 +4807,34 @@
       "dod": [
         {
           "label": "At least five IOC rows, each with a type and value",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "iocs",
+            "where": {
+              "filled": [
+                "type",
+                "value"
+              ]
+            },
+            "atLeast": 5
           }
         },
         {
           "label": "Every IOC has a verdict",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "iocs",
+                "atLeast": 1
+              },
+              {
+                "group": "iocs",
+                "every": {
+                  "filled": [
+                    "verdict"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -4850,14 +4956,23 @@
       "dod": [
         {
           "label": "At least three sources checked, each with a Yes/Partial/No verdict",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "sources",
+            "where": {
+              "filled": [
+                "source",
+                "present"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "A coverage summary is written",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "summary"
+            ]
           }
         }
       ]
@@ -4971,20 +5086,44 @@
       "dod": [
         {
           "label": "At least three alerts triaged",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "alerts",
+            "where": {
+              "filled": [
+                "alert"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "Every alert has a verdict and a reason",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "alerts",
+                "atLeast": 1
+              },
+              {
+                "group": "alerts",
+                "every": {
+                  "filled": [
+                    "verdict",
+                    "reason"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "At least one alert is escalated for investigation",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "alerts",
+            "some": {
+              "column": "escalated",
+              "equals": "Yes"
+            }
           }
         }
       ]
@@ -5072,14 +5211,20 @@
       "dod": [
         {
           "label": "First-alert time and attacker IP are recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "first_alert_time",
+              "attacker_ip"
+            ]
           }
         },
         {
           "label": "What tipped you off and the initial scope are described",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "what_tipped",
+              "affected_hosts"
+            ]
           }
         }
       ]
@@ -5199,20 +5344,31 @@
       "dod": [
         {
           "label": "An executive summary is written",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "exec_summary"
+            ]
           }
         },
         {
           "label": "Lessons learned are captured",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "lessons"
+            ]
           }
         },
         {
           "label": "At least two headline metrics are filled",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "metrics",
+            "where": {
+              "filled": [
+                "metric",
+                "value"
+              ]
+            },
+            "atLeast": 2
           }
         }
       ]
@@ -5436,20 +5592,32 @@
       "dod": [
         {
           "label": "Agent-Active screenshot attached",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "agent_active_shot"
+            ]
           }
         },
         {
           "label": "The \"Connected to the server\" line is pasted",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "field": "connected_line",
+            "matches": "connected to the server",
+            "flags": "i"
           }
         },
         {
           "label": "At least two sensors recorded with a version and a manager address",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "sensors",
+            "where": {
+              "filled": [
+                "sensor",
+                "version",
+                "manager"
+              ]
+            },
+            "atLeast": 2
           }
         }
       ]
@@ -5666,20 +5834,32 @@
       "dod": [
         {
           "label": "Critical/High vulnerability screenshot attached",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "vulns_shot"
+            ]
           }
         },
         {
           "label": "At least three findings recorded, each with the fix the module states",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "known",
+            "where": {
+              "filled": [
+                "finding",
+                "remediation"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "The detection-coverage question is answered, including what was silent",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "recon_detected",
+              "recon_gap"
+            ]
           }
         }
       ]
@@ -5917,26 +6097,45 @@
       "dod": [
         {
           "label": "The nmap output is saved and hashed",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "nmap_file",
+              "nmap_sha256"
+            ]
           }
         },
         {
           "label": "At least three services compared, each with a reason",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "comparison",
+            "where": {
+              "filled": [
+                "service",
+                "agree",
+                "why"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "A verdict is written",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "verdict"
+            ]
           }
         },
         {
           "label": "Every logged artifact has a SHA-256 (chain of custody)",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "evidence",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "sha256"
+              ]
+            }
           }
         }
       ]

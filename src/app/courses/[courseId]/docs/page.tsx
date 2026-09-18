@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { evaluate } from '@/lib/docs/predicate';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
@@ -261,7 +262,7 @@ export default function DeliverablesPage() {
   const own = (id: string, def: (typeof courseDefs)[number]) => withoutSeedRows(def, saved[id] ?? emptyData());
   const isDoneBy = (def: (typeof courseDefs)[number], week: number) => {
     const due = (def.dod ?? []).filter((c) => (c.week ?? 0) <= week);
-    return due.length > 0 && due.every((c) => c.test(own(def.id, def)));
+    return due.length > 0 && due.every((c) => evaluate(c.when, own(def.id, def)));
   };
   const isDone = (def: (typeof courseDefs)[number]) => isDoneBy(def, selectedWeek);
   // The instructor's verdict on a form, for the week on screen first, else the
@@ -294,7 +295,7 @@ export default function DeliverablesPage() {
   const gate = course.noGatekeeping ? undefined : course.gates.find((g) => g.week === selectedWeek);
   const gateDefs = gate ? courseDefs.filter((d) => d.gate === gate.id && d.dod?.length) : [];
   const gateChecks = gateDefs.flatMap((d) =>
-    (d.dod ?? []).map((check) => ({ label: check.label, owner: d.owner, pass: check.test(own(d.id, d)) }))
+    (d.dod ?? []).map((check) => ({ label: check.label, owner: d.owner, pass: evaluate(check.when, own(d.id, d)) }))
   );
 
   const handleExportMyWork = () => {

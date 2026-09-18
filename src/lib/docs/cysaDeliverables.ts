@@ -1,4 +1,4 @@
-import { Column, riskLevel } from '../grc/templates';
+import { Column } from '../grc/templates';
 import { DeliverableDef } from './types';
 import { custodySection, everyEvidenceHashed } from './custodyTemplate';
 
@@ -88,8 +88,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Agent-Active screenshot attached', test: (d) => !!d.fields.agents_active },
-      { label: 'At least three routine alert types, each with a rough rate', test: (d) => (d.groups.baseline ?? []).filter((r) => !!r.alert_type && !!r.per_hour).length >= 3 },
+      { label: 'Agent-Active screenshot attached', when: { fields: ['agents_active'] }},
+      { label: 'At least three routine alert types, each with a rough rate', when: { group: 'baseline', where: { filled: ['alert_type', 'per_hour'] }, atLeast: 3 }},
     ],
   },
 
@@ -151,9 +151,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'A pcap and its SHA-256 are recorded', test: (d) => !!(d.fields.pcap_file && d.fields.pcap_sha256) },
-      { label: 'The attacker request is quoted with a Wireshark screenshot', test: (d) => !!(d.fields.request_quote && d.fields.wireshark_shot) },
-      { label: 'Every logged artifact has a SHA-256 (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
+      { label: 'A pcap and its SHA-256 are recorded', when: { fields: ['pcap_file', 'pcap_sha256'] }},
+      { label: 'The attacker request is quoted with a Wireshark screenshot', when: { fields: ['request_quote', 'wireshark_shot'] }},
+      { label: 'Every logged artifact has a SHA-256 (chain of custody)', when: everyEvidenceHashed()},
     ],
   },
 
@@ -214,7 +214,7 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
             c('cvss', 'CVSS', 'number', { placeholder: '9.8' }),
             c('likelihood', 'Likelihood', 'select', { options: LMH }),
             c('impact', 'Impact', 'select', { options: LMH }),
-            c('risk', 'Risk rating', 'text', { derived: (r) => riskLevel(r.likelihood ?? '', r.impact ?? '') }),
+            c('risk', 'Risk rating', 'text', { derived: { lookup: 'riskLevel', from: ['likelihood', 'impact'] } }),
             c('fix', 'Fix', 'text', { placeholder: 'Parameterised queries / raise DVWA security' }),
             c('owner', 'Owner', 'text', { placeholder: 'SOC Analyst' }),
             c('target_date', 'Target date', 'date'),
@@ -233,9 +233,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'Every finding has a CVE with a score or a written reason', test: (d) => (d.groups.findings ?? []).length > 0 && (d.groups.findings ?? []).every((r) => !!r.cve || !!r.cvss) },
-      { label: 'Every finding has a likelihood, impact, fix and owner', test: (d) => (d.groups.findings ?? []).length > 0 && (d.groups.findings ?? []).every((r) => !!r.likelihood && !!r.impact && !!r.fix && !!r.owner) },
-      { label: 'Every logged artifact has a SHA-256 (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
+      { label: 'Every finding has a CVE with a score or a written reason', when: { all: [{ group: 'findings', atLeast: 1 }, { group: 'findings', every: { any: [{ filled: ['cve'] }, { filled: ['cvss'] }] } }] }},
+      { label: 'Every finding has a likelihood, impact, fix and owner', when: { all: [{ group: 'findings', atLeast: 1 }, { group: 'findings', every: { filled: ['likelihood', 'impact', 'fix', 'owner'] } }] }},
+      { label: 'Every logged artifact has a SHA-256 (chain of custody)', when: everyEvidenceHashed()},
     ],
   },
 
@@ -316,8 +316,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'Executive summary and attacker IP are filled in', test: (d) => !!(d.fields.exec_summary && d.fields.attacker_ip) },
-      { label: 'Timeline has rows and every evidence item is hashed with a full custody entry', test: (d) => (d.groups.timeline ?? []).length >= 1 && everyEvidenceHashed()(d) },
+      { label: 'Executive summary and attacker IP are filled in', when: { fields: ['exec_summary', 'attacker_ip'] }},
+      { label: 'Timeline has rows and every evidence item is hashed with a full custody entry', when: { all: [{ group: 'timeline', atLeast: 1 }, everyEvidenceHashed()] }},
     ],
   },
 
@@ -381,8 +381,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least five IOC rows, each with a type and value', test: (d) => (d.groups.iocs ?? []).filter((r) => !!r.type && !!r.value).length >= 5 },
-      { label: 'Every IOC has a verdict', test: (d) => (d.groups.iocs ?? []).length > 0 && (d.groups.iocs ?? []).every((r) => !!r.verdict) },
+      { label: 'At least five IOC rows, each with a type and value', when: { group: 'iocs', where: { filled: ['type', 'value'] }, atLeast: 5 }},
+      { label: 'Every IOC has a verdict', when: { all: [{ group: 'iocs', atLeast: 1 }, { group: 'iocs', every: { filled: ['verdict'] } }] }},
     ],
   },
 
@@ -449,8 +449,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least three sources checked, each with a Yes/Partial/No verdict', test: (d) => (d.groups.sources ?? []).filter((r) => !!r.source && !!r.present).length >= 3 },
-      { label: 'A coverage summary is written', test: (d) => !!d.fields.summary },
+      { label: 'At least three sources checked, each with a Yes/Partial/No verdict', when: { group: 'sources', where: { filled: ['source', 'present'] }, atLeast: 3 }},
+      { label: 'A coverage summary is written', when: { fields: ['summary'] }},
     ],
   },
 
@@ -511,9 +511,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least three alerts triaged', test: (d) => (d.groups.alerts ?? []).filter((r) => !!r.alert).length >= 3 },
-      { label: 'Every alert has a verdict and a reason', test: (d) => (d.groups.alerts ?? []).length > 0 && (d.groups.alerts ?? []).every((r) => !!r.verdict && !!r.reason) },
-      { label: 'At least one alert is escalated for investigation', test: (d) => (d.groups.alerts ?? []).some((r) => r.escalated === 'Yes') },
+      { label: 'At least three alerts triaged', when: { group: 'alerts', where: { filled: ['alert'] }, atLeast: 3 }},
+      { label: 'Every alert has a verdict and a reason', when: { all: [{ group: 'alerts', atLeast: 1 }, { group: 'alerts', every: { filled: ['verdict', 'reason'] } }] }},
+      { label: 'At least one alert is escalated for investigation', when: { group: 'alerts', some: { column: 'escalated', equals: 'Yes' } }},
     ],
   },
 
@@ -566,8 +566,8 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'First-alert time and attacker IP are recorded', test: (d) => !!(d.fields.first_alert_time && d.fields.attacker_ip) },
-      { label: 'What tipped you off and the initial scope are described', test: (d) => !!(d.fields.what_tipped && d.fields.affected_hosts) },
+      { label: 'First-alert time and attacker IP are recorded', when: { fields: ['first_alert_time', 'attacker_ip'] }},
+      { label: 'What tipped you off and the initial scope are described', when: { fields: ['what_tipped', 'affected_hosts'] }},
     ],
   },
 
@@ -642,9 +642,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'An executive summary is written', test: (d) => !!d.fields.exec_summary },
-      { label: 'Lessons learned are captured', test: (d) => !!d.fields.lessons },
-      { label: 'At least two headline metrics are filled', test: (d) => (d.groups.metrics ?? []).filter((r) => !!r.metric && !!r.value).length >= 2 },
+      { label: 'An executive summary is written', when: { fields: ['exec_summary'] }},
+      { label: 'Lessons learned are captured', when: { fields: ['lessons'] }},
+      { label: 'At least two headline metrics are filled', when: { group: 'metrics', where: { filled: ['metric', 'value'] }, atLeast: 2 }},
     ],
   },
 
@@ -727,9 +727,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'Agent-Active screenshot attached', test: (d) => !!d.fields.agent_active_shot },
-      { label: 'The "Connected to the server" line is pasted', test: (d) => /connected to the server/i.test(d.fields.connected_line ?? '') },
-      { label: 'At least two sensors recorded with a version and a manager address', test: (d) => (d.groups.sensors ?? []).filter((r) => !!r.sensor && !!r.version && !!r.manager).length >= 2 },
+      { label: 'Agent-Active screenshot attached', when: { fields: ['agent_active_shot'] }},
+      { label: 'The "Connected to the server" line is pasted', when: { field: 'connected_line', matches: 'connected to the server', flags: 'i' }},
+      { label: 'At least two sensors recorded with a version and a manager address', when: { group: 'sensors', where: { filled: ['sensor', 'version', 'manager'] }, atLeast: 2 }},
     ],
   },
 
@@ -810,9 +810,9 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'Critical/High vulnerability screenshot attached', test: (d) => !!d.fields.vulns_shot },
-      { label: 'At least three findings recorded, each with the fix the module states', test: (d) => (d.groups.known ?? []).filter((r) => !!r.finding && !!r.remediation).length >= 3 },
-      { label: 'The detection-coverage question is answered, including what was silent', test: (d) => !!(d.fields.recon_detected && d.fields.recon_gap) },
+      { label: 'Critical/High vulnerability screenshot attached', when: { fields: ['vulns_shot'] }},
+      { label: 'At least three findings recorded, each with the fix the module states', when: { group: 'known', where: { filled: ['finding', 'remediation'] }, atLeast: 3 }},
+      { label: 'The detection-coverage question is answered, including what was silent', when: { fields: ['recon_detected', 'recon_gap'] }},
     ],
   },
 
@@ -895,10 +895,10 @@ export const CYSA_DELIVERABLES: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'The nmap output is saved and hashed', test: (d) => !!(d.fields.nmap_file && d.fields.nmap_sha256) },
-      { label: 'At least three services compared, each with a reason', test: (d) => (d.groups.comparison ?? []).filter((r) => !!r.service && !!r.agree && !!r.why).length >= 3 },
-      { label: 'A verdict is written', test: (d) => !!d.fields.verdict },
-      { label: 'Every logged artifact has a SHA-256 (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
+      { label: 'The nmap output is saved and hashed', when: { fields: ['nmap_file', 'nmap_sha256'] }},
+      { label: 'At least three services compared, each with a reason', when: { group: 'comparison', where: { filled: ['service', 'agree', 'why'] }, atLeast: 3 }},
+      { label: 'A verdict is written', when: { fields: ['verdict'] }},
+      { label: 'Every logged artifact has a SHA-256 (chain of custody)', when: everyEvidenceHashed()},
     ],
   },
 ];

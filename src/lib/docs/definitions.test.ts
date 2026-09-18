@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { evaluate } from './predicate';
 import {
   DELIVERABLES,
   seedDeliverable,
@@ -46,8 +47,8 @@ describe('DoD checks are robust', () => {
     for (const d of DELIVERABLES) {
       for (const check of d.dod ?? []) {
         for (const data of [emptyData(), seedDeliverable(d)]) {
-          expect(() => check.test(data), `${d.id}: "${check.label}"`).not.toThrow();
-          expect(typeof check.test(data), `${d.id}: "${check.label}"`).toBe('boolean');
+          expect(() => evaluate(check.when, data), `${d.id}: "${check.label}"`).not.toThrow();
+          expect(typeof evaluate(check.when, data), `${d.id}: "${check.label}"`).toBe('boolean');
         }
       }
     }
@@ -56,7 +57,7 @@ describe('DoD checks are robust', () => {
   it('the ethics form (scope_roe) is not satisfied by empty data', () => {
     const scope = DELIVERABLES.find((d) => d.id === 'scope_roe');
     expect(scope?.dod?.length).toBeGreaterThan(0);
-    expect(scope!.dod!.every((c) => c.test(emptyData()))).toBe(false);
+    expect(scope!.dod!.every((c) => evaluate(c.when, emptyData()))).toBe(false);
   });
 });
 
@@ -82,7 +83,7 @@ describe('withoutSeedRows', () => {
       const blank = emptyData();
       const example = withoutSeedRows(d, seedDeliverable(d));
       for (const c of d.dod ?? []) {
-        if (!c.test(blank)) expect(c.test(example), `${d.id}: "${c.label}" passes on the example alone`).toBe(false);
+        if (!evaluate(c.when, blank)) expect(evaluate(c.when, example), `${d.id}: "${c.label}" passes on the example alone`).toBe(false);
       }
     }
   });

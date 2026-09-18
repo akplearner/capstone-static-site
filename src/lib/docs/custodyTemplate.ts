@@ -2,6 +2,7 @@ import { DocMeta } from './report';
 import type { Section } from './types';
 import type { Column } from '../grc/templates';
 import { EVIDENCE_NAMING, EVIDENCE_PACKAGE_DIR, EVIDENCE_WORKING_DIR } from '../evidence';
+import type { Predicate } from './predicate';
 
 // A ready-to-fill Chain-of-Custody log, generated locally. Students keep evidence
 // on their own machine (no upload) and document it like a real case: every artifact
@@ -126,12 +127,17 @@ export function custodySection(opts?: { group?: string; label?: string; seed?: R
   };
 }
 
-/** A DoD check: the custody log has at least one row and every row is hashed. */
-export function everyEvidenceHashed(group = 'evidence') {
-  return (d: { groups: Record<string, Record<string, string>[]> }) => {
-    const rows = d.groups[group] ?? [];
-    return rows.length >= 1 && rows.every((e) => !!e.sha256);
-  };
+/**
+ * The custody rule, in one place: the log has at least one row and every row it
+ * has carries a hash.
+ *
+ * This was a function returning a function, which is why the five forms that use
+ * it exported a `{"$fn": …}` marker instead of the rule. It builds the same rule
+ * as DATA now — `atLeast: 1` is load-bearing, because `every` alone is vacuously
+ * true on an empty log and would call an untouched form done.
+ */
+export function everyEvidenceHashed(group = 'evidence'): Predicate {
+  return { group, atLeast: 1, every: { filled: ['sha256'] } };
 }
 
 /** CSV chain-of-custody log. With `rows`, emits those real entries; otherwise a

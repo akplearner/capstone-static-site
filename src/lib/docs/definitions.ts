@@ -1,4 +1,4 @@
-import { Column, riskLevel } from '../grc/templates';
+import { Column } from '../grc/templates';
 import { DeliverableData, DeliverableDef } from './types';
 import { CUSTODY_RULES } from './custodyTemplate';
 import { MSSP_DELIVERABLES } from './msspDeliverables';
@@ -57,8 +57,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Scope, network range and authorization are filled in', test: (d) => !!(d.fields.client && d.fields.network_scope && d.fields.authorization) },
-      { label: 'Engagement start date is set', test: (d) => !!d.fields.start_date },
+      { label: 'Scope, network range and authorization are filled in', when: { fields: ['client', 'network_scope', 'authorization'] }},
+      { label: 'Engagement start date is set', when: { fields: ['start_date'] }},
     ],
   },
 
@@ -105,8 +105,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one asset recorded', test: (d) => (d.groups.assets?.length ?? 0) >= 1 },
-      { label: 'Every asset has an IP and hostname', test: (d) => (d.groups.assets?.length ?? 0) >= 1 && (d.groups.assets ?? []).every((a) => !!a.ip && !!a.hostname) },
+      { label: 'At least one asset recorded', when: { group: 'assets', atLeast: 1 }},
+      { label: 'Every asset has an IP and hostname', when: { all: [{ group: 'assets', atLeast: 1 }, { group: 'assets', every: { filled: ['ip', 'hostname'] } }] }},
     ],
   },
 
@@ -143,7 +143,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
             c('evidence', 'Evidence / proof', 'text', { placeholder: 'SQL_Injection_Proof.txt' }),
             c('likelihood', 'Likelihood', 'select', { options: LMH }),
             c('impact', 'Impact', 'select', { options: LMH }),
-            c('rating', 'Risk rating', 'text', { derived: (r) => riskLevel(r.likelihood ?? '', r.impact ?? '') }),
+            c('rating', 'Risk rating', 'text', { derived: { lookup: 'riskLevel', from: ['likelihood', 'impact'] } }),
             c('treatment', 'Treatment', 'select', { options: ['Mitigate', 'Accept', 'Transfer', 'Avoid'] }),
             c('owner', 'Owner', 'text', { placeholder: 'Blue team' }),
             c('status', 'Status', 'select', { options: ['Open', 'In progress', 'Closed'] }),
@@ -156,8 +156,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one risk recorded', test: (d) => (d.groups.risks?.length ?? 0) >= 1 },
-      { label: 'Every risk has likelihood, impact and a treatment decision', test: (d) => (d.groups.risks?.length ?? 0) >= 1 && (d.groups.risks ?? []).every((r) => !!r.likelihood && !!r.impact && !!r.treatment) },
+      { label: 'At least one risk recorded', when: { group: 'risks', atLeast: 1 }},
+      { label: 'Every risk has likelihood, impact and a treatment decision', when: { all: [{ group: 'risks', atLeast: 1 }, { group: 'risks', every: { filled: ['likelihood', 'impact', 'treatment'] } }] }},
     ],
   },
 
@@ -202,15 +202,16 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
     dod: [
       {
         label: 'Firewall and logging controls marked done with evidence',
-        test: (d) => {
-          const rows = d.groups.controls ?? [];
-          const ok = (kw: string) => rows.some((r) => (r.control ?? '').toLowerCase().includes(kw) && r.done === 'Yes' && !!r.evidence);
-          return ok('firewall') && ok('log');
+        when: {
+          all: ['firewall', 'log'].map((kw) => ({
+            group: 'controls',
+            some: { all: [{ column: 'control', matches: kw }, { column: 'done', equals: 'Yes' }, { filled: ['evidence'] }] },
+          })),
         },
       },
       {
         label: 'At least 3 controls marked Done with evidence',
-        test: (d) => (d.groups.controls ?? []).filter((r) => r.done === 'Yes' && !!r.evidence).length >= 3,
+        when: { group: 'controls', where: { all: [{ column: 'done', equals: 'Yes' }, { filled: ['evidence'] }] }, atLeast: 3 },
       },
     ],
   },
@@ -250,7 +251,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one change logged with date and evidence', test: (d) => (d.groups.changes ?? []).some((r) => !!r.date && !!r.change && !!r.evidence) },
+      { label: 'At least one change logged with date and evidence', when: { group: 'changes', some: { filled: ['date', 'change', 'evidence'] } }},
     ],
   },
 
@@ -315,11 +316,11 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
     dod: [
       {
         label: 'At least one fully documented finding (title, severity, evidence, screenshot)',
-        test: (d) => (d.groups.findings ?? []).some((f) => f.title && f.severity && f.evidence && f.screenshot),
+        when: { group: 'findings', some: { filled: ['title', 'severity', 'evidence', 'screenshot'] } },
       },
       {
         label: 'Executive summary written and every finding has a remediation',
-        test: (d) => !!d.fields.exec_summary && (d.groups.findings ?? []).length >= 1 && (d.groups.findings ?? []).every((f) => !!f.remediation),
+        when: { all: [{ fields: ['exec_summary'] }, { group: 'findings', atLeast: 1 }, { group: 'findings', every: { filled: ['remediation'] } }] },
       },
     ],
   },
@@ -396,11 +397,11 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
     dod: [
       {
         label: 'IoC table and evidence log each have a row with a SHA256',
-        test: (d) => (d.groups.iocs?.length ?? 0) >= 1 && (d.groups.evidence ?? []).some((e) => !!e.sha256),
+        when: { all: [{ group: 'iocs', atLeast: 1 }, { group: 'evidence', some: { filled: ['sha256'] } }] },
       },
       {
         label: 'What happened and containment are described',
-        test: (d) => !!d.fields.what_happened && !!d.fields.containment,
+        when: { fields: ['what_happened', 'containment'] },
       },
     ],
   },
@@ -437,7 +438,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Executive summary, key findings and remediation roadmap are filled in', test: (d) => !!(d.fields.exec_summary && d.fields.key_findings && d.fields.remediation_roadmap) },
+      { label: 'Executive summary, key findings and remediation roadmap are filled in', when: { fields: ['exec_summary', 'key_findings', 'remediation_roadmap'] }},
     ],
   },
 
@@ -481,7 +482,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least 2 findings mapped to NIST + CIS codes', test: (d) => (d.groups.mappings?.length ?? 0) >= 2 && (d.groups.mappings ?? []).every((r) => !!r.nist_control && !!r.cis_control) },
+      { label: 'At least 2 findings mapped to NIST + CIS codes', when: { all: [{ group: 'mappings', atLeast: 2 }, { group: 'mappings', every: { filled: ['nist_control', 'cis_control'] } }] }},
     ],
   },
 
@@ -530,7 +531,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Version set and at least 3 policy statements', test: (d) => !!d.fields.version && (d.groups.policies?.length ?? 0) >= 3 },
+      { label: 'Version set and at least 3 policy statements', when: { all: [{ fields: ['version'] }, { group: 'policies', atLeast: 3 }] }},
     ],
   },
 
@@ -580,7 +581,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Purpose set and at least 3 required controls with CIS refs', test: (d) => !!d.fields.purpose && (d.groups.controls?.length ?? 0) >= 3 && (d.groups.controls ?? []).every((r) => !!r.setting) },
+      { label: 'Purpose set and at least 3 required controls with CIS refs', when: { all: [{ fields: ['purpose'] }, { group: 'controls', atLeast: 3 }, { group: 'controls', every: { filled: ['setting'] } }] }},
     ],
   },
 
@@ -630,7 +631,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Purpose + priority rule set and at least 3 process steps', test: (d) => !!d.fields.purpose && !!d.fields.priority_rule && (d.groups.steps?.length ?? 0) >= 3 },
+      { label: 'Purpose + priority rule set and at least 3 process steps', when: { all: [{ fields: ['purpose', 'priority_rule'] }, { group: 'steps', atLeast: 3 }] }},
     ],
   },
 
@@ -679,7 +680,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Purpose set and steps cover Detect, Contain and Report', test: (d) => !!d.fields.purpose && ['Detect', 'Contain', 'Report'].every((p) => (d.groups.steps ?? []).some((r) => r.phase === p)) },
+      { label: 'Purpose set and steps cover Detect, Contain and Report', when: { all: [{ fields: ['purpose'] }, ...['Detect', 'Contain', 'Report'].map((phase) => ({ group: 'steps', some: { column: 'phase', equals: phase } }))] } },
     ],
   },
 
@@ -728,7 +729,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one artifact logged with a filename and SHA-256', test: (d) => (d.groups.evidence ?? []).some((e) => !!e.filename && !!e.sha256) },
+      { label: 'At least one artifact logged with a filename and SHA-256', when: { group: 'evidence', some: { filled: ['filename', 'sha256'] } }},
     ],
   },
 ];

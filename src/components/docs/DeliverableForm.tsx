@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { derive } from '@/lib/docs/predicate';
 import { AlertTriangle, ArrowDownToLine, ExternalLink } from 'lucide-react';
 import { DeliverableData, DeliverableDef, Field, FieldGroup, emptyFormContext, type FormContext } from '@/lib/docs/types';
 import { DURATION_UNITS, fitsInput, formatDuration, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
@@ -23,7 +24,7 @@ function SingleField({
   ctx: FormContext;
   onChange: (value: string) => void;
 }) {
-  const value = f.derived ? f.derived(fields) : fields[f.field] ?? '';
+  const value = f.derived ? derive(f.derived, fields) : fields[f.field] ?? '';
   const empty = !value.trim();
   const namingBad = f.type === 'fileref' && !empty && !validateEvidenceFileName(value).valid;
   // Shape only, and only once they have left the field — same rule as required.

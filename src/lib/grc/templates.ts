@@ -1,4 +1,5 @@
 import type { RegisterRow } from '../types';
+import { derive, type Derived } from '@/lib/docs/predicate';
 
 /**
  * The column schema `RegisterTable` runs on, and the two derivations it needs.
@@ -28,7 +29,8 @@ export interface Column {
   label: string;
   type: ColumnType;
   options?: string[];
-  derived?: (row: RegisterRow) => string;
+  /** Computed from the rest of the row, as data — see `docs/predicate.ts`. */
+  derived?: Derived;
   /** Unit for a `number` column — GB, ports, minutes. Shown inside the cell. */
   unit?: string;
   /** For an `ipv4` column: the sibling column naming the subnet this address
@@ -64,5 +66,5 @@ export function riskLevel(likelihood: string, impact: string): string {
 
 /** Value for a cell, computing derived columns. */
 export function cellValue(col: Column, row: RegisterRow): string {
-  return col.derived ? col.derived(row) : row[col.field] ?? '';
+  return col.derived ? derive(col.derived, row) : row[col.field] ?? '';
 }

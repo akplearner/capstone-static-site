@@ -56,8 +56,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Client, system boundary and sign-off are filled in', test: (d) => !!(d.fields.client && d.fields.system_boundary && d.fields.authorization) },
-      { label: 'Engagement type and start date are set', test: (d) => !!(d.fields.engagement_type && d.fields.start_date) },
+      { label: 'Client, system boundary and sign-off are filled in', when: { fields: ['client', 'system_boundary', 'authorization'] }},
+      { label: 'Engagement type and start date are set', when: { fields: ['engagement_type', 'start_date'] }},
     ],
   },
 
@@ -107,8 +107,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least three Annex A controls with an applicability decision', test: (d) => (d.groups.controls ?? []).filter((r) => !!r.annex && !!r.applicable).length >= 3 },
-      { label: 'Every applicable control has a justification', test: (d) => (d.groups.controls ?? []).filter((r) => r.applicable === 'Yes').every((r) => !!r.justification) },
+      { label: 'At least three Annex A controls with an applicability decision', when: { group: 'controls', where: { filled: ['annex', 'applicable'] }, atLeast: 3 }},
+      { label: 'Every applicable control has a justification', when: { group: 'controls', where: { column: 'applicable', equals: 'Yes' }, every: { filled: ['justification'] } } },
     ],
   },
 
@@ -157,8 +157,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least three controls, each with a SOC 2 or ISO reference', test: (d) => (d.groups.controls ?? []).filter((r) => !!r.control && (!!r.soc2 || !!r.iso)).length >= 3 },
-      { label: 'Every control names an owner and evidence', test: (d) => (d.groups.controls ?? []).length > 0 && (d.groups.controls ?? []).every((r) => !!r.owner && !!r.evidence) },
+      { label: 'At least three controls, each with a SOC 2 or ISO reference', when: { group: 'controls', where: { all: [{ filled: ['control'] }, { any: [{ filled: ['soc2'] }, { filled: ['iso'] }] }] }, atLeast: 3 }},
+      { label: 'Every control names an owner and evidence', when: { all: [{ group: 'controls', atLeast: 1 }, { group: 'controls', every: { filled: ['owner', 'evidence'] } }] }},
     ],
   },
 
@@ -211,8 +211,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one finding with a retest result', test: (d) => (d.groups.findings ?? []).some((r) => !!r.finding && !!r.retest) },
-      { label: 'Every critical/high finding has a remediation recorded', test: (d) => (d.groups.findings ?? []).filter((r) => r.severity === 'Critical' || r.severity === 'High').every((r) => !!r.remediation) },
+      { label: 'At least one finding with a retest result', when: { group: 'findings', some: { filled: ['finding', 'retest'] } }},
+      { label: 'Every critical/high finding has a remediation recorded', when: { group: 'findings', where: { any: [{ column: 'severity', equals: 'Critical' }, { column: 'severity', equals: 'High' }] }, every: { filled: ['remediation'] } } },
     ],
   },
 
@@ -259,8 +259,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least two detections mapped to an ATT&CK technique', test: (d) => (d.groups.rules ?? []).filter((r) => !!r.name && !!r.attack).length >= 2 },
-      { label: 'At least one detection validated as “Fired”', test: (d) => (d.groups.rules ?? []).some((r) => r.validated === 'Fired') },
+      { label: 'At least two detections mapped to an ATT&CK technique', when: { group: 'rules', where: { filled: ['name', 'attack'] }, atLeast: 2 }},
+      { label: 'At least one detection validated as “Fired”', when: { group: 'rules', some: { column: 'validated', equals: 'Fired' } }},
     ],
   },
 
@@ -300,8 +300,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'MTTD and MTTR are recorded', test: (d) => !!(d.fields.mttd && d.fields.mttr) },
-      { label: 'Observation window and coverage are set', test: (d) => !!(d.fields.window && d.fields.coverage) },
+      { label: 'MTTD and MTTR are recorded', when: { fields: ['mttd', 'mttr'] }},
+      { label: 'Observation window and coverage are set', when: { fields: ['window', 'coverage'] }},
     ],
   },
 
@@ -355,8 +355,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one audit finding with a result and corrective action', test: (d) => (d.groups.findings ?? []).some((r) => !!r.control && !!r.result) },
-      { label: 'Every nonconformity has a corrective action', test: (d) => (d.groups.findings ?? []).filter((r) => r.result === 'Minor NC' || r.result === 'Major NC').every((r) => !!r.action) },
+      { label: 'At least one audit finding with a result and corrective action', when: { group: 'findings', some: { filled: ['control', 'result'] } }},
+      { label: 'Every nonconformity has a corrective action', when: { group: 'findings', where: { any: [{ column: 'result', equals: 'Minor NC' }, { column: 'result', equals: 'Major NC' }] }, every: { filled: ['action'] } } },
     ],
   },
 
@@ -404,8 +404,8 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least three evidence items, each tied to a control', test: (d) => (d.groups.evidence ?? []).filter((r) => !!r.control && !!r.artifact).length >= 3 },
-      { label: 'Every evidence item names an owner and location', test: (d) => (d.groups.evidence ?? []).length > 0 && (d.groups.evidence ?? []).every((r) => !!r.owner && !!r.location) },
+      { label: 'At least three evidence items, each tied to a control', when: { group: 'evidence', where: { filled: ['control', 'artifact'] }, atLeast: 3 }},
+      { label: 'Every evidence item names an owner and location', when: { all: [{ group: 'evidence', atLeast: 1 }, { group: 'evidence', every: { filled: ['owner', 'location'] } }] }},
     ],
   },
 ];

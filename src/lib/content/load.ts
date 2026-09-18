@@ -13,11 +13,12 @@
  * over the seed. That is the real claim: not that the bytes match, but that the
  * application behaves the same when the content comes from a file.
  *
- * WHAT IS STILL MISSING, deliberately and visibly: Definition-of-Done checks are
- * TypeScript functions, so the writer replaces each with a `{"$fn": …}` marker
- * and this reader cannot bring it back. `dto.test.ts` pins the exact list of
- * paths where that happens, so the gap is written down rather than assumed, and
- * it shrinks to nothing when declarative predicates land.
+ * The gap this file used to describe is closed. Definition-of-Done checks and
+ * computed form columns were TypeScript functions, so the writer replaced each
+ * with a `{"$fn": …}` marker — 128 of them — and no reader could bring one back.
+ * They are data now (`docs/predicate.ts`), and `dto.test.ts` asserts the marker
+ * count is zero for every course, on disk as well as in a freshly-built
+ * document.
  */
 import type { Course } from '@/lib/types';
 import { DTO_SCHEMA } from './schema';

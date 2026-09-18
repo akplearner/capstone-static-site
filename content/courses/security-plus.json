@@ -3432,14 +3432,20 @@
       "dod": [
         {
           "label": "Scope, network range and authorization are filled in",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "client",
+              "network_scope",
+              "authorization"
+            ]
           }
         },
         {
           "label": "Engagement start date is set",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "start_date"
+            ]
           }
         }
       ]
@@ -3546,14 +3552,29 @@
       "dod": [
         {
           "label": "At least one asset recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "assets",
+            "atLeast": 1
           }
         },
         {
           "label": "Every asset has an IP and hostname",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "assets",
+                "atLeast": 1
+              },
+              {
+                "group": "assets",
+                "every": {
+                  "filled": [
+                    "ip",
+                    "hostname"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -3642,7 +3663,11 @@
                 "label": "Risk rating",
                 "type": "text",
                 "derived": {
-                  "$fn": "derived"
+                  "lookup": "riskLevel",
+                  "from": [
+                    "likelihood",
+                    "impact"
+                  ]
                 }
               },
               {
@@ -3698,14 +3723,30 @@
       "dod": [
         {
           "label": "At least one risk recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "risks",
+            "atLeast": 1
           }
         },
         {
           "label": "Every risk has likelihood, impact and a treatment decision",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "risks",
+                "atLeast": 1
+              },
+              {
+                "group": "risks",
+                "every": {
+                  "filled": [
+                    "likelihood",
+                    "impact",
+                    "treatment"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -3789,14 +3830,69 @@
       "dod": [
         {
           "label": "Firewall and logging controls marked done with evidence",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "controls",
+                "some": {
+                  "all": [
+                    {
+                      "column": "control",
+                      "matches": "firewall"
+                    },
+                    {
+                      "column": "done",
+                      "equals": "Yes"
+                    },
+                    {
+                      "filled": [
+                        "evidence"
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "group": "controls",
+                "some": {
+                  "all": [
+                    {
+                      "column": "control",
+                      "matches": "log"
+                    },
+                    {
+                      "column": "done",
+                      "equals": "Yes"
+                    },
+                    {
+                      "filled": [
+                        "evidence"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "At least 3 controls marked Done with evidence",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "controls",
+            "where": {
+              "all": [
+                {
+                  "column": "done",
+                  "equals": "Yes"
+                },
+                {
+                  "filled": [
+                    "evidence"
+                  ]
+                }
+              ]
+            },
+            "atLeast": 3
           }
         }
       ]
@@ -3870,8 +3966,15 @@
       "dod": [
         {
           "label": "At least one change logged with date and evidence",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "changes",
+            "some": {
+              "filled": [
+                "date",
+                "change",
+                "evidence"
+              ]
+            }
           }
         }
       ]
@@ -4047,14 +4150,40 @@
       "dod": [
         {
           "label": "At least one fully documented finding (title, severity, evidence, screenshot)",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "findings",
+            "some": {
+              "filled": [
+                "title",
+                "severity",
+                "evidence",
+                "screenshot"
+              ]
+            }
           }
         },
         {
           "label": "Executive summary written and every finding has a remediation",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "fields": [
+                  "exec_summary"
+                ]
+              },
+              {
+                "group": "findings",
+                "atLeast": 1
+              },
+              {
+                "group": "findings",
+                "every": {
+                  "filled": [
+                    "remediation"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -4241,14 +4370,30 @@
       "dod": [
         {
           "label": "IoC table and evidence log each have a row with a SHA256",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "iocs",
+                "atLeast": 1
+              },
+              {
+                "group": "evidence",
+                "some": {
+                  "filled": [
+                    "sha256"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "What happened and containment are described",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "what_happened",
+              "containment"
+            ]
           }
         }
       ]
@@ -4328,8 +4473,12 @@
       "dod": [
         {
           "label": "Executive summary, key findings and remediation roadmap are filled in",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "exec_summary",
+              "key_findings",
+              "remediation_roadmap"
+            ]
           }
         }
       ]
@@ -4425,8 +4574,22 @@
       "dod": [
         {
           "label": "At least 2 findings mapped to NIST + CIS codes",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "mappings",
+                "atLeast": 2
+              },
+              {
+                "group": "mappings",
+                "every": {
+                  "filled": [
+                    "nist_control",
+                    "cis_control"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -4522,8 +4685,18 @@
       "dod": [
         {
           "label": "Version set and at least 3 policy statements",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "fields": [
+                  "version"
+                ]
+              },
+              {
+                "group": "policies",
+                "atLeast": 3
+              }
+            ]
           }
         }
       ]
@@ -4623,8 +4796,26 @@
       "dod": [
         {
           "label": "Purpose set and at least 3 required controls with CIS refs",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "fields": [
+                  "purpose"
+                ]
+              },
+              {
+                "group": "controls",
+                "atLeast": 3
+              },
+              {
+                "group": "controls",
+                "every": {
+                  "filled": [
+                    "setting"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -4735,8 +4926,19 @@
       "dod": [
         {
           "label": "Purpose + priority rule set and at least 3 process steps",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "fields": [
+                  "purpose",
+                  "priority_rule"
+                ]
+              },
+              {
+                "group": "steps",
+                "atLeast": 3
+              }
+            ]
           }
         }
       ]
@@ -4842,8 +5044,35 @@
       "dod": [
         {
           "label": "Purpose set and steps cover Detect, Contain and Report",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "fields": [
+                  "purpose"
+                ]
+              },
+              {
+                "group": "steps",
+                "some": {
+                  "column": "phase",
+                  "equals": "Detect"
+                }
+              },
+              {
+                "group": "steps",
+                "some": {
+                  "column": "phase",
+                  "equals": "Contain"
+                }
+              },
+              {
+                "group": "steps",
+                "some": {
+                  "column": "phase",
+                  "equals": "Report"
+                }
+              }
+            ]
           }
         }
       ]
@@ -4959,8 +5188,14 @@
       "dod": [
         {
           "label": "At least one artifact logged with a filename and SHA-256",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "evidence",
+            "some": {
+              "filled": [
+                "filename",
+                "sha256"
+              ]
+            }
           }
         }
       ]

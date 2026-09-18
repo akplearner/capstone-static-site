@@ -3,6 +3,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { SEED_COURSES, courseDto, courseIndex, toJson, DTO_SCHEMA, topologyData, serialisable } from './dto';
 import { ContentError, courseFromJson, fnMarkerPaths, validateCourse } from './load';
+import { predicateErrors } from '@/lib/docs/predicate';
 import {
   getRequiredStepCount,
   getTaskById,
@@ -58,13 +59,14 @@ describe('content/courses — the JSON snapshot of every course', () => {
       walk(courseDto(c.id), c.id, fns);
       expect(fns).toEqual([]);
     }
-    // …and the markers are where the checks are: every DoD check keeps its label.
+    // …and the checks are whole: a rule the evaluator can read, not a marker
+    // saying a function used to be here.
     const sp = courseDto('server-plus');
     const checks = sp.deliverables.flatMap((d) => d.dod ?? []);
     expect(checks.length).toBeGreaterThan(20);
     for (const ch of checks) {
       expect(typeof ch.label).toBe('string');
-      expect(ch.test).toEqual({ $fn: 'test' });
+      expect(predicateErrors(ch.when, ch.label)).toEqual([]);
     }
   });
 
@@ -208,29 +210,23 @@ describe('a course loads from its own document', () => {
     expect(() => validateCourse({ id: 'x' })).toThrow(/course\.title/);
   });
 
-  it('pins what a document still cannot hold, so the gap has a number', () => {
-    // When checks and derived columns become declarative, these counts go to
-    // zero and a document holds everything the app renders.
+  it('holds everything the app renders — no function markers left anywhere', () => {
+    // This test used to pin 128 markers: every Definition-of-Done check and
+    // every computed form column was a TypeScript function, so the document held
+    // `{"$fn": …}` where the rule should be. An instructor could not read a
+    // check, a business instance could not change one, and the JSON could not be
+    // the source the app loads from. The vocabulary in `docs/predicate.ts` made
+    // them data, and the number that mattered is now zero.
     const byCourse = Object.fromEntries(
       SEED_COURSES.map((c) => [c.id, fnMarkerPaths(courseDto(c.id))])
     );
-    // The counts are pinned so the gap cannot grow unnoticed, and so closing it
-    // is visible as these numbers falling to zero.
     expect(Object.fromEntries(Object.entries(byCourse).map(([k, v]) => [k, v.length]))).toEqual({
-      'security-plus': 21,
-      mssp: 16,
-      'cysa-plus': 33,
-      'server-plus': 58,
+      'security-plus': 0,
+      mssp: 0,
+      'cysa-plus': 0,
+      'server-plus': 0,
     });
-    // There are exactly two kinds, and knowing which is the point: a
-    // Definition-of-Done check, and a form column whose value is computed from
-    // the other columns. Both become declarative in the predicates round.
-    for (const paths of Object.values(byCourse)) {
-      for (const path of paths) {
-        expect(path, path).toMatch(
-          /^deliverables\[\d+\]\.(dod\[\d+\]\.test|sections\[\d+\]\.group\.columns\[\d+\]\.derived)$/
-        );
-      }
-    }
+    // And zero on disk too, not only in a freshly-built DTO.
+    for (const c of SEED_COURSES) expect(read(c.id), c.id).not.toContain('"$fn"');
   });
 });

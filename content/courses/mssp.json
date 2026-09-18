@@ -1280,14 +1280,21 @@
       "dod": [
         {
           "label": "Client, system boundary and sign-off are filled in",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "client",
+              "system_boundary",
+              "authorization"
+            ]
           }
         },
         {
           "label": "Engagement type and start date are set",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "engagement_type",
+              "start_date"
+            ]
           }
         }
       ]
@@ -1404,14 +1411,30 @@
       "dod": [
         {
           "label": "At least three Annex A controls with an applicability decision",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "controls",
+            "where": {
+              "filled": [
+                "annex",
+                "applicable"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "Every applicable control has a justification",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "controls",
+            "where": {
+              "column": "applicable",
+              "equals": "Yes"
+            },
+            "every": {
+              "filled": [
+                "justification"
+              ]
+            }
           }
         }
       ]
@@ -1525,14 +1548,52 @@
       "dod": [
         {
           "label": "At least three controls, each with a SOC 2 or ISO reference",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "controls",
+            "where": {
+              "all": [
+                {
+                  "filled": [
+                    "control"
+                  ]
+                },
+                {
+                  "any": [
+                    {
+                      "filled": [
+                        "soc2"
+                      ]
+                    },
+                    {
+                      "filled": [
+                        "iso"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "Every control names an owner and evidence",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "controls",
+                "atLeast": 1
+              },
+              {
+                "group": "controls",
+                "every": {
+                  "filled": [
+                    "owner",
+                    "evidence"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -1642,14 +1703,37 @@
       "dod": [
         {
           "label": "At least one finding with a retest result",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "findings",
+            "some": {
+              "filled": [
+                "finding",
+                "retest"
+              ]
+            }
           }
         },
         {
           "label": "Every critical/high finding has a remediation recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "findings",
+            "where": {
+              "any": [
+                {
+                  "column": "severity",
+                  "equals": "Critical"
+                },
+                {
+                  "column": "severity",
+                  "equals": "High"
+                }
+              ]
+            },
+            "every": {
+              "filled": [
+                "remediation"
+              ]
+            }
           }
         }
       ]
@@ -1741,14 +1825,25 @@
       "dod": [
         {
           "label": "At least two detections mapped to an ATT&CK technique",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "rules",
+            "where": {
+              "filled": [
+                "name",
+                "attack"
+              ]
+            },
+            "atLeast": 2
           }
         },
         {
           "label": "At least one detection validated as “Fired”",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "rules",
+            "some": {
+              "column": "validated",
+              "equals": "Fired"
+            }
           }
         }
       ]
@@ -1827,14 +1922,20 @@
       "dod": [
         {
           "label": "MTTD and MTTR are recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "mttd",
+              "mttr"
+            ]
           }
         },
         {
           "label": "Observation window and coverage are set",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "window",
+              "coverage"
+            ]
           }
         }
       ]
@@ -1943,14 +2044,37 @@
       "dod": [
         {
           "label": "At least one audit finding with a result and corrective action",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "findings",
+            "some": {
+              "filled": [
+                "control",
+                "result"
+              ]
+            }
           }
         },
         {
           "label": "Every nonconformity has a corrective action",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "findings",
+            "where": {
+              "any": [
+                {
+                  "column": "result",
+                  "equals": "Minor NC"
+                },
+                {
+                  "column": "result",
+                  "equals": "Major NC"
+                }
+              ]
+            },
+            "every": {
+              "filled": [
+                "action"
+              ]
+            }
           }
         }
       ]
@@ -2062,14 +2186,35 @@
       "dod": [
         {
           "label": "At least three evidence items, each tied to a control",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "evidence",
+            "where": {
+              "filled": [
+                "control",
+                "artifact"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "Every evidence item names an owner and location",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "evidence",
+                "atLeast": 1
+              },
+              {
+                "group": "evidence",
+                "every": {
+                  "filled": [
+                    "owner",
+                    "location"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]

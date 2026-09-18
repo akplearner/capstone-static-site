@@ -1,6 +1,7 @@
 'use client';
 
 import { Info, Users } from 'lucide-react';
+import { evaluate } from '@/lib/docs/predicate';
 import { TeamProgressTable, type MemberProgress, type DeliverableStatus } from '@/components/TeamProgressTable';
 import { progressRepo, docsRepo, stepNotesRepo, reviewRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
@@ -58,7 +59,7 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
         // or not it went on to Weeks 5 and 6. The Deliverables page filters by
         // the week it is showing; this block has no week, so it filters by kind.
         const required = d.dod.filter((c) => c.week === undefined || !isAdvancedWeek(course, c.week));
-        complete = required.every((c) => c.test(data ?? emptyData()));
+        complete = required.every((c) => evaluate(c.when, data ?? emptyData()));
       } else if (data) {
         complete =
           Object.values(data.fields ?? {}).some((v) => v && v.trim()) ||

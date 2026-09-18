@@ -1,4 +1,5 @@
 import { Column, cellValue } from '../grc/templates';
+import { derive } from './predicate';
 import { DeliverableData, DeliverableDef, Field } from './types';
 
 export interface DocMeta {
@@ -11,7 +12,7 @@ export interface DocMeta {
 }
 
 function fieldValue(f: Field, fields: Record<string, string>): string {
-  return f.derived ? f.derived(fields) : fields[f.field] ?? '';
+  return f.derived ? derive(f.derived, fields) : fields[f.field] ?? '';
 }
 
 function csvEscape(v: string): string {

@@ -1,6 +1,7 @@
 import type { DeliverableData, DeliverableDef } from './types';
 import { withoutSeedRows } from './definitions';
 import { emptyData } from './types';
+import { evaluate } from './predicate';
 
 /**
  * Definition-of-Done, judged by week.
@@ -19,7 +20,7 @@ export function dodChecksBy(def: DeliverableDef, week: number) {
 export function dodProgress(def: DeliverableDef, data: DeliverableData | undefined, week: number): { met: number; total: number } {
   const own = withoutSeedRows(def, data ?? emptyData());
   const due = dodChecksBy(def, week);
-  return { met: due.filter((c) => c.test(own)).length, total: due.length };
+  return { met: due.filter((c) => evaluate(c.when, own)).length, total: due.length };
 }
 
 export function isDoneBy(def: DeliverableDef, data: DeliverableData | undefined, week: number): boolean {

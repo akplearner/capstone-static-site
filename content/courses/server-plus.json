@@ -6785,20 +6785,45 @@
       "dod": [
         {
           "label": "The company, staff count and what it needs are written down",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "client",
+              "employees",
+              "needs"
+            ]
           }
         },
         {
           "label": "At least four machines are designed, each with a zone",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "machines",
+            "where": {
+              "filled": [
+                "hostname",
+                "zone"
+              ]
+            },
+            "atLeast": 4
           }
         },
         {
           "label": "Every machine justifies its zone and names the need it serves",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "machines",
+                "atLeast": 1
+              },
+              {
+                "group": "machines",
+                "every": {
+                  "filled": [
+                    "why_zone",
+                    "serves"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -7092,38 +7117,121 @@
       "dod": [
         {
           "label": "CPU, memory, storage and network are all discovered",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "discovery",
+            "where": {
+              "filled": [
+                "component",
+                "found"
+              ]
+            },
+            "atLeast": 6
           }
         },
         {
           "label": "Virtualization extensions are recorded as present and enabled",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "discovery",
+            "some": {
+              "all": [
+                {
+                  "column": "component",
+                  "matches": "virt|vt-x|vt_x|amd-v"
+                },
+                {
+                  "filled": [
+                    "found"
+                  ]
+                }
+              ]
+            }
           }
         },
         {
           "label": "At least one NIC and one storage controller have a compatibility verdict",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "hcl",
+                "some": {
+                  "all": [
+                    {
+                      "column": "component",
+                      "matches": "nic|ethernet|network"
+                    },
+                    {
+                      "filled": [
+                        "verdict"
+                      ]
+                    }
+                  ]
+                }
+              },
+              {
+                "group": "hcl",
+                "some": {
+                  "all": [
+                    {
+                      "column": "component",
+                      "matches": "raid|hba|storage|sas|sata"
+                    },
+                    {
+                      "filled": [
+                        "verdict"
+                      ]
+                    }
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Every HCL row carries evidence, not an assumption",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "hcl",
+                "atLeast": 1
+              },
+              {
+                "group": "hcl",
+                "every": {
+                  "filled": [
+                    "evidence",
+                    "verdict"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Every gap has a proposed fix and a priority",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "gaps",
+                "atLeast": 1
+              },
+              {
+                "group": "gaps",
+                "every": {
+                  "filled": [
+                    "fix",
+                    "priority"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "The upgrade plan is approved by the instructor",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "approved"
+            ]
           }
         }
       ]
@@ -7492,50 +7600,105 @@
       "dod": [
         {
           "label": "At least one POST fault is worked through to a verified fix",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "post",
+            "some": {
+              "column": "result",
+              "equals": "Fixed it"
+            }
           }
         },
         {
           "label": "The log keeps the reasoning: symptom, theory and action on every row",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "post",
+                "atLeast": 1
+              },
+              {
+                "group": "post",
+                "every": {
+                  "filled": [
+                    "symptom",
+                    "theory",
+                    "action"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Virtualization extensions are enabled and the menu path recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "field": "virt_enabled",
+                "equals": "Yes"
+              },
+              {
+                "fields": [
+                  "virt_where"
+                ]
+              }
+            ]
           }
         },
         {
           "label": "The RAID level is chosen and the trade-off justified in writing",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "raid_level",
+              "raid_why"
+            ]
           }
         },
         {
           "label": "The array is verified healthy",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "raid_verified"
+            ]
           }
         },
         {
           "label": "The hypervisor is installed and reachable on its management address",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "hv_version",
+              "hv_address",
+              "hv_proof"
+            ]
           }
         },
         {
           "label": "The host has a remote-access address, and it was proved from off campus",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "remote_host_ip",
+              "remote_proof"
+            ]
           }
         },
         {
           "label": "Every teammate has their own named account — nobody is sharing root",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "access",
+                "atLeast": 2
+              },
+              {
+                "group": "access",
+                "every": {
+                  "filled": [
+                    "person",
+                    "login"
+                  ]
+                }
+              }
+            ]
           }
         }
       ]
@@ -7840,32 +8003,73 @@
       "dod": [
         {
           "label": "The rack is identified with power and reserved space recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "rack_id",
+              "power",
+              "expansion"
+            ]
           }
         },
         {
           "label": "At least four devices are placed in the elevation",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "elevation",
+            "where": {
+              "filled": [
+                "u",
+                "device"
+              ]
+            },
+            "atLeast": 4
           }
         },
         {
           "label": "Space is deliberately reserved for growth",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "elevation",
+            "some": {
+              "column": "type",
+              "equals": "Blank / reserved"
+            }
           }
         },
         {
           "label": "At least three cables are logged with both ends",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "cabling",
+            "where": {
+              "filled": [
+                "label",
+                "from",
+                "to"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "At least four assets are registered, including virtual machines",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "assets",
+                "where": {
+                  "filled": [
+                    "asset_id",
+                    "name"
+                  ]
+                },
+                "atLeast": 4
+              },
+              {
+                "group": "assets",
+                "some": {
+                  "column": "type",
+                  "equals": "Virtual machine"
+                }
+              }
+            ]
           }
         }
       ]
@@ -8138,7 +8342,12 @@
                 "label": "Verdict",
                 "type": "text",
                 "derived": {
-                  "$fn": "derived"
+                  "column": "matches",
+                  "cases": {
+                    "Yes": "Proven",
+                    "No": "Finding"
+                  },
+                  "else": ""
                 },
                 "help": "Computed from the answer beside it. A test that did not match expectation is a finding to fix, not a box to tick."
               }
@@ -8234,38 +8443,88 @@
       "dod": [
         {
           "label": "Every host has its real address, gateway and DNS recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "addresses",
+            "where": {
+              "filled": [
+                "address",
+                "gateway",
+                "dns"
+              ]
+            },
+            "atLeast": 4
           }
         },
         {
           "label": "Each address was confirmed to survive a reboot",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "addresses",
+                "atLeast": 1
+              },
+              {
+                "group": "addresses",
+                "every": {
+                  "column": "survives",
+                  "equals": "Yes"
+                }
+              }
+            ]
           }
         },
         {
           "label": "At least four paths are tested with the command recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "proof",
+            "where": {
+              "filled": [
+                "command",
+                "result"
+              ]
+            },
+            "atLeast": 4
           }
         },
         {
           "label": "At least one test proves a path is correctly BLOCKED",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "proof",
+            "some": {
+              "all": [
+                {
+                  "column": "expected",
+                  "equals": "Should be blocked"
+                },
+                {
+                  "column": "matches",
+                  "equals": "Yes"
+                }
+              ]
+            }
           }
         },
         {
           "label": "Every port the host publishes is listed with a reason and a proof",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "published",
+            "where": {
+              "filled": [
+                "to",
+                "why",
+                "proof"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "The site is recorded: its URL at the host and a screenshot from another campus machine",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "site_url",
+              "site_evidence"
+            ]
           }
         }
       ]
@@ -8655,39 +8914,96 @@
       "dod": [
         {
           "label": "A baseline is captured to a file and hashed on at least three hosts",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "baseline",
+            "where": {
+              "filled": [
+                "file",
+                "hash"
+              ]
+            },
+            "atLeast": 3
           }
         },
         {
           "label": "A named benchmark and version is recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "hardening",
+            "some": {
+              "filled": [
+                "benchmark",
+                "control"
+              ]
+            }
           }
         },
         {
           "label": "Every hardening row is applied, deviated with a reason, or not applicable",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "hardening",
+                "atLeast": 3
+              },
+              {
+                "group": "hardening",
+                "every": {
+                  "filled": [
+                    "applied",
+                    "evidence"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Every listening port is justified or marked to close",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "ports",
+                "atLeast": 3
+              },
+              {
+                "group": "ports",
+                "every": {
+                  "filled": [
+                    "who",
+                    "decision"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "Password, patch, backup and account policies each have an owner and a review date",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "policies",
+            "where": {
+              "filled": [
+                "rule",
+                "enforced",
+                "owner",
+                "review"
+              ]
+            },
+            "atLeast": 4
           },
           "week": 4
         },
         {
           "label": "The naming standard covers hosts, VM IDs and snapshots",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "naming",
+            "where": {
+              "filled": [
+                "rule",
+                "example"
+              ]
+            },
+            "atLeast": 3
           }
         }
       ]
@@ -9007,48 +9323,115 @@
       "dod": [
         {
           "label": "Changes are logged with an approver and a back-out plan",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "changes",
+            "where": {
+              "filled": [
+                "change",
+                "rollback",
+                "approved_by"
+              ]
+            },
+            "atLeast": 1
           }
         },
         {
           "label": "At least three changes are logged with a back-out for each",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "changes",
+            "where": {
+              "filled": [
+                "change",
+                "rollback"
+              ]
+            },
+            "atLeast": 3
           },
           "week": 4
         },
         {
           "label": "Every logged change records what happened",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "changes",
+                "atLeast": 1
+              },
+              {
+                "group": "changes",
+                "every": {
+                  "filled": [
+                    "result"
+                  ]
+                }
+              }
+            ]
           }
         },
         {
           "label": "At least two patch rounds are recorded",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "patches",
+            "where": {
+              "filled": [
+                "system",
+                "patch"
+              ]
+            },
+            "atLeast": 2
           },
           "week": 4
         },
         {
           "label": "Patches were snapshotted before being applied",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "group": "patches",
+                "atLeast": 1
+              },
+              {
+                "group": "patches",
+                "every": {
+                  "column": "snapshot",
+                  "equals": "Yes"
+                }
+              }
+            ]
           },
           "week": 4
         },
         {
           "label": "At least three runbooks have ordered steps, a check and a way back",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "sops",
+            "where": {
+              "filled": [
+                "name",
+                "steps",
+                "who",
+                "verify",
+                "rollback"
+              ]
+            },
+            "atLeast": 3
           },
           "week": 3
         },
         {
           "label": "Every fleet alert has a runbook row: meaning, who is paged, first steps",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "alerts",
+            "where": {
+              "filled": [
+                "alert",
+                "meaning",
+                "pages",
+                "first_steps"
+              ]
+            },
+            "distinct": "alert",
+            "atLeast": 3
           },
           "week": 6
         }
@@ -9590,105 +9973,207 @@
       "dod": [
         {
           "label": "RTO, RPO and the recovery order are set",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "rto",
+              "rpo",
+              "critical"
+            ]
           }
         },
         {
           "label": "At least two things are backed up, off the server itself",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "backups",
+            "where": {
+              "filled": [
+                "what",
+                "where"
+              ]
+            },
+            "atLeast": 2
           }
         },
         {
           "label": "The restore procedure is written as followable steps",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "restore_steps"
+            ]
           }
         },
         {
           "label": "A restore was actually performed and timed",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "restore_what",
+              "restore_time",
+              "restore_result"
+            ]
           }
         },
         {
           "label": "Every other document is checked in and matches reality",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "contents",
+            "where": {
+              "filled": [
+                "document"
+              ]
+            },
+            "atLeast": 7,
+            "every": {
+              "all": [
+                {
+                  "column": "current",
+                  "equals": "Yes"
+                },
+                {
+                  "column": "pdf",
+                  "equals": "Yes"
+                }
+              ]
+            }
           }
         },
         {
           "label": "The client summary and outstanding items are written",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "what_they_have",
+              "how_to_operate",
+              "recommendations"
+            ]
           }
         },
         {
           "label": "Handover is dated and signed off",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "handover_date",
+              "signoff"
+            ]
           }
         },
         {
           "label": "Every handover artifact is logged (chain of custody)",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "evidence",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "sha256"
+              ]
+            }
           }
         },
         {
           "label": "Terraform or OpenTofu manages the lab and a plan reports no changes",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "iac_state"
+            ]
           },
           "week": 5
         },
         {
           "label": "At least five Prometheus targets and three Wazuh agents are live",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "field": "monitoring_targets",
+                "atLeast": 5
+              },
+              {
+                "field": "wazuh_agents",
+                "atLeast": 3
+              }
+            ]
           },
           "week": 5
         },
         {
           "label": "One failure was caused on purpose and something noticed it",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "alert_tested"
+            ]
           },
           "week": 5
         },
         {
           "label": "Every tool is mapped to the host it runs on and the record it now holds",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "group": "tooling",
+            "where": {
+              "filled": [
+                "tool",
+                "host",
+                "replaces"
+              ]
+            },
+            "atLeast": 6
           },
           "week": 5
         },
         {
           "label": "The site is in Git, tagged for handover, and the second run changed nothing",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "fields": [
+                  "repo"
+                ]
+              },
+              {
+                "field": "idempotent",
+                "matches": "changed=0"
+              }
+            ]
           },
           "week": 6
         },
         {
           "label": "At least five targets read UP on the Core and the vault verified the backup",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "field": "core_targets",
+                "atLeast": 5
+              },
+              {
+                "fields": [
+                  "verify_result"
+                ]
+              }
+            ]
           },
           "week": 6
         },
         {
           "label": "A full-VM restore and a rebuild from Git were both timed",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "fields": [
+              "restore_time",
+              "rebuild_time"
+            ]
           },
           "week": 6
         },
         {
           "label": "The fleet endpoints report to the Core and the SLO line is written",
-          "test": {
-            "$fn": "test"
+          "when": {
+            "all": [
+              {
+                "field": "fleet_agents",
+                "atLeast": 2
+              },
+              {
+                "fields": [
+                  "slo"
+                ]
+              }
+            ]
           },
           "week": 6
         }

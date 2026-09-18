@@ -176,9 +176,9 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'The company, staff count and what it needs are written down', test: (d) => !!(d.fields.client && d.fields.employees && d.fields.needs) },
-      { label: 'At least four machines are designed, each with a zone', test: (d) => (d.groups.machines ?? []).filter((r) => !!r.hostname && !!r.zone).length >= 4 },
-      { label: 'Every machine justifies its zone and names the need it serves', test: (d) => (d.groups.machines ?? []).length > 0 && (d.groups.machines ?? []).every((r) => !!r.why_zone && !!r.serves) },
+      { label: 'The company, staff count and what it needs are written down', when: { fields: ['client', 'employees', 'needs'] }},
+      { label: 'At least four machines are designed, each with a zone', when: { group: 'machines', where: { filled: ['hostname', 'zone'] }, atLeast: 4 }},
+      { label: 'Every machine justifies its zone and names the need it serves', when: { all: [{ group: 'machines', atLeast: 1 }, { group: 'machines', every: { filled: ['why_zone', 'serves'] } }] }},
     ],
   },
 
@@ -299,16 +299,17 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'CPU, memory, storage and network are all discovered', test: (d) => (d.groups.discovery ?? []).filter((r) => !!r.component && !!r.found).length >= 6 },
-      { label: 'Virtualization extensions are recorded as present and enabled', test: (d) => (d.groups.discovery ?? []).some((r) => /virt|vt-x|vt_x|amd-v/i.test(r.component ?? '') && !!r.found) },
-      { label: 'At least one NIC and one storage controller have a compatibility verdict', test: (d) => {
-        const rows = d.groups.hcl ?? [];
-        const has = (re: RegExp) => rows.some((r) => re.test(`${r.component ?? ''}`) && !!r.verdict);
-        return has(/nic|ethernet|network/i) && has(/raid|hba|storage|sas|sata/i);
+      { label: 'CPU, memory, storage and network are all discovered', when: { group: 'discovery', where: { filled: ['component', 'found'] }, atLeast: 6 }},
+      { label: 'Virtualization extensions are recorded as present and enabled', when: { group: 'discovery', some: { all: [{ column: 'component', matches: 'virt|vt-x|vt_x|amd-v' }, { filled: ['found'] }] } }},
+      { label: 'At least one NIC and one storage controller have a compatibility verdict', when: {
+        all: ['nic|ethernet|network', 'raid|hba|storage|sas|sata'].map((kind) => ({
+          group: 'hcl',
+          some: { all: [{ column: 'component', matches: kind }, { filled: ['verdict'] }] },
+        })),
       } },
-      { label: 'Every HCL row carries evidence, not an assumption', test: (d) => (d.groups.hcl ?? []).length > 0 && (d.groups.hcl ?? []).every((r) => !!r.evidence && !!r.verdict) },
-      { label: 'Every gap has a proposed fix and a priority', test: (d) => (d.groups.gaps ?? []).length > 0 && (d.groups.gaps ?? []).every((r) => !!r.fix && !!r.priority) },
-      { label: 'The upgrade plan is approved by the instructor', test: (d) => !!d.fields.approved },
+      { label: 'Every HCL row carries evidence, not an assumption', when: { all: [{ group: 'hcl', atLeast: 1 }, { group: 'hcl', every: { filled: ['evidence', 'verdict'] } }] }},
+      { label: 'Every gap has a proposed fix and a priority', when: { all: [{ group: 'gaps', atLeast: 1 }, { group: 'gaps', every: { filled: ['fix', 'priority'] } }] }},
+      { label: 'The upgrade plan is approved by the instructor', when: { fields: ['approved'] }},
     ],
   },
 
@@ -434,14 +435,14 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'At least one POST fault is worked through to a verified fix', test: (d) => (d.groups.post ?? []).some((r) => r.result === 'Fixed it') },
-      { label: 'The log keeps the reasoning: symptom, theory and action on every row', test: (d) => (d.groups.post ?? []).length > 0 && (d.groups.post ?? []).every((r) => !!r.symptom && !!r.theory && !!r.action) },
-      { label: 'Virtualization extensions are enabled and the menu path recorded', test: (d) => d.fields.virt_enabled === 'Yes' && !!d.fields.virt_where },
-      { label: 'The RAID level is chosen and the trade-off justified in writing', test: (d) => !!(d.fields.raid_level && d.fields.raid_why) },
-      { label: 'The array is verified healthy', test: (d) => !!d.fields.raid_verified },
-      { label: 'The hypervisor is installed and reachable on its management address', test: (d) => !!(d.fields.hv_version && d.fields.hv_address && d.fields.hv_proof) },
-      { label: 'The host has a remote-access address, and it was proved from off campus', test: (d) => !!(d.fields.remote_host_ip && d.fields.remote_proof) },
-      { label: 'Every teammate has their own named account — nobody is sharing root', test: (d) => (d.groups.access ?? []).length > 1 && (d.groups.access ?? []).every((r) => !!r.person && !!r.login) },
+      { label: 'At least one POST fault is worked through to a verified fix', when: { group: 'post', some: { column: 'result', equals: 'Fixed it' } }},
+      { label: 'The log keeps the reasoning: symptom, theory and action on every row', when: { all: [{ group: 'post', atLeast: 1 }, { group: 'post', every: { filled: ['symptom', 'theory', 'action'] } }] }},
+      { label: 'Virtualization extensions are enabled and the menu path recorded', when: { all: [{ field: 'virt_enabled', equals: 'Yes' }, { fields: ['virt_where'] }] }},
+      { label: 'The RAID level is chosen and the trade-off justified in writing', when: { fields: ['raid_level', 'raid_why'] }},
+      { label: 'The array is verified healthy', when: { fields: ['raid_verified'] }},
+      { label: 'The hypervisor is installed and reachable on its management address', when: { fields: ['hv_version', 'hv_address', 'hv_proof'] }},
+      { label: 'The host has a remote-access address, and it was proved from off campus', when: { fields: ['remote_host_ip', 'remote_proof'] }},
+      { label: 'Every teammate has their own named account — nobody is sharing root', when: { all: [{ group: 'access', atLeast: 2 }, { group: 'access', every: { filled: ['person', 'login'] } }] }},
     ],
   },
 
@@ -555,11 +556,11 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'The rack is identified with power and reserved space recorded', test: (d) => !!(d.fields.rack_id && d.fields.power && d.fields.expansion) },
-      { label: 'At least four devices are placed in the elevation', test: (d) => (d.groups.elevation ?? []).filter((r) => !!r.u && !!r.device).length >= 4 },
-      { label: 'Space is deliberately reserved for growth', test: (d) => (d.groups.elevation ?? []).some((r) => r.type === 'Blank / reserved') },
-      { label: 'At least three cables are logged with both ends', test: (d) => (d.groups.cabling ?? []).filter((r) => !!r.label && !!r.from && !!r.to).length >= 3 },
-      { label: 'At least four assets are registered, including virtual machines', test: (d) => (d.groups.assets ?? []).filter((r) => !!r.asset_id && !!r.name).length >= 4 && (d.groups.assets ?? []).some((r) => r.type === 'Virtual machine') },
+      { label: 'The rack is identified with power and reserved space recorded', when: { fields: ['rack_id', 'power', 'expansion'] }},
+      { label: 'At least four devices are placed in the elevation', when: { group: 'elevation', where: { filled: ['u', 'device'] }, atLeast: 4 }},
+      { label: 'Space is deliberately reserved for growth', when: { group: 'elevation', some: { column: 'type', equals: 'Blank / reserved' } }},
+      { label: 'At least three cables are logged with both ends', when: { group: 'cabling', where: { filled: ['label', 'from', 'to'] }, atLeast: 3 }},
+      { label: 'At least four assets are registered, including virtual machines', when: { all: [{ group: 'assets', where: { filled: ['asset_id', 'name'] }, atLeast: 4 }, { group: 'assets', some: { column: 'type', equals: 'Virtual machine' } }] }},
     ],
   },
 
@@ -668,7 +669,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             c('expected', 'Expected', 'select', { options: ['Should work', 'Should be blocked'], help: 'Decide BEFORE you run it. A test with no expectation cannot fail.' }),
             c('result', 'What came back', 'text', { placeholder: '4 packets transmitted, 0 received — blocked as designed', help: 'Paste the summary line, not the whole output.' }),
             c('matches', 'Matches expectation?', 'select', { options: YN, help: 'A No here is a finding, not a mistake — record it and fix it.' }),
-            c('verdict', 'Verdict', 'text', { derived: (r) => (r.matches === 'Yes' ? 'Proven' : r.matches === 'No' ? 'Finding' : ''), help: 'Computed from the answer beside it. A test that did not match expectation is a finding to fix, not a box to tick.' }),
+            c('verdict', 'Verdict', 'text', { derived: { column: 'matches', cases: { Yes: 'Proven', No: 'Finding' }, else: '' }, help: 'Computed from the answer beside it. A test that did not match expectation is a finding to fix, not a box to tick.' }),
           ],
           seed: [
             { from: 'Campus LAN', to: 'the site via the host', command: 'curl -I http://10.10.30.T', expected: 'Should work', result: 'HTTP/1.1 200 OK — our own title in the body', matches: 'Yes' },
@@ -692,12 +693,12 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Every host has its real address, gateway and DNS recorded', test: (d) => (d.groups.addresses ?? []).filter((r) => !!r.address && !!r.gateway && !!r.dns).length >= 4 },
-      { label: 'Each address was confirmed to survive a reboot', test: (d) => (d.groups.addresses ?? []).length > 0 && (d.groups.addresses ?? []).every((r) => r.survives === 'Yes') },
-      { label: 'At least four paths are tested with the command recorded', test: (d) => (d.groups.proof ?? []).filter((r) => !!r.command && !!r.result).length >= 4 },
-      { label: 'At least one test proves a path is correctly BLOCKED', test: (d) => (d.groups.proof ?? []).some((r) => r.expected === 'Should be blocked' && r.matches === 'Yes') },
-      { label: 'Every port the host publishes is listed with a reason and a proof', test: (d) => (d.groups.published ?? []).filter((r) => !!r.to && !!r.why && !!r.proof).length >= PUBLISHED_PORTS.length },
-      { label: 'The site is recorded: its URL at the host and a screenshot from another campus machine', test: (d) => !!d.fields.site_url && !!d.fields.site_evidence },
+      { label: 'Every host has its real address, gateway and DNS recorded', when: { group: 'addresses', where: { filled: ['address', 'gateway', 'dns'] }, atLeast: 4 }},
+      { label: 'Each address was confirmed to survive a reboot', when: { all: [{ group: 'addresses', atLeast: 1 }, { group: 'addresses', every: { column: 'survives', equals: 'Yes' } }] }},
+      { label: 'At least four paths are tested with the command recorded', when: { group: 'proof', where: { filled: ['command', 'result'] }, atLeast: 4 }},
+      { label: 'At least one test proves a path is correctly BLOCKED', when: { group: 'proof', some: { all: [{ column: 'expected', equals: 'Should be blocked' }, { column: 'matches', equals: 'Yes' }] } }},
+      { label: 'Every port the host publishes is listed with a reason and a proof', when: { group: 'published', where: { filled: ['to', 'why', 'proof'] }, atLeast: PUBLISHED_PORTS.length } },
+      { label: 'The site is recorded: its URL at the host and a screenshot from another campus machine', when: { fields: ['site_url', 'site_evidence'] }},
     ],
   },
 
@@ -843,12 +844,12 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'A baseline is captured to a file and hashed on at least three hosts', test: (d) => (d.groups.baseline ?? []).filter((r) => !!r.file && !!r.hash).length >= 3 },
-      { label: 'A named benchmark and version is recorded', test: (d) => (d.groups.hardening ?? []).some((r) => !!r.benchmark && !!r.control) },
-      { label: 'Every hardening row is applied, deviated with a reason, or not applicable', test: (d) => (d.groups.hardening ?? []).length >= 3 && (d.groups.hardening ?? []).every((r) => !!r.applied && !!r.evidence) },
-      { label: 'Every listening port is justified or marked to close', test: (d) => (d.groups.ports ?? []).length >= 3 && (d.groups.ports ?? []).every((r) => !!r.who && !!r.decision) },
-      { label: 'Password, patch, backup and account policies each have an owner and a review date', test: (d) => (d.groups.policies ?? []).filter((r) => !!r.rule && !!r.enforced && !!r.owner && !!r.review).length >= 4, week: 4 },
-      { label: 'The naming standard covers hosts, VM IDs and snapshots', test: (d) => (d.groups.naming ?? []).filter((r) => !!r.rule && !!r.example).length >= 3 },
+      { label: 'A baseline is captured to a file and hashed on at least three hosts', when: { group: 'baseline', where: { filled: ['file', 'hash'] }, atLeast: 3 }},
+      { label: 'A named benchmark and version is recorded', when: { group: 'hardening', some: { filled: ['benchmark', 'control'] } }},
+      { label: 'Every hardening row is applied, deviated with a reason, or not applicable', when: { all: [{ group: 'hardening', atLeast: 3 }, { group: 'hardening', every: { filled: ['applied', 'evidence'] } }] }},
+      { label: 'Every listening port is justified or marked to close', when: { all: [{ group: 'ports', atLeast: 3 }, { group: 'ports', every: { filled: ['who', 'decision'] } }] }},
+      { label: 'Password, patch, backup and account policies each have an owner and a review date', when: { group: 'policies', where: { filled: ['rule', 'enforced', 'owner', 'review'] }, atLeast: 4 }, week: 4 },
+      { label: 'The naming standard covers hosts, VM IDs and snapshots', when: { group: 'naming', where: { filled: ['rule', 'example'] }, atLeast: 3 }},
     ],
   },
 
@@ -971,14 +972,14 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       },
     ],
     dod: [
-      { label: 'Changes are logged with an approver and a back-out plan', test: (d) => (d.groups.changes ?? []).filter((r) => !!r.change && !!r.rollback && !!r.approved_by).length >= 1 },
-      { label: 'At least three changes are logged with a back-out for each', test: (d) => (d.groups.changes ?? []).filter((r) => !!r.change && !!r.rollback).length >= 3, week: 4 },
-      { label: 'Every logged change records what happened', test: (d) => (d.groups.changes ?? []).length > 0 && (d.groups.changes ?? []).every((r) => !!r.result) },
-      { label: 'At least two patch rounds are recorded', test: (d) => (d.groups.patches ?? []).filter((r) => !!r.system && !!r.patch).length >= 2, week: 4 },
-      { label: 'Patches were snapshotted before being applied', test: (d) => (d.groups.patches ?? []).length > 0 && (d.groups.patches ?? []).every((r) => r.snapshot === 'Yes'), week: 4 },
-      { label: 'At least three runbooks have ordered steps, a check and a way back', test: (d) => (d.groups.sops ?? []).filter((r) => !!r.name && !!r.steps && !!r.who && !!r.verify && !!r.rollback).length >= 3, week: 3 },
+      { label: 'Changes are logged with an approver and a back-out plan', when: { group: 'changes', where: { filled: ['change', 'rollback', 'approved_by'] }, atLeast: 1 }},
+      { label: 'At least three changes are logged with a back-out for each', when: { group: 'changes', where: { filled: ['change', 'rollback'] }, atLeast: 3 }, week: 4 },
+      { label: 'Every logged change records what happened', when: { all: [{ group: 'changes', atLeast: 1 }, { group: 'changes', every: { filled: ['result'] } }] }},
+      { label: 'At least two patch rounds are recorded', when: { group: 'patches', where: { filled: ['system', 'patch'] }, atLeast: 2 }, week: 4 },
+      { label: 'Patches were snapshotted before being applied', when: { all: [{ group: 'patches', atLeast: 1 }, { group: 'patches', every: { column: 'snapshot', equals: 'Yes' } }] }, week: 4 },
+      { label: 'At least three runbooks have ordered steps, a check and a way back', when: { group: 'sops', where: { filled: ['name', 'steps', 'who', 'verify', 'rollback'] }, atLeast: 3 }, week: 3 },
       // Week 6 only — the fleet alerts, each with someone to page.
-      { label: 'Every fleet alert has a runbook row: meaning, who is paged, first steps', test: (d) => new Set((d.groups.alerts ?? []).filter((r) => !!r.alert && !!r.meaning && !!r.pages && !!r.first_steps).map((r) => r.alert)).size >= 3, week: 6 },
+      { label: 'Every fleet alert has a runbook row: meaning, who is paged, first steps', when: { group: 'alerts', where: { filled: ['alert', 'meaning', 'pages', 'first_steps'] }, distinct: 'alert', atLeast: 3 }, week: 6 },
     ],
   },
 
@@ -1147,27 +1148,29 @@ const AS_BUILT: DeliverableDef[] = [
       }),
     ],
     dod: [
-      { label: 'RTO, RPO and the recovery order are set', test: (d) => !!(d.fields.rto && d.fields.rpo && d.fields.critical) },
-      { label: 'At least two things are backed up, off the server itself', test: (d) => (d.groups.backups ?? []).filter((r) => !!r.what && !!r.where).length >= 2 },
-      { label: 'The restore procedure is written as followable steps', test: (d) => !!d.fields.restore_steps },
-      { label: 'A restore was actually performed and timed', test: (d) => !!(d.fields.restore_what && d.fields.restore_time && d.fields.restore_result) },
-      { label: 'Every other document is checked in and matches reality', test: (d) => {
-        const rows = (d.groups.contents ?? []).filter((r) => !!r.document);
-        return rows.length >= PRECEDING_TITLES.length && rows.every((r) => r.current === 'Yes' && r.pdf === 'Yes');
+      { label: 'RTO, RPO and the recovery order are set', when: { fields: ['rto', 'rpo', 'critical'] }},
+      { label: 'At least two things are backed up, off the server itself', when: { group: 'backups', where: { filled: ['what', 'where'] }, atLeast: 2 }},
+      { label: 'The restore procedure is written as followable steps', when: { fields: ['restore_steps'] }},
+      { label: 'A restore was actually performed and timed', when: { fields: ['restore_what', 'restore_time', 'restore_result'] }},
+      { label: 'Every other document is checked in and matches reality', when: {
+        group: 'contents',
+        where: { filled: ['document'] },
+        atLeast: PRECEDING_TITLES.length,
+        every: { all: [{ column: 'current', equals: 'Yes' }, { column: 'pdf', equals: 'Yes' }] },
       } },
-      { label: 'The client summary and outstanding items are written', test: (d) => !!(d.fields.what_they_have && d.fields.how_to_operate && d.fields.recommendations) },
-      { label: 'Handover is dated and signed off', test: (d) => !!(d.fields.handover_date && d.fields.signoff) },
-      { label: 'Every handover artifact is logged (chain of custody)', test: (d) => everyEvidenceHashed()(d) },
+      { label: 'The client summary and outstanding items are written', when: { fields: ['what_they_have', 'how_to_operate', 'recommendations'] }},
+      { label: 'Handover is dated and signed off', when: { fields: ['handover_date', 'signoff'] }},
+      { label: 'Every handover artifact is logged (chain of custody)', when: everyEvidenceHashed()},
       // Week 5 only — see `weeks` above.
-      { label: 'Terraform or OpenTofu manages the lab and a plan reports no changes', test: (d) => !!d.fields.iac_state, week: 5 },
-      { label: 'At least five Prometheus targets and three Wazuh agents are live', test: (d) => Number(d.fields.monitoring_targets) >= 5 && Number(d.fields.wazuh_agents) >= 3, week: 5 },
-      { label: 'One failure was caused on purpose and something noticed it', test: (d) => !!d.fields.alert_tested, week: 5 },
-      { label: 'Every tool is mapped to the host it runs on and the record it now holds', test: (d) => (d.groups.tooling ?? []).filter((r) => !!r.tool && !!r.host && !!r.replaces).length >= 6, week: 5 },
+      { label: 'Terraform or OpenTofu manages the lab and a plan reports no changes', when: { fields: ['iac_state'] }, week: 5 },
+      { label: 'At least five Prometheus targets and three Wazuh agents are live', when: { all: [{ field: 'monitoring_targets', atLeast: 5 }, { field: 'wazuh_agents', atLeast: 3 }] }, week: 5 },
+      { label: 'One failure was caused on purpose and something noticed it', when: { fields: ['alert_tested'] }, week: 5 },
+      { label: 'Every tool is mapped to the host it runs on and the record it now holds', when: { group: 'tooling', where: { filled: ['tool', 'host', 'replaces'] }, atLeast: 6 }, week: 5 },
       // Week 6 only — see `weeks` above.
-      { label: 'The site is in Git, tagged for handover, and the second run changed nothing', test: (d) => !!d.fields.repo && /changed=0/.test(d.fields.idempotent ?? ''), week: 6 },
-      { label: 'At least five targets read UP on the Core and the vault verified the backup', test: (d) => Number(d.fields.core_targets) >= 5 && !!d.fields.verify_result, week: 6 },
-      { label: 'A full-VM restore and a rebuild from Git were both timed', test: (d) => !!(d.fields.restore_time && d.fields.rebuild_time), week: 6 },
-      { label: 'The fleet endpoints report to the Core and the SLO line is written', test: (d) => Number(d.fields.fleet_agents) >= 2 && !!d.fields.slo, week: 6 },
+      { label: 'The site is in Git, tagged for handover, and the second run changed nothing', when: { all: [{ fields: ['repo'] }, { field: 'idempotent', matches: 'changed=0' }] }, week: 6 },
+      { label: 'At least five targets read UP on the Core and the vault verified the backup', when: { all: [{ field: 'core_targets', atLeast: 5 }, { fields: ['verify_result'] }] }, week: 6 },
+      { label: 'A full-VM restore and a rebuild from Git were both timed', when: { fields: ['restore_time', 'rebuild_time'] }, week: 6 },
+      { label: 'The fleet endpoints report to the Core and the SLO line is written', when: { all: [{ field: 'fleet_agents', atLeast: 2 }, { fields: ['slo'] }] }, week: 6 },
     ],
   },
 ];

@@ -1,4 +1,5 @@
 import { Framework, Role } from '../types';
+import type { Derived, Predicate } from './predicate';
 import type { Column } from '../grc/templates';
 
 /**
@@ -48,7 +49,8 @@ export interface Field {
   /** Unit for a `number` — GB, ports, minutes. Rendered inside the input. */
   unit?: string;
   /** Read-only value computed from the record (e.g. derived severity). */
-  derived?: (rec: Record<string, string>) => string;
+  /** A value computed from the rest of the row, as data — see `predicate.ts`. */
+  derived?: Derived;
 }
 
 /**
@@ -114,7 +116,15 @@ export interface DeliverableData {
 
 export interface DodCheck {
   label: string;
-  test: (d: DeliverableData) => boolean;
+  /**
+   * What "done" means, as DATA.
+   *
+   * This was `test: (d) => boolean`, which reads beautifully and cannot be
+   * exported: the course document held a `{"$fn": …}` marker where the rule
+   * should be, so an instructor could not read a check, let alone change one.
+   * The vocabulary in `predicate.ts` says every shape the real checks use.
+   */
+  when: Predicate;
   /**
    * The first week this check counts. A form that spans weeks — a log written
    * across the build, an addressing table filled once the system runs — was
