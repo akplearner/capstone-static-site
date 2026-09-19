@@ -44,6 +44,17 @@
       "steps": 114,
       "deliverables": 8,
       "procedures": 51
+    },
+    {
+      "id": "ccna",
+      "title": "CCNA Network Capstone",
+      "version": 1,
+      "file": "ccna.json",
+      "weeks": 9,
+      "tasks": 21,
+      "steps": 42,
+      "deliverables": 10,
+      "procedures": 0
     }
   ]
 }

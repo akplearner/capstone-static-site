@@ -159,7 +159,7 @@ additive, none requiring a rewrite.
   TypeScript modules compiled in as a LOUD fallback: a document that fails to validate logs what is wrong
   and the app keeps working. `courseSource.test.ts` asserts the loaded object is not the module object, so
   "the documents are live" is checked rather than assumed; `dto.test.ts` proves the UI helpers give
-  identical answers either way, and that the function-marker count is zero for all four courses.
+  identical answers either way, and that the function-marker count is zero for all five courses.
 - **Content export:** `src/lib/content/dto.ts` writes every course to `content/courses/<id>.json` — weeks, tasks,
   steps, commands, forms, guide procedures, the topology model, the glossary, the lab-access fields, the IaC
   tools and the marking split. The topology section is COMPUTED from the module (`topologyData`), not a
@@ -179,6 +179,27 @@ additive, none requiring a rewrite.
   colours; `page-shape.test.ts` fails if one declares a table of rows or types a sentence beside the markup.
   A manual section is gated on a CAPABILITY (`Course.manualSections`, plus what the course demonstrates),
   never on a course id, so a course built from the deployment capstone gets its configuration guide.
+- **A course declares what it has, never its id:** `Course.manualSections` says which manual sections it
+  ships content for, and `Course.topologyPicture` ('soc' | 'rack' | 'campus') says which reference picture
+  its lab section draws. The picture used to be inferred from the configuration-guide flag — a coincidence
+  that held only while exactly one course had a build guide. A section or a picture a course cannot fill is
+  one it does not declare, so the CCNA skeleton renders no empty configuration guide and no other course's
+  rack. `manual.test.ts` pins both.
+- **The acquisition model (CCNA):** `src/lib/docs/ccnaKit.ts` is the vocabulary of what a team's NETWORK
+  equipment can do — 15 capabilities, each with the `show` command that proves it, the device classes that
+  provide it, the week that first needs it, and what the course does instead without it. Week 0's register
+  records the answers; later weeks branch on them (SVIs vs router-on-a-stick), so a team builds with the kit
+  it has rather than the kit the course assumed. The buying guide is capability-first: what a class unlocks,
+  with representative used-market models and no prices to go stale.
+- **The CCNA addressing model:** `src/lib/ccnaTopology.ts`, with one rule the course teaches — the third
+  octet IS the VLAN id — so every prefix, gateway and pool is DERIVED (`prefixOf`, `gatewayOf`,
+  `dhcpRangeOf`) rather than typed. `ccnaTopology.test.ts` asserts the derivation, that no DHCP pool contains
+  a static device address, that a trunk never carries a VLAN its far site lacks, and that anything "public"
+  is inside the RFC 5737 documentation range.
+- **Reading budgets apply to every course's graded weeks,** not just Server+'s: the 36-word command
+  explanation and 30-word step-subtitle limits now key on `isGradedWeek`. The "every command shows a sample
+  and an explanation" rule is a RATCHET — a measured per-course backlog (security-plus 68, cysa-plus 77,
+  mssp 4, the two newest 0) that may fall and never rise.
 - **Drawing the part being built:** `TopologyFocus` (derived from the machines a task's commands name) sits on
   the task row, the week header and each guide week; `ServerTopologyDiagram` takes `highlight` and
   `builtThrough` to light one week and dim what has not been built yet.

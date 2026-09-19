@@ -131,6 +131,14 @@ to the functions they replaced over a generated corpus; and the reference conten
 in five data modules, carried in the document's `content` section. Phase 2 — splitting Topology, Procedures
 and Curriculum into separate documents with a business overlay — is where to start next.
 
+**A fifth course landed on that spine (R76).** The CCNA capstone — the job of a network team, with CCNA
+technology inside it — is registered end to end as a skeleton of nine weeks, and it was authored against the
+phase-1 machinery rather than beside it: a derived addressing model, declarative Definition-of-Done
+predicates, content in data modules, and a `content` section in its document. It also produced the first
+real test of the "business instance" idea in miniature: what a team's EQUIPMENT can do is recorded as data
+in Week 0, and later weeks branch on those capabilities instead of assuming one environment. That is the
+same mechanism a business overlay will use, exercised on something a student can check today.
+
 Five phases, each shippable on its own and each unlocking the next. Phases 1 and 2 are foundations and change nothing a student sees. Phase 3 is where the capstone visibly improves. Phases 4 and 5 are the business and MSP products.
 
 | Phase | Ships | Unlocks | Depends on |

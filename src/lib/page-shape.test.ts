@@ -216,6 +216,18 @@ const REGISTRY: {
     alsoAllowed: ['src/lib/content-data.ts', 'src/lib/labTopology.ts'],
     commandsExempt: true,
   },
+  // The CCNA network. Same discipline as the Server+ rows above, applied from the
+  // first commit rather than after a drift: every prefix, gateway and WAN address
+  // is COMPUTED in `ccnaTopology.ts` (third octet = VLAN id), so a literal
+  // anywhere else is a hand-typed copy of something the model already derives.
+  { literal: '10.50.10.0/24', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: '10.50.20.10', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: '10.50.20.20', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: '10.50.99.', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: '10.60.199.', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: '10.255.255.', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: '198.51.100.', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
+  { literal: 'northgate.local', home: 'src/lib/ccnaTopology.ts', commandsExempt: true },
   // The Proxmox root password every team sets in Week 1.
   //
   // `alsoAllowed` is load-bearing, not defensive: the CySA SOC password is the

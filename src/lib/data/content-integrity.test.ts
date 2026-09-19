@@ -4,9 +4,11 @@ import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
+import { CCNA } from './seed/ccna';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
+import { isGradedWeek } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
@@ -14,7 +16,7 @@ import { LAB_FIELDS } from '../labAccess';
 // deliverable actually provides would render a dead link. These tests fail fast if
 // a step ever points at a form/file that isn't registered for its course.
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA];
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
   return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));
@@ -394,15 +396,21 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   // tighter budgets; the advanced weeks keep the general guard above. Only
   // tokens with a letter or digit count, so a dash is not a word.
   const prose = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
-  const baseBuild = ({ task }: { task: { week: number } }) => course.id === 'server-plus' && task.week <= 4;
-  it('Server+ base-build command explanations stay one line each', () => {
+  // R76: this was `course.id === 'server-plus' && task.week <= 4`. The budgets are
+  // the lesson Server+ learned when students said the course was too much to
+  // follow — so a NEW course should inherit the discipline rather than be exempt
+  // from it by virtue of not being called server-plus. The rule is now "any
+  // course's graded weeks": not setup, not advanced, which is exactly the work
+  // every student has to get through.
+  const baseBuild = ({ task }: { task: { week: number } }) => isGradedWeek(course, task.week);
+  it('graded-week command explanations stay one line each', () => {
     const over = allSteps(course)
       .filter(baseBuild)
       .flatMap(({ step }) => (step.commands ?? []).filter((c) => prose(c.explain ?? '') >= 36).map((c) => `${step.id}: ${c.cmd.slice(0, 40)} (${prose(c.explain ?? '')}w)`));
     expect(over, `cut these explains under 36 words: ${over.join(', ')}`).toHaveLength(0);
   });
 
-  it('Server+ base-build step descriptions stay a subtitle', () => {
+  it('graded-week step descriptions stay a subtitle', () => {
     const over = allSteps(course)
       .filter(baseBuild)
       .filter(({ step }) => prose(step.description ?? '') >= 30)
@@ -415,9 +423,14 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   // compare against. So every base-build command carries three facts, and all
   // three come from `src/lib/docs/serverCommands.ts` — see that file for why
   // they live in one place rather than two.
+  // These two stay scoped to Server+ by design, unlike the budgets above: they
+  // check membership of `MACHINES` in `serverTopology.ts`, which is that course's
+  // own machine registry. A network course's equivalent is `DEVICES` in
+  // `ccnaTopology.ts`, and it gets its own check when its command registry lands.
+  const serverBaseBuild = (x: { task: { week: number } }) => course.id === 'server-plus' && baseBuild(x);
   it('every Server+ base-build command says which machine it runs on', () => {
     const missing = allSteps(course)
-      .filter(baseBuild)
+      .filter(serverBaseBuild)
       .flatMap(({ step }) => (step.commands ?? []).filter((c) => !c.on).map((c) => `${step.id}: ${c.cmd.slice(0, 50)}`));
     expect(missing, `add these to serverCommands.ts: ${missing.join(', ')}`).toHaveLength(0);
   });
@@ -425,12 +438,29 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
   it('every Server+ base-build command names a machine that exists', () => {
     const ids = new Set(Object.keys(MACHINES));
     const bad = allSteps(course)
-      .filter(baseBuild)
+      .filter(serverBaseBuild)
       .flatMap(({ step }) => (step.commands ?? []).filter((c) => c.on && !ids.has(c.on)).map((c) => `${step.id}: ${c.on}`));
     expect(bad, `not a MachineId: ${bad.join(', ')}`).toHaveLength(0);
   });
 
-  it('every Server+ base-build command shows what it prints and why it exists', () => {
+  /**
+   * Every graded-week command should show what it prints and why it exists.
+   *
+   * Server+ reached zero by moving its commands into a registry
+   * (`docs/serverCommands.ts`) where each one is authored once with its
+   * explanation and a real sample; CCNA is authored that way from the start. The
+   * three security courses predate the rule and carry a measured backlog, so this
+   * is a RATCHET rather than a pass/fail: the number may fall, never rise. That
+   * keeps the debt visible and stops it growing, which a skipped test would not.
+   */
+  const BARE_COMMAND_BACKLOG: Record<string, number> = {
+    'security-plus': 68,
+    'cysa-plus': 77,
+    mssp: 4,
+    'server-plus': 0,
+    ccna: 0,
+  };
+  it('every graded-week command shows what it prints and why it exists', () => {
     const bare = allSteps(course)
       .filter(baseBuild)
       .flatMap(({ step }) =>
@@ -438,7 +468,13 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
           .filter((c) => !c.sample || !c.explain)
           .map((c) => `${step.id}: ${c.cmd.slice(0, 50)}${c.sample ? '' : ' [no sample]'}${c.explain ? '' : ' [no explain]'}`)
       );
-    expect(bare, `fill these in: ${bare.join(', ')}`).toHaveLength(0);
+    const allowed = BARE_COMMAND_BACKLOG[course.id] ?? 0;
+    expect(
+      bare.length,
+      allowed === 0
+        ? `fill these in: ${bare.join(', ')}`
+        : `this course's backlog is ${allowed}; it may shrink but never grow. Now ${bare.length}: ${bare.slice(0, 5).join(', ')}`
+    ).toBeLessThanOrEqual(allowed);
   });
 
   it('no `whatItMeans` runs long', () => {

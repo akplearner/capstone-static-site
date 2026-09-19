@@ -11,6 +11,8 @@ const FRAMEWORK_COLORS: Record<Framework, string> = {
   'ISO_27001': 'bg-ok-soft text-ok',
   'SOC_2': 'bg-info-soft text-info',
   'STRIDE': 'bg-danger-soft text-danger',
+  'CCNA': 'bg-info-soft text-info',
+  'ITIL': 'bg-accent-soft text-accent-ink',
 };
 
 const FRAMEWORK_LABELS: Record<Framework, string> = {
@@ -23,6 +25,8 @@ const FRAMEWORK_LABELS: Record<Framework, string> = {
   'ISO_27001': 'ISO 27001',
   'SOC_2': 'SOC 2',
   'STRIDE': 'STRIDE',
+  'CCNA': 'CCNA 200-301',
+  'ITIL': 'ITIL 4',
 };
 
 const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
@@ -35,6 +39,8 @@ const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'ISO_27001': 'ISO/IEC 27001 Information Security',
   'SOC_2': 'SOC 2 — AICPA Trust Services Criteria',
   'STRIDE': 'STRIDE Threat Modeling',
+  'CCNA': 'Cisco CCNA 200-301 v1.1 — the exam blueprint’s six domains',
+  'ITIL': 'ITIL 4 — change, incident and problem management',
 };
 
 // Why each framework matters and the role it plays in the engagement. Surfaced
@@ -59,6 +65,10 @@ const FRAMEWORK_WHY: Record<Framework, string> = {
     'The AICPA attestation standard built on the Trust Services Criteria (Security = CC1–CC9, plus Availability/Confidentiality/etc.). This tag means the step produces a control or the evidence a SOC 2 Type I/II examiner samples.',
   'STRIDE':
     'A threat-modeling lens — Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. It names the *category* of threat this step addresses.',
+  'CCNA':
+    'The CCNA 200-301 blueprint: network fundamentals, access, IP connectivity, IP services, security fundamentals and automation. This tag says which exam domain the work covers — so the portfolio and the syllabus can be read against each other.',
+  'ITIL':
+    'The operating disciplines a network team is judged on: change, incident and problem management. A tag here means the step is not just technically right but done the way an organisation can audit — requested, reviewed, reversible and recorded.',
 };
 
 const FRAMEWORK_FALLBACK_COLOR =

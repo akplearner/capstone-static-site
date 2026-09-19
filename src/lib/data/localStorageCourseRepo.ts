@@ -7,14 +7,16 @@ import securityPlusDoc from '../../../content/courses/security-plus.json';
 import msspDoc from '../../../content/courses/mssp.json';
 import cysaDoc from '../../../content/courses/cysa-plus.json';
 import serverPlusDoc from '../../../content/courses/server-plus.json';
+import ccnaDoc from '../../../content/courses/ccna.json';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
+import { CCNA } from './seed/ccna';
 
 // Built-in courses shipped in code. They are never written to localStorage so
 // they stay upgradeable; an authored course with the same id overrides a seed.
-const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA];
 
 /**
  * Where the built-in courses come from: the JSON documents, with the TypeScript
@@ -68,6 +70,7 @@ const CONTENT_DOCS: Record<string, unknown> = {
   mssp: msspDoc,
   'cysa-plus': cysaDoc,
   'server-plus': serverPlusDoc,
+  ccna: ccnaDoc,
 };
 
 function hasWindow(): boolean {

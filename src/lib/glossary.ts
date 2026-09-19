@@ -110,6 +110,34 @@ export const GLOSSARY: Record<string, string> = {
   vuln: 'Short for vulnerability — a weakness an attacker could exploit.',
   firewall: 'A filter that allows or blocks network connections by rule, to keep unwanted traffic out.',
   ufw: 'Uncomplicated Firewall — the simple command-line firewall on Ubuntu (e.g. ufw allow 22).',
+
+  // ── The network course. A CCNA student meets most of these in Week 2 and is
+  // expected to use them in a design document by Week 4, so the definitions are
+  // written for somebody who has not seen them before.
+  VLAN: 'A virtual LAN — one physical switch split into separate networks. Ports in different VLANs cannot talk without something routing between them, which is the whole point.',
+  trunk: 'A link between switches that carries several VLANs at once, tagging each frame with its VLAN id (802.1Q). The alternative is one cable per VLAN.',
+  'native VLAN': 'The one VLAN a trunk carries UNTAGGED. If the two ends disagree about which it is, traffic silently lands in the wrong network — the classic trunk fault.',
+  SVI: 'Switched Virtual Interface — a VLAN’s gateway configured on the switch itself. A switch with SVIs routes between VLANs at wire speed; a switch without them needs a router.',
+  'router-on-a-stick': 'Inter-VLAN routing done by a router over a single trunk, with one subinterface per VLAN. What you build when the switch cannot route — same outcome, one link carrying all of it.',
+  EtherChannel: 'Two or more physical links bundled into one logical link, so a cable can fail without an outage and the bandwidth adds up. LACP is the protocol that negotiates it.',
+  'spanning tree': 'The protocol that stops a loop when switches have more than one path between them, by blocking all but one. It always picks a root switch — set it deliberately or it picks the oldest one.',
+  PortFast: 'Tells spanning tree an access port has a PC on it, not a switch, so it forwards immediately instead of waiting. Never on a port that could reach another switch.',
+  'BPDU Guard': 'Shuts a PortFast port the moment it hears spanning-tree messages — which means somebody plugged a switch into a desk port. The protection that makes PortFast safe.',
+  OSPF: 'A routing protocol: routers tell each other which networks they can reach, so each works out its own routes. It replaces static routes and reacts when a link dies.',
+  'OSPF area': 'A grouping that limits how far routing detail spreads. This course uses a single area 0 — the backbone — because one correctly adjacent area is the CCNA outcome.',
+  adjacency: 'Two OSPF routers that have agreed to exchange routes. It has to reach the FULL state; anything less is the protocol telling you what does not match.',
+  NAT: 'Network Address Translation — rewriting addresses as traffic crosses the edge, so internal addresses that mean nothing on the internet can still reach it.',
+  PAT: 'Port Address Translation, sometimes "NAT overload" — the whole company sharing one public address, told apart by port number. What almost every small site actually runs.',
+  ACL: 'Access Control List — an ordered list of permit and deny rules applied to an interface in one direction. It ends with an implicit deny, which is why the order matters.',
+  'port security': 'Limits which or how many MAC addresses a switch port accepts, so a stranger plugging into a desk port cannot quietly join the network.',
+  'ip helper-address': 'Tells a router to forward DHCP requests from a VLAN to a DHCP server somewhere else. The enterprise pattern, versus the router serving DHCP itself.',
+  SNMP: 'The protocol a monitoring system uses to read a device’s interfaces, CPU and memory. Read-only is all a NOC needs; v3 is the version with real authentication.',
+  syslog: 'Device log messages sent to a central collector. With synchronised clocks it turns "it broke this morning" into a readable sequence across every device.',
+  NetBox: 'The source of truth for the network: sites, devices, interfaces, cables, VLANs and prefixes, with an API. It replaces the spreadsheet once the spreadsheet stops scaling.',
+  Oxidized: 'Collects every device’s configuration on a schedule and commits it to Git, so you have both a backup and a history of what changed.',
+  'source of truth': 'The one system that DEFINES what the network should be. Tools read from it and configure devices to match, so the documentation cannot drift from reality.',
+  PoE: 'Power over Ethernet — the switch powering the device on the far end of the cable, which is how phones and access points run without a plug of their own.',
+  SFP: 'The slot a fibre (or copper) transceiver plugs into, for uplinks that go further or faster than the built-in ports.'
 };
 
 export interface TermMatch {

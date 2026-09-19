@@ -359,6 +359,19 @@ export interface Course {
    * see `docs/manual.ts`.
    */
   manualSections?: ('config-guide' | 'tools')[];
+  /**
+   * Which reference picture this course's lab section draws.
+   *
+   * 'soc' is the shared-SIEM lab, 'rack' the single-server rack elevation,
+   * 'campus' a multi-site switched/routed network. Omitted falls back to the
+   * generic role-based architecture diagram.
+   *
+   * This exists because the manual used to infer the picture from the
+   * configuration-guide flag, which was only ever a coincidence: the one course
+   * with a build guide happened to be the one with a rack. The moment a second
+   * course shipped a guide it would have drawn somebody else's rack.
+   */
+  topologyPicture?: 'soc' | 'rack' | 'campus';
   isSeed?: boolean;      // true for built-in courses shipped in code
   version?: number;      // export/import schema version
   updatedAt?: number;

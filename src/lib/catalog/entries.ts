@@ -103,8 +103,9 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'cisco',
     certName: 'CCNA',
     level: 'associate',
-    status: 'coming-soon',
-    blurb: 'Route, switch and secure a multi-site lab network.',
+    status: 'available',
+    courseId: 'ccna',
+    blurb: 'Run the network for a growing company — design, build, operate, hand over.',
   },
   {
     id: 'cisco-ccnp-security',

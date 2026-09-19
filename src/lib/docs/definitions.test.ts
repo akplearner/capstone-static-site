@@ -137,7 +137,8 @@ describe('lookup helpers', () => {
     const mssp = deliverablesForCourse('mssp');
     const cysa = deliverablesForCourse('cysa-plus');
     const server = deliverablesForCourse('server-plus');
-    const sets = [sp, mssp, cysa, server];
+    const ccna = deliverablesForCourse('ccna');
+    const sets = [sp, mssp, cysa, server, ccna];
     sets.forEach((s) => expect(s.length).toBeGreaterThan(0));
     // No form appears in more than one course's set.
     sets.forEach((a, i) =>

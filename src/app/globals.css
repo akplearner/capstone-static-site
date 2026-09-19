@@ -40,15 +40,18 @@
      contrast — so they flip this to near-black. */
   --color-accent-contrast: #ffffff;
 
-  /* Per-week phase accents (k1–k4 in the source). w5 and w6 are the advanced
-     weeks — rose and a slate cyan, two hues no graded phase uses, so each reads
-     as its own thing and neither is mistaken for a phase. */
+  /* Per-week phase accents (k1–k4 in the source). w5–w8 are the advanced weeks
+     — rose, slate cyan, olive and plum: four hues no graded phase uses, so each
+     reads as its own thing and none is mistaken for a phase. w7 and w8 arrived
+     with the CCNA capstone, whose advanced track is four weeks rather than two. */
   --color-w1: #158066;
   --color-w2: #1f5aa8;
   --color-w3: #b26a00;
   --color-w4: #6a3d9a;
   --color-w5: #b0213f;
   --color-w6: #0f7e94;
+  --color-w7: #5c6e1c;
+  --color-w8: #8a2d6b;
 
   /* Semantic. The -soft/-line pairs are the callout fills and borders that used
      to be hand-typed as green-50/amber-50/red-50 + their dark: twins in 20+
@@ -198,6 +201,8 @@
   --color-w4: #a583d0;
   --color-w5: #e0708a;
   --color-w6: #5fc4d6;
+  --color-w7: #a8bd55;
+  --color-w8: #dd7cc0;
 
   --color-ok: #4ade80;
   --color-ok-soft: #10281c;
@@ -477,6 +482,42 @@
   --stone-crystal: #6cc8f2;
   --color-accent: #43b6e6; --color-accent-strong: #66c6ef; --color-accent-ink: #cdeeff;
   --color-accent-soft: #0c2c3b; --color-accent-contrast: #06202c;
+}
+
+/* CCNA — the copper vein inside the Cisco rock. The build is network-shaped
+   rather than adversarial, so the per-week phases run cool-to-warm across the
+   graded weeks and the four advanced weeks take the hues no phase uses. */
+[data-seam='ccna'] {
+  --color-accent: #0b6591;
+  --color-accent-strong: #0a5378;
+  --color-accent-ink: #084865;
+  --color-accent-soft: #e4f2f9;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #1794cf;
+  --color-w1: #0f7e94;
+  --color-w2: #1f5aa8;
+  --color-w3: #b26a00;
+  --color-w4: #8a2d3f;
+  --color-w5: #6a3d9a;
+  --color-w6: #2b6f6a;
+  --color-w7: #5c6e1c;
+  --color-w8: #8a2d6b;
+}
+.dark [data-seam='ccna'] {
+  --color-accent: #43b6e6;
+  --color-accent-strong: #66c6ef;
+  --color-accent-ink: #cdeeff;
+  --color-accent-soft: #0c2c3b;
+  --color-accent-contrast: #06202c;
+  --stone-crystal: #6cc8f2;
+  --color-w1: #5fc4d6;
+  --color-w2: #5f93d6;
+  --color-w3: #d69b4a;
+  --color-w4: #e0849a;
+  --color-w5: #b49ad9;
+  --color-w6: #55b8b0;
+  --color-w7: #a8bd55;
+  --color-w8: #dd7cc0;
 }
 
 /* ISC2 — indigo. */
@@ -859,6 +900,8 @@ select {
 [data-week='4'] { --week: var(--color-w4); }
 [data-week='5'] { --week: var(--color-w5); }
 [data-week='6'] { --week: var(--color-w6); }
+[data-week='7'] { --week: var(--color-w7); }
+[data-week='8'] { --week: var(--color-w8); }
 
 /* Level 1 — a week. The bedrock band. */
 .stratum-week {

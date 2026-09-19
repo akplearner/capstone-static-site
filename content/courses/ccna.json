@@ -1,0 +1,4667 @@
+{
+  "schema": "capstone-course-dto/1",
+  "generatedFrom": [
+    "src/lib/data/seed/ccna.ts",
+    "src/lib/docs/ccnaDeliverables.ts",
+    "src/lib/ccnaTopology.ts",
+    "src/lib/docs/manual.ts",
+    "src/lib/docs/ccnaKit.ts",
+    "src/lib/docs/troubleshooting.ts",
+    "src/lib/glossary.ts",
+    "src/lib/rubric.ts",
+    "src/lib/labAccess.ts"
+  ],
+  "course": {
+    "id": "ccna",
+    "title": "CCNA Network Capstone",
+    "slug": "ccna",
+    "description": "Run the network for a growing company: discover, design, build, prove, secure, operate and hand over a two-site network — the job, with CCNA technology inside it.",
+    "vendor": "Cisco",
+    "certification": "CCNA (200-301)",
+    "level": "associate",
+    "audience": "Plan, build, operate and hand over a real two-site network as a four-person network team — starting from whatever equipment you actually have.",
+    "roles": [
+      {
+        "id": "arch",
+        "name": "Architecture",
+        "mission": "Owns the requirements, the design and the addressing plan. Reviews every change for design fit.",
+        "color": "#0369a1",
+        "icon": "Layers",
+        "label": "📐 Architecture"
+      },
+      {
+        "id": "impl",
+        "name": "Implementation",
+        "mission": "Owns switching, interfaces, wireless and the device build. Reviews the configuration itself.",
+        "color": "#15803d",
+        "icon": "Network",
+        "label": "🔌 Implementation"
+      },
+      {
+        "id": "ops",
+        "name": "Operations",
+        "mission": "Owns monitoring, backups, tickets and change records. Reviews the rollback on every change.",
+        "color": "#b45309",
+        "icon": "Activity",
+        "label": "📡 Operations"
+      },
+      {
+        "id": "auto",
+        "name": "Automation & Security",
+        "mission": "Owns ACL policy, the management plane, Git and automation. Reviews the validation evidence.",
+        "color": "#7c3aed",
+        "icon": "Code",
+        "label": "🤖 Automation & Security"
+      }
+    ],
+    "weeks": [
+      {
+        "number": 0,
+        "title": "Acquisition & Kit",
+        "theme": "What you have, and what it can do",
+        "objective": "Declare how this build runs, register every device, and prove each capability with the command output that says so — because what your kit supports decides how every later week is built.",
+        "runs": "Week 0",
+        "setup": true,
+        "stage": 0,
+        "phase": "Acquisition",
+        "difficulty": 1,
+        "flow": [
+          "Declare the path",
+          "Register the kit",
+          "Prove what it does"
+        ],
+        "milestone": "The path is declared, every device is a row with its software version, and each capability is answered Yes or No with the output that proves it."
+      },
+      {
+        "number": 1,
+        "title": "Connect",
+        "theme": "Cable it, address it, reach it",
+        "objective": "Discover what the business needs, design the shape of the network, then bring the first switches up: cabled, named, addressed, reachable, and documented.",
+        "runs": "Week 1",
+        "stage": 1,
+        "phase": "Connect",
+        "difficulty": 2,
+        "flow": [
+          "Discover",
+          "Design the shape",
+          "Bring it up",
+          "Prove reachability"
+        ],
+        "milestone": "Requirements and a high-level design are written, the first switches answer on the management VLAN, and every interface you touched is in the build log."
+      },
+      {
+        "number": 2,
+        "title": "Segment",
+        "theme": "One network becomes departments",
+        "objective": "Turn the flat office network into VLANs with trunks between switches, hand out addresses, and route between the departments the way your own kit allows.",
+        "runs": "Week 2",
+        "stage": 2,
+        "phase": "Segment",
+        "difficulty": 3,
+        "flow": [
+          "Plan the VLANs",
+          "Trunk the switches",
+          "Route between them",
+          "DHCP and test"
+        ],
+        "milestone": "Every department is its own VLAN, a trunk carries them between switches, a PC gets an address from DHCP, and the test matrix shows what reaches what."
+      },
+      {
+        "number": 3,
+        "title": "Route",
+        "theme": "A second building, and the internet",
+        "objective": "Join the branch to headquarters, learn routes dynamically rather than by hand, and give the whole company one way out to the internet.",
+        "runs": "Week 3",
+        "stage": 3,
+        "phase": "Route",
+        "difficulty": 3,
+        "flow": [
+          "Address the WAN",
+          "OSPF adjacency",
+          "Routes propagate",
+          "NAT to the internet"
+        ],
+        "milestone": "The two sites are adjacent, each learns the other’s networks without a static route, and a branch PC reaches the internet through one public address."
+      },
+      {
+        "number": 4,
+        "title": "Protect",
+        "theme": "The business rules, enforced",
+        "objective": "Turn the policy into access lists, harden every device’s management plane, put the WLANs on the air, and prove the traffic that must NOT pass does not pass.",
+        "runs": "Week 4",
+        "stage": 4,
+        "phase": "Protect",
+        "difficulty": 4,
+        "flow": [
+          "Policy into ACLs",
+          "Harden the kit",
+          "Wireless",
+          "Prove the blocks"
+        ],
+        "milestone": "Guest cannot reach the LAN, only the network team reaches the management VLAN, every device takes SSH and refuses telnet, and the blocked tests are evidence."
+      },
+      {
+        "number": 5,
+        "title": "Operate",
+        "theme": "Run it, do not just build it",
+        "objective": "Put the network under management: a source of truth in NetBox, configurations backed up and versioned, and every change requested, reviewed by a teammate and reversible.",
+        "runs": "Week 5",
+        "advanced": true,
+        "phase": "Operate",
+        "difficulty": 4,
+        "flow": [
+          "Source of truth",
+          "Back up configs",
+          "Change records",
+          "Peer review"
+        ],
+        "milestone": "NetBox holds the sites, devices, VLANs and prefixes; every configuration is backed up to Git; and one change has been through review, implementation and validation."
+      },
+      {
+        "number": 6,
+        "title": "Observe",
+        "theme": "Know before the phone rings",
+        "objective": "Stand up a small NOC — polling, logs, latency and dashboards — then work a real ticket down the layers instead of guessing.",
+        "runs": "Week 6",
+        "advanced": true,
+        "phase": "Observe",
+        "difficulty": 4,
+        "flow": [
+          "Poll the devices",
+          "Centralise the logs",
+          "Watch latency",
+          "Work a ticket"
+        ],
+        "milestone": "Every device is polled and graphed, logs land in one place, latency is tracked, and a ticket has been worked from symptom to root cause with the evidence kept."
+      },
+      {
+        "number": 7,
+        "title": "Automate",
+        "theme": "Stop typing the same thing",
+        "objective": "Read the network through its APIs, describe it as data, and let Ansible configure from the source of truth rather than from your memory.",
+        "runs": "Week 7",
+        "advanced": true,
+        "phase": "Automate",
+        "difficulty": 4,
+        "flow": [
+          "Structured data",
+          "Read an API",
+          "A playbook",
+          "Source of truth to device"
+        ],
+        "milestone": "A playbook configures a VLAN on every access switch from data held in NetBox, and running it twice changes nothing the second time."
+      },
+      {
+        "number": 8,
+        "title": "Engineer",
+        "theme": "Something breaks. Then you hand it over.",
+        "objective": "Work an injected failure as an incident, find the root cause, fix it under change control, prove the fix, and hand the network to whoever runs it next.",
+        "runs": "Week 8",
+        "advanced": true,
+        "phase": "Engineer",
+        "difficulty": 4,
+        "flow": [
+          "Incident",
+          "Root cause",
+          "Change and validate",
+          "Handover"
+        ],
+        "milestone": "The incident is documented from ticket to prevention, the fix went through a reviewed change, and the as-built handover would let a stranger run this network on Monday."
+      }
+    ],
+    "gates": [],
+    "tasks": [
+      {
+        "id": "ccna-w0-path",
+        "role": "arch",
+        "shared": true,
+        "week": 0,
+        "title": "Decide how this build runs",
+        "objective": "Choose emulated or physical, get the tool or the cable working, and reach a device prompt — the one thing Week 1 cannot start without.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "01_Kit_and_Capability_Register.md"
+        ],
+        "estimatedTime": "30 min",
+        "difficulty": 1,
+        "learn": [
+          "Lab platforms",
+          "Console access",
+          "What emulation can and cannot teach"
+        ],
+        "tools": [
+          "Packet Tracer / CML / GNS3 / containerlab",
+          "Console cable",
+          "A terminal program"
+        ],
+        "definitionOfDone": [
+          "The path is recorded in the Kit & Capability Register",
+          "A device prompt is open in front of you",
+          "The machine you work from is named in the register"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w0-path-s1",
+            "title": "Pick the path, and know what it costs you",
+            "description": "The team has agreed one path and the reason, and it is written in the register.",
+            "where": "Anywhere — this is a team decision",
+            "instruction": "Decide as a team: Emulated or Physical kit. Emulation gives you every device the design calls for; hardware gives you cabling, optics, PoE and real interface counters. Both are first-class here — record which one you are on.",
+            "expectedOutput": "The team has agreed one path and the reason, and it is written in the register.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Kit & Capability Register",
+            "instructionList": [
+              "Emulated: Every device the design calls for, free, and you can break it without consequence.",
+              "Emulated — the limit: No cabling, no optics, no PoE, no interface errors — Week 1 records those as design decisions rather than doing them.",
+              "Physical kit: Cabling, optics, PoE, console recovery and the interface counters that only real copper produces.",
+              "Physical kit — the limit: Costs money, and what your specific models support decides how some weeks are built — which is what the register is for."
+            ],
+            "whatItMeans": "Neither path is the lesser one. Emulation cannot teach you what a bad patch lead feels like; hardware cannot give you eight routers on a laptop."
+          },
+          {
+            "id": "ccna-w0-path-s2",
+            "title": "Get to a prompt",
+            "description": "A device prompt is in front of you and Enter produces another prompt rather than nothing.",
+            "where": "Your own machine — emulator or console cable",
+            "instruction": "Open the emulator and place one switch, or plug the console cable into a real one and open your terminal program. You are done when a device prompt answers you.",
+            "expectedOutput": "A device prompt is in front of you and Enter produces another prompt rather than nothing.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "fixes": [
+              {
+                "symptom": "No prompt over the console cable?",
+                "fix": "Check the speed is 9600 8N1 and that you picked the right COM port — the cable’s driver renames it on every machine."
+              },
+              {
+                "symptom": "The emulator will not start the device?",
+                "fix": "It is almost always memory. Close everything else, or start with one switch rather than the whole topology."
+              }
+            ],
+            "whatItMeans": "Everything else in this course assumes you can type at a device. Prove it now, not in Week 1 when something else is also broken."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w0-register",
+        "role": "arch",
+        "shared": true,
+        "week": 0,
+        "title": "Register the kit and prove what it can do",
+        "objective": "One row per device with its real software version, then each capability answered Yes or No with the command output that proves it — the document every later week reads.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "01_Kit_and_Capability_Register.md"
+        ],
+        "estimatedTime": "1 h",
+        "difficulty": 2,
+        "learn": [
+          "show version",
+          "Reading a feature set",
+          "Capability vs datasheet",
+          "Inventory discipline"
+        ],
+        "tools": [
+          "show version",
+          "show vlan brief",
+          "show interfaces trunk",
+          "show ip route",
+          "show power inline"
+        ],
+        "prerequisites": [
+          "A device prompt, from the previous task"
+        ],
+        "definitionOfDone": [
+          "Every device is a row: name, what it is, model, software version, ports",
+          "At least eight capabilities answered Yes or No",
+          "Every Yes carries the line of output that proves it",
+          "The gaps are written down, with what you will do instead"
+        ],
+        "handoff": [
+          {
+            "to": "impl",
+            "artifact": "01_Kit_and_Capability_Register.md",
+            "note": "Which procedure Week 2 takes — SVIs or router-on-a-stick — is decided by this register."
+          }
+        ],
+        "steps": [
+          {
+            "id": "ccna-w0-register-s1",
+            "title": "Read what the device really is",
+            "description": "The model and the image, from the device rather than the sticker.",
+            "where": "Each device — console or SSH",
+            "instruction": "Run these on every device you have and copy the answers into the register. The sticker tells you what was sold; the image decides what it can do.",
+            "usesForm": "Kit & Capability Register",
+            "commands": [
+              {
+                "cmd": "show version",
+                "explain": "Model, software version and feature set. The version is why a feature is missing.",
+                "sample": "Cisco IOS Software, C2960X Software (C2960X-UNIVERSALK9-M), Version 15.2(7)E3\nModel number: WS-C2960X-24TS-L\nSystem image file is \"flash:/c2960x-universalk9-mz.152-7.E3.bin\""
+              },
+              {
+                "cmd": "show interfaces status",
+                "explain": "Every port, its speed, and whether an SFP uplink exists. This is your usable port count.",
+                "sample": "Port      Name     Status       Vlan    Duplex  Speed Type\nGi1/0/1            connected    1       a-full  a-100 10/100/1000BaseTX\nGi1/0/25           notconnect   1         auto   auto unknown  (SFP)"
+              }
+            ],
+            "whatItMeans": "Two switches with the same model number can differ by one licence line. The register records what is in front of you.",
+            "frameworks": [
+              "CCNA"
+            ],
+            "expectedOutput": "Switch# show version\nCisco IOS Software, C2960X Software (C2960X-UNIVERSALK9-M), Version 15.2(7)E3\nModel number: WS-C2960X-24TS-L\n\nSwitch# show interfaces status\nPort      Name     Status       Vlan    Duplex  Speed Type\nGi1/0/1            connected    1       a-full  a-100 10/100/1000BaseTX\nGi1/0/25           notconnect   1         auto   auto unknown  (SFP)",
+            "outputKind": "console",
+            "verify": [
+              "Model number",
+              "Version"
+            ],
+            "outputHighlights": [
+              {
+                "text": "Version 15.2(7)E3",
+                "label": "The image — this is what decides which features exist."
+              },
+              {
+                "text": "(SFP)",
+                "label": "An SFP uplink port. Present but unpopulated still counts as fibre-capable."
+              }
+            ]
+          },
+          {
+            "id": "ccna-w0-register-s2",
+            "title": "Prove each capability, one command at a time",
+            "description": "Yes or No, with the line that says so.",
+            "where": "Each device — console or SSH",
+            "instruction": "Work down the capability list in the register. Run the command, read the tell, record the answer, and paste the line. A \"Yes\" with no output beside it is an opinion.",
+            "usesForm": "Kit & Capability Register",
+            "instructionList": [
+              "Console access (blue cable or USB) — run `show users`: the line marked `*` is `con 0` — you are on the console",
+              "VLANs — run `show vlan brief`: VLAN 1 is listed, so the table exists and can be added to",
+              "802.1Q trunking — run `show interfaces trunk`: the command exists and prints a table, even an empty one",
+              "Inter-VLAN routing on the switch (SVI) — run `show ip route`: a routing table is printed rather than \"Invalid input\"",
+              "EtherChannel / LACP — run `show etherchannel summary`: the command is recognised — protocol column appears",
+              "OSPF — run `show ip protocols`: OSPF appears, or `router ospf 1` is accepted in config mode"
+            ],
+            "commands": [
+              {
+                "cmd": "show ip route",
+                "explain": "The single most useful question: can this switch route at all? A table means yes.",
+                "sample": "Codes: L - local, C - connected, S - static\n\n      10.0.0.0/8 is variably subnetted, 2 subnets, 2 masks\nC        10.50.99.0/24 is directly connected, Vlan99"
+              },
+              {
+                "cmd": "show etherchannel summary",
+                "explain": "Whether two links can be bonded. Recognised at all is the pass; groups come later.",
+                "sample": "Number of channel-groups in use: 0\nNumber of aggregators:           0"
+              },
+              {
+                "cmd": "show power inline",
+                "explain": "PoE budget per port — what the phones and the access point will run on.",
+                "sample": "Module   Available     Used     Remaining\n1           370.0     0.0        370.0"
+              }
+            ],
+            "whatItMeans": "An \"Invalid input detected\" is a real answer: it means No, and it tells you which alternate procedure your build takes.",
+            "frameworks": [
+              "CCNA"
+            ],
+            "expectedOutput": "Every capability row has Yes or No, the device it was tested on, and a line of output. Some will be No — that is information, not failure.",
+            "outputKind": "result",
+            "fixes": [
+              {
+                "symptom": "\"Invalid input detected\" on a show command?",
+                "fix": "That is your No. Record it, and read what the course does instead — every capability has an alternative."
+              },
+              {
+                "symptom": "The command works but the table is empty?",
+                "fix": "Empty is a pass. You are asking whether the device CAN, not whether it already does."
+              }
+            ]
+          },
+          {
+            "id": "ccna-w0-register-s3",
+            "title": "Write down the gaps, and what one purchase would unlock",
+            "description": "The gaps section names every No and its alternative, and the next purchase is a capability rather than a sh…",
+            "where": "The register — the gaps section",
+            "instruction": "One line per No: what you will do instead. Then, if you were buying one thing, what and why — capability first, model second.",
+            "expectedOutput": "The gaps section names every No and its alternative, and the next purchase is a capability rather than a shopping list.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Kit & Capability Register",
+            "producesDeliverable": "01_Kit_and_Capability_Register.md",
+            "whatItMeans": "This paragraph is the one Week 2 and Week 4 follow. A team that wrote it honestly never hits a wall mid-build."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w1-discover",
+        "role": "arch",
+        "shared": true,
+        "week": 1,
+        "title": "Discover before you design",
+        "objective": "Interview the business and survey the building: who needs what, what cannot go down, and what is already there.",
+        "frameworks": [
+          "CCNA",
+          "ITIL"
+        ],
+        "deliverables": [
+          "02_Requirements_and_Site_Survey.md"
+        ],
+        "estimatedTime": "45 min",
+        "difficulty": 2,
+        "learn": [
+          "Requirements gathering",
+          "Site survey",
+          "Availability requirements",
+          "Constraints"
+        ],
+        "definitionOfDone": [
+          "Three or more departments recorded with what they need",
+          "The availability requirement is written in the business’s own words",
+          "The survey says what exists today and what is wrong with it"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w1-discover-s1",
+            "title": "Ask the business what it needs",
+            "description": "The requirements form names every department, its people and its needs — and one sentence on what downtime…",
+            "where": "With your instructor, or from the scenario",
+            "instruction": "Northgate Supply Co.: One flat network, one switch out of ports, and a second building opening in six weeks. Record the departments, what each one does on the network, and what cannot go down.",
+            "expectedOutput": "The requirements form names every department, its people and its needs — and one sentence on what downtime costs.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Requirements & Site Survey",
+            "whatItMeans": "A requirement you did not write down is a requirement somebody will dispute in Week 8."
+          },
+          {
+            "id": "ccna-w1-discover-s2",
+            "title": "Walk the building",
+            "description": "The survey records the rooms, the drops, the cable runs and the ISP handoff.",
+            "where": "Both sites — on foot, or from the site notes",
+            "instruction": "Record where the equipment lives, how many drops there are, and where the circuit comes in. MDF in the server room, one IDF on the warehouse mezzanine; the branch has one wall-mount cabinet in the office.",
+            "expectedOutput": "The survey records the rooms, the drops, the cable runs and the ISP handoff.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Requirements & Site Survey",
+            "producesDeliverable": "02_Requirements_and_Site_Survey.md",
+            "whatItMeans": "The building decides half the design: cable distance, where power is, and where a switch can actually live."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w1-design",
+        "role": "arch",
+        "shared": true,
+        "week": 1,
+        "title": "Design the shape",
+        "objective": "Turn the requirements into a high-level design: the sites, the link between them, where routing happens, and which boundaries exist.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "03_High_Level_Design.md"
+        ],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "Hierarchical design",
+          "Where to route",
+          "Security boundaries",
+          "Design trade-offs"
+        ],
+        "prerequisites": [
+          "The requirements form",
+          "The Kit & Capability Register — it decides what you can design"
+        ],
+        "definitionOfDone": [
+          "Four or more decisions, each traced to a requirement",
+          "Each decision says what was rejected and why",
+          "Each decision says whether your kit supports it"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w1-design-s1",
+            "title": "Decide where routing happens",
+            "description": "The design states where inter-VLAN routing happens and which capability answer made that the choice.",
+            "where": "On paper first",
+            "instruction": "If the register says you have a switch that routes, the core routes between VLANs. If it does not, the router does, over one trunk. Write the decision down with the reason.",
+            "expectedOutput": "The design states where inter-VLAN routing happens and which capability answer made that the choice.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "High-Level Design",
+            "whatItMeans": "This is the decision your Week-0 register already made for you. Writing it down is what makes it reviewable."
+          },
+          {
+            "id": "ccna-w1-design-s2",
+            "title": "Name the boundaries",
+            "description": "Every boundary is a sentence a manager would agree with, and Week 4 turns each one into an access list.",
+            "where": "On paper first",
+            "instruction": "Say what must not reach what — guest from corporate, users from management, cameras from servers — in the business’s words, before any ACL exists.",
+            "expectedOutput": "Every boundary is a sentence a manager would agree with, and Week 4 turns each one into an access list.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "High-Level Design",
+            "producesDeliverable": "03_High_Level_Design.md",
+            "whatItMeans": "A boundary stated in business words survives a change of staff. One stated as an ACL number does not."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w1-bringup",
+        "role": "impl",
+        "shared": true,
+        "week": 1,
+        "title": "Bring the first switches up",
+        "objective": "Cable, name, address and reach the first switches: a management address, a working uplink, and an interface list that matches the plan.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "05_Build_and_Configuration_Log.md"
+        ],
+        "estimatedTime": "1 h",
+        "difficulty": 2,
+        "learn": [
+          "Hostnames",
+          "Management addressing",
+          "Interface status",
+          "Speed and duplex",
+          "Saving configuration"
+        ],
+        "definitionOfDone": [
+          "Each switch answers on the MGMT VLAN",
+          "Every interface you touched is in the build log with what proved it",
+          "The configuration is saved on every device"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w1-bringup-s1",
+            "title": "Name it, address it, save it",
+            "description": "Each switch answers a ping on its management address, and `show running-config` survives a reload.",
+            "where": "Each switch — console",
+            "instruction": "Set the hostname from the plan, give the switch its management address in MGMT, and save. A device you cannot reach is a device you will be walking to all term.",
+            "expectedOutput": "Each switch answers a ping on its management address, and `show running-config` survives a reload.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "A switch you cannot reach remotely is a switch you will be walking to for the rest of the course."
+          },
+          {
+            "id": "ccna-w1-bringup-s2",
+            "title": "Read the interfaces like an engineer",
+            "description": "Interface status matches the plan, and the error counters are clean on every link you rely on.",
+            "where": "Each switch — console or SSH",
+            "instruction": "Check every port you cabled: up, the speed you expected, no errors climbing. A link that is up at 100 Mbps when you expected 1 Gbps is a cable problem you want to find now.",
+            "expectedOutput": "Interface status matches the plan, and the error counters are clean on every link you rely on.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "producesDeliverable": "05_Build_and_Configuration_Log.md",
+            "whatItMeans": "Interface counters are the only place a bad cable admits what it is doing. Read them before you trust the link."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w2-vlans",
+        "role": "impl",
+        "shared": true,
+        "week": 2,
+        "title": "Cut the network into departments",
+        "objective": "Create the VLANs from the plan, put the access ports in them, and trunk the switches together so one cable carries all of it.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "04_Low_Level_Design_and_IP_Plan.md",
+          "05_Build_and_Configuration_Log.md"
+        ],
+        "estimatedTime": "1 h 15 min",
+        "difficulty": 3,
+        "learn": [
+          "VLANs",
+          "Access ports",
+          "802.1Q trunks",
+          "Native VLAN",
+          "CDP and LLDP"
+        ],
+        "definitionOfDone": [
+          "Every VLAN in the plan exists on every switch that needs it",
+          "The trunk carries them, with the native VLAN stated",
+          "A PC in one VLAN cannot see a PC in another — yet"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w2-vlans-s1",
+            "title": "Write the plan down before you configure it",
+            "description": "The LLD holds every VLAN with its prefix and gateway, and every port range is assigned.",
+            "where": "The Low-Level Design",
+            "instruction": "One row per VLAN: id, name, purpose, prefix, gateway, DHCP range. Then the ports. Configuring first and documenting later is how the two end up different.",
+            "expectedOutput": "The LLD holds every VLAN with its prefix and gateway, and every port range is assigned.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Low-Level Design & IP Plan",
+            "producesDeliverable": "04_Low_Level_Design_and_IP_Plan.md",
+            "whatItMeans": "Configure first and document later, and the two end up different — usually on the port nobody checked."
+          },
+          {
+            "id": "ccna-w2-vlans-s2",
+            "title": "Create the VLANs and trunk the switches",
+            "description": "The VLAN table matches the plan on every switch, and the trunk shows the expected VLAN list on both sides.",
+            "where": "Each switch — console or SSH",
+            "instruction": "Create each VLAN, put the access ports where the plan says, then make the switch-to-switch link a trunk and state the native VLAN explicitly on both ends.",
+            "expectedOutput": "The VLAN table matches the plan on every switch, and the trunk shows the expected VLAN list on both sides.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "A native VLAN that differs on the two ends of a trunk is the classic fault. Stating it explicitly is the fix."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w2-route",
+        "role": "impl",
+        "shared": true,
+        "week": 2,
+        "title": "Route between the departments",
+        "objective": "Give every VLAN a gateway and let the departments reach each other — on the switch if your kit routes, on a router over one trunk if it does not.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "05_Build_and_Configuration_Log.md"
+        ],
+        "estimatedTime": "1 h",
+        "difficulty": 3,
+        "learn": [
+          "SVIs",
+          "Router-on-a-stick",
+          "Subinterfaces",
+          "ip routing",
+          "Default gateways"
+        ],
+        "prerequisites": [
+          "The Kit & Capability Register — it decides which of the two procedures you follow"
+        ],
+        "definitionOfDone": [
+          "Every VLAN has a gateway that answers a ping",
+          "A PC in one VLAN reaches a server in another",
+          "The route table shows one connected route per VLAN"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w2-route-s1",
+            "title": "Give every VLAN a gateway",
+            "description": "Each gateway address answers a ping from a host in its own VLAN.",
+            "where": "The routing device — your core switch or your router",
+            "instruction": "Your register decided this: an SVI per VLAN on a switch that routes, or a subinterface per VLAN on a router over one trunk. Same outcome, different device.",
+            "expectedOutput": "Each gateway address answers a ping from a host in its own VLAN.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "Same requirement, two procedures. Which one you follow was decided in Week 0 by what your kit can do."
+          },
+          {
+            "id": "ccna-w2-route-s2",
+            "title": "Hand out addresses, then prove it end to end",
+            "description": "A client gets an address from the right pool with the right gateway, and reaches a host in another VLAN.",
+            "where": "The DHCP device, then a client",
+            "instruction": "Serve DHCP where the plan says — on the network device or relayed to the server — then release and renew on a client and watch it get the right address, mask and gateway.",
+            "expectedOutput": "A client gets an address from the right pool with the right gateway, and reaches a host in another VLAN.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Validation & Test Matrix",
+            "producesDeliverable": "06_Validation_and_Test_Matrix.md",
+            "whatItMeans": "DHCP is where a design meets a real client. A wrong gateway in the pool looks exactly like a routing fault."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w2-resilience",
+        "role": "ops",
+        "shared": true,
+        "week": 2,
+        "title": "Survive a cable being pulled",
+        "objective": "Add a second link between switches and prove the network keeps working when one of them dies — bonded if your kit does EtherChannel, blocked by spanning tree if not.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "06_Validation_and_Test_Matrix.md"
+        ],
+        "estimatedTime": "45 min",
+        "difficulty": 4,
+        "learn": [
+          "Spanning tree",
+          "Root bridge",
+          "PortFast",
+          "BPDU Guard",
+          "EtherChannel",
+          "LACP"
+        ],
+        "definitionOfDone": [
+          "A second link exists between two switches",
+          "You know which link is forwarding and which is not",
+          "Pulling one link is a test row with a measured recovery"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w2-resilience-s1",
+            "title": "Decide where the root of the tree should be",
+            "description": "The core is the root bridge, on purpose, and you can show the command that says so.",
+            "where": "The core switch",
+            "instruction": "Spanning tree picks a root for you, and its choice is usually wrong — the oldest switch wins. Set it deliberately to the core and record why.",
+            "expectedOutput": "The core is the root bridge, on purpose, and you can show the command that says so.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "Spanning tree always picks a root. Left alone it picks the oldest switch in the building, which is rarely where you want it."
+          },
+          {
+            "id": "ccna-w2-resilience-s2",
+            "title": "Pull the cable and time it",
+            "description": "The test matrix has a row with the measured number of lost pings, and traffic recovered without anyone touc…",
+            "where": "Between the two switches",
+            "instruction": "Start a continuous ping across the link, pull the forwarding cable, and count the lost replies before it recovers. That number is your failover time.",
+            "expectedOutput": "The test matrix has a row with the measured number of lost pings, and traffic recovered without anyone touching a keyboard.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Validation & Test Matrix",
+            "whatItMeans": "Redundancy nobody has tested is a belief. The number of lost pings is the evidence."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w3-wan",
+        "role": "arch",
+        "shared": true,
+        "week": 3,
+        "title": "Join the second building",
+        "objective": "Address the link between the sites, bring up the adjacency, and let each site learn the other's networks without a single static route.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "05_Build_and_Configuration_Log.md"
+        ],
+        "estimatedTime": "1 h 15 min",
+        "difficulty": 4,
+        "learn": [
+          "Point-to-point addressing",
+          "OSPF",
+          "Neighbour adjacency",
+          "Route selection",
+          "Wildcard masks"
+        ],
+        "definitionOfDone": [
+          "The two routers are OSPF neighbours in the FULL state",
+          "Each site learns the other’s prefixes as OSPF routes",
+          "A branch PC reaches an HQ server by address"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w3-wan-s1",
+            "title": "Address the link between the buildings",
+            "description": "Each router pings the other across the WAN link, and both interfaces are up.",
+            "where": "Both routers",
+            "instruction": "A point-to-point link needs exactly two addresses, which is why the plan uses a 30-bit mask. Configure both ends and prove they ping each other before you add any protocol.",
+            "expectedOutput": "Each router pings the other across the WAN link, and both interfaces are up.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "Prove the link before you add a protocol on top of it, or you will be debugging two things at once."
+          },
+          {
+            "id": "ccna-w3-wan-s2",
+            "title": "Turn OSPF on, then read the adjacency",
+            "description": "The neighbour table shows FULL, and each router has routes it did not have before, marked as OSPF.",
+            "where": "Both routers",
+            "instruction": "Advertise the networks into OSPF area 0 on both sides, then check the neighbour state. A neighbour stuck below FULL is telling you something specific — read it rather than restarting the process.",
+            "expectedOutput": "The neighbour table shows FULL, and each router has routes it did not have before, marked as OSPF.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "A neighbour stuck below FULL names its own problem — mismatched masks, timers or areas. Read the state."
+          },
+          {
+            "id": "ccna-w3-wan-s3",
+            "title": "Prove it the way a user would",
+            "description": "A trace from a branch PC to an HQ server crosses the WAN in the expected number of hops.",
+            "where": "A PC at the branch",
+            "instruction": "Ping and trace from an actual branch client to an actual HQ server. The route table being right is not the same as the user being able to work.",
+            "expectedOutput": "A trace from a branch PC to an HQ server crosses the WAN in the expected number of hops.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Validation & Test Matrix",
+            "whatItMeans": "A correct route table is not the same as a user who can work. Test from where the user sits."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w3-internet",
+        "role": "impl",
+        "shared": true,
+        "week": 3,
+        "title": "One way out to the internet",
+        "objective": "Point a default route at the ISP, translate the whole company behind one public address, and prove both sites get out.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "05_Build_and_Configuration_Log.md",
+          "06_Validation_and_Test_Matrix.md"
+        ],
+        "estimatedTime": "1 h",
+        "difficulty": 4,
+        "learn": [
+          "Default routes",
+          "NAT inside and outside",
+          "PAT",
+          "Route propagation",
+          "DNS from the client"
+        ],
+        "definitionOfDone": [
+          "A default route points at the ISP and is learned by the branch too",
+          "Inside addresses are translated to one outside address",
+          "A client at each site resolves a name and reaches the internet"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w3-internet-s1",
+            "title": "Default route out, and share it",
+            "description": "The branch router shows a default route learned from OSPF, not typed in locally.",
+            "where": "The edge router",
+            "instruction": "Point a default route at the ISP gateway, then advertise it so the branch learns the way out too rather than having its own hard-coded copy.",
+            "expectedOutput": "The branch router shows a default route learned from OSPF, not typed in locally.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "One default route, advertised once, beats a copy on every device that somebody has to remember to change."
+          },
+          {
+            "id": "ccna-w3-internet-s2",
+            "title": "Translate the inside to the outside",
+            "description": "The translation table shows real sessions, and a client at each site reaches the internet by name.",
+            "where": "The edge router",
+            "instruction": "Mark the inside and outside interfaces, translate the internal ranges to the outside address, and then watch the translation table fill as a client browses.",
+            "expectedOutput": "The translation table shows real sessions, and a client at each site reaches the internet by name.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Validation & Test Matrix",
+            "whatItMeans": "The translation table is where NAT stops being theory: you can watch a session appear as somebody browses."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w4-policy",
+        "role": "auto",
+        "shared": true,
+        "week": 4,
+        "title": "Turn the policy into access lists",
+        "objective": "Write each business rule as an ACL, apply it in the right place and direction, and prove both what passes and what does not.",
+        "frameworks": [
+          "CCNA",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "07_Security_Baseline_and_Policy.md"
+        ],
+        "estimatedTime": "1 h 15 min",
+        "difficulty": 4,
+        "learn": [
+          "Standard and extended ACLs",
+          "Direction and placement",
+          "Implicit deny",
+          "Testing a deny"
+        ],
+        "definitionOfDone": [
+          "Every rule in the policy has an ACL and a place it is applied",
+          "Guest cannot reach the LAN, proven by a test that fails on purpose",
+          "No ACL exists that you cannot trace to a business rule"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w4-policy-s1",
+            "title": "Write the rule before the ACL",
+            "description": "Every row has a rule, an ACL name, and the interface and direction it is applied to.",
+            "where": "The Security Baseline form",
+            "instruction": "One row per rule, in the words the business would use, then the ACL name. An ACL nobody can trace to a rule is one nobody dares change later.",
+            "expectedOutput": "Every row has a rule, an ACL name, and the interface and direction it is applied to.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Security Baseline & ACL Policy",
+            "whatItMeans": "An ACL nobody can trace to a business rule is an ACL nobody dares touch two years from now."
+          },
+          {
+            "id": "ccna-w4-policy-s2",
+            "title": "Apply it, then try to break it",
+            "description": "The test matrix has blocked rows that are blocked, and allowed rows that still work.",
+            "where": "The routing device, then a client in each VLAN",
+            "instruction": "Apply each ACL, then test from the guest VLAN into the LAN and from the user VLAN into management. The tests that must FAIL are the evidence that the policy works.",
+            "expectedOutput": "The test matrix has blocked rows that are blocked, and allowed rows that still work.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Validation & Test Matrix",
+            "producesDeliverable": "07_Security_Baseline_and_Policy.md",
+            "whatItMeans": "The tests that must FAIL are the segmentation evidence. Everything else only proves the network works."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w4-harden",
+        "role": "auto",
+        "shared": true,
+        "week": 4,
+        "title": "Harden the management plane",
+        "objective": "Make the devices themselves defensible: SSH instead of telnet, real secrets, unused ports shut, and port security where a stranger could plug in.",
+        "frameworks": [
+          "CCNA",
+          "CIS"
+        ],
+        "deliverables": [
+          "07_Security_Baseline_and_Policy.md"
+        ],
+        "estimatedTime": "1 h",
+        "difficulty": 3,
+        "learn": [
+          "SSH",
+          "enable secret",
+          "Port security",
+          "Shutting unused ports",
+          "Login banners",
+          "NTP"
+        ],
+        "definitionOfDone": [
+          "Every device takes SSH and refuses telnet",
+          "Unused access ports are shut or protected",
+          "All devices agree on the time"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w4-harden-s1",
+            "title": "Close the front door",
+            "description": "SSH connects, telnet is refused, and the banner appears before the login prompt.",
+            "where": "Every device",
+            "instruction": "Generate keys, enable SSH, disable telnet on the lines, set a real enable secret, and put a banner up. Then prove telnet fails — an untested claim is not a control.",
+            "expectedOutput": "SSH connects, telnet is refused, and the banner appears before the login prompt.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Security Baseline & ACL Policy",
+            "whatItMeans": "Telnet sends the password in clear text on the management VLAN — the one network you least want read."
+          },
+          {
+            "id": "ccna-w4-harden-s2",
+            "title": "Make the logs agree about time",
+            "description": "Every device reports synchronised time from the same source.",
+            "where": "Every device",
+            "instruction": "Point every device at the same time source. Without it, correlating a switch log with a router log during an incident is guesswork.",
+            "expectedOutput": "Every device reports synchronised time from the same source.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Security Baseline & ACL Policy",
+            "whatItMeans": "Without synchronised clocks, correlating a switch log with a router log during an incident is guesswork."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w4-wireless",
+        "role": "impl",
+        "shared": true,
+        "week": 4,
+        "title": "Put the WLANs on the air",
+        "objective": "Map the corporate, guest and IOT SSIDs onto their VLANs so wireless inherits exactly the segmentation the wired network already has.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "05_Build_and_Configuration_Log.md"
+        ],
+        "estimatedTime": "45 min",
+        "difficulty": 3,
+        "learn": [
+          "SSID to VLAN mapping",
+          "WLAN security",
+          "AP uplink as a trunk",
+          "Guest isolation",
+          "RF basics"
+        ],
+        "prerequisites": [
+          "An access point, or the emulator’s wireless model — the register says which"
+        ],
+        "definitionOfDone": [
+          "Each SSID lands in its own VLAN",
+          "A guest client gets a guest address and cannot reach the LAN",
+          "The AP uplink carries exactly the VLANs the WLANs need"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w4-wireless-s1",
+            "title": "One SSID per VLAN, and no surprises",
+            "description": "Each SSID is on the air and a client on it gets an address from that VLAN’s pool.",
+            "where": "The AP or controller",
+            "instruction": "Create a WLAN per group — corporate, guest, IOT — and map each to its VLAN. Guest on the air must be as isolated as guest on copper, and the GUEST rules already say so.",
+            "expectedOutput": "Each SSID is on the air and a client on it gets an address from that VLAN’s pool.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Build & Configuration Log",
+            "whatItMeans": "Wireless is not a separate network. An SSID is a VLAN with an aerial, and it inherits that VLAN’s rules."
+          },
+          {
+            "id": "ccna-w4-wireless-s2",
+            "title": "Test wireless like a visitor would",
+            "description": "The test matrix shows guest-to-LAN blocked from wireless as well as wired.",
+            "where": "A wireless client",
+            "instruction": "Join the guest SSID and try to reach a server. It must fail, for the same reason and by the same ACL as it fails on copper.",
+            "expectedOutput": "The test matrix shows guest-to-LAN blocked from wireless as well as wired.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Validation & Test Matrix",
+            "whatItMeans": "A guest who is isolated on copper and free on wireless is not isolated. Test the air as well."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w5-sot",
+        "role": "ops",
+        "shared": true,
+        "week": 5,
+        "title": "A source of truth, not a spreadsheet",
+        "objective": "Load the sites, devices, VLANs and prefixes into NetBox so the documentation becomes a system other tools can read.",
+        "frameworks": [
+          "CCNA",
+          "ITIL"
+        ],
+        "deliverables": [
+          "08_Operations_and_Change_Records.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "IPAM and DCIM",
+          "NetBox data model",
+          "Source of truth",
+          "Why a spreadsheet stops scaling"
+        ],
+        "definitionOfDone": [
+          "Both sites, every device and every prefix exist in NetBox",
+          "The VLAN list in NetBox matches the LLD exactly",
+          "You can answer \"what is in 10.50.20.0/24\" without opening a switch"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w5-sot-s1",
+            "title": "Model what you already documented",
+            "description": "NetBox answers the same questions your LLD does, and disagrees with it nowhere.",
+            "where": "NetBox, in a browser",
+            "instruction": "Create the sites, then the devices, then the prefixes and VLANs — in that order, because each one hangs off the last. Your LLD is the input.",
+            "expectedOutput": "NetBox answers the same questions your LLD does, and disagrees with it nowhere.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Operations & Change Records",
+            "whatItMeans": "A spreadsheet answers questions you ask. A source of truth answers questions your tools ask."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w5-change",
+        "role": "ops",
+        "shared": true,
+        "week": 5,
+        "title": "Back it up, then change it properly",
+        "objective": "Get every configuration into version control, then run one real change through request, peer review, backup, implementation and validation.",
+        "frameworks": [
+          "ITIL",
+          "CCNA"
+        ],
+        "deliverables": [
+          "08_Operations_and_Change_Records.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "Configuration backup",
+          "Git for configs",
+          "Change records",
+          "Rollback plans",
+          "Peer review"
+        ],
+        "definitionOfDone": [
+          "Every device’s configuration is backed up automatically",
+          "One restore has actually been proven, not assumed",
+          "One change has been reviewed by a teammate before it was made"
+        ],
+        "handoff": [
+          {
+            "to": "arch",
+            "note": "The reviewer checks the addressing and the design fit before the change is made."
+          }
+        ],
+        "steps": [
+          {
+            "id": "ccna-w5-change-s1",
+            "title": "Collect every configuration, automatically",
+            "description": "Every device appears in the repository, and a second run shows a diff only where something really changed.",
+            "where": "The tools host",
+            "instruction": "Point Oxidized at the devices and let it pull their configurations into Git. A backup somebody has to remember to take is not a backup.",
+            "expectedOutput": "Every device appears in the repository, and a second run shows a diff only where something really changed.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Operations & Change Records",
+            "whatItMeans": "A backup somebody has to remember to take is not a backup. Automate the collection, then prove a restore."
+          },
+          {
+            "id": "ccna-w5-change-s2",
+            "title": "Run one change the way a business would",
+            "description": "The change record is complete, a teammate’s name is on the review, and the validation tests were re-run aft…",
+            "where": "The change record, then the device",
+            "instruction": "Raise it, write the rollback FIRST, get a teammate to review it, back up, implement, re-run the validation tests, and record the result — including if it failed.",
+            "expectedOutput": "The change record is complete, a teammate’s name is on the review, and the validation tests were re-run afterwards.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Operations & Change Records",
+            "producesDeliverable": "08_Operations_and_Change_Records.md",
+            "whatItMeans": "Writing the rollback first is the test of whether you understand the change. If you cannot, you are not ready."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w6-noc",
+        "role": "ops",
+        "shared": true,
+        "week": 6,
+        "title": "Build a small NOC",
+        "objective": "Poll every device, centralise the logs, watch the latency, and put it on one screen you would actually look at.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "09_Monitoring_and_Incident_Log.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "SNMP",
+          "Syslog",
+          "Interface utilization",
+          "Thresholds and alerts",
+          "Latency and jitter"
+        ],
+        "definitionOfDone": [
+          "Every device is polled and graphed",
+          "Logs from every device land in one place",
+          "Six things are monitored, each with a threshold and an owner"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w6-noc-s1",
+            "title": "Poll the devices and graph what matters",
+            "description": "Every device is green in the monitoring system and its uplink graph is drawing.",
+            "where": "The tools host, then each device",
+            "instruction": "Enable read-only SNMP on the kit, add them to LibreNMS, and check that interface, CPU and memory graphs start filling. Then set the thresholds that would actually page somebody.",
+            "expectedOutput": "Every device is green in the monitoring system and its uplink graph is drawing.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Monitoring & Incident Log",
+            "whatItMeans": "Monitoring exists so the network tells you before a user does. A threshold nobody would act on is noise."
+          },
+          {
+            "id": "ccna-w6-noc-s2",
+            "title": "Send every log to one place",
+            "description": "Shutting a port produces a log line at the collector, with time that matches the device.",
+            "where": "Each device",
+            "instruction": "Point syslog at the collector and prove it: make something happen — shut an interface — and watch the line arrive with the right timestamp.",
+            "expectedOutput": "Shutting a port produces a log line at the collector, with time that matches the device.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Monitoring & Incident Log",
+            "producesDeliverable": "09_Monitoring_and_Incident_Log.md",
+            "whatItMeans": "Logs in one place with the right time turn \"it broke this morning\" into a sequence you can read."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w6-ticket",
+        "role": "ops",
+        "shared": true,
+        "week": 6,
+        "title": "Work a ticket, not a hunch",
+        "objective": "Take a user-reported symptom and isolate it by layer, recording what you ruled out as carefully as what you found.",
+        "frameworks": [
+          "CCNA",
+          "ITIL"
+        ],
+        "deliverables": [
+          "09_Monitoring_and_Incident_Log.md"
+        ],
+        "estimatedTime": "1 h",
+        "difficulty": 4,
+        "learn": [
+          "Layered fault isolation",
+          "Scope of impact",
+          "What changed recently",
+          "Packet capture",
+          "Evidence"
+        ],
+        "definitionOfDone": [
+          "The scope is established before any device is touched",
+          "Each layer you ruled out is recorded with how",
+          "The root cause names a cause, not a symptom"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w6-ticket-s1",
+            "title": "Establish the scope before you touch anything",
+            "description": "The ticket states who is affected, since when, and what changed recently.",
+            "where": "The ticket",
+            "instruction": "One user or twenty? One VLAN or all of them? Since when, and what changed? Five minutes here saves an hour of poking at the wrong device.",
+            "expectedOutput": "The ticket states who is affected, since when, and what changed recently.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Monitoring & Incident Log",
+            "whatItMeans": "Five minutes establishing scope saves an hour of poking at the wrong device."
+          },
+          {
+            "id": "ccna-w6-ticket-s2",
+            "title": "Work down the layers, and capture the proof",
+            "description": "The log records each layer ruled out and how, and the root cause is a cause rather than a restatement of th…",
+            "where": "The devices, and a capture where needed",
+            "instruction": "Layer 1, then 2, then 3, then the services. Where the answer is not obvious, capture the traffic and read what actually happens rather than what should.",
+            "expectedOutput": "The log records each layer ruled out and how, and the root cause is a cause rather than a restatement of the symptom.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Monitoring & Incident Log",
+            "whatItMeans": "What you ruled out is as much of the record as what you found — it is how the next person trusts your conclusion."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w7-data",
+        "role": "auto",
+        "shared": true,
+        "week": 7,
+        "title": "The network as data",
+        "objective": "Read the network through an API instead of a screen, and describe intent as YAML rather than as remembered commands.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "08_Operations_and_Change_Records.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "JSON and YAML",
+          "REST verbs",
+          "Reading an API",
+          "Idempotence",
+          "Why data beats a screenshot"
+        ],
+        "definitionOfDone": [
+          "You can pull the device list out of NetBox with one request",
+          "The intended VLAN list exists as YAML, not just in a config",
+          "You can explain what idempotent means with your own example"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w7-data-s1",
+            "title": "Ask the source of truth a question",
+            "description": "A single request returns your device list as JSON, and you can pick out one field from it.",
+            "where": "The tools host — terminal",
+            "instruction": "Query the NetBox API for your devices and read the JSON that comes back. This is the same data the dashboard shows, in the form a script can use.",
+            "expectedOutput": "A single request returns your device list as JSON, and you can pick out one field from it.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Operations & Change Records",
+            "whatItMeans": "The same data the dashboard draws, in the form a script can use. That is all an API is."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w7-ansible",
+        "role": "auto",
+        "shared": true,
+        "week": 7,
+        "title": "Configure from the source of truth",
+        "objective": "Write a playbook that adds a VLAN to every access switch from the data in NetBox — and that does nothing at all the second time you run it.",
+        "frameworks": [
+          "CCNA"
+        ],
+        "deliverables": [
+          "08_Operations_and_Change_Records.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "Ansible inventory",
+          "Playbooks and variables",
+          "Templates",
+          "Dry runs",
+          "Idempotence in practice"
+        ],
+        "definitionOfDone": [
+          "A playbook configures the same VLAN on every access switch",
+          "Running it twice reports no changes the second time",
+          "The change went through the same review as a manual one"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w7-ansible-s1",
+            "title": "One playbook, every switch",
+            "description": "The second run reports zero changes, which is what \"idempotent\" means when you can see it.",
+            "where": "The tools host — terminal",
+            "instruction": "Build the inventory from NetBox, write the playbook, run it against one switch, then all of them. Then run it again and watch it change nothing.",
+            "expectedOutput": "The second run reports zero changes, which is what \"idempotent\" means when you can see it.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Operations & Change Records",
+            "whatItMeans": "Idempotent means running it again is safe. The second run changing nothing is how you see it."
+          },
+          {
+            "id": "ccna-w7-ansible-s2",
+            "title": "Automation is still a change",
+            "description": "The automated change has a change record with a reviewer and re-run validation tests.",
+            "where": "The change record",
+            "instruction": "A playbook that touches eight switches is a bigger change than one that touches one. It goes through the same request, review and validation as anything else.",
+            "expectedOutput": "The automated change has a change record with a reviewer and re-run validation tests.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Operations & Change Records",
+            "whatItMeans": "Automation multiplies a mistake across every device. That makes review more important, not less."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w8-incident",
+        "role": "ops",
+        "shared": true,
+        "week": 8,
+        "title": "Something breaks — work it properly",
+        "objective": "Your instructor breaks something. Find it as an incident, fix it under change control, prove the fix, and write the root cause and the prevention.",
+        "frameworks": [
+          "CCNA",
+          "ITIL",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "09_Monitoring_and_Incident_Log.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "Incident management",
+          "Root cause vs symptom",
+          "Preventive action",
+          "Communication during an incident"
+        ],
+        "definitionOfDone": [
+          "The incident is timed: reported, understood, fixed",
+          "The root cause is a cause, and the fix is under a change record",
+          "A preventive action is named that is a check or a standard, not \"be careful\""
+        ],
+        "steps": [
+          {
+            "id": "ccna-w8-incident-s1",
+            "title": "Triage, then isolate",
+            "description": "The log shows the scope, the timeline, and each layer ruled out on the way to the cause.",
+            "where": "The ticket, then the network",
+            "instruction": "Establish scope and impact first, check what changed, then work the layers. Your monitoring should tell you something before any user does.",
+            "expectedOutput": "The log shows the scope, the timeline, and each layer ruled out on the way to the cause.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Monitoring & Incident Log",
+            "whatItMeans": "Your monitoring should have told you first. If a user did, that is a finding about the monitoring."
+          },
+          {
+            "id": "ccna-w8-incident-s2",
+            "title": "Fix it under change control, then prevent it",
+            "description": "The fix is recorded as a change, the validation tests pass again, and the preventive action is something a…",
+            "where": "The change record, then the device",
+            "instruction": "Even in an incident: the fix is a change, with a rollback. Then write what stops it happening again — a pre-change check, a template, a standard.",
+            "expectedOutput": "The fix is recorded as a change, the validation tests pass again, and the preventive action is something a team could actually follow.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "Monitoring & Incident Log",
+            "producesDeliverable": "09_Monitoring_and_Incident_Log.md",
+            "whatItMeans": "An incident is not an excuse to skip change control. It is when a rollback matters most."
+          }
+        ]
+      },
+      {
+        "id": "ccna-w8-handover",
+        "role": "arch",
+        "shared": true,
+        "week": 8,
+        "title": "Hand the network over",
+        "objective": "Assemble the as-built package: what you really built, the known issues, how credentials pass, and how somebody checks this network is healthy on their first morning.",
+        "frameworks": [
+          "CCNA",
+          "ITIL"
+        ],
+        "deliverables": [
+          "10_As_Built_and_Handover.md"
+        ],
+        "estimatedTime": "1 h 30 min",
+        "difficulty": 4,
+        "learn": [
+          "As-built documentation",
+          "Known issues",
+          "Credential handover",
+          "Runbooks",
+          "Defending a design"
+        ],
+        "definitionOfDone": [
+          "The diagrams match the configuration, not the design",
+          "Known issues are listed honestly",
+          "A first-day health runbook exists, ten minutes long",
+          "No passwords appear in the document"
+        ],
+        "steps": [
+          {
+            "id": "ccna-w8-handover-s1",
+            "title": "Say where the build differs from the design",
+            "description": "Every difference between the design and the build is stated with why it happened.",
+            "where": "The handover document",
+            "instruction": "Compare the as-built to the HLD and LLD, and write down every difference with the reason. Most will trace to a line in your Week-0 capability register.",
+            "expectedOutput": "Every difference between the design and the build is stated with why it happened.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "As-Built & Operations Handover",
+            "whatItMeans": "Where the build differs from the design is the most interesting page in the document, not the embarrassing one."
+          },
+          {
+            "id": "ccna-w8-handover-s2",
+            "title": "Write the first-day runbook",
+            "description": "A stranger could confirm this network is healthy in ten minutes using only your runbook.",
+            "where": "The handover document",
+            "instruction": "Ten minutes, in order: what to look at, what good looks like, and one test that must fail. If a stranger cannot follow it, it is not a runbook.",
+            "expectedOutput": "A stranger could confirm this network is healthy in ten minutes using only your runbook.",
+            "outputKind": "result",
+            "frameworks": [
+              "CCNA"
+            ],
+            "usesForm": "As-Built & Operations Handover",
+            "producesDeliverable": "10_As_Built_and_Handover.md",
+            "whatItMeans": "A runbook a stranger cannot follow is a note to yourself. Ten minutes, in order, no assumed knowledge."
+          }
+        ]
+      }
+    ],
+    "sharedTrack": true,
+    "noGatekeeping": true,
+    "guidedDefault": true,
+    "stepDensity": "simple",
+    "topologyPicture": "campus",
+    "buildMap": [
+      {
+        "week": 1,
+        "label": "One office network, reachable",
+        "check": "Both switches answer on the management VLAN"
+      },
+      {
+        "week": 2,
+        "label": "Departments, separated and routed",
+        "check": "A PC gets DHCP and reaches a server in another VLAN"
+      },
+      {
+        "week": 3,
+        "label": "Two buildings and the internet",
+        "check": "The OSPF neighbour is FULL and a branch PC browses the web"
+      },
+      {
+        "week": 4,
+        "label": "The rules enforced",
+        "check": "A guest PC is blocked from the LAN — and you can prove it"
+      },
+      {
+        "week": 5,
+        "label": "Under management",
+        "check": "One reviewed, reversible change has been made and validated"
+      },
+      {
+        "week": 6,
+        "label": "Watched",
+        "check": "A shut port raises a log and a graph you can point at"
+      },
+      {
+        "week": 7,
+        "label": "Configured from data",
+        "check": "The playbook runs twice and changes nothing the second time"
+      },
+      {
+        "week": 8,
+        "label": "Handed over",
+        "check": "A stranger could run this network from your documentation"
+      }
+    ],
+    "lifecyclePath": [
+      {
+        "label": "Discover",
+        "detail": "What the business needs, and what the kit can actually do."
+      },
+      {
+        "label": "Design",
+        "detail": "The shape, then every VLAN, port and address."
+      },
+      {
+        "label": "Build",
+        "detail": "Configure it, logging each change as you make it."
+      },
+      {
+        "label": "Validate",
+        "detail": "Prove what works — and what must not."
+      },
+      {
+        "label": "Operate",
+        "detail": "Back it up, change it under review, watch it."
+      },
+      {
+        "label": "Improve",
+        "detail": "Root cause, prevention, automation, handover."
+      }
+    ],
+    "isSeed": true,
+    "version": 1
+  },
+  "deliverables": [
+    {
+      "id": "ccna_kit",
+      "courseId": "ccna",
+      "num": 1,
+      "file": "01_Kit_and_Capability_Register.md",
+      "title": "Kit & Capability Register",
+      "owner": "arch",
+      "shared": true,
+      "folder": "00_Acquisition",
+      "standard": "Inventory & capability baseline",
+      "weeks": [
+        0
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "feeds": [
+        "ccna_requirements",
+        "ccna_lld"
+      ],
+      "purpose": "What equipment the team has, what each device can actually do, and which of the two paths — emulated or physical — this build runs on. Every later week reads this: what your kit supports decides how you build, so this is recorded before anything is designed.",
+      "howTo": "Declare the path. List every device you own, borrowed, plan to buy, or will emulate. Then answer each capability Yes or No — and paste the command output that proves it, because a datasheet describes the model that was sold, not the switch in front of you.",
+      "buildSteps": [
+        "Declare the path first: emulated or physical. It changes nothing about the design and everything about how you build it.",
+        "One row per device. Read the model and software version off `show version` rather than the sticker — the sticker lies about the image.",
+        "Count the access ports you can actually use, and note whether the uplinks are copper or SFP.",
+        "For each capability, run the command in the \"How to prove it\" column and record Yes or No.",
+        "Paste the line that proves it into the evidence column. \"Yes\" with no evidence is an opinion.",
+        "Name the machine you work from — it belongs in the topology documentation like any other host.",
+        "Read the gaps: every No tells you which alternate procedure your build takes, and what buying one thing would unlock."
+      ],
+      "meaning": "A good register lets somebody else pick up your kit and know, without touching it, what this network can be asked to do. The gaps matter more than the strengths: a No against \"switch that routes\" is not a failure, it is the reason your Week-2 procedure is router-on-a-stick.",
+      "useIt": "Week 1 designs against it, Week 2 branches on it, and the buying guide beside it says what one more purchase would unlock. It is also the first appendix of the handover package.",
+      "pitfalls": [
+        "Claiming a capability from the datasheet. The image on the device decides, and only `show` output proves it.",
+        "Leaving \"to buy\" rows out. A gap you have not written down is a gap you discover mid-build.",
+        "Recording the workstation in detail. It matters only as far as it runs the emulator and appears in the documentation — the kit is the subject here."
+      ],
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "The path — decide this once",
+          "fields": [
+            {
+              "field": "kit_path",
+              "label": "How this build runs",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Emulated",
+                "Physical kit",
+                "Both — emulated first, then on hardware"
+              ],
+              "help": "Emulated: The topology runs as software on your own machine. Physical kit: Real switches and routers on a bench or in a rack."
+            },
+            {
+              "field": "emulator",
+              "label": "Which emulator (if any)",
+              "type": "select",
+              "options": [
+                "Cisco Packet Tracer",
+                "Cisco Modeling Labs (CML)",
+                "GNS3",
+                "containerlab",
+                "None — hardware only"
+              ],
+              "help": "The tool the topology runs in. Weeks 7-8 need one that speaks real IOS or a container network OS."
+            },
+            {
+              "field": "workstation",
+              "label": "The machine you work from",
+              "type": "text",
+              "required": true,
+              "placeholder": "ADMIN-PC — ThinkPad T480, 16 GB, Windows 11 + PuTTY",
+              "help": "Name, memory, and the terminal program. Enough for the documentation to say where the work happened, and to show the emulator will run."
+            },
+            {
+              "field": "workstation_ready",
+              "label": "The emulator opens and gives you a device prompt",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Yes",
+                "No",
+                "Not applicable"
+              ],
+              "help": "Or, on hardware: a console cable reaches a switch and you get a prompt. Either way — you can type at a device."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "devices",
+            "label": "Every device — owned, borrowed, to buy, or emulated",
+            "help": "One row per device. `show version` gives you the model and the software version; count the ports you can actually use.",
+            "columns": [
+              {
+                "field": "name",
+                "label": "Name",
+                "type": "text",
+                "placeholder": "SW-ACC-01",
+                "help": "The hostname you will configure on it."
+              },
+              {
+                "field": "device_class",
+                "label": "What it is",
+                "type": "select",
+                "options": [
+                  "Router",
+                  "Switch that routes (L3)",
+                  "Access switch (L2)",
+                  "Access point",
+                  "Wireless controller",
+                  "Firewall",
+                  "Server / VM",
+                  "Workstation you work from"
+                ],
+                "help": "This decides what the device can be asked to do."
+              },
+              {
+                "field": "model",
+                "label": "Model",
+                "type": "text",
+                "placeholder": "WS-C2960X-24TS-L",
+                "help": "From `show version`, not the sticker."
+              },
+              {
+                "field": "version",
+                "label": "Software version",
+                "type": "text",
+                "placeholder": "15.2(7)E3",
+                "help": "From `show version`. An old image is why a feature is missing."
+              },
+              {
+                "field": "ports",
+                "label": "Usable ports",
+                "type": "number",
+                "unit": "ports",
+                "help": "Access ports you can actually put a device on."
+              },
+              {
+                "field": "uplink",
+                "label": "Uplinks",
+                "type": "select",
+                "options": [
+                  "Copper only",
+                  "SFP (1G)",
+                  "SFP+ (10G)",
+                  "None"
+                ]
+              },
+              {
+                "field": "poe",
+                "label": "PoE",
+                "type": "select",
+                "options": [
+                  "None",
+                  "PoE",
+                  "PoE+"
+                ],
+                "help": "From `show power inline`."
+              },
+              {
+                "field": "status",
+                "label": "Status",
+                "type": "select",
+                "options": [
+                  "Owned",
+                  "Borrowed",
+                  "To buy",
+                  "Emulated"
+                ]
+              },
+              {
+                "field": "unlocks",
+                "label": "Unlocks",
+                "type": "text",
+                "derived": {
+                  "column": "device_class",
+                  "cases": {
+                    "Router": "Routing, OSPF, NAT, ACLs, DHCP — the edge and the WAN",
+                    "Switch that routes (L3)": "VLANs, trunks, SVIs, EtherChannel — the core, and inter-VLAN routing",
+                    "Access switch (L2)": "VLANs, trunks, EtherChannel, PoE — access ports",
+                    "Access point": "The WLANs, on the air",
+                    "Wireless controller": "Several APs as one system",
+                    "Firewall": "NAT and policy at the edge",
+                    "Server / VM": "DNS, DHCP, and the tools the advanced weeks need",
+                    "Workstation you work from": "Where you work from — console, SSH, browser"
+                  },
+                  "else": "—"
+                },
+                "help": "Computed from what the device is: the capabilities owning it gives your build."
+              }
+            ],
+            "seed": [
+              {
+                "name": "SW-ACC-01",
+                "device_class": "Access switch (L2)",
+                "model": "WS-C2960X-24TS-L",
+                "version": "15.2(7)E3",
+                "ports": "24",
+                "uplink": "SFP (1G)",
+                "poe": "None",
+                "status": "Owned"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "capabilities",
+            "label": "What the kit can do — answer each one with its proof",
+            "help": "Run the command, read the tell, record Yes or No, and paste the line that proves it. Every No has a documented alternative — it changes how you build, not whether you can.",
+            "columns": [
+              {
+                "field": "capability",
+                "label": "Capability",
+                "type": "select",
+                "options": [
+                  "Console access (blue cable or USB)",
+                  "VLANs",
+                  "802.1Q trunking",
+                  "Inter-VLAN routing on the switch (SVI)",
+                  "EtherChannel / LACP",
+                  "OSPF",
+                  "NAT / PAT",
+                  "Access control lists",
+                  "Power over Ethernet",
+                  "Fibre uplink (SFP)",
+                  "An access point",
+                  "A wireless controller",
+                  "DHCP served by the network device",
+                  "SSH to the device",
+                  "SNMP"
+                ],
+                "help": "One row per capability the course asks about."
+              },
+              {
+                "field": "answer",
+                "label": "Have it?",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "field": "device",
+                "label": "On which device",
+                "type": "text",
+                "placeholder": "SW-CORE-01"
+              },
+              {
+                "field": "evidence",
+                "label": "The output that proves it",
+                "type": "text",
+                "placeholder": "Gi1/0/1 on 802.1q trunking 1",
+                "help": "One line from the command output. \"Yes\" with nothing here is an opinion."
+              }
+            ],
+            "seed": [
+              {
+                "capability": "Console access (blue cable or USB)",
+                "answer": "Yes",
+                "device": "SW-ACC-01",
+                "evidence": "the line marked `*` is `con 0` — you are on the console"
+              },
+              {
+                "capability": "VLANs",
+                "answer": "Yes",
+                "device": "SW-ACC-01",
+                "evidence": "VLAN 1 is listed, so the table exists and can be added to"
+              },
+              {
+                "capability": "802.1Q trunking",
+                "answer": "Yes",
+                "device": "SW-ACC-01",
+                "evidence": "the command exists and prints a table, even an empty one"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "fields",
+          "title": "What the gaps mean",
+          "fields": [
+            {
+              "field": "gaps",
+              "label": "The capabilities you do not have, and what you will do instead",
+              "type": "area",
+              "required": true,
+              "placeholder": "No L3 switch, so inter-VLAN routing is router-on-a-stick on R1-HQ. No PoE, so the AP runs off an injector and the phones stay a design requirement.",
+              "help": "One line per No. This is the paragraph your Week-2 and Week-4 procedures follow."
+            },
+            {
+              "field": "next_purchase",
+              "label": "If you bought one thing, what and why",
+              "type": "text",
+              "placeholder": "A 3560-CX — it turns router-on-a-stick into SVIs and frees the router for the WAN.",
+              "help": "Capability first, model second. The buying guide in the manual lists what each class unlocks."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "The path is declared and the machine you work from is named",
+          "when": {
+            "fields": [
+              "kit_path",
+              "workstation"
+            ]
+          }
+        },
+        {
+          "label": "You can get to a device prompt",
+          "when": {
+            "field": "workstation_ready",
+            "matches": "^(Yes|Not applicable)$"
+          }
+        },
+        {
+          "label": "At least one device is registered with its model and software version",
+          "when": {
+            "group": "devices",
+            "where": {
+              "filled": [
+                "name",
+                "device_class",
+                "model",
+                "version"
+              ]
+            },
+            "atLeast": 1
+          }
+        },
+        {
+          "label": "At least eight capabilities are answered",
+          "when": {
+            "group": "capabilities",
+            "where": {
+              "filled": [
+                "capability",
+                "answer"
+              ]
+            },
+            "atLeast": 8
+          }
+        },
+        {
+          "label": "Every capability answered Yes carries the output that proves it",
+          "when": {
+            "group": "capabilities",
+            "where": {
+              "column": "answer",
+              "equals": "Yes"
+            },
+            "every": {
+              "filled": [
+                "evidence"
+              ]
+            }
+          }
+        },
+        {
+          "label": "The gaps are written down, with what you will do instead",
+          "when": {
+            "fields": [
+              "gaps"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccna_requirements",
+      "courseId": "ccna",
+      "num": 2,
+      "file": "02_Requirements_and_Site_Survey.md",
+      "title": "Requirements & Site Survey",
+      "owner": "arch",
+      "shared": true,
+      "folder": "01_Discovery",
+      "standard": "Requirements definition",
+      "weeks": [
+        1
+      ],
+      "kind": "template",
+      "exportFormat": "md",
+      "feeds": [
+        "ccna_hld"
+      ],
+      "purpose": "What the business needs the network to do, and what is physically there today. Written before any design, because a design nobody traced to a requirement is a preference.",
+      "howTo": "Interview the business (your instructor plays it, or use the scenario). Record what each department needs, what cannot go down, and what exists in the building already.",
+      "buildSteps": [
+        "Count the people, per department, and what each group actually does on the network.",
+        "List the applications that matter and who needs them.",
+        "Ask what cannot go down, and for how long — that is your availability requirement.",
+        "Walk the building: where the cabinet is, how many drops, where the cable runs, where the ISP comes in.",
+        "Record the constraints honestly — budget, existing kit, cabling, the ISP circuit.",
+        "Write down the problems the business already has. Those are the requirements nobody will state directly."
+      ],
+      "meaning": "Every later decision points back to a line here. If you cannot name the requirement a VLAN serves, the VLAN is decoration.",
+      "useIt": "The High-Level Design is built from it, and the handover opens with it.",
+      "pitfalls": [
+        "Designing while discovering. Write down what is, then decide what should be.",
+        "Skipping the existing problems. \"The network is slow at 4pm\" is the most useful sentence in the room."
+      ],
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "The business",
+          "fields": [
+            {
+              "field": "client",
+              "label": "Company",
+              "type": "text",
+              "required": true,
+              "placeholder": "Northgate Supply Co."
+            },
+            {
+              "field": "driver",
+              "label": "Why the network is being rebuilt",
+              "type": "area",
+              "required": true,
+              "placeholder": "One flat network, one switch out of ports, and a second building opening in six weeks."
+            },
+            {
+              "field": "availability",
+              "label": "What cannot go down, and for how long",
+              "type": "area",
+              "required": true,
+              "placeholder": "The order system: no more than 30 minutes in working hours."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "departments",
+            "label": "Who needs what",
+            "columns": [
+              {
+                "field": "name",
+                "label": "Department",
+                "type": "text",
+                "placeholder": "Warehouse"
+              },
+              {
+                "field": "people",
+                "label": "People",
+                "type": "number",
+                "unit": "staff"
+              },
+              {
+                "field": "needs",
+                "label": "What they need",
+                "type": "text",
+                "placeholder": "Scanners talking to the order system, all shift"
+              },
+              {
+                "field": "site",
+                "label": "Where",
+                "type": "select",
+                "options": [
+                  "Austin HQ",
+                  "Round Rock branch"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "existing",
+            "label": "What is there today — the site survey",
+            "columns": [
+              {
+                "field": "item",
+                "label": "What",
+                "type": "text",
+                "placeholder": "24-port unmanaged switch under the desk"
+              },
+              {
+                "field": "where",
+                "label": "Where",
+                "type": "text",
+                "placeholder": "Reception, on the floor"
+              },
+              {
+                "field": "problem",
+                "label": "Problem with it",
+                "type": "text",
+                "placeholder": "Out of ports; no VLANs; no management"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "The company, the driver and the availability requirement are recorded",
+          "when": {
+            "fields": [
+              "client",
+              "driver",
+              "availability"
+            ]
+          }
+        },
+        {
+          "label": "At least three departments with their needs",
+          "when": {
+            "group": "departments",
+            "where": {
+              "filled": [
+                "name",
+                "needs"
+              ]
+            },
+            "atLeast": 3
+          }
+        },
+        {
+          "label": "The survey records what is there today",
+          "when": {
+            "group": "existing",
+            "where": {
+              "filled": [
+                "item",
+                "problem"
+              ]
+            },
+            "atLeast": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccna_hld",
+      "courseId": "ccna",
+      "num": 3,
+      "file": "03_High_Level_Design.md",
+      "title": "High-Level Design",
+      "owner": "arch",
+      "shared": true,
+      "folder": "02_Design",
+      "standard": "Architecture definition",
+      "weeks": [
+        1
+      ],
+      "kind": "template",
+      "exportFormat": "md",
+      "feeds": [
+        "ccna_lld"
+      ],
+      "purpose": "The shape of the network: the sites, what connects them, where the security boundaries are, and which requirement each decision serves. No interface numbers — that is the Low-Level Design.",
+      "howTo": "One decision per row, each traced back to a requirement line, each with the alternative you rejected and why.",
+      "buildSteps": [
+        "Draw the two sites and the link between them.",
+        "Decide where routing happens — the switch, the router, or both — and say why your kit makes that the answer.",
+        "Name the security boundaries: guest from corporate, users from management, cameras from servers.",
+        "Say how the internet is reached and where NAT happens.",
+        "Say what is redundant and what is deliberately not."
+      ],
+      "meaning": "A good HLD can be read aloud to a manager in two minutes and to an engineer as a brief. Every row names the requirement it serves.",
+      "useIt": "The LLD turns each row into configuration; the handover reads it as the rationale.",
+      "pitfalls": [
+        "Interface numbers in the HLD. If it names Gi1/0/24 it belongs in the LLD.",
+        "Redundancy nobody asked for. Say what you left single, and why that is acceptable."
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "decisions",
+            "label": "The design decisions",
+            "columns": [
+              {
+                "field": "decision",
+                "label": "Decision",
+                "type": "text",
+                "placeholder": "Inter-VLAN routing on the core switch"
+              },
+              {
+                "field": "because",
+                "label": "Requirement it serves",
+                "type": "text",
+                "placeholder": "Departments must be separated but still reach the order system"
+              },
+              {
+                "field": "rejected",
+                "label": "What you rejected, and why",
+                "type": "text",
+                "placeholder": "Router-on-a-stick — the trunk becomes the bottleneck"
+              },
+              {
+                "field": "kit",
+                "label": "Does your kit support it?",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "help": "From the Kit & Capability Register. A No here picks the alternate procedure."
+              }
+            ]
+          }
+        },
+        {
+          "kind": "fields",
+          "title": "The shape",
+          "fields": [
+            {
+              "field": "sites",
+              "label": "Sites and the link between them",
+              "type": "area",
+              "required": true,
+              "placeholder": "Austin HQ and the Round Rock branch, joined by a point-to-point link, OSPF area 0 across it."
+            },
+            {
+              "field": "boundaries",
+              "label": "Security boundaries",
+              "type": "area",
+              "required": true,
+              "placeholder": "Guest reaches the internet and nothing else. Only the network team reaches the management VLAN."
+            },
+            {
+              "field": "internet",
+              "label": "How the internet is reached",
+              "type": "area",
+              "required": true,
+              "placeholder": "One circuit at HQ, PAT on the edge router. The branch reaches the internet across the WAN."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "The sites, the boundaries and the internet path are described",
+          "when": {
+            "fields": [
+              "sites",
+              "boundaries",
+              "internet"
+            ]
+          }
+        },
+        {
+          "label": "At least four design decisions, each traced to a requirement",
+          "when": {
+            "group": "decisions",
+            "where": {
+              "filled": [
+                "decision",
+                "because"
+              ]
+            },
+            "atLeast": 4
+          }
+        },
+        {
+          "label": "Every decision says what was rejected",
+          "when": {
+            "group": "decisions",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "rejected"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccna_lld",
+      "courseId": "ccna",
+      "num": 4,
+      "file": "04_Low_Level_Design_and_IP_Plan.md",
+      "title": "Low-Level Design & IP Plan",
+      "owner": "arch",
+      "shared": true,
+      "folder": "02_Design",
+      "standard": "Detailed design · IPAM",
+      "weeks": [
+        2
+      ],
+      "kind": "form",
+      "exportFormat": "csv",
+      "feeds": [
+        "ccna_build_log",
+        "ccna_validation"
+      ],
+      "purpose": "Every VLAN, prefix, gateway, DHCP range and port assignment — the document an engineer configures from without asking a single question.",
+      "howTo": "One row per VLAN, one row per port range. The convention this course uses: the third octet IS the VLAN id, so an address tells you which VLAN it is in.",
+      "buildSteps": [
+        "One row per VLAN: id, name, purpose, prefix, gateway, DHCP range.",
+        "Then the ports: which range on which switch carries which VLAN, access or trunk.",
+        "Name the trunks and say which VLANs each one carries — including the native VLAN.",
+        "Record the WAN addressing and the OSPF area."
+      ],
+      "meaning": "A good LLD is boring and complete. If two engineers configure from it and get different networks, it is neither.",
+      "useIt": "Weeks 2-4 configure from it; Week 5 loads it into NetBox; the handover ships it as the addressing record.",
+      "pitfalls": [
+        "Leaving the native VLAN unstated. A native VLAN mismatch is the classic trunk fault, and it starts here.",
+        "A DHCP pool that overlaps the static addresses. Write the static range down too."
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "vlans",
+            "label": "The VLAN and addressing plan",
+            "help": "The seeded rows are the worked example the course is written around. Replace them with yours, or keep them if you are building this design.",
+            "columns": [
+              {
+                "field": "vlan",
+                "label": "VLAN",
+                "type": "select",
+                "options": [
+                  "10 — CORP-USERS",
+                  "20 — SERVERS",
+                  "30 — VOICE",
+                  "40 — SECURITY",
+                  "50 — GUEST",
+                  "60 — IOT",
+                  "99 — MGMT",
+                  "110 — BR-USERS",
+                  "130 — BR-VOICE",
+                  "199 — BR-MGMT"
+                ]
+              },
+              {
+                "field": "purpose",
+                "label": "What it carries",
+                "type": "text"
+              },
+              {
+                "field": "prefix",
+                "label": "Prefix",
+                "type": "text",
+                "placeholder": "10.50.10.0/24"
+              },
+              {
+                "field": "gateway",
+                "label": "Gateway",
+                "type": "ipv4",
+                "subnetFrom": "prefix"
+              },
+              {
+                "field": "dhcp",
+                "label": "DHCP range",
+                "type": "text",
+                "placeholder": "or \"Static — no pool\""
+              }
+            ],
+            "seed": [
+              {
+                "vlan": "10 — CORP-USERS",
+                "purpose": "Staff PCs and laptops",
+                "prefix": "10.50.10.0/24",
+                "gateway": "10.50.10.1",
+                "dhcp": "10.50.10.50–10.50.10.200"
+              },
+              {
+                "vlan": "20 — SERVERS",
+                "purpose": "File, DNS/DHCP and the order system",
+                "prefix": "10.50.20.0/24",
+                "gateway": "10.50.20.1",
+                "dhcp": "Static — no pool"
+              },
+              {
+                "vlan": "99 — MGMT",
+                "purpose": "Switch and router management only",
+                "prefix": "10.50.99.0/24",
+                "gateway": "10.50.99.1",
+                "dhcp": "Static — no pool"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "ports",
+            "label": "Port assignment",
+            "columns": [
+              {
+                "field": "device",
+                "label": "Device",
+                "type": "text",
+                "placeholder": "SW-ACC-01"
+              },
+              {
+                "field": "ports",
+                "label": "Ports",
+                "type": "text",
+                "placeholder": "Gi1/0/1-20"
+              },
+              {
+                "field": "mode",
+                "label": "Mode",
+                "type": "select",
+                "options": [
+                  "Access",
+                  "Trunk",
+                  "Routed"
+                ]
+              },
+              {
+                "field": "vlans",
+                "label": "VLAN(s)",
+                "type": "text",
+                "placeholder": "10, or 10,20,30,99 on a trunk"
+              },
+              {
+                "field": "native",
+                "label": "Native VLAN (trunk only)",
+                "type": "text",
+                "placeholder": "999 — an unused VLAN, on purpose"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least four VLANs planned with prefix and gateway",
+          "when": {
+            "group": "vlans",
+            "where": {
+              "filled": [
+                "vlan",
+                "prefix",
+                "gateway"
+              ]
+            },
+            "atLeast": 4
+          }
+        },
+        {
+          "label": "Every VLAN row says what it carries",
+          "when": {
+            "group": "vlans",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "purpose"
+              ]
+            }
+          }
+        },
+        {
+          "label": "Ports are assigned on at least two devices",
+          "when": {
+            "group": "ports",
+            "distinct": "device",
+            "atLeast": 2
+          }
+        },
+        {
+          "label": "Every trunk states its native VLAN",
+          "when": {
+            "group": "ports",
+            "where": {
+              "column": "mode",
+              "equals": "Trunk"
+            },
+            "every": {
+              "filled": [
+                "native"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccna_build_log",
+      "courseId": "ccna",
+      "num": 5,
+      "file": "05_Build_and_Configuration_Log.md",
+      "title": "Build & Configuration Log",
+      "owner": "impl",
+      "shared": true,
+      "folder": "03_Build",
+      "standard": "Configuration record",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "kind": "form",
+      "exportFormat": "csv",
+      "purpose": "What was configured, on which device, by whom, and what proved it worked. An append-only record written as the build happens, not reconstructed afterwards.",
+      "howTo": "One row per change. Save the configuration when the row is green, and say which command proved it.",
+      "buildSteps": [
+        "Write the row as you make the change, not at the end of the session.",
+        "Name the device, the change, and the command whose output proved it.",
+        "Say whether you saved the configuration. An unsaved change is a change that vanishes at the next power cut."
+      ],
+      "meaning": "A good log lets somebody reconstruct the build without the devices. It is also how you find what changed when something breaks on Thursday.",
+      "useIt": "Week 5 turns it into change records; Week 8 hands it over as the build history.",
+      "pitfalls": [
+        "Writing it up at the end of the week. You will not remember the port number.",
+        "\"Configured VLANs\" as a row. Which VLANs, on which device, proved by what?"
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "The build log",
+            "columns": [
+              {
+                "field": "when",
+                "label": "When",
+                "type": "date"
+              },
+              {
+                "field": "device",
+                "label": "Device",
+                "type": "text",
+                "placeholder": "SW-CORE-01"
+              },
+              {
+                "field": "what",
+                "label": "What you configured",
+                "type": "text",
+                "placeholder": "SVI for VLAN 20, 10.50.20.1/24"
+              },
+              {
+                "field": "proof",
+                "label": "What proved it",
+                "type": "text",
+                "placeholder": "show ip interface brief — Vlan20 up/up"
+              },
+              {
+                "field": "saved",
+                "label": "Configuration saved",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "field": "by",
+                "label": "By",
+                "type": "text",
+                "placeholder": "Initials"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least six configuration changes are logged",
+          "when": {
+            "group": "changes",
+            "where": {
+              "filled": [
+                "device",
+                "what"
+              ]
+            },
+            "atLeast": 6
+          },
+          "week": 2
+        },
+        {
+          "label": "Every logged change names what proved it",
+          "when": {
+            "group": "changes",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "proof"
+              ]
+            }
+          },
+          "week": 2
+        },
+        {
+          "label": "Changes are logged on at least three devices",
+          "when": {
+            "group": "changes",
+            "distinct": "device",
+            "atLeast": 3
+          },
+          "week": 3
+        }
+      ]
+    },
+    {
+      "id": "ccna_validation",
+      "courseId": "ccna",
+      "num": 6,
+      "file": "06_Validation_and_Test_Matrix.md",
+      "title": "Validation & Test Matrix",
+      "owner": "ops",
+      "shared": true,
+      "folder": "04_Validation",
+      "standard": "Test & acceptance",
+      "weeks": [
+        2,
+        3,
+        4
+      ],
+      "kind": "form",
+      "exportFormat": "csv",
+      "feeds": [
+        "ccna_handover"
+      ],
+      "purpose": "The tests that say the network does what the design promised — including the ones that must FAIL, because a guest reaching the server VLAN is a test result too.",
+      "howTo": "One row per test: what you tried, from where, what you expected, what happened. A test whose expected result is \"blocked\" is as important as one expecting a reply.",
+      "buildSteps": [
+        "Write the test before you run it, so the expected result is a prediction rather than a description.",
+        "Test from the right place — a ping from the switch is not a ping from a user PC.",
+        "Include the negative tests: guest to corporate, users to management, cameras to servers.",
+        "Record the actual output, not \"worked\"."
+      ],
+      "meaning": "The interesting rows are the failures you predicted and got. That is the difference between a network that works and one that has been proven.",
+      "useIt": "It becomes the acceptance evidence in the handover, and the baseline every later change is re-tested against.",
+      "pitfalls": [
+        "Only testing what should work. Half of a segmentation design is what must not.",
+        "Testing from the device rather than from a host in the VLAN."
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "tests",
+            "label": "The test matrix",
+            "columns": [
+              {
+                "field": "test",
+                "label": "Test",
+                "type": "text",
+                "placeholder": "Guest PC → order system"
+              },
+              {
+                "field": "from",
+                "label": "From",
+                "type": "text",
+                "placeholder": "PC in VLAN 50"
+              },
+              {
+                "field": "expected",
+                "label": "Expected",
+                "type": "select",
+                "options": [
+                  "Reply",
+                  "Blocked",
+                  "Specific output"
+                ]
+              },
+              {
+                "field": "actual",
+                "label": "What happened",
+                "type": "text",
+                "placeholder": "Request timed out — as designed"
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Pass",
+                  "Fail"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least eight tests recorded with their expected result",
+          "when": {
+            "group": "tests",
+            "where": {
+              "filled": [
+                "test",
+                "expected"
+              ]
+            },
+            "atLeast": 8
+          },
+          "week": 3
+        },
+        {
+          "label": "At least two tests expect to be BLOCKED — segmentation is proven, not assumed",
+          "when": {
+            "group": "tests",
+            "where": {
+              "column": "expected",
+              "equals": "Blocked"
+            },
+            "atLeast": 2
+          },
+          "week": 4
+        },
+        {
+          "label": "Every test records what actually happened",
+          "when": {
+            "group": "tests",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "actual"
+              ]
+            }
+          },
+          "week": 3
+        }
+      ]
+    },
+    {
+      "id": "ccna_security",
+      "courseId": "ccna",
+      "num": 7,
+      "file": "07_Security_Baseline_and_Policy.md",
+      "title": "Security Baseline & ACL Policy",
+      "owner": "auto",
+      "shared": true,
+      "folder": "05_Security",
+      "standard": "Device hardening · policy",
+      "weeks": [
+        4
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "feeds": [
+        "ccna_handover"
+      ],
+      "purpose": "The business rules about who may reach what, and the state every device is hardened to. The ACL is the second half of this document; the first half is the rule in the words the business would use.",
+      "howTo": "State the rule, then the ACL that implements it, then the test that proves it. In that order.",
+      "buildSteps": [
+        "Write each rule as a sentence a manager would agree with.",
+        "Turn it into an access list, and say which interface and direction it is applied to.",
+        "Harden the management plane: SSH not telnet, a real enable secret, unused ports shut, login banner.",
+        "Prove each rule with a test — and record the test that must fail."
+      ],
+      "meaning": "An ACL nobody can trace to a business rule is an ACL nobody dares change. This document is what makes it maintainable.",
+      "useIt": "The handover ships it as the security baseline; Week 8 re-tests it after the injected failure.",
+      "pitfalls": [
+        "An ACL with no matching business rule. Delete it or document why it exists.",
+        "Hardening the data plane and leaving telnet on the management VLAN."
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "rules",
+            "label": "The policy, and the ACL that enforces it",
+            "help": "The seeded rows are the design this course is written around — the rules are in the topology model, so the diagram and this table agree.",
+            "columns": [
+              {
+                "field": "rule",
+                "label": "The rule, in business words",
+                "type": "text"
+              },
+              {
+                "field": "acl",
+                "label": "ACL name",
+                "type": "text",
+                "placeholder": "ACL-GUEST-IN"
+              },
+              {
+                "field": "applied",
+                "label": "Applied to",
+                "type": "text",
+                "placeholder": "Vlan50, inbound"
+              },
+              {
+                "field": "tested",
+                "label": "Proven by",
+                "type": "text",
+                "placeholder": "Test 4 in the matrix — blocked"
+              }
+            ],
+            "seed": [
+              {
+                "rule": "A visitor must never reach a staff PC",
+                "acl": "ACL-VLAN50-IN",
+                "applied": "Vlan50, inbound",
+                "tested": ""
+              },
+              {
+                "rule": "A visitor must never reach the order system",
+                "acl": "ACL-VLAN50-IN",
+                "applied": "Vlan50, inbound",
+                "tested": ""
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "hardening",
+            "label": "The device baseline",
+            "columns": [
+              {
+                "field": "control",
+                "label": "Control",
+                "type": "text",
+                "placeholder": "SSH only, telnet disabled"
+              },
+              {
+                "field": "devices",
+                "label": "Applied on",
+                "type": "text",
+                "placeholder": "All switches and both routers"
+              },
+              {
+                "field": "proof",
+                "label": "Proven by",
+                "type": "text",
+                "placeholder": "show ip ssh — Enabled, version 2"
+              },
+              {
+                "field": "done",
+                "label": "Done",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least four rules, each with the ACL that enforces it",
+          "when": {
+            "group": "rules",
+            "where": {
+              "filled": [
+                "rule",
+                "acl"
+              ]
+            },
+            "atLeast": 4
+          }
+        },
+        {
+          "label": "Every rule names where the ACL is applied",
+          "when": {
+            "group": "rules",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "applied"
+              ]
+            }
+          }
+        },
+        {
+          "label": "At least five hardening controls, each with its proof",
+          "when": {
+            "group": "hardening",
+            "where": {
+              "filled": [
+                "control",
+                "proof"
+              ]
+            },
+            "atLeast": 5
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccna_ops",
+      "courseId": "ccna",
+      "num": 8,
+      "file": "08_Operations_and_Change_Records.md",
+      "title": "Operations & Change Records",
+      "owner": "ops",
+      "shared": true,
+      "folder": "06_Operations",
+      "standard": "Change management · configuration backup",
+      "weeks": [
+        5
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "How the network is run rather than built: every change requested, reviewed by somebody else, backed out if it fails, and recorded. Plus where the configurations are backed up and how a restore was proven.",
+      "howTo": "One change record per change, with a peer reviewer who is not you. A change nobody reviewed is a change nobody else can trust.",
+      "buildSteps": [
+        "Raise the change: what, why, which devices, what could go wrong.",
+        "Write the rollback BEFORE the implementation. If you cannot write it, you are not ready to make the change.",
+        "Have a teammate review it — the architecture focus checks the addressing, operations checks the rollback.",
+        "Back the configurations up first, implement, then re-run the validation tests.",
+        "Record the result, including a failed change honestly."
+      ],
+      "meaning": "A team that can show reviewed, reversible, tested changes is a team a business can hand a network to.",
+      "useIt": "Week 8 works a real change end to end; the handover ships the records as the operating history.",
+      "pitfalls": [
+        "Approving your own change. The peer review is the control, not the paperwork.",
+        "A rollback of \"undo it\". Which commands, in which order?"
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "changes",
+            "label": "Change records",
+            "columns": [
+              {
+                "field": "ref",
+                "label": "Ref",
+                "type": "text",
+                "placeholder": "CHG-001"
+              },
+              {
+                "field": "what",
+                "label": "Change",
+                "type": "text",
+                "placeholder": "Add the Accounting VLAN (70) at HQ"
+              },
+              {
+                "field": "risk",
+                "label": "Risk",
+                "type": "select",
+                "options": [
+                  "Low",
+                  "Medium",
+                  "High"
+                ]
+              },
+              {
+                "field": "rollback",
+                "label": "Rollback",
+                "type": "text",
+                "placeholder": "no vlan 70; no interface Vlan70; restore from backup 2026-05-02"
+              },
+              {
+                "field": "reviewer",
+                "label": "Reviewed by",
+                "type": "text",
+                "help": "Not the person who made the change."
+              },
+              {
+                "field": "result",
+                "label": "Result",
+                "type": "select",
+                "options": [
+                  "Successful",
+                  "Rolled back",
+                  "Partial"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "backups",
+            "label": "Configuration backups",
+            "columns": [
+              {
+                "field": "device",
+                "label": "Device",
+                "type": "text"
+              },
+              {
+                "field": "where",
+                "label": "Where the backup lives",
+                "type": "text",
+                "placeholder": "Oxidized → Git, northgate-configs"
+              },
+              {
+                "field": "restored",
+                "label": "Restore proven",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ],
+                "help": "A backup nobody restored is a hope."
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least two change records, each with a rollback",
+          "when": {
+            "group": "changes",
+            "where": {
+              "filled": [
+                "ref",
+                "what",
+                "rollback"
+              ]
+            },
+            "atLeast": 2
+          }
+        },
+        {
+          "label": "Every change was reviewed by somebody else",
+          "when": {
+            "group": "changes",
+            "atLeast": 1,
+            "every": {
+              "filled": [
+                "reviewer"
+              ]
+            }
+          }
+        },
+        {
+          "label": "Backups exist for at least three devices",
+          "when": {
+            "group": "backups",
+            "where": {
+              "filled": [
+                "device",
+                "where"
+              ]
+            },
+            "atLeast": 3
+          }
+        },
+        {
+          "label": "At least one restore has actually been proven",
+          "when": {
+            "group": "backups",
+            "some": {
+              "column": "restored",
+              "equals": "Yes"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "ccna_monitoring",
+      "courseId": "ccna",
+      "num": 9,
+      "file": "09_Monitoring_and_Incident_Log.md",
+      "title": "Monitoring & Incident Log",
+      "owner": "ops",
+      "shared": true,
+      "folder": "07_Operations",
+      "standard": "Monitoring · incident & problem management",
+      "weeks": [
+        6,
+        8
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "What the team watches and what it does when something breaks: the metrics and alerts, then the incident worked from ticket to root cause to prevention.",
+      "howTo": "Record what is monitored and the threshold that alerts. Then work the incident as a real ticket — symptoms, scope, what changed, the layers you ruled out, the root cause, the fix, and what stops it recurring.",
+      "buildSteps": [
+        "List what you monitor: device up, interface up, utilization, errors, CPU, latency, and the routing adjacency.",
+        "For each, the threshold that raises an alert and who it goes to.",
+        "When the failure is injected, open a ticket and record the time.",
+        "Work down the layers and record what you ruled OUT, not only what you found.",
+        "Name the root cause, the fix, and the preventive action — a standard or a check, not \"be careful\"."
+      ],
+      "meaning": "The difference between a technician and an engineer is the last two rows: root cause, and what stops it happening again.",
+      "useIt": "The handover ships the monitoring baseline and the incident history.",
+      "pitfalls": [
+        "Monitoring everything and alerting on all of it. An alert nobody acts on trains the team to ignore alerts.",
+        "\"Fixed the trunk\" as a root cause. Why was it wrong, and what stops the next one?"
+      ],
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "monitors",
+            "label": "What you watch",
+            "columns": [
+              {
+                "field": "what",
+                "label": "What",
+                "type": "text",
+                "placeholder": "Uplink utilization, SW-CORE-01 Gi1/0/1"
+              },
+              {
+                "field": "how",
+                "label": "How",
+                "type": "text",
+                "placeholder": "LibreNMS via SNMP, 5-minute poll"
+              },
+              {
+                "field": "threshold",
+                "label": "Alerts when",
+                "type": "text",
+                "placeholder": "above 70% for 15 minutes"
+              },
+              {
+                "field": "who",
+                "label": "Goes to",
+                "type": "text",
+                "placeholder": "Operations focus, on shift"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "fields",
+          "title": "The incident",
+          "fields": [
+            {
+              "field": "inc_ref",
+              "label": "Ticket",
+              "type": "text",
+              "placeholder": "INC-001"
+            },
+            {
+              "field": "inc_symptom",
+              "label": "Reported symptom",
+              "type": "area",
+              "placeholder": "Branch staff cannot reach the order system. Nineteen users."
+            },
+            {
+              "field": "inc_ruled_out",
+              "label": "What you ruled out, and how",
+              "type": "area",
+              "placeholder": "Layer 1: both WAN interfaces up, no errors. Layer 2: trunk up, VLANs match."
+            },
+            {
+              "field": "inc_cause",
+              "label": "Root cause",
+              "type": "area",
+              "placeholder": "The OSPF adjacency dropped: the branch link was changed to a /29 on one side only."
+            },
+            {
+              "field": "inc_fix",
+              "label": "Fix",
+              "type": "text",
+              "placeholder": "Corrected the mask on R2-BR Gi0/0/0 to /30."
+            },
+            {
+              "field": "inc_prevent",
+              "label": "What stops it recurring",
+              "type": "area",
+              "placeholder": "A pre-change check that both ends of a point-to-point link are configured in the same change record."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least six things are monitored, each with a threshold",
+          "when": {
+            "group": "monitors",
+            "where": {
+              "filled": [
+                "what",
+                "how",
+                "threshold"
+              ]
+            },
+            "atLeast": 6
+          },
+          "week": 6
+        },
+        {
+          "label": "An incident is worked from symptom to root cause",
+          "when": {
+            "fields": [
+              "inc_ref",
+              "inc_symptom",
+              "inc_cause"
+            ]
+          },
+          "week": 8
+        },
+        {
+          "label": "The investigation records what was ruled OUT",
+          "when": {
+            "fields": [
+              "inc_ruled_out"
+            ]
+          },
+          "week": 8
+        },
+        {
+          "label": "A preventive action is named — not \"be careful\"",
+          "when": {
+            "fields": [
+              "inc_prevent"
+            ]
+          },
+          "week": 8
+        }
+      ]
+    },
+    {
+      "id": "ccna_handover",
+      "courseId": "ccna",
+      "num": 10,
+      "file": "10_As_Built_and_Handover.md",
+      "title": "As-Built & Operations Handover",
+      "owner": "arch",
+      "shared": true,
+      "capstone": true,
+      "folder": "08_Handover",
+      "standard": "As-built documentation · operational handover",
+      "weeks": [
+        8
+      ],
+      "kind": "template",
+      "exportFormat": "md",
+      "purpose": "The network as it really is, handed to whoever runs it next: the diagrams, the addressing, the credentials process, the known issues, and what somebody must do on their first day.",
+      "howTo": "Assemble it from the other nine records rather than rewriting them. What is new here is the honesty: the known issues and what you would do with another week.",
+      "buildSteps": [
+        "Confirm the diagrams match what is configured — not what was designed.",
+        "List the known issues. Every real network has them; a handover that claims none is not trusted.",
+        "Say how credentials are handed over — the process, never the passwords in this document.",
+        "Write the first-day runbook: how to check the network is healthy in ten minutes.",
+        "Record what you would do next, with a reason."
+      ],
+      "meaning": "This is the document that gets you the job. It shows you can leave a network somebody else can run.",
+      "useIt": "It is the capstone artefact — the one that is defended rather than merely filed.",
+      "pitfalls": [
+        "A handover that describes the design instead of the build. If they differ, the build wins and the difference is the interesting part.",
+        "Passwords in the document. The process for handing them over belongs here; the secrets do not."
+      ],
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "The handover",
+          "fields": [
+            {
+              "field": "as_built",
+              "label": "How the build differs from the design, and why",
+              "type": "area",
+              "required": true,
+              "placeholder": "Inter-VLAN routing ended up on R1-HQ rather than the core switch: the 2960 cannot route, which the capability register recorded in Week 0."
+            },
+            {
+              "field": "known_issues",
+              "label": "Known issues",
+              "type": "area",
+              "required": true,
+              "placeholder": "The warehouse IDF uplink is a single copper run — fibre is budgeted for next quarter."
+            },
+            {
+              "field": "credentials",
+              "label": "How credentials are handed over",
+              "type": "area",
+              "required": true,
+              "placeholder": "Enable secrets and the RADIUS shared key are in the password manager; the incoming engineer is added to the vault and the old accounts are removed the same day."
+            },
+            {
+              "field": "first_day",
+              "label": "The first-day runbook — ten minutes to \"it is healthy\"",
+              "type": "area",
+              "required": true,
+              "placeholder": "show ip ospf neighbor on both routers · show interfaces status on the core · LibreNMS dashboard all green · one ping from a guest PC that must fail."
+            },
+            {
+              "field": "next",
+              "label": "What you would do next, and why",
+              "type": "area",
+              "placeholder": "A second uplink from the IDF, because the survey shows the warehouse is now the busiest floor in the company."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "The as-built difference from the design is stated",
+          "when": {
+            "fields": [
+              "as_built"
+            ]
+          }
+        },
+        {
+          "label": "Known issues are listed honestly",
+          "when": {
+            "fields": [
+              "known_issues"
+            ]
+          }
+        },
+        {
+          "label": "The credentials process is described, with no passwords in the document",
+          "when": {
+            "fields": [
+              "credentials"
+            ]
+          }
+        },
+        {
+          "label": "A first-day health runbook is written",
+          "when": {
+            "fields": [
+              "first_day"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "topology": {
+    "COMPANY": {
+      "name": "Northgate Supply Co.",
+      "industry": "Regional building-supplies distributor",
+      "staff": 85,
+      "driver": "One flat network, one switch out of ports, and a second building opening in six weeks."
+    },
+    "DEVICES": [
+      {
+        "name": "R1-HQ",
+        "class": "router",
+        "site": "hq",
+        "runs": "Edge router — internet, NAT, OSPF",
+        "mgmt": {
+          "vlan": 99,
+          "host": 2
+        },
+        "arrives": 3
+      },
+      {
+        "name": "SW-CORE-01",
+        "class": "l3-switch",
+        "site": "hq",
+        "runs": "Core switch — SVIs, inter-VLAN routing",
+        "mgmt": {
+          "vlan": 99,
+          "host": 10
+        },
+        "arrives": 1
+      },
+      {
+        "name": "SW-ACC-01",
+        "class": "l2-switch",
+        "site": "hq",
+        "runs": "Access switch — offices, trunk to core",
+        "mgmt": {
+          "vlan": 99,
+          "host": 11
+        },
+        "arrives": 1
+      },
+      {
+        "name": "SW-ACC-02",
+        "class": "l2-switch",
+        "site": "hq",
+        "runs": "Access switch — warehouse IDF, PoE for phones",
+        "mgmt": {
+          "vlan": 99,
+          "host": 12
+        },
+        "arrives": 2
+      },
+      {
+        "name": "AP-01",
+        "class": "ap",
+        "site": "hq",
+        "runs": "Access point — CORP, GUEST and IOT WLANs",
+        "mgmt": {
+          "vlan": 99,
+          "host": 20
+        },
+        "arrives": 4
+      },
+      {
+        "name": "R2-BR",
+        "class": "router",
+        "site": "branch",
+        "runs": "Branch router — WAN to HQ, OSPF",
+        "mgmt": {
+          "vlan": 199,
+          "host": 2
+        },
+        "arrives": 3
+      },
+      {
+        "name": "SW-BR-01",
+        "class": "l2-switch",
+        "site": "branch",
+        "runs": "Branch access switch",
+        "mgmt": {
+          "vlan": 199,
+          "host": 11
+        },
+        "arrives": 3
+      },
+      {
+        "name": "SRV-CORE",
+        "class": "server",
+        "site": "hq",
+        "runs": "DNS · DHCP · the order system",
+        "mgmt": {
+          "vlan": 20,
+          "host": 10
+        },
+        "arrives": 2
+      },
+      {
+        "name": "NETOPS",
+        "class": "server",
+        "site": "hq",
+        "runs": "NetBox · LibreNMS · Oxidized — the advanced weeks",
+        "mgmt": {
+          "vlan": 20,
+          "host": 20
+        },
+        "arrives": 5,
+        "optional": true
+      },
+      {
+        "name": "ADMIN-PC",
+        "class": "workstation",
+        "site": "hq",
+        "runs": "Where you work — console, SSH, browser",
+        "mgmt": {
+          "vlan": 99,
+          "host": 50
+        },
+        "arrives": 0
+      }
+    ],
+    "ISP": {
+      "outside": "198.51.100.2",
+      "prefix": "198.51.100.0/30",
+      "mask": "255.255.255.252",
+      "gateway": "198.51.100.1",
+      "name": "Lonestar Fibre",
+      "circuit": "LSF-44127",
+      "speed": "200 Mbps symmetric"
+    },
+    "LINKS": [
+      {
+        "from": {
+          "device": "SW-ACC-01",
+          "port": "Gi1/0/24"
+        },
+        "to": {
+          "device": "SW-CORE-01",
+          "port": "Gi1/0/1"
+        },
+        "kind": "trunk",
+        "media": "cat6",
+        "vlans": [
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          99
+        ],
+        "arrives": 2
+      },
+      {
+        "from": {
+          "device": "SW-ACC-02",
+          "port": "Gi1/0/23"
+        },
+        "to": {
+          "device": "SW-CORE-01",
+          "port": "Gi1/0/2"
+        },
+        "kind": "etherchannel",
+        "media": "cat6",
+        "vlans": [
+          10,
+          20,
+          30,
+          40,
+          50,
+          60,
+          99
+        ],
+        "arrives": 2
+      },
+      {
+        "from": {
+          "device": "SW-CORE-01",
+          "port": "Gi1/0/48"
+        },
+        "to": {
+          "device": "R1-HQ",
+          "port": "Gi0/0/1"
+        },
+        "kind": "routed",
+        "media": "cat6",
+        "arrives": 3
+      },
+      {
+        "from": {
+          "device": "R1-HQ",
+          "port": "Gi0/0/0"
+        },
+        "to": {
+          "device": "R2-BR",
+          "port": "Gi0/0/0"
+        },
+        "kind": "wan",
+        "media": "serial",
+        "arrives": 3
+      },
+      {
+        "from": {
+          "device": "SW-BR-01",
+          "port": "Gi1/0/24"
+        },
+        "to": {
+          "device": "R2-BR",
+          "port": "Gi0/0/1"
+        },
+        "kind": "trunk",
+        "media": "cat6",
+        "vlans": [
+          110,
+          130,
+          199
+        ],
+        "arrives": 3
+      },
+      {
+        "from": {
+          "device": "AP-01",
+          "port": "GigabitEthernet0"
+        },
+        "to": {
+          "device": "SW-ACC-01",
+          "port": "Gi1/0/20"
+        },
+        "kind": "uplink",
+        "media": "cat6",
+        "vlans": [
+          10,
+          50,
+          60,
+          99
+        ],
+        "arrives": 4
+      }
+    ],
+    "POLICY": [
+      {
+        "from": 50,
+        "to": "internet",
+        "allow": true,
+        "because": "Guests get internet — that is the whole service"
+      },
+      {
+        "from": 50,
+        "to": 10,
+        "allow": false,
+        "because": "A visitor must never reach a staff PC"
+      },
+      {
+        "from": 50,
+        "to": 20,
+        "allow": false,
+        "because": "A visitor must never reach the order system"
+      },
+      {
+        "from": 60,
+        "to": 20,
+        "allow": true,
+        "because": "Warehouse scanners post to the order system"
+      },
+      {
+        "from": 60,
+        "to": "internet",
+        "allow": false,
+        "because": "Scanners have no business on the internet"
+      },
+      {
+        "from": 10,
+        "to": 20,
+        "allow": true,
+        "because": "Staff use the order system all day"
+      },
+      {
+        "from": 40,
+        "to": 20,
+        "allow": false,
+        "because": "Cameras record; they do not talk to servers"
+      },
+      {
+        "from": 10,
+        "to": 99,
+        "allow": false,
+        "because": "Only the network team reaches the management VLAN"
+      }
+    ],
+    "SERVICES": {
+      "dns": "10.50.20.10",
+      "dhcp": "10.50.20.10",
+      "ntpUpstream": "pool.ntp.org",
+      "syslog": "10.50.20.20",
+      "snmpTarget": "10.50.20.20",
+      "domain": "northgate.local"
+    },
+    "SITES": [
+      {
+        "id": "hq",
+        "name": "Austin HQ",
+        "short": "HQ",
+        "octet": 50,
+        "rooms": "MDF in the server room, one IDF on the warehouse mezzanine"
+      },
+      {
+        "id": "branch",
+        "name": "Round Rock branch",
+        "short": "Branch",
+        "octet": 60,
+        "rooms": "One wall-mount cabinet in the office"
+      }
+    ],
+    "SITE_MASK": "255.255.255.0",
+    "VLANS": [
+      {
+        "id": 10,
+        "name": "CORP-USERS",
+        "site": "hq",
+        "purpose": "Staff PCs and laptops",
+        "dhcp": {
+          "from": 50,
+          "to": 200
+        },
+        "wireless": true
+      },
+      {
+        "id": 20,
+        "name": "SERVERS",
+        "site": "hq",
+        "purpose": "File, DNS/DHCP and the order system"
+      },
+      {
+        "id": 30,
+        "name": "VOICE",
+        "site": "hq",
+        "purpose": "Desk phones, on PoE",
+        "dhcp": {
+          "from": 50,
+          "to": 200
+        }
+      },
+      {
+        "id": 40,
+        "name": "SECURITY",
+        "site": "hq",
+        "purpose": "Door controllers and cameras"
+      },
+      {
+        "id": 50,
+        "name": "GUEST",
+        "site": "hq",
+        "purpose": "Visitors — internet only, never the LAN",
+        "dhcp": {
+          "from": 100,
+          "to": 200
+        },
+        "wireless": true
+      },
+      {
+        "id": 60,
+        "name": "IOT",
+        "site": "hq",
+        "purpose": "Warehouse scanners and printers",
+        "dhcp": {
+          "from": 50,
+          "to": 150
+        },
+        "wireless": true
+      },
+      {
+        "id": 99,
+        "name": "MGMT",
+        "site": "hq",
+        "purpose": "Switch and router management only",
+        "management": true
+      },
+      {
+        "id": 110,
+        "name": "BR-USERS",
+        "site": "branch",
+        "purpose": "Branch staff PCs",
+        "dhcp": {
+          "from": 50,
+          "to": 200
+        },
+        "wireless": true
+      },
+      {
+        "id": 130,
+        "name": "BR-VOICE",
+        "site": "branch",
+        "purpose": "Branch desk phones",
+        "dhcp": {
+          "from": 50,
+          "to": 200
+        }
+      },
+      {
+        "id": 199,
+        "name": "BR-MGMT",
+        "site": "branch",
+        "purpose": "Branch kit management only",
+        "management": true
+      }
+    ],
+    "WAN": {
+      "prefix": "10.255.255.0/30",
+      "mask": "255.255.255.252",
+      "hq": "10.255.255.1",
+      "branch": "10.255.255.2",
+      "ospfArea": 0,
+      "ospfProcess": 1
+    }
+  },
+  "content": {
+    "manual": {
+      "COURSE_TOOLS": {
+        "security-plus": "whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum",
+        "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
+        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)",
+        "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible"
+      },
+      "MANUAL_COPY": {
+        "title": "The manual",
+        "subtitle": "Look things up here. Everything is open, so search the page.",
+        "navLabel": "Manual sections"
+      },
+      "MANUAL_SECTIONS": [
+        {
+          "id": "lab",
+          "when": "config-guide",
+          "title": "The build",
+          "blurb": "One rack-mount server on the campus LAN running a hypervisor with two zones — a DMZ for the website, a private network for the Windows server and the Linux database. Your host is 10.10.30.T (T = your team number)."
+        },
+        {
+          "id": "lab",
+          "when": "always",
+          "title": "The lab",
+          "blurb": "Every machine in the environment, what runs on it, and how to confirm you can reach it before Week 1."
+        },
+        {
+          "id": "config-guide",
+          "when": "config-guide",
+          "title": "Configuration guide",
+          "blurb": "Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology. The task steps say what to do; this is how."
+        },
+        {
+          "id": "tools",
+          "when": "tools",
+          "title": "Using the tools — Wazuh, Suricata & Sysmon",
+          "blurb": "What each tool is, how it is configured, and the exact searches and event IDs you reuse all course. The step-by-step commands live in each week’s task."
+        },
+        {
+          "id": "terminal",
+          "when": "commands",
+          "title": "Running commands & getting unstuck",
+          "blurb": "How to use a terminal, and the fixes for the errors almost every beginner hits."
+        },
+        {
+          "id": "evidence",
+          "when": "always",
+          "title": "Evidence & chain of custody",
+          "blurb": "How to name, hash, log and hand off an artifact so it would hold up under scrutiny — and a ready-to-fill custody log."
+        },
+        {
+          "id": "forms",
+          "when": "always",
+          "title": "The forms, and how they connect",
+          "blurb": "Every form in the course, which one feeds the next, where its content comes from, and the folder layout you submit. The forms themselves are filled on the Deliverables tab."
+        },
+        {
+          "id": "roles",
+          "when": "multi-role",
+          "title": "How the roles hand off",
+          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them."
+        },
+        {
+          "id": "lifecycle",
+          "when": "lifecycle",
+          "title": "The case lifecycle",
+          "blurb": "The path every case follows, whatever raised it. The specific attack this course runs is drawn above, under the arc."
+        },
+        {
+          "id": "frameworks",
+          "when": "frameworks",
+          "title": "Frameworks",
+          "blurb": "Every task is mapped to a recognized standard. The tags on a task aren’t decoration — they say how an auditor or employer would read your work."
+        }
+      ],
+      "QUICK_REFERENCE": {
+        "title": "Quick reference card",
+        "filesTitle": "{n} FILES",
+        "everyFormTitle": "EVERY FORM",
+        "everyForm": [
+          "Run the tool → read the output → pull the 3 things (",
+          {
+            "em": "what you found · the proof · why it matters"
+          },
+          ") → enter in the form → Generate → save as PDF."
+        ],
+        "everyToolTitle": "EVERY TOOL",
+        "nameItTitle": "NAME IT",
+        "nameIt": [
+          "Deliverables ",
+          {
+            "code": "NN_Name.ext"
+          },
+          "; evidence ",
+          {
+            "code": "{evidence}"
+          },
+          "; hash with ",
+          {
+            "code": "sha256sum"
+          },
+          "."
+        ],
+        "gradedOnTitle": "GRADED ON",
+        "gradedOn": "Process · documentation · evidence · ethics (staying in scope) — not speed."
+      }
+    },
+    "kit": {
+      "BAND_LABEL": {
+        "low": "Cheapest tier second-hand — often the price of a takeaway",
+        "medium": "Mid tier second-hand — a considered purchase",
+        "high": "Expensive second-hand — borrow, share, or emulate instead"
+      },
+      "BUYING_GUIDE": [
+        {
+          "class": "l2-switch",
+          "label": "A managed access switch",
+          "models": [
+            "Catalyst 2960-24TT-L",
+            "Catalyst 2960S/2960-X",
+            "Catalyst 2960-CX (compact, quiet)"
+          ],
+          "band": "low",
+          "check": "Managed, not \"smart\" — it must have a console port and a CLI. A 2960 does NOT route between VLANs."
+        },
+        {
+          "class": "l3-switch",
+          "label": "A switch that routes",
+          "models": [
+            "Catalyst 3560-24PS",
+            "Catalyst 3560-CX (small, quiet)",
+            "Catalyst 3650 / 3850 (IOS-XE)"
+          ],
+          "band": "medium",
+          "check": "This is the one purchase that changes the course: with it you build SVIs, without it router-on-a-stick."
+        },
+        {
+          "class": "router",
+          "label": "A router with two Ethernet interfaces",
+          "models": [
+            "ISR 1921 / 2911 (classic IOS)",
+            "ISR 4321 / 4331 (IOS-XE, has APIs)"
+          ],
+          "band": "medium",
+          "check": "Two routed interfaces minimum — one to the inside, one to the WAN. IOS-XE if you want Week 7 to talk to it."
+        },
+        {
+          "class": "ap",
+          "label": "An access point",
+          "models": [
+            "Aironet 1832 / 2802 (Mobility Express capable)",
+            "Catalyst 9105 / 9115"
+          ],
+          "band": "medium",
+          "check": "Either PoE from your switch or an injector in the box — an AP with no power is an ornament."
+        },
+        {
+          "class": "wlc",
+          "label": "A wireless controller",
+          "models": [
+            "Catalyst 9800-CL (virtual — free to run)",
+            "AireOS 3504 (hardware)"
+          ],
+          "band": "low",
+          "check": "Run the virtual one first. Hardware controllers are heavy, loud and rarely worth it for one AP."
+        },
+        {
+          "class": "server",
+          "label": "Somewhere to run the tools",
+          "models": [
+            "Any spare PC with 8 GB",
+            "A small VM on your laptop",
+            "A Raspberry Pi 4/5 (NetBox is happy; LibreNMS is slower)"
+          ],
+          "band": "low",
+          "check": "Only needed from Week 5. Until then, nothing to buy."
+        }
+      ],
+      "CAPABILITIES": [
+        {
+          "key": "console",
+          "label": "Console access (blue cable or USB)",
+          "what": "Reach a device with no configuration at all, and recover one you have locked yourself out of.",
+          "proof": {
+            "cmd": "show users",
+            "tell": "the line marked `*` is `con 0` — you are on the console"
+          },
+          "from": [
+            "router",
+            "l3-switch",
+            "l2-switch",
+            "wlc"
+          ],
+          "neededBy": 1,
+          "without": "In an emulator the console IS the terminal the tool opens for you."
+        },
+        {
+          "key": "vlans",
+          "label": "VLANs",
+          "what": "Split one physical switch into separate networks — the whole of Week 2.",
+          "proof": {
+            "cmd": "show vlan brief",
+            "tell": "VLAN 1 is listed, so the table exists and can be added to"
+          },
+          "from": [
+            "l3-switch",
+            "l2-switch"
+          ],
+          "neededBy": 2,
+          "without": "An unmanaged switch cannot do this at all — this is the one capability the course genuinely requires, on hardware or in an emulator."
+        },
+        {
+          "key": "trunk8021q",
+          "label": "802.1Q trunking",
+          "what": "Carry several VLANs down one cable between switches.",
+          "proof": {
+            "cmd": "show interfaces trunk",
+            "tell": "the command exists and prints a table, even an empty one"
+          },
+          "from": [
+            "l3-switch",
+            "l2-switch"
+          ],
+          "neededBy": 2,
+          "without": "One cable per VLAN between switches — it works, it does not scale, and saying why is the lesson."
+        },
+        {
+          "key": "svi",
+          "label": "Inter-VLAN routing on the switch (SVI)",
+          "what": "Route between VLANs in the switch itself, at wire speed.",
+          "proof": {
+            "cmd": "show ip route",
+            "tell": "a routing table is printed rather than \"Invalid input\""
+          },
+          "from": [
+            "l3-switch"
+          ],
+          "neededBy": 2,
+          "without": "Router-on-a-stick: one trunk to a router, a subinterface per VLAN. Slower, and the CCNA outcome is the same."
+        },
+        {
+          "key": "etherchannel",
+          "label": "EtherChannel / LACP",
+          "what": "Bond two links into one, so a cable can fail without an outage.",
+          "proof": {
+            "cmd": "show etherchannel summary",
+            "tell": "the command is recognised — protocol column appears"
+          },
+          "from": [
+            "l3-switch",
+            "l2-switch"
+          ],
+          "neededBy": 2,
+          "without": "Two links and spanning tree: one forwards, one blocks. You still prove redundancy, with a slower failover."
+        },
+        {
+          "key": "ospf",
+          "label": "OSPF",
+          "what": "Learn routes dynamically between the two buildings — the whole of Week 3.",
+          "proof": {
+            "cmd": "show ip protocols",
+            "tell": "OSPF appears, or `router ospf 1` is accepted in config mode"
+          },
+          "from": [
+            "router",
+            "l3-switch"
+          ],
+          "neededBy": 3,
+          "without": "Static routes both ways, then a deliberate failure to show what static routing cannot do for you."
+        },
+        {
+          "key": "nat",
+          "label": "NAT / PAT",
+          "what": "Let the whole company reach the internet through one public address.",
+          "proof": {
+            "cmd": "show ip nat translations",
+            "tell": "the command is recognised (an empty table is a pass)"
+          },
+          "from": [
+            "router",
+            "firewall"
+          ],
+          "neededBy": 3,
+          "without": "The emulator provides the internet edge; the design is documented and the configuration is written even when nothing upstream answers."
+        },
+        {
+          "key": "acl",
+          "label": "Access control lists",
+          "what": "Turn the business rules into what the network will and will not carry.",
+          "proof": {
+            "cmd": "show access-lists",
+            "tell": "the command is recognised"
+          },
+          "from": [
+            "router",
+            "l3-switch",
+            "firewall"
+          ],
+          "neededBy": 4,
+          "without": "Nothing: every managed device in this course can do ACLs. If yours cannot, it is unmanaged."
+        },
+        {
+          "key": "poe",
+          "label": "Power over Ethernet",
+          "what": "Power the phones and the access point from the switch port.",
+          "proof": {
+            "cmd": "show power inline",
+            "tell": "per-port power budget is printed"
+          },
+          "from": [
+            "l3-switch",
+            "l2-switch"
+          ],
+          "neededBy": 4,
+          "without": "A PoE injector for the AP, and the phones are documented as a design requirement rather than built."
+        },
+        {
+          "key": "fiber",
+          "label": "Fibre uplink (SFP)",
+          "what": "Uplink between rooms further apart than copper will carry.",
+          "proof": {
+            "cmd": "show interfaces status",
+            "tell": "an SFP or Te/Gi uplink port appears, even unpopulated"
+          },
+          "from": [
+            "l3-switch",
+            "l2-switch"
+          ],
+          "neededBy": 1,
+          "without": "Copper uplinks, with the distance limit recorded in the site survey as the reason fibre would be needed."
+        },
+        {
+          "key": "wireless",
+          "label": "An access point",
+          "what": "Put the corporate, guest and IOT WLANs on the air.",
+          "proof": {
+            "cmd": "show ap summary",
+            "tell": "on a controller: the AP is listed and joined"
+          },
+          "from": [
+            "ap"
+          ],
+          "neededBy": 4,
+          "without": "The WLANs are configured in the emulator and the VLAN-to-SSID mapping is documented."
+        },
+        {
+          "key": "wlc",
+          "label": "A wireless controller",
+          "what": "Run several APs as one system, with WLANs defined once.",
+          "proof": {
+            "cmd": "show wlan summary",
+            "tell": "the WLAN list is printed"
+          },
+          "from": [
+            "wlc"
+          ],
+          "neededBy": 4,
+          "without": "A standalone AP, or Mobility Express on the AP itself. The WLAN-to-VLAN design does not change."
+        },
+        {
+          "key": "dhcpServer",
+          "label": "DHCP served by the network device",
+          "what": "Hand out addresses without a server — the usual small-site answer.",
+          "proof": {
+            "cmd": "show ip dhcp pool",
+            "tell": "the command is recognised"
+          },
+          "from": [
+            "router",
+            "l3-switch"
+          ],
+          "neededBy": 2,
+          "without": "The server VM serves DHCP and the router relays with `ip helper-address` — which is the enterprise pattern anyway."
+        },
+        {
+          "key": "ssh",
+          "label": "SSH to the device",
+          "what": "Administer the kit without sending the password in clear text.",
+          "proof": {
+            "cmd": "show ip ssh",
+            "tell": "SSH is Enabled, with a version"
+          },
+          "from": [
+            "router",
+            "l3-switch",
+            "l2-switch",
+            "wlc"
+          ],
+          "neededBy": 4,
+          "without": "Telnet on the management VLAN only, documented as a risk with the remediation named. An image without crypto cannot do SSH."
+        },
+        {
+          "key": "snmp",
+          "label": "SNMP",
+          "what": "Let the monitoring system read interfaces, CPU and memory.",
+          "proof": {
+            "cmd": "show snmp",
+            "tell": "the command is recognised — chassis and contact appear"
+          },
+          "from": [
+            "router",
+            "l3-switch",
+            "l2-switch"
+          ],
+          "neededBy": 6,
+          "without": "Syslog and reachability checks only. You still build the NOC; it sees less."
+        }
+      ],
+      "CLASS_OPTION": {
+        "router": "Router",
+        "l3-switch": "Switch that routes (L3)",
+        "l2-switch": "Access switch (L2)",
+        "ap": "Access point",
+        "wlc": "Wireless controller",
+        "firewall": "Firewall",
+        "server": "Server / VM",
+        "workstation": "Workstation you work from"
+      },
+      "CLASS_OPTIONS": [
+        "Router",
+        "Switch that routes (L3)",
+        "Access switch (L2)",
+        "Access point",
+        "Wireless controller",
+        "Firewall",
+        "Server / VM",
+        "Workstation you work from"
+      ],
+      "CLASS_UNLOCKS": {
+        "router": [
+          "console",
+          "ospf",
+          "nat",
+          "acl",
+          "dhcpServer",
+          "ssh",
+          "snmp"
+        ],
+        "l3-switch": [
+          "console",
+          "vlans",
+          "trunk8021q",
+          "svi",
+          "etherchannel",
+          "ospf",
+          "acl",
+          "poe",
+          "fiber",
+          "dhcpServer",
+          "ssh",
+          "snmp"
+        ],
+        "l2-switch": [
+          "console",
+          "vlans",
+          "trunk8021q",
+          "etherchannel",
+          "poe",
+          "fiber",
+          "ssh",
+          "snmp"
+        ],
+        "ap": [
+          "wireless"
+        ],
+        "wlc": [
+          "console",
+          "wlc",
+          "ssh"
+        ],
+        "firewall": [
+          "nat",
+          "acl"
+        ],
+        "server": [],
+        "workstation": []
+      },
+      "EMULATORS": [
+        {
+          "key": "packet-tracer",
+          "name": "Cisco Packet Tracer",
+          "runs": "Any laptop — small download, free with a Cisco Networking Academy account",
+          "good": "Switching, VLANs, trunks, OSPF, ACLs, NAT, and a wireless model. Enough for Weeks 1-4.",
+          "caveat": "A simulation, not real IOS: some commands do not exist and the output is simplified. It cannot run the automation weeks."
+        },
+        {
+          "key": "cml",
+          "name": "Cisco Modeling Labs (CML)",
+          "runs": "A machine with virtualization and plenty of memory, or a server",
+          "good": "Real IOS-XE images, so every command and every `show` output is the genuine thing. APIs work.",
+          "caveat": "Licensed, and hungry: each node is a full virtual router."
+        },
+        {
+          "key": "gns3",
+          "name": "GNS3",
+          "runs": "A machine with virtualization; images are yours to supply",
+          "good": "Real images, mixes vendors, and connects to real hardware.",
+          "caveat": "You must legally obtain the images. Setup is the longest of the three."
+        },
+        {
+          "key": "containerlab",
+          "name": "containerlab",
+          "runs": "Linux with Docker",
+          "good": "Fast, scriptable, and the natural fit for Weeks 7-8 — a topology in a file, brought up in seconds.",
+          "caveat": "Container network operating systems, not Catalyst IOS. Best as the automation lab, beside one of the others."
+        }
+      ],
+      "PATHS": {
+        "emulated": {
+          "label": "Emulated",
+          "what": "The topology runs as software on your own machine.",
+          "strength": "Every device the design calls for, free, and you can break it without consequence.",
+          "limit": "No cabling, no optics, no PoE, no interface errors — Week 1 records those as design decisions rather than doing them."
+        },
+        "physical": {
+          "label": "Physical kit",
+          "what": "Real switches and routers on a bench or in a rack.",
+          "strength": "Cabling, optics, PoE, console recovery and the interface counters that only real copper produces.",
+          "limit": "Costs money, and what your specific models support decides how some weeks are built — which is what the register is for."
+        }
+      },
+      "PREFLIGHT": [
+        "The path is declared — emulated or physical — and recorded in the Kit Capability Statement",
+        "Every device you have is one row in the Equipment Register, with its software version read off `show version`",
+        "Each capability is answered Yes or No with the command output that proves it",
+        "You can reach one device and get to a prompt — console cable, terminal program, or the emulator’s console",
+        "The machine you work from is named and addressed in the register, so the documentation can refer to it"
+      ],
+      "UNLOCKS_BY_OPTION": {
+        "Router": "Routing, OSPF, NAT, ACLs, DHCP — the edge and the WAN",
+        "Switch that routes (L3)": "VLANs, trunks, SVIs, EtherChannel — the core, and inter-VLAN routing",
+        "Access switch (L2)": "VLANs, trunks, EtherChannel, PoE — access ports",
+        "Access point": "The WLANs, on the air",
+        "Wireless controller": "Several APs as one system",
+        "Firewall": "NAT and policy at the edge",
+        "Server / VM": "DNS, DHCP, and the tools the advanced weeks need",
+        "Workstation you work from": "Where you work from — console, SSH, browser"
+      },
+      "UNLOCKS_LABEL": {
+        "router": "Routing, OSPF, NAT, ACLs, DHCP — the edge and the WAN",
+        "l3-switch": "VLANs, trunks, SVIs, EtherChannel — the core, and inter-VLAN routing",
+        "l2-switch": "VLANs, trunks, EtherChannel, PoE — access ports",
+        "ap": "The WLANs, on the air",
+        "wlc": "Several APs as one system",
+        "firewall": "NAT and policy at the edge",
+        "server": "DNS, DHCP, and the tools the advanced weeks need",
+        "workstation": "Where you work from — console, SSH, browser"
+      }
+    },
+    "troubleshooting": {
+      "ERROR_ROWS": [
+        {
+          "symptom": "command not found",
+          "meaning": "The terminal doesn’t recognise the program — usually a typo or the tool isn’t installed.",
+          "fix": "Check the spelling. If it’s really missing, install it: sudo apt update && sudo apt install <tool>",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " (e.g. nmap, nikto, hydra).",
+              "otherwise": " — the step that first uses a tool says how to install it."
+            }
+          ]
+        },
+        {
+          "symptom": "Permission denied / Operation not permitted",
+          "meaning": "The command needs admin rights.",
+          "fix": "Add sudo in front on Linux (sudo <command>). On Windows/PowerShell, close it and reopen with “Run as administrator”."
+        },
+        {
+          "symptom": "Connection refused / No route to host / host seems down",
+          "meaning": "You can’t reach the target — it’s off, the IP is wrong, or you’re not on the right network.",
+          "fix": "ping the address first. Confirm the machine is powered on and that you are on the same subnet as it",
+          "variants": [
+            {
+              "when": "panel",
+              "then": ", and that you set the right IP in Lab access.",
+              "otherwise": " — a host in another zone only answers once the route between them exists."
+            },
+            {
+              "when": "attackTools",
+              "then": " For nmap, add -Pn to scan a host that blocks ping."
+            }
+          ]
+        },
+        {
+          "symptom": "No such file or directory",
+          "meaning": "You’re in the wrong folder, or the path/filename is wrong.",
+          "fix": "Run pwd to see where you are and cd ~ to go home.",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " For hydra, rockyou is gzipped by default — unzip it once: sudo gunzip /usr/share/wordlists/rockyou.txt.gz",
+              "otherwise": " Check the file really exists with ls before you edit it — a config path is easy to mistype."
+            }
+          ]
+        },
+        {
+          "needs": [
+            "panel"
+          ],
+          "symptom": "The command still shows {token}",
+          "meaning": "That’s a placeholder, not a real address — you copied it literally.",
+          "fix": "Open the Lab access panel at the top of the Tasks tab and enter {label}; the site then fills it into every command automatically."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "ssh: connect to host … Operation timed out (from home)",
+          "meaning": "Your laptop is not on the tailnet, or the host is not.",
+          "fix": "Check the Tailscale client is signed in and connected on your laptop, then run tailscale status on the host — it must list the host as online. On campus you can still reach it on its 10.10.30.T address while you sort this out."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "The Proxmox console times out but SSH works",
+          "meaning": "The path is fine; the web service or the port is not.",
+          "fix": "Run systemctl status pveproxy --no-pager over SSH. Remember the console is on port 8006 and https, not http — a plain http:// URL simply hangs."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "It worked yesterday and not today",
+          "meaning": "The host rebooted and something did not come back, or your address changed.",
+          "fix": "systemctl is-active tailscaled on the host must read active. The host keeps the same Tailscale address across reboots, so if the address you saved has changed, you are looking at a rebuilt host that was re-authorised as a new device."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "Permission denied (publickey) after setting up keys",
+          "meaning": "The key is not where the server expects it, or the account is wrong.",
+          "fix": "Run ssh -v to see which key is offered, and confirm you are connecting as the right user. Password login is still enabled until Week 4 hardens it, so you have a way back in — use it rather than locking yourself out further."
+        },
+        {
+          "needs": [
+            "ops"
+          ],
+          "symptom": "ping 10.20.0.11 fails from a VM (Week 6)",
+          "meaning": "The VM cannot reach the Core over the ops network — the second NIC, the VLAN tag or the bridge is wrong.",
+          "fix": "On the host, ip -br a must show vmbr9 UP with the team’s 10.20.T.1 address. Inside the VM, the second interface needs its 10.20.T.x address and no gateway. Still nothing: the switch port is not trunking VLAN 20 — the Networking deep-dive owns that."
+        },
+        {
+          "symptom": "It just hangs / never finishes",
+          "meaning": "Some commands (a bare ping, a large download, a package install) run until you stop them, or they’re waiting on a slow or unreachable host.",
+          "fix": "Press Ctrl+C to stop it. Re-check reachability (ping), and give a genuinely long job a minute",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " — an all-port nmap is slow.",
+              "otherwise": " — an OS install or a big apt upgrade takes minutes, not seconds."
+            }
+          ]
+        },
+        {
+          "symptom": "Read the last line first",
+          "meaning": "When anything fails, the error’s last line usually names the real problem.",
+          "fix": "Match that line to the rows above. Also double-check you’re on the machine the step’s WHERE chip names — running the right command on the wrong host is the most common cause."
+        }
+      ],
+      "TERMINAL_BASICS": [
+        {
+          "label": "Open a terminal",
+          "body": "On a Linux desktop, click the black terminal icon or press Ctrl+Alt+T. On a server you reach over SSH, the terminal is the session itself. You type commands here and press Enter to run them."
+        },
+        {
+          "label": "The prompt",
+          "body": "A line ending in $ (or #) is the prompt — it means the terminal is waiting for you. You don’t type the $ itself."
+        },
+        {
+          "label": "Paste a command",
+          "body": "Copy from this site, then in the terminal press Ctrl+Shift+V (plain Ctrl+V often does nothing in a terminal). Right-click → Paste also works."
+        },
+        {
+          "label": "Run one line at a time",
+          "body": "When a step shows several numbered commands, run them one by one — paste one, press Enter, wait for it to finish, then the next."
+        },
+        {
+          "label": "sudo = run as admin",
+          "body": "sudo runs a command with admin rights (it may ask for your password — typing shows nothing, that’s normal). On Windows/PowerShell, instead right-click PowerShell → “Run as administrator”."
+        },
+        {
+          "label": "Stop a stuck command",
+          "body": "Press Ctrl+C to cancel a command that hangs or runs forever (e.g. a ping with no -c limit)."
+        }
+      ],
+      "TERMINAL_COPY": {
+        "title": "Terminal basics",
+        "intro": "New to the command line? These are the only things you need to know to run every command in this course.",
+        "errorsTitle": "When a command won’t run",
+        "errorsIntro": "The errors almost everyone hits, and the one-line fix for each. Match the message you see to a row.",
+        "fixLabel": "Fix: "
+      }
+    }
+  },
+  "glossary": {
+    "data.src_ip": "The Wazuh search field holding the source address of a network (Suricata) alert — who the traffic came from.",
+    "data.srcip": "The Wazuh search field holding the source address of a host alert (logins, web requests). Its network twin is data.src_ip — search both.",
+    "ossec.conf": "The Wazuh agent's config file. It names the SOC to report to and any extra log files to ship.",
+    "hydra": "A password-guessing tool. In this lab you run it against your own pod so the SOC has a brute-force attack to detect.",
+    "tcpdump": "A command-line tool that records network traffic to a .pcap file you can open in Wireshark.",
+    "Wireshark": "A traffic viewer. Open a .pcap in it and \"Follow HTTP Stream\" to read the exact request an attacker sent.",
+    "Kali": "The attacker machine in your lab — a Linux build that ships with nmap, nikto, hydra and the rest.",
+    "Proxmox": "A hypervisor — an operating system whose job is to run virtual machines. In Server+ you install it on your own server; in the CySA lab it already runs the lab.",
+    "POST": "Power-On Self-Test — the hardware check a machine runs the moment you power it on, before any operating system. Beeps and blink codes are POST talking to you.",
+    "DIMM": "A memory stick. Which slots they go in is dictated by the motherboard manual, and the wrong slots can stop the machine starting at all.",
+    "ECC": "Error-Correcting Code memory — server RAM that detects and fixes single-bit corruption on the fly. Servers use it; desktops usually do not.",
+    "HCL": "Hardware Compatibility List — the check that the software you plan to run officially supports the exact hardware you have, before you build on it.",
+    "UEFI": "The modern replacement for the old BIOS firmware. Boot mode matters: an OS installed under UEFI will not boot if the firmware is later switched to legacy.",
+    "IOMMU": "The chip feature (Intel VT-d / AMD-Vi) that lets a virtual machine be handed a real piece of hardware, like a NIC, as its own.",
+    "VT-x": "Intel’s virtualization extensions. Present is not enough — they must be ENABLED in firmware setup, or the hypervisor cannot start a single VM.",
+    "stripe size": "How large a chunk of data a RAID array writes to one disk before moving to the next. The default is right for this build.",
+    "IDS": "Intrusion Detection System — software that watches traffic and raises an alert when it matches a known attack pattern. Suricata is yours.",
+    "NVD": "National Vulnerability Database — the public catalogue you search to find a CVE and its score for a given software version.",
+    "pod": "Your team’s pair of machines: one Ubuntu web server and one Windows PC.",
+    "escalate": "Pass an alert on for deeper investigation, with the reason written down, instead of closing it yourself.",
+    "SOC": "Security Operations Centre — the team (and dashboard) that watches for attacks around the clock.",
+    "SIEM": "Security Information and Event Management — software that gathers logs from everywhere and raises alerts. Wazuh is your SIEM.",
+    "IOC": "Indicator of Compromise — a clue an attacker leaves behind, like a bad IP address, file name, or hash.",
+    "CVE": "Common Vulnerabilities and Exposures — a public ID for one specific known software flaw, e.g. CVE-2021-41773.",
+    "CVSS": "A 0–10 score for how severe a vulnerability is, so you can rank what to fix first.",
+    "pcap": "A 'packet capture' — a saved recording of network traffic you can open in Wireshark.",
+    "SQLi": "SQL injection — tricking a website into running database commands it shouldn't, often to steal data.",
+    "WAF": "Web Application Firewall — a filter in front of a website that blocks common attacks like SQL injection.",
+    "POA&M": "Plan of Action & Milestones — a to-do list for fixing findings: what, who owns it, and by when.",
+    "PTES": "Penetration Testing Execution Standard — the agreed steps of a pentest: recon, scan, exploit, report.",
+    "STRIDE": "A checklist of threat types: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.",
+    "NIC": "Network Interface Card — a machine's network connection. On these VMs it's usually named ens18.",
+    "IaC": "Infrastructure as Code — describing machines in a text file a tool applies, so the build is repeatable and the file is the record. Terraform or OpenTofu is yours.",
+    "OpenTofu": "The open-source fork of Terraform, kept under the Linux Foundation after HashiCorp changed Terraform’s licence in 2023. Same HCL, same providers, same state files; the command is tofu instead of terraform.",
+    "exporter": "A small program on a host that publishes its metrics on an HTTP port for Prometheus to collect. node_exporter for Linux, windows_exporter for Windows.",
+    "IPAM": "IP Address Management — the tool that holds every subnet and address and who has it, so the plan and reality are the same document. NetBox is yours.",
+    "FIM": "File Integrity Monitoring — an agent that hashes important files and alerts when one changes, which is how a tampered config gets noticed.",
+    "cloud-init": "The first-boot setup a cloud image runs: hostname, user, keys and addressing handed in from outside, so a clone comes up configured instead of blank.",
+    "DNAT": "Destination NAT — the host rewriting where a packet is going. The rule that turns a request to the host’s campus address on port 80 into a request to websrv in the DMZ.",
+    "MASQUERADE": "Source NAT behind the host’s own address, so a reply from the campus LAN or the internet comes back to the host and is handed to the guest that asked.",
+    "published port": "A port on the host’s campus address that a DNAT rule hands to a VM behind it. Each one is a deliberate hole in the segmentation, and you should be able to say why it exists.",
+    "idempotent": "Running it twice gives the same result as running it once. The property that makes a playbook safe to run every night — and why changed=0 on the second run is the proof.",
+    "drift": "Reality diverging from what the code says — a change made in the console instead of the repository. terraform plan (tofu plan) detects it; the next apply may undo it.",
+    "dynamic inventory": "Ansible asking the hypervisor which hosts exist instead of reading a list someone typed. The list is never out of date because there is no list.",
+    "XDR": "Extended Detection and Response — one platform watching endpoints, logs and files across a whole fleet. Wazuh on the Core is the MSP’s.",
+    "verify job": "The backup server re-reading a backup, chunk by chunk, to confirm it is restorable before anyone needs it.",
+    "SLO": "Service Level Objective — the availability you promise a client, as a number. The SLA is the contract around it.",
+    "SCA": "Security Configuration Assessment — checking a machine's settings against a hardening benchmark.",
+    "Rules of Engagement": "The written agreement of what you're allowed to test, and when.",
+    "RoE": "Rules of Engagement — the written agreement of what you're allowed to test, and when.",
+    "triage": "Quickly sorting alerts into real vs noise and deciding what to escalate — like an ER nurse.",
+    "baseline": "A record of what 'normal' looks like, so you can spot what's abnormal later.",
+    "chain of custody": "A documented trail of who handled each piece of evidence and when — so it holds up as proof.",
+    "agent": "A small program installed on each machine that ships its logs to the SOC.",
+    "gate": "A checkpoint at the end of a week — finish its required work before the next week unlocks.",
+    "eve.json": "The file where Suricata writes its network alerts.",
+    "subnet": "A slice of a network sharing an address range, e.g. 10.10.100.x.",
+    "Wazuh": "The free, open-source SIEM/SOC platform this lab is built on.",
+    "Suricata": "An open-source network intrusion detector that watches traffic and raises alerts.",
+    "Sysmon": "A Windows tool that records detailed activity — processes, connections, file changes.",
+    "DVWA": "Damn Vulnerable Web App — a deliberately insecure web app used as a safe attack target.",
+    "nmap": "A scanner that finds open ports and what software is running on them.",
+    "nikto": "A scanner that checks a web server for known issues.",
+    "MITRE ATT&CK": "A public catalogue of attacker techniques, used to describe how an attack was carried out.",
+    "MTTD": "Mean Time To Detect — the average time from an attack starting to it being noticed.",
+    "MTTR": "Mean Time To Respond — the average time from detecting an attack to containing it.",
+    "rule.level": "Wazuh scores every alert 0–15 by severity; searching rule.level:>=7 keeps the ones that usually matter.",
+    "rule.groups": "The category tags Wazuh puts on an alert (e.g. authentication_failed, ids, web) — handy for filtering by attack type.",
+    "agent.name": "The Wazuh field naming which machine an alert came from (e.g. Team07-ubuntu) — use it to filter to one host.",
+    "event channel": "A named Windows log stream — Sysmon writes to Microsoft-Windows-Sysmon/Operational, which the agent forwards.",
+    "Emerging Threats ruleset": "The community alert rules Suricata downloads with suricata-update — without them it sees traffic but raises nothing.",
+    "DQL": "Dashboard Query Language — the field:value search syntax in the Wazuh/OpenSearch search bar (e.g. data.src_ip:10.10.30.7).",
+    "Discover": "The Wazuh/OpenSearch view that lists raw events in a table you can search, add columns to, and save.",
+    "time picker": "The date/time control (top-right) that sets which window of events you see — the #1 reason a correct search looks empty.",
+    "visualization": "A saved chart (bar, pie, table) built from a search — the building block you drop onto a dashboard.",
+    "dashboard": "A saved page of visualizations and searches you assemble to watch at a glance.",
+    "rule.description": "The Wazuh field holding the human-readable name of the rule that fired — useful to group and count alerts by.",
+    "syscheck": "Wazuh’s File Integrity Monitoring engine; its events carry syscheck.path and whether a file was added/modified/deleted.",
+    "sensor": "A program on a machine that watches activity and reports it to the SOC — your Wazuh agent, Suricata and Sysmon are all sensors.",
+    "endpoint": "Any individual computer on the network — a laptop, server or VM — as opposed to the network gear between them.",
+    "telemetry": "The stream of activity data a machine sends about itself — processes, logins, connections — that the SOC watches.",
+    "hash": "A short fingerprint calculated from a file; change one byte and the fingerprint changes, so it proves the file was not tampered with.",
+    "hashing": "Running a file through a formula to get its fixed-length fingerprint (its hash).",
+    "SHA-256": "A widely trusted hashing method that turns any file into a 64-character fingerprint.",
+    "false positive": "An alert that turned out to be harmless — the tool flagged something that was not actually an attack.",
+    "true positive": "An alert that was real — the flagged activity really was malicious.",
+    "enroll": "To register a machine with the SOC so its agent starts sending logs.",
+    "brute force": "Guessing a password by automatically trying huge numbers of combinations until one works.",
+    "port scan": "Probing a machine to list which network ports are open, to discover what services it is running.",
+    "SSH": "Secure Shell — a way to log in to and run commands on another machine over the network, from your terminal.",
+    "pivot": "To follow a clue (like an IP or username) from one log into related events, tracing an attacker’s movements.",
+    "hardening": "Making a machine harder to attack by closing unused services, fixing weak settings and applying updates.",
+    "containment": "Stopping an attack from spreading — e.g. isolating the affected machine — once you have detected it.",
+    "vulnerability": "A weakness in software or configuration that an attacker could exploit.",
+    "vuln": "Short for vulnerability — a weakness an attacker could exploit.",
+    "firewall": "A filter that allows or blocks network connections by rule, to keep unwanted traffic out.",
+    "ufw": "Uncomplicated Firewall — the simple command-line firewall on Ubuntu (e.g. ufw allow 22).",
+    "VLAN": "A virtual LAN — one physical switch split into separate networks. Ports in different VLANs cannot talk without something routing between them, which is the whole point.",
+    "trunk": "A link between switches that carries several VLANs at once, tagging each frame with its VLAN id (802.1Q). The alternative is one cable per VLAN.",
+    "native VLAN": "The one VLAN a trunk carries UNTAGGED. If the two ends disagree about which it is, traffic silently lands in the wrong network — the classic trunk fault.",
+    "SVI": "Switched Virtual Interface — a VLAN’s gateway configured on the switch itself. A switch with SVIs routes between VLANs at wire speed; a switch without them needs a router.",
+    "router-on-a-stick": "Inter-VLAN routing done by a router over a single trunk, with one subinterface per VLAN. What you build when the switch cannot route — same outcome, one link carrying all of it.",
+    "EtherChannel": "Two or more physical links bundled into one logical link, so a cable can fail without an outage and the bandwidth adds up. LACP is the protocol that negotiates it.",
+    "spanning tree": "The protocol that stops a loop when switches have more than one path between them, by blocking all but one. It always picks a root switch — set it deliberately or it picks the oldest one.",
+    "PortFast": "Tells spanning tree an access port has a PC on it, not a switch, so it forwards immediately instead of waiting. Never on a port that could reach another switch.",
+    "BPDU Guard": "Shuts a PortFast port the moment it hears spanning-tree messages — which means somebody plugged a switch into a desk port. The protection that makes PortFast safe.",
+    "OSPF": "A routing protocol: routers tell each other which networks they can reach, so each works out its own routes. It replaces static routes and reacts when a link dies.",
+    "OSPF area": "A grouping that limits how far routing detail spreads. This course uses a single area 0 — the backbone — because one correctly adjacent area is the CCNA outcome.",
+    "adjacency": "Two OSPF routers that have agreed to exchange routes. It has to reach the FULL state; anything less is the protocol telling you what does not match.",
+    "NAT": "Network Address Translation — rewriting addresses as traffic crosses the edge, so internal addresses that mean nothing on the internet can still reach it.",
+    "PAT": "Port Address Translation, sometimes \"NAT overload\" — the whole company sharing one public address, told apart by port number. What almost every small site actually runs.",
+    "ACL": "Access Control List — an ordered list of permit and deny rules applied to an interface in one direction. It ends with an implicit deny, which is why the order matters.",
+    "port security": "Limits which or how many MAC addresses a switch port accepts, so a stranger plugging into a desk port cannot quietly join the network.",
+    "ip helper-address": "Tells a router to forward DHCP requests from a VLAN to a DHCP server somewhere else. The enterprise pattern, versus the router serving DHCP itself.",
+    "SNMP": "The protocol a monitoring system uses to read a device’s interfaces, CPU and memory. Read-only is all a NOC needs; v3 is the version with real authentication.",
+    "syslog": "Device log messages sent to a central collector. With synchronised clocks it turns \"it broke this morning\" into a readable sequence across every device.",
+    "NetBox": "The source of truth for the network: sites, devices, interfaces, cables, VLANs and prefixes, with an API. It replaces the spreadsheet once the spreadsheet stops scaling.",
+    "Oxidized": "Collects every device’s configuration on a schedule and commits it to Git, so you have both a backup and a history of what changed.",
+    "source of truth": "The one system that DEFINES what the network should be. Tools read from it and configure devices to match, so the documentation cannot drift from reality.",
+    "PoE": "Power over Ethernet — the switch powering the device on the far end of the cable, which is how phones and access points run without a plug of their own.",
+    "SFP": "The slot a fibre (or copper) transceiver plugs into, for uplinks that go further or faster than the built-in ports."
+  },
+  "marking": {
+    "teamWeight": 70,
+    "focusWeight": 30
+  },
+  "labAccess": {
+    "fields": [
+      {
+        "key": "CCNA_MGMT",
+        "label": "Your first switch’s management address",
+        "placeholder": "e.g. 10.50.99.11",
+        "tokens": [
+          "<CCNA_MGMT>",
+          "<SWITCH_MGMT>"
+        ]
+      },
+      {
+        "key": "CCNA_PATH",
+        "label": "How your build runs",
+        "placeholder": "",
+        "tokens": [],
+        "kind": "select",
+        "options": [
+          {
+            "value": "emulated",
+            "label": "Emulated — the topology runs as software"
+          },
+          {
+            "value": "physical",
+            "label": "Physical kit — real switches and routers"
+          }
+        ]
+      },
+      {
+        "key": "CCNA_EMULATOR",
+        "label": "Which emulator",
+        "placeholder": "",
+        "tokens": [],
+        "kind": "select",
+        "options": [
+          {
+            "value": "packet-tracer",
+            "label": "Cisco Packet Tracer"
+          },
+          {
+            "value": "cml",
+            "label": "Cisco Modeling Labs"
+          },
+          {
+            "value": "gns3",
+            "label": "GNS3"
+          },
+          {
+            "value": "containerlab",
+            "label": "containerlab"
+          },
+          {
+            "value": "none",
+            "label": "None — hardware only"
+          }
+        ]
+      }
+    ],
+    "checks": [
+      {
+        "key": "prompt",
+        "label": "You can reach a device prompt — console, SSH or the emulator"
+      },
+      {
+        "key": "register",
+        "label": "Every device you have is a row in the Kit & Capability Register"
+      },
+      {
+        "key": "capabilities",
+        "label": "Each capability is answered Yes or No, with the output that proves it"
+      }
+    ],
+    "title": "Your lab — the kit and how you reach it",
+    "intro": "Say whether you are emulating or on real hardware, and give the management address you actually set. Your Week-0 register decides which procedure each week hands you. Saved to your account, visible only to you."
+  }
+}

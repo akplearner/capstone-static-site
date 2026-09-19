@@ -27,6 +27,7 @@ import { SECURITY_PLUS } from '@/lib/data/seed/securityPlus';
 import { CYSA_PLUS } from '@/lib/data/seed/cysa';
 import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
+import { CCNA } from '@/lib/data/seed/ccna';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { PROCEDURES, WEEKS } from '@/lib/docs/serverProcedures';
 import * as serverTopology from '@/lib/serverTopology';
@@ -41,12 +42,14 @@ import * as serverDiagrams from '@/lib/docs/serverDiagrams';
 import * as cysaContent from '@/lib/docs/cysaContent';
 import * as securityContent from '@/lib/docs/securityContent';
 import * as troubleshooting from '@/lib/docs/troubleshooting';
+import * as ccnaTopology from '@/lib/ccnaTopology';
+import * as ccnaKit from '@/lib/docs/ccnaKit';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -126,6 +129,7 @@ const SEED_FILE: Record<string, string> = {
   mssp: 'src/lib/data/seed/mssp.ts',
   'cysa-plus': 'src/lib/data/seed/cysa.ts',
   'server-plus': 'src/lib/data/seed/serverPlus.ts',
+  ccna: 'src/lib/data/seed/ccna.ts',
 };
 
 const FORM_FILE: Record<string, string> = {
@@ -133,6 +137,7 @@ const FORM_FILE: Record<string, string> = {
   mssp: 'src/lib/docs/msspDeliverables.ts',
   'cysa-plus': 'src/lib/docs/cysaDeliverables.ts',
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
+  ccna: 'src/lib/docs/ccnaDeliverables.ts',
 };
 
 /**
@@ -190,6 +195,9 @@ export function courseDto(courseId: string): CourseDto {
     dto.procedureWeeks = serialisable(WEEKS);
     dto.procedures = serialisable(PROCEDURES);
     dto.topology = serialisable(topologyData(serverTopology));
+  } else if (courseId === 'ccna') {
+    generatedFrom.push('src/lib/ccnaTopology.ts');
+    dto.topology = serialisable(topologyData(ccnaTopology));
   } else if (SOC_TOPOLOGY_BY_COURSE[courseId]) {
     generatedFrom.push('src/lib/labTopology.ts');
     // Same rule as the Server+ side: everything the module holds as data, minus
@@ -214,6 +222,10 @@ export function courseDto(courseId: string): CourseDto {
   if (courseId === 'security-plus') {
     generatedFrom.push('src/lib/docs/securityContent.ts');
     content.security = contentData(securityContent);
+  }
+  if (courseId === 'ccna') {
+    generatedFrom.push('src/lib/docs/ccnaKit.ts');
+    content.kit = contentData(ccnaKit);
   }
   // Every course that runs commands renders the troubleshooting manual, and the
   // rows it renders depend on that course's lab — so the document carries the

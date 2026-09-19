@@ -54,6 +54,11 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'CompTIA',
     certification: 'Server+',
   },
+  ccna: {
+    key: 'ccna',
+    vendor: 'Cisco',
+    certification: 'CCNA (200-301)',
+  },
 };
 
 /** Neutral identity for a course we have no styling for — keeps the default

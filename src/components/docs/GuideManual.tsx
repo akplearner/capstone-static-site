@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
+import { CcnaTopologyDiagram } from '@/components/diagrams/CcnaTopologyDiagram';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
@@ -57,10 +58,14 @@ import { Surface } from '@/components/ui/Surface';
 
 export function GuideManual({ course, member }: { course: Course; member: Member }) {
   const topo = socTopology(course.id);
-  // A deployment course is one that ships a build guide, not one with a
-  // particular id — the same test the manual's own gating uses.
-  const isServerDeployment = manualHas(course, 'config-guide');
+  // A course that ships a SIEM tool manual, by its own declaration rather than by
+  // its id — the same test the manual's own section gating uses.
   const isCysa = manualHas(course, 'tools');
+  // WHICH PICTURE this course draws is its own declaration, not an inference.
+  // It used to be inferred from the configuration-guide flag, which was a
+  // coincidence: the one course with a build guide happened to be the one with a
+  // rack, so the second course to ship a guide would have drawn its rack.
+  const picture = course.topologyPicture ?? (topo ? 'soc' : undefined);
   const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
 
   // The deliverable chain, with filed status recomputed whenever docs change,
@@ -97,15 +102,19 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           {/* Three shapes, three diagrams. The generic ArchitectureDiagram draws a
               red/blue/grc attack lab and hardcodes those role ids, so it is the
               fallback only — a four-bridge deployment gets its own picture. */}
-          {topo ? (
+          {picture === 'soc' && topo ? (
             <SocTopologyDiagram topo={topo} />
-          ) : isServerDeployment ? (
+          ) : picture === 'rack' ? (
             <>
               <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />
               <Surface>
                 <ServerTopologyDiagram business={teamBusiness} />
               </Surface>
             </>
+          ) : picture === 'campus' ? (
+            <Surface>
+              <CcnaTopologyDiagram />
+            </Surface>
           ) : (
             <ArchitectureDiagram roles={course.roles} highlightRole={member.role} />
           )}

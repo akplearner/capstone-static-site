@@ -4,9 +4,10 @@ import { SECURITY_PLUS } from '../data/seed/securityPlus';
 import { MSSP } from '../data/seed/mssp';
 import { CYSA_PLUS } from '../data/seed/cysa';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
+import { CCNA } from '../data/seed/ccna';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and
@@ -29,10 +30,28 @@ describe('manual sections', () => {
     ...(new Set(c.tasks.flatMap((t) => t.frameworks)).size > 0 ? ['frameworks'] : []),
   ];
 
-  it('gives every seed course exactly the sections the course-id gating gave it', () => {
-    for (const c of COURSES) {
+  it('gives every pre-existing seed course exactly the sections the course-id gating gave it', () => {
+    // The four courses that HAD the `course.id === …` gating. A course authored
+    // after it was replaced (CCNA) never went through that rule, so asserting it
+    // against a reconstruction of the rule would only be asserting the
+    // reconstruction. It is checked on its own terms below.
+    for (const c of COURSES.filter((x) => x.id !== 'ccna')) {
       expect(manualSectionsFor(c).map((s) => s.id), c.id).toEqual(oldGating(c));
     }
+  });
+
+  it('the CCNA course gets only the sections it can actually fill', () => {
+    const ids = manualSectionsFor(CCNA).map((s) => s.id);
+    // Demonstrated: four focus roles, a lifecycle, frameworks on its tasks, and
+    // steps that run commands.
+    expect(ids).toEqual(['lab', 'terminal', 'evidence', 'forms', 'roles', 'lifecycle', 'frameworks']);
+    // Declared by NEITHER, on purpose: the week-by-week procedures and a SIEM
+    // tool manual are later rounds, and a section a course cannot fill would
+    // render empty — or, worse, another course's content.
+    expect(ids).not.toContain('config-guide');
+    expect(ids).not.toContain('tools');
+    // Its lab section is therefore "The lab", not the deployment course's "The build".
+    expect(manualSectionsFor(CCNA).find((s) => s.id === 'lab')?.title).toBe('The lab');
   });
 
   it('a course gets each section at most once, and the deployment one is titled for the build', () => {

@@ -3,6 +3,7 @@
 import { useClientStore, notifyStore } from './useClientStore';
 import { labAccessRepo, progressRepo } from './data';
 import { HOST, OPS } from './serverTopology';
+import { device, mgmtAddress } from './ccnaTopology';
 import { IAC_TOOL_KEY, IAC_TOOLS, iacToolOf, type IacTool } from './iacTool';
 
 // Personal lab access: the target IPs/credentials each student gets from their
@@ -90,6 +91,60 @@ export const SERVER_FIELDS: typeof LAB_FIELDS = [
   },
 ];
 
+/**
+ * The CCNA capstone's lab.
+ *
+ * Its addressing is a WORKED EXAMPLE rather than a per-team rule (each team has
+ * its own bench or its own emulator instance, not a slice of a shared range), so
+ * there is only one address to substitute — the management address a team really
+ * gave its first switch. The other two are preferences with no tokens: the path
+ * and the emulator, which decide which procedure a week hands you, the same way
+ * the IaC tool choice does for Server+.
+ */
+/** The example the placeholder shows: the first access switch's management
+ *  address, read from the model rather than typed beside it. */
+const CCNA_EXAMPLE_MGMT = mgmtAddress(device('SW-ACC-01'))!;
+
+export const CCNA_FIELDS: typeof LAB_FIELDS = [
+  {
+    key: 'CCNA_MGMT',
+    label: 'Your first switch’s management address',
+    placeholder: `e.g. ${CCNA_EXAMPLE_MGMT}`,
+    tokens: ['<CCNA_MGMT>', '<SWITCH_MGMT>'],
+  },
+  {
+    key: 'CCNA_PATH',
+    label: 'How your build runs',
+    placeholder: '',
+    tokens: [],
+    kind: 'select',
+    options: [
+      { value: 'emulated', label: 'Emulated — the topology runs as software' },
+      { value: 'physical', label: 'Physical kit — real switches and routers' },
+    ],
+  },
+  {
+    key: 'CCNA_EMULATOR',
+    label: 'Which emulator',
+    placeholder: '',
+    tokens: [],
+    kind: 'select',
+    options: [
+      { value: 'packet-tracer', label: 'Cisco Packet Tracer' },
+      { value: 'cml', label: 'Cisco Modeling Labs' },
+      { value: 'gns3', label: 'GNS3' },
+      { value: 'containerlab', label: 'containerlab' },
+      { value: 'none', label: 'None — hardware only' },
+    ],
+  },
+];
+
+export const CCNA_CHECKS: typeof LAB_CHECKS = [
+  { key: 'prompt', label: 'You can reach a device prompt — console, SSH or the emulator' },
+  { key: 'register', label: 'Every device you have is a row in the Kit & Capability Register' },
+  { key: 'capabilities', label: 'Each capability is answered Yes or No, with the output that proves it' },
+];
+
 export const SERVER_CHECKS: typeof LAB_CHECKS = [
   { key: 'console', label: 'The Proxmox console answers on campus' },
   { key: 'remote', label: 'It answers from off campus over Tailscale' },
@@ -104,7 +159,7 @@ export const SERVER_CHECKS: typeof LAB_CHECKS = [
  * would render an input the filler never looked at — a box that silently does
  * nothing. The profile below governs the FORM; this governs substitution.
  */
-const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS];
+const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS];
 
 /**
  * What a given course's lab actually consists of.
@@ -144,6 +199,15 @@ const LAB_PROFILES: Record<string, LabProfile> = {
     checks: SERVER_CHECKS,
     title: 'Your server — addresses & reachability',
     intro: `Enter your own host addresses and every command below fills them in for you, instead of the ${HOST.rule} rule — and pick which IaC tool every Week 5–6 line uses. Saved to your account, visible only to you.`,
+  },
+  // The network course collects one address and two decisions. The decisions are
+  // what matter: they pick which procedure each later week gives you.
+  ccna: {
+    fields: CCNA_FIELDS,
+    checks: CCNA_CHECKS,
+    title: 'Your lab — the kit and how you reach it',
+    intro:
+      'Say whether you are emulating or on real hardware, and give the management address you actually set. Your Week-0 register decides which procedure each week hands you. Saved to your account, visible only to you.',
   },
 };
 
