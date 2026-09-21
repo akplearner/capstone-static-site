@@ -20,11 +20,17 @@ const ToastCtx = createContext<(t: ToastInput | string) => void>(() => {});
 // hardcoded blue, which made every toast a different brand from the buttons
 // beside it), and success/warn/error are the ok/warn/danger tokens the theme
 // already defines for exactly this.
-const styles: Record<ToastVariant, { ring: string; icon: typeof Info }> = {
-  success: { ring: 'border-ok-line', icon: CheckCircle2 },
-  error: { ring: 'border-danger-line', icon: XCircle },
-  info: { ring: 'border-accent/40', icon: Info },
-  warning: { ring: 'border-warn-line', icon: AlertTriangle },
+//
+// R77: the coloured 1px ring is gone. It sat directly under a tier-3 shadow,
+// which is the doubled edge the clay law forbids — and the fix is better than a
+// deletion, because `--clay-tint` lets the SHADOW carry the semantic colour. A
+// success toast now casts a green-tinted shadow; the status reads from further
+// away than a hairline ever did.
+const styles: Record<ToastVariant, { tint: string; icon: typeof Info }> = {
+  success: { tint: '[--clay-tint:var(--color-ok)]', icon: CheckCircle2 },
+  error: { tint: '[--clay-tint:var(--color-danger)]', icon: XCircle },
+  info: { tint: '[--clay-tint:var(--color-accent)]', icon: Info },
+  warning: { tint: '[--clay-tint:var(--color-warn)]', icon: AlertTriangle },
 };
 const iconColor: Record<ToastVariant, string> = {
   success: 'text-ok',
@@ -72,7 +78,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: DUR.disclosure }}
-                className={`pointer-events-auto flex items-start gap-2 border p-3 shadow-[var(--shadow-3)] ${surfaceVariants({ variant: 'flat', padding: 'none' })} ${s.ring}`}
+                className={`pointer-events-auto flex items-start gap-2 rounded-[var(--radius-clay-sm)] p-3 shadow-[var(--clay-2-tint)] ${surfaceVariants({ variant: 'flat', padding: 'none' })} ${s.tint}`}
                 role={t.variant === 'error' ? 'alert' : 'status'}
               >
                 <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor[t.variant]}`} aria-hidden />

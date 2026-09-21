@@ -177,7 +177,7 @@ export function FolderTree({
   const isWeek = variant === 'week' && week !== undefined;
   const tree = isWeek ? buildWeekTree(courseId, week!, roles) : buildCourseTree(courseId);
   return (
-    <div className="overflow-x-auto rounded-lg border border-line bg-panel p-5">
+    <div className="overflow-x-auto rounded-lg clay-rim bg-panel p-5">
       <h3 className="text-sm font-semibold text-ink">
         {isWeek ? `Week ${week} submission — what your zip contains` : 'Submission folder structure'}
       </h3>

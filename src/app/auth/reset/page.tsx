@@ -101,7 +101,7 @@ export default function ResetPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
-              className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none"
             />
           </label>
           <button
@@ -131,7 +131,7 @@ export default function ResetPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none"
             />
           </label>
           <button
@@ -171,7 +171,7 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
 
 function Notice({ ok, children }: { ok?: boolean; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-ink">
+    <div className="flex items-start gap-2 rounded-md clay-rim bg-panel-2 px-3 py-2 text-sm text-ink">
       {ok && <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />}
       <span>{children}</span>
     </div>

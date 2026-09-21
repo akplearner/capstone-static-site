@@ -52,7 +52,7 @@ export function TasksEditor({ course, onChange }: { course: Course; onChange: (c
       {course.tasks.map((t, i) => {
         const isOpen = open === t.id;
         return (
-          <div key={i} className="rounded-lg border border-line">
+          <div key={i} className="rounded-lg clay-rim">
             <div className="flex items-center justify-between gap-2 p-4">
               <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? null : t.id)} className="flex flex-1 items-center gap-2 text-left">
                 {isOpen ? <ChevronUp className="h-4 w-4" aria-hidden /> : <ChevronDown className="h-4 w-4" aria-hidden />}

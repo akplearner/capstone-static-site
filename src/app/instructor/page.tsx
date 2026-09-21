@@ -134,14 +134,14 @@ export default function InstructorHomePage() {
       {error && <p className="text-sm text-danger">{error}</p>}
 
       {creating && (
-        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-panel p-4">
+        <div className="flex flex-wrap items-end gap-3 rounded-lg clay-rim bg-panel p-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-body">Course title</label>
             <input
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               placeholder="e.g. Cloud Security Range"
-              className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-ink"
+              className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-ink"
             />
           </div>
           <Button onClick={handleCreate}>Create &amp; edit</Button>
@@ -149,7 +149,7 @@ export default function InstructorHomePage() {
       )}
 
       {dup && (
-        <div className="flex flex-wrap items-end gap-3 rounded-lg border border-line bg-panel p-4">
+        <div className="flex flex-wrap items-end gap-3 rounded-lg clay-rim bg-panel p-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-body">New course title</label>
             <input
@@ -157,7 +157,7 @@ export default function InstructorHomePage() {
               value={dup.title}
               onChange={(e) => setDup({ ...dup, title: e.target.value })}
               onKeyDown={(e) => e.key === 'Enter' && confirmDuplicate()}
-              className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-ink"
+              className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-ink"
             />
             <p className="mt-1 text-xs text-muted">
               Duplicating “{dup.course.title}” into an editable copy.
@@ -179,7 +179,7 @@ export default function InstructorHomePage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {courses.map((course) => (
-          <div key={course.id} className="rounded-lg border border-line bg-panel p-5">
+          <div key={course.id} className="rounded-lg clay-rim bg-panel p-5">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h2 className="font-bold text-ink">{course.title}</h2>

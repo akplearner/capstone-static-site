@@ -358,7 +358,7 @@ export function DeliverableChainDiagram({
 
       {/* The technical read-out for the focused file — the "how your work
           connects" detail, attached to the file it describes. */}
-      <div className="mt-3 min-h-[4.5rem] rounded-lg border border-line bg-panel-2 p-3 text-sm">
+      <div className="mt-3 min-h-[4.5rem] rounded-lg clay-rim bg-panel-2 p-3 text-sm">
         {activeNode ? (
           <div className="space-y-2">
             <div className="flex flex-wrap items-center gap-2">

@@ -30,10 +30,10 @@
   --color-line: #e2e7ee;      /* borders / hairlines — soft: a card chooses a line OR elevation, never both */
 
   /* Accent — the SOC teal */
-  --color-accent: #0f6f8c;
-  --color-accent-strong: #0c5d74;
-  --color-accent-ink: #0c4a5e;   /* accent text on light chips */
-  --color-accent-soft: #e6edf3;  /* accent chip fill (IP pills) */
+  --color-accent: #026f8d;
+  --color-accent-strong: #005d75;
+  --color-accent-ink: #024a60;   /* accent text on light chips */
+  --color-accent-soft: #e0eefa;  /* accent chip fill (IP pills) */
   /* Text/icon colour that sits ON a solid --color-accent fill. Light themes use
      a dark-on-light accent so this is white; the dark themes below lighten the
      accent for legibility against a dark page, which makes white text fail
@@ -44,40 +44,40 @@
      — rose, slate cyan, olive and plum: four hues no graded phase uses, so each
      reads as its own thing and none is mistaken for a phase. w7 and w8 arrived
      with the CCNA capstone, whose advanced track is four weeks rather than two. */
-  --color-w1: #158066;
-  --color-w2: #1f5aa8;
-  --color-w3: #b26a00;
-  --color-w4: #6a3d9a;
-  --color-w5: #b0213f;
-  --color-w6: #0f7e94;
-  --color-w7: #5c6e1c;
-  --color-w8: #8a2d6b;
+  --color-w1: #038166;
+  --color-w2: #0057b7;
+  --color-w3: #b26a04;
+  --color-w4: #7514bd;
+  --color-w5: #b8023a;
+  --color-w6: #067e95;
+  --color-w7: #5b6f03;
+  --color-w8: #980372;
 
   /* Semantic. The -soft/-line pairs are the callout fills and borders that used
      to be hand-typed as green-50/amber-50/red-50 + their dark: twins in 20+
      files; one token pair here replaces every copy. Ink text on a -soft fill
      always passes contrast, so callouts don't need per-variant text colours. */
-  --color-ok: #1a7f4b;
-  --color-ok-soft: #e8f5ee;
-  --color-ok-line: #b5dcc5;
-  --color-warn: #a8620a;
-  --color-warn-soft: #fdf3e4;
-  --color-warn-line: #ecd3ab;
-  --color-danger: #b22222;
-  --color-danger-soft: #fceaea;
-  --color-danger-line: #ecc0c0;
+  --color-ok: #048048;
+  --color-ok-soft: #def9eb;
+  --color-ok-line: #9ee3bc;
+  --color-warn: #9c5a04;
+  --color-warn-soft: #fff3e1;
+  --color-warn-line: #facf88;
+  --color-danger: #ba0214;
+  --color-danger-soft: #fee9e9;
+  --color-danger-line: #ffb7b8;
   /* Info completes the set. It used to borrow --color-accent, which means an
      informational callout changed hue per vendor and competed with the primary
      action on the same screen. */
-  --color-info: #1f5aa8;
-  --color-info-soft: #e8eff9;
-  --color-info-line: #bcd0ec;
+  --color-info: #0257b7;
+  --color-info-soft: #e5effe;
+  --color-info-line: #b0d1ff;
 
   /* Terminal (dark in both themes) */
   --color-term-bg: #10151f;
-  --color-term-tx: #8ee6a0;
-  --color-term-dim: #6b7a8d;
-  --color-term-ip: #f0b866;
+  --color-term-tx: #6eed8e;
+  --color-term-dim: #667a94;
+  --color-term-ip: #ffb22e;
 
   /* Stone — the capstone emblem's palette (src/components/quarry/*).
      These are defaults, not decoration: without them a stone rendered outside a
@@ -102,10 +102,117 @@
 
      --shadow-card is kept as an alias for tier 1 so the ~15 existing call sites
      keep working and can migrate at their own pace. */
-  --shadow-1: 0 1px 2px rgba(16, 24, 38, 0.06), 0 2px 8px rgba(16, 24, 38, 0.05);
-  --shadow-2: 0 2px 4px rgba(16, 24, 38, 0.07), 0 10px 24px rgba(16, 24, 38, 0.09);
-  --shadow-3: 0 8px 16px rgba(16, 24, 38, 0.1), 0 24px 56px rgba(16, 24, 38, 0.16);
+  --shadow-1: var(--clay-1);
+  --shadow-2: var(--clay-2);
+  --shadow-3: var(--clay-3);
   --shadow-card: var(--shadow-1);
+
+  /* ── Clay ────────────────────────────────────────────────────────────────
+     R77. The three tiers above used to be flat drop shadows at 5-16% opacity,
+     and the app's law was "a surface has a line OR elevation, never both" —
+     a border and a shadow being two independent declarations of the same edge.
+
+     Clay resolves that differently: THE EDGE MOVES INSIDE THE ELEVATION. A clay
+     tier carries its own light top rim and dark bottom rim as `inset` layers,
+     which is what the eye reads as extruded, so a clay surface never also
+     declares a border. One element, one tier, edge included.
+
+     The rims are mixes of the ink colour rather than fixed greys, so they
+     re-theme with everything else, and they are the reason the dark twins below
+     are not just "the same at a higher opacity": a 72%-white rim on a near-black
+     panel is a scar, not a highlight. */
+  --clay-rim-hi: color-mix(in oklab, white 72%, transparent);
+  --clay-rim-lo: color-mix(in oklab, var(--color-ink) 14%, transparent);
+  --clay-cast-near: color-mix(in oklab, var(--color-ink) 10%, transparent);
+  --clay-cast-far: color-mix(in oklab, var(--color-ink) 20%, transparent);
+
+  /* The ladder. Six rungs, one axis: how far off the page this thing sits.
+       0      dense — rims only, no cast. Table wrappers, nested strata, chips.
+       1      at rest — a card on the page.
+       2      lifted — hover, or the one card that is the point of the screen.
+       3      overlay — dialogs, toasts, the command palette.
+       press  under a finger — the rims invert and the cast collapses.
+       well   a socket cut INTO a surface — the avatar spot, an inset field. */
+  --clay-0:
+    inset 0 1px 0 0 var(--clay-rim-hi),
+    inset 0 -1px 0 0 var(--clay-rim-lo);
+  --clay-1:
+    inset 0 1px 0 0 var(--clay-rim-hi),
+    inset 0 -1.5px 0 0 var(--clay-rim-lo),
+    0 1px 2px -1px var(--clay-cast-near),
+    0 8px 16px -6px var(--clay-cast-far);
+  --clay-2:
+    inset 0 1.5px 0 0 var(--clay-rim-hi),
+    inset 0 -2px 0 0 var(--clay-rim-lo),
+    0 2px 4px -2px var(--clay-cast-near),
+    0 16px 30px -10px var(--clay-cast-far);
+  --clay-3:
+    inset 0 1.5px 0 0 var(--clay-rim-hi),
+    inset 0 -2px 0 0 var(--clay-rim-lo),
+    0 10px 20px -8px var(--clay-cast-far),
+    0 36px 68px -24px var(--clay-cast-far);
+  --clay-press:
+    inset 0 2px 5px -1px var(--clay-rim-lo),
+    inset 0 -1px 0 0 var(--clay-rim-hi),
+    0 1px 1px -1px var(--clay-cast-near);
+  --clay-well:
+    inset 0 2px 6px -1px var(--clay-rim-lo),
+    inset 0 -1px 0 0 var(--clay-rim-hi);
+
+  /* The tinted ladder: a control casting its OWN colour, which is what makes a
+     coloured button read as a physical object rather than a rectangle of paint.
+
+     `--clay-tint` is the parameter, and it defaults to the accent — so every
+     region and seam block below re-colours the depth of every button by
+     re-declaring `--color-accent` and nothing else. A control that is not the
+     accent (the destructive button) overrides the tint locally with the
+     arbitrary property `[--clay-tint:var(--color-danger)]`. That is why these
+     are one parameterised pair rather than four hand-written families. */
+  --clay-tint: var(--color-accent);
+  --clay-1-tint:
+    inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent),
+    inset 0 -1.5px 0 0 color-mix(in oklab, var(--clay-tint) 55%, var(--clay-rim-lo)),
+    0 1px 2px -1px color-mix(in oklab, var(--clay-tint) 30%, transparent),
+    0 10px 20px -8px color-mix(in oklab, var(--clay-tint) 50%, transparent);
+  --clay-2-tint:
+    inset 0 1.5px 0 0 color-mix(in oklab, white 40%, transparent),
+    inset 0 -2px 0 0 color-mix(in oklab, var(--clay-tint) 62%, var(--clay-rim-lo)),
+    0 2px 4px -2px color-mix(in oklab, var(--clay-tint) 30%, transparent),
+    0 16px 30px -10px color-mix(in oklab, var(--clay-tint) 50%, transparent);
+  --clay-press-tint:
+    inset 0 2px 5px -1px color-mix(in oklab, var(--clay-tint) 45%, var(--clay-rim-lo)),
+    inset 0 -1px 0 0 color-mix(in oklab, white 35%, transparent),
+    0 1px 1px -1px color-mix(in oklab, var(--clay-tint) 30%, transparent);
+
+  /* Gloss — the sheen down the top of a control. This is the cheap version that
+     any element can wear as a background-image; the curved sweep a pill or a
+     disc needs is drawn in SVG by `ui/ClayEdge.tsx`, because a linear gradient
+     cannot follow a cap radius. */
+  --gloss-sheen: linear-gradient(
+    180deg,
+    color-mix(in oklab, white 40%, transparent) 0%,
+    color-mix(in oklab, white 12%, transparent) 40%,
+    transparent 62%
+  );
+  --gloss-sheen-soft: linear-gradient(
+    180deg,
+    color-mix(in oklab, white 18%, transparent) 0%,
+    color-mix(in oklab, white 5%, transparent) 40%,
+    transparent 62%
+  );
+
+  /* The same sheen as FLAT COLOURS, for the SVG in `ui/ClayEdge.tsx`.
+     An SVG `stop-color` takes a colour, not a gradient — handing it
+     `--gloss-sheen` paints nothing at all, silently, which is the kind of bug
+     that ships because the control still looks fine, just flat. The two live
+     beside their gradient twin so a saturation pass moves both. */
+  --gloss-stop-hi: color-mix(in oklab, white 46%, transparent);
+  --gloss-stop-mid: color-mix(in oklab, white 14%, transparent);
+
+  /* How long a control takes to change state. Mirrors DUR.press in
+     src/lib/motion.ts — the travel is framer's, the shadow swap is CSS's, and
+     the two have to agree or a press looks like two events. A test asserts it. */
+  --dur-press: 120ms;
 
   /* Glass — the frosted material the sticky bars and the one floating panel
      (Dialog) are made of. The alpha sits on --color-panel, which every theme
@@ -119,13 +226,29 @@
   /* Glow — a ring plus a soft bloom in the accent or the week's phase colour,
      for the one panel on a screen that is the point of it (the stone being
      cut, the course card). A box-shadow value, so it composes with Surface
-     via shadow-[var(--glow-accent)] and re-themes like the elevation ramp. */
+     via shadow-[var(--glow-accent)] and re-themes like the elevation ramp.
+
+     R77: the ring and the bloom are both stronger, and the family is complete —
+     a status panel can bloom in its own semantic colour instead of borrowing the
+     accent, which is what made an error panel glow teal. */
   --glow-accent:
-    0 0 0 1px color-mix(in oklab, var(--color-accent) 18%, transparent),
-    0 24px 64px -28px color-mix(in oklab, var(--color-accent) 38%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 30%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--color-accent) 52%, transparent);
   --glow-week:
-    0 0 0 1px color-mix(in oklab, var(--week, var(--color-accent)) 18%, transparent),
-    0 24px 64px -28px color-mix(in oklab, var(--week, var(--color-accent)) 38%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--week, var(--color-accent)) 30%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--week, var(--color-accent)) 52%, transparent);
+  --glow-ok:
+    0 0 0 1px color-mix(in oklab, var(--color-ok) 30%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--color-ok) 52%, transparent);
+  --glow-warn:
+    0 0 0 1px color-mix(in oklab, var(--color-warn) 30%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--color-warn) 52%, transparent);
+  --glow-danger:
+    0 0 0 1px color-mix(in oklab, var(--color-danger) 30%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--color-danger) 52%, transparent);
+  --glow-info:
+    0 0 0 1px color-mix(in oklab, var(--color-info) 30%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--color-info) 52%, transparent);
 
   /* Mesh — three radial washes behind the landing hero, from the accent and the
      first two phase colours. Seams re-declare --color-w1/w2, so inside a course
@@ -175,7 +298,16 @@
   --radius-md: 0.375rem; /* 6px */
   --radius-lg: 0.5rem;   /* 8px */
   --radius-xl: 0.75rem;  /* 12px */
-  --radius-card: 12px;
+  /* R77: 12px → 18px. Clay reads as a soft solid, and a soft solid has a
+     generous corner — at 12px the rims pinch and the whole thing looks stamped
+     rather than moulded. The three below join it:
+       clay-sm  the dense tier's corner (nested strata, table wrappers)
+       pill     a control — the reference's action row is fully round
+       well     a socket, always a circle */
+  --radius-card: 18px;
+  --radius-clay-sm: 12px;
+  --radius-pill: 9999px;
+  --radius-well: 50%;
 }
 
 /* Dark overrides. The source design is light-only; this keeps the existing
@@ -189,33 +321,33 @@
   --color-muted: #9fb0c4;
   --color-line: #212b39;
 
-  --color-accent: #35b6d6;
-  --color-accent-strong: #1fb6d6;
-  --color-accent-ink: #bfeefc;
-  --color-accent-soft: #14313d;
+  --color-accent: #08b7db;
+  --color-accent-strong: #0fb6d7;
+  --color-accent-ink: #bbeffe;
+  --color-accent-soft: #023243;
   --color-accent-contrast: #08222b;
 
-  --color-w1: #38b28f;
-  --color-w2: #5f93d6;
-  --color-w3: #d69b4a;
-  --color-w4: #a583d0;
-  --color-w5: #e0708a;
-  --color-w6: #5fc4d6;
-  --color-w7: #a8bd55;
-  --color-w8: #dd7cc0;
+  --color-w1: #0eb58d;
+  --color-w2: #3890fa;
+  --color-w3: #e2960b;
+  --color-w4: #ae74ef;
+  --color-w5: #ff4b82;
+  --color-w6: #04c9e2;
+  --color-w7: #a6c000;
+  --color-w8: #f85ccf;
 
-  --color-ok: #4ade80;
-  --color-ok-soft: #10281c;
-  --color-ok-line: #1d5637;
-  --color-warn: #fbbf24;
-  --color-warn-soft: #2b2210;
-  --color-warn-line: #6b5220;
-  --color-danger: #ef6b6b;
-  --color-danger-soft: #2e1518;
-  --color-danger-line: #6b2a2e;
-  --color-info: #6ea8f0;
-  --color-info-soft: #121e30;
-  --color-info-line: #28405f;
+  --color-ok: #06e274;
+  --color-ok-soft: #012a19;
+  --color-ok-line: #035832;
+  --color-warn: #f1b500;
+  --color-warn-soft: #2f2101;
+  --color-warn-line: #705002;
+  --color-danger: #fe5a5f;
+  --color-danger-soft: #3b0612;
+  --color-danger-line: #80001f;
+  --color-info: #60a7ff;
+  --color-info-soft: #031c41;
+  --color-info-line: #113e75;
 
   --stone-rock: #444a54;
   --stone-rock-dark: #262a30;
@@ -223,11 +355,38 @@
   --stone-crystal: #7fc3ee;
 
   /* Dark needs more spread and less opacity per layer: a dark shadow on a dark
-     panel reads as a smudge unless it is soft and wide. */
-  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.45), 0 12px 28px rgba(0, 0, 0, 0.4);
-  --shadow-3: 0 10px 20px rgba(0, 0, 0, 0.5), 0 28px 64px rgba(0, 0, 0, 0.55);
+     panel reads as a smudge unless it is soft and wide. The clay ladder inherits
+     that lesson through the four primitives below — the tiers themselves are
+     declared once, in the light theme, and re-mix here. */
+  --shadow-1: var(--clay-1);
+  --shadow-2: var(--clay-2);
+  --shadow-3: var(--clay-3);
   --shadow-card: var(--shadow-1);
+
+  /* Clay in the dark.
+     The top rim is the whole reason this block exists: 72% white on a near-black
+     panel is not a highlight, it is a scar. It drops to 9%, the bottom rim goes
+     to near-black instead of ink, and the cast deepens — the same four
+     parameters, so all six tiers and all three tinted tiers re-mix from here
+     without a single one of them being restated. */
+  --clay-rim-hi: color-mix(in oklab, white 9%, transparent);
+  --clay-rim-lo: color-mix(in oklab, black 55%, transparent);
+  --clay-cast-near: color-mix(in oklab, black 45%, transparent);
+  --clay-cast-far: color-mix(in oklab, black 65%, transparent);
+  --gloss-sheen: linear-gradient(
+    180deg,
+    color-mix(in oklab, white 14%, transparent) 0%,
+    color-mix(in oklab, white 4%, transparent) 40%,
+    transparent 62%
+  );
+  --gloss-sheen-soft: linear-gradient(
+    180deg,
+    color-mix(in oklab, white 7%, transparent) 0%,
+    color-mix(in oklab, white 2%, transparent) 40%,
+    transparent 62%
+  );
+  --gloss-stop-hi: color-mix(in oklab, white 16%, transparent);
+  --gloss-stop-mid: color-mix(in oklab, white 5%, transparent);
 
   /* Glass reads more opaque on a dark page (scrolling content shows through
      a dark tint far more than a light one); the dark accents are already
@@ -235,11 +394,23 @@
   --glass-bg: color-mix(in oklab, var(--color-panel) 74%, transparent);
   --glass-line: color-mix(in oklab, var(--color-line) 80%, transparent);
   --glow-accent:
-    0 0 0 1px color-mix(in oklab, var(--color-accent) 22%, transparent),
-    0 24px 72px -28px color-mix(in oklab, var(--color-accent) 28%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--color-accent) 34%, transparent),
+    0 18px 44px -16px color-mix(in oklab, var(--color-accent) 40%, transparent);
   --glow-week:
-    0 0 0 1px color-mix(in oklab, var(--week, var(--color-accent)) 22%, transparent),
-    0 24px 72px -28px color-mix(in oklab, var(--week, var(--color-accent)) 28%, transparent);
+    0 0 0 1px color-mix(in oklab, var(--week, var(--color-accent)) 34%, transparent),
+    0 18px 44px -16px color-mix(in oklab, var(--week, var(--color-accent)) 40%, transparent);
+  --glow-ok:
+    0 0 0 1px color-mix(in oklab, var(--color-ok) 34%, transparent),
+    0 18px 44px -16px color-mix(in oklab, var(--color-ok) 40%, transparent);
+  --glow-warn:
+    0 0 0 1px color-mix(in oklab, var(--color-warn) 34%, transparent),
+    0 18px 44px -16px color-mix(in oklab, var(--color-warn) 40%, transparent);
+  --glow-danger:
+    0 0 0 1px color-mix(in oklab, var(--color-danger) 34%, transparent),
+    0 18px 44px -16px color-mix(in oklab, var(--color-danger) 40%, transparent);
+  --glow-info:
+    0 0 0 1px color-mix(in oklab, var(--color-info) 34%, transparent),
+    0 18px 44px -16px color-mix(in oklab, var(--color-info) 40%, transparent);
   --mesh-hero:
     radial-gradient(52% 48% at 12% 0%, color-mix(in oklab, var(--color-accent) 12%, transparent), transparent 70%),
     radial-gradient(40% 40% at 88% 10%, color-mix(in oklab, var(--color-w2) 9%, transparent), transparent 70%),
@@ -282,107 +453,107 @@
   --stone-rock-dark: #2b2e34;
   --stone-vein: #d8dce3;
   --stone-crystal: #d84450;          /* CompTIA red */
-  --color-accent: #b81f2b;
-  --color-accent-strong: #96161f;
-  --color-accent-ink: #7c1219;
-  --color-accent-soft: #fae9ea;
+  --color-accent: #bf0223;
+  --color-accent-strong: #9b0018;
+  --color-accent-ink: #810013;
+  --color-accent-soft: #fee7e9;
   --color-accent-contrast: #ffffff;
 }
 .dark [data-region='comptia'] {
   --stone-crystal: #ff7c86;
-  --color-accent: #f2727a;
+  --color-accent: #ff6573;
   --color-accent-strong: #ff8a92;
-  --color-accent-ink: #ffdadd;
-  --color-accent-soft: #3a1216;
+  --color-accent-ink: #fedadd;
+  --color-accent-soft: #45000f;
   --color-accent-contrast: #2a0a0e;
 }
 [data-seam='security-plus'] {
-  --color-accent: #a8202c;          /* iron-red vein */
-  --color-accent-strong: #85161f;
-  --color-accent-ink: #6f1219;
-  --color-accent-soft: #fae9ea;
+  --color-accent: #af0324;          /* iron-red vein */
+  --color-accent-strong: #8b0018;
+  --color-accent-ink: #750013;
+  --color-accent-soft: #fee7e9;
   --color-accent-contrast: #ffffff;
   --stone-crystal: #d4444f;
-  --color-w1: #8a5a2b;
-  --color-w2: #a8202c;
-  --color-w3: #7a4b6b;
-  --color-w4: #52606e;
-  --color-w5: #7a5563;
-  --color-w6: #3f6b73;
+  --color-w1: #945503;
+  --color-w2: #b00124;
+  --color-w3: #883e72;
+  --color-w4: #4b6176;
+  --color-w5: #864d64;
+  --color-w6: #1c6f7c;
 }
 .dark [data-seam='security-plus'] {
-  --color-accent: #ef7078;
+  --color-accent: #ff606f;
   --color-accent-strong: #ff8a92;
-  --color-accent-ink: #ffd9dc;
-  --color-accent-soft: #3a1216;
+  --color-accent-ink: #fed9dc;
+  --color-accent-soft: #45000f;
   --color-accent-contrast: #2a0a0e;
   --stone-crystal: #ff7c86;
-  --color-w1: #d69a63;
-  --color-w2: #ef7078;
-  --color-w3: #c98ab5;
-  --color-w4: #93a4b5;
-  --color-w5: #c7a2b1;
-  --color-w6: #9dc5cc;
+  --color-w1: #ec8f23;
+  --color-w2: #ff606f;
+  --color-w3: #dc7abf;
+  --color-w4: #8aa5bf;
+  --color-w5: #d49bb3;
+  --color-w6: #88c9d4;
 }
 [data-seam='cysa-plus'] {
-  --color-accent: #2d5f8a;          /* steel vein, same rock */
-  --color-accent-strong: #234b6e;
-  --color-accent-ink: #1d3e5c;
-  --color-accent-soft: #e6eff6;
+  --color-accent: #045f9b;          /* steel vein, same rock */
+  --color-accent-strong: #004b7d;
+  --color-accent-ink: #013e6a;
+  --color-accent-soft: #def0fe;
   --color-accent-contrast: #ffffff;
   --stone-crystal: #4d90c8;
-  --color-w1: #1f7a5a;
-  --color-w2: #2d5f8a;
-  --color-w3: #8a5a2b;
-  --color-w4: #6b3f6e;
-  --color-w5: #8f3a52;
-  --color-w6: #2a6f7e;
+  --color-w1: #057c58;
+  --color-w2: #025f9c;
+  --color-w3: #945503;
+  --color-w4: #772f7d;
+  --color-w5: #a60e4d;
+  --color-w6: #077183;
 }
 .dark [data-seam='cysa-plus'] {
-  --color-accent: #6fb2e8;
-  --color-accent-strong: #8bc4f5;
-  --color-accent-ink: #d3ebff;
-  --color-accent-soft: #10293d;
+  --color-accent: #4fb3fe;
+  --color-accent-strong: #80c5ff;
+  --color-accent-ink: #d4ebfe;
+  --color-accent-soft: #012945;
   --color-accent-contrast: #08202f;
   --stone-crystal: #7cc2f7;
-  --color-w1: #45c69b;
-  --color-w2: #6fb2e8;
-  --color-w3: #d9a463;
-  --color-w4: #b48ad0;
-  --color-w5: #e39ab0;
-  --color-w6: #7fcbd9;
+  --color-w1: #0fca98;
+  --color-w2: #4eb3fe;
+  --color-w3: #ee9b0d;
+  --color-w4: #c07bea;
+  --color-w5: #fa8aaf;
+  --color-w6: #46d2e8;
 }
 
 /* Server+ — a warmer copper vein in the same CompTIA rock. The deployment
    course is build-shaped rather than adversarial, so it reads warm where the
    Security+ and CySA+ seams read hot and cold respectively. */
 [data-seam='server-plus'] {
-  --color-accent: #9a5b2c;
-  --color-accent-strong: #7d4820;
-  --color-accent-ink: #6b3d1b;
-  --color-accent-soft: #f7ece3;
+  --color-accent: #a55402;
+  --color-accent-strong: #854201;
+  --color-accent-ink: #723803;
+  --color-accent-soft: #ffead9;
   --color-accent-contrast: #ffffff;
   --stone-crystal: #c8814d;
-  --color-w1: #2b6f6a;
-  --color-w2: #9a5b2c;
-  --color-w3: #7a5b9a;
-  --color-w4: #2f6b3f;
-  --color-w5: #8a3f4f;
-  --color-w6: #2d6b78;
+  --color-w1: #01726c;
+  --color-w2: #a55401;
+  --color-w3: #824eb2;
+  --color-w4: #007031;
+  --color-w5: #9f2348;
+  --color-w6: #076d7e;
 }
 .dark [data-seam='server-plus'] {
-  --color-accent: #e0a06a;
-  --color-accent-strong: #f0b783;
+  --color-accent: #f3963d;
+  --color-accent-strong: #ffb166;
   --color-accent-ink: #ffe4cc;
-  --color-accent-soft: #33210f;
+  --color-accent-soft: #391e01;
   --color-accent-contrast: #26170a;
   --stone-crystal: #f0b783;
-  --color-w1: #55b8b0;
-  --color-w2: #e0a06a;
-  --color-w3: #b49ad9;
-  --color-w4: #62c07e;
-  --color-w5: #e59aa8;
-  --color-w6: #84c9d5;
+  --color-w1: #03beb4;
+  --color-w2: #f8942e;
+  --color-w3: #bb90f3;
+  --color-w4: #03c966;
+  --color-w5: #fd89a2;
+  --color-w6: #55cfe3;
 }
 
 /* THE OBSIDIAN AUDIT VAULT — black glass. Evidence, control, traceability. */
@@ -391,47 +562,47 @@
   --stone-rock-dark: #1a1822;
   --stone-vein: #cfc9de;
   --stone-crystal: #7a68cf;          /* engagements violet */
-  --color-accent: #6a4fb0;
-  --color-accent-strong: #574293;
-  --color-accent-ink: #47367c;
-  --color-accent-soft: #eeeaf8;
+  --color-accent: #6f3ad1;
+  --color-accent-strong: #5b32ae;
+  --color-accent-ink: #4a2894;
+  --color-accent-soft: #efe9ff;
   --color-accent-contrast: #ffffff;
 }
 .dark [data-region='engagement'] {
   --stone-crystal: #b3a5ff;
   --color-accent: #b9adff;
   --color-accent-strong: #cabfff;
-  --color-accent-ink: #e8e3ff;
-  --color-accent-soft: #221d3d;
+  --color-accent-ink: #e8e3fe;
+  --color-accent-soft: #240f56;
   --color-accent-contrast: #150f2b;
 }
 [data-seam='mssp'] {
-  --color-accent: #4a3f8f;
-  --color-accent-strong: #3a3173;
-  --color-accent-ink: #2f2760;
-  --color-accent-soft: #ecebf7;
+  --color-accent: #4c30ab;
+  --color-accent-strong: #3b248a;
+  --color-accent-ink: #301c74;
+  --color-accent-soft: #eceaff;
   --color-accent-contrast: #ffffff;
   --stone-crystal: #7d6fd4;
-  --color-w1: #4a3f8f;
-  --color-w2: #3f5f8f;
-  --color-w3: #7a5a2b;
-  --color-w4: #6b3f6e;
-  --color-w5: #8f3a52;
-  --color-w6: #2a6f7e;
+  --color-w1: #4c2ab2;
+  --color-w2: #295da9;
+  --color-w3: #825704;
+  --color-w4: #772f7d;
+  --color-w5: #a60e4d;
+  --color-w6: #077183;
 }
 .dark [data-seam='mssp'] {
-  --color-accent: #a596f5;
+  --color-accent: #a593ff;
   --color-accent-strong: #b9adff;
-  --color-accent-ink: #e2ddff;
-  --color-accent-soft: #221d3d;
+  --color-accent-ink: #e2ddfe;
+  --color-accent-soft: #240f56;
   --color-accent-contrast: #150f2b;
   --stone-crystal: #b3a5ff;
-  --color-w1: #a596f5;
-  --color-w2: #7fa8e0;
-  --color-w3: #d9a463;
-  --color-w4: #c98ad0;
-  --color-w5: #f0a0b8;
-  --color-w6: #8ad4e4;
+  --color-w1: #a593fe;
+  --color-w2: #66a7ff;
+  --color-w3: #ee9b0d;
+  --color-w4: #db76e7;
+  --color-w5: #fe96b7;
+  --color-w6: #56daf4;
 }
 
 /* Regions whose courses are coming soon. They carry the full theme anyway, so a
@@ -448,26 +619,26 @@
 [data-region='aws'] {
   --stone-rock: #4a3524; --stone-rock-dark: #2e2016; --stone-vein: #ffd9a3;
   --stone-crystal: #d9821a;
-  --color-accent: #9c5a08; --color-accent-strong: #7e4906; --color-accent-ink: #6a3d05;
-  --color-accent-soft: #fdeede; --color-accent-contrast: #ffffff;
+  --color-accent: #9d5a03; --color-accent-strong: #7f4903; --color-accent-ink: #6b3d02;
+  --color-accent-soft: #feeedc; --color-accent-contrast: #ffffff;
 }
 .dark [data-region='aws'] {
   --stone-crystal: #ffb45c;
-  --color-accent: #ff9f2e; --color-accent-strong: #ffb457; --color-accent-ink: #ffe3c2;
-  --color-accent-soft: #3a2410; --color-accent-contrast: #2a1806;
+  --color-accent: #ff9f2f; --color-accent-strong: #feb459; --color-accent-ink: #ffe3c2;
+  --color-accent-soft: #402101; --color-accent-contrast: #2a1806;
 }
 
 /* Microsoft — azure. */
 [data-region='microsoft'] {
   --stone-rock: #27384a; --stone-rock-dark: #172431; --stone-vein: #cfe6ff;
   --stone-crystal: #2f74c0;
-  --color-accent: #0f66b0; --color-accent-strong: #0c5498; --color-accent-ink: #0a4880;
-  --color-accent-soft: #e6f1fb; --color-accent-contrast: #ffffff;
+  --color-accent: #0066b4; --color-accent-strong: #02549b; --color-accent-ink: #024883;
+  --color-accent-soft: #e3f2ff; --color-accent-contrast: #ffffff;
 }
 .dark [data-region='microsoft'] {
   --stone-crystal: #7ab8ff;
-  --color-accent: #4aa5f0; --color-accent-strong: #6fbcf7; --color-accent-ink: #cfe6ff;
-  --color-accent-soft: #0d2740; --color-accent-contrast: #06192b;
+  --color-accent: #2ea5fe; --color-accent-strong: #64bdff; --color-accent-ink: #d0e6fe;
+  --color-accent-soft: #002748; --color-accent-contrast: #06192b;
 }
 
 /* Cisco — cyan-blue. Vein cooled from its old amber so it no longer fights the
@@ -475,75 +646,75 @@
 [data-region='cisco'] {
   --stone-rock: #33384a; --stone-rock-dark: #20242e; --stone-vein: #cfe0f0;
   --stone-crystal: #1794cf;
-  --color-accent: #0b6591; --color-accent-strong: #0a5378; --color-accent-ink: #084865;
-  --color-accent-soft: #e4f2f9; --color-accent-contrast: #ffffff;
+  --color-accent: #046592; --color-accent-strong: #00537a; --color-accent-ink: #034866;
+  --color-accent-soft: #def3fe; --color-accent-contrast: #ffffff;
 }
 .dark [data-region='cisco'] {
   --stone-crystal: #6cc8f2;
-  --color-accent: #43b6e6; --color-accent-strong: #66c6ef; --color-accent-ink: #cdeeff;
-  --color-accent-soft: #0c2c3b; --color-accent-contrast: #06202c;
+  --color-accent: #0eb8f0; --color-accent-strong: #37c9ff; --color-accent-ink: #ceeefe;
+  --color-accent-soft: #012d3f; --color-accent-contrast: #06202c;
 }
 
 /* CCNA — the copper vein inside the Cisco rock. The build is network-shaped
    rather than adversarial, so the per-week phases run cool-to-warm across the
    graded weeks and the four advanced weeks take the hues no phase uses. */
 [data-seam='ccna'] {
-  --color-accent: #0b6591;
-  --color-accent-strong: #0a5378;
-  --color-accent-ink: #084865;
-  --color-accent-soft: #e4f2f9;
+  --color-accent: #046592;
+  --color-accent-strong: #00537a;
+  --color-accent-ink: #034866;
+  --color-accent-soft: #def3fe;
   --color-accent-contrast: #ffffff;
   --stone-crystal: #1794cf;
-  --color-w1: #0f7e94;
-  --color-w2: #1f5aa8;
-  --color-w3: #b26a00;
-  --color-w4: #8a2d3f;
-  --color-w5: #6a3d9a;
-  --color-w6: #2b6f6a;
-  --color-w7: #5c6e1c;
-  --color-w8: #8a2d6b;
+  --color-w1: #067e95;
+  --color-w2: #0057b7;
+  --color-w3: #b26a04;
+  --color-w4: #9b0037;
+  --color-w5: #7514bd;
+  --color-w6: #01726c;
+  --color-w7: #5b6f03;
+  --color-w8: #980372;
 }
 .dark [data-seam='ccna'] {
-  --color-accent: #43b6e6;
-  --color-accent-strong: #66c6ef;
-  --color-accent-ink: #cdeeff;
-  --color-accent-soft: #0c2c3b;
+  --color-accent: #0eb8f0;
+  --color-accent-strong: #37c9ff;
+  --color-accent-ink: #ceeefe;
+  --color-accent-soft: #012d3f;
   --color-accent-contrast: #06202c;
   --stone-crystal: #6cc8f2;
-  --color-w1: #5fc4d6;
-  --color-w2: #5f93d6;
-  --color-w3: #d69b4a;
-  --color-w4: #e0849a;
-  --color-w5: #b49ad9;
-  --color-w6: #55b8b0;
-  --color-w7: #a8bd55;
-  --color-w8: #dd7cc0;
+  --color-w1: #04c9e2;
+  --color-w2: #3890fa;
+  --color-w3: #e2960b;
+  --color-w4: #fc6c95;
+  --color-w5: #bb90f3;
+  --color-w6: #03beb4;
+  --color-w7: #a6c000;
+  --color-w8: #f85ccf;
 }
 
 /* ISC2 — indigo. */
 [data-region='isc2'] {
   --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee;
   --stone-crystal: #6d5fbf;
-  --color-accent: #5a4bd6; --color-accent-strong: #4a3cb8; --color-accent-ink: #3f33a0;
-  --color-accent-soft: #ece9fb; --color-accent-contrast: #ffffff;
+  --color-accent: #5d28fe; --color-accent-strong: #4e01e3; --color-accent-ink: #4201c6;
+  --color-accent-soft: #ece8ff; --color-accent-contrast: #ffffff;
 }
 .dark [data-region='isc2'] {
   --stone-crystal: #b3a5ff;
-  --color-accent: #a99cf5; --color-accent-strong: #bcb1ff; --color-accent-ink: #e6e1ff;
-  --color-accent-soft: #201c34; --color-accent-contrast: #12102a;
+  --color-accent: #a999ff; --color-accent-strong: #bcb1ff; --color-accent-ink: #e6e1fe;
+  --color-accent-soft: #221447; --color-accent-contrast: #12102a;
 }
 
 /* Linux — emerald. */
 [data-region='linux'] {
   --stone-rock: #23342b; --stone-rock-dark: #14201a; --stone-vein: #b6e8c9;
   --stone-crystal: #1f9f63;
-  --color-accent: #157a48; --color-accent-strong: #11623a; --color-accent-ink: #0e5431;
-  --color-accent-soft: #e4f5eb; --color-accent-contrast: #ffffff;
+  --color-accent: #017b46; --color-accent-strong: #026338; --color-accent-ink: #02552f;
+  --color-accent-soft: #d7fae6; --color-accent-contrast: #ffffff;
 }
 .dark [data-region='linux'] {
   --stone-crystal: #5fd39b;
-  --color-accent: #43c88a; --color-accent-strong: #66d6a1; --color-accent-ink: #c7f2da;
-  --color-accent-soft: #0c2c1e; --color-accent-contrast: #06201a;
+  --color-accent: #02cc84; --color-accent-strong: #06de96; --color-accent-ink: #b7f7d5;
+  --color-accent-soft: #002e1c; --color-accent-contrast: #06201a;
 }
 
 * {
@@ -689,16 +860,25 @@ summary:focus-visible,
     0 0 0 4px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 
+/* R77: a field is a socket cut INTO the surface, not a box drawn on top of it.
+   --clay-well is that socket (an inset rim, no cast), which is both the honest
+   reading of a text input and the thing the reference image does — and it
+   replaces the 1px line rather than joining it, per the law. */
 input,
 textarea,
 select {
-  @apply rounded-lg border border-line bg-panel px-4 py-2 text-ink;
+  @apply rounded-[var(--radius-clay-sm)] bg-panel-2 px-4 py-2 text-ink;
+  box-shadow: var(--clay-well);
 
   /* Inputs keep :focus rather than :focus-visible — clicking into a text field
-     to type is exactly when you want to see which one you are in. */
+     to type is exactly when you want to see which one you are in. The focus
+     state re-uses the same well and adds the accent ring OUTSIDE it, so the
+     field does not change shape when you click into it. */
   &:focus {
-    @apply border-accent outline-none;
-    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 20%, transparent);
+    @apply bg-panel outline-none;
+    box-shadow:
+      var(--clay-well),
+      0 0 0 3px color-mix(in srgb, var(--color-accent) 28%, transparent);
   }
 }
 
@@ -722,6 +902,44 @@ select {
 ::-webkit-scrollbar-thumb:hover {
   background: color-mix(in srgb, var(--color-muted) 70%, transparent);
 }
+
+/* ── Clay, as recipes ───────────────────────────────────────────────────────
+   THE LAW (see ui/Surface.tsx): depth is one token, and the edge lives inside
+   it. `<Surface>` and `<Button>` carry it for anything boxed, but ~140 small
+   inner elements — note boxes, chips, inline callouts, the wrapper round a
+   table — were hairlines (`border border-line`) rather than components, and
+   wiring a `clayTier()` import into fifty-four files to reach them would be a
+   lot of churn for a box-shadow.
+
+   So they are recipes, exactly as `.glass` is: the token stays spelled in one
+   place, a component writes a class and imports nothing, and page-shape.test.ts
+   counts these alongside the tokens when it checks "one tier per element".
+
+     .clay-rim   tier 0 — rims, no cast. The dense default: this is what a
+                 hairline becomes, and it is why a screen of twelve of them
+                 does not turn into grey haze.
+     .clay-lift  tier 1 — the small thing that should sit off the page.
+     .clay-sunk  the well: a socket cut in, for fields and inset strips. */
+.clay-rim {
+  box-shadow: var(--clay-0);
+}
+.clay-lift {
+  box-shadow: var(--clay-1);
+}
+.clay-sunk {
+  box-shadow: var(--clay-well);
+}
+/* A hover lift. `hover:border-accent` was the old vocabulary for "this card is
+   pressable"; with the hairline gone it tints nothing at all — a dead class
+   that still reads as intent in a diff. This is the replacement, and it swaps
+   the tier rather than adding one. */
+.clay-hover {
+  transition: box-shadow var(--dur-press) ease-out;
+}
+.clay-hover:hover {
+  box-shadow: var(--clay-2);
+}
+
 
 /* ── Recurring HTML motifs, as reusable classes ─────────────────────────── */
 
@@ -774,8 +992,12 @@ select {
   font-family: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
   background: var(--color-panel-2);
   color: var(--color-ink);
-  border: 1px solid var(--color-line);
-  border-bottom-width: 2px;
+  /* R77: a keycap is the most literally extruded thing in the interface, and it
+     was drawn as a box with a thicker bottom border — a fake of exactly what
+     --clay-0 does honestly (light rim on top, dark rim beneath). Losing the
+     border also loses the 2px it was adding to the line box, which is what this
+     recipe's whole comment above is about. */
+  box-shadow: var(--clay-0);
   border-radius: var(--radius-sm);
   padding: 0 5px;
   font-size: 0.82em;
@@ -903,28 +1125,41 @@ select {
 [data-week='7'] { --week: var(--color-w7); }
 [data-week='8'] { --week: var(--color-w8); }
 
-/* Level 1 — a week. The bedrock band. */
+/* Level 1 — a week. The bedrock band.
+
+   R77: the 1px outline is gone and the depth carries the edge instead, per the
+   law in Surface.tsx. The LEFT edge stays, because it is not an outline — it is
+   the phase colour, the one piece of status this app draws as a seam, and the
+   tier's rims are horizontal so the two never double up.
+
+   The week block also sets --clay-tint to the phase colour, which is the whole
+   reason that parameter exists: the open week's shadow is tinted with its own
+   week hue, in eight phases, with no per-week CSS. */
 .stratum-week {
+  --clay-tint: var(--week, var(--color-accent));
   background: var(--color-panel);
-  border: 1px solid var(--color-line);
   border-left: 4px solid color-mix(in srgb, var(--week, var(--color-accent)) 55%, transparent);
   border-radius: var(--radius-card);
+  box-shadow: var(--clay-0);
   /* The phase colour changes when the student moves week; crossfading the
      edge rather than cutting it keeps the week switch reading as one move. */
-  transition: border-left-color 200ms ease-out;
+  transition:
+    border-left-color 200ms ease-out,
+    box-shadow 200ms ease-out;
 }
 .stratum-week[data-open='true'] {
   border-left-color: var(--week, var(--color-accent));
-  box-shadow: var(--shadow-card);
+  box-shadow: var(--clay-1-tint);
 }
 
-/* Level 2 — a task within the week. Inset and slightly darker, so it reads as
-   cut *into* the week rather than sitting beside it. */
+/* Level 2 — a task within the week. Cut *into* the week rather than sitting
+   beside it — which is now literal: --clay-well is the socket tier, an inset
+   rim with no cast, so a task reads as a recess in the band above it. */
 .stratum-task {
   background: color-mix(in srgb, var(--color-panel-2) 70%, var(--color-panel));
-  border: 1px solid var(--color-line);
   border-left: 3px solid color-mix(in srgb, var(--week, var(--color-accent)) 40%, var(--color-line));
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-clay-sm);
+  box-shadow: var(--clay-well);
 }
 
 /* Level 3 — a step. No box at all: a seam line down the left edge. A third

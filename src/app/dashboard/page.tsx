@@ -306,7 +306,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
       transition={{ delay: index * 0.06, duration: DUR.reveal, ease: EASE.out }}
       // The week seam and the week glow: the card wears the phase the student
       // is in. Nothing lifts on hover; the border tints.
-      className={`group flex flex-col transition-colors hover:border-accent ${surfaceVariants({ accent: 'week', glow: 'week', padding: 'lg' })}`}
+      className={`group flex flex-col ${surfaceVariants({ accent: 'week', glow: 'week', padding: 'lg' })}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">

@@ -218,7 +218,7 @@ export default function PortfolioPage() {
               key={r.courseId}
               data-region={r.region}
               data-seam={r.seam}
-              className="rounded-lg border border-line p-4"
+              className="rounded-lg clay-rim p-4"
             >
               <div className="flex items-start gap-3">
                 <div className="flex shrink-0 flex-col items-center gap-2">
@@ -310,7 +310,7 @@ export default function PortfolioPage() {
 
 function Fig({ label, value, sub }: { label: string; value: string; sub: string }) {
   return (
-    <div className="rounded-lg border border-line p-3">
+    <div className="rounded-lg clay-rim p-3">
       <div className="eyebrow">{label}</div>
       <div className="mt-0.5 text-2xl font-bold text-ink">{value}</div>
       <div className="text-xs text-muted">{sub}</div>

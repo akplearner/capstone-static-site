@@ -40,7 +40,7 @@ export function CysaToolGuide() {
         {TOOL_PANELS.map((p) => {
           const Icon = ICON[p.icon];
           return (
-            <div key={p.name} className="flex flex-col rounded-lg border border-line bg-panel p-4">
+            <div key={p.name} className="flex flex-col rounded-lg clay-rim bg-panel p-4">
               <div className="flex items-baseline justify-between gap-2">
                 <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
                   <Icon className="h-4 w-4 text-accent" /> {p.name}
@@ -85,14 +85,14 @@ export function CysaToolGuide() {
         })}
       </div>
 
-      <div className="rounded-lg border border-line bg-panel p-4">
+      <div className="rounded-lg clay-rim bg-panel p-4">
         <h3 className="text-sm font-semibold text-ink">{COPY.signaturesTitle}</h3>
         <p className="mt-1 text-sm text-muted">
           In Security events, type a <code className="rounded bg-panel-2 px-1 font-mono text-xs">field:value</code>{' '}
           query in the search bar. Start with <code className="rounded bg-panel-2 px-1 font-mono text-xs">rule.level:&gt;=7</code>{' '}
           to cut the noise, then match the shape of the attack:
         </p>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-line">
+        <div className="mt-3 overflow-x-auto rounded-lg clay-rim">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
@@ -122,10 +122,10 @@ export function CysaToolGuide() {
         </p>
       </div>
 
-      <div className="rounded-lg border border-line bg-panel p-4">
+      <div className="rounded-lg clay-rim bg-panel p-4">
         <h3 className="text-sm font-semibold text-ink">{COPY.howToTitle}</h3>
         <p className="mt-1 text-sm text-muted">{COPY.howToIntro}</p>
-        <div className="mt-3 overflow-x-auto rounded-lg border border-line">
+        <div className="mt-3 overflow-x-auto rounded-lg clay-rim">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">

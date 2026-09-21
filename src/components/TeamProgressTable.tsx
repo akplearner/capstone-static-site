@@ -48,7 +48,7 @@ export function TeamProgressTable({
 
   return (
     <div className="space-y-6">
-      <div className="overflow-x-auto rounded-lg border border-line bg-panel">
+      <div className="overflow-x-auto rounded-lg clay-rim bg-panel">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
@@ -137,7 +137,7 @@ export function TeamProgressTable({
             return (
               <div
                 key={d.id}
-                className="flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-2"
+                className="flex items-center gap-2 rounded-lg clay-rim bg-panel px-3 py-2"
               >
                 {d.complete ? (
                   <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />

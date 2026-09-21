@@ -600,8 +600,20 @@ describe('R68 — the shape of the modernised platform', () => {
   const files = collectSourceFiles('src');
 
   it('Surface is the only file that spells the card', () => {
-    const CARD = 'rounded-[var(--radius-card)] border border-line bg-panel';
-    const offenders = files.filter((f) => f !== 'src/components/ui/Surface.tsx' && code(f).includes(CARD));
+    // R77 re-cut the card: the border is gone, because a clay tier carries its
+    // own rims as inset layers. The literal is asserted to still live IN Surface
+    // before it is asserted absent everywhere else — a "nobody spells it" rule
+    // passes just as happily when nobody spells it anywhere, including the one
+    // file that is supposed to, which is exactly how this guard went quiet when
+    // the law changed under it.
+    const CARD = "rounded-[var(--radius-card)]', {\n  variants: {";
+    expect(code('src/components/ui/Surface.tsx'), 'the card recipe has moved — repoint this guard').toContain(
+      CARD
+    );
+    const RECIPE = 'rounded-[var(--radius-card)] bg-panel';
+    const offenders = files.filter(
+      (f) => f !== 'src/components/ui/Surface.tsx' && code(f).includes(RECIPE)
+    );
     expect(offenders, 'render <Surface> or surfaceVariants() instead of the class string').toEqual([]);
   });
 
@@ -905,5 +917,154 @@ describe('R75-B — the content is not in the components', () => {
     expect(code('src/components/diagrams/StepFlow.tsx')).toContain('socTopology(');
     expect(code('src/lib/docs/cysaContent.ts')).toContain('socTopology(');
     expect(code('src/lib/docs/securityContent.ts')).toContain('LAB_SUBNET');
+  });
+});
+
+/**
+ * R77 — the clay law, held.
+ *
+ * "Depth is one token, and the edge lives inside it." That sentence is cheap to
+ * write in a docblock and free to violate in a component, which is what happened
+ * to its predecessor: the old law ("a line OR elevation, never both") survived as
+ * prose in `Surface.tsx` long after individual call sites had quietly started
+ * pairing `border border-line` with a `shadow-`.
+ *
+ * So the law is arithmetic here. A clay tier already draws a light top rim and a
+ * dark bottom rim as `inset` layers — that is what the eye reads as extruded — so
+ * a border beside one is a doubled edge, and two tiers on one element is a smudge.
+ * Both are caught by reading the class strings the source actually contains.
+ */
+describe('R77 — clay', () => {
+  const files = collectSourceFiles('src');
+  const CSS = read('src/app/globals.css');
+
+  /**
+   * Every `className="…"` / `className={'…'}` literal chunk in a file, plus the
+   * bare quoted strings in a cva/record of class strings — which is how the
+   * primitives spell them. Comments are already stripped by `code()`.
+   *
+   * `${…}` is cut out of a template literal rather than counted with it. A
+   * ternary inside one — `${sel ? 'clay-lift …' : 'clay-rim …'}` — puts every
+   * branch in the same backticked string, and counting them together reads
+   * three MUTUALLY EXCLUSIVE tiers as three tiers on one element. The branches
+   * are single-quoted, so they are already collected on their own and each gets
+   * counted as the one element it actually renders.
+   */
+  const stripInterpolations = (t: string): string => {
+    let out = '';
+    for (let i = 0; i < t.length; i++) {
+      if (t[i] === '$' && t[i + 1] === '{') {
+        let depth = 1;
+        i += 2;
+        while (i < t.length && depth > 0) {
+          if (t[i] === '{') depth++;
+          else if (t[i] === '}') depth--;
+          i++;
+        }
+        i--;
+      } else out += t[i];
+    }
+    return out;
+  };
+
+  const classStrings = (f: string): string[] => {
+    const src = code(f);
+    return [
+      ...[...src.matchAll(/'((?:[^'\\\n]|\\.)*)'/g)].map((m) => m[1]),
+      ...[...src.matchAll(/"([^"\n]*)"/g)].map((m) => m[1]),
+      ...[...src.matchAll(/`([^`]*)`/g)].map((m) => stripInterpolations(m[1])),
+    ].filter((s) => /\b(shadow|rounded|border|bg)-|\bclay-/.test(s));
+  };
+
+  it('never draws a border beside a clay tier — the rim is already in the shadow', () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      for (const s of classStrings(f)) {
+        // `--shadow-1/2/3` are ALIASES of `--clay-1/2/3` (globals.css keeps the
+        // old names so ~15 call sites did not have to move). A guard that only
+        // knew the new spelling would wave the alias straight through, which is
+        // how Toast kept a border under a tier-3 shadow through this round.
+        if (!/shadow-\[var\(--(clay|shadow)-/.test(s) && !/\bclay-(rim|lift|sunk)\b/.test(s)) continue;
+        // A left seam is status, not an edge: `border-l-4` is the one survivor,
+        // and it is deliberately a different thing from a box outline.
+        const border = s.match(/(?<![\w-])border(?!-l\b|-l-)(-[a-z0-9[\]]+)?(?![\w-])/);
+        if (border) offenders.push(`${f}: ${s}`);
+      }
+    }
+    expect(offenders, offenders.join('\n')).toEqual([]);
+  });
+
+  it('names at most one resting tier per class string', () => {
+    const offenders: string[] = [];
+    for (const f of files) {
+      for (const s of classStrings(f)) {
+        // Only the resting state counts: `hover:` and `active:` swap the tier,
+        // they do not stack with it, which is the whole point of a swap.
+        const resting =
+          (s.match(/(?<![\w:-])shadow-\[var\(--(clay|glow|shadow)-[a-z0-9-]+\)\]/g) ?? []).length +
+          (s.match(/(?<![\w:-])clay-(rim|lift|sunk)(?![\w-])/g) ?? []).length;
+        if (resting > 1) offenders.push(`${f}: ${s}`);
+      }
+    }
+    expect(offenders, offenders.join('\n')).toEqual([]);
+  });
+
+  it('spells a tier only in the primitives that own depth', () => {
+    // If a page can reach for `--clay-2` directly then the ladder is decoration
+    // rather than a ladder, and the next round cannot re-cut it in one place.
+    //
+    // The rule is the DIRECTORY, not a list of filenames: `src/components/ui/*`
+    // is what "a primitive" means here, and a list would have to be edited every
+    // time one is added — which is the kind of edit that gets made by deleting
+    // the offending name from the array.
+    const offenders = files.filter(
+      (f) => !f.startsWith('src/components/ui/') && /shadow-\[var\(--(clay|shadow)-/.test(code(f))
+    );
+    expect(offenders, 'depth belongs to the ui primitives — pass a variant instead').toEqual([]);
+  });
+
+  it('declares every depth token in both themes', () => {
+    // A clay token with no dark twin is a light-mode rim glowing on a dark card.
+    const missing: string[] = [];
+    for (const t of [
+      '--clay-rim-hi',
+      '--clay-rim-lo',
+      '--clay-cast-near',
+      '--clay-cast-far',
+      '--gloss-sheen',
+      '--gloss-stop-hi',
+      '--gloss-stop-mid',
+    ]) {
+      const n = (CSS.match(new RegExp(`${t}:`, 'g')) ?? []).length;
+      if (n < 2) missing.push(`${t} is declared ${n}× — needs a light and a dark value`);
+    }
+    expect(missing, missing.join('\n')).toEqual([]);
+  });
+
+  it('declares every clay recipe a component reaches for by name', () => {
+    // `.clay-rim` is an ordinary class. Tailwind will not warn about it, tsc
+    // cannot see it, and a misspelling renders a flat element that looks almost
+    // right — which is the worst kind of wrong.
+    const used = new Set<string>();
+    for (const f of files) {
+      for (const m of code(f).matchAll(/(?<![\w-])clay-([a-z]+)(?![\w-])/g)) used.add(`clay-${m[1]}`);
+    }
+    expect(used.size, 'the sweep replaced 134 hairlines — this cannot be empty').toBeGreaterThan(0);
+    const missing = [...used].filter((c) => !CSS.includes(`.${c} {`));
+    expect(missing, `no such recipe in globals.css: ${missing.join(', ')}`).toEqual([]);
+  });
+
+  it('references no depth or radius token the stylesheet does not declare', () => {
+    // `shadow-[var(--clay-4)]` is not a compile error, not a lint error and not a
+    // runtime error. It is a silently missing shadow, and the only place it can
+    // be caught is here.
+    const declared = new Set([...CSS.matchAll(/(--[a-z0-9-]+):/gi)].map((m) => m[1]));
+    const missing: string[] = [];
+    for (const f of files) {
+      for (const m of code(f).matchAll(/(?:shadow|rounded)-\[var\((--[a-z0-9-]+)[,)]/g)) {
+        if (!declared.has(m[1])) missing.push(`${f} uses ${m[1]}, which globals.css never declares`);
+      }
+    }
+    expect([...new Set(missing)], [...new Set(missing)].join('\n')).toEqual([]);
   });
 });

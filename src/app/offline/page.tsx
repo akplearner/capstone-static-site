@@ -35,7 +35,7 @@ export default function OfflinePage() {
         <Link href="/dashboard" className="rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-accent-contrast hover:bg-accent-strong">
           Open your dashboard
         </Link>
-        <Link href="/" className="rounded-lg border border-line px-3.5 py-2 text-sm font-medium text-body hover:bg-panel-2">
+        <Link href="/" className="rounded-lg clay-rim px-3.5 py-2 text-sm font-medium text-body hover:bg-panel-2">
           Home
         </Link>
       </div>

@@ -54,7 +54,7 @@ export function CcnaTopologyDiagram({
   const dim = (on: boolean) => (on ? '' : 'opacity-40');
   const weekTag = (week: number) =>
     built(week) ? null : (
-      <span className="ml-1 rounded-full border border-line px-1 py-px font-mono text-3xs text-muted">
+      <span className="ml-1 rounded-full clay-rim px-1 py-px font-mono text-3xs text-muted">
         Week {week}
       </span>
     );
@@ -78,7 +78,7 @@ export function CcnaTopologyDiagram({
 
         <div className="grid gap-3 sm:grid-cols-2">
           {SITE_COLUMNS.map(({ site, devices }) => (
-            <div key={site.id} className={`flex flex-col rounded-lg border border-line bg-panel p-3 ${dim(built(ARRIVES.site[site.id]))}`}>
+            <div key={site.id} className={`flex flex-col rounded-lg clay-rim bg-panel p-3 ${dim(built(ARRIVES.site[site.id]))}`}>
               <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-2">
                 <span className="text-sm font-bold text-ink">
                   {fillCopy(COPY.siteHeading, { name: site.name })}
@@ -92,7 +92,7 @@ export function CcnaTopologyDiagram({
                 {devices.map((d) => (
                   <div
                     key={d.name}
-                    className={`rounded-md border-l-2 border border-line bg-panel-2 px-2 py-1 ${dim(built(d.arrives))}`}
+                    className={`rounded-md border-l-2 clay-rim bg-panel-2 px-2 py-1 ${dim(built(d.arrives))}`}
                     style={{ borderLeftColor: TONE[d.class] }}
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-x-2">
@@ -120,7 +120,7 @@ export function CcnaTopologyDiagram({
                     <span
                       key={v.id}
                       title={`${v.prefix} · gateway ${v.gateway} — ${v.purpose}`}
-                      className="rounded border border-line bg-panel px-1 py-px font-mono text-3xs text-body"
+                      className="rounded clay-rim bg-panel px-1 py-px font-mono text-3xs text-body"
                     >
                       {v.id} {v.name}
                       {v.wireless && <span className="text-muted"> ·wifi</span>}
@@ -142,7 +142,7 @@ export function CcnaTopologyDiagram({
           <span className="mt-0.5 block text-3xs text-muted">{COPY.wanNote}</span>
         </div>
 
-        <div className={`rounded-lg border border-line bg-panel-2 px-3 py-1.5 text-3xs text-muted ${dim(built(ARRIVES.policy))}`}>
+        <div className={`rounded-lg clay-rim bg-panel-2 px-3 py-1.5 text-3xs text-muted ${dim(built(ARRIVES.policy))}`}>
           <span className="font-semibold text-ink">Policy</span> — {COPY.policyNote}
           {weekTag(ARRIVES.policy)}
           <span className="mt-0.5 block">{COPY.wirelessNote}</span>

@@ -26,7 +26,7 @@ export function RolesEditor({ course, onChange }: { course: Course; onChange: (c
         <Button size="sm" onClick={add} className="flex items-center gap-1"><Plus className="h-4 w-4" /> Add role</Button>
       </div>
       {course.roles.map((r, i) => (
-        <div key={i} className="space-y-3 rounded-lg border border-line p-4">
+        <div key={i} className="space-y-3 rounded-lg clay-rim p-4">
           <div className="flex items-center gap-2">
             <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
             <span className="font-medium text-ink">{r.name || r.id}</span>
@@ -42,7 +42,7 @@ export function RolesEditor({ course, onChange }: { course: Course; onChange: (c
           <div className="grid gap-3 sm:grid-cols-2">
             <label className="block">
               <span className="block text-xs font-medium text-muted">Color</span>
-              <input type="color" value={r.color} onChange={(e) => update(i, { color: e.target.value })} className="mt-1 h-9 w-full rounded border border-line" />
+              <input type="color" value={r.color} onChange={(e) => update(i, { color: e.target.value })} className="mt-1 h-9 w-full rounded" />
             </label>
             <SelectField
               label="Icon"

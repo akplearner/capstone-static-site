@@ -28,7 +28,7 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
           <li
             key={w.number}
             data-week={w.number}
-            className="rounded-lg border border-line border-l-2 bg-panel px-3 py-2"
+            className="rounded-lg clay-rim border-l-2 bg-panel px-3 py-2"
             style={{ borderLeftColor: 'var(--week, var(--color-line))' }}
           >
             <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
@@ -47,12 +47,12 @@ export function WeekGoals({ course, gates }: { course: Course; gates?: Gate[] })
               )}
               <span className="font-semibold text-ink">{w.title}</span>
               {w.advanced && (
-                <span className="rounded-full border border-line px-2 py-0.5 font-mono text-3xs uppercase tracking-wide text-muted">
+                <span className="rounded-full clay-rim px-2 py-0.5 font-mono text-3xs uppercase tracking-wide text-muted">
                   Advanced · optional
                 </span>
               )}
               {gate && (
-                <span className="ml-auto rounded-full border border-line px-2 py-0.5 font-mono text-3xs text-muted">
+                <span className="ml-auto rounded-full clay-rim px-2 py-0.5 font-mono text-3xs text-muted">
                   Gate {gate.id}
                 </span>
               )}

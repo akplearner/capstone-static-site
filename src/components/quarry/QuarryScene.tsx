@@ -16,10 +16,20 @@ import { PixelMiner } from './PixelMiner';
  * Reduced motion is handled inside PixelMiner: it composes a single static
  * frame and never starts the animation loop.
  */
+/**
+  * The scene does NOT name its own depth tier. It takes a `className` from its
+  * caller, so if it declared one too the element would wear two — and the plain
+  * `.clay-rim` recipe wins over a Tailwind `shadow-[…]` utility, so the caller's
+  * intent loses silently. (It did, briefly: this component carried `clay-rim`
+  * from the R77 sweep while the landing asked for tier 1, and the hero rendered
+  * flat. Neither a type error nor a lint error nor a class-string guard can see
+  * a conflict assembled from two files — only the computed style can, which is
+  * how it was found.)
+  */
 export function QuarryScene({ className }: { className?: string }) {
   return (
     <div
-      className={`relative overflow-hidden rounded-[var(--radius-card)] border border-line bg-[#0e1216] ${className ?? ''}`}
+      className={`relative overflow-hidden rounded-[var(--radius-card)] bg-[#0e1216] ${className ?? ''}`}
     >
       <PixelMiner theme="cycle" interactive />
     </div>

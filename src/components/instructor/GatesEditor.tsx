@@ -41,7 +41,7 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
         <Button size="sm" onClick={add} className="flex items-center gap-1"><Plus className="h-4 w-4" /> Add gate</Button>
       </div>
       {course.gates.map((g, i) => (
-        <div key={i} className="space-y-3 rounded-lg border border-line p-4">
+        <div key={i} className="space-y-3 rounded-lg clay-rim p-4">
           <div className="flex items-center justify-between">
             <span className="font-medium text-ink">{g.title}</span>
             <button type="button" aria-label={`Remove gate ${g.title}`} onClick={() => setGates(course.gates.filter((_, idx) => idx !== i))} className="text-muted hover:text-danger">
@@ -59,7 +59,7 @@ export function GatesEditor({ course, onChange }: { course: Course; onChange: (c
           <TextField label="Required artifact types (comma-separated)" value={listToText(g.requiredArtifactTypes)} onChange={(v) => update(i, { requiredArtifactTypes: textToList(v) })} />
           <div>
             <span className="block text-xs font-medium text-muted">Required tasks</span>
-            <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-lg border border-line p-2">
+            <div className="mt-1 max-h-40 space-y-1 overflow-y-auto rounded-lg clay-rim p-2">
               {course.tasks.length === 0 && <p className="text-xs text-muted">No tasks yet.</p>}
               {course.tasks.map((t) => (
                 <label key={t.id} className="flex items-center gap-2 text-sm text-body">

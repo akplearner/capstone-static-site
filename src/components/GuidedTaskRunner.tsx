@@ -213,7 +213,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
         {/* The reward beat — a cut lands on the stone each time a step does. */}
         <CutBeat trigger={beat} />
         </div>
-        <div className="flex overflow-hidden rounded-lg border border-line">
+        <div className="flex overflow-hidden rounded-lg clay-rim">
           <button
             onClick={() => setMode('guided')}
             className={`flex items-center gap-1 px-3 py-1.5 text-xs font-medium transition-colors ${
@@ -240,7 +240,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
             the check; every explanation sits behind one press. Nothing is
             deleted — "Everything" is the whole step. Saved per course. */}
         {onDensityChange && (
-          <div className="flex overflow-hidden rounded-lg border border-line" role="group" aria-label="How much to show">
+          <div className="flex overflow-hidden rounded-lg clay-rim" role="group" aria-label="How much to show">
             <button
               type="button"
               onClick={() => onDensityChange('simple')}
@@ -268,7 +268,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
       {/* Everything about the task that is not a step: the done-when list, the
           prerequisites/outputs, the tools-and-learning brief (all supplied by
           the caller via `about`), plus Mark all. */}
-      <div className="rounded-lg border border-line bg-panel px-3">
+      <div className="rounded-lg clay-rim bg-panel px-3">
         <Collapsible title="About this task — done-when, tools & extras">
           <div className="space-y-3 py-1 pr-2">
             {about}
@@ -276,14 +276,14 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               {allDone ? (
                 <button
                   onClick={undoAll}
-                  className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
+                  className="flex items-center gap-1 rounded-lg clay-rim px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
                 >
                   <RotateCcw className="h-3.5 w-3.5" /> Reset
                 </button>
               ) : (
                 <button
                   onClick={markAll}
-                  className="flex items-center gap-1 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
+                  className="flex items-center gap-1 rounded-lg clay-rim px-3 py-1.5 text-xs font-medium text-muted hover:bg-panel-2"
                 >
                   <Check className="h-3.5 w-3.5" /> Mark all
                 </button>
@@ -308,7 +308,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -16 }}
               transition={{ duration: DUR.reveal }}
-              className="scroll-under-chrome rounded-lg border border-line bg-panel-2 p-5"
+              className="scroll-under-chrome rounded-lg clay-rim bg-panel-2 p-5"
             >
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div>
@@ -479,7 +479,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           the identical six cards, ~5,100 duplicated words across the course.
           Same help, one home, below the steps it serves. */}
       {task.steps.some((s) => s.command || s.commands?.length) && (
-        <div className="rounded-lg border border-line bg-panel-2/50 px-3">
+        <div className="rounded-lg clay-rim bg-panel-2/50 px-3">
           <Collapsible title="New to the terminal?">
             <div className="pb-2 pr-2">
               <TerminalBasics />

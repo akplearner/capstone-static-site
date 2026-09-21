@@ -174,7 +174,7 @@ export function AuthForm({
                 type="button"
                 onClick={() => oauth('google')}
                 disabled={!!busy}
-                className="flex items-center justify-center gap-2 rounded-lg border border-line bg-panel px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-panel-2 disabled:opacity-60"
+                className="flex items-center justify-center gap-2 rounded-lg clay-rim bg-panel px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-panel-2 disabled:opacity-60"
               >
                 {busy === 'google' ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleMark />}
                 Google
@@ -185,7 +185,7 @@ export function AuthForm({
                 type="button"
                 onClick={() => oauth('github')}
                 disabled={!!busy}
-                className="flex items-center justify-center gap-2 rounded-lg border border-line bg-panel px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-panel-2 disabled:opacity-60"
+                className="flex items-center justify-center gap-2 rounded-lg clay-rim bg-panel px-4 py-2.5 text-sm font-medium text-ink transition-colors hover:bg-panel-2 disabled:opacity-60"
               >
                 {busy === 'github' ? <Loader2 className="h-4 w-4 animate-spin" /> : <GithubMark />}
                 GitHub
@@ -215,7 +215,7 @@ export function AuthForm({
             onChange={(e) => setEmail(e.target.value)}
             placeholder="you@example.com"
             form={passwordAuth ? 'auth-password-form' : undefined}
-            className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+            className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none"
           />
         </label>
       )}
@@ -232,7 +232,7 @@ export function AuthForm({
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={mode === 'register' ? 'At least 8 characters' : '••••••••'}
-              className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+              className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none"
             />
           </label>
 
@@ -249,7 +249,7 @@ export function AuthForm({
 
       {magic &&
         (magicSent ? (
-          <div className="flex items-center gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-ink">
+          <div className="flex items-center gap-2 rounded-md clay-rim bg-panel-2 px-3 py-2 text-sm text-ink">
             <CheckCircle2 className="h-4 w-4 shrink-0 text-accent" />
             Check <span className="font-medium">{email}</span> for a sign-in link.
           </div>
@@ -301,7 +301,7 @@ export function AuthForm({
       )}
 
       {notice && (
-        <div className="flex items-start gap-2 rounded-md border border-line bg-panel-2 px-3 py-2 text-sm text-ink">
+        <div className="flex items-start gap-2 rounded-md clay-rim bg-panel-2 px-3 py-2 text-sm text-ink">
           <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" /> {notice}
         </div>
       )}

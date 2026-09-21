@@ -11,7 +11,7 @@ import { validateEvidenceFileName } from '@/lib/utils';
 import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
 
 const inputClass =
-  'mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink';
+  'mt-1 w-full rounded-lg clay-rim bg-panel px-3 py-2 text-sm text-ink';
 
 function SingleField({
   f,
@@ -263,7 +263,7 @@ export function DeliverableForm({
   return (
     <div className="space-y-5">
       {requiredLeft > 0 && (
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel-2 px-3 py-1 text-xs font-medium text-muted">
+        <div className="inline-flex items-center gap-1.5 rounded-full clay-rim bg-panel-2 px-3 py-1 text-xs font-medium text-muted">
           {requiredLeft} required {requiredLeft === 1 ? 'field' : 'fields'} left
         </div>
       )}

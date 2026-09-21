@@ -57,7 +57,7 @@ export function TeamBusinessPicker({
   };
 
   return (
-    <div className="rounded-lg border border-line bg-panel p-4">
+    <div className="rounded-lg clay-rim bg-panel p-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="min-w-0">
           <div className="text-sm font-semibold text-ink">Your team&apos;s business</div>
@@ -73,7 +73,7 @@ export function TeamBusinessPicker({
             value={name}
             onChange={(e) => setField('client', e.target.value)}
             placeholder="e.g. Granite Peak Aggregates"
-            className="mt-1 w-48 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+            className="mt-1 w-48 rounded-lg bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:outline-none"
           />
         </label>
         <label className="block">
@@ -81,7 +81,7 @@ export function TeamBusinessPicker({
           <select
             value={industry}
             onChange={(e) => setField('industry', e.target.value)}
-            className="mt-1 w-48 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
+            className="mt-1 w-48 rounded-lg bg-panel px-3 py-1.5 text-sm text-ink focus:outline-none"
           >
             <option value="">Choose…</option>
             {BUSINESS_INDUSTRIES.map((o) => (
@@ -97,7 +97,7 @@ export function TeamBusinessPicker({
               value={other}
               onChange={(e) => setField('industry_other', e.target.value)}
               placeholder="e.g. A veterinary clinic chain"
-              className="mt-1 w-56 rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+              className="mt-1 w-56 rounded-lg bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:outline-none"
             />
           </label>
         )}

@@ -31,7 +31,7 @@ export function TriageDecisionTree() {
       legend={COPY.legend?.map((l) => ({ label: l.label, color: TONE[l.kind as TriageBranch['kind']] }))}
     >
       <div className="min-w-[520px] space-y-2">
-        <div className="rounded-md border border-line bg-panel-2 px-3 py-2 text-sm font-medium text-ink">
+        <div className="rounded-md clay-rim bg-panel-2 px-3 py-2 text-sm font-medium text-ink">
           {QUESTION}
         </div>
         {BRANCHES.map((b, i) => (
@@ -42,14 +42,14 @@ export function TriageDecisionTree() {
             transition={{ delay: i * 0.06, duration: DUR.reveal }}
             className="grid grid-cols-[1fr_auto_1.2fr] items-center gap-2"
           >
-            <div className="rounded-md border border-line bg-panel px-3 py-2 text-sm text-muted">{b.q}</div>
+            <div className="rounded-md clay-rim bg-panel px-3 py-2 text-sm text-muted">{b.q}</div>
             <div
               className="whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-semibold"
               style={{ background: TONE[b.kind], color: 'var(--color-surface)' }}
             >
               {b.verdict}
             </div>
-            <div className="rounded-md border border-line bg-panel px-3 py-2 text-sm text-muted">
+            <div className="rounded-md clay-rim bg-panel px-3 py-2 text-sm text-muted">
               <span className="font-medium text-ink">Write: </span>
               {b.write}
             </div>

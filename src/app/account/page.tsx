@@ -181,7 +181,7 @@ export default function AccountPage() {
             value={confirm}
             onChange={(e) => setConfirm(e.target.value)}
             placeholder="DELETE"
-            className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+            className="mt-1 w-full rounded-lg bg-panel px-3 py-2 text-sm text-ink placeholder-muted focus:outline-none"
           />
         </label>
         <div className="mt-3">

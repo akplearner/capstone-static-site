@@ -47,7 +47,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
   if (!hasLabAccess(courseId)) return null;
 
   return (
-    <div id="lab-access" className="scroll-under-chrome rounded-lg border border-line bg-panel px-4">
+    <div id="lab-access" className="scroll-under-chrome rounded-lg clay-rim bg-panel px-4">
       {/* The heading names what the course actually collects. "Your targets" is
           right for an attack lab and wrong for a build course, whose two values
           are its own server's addresses. */}
@@ -87,7 +87,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                   <select
                     value={lab.values[f.key] ?? f.options?.[0]?.value ?? ''}
                     onChange={(e) => setValue(f.key, e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none"
+                    className="mt-1 w-full rounded-lg bg-panel px-3 py-1.5 text-sm text-ink focus:outline-none"
                   >
                     {f.options?.map((o) => (
                       <option key={o.value} value={o.value}>
@@ -101,7 +101,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
                   value={lab.values[f.key] ?? ''}
                   onChange={(e) => setValue(f.key, e.target.value)}
                   placeholder={f.placeholder}
-                  className="mt-1 w-full rounded-lg border border-line bg-panel px-3 py-1.5 font-mono text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+                  className="mt-1 w-full rounded-lg bg-panel px-3 py-1.5 font-mono text-sm text-ink placeholder-muted focus:outline-none"
                 />
                 )}
               </label>
@@ -152,7 +152,7 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
               onChange={(e) => setNotes(e.target.value)}
               rows={2}
               placeholder="e.g. ubuntu host is lab-01; DVWA on :8080 — throwaway lab details only"
-              className="mt-1.5 w-full rounded-lg border border-line bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:border-accent focus:outline-none"
+              className="mt-1.5 w-full rounded-lg bg-panel px-3 py-1.5 text-sm text-ink placeholder-muted focus:outline-none"
             />
           </label>
         </div>

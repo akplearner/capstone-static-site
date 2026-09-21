@@ -41,7 +41,7 @@ export function LogPipelineDiagram() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: DUR.reveal }}
-                className="flex w-[104px] flex-col rounded-md border border-line bg-panel p-2"
+                className="flex w-[104px] flex-col rounded-md clay-rim bg-panel p-2"
                 style={{ borderTopColor: tone, borderTopWidth: 2 }}
               >
                 <span className="font-mono text-3xs text-muted">{s.n}</span>

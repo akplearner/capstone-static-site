@@ -161,7 +161,7 @@ export default function CourseEditorPage() {
             <TextField label="Slug / ID" value={draft.slug} onChange={(v) => setDraft({ ...draft, slug: v })} mono />
             <TextArea label="Description" value={draft.description} onChange={(v) => setDraft({ ...draft, description: v })} rows={3} />
 
-            <div className="space-y-4 rounded-lg border border-line p-4">
+            <div className="space-y-4 rounded-lg clay-rim p-4">
               <h3 className="text-sm font-semibold text-ink">Enrollment</h3>
               <Toggle
                 label={draft.locked ? 'Locked' : 'Open'}

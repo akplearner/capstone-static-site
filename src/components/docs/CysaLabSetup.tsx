@@ -30,7 +30,7 @@ export function CysaLabSetup({ courseId }: { courseId: string }) {
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
           <Cpu className="h-4 w-4 text-info" /> {COPY.machinesTitle}
         </h3>
-        <div className="mt-2 overflow-x-auto rounded-lg border border-line">
+        <div className="mt-2 overflow-x-auto rounded-lg clay-rim">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">

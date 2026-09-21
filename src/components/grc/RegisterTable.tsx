@@ -8,7 +8,7 @@ import { emptyFormContext, type FormContext } from '@/lib/docs/types';
 import { DURATION_UNITS, addressPart, fitsInput, formatDuration, inSubnet, isIpv4OrCidr, parseDuration } from '@/lib/docs/formContext';
 
 const inputClass =
-  'w-full rounded border border-line bg-panel px-2 py-1 text-sm text-ink';
+  'w-full rounded clay-rim bg-panel px-2 py-1 text-sm text-ink';
 
 // Colour the derived severity/risk-level cells so priority reads at a glance.
 function badgeClass(value: string): string {
@@ -249,7 +249,7 @@ export function RegisterTable({
           puts the label above the value and drops nothing. */}
       <div className="space-y-3 sm:hidden">
         {rows.map((row, i) => (
-          <div key={i} className="rounded-lg border border-line bg-panel-2 p-3">
+          <div key={i} className="rounded-lg clay-rim bg-panel-2 p-3">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-semibold text-muted">Row {i + 1}</span>
               <button

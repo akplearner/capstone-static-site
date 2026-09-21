@@ -44,10 +44,18 @@ export function CatalogCard({
       transition={{ delay: Math.min(index * 0.04, 0.3), duration: DUR.reveal, ease: EASE.out }}
       // A live stone is a card; a coming-soon one is an inset, muted — no
       // dashed border, which read as a placeholder rather than as a plan.
-      className={`group relative flex h-full flex-col transition-colors ${surfaceVariants({
+      //
+      // A stone already on your path used to say so with `border-accent/60` and
+      // a `ring-1` beside it: two edges and a shadow on one element. It says it
+      // with the accent GLOW instead, which `surfaceVariants` resolves in place
+      // of the tier — so the selected card is still exactly one depth token, and
+      // it re-colours per course seam for free. A card you can start also lifts
+      // on hover, which is a state swap rather than a second resting tier.
+      className={`group relative flex h-full flex-col ${surfaceVariants({
         variant: available ? 'card' : 'inset',
+        glow: onPath ? 'accent' : 'none',
         padding: 'sm',
-      })} ${available ? `hover:border-accent ${onPath ? 'border-accent/60 ring-1 ring-accent/25' : ''}` : onPath ? 'border-accent/40' : 'opacity-80'}`}
+      })} ${available ? 'clay-hover' : onPath ? '' : 'opacity-80'}`}
     >
       {onPath && (
         <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 font-mono text-3xs font-semibold uppercase tracking-wider text-accent-ink">

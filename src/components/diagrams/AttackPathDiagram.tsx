@@ -40,7 +40,7 @@ export function AttackPathDiagram() {
                 initial={{ opacity: 0, y: 6 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05, duration: DUR.reveal }}
-                className="flex w-[118px] flex-col rounded-md border border-line bg-panel p-2"
+                className="flex w-[118px] flex-col rounded-md clay-rim bg-panel p-2"
                 style={{ borderTopColor: tone, borderTopWidth: 2 }}
               >
                 <div className="flex items-baseline justify-between gap-1">
@@ -49,7 +49,7 @@ export function AttackPathDiagram() {
                 </div>
                 <span className="mt-0.5 text-2xs leading-tight text-muted">{h.what}</span>
                 {h.attck && (
-                  <span className="mt-1 self-start rounded border border-line px-1 font-mono text-3xs text-muted">
+                  <span className="mt-1 self-start rounded clay-rim px-1 font-mono text-3xs text-muted">
                     {h.attck}
                   </span>
                 )}

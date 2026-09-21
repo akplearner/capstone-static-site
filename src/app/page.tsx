@@ -19,7 +19,7 @@ import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
 import { useAuth } from '@/lib/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { catalogByVendor, catalogSummary } from '@/lib/catalog/helpers';
-import { surfaceVariants } from '@/components/ui/Surface';
+import { clayTier, surfaceVariants } from '@/components/ui/Surface';
 
 // The platform landing. It sells one idea — you cut a real capstone, you don't
 // memorise an exam — in the quarry's own language. Signed-in users don't need the
@@ -50,7 +50,7 @@ import { surfaceVariants } from '@/components/ui/Surface';
  * further, and the border takes the accent); it just is not the entire
  * difference between "flat page" and "cards".
  */
-const CARD = `${surfaceVariants({ variant: 'card', padding: 'none' })} transition-colors hover:border-accent`;
+const CARD = `${surfaceVariants({ variant: 'card', padding: 'none' })} clay-hover`;
 
 /** Eyebrow → title → lead, with an optional action on the right. Written once so
  *  the three sections below actually line up with each other. */
@@ -227,7 +227,7 @@ export default function HomePage() {
             aria-hidden
             className="pointer-events-none absolute -inset-2 rounded-[calc(var(--radius-card)+0.5rem)] bg-accent-soft opacity-40 blur-xl"
           />
-          <QuarryScene className="relative aspect-video w-full shadow-[var(--shadow-card)]" />
+          <QuarryScene className={`relative aspect-video w-full ${clayTier('card')}`} />
         </motion.div>
       </section>
 
@@ -357,7 +357,7 @@ export default function HomePage() {
                     {g.cells.map((c) => (
                       <span
                         key={c.level.id}
-                        className="rounded border border-line px-1.5 py-0.5 text-3xs uppercase tracking-wide text-muted"
+                        className="rounded clay-rim px-1.5 py-0.5 text-3xs uppercase tracking-wide text-muted"
                       >
                         {c.level.id}
                       </span>

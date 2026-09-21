@@ -163,7 +163,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
     frameworks: (
       <div className="grid gap-3 md:grid-cols-2">
         {frameworkIds.map((fw) => (
-          <div key={fw} className="rounded-lg border border-line bg-panel p-4">
+          <div key={fw} className="rounded-lg clay-rim bg-panel p-4">
             <div className="flex items-center gap-2">
               <span className={`inline-block rounded-full px-3 py-1 text-xs font-medium ${getFrameworkColor(fw)}`}>
                 {getFrameworkLabel(fw)}
@@ -198,7 +198,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="rounded-md border border-line bg-panel px-2.5 py-1 text-xs font-medium text-body transition-colors hover:border-accent hover:text-accent"
+              className="clay-rim clay-hover rounded-md bg-panel px-2.5 py-1 text-xs font-medium text-body transition-colors hover:text-accent"
             >
               {s.title}
             </a>

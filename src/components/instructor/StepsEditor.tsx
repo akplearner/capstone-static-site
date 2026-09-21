@@ -36,7 +36,7 @@ export function StepsEditor({
         <Button size="sm" variant="secondary" onClick={add} className="flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add step</Button>
       </div>
       {steps.map((s, i) => (
-        <div key={i} className="space-y-2 rounded-md border border-line bg-panel-2 p-3">
+        <div key={i} className="space-y-2 rounded-md clay-rim bg-panel-2 p-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted">Step {i + 1}</span>
             <button type="button" aria-label={`Remove step ${i + 1}`} onClick={() => onChange(steps.filter((_, idx) => idx !== i))} className="text-muted hover:text-danger">
@@ -94,13 +94,13 @@ function FlagsEditor({
             value={f.flag}
             onChange={(e) => set(i, { flag: e.target.value })}
             placeholder="-sV"
-            className="w-28 shrink-0 rounded border border-line bg-panel px-2 py-1 font-mono text-xs text-ink"
+            className="w-28 shrink-0 rounded bg-panel px-2 py-1 font-mono text-xs text-ink"
           />
           <input
             value={f.meaning}
             onChange={(e) => set(i, { meaning: e.target.value })}
             placeholder="what this flag does"
-            className="flex-1 rounded border border-line bg-panel px-2 py-1 text-sm text-ink"
+            className="flex-1 rounded bg-panel px-2 py-1 text-sm text-ink"
           />
           <button type="button" aria-label={`Remove flag ${i + 1}`} onClick={() => onChange(flags.filter((_, idx) => idx !== i))} className="mt-1 text-muted hover:text-danger">
             <Trash2 className="h-3.5 w-3.5" aria-hidden />

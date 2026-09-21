@@ -1,6 +1,7 @@
 'use client';
 
 import { Info } from 'lucide-react';
+import { clayTier } from './ui/Surface';
 
 /** A small hover/focus tooltip for explaining jargon (gates, pipeline, …) inline
  *  without cluttering the page. Keyboard-focusable for accessibility. */
@@ -27,7 +28,7 @@ export function InfoTip({ label }: { label: string }) {
         // widened the PAGE, so the Overview and Reference tabs scrolled sideways.
         // Narrow screens anchor it to the trigger's right edge instead, and the
         // width is clamped to the viewport. Centred again from sm: upward.
-        className="pointer-events-none absolute top-6 z-40 w-[min(16rem,calc(100vw-2rem))] select-none rounded-lg bg-ink px-3 py-2 text-xs font-normal leading-relaxed text-surface opacity-0 shadow-[var(--shadow-3)] transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 max-sm:right-0 sm:left-1/2 sm:-translate-x-1/2"
+        className={`pointer-events-none absolute top-6 z-40 w-[min(16rem,calc(100vw-2rem))] select-none rounded-[var(--radius-clay-sm)] bg-ink px-3 py-2 text-xs font-normal leading-relaxed text-surface opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 max-sm:right-0 sm:left-1/2 sm:-translate-x-1/2 ${clayTier('overlay')}`}
       >
         {label}
       </span>
