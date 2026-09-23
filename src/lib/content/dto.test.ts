@@ -72,8 +72,9 @@ describe('content/courses — the JSON snapshot of every course', () => {
 
   it('the Server+ snapshot carries the guide and the addressing, not only the seed', () => {
     const sp = JSON.parse(read('server-plus.json'));
-    expect(sp.procedures.filter((p: { week: number }) => p.week === 6)).toHaveLength(10);
-    expect(sp.procedureWeeks.map((w: { number: number }) => w.number)).toEqual([0, 1, 2, 3, 4, 5, 6]);
+    // The fleet track (R79 split it into Weeks 7 and 8): ten procedures.
+    expect(sp.procedures.filter((p: { week: number }) => p.week >= 7)).toHaveLength(10);
+    expect(sp.procedureWeeks.map((w: { number: number }) => w.number)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
     expect(sp.topology.OPS.team.rule).toBe('10.20.T');
     expect(sp.topology.HOST.rule).toBe('10.10.30.T');
     expect(sp.generatedFrom).toContain('src/lib/docs/serverProcedures.ts');

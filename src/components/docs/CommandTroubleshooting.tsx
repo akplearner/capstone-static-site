@@ -43,7 +43,7 @@ function labShape(courseId: string): Record<LabCapability, boolean> {
     // field key rather than the course id is this file's own convention: drop
     // the field and the remote-access rows go with it.
     remote: fields.some((f) => f.key === 'PVE_TAILSCALE'),
-    // Week 6's shared ops network — the same convention.
+    // Week 7's shared ops network — the same convention.
     ops: fields.some((f) => f.key === 'OPS_SUBNET'),
   };
 }

@@ -127,20 +127,21 @@ describe('the host address is always the team’s own', () => {
 });
 
 /**
- * Week 6's ops network is the one place a team's address is unique — and it is
+ * The fleet track's ops network (Weeks 7–8) is the one place a team's address is unique — and it is
  * unique by the team number, so a command that names one must carry the rule
  * (`OPS.team.rule`, 10.20.T) for the Lab access panel to fill, never a worked
  * example's octet. The Core's own block (10.20.0.x) is the same for everyone
  * and is allowed as a literal. The README the repository procedure writes is
  * a command too — a student copies it — so it is held to the same rule.
  */
-describe('Week 6 names team addresses by the rule, never by example', () => {
+describe('the fleet track names team addresses by the rule, never by example', () => {
+  const fleet = (week: number) => week >= 7;
   const week6Commands = [
-    ...SERVER_PLUS.tasks.filter((t) => t.week === 6).flatMap((t) => t.steps.flatMap((s) => [s.command ?? '', ...(s.commands ?? []).map((c) => c.cmd)])),
-    ...PROCEDURES.filter((p) => p.week === 6).flatMap((p) => p.steps.map((s) => s.cmd ?? '')),
+    ...SERVER_PLUS.tasks.filter((t) => fleet(t.week)).flatMap((t) => t.steps.flatMap((s) => [s.command ?? '', ...(s.commands ?? []).map((c) => c.cmd)])),
+    ...PROCEDURES.filter((p) => fleet(p.week)).flatMap((p) => p.steps.map((s) => s.cmd ?? '')),
   ].filter(Boolean);
 
-  it('has Week 6 commands to check', () => {
+  it('has fleet-track commands to check', () => {
     expect(week6Commands.length).toBeGreaterThan(40);
   });
 

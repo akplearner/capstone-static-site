@@ -170,7 +170,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
             { hostname: 'linuxsrv', os: 'Ubuntu Server 24.04', job: 'MariaDB — customer and order records', zone: 'vmbr2 — private', why_zone: 'Business data; only the website reaches it, never the public', serves: 'Keep customer and order records' },
             { hostname: 'secmon', os: 'Ubuntu Server 24.04', job: 'Monitoring (Week 5, advanced)', zone: 'vmbr2 — private', why_zone: 'Watches the other machines; no reason to expose it', serves: 'Know when something breaks' },
             { hostname: 'wazuh', os: 'Ubuntu Server 24.04', job: 'Wazuh SIEM (Week 5, advanced)', zone: 'vmbr2 — private', why_zone: 'Holds every host’s security events; never exposed', serves: 'Notice an attack, not just an outage' },
-            { hostname: 'tools', os: 'Ubuntu Server 24.04', job: 'NetBox + GLPI (Week 5, advanced)', zone: 'vmbr2 — private', why_zone: 'Internal records for staff, not customers', serves: 'Keep the registers alive after handover' },
+            { hostname: 'tools', os: 'Ubuntu Server 24.04', job: 'NetBox + GLPI (Week 6, advanced)', zone: 'vmbr2 — private', why_zone: 'Internal records for staff, not customers', serves: 'Keep the registers alive after handover' },
           ],
         },
       },
@@ -865,9 +865,9 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
     shared: true,
     folder: '06_Operations',
     standard: 'Change & patch management, standard operating procedures',
-    // Week 6 (advanced) adds the alerting runbook — one row per fleet alert —
+    // Week 8 (advanced) adds the alerting runbook — one row per fleet alert —
     // and its own `week: 6` check, so the Week-4 view still reads complete.
-    weeks: [2, 3, 4, 6],
+    weeks: [2, 3, 4, 8],
     kind: 'form',
     exportFormat: 'md',
     purpose:
@@ -957,7 +957,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
         kind: 'group',
         group: {
           group: 'alerts',
-          label: 'Alerting runbook — Week 6, the fleet track',
+          label: 'Alerting runbook — Week 8, the fleet track',
           help: 'One row per alert the Core can raise for this site. Written for whoever is paged: what the alert means, who that is, and the first three things they do before anything else.',
           columns: [
             c('alert', 'Alert', 'select', { options: ['InstanceDown', 'DiskAlmostFull', 'ServiceDown'] }),
@@ -978,7 +978,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
       { label: 'At least two patch rounds are recorded', when: { group: 'patches', where: { filled: ['system', 'patch'] }, atLeast: 2 }, week: 4 },
       { label: 'Patches were snapshotted before being applied', when: { all: [{ group: 'patches', atLeast: 1 }, { group: 'patches', every: { column: 'snapshot', equals: 'Yes' } }] }, week: 4 },
       { label: 'At least three runbooks have ordered steps, a check and a way back', when: { group: 'sops', where: { filled: ['name', 'steps', 'who', 'verify', 'rollback'] }, atLeast: 3 }, week: 3 },
-      // Week 6 only — the fleet alerts, each with someone to page.
+      // Week 8 only — the fleet alerts, each with someone to page.
       { label: 'Every fleet alert has a runbook row: meaning, who is paged, first steps', when: { group: 'alerts', where: { filled: ['alert', 'meaning', 'pages', 'first_steps'] }, distinct: 'alert', atLeast: 3 }, week: 6 },
     ],
   },
@@ -1002,10 +1002,10 @@ const AS_BUILT: DeliverableDef[] = [
     shared: true,
     folder: '07_Handover',
     standard: 'Disaster recovery & as-built handover documentation',
-    // Weeks 5 and 6 are the advanced track: each adds a section and its own DoD
-    // checks (`week: 5` / `week: 6`), so the Week-4 view still reads complete
+    // Weeks 5–8 are the advanced track: each adds to a section and its own DoD
+    // checks (`week: 5` … `week: 8`), so the Week-4 view still reads complete
     // and only a student who opens an advanced week is asked for more.
-    weeks: [4, 5, 6],
+    weeks: [4, 5, 6, 7, 8],
     kind: 'form',
     exportFormat: 'md',
     purpose:
@@ -1099,7 +1099,7 @@ const AS_BUILT: DeliverableDef[] = [
       },
       {
         kind: 'fields',
-        title: 'Automation & observability — Week 5, the advanced track',
+        title: 'Automation & observability — Weeks 5–6, the advanced track',
         fields: [
           { field: 'iac_state', label: 'What Terraform or OpenTofu manages', type: 'area', placeholder: 'main.tf in 00_Planning creates the tools VM from the cloud-init template; websrv, winserver and linuxsrv imported. terraform plan reports no changes.', help: 'Name the tool (Terraform or OpenTofu), the file, the VMs under state, and the proof: a plan with nothing to do.' },
           { field: 'monitoring_targets', label: 'Prometheus targets reading UP', type: 'number', unit: 'targets', placeholder: '5', help: 'The Targets page count. The host itself (pve-exporter) is one of them.' },
@@ -1128,7 +1128,7 @@ const AS_BUILT: DeliverableDef[] = [
       },
       {
         kind: 'fields',
-        title: 'Fleet operations — Week 6, the fleet track',
+        title: 'Fleet operations — Weeks 7–8, the fleet track',
         fields: [
           { field: 'repo', label: 'The repository and the handover tag', type: 'text', placeholder: 'http://10.20.0.10/team03/team03-infra — tag v1.0-handover', help: 'The Gitea URL and the tag the site was rebuilt from.' },
           { field: 'idempotent', label: 'The second-run line', type: 'text', placeholder: 'linuxsrv : ok=12 changed=0 unreachable=0 failed=0 (every host)', help: 'The PLAY RECAP of the second run of site.yml. changed=0 on every host.' },
@@ -1161,16 +1161,17 @@ const AS_BUILT: DeliverableDef[] = [
       { label: 'The client summary and outstanding items are written', when: { fields: ['what_they_have', 'how_to_operate', 'recommendations'] }},
       { label: 'Handover is dated and signed off', when: { fields: ['handover_date', 'signoff'] }},
       { label: 'Every handover artifact is logged (chain of custody)', when: everyEvidenceHashed()},
-      // Week 5 only — see `weeks` above.
-      { label: 'Terraform or OpenTofu manages the lab and a plan reports no changes', when: { fields: ['iac_state'] }, week: 5 },
+      // Weeks 5–6 — see `weeks` above. Watching (5) comes before the code (6).
+      { label: 'Terraform or OpenTofu manages the lab and a plan reports no changes', when: { fields: ['iac_state'] }, week: 6 },
       { label: 'At least five Prometheus targets and three Wazuh agents are live', when: { all: [{ field: 'monitoring_targets', atLeast: 5 }, { field: 'wazuh_agents', atLeast: 3 }] }, week: 5 },
       { label: 'One failure was caused on purpose and something noticed it', when: { fields: ['alert_tested'] }, week: 5 },
-      { label: 'Every tool is mapped to the host it runs on and the record it now holds', when: { group: 'tooling', where: { filled: ['tool', 'host', 'replaces'] }, atLeast: 6 }, week: 5 },
-      // Week 6 only — see `weeks` above.
-      { label: 'The site is in Git, tagged for handover, and the second run changed nothing', when: { all: [{ fields: ['repo'] }, { field: 'idempotent', matches: 'changed=0' }] }, week: 6 },
-      { label: 'At least five targets read UP on the Core and the vault verified the backup', when: { all: [{ field: 'core_targets', atLeast: 5 }, { fields: ['verify_result'] }] }, week: 6 },
-      { label: 'A full-VM restore and a rebuild from Git were both timed', when: { fields: ['restore_time', 'rebuild_time'] }, week: 6 },
-      { label: 'The fleet endpoints report to the Core and the SLO line is written', when: { all: [{ field: 'fleet_agents', atLeast: 2 }, { fields: ['slo'] }] }, week: 6 },
+      { label: 'Every tool is mapped to the host it runs on and the record it now holds', when: { group: 'tooling', where: { filled: ['tool', 'host', 'replaces'] }, atLeast: 6 }, week: 6 },
+      // Weeks 7–8 — see `weeks` above. Git and the template (7), then the playbook and the Core (8).
+      { label: 'The site is in Git, tagged for handover', when: { fields: ['repo'] }, week: 7 },
+      { label: 'The second run of the playbook changed nothing', when: { field: 'idempotent', matches: 'changed=0' }, week: 8 },
+      { label: 'At least five targets read UP on the Core and the vault verified the backup', when: { all: [{ field: 'core_targets', atLeast: 5 }, { fields: ['verify_result'] }] }, week: 8 },
+      { label: 'A full-VM restore and a rebuild from Git were both timed', when: { fields: ['restore_time', 'rebuild_time'] }, week: 8 },
+      { label: 'The fleet endpoints report to the Core and the SLO line is written', when: { all: [{ field: 'fleet_agents', atLeast: 2 }, { fields: ['slo'] }] }, week: 8 },
     ],
   },
 ];

@@ -31,8 +31,8 @@ describe('calendar arithmetic', () => {
 
   it('dates every week of the course, advanced ones marked', () => {
     const rows = weekDueDates(SERVER_PLUS, '2026-09-07');
-    expect(rows.map((r) => r.week)).toEqual([0, 1, 2, 3, 4, 5, 6]);
-    expect(rows[6]).toEqual({ week: 6, title: 'Run It as a Fleet', due: '2026-10-19', advanced: true });
+    expect(rows.map((r) => r.week)).toEqual([0, 1, 2, 3, 4, 5, 6, 7, 8]);
+    expect(rows[8]).toEqual({ week: 8, title: 'Run It as a Fleet', due: '2026-11-02', advanced: true });
   });
 });
 
@@ -42,12 +42,12 @@ describe('buildIcs', () => {
   it('is a well-formed calendar with one all-day event per week', () => {
     expect(ics.startsWith('BEGIN:VCALENDAR\r\n')).toBe(true);
     expect(ics.endsWith('END:VCALENDAR\r\n')).toBe(true);
-    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(7);
+    expect(ics.match(/BEGIN:VEVENT/g)).toHaveLength(9);
     expect(ics).toContain('DTSTART;VALUE=DATE:20260928');
     expect(ics).toContain('DTEND;VALUE=DATE:20260929');
     expect(ics).toContain('DTSTAMP:20260901T120000Z');
     expect(ics).toContain('UID:server-plus-2026-09-w3@capstone-quarry');
-    expect(ics).toContain('SUMMARY:Server+ Build & Handover — Week 6 due: Run It as a Fleet (advanced\\, optional)');
+    expect(ics).toContain('SUMMARY:Server+ Build & Handover — Week 8 due: Run It as a Fleet (advanced\\, optional)');
     // Every line CRLF-terminated, none folded because none is long.
     expect(ics.split('\r\n').every((l) => l.length < 75 || l.startsWith('DESCRIPTION') || l.startsWith('SUMMARY'))).toBe(true);
   });

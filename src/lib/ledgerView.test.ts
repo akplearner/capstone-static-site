@@ -13,7 +13,9 @@ describe('ledgerRows', () => {
   const rows = ledgerRows(SERVER_PLUS, ev);
 
   it('resolves titles and weeks, sorted by week, and survives a step that no longer exists', () => {
-    expect(rows.map((r) => r.week)).toEqual([0, 1, 6]);
+    // `sp-w6-spine` kept its id when R79 moved it to Week 7: ids are the keys of
+    // stored evidence, so a record written before the split still resolves.
+    expect(rows.map((r) => r.week)).toEqual([0, 1, 7]);
     const w6 = rows[2];
     expect(w6.taskTitle).toBe('Wire the ops network');
     expect(w6.stepTitle).toBe('The bridge on the host, and the ping');
@@ -22,11 +24,12 @@ describe('ledgerRows', () => {
   });
 
   it('links each row to its step deep link', () => {
-    expect(rows[2].href).toBe('/courses/server-plus?tab=tasks&week=6&task=sp-w6-spine&step=sp-w6-spine-s1');
+    expect(rows[2].href).toBe('/courses/server-plus?tab=tasks&week=7&task=sp-w6-spine&step=sp-w6-spine-s1');
   });
 
   it('filters by week', () => {
-    expect(filterWeek(rows, 6)).toHaveLength(1);
+    expect(filterWeek(rows, 7)).toHaveLength(1);
+    expect(filterWeek(rows, 6)).toHaveLength(0);
     expect(filterWeek(rows, 'all')).toHaveLength(3);
   });
 

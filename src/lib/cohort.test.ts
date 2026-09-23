@@ -38,7 +38,7 @@ describe('buildCohort', () => {
     // One verified record; every other done verifiable week-1 step is self-attested.
     expect(ana.verified + ana.selfAttested).toBeGreaterThan(0);
     expect(ana.points.find((p) => p.week === 1)?.focus).toBe(30);
-    expect(ana.points).toHaveLength(6);
+    expect(ana.points).toHaveLength(8);
   });
 
   it('carries stuck flags and summarises them by step', () => {
@@ -52,7 +52,7 @@ describe('buildCohort', () => {
     ]);
     const lines = csv.trim().split('\r\n');
     expect(lines[0].startsWith('course,cohort,team,member,role,week,bonus,team_points,focus_points,total')).toBe(true);
-    expect(lines).toHaveLength(1 + 3 * 6);
+    expect(lines).toHaveLength(1 + 3 * 8);
     expect(lines.some((l) => l.includes('2026-09-t3,Ana,net,1,false'))).toBe(true);
     expect(lines.some((l) => l.includes(',5,true,'))).toBe(true);
     expect(lines.some((l) => l.includes('srv_as_built:revise'))).toBe(true);

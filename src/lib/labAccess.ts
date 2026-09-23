@@ -66,21 +66,21 @@ export const LAB_CHECKS: { key: string; label: string }[] = [
  * `<tailscale-ip>` is the spelling the Week-1 remote-access step and its guide
  * procedure already use; registering it here is what makes them fill in.
  *
- * The third is Week 6's ops subnet, `10.20.T` — three octets, because the
- * fourth is the machine's. It is a substring of every ops address a Week 6
+ * The third is Week 7's ops subnet, `10.20.T` — three octets, because the
+ * fourth is the machine's. It is a substring of every ops address a Week 7–8
  * command names (`10.20.T.30`, `10.20.T.1`), and of no Core address (those sit
  * in `10.20.0.`), so a plain split/join fills exactly the team's block.
  */
 export const SERVER_FIELDS: typeof LAB_FIELDS = [
   { key: 'PVE_HOST', label: 'Your Proxmox host address', placeholder: `e.g. ${HOST.exampleAddress}`, tokens: ['<PVE_HOST>', HOST.rule] },
   { key: 'PVE_TAILSCALE', label: 'Your host’s Tailscale address', placeholder: 'e.g. 100.101.102.103', tokens: ['<PVE_TAILSCALE>', '<tailscale-ip>'] },
-  { key: 'OPS_SUBNET', label: 'Your ops subnet (Week 6)', placeholder: 'e.g. 10.20.7 — three octets', tokens: ['<OPS_SUBNET>', OPS.team.rule] },
-  // Not a substitution — a preference. Weeks 5 and 6 are written for Terraform;
+  { key: 'OPS_SUBNET', label: 'Your ops subnet (Weeks 7–8)', placeholder: 'e.g. 10.20.7 — three octets', tokens: ['<OPS_SUBNET>', OPS.team.rule] },
+  // Not a substitution — a preference. Weeks 6–8 are written for Terraform;
   // a team on OpenTofu picks it here and every terraform line becomes tofu
   // (src/lib/iacTool.ts). No tokens, so fillPlaceholders never sees it.
   {
     key: IAC_TOOL_KEY,
-    label: 'Infrastructure-as-code tool (Weeks 5–6)',
+    label: 'Infrastructure-as-code tool (Weeks 6–8)',
     placeholder: '',
     tokens: [],
     kind: 'select',

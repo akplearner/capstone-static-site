@@ -44,7 +44,7 @@ export const GLOSSARY: Record<string, string> = {
   PTES: 'Penetration Testing Execution Standard — the agreed steps of a pentest: recon, scan, exploit, report.',
   STRIDE: 'A checklist of threat types: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.',
   NIC: "Network Interface Card — a machine's network connection. On these VMs it's usually named ens18.",
-  // ── Weeks 5 and 6 — the advanced track ──────────────────────────────────
+  // ── Weeks 5–8 — the advanced track ──────────────────────────────────
   IaC: 'Infrastructure as Code — describing machines in a text file a tool applies, so the build is repeatable and the file is the record. Terraform or OpenTofu is yours.',
   OpenTofu: 'The open-source fork of Terraform, kept under the Linux Foundation after HashiCorp changed Terraform’s licence in 2023. Same HCL, same providers, same state files; the command is tofu instead of terraform.',
   exporter: 'A small program on a host that publishes its metrics on an HTTP port for Prometheus to collect. node_exporter for Linux, windows_exporter for Windows.',

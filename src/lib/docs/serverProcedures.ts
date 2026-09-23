@@ -78,12 +78,14 @@ export const WEEKS: WeekBlock[] = [
   // where a student who has finished goes next. Every tool below replaces a
   // record the student already kept by hand, which is what makes seven tools
   // one week rather than seven.
-  { number: 5, title: 'Automate & Observe', phase: 'Automate & Observe', lead: 'Define the lab in code, watch every host, run your own SIEM, and move the registers you kept on paper into NetBox and GLPI. About 18 GB of guests in total — a 16 GB server runs this one VM at a time.' },
-  // The second advanced week. Week 5 gave the team its own tools on its own
-  // server; Week 6 is the MSP question — do that for sixteen clients from one
+  { number: 5, title: 'Watch & Detect', phase: 'Watch & Detect', lead: 'Watch every host with Prometheus, Grafana and Loki, watch the backups with Pulse, and run your own Wazuh. About 18 GB of guests across Weeks 5 and 6 — a 16 GB server runs this one VM at a time.' },
+  { number: 6, title: 'The Lab as Code', phase: 'The Lab as Code', lead: 'Define the lab in code, then move the registers you kept on paper into NetBox and GLPI.' },
+  // The fleet track. Weeks 5–6 gave the team its own tools on its own server;
+  // Weeks 7–8 are the MSP question — do that for sixteen clients from one
   // console. Everything joins the instructor's Core node over a shared ops
   // network, and the proof is a VM destroyed and rebuilt from the repository.
-  { number: 6, title: 'Run It as a Fleet', phase: 'Run It as a Fleet', lead: 'Put the site in Git, build it from a template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the Core. Then destroy a VM and watch the repository bring it back.' },
+  { number: 7, title: 'Join the Fleet', phase: 'Join the Fleet', lead: 'Wire the ops network, build the ops VM that holds the toolchain, put the site in Git, and bring it up from the Core’s template.' },
+  { number: 8, title: 'Run It as a Fleet', phase: 'Run It as a Fleet', lead: 'Configure the site with a playbook that changes nothing the second time, hand its metrics, logs, backups and endpoints to the Core, then destroy a VM and watch the repository bring it back.' },
 ];
 
 const RAW_PROCEDURES: Procedure[] = [
@@ -840,7 +842,7 @@ sudo usermod -aG adm,systemd-journal alloy && sudo systemctl enable --now alloy`
     ],
   },
 
-  // ── Week 5 — the rest of the advanced track ────────────────────────────────
+  // ── Weeks 5–6 — the rest of the advanced track ─────────────────────────────
   {
     id: 'pve-exporter-host',
     week: 5,
@@ -949,7 +951,7 @@ NET START WazuhSvc`, explain: 'In an elevated PowerShell on winserver. Use the c
   },
   {
     id: 'terraform-proxmox-provider',
-    week: 5,
+    week: 6,
     title: 'Terraform or OpenTofu: a token, a provider, a plan',
     where: 'The Proxmox host shell, then your workstation',
     summary:
@@ -983,7 +985,7 @@ EOF`, explain: 'The provider block, in the planning folder so the file is filed 
   },
   {
     id: 'terraform-first-vm-and-import',
-    week: 5,
+    week: 6,
     title: 'Terraform or OpenTofu: a template, a VM from code, and the existing three imported',
     where: 'The Proxmox host shell, then your workstation',
     summary:
@@ -1042,7 +1044,7 @@ EOF`, explain: 'On your workstation, in the terraform folder. The tools VM as a 
   },
   {
     id: 'netbox-ipam',
-    week: 5,
+    week: 6,
     title: 'NetBox: the rack and the IP plan, as a system of record',
     where: 'The tools VM (192.168.0.21)',
     summary:
@@ -1066,7 +1068,7 @@ EOF`, explain: 'Publish the web UI on 8000. Without this override the container 
   },
   {
     id: 'glpi-assets-and-change',
-    week: 5,
+    week: 6,
     title: 'GLPI: the asset register and the change log, as tickets',
     where: 'The tools VM (192.168.0.21)',
     summary:
@@ -1105,9 +1107,9 @@ msiexec /i $env:tmp\\glpi-agent.msi /quiet SERVER='http://192.168.0.21:8080/fron
     ],
   },
 
-  // ══ WEEK 6 · Run It as a Fleet ═══════════════════════════════════════════
+  // ══ WEEKS 7–8 · Join the Fleet, Run It as a Fleet ════════════════════════
   //
-  // Week 5 put the team's own tools on the team's own server. Week 6 asks the
+  // Weeks 5–6 put the team's own tools on the team's own server. Weeks 7–8 ask the
   // MSP question: do that for sixteen clients from one console. The instructor
   // runs one Core node — Git, the observability plane, Wazuh, the backup vault,
   // a package cache — and every team onboards its site into it over a shared
@@ -1115,7 +1117,7 @@ msiexec /i $env:tmp\\glpi-agent.msi /quiet SERVER='http://192.168.0.21:8080/fron
   // bodies below carry the team rule as a token the Lab access panel fills.
   {
     id: 'core-node-day-zero',
-    week: 6,
+    week: 7,
     title: 'Instructor, Day 0: build the Core node',
     where: 'The instructor’s rack server, before students arrive',
     summary:
@@ -1173,7 +1175,7 @@ vzdump 9000 --storage cache-templates --mode stop`, explain: 'The golden templat
   },
   {
     id: 'ops-network-spine',
-    week: 6,
+    week: 7,
     title: 'Wire the ops network: the bridge, the second NICs, the ping',
     where: 'The Proxmox host shell, then every server VM',
     summary:
@@ -1190,7 +1192,7 @@ iface vmbr9 inet static
 EOF
 ifreload -a && ip -br a show vmbr9`, explain: 'On the host, with T replaced by your team number — or set your ops subnet in Lab access and it is already replaced. eno2.20 is the second NIC tagged VLAN 20; with one NIC, trunk the port and use eno1.20 instead. The host’s own .1 is what the backup vault, the exporter and Ansible’s inventory will reach.' },
       { cmd: 'ping -c 3 10.20.0.11', explain: 'From the host. Three replies from obs.lab means the switch is trunking VLAN 20 to your port. No reply means it is not, and nothing else this week will work until it does — the Networking deep-dive owns that trunk.' },
-      { gui: 'For websrv, winserver and linuxsrv (and secmon, wazuh and tools if you built Week 5): VM → Hardware → Add → Network Device, Bridge vmbr9, Model VirtIO. Then inside each VM give the new interface the same host octet it has in its zone, moved into your block: winserver 10.20.T.2, linuxsrv 10.20.T.3, websrv 10.20.T.10 — /24, no gateway.', explain: 'One number per machine, whichever network you meet it on. No gateway on the ops leg: the client zones keep routing out through vmbr0 as before, and the ops network carries only management traffic — scraping, logs, backups, SSH.' },
+      { gui: 'For websrv, winserver and linuxsrv (and secmon, wazuh and tools if you built Weeks 5–6): VM → Hardware → Add → Network Device, Bridge vmbr9, Model VirtIO. Then inside each VM give the new interface the same host octet it has in its zone, moved into your block: winserver 10.20.T.2, linuxsrv 10.20.T.3, websrv 10.20.T.10 — /24, no gateway.', explain: 'One number per machine, whichever network you meet it on. No gateway on the ops leg: the client zones keep routing out through vmbr0 as before, and the ops network carries only management traffic — scraping, logs, backups, SSH.' },
       { cmd: `cat > /etc/netplan/60-ops.yaml <<'EOF'
 network:
   version: 2
@@ -1204,7 +1206,7 @@ netplan apply && ping -c 3 10.20.0.11`, explain: 'On linuxsrv as the worked exam
   },
   {
     id: 'ops-vm-build',
-    week: 6,
+    week: 7,
     title: 'The ops VM: a permanent home for the toolchain',
     where: 'The Proxmox web console, then the new ops VM',
     summary:
@@ -1215,12 +1217,12 @@ netplan apply && ping -c 3 10.20.0.11`, explain: 'On linuxsrv as the worked exam
       { cmd: 'wget -O- https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg && echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list && sudo apt update && sudo apt install -y terraform && terraform -version && ansible --version', explain: 'Terraform from HashiCorp’s repository, or OpenTofu from its installer — the same provider, the same files; pick one for the whole team in Lab access and this line follows. Both version lines printing is the check.', doc: { label: 'Install Terraform', href: 'https://developer.hashicorp.com/terraform/install' }, opentofu: { cmd: "curl --proto '=https' --tlsv1.2 -fsSL https://get.opentofu.org/install-opentofu.sh -o install-opentofu.sh && chmod +x install-opentofu.sh && ./install-opentofu.sh --install-method deb && rm -f install-opentofu.sh && tofu -version && ansible --version", doc: { label: 'Install OpenTofu', href: 'https://opentofu.org/docs/intro/install/' } } },
       { cmd: 'ssh-keygen -t ed25519 -C "team07-ops" -f ~/.ssh/id_ed25519 -N "" && cat ~/.ssh/id_ed25519.pub', explain: 'The fleet key, with your own team number in the comment. Its public half goes into every VM cloud-init builds; its private half never leaves this VM. Copy the public key — the VM template in your IaC code and the Ansible base role both need it.' },
       { cmd: 'curl -sk https://10.10.30.T:8006/api2/json/version && ping -c 3 10.20.0.11', explain: 'The two paths, proven from the VM that will use them: the API answers over the campus LAN, the Core answers over the ops network. If either fails, fix it now — every later step depends on both.' },
-      { cmd: 'cd ~/ServerPlus_Capstone/00_Planning/terraform 2>/dev/null && scp -r . ops@10.20.T.30:~/tf-week5/ ; echo done', explain: 'Only if you did Week 5: from the workstation that ran Terraform or OpenTofu, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage.' },
+      { cmd: 'cd ~/ServerPlus_Capstone/00_Planning/terraform 2>/dev/null && scp -r . ops@10.20.T.30:~/tf-week5/ ; echo done', explain: 'Only if you did Week 6: from the workstation that ran Terraform or OpenTofu, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage.' },
     ],
   },
   {
     id: 'gitea-team-repo',
-    week: 6,
+    week: 7,
     title: 'Put the infrastructure in Git',
     where: 'The ops VM, and Gitea in a browser',
     summary:
@@ -1254,7 +1256,7 @@ git add README.md && git commit -m "README a stranger could follow"`, explain: '
   },
   {
     id: 'fleet-template-and-terraform',
-    week: 6,
+    week: 7,
     title: 'The site from the golden template, in Terraform or OpenTofu',
     where: 'The Proxmox host shell, then the ops VM',
     summary:
@@ -1314,7 +1316,7 @@ terraform init && terraform plan`, explain: 'The Linux servers, described once e
   },
   {
     id: 'ansible-site-playbook',
-    week: 6,
+    week: 8,
     title: 'Ansible: the hypervisor is the inventory, and the second run changes nothing',
     where: 'The ops VM',
     summary:
@@ -1403,7 +1405,7 @@ EOF`, explain: 'The wazuh_agent role enrols into the Core manager under the team
   },
   {
     id: 'core-onboarding-observability',
-    week: 6,
+    week: 8,
     title: 'Onboard the site into the Core’s observability plane',
     where: 'The ops VM, then Grafana on the Core in a browser',
     summary:
@@ -1430,7 +1432,7 @@ git add alertmanager/team-07.yml && git commit -m "team-07: alert receiver" && g
   },
   {
     id: 'pbs-vault-and-restore',
-    week: 6,
+    week: 8,
     title: 'Back up to the vault, verify it, and restore against the clock',
     where: 'The Proxmox web console, then the host shell',
     summary:
@@ -1446,7 +1448,7 @@ git add alertmanager/team-07.yml && git commit -m "team-07: alert receiver" && g
   },
   {
     id: 'wazuh-fleet-agents',
-    week: 6,
+    week: 8,
     title: 'The MSP’s XDR over the fleet endpoints',
     where: 'The Proxmox host shell, the ops VM, and Wazuh on the Core in a browser',
     summary:
@@ -1462,7 +1464,7 @@ WAZUH_MANAGER="10.20.0.12" WAZUH_AGENT_GROUP="team-07" WAZUH_AGENT_NAME="team07-
   },
   {
     id: 'rebuild-from-git',
-    week: 6,
+    week: 8,
     title: 'Destroy a server and rebuild it from the repository alone',
     where: 'The Proxmox host shell, then the ops VM, then the Core in a browser',
     summary:

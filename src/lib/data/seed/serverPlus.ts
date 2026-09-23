@@ -172,34 +172,65 @@ const weeks: WeekDef[] = [
   // The advanced track. `advanced: true` keeps it off the stone, the
   // milestones and Continue — a student who never opens it finishes the course
   // exactly as before. No `stage`: the five cuts belong to the graded arc. Every
-  // tool here replaces a record the student already kept by hand, which is what
-  // makes seven tools one week: Terraform (or OpenTofu) codifies the Bring-Up Log, Prometheus,
+  // tool here replaces a record the student already kept by hand: Prometheus,
   // Grafana, Loki and Pulse watch what the Baselines and SOPs describe, Wazuh
-  // enforces the baselines, NetBox holds the rack and the IP plan, GLPI holds
-  // the assets and the change log.
+  // enforces the baselines (Week 5); Terraform (or OpenTofu) codifies the
+  // Bring-Up Log, NetBox holds the rack and the IP plan, GLPI holds the assets
+  // and the change log (Week 6). R79 split what was one week into two — ten
+  // tasks was not a week a student could hold in their head. Task ids keep
+  // their historical `sp-w5-` / `sp-w6-` prefixes: they are the keys of every
+  // student's stored progress and evidence.
   {
     number: 5,
-    title: 'Automate & Observe',
-    theme: 'Replace the paperwork with running tools',
-    objective: 'Define the lab in code, watch every host, run your own SIEM, and move the registers you kept on paper into NetBox and GLPI.',
+    title: 'Watch & Detect',
+    theme: 'See every host, and catch what goes wrong',
+    objective: 'Design the advanced hosts into the brief, watch every host with Prometheus, Grafana and Loki, and run your own Wazuh.',
     runs: 'Week 5',
     advanced: true,
-    phase: 'Automate & Observe',
+    phase: 'Watch & Detect',
     difficulty: 4,
-    flow: ['Design the hosts in', 'Watch everything', 'Your own SIEM', 'The lab as code', 'Registers as systems'],
-    milestone: 'The lab is defined in code and a plan reports no changes, every host is watched and alerting, every VM reports to your own Wazuh, and the registers you kept on paper now live in NetBox and GLPI.',
+    flow: ['Design the hosts in', 'Watch every host', 'Your own SIEM'],
+    milestone: 'Every host is watched and alerting, a failure you caused was noticed, and every VM reports to your own Wazuh.',
   },
   {
     number: 6,
-    title: 'Run It as a Fleet',
-    theme: 'Sixteen clients, one console',
-    objective: 'Put the site in Git, build it from the Core’s template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the instructor’s Core node. Then destroy a VM and watch the repository bring it back.',
+    title: 'The Lab as Code',
+    theme: 'Replace the paperwork with running tools',
+    objective: 'Define the lab in code, move the paper registers into NetBox and GLPI, and record it in the As-Built.',
     runs: 'Week 6',
+    advanced: true,
+    phase: 'The Lab as Code',
+    difficulty: 4,
+    flow: ['The lab as code', 'Registers as systems', 'Record it in the As-Built'],
+    milestone: 'The lab is defined in code and a plan reports no changes, and the registers you kept on paper now live in NetBox and GLPI.',
+  },
+  // The fleet track. Week 5 and 6 gave the team its own tools on its own
+  // server; Weeks 7 and 8 ask the MSP question — do that for sixteen clients
+  // from one console. Everything joins the instructor's Core node over a shared
+  // ops network, and the proof is a VM destroyed and rebuilt from the repository.
+  {
+    number: 7,
+    title: 'Join the Fleet',
+    theme: 'Sixteen clients, one console',
+    objective: 'Wire the ops network, build the ops VM, put the site in Git, and bring it up from the Core’s template.',
+    runs: 'Week 7',
+    advanced: true,
+    phase: 'Join the Fleet',
+    difficulty: 4,
+    flow: ['Wire the spine', 'The ops VM', 'Put it in Git', 'The site from the template'],
+    milestone: 'Your node reaches the Core over the ops network, the ops VM holds the toolchain, the site is in Git, and a second plan has nothing to do.',
+  },
+  {
+    number: 8,
+    title: 'Run It as a Fleet',
+    theme: 'A playbook that changes nothing the second time',
+    objective: 'Configure the site with a playbook, hand it to the Core to watch and back up, then rebuild a VM from Git.',
+    runs: 'Week 8',
     advanced: true,
     phase: 'Run It as a Fleet',
     difficulty: 4,
-    flow: ['Wire the spine', 'The site as code', 'Onboard into the Core', 'Vault and XDR', 'Rebuild from Git'],
-    milestone: 'Your site is defined in a Git repository, configured by a playbook that changes nothing the second time, watched and alerted from the Core, backed up to the vault with a restore inside RTO — and you rebuilt a VM from the repository alone and watched it reappear.',
+    flow: ['Configuration as code', 'Onboard into the Core', 'Vault and XDR', 'Rebuild from Git'],
+    milestone: 'Your site is configured by a playbook that changes nothing the second time, watched, alerted and backed up from the Core — and you rebuilt a VM from the repository alone.',
   },
 ];
 
@@ -1830,7 +1861,7 @@ const sharedTasks: Task[] = [
     ],
   },
 
-  // ── Week 5 — Automate & Observe (the advanced track) ───────────────────────
+  // ── Weeks 5–6 — the advanced track (Watch & Detect, The Lab as Code) ───────
   {
     id: 'sp-w5-plan',
     role: 'mgmt',
@@ -2108,7 +2139,7 @@ NET START WazuhSvc`, explain: 'Elevated PowerShell on winserver, after downloadi
     id: 'sp-w5-terraform',
     role: 'mgmt',
     shared: true,
-    week: 5,
+    week: 6,
     title: 'The lab as code',
     objective: 'Terraform — or OpenTofu, the open-source fork that reads the same code — on your workstation, a token it may use, a template it clones from, the tools VM built from a file, and the three existing servers imported — until a plan says there is nothing to do.',
     frameworks: ['NIST_CSF'],
@@ -2190,7 +2221,7 @@ No changes. Your infrastructure matches the configuration.`,
     id: 'sp-w5-netbox',
     role: 'mgmt',
     shared: true,
-    week: 5,
+    week: 6,
     title: 'The rack and the IP plan become NetBox',
     objective: 'NetBox on the tools VM holding the site, the 24U rack with every device at its U, both prefixes and every address — filled from your own forms and exported back out to compare.',
     frameworks: ['NIST_CSF'],
@@ -2233,7 +2264,7 @@ No changes. Your infrastructure matches the configuration.`,
     id: 'sp-w5-glpi',
     role: 'mgmt',
     shared: true,
-    week: 5,
+    week: 6,
     title: 'Assets and changes become GLPI',
     objective: 'GLPI on the tools VM holding the hardware and software assets, one change from your log run through as a real ticket with its rollback, and winserver reporting its own inventory through the agent.',
     frameworks: ['NIST_CSF'],
@@ -2276,7 +2307,7 @@ No changes. Your infrastructure matches the configuration.`,
     id: 'sp-w5-record',
     role: 'mgmt',
     shared: true,
-    week: 5,
+    week: 6,
     title: 'Record it in the As-Built',
     objective: 'The Week-5 section of the handover: what Terraform or OpenTofu manages, what is watched, what reports to Wazuh, which tool now holds which record — and the evidence, hashed.',
     frameworks: ['NIST_CSF'],
@@ -2285,7 +2316,7 @@ No changes. Your infrastructure matches the configuration.`,
     difficulty: 2,
     learn: ['Handing over tools, not just documents'],
     tools: ['DR Plan & As-Built Handover form'],
-    prerequisites: ['The rest of Week 5'],
+    prerequisites: ['The rest of Weeks 5 and 6'],
     definitionOfDone: [
       'The Automation & observability section is filled, with the numbers',
       'Every tool has a row: host, address, and the paper record it now holds',
@@ -2313,9 +2344,9 @@ No changes. Your infrastructure matches the configuration.`,
     ],
   },
 
-  // ── Week 6 — Run It as a Fleet (the second advanced week) ─────────────────
+  // ── Weeks 7–8 — the fleet track (Join the Fleet, Run It as a Fleet) ─────
   //
-  // Week 5 gave the team its own tools on its own server. Week 6 is the MSP
+  // Weeks 5–6 gave the team its own tools on its own server. Weeks 7–8 are the MSP
   // question: now do that for sixteen clients without clicking through sixteen
   // consoles. The instructor runs one Core node; every team onboards into it
   // over a shared ops network, and proves the week by destroying a VM and
@@ -2325,7 +2356,7 @@ No changes. Your infrastructure matches the configuration.`,
     id: 'sp-w6-spine',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 7,
     title: 'Wire the ops network',
     objective: 'A second interface on the host and on every server VM, on the shared VLAN, with the team number as the third octet — and a ping to the Core that works before anything else is built.',
     frameworks: ['NIST_CSF'],
@@ -2386,7 +2417,7 @@ $ ping -c 3 10.20.0.11
         title: 'A second NIC on every server VM',
         description: 'Same host octet as its zone, moved into your team block, no gateway.',
         where: 'The Proxmox web console, then each VM',
-        instruction: 'Add a VirtIO device on vmbr9 to websrv, winserver and linuxsrv (and the Week 5 hosts if you built them), address each inside the VM, and ping the Core from each.',
+        instruction: 'Add a VirtIO device on vmbr9 to websrv, winserver and linuxsrv (and the Week 5–6 hosts if you built them), address each inside the VM, and ping the Core from each.',
         guideRef: { procedureId: 'ops-network-spine' },
         commands: [
           { cmd: 'netplan apply && ping -c 3 10.20.0.11', explain: 'On each Linux VM, after writing the 60-ops.yaml the guide shows for the new ens19 device. No gateway on the ops leg — the zone still routes out through vmbr0.' },
@@ -2421,7 +2452,7 @@ $ ping -c 3 10.20.0.11
     id: 'sp-w6-ops',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 7,
     title: 'The ops VM: a home for the toolchain',
     objective: 'A small VM on your own node with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures — Terraform or OpenTofu, Ansible, Git and the fleet key on it, and nothing on the workstation.',
     frameworks: ['NIST_CSF', 'CIS'],
@@ -2464,10 +2495,10 @@ ansible [core 2.16.3]
       },
       {
         id: 'sp-w6-ops-s1',
-        title: 'Prove both paths, and move Week 5 state here',
+        title: 'Prove both paths, and move Week 6 state here',
         description: 'The API over the campus LAN, the Core over the ops network, from the VM that will use both.',
         where: 'The ops VM',
-        instruction: 'From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 5, move the Terraform or OpenTofu folder and its state from the workstation onto this VM.',
+        instruction: 'From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 6, move the Terraform or OpenTofu folder and its state from the workstation onto this VM.',
         guideRef: { procedureId: 'ops-vm-build' },
         commands: [
           { cmd: 'curl -sk https://10.10.30.T:8006/api2/json/version', explain: 'A JSON line with the Proxmox version. Terraform or OpenTofu and the Ansible inventory use this path.' },
@@ -2492,7 +2523,7 @@ $ ping -c 3 10.20.0.11
     id: 'sp-w6-git',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 7,
     title: 'Put the infrastructure in Git',
     objective: 'A repository in the Core’s Gitea, owned by the team organisation, with the standard layout, an ignore file committed before anything else, a README a stranger could follow, and a grep that proves no secret is tracked.',
     frameworks: ['NIST_CSF', 'CIS'],
@@ -2550,7 +2581,7 @@ exit 1`,
     id: 'sp-w6-terraform',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 7,
     title: 'The site from the golden template',
     objective: 'The Core’s cloud-init template restored on your node, the provider pointed at your host with the token in a file Git never sees, the Linux servers described once with both NICs, applied, and a second plan that has nothing to do.',
     frameworks: ['NIST_CSF'],
@@ -2574,7 +2605,7 @@ exit 1`,
         instruction: 'Restore the golden template as VM 9000, create the fleet token on the host, write providers.tf with the token in the ignored tfvars file, and initialise.',
         guideRef: { procedureId: 'fleet-template-and-terraform' },
         commands: [
-          { cmd: 'pveum user token add terraform@pve fleet --privsep=0', explain: 'On the host. The Week 5 role and user if you have them, created fresh if not. The value prints once.' },
+          { cmd: 'pveum user token add terraform@pve fleet --privsep=0', explain: 'On the host. The Week 6 role and user if you have them, created fresh if not. The value prints once.' },
           { cmd: 'cp terraform.tfvars.example terraform.tfvars && terraform init && terraform plan', explain: 'On the ops VM, in the repository’s terraform folder, with the token pasted into terraform.tfvars. init fetches the provider; plan authenticates.' },
         ],
         whatItMeans: 'The example file is committed; the real one is ignored. Both exist so the next person knows exactly which file to create and what goes in it.',
@@ -2624,7 +2655,7 @@ No changes. Your infrastructure matches the configuration.`,
     id: 'sp-w6-ansible',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 8,
     title: 'Configuration as code',
     objective: 'An inventory that asks the hypervisor what exists, three roles — base, monitoring, wazuh_agent — and a playbook whose second run changes nothing.',
     frameworks: ['NIST_CSF', 'CIS'],
@@ -2701,7 +2732,7 @@ websrv      : ok=12   changed=0    unreachable=0    failed=0    skipped=0    res
     id: 'sp-w6-observe',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 8,
     title: 'Onboard the site into the Core plane',
     objective: 'One targets file with your team label committed to the platform repository, every target UP on the Core, your journal in the Core’s Loki, one dashboard filtered to your team, and an alert that fired, paged you and resolved.',
     frameworks: ['NIST_CSF', 'CIS'],
@@ -2761,7 +2792,7 @@ websrv      : ok=12   changed=0    unreachable=0    failed=0    skipped=0    res
     id: 'sp-w6-vault',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 8,
     title: 'Back up to the vault',
     objective: 'The Core’s backup server added to your node by fingerprint, a nightly job into your namespace that includes the ops VM, a verify job that passes, and a full-VM restore timed against the RTO you promised in Week 4.',
     frameworks: ['NIST_CSF'],
@@ -2822,7 +2853,7 @@ vault           pbs      active      2147483648       104857600      2042626048 
     id: 'sp-w6-xdr',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 8,
     title: 'The MSP’s XDR over the fleet',
     objective: 'The hypervisor and the ops VM — and, with school IT’s sign-off, the workstations — enrolled into the Core’s Wazuh in your team group, named from the asset tag; an SCA score before and after the base role; one FIM detection; the CVE list.',
     frameworks: ['NIST_CSF', 'CIS'],
@@ -2885,7 +2916,7 @@ vault           pbs      active      2147483648       104857600      2042626048 
     id: 'sp-w6-rebuild',
     role: 'mgmt',
     shared: true,
-    week: 6,
+    week: 8,
     title: 'Destroy it and rebuild it from Git',
     objective: 'The standard for the track: delete linuxsrv, bring it back with terraform apply (tofu apply) and ansible-playbook, and watch it reappear in Grafana and Wazuh on its own. Then the SLO line, the alerting runbook, and the Fleet section of the As-Built.',
     frameworks: ['NIST_CSF'],
@@ -2926,7 +2957,7 @@ vault           pbs      active      2147483648       104857600      2042626048 
         id: 'sp-w6-rebuild-s1',
         title: 'The Fleet section, the SLO line, the alerting runbook',
         description: 'The numbers into the As-Built, and each alert into the Operations Log.',
-        instruction: 'Fill the Fleet operations section of the As-Built and add one alerting-runbook row per fleet alert to the Operations Log, then hash every Week 6 screenshot into the evidence appendix.',
+        instruction: 'Fill the Fleet operations section of the As-Built and add one alerting-runbook row per fleet alert to the Operations Log, then hash every Week 7–8 screenshot into the evidence appendix.',
         instructionList: [
           'As-Built: the repository URL and tag, the changed=0 line, targets UP on the Core, the verify result, restore time beside the RTO, the rebuild time, agent coverage.',
           'The SLO line: this term’s availability for the client, from the Fleet dashboard’s uptime panel, as a percentage and a sentence.',
@@ -3150,9 +3181,9 @@ const FOCUS: {
     meaning: 'An RTO you have not timed is a guess with a number on it.',
   },
 
-  // ── Week 5 — the advanced track, one deep-dive per focus ──────────────────
+  // ── Weeks 5–6 — the advanced track, one deep-dive per focus per week ──────
   {
-    role: 'net', week: 5, title: 'Deep-dive: IPAM that matches the plan',
+    role: 'net', week: 6, title: 'Deep-dive: IPAM that matches the plan',
     section: 'the address rows', form: 'IP Plan & Connectivity Proof', file: '05_IP_Plan_and_Proof.md',
     instruction: 'Reconcile NetBox against the IP plan, address by address, and turn each routed path from Week 3 into a Grafana panel.',
     instructionList: [
@@ -3185,7 +3216,7 @@ const FOCUS: {
     meaning: 'Import is where IaC gets honest: the file has to describe what someone built by hand, exactly, or plan will try to change it.',
   },
   {
-    role: 'mgmt', week: 5, title: 'Deep-dive: change control that the tool enforces',
+    role: 'mgmt', week: 6, title: 'Deep-dive: change control that the tool enforces',
     section: 'the change rows', form: 'Operations Log & SOPs', file: '07_Operations_and_SOPs.md',
     instruction: 'Every Week-4 change re-entered in GLPI as a ticket with its rollback and approver, Pulse’s backup status written into the DR plan, and the numbers in the As-Built.',
     instructionList: [
@@ -3196,9 +3227,9 @@ const FOCUS: {
     meaning: 'A procedure that lives in a document is followed when someone remembers. One that lives in the tool is followed every time.',
   },
 
-  // ── Week 6 — the fleet track, one deep-dive per focus ────────────────────
+  // ── Weeks 7–8 — the fleet track, one deep-dive per focus per week ───────
   {
-    role: 'net', week: 6, title: 'Deep-dive: the trunk and the fence',
+    role: 'net', week: 7, title: 'Deep-dive: the trunk and the fence',
     section: 'the ops-network rows', form: 'IP Plan & Connectivity Proof', file: '05_IP_Plan_and_Proof.md',
     instruction: 'VLAN 20 trunked to your server port on the Cisco switch, and a firewall on the ops network that lets your node reach the Core and not another team’s node.',
     commands: [
@@ -3209,7 +3240,7 @@ const FOCUS: {
     meaning: 'A management network every tenant can reach is a management network for the first tenant who is compromised. The fence is the design; the trunk is what makes the design real.',
   },
   {
-    role: 'win', week: 6, title: 'Deep-dive: winserver under Ansible',
+    role: 'win', week: 8, title: 'Deep-dive: winserver under Ansible',
     section: 'the Windows rows', form: 'Baselines, Policies & Standards', file: '06_Baselines_and_Policies.md',
     instruction: 'winserver managed by the same playbook as the Linux hosts, over WinRM: the exporter, the Wazuh agent into the Core group, and an SCA score before and after.',
     commands: [
@@ -3220,7 +3251,7 @@ const FOCUS: {
     meaning: 'A fleet with a Windows host managed by hand is a fleet with one machine that will drift. Bringing it under the playbook is the deep-dive; the SCA score is how you show it mattered.',
   },
   {
-    role: 'lnx', week: 6, title: 'Deep-dive: the base role as the hardening standard',
+    role: 'lnx', week: 8, title: 'Deep-dive: the base role as the hardening standard',
     section: 'the host rows', form: 'Server Bring-Up Log', file: '03_Server_Bring_Up.md',
     instruction: 'Prove the base role is the Week 4 hardening, as code: idempotent on every Linux host, clocks agreeing with the Core, packages through the cache, and the Terraform or OpenTofu state inside the vault.',
     commands: [
@@ -3232,7 +3263,7 @@ const FOCUS: {
     meaning: 'Week 4 hardened three servers by hand. The base role hardens every server that will ever exist here, including the one you build next term.',
   },
   {
-    role: 'mgmt', week: 6, title: 'Deep-dive: the runbook, the SLO and the demo',
+    role: 'mgmt', week: 8, title: 'Deep-dive: the runbook, the SLO and the demo',
     section: 'the alerting rows', form: 'Operations Log & SOPs', file: '07_Operations_and_SOPs.md',
     instruction: 'Each fleet alert has a runbook row, the availability the client actually got this term is a number with a sentence, and the rebuild demo is the handover’s proof.',
     instructionList: [
@@ -3328,7 +3359,7 @@ const RAW_SERVER_PLUS: Course = {
 /**
  * The course, with every base-build command filled in from `serverCommands.ts`:
  * which machine types it, what it prints, and whether it overwrites something
- * that needs backing up first. Weeks 5-6 pass through untouched — the registry
+ * that needs backing up first. Weeks 5–8 pass through untouched — the registry
  * covers the base build, and a command it does not know is left exactly as
  * authored here.
  */

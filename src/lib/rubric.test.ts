@@ -50,7 +50,7 @@ describe('weeklyPoints — the 70/30 split', () => {
     expect(p.team).toBe(TEAM_WEIGHT);
   });
 
-  it('marks weeks 1–6 with 5 and 6 as bonus', () => {
+  it('marks weeks 1–8 with 5–8 as bonus', () => {
     expect(markedWeeks(course)).toEqual([
       { week: 1, bonus: false },
       { week: 2, bonus: false },
@@ -58,6 +58,8 @@ describe('weeklyPoints — the 70/30 split', () => {
       { week: 4, bonus: false },
       { week: 5, bonus: true },
       { week: 6, bonus: true },
+      { week: 7, bonus: true },
+      { week: 8, bonus: true },
     ]);
   });
 });

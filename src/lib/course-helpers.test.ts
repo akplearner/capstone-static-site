@@ -160,12 +160,13 @@ describe('advanced weeks', () => {
     expect(isGradedWeek(withAdvanced, 9)).toBe(false);
   });
 
-  it('Server+ ships two of them, and exactly two', () => {
-    // Week 5 (the team's own tools) and Week 6 (the fleet). Both are extra
-    // work; neither counts toward finishing. A third would need a colour, a
-    // rail chip and a rubric page before it could be added here.
+  it('Server+ ships four of them, and exactly four', () => {
+    // Weeks 5–6 (the team's own tools) and Weeks 7–8 (the fleet) — R79 split
+    // two ten-task weeks into four. All are extra work; none counts toward
+    // finishing. A fifth would need a colour (`--color-w9`), a rail chip and a
+    // rubric page before it could be added here.
     const advanced = SERVER_PLUS.weeks.filter((w) => isAdvancedWeek(SERVER_PLUS, w.number)).map((w) => w.number);
-    expect(advanced).toEqual([5, 6]);
+    expect(advanced).toEqual([5, 6, 7, 8]);
     for (const n of advanced) expect(isGradedWeek(SERVER_PLUS, n)).toBe(false);
   });
 

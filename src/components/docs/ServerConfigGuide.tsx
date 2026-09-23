@@ -224,7 +224,7 @@ export function ServerConfigGuide() {
           </table>
         </div>
         <p className="border-t border-line bg-panel px-4 py-2 text-xs text-muted">
-          The advanced track (Weeks 5–6) reserves{' '}
+          The advanced track (Weeks 5–8) reserves{' '}
           {ADVANCED_HOSTS.map((v, i) => (
             <span key={v.hostname}>
               {i > 0 && (i === ADVANCED_HOSTS.length - 1 ? ' and ' : ', ')}

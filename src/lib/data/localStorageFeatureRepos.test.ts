@@ -63,3 +63,26 @@ describe('localStorageStepNotesRepo', () => {
     expect(JSON.stringify(flags)).not.toContain('secret');
   });
 });
+
+/**
+ * R79 split Server+'s two advanced weeks into four. Task and step ids kept
+ * their `sp-w5-` / `sp-w6-` prefixes on purpose: they are the keys of every
+ * completion, evidence record and deep link a student already has. This is the
+ * test that a completion written before the split still counts after it —
+ * progress is keyed by ids, never by the week number the task now carries.
+ */
+describe('a completion survives a task moving weeks', () => {
+  it('a step ticked under its old id still counts toward the task in its new week', async () => {
+    localStorage.clear();
+    const { localStorageProgressRepo } = await import('./localStorageProgressRepo');
+    const { SERVER_PLUS } = await import('./seed/serverPlus');
+    const task = SERVER_PLUS.tasks.find((t) => t.id === 'sp-w6-spine')!;
+    expect(task.week).toBe(7);
+    for (const s of task.steps) {
+      localStorageProgressRepo.setCompletion({ courseId: 'server-plus', taskId: task.id, memberId: 'm1', stepId: s.id, completedAt: 1 });
+    }
+    expect(localStorageProgressRepo.getTaskPercent('server-plus', 'm1', task)).toBe(100);
+    expect(localStorageProgressRepo.getWeekCompletion(SERVER_PLUS, 'm1', 'net', 7)).toBeGreaterThan(0);
+    expect(localStorageProgressRepo.getWeekCompletion(SERVER_PLUS, 'm1', 'net', 6)).toBe(0);
+  });
+});

@@ -146,39 +146,69 @@
       },
       {
         "number": 5,
-        "title": "Automate & Observe",
-        "theme": "Replace the paperwork with running tools",
-        "objective": "Define the lab in code, watch every host, run your own SIEM, and move the registers you kept on paper into NetBox and GLPI.",
+        "title": "Watch & Detect",
+        "theme": "See every host, and catch what goes wrong",
+        "objective": "Design the advanced hosts into the brief, watch every host with Prometheus, Grafana and Loki, and run your own Wazuh.",
         "runs": "Week 5",
         "advanced": true,
-        "phase": "Automate & Observe",
+        "phase": "Watch & Detect",
         "difficulty": 4,
         "flow": [
           "Design the hosts in",
-          "Watch everything",
-          "Your own SIEM",
-          "The lab as code",
-          "Registers as systems"
+          "Watch every host",
+          "Your own SIEM"
         ],
-        "milestone": "The lab is defined in code and a plan reports no changes, every host is watched and alerting, every VM reports to your own Wazuh, and the registers you kept on paper now live in NetBox and GLPI."
+        "milestone": "Every host is watched and alerting, a failure you caused was noticed, and every VM reports to your own Wazuh."
       },
       {
         "number": 6,
-        "title": "Run It as a Fleet",
-        "theme": "Sixteen clients, one console",
-        "objective": "Put the site in Git, build it from the Core’s template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the instructor’s Core node. Then destroy a VM and watch the repository bring it back.",
+        "title": "The Lab as Code",
+        "theme": "Replace the paperwork with running tools",
+        "objective": "Define the lab in code, move the paper registers into NetBox and GLPI, and record it in the As-Built.",
         "runs": "Week 6",
+        "advanced": true,
+        "phase": "The Lab as Code",
+        "difficulty": 4,
+        "flow": [
+          "The lab as code",
+          "Registers as systems",
+          "Record it in the As-Built"
+        ],
+        "milestone": "The lab is defined in code and a plan reports no changes, and the registers you kept on paper now live in NetBox and GLPI."
+      },
+      {
+        "number": 7,
+        "title": "Join the Fleet",
+        "theme": "Sixteen clients, one console",
+        "objective": "Wire the ops network, build the ops VM, put the site in Git, and bring it up from the Core’s template.",
+        "runs": "Week 7",
+        "advanced": true,
+        "phase": "Join the Fleet",
+        "difficulty": 4,
+        "flow": [
+          "Wire the spine",
+          "The ops VM",
+          "Put it in Git",
+          "The site from the template"
+        ],
+        "milestone": "Your node reaches the Core over the ops network, the ops VM holds the toolchain, the site is in Git, and a second plan has nothing to do."
+      },
+      {
+        "number": 8,
+        "title": "Run It as a Fleet",
+        "theme": "A playbook that changes nothing the second time",
+        "objective": "Configure the site with a playbook, hand it to the Core to watch and back up, then rebuild a VM from Git.",
+        "runs": "Week 8",
         "advanced": true,
         "phase": "Run It as a Fleet",
         "difficulty": 4,
         "flow": [
-          "Wire the spine",
-          "The site as code",
+          "Configuration as code",
           "Onboard into the Core",
           "Vault and XDR",
           "Rebuild from Git"
         ],
-        "milestone": "Your site is defined in a Git repository, configured by a playbook that changes nothing the second time, watched and alerted from the Core, backed up to the vault with a restore inside RTO — and you rebuilt a VM from the repository alone and watched it reappear."
+        "milestone": "Your site is configured by a playbook that changes nothing the second time, watched, alerted and backed up from the Core — and you rebuilt a VM from the repository alone."
       }
     ],
     "gates": [],
@@ -3895,7 +3925,7 @@
         "id": "sp-w5-terraform",
         "role": "mgmt",
         "shared": true,
-        "week": 5,
+        "week": 6,
         "title": "The lab as code",
         "objective": "Terraform — or OpenTofu, the open-source fork that reads the same code — on your workstation, a token it may use, a template it clones from, the tools VM built from a file, and the three existing servers imported — until a plan says there is nothing to do.",
         "frameworks": [
@@ -4041,7 +4071,7 @@
         "id": "sp-w5-netbox",
         "role": "mgmt",
         "shared": true,
-        "week": 5,
+        "week": 6,
         "title": "The rack and the IP plan become NetBox",
         "objective": "NetBox on the tools VM holding the site, the 24U rack with every device at its U, both prefixes and every address — filled from your own forms and exported back out to compare.",
         "frameworks": [
@@ -4111,7 +4141,7 @@
         "id": "sp-w5-glpi",
         "role": "mgmt",
         "shared": true,
-        "week": 5,
+        "week": 6,
         "title": "Assets and changes become GLPI",
         "objective": "GLPI on the tools VM holding the hardware and software assets, one change from your log run through as a real ticket with its rollback, and winserver reporting its own inventory through the agent.",
         "frameworks": [
@@ -4183,7 +4213,7 @@
         "id": "sp-w5-record",
         "role": "mgmt",
         "shared": true,
-        "week": 5,
+        "week": 6,
         "title": "Record it in the As-Built",
         "objective": "The Week-5 section of the handover: what Terraform or OpenTofu manages, what is watched, what reports to Wazuh, which tool now holds which record — and the evidence, hashed.",
         "frameworks": [
@@ -4201,7 +4231,7 @@
           "DR Plan & As-Built Handover form"
         ],
         "prerequisites": [
-          "The rest of Week 5"
+          "The rest of Weeks 5 and 6"
         ],
         "definitionOfDone": [
           "The Automation & observability section is filled, with the numbers",
@@ -4235,7 +4265,7 @@
         "id": "sp-w6-spine",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 7,
         "title": "Wire the ops network",
         "objective": "A second interface on the host and on every server VM, on the shared VLAN, with the team number as the third octet — and a ping to the Core that works before anything else is built.",
         "frameworks": [
@@ -4329,7 +4359,7 @@
             "title": "A second NIC on every server VM",
             "description": "Same host octet as its zone, moved into your team block, no gateway.",
             "where": "The Proxmox web console, then each VM",
-            "instruction": "Add a VirtIO device on vmbr9 to websrv, winserver and linuxsrv (and the Week 5 hosts if you built them), address each inside the VM, and ping the Core from each.",
+            "instruction": "Add a VirtIO device on vmbr9 to websrv, winserver and linuxsrv (and the Week 5–6 hosts if you built them), address each inside the VM, and ping the Core from each.",
             "guideRef": {
               "procedureId": "ops-network-spine"
             },
@@ -4379,7 +4409,7 @@
         "id": "sp-w6-ops",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 7,
         "title": "The ops VM: a home for the toolchain",
         "objective": "A small VM on your own node with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures — Terraform or OpenTofu, Ansible, Git and the fleet key on it, and nothing on the workstation.",
         "frameworks": [
@@ -4453,10 +4483,10 @@
           },
           {
             "id": "sp-w6-ops-s1",
-            "title": "Prove both paths, and move Week 5 state here",
+            "title": "Prove both paths, and move Week 6 state here",
             "description": "The API over the campus LAN, the Core over the ops network, from the VM that will use both.",
             "where": "The ops VM",
-            "instruction": "From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 5, move the Terraform or OpenTofu folder and its state from the workstation onto this VM.",
+            "instruction": "From the ops VM, curl the Proxmox API and ping obs.lab. If you did Week 6, move the Terraform or OpenTofu folder and its state from the workstation onto this VM.",
             "guideRef": {
               "procedureId": "ops-vm-build"
             },
@@ -4494,7 +4524,7 @@
         "id": "sp-w6-git",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 7,
         "title": "Put the infrastructure in Git",
         "objective": "A repository in the Core’s Gitea, owned by the team organisation, with the standard layout, an ignore file committed before anything else, a README a stranger could follow, and a grep that proves no secret is tracked.",
         "frameworks": [
@@ -4587,7 +4617,7 @@
         "id": "sp-w6-terraform",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 7,
         "title": "The site from the golden template",
         "objective": "The Core’s cloud-init template restored on your node, the provider pointed at your host with the token in a file Git never sees, the Linux servers described once with both NICs, applied, and a second plan that has nothing to do.",
         "frameworks": [
@@ -4630,7 +4660,7 @@
             "commands": [
               {
                 "cmd": "pveum user token add terraform@pve fleet --privsep=0",
-                "explain": "On the host. The Week 5 role and user if you have them, created fresh if not. The value prints once."
+                "explain": "On the host. The Week 6 role and user if you have them, created fresh if not. The value prints once."
               },
               {
                 "cmd": "cp terraform.tfvars.example terraform.tfvars && terraform init && terraform plan",
@@ -4713,7 +4743,7 @@
         "id": "sp-w6-ansible",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 8,
         "title": "Configuration as code",
         "objective": "An inventory that asks the hypervisor what exists, three roles — base, monitoring, wazuh_agent — and a playbook whose second run changes nothing.",
         "frameworks": [
@@ -4837,7 +4867,7 @@
         "id": "sp-w6-observe",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 8,
         "title": "Onboard the site into the Core plane",
         "objective": "One targets file with your team label committed to the platform repository, every target UP on the Core, your journal in the Core’s Loki, one dashboard filtered to your team, and an alert that fired, paged you and resolved.",
         "frameworks": [
@@ -4942,7 +4972,7 @@
         "id": "sp-w6-vault",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 8,
         "title": "Back up to the vault",
         "objective": "The Core’s backup server added to your node by fingerprint, a nightly job into your namespace that includes the ops VM, a verify job that passes, and a full-VM restore timed against the RTO you promised in Week 4.",
         "frameworks": [
@@ -5044,7 +5074,7 @@
         "id": "sp-w6-xdr",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 8,
         "title": "The MSP’s XDR over the fleet",
         "objective": "The hypervisor and the ops VM — and, with school IT’s sign-off, the workstations — enrolled into the Core’s Wazuh in your team group, named from the asset tag; an SCA score before and after the base role; one FIM detection; the CVE list.",
         "frameworks": [
@@ -5149,7 +5179,7 @@
         "id": "sp-w6-rebuild",
         "role": "mgmt",
         "shared": true,
-        "week": 6,
+        "week": 8,
         "title": "Destroy it and rebuild it from Git",
         "objective": "The standard for the track: delete linuxsrv, bring it back with terraform apply (tofu apply) and ansible-playbook, and watch it reappear in Grafana and Wazuh on its own. Then the SLO line, the alerting runbook, and the Fleet section of the As-Built.",
         "frameworks": [
@@ -5224,7 +5254,7 @@
             "id": "sp-w6-rebuild-s1",
             "title": "The Fleet section, the SLO line, the alerting runbook",
             "description": "The numbers into the As-Built, and each alert into the Operations Log.",
-            "instruction": "Fill the Fleet operations section of the As-Built and add one alerting-runbook row per fleet alert to the Operations Log, then hash every Week 6 screenshot into the evidence appendix.",
+            "instruction": "Fill the Fleet operations section of the As-Built and add one alerting-runbook row per fleet alert to the Operations Log, then hash every Week 7–8 screenshot into the evidence appendix.",
             "instructionList": [
               "As-Built: the repository URL and tag, the changed=0 line, targets UP on the Core, the verify result, restore time beside the RTO, the rebuild time, agent coverage.",
               "The SLO line: this term’s availability for the client, from the Fleet dashboard’s uptime panel, as a percentage and a sentence.",
@@ -6115,9 +6145,9 @@
         ]
       },
       {
-        "id": "sp-w5-net",
+        "id": "sp-w6-net",
         "role": "net",
-        "week": 5,
+        "week": 6,
         "title": "Deep-dive: IPAM that matches the plan",
         "objective": "Your focus this week — go deeper on the address rows in the IP Plan & Connectivity Proof.",
         "frameworks": [
@@ -6140,7 +6170,7 @@
         ],
         "steps": [
           {
-            "id": "sp-w5-net-s1",
+            "id": "sp-w6-net-s1",
             "title": "Document IPAM that matches the plan",
             "description": "Your focus area, in the address rows.",
             "instruction": "Reconcile NetBox against the IP plan, address by address, and turn each routed path from Week 3 into a Grafana panel.",
@@ -6264,9 +6294,9 @@
         ]
       },
       {
-        "id": "sp-w5-mgmt",
+        "id": "sp-w6-mgmt",
         "role": "mgmt",
-        "week": 5,
+        "week": 6,
         "title": "Deep-dive: change control that the tool enforces",
         "objective": "Your focus this week — go deeper on the change rows in the Operations Log & SOPs.",
         "frameworks": [
@@ -6289,7 +6319,7 @@
         ],
         "steps": [
           {
-            "id": "sp-w5-mgmt-s1",
+            "id": "sp-w6-mgmt-s1",
             "title": "Document change control that the tool enforces",
             "description": "Your focus area, in the change rows.",
             "instruction": "Every Week-4 change re-entered in GLPI as a ticket with its rollback and approver, Pulse’s backup status written into the DR plan, and the numbers in the As-Built.",
@@ -6309,9 +6339,9 @@
         ]
       },
       {
-        "id": "sp-w6-net",
+        "id": "sp-w7-net",
         "role": "net",
-        "week": 6,
+        "week": 7,
         "title": "Deep-dive: the trunk and the fence",
         "objective": "Your focus this week — go deeper on the ops-network rows in the IP Plan & Connectivity Proof.",
         "frameworks": [
@@ -6334,7 +6364,7 @@
         ],
         "steps": [
           {
-            "id": "sp-w6-net-s1",
+            "id": "sp-w7-net-s1",
             "title": "Document the trunk and the fence",
             "description": "Your focus area, in the ops-network rows.",
             "instruction": "VLAN 20 trunked to your server port on the Cisco switch, and a firewall on the ops network that lets your node reach the Core and not another team’s node.",
@@ -6361,9 +6391,9 @@
         ]
       },
       {
-        "id": "sp-w6-win",
+        "id": "sp-w8-win",
         "role": "win",
-        "week": 6,
+        "week": 8,
         "title": "Deep-dive: winserver under Ansible",
         "objective": "Your focus this week — go deeper on the Windows rows in the Baselines, Policies & Standards.",
         "frameworks": [
@@ -6386,7 +6416,7 @@
         ],
         "steps": [
           {
-            "id": "sp-w6-win-s1",
+            "id": "sp-w8-win-s1",
             "title": "Document winserver under Ansible",
             "description": "Your focus area, in the Windows rows.",
             "instruction": "winserver managed by the same playbook as the Linux hosts, over WinRM: the exporter, the Wazuh agent into the Core group, and an SCA score before and after.",
@@ -6413,9 +6443,9 @@
         ]
       },
       {
-        "id": "sp-w6-lnx",
+        "id": "sp-w8-lnx",
         "role": "lnx",
-        "week": 6,
+        "week": 8,
         "title": "Deep-dive: the base role as the hardening standard",
         "objective": "Your focus this week — go deeper on the host rows in the Server Bring-Up Log.",
         "frameworks": [
@@ -6438,7 +6468,7 @@
         ],
         "steps": [
           {
-            "id": "sp-w6-lnx-s1",
+            "id": "sp-w8-lnx-s1",
             "title": "Document the base role as the hardening standard",
             "description": "Your focus area, in the host rows.",
             "instruction": "Prove the base role is the Week 4 hardening, as code: idempotent on every Linux host, clocks agreeing with the Core, packages through the cache, and the Terraform or OpenTofu state inside the vault.",
@@ -6469,9 +6499,9 @@
         ]
       },
       {
-        "id": "sp-w6-mgmt",
+        "id": "sp-w8-mgmt",
         "role": "mgmt",
-        "week": 6,
+        "week": 8,
         "title": "Deep-dive: the runbook, the SLO and the demo",
         "objective": "Your focus this week — go deeper on the alerting rows in the Operations Log & SOPs.",
         "frameworks": [
@@ -6494,7 +6524,7 @@
         ],
         "steps": [
           {
-            "id": "sp-w6-mgmt-s1",
+            "id": "sp-w8-mgmt-s1",
             "title": "Document the runbook, the SLO and the demo",
             "description": "Your focus area, in the alerting rows.",
             "instruction": "Each fleet alert has a runbook row, the availability the client actually got this term is a number with a sentence, and the rebuild demo is the handover’s proof.",
@@ -6781,7 +6811,7 @@
               {
                 "hostname": "tools",
                 "os": "Ubuntu Server 24.04",
-                "job": "NetBox + GLPI (Week 5, advanced)",
+                "job": "NetBox + GLPI (Week 6, advanced)",
                 "zone": "vmbr2 — private",
                 "why_zone": "Internal records for staff, not customers",
                 "serves": "Keep the registers alive after handover"
@@ -9033,7 +9063,7 @@
         2,
         3,
         4,
-        6
+        8
       ],
       "kind": "form",
       "exportFormat": "md",
@@ -9282,7 +9312,7 @@
           "kind": "group",
           "group": {
             "group": "alerts",
-            "label": "Alerting runbook — Week 6, the fleet track",
+            "label": "Alerting runbook — Week 8, the fleet track",
             "help": "One row per alert the Core can raise for this site. Written for whoever is paged: what the alert means, who that is, and the first three things they do before anything else.",
             "columns": [
               {
@@ -9459,7 +9489,9 @@
       "weeks": [
         4,
         5,
-        6
+        6,
+        7,
+        8
       ],
       "kind": "form",
       "exportFormat": "md",
@@ -9722,7 +9754,7 @@
         },
         {
           "kind": "fields",
-          "title": "Automation & observability — Week 5, the advanced track",
+          "title": "Automation & observability — Weeks 5–6, the advanced track",
           "fields": [
             {
               "field": "iac_state",
@@ -9838,7 +9870,7 @@
         },
         {
           "kind": "fields",
-          "title": "Fleet operations — Week 6, the fleet track",
+          "title": "Fleet operations — Weeks 7–8, the fleet track",
           "fields": [
             {
               "field": "repo",
@@ -10082,7 +10114,7 @@
               "iac_state"
             ]
           },
-          "week": 5
+          "week": 6
         },
         {
           "label": "At least five Prometheus targets and three Wazuh agents are live",
@@ -10122,24 +10154,24 @@
             },
             "atLeast": 6
           },
-          "week": 5
+          "week": 6
         },
         {
-          "label": "The site is in Git, tagged for handover, and the second run changed nothing",
+          "label": "The site is in Git, tagged for handover",
           "when": {
-            "all": [
-              {
-                "fields": [
-                  "repo"
-                ]
-              },
-              {
-                "field": "idempotent",
-                "matches": "changed=0"
-              }
+            "fields": [
+              "repo"
             ]
           },
-          "week": 6
+          "week": 7
+        },
+        {
+          "label": "The second run of the playbook changed nothing",
+          "when": {
+            "field": "idempotent",
+            "matches": "changed=0"
+          },
+          "week": 8
         },
         {
           "label": "At least five targets read UP on the Core and the vault verified the backup",
@@ -10156,7 +10188,7 @@
               }
             ]
           },
-          "week": 6
+          "week": 8
         },
         {
           "label": "A full-VM restore and a rebuild from Git were both timed",
@@ -10166,7 +10198,7 @@
               "rebuild_time"
             ]
           },
-          "week": 6
+          "week": 8
         },
         {
           "label": "The fleet endpoints report to the Core and the SLO line is written",
@@ -10183,7 +10215,7 @@
               }
             ]
           },
-          "week": 6
+          "week": 8
         }
       ]
     }
@@ -10221,15 +10253,27 @@
     },
     {
       "number": 5,
-      "title": "Automate & Observe",
-      "phase": "Automate & Observe",
-      "lead": "Define the lab in code, watch every host, run your own SIEM, and move the registers you kept on paper into NetBox and GLPI. About 18 GB of guests in total — a 16 GB server runs this one VM at a time."
+      "title": "Watch & Detect",
+      "phase": "Watch & Detect",
+      "lead": "Watch every host with Prometheus, Grafana and Loki, watch the backups with Pulse, and run your own Wazuh. About 18 GB of guests across Weeks 5 and 6 — a 16 GB server runs this one VM at a time."
     },
     {
       "number": 6,
+      "title": "The Lab as Code",
+      "phase": "The Lab as Code",
+      "lead": "Define the lab in code, then move the registers you kept on paper into NetBox and GLPI."
+    },
+    {
+      "number": 7,
+      "title": "Join the Fleet",
+      "phase": "Join the Fleet",
+      "lead": "Wire the ops network, build the ops VM that holds the toolchain, put the site in Git, and bring it up from the Core’s template."
+    },
+    {
+      "number": 8,
       "title": "Run It as a Fleet",
       "phase": "Run It as a Fleet",
-      "lead": "Put the site in Git, build it from a template, configure it with a playbook that changes nothing the second time, and hand its metrics, logs, backups and endpoints to the Core. Then destroy a VM and watch the repository bring it back."
+      "lead": "Configure the site with a playbook that changes nothing the second time, hand its metrics, logs, backups and endpoints to the Core, then destroy a VM and watch the repository bring it back."
     }
   ],
   "procedures": [
@@ -12437,7 +12481,7 @@
     },
     {
       "id": "terraform-proxmox-provider",
-      "week": 5,
+      "week": 6,
       "title": "Terraform or OpenTofu: a token, a provider, a plan",
       "where": "The Proxmox host shell, then your workstation",
       "summary": "Infrastructure as code starts with a credential the tool may use and a provider that speaks Proxmox. Terraform and OpenTofu are the same tool for this course — the same HCL, the same bpg provider, the same files and state — and differ at the prompt (terraform or tofu) and in where you install from. Pick one for the whole team, set it in Lab access on the course page, and every line below follows. The token lives in an environment variable and never in a file you might commit; the provider block goes in main.tf; the first plan proves the two can talk.",
@@ -12493,7 +12537,7 @@
     },
     {
       "id": "terraform-first-vm-and-import",
-      "week": 5,
+      "week": 6,
       "title": "Terraform or OpenTofu: a template, a VM from code, and the existing three imported",
       "where": "The Proxmox host shell, then your workstation",
       "summary": "A cloud-init template makes a VM a clone rather than an install. main.tf then creates the tools VM from it — a machine you never clicked through — and terraform import (tofu import on OpenTofu) brings websrv, winserver and linuxsrv under the same state, so the whole lab is described in one file that plan can check against reality.",
@@ -12534,7 +12578,7 @@
     },
     {
       "id": "netbox-ipam",
-      "week": 5,
+      "week": 6,
       "title": "NetBox: the rack and the IP plan, as a system of record",
       "where": "The tools VM (192.168.0.21)",
       "summary": "NetBox holds the two registers you kept as forms — the 24U rack elevation and the IP plan — and holds them as data: a device at a U, a prefix with its addresses and what each one belongs to. Fill it from your own forms, then export it, and the export should match the form to the row.",
@@ -12583,7 +12627,7 @@
     },
     {
       "id": "glpi-assets-and-change",
-      "week": 5,
+      "week": 6,
       "title": "GLPI: the asset register and the change log, as tickets",
       "where": "The tools VM (192.168.0.21)",
       "summary": "GLPI is the helpdesk and asset system a small company would actually run. The hardware and software assets from your register go in as inventory; one row from your change log goes in as a change ticket with its rollback attached; the GLPI Agent on winserver proves inventory can arrive by itself.",
@@ -12624,7 +12668,7 @@
     },
     {
       "id": "core-node-day-zero",
-      "week": 6,
+      "week": 7,
       "title": "Instructor, Day 0: build the Core node",
       "where": "The instructor’s rack server, before students arrive",
       "summary": "Read this so you know what you are joining; do not run it. Half a day builds the platform every team onboards into: the ops bridge, a package cache first, then Gitea, the observability plane, Wazuh, the backup vault, the golden template, and a handout per team. Everything is a container or a VM on one 64 GB server.",
@@ -12695,7 +12739,7 @@
     },
     {
       "id": "ops-network-spine",
-      "week": 6,
+      "week": 7,
       "title": "Wire the ops network: the bridge, the second NICs, the ping",
       "where": "The Proxmox host shell, then every server VM",
       "summary": "Every team’s DMZ and private zone are identical islands — Team 3’s winserver and Team 9’s are both 192.168.0.2 — and that was fine while nothing crossed them. The Core has to cross them. So the host and every server VM get a second interface on the shared VLAN, and the third octet is the team number. Prove the path to the Core before anything else this week.",
@@ -12709,7 +12753,7 @@
           "explain": "From the host. Three replies from obs.lab means the switch is trunking VLAN 20 to your port. No reply means it is not, and nothing else this week will work until it does — the Networking deep-dive owns that trunk."
         },
         {
-          "gui": "For websrv, winserver and linuxsrv (and secmon, wazuh and tools if you built Week 5): VM → Hardware → Add → Network Device, Bridge vmbr9, Model VirtIO. Then inside each VM give the new interface the same host octet it has in its zone, moved into your block: winserver 10.20.T.2, linuxsrv 10.20.T.3, websrv 10.20.T.10 — /24, no gateway.",
+          "gui": "For websrv, winserver and linuxsrv (and secmon, wazuh and tools if you built Weeks 5–6): VM → Hardware → Add → Network Device, Bridge vmbr9, Model VirtIO. Then inside each VM give the new interface the same host octet it has in its zone, moved into your block: winserver 10.20.T.2, linuxsrv 10.20.T.3, websrv 10.20.T.10 — /24, no gateway.",
           "explain": "One number per machine, whichever network you meet it on. No gateway on the ops leg: the client zones keep routing out through vmbr0 as before, and the ops network carries only management traffic — scraping, logs, backups, SSH."
         },
         {
@@ -12724,7 +12768,7 @@
     },
     {
       "id": "ops-vm-build",
-      "week": 6,
+      "week": 7,
       "title": "The ops VM: a permanent home for the toolchain",
       "where": "The Proxmox web console, then the new ops VM",
       "summary": "Classroom workstations get reimaged, reassigned and shared. Terraform or OpenTofu state, SSH keys and playbooks that live on one disappear. So the team’s toolchain lives on a small VM on the team’s own node, with a leg on the campus LAN for the Proxmox API and a leg on the ops network for the machines it configures. The workstation becomes a window.",
@@ -12762,13 +12806,13 @@
         },
         {
           "cmd": "cd ~/ServerPlus_Capstone/00_Planning/terraform 2>/dev/null && scp -r . ops@10.20.T.30:~/tf-week5/ ; echo done",
-          "explain": "Only if you did Week 5: from the workstation that ran Terraform or OpenTofu, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage."
+          "explain": "Only if you did Week 6: from the workstation that ran Terraform or OpenTofu, move the state and files onto the ops VM. State on a workstation is state that disappears at the next reimage."
         }
       ]
     },
     {
       "id": "gitea-team-repo",
-      "week": 6,
+      "week": 7,
       "title": "Put the infrastructure in Git",
       "where": "The ops VM, and Gitea in a browser",
       "summary": "Infrastructure as code that is not in version control is scripts on someone’s laptop. Git gives the team history, review, rollback and one source of truth. The layout is boring and identical across teams on purpose; the .gitignore is written before the first commit because a secret pushed once is in the history forever.",
@@ -12797,7 +12841,7 @@
     },
     {
       "id": "fleet-template-and-terraform",
-      "week": 6,
+      "week": 7,
       "title": "The site from the golden template, in Terraform or OpenTofu",
       "where": "The Proxmox host shell, then the ops VM",
       "summary": "An ISO install takes twenty minutes and is different every time. A clone of the Core’s golden template takes seconds and is identical every time — which is what makes Terraform, or OpenTofu, worth using. The two read the same code below; only the command name differs. The provider block, the token in a file Git never sees, the server VMs described once, applied, and then a second plan that has nothing to do.",
@@ -12834,7 +12878,7 @@
     },
     {
       "id": "ansible-site-playbook",
-      "week": 6,
+      "week": 8,
       "title": "Ansible: the hypervisor is the inventory, and the second run changes nothing",
       "where": "The ops VM",
       "summary": "Terraform or OpenTofu makes the box; Ansible makes it a server. A playbook is idempotent — safe to run a hundred times — and that property is the whole point: the second run must report changed=0, or it is a shell script in disguise. The inventory is not a file you maintain; it is a question asked of the Proxmox API.",
@@ -12875,7 +12919,7 @@
     },
     {
       "id": "core-onboarding-observability",
-      "week": 6,
+      "week": 8,
       "title": "Onboard the site into the Core’s observability plane",
       "where": "The ops VM, then Grafana on the Core in a browser",
       "summary": "The Core scrapes what the platform repository tells it to. A team onboards by committing one targets file with its label, and five minutes later its hosts are on the Targets page; the same commit carries the receiver Alertmanager pages. One dashboard with a team variable serves the whole class; the alerts route by the label.",
@@ -12908,7 +12952,7 @@
     },
     {
       "id": "pbs-vault-and-restore",
-      "week": 6,
+      "week": 8,
       "title": "Back up to the vault, verify it, and restore against the clock",
       "where": "The Proxmox web console, then the host shell",
       "summary": "Week 4 restored a file. The vault restores a machine, and its verify jobs prove a backup is readable before you need it. The team node trusts the vault by fingerprint, backs up every VM including the ops VM into its own namespace nightly, and then times a full restore against the RTO the DR plan promised.",
@@ -12947,7 +12991,7 @@
     },
     {
       "id": "wazuh-fleet-agents",
-      "week": 6,
+      "week": 8,
       "title": "The MSP’s XDR over the fleet endpoints",
       "where": "The Proxmox host shell, the ops VM, and Wazuh on the Core in a browser",
       "summary": "An agent reports to one manager. The client site’s servers stay on the client’s own SIEM from Week 5 — that is the client’s data. The MSP’s XDR on the Core takes the fleet endpoints: the hypervisor, the ops VM, and with school IT’s sign-off the workstations, all in the team’s group. Then SCA scores the hardening and FIM proves the pipeline.",
@@ -12976,7 +13020,7 @@
     },
     {
       "id": "rebuild-from-git",
-      "week": 6,
+      "week": 8,
       "title": "Destroy a server and rebuild it from the repository alone",
       "where": "The Proxmox host shell, then the ops VM, then the Core in a browser",
       "summary": "The standard for the track, and the demo that proves the whole week: delete a VM, rebuild it from Git with two commands, and watch it reappear in Grafana and Wazuh without anyone touching a console. If the team can do that, it can run a fleet.",
@@ -13915,7 +13959,7 @@
       },
       {
         "key": "OPS_SUBNET",
-        "label": "Your ops subnet (Week 6)",
+        "label": "Your ops subnet (Weeks 7–8)",
         "placeholder": "e.g. 10.20.7 — three octets",
         "tokens": [
           "<OPS_SUBNET>",
@@ -13924,7 +13968,7 @@
       },
       {
         "key": "IAC_TOOL",
-        "label": "Infrastructure-as-code tool (Weeks 5–6)",
+        "label": "Infrastructure-as-code tool (Weeks 6–8)",
         "placeholder": "",
         "tokens": [],
         "kind": "select",

@@ -127,7 +127,7 @@ export interface BaseVm {
   runs: string;
   /** The services it carries, for the addressing table and the IP plan. */
   services: string[];
-  /** The advanced track (Weeks 5–6) — a real host, but not required to pass. */
+  /** The advanced track (Weeks 5–8) — a real host, but not required to pass. */
   optional?: boolean;
 }
 
@@ -224,11 +224,11 @@ export const TEAM_VM_START: Record<ZoneBridgeId, string> = {
 export const RACK_UNITS = 24;
 
 /**
- * The ops network — Week 6, the fleet track.
+ * The ops network — Weeks 7–8, the fleet track.
  *
  * Every team's DMZ and private zone are identical islands on purpose (Team 3's
  * winserver is 192.168.0.2, and so is Team 9's), because nothing ever crosses
- * them. Week 6 needs one thing to cross: the instructor's Core node has to
+ * them. Week 7 needs one thing to cross: the instructor's Core node has to
  * scrape, back up and enrol every team's machines, and Ansible has to reach
  * them. So every server VM gets a SECOND interface on a shared VLAN, and that
  * address is the one that is unique per team — `10.20.T.x`, with T the team
