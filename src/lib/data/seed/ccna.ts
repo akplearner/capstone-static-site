@@ -80,7 +80,10 @@ const WEEKS: WeekDef[] = [
     stage: 0,
     phase: 'Acquisition',
     difficulty: 1,
-    flow: ['Declare the path', 'Register the kit', 'Prove what it does'],
+    objectives: [
+      { id: 'decide-how-this-build-runs', label: 'Decide how this build runs', tasks: ['ccna-w0-path'] },
+      { id: 'register-the-kit-and-prove-what-it-can-do', label: 'Register the kit and prove what it can do', tasks: ['ccna-w0-register'] },
+    ],
     milestone:
       'The path is declared, every device is a row with its software version, and each capability is answered Yes or No with the output that proves it.',
   },
@@ -94,7 +97,11 @@ const WEEKS: WeekDef[] = [
     stage: 1,
     phase: 'Connect',
     difficulty: 2,
-    flow: ['Discover', 'Design the shape', 'Bring it up', 'Prove reachability'],
+    objectives: [
+      { id: 'discover-before-you-design', label: 'Discover before you design', tasks: ['ccna-w1-discover'] },
+      { id: 'design-the-shape', label: 'Design the shape', tasks: ['ccna-w1-design'] },
+      { id: 'bring-the-first-switches-up', label: 'Bring the first switches up', tasks: ['ccna-w1-bringup'] },
+    ],
     milestone:
       'Requirements and a high-level design are written, the first switches answer on the management VLAN, and every interface you touched is in the build log.',
   },
@@ -108,7 +115,11 @@ const WEEKS: WeekDef[] = [
     stage: 2,
     phase: 'Segment',
     difficulty: 3,
-    flow: ['Plan the VLANs', 'Trunk the switches', 'Route between them', 'DHCP and test'],
+    objectives: [
+      { id: 'cut-the-network-into-departments', label: 'Cut the network into departments', tasks: ['ccna-w2-vlans'] },
+      { id: 'route-between-the-departments', label: 'Route between the departments', tasks: ['ccna-w2-route'] },
+      { id: 'survive-a-cable-being-pulled', label: 'Survive a cable being pulled', tasks: ['ccna-w2-resilience'] },
+    ],
     milestone:
       'Every department is its own VLAN, a trunk carries them between switches, a PC gets an address from DHCP, and the test matrix shows what reaches what.',
   },
@@ -122,7 +133,10 @@ const WEEKS: WeekDef[] = [
     stage: 3,
     phase: 'Route',
     difficulty: 3,
-    flow: ['Address the WAN', 'OSPF adjacency', 'Routes propagate', 'NAT to the internet'],
+    objectives: [
+      { id: 'join-the-second-building', label: 'Join the second building', tasks: ['ccna-w3-wan'] },
+      { id: 'give-the-site-one-way-out-to-the-internet', label: 'Give the site one way out to the internet', tasks: ['ccna-w3-internet'] },
+    ],
     milestone:
       'The two sites are adjacent, each learns the other’s networks without a static route, and a branch PC reaches the internet through one public address.',
   },
@@ -136,7 +150,11 @@ const WEEKS: WeekDef[] = [
     stage: 4,
     phase: 'Protect',
     difficulty: 4,
-    flow: ['Policy into ACLs', 'Harden the kit', 'Wireless', 'Prove the blocks'],
+    objectives: [
+      { id: 'turn-the-policy-into-access-lists', label: 'Turn the policy into access lists', tasks: ['ccna-w4-policy'] },
+      { id: 'harden-the-management-plane', label: 'Harden the management plane', tasks: ['ccna-w4-harden'] },
+      { id: 'put-the-wlans-on-the-air', label: 'Put the WLANs on the air', tasks: ['ccna-w4-wireless'] },
+    ],
     milestone:
       'Guest cannot reach the LAN, only the network team reaches the management VLAN, every device takes SSH and refuses telnet, and the blocked tests are evidence.',
   },
@@ -150,7 +168,10 @@ const WEEKS: WeekDef[] = [
     advanced: true,
     phase: 'Operate',
     difficulty: 4,
-    flow: ['Source of truth', 'Back up configs', 'Change records', 'Peer review'],
+    objectives: [
+      { id: 'build-a-source-of-truth-not-a-spreadsheet', label: 'Build a source of truth, not a spreadsheet', tasks: ['ccna-w5-sot'] },
+      { id: 'back-it-up-then-change-it-properly', label: 'Back it up, then change it properly', tasks: ['ccna-w5-change'] },
+    ],
     milestone:
       'NetBox holds the sites, devices, VLANs and prefixes; every configuration is backed up to Git; and one change has been through review, implementation and validation.',
   },
@@ -164,7 +185,10 @@ const WEEKS: WeekDef[] = [
     advanced: true,
     phase: 'Observe',
     difficulty: 4,
-    flow: ['Poll the devices', 'Centralise the logs', 'Watch latency', 'Work a ticket'],
+    objectives: [
+      { id: 'build-a-small-noc', label: 'Build a small NOC', tasks: ['ccna-w6-noc'] },
+      { id: 'work-a-ticket-not-a-hunch', label: 'Work a ticket, not a hunch', tasks: ['ccna-w6-ticket'] },
+    ],
     milestone:
       'Every device is polled and graphed, logs land in one place, latency is tracked, and a ticket has been worked from symptom to root cause with the evidence kept.',
   },
@@ -178,7 +202,10 @@ const WEEKS: WeekDef[] = [
     advanced: true,
     phase: 'Automate',
     difficulty: 4,
-    flow: ['Structured data', 'Read an API', 'A playbook', 'Source of truth to device'],
+    objectives: [
+      { id: 'describe-the-network-as-data', label: 'Describe the network as data', tasks: ['ccna-w7-data'] },
+      { id: 'configure-from-the-source-of-truth', label: 'Configure from the source of truth', tasks: ['ccna-w7-ansible'] },
+    ],
     milestone:
       'A playbook configures a VLAN on every access switch from data held in NetBox, and running it twice changes nothing the second time.',
   },
@@ -192,7 +219,10 @@ const WEEKS: WeekDef[] = [
     advanced: true,
     phase: 'Engineer',
     difficulty: 4,
-    flow: ['Incident', 'Root cause', 'Change and validate', 'Handover'],
+    objectives: [
+      { id: 'work-an-incident-properly', label: 'Work an incident properly', tasks: ['ccna-w8-incident'] },
+      { id: 'hand-the-network-over', label: 'Hand the network over', tasks: ['ccna-w8-handover'] },
+    ],
     milestone:
       'The incident is documented from ticket to prevention, the fix went through a reviewed change, and the as-built handover would let a stranger run this network on Monday.',
   },

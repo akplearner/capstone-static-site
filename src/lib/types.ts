@@ -24,6 +24,14 @@ export interface RoleDef {
   label?: string;    // optional decorated label, e.g. '🏃 Red (Runners)'
 }
 
+export interface WeekObjective {
+  id: string;
+  /** Imperative, twelve words at most: "Build the array and justify the level". */
+  label: string;
+  /** The task ids that satisfy it, in the order they are done. */
+  tasks: string[];
+}
+
 export interface WeekDef {
   number: number;
   title: string;
@@ -45,9 +53,18 @@ export interface WeekDef {
   /** The one-line completion test: "you have cleared this week when …".
    *  This is the week's milestone, stated in student-facing language. */
   milestone?: string;
-  /** Ordered, short labels for how the week's work flows, e.g.
-   *  ['Install', 'Enroll', 'Verify', 'Prove']. Rendered as a chain. */
-  flow?: string[];
+  /**
+   * What the week is FOR, as two to four things a student can tick — the unit
+   * the week page, the workflow diagram and Home's "Continue" all speak in
+   * (R79). Each objective names the tasks that satisfy it; every task of the
+   * week belongs to exactly one, and an objective holds at most three. On a
+   * role-split course an objective is usually one role's task, so the list
+   * reads as the week's story across the team; on a shared-track course the
+   * shared tasks group under them and a role's deep-dive joins the objective
+   * its form belongs to. Replaces `flow`, which was the same idea as labels
+   * nobody could tick.
+   */
+  objectives?: WeekObjective[];
   /** Which cut of the Capstone Stone finishing this week produces (see
    *  src/lib/quarry.ts). Authoring this makes the expedition arc explicit
    *  instead of inferring it from how many weeks happen to be cleared — which

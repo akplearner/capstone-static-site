@@ -112,12 +112,28 @@ describe('week summary aggregation', () => {
     expect(s.difficulty).toBe(2);
   });
 
-  it('falls back to task titles when a week authors no flow', () => {
+  it('the flow is the objectives, and falls back to task titles when a week authors none', () => {
     const s = weekSummary(CYSA_PLUS, 'blue', 1);
-    expect(s.flow.length).toBeGreaterThan(0);
-    const noFlow = { ...CYSA_PLUS, weeks: CYSA_PLUS.weeks.map((w) => ({ ...w, flow: undefined })) };
-    const t = weekSummary(noFlow, 'blue', 1);
+    expect(s.flow).toEqual(s.objectives.map((o) => o.label));
+    // Blue's own objective is one of three; the other two are Red's and GRC's
+    // parts of the week's story, and say so.
+    expect(s.objectives).toHaveLength(3);
+    expect(s.objectives.filter((o) => o.own.length > 0)).toHaveLength(1);
+    expect(s.objectives.find((o) => o.own.length === 0)?.roles.length).toBeGreaterThan(0);
+    const noObjectives = { ...CYSA_PLUS, weeks: CYSA_PLUS.weeks.map((w) => ({ ...w, objectives: undefined })) };
+    const t = weekSummary(noObjectives, 'blue', 1);
     expect(t.flow).toEqual(t.tasks.map((x) => x.title));
+    expect(t.objectives).toEqual([]);
+  });
+
+  it('on a shared-track course every objective has own tasks, and a deep-dive joins one', () => {
+    const s = weekSummary(SERVER_PLUS, 'net', 1);
+    expect(s.objectives).toHaveLength(4);
+    for (const o of s.objectives) expect(o.own.length, o.label).toBeGreaterThan(0);
+    // The net deep-dive is under "Bring the server up", and only for net.
+    expect(s.objectives[0].own.map((t) => t.id)).toContain('sp-w1-net');
+    expect(weekSummary(SERVER_PLUS, 'win', 1).objectives[0].own.map((t) => t.id)).not.toContain('sp-w1-net');
+    expect(s.objectives[0].minutes).toBeGreaterThan(0);
   });
 
   it('returns an empty summary for a week the role has no tasks in', () => {

@@ -128,9 +128,13 @@ export interface WeekSummary {
   requiredStepCount: number;
   /** Distinct tools across the week's tasks, in first-seen order. */
   tools: string[];
-  /** Ordered short labels for the shape of the week. Authored `WeekDef.flow`
-   *  wins; otherwise the task titles stand in. */
+  /** Ordered short labels for the shape of the week: the objectives' labels,
+   *  or the task titles where a week authors none. */
   flow: string[];
+  /** The week's objectives as this role sees them (R79). `tasks` is every task
+   *  in the objective; `own` the ones this role does (shared + its own). An
+   *  objective with no `own` task is another role's part of the week's story. */
+  objectives: ObjectiveSummary[];
   /** Summed `Task.estimatedTime` in minutes, or null if none are authored. */
   minutes: number | null;
   deliverables: string[];
@@ -149,9 +153,37 @@ export function parseEstimatedMinutes(text?: string): number | null {
   return /^h/i.test(m[2]) ? Math.round(n * 60) : Math.round(n);
 }
 
+export interface ObjectiveSummary {
+  id: string;
+  label: string;
+  tasks: Task[];
+  own: Task[];
+  /** The roles whose tasks are in it, in first-seen order; empty when every task is shared. */
+  roles: string[];
+  /** Summed `estimatedTime` of the own tasks, or null if none are authored. */
+  minutes: number | null;
+}
+
+/** The week's objectives, resolved to tasks, from where this role stands. */
+export function objectivesFor(course: Course, role: string, week: number): ObjectiveSummary[] {
+  const def = getWeekDef(course, week);
+  const byId = new Map(course.tasks.map((t) => [t.id, t]));
+  return (def?.objectives ?? []).map((o) => {
+    const tasks = o.tasks.map((id) => byId.get(id)).filter((t): t is Task => !!t);
+    const own = tasks.filter((t) => t.shared || t.role === role);
+    const roles: string[] = [];
+    tasks.forEach((t) => {
+      if (!t.shared && !roles.includes(t.role)) roles.push(t.role);
+    });
+    const mins = own.map((t) => parseEstimatedMinutes(t.estimatedTime)).filter((m): m is number => m != null);
+    return { id: o.id, label: o.label, tasks, own, roles, minutes: mins.length ? mins.reduce((a, b) => a + b, 0) : null };
+  });
+}
+
 export function weekSummary(course: Course, role: string, week: number): WeekSummary {
   const def = getWeekDef(course, week);
   const tasks = getTasksByRole(course, role, week);
+  const objectives = objectivesFor(course, role, week);
 
   const tools: string[] = [];
   tasks.forEach((t) =>
@@ -169,7 +201,8 @@ export function weekSummary(course: Course, role: string, week: number): WeekSum
     stepCount: tasks.reduce((n, t) => n + t.steps.length, 0),
     requiredStepCount: tasks.reduce((n, t) => n + getProgressStepCount(t), 0),
     tools,
-    flow: def?.flow?.length ? def.flow : tasks.map((t) => t.title),
+    flow: objectives.length ? objectives.map((o) => o.label) : tasks.map((t) => t.title),
+    objectives,
     minutes: known.length ? known.reduce((a, b) => a + b, 0) : null,
     deliverables: getDeliverablesForWeek(course, role, week),
     difficulty: def?.difficulty,

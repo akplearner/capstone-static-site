@@ -322,12 +322,27 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
-  it("every graded week authors a flow — the workflow diagram's stage chain", () => {
-    // R78-B renders `WeekDef.flow` for the first time. Every course already
-    // authored it; this keeps a new week from arriving without one.
+  // R79: the week is two to four objectives a student can tick, and every task
+  // belongs to exactly one of them. The counts are what students asked for —
+  // "no more than three or four things a week" — so they are numbers here.
+  it('every week is two to four objectives, and every task belongs to exactly one', () => {
+    const words = (s: string) => s.split(/\s+/).filter((w) => /[A-Za-z0-9]/.test(w)).length;
     for (const w of course.weeks) {
-      if (w.setup || w.advanced) continue;
-      expect(w.flow?.length ?? 0, `week ${w.number} has no flow`).toBeGreaterThan(1);
+      const objs = w.objectives ?? [];
+      const at = `${course.id} week ${w.number}`;
+      expect(objs.length, `${at}: author 2–4 objectives`).toBeGreaterThanOrEqual(w.setup ? 1 : 2);
+      expect(objs.length, `${at}: no more than 4 objectives`).toBeLessThanOrEqual(4);
+      const ids = objs.map((o) => o.id);
+      expect(new Set(ids).size, `${at}: objective ids repeat`).toBe(ids.length);
+      const listed = objs.flatMap((o) => o.tasks);
+      expect(new Set(listed).size, `${at}: a task is in two objectives`).toBe(listed.length);
+      const weekTasks = course.tasks.filter((t) => t.week === w.number).map((t) => t.id);
+      expect([...listed].sort(), `${at}: every task of the week in exactly one objective`).toEqual([...weekTasks].sort());
+      for (const o of objs) {
+        expect(o.tasks.length, `${at} "${o.label}": an objective holds one to three tasks`).toBeGreaterThanOrEqual(1);
+        expect(o.tasks.length, `${at} "${o.label}": an objective holds one to three tasks`).toBeLessThanOrEqual(3);
+        expect(words(o.label), `${at} "${o.label}": twelve words at most`).toBeLessThanOrEqual(12);
+      }
     }
   });
 

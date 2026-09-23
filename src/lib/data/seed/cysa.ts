@@ -46,19 +46,45 @@ const roles: RoleDef[] = [
  */
 const weeks: WeekDef[] = [
   { number: 0, title: 'Lab setup: build the environment (optional)', theme: 'SETUP', objective: 'Stand up the Wazuh SOC and the team pods (instructor / builder).',
-    setup: true, stage: 0, phase: 'Lab Setup', difficulty: 4, flow: ['Build SOC', 'Build pods', 'Clone', 'Hand out access'],
+    setup: true, stage: 0, phase: 'Lab Setup', difficulty: 4,
+    objectives: [
+      { id: 'build-the-soc-and-the-team-pods', label: 'Build the SOC and the team pods', tasks: ['cr-w0'] },
+      { id: 'get-oriented-as-the-tier-1-analyst', label: 'Get oriented as the Tier 1 analyst', tasks: ['cb-w0'] },
+      { id: 'get-oriented-as-the-tier-2-hunter', label: 'Get oriented as the Tier 2 hunter', tasks: ['cg-w0'] },
+    ],
     milestone: 'Skip this unless you are building your own lab. Cleared when 10.10.100.100 loads and your pods are cloned.' },
   { number: 1, title: 'See everything: sensors & baseline', theme: 'DEPLOY', objective: 'Install the sensor you own, prove its events reach the SOC, then record what normal looks like.',
-    stage: 1, phase: 'Deploy & Baseline', difficulty: 2, flow: ['Install your sensor', 'Enrol with the SOC', 'Prove the feed', 'Record normal'],
+    stage: 1, phase: 'Deploy & Baseline', difficulty: 2,
+    objectives: [
+      { id: 'deploy-the-windows-endpoint-sensor', label: 'Deploy the Windows endpoint sensor', tasks: ['cr-w1'] },
+      { id: 'deploy-the-ubuntu-sensor-and-write-the-baseline', label: 'Deploy the Ubuntu sensor and write the baseline', tasks: ['cb-w1'] },
+      { id: 'deploy-the-network-sensor-and-validate-coverage', label: 'Deploy the network sensor and validate coverage', tasks: ['cg-w1'] },
+    ],
     milestone: 'The sensor you own is Active in the SOC, a fresh event from it arrives, and your Week-1 report is filled in.' },
   { number: 2, title: 'Prove it: hunt & evidence', theme: 'DETECT', objective: 'Spot suspicious activity and prove what happened.',
-    stage: 2, phase: 'Detect & Investigate', difficulty: 3, flow: ['Generate traffic', 'Triage alerts', 'Pivot on the source', 'Capture evidence'],
+    stage: 2, phase: 'Detect & Investigate', difficulty: 3,
+    objectives: [
+      { id: 'triage-the-alerts', label: 'Triage the alerts', tasks: ['cb-w2'] },
+      { id: 'investigate-and-prove-it', label: 'Investigate and prove it', tasks: ['cg-w2'] },
+      { id: 'turn-findings-into-indicators', label: 'Turn findings into indicators', tasks: ['cr-w2'] },
+    ],
     milestone: 'You can name the attacker IP, what it did, and point at the alert and packet capture that prove it.' },
   { number: 3, title: 'Close the gaps: vulns & risk', theme: 'ASSESS', objective: 'Find the weak spots and say which ones matter most.',
-    stage: 3, phase: 'Assess & Harden', difficulty: 2, flow: ['Read the CVE list', 'Run the config check', 'Scan from Kali', 'Rank by risk'],
+    stage: 3, phase: 'Assess & Harden', difficulty: 2,
+    objectives: [
+      { id: 'read-what-the-soc-already-knows', label: 'Read what the SOC already knows', tasks: ['cb-w3'] },
+      { id: 'scan-from-the-attacker-s-side', label: 'Scan from the attacker’s side', tasks: ['cg-w3'] },
+      { id: 'rank-the-risk-and-write-the-fix-plan', label: 'Rank the risk and write the fix plan', tasks: ['cr-w3'] },
+    ],
     milestone: 'Your findings are ranked by likelihood and impact, and the top item names its CVE and its fix.' },
   { number: 4, title: 'Hold the line: respond & report', theme: 'RESPOND', objective: 'Handle a real attack: find it, prove it, stop it, report it.',
-    stage: 4, phase: 'Respond & Report', difficulty: 3, flow: ['Contain', 'Build the timeline', 'Hash the evidence', 'Report & debrief'],
+    stage: 4, phase: 'Respond & Report', difficulty: 3,
+    objectives: [
+      { id: 'find-the-incident', label: 'Find the incident', tasks: ['cb-w4'] },
+      { id: 'rebuild-the-attack-as-a-timeline', label: 'Rebuild the attack as a timeline', tasks: ['cg-w4'] },
+      { id: 'contain-preserve-and-report', label: 'Contain, preserve and report', tasks: ['cr-w4'] },
+      { id: 'debrief-the-team', label: 'Debrief the team', tasks: ['cg-w4b'] },
+    ],
     milestone: 'The attacker is blocked, every artifact is hashed and logged, and the incident report has a start-to-finish timeline.' },
 ];
 

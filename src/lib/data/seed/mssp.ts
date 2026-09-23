@@ -45,19 +45,45 @@ const roles: RoleDef[] = [
  */
 const weeks: WeekDef[] = [
   { number: 0, title: 'Onboarding & Scoping', theme: 'Agree the boundary', objective: 'Sign the engagement and define the system / ISMS scope.', runs: 'Phase P0',
-    setup: true, stage: 0, phase: 'Scope & Agree', difficulty: 1, flow: ['Sign the engagement', 'Define the scope'],
+    setup: true, stage: 0, phase: 'Scope & Agree', difficulty: 1,
+    objectives: [
+      { id: 'kick-off-and-scope-the-engagement', label: 'Kick off and scope the engagement', tasks: ['mg-w0'] },
+      { id: 'confirm-the-rules-of-engagement', label: 'Confirm the rules of engagement', tasks: ['mr-w0'] },
+      { id: 'stand-up-logging-and-sensors', label: 'Stand up logging and sensors', tasks: ['mb-w0'] },
+    ],
     milestone: 'The engagement letter is signed and the system / ISMS boundary is written down and agreed.' },
   { number: 1, title: 'Gap Assessment', theme: 'Know the gaps', objective: 'Assess current state vs SOC 2 + ISO 27001 and pick the controls.', runs: 'Phase P1',
-    stage: 1, phase: 'Survey & Assess', difficulty: 2, flow: ['Assess current state', 'List the gaps', 'Select controls'],
+    stage: 1, phase: 'Survey & Assess', difficulty: 2,
+    objectives: [
+      { id: 'assess-the-risk-and-write-the-soa', label: 'Assess the risk and write the SoA', tasks: ['mg-w1'] },
+      { id: 'assess-the-external-attack-surface', label: 'Assess the external attack surface', tasks: ['mr-w1'] },
+      { id: 'scan-the-cis-baseline-gaps', label: 'Scan the CIS baseline gaps', tasks: ['mb-w1'] },
+    ],
     milestone: 'Every SOC 2 and ISO 27001 requirement is marked met or gap, and the SoA names the selected controls.' },
   { number: 2, title: 'Control Implementation', theme: 'Build the controls', objective: 'Stand up the missing controls and write the control matrix.', runs: 'Phase P2',
-    stage: 2, phase: 'Build & Establish', difficulty: 3, flow: ['Implement controls', 'Map to requirements', 'Assign owners'],
+    stage: 2, phase: 'Build & Establish', difficulty: 3,
+    objectives: [
+      { id: 'build-the-control-matrix', label: 'Build the control matrix', tasks: ['mg-w2'] },
+      { id: 'implement-the-technical-controls', label: 'Implement the technical controls', tasks: ['mb-w2'] },
+      { id: 'threat-model-the-proposed-controls', label: 'Threat-model the proposed controls', tasks: ['mr-w2'] },
+    ],
     milestone: 'Each gap has a control in place, and the matrix says which requirement it satisfies and who owns it.' },
   { number: 3, title: 'Validation & Testing', theme: 'Prove it works', objective: 'Pentest, detect, and evidence that the controls operate.', runs: 'Phase P3',
-    stage: 3, phase: 'Test & Prove', difficulty: 3, flow: ['Pentest', 'Detect', 'Evidence the controls'],
+    stage: 3, phase: 'Test & Prove', difficulty: 3,
+    objectives: [
+      { id: 'pentest-and-retest', label: 'Pentest and retest', tasks: ['mr-w3'] },
+      { id: 'engineer-the-detections', label: 'Engineer the detections', tasks: ['mb-w3'] },
+      { id: 'coordinate-validation-and-collect-evidence', label: 'Coordinate validation and collect evidence', tasks: ['mg-w3'] },
+    ],
     milestone: 'Testing is complete and every control has evidence that it actually operates, not just that it exists.' },
   { number: 4, title: 'Audit Readiness', theme: 'Get audit-ready', objective: 'Internal audit and assemble the evidence package (Type I / Stage 1).', runs: 'Phase P4',
-    stage: 4, phase: 'Audit & Package', difficulty: 2, flow: ['Assemble evidence', 'Readiness review', 'Report'],
+    stage: 4, phase: 'Audit & Package', difficulty: 2,
+    objectives: [
+      { id: 'close-out-the-retest-and-attest', label: 'Close out the retest and attest', tasks: ['mr-w4'] },
+      { id: 'report-detection-and-response-metrics', label: 'Report detection and response metrics', tasks: ['mb-w4'] },
+      { id: 'run-the-internal-audit', label: 'Run the internal audit', tasks: ['mg-w4a'] },
+      { id: 'assemble-the-audit-evidence-packet', label: 'Assemble the audit evidence packet', tasks: ['mg-w4b'] },
+    ],
     milestone: 'The Type I readiness package is assembled and the client has the findings report.' },
 ];
 

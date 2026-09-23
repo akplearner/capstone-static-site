@@ -39,7 +39,7 @@ import { DUR, EASE } from '@/lib/motion';
  *   2. the header — what this week is FOR (`WeekDef.objective`, never rendered
  *      before), what "done" means, how big it is;
  *   3. the workflow — the week's tasks as a clickable diagram, with the
- *      authored `WeekDef.flow` as its stage chain (also never rendered before);
+ *      authored objectives as its stage chain (`WeekDef.objectives`, R79);
  *   4. the list — number, title, status, one line each;
  *   5. ONE disclosure, "More for this week" — setup, lab access, the gate, the
  *      other roles' reference tasks — whose closed bar says whether anything

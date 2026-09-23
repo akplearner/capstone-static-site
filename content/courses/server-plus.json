@@ -69,10 +69,28 @@
         "stage": 0,
         "phase": "Preparation",
         "difficulty": 1,
-        "flow": [
-          "Image your workstation",
-          "Get the starter pack",
-          "Know your numbers"
+        "objectives": [
+          {
+            "id": "image-your-workstation",
+            "label": "Image your workstation",
+            "tasks": [
+              "sp-w0-pxe"
+            ]
+          },
+          {
+            "id": "get-the-starter-pack",
+            "label": "Get the starter pack",
+            "tasks": [
+              "sp-w0-starter"
+            ]
+          },
+          {
+            "id": "know-your-team-focus-and-numbers",
+            "label": "Know your team, focus and numbers",
+            "tasks": [
+              "sp-w0-orient"
+            ]
+          }
         ],
         "milestone": "Your workstation is imaged and on ITS.lan, the starter folders exist on it, and you know your team's addressing."
       },
@@ -85,11 +103,39 @@
         "stage": 1,
         "phase": "Receive & Install",
         "difficulty": 3,
-        "flow": [
-          "Bring it up",
-          "Document it",
-          "Build the array",
-          "Install & log in"
+        "objectives": [
+          {
+            "id": "bring-the-server-up",
+            "label": "Bring the server up",
+            "tasks": [
+              "sp-w1-bringup",
+              "sp-w1-net"
+            ]
+          },
+          {
+            "id": "document-what-it-is",
+            "label": "Document what it is",
+            "tasks": [
+              "sp-w1-document",
+              "sp-w1-lnx"
+            ]
+          },
+          {
+            "id": "build-the-array",
+            "label": "Build the array",
+            "tasks": [
+              "sp-w1-raid",
+              "sp-w1-win"
+            ]
+          },
+          {
+            "id": "install-proxmox-and-get-the-team-in",
+            "label": "Install Proxmox and get the team in",
+            "tasks": [
+              "sp-w1-install",
+              "sp-w1-mgmt"
+            ]
+          }
         ],
         "milestone": "The server posts cleanly, its firmware and support status are documented, the array is healthy, and you can log in to the Proxmox console at 10.10.30.T from a campus workstation — and from home over Tailscale, each of you with your own account."
       },
@@ -102,11 +148,40 @@
         "stage": 2,
         "phase": "Design & Deploy",
         "difficulty": 3,
-        "flow": [
-          "Draft the architecture",
-          "Rack and cable it",
-          "Create the VMs",
-          "Deploy the services"
+        "objectives": [
+          {
+            "id": "draft-the-architecture",
+            "label": "Draft the architecture",
+            "tasks": [
+              "sp-w2-business",
+              "sp-w2-mgmt"
+            ]
+          },
+          {
+            "id": "plan-and-rack-the-hardware",
+            "label": "Plan and rack the hardware",
+            "tasks": [
+              "sp-w2-rackplan",
+              "sp-w2-rack",
+              "sp-w2-net"
+            ]
+          },
+          {
+            "id": "prepare-the-host-and-create-the-vms",
+            "label": "Prepare the host and create the VMs",
+            "tasks": [
+              "sp-w2-install",
+              "sp-w2-lnx"
+            ]
+          },
+          {
+            "id": "deploy-the-services",
+            "label": "Deploy the services",
+            "tasks": [
+              "sp-w2-deploy",
+              "sp-w2-win"
+            ]
+          }
         ],
         "milestone": "The design is written down, the server sits at its planned U, and the core services run on the machines the design called for. Budget about three and a half hours: this is the heaviest week."
       },
@@ -119,11 +194,32 @@
         "stage": 3,
         "phase": "Network & Operate",
         "difficulty": 3,
-        "flow": [
-          "Finalise the addresses",
-          "Connect the uplink",
-          "Prove it reaches",
-          "Write the SOPs"
+        "objectives": [
+          {
+            "id": "record-the-addresses-the-machines-hold",
+            "label": "Record the addresses the machines hold",
+            "tasks": [
+              "sp-w3-topology",
+              "sp-w3-lnx"
+            ]
+          },
+          {
+            "id": "connect-the-server-and-prove-it-reaches",
+            "label": "Connect the server and prove it reaches",
+            "tasks": [
+              "sp-w3-connect",
+              "sp-w3-net"
+            ]
+          },
+          {
+            "id": "write-the-procedures-the-company-runs-on",
+            "label": "Write the procedures the company runs on",
+            "tasks": [
+              "sp-w3-sops",
+              "sp-w3-win",
+              "sp-w3-mgmt"
+            ]
+          }
         ],
         "milestone": "Every host holds its verified address, connectivity is proven and logged, and the operating procedures are written."
       },
@@ -136,11 +232,32 @@
         "stage": 4,
         "phase": "Secure & Hand Over",
         "difficulty": 3,
-        "flow": [
-          "Snapshot & patch",
-          "Set the targets",
-          "Restore for real",
-          "Hand it over"
+        "objectives": [
+          {
+            "id": "harden-every-server-and-patch-every-system",
+            "label": "Harden every server and patch every system",
+            "tasks": [
+              "sp-w4-secure",
+              "sp-w4-lnx"
+            ]
+          },
+          {
+            "id": "plan-for-disaster-and-restore-for-real",
+            "label": "Plan for disaster and restore for real",
+            "tasks": [
+              "sp-w4-dr",
+              "sp-w4-net",
+              "sp-w4-win"
+            ]
+          },
+          {
+            "id": "hand-over-the-as-built-package",
+            "label": "Hand over the as-built package",
+            "tasks": [
+              "sp-w4-handover",
+              "sp-w4-mgmt"
+            ]
+          }
         ],
         "milestone": "Every system is patched with a rollback, a restore was performed and timed, and the client has the PDF package."
       },
@@ -153,10 +270,31 @@
         "advanced": true,
         "phase": "Watch & Detect",
         "difficulty": 4,
-        "flow": [
-          "Design the hosts in",
-          "Watch every host",
-          "Your own SIEM"
+        "objectives": [
+          {
+            "id": "design-the-advanced-hosts-into-the-brief",
+            "label": "Design the advanced hosts into the brief",
+            "tasks": [
+              "sp-w5-plan"
+            ]
+          },
+          {
+            "id": "watch-every-host-and-its-backups",
+            "label": "Watch every host and its backups",
+            "tasks": [
+              "sp-w5-secmon",
+              "sp-w5-pulse",
+              "sp-w5-win"
+            ]
+          },
+          {
+            "id": "run-your-own-wazuh",
+            "label": "Run your own Wazuh",
+            "tasks": [
+              "sp-w5-wazuh",
+              "sp-w5-lnx"
+            ]
+          }
         ],
         "milestone": "Every host is watched and alerting, a failure you caused was noticed, and every VM reports to your own Wazuh."
       },
@@ -169,10 +307,31 @@
         "advanced": true,
         "phase": "The Lab as Code",
         "difficulty": 4,
-        "flow": [
-          "The lab as code",
-          "Registers as systems",
-          "Record it in the As-Built"
+        "objectives": [
+          {
+            "id": "define-the-lab-in-code",
+            "label": "Define the lab in code",
+            "tasks": [
+              "sp-w5-terraform"
+            ]
+          },
+          {
+            "id": "move-the-registers-into-netbox-and-glpi",
+            "label": "Move the registers into NetBox and GLPI",
+            "tasks": [
+              "sp-w5-netbox",
+              "sp-w5-glpi",
+              "sp-w6-net"
+            ]
+          },
+          {
+            "id": "record-it-in-the-as-built",
+            "label": "Record it in the As-Built",
+            "tasks": [
+              "sp-w5-record",
+              "sp-w6-mgmt"
+            ]
+          }
         ],
         "milestone": "The lab is defined in code and a plan reports no changes, and the registers you kept on paper now live in NetBox and GLPI."
       },
@@ -185,11 +344,36 @@
         "advanced": true,
         "phase": "Join the Fleet",
         "difficulty": 4,
-        "flow": [
-          "Wire the spine",
-          "The ops VM",
-          "Put it in Git",
-          "The site from the template"
+        "objectives": [
+          {
+            "id": "wire-the-ops-network",
+            "label": "Wire the ops network",
+            "tasks": [
+              "sp-w6-spine",
+              "sp-w7-net"
+            ]
+          },
+          {
+            "id": "build-the-ops-vm",
+            "label": "Build the ops VM",
+            "tasks": [
+              "sp-w6-ops"
+            ]
+          },
+          {
+            "id": "put-the-infrastructure-in-git",
+            "label": "Put the infrastructure in Git",
+            "tasks": [
+              "sp-w6-git"
+            ]
+          },
+          {
+            "id": "bring-the-site-up-from-the-template",
+            "label": "Bring the site up from the template",
+            "tasks": [
+              "sp-w6-terraform"
+            ]
+          }
         ],
         "milestone": "Your node reaches the Core over the ops network, the ops VM holds the toolchain, the site is in Git, and a second plan has nothing to do."
       },
@@ -202,11 +386,39 @@
         "advanced": true,
         "phase": "Run It as a Fleet",
         "difficulty": 4,
-        "flow": [
-          "Configuration as code",
-          "Onboard into the Core",
-          "Vault and XDR",
-          "Rebuild from Git"
+        "objectives": [
+          {
+            "id": "configure-the-site-with-a-playbook",
+            "label": "Configure the site with a playbook",
+            "tasks": [
+              "sp-w6-ansible",
+              "sp-w8-win",
+              "sp-w8-lnx"
+            ]
+          },
+          {
+            "id": "onboard-the-site-into-the-core",
+            "label": "Onboard the site into the Core",
+            "tasks": [
+              "sp-w6-observe"
+            ]
+          },
+          {
+            "id": "back-up-to-the-vault-and-enrol-in-xdr",
+            "label": "Back up to the vault and enrol in XDR",
+            "tasks": [
+              "sp-w6-vault",
+              "sp-w6-xdr"
+            ]
+          },
+          {
+            "id": "destroy-a-vm-and-rebuild-it-from-git",
+            "label": "Destroy a VM and rebuild it from Git",
+            "tasks": [
+              "sp-w6-rebuild",
+              "sp-w8-mgmt"
+            ]
+          }
         ],
         "milestone": "Your site is configured by a playbook that changes nothing the second time, watched, alerted and backed up from the Core — and you rebuilt a VM from the repository alone."
       }

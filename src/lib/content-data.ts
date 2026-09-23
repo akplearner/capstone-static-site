@@ -12,7 +12,11 @@ export const WEEKS: Record<number, Week> = {
     stage: 0,
     phase: 'Arrive & Authorize',
     difficulty: 1,
-    flow: ['Boot the lab', 'Reach the target', 'Agree the rules'],
+    objectives: [
+      { id: 'get-kali-ready-and-confirm-scope', label: 'Get Kali ready and confirm scope', tasks: ['red-w0-setup'] },
+      { id: 'reach-your-targets-and-stand-up-dvwa', label: 'Reach your targets and stand up DVWA', tasks: ['blue-w0-setup'] },
+      { id: 'authorise-the-engagement', label: 'Authorise the engagement', tasks: ['grc-w0-setup'] },
+    ],
     milestone: 'Your Kali reaches the target, DVWA loads, and the Rules of Engagement are signed.'
   },
   1: {
@@ -24,7 +28,11 @@ export const WEEKS: Record<number, Week> = {
     stage: 1,
     phase: 'Survey & Harden',
     difficulty: 2,
-    flow: ['Passive recon', 'Harden the host', 'Pick the framework'],
+    objectives: [
+      { id: 'profile-the-target-from-the-outside', label: 'Profile the target from the outside', tasks: ['red-w1-osint'] },
+      { id: 'harden-both-hosts-to-a-baseline', label: 'Harden both hosts to a baseline', tasks: ['blue-w1-hardening'] },
+      { id: 'pick-the-framework-and-issue-the-standard', label: 'Pick the framework and issue the standard', tasks: ['grc-w1-framework'] },
+    ],
     milestone: 'You have an OSINT profile of the target, a hardened baseline, and a named control framework.'
   },
   2: {
@@ -36,7 +44,11 @@ export const WEEKS: Record<number, Week> = {
     stage: 2,
     phase: 'Probe & Instrument',
     difficulty: 2,
-    flow: ['Enumerate services', 'Baseline the host', 'Rate the risks'],
+    objectives: [
+      { id: 'find-and-prove-the-vulnerabilities', label: 'Find and prove the vulnerabilities', tasks: ['red-w2-enumeration'] },
+      { id: 'capture-the-baseline-and-build-detections', label: 'Capture the baseline and build detections', tasks: ['blue-w2-baseline'] },
+      { id: 'rate-the-risks-and-write-the-sop', label: 'Rate the risks and write the SOP', tasks: ['grc-w2-risk'] },
+    ],
     milestone: 'Every open service is listed with its version, and each risk has a likelihood and impact rating.'
   },
   3: {
@@ -48,7 +60,11 @@ export const WEEKS: Record<number, Week> = {
     stage: 3,
     phase: 'Breach & Detect',
     difficulty: 3,
-    flow: ['Attack', 'Detect', 'Preserve evidence'],
+    objectives: [
+      { id: 'run-the-authorised-attacks-and-keep-the-evidence', label: 'Run the authorised attacks and keep the evidence', tasks: ['red-w3-attacks'] },
+      { id: 'detect-the-attack-live-and-respond', label: 'Detect the attack live and respond', tasks: ['blue-w3-detection'] },
+      { id: 'issue-the-runbook-and-hold-the-chain-of-custody', label: 'Issue the runbook and hold the chain of custody', tasks: ['grc-w3-custody'] },
+    ],
     milestone: 'An attack succeeded, Blue caught it in the logs, and the evidence is hashed with an unbroken chain of custody.'
   },
   4: {
@@ -60,7 +76,11 @@ export const WEEKS: Record<number, Week> = {
     stage: 4,
     phase: 'Report & Brief',
     difficulty: 2,
-    flow: ['Respond', 'Write it up', 'Brief the client'],
+    objectives: [
+      { id: 'brief-the-technical-findings', label: 'Brief the technical findings', tasks: ['red-w4-briefing'] },
+      { id: 'write-up-the-incident-response', label: 'Write up the incident response', tasks: ['blue-w4-response'] },
+      { id: 'deliver-the-final-report-and-briefing', label: 'Deliver the final report and briefing', tasks: ['grc-w4-report'] },
+    ],
     milestone: 'The incident is closed and the final report and briefing are ready to hand over.'
   }
 };
