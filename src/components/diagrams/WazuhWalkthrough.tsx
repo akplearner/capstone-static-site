@@ -55,7 +55,7 @@ function Marker({ n, present }: { n: number; present: Set<number> }) {
 /** Shared app chrome: coloured title bar + a left nav rail. */
 function Chrome({ children, nav }: { children: React.ReactNode; nav?: string[] }) {
   return (
-    <div className="min-w-[320px] overflow-hidden rounded-lg clay-rim bg-panel">
+    <div className="min-w-[320px] overflow-hidden rounded-lg depth-edge bg-panel">
       <div className="flex items-center gap-1.5 border-b border-line bg-panel-2 px-2.5 py-1.5">
         <span className="h-2 w-2 rounded-full" style={{ background: 'var(--color-danger)' }} aria-hidden />
         <span className="h-2 w-2 rounded-full" style={{ background: 'var(--color-warn)' }} aria-hidden />
@@ -110,7 +110,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
             <Marker n={1} present={present} />
             <span className="text-[11px] font-semibold text-ink">Agents / Endpoints</span>
           </div>
-          <div className="rounded clay-rim">
+          <div className="rounded depth-edge">
             <Row cells={[<b key="h">Name</b>, <b key="s">Status</b>, <b key="k">Last keep alive</b>]} />
             <Row
               cells={[
@@ -143,15 +143,15 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
               <span className="rounded bg-panel-2 px-1.5 py-0.5 text-[10px] font-semibold text-ink">Events</span>
               <span className="px-1.5 py-0.5 text-[10px] text-muted">Dashboard</span>
             </div>
-            <span className="inline-flex items-center gap-1 rounded clay-rim px-1.5 py-0.5 text-[10px] text-muted">
+            <span className="inline-flex items-center gap-1 rounded depth-edge px-1.5 py-0.5 text-[10px] text-muted">
               <Marker n={3} present={present} /> Last 24 hours ▾
             </span>
           </div>
-          <div className="mb-1.5 flex items-center gap-1.5 rounded clay-rim px-1.5 py-1">
+          <div className="mb-1.5 flex items-center gap-1.5 rounded depth-edge px-1.5 py-1">
             <Marker n={2} present={present} />
             <span className="font-mono text-[10px] text-muted">rule.level:&gt;=7</span>
           </div>
-          <div className="rounded clay-rim">
+          <div className="rounded depth-edge">
             <Row cells={[<b key="t">Time</b>, <b key="a">Agent</b>, <b key="r">rule.description</b>]} />
             <Row cells={['10:02:11', 'Team07-ubuntu', 'sshd: authentication success']} />
             <Row cells={['10:02:44', 'Team07-win', 'Sysmon: process create']} />
@@ -167,19 +167,19 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
             <span className="text-[11px] font-semibold text-ink">Deploy new agent</span>
           </div>
           <div className="space-y-1.5 text-[10px]">
-            <div className="rounded clay-rim p-1.5">
+            <div className="rounded depth-edge p-1.5">
               <div className="text-muted">1. Package</div>
               <div className="mt-0.5 flex gap-1">
                 <span className="rounded bg-panel-2 px-1.5 py-0.5">Linux</span>
                 <span className="rounded bg-panel-2 px-1.5 py-0.5">Windows</span>
               </div>
             </div>
-            <div className="flex items-center gap-1.5 rounded clay-rim p-1.5">
+            <div className="flex items-center gap-1.5 rounded depth-edge p-1.5">
               <Marker n={2} present={present} />
               <span className="text-muted">Server address</span>
               <span className="font-mono">{SOC_IP}</span>
             </div>
-            <div className="flex items-center gap-1.5 rounded clay-rim p-1.5" style={{ borderColor: OK }}>
+            <div className="flex items-center gap-1.5 rounded depth-edge p-1.5" style={{ borderColor: OK }}>
               <Marker n={3} present={present} />
               <span className="text-muted">Copy the generated command →</span>
               <span className="font-mono text-[10px]">WAZUH_MANAGER=…</span>
@@ -196,16 +196,16 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
               <Marker n={1} present={present} />
               <span className="text-[11px] font-semibold text-ink">Vulnerabilities</span>
             </div>
-            <span className="inline-flex items-center gap-1 rounded clay-rim px-1.5 py-0.5 text-[10px] text-muted">
+            <span className="inline-flex items-center gap-1 rounded depth-edge px-1.5 py-0.5 text-[10px] text-muted">
               <Marker n={2} present={present} /> Severity: Critical/High ▾
             </span>
           </div>
-          <div className="rounded clay-rim">
+          <div className="rounded depth-edge">
             <Row cells={[<b key="c">CVE</b>, <b key="s">Severity</b>, <b key="p">Package</b>]} />
             <Row cells={['CVE-2024-1234', <span key="s" style={{ color: BAD }}>Critical</span>, 'openssl 1.1.1']} tint={BAD} />
             <Row cells={['CVE-2023-9999', <span key="s" style={{ color: 'var(--color-warn)' }}>High</span>, 'sudo 1.9.9']} />
           </div>
-          <div className="mt-1.5 flex items-center gap-1.5 rounded clay-rim p-1.5 text-[10px]" style={{ borderColor: OK }}>
+          <div className="mt-1.5 flex items-center gap-1.5 rounded depth-edge p-1.5 text-[10px]" style={{ borderColor: OK }}>
             <Marker n={3} present={present} />
             <span className="text-muted">Click a row → read the Remediation drawer</span>
           </div>
@@ -219,12 +219,12 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
             <Marker n={1} present={present} />
             <span className="text-[11px] font-semibold text-ink">MITRE ATT&amp;CK</span>
           </div>
-          <div className="rounded clay-rim">
+          <div className="rounded depth-edge">
             <Row cells={[<b key="t">Technique</b>, <b key="i">ID</b>, <b key="c">Count</b>]} />
             <Row cells={[<span key="a" className="inline-flex items-center gap-1"><Marker n={2} present={present} />Brute Force</span>, 'T1110', '14']} />
             <Row cells={['Exploit Public App', 'T1190', '3']} />
           </div>
-          <div className="mt-1.5 flex items-center gap-1.5 rounded clay-rim p-1.5 text-[10px]">
+          <div className="mt-1.5 flex items-center gap-1.5 rounded depth-edge p-1.5 text-[10px]">
             <Marker n={3} present={present} />
             <span className="text-muted">Click a technique → the alerts tagged to it</span>
           </div>
@@ -235,7 +235,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
       return (
         <div>
           <div className="grid gap-2 sm:grid-cols-2">
-            <div className="overflow-hidden rounded-lg clay-rim">
+            <div className="overflow-hidden rounded-lg depth-edge">
               <div className="flex items-center gap-1.5 border-b border-line bg-panel-2 px-2 py-1 text-[10px] font-semibold text-muted">
                 <Marker n={1} present={present} /> BEFORE — ossec.conf
               </div>
@@ -263,7 +263,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
 </ossec_config>`}</pre>
             </div>
           </div>
-          <div className="mt-2 flex items-center gap-1.5 rounded clay-rim p-1.5 text-[10px] text-muted">
+          <div className="mt-2 flex items-center gap-1.5 rounded depth-edge p-1.5 text-[10px] text-muted">
             <Marker n={3} present={present} />
             <span>Save, then restart the agent so it re-reads the file.</span>
           </div>
@@ -272,20 +272,20 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
 
     case 'wireshark':
       return (
-        <div className="min-w-[320px] overflow-hidden rounded-lg clay-rim bg-panel">
+        <div className="min-w-[320px] overflow-hidden rounded-lg depth-edge bg-panel">
           <div className="flex items-center gap-1.5 border-b border-line bg-panel-2 px-2.5 py-1.5">
             <span className="font-mono text-[10px] text-muted">Wireshark — week2.pcap</span>
           </div>
           <div className="p-2.5">
-            <div className="mb-1.5 flex items-center gap-1.5 rounded clay-rim px-1.5 py-1">
+            <div className="mb-1.5 flex items-center gap-1.5 rounded depth-edge px-1.5 py-1">
               <Marker n={1} present={present} />
               <span className="font-mono text-[10px] text-muted">http  (display filter)</span>
             </div>
-            <div className="rounded clay-rim">
+            <div className="rounded depth-edge">
               <Row cells={[<b key="n">No.</b>, <b key="s">Source</b>, <b key="i">Info</b>]} />
               <Row cells={['42', '10.10.30.9', <span key="a" className="inline-flex items-center gap-1"><Marker n={2} present={present} />GET /dvwa/…?id=1&apos; UNION SELECT</span>]} />
             </div>
-            <div className="mt-1.5 flex items-center gap-1.5 rounded clay-rim p-1.5 text-[10px]" style={{ borderColor: OK }}>
+            <div className="mt-1.5 flex items-center gap-1.5 rounded depth-edge p-1.5 text-[10px]" style={{ borderColor: OK }}>
               <Marker n={3} present={present} />
               <span className="text-muted">Right-click → Follow → HTTP Stream</span>
             </div>
@@ -298,7 +298,7 @@ function ScreenBody({ screen, present }: { screen: WalkthroughScreen; present: S
         <Chrome nav={['Modules', 'Agents', 'Management']}>
           <div className="space-y-1">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="flex items-center gap-1.5 rounded clay-rim px-1.5 py-1 text-[10px] text-muted">
+              <div key={n} className="flex items-center gap-1.5 rounded depth-edge px-1.5 py-1 text-[10px] text-muted">
                 <Marker n={n} present={present} />
                 <span className="h-1.5 flex-1 rounded bg-panel-2" />
               </div>

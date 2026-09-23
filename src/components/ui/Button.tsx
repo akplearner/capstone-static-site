@@ -3,7 +3,6 @@
 import { motion, HTMLMotionProps } from 'framer-motion';
 import type { ReactNode } from 'react';
 import { SPRING } from '@/lib/motion';
-import { ClayGloss } from './ClayEdge';
 
 // Tabs and Collapsible used to live in this file, which made them invisible —
 // pages hand-rolled markup rather than importing a primitive nobody could find
@@ -13,58 +12,49 @@ import { ClayGloss } from './ClayEdge';
 export { Tabs } from './Tabs';
 export { Collapsible } from './Collapsible';
 
-// `children` is narrowed off framer's prop type deliberately. HTMLMotionProps
-// widens it to `ReactNode | MotionValue`, which exists so you can bind a motion
-// value straight into a node — and a MotionValue cannot go inside the label
-// <span> the gloss requires. Narrowing here keeps the error at the call site
-// instead of forcing a cast in the render.
+// `children` is narrowed off framer's prop type: HTMLMotionProps widens it to
+// `ReactNode | MotionValue`, which exists so a motion value can be bound straight
+// into a node, and a button label is never that.
 interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
   children?: ReactNode;
   variant?: 'default' | 'secondary' | 'ghost' | 'destructive';
   size?: 'sm' | 'md' | 'lg' | 'icon';
-  /** `pill` is the default — the reference's controls are fully round. `rect`
-   *  is for a button that has to line up with an input or a table cell. */
-  shape?: 'pill' | 'rect';
 }
 
 /**
- * THE LAW (R77), the same one `Surface` states: depth is one token, and the
- * edge lives inside it. A clay tier already draws its own rims, so none of these
- * declares a border — the hairline `secondary` used to wear is now the rim of
- * its tier, which is why the variants finally read as one family rather than as
- * "the raised one and three flat ones".
+ * THE LAW (see `Surface`): depth is one token, and the edge lives inside it.
+ * Each state names EXACTLY ONE tier and swaps to the next; they never stack,
+ * and none declares a border — tier 0 already IS the 1px ring.
  *
- * Each state names EXACTLY ONE tier and swaps to the next; they never stack.
- * `--clay-tint` is what makes a swap cheap: the tinted tiers are authored once
- * in `globals.css` against that one parameter, so `destructive` re-colours its
- * whole depth by setting the parameter (`[--clay-tint:var(--color-danger)]`)
- * rather than by adding a fifth set of shadow tokens — and a course seam that
- * moves `--color-accent` moves every primary button's shadow with it, free.
+ * R78 note. R77 made this a glossy pill that travelled on press. The instructor
+ * called it cheap, and they were right: a control in a professional tool should
+ * be a crisp rectangle that darkens under the cursor and settles under the
+ * finger, nothing more. The tint parameter survives because it is structure,
+ * not decoration — `destructive` re-colours its whole edge by setting
+ * `[--depth-tint:var(--color-danger)]` instead of owning a second token family.
  */
 const variantStyles = {
   // text-accent-contrast, not text-white: the dark themes lighten the accent
   // for legibility against a dark page, which makes white label text fail
   // contrast. The token flips to near-black there. `tokens.test.ts` measures
-  // this exact pair, in all 26 theme contexts.
+  // this exact pair in all 26 theme contexts.
   default:
-    'bg-accent text-accent-contrast shadow-[var(--clay-1-tint)] hover:bg-accent-strong hover:shadow-[var(--clay-2-tint)] active:shadow-[var(--clay-press-tint)]',
-  // One tier down, untinted: same geometry, same gloss, quieter voice.
+    'bg-accent text-accent-contrast shadow-[var(--depth-1-tint)] hover:bg-accent-strong hover:shadow-[var(--depth-2-tint)] active:shadow-[var(--depth-press-tint)]',
   secondary:
-    'bg-panel-2 text-ink shadow-[var(--clay-1)] hover:bg-panel hover:shadow-[var(--clay-2)] active:shadow-[var(--clay-press)]',
-  // The one variant with no depth at rest. A ghost that sits proud of the page
-  // is not a ghost, and a toolbar of eight extruded pills is a toolbar nobody
-  // can find the primary action in.
-  ghost: 'text-accent hover:bg-accent-soft active:shadow-[var(--clay-press)]',
+    'bg-panel text-ink shadow-[var(--depth-1)] hover:bg-panel-2 hover:shadow-[var(--depth-2)] active:shadow-[var(--depth-press)]',
+  // No depth at rest: a ghost that sits on the page is not a ghost, and a
+  // toolbar of eight edged controls is a toolbar nobody can find the primary
+  // action in.
+  ghost: 'text-accent hover:bg-accent-soft active:shadow-[var(--depth-press)]',
   destructive:
-    '[--clay-tint:var(--color-danger)] bg-danger text-white shadow-[var(--clay-1-tint)] hover:shadow-[var(--clay-2-tint)] active:shadow-[var(--clay-press-tint)]',
+    '[--depth-tint:var(--color-danger)] bg-danger text-white shadow-[var(--depth-1-tint)] hover:shadow-[var(--depth-2-tint)] active:shadow-[var(--depth-press-tint)]',
 };
 
 const sizeStyles = {
   sm: 'px-3 py-1 text-sm',
   md: 'px-4 py-2 text-base',
   lg: 'px-6 py-3 text-lg',
-  // Square, so the pill radius makes it a circle. 40px clears the 24px tap
-  // target minimum with room for the rim.
+  // Square, and the only size that is round: 40px clears the 24px tap target.
   icon: 'h-10 w-10 p-0 text-base',
 };
 
@@ -72,56 +62,40 @@ const sizeStyles = {
  * Disabled is a state this app has never drawn.
  *
  * `disabled:` appeared zero times in the repo before R63, so a button the code
- * had disabled looked exactly like one you could press — same fill, same
- * pointer, same hover. It stops reacting, it stops looking raised, and the
- * cursor says so before you click.
- *
- * R77 note: it flattens to `--clay-0` rather than to `shadow-none`. Rims with no
- * cast is the tier that means "this is a surface, and it is not going anywhere",
- * which is exactly the message — where `shadow-none` beside a row of extruded
- * siblings reads as an element that failed to render.
+ * had disabled looked exactly like one you could press. It stops reacting, it
+ * drops to the ring (tier 0 — still an edge, no lift), and the cursor says so
+ * before you click.
  */
 const disabledStyles =
-  'disabled:pointer-events-none disabled:opacity-55 disabled:shadow-[var(--clay-0)] disabled:cursor-not-allowed';
+  'disabled:pointer-events-none disabled:opacity-55 disabled:shadow-[var(--depth-0)] disabled:cursor-not-allowed';
 
 export function Button({
   variant = 'default',
   size = 'md',
-  shape = 'pill',
   className = '',
   children,
   disabled,
   ...props
 }: ButtonProps) {
-  // A gloss on a ghost would be a highlight on nothing — there is no extruded
-  // body under it to catch the light.
-  const glossy = !disabled && variant !== 'ghost';
   return (
     <motion.button
       // Guarded, not unconditional: a disabled <button> still receives pointer
       // events in some browsers, and a button that springs under the cursor
       // while refusing to do anything reads as broken rather than as disabled.
       //
-      // R77 adds `y` to what was a pure scale. Scale alone says "bigger"; a
-      // solid object answering a finger travels, and 1px up on hover against
-      // 1.5px down on press is what sells the thing as having a thickness to be
-      // pushed into. Both are positional, so `MotionConfig reducedMotion="user"`
-      // stills them for free — while the shadow swap beside them is CSS state,
-      // not animation, so the press still reads under reduced motion.
-      whileHover={disabled ? undefined : { y: -1, scale: 1.015 }}
-      whileTap={disabled ? undefined : { y: 1.5, scale: 0.985 }}
+      // Scale only. No travel on the y axis: a button that lifts toward the
+      // cursor and sinks under the finger is the "3D" the instructor asked to
+      // lose. A 2% settle with the CSS tier swap beside it is enough to read as
+      // a press, and it is stilled by `MotionConfig reducedMotion="user"`.
+      whileTap={disabled ? undefined : { scale: 0.98 }}
       transition={SPRING.press}
       disabled={disabled}
-      className={`focusable relative isolate overflow-hidden ${variantStyles[variant]} ${sizeStyles[size]} ${disabledStyles} ${
-        shape === 'pill' ? 'rounded-[var(--radius-pill)]' : 'rounded-[var(--radius-clay-sm)]'
+      className={`focusable ${variantStyles[variant]} ${sizeStyles[size]} ${disabledStyles} ${
+        size === 'icon' ? 'rounded-full' : 'rounded-[var(--radius-control)]'
       } inline-flex items-center justify-center gap-2 font-medium transition-[background-color,box-shadow,color] duration-[var(--dur-press)] ${className}`}
       {...props}
     >
-      {glossy && <ClayGloss shape={size === 'icon' ? 'disc' : shape === 'pill' ? 'pill' : 'card'} />}
-      {/* The label rides above the sheen. `isolate` on the button plus this one
-          stacking context is the whole trick — without it the gloss paints over
-          the text, which is the bug every "glassy button" ships with. */}
-      <span className="relative z-10 inline-flex items-center gap-2">{children}</span>
+      {children}
     </motion.button>
   );
 }

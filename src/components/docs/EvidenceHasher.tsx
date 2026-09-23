@@ -95,7 +95,7 @@ export function EvidenceHasher({
   }
 
   return (
-    <div className="rounded-lg clay-rim bg-panel p-5">
+    <div className="rounded-lg depth-edge bg-panel p-5">
       <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
         <FileCheck2 className="h-4 w-4 text-accent" />
         Hash &amp; log evidence
@@ -123,7 +123,7 @@ export function EvidenceHasher({
       {items.length > 0 && (
         <ul className="mt-3 space-y-2">
           {items.map((it, i) => (
-            <li key={`${it.name}-${i}`} className="rounded-md clay-rim p-2.5">
+            <li key={`${it.name}-${i}`} className="rounded-md depth-edge p-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 font-mono text-xs text-ink">
                   {it.nameOk ? (
@@ -136,7 +136,7 @@ export function EvidenceHasher({
                 </span>
                 <button
                   onClick={() => copyRow(it)}
-                  className="flex items-center gap-1 rounded clay-rim px-2 py-0.5 text-xs text-muted hover:bg-panel-2"
+                  className="flex items-center gap-1 rounded depth-edge px-2 py-0.5 text-xs text-muted hover:bg-panel-2"
                 >
                   <Copy className="h-3 w-3" /> Copy row
                 </button>

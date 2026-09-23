@@ -134,7 +134,7 @@ export default function InstructorHomePage() {
       {error && <p className="text-sm text-danger">{error}</p>}
 
       {creating && (
-        <div className="flex flex-wrap items-end gap-3 rounded-lg clay-rim bg-panel p-4">
+        <div className="flex flex-wrap items-end gap-3 rounded-lg depth-edge bg-panel p-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-body">Course title</label>
             <input
@@ -149,7 +149,7 @@ export default function InstructorHomePage() {
       )}
 
       {dup && (
-        <div className="flex flex-wrap items-end gap-3 rounded-lg clay-rim bg-panel p-4">
+        <div className="flex flex-wrap items-end gap-3 rounded-lg depth-edge bg-panel p-4">
           <div className="flex-1">
             <label className="block text-sm font-medium text-body">New course title</label>
             <input
@@ -179,7 +179,7 @@ export default function InstructorHomePage() {
 
       <div className="grid gap-4 md:grid-cols-2">
         {courses.map((course) => (
-          <div key={course.id} className="rounded-lg clay-rim bg-panel p-5">
+          <div key={course.id} className="rounded-lg depth-edge bg-panel p-5">
             <div className="flex items-start justify-between gap-2">
               <div>
                 <h2 className="font-bold text-ink">{course.title}</h2>

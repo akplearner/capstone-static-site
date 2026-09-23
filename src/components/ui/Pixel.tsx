@@ -32,7 +32,7 @@ export function PixelBadge({
     <span
       title={title}
       className={clsx(
-        'inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-0.5 font-mono text-3xs font-semibold uppercase leading-none tracking-wider shadow-[var(--clay-0)]',
+        'inline-flex items-center gap-1 rounded-[var(--radius-pill)] px-2 py-0.5 font-mono text-3xs font-semibold uppercase leading-none tracking-wider shadow-[var(--depth-0)]',
         tone === 'accent' && 'bg-accent-soft text-accent-ink',
         tone === 'neutral' && 'bg-panel text-ink',
         tone === 'muted' && 'bg-panel-2 text-muted',

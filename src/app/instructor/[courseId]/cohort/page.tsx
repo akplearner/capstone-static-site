@@ -218,7 +218,7 @@ export default function CohortPage() {
                 ) : (
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                     {dueForms.map((d) => (
-                      <div key={d.id} className="rounded-lg clay-rim bg-panel-2 p-3">
+                      <div key={d.id} className="rounded-lg depth-edge bg-panel-2 p-3">
                         <div className="mb-2 text-sm font-medium text-ink">
                           {d.num}. {d.title}
                           <span className="ml-2 text-xs text-muted">{isDoneBy(d, docs[d.id], rWeek) ? 'DoD met' : 'DoD not met'}</span>

@@ -120,7 +120,7 @@ export function WeekEvidencePackager({
   }
 
   return (
-    <section className="rounded-lg clay-rim bg-panel p-4">
+    <section className="rounded-lg depth-edge bg-panel p-4">
       <h2 className="flex items-center gap-2 text-base font-semibold text-ink">
         <Package className="h-5 w-5 text-accent" />
         This week&apos;s evidence package
@@ -144,7 +144,7 @@ export function WeekEvidencePackager({
       {items.length > 0 && (
         <ul className="mt-3 space-y-2">
           {items.map((it, i) => (
-            <li key={`${it.name}-${i}`} className="rounded-md clay-rim p-2.5">
+            <li key={`${it.name}-${i}`} className="rounded-md depth-edge p-2.5">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5 font-mono text-xs text-ink">
                   {it.nameOk ? (
@@ -157,7 +157,7 @@ export function WeekEvidencePackager({
                 </span>
                 <button
                   onClick={() => removeAt(i)}
-                  className="flex items-center gap-1 rounded clay-rim px-2 py-0.5 text-xs text-muted hover:bg-panel-2"
+                  className="flex items-center gap-1 rounded depth-edge px-2 py-0.5 text-xs text-muted hover:bg-panel-2"
                 >
                   <Trash2 className="h-3 w-3" /> Remove
                 </button>

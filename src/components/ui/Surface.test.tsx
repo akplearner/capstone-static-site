@@ -3,13 +3,13 @@ import { render, screen } from '@testing-library/react';
 import { Surface, surfaceVariants } from './Surface';
 
 describe('Surface — the one card', () => {
-  it('draws a clay card by default, at tier 1, with medium padding', () => {
+  it('draws a card by default, at tier 1, with medium padding', () => {
     render(<Surface data-testid="s">hello</Surface>);
     const el = screen.getByTestId('s');
     expect(el.tagName).toBe('DIV');
     expect(el.className).toContain('rounded-[var(--radius-card)]');
     expect(el.className).toContain('bg-panel');
-    expect(el.className).toContain('shadow-[var(--clay-1)]');
+    expect(el.className).toContain('shadow-[var(--depth-1)]');
     expect(el.className).toContain('p-5');
   });
 
@@ -17,7 +17,7 @@ describe('Surface — the one card', () => {
    * THE LAW (R77): depth is one token, and the edge lives inside it.
    *
    * This replaces "a line OR elevation, never both". It is the stricter rule,
-   * not the looser one: a clay tier carries its own rims as inset layers, so a
+   * not the looser one: a depth tier carries its own ring in the shadow, so a
    * border beside one is still a doubled edge — and now two tiers on one element
    * are banned as well, which is how a smudge happens.
    */
@@ -25,22 +25,22 @@ describe('Surface — the one card', () => {
     for (const variant of ['card', 'raised', 'inset', 'dense', 'flat', 'glass'] as const) {
       const s = surfaceVariants({ variant });
       expect((s.match(/shadow-\[/g) ?? []).length, variant).toBeLessThanOrEqual(1);
-      if (/shadow-\[var\(--clay-/.test(s)) expect(s, variant).not.toMatch(/\bborder(-line)?\b/);
+      if (/shadow-\[var\(--depth-/.test(s)) expect(s, variant).not.toMatch(/\bborder(-line)?\b/);
     }
-    expect(surfaceVariants({ variant: 'card' })).toContain('shadow-[var(--clay-1)]');
-    expect(surfaceVariants({ variant: 'raised' })).toContain('shadow-[var(--clay-2)]');
-    expect(surfaceVariants({ variant: 'inset' })).toContain('shadow-[var(--clay-well)]');
-    expect(surfaceVariants({ variant: 'dense' })).toContain('shadow-[var(--clay-0)]');
+    expect(surfaceVariants({ variant: 'card' })).toContain('shadow-[var(--depth-1)]');
+    expect(surfaceVariants({ variant: 'raised' })).toContain('shadow-[var(--depth-2)]');
+    expect(surfaceVariants({ variant: 'inset' })).toContain('shadow-[var(--depth-well)]');
+    expect(surfaceVariants({ variant: 'dense' })).toContain('shadow-[var(--depth-0)]');
     expect(surfaceVariants({ variant: 'flat' })).not.toMatch(/border|shadow/);
     expect(surfaceVariants({ variant: 'glass' })).toContain('glass');
   });
 
   it('the dense tier is the answer to a screen of data, not an exemption from it', () => {
-    // Rims, no cast: it still reads as clay, it just does not float. A 16px cast
+    // The ring, no cast: it still has an edge, it just does not float. A cast
     // under every row of a twelve-row table is grey haze.
     const dense = surfaceVariants({ variant: 'dense' });
-    expect(dense).toContain('rounded-[var(--radius-clay-sm)]');
-    expect(dense).toContain('shadow-[var(--clay-0)]');
+    expect(dense).toContain('rounded-[var(--radius-control)]');
+    expect(dense).toContain('shadow-[var(--depth-0)]');
   });
 
   it('a glow replaces the tier rather than stacking on it', () => {
@@ -74,7 +74,7 @@ describe('Surface — the one card', () => {
     );
     const el = screen.getByLabelText('box');
     expect(el.tagName).toBe('SECTION');
-    expect(el.className).toContain('hover:shadow-[var(--clay-2)]');
+    expect(el.className).toContain('hover:shadow-[var(--depth-2)]');
     expect(el.className).toContain('focus-within:shadow-[var(--glow-accent)]');
     expect(el.className).toContain('extra');
     // …and nothing lifts: motion belongs to a wrapper.

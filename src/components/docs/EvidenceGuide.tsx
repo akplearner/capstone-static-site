@@ -77,7 +77,7 @@ export function EvidenceGuide() {
           </button>
           <button
             onClick={() => downloadText('CHAIN_OF_CUSTODY.csv', custodyLogCSV(), 'text/csv;charset=utf-8')}
-            className="inline-flex items-center gap-1.5 rounded-md clay-rim px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
+            className="inline-flex items-center gap-1.5 rounded-md depth-edge px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
           >
             <FileText className="h-4 w-4" /> .csv version
           </button>

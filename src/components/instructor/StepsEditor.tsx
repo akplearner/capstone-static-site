@@ -36,7 +36,7 @@ export function StepsEditor({
         <Button size="sm" variant="secondary" onClick={add} className="flex items-center gap-1"><Plus className="h-3.5 w-3.5" /> Add step</Button>
       </div>
       {steps.map((s, i) => (
-        <div key={i} className="space-y-2 rounded-md clay-rim bg-panel-2 p-3">
+        <div key={i} className="space-y-2 rounded-md depth-edge bg-panel-2 p-3">
           <div className="flex items-center justify-between">
             <span className="text-xs text-muted">Step {i + 1}</span>
             <button type="button" aria-label={`Remove step ${i + 1}`} onClick={() => onChange(steps.filter((_, idx) => idx !== i))} className="text-muted hover:text-danger">

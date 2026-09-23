@@ -304,7 +304,7 @@ export function ServerConfigGuide() {
               <li key={p.id}>
                 <a
                   href={`#${p.id}`}
-                  className="clay-rim clay-hover flex items-baseline gap-2 rounded-md bg-panel-2 px-3 py-1.5 text-xs text-body transition-colors hover:text-accent"
+                  className="depth-edge depth-hover flex items-baseline gap-2 rounded-md bg-panel-2 px-3 py-1.5 text-xs text-body transition-colors hover:text-accent"
                 >
                   <span className="font-mono text-3xs text-muted">{i + 1}</span>
                   <span className="min-w-0 flex-1">{p.title}</span>
@@ -325,7 +325,7 @@ export function ServerConfigGuide() {
               <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
                 <h4 className="text-sm font-semibold text-ink">{p.title}</h4>
                 {p.optional && (
-                  <span className="rounded-full clay-rim px-2 py-0.5 font-mono text-3xs uppercase tracking-wide text-muted">
+                  <span className="rounded-full depth-edge px-2 py-0.5 font-mono text-3xs uppercase tracking-wide text-muted">
                     {p.optionalLabel ?? 'Advanced · optional'}
                   </span>
                 )}

@@ -79,7 +79,7 @@ export default function CourseGuidePage() {
               row shows it whole. The diagram draws the hand-offs, in the manual. */}
           <ul className="grid gap-2 sm:grid-cols-3">
             {course.roles.map((r) => (
-              <li key={r.id} className="rounded-lg clay-rim bg-panel p-3">
+              <li key={r.id} className="rounded-lg depth-edge bg-panel p-3">
                 <div className="flex items-center gap-2">
                   <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: r.color }} />
                   <span className="font-semibold text-ink">{r.name}</span>

@@ -84,7 +84,7 @@ export function IncidentTimelineDiagram() {
               initial={{ opacity: 0, x: -4 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.05, duration: DUR.reveal }}
-              className="grid grid-cols-[54px_14px_1fr_auto] items-center gap-2 rounded-md clay-rim bg-panel px-2 py-1.5"
+              className="grid grid-cols-[54px_14px_1fr_auto] items-center gap-2 rounded-md depth-edge bg-panel px-2 py-1.5"
             >
               <span className="font-mono text-2xs text-ink">{e.t}</span>
               <span className="h-2.5 w-2.5 rounded-full" style={{ background: TONE[e.kind] }} aria-hidden />

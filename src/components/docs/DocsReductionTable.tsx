@@ -74,7 +74,7 @@ function Table() {
 export function DocsReductionTable({ collapsible = false }: { collapsible?: boolean }) {
   if (collapsible) {
     return (
-      <div className="rounded-lg clay-rim bg-panel px-5">
+      <div className="rounded-lg depth-edge bg-panel px-5">
         <Collapsible title={COPY.collapsedTitle} defaultOpen={false}>
           <Table />
         </Collapsible>

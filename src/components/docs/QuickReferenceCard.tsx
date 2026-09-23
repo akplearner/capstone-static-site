@@ -68,13 +68,13 @@ export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: 
   ];
 
   return (
-    <div className="rounded-lg clay-rim bg-panel p-5">
+    <div className="rounded-lg depth-edge bg-panel p-5">
       <h3 className="text-sm font-semibold text-ink">{COPY.title}</h3>
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {panels.map((p) => (
           <div
             key={p.title}
-            className="rounded-lg clay-rim bg-panel-2 p-3"
+            className="rounded-lg depth-edge bg-panel-2 p-3"
           >
             <div className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-info">
               <p.icon className="h-4 w-4" />

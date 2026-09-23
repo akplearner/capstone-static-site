@@ -181,7 +181,7 @@ function JoinPanel({
   if (member && !editing) {
     const rd = getRoleDef(course, member.role);
     return (
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg clay-rim bg-panel p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg depth-edge bg-panel p-5">
         <div className="flex items-center gap-3">
           <RoleIcon iconName={rd?.icon} className="h-7 w-7" color={rd?.color} />
           <div>
@@ -199,7 +199,7 @@ function JoinPanel({
   }
 
   return (
-    <div className="clay-lift space-y-5 rounded-[var(--radius-card)] bg-accent-soft/50 p-6">
+    <div className="depth-lift space-y-5 rounded-[var(--radius-card)] bg-accent-soft/50 p-6">
       <div>
         <h2 className="text-xl font-bold text-ink">Join this course</h2>
         <p className="mt-1 text-sm text-muted">
@@ -251,12 +251,12 @@ function JoinPanel({
                 // proud of the others and the accent fill names it, which is one
                 // declaration where `border-2 border-accent` was a second edge
                 // beside the panel's own. A full team is sunk and dimmed.
-                className={`rounded-[var(--radius-clay-sm)] px-3 py-2 text-sm font-medium transition-colors ${
+                className={`rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors ${
                   selected
-                    ? 'clay-lift bg-accent-soft text-accent-ink'
+                    ? 'depth-lift bg-accent-soft text-accent-ink'
                     : full
-                      ? 'clay-sunk cursor-not-allowed bg-panel-2 text-muted opacity-60'
-                      : 'clay-rim clay-hover bg-panel text-body'
+                      ? 'depth-sunk cursor-not-allowed bg-panel-2 text-muted opacity-60'
+                      : 'depth-edge depth-hover bg-panel text-body'
                 }`}
               >
                 <span>Team {t}</span>
@@ -278,8 +278,8 @@ function JoinPanel({
                 key={r.id}
                 type="button"
                 onClick={() => setRole(r.id)}
-                className={`flex w-full items-center gap-3 rounded-[var(--radius-clay-sm)] px-4 py-3 text-left transition-colors ${
-                  role === r.id ? 'clay-lift bg-accent-soft' : 'clay-rim clay-hover bg-panel'
+                className={`flex w-full items-center gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
+                  role === r.id ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
                 }`}
               >
                 <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
@@ -327,7 +327,7 @@ function TaskReference({ task }: { task: Task }) {
   return (
     <div className="space-y-3">
       {task.steps.map((s, i) => (
-        <div key={s.id} className="rounded-lg clay-rim bg-panel-2 p-4">
+        <div key={s.id} className="rounded-lg depth-edge bg-panel-2 p-4">
           <div className="text-xs font-semibold text-muted">
             Step {i + 1}
           </div>
@@ -493,7 +493,7 @@ function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
               {task.tools.map((tool) => (
                 <span
                   key={tool}
-                  className="rounded clay-rim bg-panel-2 px-1.5 py-0.5 font-mono text-2xs text-ink"
+                  className="rounded depth-edge bg-panel-2 px-1.5 py-0.5 font-mono text-2xs text-ink"
                 >
                   {tool}
                 </span>
@@ -1204,7 +1204,7 @@ export default function CoursePage() {
           {/* Read-only view of another role's task keeps the same About panel —
               hand-offs and prerequisites are real data on Security+ and MSSP,
               and this is the only surface that shows them for reference tasks. */}
-          <div className="mb-3 rounded-lg clay-rim px-4">
+          <div className="mb-3 rounded-lg depth-edge px-4">
             <Collapsible title="About this task" defaultOpen={false}>
               <div className="py-1 pr-2">
                 <TaskAboutPanel course={course} task={task} />
@@ -1561,7 +1561,7 @@ export default function CoursePage() {
           {/* Setup is "do once", not a week. It used to be Week 0 on the rail,
               opening ahead of the real work; in class the lab already exists. */}
           {setupWeeks.length > 0 && setupTasks.length > 0 && (
-            <section id="setup-strip" className="scroll-under-chrome rounded-lg clay-rim bg-panel">
+            <section id="setup-strip" className="scroll-under-chrome rounded-lg depth-edge bg-panel">
               <button
                 type="button"
                 onClick={() => setSetupOpen(!setupIsOpen)}
@@ -1657,7 +1657,7 @@ export default function CoursePage() {
           >
             <div className="space-y-4 p-5">
               {viewLocked ? (
-                <div className="flex items-start gap-3 rounded-lg clay-rim bg-panel-2 p-4">
+                <div className="flex items-start gap-3 rounded-lg depth-edge bg-panel-2 p-4">
                   <Lock className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
                   <div>
                     <p className="text-sm font-medium text-ink">
@@ -1684,7 +1684,7 @@ export default function CoursePage() {
                   <WeekMilestoneHeader course={course} role={member.role} week={viewWeek} percent={viewPct} />
 
                   {gateForWeek && !course.noGatekeeping && (
-                    <div className="rounded-lg clay-rim bg-panel px-3">
+                    <div className="rounded-lg depth-edge bg-panel px-3">
                       <Collapsible
                         title={(() => {
                           const st = gateStats[gateForWeek.id] || 'locked';

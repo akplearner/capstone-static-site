@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { SocTopology } from '@/lib/labTopology';
 import { DUR } from '@/lib/motion';
-import { clayTier } from '@/components/ui/Surface';
+import { depthTier } from '@/components/ui/Surface';
 
 /**
  * The SOC lab "one picture" — a shared Wazuh SOC on one flat network, N team
@@ -19,7 +19,7 @@ export function SocTopologyDiagram({ topo }: { topo: SocTopology }) {
   return (
     <div className="space-y-3">
       <div
-        className={`rounded-[var(--radius-card)] bg-[linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] p-2 ${clayTier('card')}`}
+        className={`rounded-[var(--radius-card)] bg-[linear-gradient(180deg,var(--color-panel-2),var(--color-panel))] p-2 ${depthTier('card')}`}
       >
         <div className="flex items-center gap-2.5 px-3.5 pb-1 pt-3 font-mono text-xs text-[var(--color-ink)]">
           TOPOLOGY · {topo.subnet} · bridged

@@ -229,7 +229,7 @@ export function StepImages({ images }: { images: NonNullable<Step['images']> }) 
               alt={img.alt}
               width={1280}
               height={720}
-              className="h-auto w-full rounded-lg clay-rim"
+              className="h-auto w-full rounded-lg depth-edge"
             />
             {img.caption && (
               <figcaption className="mt-1 text-sm text-muted">{img.caption}</figcaption>

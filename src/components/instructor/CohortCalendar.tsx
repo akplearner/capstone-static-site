@@ -30,7 +30,7 @@ export function CohortCalendar({ course }: { course: Course }) {
   };
 
   return (
-    <div className="space-y-3 rounded-lg clay-rim p-4">
+    <div className="space-y-3 rounded-lg depth-edge p-4">
       <h3 className="flex items-center gap-2 text-sm font-semibold text-ink">
         <CalendarDays className="h-4 w-4 text-accent" aria-hidden /> Cohort calendar
       </h3>

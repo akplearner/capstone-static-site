@@ -37,7 +37,7 @@ export function CaseLifecycleChain({
               initial={{ opacity: 0, y: 4 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.04, duration: DUR.reveal, ease: EASE.out }}
-              className={`rounded-md clay-rim bg-panel-2 px-2.5 py-1.5 ${
+              className={`rounded-md depth-edge bg-panel-2 px-2.5 py-1.5 ${
                 stage.detail ? 'flex w-40 flex-col gap-1' : 'whitespace-nowrap font-mono text-2xs font-semibold text-ink'
               }`}
             >

@@ -1,7 +1,7 @@
 'use client';
 
 const inputClass =
-  'mt-1 w-full rounded-lg clay-rim bg-panel px-3 py-2 text-sm text-ink';
+  'mt-1 w-full rounded-lg depth-edge bg-panel px-3 py-2 text-sm text-ink';
 const labelClass = 'block text-xs font-medium text-muted';
 
 export function TextField({

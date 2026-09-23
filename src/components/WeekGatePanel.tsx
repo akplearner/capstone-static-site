@@ -43,7 +43,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
   });
 
   return (
-    <div className="rounded-lg clay-rim bg-panel-2 p-4">
+    <div className="rounded-lg depth-edge bg-panel-2 p-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Flag className="h-4 w-4 text-muted" />

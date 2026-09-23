@@ -125,7 +125,7 @@ export function PathPicker({ onPick }: { onPick: (pathId: string) => void }) {
           <button
             key={p.id}
             onClick={() => onPick(p.id)}
-            className="clay-rim clay-hover rounded-lg bg-panel-2 p-3 text-left"
+            className="depth-edge depth-hover rounded-lg bg-panel-2 p-3 text-left"
           >
             <div className="font-semibold text-ink">{p.name}</div>
             <div className="eyebrow mt-0.5">{p.role}</div>

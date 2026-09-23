@@ -10,27 +10,26 @@ import type { CSSProperties, HTMLAttributes } from 'react';
  * (4px, 3px, 2px, role colour, week colour). `ui/Card` existed and had zero
  * call sites. Nothing could be changed in one place, so nothing was.
  *
- * THE LAW (R77), enforced by page-shape.test.ts (this file is the only one
- * allowed to spell the card string):
+ * THE LAW (R77, re-cut subtle in R78), enforced by page-shape.test.ts (this
+ * file is the only one allowed to spell the card string):
  *
  *   DEPTH IS ONE TOKEN, AND THE EDGE LIVES INSIDE IT.
  *
  * The old rule was "a line OR elevation, never both", because a border and a
  * box-shadow are two independent declarations of the same edge and drawing both
- * doubled it. Clay does not bypass that reasoning — it moves the edge inside the
- * elevation. A `--clay-*` tier carries its own light top rim and dark bottom rim
- * as `inset` layers, which is what the eye reads as extruded, so a clay surface
- * never also declares a border. One element, one tier, edge included.
+ * doubled it. Depth keeps that reasoning and removes the choice: tier 0 IS a
+ * 1px ring drawn as a box-shadow, every higher tier is that ring plus a soft
+ * cast, so a surface names one tier and never also declares a border. One
+ * element, one tier, edge included. Nothing is extruded and nothing shines —
+ * that was R77, and the instructor called it cheap.
  *
  * The tiers are a ladder of IMPORTANCE, not decoration:
- *   - `dense` (tier 0) rims only, no cast — table wrappers, nested strata, the
- *     dashboard's stat grid. This is how "clay everywhere" survives a screen of
- *     data: a 16px cast under every row of a twelve-row table is grey haze, and
- *     it would make the app look worse rather than slicker. A rim still reads as
- *     extruded; it just does not float.
+ *   - `dense` (tier 0) the ring only — table wrappers, nested strata, the
+ *     dashboard's stat grid. A screen of twelve rows with a cast under each is
+ *     grey haze; a ring is an edge and nothing more.
  *   - `card` (tier 1) at rest, the default;
  *   - `raised` (tier 2) hover, or the one card that is the point of the screen;
- *   - `inset` a socket cut INTO the page (--clay-well), for wells and fields;
+ *   - `inset` a socket cut INTO the page (--depth-well), for wells and fields;
  *   - `flat` names no tier — that is the ladder's zero, not an exception to it;
  *   - `glass` is the frosted material of bars and overlays, and composes the
  *     overlay tier at its call site so "one tier per element" stays true;
@@ -57,7 +56,7 @@ const surfaceBase = cva('rounded-[var(--radius-card)]', {
       card: 'bg-panel',
       raised: 'bg-panel',
       inset: 'bg-panel-2',
-      dense: 'rounded-[var(--radius-clay-sm)] bg-panel',
+      dense: 'rounded-[var(--radius-control)] bg-panel',
       flat: 'bg-panel',
       glass: 'glass',
     },
@@ -92,26 +91,26 @@ export type SurfaceGlow = 'none' | 'accent' | 'week' | 'ok' | 'warn' | 'danger' 
  * `overlay` is tier 3 and deliberately has no `Surface` variant: a floating
  * layer is a composition (glass + tier), not a kind of card.
  */
-export type ClayTier = 'none' | 'dense' | 'card' | 'raised' | 'overlay' | 'well';
+export type DepthTier = 'none' | 'dense' | 'card' | 'raised' | 'overlay' | 'well';
 
-const TIER_CLASS: Record<ClayTier, string> = {
+const TIER_CLASS: Record<DepthTier, string> = {
   none: '',
-  dense: 'shadow-[var(--clay-0)]',
-  card: 'shadow-[var(--clay-1)]',
-  raised: 'shadow-[var(--clay-2)]',
-  overlay: 'shadow-[var(--clay-3)]',
-  well: 'shadow-[var(--clay-well)]',
+  dense: 'shadow-[var(--depth-0)]',
+  card: 'shadow-[var(--depth-1)]',
+  raised: 'shadow-[var(--depth-2)]',
+  overlay: 'shadow-[var(--depth-3)]',
+  well: 'shadow-[var(--depth-well)]',
 };
 
 /** One rung of the ladder, as a class. Exactly one per element — see THE LAW. */
-export function clayTier(tier: ClayTier): string {
+export function depthTier(tier: DepthTier): string {
   return TIER_CLASS[tier];
 }
 
 /** The ladder, by variant. `flat` and `glass` name no tier — that is the
  *  ladder's zero, not an exception to it. `glass` composes one at its call
- *  site with `clayTier('overlay')`, which is why it names none here. */
-const TIER: Record<SurfaceVariant, ClayTier> = {
+ *  site with `depthTier('overlay')`, which is why it names none here. */
+const TIER: Record<SurfaceVariant, DepthTier> = {
   dense: 'dense',
   card: 'card',
   raised: 'raised',
@@ -150,7 +149,7 @@ export interface SurfaceVariantProps {
 export function surfaceVariants(props: SurfaceVariantProps = {}): string {
   const variant = props.variant ?? 'card';
   const glow = props.glow ?? 'none';
-  const depth = glow !== 'none' ? GLOW[glow] : clayTier(TIER[variant]);
+  const depth = glow !== 'none' ? GLOW[glow] : depthTier(TIER[variant]);
   return [surfaceBase({ variant, accent: props.accent, padding: props.padding }), depth]
     .filter(Boolean)
     .join(' ');
@@ -184,7 +183,7 @@ export function Surface({
     // tier instead — still one tier at a time, so the law holds — and the focus
     // state blooms rather than tints, which is far easier to see.
     interactive &&
-      'transition-[box-shadow] duration-[var(--dur-press)] hover:shadow-[var(--clay-2)] focus-within:shadow-[var(--glow-accent)]',
+      'transition-[box-shadow] duration-[var(--dur-press)] hover:shadow-[var(--depth-2)] focus-within:shadow-[var(--glow-accent)]',
     className,
   ]
     .filter(Boolean)

@@ -57,7 +57,7 @@ export function TeamBusinessPicker({
   };
 
   return (
-    <div className="rounded-lg clay-rim bg-panel p-4">
+    <div className="rounded-lg depth-edge bg-panel p-4">
       <div className="flex flex-wrap items-end gap-3">
         <div className="min-w-0">
           <div className="text-sm font-semibold text-ink">Your team&apos;s business</div>

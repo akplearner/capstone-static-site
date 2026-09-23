@@ -171,7 +171,7 @@ function Shell({ title, children }: { title: string; children: React.ReactNode }
 
 function Notice({ ok, children }: { ok?: boolean; children: React.ReactNode }) {
   return (
-    <div className="flex items-start gap-2 rounded-md clay-rim bg-panel-2 px-3 py-2 text-sm text-ink">
+    <div className="flex items-start gap-2 rounded-md depth-edge bg-panel-2 px-3 py-2 text-sm text-ink">
       {ok && <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-accent" />}
       <span>{children}</span>
     </div>

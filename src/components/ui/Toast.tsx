@@ -22,15 +22,15 @@ const ToastCtx = createContext<(t: ToastInput | string) => void>(() => {});
 // already defines for exactly this.
 //
 // R77: the coloured 1px ring is gone. It sat directly under a tier-3 shadow,
-// which is the doubled edge the clay law forbids — and the fix is better than a
-// deletion, because `--clay-tint` lets the SHADOW carry the semantic colour. A
+// which is the doubled edge the depth law forbids — and the fix is better than a
+// deletion, because `--depth-tint` lets the SHADOW carry the semantic colour. A
 // success toast now casts a green-tinted shadow; the status reads from further
 // away than a hairline ever did.
 const styles: Record<ToastVariant, { tint: string; icon: typeof Info }> = {
-  success: { tint: '[--clay-tint:var(--color-ok)]', icon: CheckCircle2 },
-  error: { tint: '[--clay-tint:var(--color-danger)]', icon: XCircle },
-  info: { tint: '[--clay-tint:var(--color-accent)]', icon: Info },
-  warning: { tint: '[--clay-tint:var(--color-warn)]', icon: AlertTriangle },
+  success: { tint: '[--depth-tint:var(--color-ok)]', icon: CheckCircle2 },
+  error: { tint: '[--depth-tint:var(--color-danger)]', icon: XCircle },
+  info: { tint: '[--depth-tint:var(--color-accent)]', icon: Info },
+  warning: { tint: '[--depth-tint:var(--color-warn)]', icon: AlertTriangle },
 };
 const iconColor: Record<ToastVariant, string> = {
   success: 'text-ok',
@@ -78,7 +78,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, x: 20 }}
                 transition={{ duration: DUR.disclosure }}
-                className={`pointer-events-auto flex items-start gap-2 rounded-[var(--radius-clay-sm)] p-3 shadow-[var(--clay-2-tint)] ${surfaceVariants({ variant: 'flat', padding: 'none' })} ${s.tint}`}
+                className={`pointer-events-auto flex items-start gap-2 rounded-[var(--radius-control)] p-3 shadow-[var(--depth-2-tint)] ${surfaceVariants({ variant: 'flat', padding: 'none' })} ${s.tint}`}
                 role={t.variant === 'error' ? 'alert' : 'status'}
               >
                 <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${iconColor[t.variant]}`} aria-hidden />

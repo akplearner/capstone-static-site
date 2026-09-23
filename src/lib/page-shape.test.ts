@@ -464,10 +464,10 @@ describe('design tokens — palette classes do not come back', () => {
    * Tailwind's `shadow-md/lg/xl` are fixed black at fixed opacities. They do not
    * follow the theme, so in dark mode an overlay lit by one glows grey against
    * a near-black page instead of sitting above it — which is exactly what Dialog,
-   * Toast and InfoTip did until R63. The ramp (--shadow-1/2/3) has dark twins,
+   * Toast and InfoTip did until R63. The ladder (--depth-0/1/2/3) has dark twins,
    * so this is the rule that keeps them on it.
    *
-   * `shadow-none` and `shadow-[var(--shadow-N)]` are fine; so is a print or
+   * `shadow-none` and `shadow-[var(--depth-N)]` are fine; so is a print or
    * hover variant of either. Only the fixed-size Tailwind scale is banned.
    */
   /**
@@ -572,7 +572,7 @@ describe('design tokens — palette classes do not come back', () => {
   it('nothing reaches past the elevation ramp for a raw Tailwind shadow', () => {
     const RAW_SHADOW = /(?<![\w-])shadow-(sm|md|lg|xl|2xl)(?![\w-])/;
     const offenders = collectSourceFiles('src').filter((f) => RAW_SHADOW.test(code(f)));
-    expect(offenders, 'use shadow-[var(--shadow-1|2|3)] — the raw scale does not re-theme').toEqual(
+    expect(offenders, 'use a depth tier (a Surface variant or depthTier()) — the raw scale does not re-theme').toEqual(
       []
     );
   });
@@ -600,8 +600,8 @@ describe('R68 — the shape of the modernised platform', () => {
   const files = collectSourceFiles('src');
 
   it('Surface is the only file that spells the card', () => {
-    // R77 re-cut the card: the border is gone, because a clay tier carries its
-    // own rims as inset layers. The literal is asserted to still live IN Surface
+    // R77 re-cut the card: the border is gone, because a depth tier carries
+    // its own edge as a ring. The literal is asserted to still live IN Surface
     // before it is asserted absent everywhere else — a "nobody spells it" rule
     // passes just as happily when nobody spells it anywhere, including the one
     // file that is supposed to, which is exactly how this guard went quiet when
@@ -921,20 +921,21 @@ describe('R75-B — the content is not in the components', () => {
 });
 
 /**
- * R77 — the clay law, held.
+ * R78 — the depth law, held.
  *
  * "Depth is one token, and the edge lives inside it." That sentence is cheap to
  * write in a docblock and free to violate in a component, which is what happened
  * to its predecessor: the old law ("a line OR elevation, never both") survived as
- * prose in `Surface.tsx` long after individual call sites had quietly started
- * pairing `border border-line` with a `shadow-`.
+ * prose in `Surface.tsx` long after call sites had quietly started pairing
+ * `border border-line` with a `shadow-`.
  *
- * So the law is arithmetic here. A clay tier already draws a light top rim and a
- * dark bottom rim as `inset` layers — that is what the eye reads as extruded — so
- * a border beside one is a doubled edge, and two tiers on one element is a smudge.
- * Both are caught by reading the class strings the source actually contains.
+ * So the law is arithmetic here. Tier 0 IS a 1px ring drawn as a box-shadow, so
+ * a border beside any tier is a doubled edge, and two tiers on one element is a
+ * smudge. Both are caught by reading the class strings the source contains.
+ *
+ * R78 also keeps the R77 look from coming back: no gloss, no travel, no pill.
  */
-describe('R77 — clay', () => {
+describe('R78 — depth', () => {
   const files = collectSourceFiles('src');
   const CSS = read('src/app/globals.css');
 
@@ -944,7 +945,7 @@ describe('R77 — clay', () => {
    * primitives spell them. Comments are already stripped by `code()`.
    *
    * `${…}` is cut out of a template literal rather than counted with it. A
-   * ternary inside one — `${sel ? 'clay-lift …' : 'clay-rim …'}` — puts every
+   * ternary inside one — `${sel ? 'depth-lift …' : 'depth-edge …'}` — puts every
    * branch in the same backticked string, and counting them together reads
    * three MUTUALLY EXCLUSIVE tiers as three tiers on one element. The branches
    * are single-quoted, so they are already collected on their own and each gets
@@ -973,18 +974,14 @@ describe('R77 — clay', () => {
       ...[...src.matchAll(/'((?:[^'\\\n]|\\.)*)'/g)].map((m) => m[1]),
       ...[...src.matchAll(/"([^"\n]*)"/g)].map((m) => m[1]),
       ...[...src.matchAll(/`([^`]*)`/g)].map((m) => stripInterpolations(m[1])),
-    ].filter((s) => /\b(shadow|rounded|border|bg)-|\bclay-/.test(s));
+    ].filter((s) => /\b(shadow|rounded|border|bg)-|\bdepth-/.test(s));
   };
 
-  it('never draws a border beside a clay tier — the rim is already in the shadow', () => {
+  it('never draws a border beside a depth tier — the ring is already in the shadow', () => {
     const offenders: string[] = [];
     for (const f of files) {
       for (const s of classStrings(f)) {
-        // `--shadow-1/2/3` are ALIASES of `--clay-1/2/3` (globals.css keeps the
-        // old names so ~15 call sites did not have to move). A guard that only
-        // knew the new spelling would wave the alias straight through, which is
-        // how Toast kept a border under a tier-3 shadow through this round.
-        if (!/shadow-\[var\(--(clay|shadow)-/.test(s) && !/\bclay-(rim|lift|sunk)\b/.test(s)) continue;
+        if (!/shadow-\[var\(--depth-/.test(s) && !/\bdepth-(edge|lift|sunk)\b/.test(s)) continue;
         // A left seam is status, not an edge: `border-l-4` is the one survivor,
         // and it is deliberately a different thing from a box outline.
         const border = s.match(/(?<![\w-])border(?!-l\b|-l-)(-[a-z0-9[\]]+)?(?![\w-])/);
@@ -1001,8 +998,8 @@ describe('R77 — clay', () => {
         // Only the resting state counts: `hover:` and `active:` swap the tier,
         // they do not stack with it, which is the whole point of a swap.
         const resting =
-          (s.match(/(?<![\w:-])shadow-\[var\(--(clay|glow|shadow)-[a-z0-9-]+\)\]/g) ?? []).length +
-          (s.match(/(?<![\w:-])clay-(rim|lift|sunk)(?![\w-])/g) ?? []).length;
+          (s.match(/(?<![\w:-])shadow-\[var\(--(depth|glow)-[a-z0-9-]+\)\]/g) ?? []).length +
+          (s.match(/(?<![\w:-])depth-(edge|lift|sunk)(?![\w-])/g) ?? []).length;
         if (resting > 1) offenders.push(`${f}: ${s}`);
       }
     }
@@ -1010,7 +1007,7 @@ describe('R77 — clay', () => {
   });
 
   it('spells a tier only in the primitives that own depth', () => {
-    // If a page can reach for `--clay-2` directly then the ladder is decoration
+    // If a page can reach for `--depth-2` directly then the ladder is decoration
     // rather than a ladder, and the next round cannot re-cut it in one place.
     //
     // The rule is the DIRECTORY, not a list of filenames: `src/components/ui/*`
@@ -1018,46 +1015,38 @@ describe('R77 — clay', () => {
     // time one is added — which is the kind of edit that gets made by deleting
     // the offending name from the array.
     const offenders = files.filter(
-      (f) => !f.startsWith('src/components/ui/') && /shadow-\[var\(--(clay|shadow)-/.test(code(f))
+      (f) => !f.startsWith('src/components/ui/') && /shadow-\[var\(--depth-/.test(code(f))
     );
     expect(offenders, 'depth belongs to the ui primitives — pass a variant instead').toEqual([]);
   });
 
-  it('declares every depth token in both themes', () => {
-    // A clay token with no dark twin is a light-mode rim glowing on a dark card.
+  it('declares every depth parameter in both themes', () => {
+    // A parameter with no dark twin is a light-mode ring on a dark card.
     const missing: string[] = [];
-    for (const t of [
-      '--clay-rim-hi',
-      '--clay-rim-lo',
-      '--clay-cast-near',
-      '--clay-cast-far',
-      '--gloss-sheen',
-      '--gloss-stop-hi',
-      '--gloss-stop-mid',
-    ]) {
+    for (const t of ['--depth-rim', '--depth-cast']) {
       const n = (CSS.match(new RegExp(`${t}:`, 'g')) ?? []).length;
       if (n < 2) missing.push(`${t} is declared ${n}× — needs a light and a dark value`);
     }
     expect(missing, missing.join('\n')).toEqual([]);
   });
 
-  it('declares every clay recipe a component reaches for by name', () => {
-    // `.clay-rim` is an ordinary class. Tailwind will not warn about it, tsc
+  it('declares every depth recipe a component reaches for by name', () => {
+    // `.depth-edge` is an ordinary class. Tailwind will not warn about it, tsc
     // cannot see it, and a misspelling renders a flat element that looks almost
     // right — which is the worst kind of wrong.
     const used = new Set<string>();
     for (const f of files) {
-      for (const m of code(f).matchAll(/(?<![\w-])clay-([a-z]+)(?![\w-])/g)) used.add(`clay-${m[1]}`);
+      for (const m of code(f).matchAll(/(?<![\w-])depth-([a-z]+)(?![\w-])/g)) used.add(`depth-${m[1]}`);
     }
-    expect(used.size, 'the sweep replaced 134 hairlines — this cannot be empty').toBeGreaterThan(0);
+    expect(used.size, 'the R77 sweep replaced 134 hairlines — this cannot be empty').toBeGreaterThan(0);
     const missing = [...used].filter((c) => !CSS.includes(`.${c} {`));
     expect(missing, `no such recipe in globals.css: ${missing.join(', ')}`).toEqual([]);
   });
 
   it('references no depth or radius token the stylesheet does not declare', () => {
-    // `shadow-[var(--clay-4)]` is not a compile error, not a lint error and not a
-    // runtime error. It is a silently missing shadow, and the only place it can
-    // be caught is here.
+    // `shadow-[var(--depth-4)]` is not a compile error, not a lint error and not
+    // a runtime error. It is a silently missing shadow, and the only place it
+    // can be caught is here.
     const declared = new Set([...CSS.matchAll(/(--[a-z0-9-]+):/gi)].map((m) => m[1]));
     const missing: string[] = [];
     for (const f of files) {
@@ -1066,5 +1055,27 @@ describe('R77 — clay', () => {
       }
     }
     expect([...new Set(missing)], [...new Set(missing)].join('\n')).toEqual([]);
+  });
+
+  it('has no gloss, no travel and no top rim — the R77 look does not come back', () => {
+    // The instructor's word for the extruded, glossy, y-travelling control was
+    // "cheap". Three spellings of it, each caught by name.
+    const offenders: string[] = [];
+    for (const f of files) {
+      const src = code(f);
+      // `(?!ary)`: GlossaryText is not the gloss.
+      if (/\bgloss(?!ary)/i.test(src)) offenders.push(`${f}: mentions gloss`);
+      if (/while(Hover|Tap)=\{[^}]*\by:/.test(src)) offenders.push(`${f}: y-travel in a hover/tap`);
+    }
+    if (/inset 0 1(\.5)?px 0 0 (color-mix\(in oklab, )?white/.test(CSS)) offenders.push('globals.css: a white top rim');
+    if (/\bgloss(?!ary)/i.test(CSS)) offenders.push('globals.css: mentions gloss');
+    expect(offenders, offenders.join('\n')).toEqual([]);
+  });
+
+  it('keeps the button a rectangle, and tier 0 exactly one ring', () => {
+    expect(code('src/components/ui/Button.tsx')).not.toContain('radius-pill');
+    // Tier 0 is one 1px spread layer and nothing else, so the "no border beside
+    // a tier" rule above still describes a single edge rather than two.
+    expect(CSS).toMatch(/--depth-0: 0 0 0 1px var\(--depth-rim\);/);
   });
 });

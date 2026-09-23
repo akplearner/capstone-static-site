@@ -6,7 +6,7 @@ import { Search, CornerDownLeft } from 'lucide-react';
 import { DUR } from '@/lib/motion';
 import { useFocusTrap } from '@/lib/useFocusTrap';
 import { groupByKind, search, type SearchItem } from '@/lib/search';
-import { clayTier, surfaceVariants } from '@/components/ui/Surface';
+import { depthTier, surfaceVariants } from '@/components/ui/Surface';
 
 /**
  * The command palette — ⌘K / Ctrl-K from anywhere.
@@ -104,7 +104,7 @@ export function CommandPalette({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.98 }}
             transition={{ duration: DUR.swap }}
-            className={`w-full max-w-xl overflow-hidden ${clayTier('overlay')} ${surfaceVariants({ variant: 'glass', padding: 'none' })}`}
+            className={`w-full max-w-xl overflow-hidden ${depthTier('overlay')} ${surfaceVariants({ variant: 'glass', padding: 'none' })}`}
           >
             <div className="flex items-center gap-2 border-b border-line px-3">
               <Search className="h-4 w-4 shrink-0 text-muted" aria-hidden />

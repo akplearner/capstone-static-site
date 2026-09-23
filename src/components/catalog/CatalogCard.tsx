@@ -55,7 +55,7 @@ export function CatalogCard({
         variant: available ? 'card' : 'inset',
         glow: onPath ? 'accent' : 'none',
         padding: 'sm',
-      })} ${available ? 'clay-hover' : onPath ? '' : 'opacity-80'}`}
+      })} ${available ? 'depth-hover' : onPath ? '' : 'opacity-80'}`}
     >
       {onPath && (
         <span className="absolute right-3 top-3 inline-flex items-center gap-1 rounded-full bg-accent-soft px-2 py-0.5 font-mono text-3xs font-semibold uppercase tracking-wider text-accent-ink">

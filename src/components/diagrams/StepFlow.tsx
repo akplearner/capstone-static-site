@@ -74,7 +74,7 @@ export function StepFlow({ path }: { path: string[] }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay, duration: DUR.reveal }}
           whileHover={{ scale: 1.03 }}
-          className="flex min-w-[92px] flex-col justify-center rounded-lg clay-rim bg-panel px-2.5 py-1.5"
+          className="flex min-w-[92px] flex-col justify-center rounded-lg depth-edge bg-panel px-2.5 py-1.5"
         >
           <span className="flex items-center gap-1.5 text-xs font-semibold leading-tight text-ink">
             <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: DOT[n.c] }} aria-hidden />
@@ -100,7 +100,7 @@ export function StepFlow({ path }: { path: string[] }) {
   }
 
   return (
-    <div className="mb-3 flex flex-wrap items-stretch gap-1.5 rounded-lg clay-rim bg-panel-2 p-3">
+    <div className="mb-3 flex flex-wrap items-stretch gap-1.5 rounded-lg depth-edge bg-panel-2 p-3">
       {items}
     </div>
   );

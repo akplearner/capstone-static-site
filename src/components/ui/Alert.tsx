@@ -53,7 +53,7 @@ export function Alert({
   const Icon = v.icon;
   return (
     <div
-      className={`flex items-start gap-2 rounded-[var(--radius-clay-sm)] p-3 text-sm shadow-[var(--clay-0)] ${v.box} ${className}`}
+      className={`flex items-start gap-2 rounded-[var(--radius-control)] p-3 text-sm shadow-[var(--depth-0)] ${v.box} ${className}`}
       role={variant === 'error' ? 'alert' : undefined}
     >
       {icon && <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${v.iconColor}`} aria-hidden />}

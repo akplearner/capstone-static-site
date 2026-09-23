@@ -100,118 +100,65 @@
        2  raised — hover, or the one card that is the point of the screen
        3  overlay — dialogs, toasts, tooltips: things above the page
 
-     --shadow-card is kept as an alias for tier 1 so the ~15 existing call sites
-     keep working and can migrate at their own pace. */
-  --shadow-1: var(--clay-1);
-  --shadow-2: var(--clay-2);
-  --shadow-3: var(--clay-3);
-  --shadow-card: var(--shadow-1);
+     The tokens themselves are `--depth-N` below; there are no aliases. */
 
-  /* ── Clay ────────────────────────────────────────────────────────────────
-     R77. The three tiers above used to be flat drop shadows at 5-16% opacity,
-     and the app's law was "a surface has a line OR elevation, never both" —
-     a border and a shadow being two independent declarations of the same edge.
+  /* ── Depth ───────────────────────────────────────────────────────────────
+     R78. One axis: how far off the page a thing sits. Subtle on purpose — the
+     instructor's brief is minimal and crisp, and any real dimensionality is
+     theirs to draw in SVG. What survives from R77 is the LAW, not the look:
 
-     Clay resolves that differently: THE EDGE MOVES INSIDE THE ELEVATION. A clay
-     tier carries its own light top rim and dark bottom rim as `inset` layers,
-     which is what the eye reads as extruded, so a clay surface never also
-     declares a border. One element, one tier, edge included.
+       DEPTH IS ONE TOKEN, AND THE EDGE LIVES INSIDE IT.
 
-     The rims are mixes of the ink colour rather than fixed greys, so they
-     re-theme with everything else, and they are the reason the dark twins below
-     are not just "the same at a higher opacity": a 72%-white rim on a near-black
-     panel is a scar, not a highlight. */
-  --clay-rim-hi: color-mix(in oklab, white 72%, transparent);
-  --clay-rim-lo: color-mix(in oklab, var(--color-ink) 14%, transparent);
-  --clay-cast-near: color-mix(in oklab, var(--color-ink) 10%, transparent);
-  --clay-cast-far: color-mix(in oklab, var(--color-ink) 20%, transparent);
+     Tier 0 is a 1px ring drawn as a box-shadow, so the hairline and the
+     elevation are the same declaration and can never double up — a surface
+     names one tier and no border. There is no light top rim anywhere: that
+     inset highlight is precisely what reads as "extruded", and it is gone.
 
-  /* The ladder. Six rungs, one axis: how far off the page this thing sits.
-       0      dense — rims only, no cast. Table wrappers, nested strata, chips.
+     Two parameters, both mixes of the ink colour so they re-theme: */
+  --depth-rim: color-mix(in oklab, var(--color-ink) 9%, transparent);
+  --depth-cast: color-mix(in oklab, var(--color-ink) 8%, transparent);
+
+  /* The ladder.
+       0      edge — the ring only. Chips, table wrappers, nested strips.
        1      at rest — a card on the page.
        2      lifted — hover, or the one card that is the point of the screen.
        3      overlay — dialogs, toasts, the command palette.
-       press  under a finger — the rims invert and the cast collapses.
-       well   a socket cut INTO a surface — the avatar spot, an inset field. */
-  --clay-0:
-    inset 0 1px 0 0 var(--clay-rim-hi),
-    inset 0 -1px 0 0 var(--clay-rim-lo);
-  --clay-1:
-    inset 0 1px 0 0 var(--clay-rim-hi),
-    inset 0 -1.5px 0 0 var(--clay-rim-lo),
-    0 1px 2px -1px var(--clay-cast-near),
-    0 8px 16px -6px var(--clay-cast-far);
-  --clay-2:
-    inset 0 1.5px 0 0 var(--clay-rim-hi),
-    inset 0 -2px 0 0 var(--clay-rim-lo),
-    0 2px 4px -2px var(--clay-cast-near),
-    0 16px 30px -10px var(--clay-cast-far);
-  --clay-3:
-    inset 0 1.5px 0 0 var(--clay-rim-hi),
-    inset 0 -2px 0 0 var(--clay-rim-lo),
-    0 10px 20px -8px var(--clay-cast-far),
-    0 36px 68px -24px var(--clay-cast-far);
-  --clay-press:
-    inset 0 2px 5px -1px var(--clay-rim-lo),
-    inset 0 -1px 0 0 var(--clay-rim-hi),
-    0 1px 1px -1px var(--clay-cast-near);
-  --clay-well:
-    inset 0 2px 6px -1px var(--clay-rim-lo),
-    inset 0 -1px 0 0 var(--clay-rim-hi);
+       press  under a finger — a shallow inset, no cast.
+       well   a field: the ring plus a shallow inset. */
+  --depth-0: 0 0 0 1px var(--depth-rim);
+  --depth-1:
+    0 0 0 1px var(--depth-rim),
+    0 1px 2px 0 var(--depth-cast);
+  --depth-2:
+    0 0 0 1px var(--depth-rim),
+    0 4px 12px -4px var(--depth-cast);
+  --depth-3:
+    0 0 0 1px var(--depth-rim),
+    0 12px 32px -12px var(--depth-cast);
+  --depth-press:
+    0 0 0 1px var(--depth-rim),
+    inset 0 1px 2px 0 var(--depth-rim);
+  --depth-well:
+    0 0 0 1px var(--depth-rim),
+    inset 0 1px 2px 0 var(--depth-rim);
 
-  /* The tinted ladder: a control casting its OWN colour, which is what makes a
-     coloured button read as a physical object rather than a rectangle of paint.
-
-     `--clay-tint` is the parameter, and it defaults to the accent — so every
-     region and seam block below re-colours the depth of every button by
-     re-declaring `--color-accent` and nothing else. A control that is not the
-     accent (the destructive button) overrides the tint locally with the
-     arbitrary property `[--clay-tint:var(--color-danger)]`. That is why these
-     are one parameterised pair rather than four hand-written families. */
-  --clay-tint: var(--color-accent);
-  --clay-1-tint:
-    inset 0 1px 0 0 color-mix(in oklab, white 45%, transparent),
-    inset 0 -1.5px 0 0 color-mix(in oklab, var(--clay-tint) 55%, var(--clay-rim-lo)),
-    0 1px 2px -1px color-mix(in oklab, var(--clay-tint) 30%, transparent),
-    0 10px 20px -8px color-mix(in oklab, var(--clay-tint) 50%, transparent);
-  --clay-2-tint:
-    inset 0 1.5px 0 0 color-mix(in oklab, white 40%, transparent),
-    inset 0 -2px 0 0 color-mix(in oklab, var(--clay-tint) 62%, var(--clay-rim-lo)),
-    0 2px 4px -2px color-mix(in oklab, var(--clay-tint) 30%, transparent),
-    0 16px 30px -10px color-mix(in oklab, var(--clay-tint) 50%, transparent);
-  --clay-press-tint:
-    inset 0 2px 5px -1px color-mix(in oklab, var(--clay-tint) 45%, var(--clay-rim-lo)),
-    inset 0 -1px 0 0 color-mix(in oklab, white 35%, transparent),
-    0 1px 1px -1px color-mix(in oklab, var(--clay-tint) 30%, transparent);
-
-  /* Gloss — the sheen down the top of a control. This is the cheap version that
-     any element can wear as a background-image; the curved sweep a pill or a
-     disc needs is drawn in SVG by `ui/ClayEdge.tsx`, because a linear gradient
-     cannot follow a cap radius. */
-  --gloss-sheen: linear-gradient(
-    180deg,
-    color-mix(in oklab, white 40%, transparent) 0%,
-    color-mix(in oklab, white 12%, transparent) 40%,
-    transparent 62%
-  );
-  --gloss-sheen-soft: linear-gradient(
-    180deg,
-    color-mix(in oklab, white 18%, transparent) 0%,
-    color-mix(in oklab, white 5%, transparent) 40%,
-    transparent 62%
-  );
-
-  /* The same sheen as FLAT COLOURS, for the SVG in `ui/ClayEdge.tsx`.
-     An SVG `stop-color` takes a colour, not a gradient — handing it
-     `--gloss-sheen` paints nothing at all, silently, which is the kind of bug
-     that ships because the control still looks fine, just flat. The two live
-     beside their gradient twin so a saturation pass moves both. */
-  --gloss-stop-hi: color-mix(in oklab, white 46%, transparent);
-  --gloss-stop-mid: color-mix(in oklab, white 14%, transparent);
+  /* The tinted ladder: the ring and the cast take a colour. `--depth-tint`
+     defaults to the accent, so a course seam that moves `--color-accent`
+     re-colours every primary button's edge with nothing else declared; the
+     destructive button and the open week band set it locally. */
+  --depth-tint: var(--color-accent);
+  --depth-1-tint:
+    0 0 0 1px color-mix(in oklab, var(--depth-tint) 35%, transparent),
+    0 1px 2px 0 color-mix(in oklab, var(--depth-tint) 14%, transparent);
+  --depth-2-tint:
+    0 0 0 1px color-mix(in oklab, var(--depth-tint) 40%, transparent),
+    0 4px 12px -4px color-mix(in oklab, var(--depth-tint) 22%, transparent);
+  --depth-press-tint:
+    0 0 0 1px color-mix(in oklab, var(--depth-tint) 40%, transparent),
+    inset 0 1px 2px 0 color-mix(in oklab, var(--depth-tint) 30%, transparent);
 
   /* How long a control takes to change state. Mirrors DUR.press in
-     src/lib/motion.ts — the travel is framer's, the shadow swap is CSS's, and
-     the two have to agree or a press looks like two events. A test asserts it. */
+     src/lib/motion.ts so the CSS tier swap and framer's scale agree. */
   --dur-press: 120ms;
 
   /* Glass — the frosted material the sticky bars and the one floating panel
@@ -298,16 +245,12 @@
   --radius-md: 0.375rem; /* 6px */
   --radius-lg: 0.5rem;   /* 8px */
   --radius-xl: 0.75rem;  /* 12px */
-  /* R77: 12px → 18px. Clay reads as a soft solid, and a soft solid has a
-     generous corner — at 12px the rims pinch and the whole thing looks stamped
-     rather than moulded. The three below join it:
-       clay-sm  the dense tier's corner (nested strata, table wrappers)
-       pill     a control — the reference's action row is fully round
-       well     a socket, always a circle */
-  --radius-card: 18px;
-  --radius-clay-sm: 12px;
+  /* R78: back to crisp. A card is 12px, a control 8px, and `pill` exists only
+     for things that are genuinely round (the week-rail dots, count chips) —
+     never for a button. */
+  --radius-card: 12px;
+  --radius-control: 8px;
   --radius-pill: 9999px;
-  --radius-well: 50%;
 }
 
 /* Dark overrides. The source design is light-only; this keeps the existing
@@ -354,39 +297,11 @@
   --stone-vein: #d8dce3;
   --stone-crystal: #7fc3ee;
 
-  /* Dark needs more spread and less opacity per layer: a dark shadow on a dark
-     panel reads as a smudge unless it is soft and wide. The clay ladder inherits
-     that lesson through the four primitives below — the tiers themselves are
-     declared once, in the light theme, and re-mix here. */
-  --shadow-1: var(--clay-1);
-  --shadow-2: var(--clay-2);
-  --shadow-3: var(--clay-3);
-  --shadow-card: var(--shadow-1);
-
-  /* Clay in the dark.
-     The top rim is the whole reason this block exists: 72% white on a near-black
-     panel is not a highlight, it is a scar. It drops to 9%, the bottom rim goes
-     to near-black instead of ink, and the cast deepens — the same four
-     parameters, so all six tiers and all three tinted tiers re-mix from here
-     without a single one of them being restated. */
-  --clay-rim-hi: color-mix(in oklab, white 9%, transparent);
-  --clay-rim-lo: color-mix(in oklab, black 55%, transparent);
-  --clay-cast-near: color-mix(in oklab, black 45%, transparent);
-  --clay-cast-far: color-mix(in oklab, black 65%, transparent);
-  --gloss-sheen: linear-gradient(
-    180deg,
-    color-mix(in oklab, white 14%, transparent) 0%,
-    color-mix(in oklab, white 4%, transparent) 40%,
-    transparent 62%
-  );
-  --gloss-sheen-soft: linear-gradient(
-    180deg,
-    color-mix(in oklab, white 7%, transparent) 0%,
-    color-mix(in oklab, white 2%, transparent) 40%,
-    transparent 62%
-  );
-  --gloss-stop-hi: color-mix(in oklab, white 16%, transparent);
-  --gloss-stop-mid: color-mix(in oklab, white 5%, transparent);
+  /* Depth in the dark. The ring lightens (a dark ring on a dark panel is
+     invisible, so it mixes toward white) and the cast is black rather than
+     ink; every tier re-mixes from these two. */
+  --depth-rim: color-mix(in oklab, white 10%, transparent);
+  --depth-cast: color-mix(in oklab, black 40%, transparent);
 
   /* Glass reads more opaque on a dark page (scrolling content shows through
      a dark tint far more than a light one); the dark accents are already
@@ -860,15 +775,14 @@ summary:focus-visible,
     0 0 0 4px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 
-/* R77: a field is a socket cut INTO the surface, not a box drawn on top of it.
-   --clay-well is that socket (an inset rim, no cast), which is both the honest
-   reading of a text input and the thing the reference image does — and it
-   replaces the 1px line rather than joining it, per the law. */
+/* A field wears the well tier: the same 1px ring every edge has, plus a
+   shallow inset so it reads as somewhere to type rather than a card. That is
+   the whole difference, and it is one token. */
 input,
 textarea,
 select {
-  @apply rounded-[var(--radius-clay-sm)] bg-panel-2 px-4 py-2 text-ink;
-  box-shadow: var(--clay-well);
+  @apply rounded-[var(--radius-control)] bg-panel px-4 py-2 text-ink;
+  box-shadow: var(--depth-well);
 
   /* Inputs keep :focus rather than :focus-visible — clicking into a text field
      to type is exactly when you want to see which one you are in. The focus
@@ -877,8 +791,8 @@ select {
   &:focus {
     @apply bg-panel outline-none;
     box-shadow:
-      var(--clay-well),
-      0 0 0 3px color-mix(in srgb, var(--color-accent) 28%, transparent);
+      var(--depth-well),
+      0 0 0 3px color-mix(in srgb, var(--color-accent) 24%, transparent);
   }
 }
 
@@ -903,41 +817,31 @@ select {
   background: color-mix(in srgb, var(--color-muted) 70%, transparent);
 }
 
-/* ── Clay, as recipes ───────────────────────────────────────────────────────
-   THE LAW (see ui/Surface.tsx): depth is one token, and the edge lives inside
-   it. `<Surface>` and `<Button>` carry it for anything boxed, but ~140 small
-   inner elements — note boxes, chips, inline callouts, the wrapper round a
-   table — were hairlines (`border border-line`) rather than components, and
-   wiring a `clayTier()` import into fifty-four files to reach them would be a
-   lot of churn for a box-shadow.
+/* ── Depth, as recipes ─────────────────────────────────────────────────────
+   `<Surface>` and `<Button>` carry a tier for anything boxed. ~140 small inner
+   elements — note boxes, chips, callouts, table wrappers — are not components,
+   so they take a recipe class instead, exactly as `.glass` works: the token is
+   spelled in one place and a component imports nothing. page-shape.test.ts
+   counts these with the tokens when it checks "one tier per element".
 
-   So they are recipes, exactly as `.glass` is: the token stays spelled in one
-   place, a component writes a class and imports nothing, and page-shape.test.ts
-   counts these alongside the tokens when it checks "one tier per element".
-
-     .clay-rim   tier 0 — rims, no cast. The dense default: this is what a
-                 hairline becomes, and it is why a screen of twelve of them
-                 does not turn into grey haze.
-     .clay-lift  tier 1 — the small thing that should sit off the page.
-     .clay-sunk  the well: a socket cut in, for fields and inset strips. */
-.clay-rim {
-  box-shadow: var(--clay-0);
+     .depth-edge   tier 0 — the ring. What a hairline became.
+     .depth-lift   tier 1 — the small thing that sits on the page.
+     .depth-sunk   the well — a field or an inset strip.
+     .depth-hover  a state, not a tier: swaps to tier 2 under the cursor. */
+.depth-edge {
+  box-shadow: var(--depth-0);
 }
-.clay-lift {
-  box-shadow: var(--clay-1);
+.depth-lift {
+  box-shadow: var(--depth-1);
 }
-.clay-sunk {
-  box-shadow: var(--clay-well);
+.depth-sunk {
+  box-shadow: var(--depth-well);
 }
-/* A hover lift. `hover:border-accent` was the old vocabulary for "this card is
-   pressable"; with the hairline gone it tints nothing at all — a dead class
-   that still reads as intent in a diff. This is the replacement, and it swaps
-   the tier rather than adding one. */
-.clay-hover {
+.depth-hover {
   transition: box-shadow var(--dur-press) ease-out;
 }
-.clay-hover:hover {
-  box-shadow: var(--clay-2);
+.depth-hover:hover {
+  box-shadow: var(--depth-2);
 }
 
 
@@ -992,12 +896,12 @@ select {
   font-family: var(--font-plex-mono), ui-monospace, Menlo, Consolas, monospace;
   background: var(--color-panel-2);
   color: var(--color-ink);
-  /* R77: a keycap is the most literally extruded thing in the interface, and it
-     was drawn as a box with a thicker bottom border — a fake of exactly what
-     --clay-0 does honestly (light rim on top, dark rim beneath). Losing the
-     border also loses the 2px it was adding to the line box, which is what this
-     recipe's whole comment above is about. */
-  box-shadow: var(--clay-0);
+  /* The ring is a box-shadow, so it adds nothing to the line box — which is
+     what the comment above is about. A 1px darker line along the bottom is all
+     the "key" a keycap needs. */
+  box-shadow:
+    var(--depth-0),
+    0 1px 0 0 var(--depth-rim);
   border-radius: var(--radius-sm);
   padding: 0 5px;
   font-size: 0.82em;
@@ -1127,20 +1031,17 @@ select {
 
 /* Level 1 — a week. The bedrock band.
 
-   R77: the 1px outline is gone and the depth carries the edge instead, per the
-   law in Surface.tsx. The LEFT edge stays, because it is not an outline — it is
-   the phase colour, the one piece of status this app draws as a seam, and the
-   tier's rims are horizontal so the two never double up.
-
-   The week block also sets --clay-tint to the phase colour, which is the whole
-   reason that parameter exists: the open week's shadow is tinted with its own
-   week hue, in eight phases, with no per-week CSS. */
+   The depth carries the edge (the law in Surface.tsx). The LEFT edge stays,
+   because it is not an outline — it is the phase colour, the one piece of
+   status this app draws as a seam. The block sets --depth-tint to that colour,
+   so the open week's ring takes its own hue in eight phases with no per-week
+   CSS. */
 .stratum-week {
-  --clay-tint: var(--week, var(--color-accent));
+  --depth-tint: var(--week, var(--color-accent));
   background: var(--color-panel);
   border-left: 4px solid color-mix(in srgb, var(--week, var(--color-accent)) 55%, transparent);
   border-radius: var(--radius-card);
-  box-shadow: var(--clay-0);
+  box-shadow: var(--depth-0);
   /* The phase colour changes when the student moves week; crossfading the
      edge rather than cutting it keeps the week switch reading as one move. */
   transition:
@@ -1149,17 +1050,16 @@ select {
 }
 .stratum-week[data-open='true'] {
   border-left-color: var(--week, var(--color-accent));
-  box-shadow: var(--clay-1-tint);
+  box-shadow: var(--depth-1-tint);
 }
 
-/* Level 2 — a task within the week. Cut *into* the week rather than sitting
-   beside it — which is now literal: --clay-well is the socket tier, an inset
-   rim with no cast, so a task reads as a recess in the band above it. */
+/* Level 2 — a task within the week. Slightly darker and sunk, so it reads as
+   cut into the band rather than sitting beside it. */
 .stratum-task {
   background: color-mix(in srgb, var(--color-panel-2) 70%, var(--color-panel));
   border-left: 3px solid color-mix(in srgb, var(--week, var(--color-accent)) 40%, var(--color-line));
-  border-radius: var(--radius-clay-sm);
-  box-shadow: var(--clay-well);
+  border-radius: var(--radius-control);
+  box-shadow: var(--depth-well);
 }
 
 /* Level 3 — a step. No box at all: a seam line down the left edge. A third

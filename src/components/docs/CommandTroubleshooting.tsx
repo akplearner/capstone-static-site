@@ -69,14 +69,14 @@ function commonErrors(courseId: string) {
  *  which is why it takes no courseId. */
 export function TerminalBasics() {
   return (
-    <div className="rounded-lg clay-rim bg-panel p-5">
+    <div className="rounded-lg depth-edge bg-panel p-5">
       <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
         <Terminal className="h-4 w-4 text-accent" /> {COPY.title}
       </h3>
       <p className="mt-1 text-sm text-muted">{COPY.intro}</p>
       <dl className="mt-3 grid gap-3 sm:grid-cols-2">
         {TERMINAL_BASICS.map((b) => (
-          <div key={b.label} className="rounded-md clay-rim bg-panel-2 p-3">
+          <div key={b.label} className="rounded-md depth-edge bg-panel-2 p-3">
             <dt className="flex items-center gap-1.5 text-sm font-semibold text-body">
               <ClipboardPaste className="h-3.5 w-3.5 text-accent" /> {b.label}
             </dt>

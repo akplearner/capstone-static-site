@@ -156,7 +156,7 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
   }, [text, touched, ledger?.courseId, ledger?.taskId, ledger?.stepId, ledger?.memberId]);
 
   return (
-    <div className="rounded-md clay-rim bg-panel p-2">
+    <div className="rounded-md depth-edge bg-panel p-2">
       <label className="text-xs font-semibold text-muted">
         Verify — paste your actual output
       </label>
@@ -383,7 +383,7 @@ export function StepDetail({
           <div className="text-xs font-semibold text-muted">
             What your files should look like
           </div>
-          <ul className="mt-1.5 space-y-1 rounded-md clay-rim bg-panel-2 p-3">
+          <ul className="mt-1.5 space-y-1 rounded-md depth-edge bg-panel-2 p-3">
             <TreeNode node={tree} />
           </ul>
         </div>
@@ -398,7 +398,7 @@ export function StepDetail({
                 What to do
               </div>
               {where && (
-                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md clay-rim bg-panel-2 px-2 py-1 font-mono text-3xs text-muted">
+                <div className="mt-1 inline-flex items-center gap-1.5 rounded-md depth-edge bg-panel-2 px-2 py-1 font-mono text-3xs text-muted">
                   <span className="font-semibold text-accent">WHERE</span> {where}
                 </div>
               )}
@@ -494,7 +494,7 @@ export function StepDetail({
           also puts `danger` genuinely first on the destructive steps — the old
           form card rendered above the warning. */}
       {(usesForm || deliverable) && (
-        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md clay-rim bg-panel-2 px-3 py-1.5 text-xs text-muted">
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-md depth-edge bg-panel-2 px-3 py-1.5 text-xs text-muted">
           {usesForm && (
             <Link
               href={`/courses/${courseId}/docs${(() => {
@@ -546,7 +546,7 @@ export function StepDetail({
           this. Nothing is removed — it's the same content, just not in the way of
           getting the step done. */}
       {(whatItMeans || troubleshooting || (fixes && fixes.length > 0)) && (
-        <div className="rounded-md clay-rim bg-panel-2/50">
+        <div className="rounded-md depth-edge bg-panel-2/50">
           <div className="px-3">
             <Collapsible title="Why this works & if you get stuck">
               <div className="space-y-2 pr-2">
@@ -1100,7 +1100,7 @@ function StepSteps({
       {open && paths && paths.length > 0 && (
         <div className="mt-2 grid gap-2 lg:grid-cols-2">
           {paths.map((p) => (
-            <div key={p.label} className="rounded-md clay-rim bg-panel-2 p-2.5">
+            <div key={p.label} className="rounded-md depth-edge bg-panel-2 p-2.5">
               <div className="font-mono text-2xs font-semibold text-ink">
                 <GlossaryText text={p.label} keys />
               </div>

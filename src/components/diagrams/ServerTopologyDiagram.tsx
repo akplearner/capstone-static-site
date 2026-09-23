@@ -95,7 +95,7 @@ export function ServerTopologyDiagram({
     dim(built(ARRIVES.vms) && (!lit || lit.has(hostname)));
   const weekTag = (week: number) =>
     built(week) ? null : (
-      <span className="ml-1 rounded-full clay-rim px-1 py-px font-mono text-3xs text-muted">
+      <span className="ml-1 rounded-full depth-edge px-1 py-px font-mono text-3xs text-muted">
         Week {week}
       </span>
     );
@@ -113,7 +113,7 @@ export function ServerTopologyDiagram({
     >
       <div className="grid min-w-[560px] gap-4 sm:grid-cols-[minmax(220px,1fr)_minmax(240px,1.2fr)]">
         {/* The physical rack elevation */}
-        <div className="rounded-lg clay-rim bg-panel-2 p-3">
+        <div className="rounded-lg depth-edge bg-panel-2 p-3">
           <div className="mb-2 flex items-baseline justify-between">
             <span className="eyebrow-muted">{COPY.rackHeading}</span>
             <span className="text-2xs text-muted">{COPY.rackAspect}</span>
@@ -169,7 +169,7 @@ export function ServerTopologyDiagram({
           )}
 
           {/* Campus LAN */}
-          <div className="rounded-lg clay-rim bg-panel-2 px-3 py-1.5 text-center">
+          <div className="rounded-lg depth-edge bg-panel-2 px-3 py-1.5 text-center">
             <span className="text-xs font-semibold text-ink">{COPY.campusLan}</span>
             <span className="ml-2 font-mono text-2xs text-muted">{CAMPUS_LAN.cidr}</span>
           </div>

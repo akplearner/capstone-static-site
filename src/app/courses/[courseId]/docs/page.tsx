@@ -453,14 +453,14 @@ export default function DeliverablesPage() {
             <button
               type="button"
               onClick={handleExportMyWork}
-              className="inline-flex items-center gap-1.5 rounded-md clay-rim px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
+              className="inline-flex items-center gap-1.5 rounded-md depth-edge px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
             >
               <Download className="h-4 w-4" /> Export my work (.json)
             </button>
             <button
               type="button"
               onClick={() => importInputRef.current?.click()}
-              className="inline-flex items-center gap-1.5 rounded-md clay-rim px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
+              className="inline-flex items-center gap-1.5 rounded-md depth-edge px-3 py-2 text-sm font-medium text-body hover:bg-panel-2"
             >
               <Upload className="h-4 w-4" /> Restore from file (.json)
             </button>
@@ -482,7 +482,7 @@ export default function DeliverablesPage() {
 
       {/* Gate readiness, when the course has gates. One compact strip, not a card. */}
       {gate && gateChecks.length > 0 && (
-        <div className="rounded-lg clay-rim bg-panel px-4 py-3">
+        <div className="rounded-lg depth-edge bg-panel px-4 py-3">
           <div className="flex flex-wrap items-baseline gap-x-2">
             <span className="text-sm font-semibold text-ink">Gate {gate.id} readiness</span>
             <span className="font-mono text-xs text-muted">
@@ -518,7 +518,7 @@ export default function DeliverablesPage() {
         {formParam && formWeek != null && (() => {
           const studentWeek = readResume(course, member.memberId)?.week;
           return studentWeek != null && formWeek > studentWeek ? (
-            <div className="mb-3 flex items-center gap-2 rounded-md clay-rim bg-panel-2 px-3 py-2 text-sm text-body">
+            <div className="mb-3 flex items-center gap-2 rounded-md depth-edge bg-panel-2 px-3 py-2 text-sm text-body">
               <Sparkles className="h-4 w-4 shrink-0 text-accent" aria-hidden />
               This is a Week {formWeek} form — you&apos;re drafting it early, which is exactly what
               your step asked for. Your own week is still Week {studentWeek}.
@@ -528,7 +528,7 @@ export default function DeliverablesPage() {
         {dueThisWeek.length === 0 ? (
           // ONE empty state. There used to be two, rendering simultaneously — a
           // blue box at the top of the page and a grey card further down.
-          <div className="rounded-lg clay-rim bg-panel p-6 text-sm text-muted">
+          <div className="rounded-lg depth-edge bg-panel p-6 text-sm text-muted">
             No form of your own in {weekWord}. This {unitWord(course).toLowerCase()} your work is evidence —
             screenshots and findings you collect and file with the week package below.{' '}
             <Link href={`/courses/${course.id}?tab=tasks`} className="font-medium text-accent underline">
@@ -776,7 +776,7 @@ function FormSection({
       {!locked && Diagram && <Diagram />}
 
       {!locked && hasGuidance && (
-        <div className="rounded-lg clay-rim bg-panel-2 px-4">
+        <div className="rounded-lg depth-edge bg-panel-2 px-4">
           <Collapsible title="How to build this — and what it means" defaultOpen={false}>
             <div className="space-y-3 pb-2 text-sm text-body">
               <p><GlossaryText text={def.howTo} /></p>
