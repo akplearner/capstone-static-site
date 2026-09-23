@@ -1314,16 +1314,6 @@ export const CCNA: Course = {
   // procedures are a later round, and a course that declares a guide it has not
   // authored would render an empty section — or worse, another course's.
   topologyPicture: 'campus',
-  buildMap: [
-    { week: 1, label: 'One office network, reachable', check: 'Both switches answer on the management VLAN' },
-    { week: 2, label: 'Departments, separated and routed', check: 'A PC gets DHCP and reaches a server in another VLAN' },
-    { week: 3, label: 'Two buildings and the internet', check: 'The OSPF neighbour is FULL and a branch PC browses the web' },
-    { week: 4, label: 'The rules enforced', check: 'A guest PC is blocked from the LAN — and you can prove it' },
-    { week: 5, label: 'Under management', check: 'One reviewed, reversible change has been made and validated' },
-    { week: 6, label: 'Watched', check: 'A shut port raises a log and a graph you can point at' },
-    { week: 7, label: 'Configured from data', check: 'The playbook runs twice and changes nothing the second time' },
-    { week: 8, label: 'Handed over', check: 'A stranger could run this network from your documentation' },
-  ],
   lifecyclePath: [
     { label: 'Discover', detail: 'What the business needs, and what the kit can actually do.' },
     { label: 'Design', detail: 'The shape, then every VLAN, port and address.' },

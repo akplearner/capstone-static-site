@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ChevronRight, Lock } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Flag, Lock, Users } from 'lucide-react';
 import { meter } from '@/lib/motion';
 import { DiagramFrame } from './DiagramFrame';
 
-export type FlowStatus = 'done' | 'current' | 'upcoming' | 'locked';
+/** `other` is a teammate's part of the week — shown so the story reads whole,
+ *  not clickable, because it is not this student's to open. */
+export type FlowStatus = 'done' | 'current' | 'upcoming' | 'locked' | 'other';
 
 export interface FlowNode {
   id: string;
@@ -23,12 +25,11 @@ export interface FlowNode {
  * The clickable workflow — one component, two levels.
  *
  * Students said they lost sight of the week's flow and objectives. Every
- * course already AUTHORS that flow (`WeekDef.flow`: "Discover → Design the
- * shape → Bring it up → Prove reachability") and the app rendered it nowhere;
- * the steps of a task were a row of unlabelled dots. This is the one picture
- * for both: at week level the nodes are the week's tasks, at task level the
- * nodes are the steps, and the authored flow reads as the stage chain under
- * the title. Same shape at both levels, so a student learns it once.
+ * course authors the week as two to four objectives (`WeekDef.objectives`,
+ * R79) and the app rendered nothing of the kind; the steps of a task were a
+ * row of unlabelled dots. This is the one picture for both: at week level the
+ * nodes are the objectives, at task level the nodes are the steps. Same shape
+ * at both levels, so a student learns it once.
  *
  * Every node is a real `<button>`: click opens the task or jumps to the step,
  * the current node carries `aria-current="step"`, a locked one is `disabled`
@@ -46,14 +47,17 @@ export function FlowDiagram({
   flow,
   title,
   howToRead,
+  caption,
   ariaLabel = 'Workflow',
 }: {
   nodes: FlowNode[];
   onSelect: (id: string) => void;
-  /** The authored stage chain, rendered as the subtitle: "Plan → Build → Verify". */
+  /** A stage chain, rendered as the subtitle: "Plan → Build → Verify". */
   flow?: string[];
   title?: string;
   howToRead?: string;
+  /** One line under the last node — the week's "done when". */
+  caption?: string;
   ariaLabel?: string;
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -90,6 +94,7 @@ export function FlowDiagram({
     current: 'depth-lift bg-accent-soft text-ink',
     upcoming: 'depth-edge depth-hover bg-panel text-body',
     locked: 'depth-edge bg-panel-2 text-muted',
+    other: 'depth-edge bg-panel-2 text-muted',
   };
 
   return (
@@ -101,7 +106,8 @@ export function FlowDiagram({
       legend={[
         { label: 'done', color: 'var(--color-ok)' },
         { label: 'you are here', color: 'var(--color-accent)' },
-        { label: 'locked', dashed: true },
+        ...(nodes.some((n) => n.status === 'other') ? [{ label: "a teammate's", dashed: true }] : []),
+        ...(nodes.some((n) => n.status === 'locked') ? [{ label: 'locked', dashed: true }] : []),
       ]}
     >
       <ol
@@ -111,6 +117,7 @@ export function FlowDiagram({
       >
         {nodes.map((n, i) => {
           const locked = n.status === 'locked';
+          const other = n.status === 'other';
           const current = n.status === 'current';
           return (
             <li key={n.id} className="flex shrink-0 snap-start items-center gap-1.5">
@@ -119,18 +126,19 @@ export function FlowDiagram({
                   refs.current[i] = el;
                 }}
                 type="button"
-                disabled={locked}
+                disabled={locked || other}
                 tabIndex={i === focusIdx ? 0 : -1}
                 aria-current={current ? 'step' : undefined}
                 onClick={() => onSelect(n.id)}
                 onFocus={() => setFocusIdx(i)}
                 className={`flex min-w-[9.5rem] max-w-[13rem] flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${tone[n.status]} ${
-                  locked ? 'cursor-not-allowed' : ''
+                  locked ? 'cursor-not-allowed' : other ? 'cursor-default' : ''
                 }`}
               >
                 <span className="flex items-center gap-1.5 font-mono text-2xs font-semibold uppercase tracking-wider">
                   {n.status === 'done' && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-ok" aria-hidden />}
                   {locked && <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden />}
+                  {other && <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />}
                   <span className={current ? 'text-accent' : 'text-muted'}>{n.label}</span>
                 </span>
                 {n.sublabel && <span className="mt-0.5 line-clamp-2 text-sm font-medium">{n.sublabel}</span>}
@@ -151,6 +159,12 @@ export function FlowDiagram({
           );
         })}
       </ol>
+      {caption && (
+        <p className="mt-2 flex items-start gap-1.5 text-xs text-muted">
+          <Flag className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+          <span>{caption}</span>
+        </p>
+      )}
     </DiagramFrame>
   );
 }

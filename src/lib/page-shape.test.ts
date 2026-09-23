@@ -805,18 +805,22 @@ describe('R72 — every command says where it runs, and every week shows its par
 });
 
 describe('R71/R78-B — a course you can follow', () => {
-  it('the Tasks tab keeps the week\'s objective and workflow in front of the student', () => {
-    // R71 put a build map and a "key points" view here. R78-B replaced both:
-    // the objective every seed authors is the week header's lede, and the
-    // authored flow is the stage chain over a clickable diagram of the tasks.
+  it('the Tasks tab keeps the week\'s objective and objectives in front of the student', () => {
+    // R71 put a build map and a "key points" view here. R78-B replaced both
+    // with the objective sentence and a diagram of the tasks; R79 made the
+    // diagram's nodes the week's OBJECTIVES, the tasks grouped under them,
+    // and the milestone the caption — the header says one sentence.
     const tab = code('src/components/course/TasksTab.tsx');
     expect(tab.match(/<FlowDiagram\b/g)?.length, 'one workflow per week').toBe(1);
-    expect(tab).toContain('flow={summary.flow}');
+    expect(tab).toContain('summary.objectives');
+    expect(tab).toContain('caption={summary.milestone');
     expect(tab).not.toContain('<BuildMap');
     expect(tab).not.toContain('<PageHeader');
+    expect(tab, 'the gate is the objectives; no second checklist').not.toContain('<WeekGatePanel');
     const header = code('src/components/week/WeekHeader.tsx');
     expect(header).toContain('.objective');
-    expect(header).toContain('s.milestone');
+    for (const gone of ['milestone', 'buildMap', 'taskCount']) expect(header, `${gone} left the header`).not.toContain(gone);
+    expect(code('src/lib/types.ts')).not.toContain('buildMap');
   });
 
   it('guided is a course flag, and the density switch is gone', () => {
@@ -1135,9 +1139,11 @@ describe('R78-C2 — fold the duplicates', () => {
   it('gate readiness is one picture, whatever the source', () => {
     // Both derivations render the same strip: the Tasks tab from task
     // completion, the Deliverables page from the Definition-of-Done checks.
+    // R79 removed the Tasks-tab gate checklist (the objectives are the gate),
+    // so the Deliverables page is the strip's one consumer now.
     const strip = code('src/components/week/GateReadinessStrip.tsx');
     expect(strip).toContain('line-through');
-    for (const f of ['src/components/week/WeekGatePanel.tsx', DOCS]) {
+    for (const f of [DOCS]) {
       expect(code(f), `${f} draws the strip`).toContain('<GateReadinessStrip');
       expect(code(f), `${f} does not draw its own tick list`).not.toContain('line-through');
     }

@@ -347,7 +347,6 @@ export default function CoursePage() {
               unit={unit}
               weekStats={weekStats}
               taskStats={taskStats}
-              gateStats={gateStats}
               activeWeek={activeWeek}
               effectiveWeek={effectiveWeek}
               sortedWeeks={sortedWeeks}

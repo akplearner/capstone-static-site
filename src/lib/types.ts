@@ -346,12 +346,6 @@ export interface Course {
    *  week is open from the start and hand-offs between roles are shown as guidance,
    *  not requirements. Used by CySA+ to keep the flow simple for beginners. */
   noGatekeeping?: boolean;
-  /**
-   * The build map: one milestone per week, the topology goal kept in front of
-   * the student on the Tasks tab. `label` is what they are building this week;
-   * `check` is how they know it is built. Authored by the course.
-   */
-  buildMap?: { week: number; label: string; check: string }[];
   /** Open every task in Guided mode (one step at a time). Off: the whole checklist. */
   guidedDefault?: boolean;
   /** One shared build, four focus roles. Every member works the tasks flagged

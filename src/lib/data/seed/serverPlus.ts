@@ -1,6 +1,6 @@
 import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 import { withCommandDetail } from '@/lib/docs/serverCommands';
-import { HOST, hostRulesCommand } from '../../serverTopology';
+import { hostRulesCommand } from '../../serverTopology';
 import { NGINX_TLS_SITE_CMD, SITE_CSS_CMD, SITE_HTML_CMD, SITE_UPLOAD_CMD } from '../../docs/siteStarter';
 
 /**
@@ -3365,17 +3365,8 @@ const RAW_SERVER_PLUS: Course = {
   noGatekeeping: true,
   // R71: one step at a time, commands and checks first, and the thing being
   // built kept above the task list. Students said the course was a lot of
-  // tasks with no thread; this is the thread.
+  // tasks with no thread; the week's objectives are that thread now (R79).
   guidedDefault: true,
-  buildMap: [
-    { week: 0, label: 'Your workstation and your team', check: 'the platform knows your focus and your host address' },
-    { week: 1, label: `Proxmox on the rack at ${HOST.rule}`, check: 'the console answers from a campus PC and over Tailscale' },
-    { week: 2, label: 'Two zones, three VMs, the services', check: 'websrv serves NGINX, winserver runs AD, DNS and DHCP, linuxsrv runs the database' },
-    { week: 3, label: 'Site published, zones segmented, tailnet into every zone', check: `your site opens at http://${HOST.rule} from a campus PC and the DMZ cannot SSH into the private zone` },
-    { week: 4, label: 'Hardened, patched, restorable', check: 'root SSH is off everywhere, every host has a baseline, and a restore was timed' },
-    { week: 5, label: 'Advanced: the lab as code, watched', check: 'a plan reports no changes and every host is on the dashboard' },
-    { week: 6, label: 'Advanced: run it as a fleet', check: 'linuxsrv was destroyed and came back from Git alone' },
-  ],
   sharedTrack: true,
   // A week-by-week build guide ships with this course, so the manual carries
   // the configuration-guide section. See `docs/manual.ts`.

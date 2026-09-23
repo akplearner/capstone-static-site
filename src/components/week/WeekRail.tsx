@@ -1,5 +1,7 @@
 'use client';
 
+import { formatMinutes } from '@/lib/course-helpers';
+
 import { useId, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle2, Lock, Sparkles } from 'lucide-react';
@@ -49,6 +51,8 @@ export interface WeekRailItem {
   advanced?: boolean;
   /** A tooltip — the cohort calendar's "due Fri 20 Sep · in 3 days" (R68). */
   hint?: string;
+  /** How long the week is, from its tasks' estimates (R79). */
+  minutes?: number | null;
 }
 
 export function WeekRail({
@@ -134,6 +138,9 @@ export function WeekRail({
               />
             )}
             {it.label}
+            {it.minutes != null && it.minutes > 0 && (
+              <span className={`text-2xs ${on ? 'opacity-80' : 'text-muted'}`}>~{formatMinutes(it.minutes)}</span>
+            )}
             {it.advanced && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
             {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
             {it.locked && <Lock className="h-3.5 w-3.5" aria-label="locked" />}

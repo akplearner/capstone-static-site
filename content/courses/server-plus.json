@@ -6758,43 +6758,6 @@
     ],
     "noGatekeeping": true,
     "guidedDefault": true,
-    "buildMap": [
-      {
-        "week": 0,
-        "label": "Your workstation and your team",
-        "check": "the platform knows your focus and your host address"
-      },
-      {
-        "week": 1,
-        "label": "Proxmox on the rack at 10.10.30.T",
-        "check": "the console answers from a campus PC and over Tailscale"
-      },
-      {
-        "week": 2,
-        "label": "Two zones, three VMs, the services",
-        "check": "websrv serves NGINX, winserver runs AD, DNS and DHCP, linuxsrv runs the database"
-      },
-      {
-        "week": 3,
-        "label": "Site published, zones segmented, tailnet into every zone",
-        "check": "your site opens at http://10.10.30.T from a campus PC and the DMZ cannot SSH into the private zone"
-      },
-      {
-        "week": 4,
-        "label": "Hardened, patched, restorable",
-        "check": "root SSH is off everywhere, every host has a baseline, and a restore was timed"
-      },
-      {
-        "week": 5,
-        "label": "Advanced: the lab as code, watched",
-        "check": "a plan reports no changes and every host is on the dashboard"
-      },
-      {
-        "week": 6,
-        "label": "Advanced: run it as a fleet",
-        "check": "linuxsrv was destroyed and came back from Git alone"
-      }
-    ],
     "sharedTrack": true,
     "manualSections": [
       "config-guide"
