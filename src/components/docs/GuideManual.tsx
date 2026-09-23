@@ -19,7 +19,7 @@ import { DocsReductionTable } from '@/components/docs/DocsReductionTable';
 import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
-import { TeamBusinessPicker } from '@/components/TeamBusinessPicker';
+import { TeamBusinessPicker } from '@/components/team/TeamBusinessPicker';
 import { socTopology } from '@/lib/labTopology';
 import { MANUAL_COPY, manualHas, manualSectionsFor } from '@/lib/docs/manual';
 import { docsRepo } from '@/lib/data';

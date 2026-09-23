@@ -1,7 +1,7 @@
 'use client';
 
 import { CheckCircle2, Cpu, Network, Server } from 'lucide-react';
-import { CommandBlock } from '@/components/TaskComponents';
+import { CommandBlock } from '@/components/step/CommandBlock';
 import { Runs } from '@/components/docs/Runs';
 import {
   DVWA,

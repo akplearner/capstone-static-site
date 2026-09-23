@@ -2,7 +2,7 @@
 
 import { Plus, Trash2 } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { RoleIcon } from '../RoleIcon';
+import { RoleIcon } from '@/components/team/RoleIcon';
 import { Course, RoleDef } from '@/lib/types';
 import { ICON_NAMES, DEFAULT_ICON } from '@/lib/icons';
 import { TextField, TextArea, SelectField } from './fields';

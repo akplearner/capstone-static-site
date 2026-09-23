@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { evaluate } from '@/lib/docs/predicate';
+import { isDoneBy } from '@/lib/docs/dod';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
@@ -9,7 +10,7 @@ import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { Crumbs } from '@/components/SiteNav';
 import { focusById } from '@/lib/focus';
-import { FrameworkBadge } from '@/components/TaskComponents';
+import { FrameworkBadge } from '@/components/step/FrameworkBadge';
 import { Collapsible, Tabs } from '@/components/ui/Button';
 import { Dialog } from '@/components/ui/Dialog';
 import { PageHeader } from '@/components/ui/PageHeader';
@@ -40,7 +41,7 @@ import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/packa
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
 import { parseTeamId, teamLabel } from '@/lib/team';
 import { DeliverablesSkeleton } from '@/components/ui/Skeletons';
-import { WeekRail } from '@/components/WeekRail';
+import { WeekRail } from '@/components/week/WeekRail';
 import { localDay } from '@/lib/localDate';
 import { ReviewBanner } from '@/components/docs/ReviewBanner';
 import type { DeliverableReview } from '@/lib/data/types';
@@ -260,11 +261,10 @@ export default function DeliverablesPage() {
   // Judged on the student's own rows: the worked example is subtracted first
   // (`withoutSeedRows`), so a form left as the example is not "done".
   const own = (id: string, def: (typeof courseDefs)[number]) => withoutSeedRows(def, saved[id] ?? emptyData());
-  const isDoneBy = (def: (typeof courseDefs)[number], week: number) => {
-    const due = (def.dod ?? []).filter((c) => (c.week ?? 0) <= week);
-    return due.length > 0 && due.every((c) => evaluate(c.when, own(def.id, def)));
-  };
-  const isDone = (def: (typeof courseDefs)[number]) => isDoneBy(def, selectedWeek);
+  // `isDoneBy` is the library's (lib/docs/dod.ts) — the rubric and the cohort
+  // page judge with the same function, so a form cannot read "done" here and
+  // "not done" there.
+  const isDone = (def: (typeof courseDefs)[number]) => isDoneBy(def, own(def.id, def), selectedWeek);
   // The instructor's verdict on a form, for the week on screen first, else the
   // latest one — a "revise" from Week 3 still needs answering in Week 4.
   const reviewFor = (id: string) =>
@@ -350,7 +350,7 @@ export default function DeliverablesPage() {
           return {
             week: w,
             label: w === 0 ? 'Setup' : `${unitWord(course)} ${w}`,
-            done: owned.length > 0 && owned.every((d) => isDoneBy(d, w)),
+            done: owned.length > 0 && owned.every((d) => isDoneBy(d, own(d.id, d), w)),
           };
         })}
       />

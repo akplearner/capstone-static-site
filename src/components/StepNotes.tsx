@@ -5,7 +5,7 @@ import { Flag, StickyNote } from 'lucide-react';
 import { stepNotesRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import type { StepNote } from '@/lib/data/types';
-import type { LedgerRef } from '@/components/TaskComponents';
+import type { LedgerRef } from '@/components/step/StepDetail';
 import { stepNoteKey } from '@/lib/data/localStorageFeatureRepos';
 
 /**

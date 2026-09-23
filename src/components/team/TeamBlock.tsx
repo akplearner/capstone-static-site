@@ -2,7 +2,7 @@
 
 import { Info, Users } from 'lucide-react';
 import { evaluate } from '@/lib/docs/predicate';
-import { TeamProgressTable, type MemberProgress, type DeliverableStatus } from '@/components/TeamProgressTable';
+import { TeamProgressTable, type MemberProgress, type DeliverableStatus } from '@/components/team/TeamProgressTable';
 import { progressRepo, docsRepo, stepNotesRepo, reviewRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { getRequiredStepCount, getTasksByRole, isAdvancedWeek } from '@/lib/course-helpers';

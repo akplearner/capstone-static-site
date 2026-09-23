@@ -3,8 +3,8 @@
 import { Clock, Flag } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { formatMinutes, weekSummary } from '@/lib/course-helpers';
-import { GlossaryText } from './GlossaryText';
-import { TopologyFocus, focusOf } from './diagrams/TopologyFocus';
+import { GlossaryText } from '@/components/GlossaryText';
+import { TopologyFocus, focusOf } from '@/components/diagrams/TopologyFocus';
 import { getTasksByRole } from '@/lib/course-helpers';
 
 /**
@@ -14,7 +14,7 @@ import { getTasksByRole } from '@/lib/course-helpers';
  * This component has been losing rows for three rounds, on the instructor's
  * consistent instruction, and each cut has the same shape — the row restated
  * something the checklist below already carries:
- *   - the task-flow chip strip duplicated WeekTaskFlow (both are gone now);
+ *   - the task-flow chip strip duplicated a since-removed task-flow diagram;
  *   - the aggregated tool strip restated every open task's own tools;
  *   - the facts row (difficulty · "N tasks · M steps") restated what the task
  *     rows themselves show, and difficulty answered a question no student was

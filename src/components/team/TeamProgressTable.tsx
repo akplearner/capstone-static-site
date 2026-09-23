@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { getRoleDef } from '@/lib/course-helpers';
-import { RoleIcon } from './RoleIcon';
+import { RoleIcon } from '@/components/team/RoleIcon';
 import { meter } from '@/lib/motion';
 
 export interface MemberProgress {

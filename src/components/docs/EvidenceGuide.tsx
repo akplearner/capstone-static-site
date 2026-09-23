@@ -1,7 +1,7 @@
 'use client';
 
 import { Download, FileText, ShieldCheck } from 'lucide-react';
-import { CommandBlock } from '@/components/TaskComponents';
+import { CommandBlock } from '@/components/step/CommandBlock';
 import { CUSTODY_COLUMNS, CUSTODY_RULES, custodyLogCSV, custodyLogMarkdown } from '@/lib/docs/custodyTemplate';
 import { EVIDENCE_LOCATION_RULE, EVIDENCE_FILE_TYPES, EVIDENCE_HANDLING, EVIDENCE_NAMING } from '@/lib/evidence';
 

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { ExternalLink } from 'lucide-react';
-import { CopyButton } from '@/components/TaskComponents';
+import { CopyButton } from '@/components/step/CommandBlock';
 import { fillPlaceholders, useIacTool, useLabAccess } from '@/lib/labAccess';
 import { commandFor, type IacTool } from '@/lib/iacTool';
 import {
@@ -17,6 +17,7 @@ import {
 } from '@/lib/serverTopology';
 import { PROCEDURES, WEEKS, procedureById } from '@/lib/docs/serverProcedures';
 import { Surface } from '@/components/ui/Surface';
+import { WeekRail } from '@/components/week/WeekRail';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
 import { TopologyFocus } from '@/components/diagrams/TopologyFocus';
 import { MachineChip } from '@/components/MachineChip';
@@ -233,33 +234,18 @@ export function ServerConfigGuide() {
         </p>
       </Surface>
 
-      {/* Week switcher. Buttons rather than anchors: the anchor still exists on
-          the section below for deep links, but clicking here should swap the
-          week in place instead of jumping the page. */}
-      <nav aria-label="Configuration guide weeks" className="flex flex-wrap gap-2">
-        {WEEKS.map((w) => {
-          const on = w.number === week;
-          return (
-            <button
-              key={w.number}
-              type="button"
-              onClick={() => {
-                setWeek(w.number);
-                history.replaceState(null, '', `#config-week-${w.number}`);
-              }}
-              aria-current={on ? 'true' : undefined}
-              className={`rounded-md border px-3 py-1.5 text-xs font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
-                on
-                  ? 'border-accent bg-accent text-accent-contrast'
-                  : 'border-line bg-panel text-body hover:border-accent hover:text-accent'
-              }`}
-            >
-              Week {w.number}
-              <span className="ml-1.5 opacity-70">{w.title}</span>
-            </button>
-          );
-        })}
-      </nav>
+      {/* Week switcher — the same rail Tasks and Deliverables use (R78-C1: it
+          was a third hand-built copy). Buttons rather than anchors: the anchor
+          still exists on the section below for deep links, but clicking here
+          swaps the week in place instead of jumping the page. */}
+      <WeekRail
+        selected={week}
+        onSelect={(n) => {
+          setWeek(n);
+          history.replaceState(null, '', `#config-week-${n}`);
+        }}
+        items={WEEKS.map((w) => ({ week: w.number, label: `Week ${w.number} · ${w.title}` }))}
+      />
 
       <section id={`config-week-${active.number}`} className="scroll-under-chrome space-y-4">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1 border-b border-line pb-2">

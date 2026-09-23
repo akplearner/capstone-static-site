@@ -10,7 +10,7 @@ import { Surface } from '@/components/ui/Surface';
 import { Alert } from '@/components/ui/Alert';
 import { CohortSkeleton } from '@/components/ui/Skeletons';
 import { Crumbs } from '@/components/SiteNav';
-import { TeamProgressTable, type DeliverableStatus, type MemberProgress } from '@/components/TeamProgressTable';
+import { TeamProgressTable, type DeliverableStatus, type MemberProgress } from '@/components/team/TeamProgressTable';
 import { ReviewCell } from '@/components/instructor/ReviewCell';
 import { CohortCalendar } from '@/components/instructor/CohortCalendar';
 import { courseRepo } from '@/lib/data';

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { AlertTriangle, ArrowRight, CheckCircle2, Circle, Server } from 'lucide-react';
-import { Collapsible } from './ui/Button';
+import { Collapsible } from '@/components/ui/Button';
 import { getLabAccess, hasLabAccess, labProfile, saveLabAccess, useLabAccess } from '@/lib/labAccess';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 

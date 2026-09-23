@@ -13,11 +13,12 @@ import {
   Sparkles,
   BookOpen,
 } from 'lucide-react';
-import { Button, Collapsible } from './ui/Button';
-import { ChecklistItem, StepDetail } from './TaskComponents';
-import { GuidedStepper, StepperItem } from './GuidedStepper';
-import { CutMark, CutBeat } from './quarry/CutBeat';
-import { TerminalBasics } from './docs/CommandTroubleshooting';
+import { Button, Collapsible } from '@/components/ui/Button';
+import { ChecklistItem } from './ChecklistItem';
+import { StepDetail } from '@/components/step/StepDetail';
+import { GuidedStepper, StepperItem } from '@/components/task/GuidedStepper';
+import { CutMark, CutBeat } from '@/components/quarry/CutBeat';
+import { TerminalBasics } from '@/components/docs/CommandTroubleshooting';
 import { Task } from '@/lib/types';
 import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
@@ -339,42 +340,13 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                 )}
               </div>
 
-              {/* `danger` was missing from this list. Guided mode passed every
-                  other field and silently dropped the one that says "this erases
-                  every drive and there is no undo" — the field a student most
-                  needs before touching anything. Server+ defaults to 'all' mode,
-                  so it showed there; only guided mode lost it. */}
+              {/* The whole step goes in as one object (R78-C1). When this was
+                  a hand-copied field list, `danger` — "this erases every
+                  drive" — was missing from it for a round. */}
               {current && (
                 <StepDetail
-                  instruction={current.instruction}
-                  instructionList={current.instructionList}
-                  paths={current.paths}
-                  guideRef={current.guideRef}
-                  description={current.description}
-                  danger={current.danger}
-                  command={current.command}
-                  commands={current.commands}
-                  commandExplanation={current.commandExplanation}
-                  commandFlags={current.commandFlags}
-                  expectedOutput={current.expectedOutput}
-                  outputExplanation={current.outputExplanation}
-                  whatItMeans={current.whatItMeans}
-                  frameworks={current.frameworks}
-                  deliverable={current.producesDeliverable}
-                  usesForm={current.usesForm}
-                  troubleshooting={current.troubleshooting}
-                  fixes={current.fixes}
-                  verify={current.verify}
+                  step={current}
                   ledger={{ courseId, taskId: task.id, stepId: current.id, memberId }}
-                  optional={current.optional}
-                  where={current.where}
-                  path={current.path}
-                  files={current.files}
-                  tree={current.tree}
-                  walkthrough={current.walkthrough}
-                  images={current.images}
-                  outputHighlights={current.outputHighlights}
-                  outputKind={current.outputKind}
                   density={density}
                 />
               )}
@@ -429,45 +401,15 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
           {task.steps.map((step, i) => (
             <ChecklistItem
               key={step.id}
-              stepId={step.id}
+              step={step}
               number={i + 1}
               /* Exactly one row opens: the first incomplete step at the moment
-                 this list mounted (`currentIdx` is initialized to it). Read
-                 once — no re-open/re-close choreography as steps are ticked. */
+                 this list mounted (`currentIdx` is initialized to it). */
               defaultOpen={i === currentIdx}
               density={density}
-              title={step.title}
-              instruction={step.instruction}
-              instructionList={step.instructionList}
-              paths={step.paths}
-              guideRef={step.guideRef}
-              description={step.description}
-              command={step.command}
-              commands={step.commands}
-              commandExplanation={step.commandExplanation}
-              commandFlags={step.commandFlags}
-              expectedOutput={step.expectedOutput}
-              outputExplanation={step.outputExplanation}
-              whatItMeans={step.whatItMeans}
               isComplete={completed.has(step.id)}
               onToggle={(checked) => setStep(step.id, checked)}
-              frameworks={step.frameworks}
-              deliverable={step.producesDeliverable}
-              usesForm={step.usesForm}
-              danger={step.danger}
-              troubleshooting={step.troubleshooting}
-              fixes={step.fixes}
-              verify={step.verify}
               ledger={{ courseId, taskId: task.id, stepId: step.id, memberId }}
-              optional={step.optional}
-              where={step.where}
-              path={step.path}
-              files={step.files}
-              tree={step.tree}
-              walkthrough={step.walkthrough}
-              images={step.images}
-              outputHighlights={step.outputHighlights}
-              outputKind={step.outputKind}
             />
           ))}
         </div>

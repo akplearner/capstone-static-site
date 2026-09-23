@@ -276,7 +276,7 @@ describe('single source of truth', () => {
    * own per-week view.
    */
   it('the team block ignores advanced-week checks', () => {
-    const src = read('src/components/TeamBlock.tsx');
+    const src = read('src/components/team/TeamBlock.tsx');
     expect(src).toMatch(/isAdvancedWeek\(course, c\.week\)/);
   });
 });
@@ -485,7 +485,7 @@ describe('design tokens — palette classes do not come back', () => {
    * back in front of it.
    */
   it('the other-focus panel is not gated on sharedTrack', () => {
-    const src = code('src/app/courses/[courseId]/page.tsx');
+    const src = code('src/components/course/TasksTab.tsx');
     expect(src).toContain('{otherWeekTasks.length > 0 && (');
     expect(src, 'the panel is for every course that has other roles').not.toMatch(
       /sharedTrack\s*&&\s*otherWeekTasks/
@@ -564,7 +564,7 @@ describe('design tokens — palette classes do not come back', () => {
   });
 
   it('course completion is judged on graded weeks only', () => {
-    const src = code('src/app/courses/[courseId]/page.tsx');
+    const src = code('src/components/course/HomeTab.tsx');
     expect(src).not.toMatch(/course\.weeks\.every\(\(w\) => \(weekStats/);
     expect(src).toMatch(/isGradedWeek\(course, w\.number\)\)[\s\S]{0,120}allWeeksComplete/);
   });
@@ -647,8 +647,8 @@ describe('R68 — the shape of the modernised platform', () => {
   });
 
   it('the status surface is not a second week selector', () => {
-    expect(code('src/components/EngagementStatus.tsx')).not.toContain('onGoToWeek');
-    expect(code('src/components/EngagementStatus.tsx')).toContain('id="home-head"');
+    expect(code('src/components/team/EngagementStatus.tsx')).not.toContain('onGoToWeek');
+    expect(code('src/components/team/EngagementStatus.tsx')).toContain('id="home-head"');
   });
 
   it('the brand does not ping and the links carry no desktop icons', () => {
@@ -663,20 +663,20 @@ describe('R68 — the shape of the modernised platform', () => {
     expect(page).toContain("params.get('task')");
     expect(page).toContain("params.get('step')");
     expect(page).toContain("window.addEventListener('popstate', readDeepLink)");
-    expect(code('src/components/TaskComponents.tsx')).toContain('id={`step-${stepId}`}');
-    expect(code('src/components/GuidedTaskRunner.tsx')).toContain('initialStepId');
+    expect(code('src/components/task/ChecklistItem.tsx')).toContain('id={`step-${stepId}`}');
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain('initialStepId');
   });
 
   it('tab and week changes move focus to the new heading', () => {
     const page = code('src/app/courses/[courseId]/page.tsx');
     expect(page).toMatch(/focusById\(t === 'tasks' \? 'tasks-head' : 'home-head'\)/);
-    expect(page).toContain('id="tasks-head"');
+    expect(code('src/components/course/TasksTab.tsx')).toContain('id="tasks-head"');
     expect(code(DOCS)).toContain("focusById('week-head')");
     expect(code(DOCS)).toContain('id="week-head"');
   });
 
   it('the course Home is four surfaces, not ten boxes', () => {
-    const page = code('src/app/courses/[courseId]/page.tsx');
+    const page = code('src/components/course/HomeTab.tsx');
     expect(page).toContain('<Surface glow="accent" padding="lg">');
     expect(page).toContain('<Surface accent="role" seamColor={ownRole.color}');
     expect(page).not.toContain('🎉');
@@ -686,10 +686,10 @@ describe('R68 — the shape of the modernised platform', () => {
 
   it('the review loop, notes and stuck flag are mounted where the student works', () => {
     expect(code(DOCS)).toContain('<ReviewBanner');
-    expect(code('src/components/TaskComponents.tsx')).toContain('<StepNotes');
+    expect(code('src/components/step/StepDetail.tsx')).toContain('<StepNotes');
     expect(code('src/components/StepNotes.tsx')).toContain('aria-pressed');
     // A course reset clears the notes too, or the next student inherits them.
-    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('stepNotesRepo.resetCourse');
+    expect(code('src/components/course/HomeTab.tsx')).toContain('stepNotesRepo.resetCourse');
   });
 
   it('the offline layer is a first-party worker the policy allows', () => {
@@ -722,10 +722,10 @@ describe('R68 — the shape of the modernised platform', () => {
 
 describe('R69 — Terraform or OpenTofu is the student’s choice', () => {
   it('the choice is a Lab access select, and every command site honours it', () => {
-    expect(code('src/components/LabAccessPanel.tsx')).toContain("f.kind === 'select'");
+    expect(code('src/components/week/LabAccessPanel.tsx')).toContain("f.kind === 'select'");
     expect(code('src/lib/labAccess.ts')).toContain('export function useIacTool(');
-    expect(code('src/components/TaskComponents.tsx')).toContain('commandFor(c, tool)');
-    expect(code('src/components/TaskComponents.tsx')).toContain('verifyRaw?.map((v) => applyIacTool(v, tool))');
+    expect(code('src/components/step/CommandBlock.tsx')).toContain('commandFor(c, tool)');
+    expect(code('src/components/step/StepDetail.tsx')).toContain('verifyRaw?.map((v) => applyIacTool(v, tool))');
     expect(code('src/components/docs/ServerConfigGuide.tsx')).toContain('commandFor(step, tool)');
   });
 
@@ -778,15 +778,15 @@ describe('R72 — every command says where it runs, and every week shows its par
   });
 
   it('a command carries its machine and its sample through to the screen', () => {
-    const components = code('src/components/TaskComponents.tsx');
+    const components = code('src/components/step/CommandBlock.tsx');
     expect(components).toContain('<MachineChip on={on}');
     expect(components).toContain("'What it prints'");
     expect(components).toContain('shellPrompt(');
   });
 
   it('the task, the week and the guide all draw the part being built', () => {
-    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('<TopologyFocus');
-    expect(code('src/components/WeekMilestoneHeader.tsx')).toContain('<TopologyFocus');
+    expect(code('src/components/course/TaskRow.tsx')).toContain('<TopologyFocus');
+    expect(code('src/components/week/WeekMilestoneHeader.tsx')).toContain('<TopologyFocus');
     const guide = code('src/components/docs/ServerConfigGuide.tsx');
     expect(guide).toContain('<TopologyFocus');
     expect(guide).toContain('<ServerTopologyDiagram highlight=');
@@ -804,18 +804,17 @@ describe('R72 — every command says where it runs, and every week shows its par
 
 describe('R71 — a course you can follow: the build map, the key-points view, and no door into the private zone', () => {
   it('the Tasks tab keeps the topology goal in front of the student', () => {
-    const page = code('src/app/courses/[courseId]/page.tsx');
-    expect(page).toContain('<BuildMap');
-    expect(page).toContain('useStepDensity(');
-    expect(page).toContain('saveStepDensity(');
+    expect(code('src/components/course/TasksTab.tsx')).toContain('<BuildMap');
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('useStepDensity(');
+    expect(code('src/components/course/TasksTab.tsx')).toContain('saveStepDensity(');
   });
 
   it('the step density is a course flag with a per-student override, not a course-id ternary', () => {
-    const runner = code('src/components/GuidedTaskRunner.tsx');
+    const runner = code('src/components/task/GuidedTaskRunner.tsx');
     expect(runner).toContain('guidedDefault');
     expect(runner).toContain('onDensityChange');
     expect(runner).not.toMatch(/courseId === 'cysa-plus'/);
-    const components = code('src/components/TaskComponents.tsx');
+    const components = code('src/components/step/StepDetail.tsx');
     expect(components).toContain('compact={density');
   });
 
@@ -1077,5 +1076,35 @@ describe('R78 — depth', () => {
     // Tier 0 is one 1px spread layer and nothing else, so the "no border beside
     // a tier" rule above still describes a single edge rather than two.
     expect(CSS).toMatch(/--depth-0: 0 0 0 1px var\(--depth-rim\);/);
+  });
+});
+
+/**
+ * R78-C1 — one hierarchy.
+ *
+ * The course page was 1,822 lines with four components defined inside it, and
+ * `StepDetail` took 28 individual props that three call sites hand-copied —
+ * and the copies had drifted. Both are the kind of shape that grows back one
+ * convenient edit at a time, so both are numbers now.
+ */
+describe('R78-C1 — one hierarchy', () => {
+  it('the course page is orchestration, not a place to define components', () => {
+    const lines = read('src/app/courses/[courseId]/page.tsx').split('\n').length;
+    expect(lines, 'define the component under src/components/course/ instead').toBeLessThan(400);
+    expect(code('src/app/courses/[courseId]/page.tsx')).not.toMatch(/^function [A-Z]\w+\(/m);
+  });
+
+  it('a step is passed as one object, never as a field list', () => {
+    // `<StepDetail instruction=…` is the spelling that let `danger` go missing
+    // from one of three copies for a round.
+    const offenders: string[] = [];
+    for (const f of collectSourceFiles('src')) {
+      if (/<(StepDetail|ChecklistItem)\b[^>]*\b(instruction|whatItMeans|expectedOutput)=/.test(code(f))) offenders.push(f);
+    }
+    expect(offenders, 'pass `step={s}`').toEqual([]);
+    // …and the two renderers that take it are the only spellings of the body.
+    expect(code('src/components/task/GuidedTaskRunner.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
+    expect(code('src/components/task/ChecklistItem.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
+    expect(code('src/components/course/TaskReference.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
   });
 });
