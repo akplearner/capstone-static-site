@@ -54,7 +54,7 @@ export const SITES: Site[] = [
     name: 'Austin HQ',
     short: 'HQ',
     octet: 50,
-    rooms: 'MDF in the server room, one IDF on the warehouse mezzanine',
+    rooms: 'MDF in the server room, an IDF on the warehouse mezzanine',
   },
   {
     id: 'branch',

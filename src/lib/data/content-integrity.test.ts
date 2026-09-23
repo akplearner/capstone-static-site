@@ -434,6 +434,29 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
     expect(over, `cut these explains under 36 words: ${over.join(', ')}`).toHaveLength(0);
   });
 
+  // R79: the reading budget. Students said the platform showed too much at
+  // once; these are the words a student meets BEFORE choosing to expand
+  // anything — the week's sentence, the task's sentence, a step's one-line
+  // instruction and its numbered actions — so they are numbers, for every
+  // week of every course. Detail has no budget: it lives in the fields the
+  // step shows on request (`whatItMeans`, `commands[].explain`, `fixes`).
+  it('R79 — the words a student meets before expanding anything are budgeted', () => {
+    const over: string[] = [];
+    for (const w of course.weeks) {
+      if (prose(w.objective) > 20) over.push(`week ${w.number} objective (${prose(w.objective)}w > 20)`);
+    }
+    for (const t of course.tasks) {
+      if (prose(t.objective) > 25) over.push(`${t.id} objective (${prose(t.objective)}w > 25)`);
+      for (const s of t.steps) {
+        if (prose(s.instruction ?? '') > 30) over.push(`${s.id} instruction (${prose(s.instruction ?? '')}w > 30)`);
+        (s.instructionList ?? []).forEach((item, i) => {
+          if (prose(item) > 20) over.push(`${s.id} action ${i + 1} (${prose(item)}w > 20)`);
+        });
+      }
+    }
+    expect(over, `move the detail down a tier: ${over.join('; ')}`).toHaveLength(0);
+  });
+
   it('graded-week step descriptions stay a subtitle', () => {
     const over = allSteps(course)
       .filter(baseBuild)

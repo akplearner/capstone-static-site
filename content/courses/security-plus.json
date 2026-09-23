@@ -966,7 +966,7 @@
             "id": "red-w3-s1",
             "title": "SQL Injection Attack",
             "description": "Dump the DVWA users table through the SQL-injection page.",
-            "instruction": "In a browser, log into DVWA and set Security = Low (DVWA Security page), then open the SQL Injection page once so the id parameter exists. Run sqlmap from your Kali terminal against that URL.",
+            "instruction": "In a browser, log into DVWA, set Security = Low, and open the SQL Injection page once so the id parameter exists. Then run sqlmap from Kali against that URL.",
             "commands": [
               {
                 "cmd": "mkdir -p ~/team-artifacts/week-3",
@@ -1054,7 +1054,7 @@
             "description": "Guess the DVWA admin password with hydra against the Brute Force lab page.",
             "instruction": "Target the DVWA \"Brute Force\" lab page — NOT the main login.",
             "instructionList": [
-              "login.php has a per-request anti-CSRF user_token that hydra cannot submit, so a password it \"finds\" there will not actually log you in.",
+              "login.php has a per-request anti-CSRF token hydra cannot submit, so a password it \"finds\" there will not log you in.",
               "The Brute Force page has no such token on Low, so that is the one to attack.",
               "You must be logged in first: in the browser, log into DVWA and set Security = Low.",
               "Copy your PHPSESSID cookie (DevTools → Application → Cookies) and paste it into the command below."
@@ -1180,9 +1180,9 @@
             "description": "Catch a shell from the target using a command-injection payload.",
             "instruction": "A two-window attack. Know where each line goes.",
             "instructionList": [
-              "DVWA usually runs in a minimal Docker container with no nc and no bash — so the PHP payload (command 4) is the one that reliably works; the nc/bash payloads (5, 6) are fallbacks only if the container has them.",
+              "DVWA’s container usually lacks nc and bash, so use the PHP payload (command 4); 5 and 6 are fallbacks.",
               "Kali terminal: start the listener (command 2) and leave it running.",
-              "Browser: DVWA (Security = Low) → Command Injection → \"Enter an IP address\" box. First run command 3 to see what the container has, then paste ONE payload (4, or fallback 5/6) and Submit.",
+              "In DVWA (Security = Low) → Command Injection, run command 3 to see what exists, then submit ONE payload (4, else 5/6).",
               "The page hangs while the shell is open — that is normal; look at your listener.",
               "Kali terminal: the shell lands in your listener. Run id, then save it and your notes to ~/team-artifacts/week-3/Reverse_Shell_Proof.txt."
             ],
@@ -1337,7 +1337,7 @@
             "instructionList": [
               "Kali terminal: build the payload (command 2).",
               "Kali msfconsole: start the handler (command 3) and leave it waiting.",
-              "Browser: in DVWA (Security = Low) → File Upload, choose shell.php and Upload; note the path DVWA prints, then open that path (command 4) to run it.",
+              "In DVWA (Security = Low) → File Upload, upload shell.php, note the path DVWA prints, then open it (command 4).",
               "Back in msfconsole a Meterpreter session opens: run sysinfo and getuid (command 5) and save the proof."
             ],
             "commands": [
@@ -1667,7 +1667,7 @@
             "id": "blue-w0-s4",
             "title": "Run the DVWA Target (Docker)",
             "description": "Start Docker on the Ubuntu host and run DVWA — the vulnerable web app Red will attack.",
-            "instruction": "On the Ubuntu host, install Docker, run the DVWA image as a NAMED container on port 80, then confirm it answers. Naming it \"dvwa\" lets you start/stop it later by name.",
+            "instruction": "On the Ubuntu host, install Docker, run the DVWA image as a container NAMED dvwa on port 80, then confirm it answers.",
             "commands": [
               {
                 "cmd": "sudo apt install -y docker.io",
@@ -1937,7 +1937,7 @@
             "id": "blue-w1-s3",
             "title": "Configure Firewall",
             "description": "Enable UFW and allow only SSH and HTTP.",
-            "instruction": "Run these one at a time on the Ubuntu host. UFW (Uncomplicated Firewall) decides what network traffic is allowed in. You start by blocking everything, then open only the ports you need.",
+            "instruction": "Run these one at a time on the Ubuntu host. UFW decides what traffic is allowed in: block everything first, then open only the ports you need.",
             "commands": [
               {
                 "cmd": "sudo ufw default deny incoming",

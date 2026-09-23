@@ -283,13 +283,13 @@ export const PATHS: Record<KitPath, { label: string; what: string; strength: str
     label: 'Emulated',
     what: 'The topology runs as software on your own machine.',
     strength: 'Every device the design calls for, free, and you can break it without consequence.',
-    limit: 'No cabling, no optics, no PoE, no interface errors — Week 1 records those as design decisions rather than doing them.',
+    limit: 'No cabling, optics, PoE or interface errors; Week 1 records those as design decisions.',
   },
   physical: {
     label: 'Physical kit',
     what: 'Real switches and routers on a bench or in a rack.',
     strength: 'Cabling, optics, PoE, console recovery and the interface counters that only real copper produces.',
-    limit: 'Costs money, and what your specific models support decides how some weeks are built — which is what the register is for.',
+    limit: 'It costs money, and what your models support decides how some weeks are built.',
   },
 };
 

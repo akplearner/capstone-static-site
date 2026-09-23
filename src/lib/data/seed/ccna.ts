@@ -74,7 +74,7 @@ const WEEKS: WeekDef[] = [
     title: 'Acquisition & Kit',
     theme: 'What you have, and what it can do',
     objective:
-      'Declare how this build runs, register every device, and prove each capability with the command output that says so — because what your kit supports decides how every later week is built.',
+      'Declare how this build runs, register every device, and prove each capability with the command output that says so.',
     runs: 'Week 0',
     setup: true,
     stage: 0,
@@ -92,7 +92,7 @@ const WEEKS: WeekDef[] = [
     title: 'Connect',
     theme: 'Cable it, address it, reach it',
     objective:
-      'Discover what the business needs, design the shape of the network, then bring the first switches up: cabled, named, addressed, reachable, and documented.',
+      'Discover what the business needs, design the network’s shape, then bring the first switches up — cabled, named, addressed, reachable.',
     runs: 'Week 1',
     stage: 1,
     phase: 'Connect',
@@ -110,7 +110,7 @@ const WEEKS: WeekDef[] = [
     title: 'Segment',
     theme: 'One network becomes departments',
     objective:
-      'Turn the flat office network into VLANs with trunks between switches, hand out addresses, and route between the departments the way your own kit allows.',
+      'Turn the flat office network into VLANs with trunks between switches, hand out addresses, and route between the departments.',
     runs: 'Week 2',
     stage: 2,
     phase: 'Segment',
@@ -128,7 +128,7 @@ const WEEKS: WeekDef[] = [
     title: 'Route',
     theme: 'A second building, and the internet',
     objective:
-      'Join the branch to headquarters, learn routes dynamically rather than by hand, and give the whole company one way out to the internet.',
+      'Join the branch to headquarters, learn routes dynamically, and give the company one way out to the internet.',
     runs: 'Week 3',
     stage: 3,
     phase: 'Route',
@@ -145,7 +145,7 @@ const WEEKS: WeekDef[] = [
     title: 'Protect',
     theme: 'The business rules, enforced',
     objective:
-      'Turn the policy into access lists, harden every device’s management plane, put the WLANs on the air, and prove the traffic that must NOT pass does not pass.',
+      'Turn the policy into access lists, harden every device, put the WLANs on the air, prove forbidden traffic is blocked.',
     runs: 'Week 4',
     stage: 4,
     phase: 'Protect',
@@ -163,7 +163,7 @@ const WEEKS: WeekDef[] = [
     title: 'Operate',
     theme: 'Run it, do not just build it',
     objective:
-      'Put the network under management: a source of truth in NetBox, configurations backed up and versioned, and every change requested, reviewed by a teammate and reversible.',
+      'A source of truth in NetBox, configurations backed up and versioned, and every change reviewed by a teammate and reversible.',
     runs: 'Week 5',
     advanced: true,
     phase: 'Operate',
@@ -180,7 +180,7 @@ const WEEKS: WeekDef[] = [
     title: 'Observe',
     theme: 'Know before the phone rings',
     objective:
-      'Stand up a small NOC — polling, logs, latency and dashboards — then work a real ticket down the layers instead of guessing.',
+      'Stand up a small NOC — polling, logs, latency and dashboards — then work a real ticket down the layers.',
     runs: 'Week 6',
     advanced: true,
     phase: 'Observe',
@@ -197,7 +197,7 @@ const WEEKS: WeekDef[] = [
     title: 'Automate',
     theme: 'Stop typing the same thing',
     objective:
-      'Read the network through its APIs, describe it as data, and let Ansible configure from the source of truth rather than from your memory.',
+      'Read the network through its APIs, describe it as data, and let Ansible configure from the source of truth.',
     runs: 'Week 7',
     advanced: true,
     phase: 'Automate',
@@ -214,7 +214,7 @@ const WEEKS: WeekDef[] = [
     title: 'Engineer',
     theme: 'Something breaks. Then you hand it over.',
     objective:
-      'Work an injected failure as an incident, find the root cause, fix it under change control, prove the fix, and hand the network to whoever runs it next.',
+      'Work an injected failure as an incident: root cause, a fix under change control, proof, and a handover.',
     runs: 'Week 8',
     advanced: true,
     phase: 'Engineer',
@@ -281,7 +281,7 @@ const TASKS: Task[] = [
         'ccna-w0-path-s1',
         'Pick the path, and know what it costs you',
         'Anywhere — this is a team decision',
-        `Decide as a team: ${PATHS.emulated.label} or ${PATHS.physical.label}. Emulation gives you every device the design calls for; hardware gives you cabling, optics, PoE and real interface counters. Both are first-class here — record which one you are on.`,
+        `Decide as a team: ${PATHS.emulated.label} or ${PATHS.physical.label}. Emulation gives you every device the design calls for; hardware gives cabling, optics, PoE and real counters. Record which you are on.`,
         'The team has agreed one path and the reason, and it is written in the register.',
         {
           usesForm: 'Kit & Capability Register',
@@ -319,7 +319,7 @@ const TASKS: Task[] = [
     week: 0,
     title: 'Register the kit and prove what it can do',
     objective:
-      'One row per device with its real software version, then each capability answered Yes or No with the command output that proves it — the document every later week reads.',
+      'One row per device with its real software version, then each capability answered Yes or No with the output that proves it.',
     frameworks: ['CCNA'],
     deliverables: ['01_Kit_and_Capability_Register.md'],
     estimatedTime: '1 h',
@@ -377,7 +377,7 @@ const TASKS: Task[] = [
         description: 'Yes or No, with the line that says so.',
         where: 'Each device — console or SSH',
         instruction:
-          'Work down the capability list in the register. Run the command, read the tell, record the answer, and paste the line. A "Yes" with no output beside it is an opinion.',
+          'Work down the capability list: run the command, read the tell, record the answer, and paste the line. A "Yes" with no output beside it is an opinion.',
         usesForm: 'Kit & Capability Register',
         instructionList: CAPABILITIES.slice(0, 6).map((cap) => `${cap.label} — run \`${cap.proof.cmd}\`: ${cap.proof.tell}`),
         commands: [
@@ -448,7 +448,7 @@ const TASKS: Task[] = [
         'ccna-w1-discover-s1',
         'Ask the business what it needs',
         'With your instructor, or from the scenario',
-        `${COMPANY.name}: ${COMPANY.driver} Record the departments, what each one does on the network, and what cannot go down.`,
+        `${COMPANY.name}: ${COMPANY.driver} Record the departments, what each does, and what cannot go down.`,
         'The requirements form names every department, its people and its needs — and one sentence on what downtime costs.',
         {
           usesForm: 'Requirements & Site Survey',
@@ -460,7 +460,7 @@ const TASKS: Task[] = [
         'ccna-w1-discover-s2',
         'Walk the building',
         'Both sites — on foot, or from the site notes',
-        `Record where the equipment lives, how many drops there are, and where the circuit comes in. ${SITES[0].rooms}; the branch has ${SITES[1].rooms.toLowerCase()}.`,
+        `Record where the equipment lives, how many drops, and where the circuit comes in. HQ: ${SITES[0].rooms}.`,
         'The survey records the rooms, the drops, the cable runs and the ISP handoff.',
         {
           usesForm: 'Requirements & Site Survey', producesDeliverable: '02_Requirements_and_Site_Survey.md',
@@ -494,7 +494,7 @@ const TASKS: Task[] = [
         'ccna-w1-design-s1',
         'Decide where routing happens',
         'On paper first',
-        'If the register says you have a switch that routes, the core routes between VLANs. If it does not, the router does, over one trunk. Write the decision down with the reason.',
+        'If the register says a switch routes, the core routes between VLANs; if not, the router does, over one trunk. Write the decision down with the reason.',
         'The design states where inter-VLAN routing happens and which capability answer made that the choice.',
         {
           usesForm: 'High-Level Design',
@@ -539,7 +539,7 @@ const TASKS: Task[] = [
         'ccna-w1-bringup-s1',
         'Name it, address it, save it',
         'Each switch — console',
-        `Set the hostname from the plan, give the switch its management address in ${vlan(99).name}, and save. A device you cannot reach is a device you will be walking to all term.`,
+        `Set the hostname from the plan, give the switch its management address in ${vlan(99).name}, and save. A device you cannot reach is one you will walk to all term.`,
         'Each switch answers a ping on its management address, and `show running-config` survives a reload.',
         {
           usesForm: 'Build & Configuration Log',
@@ -551,7 +551,7 @@ const TASKS: Task[] = [
         'ccna-w1-bringup-s2',
         'Read the interfaces like an engineer',
         'Each switch — console or SSH',
-        'Check every port you cabled: up, the speed you expected, no errors climbing. A link that is up at 100 Mbps when you expected 1 Gbps is a cable problem you want to find now.',
+        'Check every port you cabled: up, the expected speed, no errors climbing. A link at 100 Mbps when you expected 1 Gbps is a cable problem to find now.',
         'Interface status matches the plan, and the error counters are clean on every link you rely on.',
         {
           usesForm: 'Build & Configuration Log', producesDeliverable: '05_Build_and_Configuration_Log.md',
@@ -615,7 +615,7 @@ const TASKS: Task[] = [
     week: 2,
     title: 'Route between the departments',
     objective:
-      'Give every VLAN a gateway and let the departments reach each other — on the switch if your kit routes, on a router over one trunk if it does not.',
+      'Give every VLAN a gateway and let the departments reach each other: on the switch if your kit routes, else on the router.',
     frameworks: ['CCNA'],
     deliverables: ['05_Build_and_Configuration_Log.md'],
     estimatedTime: '1 h',
@@ -644,7 +644,7 @@ const TASKS: Task[] = [
         'ccna-w2-route-s2',
         'Hand out addresses, then prove it end to end',
         'The DHCP device, then a client',
-        'Serve DHCP where the plan says — on the network device or relayed to the server — then release and renew on a client and watch it get the right address, mask and gateway.',
+        'Serve DHCP where the plan says — on the device or relayed to the server — then release and renew on a client and confirm the address, mask and gateway.',
         'A client gets an address from the right pool with the right gateway, and reaches a host in another VLAN.',
         {
           usesForm: 'Validation & Test Matrix', producesDeliverable: '06_Validation_and_Test_Matrix.md',
@@ -661,7 +661,7 @@ const TASKS: Task[] = [
     week: 2,
     title: 'Survive a cable being pulled',
     objective:
-      'Add a second link between switches and prove the network keeps working when one of them dies — bonded if your kit does EtherChannel, blocked by spanning tree if not.',
+      'Add a second link between switches and prove the network survives losing one — bonded if your kit does EtherChannel, blocked by spanning tree if not.',
     frameworks: ['CCNA'],
     deliverables: ['06_Validation_and_Test_Matrix.md'],
     estimatedTime: '45 min',
@@ -735,7 +735,7 @@ const TASKS: Task[] = [
         'ccna-w3-wan-s2',
         'Turn OSPF on, then read the adjacency',
         'Both routers',
-        `Advertise the networks into OSPF area ${WAN.ospfArea} on both sides, then check the neighbour state. A neighbour stuck below FULL is telling you something specific — read it rather than restarting the process.`,
+        `Advertise the networks into OSPF area ${WAN.ospfArea} on both sides, then check the neighbour state. A neighbour stuck below FULL is telling you something specific — read it, don’t restart.`,
         'The neighbour table shows FULL, and each router has routes it did not have before, marked as OSPF.',
         {
           usesForm: 'Build & Configuration Log',
@@ -839,7 +839,7 @@ const TASKS: Task[] = [
         'ccna-w4-policy-s2',
         'Apply it, then try to break it',
         'The routing device, then a client in each VLAN',
-        'Apply each ACL, then test from the guest VLAN into the LAN and from the user VLAN into management. The tests that must FAIL are the evidence that the policy works.',
+        'Apply each ACL, then test from the guest VLAN into the LAN and from the user VLAN into management. The tests that must FAIL are the evidence.',
         'The test matrix has blocked rows that are blocked, and allowed rows that still work.',
         {
           usesForm: 'Validation & Test Matrix', producesDeliverable: '07_Security_Baseline_and_Policy.md',
@@ -918,7 +918,7 @@ const TASKS: Task[] = [
         'ccna-w4-wireless-s1',
         'One SSID per VLAN, and no surprises',
         'The AP or controller',
-        `Create a WLAN per group — corporate, guest, IOT — and map each to its VLAN. Guest on the air must be as isolated as guest on copper, and the ${vlan(50).name} rules already say so.`,
+        `Create a WLAN per group — corporate, guest, IOT — and map each to its VLAN. Guest on the air must be as isolated as guest on copper.`,
         'Each SSID is on the air and a client on it gets an address from that VLAN’s pool.',
         {
           usesForm: 'Build & Configuration Log',
@@ -1155,7 +1155,7 @@ const TASKS: Task[] = [
     week: 7,
     title: 'Configure from the source of truth',
     objective:
-      'Write a playbook that adds a VLAN to every access switch from the data in NetBox — and that does nothing at all the second time you run it.',
+      'Write a playbook that adds a VLAN to every access switch from the data in NetBox — and does nothing the second time you run it.',
     frameworks: ['CCNA'],
     deliverables: ['08_Operations_and_Change_Records.md'],
     estimatedTime: '1 h 30 min',
@@ -1247,7 +1247,7 @@ const TASKS: Task[] = [
     week: 8,
     title: 'Hand the network over',
     objective:
-      'Assemble the as-built package: what you really built, the known issues, how credentials pass, and how somebody checks this network is healthy on their first morning.',
+      'Assemble the as-built package: what you really built, the known issues, how credentials pass, and how somebody checks the network is healthy on day one.',
     frameworks: ['CCNA', 'ITIL'],
     deliverables: ['10_As_Built_and_Handover.md'],
     estimatedTime: '1 h 30 min',

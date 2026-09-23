@@ -62,7 +62,7 @@
         "number": 0,
         "title": "Acquisition & Kit",
         "theme": "What you have, and what it can do",
-        "objective": "Declare how this build runs, register every device, and prove each capability with the command output that says so — because what your kit supports decides how every later week is built.",
+        "objective": "Declare how this build runs, register every device, and prove each capability with the command output that says so.",
         "runs": "Week 0",
         "setup": true,
         "stage": 0,
@@ -90,7 +90,7 @@
         "number": 1,
         "title": "Connect",
         "theme": "Cable it, address it, reach it",
-        "objective": "Discover what the business needs, design the shape of the network, then bring the first switches up: cabled, named, addressed, reachable, and documented.",
+        "objective": "Discover what the business needs, design the network’s shape, then bring the first switches up — cabled, named, addressed, reachable.",
         "runs": "Week 1",
         "stage": 1,
         "phase": "Connect",
@@ -124,7 +124,7 @@
         "number": 2,
         "title": "Segment",
         "theme": "One network becomes departments",
-        "objective": "Turn the flat office network into VLANs with trunks between switches, hand out addresses, and route between the departments the way your own kit allows.",
+        "objective": "Turn the flat office network into VLANs with trunks between switches, hand out addresses, and route between the departments.",
         "runs": "Week 2",
         "stage": 2,
         "phase": "Segment",
@@ -158,7 +158,7 @@
         "number": 3,
         "title": "Route",
         "theme": "A second building, and the internet",
-        "objective": "Join the branch to headquarters, learn routes dynamically rather than by hand, and give the whole company one way out to the internet.",
+        "objective": "Join the branch to headquarters, learn routes dynamically, and give the company one way out to the internet.",
         "runs": "Week 3",
         "stage": 3,
         "phase": "Route",
@@ -185,7 +185,7 @@
         "number": 4,
         "title": "Protect",
         "theme": "The business rules, enforced",
-        "objective": "Turn the policy into access lists, harden every device’s management plane, put the WLANs on the air, and prove the traffic that must NOT pass does not pass.",
+        "objective": "Turn the policy into access lists, harden every device, put the WLANs on the air, prove forbidden traffic is blocked.",
         "runs": "Week 4",
         "stage": 4,
         "phase": "Protect",
@@ -219,7 +219,7 @@
         "number": 5,
         "title": "Operate",
         "theme": "Run it, do not just build it",
-        "objective": "Put the network under management: a source of truth in NetBox, configurations backed up and versioned, and every change requested, reviewed by a teammate and reversible.",
+        "objective": "A source of truth in NetBox, configurations backed up and versioned, and every change reviewed by a teammate and reversible.",
         "runs": "Week 5",
         "advanced": true,
         "phase": "Operate",
@@ -246,7 +246,7 @@
         "number": 6,
         "title": "Observe",
         "theme": "Know before the phone rings",
-        "objective": "Stand up a small NOC — polling, logs, latency and dashboards — then work a real ticket down the layers instead of guessing.",
+        "objective": "Stand up a small NOC — polling, logs, latency and dashboards — then work a real ticket down the layers.",
         "runs": "Week 6",
         "advanced": true,
         "phase": "Observe",
@@ -273,7 +273,7 @@
         "number": 7,
         "title": "Automate",
         "theme": "Stop typing the same thing",
-        "objective": "Read the network through its APIs, describe it as data, and let Ansible configure from the source of truth rather than from your memory.",
+        "objective": "Read the network through its APIs, describe it as data, and let Ansible configure from the source of truth.",
         "runs": "Week 7",
         "advanced": true,
         "phase": "Automate",
@@ -300,7 +300,7 @@
         "number": 8,
         "title": "Engineer",
         "theme": "Something breaks. Then you hand it over.",
-        "objective": "Work an injected failure as an incident, find the root cause, fix it under change control, prove the fix, and hand the network to whoever runs it next.",
+        "objective": "Work an injected failure as an incident: root cause, a fix under change control, proof, and a handover.",
         "runs": "Week 8",
         "advanced": true,
         "phase": "Engineer",
@@ -362,7 +362,7 @@
             "title": "Pick the path, and know what it costs you",
             "description": "The team has agreed one path and the reason, and it is written in the register.",
             "where": "Anywhere — this is a team decision",
-            "instruction": "Decide as a team: Emulated or Physical kit. Emulation gives you every device the design calls for; hardware gives you cabling, optics, PoE and real interface counters. Both are first-class here — record which one you are on.",
+            "instruction": "Decide as a team: Emulated or Physical kit. Emulation gives you every device the design calls for; hardware gives cabling, optics, PoE and real counters. Record which you are on.",
             "expectedOutput": "The team has agreed one path and the reason, and it is written in the register.",
             "outputKind": "result",
             "frameworks": [
@@ -371,9 +371,9 @@
             "usesForm": "Kit & Capability Register",
             "instructionList": [
               "Emulated: Every device the design calls for, free, and you can break it without consequence.",
-              "Emulated — the limit: No cabling, no optics, no PoE, no interface errors — Week 1 records those as design decisions rather than doing them.",
+              "Emulated — the limit: No cabling, optics, PoE or interface errors; Week 1 records those as design decisions.",
               "Physical kit: Cabling, optics, PoE, console recovery and the interface counters that only real copper produces.",
-              "Physical kit — the limit: Costs money, and what your specific models support decides how some weeks are built — which is what the register is for."
+              "Physical kit — the limit: It costs money, and what your models support decides how some weeks are built."
             ],
             "whatItMeans": "Neither path is the lesser one. Emulation cannot teach you what a bad patch lead feels like; hardware cannot give you eight routers on a laptop."
           },
@@ -408,7 +408,7 @@
         "shared": true,
         "week": 0,
         "title": "Register the kit and prove what it can do",
-        "objective": "One row per device with its real software version, then each capability answered Yes or No with the command output that proves it — the document every later week reads.",
+        "objective": "One row per device with its real software version, then each capability answered Yes or No with the output that proves it.",
         "frameworks": [
           "CCNA"
         ],
@@ -492,7 +492,7 @@
             "title": "Prove each capability, one command at a time",
             "description": "Yes or No, with the line that says so.",
             "where": "Each device — console or SSH",
-            "instruction": "Work down the capability list in the register. Run the command, read the tell, record the answer, and paste the line. A \"Yes\" with no output beside it is an opinion.",
+            "instruction": "Work down the capability list: run the command, read the tell, record the answer, and paste the line. A \"Yes\" with no output beside it is an opinion.",
             "usesForm": "Kit & Capability Register",
             "instructionList": [
               "Console access (blue cable or USB) — run `show users`: the line marked `*` is `con 0` — you are on the console",
@@ -586,7 +586,7 @@
             "title": "Ask the business what it needs",
             "description": "The requirements form names every department, its people and its needs — and one sentence on what downtime…",
             "where": "With your instructor, or from the scenario",
-            "instruction": "Northgate Supply Co.: One flat network, one switch out of ports, and a second building opening in six weeks. Record the departments, what each one does on the network, and what cannot go down.",
+            "instruction": "Northgate Supply Co.: One flat network, one switch out of ports, and a second building opening in six weeks. Record the departments, what each does, and what cannot go down.",
             "expectedOutput": "The requirements form names every department, its people and its needs — and one sentence on what downtime costs.",
             "outputKind": "result",
             "frameworks": [
@@ -600,7 +600,7 @@
             "title": "Walk the building",
             "description": "The survey records the rooms, the drops, the cable runs and the ISP handoff.",
             "where": "Both sites — on foot, or from the site notes",
-            "instruction": "Record where the equipment lives, how many drops there are, and where the circuit comes in. MDF in the server room, one IDF on the warehouse mezzanine; the branch has one wall-mount cabinet in the office.",
+            "instruction": "Record where the equipment lives, how many drops, and where the circuit comes in. HQ: MDF in the server room, an IDF on the warehouse mezzanine.",
             "expectedOutput": "The survey records the rooms, the drops, the cable runs and the ISP handoff.",
             "outputKind": "result",
             "frameworks": [
@@ -648,7 +648,7 @@
             "title": "Decide where routing happens",
             "description": "The design states where inter-VLAN routing happens and which capability answer made that the choice.",
             "where": "On paper first",
-            "instruction": "If the register says you have a switch that routes, the core routes between VLANs. If it does not, the router does, over one trunk. Write the decision down with the reason.",
+            "instruction": "If the register says a switch routes, the core routes between VLANs; if not, the router does, over one trunk. Write the decision down with the reason.",
             "expectedOutput": "The design states where inter-VLAN routing happens and which capability answer made that the choice.",
             "outputKind": "result",
             "frameworks": [
@@ -707,7 +707,7 @@
             "title": "Name it, address it, save it",
             "description": "Each switch answers a ping on its management address, and `show running-config` survives a reload.",
             "where": "Each switch — console",
-            "instruction": "Set the hostname from the plan, give the switch its management address in MGMT, and save. A device you cannot reach is a device you will be walking to all term.",
+            "instruction": "Set the hostname from the plan, give the switch its management address in MGMT, and save. A device you cannot reach is one you will walk to all term.",
             "expectedOutput": "Each switch answers a ping on its management address, and `show running-config` survives a reload.",
             "outputKind": "result",
             "frameworks": [
@@ -721,7 +721,7 @@
             "title": "Read the interfaces like an engineer",
             "description": "Interface status matches the plan, and the error counters are clean on every link you rely on.",
             "where": "Each switch — console or SSH",
-            "instruction": "Check every port you cabled: up, the speed you expected, no errors climbing. A link that is up at 100 Mbps when you expected 1 Gbps is a cable problem you want to find now.",
+            "instruction": "Check every port you cabled: up, the expected speed, no errors climbing. A link at 100 Mbps when you expected 1 Gbps is a cable problem to find now.",
             "expectedOutput": "Interface status matches the plan, and the error counters are clean on every link you rely on.",
             "outputKind": "result",
             "frameworks": [
@@ -799,7 +799,7 @@
         "shared": true,
         "week": 2,
         "title": "Route between the departments",
-        "objective": "Give every VLAN a gateway and let the departments reach each other — on the switch if your kit routes, on a router over one trunk if it does not.",
+        "objective": "Give every VLAN a gateway and let the departments reach each other: on the switch if your kit routes, else on the router.",
         "frameworks": [
           "CCNA"
         ],
@@ -843,7 +843,7 @@
             "title": "Hand out addresses, then prove it end to end",
             "description": "A client gets an address from the right pool with the right gateway, and reaches a host in another VLAN.",
             "where": "The DHCP device, then a client",
-            "instruction": "Serve DHCP where the plan says — on the network device or relayed to the server — then release and renew on a client and watch it get the right address, mask and gateway.",
+            "instruction": "Serve DHCP where the plan says — on the device or relayed to the server — then release and renew on a client and confirm the address, mask and gateway.",
             "expectedOutput": "A client gets an address from the right pool with the right gateway, and reaches a host in another VLAN.",
             "outputKind": "result",
             "frameworks": [
@@ -861,7 +861,7 @@
         "shared": true,
         "week": 2,
         "title": "Survive a cable being pulled",
-        "objective": "Add a second link between switches and prove the network keeps working when one of them dies — bonded if your kit does EtherChannel, blocked by spanning tree if not.",
+        "objective": "Add a second link between switches and prove the network survives losing one — bonded if your kit does EtherChannel, blocked by spanning tree if not.",
         "frameworks": [
           "CCNA"
         ],
@@ -961,7 +961,7 @@
             "title": "Turn OSPF on, then read the adjacency",
             "description": "The neighbour table shows FULL, and each router has routes it did not have before, marked as OSPF.",
             "where": "Both routers",
-            "instruction": "Advertise the networks into OSPF area 0 on both sides, then check the neighbour state. A neighbour stuck below FULL is telling you something specific — read it rather than restarting the process.",
+            "instruction": "Advertise the networks into OSPF area 0 on both sides, then check the neighbour state. A neighbour stuck below FULL is telling you something specific — read it, don’t restart.",
             "expectedOutput": "The neighbour table shows FULL, and each router has routes it did not have before, marked as OSPF.",
             "outputKind": "result",
             "frameworks": [
@@ -1092,7 +1092,7 @@
             "title": "Apply it, then try to break it",
             "description": "The test matrix has blocked rows that are blocked, and allowed rows that still work.",
             "where": "The routing device, then a client in each VLAN",
-            "instruction": "Apply each ACL, then test from the guest VLAN into the LAN and from the user VLAN into management. The tests that must FAIL are the evidence that the policy works.",
+            "instruction": "Apply each ACL, then test from the guest VLAN into the LAN and from the user VLAN into management. The tests that must FAIL are the evidence.",
             "expectedOutput": "The test matrix has blocked rows that are blocked, and allowed rows that still work.",
             "outputKind": "result",
             "frameworks": [
@@ -1200,7 +1200,7 @@
             "title": "One SSID per VLAN, and no surprises",
             "description": "Each SSID is on the air and a client on it gets an address from that VLAN’s pool.",
             "where": "The AP or controller",
-            "instruction": "Create a WLAN per group — corporate, guest, IOT — and map each to its VLAN. Guest on the air must be as isolated as guest on copper, and the GUEST rules already say so.",
+            "instruction": "Create a WLAN per group — corporate, guest, IOT — and map each to its VLAN. Guest on the air must be as isolated as guest on copper.",
             "expectedOutput": "Each SSID is on the air and a client on it gets an address from that VLAN’s pool.",
             "outputKind": "result",
             "frameworks": [
@@ -1503,7 +1503,7 @@
         "shared": true,
         "week": 7,
         "title": "Configure from the source of truth",
-        "objective": "Write a playbook that adds a VLAN to every access switch from the data in NetBox — and that does nothing at all the second time you run it.",
+        "objective": "Write a playbook that adds a VLAN to every access switch from the data in NetBox — and does nothing the second time you run it.",
         "frameworks": [
           "CCNA"
         ],
@@ -1621,7 +1621,7 @@
         "shared": true,
         "week": 8,
         "title": "Hand the network over",
-        "objective": "Assemble the as-built package: what you really built, the known issues, how credentials pass, and how somebody checks this network is healthy on their first morning.",
+        "objective": "Assemble the as-built package: what you really built, the known issues, how credentials pass, and how somebody checks the network is healthy on day one.",
         "frameworks": [
           "CCNA",
           "ITIL"
@@ -3767,7 +3767,7 @@
         "name": "Austin HQ",
         "short": "HQ",
         "octet": 50,
-        "rooms": "MDF in the server room, one IDF on the warehouse mezzanine"
+        "rooms": "MDF in the server room, an IDF on the warehouse mezzanine"
       },
       {
         "id": "branch",
@@ -4391,13 +4391,13 @@
           "label": "Emulated",
           "what": "The topology runs as software on your own machine.",
           "strength": "Every device the design calls for, free, and you can break it without consequence.",
-          "limit": "No cabling, no optics, no PoE, no interface errors — Week 1 records those as design decisions rather than doing them."
+          "limit": "No cabling, optics, PoE or interface errors; Week 1 records those as design decisions."
         },
         "physical": {
           "label": "Physical kit",
           "what": "Real switches and routers on a bench or in a rack.",
           "strength": "Cabling, optics, PoE, console recovery and the interface counters that only real copper produces.",
-          "limit": "Costs money, and what your specific models support decides how some weeks are built — which is what the register is for."
+          "limit": "It costs money, and what your models support decides how some weeks are built."
         }
       },
       "PREFLIGHT": [
@@ -4490,7 +4490,7 @@
             "name": "Austin HQ",
             "short": "HQ",
             "octet": 50,
-            "rooms": "MDF in the server room, one IDF on the warehouse mezzanine"
+            "rooms": "MDF in the server room, an IDF on the warehouse mezzanine"
           },
           "devices": [
             {
