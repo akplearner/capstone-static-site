@@ -19,6 +19,7 @@ import { Alert } from '@/components/ui/Alert';
 import { DeliverableForm } from '@/components/docs/DeliverableForm';
 import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
+import { GateReadinessStrip } from '@/components/week/GateReadinessStrip';
 import { GlossaryText } from '@/components/GlossaryText';
 import { TriageDecisionTree } from '@/components/diagrams/TriageDecisionTree';
 import { RiskMatrix } from '@/components/diagrams/RiskMatrix';
@@ -482,27 +483,21 @@ export default function DeliverablesPage() {
 
       {/* Gate readiness, when the course has gates. One compact strip, not a card. */}
       {gate && gateChecks.length > 0 && (
-        <div className="rounded-lg depth-edge bg-panel px-4 py-3">
-          <div className="flex flex-wrap items-baseline gap-x-2">
-            <span className="text-sm font-semibold text-ink">Gate {gate.id} readiness</span>
+        <GateReadinessStrip
+          title={`Gate ${gate.id} readiness`}
+          meta={
             <span className="font-mono text-xs text-muted">
               {gateChecks.filter((c) => c.pass).length}/{gateChecks.length} checks
             </span>
-          </div>
-          <ul className="mt-2 grid gap-x-6 gap-y-1 sm:grid-cols-2">
-            {gateChecks.map((c, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-xs">
-                {c.pass ? (
-                  <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
-                ) : (
-                  <Circle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
-                )}
-                <span className={c.pass ? 'text-muted line-through' : 'text-body'}>{c.label}</span>
-                <span className="text-3xs uppercase text-muted">{c.owner}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
+          }
+          columns={2}
+          checks={gateChecks.map((c, i) => ({
+            key: `${c.owner}-${i}`,
+            label: c.label,
+            pass: c.pass,
+            note: <span className="text-3xs uppercase">{c.owner}</span>,
+          }))}
+        />
       )}
 
       {/* ── this week's form(s) ─────────────────────────────────────────── */}

@@ -1123,6 +1123,41 @@ describe('R78-C1 — one hierarchy', () => {
 });
 
 /**
+ * R78-C2 — fold the duplicates.
+ *
+ * Two surfaces drew "how ready is this gate" from two sources with two sets of
+ * icons; the join panel was mounted twice; a component file could grow without
+ * limit. The first two are one component each now, the third is a number.
+ */
+describe('R78-C2 — fold the duplicates', () => {
+  it('gate readiness is one picture, whatever the source', () => {
+    // Both derivations render the same strip: the Tasks tab from task
+    // completion, the Deliverables page from the Definition-of-Done checks.
+    const strip = code('src/components/week/GateReadinessStrip.tsx');
+    expect(strip).toContain('line-through');
+    for (const f of ['src/components/week/WeekGatePanel.tsx', DOCS]) {
+      expect(code(f), `${f} draws the strip`).toContain('<GateReadinessStrip');
+      expect(code(f), `${f} does not draw its own tick list`).not.toContain('line-through');
+    }
+  });
+
+  it('the join panel is mounted once on Home', () => {
+    expect(code('src/components/course/HomeTab.tsx').match(/<JoinPanel\b/g)?.length).toBe(1);
+  });
+
+  it('no component file is over 600 lines', () => {
+    // The pixel scenes under quarry/ are drawings, not components to navigate.
+    const big: string[] = [];
+    for (const f of collectSourceFiles('src/components')) {
+      if (f.includes('/quarry/') || f.endsWith('.test.tsx') || f.endsWith('.test.ts')) continue;
+      const n = read(f).split('\n').length;
+      if (n > 600) big.push(`${f} (${n})`);
+    }
+    expect(big, 'split it — a file this long is two components').toEqual([]);
+  });
+});
+
+/**
  * R78-B — the funnel.
  *
  * One thing in focus per level, and one disclosure per level. These are the

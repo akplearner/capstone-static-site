@@ -209,12 +209,6 @@ export function HomeTab({
         </Surface>
       )}
 
-      {/* Join front-and-center for newcomers — the first action, above everything else. */}
-      {!joined && (
-        <div id="join-panel">
-          <JoinPanel course={course} member={member} userId={userId} requireAuth={requireAuth} onJoined={onJoined} />
-        </div>
-      )}
 
       {/* Shared track: the deep-dives the other focuses add this week. Titles
           only — a title tells you the slot is covered, but a hand-off can only
@@ -252,13 +246,13 @@ export function HomeTab({
       {/* One-time migration of this device's local progress into the account */}
       <ImportPrompt course={course} />
 
-      {/* Enrollment summary once joined (edit team/role here). No id: the
-          newcomer render above owns `join-panel`. */}
-      {joined && (
-        <div>
-          <JoinPanel course={course} member={member} userId={userId} requireAuth={requireAuth} onJoined={onJoined} />
-        </div>
-      )}
+      {/* The join panel, mounted once: front and centre for a newcomer (the
+          `join-panel` anchor the enrol gate links to), the compact "change
+          team or role" summary once joined. It used to be mounted twice, in
+          two mutually exclusive branches. */}
+      <div id={joined ? undefined : 'join-panel'}>
+        <JoinPanel course={course} member={member} userId={userId} requireAuth={requireAuth} onJoined={onJoined} />
+      </div>
 
       {joined && member && (
         <div className="flex flex-wrap items-center gap-3">

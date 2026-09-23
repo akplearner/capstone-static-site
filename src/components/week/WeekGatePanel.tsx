@@ -1,8 +1,9 @@
 'use client';
 
-import { ArrowRight, CheckCircle2, Circle, Flag, Users } from 'lucide-react';
+import { ArrowRight, Flag } from 'lucide-react';
 import { Course, GateStatus } from '@/lib/types';
 import { getRoleDef, getTaskById } from '@/lib/course-helpers';
+import { GateReadinessStrip, type ReadinessCheck } from './GateReadinessStrip';
 
 const STATUS_PILL: Record<GateStatus, string> = {
   locked: 'bg-panel-2 text-muted',
@@ -34,59 +35,46 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
   const gate = course.gates.find((g) => g.week === week);
   if (!gate) return null;
 
-  const items = gate.requiredTasks.map((id) => {
+  // The viewer's own required tasks are ticked from their progress; a
+  // teammate's is a `team` item — informational, never ticked here (the
+  // single-user gate model).
+  const checks: ReadinessCheck[] = gate.requiredTasks.map((id) => {
     const task = getTaskById(course, id);
     const role = task ? getRoleDef(course, task.role) : undefined;
     const mine = !!task && !!ownRole && task.role === ownRole;
-    const done = mine ? (taskStats[id] ?? 0) === 100 : false;
-    return { id, task, role, mine, done };
+    return {
+      key: id,
+      label: task ? task.title : id,
+      pass: mine && (taskStats[id] ?? 0) === 100,
+      kind: mine ? 'mine' : 'team',
+      note: (
+        <>
+          {role && (
+            <span className="text-xs font-medium" style={{ color: role.color }}>
+              {shortRole(role.name)}
+            </span>
+          )}
+          {!mine && <span className="ml-1">team</span>}
+        </>
+      ),
+    };
   });
 
   return (
-    <div className="rounded-lg depth-edge bg-panel-2 p-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex items-center gap-2">
+    <GateReadinessStrip
+      title={
+        <span className="inline-flex items-center gap-2">
           <Flag className="h-4 w-4 text-muted" />
-          <span className="font-semibold text-ink">
-            Gate {gate.id}: {gate.description}
-          </span>
-        </div>
+          Gate {gate.id}: {gate.description}
+        </span>
+      }
+      meta={
         <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${STATUS_PILL[status]}`}>
           {STATUS_LABEL[status]}
         </span>
-      </div>
-      <p className="mt-1 text-xs text-muted">Required to clear this week:</p>
-      <ul className="mt-2 space-y-1.5">
-        {items.map((it) => (
-          <li key={it.id} className="flex items-center gap-2 text-sm">
-            {it.mine ? (
-              it.done ? (
-                <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
-              ) : (
-                <Circle className="h-4 w-4 shrink-0 text-muted" />
-              )
-            ) : (
-              <Users className="h-4 w-4 shrink-0 text-muted" />
-            )}
-            <span
-              className={
-                it.done
-                  ? 'text-muted line-through'
-                  : 'text-body'
-              }
-            >
-              {it.task ? it.task.title : it.id}
-            </span>
-            {it.role && (
-              <span className="text-xs font-medium" style={{ color: it.role.color }}>
-                {shortRole(it.role.name)}
-              </span>
-            )}
-            {!it.mine && <span className="text-2xs text-muted">team</span>}
-          </li>
-        ))}
-      </ul>
-
+      }
+      checks={checks}
+    >
       {gate.handoffs && gate.handoffs.length > 0 && (
         <div className="mt-4 border-t border-line pt-3">
           <p className="eyebrow-muted">
@@ -118,7 +106,7 @@ export function WeekGatePanel({ course, week, status = 'locked', ownRole, taskSt
           </ul>
         </div>
       )}
-    </div>
+    </GateReadinessStrip>
   );
 }
 
