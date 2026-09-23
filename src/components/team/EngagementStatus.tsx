@@ -38,6 +38,7 @@ export function EngagementStatus({
   docsFiled,
   docsTotal,
   nextTask,
+  objective,
   onContinue,
   due,
   onCalendar,
@@ -53,6 +54,9 @@ export function EngagementStatus({
   docsFiled: number;
   docsTotal: number;
   nextTask?: Task;
+  /** Which of the week's objectives the next task belongs to (R79): "2 of 4"
+   *  and its label, so Continue names the thing, not only the task. */
+  objective?: { index: number; count: number; label: string };
   onContinue: () => void;
   /** The cohort calendar's line for this week, when a start date is set. */
   due?: { text: string; tone: DueTone };
@@ -88,14 +92,21 @@ export function EngagementStatus({
         </div>
 
         {nextTask && !complete && (
-          <button
-            type="button"
-            onClick={onContinue}
-            className="ml-auto inline-flex max-w-full items-center gap-2 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong"
-          >
-            <span className="truncate">Next: {nextTask.title}</span>
-            <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
-          </button>
+          <div className="ml-auto flex min-w-0 max-w-full flex-col items-end gap-1">
+            {objective && (
+              <div className="max-w-full truncate text-xs text-muted">
+                Objective {objective.index} of {objective.count} — {objective.label}
+              </div>
+            )}
+            <button
+              type="button"
+              onClick={onContinue}
+              className="inline-flex max-w-full items-center gap-2 rounded-lg bg-accent px-3.5 py-2 text-sm font-semibold text-accent-contrast transition-colors hover:bg-accent-strong"
+            >
+              <span className="truncate">Next: {nextTask.title}</span>
+              <ArrowRight className="h-4 w-4 shrink-0" aria-hidden />
+            </button>
+          </div>
         )}
       </div>
 

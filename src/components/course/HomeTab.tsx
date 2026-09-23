@@ -19,7 +19,7 @@ import { JoinPanel } from './JoinPanel';
 import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo } from '@/lib/data';
 import { notifyStore } from '@/lib/useClientStore';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, phaseTag } from '@/lib/course-helpers';
+import { getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, objectivesFor, phaseTag } from '@/lib/course-helpers';
 import { clearResume } from '@/lib/resume';
 import { phaseForWeek } from '@/lib/quarry';
 import { isDeliverableFiled } from '@/lib/deliverableChain';
@@ -97,6 +97,13 @@ export function HomeTab({
   const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
   const contentWeeks = sortedWeeks.filter((w) => w.number >= 1);
+  // Which objective the next task belongs to — Continue names it (R79).
+  const objectiveOfNext = (() => {
+    if (!member || !nextTask) return undefined;
+    const objectives = objectivesFor(course, member.role, nextTask.week);
+    const i = objectives.findIndex((o) => o.tasks.some((t) => t.id === nextTask.id));
+    return i >= 0 ? { index: i + 1, count: objectives.length, label: objectives[i].label } : undefined;
+  })();
   const otherRoles = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
   const savedDocs = member ? docsRepo.get(course.id, member.teamId) : null;
   // Shared track: what the other focuses document this week. Titles only — the
@@ -142,6 +149,7 @@ export function HomeTab({
           }
           docsTotal={deliverablesForCourse(course.id).length}
           nextTask={nextTask}
+          objective={objectiveOfNext}
           onContinue={onContinue}
           due={dueLine}
           onCalendar={

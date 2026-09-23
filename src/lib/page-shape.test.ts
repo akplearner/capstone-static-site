@@ -1279,6 +1279,11 @@ describe('R78-B — the funnel', () => {
     expect(code('src/components/course/TaskAboutPanel.tsx')).not.toContain('definitionOfDone');
   });
 
+  it('R79 — Home says which objective you are on', () => {
+    expect(code('src/components/course/HomeTab.tsx')).toContain('objectivesFor(');
+    expect(code('src/components/team/EngagementStatus.tsx')).toContain('Objective {objective.index} of {objective.count}');
+  });
+
   it('the workflow nodes are real buttons that a keyboard can walk', () => {
     const flow = code('src/components/diagrams/FlowDiagram.tsx');
     expect(flow).toContain("aria-current={current ? 'step' : undefined}");
