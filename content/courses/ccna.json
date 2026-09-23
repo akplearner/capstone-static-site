@@ -6,9 +6,12 @@
     "src/lib/ccnaTopology.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/ccnaKit.ts",
+    "src/lib/docs/ccnaDiagrams.ts",
+    "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
+    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -4313,6 +4316,340 @@
         "workstation": "Where you work from — console, SSH, browser"
       }
     },
+    "ccnaDiagrams": {
+      "ARRIVES": {
+        "site": {
+          "hq": 1,
+          "branch": 3
+        },
+        "vlans": 2,
+        "trunks": 2,
+        "routing": 2,
+        "wan": 3,
+        "internet": 3,
+        "policy": 4,
+        "wireless": 4
+      },
+      "CCNA_DIAGRAM_COPY": {
+        "title": "What you build — two sites, one network",
+        "howToRead": "Each column is a site. Inside it, the devices from the top of the network down to the access ports. The VLAN strip below each site is what that site's trunks carry. Dimmed parts arrive in a later week, tagged with the week they show up.",
+        "legend": [
+          {
+            "kind": "router",
+            "label": "Router — routing, NAT, the WAN"
+          },
+          {
+            "kind": "l3-switch",
+            "label": "Switch that routes — SVIs and the core"
+          },
+          {
+            "kind": "l2-switch",
+            "label": "Access switch — where users plug in"
+          },
+          {
+            "kind": "ap",
+            "label": "Access point — the WLANs"
+          },
+          {
+            "kind": "server",
+            "label": "Server — DNS, DHCP, the tools"
+          },
+          {
+            "kind": "workstation",
+            "label": "Where you work from"
+          }
+        ],
+        "siteHeading": "{name}",
+        "siteRooms": "{rooms}",
+        "vlanStripHeading": "{count} VLANs on the trunk",
+        "wanHeading": "WAN · 10.255.255.0/30 · OSPF area 0",
+        "wanNote": "A point-to-point link needs exactly two addresses, which is what a /30 gives you.",
+        "internetHeading": "Internet · Lonestar Fibre · 200 Mbps symmetric",
+        "internetNote": "The whole company leaves through one address (198.51.100.2). That is what NAT is for.",
+        "policyNote": "Guest reaches the internet and nothing else. Only the network team reaches management.",
+        "wirelessNote": "Each SSID lands in its own VLAN, so wireless inherits the wired segmentation.",
+        "footer": "These are the worked-example numbers the course is written around. Record your own in the Low-Level Design — and what your kit can actually do in the Kit & Capability Register.",
+        "routerOnAStick": "Your register says no switch here routes, so inter-VLAN routing happens on the router over one trunk — router-on-a-stick."
+      },
+      "SITE_COLUMNS": [
+        {
+          "site": {
+            "id": "hq",
+            "name": "Austin HQ",
+            "short": "HQ",
+            "octet": 50,
+            "rooms": "MDF in the server room, one IDF on the warehouse mezzanine"
+          },
+          "devices": [
+            {
+              "name": "ADMIN-PC",
+              "class": "workstation",
+              "site": "hq",
+              "runs": "Where you work — console, SSH, browser",
+              "mgmt": {
+                "vlan": 99,
+                "host": 50
+              },
+              "arrives": 0
+            },
+            {
+              "name": "SW-CORE-01",
+              "class": "l3-switch",
+              "site": "hq",
+              "runs": "Core switch — SVIs, inter-VLAN routing",
+              "mgmt": {
+                "vlan": 99,
+                "host": 10
+              },
+              "arrives": 1
+            },
+            {
+              "name": "SW-ACC-01",
+              "class": "l2-switch",
+              "site": "hq",
+              "runs": "Access switch — offices, trunk to core",
+              "mgmt": {
+                "vlan": 99,
+                "host": 11
+              },
+              "arrives": 1
+            },
+            {
+              "name": "SW-ACC-02",
+              "class": "l2-switch",
+              "site": "hq",
+              "runs": "Access switch — warehouse IDF, PoE for phones",
+              "mgmt": {
+                "vlan": 99,
+                "host": 12
+              },
+              "arrives": 2
+            },
+            {
+              "name": "SRV-CORE",
+              "class": "server",
+              "site": "hq",
+              "runs": "DNS · DHCP · the order system",
+              "mgmt": {
+                "vlan": 20,
+                "host": 10
+              },
+              "arrives": 2
+            },
+            {
+              "name": "R1-HQ",
+              "class": "router",
+              "site": "hq",
+              "runs": "Edge router — internet, NAT, OSPF",
+              "mgmt": {
+                "vlan": 99,
+                "host": 2
+              },
+              "arrives": 3
+            },
+            {
+              "name": "AP-01",
+              "class": "ap",
+              "site": "hq",
+              "runs": "Access point — CORP, GUEST and IOT WLANs",
+              "mgmt": {
+                "vlan": 99,
+                "host": 20
+              },
+              "arrives": 4
+            },
+            {
+              "name": "NETOPS",
+              "class": "server",
+              "site": "hq",
+              "runs": "NetBox · LibreNMS · Oxidized — the advanced weeks",
+              "mgmt": {
+                "vlan": 20,
+                "host": 20
+              },
+              "arrives": 5,
+              "optional": true
+            }
+          ]
+        },
+        {
+          "site": {
+            "id": "branch",
+            "name": "Round Rock branch",
+            "short": "Branch",
+            "octet": 60,
+            "rooms": "One wall-mount cabinet in the office"
+          },
+          "devices": [
+            {
+              "name": "R2-BR",
+              "class": "router",
+              "site": "branch",
+              "runs": "Branch router — WAN to HQ, OSPF",
+              "mgmt": {
+                "vlan": 199,
+                "host": 2
+              },
+              "arrives": 3
+            },
+            {
+              "name": "SW-BR-01",
+              "class": "l2-switch",
+              "site": "branch",
+              "runs": "Branch access switch",
+              "mgmt": {
+                "vlan": 199,
+                "host": 11
+              },
+              "arrives": 3
+            }
+          ]
+        }
+      ],
+      "SPOKEN": [
+        "Austin HQ: ADMIN-PC, Where you work — console, SSH, browser; SW-CORE-01, Core switch — SVIs, inter-VLAN routing; SW-ACC-01, Access switch — offices, trunk to core; SW-ACC-02, Access switch — warehouse IDF, PoE for phones; SRV-CORE, DNS · DHCP · the order system; R1-HQ, Edge router — internet, NAT, OSPF; AP-01, Access point — CORP, GUEST and IOT WLANs; NETOPS, NetBox · LibreNMS · Oxidized — the advanced weeks.",
+        "Round Rock branch: R2-BR, Branch router — WAN to HQ, OSPF; SW-BR-01, Branch access switch.",
+        "The sites are joined by a 10.255.255.0/30 link in OSPF area 0.",
+        "VLAN 10 CORP-USERS: 10.50.10.0/24, gateway 10.50.10.1 — Staff PCs and laptops.",
+        "VLAN 20 SERVERS: 10.50.20.0/24, gateway 10.50.20.1 — File, DNS/DHCP and the order system.",
+        "VLAN 30 VOICE: 10.50.30.0/24, gateway 10.50.30.1 — Desk phones, on PoE.",
+        "VLAN 40 SECURITY: 10.50.40.0/24, gateway 10.50.40.1 — Door controllers and cameras.",
+        "VLAN 50 GUEST: 10.50.50.0/24, gateway 10.50.50.1 — Visitors — internet only, never the LAN.",
+        "VLAN 60 IOT: 10.50.60.0/24, gateway 10.50.60.1 — Warehouse scanners and printers.",
+        "VLAN 99 MGMT: 10.50.99.0/24, gateway 10.50.99.1 — Switch and router management only.",
+        "VLAN 110 BR-USERS: 10.60.110.0/24, gateway 10.60.110.1 — Branch staff PCs.",
+        "VLAN 130 BR-VOICE: 10.60.130.0/24, gateway 10.60.130.1 — Branch desk phones.",
+        "VLAN 199 BR-MGMT: 10.60.199.0/24, gateway 10.60.199.1 — Branch kit management only.",
+        "1 of the devices are for the advanced weeks and are not required to pass."
+      ],
+      "TRUNK_LOAD": {
+        "hq": 7,
+        "branch": 3
+      },
+      "VLAN_ROWS": [
+        {
+          "id": 10,
+          "name": "CORP-USERS",
+          "prefix": "10.50.10.0/24",
+          "gateway": "10.50.10.1",
+          "purpose": "Staff PCs and laptops",
+          "site": "hq",
+          "wireless": true,
+          "management": false
+        },
+        {
+          "id": 20,
+          "name": "SERVERS",
+          "prefix": "10.50.20.0/24",
+          "gateway": "10.50.20.1",
+          "purpose": "File, DNS/DHCP and the order system",
+          "site": "hq",
+          "wireless": false,
+          "management": false
+        },
+        {
+          "id": 30,
+          "name": "VOICE",
+          "prefix": "10.50.30.0/24",
+          "gateway": "10.50.30.1",
+          "purpose": "Desk phones, on PoE",
+          "site": "hq",
+          "wireless": false,
+          "management": false
+        },
+        {
+          "id": 40,
+          "name": "SECURITY",
+          "prefix": "10.50.40.0/24",
+          "gateway": "10.50.40.1",
+          "purpose": "Door controllers and cameras",
+          "site": "hq",
+          "wireless": false,
+          "management": false
+        },
+        {
+          "id": 50,
+          "name": "GUEST",
+          "prefix": "10.50.50.0/24",
+          "gateway": "10.50.50.1",
+          "purpose": "Visitors — internet only, never the LAN",
+          "site": "hq",
+          "wireless": true,
+          "management": false
+        },
+        {
+          "id": 60,
+          "name": "IOT",
+          "prefix": "10.50.60.0/24",
+          "gateway": "10.50.60.1",
+          "purpose": "Warehouse scanners and printers",
+          "site": "hq",
+          "wireless": true,
+          "management": false
+        },
+        {
+          "id": 99,
+          "name": "MGMT",
+          "prefix": "10.50.99.0/24",
+          "gateway": "10.50.99.1",
+          "purpose": "Switch and router management only",
+          "site": "hq",
+          "wireless": false,
+          "management": true
+        },
+        {
+          "id": 110,
+          "name": "BR-USERS",
+          "prefix": "10.60.110.0/24",
+          "gateway": "10.60.110.1",
+          "purpose": "Branch staff PCs",
+          "site": "branch",
+          "wireless": true,
+          "management": false
+        },
+        {
+          "id": 130,
+          "name": "BR-VOICE",
+          "prefix": "10.60.130.0/24",
+          "gateway": "10.60.130.1",
+          "purpose": "Branch desk phones",
+          "site": "branch",
+          "wireless": false,
+          "management": false
+        },
+        {
+          "id": 199,
+          "name": "BR-MGMT",
+          "prefix": "10.60.199.0/24",
+          "gateway": "10.60.199.1",
+          "purpose": "Branch kit management only",
+          "site": "branch",
+          "wireless": false,
+          "management": true
+        }
+      ]
+    },
+    "custody": {
+      "CUSTODY_COLUMNS": [
+        "Evidence ID",
+        "Description",
+        "Collected by",
+        "Date/Time",
+        "Location (path)",
+        "SHA-256",
+        "Transferred to",
+        "Transferred (date/time)",
+        "Notes"
+      ],
+      "CUSTODY_RULES": [
+        "Preserve the original — work on copies; never edit or rename the original artifact after collection.",
+        "Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.",
+        "Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.",
+        "Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).",
+        "Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.",
+        "One custodian holds the evidence at a time; record each transfer so the chain is unbroken."
+      ]
+    },
     "troubleshooting": {
       "ERROR_ROWS": [
         {
@@ -4587,6 +4924,29 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
+  },
+  "roleGuide": {
+    "red": {
+      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
+      "works": "commands",
+      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
+      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
+      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
+    },
+    "blue": {
+      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
+      "works": "both",
+      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
+      "handsOffTo": "GRC (what you hardened and the incident write-up)",
+      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
+    },
+    "grc": {
+      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
+      "works": "documents",
+      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
+      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
+      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
+    }
   },
   "labAccess": {
     "fields": [

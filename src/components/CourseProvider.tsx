@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { Course } from '@/lib/types';
-import { CourseContext } from '@/lib/useCourse';
+import { CourseContext, CourseDocumentContext } from '@/lib/useCourse';
+import { bareDocument, courseDocument } from '@/lib/content/docs';
 import { courseRepo } from '@/lib/data';
 import { regionFor, seamFor } from '@/lib/quarry';
 import { useClientStore, useHydrated } from '@/lib/useClientStore';
@@ -81,11 +82,16 @@ export function CourseProvider({
   // picks up the region's mineral without a single component knowing about it.
   // Two courses from one vendor share a region and differ only by seam.
   // See src/lib/quarry.ts.
+  // The document beside the course: a seed's own file, or a bare one for an
+  // authored course, so every reader in the subtree has something to read.
+  const doc = courseDocument(course.id) ?? bareDocument(course);
   return (
     <CourseContext.Provider value={course}>
-      <div data-region={regionFor(course).key} data-seam={seamFor(course)}>
-        {children}
-      </div>
+      <CourseDocumentContext.Provider value={doc}>
+        <div data-region={regionFor(course).key} data-seam={seamFor(course)}>
+          {children}
+        </div>
+      </CourseDocumentContext.Provider>
     </CourseContext.Provider>
   );
 }

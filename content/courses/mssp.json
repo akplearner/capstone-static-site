@@ -4,9 +4,11 @@
     "src/lib/data/seed/mssp.ts",
     "src/lib/docs/msspDeliverables.ts",
     "src/lib/docs/manual.ts",
+    "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
+    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -2329,6 +2331,27 @@
         "gradedOn": "Process · documentation · evidence · ethics (staying in scope) — not speed."
       }
     },
+    "custody": {
+      "CUSTODY_COLUMNS": [
+        "Evidence ID",
+        "Description",
+        "Collected by",
+        "Date/Time",
+        "Location (path)",
+        "SHA-256",
+        "Transferred to",
+        "Transferred (date/time)",
+        "Notes"
+      ],
+      "CUSTODY_RULES": [
+        "Preserve the original — work on copies; never edit or rename the original artifact after collection.",
+        "Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.",
+        "Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.",
+        "Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).",
+        "Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.",
+        "One custodian holds the evidence at a time; record each transfer so the chain is unbroken."
+      ]
+    },
     "troubleshooting": {
       "ERROR_ROWS": [
         {
@@ -2603,6 +2626,29 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
+  },
+  "roleGuide": {
+    "red": {
+      "blurb": "Offensive Security — you test the in-scope systems and feed the gaps to GRC.",
+      "works": "commands",
+      "arc": "Scope → attack-surface & validation testing → retest the fixes → evidence for the audit.",
+      "handsOffTo": "GRC (findings & retest results)",
+      "waitsOnFrom": "GRC (the signed scope)"
+    },
+    "blue": {
+      "blurb": "MDR / Detection & Response — you stand up detections and prove they work with real metrics.",
+      "works": "both",
+      "arc": "Baseline → implement controls & detections → validate & measure (MTTD/MTTR) → detection evidence.",
+      "handsOffTo": "GRC (control & detection evidence)",
+      "waitsOnFrom": "GRC (the Statement of Applicability)"
+    },
+    "grc": {
+      "blurb": "GRC / vCISO — you own scope, risk, controls, and the audit-evidence spine.",
+      "works": "documents",
+      "arc": "Engagement & SoA → control matrix → internal audit → assemble the evidence package.",
+      "handsOffTo": "Red & Blue (scope & controls) and the auditor (the evidence)",
+      "waitsOnFrom": "Red & Blue (findings & control evidence)"
+    }
   },
   "labAccess": {
     "fields": [

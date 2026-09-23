@@ -134,6 +134,9 @@ describe('the DTO exports the whole model, not a remembered subset', () => {
       const dto = courseDto(c.id);
       expect(Object.keys(dto.glossary ?? {}).length, `${c.id} glossary`).toBe(Object.keys(GLOSSARY).length);
       expect(dto.marking, `${c.id} marking`).toEqual({ teamWeight: 70, focusWeight: 30 });
+      // R78-D: the custody columns and the role guides reach every document.
+      expect(Object.keys((dto.content?.custody as object) ?? {}), `${c.id} custody`).toContain('CUSTODY_COLUMNS');
+      expect(Object.keys(dto.roleGuide ?? {}).length, `${c.id} role guides`).toBeGreaterThan(0);
     }
   });
 

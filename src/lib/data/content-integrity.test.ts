@@ -6,7 +6,7 @@ import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
 import { CCNA } from './seed/ccna';
 import { Course, Step, Task } from '../types';
-import { deliverableIdByTitle, deliverableIdByFile, deliverablesForCourse } from '../docs/definitions';
+import { deliverableIdByTitle, deliverableIdByFile, seedDeliverablesForCourse as deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
 import { isGradedWeek } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';

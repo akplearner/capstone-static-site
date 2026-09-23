@@ -102,9 +102,19 @@ const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
   },
 };
 
-export function roleGuide(roleId: string, courseId?: string): RoleGuide {
-  if (courseId && BY_COURSE[courseId]?.[roleId]) return BY_COURSE[courseId][roleId];
-  return GUIDES[roleId] ?? FALLBACK;
+/**
+ * The guides written for one course, keyed by role id — the generic
+ * Red/Blue/GRC set under any per-course override. This is the data the course
+ * document carries (`dto.roleGuide`, R78-D); a role absent from it has no
+ * specific guide.
+ */
+export function roleGuidesFor(courseId: string): Record<string, RoleGuide> {
+  return { ...GUIDES, ...(BY_COURSE[courseId] ?? {}) };
+}
+
+/** The guide for a role, from a map the caller read off the document. */
+export function roleGuide(guides: Record<string, RoleGuide>, roleId: string): RoleGuide {
+  return guides[roleId] ?? FALLBACK;
 }
 
 /**
@@ -117,8 +127,8 @@ export function roleGuide(roleId: string, courseId?: string): RoleGuide {
  * sat unused 400px lower on the page. When this is false the picker shows the
  * mission instead.
  */
-export function hasSpecificGuide(roleId: string, courseId?: string): boolean {
-  return !!((courseId && BY_COURSE[courseId]?.[roleId]) || GUIDES[roleId]);
+export function hasSpecificGuide(guides: Record<string, RoleGuide>, roleId: string): boolean {
+  return roleId in guides;
 }
 
 /** Short "you mostly …" label for the role. */

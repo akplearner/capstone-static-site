@@ -28,7 +28,7 @@ import { CYSA_PLUS } from '@/lib/data/seed/cysa';
 import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
 import { CCNA } from '@/lib/data/seed/ccna';
-import { deliverablesForCourse } from '@/lib/docs/definitions';
+import { seedDeliverablesForCourse } from '@/lib/docs/definitions';
 import { PROCEDURES, WEEKS } from '@/lib/docs/serverProcedures';
 import * as serverTopology from '@/lib/serverTopology';
 import * as labTopology from '@/lib/labTopology';
@@ -44,6 +44,10 @@ import * as securityContent from '@/lib/docs/securityContent';
 import * as troubleshooting from '@/lib/docs/troubleshooting';
 import * as ccnaTopology from '@/lib/ccnaTopology';
 import * as ccnaKit from '@/lib/docs/ccnaKit';
+import * as ccnaDiagrams from '@/lib/docs/ccnaDiagrams';
+import * as custodyTemplate from '@/lib/docs/custodyTemplate';
+import { roleGuidesFor } from '@/lib/roleGuide';
+import type { RoleGuide } from '@/lib/roleGuide';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
@@ -68,7 +72,7 @@ export interface CourseDto {
   /** The files this document was produced from — where to edit. */
   generatedFrom: string[];
   course: Serialisable<Course>;
-  deliverables: Serialisable<ReturnType<typeof deliverablesForCourse>>;
+  deliverables: Serialisable<ReturnType<typeof seedDeliverablesForCourse>>;
   /** Server+ only: the configuration guide the steps point at. */
   procedureWeeks?: Serialisable<typeof WEEKS>;
   procedures?: Serialisable<typeof PROCEDURES>;
@@ -99,6 +103,8 @@ export interface CourseDto {
   labAccess?: Record<string, unknown>;
   iacTools?: Record<string, unknown>;
   marking?: { teamWeight: number; focusWeight: number };
+  /** The role guides written for this course, keyed by role id (R78-D). */
+  roleGuide?: Record<string, Serialisable<RoleGuide>>;
 }
 
 /**
@@ -187,7 +193,7 @@ export function courseDto(courseId: string): CourseDto {
     schema: DTO_SCHEMA,
     generatedFrom,
     course: serialisable(course),
-    deliverables: serialisable(deliverablesForCourse(courseId)),
+    deliverables: serialisable(seedDeliverablesForCourse(courseId)),
   };
 
   if (courseId === 'server-plus') {
@@ -224,9 +230,14 @@ export function courseDto(courseId: string): CourseDto {
     content.security = contentData(securityContent);
   }
   if (courseId === 'ccna') {
-    generatedFrom.push('src/lib/docs/ccnaKit.ts');
+    generatedFrom.push('src/lib/docs/ccnaKit.ts', 'src/lib/docs/ccnaDiagrams.ts');
     content.kit = contentData(ccnaKit);
+    content.ccnaDiagrams = contentData(ccnaDiagrams);
   }
+  // The chain-of-custody columns and rules: every course's evidence guide
+  // renders them, and until R78-D no document carried them.
+  generatedFrom.push('src/lib/docs/custodyTemplate.ts');
+  content.custody = contentData(custodyTemplate);
   // Every course that runs commands renders the troubleshooting manual, and the
   // rows it renders depend on that course's lab — so the document carries the
   // rows, not the ones this course happens to show.
@@ -240,6 +251,8 @@ export function courseDto(courseId: string): CourseDto {
   generatedFrom.push('src/lib/glossary.ts', 'src/lib/rubric.ts');
   dto.glossary = serialisable(GLOSSARY);
   dto.marking = { teamWeight: TEAM_WEIGHT, focusWeight: FOCUS_WEIGHT };
+  generatedFrom.push('src/lib/roleGuide.ts');
+  dto.roleGuide = serialisable(roleGuidesFor(courseId));
   if (hasLabAccess(courseId)) {
     generatedFrom.push('src/lib/labAccess.ts');
     dto.labAccess = serialisable(labProfile(courseId) as unknown as Record<string, unknown>);

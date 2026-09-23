@@ -6,6 +6,8 @@ import { CYSA_DELIVERABLES } from './cysaDeliverables';
 import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { CCNA_DELIVERABLES } from './ccnaDeliverables';
 import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
+import { SEED_DOCUMENTS, courseDocument } from '../content/docs';
+import { deliverablesOf } from '../content/read';
 
 // Small helpers to keep the schema readable.
 const c = (
@@ -752,13 +754,39 @@ export function courseIdOf(d: DeliverableDef): string {
   return d.courseId ?? 'security-plus';
 }
 
-/** Every deliverable for one course. */
-export function deliverablesForCourse(courseId: string): DeliverableDef[] {
+/**
+ * The forms as AUTHORED — the TypeScript registry above. This is what
+ * `dto.ts` writes into a course document, and what the content-integrity
+ * tests judge a seed against. Nothing that renders should call it.
+ */
+export function seedDeliverablesForCourse(courseId: string): DeliverableDef[] {
   return DELIVERABLES.filter((d) => courseIdOf(d) === courseId);
 }
 
+/**
+ * The forms as RENDERED — read from the course document (R78-D).
+ *
+ * Every component that needs a course's forms goes through this one function,
+ * so switching the source here switched it everywhere: the app now renders the
+ * deliverables from `content/courses/<id>.json`, the same file it renders the
+ * tasks from. An authored course has no document and no registry entry, so it
+ * gets the empty list it always got. A seed whose document is missing falls
+ * back to the registry, loudly, like `seedCourses` does.
+ */
+export function deliverablesForCourse(courseId: string): DeliverableDef[] {
+  const doc = courseDocument(courseId);
+  if (doc) return deliverablesOf(doc);
+  return seedDeliverablesForCourse(courseId);
+}
+
+/** Every form of every built-in course, from the documents — for the helpers
+ *  below that are asked about an id with no course beside it. */
+function allDeliverables(): DeliverableDef[] {
+  return Object.values(SEED_DOCUMENTS).flatMap((d) => deliverablesOf(d));
+}
+
 export function getDeliverable(id: string): DeliverableDef | undefined {
-  return DELIVERABLES.find((d) => d.id === id);
+  return allDeliverables().find((d) => d.id === id);
 }
 
 /**
@@ -778,9 +806,7 @@ export function isTeamAuthorized(saved: Record<string, DeliverableData>): boolea
  *  for every role. Without the `shared` arm, four focus roles sharing nine forms
  *  would leave three of four students looking at an empty Deliverables page. */
 export function deliverablesForRole(role: string, courseId: string): DeliverableDef[] {
-  return DELIVERABLES.filter(
-    (d) => (d.shared || d.owner === role) && courseIdOf(d) === courseId
-  );
+  return deliverablesForCourse(courseId).filter((d) => d.shared || d.owner === role);
 }
 
 /** Resolve a deliverable by its title (used to turn a step's `usesForm` title
@@ -789,14 +815,13 @@ export function deliverablesForRole(role: string, courseId: string): Deliverable
 /** The human title for a deliverable id — for a form that has to name another
  *  form ("started from the Architecture Brief") without hardcoding the words. */
 export function deliverableTitle(id: string): string | undefined {
-  return DELIVERABLES.find((d) => d.id === id)?.title;
+  return getDeliverable(id)?.title;
 }
 
 export function deliverableIdByTitle(title: string, courseId?: string): string | undefined {
   const t = title.trim().toLowerCase();
-  return DELIVERABLES.find(
-    (d) => d.title.toLowerCase() === t && (!courseId || courseIdOf(d) === courseId)
-  )?.id;
+  const pool = courseId ? deliverablesForCourse(courseId) : allDeliverables();
+  return pool.find((d) => d.title.toLowerCase() === t)?.id;
 }
 
 /** Resolve a deliverable by its output filename (used to turn a step's
@@ -804,9 +829,8 @@ export function deliverableIdByTitle(title: string, courseId?: string): string |
  *  an evidence step to the form it feeds). Scope to a course when known. */
 export function deliverableIdByFile(file: string, courseId?: string): string | undefined {
   const f = file.trim().toLowerCase();
-  return DELIVERABLES.find(
-    (d) => d.file.toLowerCase() === f && (!courseId || courseIdOf(d) === courseId)
-  )?.id;
+  const pool = courseId ? deliverablesForCourse(courseId) : allDeliverables();
+  return pool.find((d) => d.file.toLowerCase() === f)?.id;
 }
 
 /** Build a deliverable's starting data from its seed (example) rows/fields. */

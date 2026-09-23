@@ -2,12 +2,7 @@ import { Course } from '../types';
 import { CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
-import { courseFromDto } from '../content/load';
-import securityPlusDoc from '../../../content/courses/security-plus.json';
-import msspDoc from '../../../content/courses/mssp.json';
-import cysaDoc from '../../../content/courses/cysa-plus.json';
-import serverPlusDoc from '../../../content/courses/server-plus.json';
-import ccnaDoc from '../../../content/courses/ccna.json';
+import { seedCourses } from '../content/docs';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
@@ -20,58 +15,13 @@ const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCN
 
 /**
  * Where the built-in courses come from: the JSON documents, with the TypeScript
- * modules as the fallback.
- *
- * This is the round the flag came out. `content/courses/*.json` is the content
- * model made portable, and `content/dto.test.ts` proves the app behaves
- * identically over either source — same week numbers, same tasks per role, same
- * required step counts, same week summaries. Until R75 the documents could not
- * carry the Definition-of-Done checks or the computed form columns (128 function
- * markers), so a JSON-sourced build would have silently lost the gate checks and
- * the switch stayed off behind `NEXT_PUBLIC_CONTENT_FROM_JSON`. Those are data
- * now, the markers are zero, and the documents hold everything the app renders —
- * so they are what it renders from.
- *
- * The modules stay compiled in as the fallback, and a fallback is LOUD: a
- * document that fails to validate is a content bug someone has to fix, not a
- * condition to paper over. The app keeps working; the console says why.
- *
- * Resolved on first use, never at module load. Eager resolution ran while the
- * seed modules were still initialising — the course graph is a web of
- * cross-imports — and threw a temporal-dead-zone error that the catch below then
- * swallowed into a silent fallback. Lazy is also free: `list()` caches, so this
- * runs once either way.
+ * modules as the LOUD fallback — see `content/docs.ts`, which owns the files.
+ * Resolved on first use, never at module load: eager resolution ran while the
+ * seed modules were still initialising and threw a temporal-dead-zone error.
  */
-let seedCache: Course[] | null = null;
-
 function loadSeeds(): Course[] {
-  if (seedCache) return seedCache;
-  try {
-    // Bundled at build time by the JSON loader, not read from disk at runtime,
-    // so this works the same in the browser and on the server.
-    return (seedCache = SEED_MODULES.map((m) => {
-      const doc = CONTENT_DOCS[m.id];
-      if (!doc) {
-        console.error(`[content] no document for '${m.id}': using the compiled module`);
-        return m;
-      }
-      return courseFromDto(doc);
-    }));
-  } catch (e) {
-    // A broken document must not take the app down: say so and use the modules.
-    console.error('[content] falling back to the compiled seeds:', e);
-    return (seedCache = SEED_MODULES);
-  }
+  return seedCourses(SEED_MODULES);
 }
-
-/** The exported documents, keyed by course id. */
-const CONTENT_DOCS: Record<string, unknown> = {
-  'security-plus': securityPlusDoc,
-  mssp: msspDoc,
-  'cysa-plus': cysaDoc,
-  'server-plus': serverPlusDoc,
-  ccna: ccnaDoc,
-};
 
 function hasWindow(): boolean {
   return typeof window !== 'undefined';

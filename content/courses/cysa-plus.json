@@ -6,9 +6,11 @@
     "src/lib/labTopology.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/cysaContent.ts",
+    "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
+    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -6976,6 +6978,27 @@
         ]
       }
     },
+    "custody": {
+      "CUSTODY_COLUMNS": [
+        "Evidence ID",
+        "Description",
+        "Collected by",
+        "Date/Time",
+        "Location (path)",
+        "SHA-256",
+        "Transferred to",
+        "Transferred (date/time)",
+        "Notes"
+      ],
+      "CUSTODY_RULES": [
+        "Preserve the original — work on copies; never edit or rename the original artifact after collection.",
+        "Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.",
+        "Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.",
+        "Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).",
+        "Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.",
+        "One custodian holds the evidence at a time; record each transfer so the chain is unbroken."
+      ]
+    },
     "troubleshooting": {
       "ERROR_ROWS": [
         {
@@ -7250,6 +7273,29 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
+  },
+  "roleGuide": {
+    "red": {
+      "blurb": "Tier 3 · Incident Responder — you contain the attack, keep the evidence clean, and write the report leadership reads.",
+      "works": "both",
+      "arc": "Wk1 deploy the agents → Wk2 turn findings into indicators → Wk3 rank the risk & fix plan → Wk4 contain, preserve evidence, and report.",
+      "handsOffTo": "leadership (the incident report & executive summary)",
+      "waitsOnFrom": "the SOC Analyst & Threat Hunter (alerts, indicators, timeline)"
+    },
+    "blue": {
+      "blurb": "Tier 1 · SOC Analyst — you watch the alerts and decide what’s real, what’s noise, and what to escalate.",
+      "works": "both",
+      "arc": "Wk1 stand up monitoring & baseline → Wk2 triage the alerts → Wk3 read the known vulnerabilities → Wk4 find the incident and mark its start.",
+      "handsOffTo": "the Threat Hunter (the alerts worth investigating)",
+      "waitsOnFrom": "nobody — you install and verify your own Ubuntu sensor"
+    },
+    "grc": {
+      "blurb": "Tier 2 · Threat Hunter — you dig into the suspicious activity in logs and packets and prove what actually happened.",
+      "works": "both",
+      "arc": "Wk1 confirm every data source reports → Wk2 investigate & capture packets → Wk3 scan to confirm the weaknesses → Wk4 rebuild the attack timeline.",
+      "handsOffTo": "the Incident Responder (indicators & the timeline)",
+      "waitsOnFrom": "the SOC Analyst (the alerts to chase)"
+    }
   },
   "labAccess": {
     "fields": [

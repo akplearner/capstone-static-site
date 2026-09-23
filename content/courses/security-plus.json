@@ -5,9 +5,11 @@
     "src/lib/docs/definitions.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/securityContent.ts",
+    "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
+    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -5533,6 +5535,27 @@
         }
       ]
     },
+    "custody": {
+      "CUSTODY_COLUMNS": [
+        "Evidence ID",
+        "Description",
+        "Collected by",
+        "Date/Time",
+        "Location (path)",
+        "SHA-256",
+        "Transferred to",
+        "Transferred (date/time)",
+        "Notes"
+      ],
+      "CUSTODY_RULES": [
+        "Preserve the original — work on copies; never edit or rename the original artifact after collection.",
+        "Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.",
+        "Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.",
+        "Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).",
+        "Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.",
+        "One custodian holds the evidence at a time; record each transfer so the chain is unbroken."
+      ]
+    },
     "troubleshooting": {
       "ERROR_ROWS": [
         {
@@ -5807,6 +5830,29 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
+  },
+  "roleGuide": {
+    "red": {
+      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
+      "works": "commands",
+      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
+      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
+      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
+    },
+    "blue": {
+      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
+      "works": "both",
+      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
+      "handsOffTo": "GRC (what you hardened and the incident write-up)",
+      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
+    },
+    "grc": {
+      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
+      "works": "documents",
+      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
+      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
+      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
+    }
   },
   "labAccess": {
     "fields": [
