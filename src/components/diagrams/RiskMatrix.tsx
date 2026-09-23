@@ -3,7 +3,9 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
-import { RISK_LEVELS as LEVELS, RISK_MATRIX, type Severity } from '@/lib/docs/cysaContent';
+import type { Severity } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * Likelihood × impact, as an actual grid.
@@ -24,14 +26,15 @@ const SEVERITY: Record<Severity, string> = {
   Critical: '#dc2626',
 };
 
-const {
-  copy: COPY,
-  cell: CELL,
-  likelihoodMeans: LIKELIHOOD_MEANS,
-  impactMeans: IMPACT_MEANS,
-} = RISK_MATRIX;
-
 export function RiskMatrix() {
+  const { RISK_LEVELS: LEVELS, RISK_MATRIX } = cysaOf(useCourseDocument());
+  if (!RISK_MATRIX) return null;
+  const {
+    copy: COPY,
+    cell: CELL,
+    likelihoodMeans: LIKELIHOOD_MEANS,
+    impactMeans: IMPACT_MEANS,
+  } = RISK_MATRIX;
   return (
     <DiagramFrame
       title={COPY.title}

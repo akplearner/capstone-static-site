@@ -21,7 +21,9 @@ import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { TeamBusinessPicker } from '@/components/team/TeamBusinessPicker';
 import { socTopology } from '@/lib/labTopology';
-import { MANUAL_COPY, manualHas, manualSectionsFor } from '@/lib/docs/manual';
+import { manualHas, manualSectionsFor } from '@/lib/docs/manual';
+import { useCourseDocument } from '@/lib/useCourse';
+import { manualOf } from '@/lib/content/read';
 import { docsRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { buildDeliverableChain } from '@/lib/deliverableChain';
@@ -57,6 +59,7 @@ import { Surface } from '@/components/ui/Surface';
  */
 
 export function GuideManual({ course, member }: { course: Course; member: Member }) {
+  const { MANUAL_COPY, MANUAL_SECTIONS } = manualOf(useCourseDocument());
   const topo = socTopology(course.id);
   // A course that ships a SIEM tool manual, by its own declaration rather than by
   // its id — the same test the manual's own section gating uses.
@@ -177,7 +180,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
     ),
   };
 
-  const sections = manualSectionsFor(course);
+  const sections = manualSectionsFor(course, MANUAL_SECTIONS);
 
   return (
     <div data-manual className="space-y-8">

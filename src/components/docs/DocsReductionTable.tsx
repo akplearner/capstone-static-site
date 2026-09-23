@@ -4,11 +4,8 @@ import { ArrowRight } from 'lucide-react';
 import { Collapsible } from '@/components/ui/Button';
 import { Runs, fillRuns } from '@/components/docs/Runs';
 import { deliverablesForCourse, getDeliverable } from '@/lib/docs/definitions';
-import {
-  DOCS_REDUCTION,
-  DOCS_REDUCTION_ADMIN as ADMIN,
-  DOCS_REDUCTION_COPY as COPY,
-} from '@/lib/docs/securityContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { securityOf } from '@/lib/content/read';
 
 /**
  * The old course produced 17 loose working files; this platform consolidates
@@ -21,6 +18,7 @@ import {
  */
 
 function Table() {
+  const { DOCS_REDUCTION, DOCS_REDUCTION_ADMIN: ADMIN, DOCS_REDUCTION_COPY: COPY } = securityOf(useCourseDocument());
   const oldCount = DOCS_REDUCTION.reduce((n, m) => n + m.old.length, 0) + ADMIN.length;
   const newCount = deliverablesForCourse('security-plus').length;
   return (
@@ -72,6 +70,8 @@ function Table() {
 }
 
 export function DocsReductionTable({ collapsible = false }: { collapsible?: boolean }) {
+  const { DOCS_REDUCTION, DOCS_REDUCTION_COPY: COPY } = securityOf(useCourseDocument());
+  if (!DOCS_REDUCTION) return null;
   if (collapsible) {
     return (
       <div className="rounded-lg depth-edge bg-panel px-5">

@@ -40,17 +40,37 @@ export function courseDocument(courseId: string): CourseDto | undefined {
 }
 
 /**
- * A document for a course that has none — an instructor-authored course, or a
- * seed whose file failed to load. It carries the course and nothing else, so
- * every accessor in `read.ts` answers "empty" rather than throwing, which is
- * the same answer the module registries gave an unknown course id.
+ * A document for a course that has none of its own — an instructor-authored
+ * course, or a seed whose file failed to load.
+ *
+ * A course duplicated from a built-in one (`course.basedOn`) renders its
+ * parent's document with itself as the course: the same manual, diagrams,
+ * configuration guide and forms, which is what duplicating a course is for.
+ * Any other course gets the content every course shares — the manual's
+ * sections, the custody template, the terminal troubleshooting, the glossary
+ * and the marking weights — and nothing family-specific, so every accessor in
+ * `read.ts` answers "empty" rather than throwing.
  */
 export function bareDocument(course: Course): CourseDto {
+  const parent = course.basedOn ? SEED_DOCUMENTS[course.basedOn] : undefined;
+  const base = parent ?? sharedContent();
   return {
-    schema: DTO_SCHEMA,
+    ...base,
     generatedFrom: [],
     course: course as CourseDto['course'],
-    deliverables: [],
+    deliverables: parent ? parent.deliverables : [],
+  };
+}
+
+/** The sections identical in every built-in document, taken from the first. */
+function sharedContent(): Pick<CourseDto, 'schema' | 'content' | 'glossary' | 'marking'> {
+  const first = SEED_DOCUMENTS[SEED_IDS[0]];
+  const content = first?.content ?? {};
+  return {
+    schema: DTO_SCHEMA,
+    content: { manual: content.manual, custody: content.custody, troubleshooting: content.troubleshooting },
+    glossary: first?.glossary,
+    marking: first?.marking,
   };
 }
 

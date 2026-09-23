@@ -3,7 +3,9 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
-import { TRIAGE, type TriageBranch } from '@/lib/docs/cysaContent';
+import type { TriageBranch } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * The Week-2 triage decision, drawn.
@@ -20,9 +22,10 @@ const TONE: Record<TriageBranch['kind'], string> = {
   escalate: 'var(--color-accent)',
 };
 
-const { copy: COPY, question: QUESTION, branches: BRANCHES } = TRIAGE;
-
 export function TriageDecisionTree() {
+  const { TRIAGE } = cysaOf(useCourseDocument());
+  if (!TRIAGE) return null;
+  const { copy: COPY, question: QUESTION, branches: BRANCHES } = TRIAGE;
   return (
     <DiagramFrame
       title={COPY.title}

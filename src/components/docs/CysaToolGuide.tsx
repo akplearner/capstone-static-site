@@ -1,14 +1,9 @@
 'use client';
 
 import { ExternalLink, LayoutDashboard, Network, MonitorCheck } from 'lucide-react';
-import {
-  DASHBOARD_HOWTO,
-  FILTER_FIELDS,
-  SIGNATURES,
-  TOOL_GUIDE_COPY as COPY,
-  TOOL_PANELS,
-  type ToolPanel,
-} from '@/lib/docs/cysaContent';
+import type { ToolPanel } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * CySA+ "how to actually use the tools" reference.
@@ -31,6 +26,8 @@ const ICON: Record<ToolPanel['icon'], typeof LayoutDashboard> = {
 };
 
 export function CysaToolGuide() {
+  const { DASHBOARD_HOWTO, FILTER_FIELDS, SIGNATURES, TOOL_GUIDE_COPY: COPY, TOOL_PANELS } = cysaOf(useCourseDocument());
+  if (!TOOL_PANELS) return null;
   return (
     <div className="space-y-4">
       <p className="text-sm text-muted">

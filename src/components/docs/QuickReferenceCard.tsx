@@ -3,7 +3,8 @@
 import { FileStack, ClipboardList, Wrench, Tag, GraduationCap } from 'lucide-react';
 import { Runs, fillRuns } from '@/components/docs/Runs';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
-import { COURSE_TOOLS, QUICK_REFERENCE as COPY } from '@/lib/docs/manual';
+import { useCourseDocument } from '@/lib/useCourse';
+import { manualOf } from '@/lib/content/read';
 import { EVIDENCE_NAMING_PNG } from '@/lib/evidence';
 import type { Run } from '@/lib/docs/securityContent';
 
@@ -18,6 +19,7 @@ import type { Run } from '@/lib/docs/securityContent';
  */
 
 export function QuickReferenceCard({ courseId = 'security-plus' }: { courseId?: string }) {
+  const { COURSE_TOOLS, QUICK_REFERENCE: COPY } = manualOf(useCourseDocument());
   const defs = deliverablesForCourse(courseId);
   const tools = COURSE_TOOLS[courseId] ?? COURSE_TOOLS['security-plus'];
   const panels = [

@@ -848,31 +848,33 @@ describe('R71/R78-B — a course you can follow', () => {
  * reached `content/courses/*.json`, so a document described a course's forms and
  * addressing in full and could not say what the course teaches.
  *
- * Each of these is a renderer over a data module now. The two things that would
- * undo it are a new table typed back into a component, and a sentence typed
- * beside the markup — so this looks for both.
+ * Each of these is a renderer over a data module now — and since R78-D3, over
+ * the course DOCUMENT that module was written into, through the accessor in
+ * `content/read.ts`. The two things that would undo it are a new table typed
+ * back into a component, and a sentence typed beside the markup — so this
+ * looks for both.
  */
 describe('R75-B — the content is not in the components', () => {
-  /** component → the content module it must read from. */
+  /** component → the document section it must read from. */
   const RENDERERS: [string, string][] = [
-    ['src/components/diagrams/ServerTopologyDiagram.tsx', '@/lib/docs/serverDiagrams'],
-    ['src/components/diagrams/AttackPathDiagram.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/diagrams/IncidentTimelineDiagram.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/diagrams/LogPipelineDiagram.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/diagrams/TriageDecisionTree.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/diagrams/RiskMatrix.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/docs/CysaToolGuide.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/docs/CysaLabSetup.tsx', '@/lib/docs/cysaContent'],
-    ['src/components/docs/LabSetupGuide.tsx', '@/lib/docs/securityContent'],
-    ['src/components/docs/DocsReductionTable.tsx', '@/lib/docs/securityContent'],
-    ['src/components/docs/CommandTroubleshooting.tsx', '@/lib/docs/troubleshooting'],
-    ['src/components/docs/QuickReferenceCard.tsx', '@/lib/docs/manual'],
-    ['src/components/docs/GuideManual.tsx', '@/lib/docs/manual'],
+    ['src/components/diagrams/ServerTopologyDiagram.tsx', 'serverDiagramsOf'],
+    ['src/components/diagrams/AttackPathDiagram.tsx', 'cysaOf'],
+    ['src/components/diagrams/IncidentTimelineDiagram.tsx', 'cysaOf'],
+    ['src/components/diagrams/LogPipelineDiagram.tsx', 'cysaOf'],
+    ['src/components/diagrams/TriageDecisionTree.tsx', 'cysaOf'],
+    ['src/components/diagrams/RiskMatrix.tsx', 'cysaOf'],
+    ['src/components/docs/CysaToolGuide.tsx', 'cysaOf'],
+    ['src/components/docs/CysaLabSetup.tsx', 'cysaOf'],
+    ['src/components/docs/LabSetupGuide.tsx', 'securityOf'],
+    ['src/components/docs/DocsReductionTable.tsx', 'securityOf'],
+    ['src/components/docs/CommandTroubleshooting.tsx', 'troubleshootingOf'],
+    ['src/components/docs/QuickReferenceCard.tsx', 'manualOf'],
+    ['src/components/docs/GuideManual.tsx', 'manualOf'],
   ];
 
-  it('every emptied component reads its words from its content module', () => {
-    for (const [file, module] of RENDERERS) {
-      expect(code(file), file).toContain(`from '${module}'`);
+  it('every emptied component reads its words from the course document', () => {
+    for (const [file, accessor] of RENDERERS) {
+      expect(code(file), file).toContain(`${accessor}(useCourseDocument())`);
     }
   });
 
@@ -1154,6 +1156,63 @@ describe('R78-C2 — fold the duplicates', () => {
       if (n > 600) big.push(`${f} (${n})`);
     }
     expect(big, 'split it — a file this long is two components').toEqual([]);
+  });
+});
+
+/**
+ * R78-D3 — components read the document.
+ *
+ * The content modules are what `dto.ts` WRITES into `content/courses/*.json`.
+ * What renders is READ from that document through `content/read.ts`, so an
+ * instructor's edit to the document is what the student sees. A component
+ * importing a table from a content module is reading the writer's input
+ * instead — the leak this guard closes. Types and pure functions (which take
+ * their data as a parameter) may still be imported; the seeds may not.
+ */
+describe('R78-D3 — components read the document', () => {
+  const CONTENT_MODULES =
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate)'/;
+  const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
+
+  it('no component or page imports a table from a content module', () => {
+    const offenders: string[] = [];
+    for (const f of renderers) {
+      const src = read(f);
+      for (const m of src.matchAll(/import\s+(type\s+)?\{([^}]*)\}\s+from\s+'(@\/lib\/docs\/\w+)'/g)) {
+        if (!CONTENT_MODULES.test(`from '${m[3]}'`) || m[1]) continue;
+        const tables = m[2]
+          .split(',')
+          .map((n) => n.trim())
+          .filter((n) => n && !n.startsWith('type ') && /^[A-Z][A-Z0-9_]+\b/.test(n));
+        if (tables.length) offenders.push(`${f}: ${tables.join(', ')}`);
+      }
+    }
+    expect(offenders, 'read it from the document: useCourseDocument() + an accessor in content/read.ts').toEqual([]);
+  });
+
+  it('no component or page imports a seed course or a course document file', () => {
+    const offenders = renderers.filter((f) => /from '(@\/lib\/data\/seed\/|.*content\/courses\/)/.test(read(f)));
+    expect(offenders, 'the catalogue comes from courseRepo; the document from useCourseDocument()').toEqual([]);
+  });
+
+  it('the renderers R75-B did not empty read the document too', () => {
+    // These hold prose or a table of their own by design (the config guide's
+    // addressing, the evidence rules), so they are not in R75-B's list — but
+    // what they show of the content still comes from the document.
+    const MORE: [string, string][] = [
+      ['src/components/diagrams/CcnaTopologyDiagram.tsx', 'ccnaDiagramsOf'],
+      ['src/components/docs/EvidenceGuide.tsx', 'custodyOf'],
+      ['src/components/docs/ServerConfigGuide.tsx', 'proceduresOf'],
+      ['src/components/step/StepDetail.tsx', 'proceduresOf'],
+    ];
+    for (const [file, accessor] of MORE) {
+      expect(code(file), file).toContain(`${accessor}(useCourseDocument())`);
+    }
+  });
+
+  it('the documents are read in one place', () => {
+    const readers = collectSourceFiles('src').filter((f) => /content\/courses\/\w[\w-]*\.json'/.test(read(f)));
+    expect(readers).toEqual(['src/lib/content/docs.ts']);
   });
 });
 

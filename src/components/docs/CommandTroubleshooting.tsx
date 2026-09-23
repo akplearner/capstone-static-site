@@ -2,12 +2,9 @@
 
 import { Terminal, AlertTriangle, ClipboardPaste } from 'lucide-react';
 import { hasLabAccess, labProfile } from '@/lib/labAccess';
-import {
-  TERMINAL_BASICS,
-  TERMINAL_COPY as COPY,
-  errorRowsFor,
-  type LabCapability,
-} from '@/lib/docs/troubleshooting';
+import { errorRowsFor, type ErrorRow, type LabCapability } from '@/lib/docs/troubleshooting';
+import { useCourseDocument } from '@/lib/useCourse';
+import { troubleshootingOf } from '@/lib/content/read';
 
 /**
  * Two beginner references that live on the Guide and are linked from every step
@@ -55,12 +52,12 @@ function labShape(courseId: string): Record<LabCapability, boolean> {
  *  with "Your", and lower-casing the whole string mangles the product name. */
 const lowerFirst = (t: string) => t.charAt(0).toLowerCase() + t.slice(1);
 
-function commonErrors(courseId: string) {
+function commonErrors(courseId: string, rows: readonly ErrorRow[]) {
   const first = labProfile(courseId).fields[0];
   return errorRowsFor(labShape(courseId), {
     token: first?.tokens[0] ?? '<YOUR_TARGET_IP>',
     label: lowerFirst(first?.label ?? 'Your target IP'),
-  });
+  }, rows);
 }
 
 /** The "terminal basics" reference on its own — reused inline on command steps
@@ -68,6 +65,7 @@ function commonErrors(courseId: string) {
  *  Course-independent by construction: everything it says is true of any shell,
  *  which is why it takes no courseId. */
 export function TerminalBasics() {
+  const { TERMINAL_BASICS, TERMINAL_COPY: COPY } = troubleshootingOf(useCourseDocument());
   return (
     <div className="rounded-lg depth-edge bg-panel p-5">
       <h3 className="flex items-center gap-1.5 text-sm font-semibold text-ink">
@@ -89,7 +87,8 @@ export function TerminalBasics() {
 }
 
 export function CommandTroubleshooting({ courseId }: { courseId: string }) {
-  const errors = commonErrors(courseId);
+  const { ERROR_ROWS, TERMINAL_COPY: COPY } = troubleshootingOf(useCourseDocument());
+  const errors = commonErrors(courseId, ERROR_ROWS);
 
   return (
     <div className="space-y-4">

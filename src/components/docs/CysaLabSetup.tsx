@@ -1,7 +1,8 @@
 'use client';
 
 import { CheckCircle2, Cpu, Network, Server } from 'lucide-react';
-import { LAB_MACHINES, LAB_PREFLIGHT, LAB_SETUP_COPY as COPY } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * CySA+ lab requirements — the shared Wazuh SOC plus per-team pods.
@@ -14,6 +15,8 @@ import { LAB_MACHINES, LAB_PREFLIGHT, LAB_SETUP_COPY as COPY } from '@/lib/docs/
  */
 
 export function CysaLabSetup({ courseId }: { courseId: string }) {
+  const { LAB_MACHINES, LAB_PREFLIGHT, LAB_SETUP_COPY: COPY } = cysaOf(useCourseDocument());
+  if (!LAB_MACHINES) return null;
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted">

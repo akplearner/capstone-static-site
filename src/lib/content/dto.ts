@@ -226,8 +226,13 @@ export function courseDto(courseId: string): CourseDto {
     content.cysa = contentData(cysaContent);
   }
   if (courseId === 'security-plus') {
-    generatedFrom.push('src/lib/docs/securityContent.ts');
+    generatedFrom.push('src/lib/docs/securityContent.ts', 'src/lib/docs/cysaContent.ts');
     content.security = contentData(securityContent);
+    // Security+ draws two of the SOC diagrams on its own forms — the risk
+    // matrix on the Risk Register, the incident timeline on the Incident
+    // Report — so its document carries exactly those tables, no more.
+    const { RISK_LEVELS, RISK_MATRIX, INCIDENT_TIMELINE } = cysaContent;
+    content.cysa = { RISK_LEVELS, RISK_MATRIX, INCIDENT_TIMELINE };
   }
   if (courseId === 'ccna') {
     generatedFrom.push('src/lib/docs/ccnaKit.ts', 'src/lib/docs/ccnaDiagrams.ts');

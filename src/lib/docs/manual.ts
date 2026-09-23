@@ -155,11 +155,12 @@ export function manualCapabilities(course: Course): Record<ManualCapability, boo
   };
 }
 
-/** The sections this course gets, in order, one per id. */
-export function manualSectionsFor(course: Course): ManualSection[] {
+/** The sections this course gets, in order, one per id. A renderer passes the
+ *  sections from the course document; the default is for the writer and tests. */
+export function manualSectionsFor(course: Course, sections: readonly ManualSection[] = MANUAL_SECTIONS): ManualSection[] {
   const has = manualCapabilities(course);
   const seen = new Set<string>();
-  return MANUAL_SECTIONS.filter((s) => {
+  return sections.filter((s) => {
     if (seen.has(s.id) || !has[s.when]) return false;
     seen.add(s.id);
     return true;

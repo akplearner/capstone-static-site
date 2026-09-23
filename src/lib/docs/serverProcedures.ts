@@ -1487,12 +1487,13 @@ WAZUH_MANAGER="10.20.0.12" WAZUH_AGENT_GROUP="team-07" WAZUH_AGENT_NAME="team07-
  */
 export const PROCEDURES: Procedure[] = withProcedureDetail(RAW_PROCEDURES);
 
-/** Look a procedure up by the id a step's `guideRef` names. */
-export function procedureById(id: string): Procedure | undefined {
-  return PROCEDURES.find((p) => p.id === id);
+/** Look a procedure up by the id a step's `guideRef` names. A renderer passes
+ *  the procedures from the course document; the default is for tests. */
+export function procedureById(id: string, procedures: readonly Procedure[] = PROCEDURES): Procedure | undefined {
+  return procedures.find((p) => p.id === id);
 }
 
 /** The title a step's "Exact clicks" row shows when the step gives no label. */
-export function procedureTitle(id: string): string {
-  return procedureById(id)?.title ?? id;
+export function procedureTitle(id: string, procedures: readonly Procedure[] = PROCEDURES): string {
+  return procedureById(id, procedures)?.title ?? id;
 }

@@ -1,15 +1,8 @@
 'use client';
 
 import { DiagramFrame } from './DiagramFrame';
-import {
-  ARRIVES,
-  CCNA_DIAGRAM_COPY as COPY,
-  SITE_COLUMNS,
-  SPOKEN,
-  TRUNK_LOAD,
-  VLAN_ROWS,
-  fillCopy,
-} from '@/lib/docs/ccnaDiagrams';
+import { useCourseDocument } from '@/lib/useCourse';
+import { ccnaDiagramsOf, fillCopy } from '@/lib/content/read';
 import type { DeviceClass } from '@/lib/ccnaTopology';
 
 /**
@@ -50,8 +43,10 @@ export function CcnaTopologyDiagram({
   builtThrough?: number;
   routerOnAStick?: boolean;
 } = {}) {
+  const { ARRIVES, CCNA_DIAGRAM_COPY: COPY, SITE_COLUMNS, SPOKEN, TRUNK_LOAD, VLAN_ROWS } = ccnaDiagramsOf(useCourseDocument());
   const built = (week: number) => builtThrough == null || builtThrough >= week;
   const dim = (on: boolean) => (on ? '' : 'opacity-40');
+  if (!SITE_COLUMNS) return null;
   const weekTag = (week: number) =>
     built(week) ? null : (
       <span className="ml-1 rounded-full depth-edge px-1 py-px font-mono text-3xs text-muted">

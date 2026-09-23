@@ -2,7 +2,9 @@
 
 import { Download, FileText, ShieldCheck } from 'lucide-react';
 import { CommandBlock } from '@/components/step/CommandBlock';
-import { CUSTODY_COLUMNS, CUSTODY_RULES, custodyLogCSV, custodyLogMarkdown } from '@/lib/docs/custodyTemplate';
+import { custodyLogCSV, custodyLogMarkdown } from '@/lib/docs/custodyTemplate';
+import { useCourseDocument } from '@/lib/useCourse';
+import { custodyOf } from '@/lib/content/read';
 import { EVIDENCE_LOCATION_RULE, EVIDENCE_FILE_TYPES, EVIDENCE_HANDLING, EVIDENCE_NAMING } from '@/lib/evidence';
 
 function downloadText(filename: string, text: string, type = 'text/plain;charset=utf-8') {
@@ -19,6 +21,7 @@ function downloadText(filename: string, text: string, type = 'text/plain;charset
 // own machine and documents them like a real case; this teaches the method and hands
 // them a ready-to-fill custody log. No upload — guidance + a template.
 export function EvidenceGuide() {
+  const { CUSTODY_COLUMNS, CUSTODY_RULES } = custodyOf(useCourseDocument());
   return (
     <div className="space-y-5">
       <p className="flex items-start gap-2 text-sm text-muted">

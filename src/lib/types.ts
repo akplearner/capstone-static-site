@@ -368,6 +368,9 @@ export interface Course {
    */
   topologyPicture?: 'soc' | 'rack' | 'campus';
   isSeed?: boolean;      // true for built-in courses shipped in code
+  /** The built-in course this one was duplicated from. Its document supplies
+   *  the reference content and forms this course renders (R78-D3). */
+  basedOn?: string;
   version?: number;      // export/import schema version
   updatedAt?: number;
   // Enrollment configuration (instructor-controlled, per course/class):

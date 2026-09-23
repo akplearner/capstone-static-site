@@ -186,6 +186,8 @@ export const localStorageCourseRepo: CourseRepository = {
     clone.slug = newId;
     clone.title = newTitle;
     clone.isSeed = false;
+    // A copy keeps its parent's document: the manual, the diagrams, the forms.
+    clone.basedOn = src.basedOn ?? (src.isSeed === false ? undefined : src.id);
     this.save(clone);
     return clone;
   },

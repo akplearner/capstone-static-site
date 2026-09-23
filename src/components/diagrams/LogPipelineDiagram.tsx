@@ -3,7 +3,9 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
-import { LOG_PIPELINE, type PipelineStage } from '@/lib/docs/cysaContent';
+import type { PipelineStage } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * How a log actually reaches the dashboard — the mental model behind almost
@@ -22,9 +24,10 @@ const TONE: Record<PipelineStage['where'], string> = {
   soc: 'var(--color-w3)',
 };
 
-const { copy: COPY, stages: STAGES } = LOG_PIPELINE;
-
 export function LogPipelineDiagram() {
+  const { LOG_PIPELINE } = cysaOf(useCourseDocument());
+  if (!LOG_PIPELINE) return null;
+  const { copy: COPY, stages: STAGES } = LOG_PIPELINE;
   return (
     <DiagramFrame
       title={COPY.title}

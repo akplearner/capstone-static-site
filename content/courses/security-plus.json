@@ -5,6 +5,7 @@
     "src/lib/docs/definitions.ts",
     "src/lib/docs/manual.ts",
     "src/lib/docs/securityContent.ts",
+    "src/lib/docs/cysaContent.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -5534,6 +5535,107 @@
           "notes": "RDP + Defender track; optional second host."
         }
       ]
+    },
+    "cysa": {
+      "RISK_LEVELS": [
+        "Low",
+        "Medium",
+        "High"
+      ],
+      "RISK_MATRIX": {
+        "copy": {
+          "title": "Ranking a finding: likelihood × impact",
+          "subtitle": "Rate each axis, read the cell — that is the priority you write in the assessment",
+          "howToRead": "Pick the likelihood column using how reachable the flaw is, then the impact row using what an attacker would get. Where they meet is the rating. Two findings with the same CVSS can land in different cells, and the cell is what decides fix order."
+        },
+        "cell": {
+          "High": {
+            "Low": "Medium",
+            "Medium": "High",
+            "High": "Critical"
+          },
+          "Medium": {
+            "Low": "Low",
+            "Medium": "Medium",
+            "High": "High"
+          },
+          "Low": {
+            "Low": "Low",
+            "Medium": "Low",
+            "High": "Medium"
+          }
+        },
+        "likelihoodMeans": {
+          "High": "reachable from the network with no login",
+          "Medium": "needs a local account or a user to click something",
+          "Low": "needs physical access or an unlikely chain"
+        },
+        "impactMeans": {
+          "High": "full data loss, or the attacker gets admin",
+          "Medium": "one service down, or limited data exposed",
+          "Low": "cosmetic, or no real data at risk"
+        },
+        "axisLabel": "Likelihood →"
+      },
+      "INCIDENT_TIMELINE": {
+        "copy": {
+          "title": "An incident on a time axis",
+          "subtitle": "The worked example from the Incident Response Report — and where MTTD and MTTR come from",
+          "howToRead": "Every row is one line of your timeline table: a time, what happened, and the source that proves it. MTTD is the gap from the attack starting to the first alert; MTTR is from that alert to containment. Both are subtractions you can read straight off this line.",
+          "legend": [
+            {
+              "kind": "attack",
+              "label": "Attacker action"
+            },
+            {
+              "kind": "detect",
+              "label": "Detection"
+            },
+            {
+              "kind": "respond",
+              "label": "Response"
+            }
+          ]
+        },
+        "span": 24,
+        "events": [
+          {
+            "t": "14:20",
+            "min": 0,
+            "label": "Port scan begins",
+            "source": "Suricata",
+            "kind": "attack"
+          },
+          {
+            "t": "14:22",
+            "min": 2,
+            "label": "SQL injection against DVWA",
+            "source": "Apache access.log",
+            "kind": "attack"
+          },
+          {
+            "t": "14:29",
+            "min": 9,
+            "label": "First alert raised",
+            "source": "Wazuh Security events",
+            "kind": "detect"
+          },
+          {
+            "t": "14:31",
+            "min": 11,
+            "label": "Web shell uploaded",
+            "source": "Integrity monitoring",
+            "kind": "attack"
+          },
+          {
+            "t": "14:41",
+            "min": 21,
+            "label": "Attacker blocked at the firewall",
+            "source": "ufw",
+            "kind": "respond"
+          }
+        ]
+      }
     },
     "custody": {
       "CUSTODY_COLUMNS": [

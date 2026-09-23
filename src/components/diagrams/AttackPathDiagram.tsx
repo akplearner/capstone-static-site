@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
-import { ATTACK_PATH } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * The attack the course actually runs, end to end.
@@ -21,9 +22,10 @@ const TONE = {
   response: 'var(--color-accent)',
 } as const;
 
-const { copy: COPY, hops: HOPS } = ATTACK_PATH;
-
 export function AttackPathDiagram() {
+  const { ATTACK_PATH } = cysaOf(useCourseDocument());
+  if (!ATTACK_PATH) return null;
+  const { copy: COPY, hops: HOPS } = ATTACK_PATH;
   return (
     <DiagramFrame
       title={COPY.title}

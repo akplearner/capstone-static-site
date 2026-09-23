@@ -121,9 +121,3 @@ export const SERVER_DIAGRAM_COPY = {
   footer:
     'The Windows / Linux / website VMs are the base build — every team the same. Zone subnets are worked examples; record yours in the IP Plan & Connectivity Proof.',
 } as const;
-
-/** Fill `{token}` placeholders in a caption. Unknown tokens are left alone so a
- *  half-filled caption is visible rather than silently blank. */
-export function fillCopy(text: string, values: Record<string, string | number>): string {
-  return text.replace(/\{(\w+)\}/g, (m, k) => (k in values ? String(values[k]) : m));
-}

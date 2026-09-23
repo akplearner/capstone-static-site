@@ -66,3 +66,10 @@ export function roleGuidesOf(doc: CourseDto): Record<string, RoleGuide> {
 export function glossaryOf(doc: CourseDto): Record<string, string> {
   return doc.glossary ?? {};
 }
+
+/** Fill `{token}` placeholders in a caption read from the document. Unknown
+ *  tokens are left alone so a half-filled caption is visible rather than
+ *  silently blank. Lived in two content modules until R78-D3. */
+export function fillCopy(text: string, values: Record<string, string | number>): string {
+  return text.replace(/\{(\w+)\}/g, (m, k) => (k in values ? String(values[k]) : m));
+}

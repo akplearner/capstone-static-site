@@ -108,11 +108,6 @@ export const CCNA_DIAGRAM_COPY = {
     'Your register says no switch here routes, so inter-VLAN routing happens on the router over one trunk — router-on-a-stick.',
 } as const;
 
-/** Fill `{token}` placeholders in a caption. */
-export function fillCopy(text: string, values: Record<string, string | number>): string {
-  return text.replace(/\{(\w+)\}/g, (m, k) => (k in values ? String(values[k]) : m));
-}
-
 /** The whole picture in words, for the screen-reader list under it. Built from
  *  the model, so it can never describe a different network from the one drawn. */
 export const SPOKEN: string[] = [

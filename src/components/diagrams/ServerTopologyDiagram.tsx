@@ -11,16 +11,9 @@ import {
   baseVmsOn,
   type MachineId,
 } from '@/lib/serverTopology';
-import {
-  ARRIVES,
-  CROSS_ZONE_LABEL,
-  PUBLISHED_BY_VM,
-  RACK_ELEVATION,
-  RACK_LEGEND,
-  SERVER_DIAGRAM_COPY as COPY,
-  fillCopy,
-  type RackKind,
-} from '@/lib/docs/serverDiagrams';
+import type { RackKind } from '@/lib/docs/serverDiagrams';
+import { useCourseDocument } from '@/lib/useCourse';
+import { fillCopy, serverDiagramsOf } from '@/lib/content/read';
 import { ZONE_COLOR } from './topologyStyle';
 
 /**
@@ -82,7 +75,10 @@ export function ServerTopologyDiagram({
    *  dimmed and tagged `Week N`. Omitted = the finished design. */
   builtThrough?: number;
 } = {}) {
+  const { ARRIVES, CROSS_ZONE_LABEL, PUBLISHED_BY_VM, RACK_ELEVATION, RACK_LEGEND, SERVER_DIAGRAM_COPY: COPY } =
+    serverDiagramsOf(useCourseDocument());
   const businessLabel = [business?.name, business?.industry].filter(Boolean).join(' · ');
+  if (!RACK_ELEVATION) return null;
   // Highlight and build-through are two different kinds of "not now": one is
   // "not this week's subject", the other is "you have not built this yet".
   // Both resolve to the same visual — reduced contrast — so they compose.

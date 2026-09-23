@@ -15,7 +15,9 @@ import {
   baseVmsOn,
   bridge,
 } from '@/lib/serverTopology';
-import { PROCEDURES, WEEKS, procedureById } from '@/lib/docs/serverProcedures';
+import { procedureById } from '@/lib/docs/serverProcedures';
+import { useCourseDocument } from '@/lib/useCourse';
+import { proceduresOf } from '@/lib/content/read';
 import { Surface } from '@/components/ui/Surface';
 import { WeekRail } from '@/components/week/WeekRail';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
@@ -119,6 +121,7 @@ export function ServerConfigGuide() {
   // and on hash change, so the deep links in the task steps still land on the
   // procedure they promise rather than on a panel that is closed.
   const [week, setWeek] = useState(1);
+  const { weeks: WEEKS, procedures: PROCEDURES } = proceduresOf(useCourseDocument());
   const lab = useLabAccess('server-plus');
   const tool = useIacTool('server-plus');
   // Which boxes this week's procedures touch. Derived from the commands, so the
@@ -153,7 +156,7 @@ export function ServerConfigGuide() {
         setWeek(Number(m[1]));
         return;
       }
-      const proc = procedureById(hash);
+      const proc = procedureById(hash, PROCEDURES);
       if (!proc) return;
       // Already on screen (the jump table inside a week, or a hashchange to a
       // sibling procedure): scroll now. `setWeek` to the same week would not
@@ -169,7 +172,7 @@ export function ServerConfigGuide() {
     fromHash();
     window.addEventListener('hashchange', fromHash);
     return () => window.removeEventListener('hashchange', fromHash);
-  }, []);
+  }, [PROCEDURES]);
 
   // Runs after every commit that changed `week` — and once on mount, for the
   // case where the hash names a procedure in the week already showing.

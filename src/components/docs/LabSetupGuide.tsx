@@ -3,14 +3,8 @@
 import { CheckCircle2, Cpu, Network, Server } from 'lucide-react';
 import { CommandBlock } from '@/components/step/CommandBlock';
 import { Runs } from '@/components/docs/Runs';
-import {
-  DVWA,
-  HYPERVISORS,
-  LAB_NETWORK,
-  LAB_PREFLIGHT,
-  LAB_SETUP_COPY as COPY,
-  LAB_VMS,
-} from '@/lib/docs/securityContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { securityOf } from '@/lib/content/read';
 
 /**
  * Self-study lab requirements + setup: what VMs to build, how to network them,
@@ -22,6 +16,8 @@ import {
  */
 
 export function LabSetupGuide() {
+  const { DVWA, HYPERVISORS, LAB_NETWORK, LAB_PREFLIGHT, LAB_SETUP_COPY: COPY, LAB_VMS } = securityOf(useCourseDocument());
+  if (!LAB_VMS) return null;
   return (
     <div className="space-y-6">
       <p className="text-sm text-muted">

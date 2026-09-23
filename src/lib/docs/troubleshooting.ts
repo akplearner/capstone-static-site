@@ -183,10 +183,11 @@ export const ERROR_ROWS: ErrorRow[] = [
  *  placeholders filled. */
 export function errorRowsFor(
   has: Record<LabCapability, boolean>,
-  values: Record<string, string> = {}
+  values: Record<string, string> = {},
+  rows: readonly ErrorRow[] = ERROR_ROWS
 ): { symptom: string; meaning: string; fix: string }[] {
   const fill = (t: string) => t.replace(/\{(\w+)\}/g, (m, k) => values[k] ?? m);
-  return ERROR_ROWS.filter((r) => (r.needs ?? []).every((c) => has[c])).map((r) => ({
+  return rows.filter((r) => (r.needs ?? []).every((c) => has[c])).map((r) => ({
     symptom: fill(r.symptom),
     meaning: r.meaning,
     fix: fill(

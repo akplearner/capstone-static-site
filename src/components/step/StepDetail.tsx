@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 import type { Step } from '@/lib/types';
 import { procedureTitle } from '@/lib/docs/serverProcedures';
+import { useCourseDocument } from '@/lib/useCourse';
+import { proceduresOf } from '@/lib/content/read';
 import { useIacTool } from '@/lib/labAccess';
 import { applyIacTool } from '@/lib/iacTool';
 import { deliverableIdByTitle, deliverableIdByFile } from '@/lib/docs/definitions';
@@ -205,6 +207,7 @@ export function StepDetail({
   /** Set to record the verification result. Omitted in read-only views. */
   ledger?: LedgerRef;
 }) {
+  const { procedures } = proceduresOf(useCourseDocument());
   const {
     instruction,
     instructionList,
@@ -382,7 +385,7 @@ export function StepDetail({
                   <BookOpen className="h-4 w-4 shrink-0" aria-hidden />
                   <span>
                     <span className="text-muted">Exact clicks: </span>
-                    {guideRef.label ?? procedureTitle(guideRef.procedureId)} →
+                    {guideRef.label ?? procedureTitle(guideRef.procedureId, procedures)} →
                   </span>
                 </Link>
               )}

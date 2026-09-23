@@ -3,7 +3,9 @@
 import { motion } from 'framer-motion';
 import { DiagramFrame } from './DiagramFrame';
 import { DUR } from '@/lib/motion';
-import { INCIDENT_TIMELINE, type TimelineEvent } from '@/lib/docs/cysaContent';
+import type { TimelineEvent } from '@/lib/docs/cysaContent';
+import { useCourseDocument } from '@/lib/useCourse';
+import { cysaOf } from '@/lib/content/read';
 
 /**
  * What an incident timeline looks like, on an actual time axis.
@@ -24,9 +26,10 @@ const TONE: Record<TimelineEvent['kind'], string> = {
   respond: 'var(--color-w3)',
 };
 
-const { copy: COPY, span: SPAN, events: EVENTS } = INCIDENT_TIMELINE;
-
 export function IncidentTimelineDiagram() {
+  const { INCIDENT_TIMELINE } = cysaOf(useCourseDocument());
+  if (!INCIDENT_TIMELINE) return null;
+  const { copy: COPY, span: SPAN, events: EVENTS } = INCIDENT_TIMELINE;
   const pct = (m: number) => (m / SPAN) * 100;
   const detect = EVENTS.find((e) => e.kind === 'detect')!;
   const respond = EVENTS.find((e) => e.kind === 'respond')!;

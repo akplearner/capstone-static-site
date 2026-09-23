@@ -131,7 +131,7 @@ function printHTML(html: string) {
  *  diagrams for forms it doesn't have. Keying on the form itself is both the fix
  *  and the compaction: the diagram now sits inside the form it describes instead
  *  of floating above the page as its own card. */
-const FORM_DIAGRAM: Record<string, () => React.ReactElement> = {
+const FORM_DIAGRAM: Record<string, () => React.ReactElement | null> = {
   cysa_alert_triage: TriageDecisionTree,
   risk_register: RiskMatrix,
   cysa_incident_response: IncidentTimelineDiagram,
