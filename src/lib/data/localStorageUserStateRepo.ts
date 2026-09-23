@@ -30,10 +30,8 @@ export const localStorageUserStateRepo: UserStateRepository = {
     if (!hasWindow()) return null;
     const resume = readJson<UserCourseState['resume']>(KEYS.resume(courseId, memberId));
     const homeBuildAck = localStorage.getItem(KEYS.homeBuildAck(courseId)) === '1';
-    const density = localStorage.getItem(KEYS.stepDensity(courseId, memberId));
-    const stepDensity = density === 'simple' || density === 'full' ? density : undefined;
-    if (!resume && !homeBuildAck && !stepDensity) return null;
-    return { ...(resume ? { resume } : {}), ...(homeBuildAck ? { homeBuildAck } : {}), ...(stepDensity ? { stepDensity } : {}) };
+    if (!resume && !homeBuildAck) return null;
+    return { ...(resume ? { resume } : {}), ...(homeBuildAck ? { homeBuildAck } : {}) };
   },
 
   save(courseId: string, memberId: string, state: UserCourseState): void {
@@ -45,8 +43,6 @@ export const localStorageUserStateRepo: UserStateRepository = {
     }
     if (state.homeBuildAck) safeSetItem(KEYS.homeBuildAck(courseId), '1');
     else localStorage.removeItem(KEYS.homeBuildAck(courseId));
-    if (state.stepDensity) safeSetItem(KEYS.stepDensity(courseId, memberId), state.stepDensity);
-    else localStorage.removeItem(KEYS.stepDensity(courseId, memberId));
   },
 };
 

@@ -2,35 +2,48 @@
 
 import type { Dispatch, SetStateAction } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, ChevronDown, ChevronRight, Lock, Users, Wrench } from 'lucide-react';
+import { ArrowRight, Lock } from 'lucide-react';
 import type { Course, GateStatus, Member, RoleDef, Task, WeekDef } from '@/lib/types';
 import type { Cohort } from '@/lib/data';
 import { Collapsible } from '@/components/ui/Button';
-import { PageHeader } from '@/components/ui/PageHeader';
 import { Alert } from '@/components/ui/Alert';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { GuidedTaskRunner } from '@/components/task/GuidedTaskRunner';
+import { FlowDiagram, type FlowNode } from '@/components/diagrams/FlowDiagram';
 import { WeekRail } from '@/components/week/WeekRail';
-import { BuildMap } from '@/components/week/BuildMap';
+import { WeekHeader } from '@/components/week/WeekHeader';
 import { LabAccessPanel } from '@/components/week/LabAccessPanel';
-import { WeekMilestoneHeader } from '@/components/week/WeekMilestoneHeader';
 import { WeekGatePanel } from '@/components/week/WeekGatePanel';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { TaskRow } from './TaskRow';
 import { TaskReference } from './TaskReference';
 import { TaskAboutPanel } from './TaskAboutPanel';
-import { getTasksByRole, getWeekTasks, isAdvancedWeek, isSetupWeek, phaseTag } from '@/lib/course-helpers';
+import { getRequiredStepCount, getTasksByRole, getWeekTasks, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary } from '@/lib/course-helpers';
 import { socTopology, SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
+import { hasLabAccess, labProfile, useLabAccess } from '@/lib/labAccess';
 import { dueLabel, weekDue } from '@/lib/calendar';
-import { saveStepDensity, type StepDensity } from '@/lib/stepDensity';
-import { DUR, EASE, meter } from '@/lib/motion';
+import { DUR, EASE } from '@/lib/motion';
 
 /**
- * The Tasks tab: one week at a time, one flat list.
+ * The Tasks tab: one week, in focus.
  *
- * A header naming the week you are on, the "do once" setup strip, a rail to
- * switch weeks, and the week's tasks in the order you do them. R78-C1: lifted
- * out of `page.tsx` unchanged; the funnel that reshapes it is R78-B.
+ * R78-B — the funnel. Students said the platform showed too much at once and
+ * they lost sight of the week's objective, flow and requirements. Before this
+ * a Week-1 student met eight blocks before the first task: a header, the build
+ * map (a second week selector), the setup strip, the rail, the lab-access form
+ * (open when empty), the milestone row, the gate, then the list — and every
+ * closed row carried seven things. Now the tab is five things, in the order a
+ * student needs them:
+ *
+ *   1. the rail — which week;
+ *   2. the header — what this week is FOR (`WeekDef.objective`, never rendered
+ *      before), what "done" means, how big it is;
+ *   3. the workflow — the week's tasks as a clickable diagram, with the
+ *      authored `WeekDef.flow` as its stage chain (also never rendered before);
+ *   4. the list — number, title, status, one line each;
+ *   5. ONE disclosure, "More for this week" — setup, lab access, the gate, the
+ *      other roles' reference tasks — whose closed bar says whether anything
+ *      inside needs you.
  */
 export function TasksTab({
   course,
@@ -50,12 +63,9 @@ export function TasksTab({
   expanded,
   setExpanded,
   toggleTask,
-  setupOpen,
-  setSetupOpen,
-  othersOpen,
-  setOthersOpen,
+  moreOpen,
+  setMoreOpen,
   deepStep,
-  density,
   weekLocked,
   priorGateForWeek,
   pickWeek,
@@ -82,12 +92,10 @@ export function TasksTab({
   expanded: Set<string>;
   setExpanded: Dispatch<SetStateAction<Set<string>>>;
   toggleTask: (task: Task) => void;
-  setupOpen: boolean | null;
-  setSetupOpen: Dispatch<SetStateAction<boolean | null>>;
-  othersOpen: boolean;
-  setOthersOpen: Dispatch<SetStateAction<boolean>>;
+  /** The week's one disclosure. null = decide from where the student is. */
+  moreOpen: boolean | null;
+  setMoreOpen: Dispatch<SetStateAction<boolean | null>>;
   deepStep: { taskId: string; stepId?: string } | null;
-  density: StepDensity;
   weekLocked: (weekNum: number) => boolean;
   priorGateForWeek: (weekNum: number) => Course['gates'][number] | undefined;
   pickWeek: (n: number) => void;
@@ -96,6 +104,8 @@ export function TasksTab({
   selectTab: (t: 'home' | 'tasks') => void;
   onProgressChange: () => void;
 }) {
+  // Hooks above the early return: the lab-access hint on the disclosure bar.
+  const lab = useLabAccess(course.id);
   const joined = !!member;
   if (!joined || !member || !ownRole) {
     // Not enrolled: the tasks ARE the course material, so this is where the
@@ -104,20 +114,19 @@ export function TasksTab({
   }
 
   const otherRoles = course.roles.filter((r) => r.id !== member.role);
-  // Setup weeks are the "do once" strip; the rail holds only graded weeks.
+  // Setup weeks are the "do once" strip inside the disclosure; the rail holds
+  // only graded weeks.
   const gradedWeeks = sortedWeeks.filter((w) => !isSetupWeek(course, w.number));
   const setupWeeks = sortedWeeks.filter((w) => isSetupWeek(course, w.number));
   const setupTasks = setupWeeks.flatMap((w) => getTasksByRole(course, member.role, w.number));
   const setupPct = setupWeeks.length
     ? Math.round(setupWeeks.reduce((sum, w) => sum + (weekStats[w.number] ?? 0), 0) / setupWeeks.length)
     : 0;
-  const setupIsOpen = setupOpen ?? (setupWeeks.length > 0 && isSetupWeek(course, effectiveWeek));
-  // A pointer (or deep link) into Setup opens the strip; the rail still shows a
-  // graded week underneath it.
+  // A pointer (or deep link) into Setup shows a graded week on the rail and
+  // opens the disclosure that holds Setup.
   const viewWeek = gradedWeeks.some((w) => w.number === effectiveWeek)
     ? effectiveWeek
     : (gradedWeeks[0]?.number ?? 1);
-  const viewWeekDef = sortedWeeks.find((w) => w.number === viewWeek);
   const weekTasks = getWeekTasks(course, viewWeek);
   // One flat list: the shared build first, then the task that is yours alone.
   const sharedWeekTasks = weekTasks.filter((t) => t.shared);
@@ -126,8 +135,40 @@ export function TasksTab({
   const otherWeekTasks = weekTasks.filter((t) => !t.shared && t.role !== member.role);
   const viewPct = weekStats[viewWeek] ?? 0;
   const gateForWeek = course.gates.find((g) => g.week === viewWeek);
+  const showGate = !!gateForWeek && !course.noGatekeeping;
   const viewLocked = weekLocked(viewWeek);
   const lockGate = priorGateForWeek(viewWeek);
+  const summary = weekSummary(course, member.role, viewWeek);
+
+  // The disclosure opens itself when the student's place is inside it: a
+  // resume pointer or deep link into a setup task, or a pointer into Setup.
+  const moreIsOpen =
+    moreOpen ??
+    (setupTasks.some((t) => expanded.has(t.id)) || (setupWeeks.length > 0 && isSetupWeek(course, effectiveWeek)));
+
+  // What the closed bar says. "Not set" is the one thing in here a new student
+  // must do, so it is the one thing said in the warn tone.
+  const labFields = hasLabAccess(course.id) ? labProfile(course.id).fields : [];
+  const labUnset = labFields.length > 0 && labFields.every((f) => !lab.values[f.key]?.trim());
+  const hintParts = [
+    setupTasks.length > 0 ? `${setupTasks.length} setup task${setupTasks.length === 1 ? '' : 's'} · ${setupPct}%` : '',
+    labFields.length > 0 ? (labUnset ? 'lab access not set' : 'lab access set') : '',
+    showGate ? `Gate ${gateForWeek!.id} · ${gateStats[gateForWeek!.id] === 'passed' ? 'passed' : gateStats[gateForWeek!.id] === 'ready' ? 'ready' : 'in progress'}` : '',
+    otherWeekTasks.length > 0 ? `${otherWeekTasks.length} from other roles` : '',
+  ].filter(Boolean);
+  const hasMore = hintParts.length > 0;
+
+  // The week as a workflow: one node per task in the order you do them.
+  const weekNodes: FlowNode[] = ordered.map((t, i) => {
+    const pct = taskStats[t.id] ?? 0;
+    return {
+      id: t.id,
+      label: `Task ${i + 1}`,
+      sublabel: t.title,
+      meta: `${getRequiredStepCount(t)} steps${t.estimatedTime ? ` · ${t.estimatedTime}` : ''}`,
+      status: pct >= 100 ? 'done' : t.id === nextTask?.id || expanded.has(t.id) ? 'current' : 'upcoming',
+    };
+  });
 
   // Expanded content for a task row: the runner for your own tasks, the
   // read-only reference (with the same About panel) for a teammate's.
@@ -141,8 +182,6 @@ export function TasksTab({
           memberId={member.memberId}
           initialStepId={deepStep?.taskId === task.id ? deepStep.stepId : undefined}
           guidedDefault={course.guidedDefault}
-          density={density}
-          onDensityChange={(d) => saveStepDensity(course.id, member.memberId, d)}
           about={<TaskAboutPanel course={course} task={task} />}
           onProgressChange={onProgressChange}
           nextLabel={following ? 'Next task →' : 'Review & finish →'}
@@ -178,105 +217,29 @@ export function TasksTab({
     );
   };
 
+  const row = (task: Task, i?: number) => (
+    <TaskRow
+      key={task.id}
+      number={i}
+      course={course}
+      task={task}
+      isOwn
+      joined={joined}
+      open={expanded.has(task.id)}
+      isNext={task.id === nextTask?.id}
+      stuckCount={stuckByTask[task.id]}
+      focus={i != null && !!course.sharedTrack && !task.shared}
+      percent={taskStats[task.id] ?? 0}
+      onToggle={() => toggleTask(task)}
+      renderBody={() => renderTaskBody(task, true)}
+    />
+  );
+
   return (
     <>
-      <PageHeader
-        id="tasks-head"
-        tabIndex={-1}
-        className="outline-none"
-        level={2}
-        eyebrow="Tasks"
-        title={`${phaseTag(course, viewWeek)} · ${viewWeekDef?.title ?? ''}`}
-        lede={`${ownRole.name} · ${ordered.length} task${ordered.length === 1 ? '' : 's'} this ${unit}`}
-        trailing={
-          <span className="flex items-center gap-1.5" title={`${viewPct}% of this ${unit}'s steps done`}>
-            <span className="relative block h-2 w-20 overflow-hidden rounded-full bg-panel-2">
-              <motion.span
-                className="absolute inset-0 origin-left rounded-full bg-accent"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: viewPct / 100 }}
-                transition={meter}
-              />
-            </span>
-            <span className="text-xs font-medium text-muted">{viewPct}%</span>
-          </span>
-        }
-      />
-
-      {/* The thread through the weeks: what you are building, one chip per
-          week, and how you will know this week's piece is built. */}
-      <BuildMap
-        course={course}
-        weeks={gradedWeeks.map((w) => w.number)}
-        current={viewWeek}
-        percentOf={(w) => weekStats[w] ?? 0}
-        onPick={pickWeek}
-      />
-
-      {/* Setup is "do once", not a week. In class the lab already exists. */}
-      {setupWeeks.length > 0 && setupTasks.length > 0 && (
-        <section id="setup-strip" className="scroll-under-chrome rounded-lg depth-edge bg-panel">
-          <button
-            type="button"
-            onClick={() => setSetupOpen(!setupIsOpen)}
-            aria-expanded={setupIsOpen}
-            aria-controls="setup-tasks"
-            className="flex w-full items-center gap-3 px-4 py-2.5 text-left transition-colors hover:bg-panel-2"
-          >
-            <Wrench className="h-4 w-4 shrink-0 text-muted" aria-hidden />
-            <span className="min-w-0 flex-1 text-sm">
-              <span className="font-semibold text-ink">
-                Do once — {setupWeeks.map((w) => w.title).join(' · ')}
-              </span>
-              <span className="text-muted">
-                {' '}· {setupTasks.length} task{setupTasks.length === 1 ? '' : 's'} · {setupPct}%
-              </span>
-            </span>
-            {setupIsOpen ? (
-              <ChevronDown className="h-5 w-5 shrink-0 text-muted" />
-            ) : (
-              <ChevronRight className="h-5 w-5 shrink-0 text-muted" />
-            )}
-          </button>
-          {/* Mounted while collapsed so the `aria-controls` above resolves. */}
-          <div
-            id="setup-tasks"
-            className={setupIsOpen ? 'space-y-3 border-t border-line p-4' : 'hidden'}
-          >
-            {setupIsOpen && (
-              <>
-                {/* SOC-course banner only: it names the shared Wazuh SOC and
-                    its login, which is meaningless on a course whose setup is
-                    required prep rather than an optional home-lab build. */}
-                {!!socTopology(course.id) && (
-                  <Alert variant="info" title="The classroom SOC is already set up.">
-                    Sign in at <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and start
-                    at <span className="font-semibold">Week 1</span>. The build steps here are only for students
-                    setting up their own lab at home — opening them asks you to confirm first.
-                  </Alert>
-                )}
-                {setupTasks.map((task) => (
-                  <TaskRow
-                    key={task.id}
-                    course={course}
-                    task={task}
-                    isOwn
-                    joined={joined}
-                    open={expanded.has(task.id)}
-                    percent={taskStats[task.id] ?? 0}
-                    onToggle={() => toggleTask(task)}
-                    renderBody={() => renderTaskBody(task, true)}
-                  />
-                ))}
-              </>
-            )}
-          </div>
-        </section>
-      )}
-
-      {/* The week rail — the same component the Deliverables page uses. A tick
-          when the week is done, a lock while its gate is shut, and a slow pulse
-          on the week you are actually on. */}
+      {/* 1. Which week. The same component the Deliverables page uses: a tick
+            when the week is done, a lock while its gate is shut, a slow pulse
+            on the week you are actually on. */}
       <WeekRail
         id="week-rail"
         dots
@@ -293,8 +256,6 @@ export function TasksTab({
         }))}
       />
 
-      <LabAccessPanel courseId={course.id} />
-
       {/* `data-week` is one attribute, and every stratum edge inside takes this
           phase's colour from it. See the "Phase colour" block in globals.css. */}
       <motion.section
@@ -307,14 +268,24 @@ export function TasksTab({
         animate={{ opacity: 1 }}
         transition={{ duration: DUR.swap, ease: EASE.out }}
       >
-        <div className="space-y-4 p-5">
+        <div className="space-y-5 p-5">
+          {/* 2. What this week is for. */}
+          <WeekHeader
+            id="tasks-head"
+            course={course}
+            role={member.role}
+            roleName={ownRole.name}
+            week={viewWeek}
+            percent={viewPct}
+            taskCount={ordered.length}
+            unit={unit}
+          />
+
           {viewLocked ? (
             <div className="flex items-start gap-3 rounded-lg depth-edge bg-panel-2 p-4">
               <Lock className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
               <div>
-                <p className="text-sm font-medium text-ink">
-                  Locked until you clear Gate {lockGate?.id}.
-                </p>
+                <p className="text-sm font-medium text-ink">Locked until you clear Gate {lockGate?.id}.</p>
                 <p className="mt-1 text-sm text-muted">
                   Finish {phaseTag(course, lockGate?.week ?? viewWeek - 1)} required tasks to pass Gate{' '}
                   {lockGate?.id} and unlock this {unit} — the engagement runs in order.
@@ -332,111 +303,112 @@ export function TasksTab({
             </div>
           ) : (
             <>
-              {/* The finish line, one row: "Done when: …" + time. */}
-              <WeekMilestoneHeader course={course} role={member.role} week={viewWeek} percent={viewPct} />
+              {/* 3. The workflow. The authored stage chain is the subtitle; the
+                    nodes are the tasks, and a click opens one. */}
+              {ordered.length > 0 && (
+                <FlowDiagram
+                  title={`This ${unit}'s workflow`}
+                  flow={summary.flow}
+                  nodes={weekNodes}
+                  onSelect={(id) => {
+                    const t = ordered.find((x) => x.id === id);
+                    if (t) goToTask(t);
+                  }}
+                  ariaLabel={`Tasks this ${unit}`}
+                  howToRead="Left to right is the order to do them. Click a task to open it; a tick means it is done."
+                />
+              )}
 
-              {gateForWeek && !course.noGatekeeping && (
+              {ordered.length === 0 && <p className="text-sm text-muted">No tasks for this {unit} yet.</p>}
+
+              {/* 4. The list. Shared build first, your focus last with its chip. */}
+              <div className="space-y-3">{ordered.map((task, i) => row(task, i + 1))}</div>
+
+              {/* 5. Everything else this week, behind one bar that says what it holds. */}
+              {hasMore && (
                 <div className="rounded-lg depth-edge bg-panel px-3">
                   <Collapsible
-                    title={(() => {
-                      const st = gateStats[gateForWeek.id] || 'locked';
-                      const label = st === 'passed' ? 'passed' : st === 'ready' ? 'ready' : 'in progress';
-                      return `Gate ${gateForWeek.id} checklist · ${label}`;
-                    })()}
-                    defaultOpen={false}
+                    title={`More for this ${unit}`}
+                    hint={hintParts.join(' · ')}
+                    tone={labUnset ? 'warn' : 'neutral'}
+                    open={moreIsOpen}
+                    onToggle={(o) => setMoreOpen(o)}
                   >
-                    <div className="pb-1">
-                      <WeekGatePanel
-                        course={course}
-                        week={viewWeek}
-                        status={gateStats[gateForWeek.id] || 'locked'}
-                        ownRole={member.role}
-                        taskStats={taskStats}
-                      />
+                    <div className="space-y-5 py-1 pr-2">
+                      {/* Setup is "do once", not a week. In class the lab already exists. */}
+                      {setupTasks.length > 0 && (
+                        <section id="setup-strip" className="scroll-under-chrome space-y-3">
+                          <h3 className="text-sm font-semibold text-ink">
+                            Do once — {setupWeeks.map((w) => w.title).join(' · ')}
+                            <span className="ml-2 font-normal text-muted">{setupPct}%</span>
+                          </h3>
+                          {/* SOC-course banner only: it names the shared Wazuh SOC
+                              and its login, which is meaningless on a course whose
+                              setup is required prep rather than a home-lab build. */}
+                          {!!socTopology(course.id) && (
+                            <Alert variant="info" title="The classroom SOC is already set up.">
+                              Sign in at <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and start
+                              at <span className="font-semibold">Week 1</span>. The build steps here are only for students
+                              setting up their own lab at home — opening them asks you to confirm first.
+                            </Alert>
+                          )}
+                          {setupTasks.map((task) => row(task))}
+                        </section>
+                      )}
+
+                      {labFields.length > 0 && <LabAccessPanel courseId={course.id} bare />}
+
+                      {showGate && (
+                        <section className="space-y-2">
+                          <h3 className="text-sm font-semibold text-ink">Gate {gateForWeek!.id} checklist</h3>
+                          <WeekGatePanel
+                            course={course}
+                            week={viewWeek}
+                            status={gateStats[gateForWeek!.id] || 'locked'}
+                            ownRole={member.role}
+                            taskStats={taskStats}
+                          />
+                        </section>
+                      )}
+
+                      {/* The rest of the team's work this week, read-only. A hand-off
+                          cannot be checked against a title, so this is for every
+                          course that has other roles — never gated on sharedTrack. */}
+                      {otherWeekTasks.length > 0 && (
+                        <section id="other-focuses" className="scroll-under-chrome space-y-4">
+                          <h3 className="text-sm font-semibold text-ink">
+                            {course.sharedTrack ? `What the other focuses document this ${unit}` : `Other roles this ${unit}`}
+                          </h3>
+                          {otherRoles.map((r) => {
+                            const roleTasks = otherWeekTasks.filter((t) => t.role === r.id);
+                            if (roleTasks.length === 0) return null;
+                            return (
+                              <div key={r.id} className="space-y-2">
+                                <div className="flex items-center gap-2">
+                                  <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
+                                  <span className="font-semibold text-ink">{r.name}</span>
+                                  <span className="text-xs text-muted">reference</span>
+                                </div>
+                                {roleTasks.map((task) => (
+                                  <TaskRow
+                                    key={task.id}
+                                    course={course}
+                                    task={task}
+                                    isOwn={false}
+                                    joined={joined}
+                                    open={expanded.has(task.id)}
+                                    percent={taskStats[task.id] ?? 0}
+                                    onToggle={() => toggleTask(task)}
+                                    renderBody={() => renderTaskBody(task, false)}
+                                  />
+                                ))}
+                              </div>
+                            );
+                          })}
+                        </section>
+                      )}
                     </div>
                   </Collapsible>
-                </div>
-              )}
-
-              {ordered.length === 0 && (
-                <p className="text-sm text-muted">No tasks for this {unit} yet.</p>
-              )}
-
-              {/* The list. Shared build first, your focus last with its chip. */}
-              <div className="space-y-3">
-                {ordered.map((task, i) => (
-                  <TaskRow
-                    key={task.id}
-                    number={i + 1}
-                    course={course}
-                    task={task}
-                    isOwn
-                    joined={joined}
-                    open={expanded.has(task.id)}
-                    isNext={task.id === nextTask?.id}
-                    stuckCount={stuckByTask[task.id]}
-                    focus={!!course.sharedTrack && !task.shared}
-                    percent={taskStats[task.id] ?? 0}
-                    onToggle={() => toggleTask(task)}
-                    renderBody={() => renderTaskBody(task, true)}
-                  />
-                ))}
-              </div>
-
-              {/* The rest of the team's work this week, read-only, one press
-                  away. A hand-off cannot be checked against a title, so this
-                  is for every course that has other roles — never gated on
-                  sharedTrack. */}
-              {otherWeekTasks.length > 0 && (
-                <div id="other-focuses" className="scroll-under-chrome rounded-lg border border-dashed border-line p-3">
-                  <button
-                    type="button"
-                    onClick={() => setOthersOpen((v) => !v)}
-                    aria-expanded={othersOpen}
-                    aria-controls="other-focus-tasks"
-                    className="flex w-full items-center gap-2 text-sm font-medium text-muted"
-                  >
-                    <Users className="h-4 w-4" />
-                    {course.sharedTrack
-                      ? `What the other focuses document this ${unit}`
-                      : `Other roles this ${unit}`}{' '}
-                    · {otherWeekTasks.length}
-                    {othersOpen ? (
-                      <ChevronDown className="ml-auto h-4 w-4 text-muted" />
-                    ) : (
-                      <ChevronRight className="ml-auto h-4 w-4 text-muted" />
-                    )}
-                  </button>
-                  {/* Wrapper stays mounted so `aria-controls` above always resolves. */}
-                  <div id="other-focus-tasks" className={othersOpen ? 'mt-3 space-y-4' : 'hidden'}>
-                    {othersOpen &&
-                      otherRoles.map((r) => {
-                        const roleTasks = otherWeekTasks.filter((t) => t.role === r.id);
-                        if (roleTasks.length === 0) return null;
-                        return (
-                          <div key={r.id} className="space-y-2">
-                            <div className="flex items-center gap-2">
-                              <RoleIcon iconName={r.icon} className="h-5 w-5" color={r.color} />
-                              <span className="font-semibold text-ink">{r.name}</span>
-                              <span className="text-xs text-muted">reference</span>
-                            </div>
-                            {roleTasks.map((task) => (
-                              <TaskRow
-                                key={task.id}
-                                course={course}
-                                task={task}
-                                isOwn={false}
-                                joined={joined}
-                                open={expanded.has(task.id)}
-                                percent={taskStats[task.id] ?? 0}
-                                onToggle={() => toggleTask(task)}
-                                renderBody={() => renderTaskBody(task, false)}
-                              />
-                            ))}
-                          </div>
-                        );
-                      })}
-                  </div>
                 </div>
               )}
             </>

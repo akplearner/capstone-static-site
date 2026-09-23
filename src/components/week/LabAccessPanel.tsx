@@ -14,7 +14,15 @@ import { useRequireAuth } from '@/lib/useRequireAuth';
 // This saves to the student's account (owner-only — see
 // supabase/migrations/0002_student_state.sql), so the details follow them between
 // devices without ever being visible to teammates or instructors.
-export function LabAccessPanel({ courseId }: { courseId: string }) {
+/**
+ * `bare` renders the fields without the panel's own disclosure — for the
+ * Tasks tab, where it sits inside the week's one "More for this week"
+ * disclosure and a nested one would be a door behind a door. The auto-open
+ * (`defaultOpen={filledCount === 0}`) is gone with R78-B: an empty form above
+ * the week's tasks was the first thing a new student saw, and the closed bar's
+ * hint now says "lab access not set" instead.
+ */
+export function LabAccessPanel({ courseId, bare = false }: { courseId: string; bare?: boolean }) {
   const lab = useLabAccess(courseId);
   const { guard } = useRequireAuth();
 
@@ -46,15 +54,11 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
 
   if (!hasLabAccess(courseId)) return null;
 
-  return (
-    <div id="lab-access" className="scroll-under-chrome rounded-lg depth-edge bg-panel px-4">
-      {/* The heading names what the course actually collects. "Your targets" is
-          right for an attack lab and wrong for a build course, whose two values
-          are its own server's addresses. */}
-      <Collapsible
-        title={`${title ?? 'Lab access — your targets & reachability'}  (${filledCount}/${fields.length} set · ${checkCount}/${checks.length} checked)`}
-        defaultOpen={filledCount === 0}
-      >
+  // The heading names what the course actually collects. "Your targets" is
+  // right for an attack lab and wrong for a build course, whose two values
+  // are its own server's addresses.
+  const heading = `${title ?? 'Lab access — your targets & reachability'}  (${filledCount}/${fields.length} set · ${checkCount}/${checks.length} checked)`;
+  const body = (
         <div className="space-y-4 pb-2">
           {/* One sentence. This was a 44-word paragraph covering placeholder
               substitution and the privacy model; the notes field's own
@@ -156,7 +160,19 @@ export function LabAccessPanel({ courseId }: { courseId: string }) {
             />
           </label>
         </div>
-      </Collapsible>
+  );
+
+  if (bare) {
+    return (
+      <div id="lab-access" className="scroll-under-chrome">
+        <div className="mb-2 text-sm font-semibold text-ink">{heading}</div>
+        {body}
+      </div>
+    );
+  }
+  return (
+    <div id="lab-access" className="scroll-under-chrome rounded-lg depth-edge bg-panel px-4">
+      <Collapsible title={heading}>{body}</Collapsible>
     </div>
   );
 }

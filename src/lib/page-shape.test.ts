@@ -784,9 +784,11 @@ describe('R72 — every command says where it runs, and every week shows its par
     expect(components).toContain('shellPrompt(');
   });
 
-  it('the task, the week and the guide all draw the part being built', () => {
-    expect(code('src/components/course/TaskRow.tsx')).toContain('<TopologyFocus');
-    expect(code('src/components/week/WeekMilestoneHeader.tsx')).toContain('<TopologyFocus');
+  it('the open task and the guide draw the part being built — the closed row does not', () => {
+    // R78-B: the machines strip is the open task's header, not a line on every
+    // closed row. It is still derived from the commands, never authored twice.
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain('<TopologyFocus');
+    expect(code('src/components/course/TaskRow.tsx')).not.toContain('<TopologyFocus');
     const guide = code('src/components/docs/ServerConfigGuide.tsx');
     expect(guide).toContain('<TopologyFocus');
     expect(guide).toContain('<ServerTopologyDiagram highlight=');
@@ -802,20 +804,31 @@ describe('R72 — every command says where it runs, and every week shows its par
   });
 });
 
-describe('R71 — a course you can follow: the build map, the key-points view, and no door into the private zone', () => {
-  it('the Tasks tab keeps the topology goal in front of the student', () => {
-    expect(code('src/components/course/TasksTab.tsx')).toContain('<BuildMap');
-    expect(code('src/app/courses/[courseId]/page.tsx')).toContain('useStepDensity(');
-    expect(code('src/components/course/TasksTab.tsx')).toContain('saveStepDensity(');
+describe('R71/R78-B — a course you can follow', () => {
+  it('the Tasks tab keeps the week\'s objective and workflow in front of the student', () => {
+    // R71 put a build map and a "key points" view here. R78-B replaced both:
+    // the objective every seed authors is the week header's lede, and the
+    // authored flow is the stage chain over a clickable diagram of the tasks.
+    const tab = code('src/components/course/TasksTab.tsx');
+    expect(tab.match(/<FlowDiagram\b/g)?.length, 'one workflow per week').toBe(1);
+    expect(tab).toContain('flow={summary.flow}');
+    expect(tab).not.toContain('<BuildMap');
+    expect(tab).not.toContain('<PageHeader');
+    const header = code('src/components/week/WeekHeader.tsx');
+    expect(header).toContain('.objective');
+    expect(header).toContain('s.milestone');
   });
 
-  it('the step density is a course flag with a per-student override, not a course-id ternary', () => {
+  it('guided is a course flag, and the density switch is gone', () => {
     const runner = code('src/components/task/GuidedTaskRunner.tsx');
     expect(runner).toContain('guidedDefault');
-    expect(runner).toContain('onDensityChange');
+    expect(runner).not.toContain('onDensityChange');
     expect(runner).not.toMatch(/courseId === 'cysa-plus'/);
-    const components = code('src/components/step/StepDetail.tsx');
-    expect(components).toContain('compact={density');
+    expect(runner.match(/<FlowDiagram\b/g)?.length, 'one workflow per task').toBe(1);
+    expect(runner).not.toContain('GuidedStepper');
+    for (const f of ['src/components/step/StepDetail.tsx', 'src/components/task/ChecklistItem.tsx', 'src/lib/types.ts']) {
+      expect(code(f), f).not.toMatch(/[dD]ensity/);
+    }
   });
 
   it('nothing in the private zone is published — 2222 is gone from every Server+ surface', () => {
@@ -1106,5 +1119,42 @@ describe('R78-C1 — one hierarchy', () => {
     expect(code('src/components/task/GuidedTaskRunner.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
     expect(code('src/components/task/ChecklistItem.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
     expect(code('src/components/course/TaskReference.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
+  });
+});
+
+/**
+ * R78-B — the funnel.
+ *
+ * One thing in focus per level, and one disclosure per level. These are the
+ * counts that would drift back first: a second disclosure on the task, a
+ * progress bar back on the closed row, a fourth block above the list.
+ */
+describe('R78-B — the funnel', () => {
+  it('a closed task row is a line: number, title, status, objective', () => {
+    const row = code('src/components/course/TaskRow.tsx');
+    for (const gone of ['<TopologyFocus', 'estimatedTime', 'steps.total', 'scaleX']) {
+      expect(row, `${gone} is the open task's business`).not.toContain(gone);
+    }
+    expect(row).toContain('{task.objective}');
+  });
+
+  it('one disclosure per level', () => {
+    expect(code('src/components/course/TasksTab.tsx').match(/<Collapsible\b/g)?.length, 'week: More for this week, plus the reference task About').toBe(2);
+    expect(code('src/components/task/GuidedTaskRunner.tsx').match(/<Collapsible\b/g)?.length, 'task: About this task').toBe(1);
+    expect(code('src/components/step/StepDetail.tsx').match(/<Collapsible\b/g)?.length, 'step: Details').toBe(1);
+    // …and the closed bar says what it holds.
+    expect(code('src/components/course/TasksTab.tsx')).toContain('hint={hintParts.join');
+  });
+
+  it('nothing on the Tasks tab opens itself just because it is empty', () => {
+    expect(code('src/components/week/LabAccessPanel.tsx')).not.toContain('defaultOpen={filledCount');
+  });
+
+  it('the workflow nodes are real buttons that a keyboard can walk', () => {
+    const flow = code('src/components/diagrams/FlowDiagram.tsx');
+    expect(flow).toContain("aria-current={current ? 'step' : undefined}");
+    expect(flow).toContain('ArrowRight');
+    expect(flow).toContain('tabIndex={i === focusIdx ? 0 : -1}');
+    expect(flow).toContain('scrollIntoView');
   });
 });

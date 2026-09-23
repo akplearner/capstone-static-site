@@ -337,11 +337,6 @@ export interface Course {
   buildMap?: { week: number; label: string; check: string }[];
   /** Open every task in Guided mode (one step at a time). Off: the whole checklist. */
   guidedDefault?: boolean;
-  /**
-   * 'simple' shows a step as its commands and its check, with the explanations
-   * one click away; 'full' shows everything. A student can override it per course.
-   */
-  stepDensity?: 'simple' | 'full';
   /** One shared build, four focus roles. Every member works the tasks flagged
    *  `Task.shared` plus their own role's smaller deep-dive task, and every
    *  deliverable flagged `shared` is filled by everyone — a role is a

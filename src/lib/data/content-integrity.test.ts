@@ -322,6 +322,15 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
+  it("every graded week authors a flow — the workflow diagram's stage chain", () => {
+    // R78-B renders `WeekDef.flow` for the first time. Every course already
+    // authored it; this keeps a new week from arriving without one.
+    for (const w of course.weeks) {
+      if (w.setup || w.advanced) continue;
+      expect(w.flow?.length ?? 0, `week ${w.number} has no flow`).toBeGreaterThan(1);
+    }
+  });
+
   it('every graded week carries a stage and a phase', () => {
     for (const w of course.weeks) {
       if (w.setup || w.advanced) continue;

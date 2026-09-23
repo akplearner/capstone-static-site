@@ -3296,7 +3296,6 @@ const RAW_SERVER_PLUS: Course = {
   // built kept above the task list. Students said the course was a lot of
   // tasks with no thread; this is the thread.
   guidedDefault: true,
-  stepDensity: 'simple',
   buildMap: [
     { week: 0, label: 'Your workstation and your team', check: 'the platform knows your focus and your host address' },
     { week: 1, label: `Proxmox on the rack at ${HOST.rule}`, check: 'the console answers from a campus PC and over Tailscale' },

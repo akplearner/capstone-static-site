@@ -27,7 +27,6 @@ import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { courseIdentityLabel } from '@/lib/courseTheme';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { swap } from '@/lib/motion';
-import { useStepDensity } from '@/lib/stepDensity';
 import type { Task } from '@/lib/types';
 
 /**
@@ -61,9 +60,9 @@ export default function CoursePage() {
   // resume pointer resolves to shows; a pick is written to `?week=` so it is
   // bookmarkable and survives Back.
   const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
-  const [othersOpen, setOthersOpen] = useState(false);
-  // The "do once" setup strip. null = follow the resume pointer.
-  const [setupOpen, setSetupOpen] = useState<boolean | null>(null);
+  // The week's one disclosure ("More for this week": setup, lab access, the
+  // gate, other roles). null = decide from where the student is.
+  const [moreOpen, setMoreOpen] = useState<boolean | null>(null);
   const [tab, setTabState] = useState<'home' | 'tasks'>('home');
   // The step a deep link named (`?step=`), handed to the runner.
   const [deepStep, setDeepStep] = useState<{ taskId: string; stepId?: string } | null>(null);
@@ -154,8 +153,6 @@ export default function CoursePage() {
     setTimeout(() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }, [member]);
 
-  // How much of a step this student reads (Server+ starts on key points).
-  const density = useStepDensity(course, member?.memberId);
   if (loading) return <CoursePageSkeleton />;
 
   const joined = !!member;
@@ -202,10 +199,10 @@ export default function CoursePage() {
   const pickWeek = (n: number) => {
     setTabState('tasks');
     if (isSetupWeek(course, n)) {
-      setSetupOpen(true);
+      setMoreOpen(true);
     } else {
       setSelectedWeek(n);
-      setSetupOpen((v) => v ?? false);
+      setMoreOpen((v) => v ?? false);
     }
     const params = new URLSearchParams(window.location.search);
     params.set('tab', 'tasks');
@@ -333,7 +330,7 @@ export default function CoursePage() {
               onContinue={() => nextTask && goToTask(nextTask)}
               onReadOtherSteps={() => {
                 pickWeek(activeWeek);
-                setOthersOpen(true);
+                setMoreOpen(true);
                 scrollTo('other-focuses');
               }}
               onReset={() => setExpanded(new Set())}
@@ -361,12 +358,9 @@ export default function CoursePage() {
               expanded={expanded}
               setExpanded={setExpanded}
               toggleTask={toggleTask}
-              setupOpen={setupOpen}
-              setSetupOpen={setSetupOpen}
-              othersOpen={othersOpen}
-              setOthersOpen={setOthersOpen}
+              moreOpen={moreOpen}
+              setMoreOpen={setMoreOpen}
               deepStep={deepStep}
-              density={density}
               weekLocked={weekLocked}
               priorGateForWeek={priorGateForWeek}
               pickWeek={pickWeek}

@@ -51,5 +51,4 @@ export const KEYS = {
   cohortCalendar: (courseId: string, cohort: string) => `${STORAGE_PREFIX}${courseId}_cohort_${cohort}`,
   stepNotes: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_notes_${memberId}`,
   // R71. The student's step view — simple (commands and checks) or full.
-  stepDensity: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_density_${memberId}`,
 };

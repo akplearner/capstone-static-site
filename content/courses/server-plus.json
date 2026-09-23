@@ -6514,7 +6514,6 @@
     ],
     "noGatekeeping": true,
     "guidedDefault": true,
-    "stepDensity": "simple",
     "buildMap": [
       {
         "week": 0,

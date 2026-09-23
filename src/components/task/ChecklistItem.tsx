@@ -6,7 +6,6 @@ import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Step } from '@/lib/types';
 import { StepDetail, type LedgerRef } from '@/components/step/StepDetail';
 import { DUR, EASE } from '@/lib/motion';
-import type { StepDensity } from '@/lib/stepDensity';
 
 /**
  * One row of the "show all" checklist: a checkbox, the title, and the step body
@@ -19,7 +18,6 @@ export function ChecklistItem({
   ledger,
   defaultOpen,
   number,
-  density,
 }: {
   step: Step;
   isComplete: boolean;
@@ -31,7 +29,6 @@ export function ChecklistItem({
   defaultOpen?: boolean;
   /** 1-based position rendered as a mono "1." before the title. */
   number?: number;
-  density?: StepDensity;
 }) {
   // Closed is the default: a checklist is rows you can scan and tick, and the
   // old default (every incomplete step open) meant opening a task dumped every
@@ -113,7 +110,7 @@ export function ChecklistItem({
                   className="overflow-hidden"
                 >
                   <div className="mt-3 border-t border-line pt-3">
-                    <StepDetail step={step} ledger={ledger} density={density} />
+                    <StepDetail step={step} ledger={ledger} />
                   </div>
                 </motion.div>
               )}

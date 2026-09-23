@@ -6,8 +6,6 @@ import { useParams } from 'next/navigation';
 import {
   AlertTriangle,
   Check,
-  ChevronDown,
-  ChevronUp,
   Download,
   BookOpen,
   FileCheck2,
@@ -31,7 +29,6 @@ import { AnnotatedTerminal, OutcomeCard, StepImages } from '@/components/StepOut
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { Collapsible } from '@/components/ui/Button';
 import { StepNotes } from '@/components/StepNotes';
-import type { StepDensity } from '@/lib/stepDensity';
 import { CommandBlock, CopyButton, type CommandEntry } from './CommandBlock';
 
 /** A file `source` that reads as a shell command (so we render a copyable line)
@@ -186,6 +183,14 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
  * not. Rendered by the guided step card, the show-all checklist row and the
  * read-only reference view of another role's task.
  *
+ * R78-B: the visible set is the do → see → verify loop and nothing else — the
+ * warning, what to do (with the click-list OPEN: for a GUI step the list IS the
+ * instruction, and in guided mode it is one step's list, not a week's), the
+ * command, what you should see, the paste-to-verify box, and where to record
+ * it. ONE disclosure, "Details", holds the reasoning, the step-flow chain, the
+ * file tree and the fixes. The density switch that used to make this two ways
+ * to read a step is gone.
+ *
  * R78-C1: it takes the `Step` itself. The 28-field prop list was hand-copied at
  * all three call sites, and the copies had drifted — `danger` was missing from
  * one of them for a round, which is the field that says "this erases every
@@ -195,14 +200,10 @@ function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef
 export function StepDetail({
   step,
   ledger,
-  density = 'full',
 }: {
   step: Step;
   /** Set to record the verification result. Omitted in read-only views. */
   ledger?: LedgerRef;
-  /** 'simple' keeps the per-command explanations behind one "Explain these"
-   *  press. See src/lib/stepDensity.ts. */
-  density?: StepDensity;
 }) {
   const {
     instruction,
@@ -329,21 +330,6 @@ export function StepDetail({
         </div>
       )}
 
-      {/* A tiny node→arrow→node "follow the path" for this step, when authored. */}
-      {path && path.length > 0 && <StepFlow path={path} />}
-
-      {/* What the step should leave on disk — a small example directory tree. */}
-      {tree && (
-        <div>
-          <div className="text-xs font-semibold text-muted">
-            What your files should look like
-          </div>
-          <ul className="mt-1.5 space-y-1 rounded-md depth-edge bg-panel-2 p-3">
-            <TreeNode node={tree} />
-          </ul>
-        </div>
-      )}
-
       {/* Essentials in two columns on desktop: left = do + command(s), right = see + meaning. */}
       <div className="grid gap-3 md:grid-cols-2">
         <div className="space-y-3">
@@ -362,13 +348,26 @@ export function StepDetail({
                   <GlossaryText text={instruction || description || ''} keys />
                 </div>
               )}
-              {/* The discrete actions, one press away. These lists are the
-                  single biggest block of text in the course, and every one of
-                  them was rendered open, so a student read every click of every
-                  step before doing anything. The instruction above says what to
-                  do; this says exactly how, for whoever needs it. */}
-              {((instructionList && instructionList.length > 0) || (paths && paths.length > 0)) && (
-                <StepSteps items={instructionList} paths={paths} />
+              {/* The discrete actions, open. The instruction above says what
+                  to do; this says exactly how. It sat behind a "Show the N
+                  steps" press for two rounds, which made the one line above
+                  carry a whole GUI procedure on its own. */}
+              {instructionList && instructionList.length > 0 && <NumberedSteps items={instructionList} />}
+              {/* Side by side on a wide screen, stacked on a phone — neither
+                  path is the default, because which one applies is decided by
+                  the card in the server, not by us. */}
+              {paths && paths.length > 0 && (
+                <div className="mt-2 grid gap-2 lg:grid-cols-2">
+                  {paths.map((p) => (
+                    <div key={p.label} className="rounded-md depth-edge bg-panel-2 p-2.5">
+                      <div className="font-mono text-2xs font-semibold text-ink">
+                        <GlossaryText text={p.label} keys />
+                      </div>
+                      <div className="mt-0.5 text-2xs text-muted">{p.when}</div>
+                      <NumberedSteps items={p.steps} />
+                    </div>
+                  ))}
+                </div>
               )}
               {/* Steps say WHAT, the guide says HOW. Where the click-list used
                   to be a copy of a procedure in the configuration guide, this
@@ -389,7 +388,7 @@ export function StepDetail({
               )}
             </div>
           )}
-          {hasCommand && <CommandBlock commands={cmdList} compact={density === 'simple'} />}
+          {hasCommand && <CommandBlock commands={cmdList} />}
         </div>
 
         <div className="space-y-2">
@@ -486,16 +485,36 @@ export function StepDetail({
         </div>
       )}
 
-      {/* Go deeper — the reasoning and the "if it doesn't work" fix, one tap away.
-          Core above is the do → see → verify loop a beginner needs to finish the
-          step; a student who wants to understand *why*, or who is stuck, opens
-          this. Nothing is removed — it's the same content, just not in the way of
-          getting the step done. */}
-      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0)) && (
+      {/* The one disclosure at step level. The loop above is what a beginner
+          needs to finish the step; this is for the student who wants to know
+          why, who wants to see the path or the files it leaves, or who is
+          stuck. Nothing is removed — it is not in the way. */}
+      {(whatItMeans || troubleshooting || (fixes && fixes.length > 0) || (path && path.length > 0) || tree) && (
         <div className="rounded-md depth-edge bg-panel-2/50">
           <div className="px-3">
-            <Collapsible title="Why this works & if you get stuck">
-              <div className="space-y-2 pr-2">
+            <Collapsible
+              title="Details"
+              hint={[
+                whatItMeans ? 'why this works' : '',
+                path && path.length > 0 ? 'the path' : '',
+                tree ? 'your files' : '',
+                troubleshooting || (fixes && fixes.length > 0) ? 'if you get stuck' : '',
+              ]
+                .filter(Boolean)
+                .join(' · ')}
+            >
+              <div className="space-y-3 pr-2">
+                {/* A tiny node→arrow→node "follow the path" for this step. */}
+                {path && path.length > 0 && <StepFlow path={path} />}
+                {/* What the step should leave on disk — a small example tree. */}
+                {tree && (
+                  <div>
+                    <div className="text-xs font-semibold text-muted">What your files should look like</div>
+                    <ul className="mt-1.5 space-y-1 rounded-md depth-edge bg-panel-2 p-3">
+                      <TreeNode node={tree} />
+                    </ul>
+                  </div>
+                )}
                 {whatItMeans && (
                   <p className="text-sm text-muted">
                     <span className="font-semibold text-body">Why: </span>
@@ -538,13 +557,10 @@ export function StepDetail({
 }
 
 /**
- * The numbered click-path for a step, behind one press.
+ * The numbered click-path for a step.
  *
- * The count is in the label on purpose: "Show the 7 steps" tells a student how
- * much is behind the toggle before they commit to opening it. It opens closed
- * every time, including for the step a student is currently on: the instruction
- * above it is the whole action for most steps; the list is for the first time
- * through, or when the short form was not enough.
+ * Rendered open under the one-line instruction (R78-B): the line says what,
+ * the list says exactly how, and a student who has opened a step is doing it.
  */
 function NumberedSteps({ items }: { items: string[] }) {
   return (
@@ -560,52 +576,5 @@ function NumberedSteps({ items }: { items: string[] }) {
         </li>
       ))}
     </ol>
-  );
-}
-
-function StepSteps({
-  items,
-  paths,
-}: {
-  items?: string[];
-  paths?: { label: string; when: string; steps: string[] }[];
-}) {
-  const [open, setOpen] = React.useState(false);
-  const count = paths?.length
-    ? Math.max(...paths.map((p) => p.steps.length))
-    : (items?.length ?? 0);
-  const label = paths?.length
-    ? `Show both ways — ${paths.length} paths, about ${count} steps each`
-    : `Show the ${count} steps`;
-
-  return (
-    <div className="mt-2">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        aria-expanded={open}
-        className="-my-1 inline-flex items-center gap-1 py-1.5 text-left text-2xs font-medium text-accent hover:opacity-80"
-      >
-        {open ? <ChevronUp className="h-3 w-3 shrink-0" /> : <ChevronDown className="h-3 w-3 shrink-0" />}
-        {open ? 'Hide the steps' : label}
-      </button>
-      {open && items && items.length > 0 && <NumberedSteps items={items} />}
-      {/* Side by side on a wide screen, stacked on a phone — neither path is
-          the default, because which one applies is decided by the card in the
-          server, not by us. */}
-      {open && paths && paths.length > 0 && (
-        <div className="mt-2 grid gap-2 lg:grid-cols-2">
-          {paths.map((p) => (
-            <div key={p.label} className="rounded-md depth-edge bg-panel-2 p-2.5">
-              <div className="font-mono text-2xs font-semibold text-ink">
-                <GlossaryText text={p.label} keys />
-              </div>
-              <div className="mt-0.5 text-2xs text-muted">{p.when}</div>
-              <NumberedSteps items={p.steps} />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }

@@ -1,22 +1,20 @@
 'use client';
 
-import { useMemo } from 'react';
-import { motion } from 'framer-motion';
-import { CheckCircle2, ChevronDown, ChevronRight, Clock, Lock } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight, Lock } from 'lucide-react';
 import type { Course, Task } from '@/lib/types';
-import { taskCard } from '@/lib/course-helpers';
-import { meter } from '@/lib/motion';
-import { TopologyFocus, focusOf } from '@/components/diagrams/TopologyFocus';
 
 /**
- * A single collapsible task, stating everything it is.
+ * A single collapsible task: number, title, status, and the one-line
+ * objective. That is the whole closed row.
  *
- * The header stays scannable — title, status, size, time — and the body is the
- * caller's (the guided runner for your own tasks, the read-only reference for a
- * teammate's).
+ * R78-B took four things off it — the machines strip, the progress bar, the
+ * step count and the time — because a closed row is a line in a list, and a
+ * list of seven-element rows is the wall students described. All four still
+ * exist: they are the open task's header, where the student who chose this
+ * task can use them. The week's flow diagram above the list carries the step
+ * counts for the glance.
  */
 export function TaskRow({
-  course,
   task,
   isOwn,
   joined,
@@ -37,32 +35,17 @@ export function TaskRow({
   percent: number;
   onToggle: () => void;
   isNext?: boolean;
-  /** Shared-track courses: this is the one task of the week that is yours
-   *  alone — the deep-dive your documentation focus adds to the shared build.
-   *  It sits last in the week's one list, so the chip is what marks it. */
+  /** Shared-track courses: the one task of the week that is yours alone. */
   focus?: boolean;
-  /** 1-based position in the week's checklist, mono "1." before the title.
-   *  Continuous across the shared lane then the focus lane. Reference tasks:
-   *  unnumbered. */
+  /** 1-based position in the week's checklist. Reference tasks: unnumbered. */
   number?: number;
   /** Teammates who have flagged a step of this task as stuck (R68). */
   stuckCount?: number;
-  /**
-   * The body, as a thunk rather than an element.
-   *
-   * As `children`, every call site evaluated the body for EVERY row — including
-   * the collapsed ones, whose body is then thrown away by the `open &&` below.
-   * That is a whole `GuidedTaskRunner` element tree per row. A function is
-   * called only where the result is used.
-   */
+  /** The body, as a thunk: called only where the result is used, so a closed
+   *  row never builds a `GuidedTaskRunner` tree it then throws away. */
   renderBody: () => React.ReactNode;
 }) {
   const canOpen = joined;
-  // The machines this task touches. Derived, so it cannot drift from the steps.
-  const taskFocus = useMemo(() => focusOf(task.steps), [task.steps]);
-  const card = taskCard(course, task, percent);
-  const steps = card.steps.total;
-  const doneSteps = card.steps.done;
   const showProgress = isOwn && joined;
 
   return (
@@ -99,7 +82,7 @@ export function TaskRow({
               </span>
             )}
             {showProgress && percent === 100 && (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" aria-label="Done" />
             )}
             {isNext && percent < 100 && (
               <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">
@@ -107,47 +90,9 @@ export function TaskRow({
               </span>
             )}
           </span>
-          <span className="mt-0.5 block truncate text-sm text-muted">
-            {task.objective}
-          </span>
-
-          {/* Which machines this task actually types into, derived from its
-              commands, in one row before they open anything. */}
-          {taskFocus.length > 0 && (
-            <span className="mt-1.5 block">
-              <TopologyFocus focus={taskFocus} />
-            </span>
-          )}
-
-          {/* Scannable meta row — only what's specific to this closed task:
-              progress and time. */}
-          <span className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs">
-            {showProgress ? (
-              <span className="flex items-center gap-1.5" title={`${percent}% done`}>
-                <span className="relative block h-1.5 w-20 overflow-hidden rounded-full bg-line">
-                  {/* scaleX, not width: a width transition re-lays-out its row
-                      on every frame, and `MotionConfig reducedMotion` stills
-                      transforms for free. */}
-                  <motion.span
-                    className="absolute inset-0 origin-left rounded-full bg-accent"
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: percent / 100 }}
-                    transition={meter}
-                  />
-                </span>
-                <span className="text-muted">
-                  {doneSteps}/{steps} steps
-                </span>
-              </span>
-            ) : (
-              <span className="text-muted">{steps} steps</span>
-            )}
-            {task.estimatedTime && (
-              <span className="flex items-center gap-1 text-muted">
-                <Clock className="h-3.5 w-3.5" /> {task.estimatedTime}
-              </span>
-            )}
-          </span>
+          {/* The open task states its objective in full in its header, so the
+              row's one-liner steps aside rather than saying it twice. */}
+          {!open && <span className="mt-0.5 block truncate text-sm text-muted">{task.objective}</span>}
         </span>
 
         <span className="flex shrink-0 items-center gap-3 pt-0.5">
@@ -161,8 +106,7 @@ export function TaskRow({
         </span>
       </button>
 
-      {/* Mounted while collapsed so the toggle's `aria-controls` resolves —
-          the same rule `Collapsible` and the setup strip follow. */}
+      {/* Mounted while collapsed so the toggle's `aria-controls` resolves. */}
       <div id={`task-${task.id}-body`} className={open && canOpen ? 'border-t border-line p-4' : 'hidden'}>
         {open && canOpen && renderBody()}
       </div>

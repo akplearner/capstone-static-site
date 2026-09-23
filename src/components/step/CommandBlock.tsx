@@ -72,18 +72,7 @@ function HighlightedCommand({ cmd }: { cmd: string }) {
   );
 }
 
-export function CommandBlock({
-  command,
-  commands,
-  compact = false,
-}: {
-  command?: string;
-  commands?: CommandEntry[];
-  /** The key-points view. It does NOT hide the reason a command exists — that
-   *  was R71's mistake and the first thing students noticed. It hides the
-   *  sample output and the flag breakdowns, which are reference, not reading. */
-  compact?: boolean;
-}) {
+export function CommandBlock({ command, commands }: { command?: string; commands?: CommandEntry[] }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   const lab = useLabAccess(courseId);
@@ -141,7 +130,7 @@ export function CommandBlock({
       )}
       <div className="mt-1 space-y-2">
         {list.map((c, i) => (
-          <CommandRow key={i} c={c} index={i} multi={multi} compact={compact} />
+          <CommandRow key={i} c={c} index={i} multi={multi} />
         ))}
       </div>
     </div>
@@ -157,16 +146,14 @@ export function CommandBlock({
  * bash line are the same green text without it — which is exactly how a student
  * ends up running the Windows DNS cmdlet on the Proxmox host.
  *
- * `compact` (the key-points view) hides the sample and the flag breakdown. It
- * never hides `explain`: a command with no reason beside it is the thing this
- * course was criticised for.
+ * `explain` is always visible: a command with no reason beside it is the thing
+ * this course was criticised for. The sample and the flag breakdown are each
+ * one press, per command.
  */
-function CommandRow({ c, index, multi, compact = false }: { c: CommandEntry; index: number; multi: boolean; compact?: boolean }) {
+function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi: boolean }) {
   const [showFlags, setShowFlags] = React.useState(false);
   const [showSample, setShowSample] = React.useState(false);
-  // Key points keeps the reason and the sample; the flag-by-flag breakdown is
-  // reference material, so that is what it folds away.
-  const hasFlags = !compact && !!(c.flags && c.flags.length > 0);
+  const hasFlags = !!(c.flags && c.flags.length > 0);
   const on = c.on && c.on in MACHINES ? (c.on as MachineId) : undefined;
   return (
     <div>

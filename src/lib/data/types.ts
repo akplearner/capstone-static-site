@@ -16,8 +16,6 @@ export interface UserCourseState {
   resume?: { week: number; taskId: string; stepId: string; at: number };
   /** "I'm building the lab at home" — unlocks the Week-0 build task. */
   homeBuildAck?: boolean;
-  /** The student's own choice of step view for this course, when it differs from the course default. */
-  stepDensity?: 'simple' | 'full';
 }
 
 /** `memberId` scopes the LOCAL store only. Two students sharing one classroom
