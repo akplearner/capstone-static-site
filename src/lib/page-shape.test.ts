@@ -686,7 +686,7 @@ describe('R68 — the shape of the modernised platform', () => {
 
   it('the review loop, notes and stuck flag are mounted where the student works', () => {
     expect(code(DOCS)).toContain('<ReviewBanner');
-    expect(code('src/components/step/StepDetail.tsx')).toContain('<StepNotes');
+    expect(code('src/components/step/StepHow.tsx'), 'the note sits in the step\'s how tier (R79)').toContain('<StepNotes');
     expect(code('src/components/StepNotes.tsx')).toContain('aria-pressed');
     // A course reset clears the notes too, or the next student inherits them.
     expect(code('src/components/course/HomeTab.tsx')).toContain('stepNotesRepo.resetCourse');
@@ -725,7 +725,7 @@ describe('R69 — Terraform or OpenTofu is the student’s choice', () => {
     expect(code('src/components/week/LabAccessPanel.tsx')).toContain("f.kind === 'select'");
     expect(code('src/lib/labAccess.ts')).toContain('export function useIacTool(');
     expect(code('src/components/step/CommandBlock.tsx')).toContain('commandFor(c, tool)');
-    expect(code('src/components/step/StepDetail.tsx')).toContain('verifyRaw?.map((v) => applyIacTool(v, tool))');
+    expect(code('src/components/step/StepHow.tsx')).toContain('verifyRaw?.map((v) => applyIacTool(v, tool))');
     expect(code('src/components/docs/ServerConfigGuide.tsx')).toContain('commandFor(step, tool)');
   });
 
@@ -785,10 +785,12 @@ describe('R72 — every command says where it runs, and every week shows its par
   });
 
   it('the open task and the guide draw the part being built — the closed row does not', () => {
-    // R78-B: the machines strip is the open task's header, not a line on every
-    // closed row. It is still derived from the commands, never authored twice.
-    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain('<TopologyFocus');
+    // R78-B put the machines strip on the open task's header; R79 took it off
+    // again — the task is one screen, and every command already wears its
+    // machine chip. The guide still draws the week's part of the picture.
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).not.toContain('<TopologyFocus');
     expect(code('src/components/course/TaskRow.tsx')).not.toContain('<TopologyFocus');
+    expect(code('src/components/step/CommandBlock.tsx')).toContain('<MachineChip');
     const guide = code('src/components/docs/ServerConfigGuide.tsx');
     expect(guide).toContain('<TopologyFocus');
     expect(guide).toContain('<ServerTopologyDiagram highlight=');
@@ -828,7 +830,9 @@ describe('R71/R78-B — a course you can follow', () => {
     expect(runner).toContain('guidedDefault');
     expect(runner).not.toContain('onDensityChange');
     expect(runner).not.toMatch(/courseId === 'cysa-plus'/);
-    expect(runner.match(/<FlowDiagram\b/g)?.length, 'one workflow per task').toBe(1);
+    // R79: the task's workflow is the step ladder, not a second diagram.
+    expect(runner, 'the ladder is the workflow').not.toContain('<FlowDiagram');
+    expect(runner.match(/<ChecklistItem\b/g)?.length, 'one rung component').toBe(1);
     expect(runner).not.toContain('GuidedStepper');
     for (const f of ['src/components/step/StepDetail.tsx', 'src/components/task/ChecklistItem.tsx', 'src/lib/types.ts']) {
       expect(code(f), f).not.toMatch(/[dD]ensity/);
@@ -1121,8 +1125,9 @@ describe('R78-C1 — one hierarchy', () => {
       if (/<(StepDetail|ChecklistItem)\b[^>]*\b(instruction|whatItMeans|expectedOutput)=/.test(code(f))) offenders.push(f);
     }
     expect(offenders, 'pass `step={s}`').toEqual([]);
-    // …and the two renderers that take it are the only spellings of the body.
-    expect(code('src/components/task/GuidedTaskRunner.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
+    // …and the two renderers that take it are the only spellings of the body
+    // (R79: the runner renders rungs, and a rung renders the body).
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).not.toContain('<StepDetail');
     expect(code('src/components/task/ChecklistItem.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
     expect(code('src/components/course/TaskReference.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
   });
@@ -1209,7 +1214,7 @@ describe('R78-D3 — components read the document', () => {
       ['src/components/diagrams/CcnaTopologyDiagram.tsx', 'ccnaDiagramsOf'],
       ['src/components/docs/EvidenceGuide.tsx', 'custodyOf'],
       ['src/components/docs/ServerConfigGuide.tsx', 'proceduresOf'],
-      ['src/components/step/StepDetail.tsx', 'proceduresOf'],
+      ['src/components/step/StepHow.tsx', 'proceduresOf'],
     ];
     for (const [file, accessor] of MORE) {
       expect(code(file), file).toContain(`${accessor}(useCourseDocument())`);
@@ -1241,13 +1246,37 @@ describe('R78-B — the funnel', () => {
   it('one disclosure per level', () => {
     expect(code('src/components/course/TasksTab.tsx').match(/<Collapsible\b/g)?.length, 'week: More for this week, plus the reference task About').toBe(2);
     expect(code('src/components/task/GuidedTaskRunner.tsx').match(/<Collapsible\b/g)?.length, 'task: About this task').toBe(1);
-    expect(code('src/components/step/StepDetail.tsx').match(/<Collapsible\b/g)?.length, 'step: Details').toBe(1);
+    expect(code('src/components/step/StepDetail.tsx').match(/<Collapsible\b/g)?.length, 'step: Show me how, and Why').toBe(2);
     // …and the closed bar says what it holds.
     expect(code('src/components/course/TasksTab.tsx')).toContain('hint={hintParts.join');
   });
 
   it('nothing on the Tasks tab opens itself just because it is empty', () => {
     expect(code('src/components/week/LabAccessPanel.tsx')).not.toContain('defaultOpen={filledCount');
+  });
+
+  it('R79 — a step is one sentence until the student asks for more', () => {
+    // Tier 0 is the where-chip and one line. Everything a student DOES with —
+    // the actions, the command, the output, the verify box — is the second
+    // tier; why and fixes the third. The command text must not be in tier 0.
+    const detail = code('src/components/step/StepDetail.tsx');
+    for (const gone of ['<CommandBlock', 'NumberedSteps', 'expectedOutput', 'instructionList', '<OutputVerify', 'whatItMeans']) {
+      expect(detail, `${gone} is not tier 0`).not.toContain(gone);
+    }
+    expect(detail).toContain('instruction || description');
+    expect(detail).toContain('title="Show me how"');
+    expect(code('src/components/step/StepHow.tsx')).toContain('<CommandBlock');
+    expect(code('src/components/step/StepWhy.tsx')).toContain('whatItMeans');
+    // The description is printed once: the runner card no longer repeats it.
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).not.toContain('description');
+    // A command's explanation is behind its toggle, with the flags.
+    const cmd = code('src/components/step/CommandBlock.tsx');
+    expect(cmd).toContain('showFlags && c.explain');
+    // Guided is the default for every course; only `false` opts out.
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain("guidedDefault === false ? 'all' : 'guided'");
+    // The task's definition of done is the ladder's last rung, not About.
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain('definitionOfDone');
+    expect(code('src/components/course/TaskAboutPanel.tsx')).not.toContain('definitionOfDone');
   });
 
   it('the workflow nodes are real buttons that a keyboard can walk', () => {

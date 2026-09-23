@@ -139,16 +139,17 @@ export function CommandBlock({ command, commands }: { command?: string; commands
 
 /**
  * One command, with the three things a student needs before they type it:
- * WHICH MACHINE (the chip on top), WHAT IT DOES (`explain`, always visible),
- * and WHAT IT SHOULD PRINT (`sample`, one press away).
+ * WHICH MACHINE (the chip on top), WHAT IT DOES and WHAT EACH PART MEANS
+ * (`explain` + `flags`, one press), and WHAT IT SHOULD PRINT (`sample`, one
+ * press).
  *
  * The chip is not decoration. Steps span machines, and a PowerShell line and a
  * bash line are the same green text without it — which is exactly how a student
  * ends up running the Windows DNS cmdlet on the Proxmox host.
  *
- * `explain` is always visible: a command with no reason beside it is the thing
- * this course was criticised for. The sample and the flag breakdown are each
- * one press, per command.
+ * R79: `explain` moved behind the same press as the flags. The command already
+ * sits inside the step's "Show me how" tier; its explanation is the tier below
+ * that, and a student who wants it is one click from it, per command.
  */
 function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi: boolean }) {
   const [showFlags, setShowFlags] = React.useState(false);
@@ -170,12 +171,6 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
         )}
         <HighlightedCommand cmd={c.cmd} />
       </div>
-      {c.explain && (
-        <p className="mt-1 flex gap-1.5 pl-1 text-xs text-muted">
-          <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
-          <span>{c.explain}</span>
-        </p>
-      )}
       {/* What the screen should show. A beginner cannot tell a working command
           from a broken one without this, and pasting the whole expected screen
           under every line would bury the commands — so it is one press. */}
@@ -207,7 +202,7 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
           )}
         </div>
       )}
-      {hasFlags && (
+      {(hasFlags || c.explain) && (
         <div className="mt-1 pl-6">
           <button
             type="button"
@@ -216,9 +211,15 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
             className="inline-flex items-center gap-1 text-2xs font-medium text-ok hover:opacity-80"
           >
             {showFlags ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-            {showFlags ? 'Hide the parts' : 'What each part means'}
+            {showFlags ? 'Hide' : hasFlags ? 'What it does, and each part' : 'What it does'}
           </button>
-          {showFlags && (
+          {showFlags && c.explain && (
+            <p className="mt-1 flex gap-1.5 text-xs text-muted">
+              <CornerDownRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
+              <span>{c.explain}</span>
+            </p>
+          )}
+          {showFlags && hasFlags && (
             <ul className="mt-1 space-y-0.5">
               {c.flags!.map((f) => (
                 <li key={f.flag} className="flex gap-2 text-xs text-muted">

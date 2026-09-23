@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { ArrowRight, CheckCircle2, FileText, GraduationCap, Inbox, Tag, Wrench } from 'lucide-react';
+import { ArrowRight, FileText, GraduationCap, Inbox, Tag, Wrench } from 'lucide-react';
 import type { Course, Task } from '@/lib/types';
 import { getRoleDef, taskCard } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
@@ -30,8 +30,9 @@ function CardRow({
 
 /**
  * Everything about a task that is not a step, gathered for the "About this
- * task" disclosure: the done-criteria, the identity strip (needs / produces /
- * hand-offs), and the tools-and-learning brief. These used to render as three
+ * task" disclosure: the identity strip (needs / produces / hand-offs) and the
+ * tools-and-learning brief. The done-criteria left in R79: they are the last
+ * rung of the step ladder, where a student meets them on the way down. These used to render as three
  * separate always-open blocks stacked between the task title and its first
  * checkbox. The checklist comes first now and this panel holds the rest, one
  * press away. Nothing was deleted: Security+ authors hand-offs on 15/15 tasks
@@ -41,28 +42,12 @@ function CardRow({
 export function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
   const card = taskCard(course, task);
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
-  const done = task.definitionOfDone ?? [];
   const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length);
 
   return (
     <div className="space-y-3">
-      {done.length > 0 && (
-        <div>
-          <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
-            <CheckCircle2 className="h-3.5 w-3.5" /> Done when
-          </div>
-          <ul className="mt-1.5 space-y-1 text-sm text-ink">
-            {done.map((d) => (
-              <li key={d} className="flex gap-1.5">
-                <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-ok" />
-                <span>{d}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
       {(card.inputs.length > 0 || card.produces.length > 0 || card.handoff.length > 0) && (
-        <div className="grid gap-3 border-t border-line pt-3 sm:grid-cols-3">
+        <div className="grid gap-3 sm:grid-cols-3">
           {card.inputs.length > 0 && (
             <CardRow icon={Inbox} label="You need first">
               <ul className="space-y-0.5">

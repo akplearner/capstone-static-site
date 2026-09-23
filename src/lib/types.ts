@@ -346,7 +346,8 @@ export interface Course {
    *  week is open from the start and hand-offs between roles are shown as guidance,
    *  not requirements. Used by CySA+ to keep the flow simple for beginners. */
   noGatekeeping?: boolean;
-  /** Open every task in Guided mode (one step at a time). Off: the whole checklist. */
+  /** Guided (one step at a time) is the default for every course (R79).
+   *  `false` opens the whole ladder instead. */
   guidedDefault?: boolean;
   /** One shared build, four focus roles. Every member works the tasks flagged
    *  `Task.shared` plus their own role's smaller deep-dive task, and every
