@@ -3,6 +3,7 @@
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
+import type { CourseDto } from '../content/dto';
 import type {
   EvidenceArtifact,
   LabAccessData,
@@ -52,6 +53,12 @@ const reviewsByTeam = new Map<string, DeliverableReview[]>(); // `${courseId}::$
 const cohortsByKey = new Map<string, Cohort>(); // `${courseId}::${cohort}`
 const stepNotesByKey = new Map<string, StepNote>(); // `${courseId}::${taskId}::${stepId}`
 const stuckByCourse = new Map<string, StuckFlag[]>();
+
+// R78-D: the course documents an instructor authored in the cloud — course
+// CONTENT, not student state, so it is not the current user's and is not
+// cleared on sign-out. `version` lets the course repo memoise its catalogue.
+const courseDocumentsById = new Map<string, CourseDto>();
+let courseDocumentsVersion = 0;
 
 const hydratedCourses = new Set<string>();
 const channels = new Map<string, RealtimeChannel>();
@@ -220,7 +227,49 @@ export const cache = {
   removeRosterEntry(courseId: string, memberId: string) {
     rosterByCourse.set(courseId, (rosterByCourse.get(courseId) ?? []).filter((e) => e.memberId !== memberId));
   },
+  courseDocuments(): CourseDto[] {
+    return [...courseDocumentsById.values()];
+  },
+  courseDocument(courseId: string): CourseDto | undefined {
+    return courseDocumentsById.get(courseId);
+  },
+  courseDocumentsVersion(): number {
+    return courseDocumentsVersion;
+  },
+  setCourseDocument(doc: CourseDto) {
+    courseDocumentsById.set(doc.course.id, doc);
+    courseDocumentsVersion++;
+  },
+  deleteCourseDocument(courseId: string) {
+    if (courseDocumentsById.delete(courseId)) courseDocumentsVersion++;
+  },
 };
+
+/**
+ * The authored course documents. The course repo kicks this once, on the first
+ * catalogue read, signed in or not (RLS decides what comes back); it merges,
+ * so an optimistic save that landed first is not wiped. A row that is not a
+ * document is skipped loudly rather than taking the catalogue down.
+ */
+export async function hydrateCourseDocuments(): Promise<void> {
+  const supabase = getBrowserClient();
+  if (!supabase) return;
+  const { data, error } = await supabase.from('course_documents').select('course_id, doc');
+  if (error) {
+    console.error('[content] course_documents load failed:', error.message);
+    return;
+  }
+  (data ?? []).forEach((row) => {
+    const doc = row.doc as CourseDto | null;
+    if (!doc || typeof doc !== 'object' || !doc.course || doc.course.id !== row.course_id) {
+      console.error(`[content] course_documents row '${String(row.course_id)}' is not a document`);
+      return;
+    }
+    courseDocumentsById.set(String(row.course_id), doc);
+  });
+  courseDocumentsVersion++;
+  notifyStore();
+}
 
 // ---- hydration -------------------------------------------------------------
 
@@ -489,13 +538,9 @@ function subscribeRealtime(courseId: string) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'gate_status', filter: `course_id=eq.${courseId}` }, () => {
       void hydrateCourse(courseId);
     })
-    // GRC registers are team-shared, so a teammate's edit must reach this client.
     // lab_access and user_course_state are single-user and deliberately NOT
     // subscribed — there is no second party to notify, and putting credentials on
     // a realtime channel would be a cost with no benefit.
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'grc_registers', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
     // R68: an instructor's review must reach the team; a teammate's stuck flag
     // must reach the team; a cohort date set in the studio must reach the class.
     // step_notes stays off the channel — it is owner-only, like lab_access.

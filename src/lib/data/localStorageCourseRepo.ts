@@ -2,7 +2,8 @@ import { Course } from '../types';
 import { CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
-import { seedCourses } from '../content/docs';
+import { bareDocument, seedCourses } from '../content/docs';
+import type { CourseDto } from '../content/dto';
 import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
@@ -88,7 +89,7 @@ const str = (v: unknown): v is string => typeof v === 'string';
  * course page render. Returns a specific reason so the import UI can explain it.
  * (Mirrors the deep-validation model in docs/handoff.ts.)
  */
-function validateCourse(c: unknown): { ok: true } | { ok: false; error: string } {
+export function validateCourse(c: unknown): { ok: true } | { ok: false; error: string } {
   if (!isObj(c)) return { ok: false, error: 'JSON is not a course object.' };
   if (!str(c.id) || !c.id.trim()) return { ok: false, error: 'Course is missing a string "id".' };
   if (!str(c.title)) return { ok: false, error: 'Course is missing a string "title".' };
@@ -119,6 +120,23 @@ function validateCourse(c: unknown): { ok: true } | { ok: false; error: string }
     }
   }
   return { ok: true };
+}
+
+/**
+ * The document for a locally authored course: derived, since localStorage holds
+ * courses, not documents. Memoised on the course's save stamp so the provider
+ * gets the same object back until the course changes.
+ */
+const localDocuments = new Map<string, { stamp: number; doc: CourseDto }>();
+export function localDocumentSource(courseId: string): CourseDto | undefined {
+  const course = localStorageCourseRepo.list().find((c) => c.id === courseId && c.isSeed === false);
+  if (!course) return undefined;
+  const stamp = course.updatedAt ?? 0;
+  const hit = localDocuments.get(courseId);
+  if (hit && hit.stamp === stamp) return hit.doc;
+  const doc = bareDocument(course);
+  localDocuments.set(courseId, { stamp, doc });
+  return doc;
 }
 
 export const localStorageCourseRepo: CourseRepository = {

@@ -2,10 +2,15 @@
 // configured, else by localStorage — selected here so no page or component needs
 // to know which backend is live.
 //
-// `courseRepo` stays local by design: it holds authored COURSE CONTENT (the seeds
-// plus any instructor-authored course), not student work. Everything a student
-// produces now has a cloud path.
+// `courseRepo` holds COURSE CONTENT — the built-in courses from their documents
+// plus whatever an instructor authored — and since R78-D5 it has a cloud path
+// too (`course_documents`). Whichever repo is live also tells `content/docs.ts`
+// where authored documents come from, so `courseDocument(id)` and every reader
+// built on it see the same catalogue the repo serves.
 import { isSupabaseConfigured } from '../supabase/config';
+import { registerDocumentSource } from '../content/docs';
+import { localStorageCourseRepo, localDocumentSource } from './localStorageCourseRepo';
+import { supabaseCourseRepo, supabaseDocumentSource } from './supabaseCourseRepo';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
 import { localStorageUserStateRepo, localStorageLabAccessRepo } from './localStorageUserStateRepo';
@@ -19,7 +24,8 @@ import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo } from '.
 
 const cloud = isSupabaseConfigured();
 
-export { localStorageCourseRepo as courseRepo } from './localStorageCourseRepo';
+export const courseRepo = cloud ? supabaseCourseRepo : localStorageCourseRepo;
+registerDocumentSource(cloud ? supabaseDocumentSource : localDocumentSource);
 export const progressRepo = cloud ? supabaseProgressRepo : localStorageProgressRepo;
 export const docsRepo = cloud ? supabaseDocsRepo : localStorageDocsRepo;
 export const userStateRepo = cloud ? supabaseUserStateRepo : localStorageUserStateRepo;

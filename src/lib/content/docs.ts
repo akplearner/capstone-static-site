@@ -34,25 +34,38 @@ export const SEED_DOCUMENTS: Record<string, CourseDto> = {
 
 export const SEED_IDS = Object.keys(SEED_DOCUMENTS);
 
-/** The document for a built-in course, or nothing for an authored one. */
+/**
+ * Where authored documents come from — registered by whichever course repo is
+ * live (`data/index.ts`): the cloud repo serves what `course_documents` holds,
+ * the local one derives a document for each authored course. An authored
+ * document overrides a seed with the same id, as an authored course does.
+ */
+export type DocumentSource = (courseId: string) => CourseDto | undefined;
+let authoredSource: DocumentSource = () => undefined;
+export function registerDocumentSource(source: DocumentSource): void {
+  authoredSource = source;
+}
+
+/** The document for a course: authored first, then the built-in file. */
 export function courseDocument(courseId: string): CourseDto | undefined {
-  return SEED_DOCUMENTS[courseId];
+  return authoredSource(courseId) ?? SEED_DOCUMENTS[courseId];
 }
 
 /**
  * A document for a course that has none of its own — an instructor-authored
  * course, or a seed whose file failed to load.
  *
- * A course duplicated from a built-in one (`course.basedOn`) renders its
- * parent's document with itself as the course: the same manual, diagrams,
- * configuration guide and forms, which is what duplicating a course is for.
- * Any other course gets the content every course shares — the manual's
- * sections, the custody template, the terminal troubleshooting, the glossary
- * and the marking weights — and nothing family-specific, so every accessor in
- * `read.ts` answers "empty" rather than throwing.
+ * A course duplicated from a built-in one (`course.basedOn`), or an edited
+ * copy of one (same id), renders that seed's document with itself as the
+ * course: the same manual, diagrams, configuration guide and forms, which is
+ * what duplicating or editing a course is for. Any other course gets the
+ * content every course shares — the manual's sections, the custody template,
+ * the terminal troubleshooting, the glossary and the marking weights — and
+ * nothing family-specific, so every accessor in `read.ts` answers "empty"
+ * rather than throwing.
  */
 export function bareDocument(course: Course): CourseDto {
-  const parent = course.basedOn ? SEED_DOCUMENTS[course.basedOn] : undefined;
+  const parent = SEED_DOCUMENTS[course.basedOn ?? course.id];
   const base = parent ?? sharedContent();
   return {
     ...base,
