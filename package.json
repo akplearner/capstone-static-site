@@ -9,7 +9,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "content:export": "tsx scripts/export-courses.ts"
+    "content:export": "tsx scripts/export-courses.ts",
+    "db:check": "bash scripts/db-check.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.0",

@@ -24,3 +24,21 @@ jobs:
       - run: npm run content:export && git diff --exit-code -- content/
       # Build runs in localStorage mode (no Supabase env needed).
       - run: npm run build
+
+  # The database schema, on a real Postgres. Applies supabase/setup.sql to an
+  # empty postgres:16 and runs supabase/tests/rls.sql — the "who can read what"
+  # table as assertions. RLS mistakes (a self-referencing policy, a column a
+  # student can flip) only surface when the SQL actually runs, so it runs here.
+  db:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+        ports: ['5432:5432']
+    steps:
+      - uses: actions/checkout@v4
+      - run: PGURL=postgres://postgres:postgres@localhost:5432/postgres bash scripts/db-check.sh

@@ -30,13 +30,10 @@ drop policy if exists "profiles teammates read" on public.profiles;
 create policy "profiles self read"   on public.profiles for select using (auth.uid() = id);
 create policy "profiles self update" on public.profiles for update using (auth.uid() = id);
 create policy "profiles self insert" on public.profiles for insert with check (auth.uid() = id);
--- teammates may read each other's display name
-create policy "profiles teammates read" on public.profiles for select using (
-  exists (select 1 from public.memberships m1
-          join public.memberships m2
-            on m1.course_id = m2.course_id and m1.team_id = m2.team_id
-          where m1.user_id = auth.uid() and m2.user_id = profiles.id)
-);
+-- "profiles teammates read" is created in section 2, after memberships exists:
+-- a policy expression is validated when it is created, so it cannot name a
+-- table that a later section creates. (Found the first time this file ran on
+-- a real Postgres — see scripts/db-check.sh.)
 
 -- auto-create a profile row on signup, so the app never has to.
 create or replace function public.handle_new_user()
@@ -73,6 +70,14 @@ create policy "memberships self write" on public.memberships for all
 create policy "memberships course read" on public.memberships for select using (
   exists (select 1 from public.memberships me
           where me.user_id = auth.uid() and me.course_id = memberships.course_id)
+);
+
+-- teammates may read each other's display name
+create policy "profiles teammates read" on public.profiles for select using (
+  exists (select 1 from public.memberships m1
+          join public.memberships m2
+            on m1.course_id = m2.course_id and m1.team_id = m2.team_id
+          where m1.user_id = auth.uid() and m2.user_id = profiles.id)
 );
 
 -- ── 3. step_completions ──────────────────────────────────────────────────────
