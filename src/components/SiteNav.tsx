@@ -233,7 +233,7 @@ function AuthControl() {
         className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-sm font-medium text-muted hover:bg-panel-2 hover:text-ink"
       >
         <LogIn className="h-4 w-4 sm:hidden" />
-        <span>Sign in</span>
+        <span>Sign in / Create account</span>
       </Link>
     );
   }

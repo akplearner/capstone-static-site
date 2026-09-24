@@ -68,7 +68,9 @@ export function isSupabaseConfigured(): boolean {
 export type AuthMethod = 'google' | 'github' | 'magic' | 'password';
 
 const ALL_METHODS: readonly AuthMethod[] = ['google', 'github', 'magic', 'password'];
-const DEFAULT_METHODS: readonly AuthMethod[] = ['google'];
+// R81: Google (Gmail) and GitHub. Both are pure OAuth — no email delivery,
+// no SMTP — so the default asks nothing of the deployment beyond two OAuth apps.
+const DEFAULT_METHODS: readonly AuthMethod[] = ['google', 'github'];
 
 function parseAuthMethods(raw: string | undefined): readonly AuthMethod[] {
   const named = (raw ?? '')

@@ -16,6 +16,10 @@ export interface UserCourseState {
   resume?: { week: number; taskId: string; stepId: string; at: number };
   /** "I'm building the lab at home" — unlocks the Week-0 build task. */
   homeBuildAck?: boolean;
+  /** How many of the mine's weeks have already played their strike (R80/R81):
+   *  the pointer used to live in localStorage, so a new device replayed
+   *  everything. */
+  mineSeen?: number;
 }
 
 /** `memberId` scopes the LOCAL store only. Two students sharing one classroom

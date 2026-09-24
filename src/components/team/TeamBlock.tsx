@@ -3,7 +3,9 @@
 import { Info, Users } from 'lucide-react';
 import { evaluate } from '@/lib/docs/predicate';
 import { TeamProgressTable, type MemberProgress, type DeliverableStatus } from '@/components/team/TeamProgressTable';
-import { progressRepo, docsRepo, stepNotesRepo, reviewRepo } from '@/lib/data';
+import { progressRepo, docsRepo, stepNotesRepo, reviewRepo, evidenceRepo, cohortRepo } from '@/lib/data';
+import { taskRarity } from '@/lib/rarity';
+import { weekDue } from '@/lib/calendar';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { getRequiredStepCount, getTasksByRole, isAdvancedWeek } from '@/lib/course-helpers';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
@@ -11,6 +13,7 @@ import { emptyData } from '@/lib/docs/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { parseTeamId, teamLabel } from '@/lib/team';
 import type { Course, Member } from '@/lib/types';
+import { tintFor } from '@/components/quarry/art/palette';
 
 /**
  * Your team, on the Home tab.
@@ -22,13 +25,30 @@ import type { Course, Member } from '@/lib/types';
  */
 export function TeamBlock({ course, member }: { course: Course; member: Member }) {
   const teamId = member.teamId;
+  const cohort = parseTeamId(teamId).cohort;
 
   // Roster + per-member progress, recomputed whenever cloud/local data changes.
   const rows = useClientStore<MemberProgress[]>(() => {
     const roster = progressRepo.getRoster(course.id).filter((e) => e.teamId === teamId);
+    // R81: each teammate's gems, from THEIR evidence ledger — readable by the
+    // team since migration 0006 — and the cohort's due dates. Same rule as the
+    // student's own tray (useRarity), so the badges the team sees are the
+    // badges the student sees.
+    const cal = cohort ? cohortRepo.get(course.id, cohort) : null;
     return roster.map((m) => {
       const keySet = progressRepo.getCompletionKeySet(course.id, m.memberId);
       const tasks = getTasksByRole(course, m.role);
+      const evidence = evidenceRepo.getSteps(course.id, m.memberId);
+      const gems: [number, number, number, number] = [0, 0, 0, 0];
+      tasks.forEach((t) => {
+        const r = taskRarity({
+          task: t,
+          percent: progressRepo.getTaskPercent(course.id, m.memberId, t, keySet),
+          evidence,
+          dueDay: cal ? weekDue(cal.startsOn, t.week) : undefined,
+        });
+        if (r !== null) gems[r] += 1;
+      });
       const totalSteps = tasks.reduce((s, t) => s + getRequiredStepCount(t), 0);
       const doneSteps = tasks.reduce(
         (s, t) => s + Math.round((progressRepo.getTaskPercent(course.id, m.memberId, t, keySet) / 100) * getRequiredStepCount(t)),
@@ -43,7 +63,7 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
           pct: progressRepo.getWeekCompletion(course, m.memberId, m.role, week, keySet),
         }));
       const stuck = stepNotesRepo.teamStuck(course.id, teamId).filter((f) => f.memberId === m.memberId).length;
-      return { memberId: m.memberId, displayName: m.displayName, role: m.role, overall, weeks, isYou: member.memberId === m.memberId, stuck };
+      return { memberId: m.memberId, displayName: m.displayName, avatarUrl: m.avatarUrl, role: m.role, overall, weeks, gems, isYou: member.memberId === m.memberId, stuck };
     });
   }, EMPTY_ARRAY);
 
@@ -74,8 +94,6 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
     });
   }, EMPTY_ARRAY);
 
-  const cohort = parseTeamId(teamId).cohort;
-
   return (
     <section id="team" className="scroll-under-chrome space-y-3">
       <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
@@ -89,11 +107,11 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
           <Info className="mt-0.5 h-4 w-4 shrink-0" />
           <p>
             Sign-in isn&apos;t configured, so this shows only your own device&apos;s data. Once the
-            platform is connected to its backend, teammates&apos; live progress appears here.
+            platform is connected to its backend, teammates&apos; live progress and gems appear here.
           </p>
         </div>
       )}
-      <TeamProgressTable course={course} rows={rows} deliverables={deliverables} />
+      <TeamProgressTable course={course} rows={rows} deliverables={deliverables} cut={tintFor(course.id).cut} />
     </section>
   );
 }

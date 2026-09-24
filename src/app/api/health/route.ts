@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { AUTH_METHODS, isSupabaseConfigured } from '@/lib/supabase/config';
 
 // Readiness probe for uptime monitoring and deploy checks.
 //
@@ -37,17 +37,19 @@ export async function GET() {
     const latencyMs = Date.now() - started;
     if (!res.ok) {
       return NextResponse.json(
-        { status: 'degraded', mode: 'cloud', supabase: `http-${res.status}`, latencyMs },
+        { status: 'degraded', mode: 'cloud', supabase: `http-${res.status}`, latencyMs, authMethods: AUTH_METHODS },
         { status: 503, headers: { 'Cache-Control': 'no-store' } }
       );
     }
     return NextResponse.json(
-      { status: 'ok', mode: 'cloud', supabase: 'reachable', latencyMs },
+      // `authMethods` is what the sign-in screen offers; the smoke test in
+      // SUPABASE_SETUP.md checks it says google and github (R81).
+      { status: 'ok', mode: 'cloud', supabase: 'reachable', latencyMs, authMethods: AUTH_METHODS },
       { status: 200, headers: { 'Cache-Control': 'no-store' } }
     );
   } catch {
     return NextResponse.json(
-      { status: 'degraded', mode: 'cloud', supabase: 'unreachable' },
+      { status: 'degraded', mode: 'cloud', supabase: 'unreachable', authMethods: AUTH_METHODS },
       { status: 503, headers: { 'Cache-Control': 'no-store' } }
     );
   }

@@ -22,12 +22,14 @@ import { toast } from '@/lib/toastBus';
 // supabase/migrations/0003_evidence_ledger.sql.
 
 export const supabaseEvidenceRepo: EvidenceRepository = {
-  getSteps(courseId: string): Record<string, StepEvidence> {
-    return cache.stepEvidence(courseId);
+  // `memberId` is the Supabase user id in cloud mode — the caller's own, or a
+  // teammate's when the team page derives their gems (R81).
+  getSteps(courseId: string, memberId: string): Record<string, StepEvidence> {
+    return cache.stepEvidence(courseId, memberId);
   },
 
-  saveStep(_memberId: string, evidence: StepEvidence): void {
-    cache.setStepEvidence(evidence);
+  saveStep(memberId: string, evidence: StepEvidence): void {
+    cache.setStepEvidence(evidence, memberId);
     notifyStore();
 
     const supabase = getBrowserClient();

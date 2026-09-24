@@ -32,6 +32,10 @@ export const KEYS = {
   // `completedAt` values, so this pointer cannot be derived there.
   resume: (courseId: string, memberId: string) =>
     `${STORAGE_PREFIX}${courseId}_resume_${memberId}`,
+  // How many of the mine's weeks have played their strike for this student —
+  // the same kind of pointer as `resume`, and stored beside it (R81).
+  mineSeen: (courseId: string, memberId: string) =>
+    `${STORAGE_PREFIX}${courseId}_mine_seen_${memberId}`,
   // The evidence ledger: what the student actually proved, not just what they
   // ticked. Stored as one blob per (course, member) rather than a key per step —
   // unlike completions, these are always read as a whole set by the metrics

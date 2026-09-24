@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Download, LogOut, Trash2, User as UserIcon } from 'lucide-react';
+import { ProfileCard } from '@/components/auth/ProfileCard';
 import { Button } from '@/components/ui/Button';
 import { Skeleton } from '@/components/ui/Spinner';
 import { getBrowserClient } from '@/lib/supabase/client';
@@ -147,6 +148,7 @@ export default function AccountPage() {
       <Surface as="section">
         <h2 className="text-lg font-bold text-ink">Signed in</h2>
         <p className="mt-1 font-mono text-sm text-muted">{user.email}</p>
+        <ProfileCard user={user} />
         <div className="mt-4">
           <Button variant="secondary" className="flex items-center gap-2" onClick={() => signOut()}>
             <LogOut className="h-4 w-4" /> Sign out

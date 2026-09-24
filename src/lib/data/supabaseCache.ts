@@ -41,9 +41,12 @@ const gateByKey = new Map<string, string>(); // KEYS.gate(...) -> status
 // alone because the user is implicit.
 const labAccessByCourse = new Map<string, LabAccessData>();
 const userStateByCourse = new Map<string, UserCourseState>();
-// The evidence ledger — also current-user-only. Step records are keyed
-// `${courseId}::${taskId}::${stepId}` so one flat map serves every course, which
-// is what the cross-course dashboard and portfolio need.
+// The evidence ledger. Step records are keyed
+// `${userId}::${courseId}::${taskId}::${stepId}` so one flat map serves every
+// course (the cross-course dashboard and portfolio) AND every teammate: since
+// 0006 RLS returns the team's rows too, because a task's gem is derived from
+// them. The user is part of the key so two students' records never merge —
+// an instructor's hydrate sees the whole class.
 const stepEvidenceByKey = new Map<string, StepEvidence>();
 const artifactsByHash = new Map<string, EvidenceArtifact>(); // `${courseId}::${sha256}`
 let chosenPath: { pathId: string; chosenAt: number } | null = null;
@@ -137,16 +140,17 @@ export const cache = {
   setUserState(courseId: string, data: UserCourseState) {
     userStateByCourse.set(courseId, data);
   },
-  stepEvidence(courseId: string): Record<string, StepEvidence> {
+  stepEvidence(courseId: string, userId: string): Record<string, StepEvidence> {
     const out: Record<string, StepEvidence> = {};
+    const prefix = `${userId}::${courseId}::`;
     stepEvidenceByKey.forEach((v, k) => {
-      if (k.startsWith(`${courseId}::`)) out[`${v.taskId}::${v.stepId}`] = v;
+      if (k.startsWith(prefix)) out[`${v.taskId}::${v.stepId}`] = v;
     });
     return out;
   },
-  setStepEvidence(evidence: StepEvidence) {
+  setStepEvidence(evidence: StepEvidence, userId: string) {
     stepEvidenceByKey.set(
-      `${evidence.courseId}::${evidence.taskId}::${evidence.stepId}`,
+      `${userId}::${evidence.courseId}::${evidence.taskId}::${evidence.stepId}`,
       evidence
     );
   },
@@ -160,10 +164,11 @@ export const cache = {
   setArtifact(artifact: EvidenceArtifact) {
     artifactsByHash.set(`${artifact.courseId}::${artifact.sha256}`, artifact);
   },
-  /** Drop one course's evidence — the optimistic half of `resetCourse`. */
+  /** Drop the current user's evidence for one course — the optimistic half of
+   *  `resetCourse`. Teammates' records stay: they are theirs. */
   clearEvidence(courseId: string) {
     [...stepEvidenceByKey.keys()]
-      .filter((k) => k.startsWith(`${courseId}::`))
+      .filter((k) => k.startsWith(`${currentUserId}::${courseId}::`))
       .forEach((k) => stepEvidenceByKey.delete(k));
     [...artifactsByHash.entries()]
       .filter(([, v]) => v.courseId === courseId)
@@ -273,7 +278,7 @@ export async function hydrateCourseDocuments(): Promise<void> {
 
 // ---- hydration -------------------------------------------------------------
 
-export function rosterFromRow(r: Record<string, unknown>): RosterEntry {
+export function rosterFromRow(r: Record<string, unknown>, avatarUrl?: string): RosterEntry {
   return {
     memberId: String(r.user_id),
     teamId: String(r.team_id),
@@ -281,6 +286,7 @@ export function rosterFromRow(r: Record<string, unknown>): RosterEntry {
     displayName: String(r.display_name ?? ''),
     cohort: String(r.cohort ?? ''),
     joinedAt: r.joined_at ? Date.parse(String(r.joined_at)) : 0,
+    ...(avatarUrl ? { avatarUrl } : {}),
   };
 }
 
@@ -289,7 +295,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -309,10 +315,17 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       supabase.from('cohorts').select('*').eq('course_id', courseId),
       supabase.from('step_notes').select('*').eq('course_id', courseId),
       supabase.from('step_flags').select('*').eq('course_id', courseId).eq('stuck', true),
+      // R81: teammates' pictures. RLS returns the caller's own profile and the
+      // profiles of people who share a team with them, on any course.
+      supabase.from('profiles').select('id, avatar_url'),
     ]);
 
   if (memberships.data) {
-    const list = memberships.data.map(rosterFromRow);
+    const avatars = new Map<string, string>();
+    (profiles.data ?? []).forEach((p) => {
+      if (p.avatar_url) avatars.set(String(p.id), String(p.avatar_url));
+    });
+    const list = memberships.data.map((m) => rosterFromRow(m, avatars.get(String(m.user_id))));
     rosterByCourse.set(courseId, list);
     const mine = memberships.data.find((m) => String(m.user_id) === currentUserId);
     contextByCourse.set(
@@ -366,7 +379,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     userStateByCourse.set(courseId, userState.data.data as UserCourseState);
   }
 
-  if (evidence.data) evidence.data.forEach((r) => cache.setStepEvidence(stepEvidenceFromRow(r)));
+  if (evidence.data) evidence.data.forEach((r) => cache.setStepEvidence(stepEvidenceFromRow(r), String(r.user_id)));
   if (artifacts.data) artifacts.data.forEach((r) => cache.setArtifact(artifactFromRow(r)));
 
   if (reviews.data) {
@@ -507,7 +520,7 @@ export async function hydrateUser(): Promise<void> {
     );
   }
 
-  if (evidence.data) evidence.data.forEach((r) => cache.setStepEvidence(stepEvidenceFromRow(r)));
+  if (evidence.data) evidence.data.forEach((r) => cache.setStepEvidence(stepEvidenceFromRow(r), String(r.user_id)));
   if (artifacts.data) artifacts.data.forEach((r) => cache.setArtifact(artifactFromRow(r)));
 
   chosenPath = path.data

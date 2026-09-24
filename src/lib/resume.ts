@@ -11,10 +11,12 @@ import { getTasksByRole, getTaskById, isGradedWeek } from './course-helpers';
  * top of a week rather than on the checkbox they actually stopped at.
  *
  * So we record the last checkbox ticked. This is a *UI convenience pointer*, not
- * progress data — progress remains the completion key set. It now travels with
- * the student's account (so switching device resumes in the right place) and
- * falls back to localStorage when signed out. It is still safe to lose: with no
- * pointer we fall back to the first incomplete non-setup week.
+ * progress data — progress remains the completion key set. It travels with the
+ * student's account (so switching device resumes in the right place); in the
+ * offline build it lives in localStorage instead. Signed out in cloud mode
+ * nothing is written — there is no one to save it for, and the guard on the
+ * tick has already said so. It is still safe to lose: with no pointer we fall
+ * back to the first incomplete non-setup week.
  *
  * Reads stay SYNCHRONOUS — `readResume` is called inside a `useClientStore`
  * selector during render — which is why it goes through the repo's in-memory

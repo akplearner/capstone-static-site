@@ -34,7 +34,7 @@ function RegisterInner() {
         </div>
         <h1 className="mt-3 text-2xl font-bold tracking-tight text-ink">Create your account</h1>
         <p className="mt-1 text-sm text-muted">
-          {hasSignupStep ? 'Free. Takes a minute.' : 'Free. Sign in with Google and your account is made.'}
+          {hasSignupStep ? 'Free. Takes a minute.' : 'Free. Continue with Google or GitHub — your account is made on first sign-in.'}
         </p>
       </div>
 
@@ -44,7 +44,7 @@ function RegisterInner() {
 
       <ul className="mt-5 space-y-1.5 text-sm text-muted">
         {[
-          'Your progress follows you across devices',
+          'Your progress, gems and team follow you across devices',
           'Verified steps are hashed and timestamped into your evidence ledger',
           'Export a portfolio of what you actually built',
         ].map((line) => (

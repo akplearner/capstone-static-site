@@ -6,16 +6,23 @@ import { Course } from '@/lib/types';
 import { getRoleDef } from '@/lib/course-helpers';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { meter } from '@/lib/motion';
+import { ArtSvg } from '@/components/quarry/art/widgets';
+import { Gem } from '@/components/quarry/art/parts';
+import { RARITY, type GemCut } from '@/components/quarry/art/palette';
 
 export interface MemberProgress {
   memberId: string;
   displayName: string;
+  /** From their sign-in provider, when accounts are on (R81). */
+  avatarUrl?: string;
   role: string;
   overall: number;
   weeks: { week: number; pct: number }[];
   isYou: boolean;
   /** Steps this member has flagged as stuck (R68). */
   stuck?: number;
+  /** Gems earned, counted by rarity index — their badges (R81). */
+  gems?: [number, number, number, number];
 }
 
 export interface DeliverableStatus {
@@ -39,12 +46,16 @@ export function TeamProgressTable({
   course,
   rows,
   deliverables,
+  cut = 'round',
 }: {
   course: Course;
   rows: MemberProgress[];
   deliverables: DeliverableStatus[];
+  /** The course's gem cut, for the badges column. */
+  cut?: GemCut;
 }) {
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
+  const showGems = rows.some((r) => r.gems);
 
   return (
     <div className="space-y-6">
@@ -54,6 +65,7 @@ export function TeamProgressTable({
             <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-muted">
               <th scope="col" className="px-4 py-2.5">Member</th>
               <th scope="col" className="px-4 py-2.5">Overall</th>
+              {showGems && <th scope="col" className="px-4 py-2.5">Badges</th>}
               {weeks.map((w) => (
                 <th key={w} scope="col" className="px-3 py-2.5 text-center">W{w}</th>
               ))}
@@ -62,7 +74,7 @@ export function TeamProgressTable({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={2 + weeks.length} className="px-4 py-6 text-center text-muted">
+                <td colSpan={2 + (showGems ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
                   No teammates yet. As people join this team they&apos;ll appear here.
                 </td>
               </tr>
@@ -73,7 +85,12 @@ export function TeamProgressTable({
                 <tr key={m.memberId} className="border-b border-line/60 last:border-0">
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <RoleIcon iconName={rd?.icon} className="h-4 w-4 shrink-0" color={rd?.color} />
+                      {m.avatarUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element -- a provider-hosted picture of unknown origin; next/image would need every host allow-listed.
+                        <img src={m.avatarUrl} alt="" width={24} height={24} referrerPolicy="no-referrer" className="h-6 w-6 shrink-0 rounded-full bg-panel-2 object-cover" />
+                      ) : (
+                        <RoleIcon iconName={rd?.icon} className="h-4 w-4 shrink-0" color={rd?.color} />
+                      )}
                       <span className="font-medium text-ink">{m.displayName || 'Unnamed'}</span>
                       {m.isYou && (
                         <span className="rounded-full bg-accent-soft px-2 py-0.5 text-3xs font-medium text-accent-ink">
@@ -101,6 +118,11 @@ export function TeamProgressTable({
                       <span className="tabular-nums text-xs text-muted">{m.overall}%</span>
                     </div>
                   </td>
+                  {showGems && (
+                    <td className="px-4 py-3">
+                      <GemRow gems={m.gems ?? [0, 0, 0, 0]} cut={cut} />
+                    </td>
+                  )}
                   {weeks.map((w) => {
                     const pct = m.weeks.find((x) => x.week === w)?.pct ?? 0;
                     return (
@@ -166,5 +188,32 @@ export function TeamProgressTable({
         </div>
       </div>
     </div>
+  );
+}
+
+/**
+ * A member's badges: one gem per rarity they have earned, with the count, from
+ * lowest to highest. Nothing earned reads as a quiet dash rather than four empty
+ * slots — the point is to notice a teammate's first Epic, not to count zeros.
+ */
+function GemRow({ gems, cut }: { gems: [number, number, number, number]; cut: GemCut }) {
+  const earned = RARITY.map((r, i) => ({ ...r, i, n: gems[i] })).filter((r) => r.n > 0);
+  if (earned.length === 0) return <span className="text-xs text-muted">—</span>;
+  return (
+    <ul className="flex items-center gap-2" aria-label="Gems earned">
+      {earned.map((r) => (
+        <li key={r.name} className="flex items-center gap-1" title={`${r.n} ${r.name} — ${r.means}`}>
+          <span
+            className="grid h-6 w-6 place-items-center rounded-full"
+            style={{ border: `1.5px solid ${r.color}`, boxShadow: `0 0 8px -3px ${r.color}` }}
+          >
+            <ArtSvg size={16}>{(u) => <Gem u={u} cut={cut} detail={false} />}</ArtSvg>
+          </span>
+          <span className="tabular-nums text-xs font-semibold" style={{ color: r.color }}>
+            {r.n}
+          </span>
+        </li>
+      ))}
+    </ul>
   );
 }

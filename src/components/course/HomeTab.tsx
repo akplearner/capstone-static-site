@@ -22,7 +22,7 @@ import { RoleIcon } from '@/components/team/RoleIcon';
 import { TeamBlock } from '@/components/team/TeamBlock';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { JoinPanel } from './JoinPanel';
-import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo } from '@/lib/data';
+import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo, userStateRepo } from '@/lib/data';
 import { notifyStore } from '@/lib/useClientStore';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, objectivesFor, phaseTag } from '@/lib/course-helpers';
@@ -112,26 +112,19 @@ export function HomeTab({
   });
   // The mine (R80): one stone per graded week with work for this role, in
   // order. A week finished since the last visit is played once — the pointer
-  // lives on this device, like the resume pointer.
+  // travels with the account, like the resume pointer (R81).
   const mineWeeks = member
     ? sortedWeeks.filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, member.role, w.number).length > 0)
     : [];
   const mineRarities = member ? mineWeeks.map((w) => weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf))) : [];
-  const seenKey = member ? `cq_mine_seen_${course.id}_${member.memberId}` : '';
   const [seenWeeks] = useState(() => {
-    try {
-      const v = seenKey ? localStorage.getItem(seenKey) : null;
-      return v === null ? crew.weeksCleared : Number(v);
-    } catch {
-      return crew.weeksCleared;
-    }
+    const seen = member ? userStateRepo.get(course.id, member.memberId)?.mineSeen : undefined;
+    return seen === undefined ? crew.weeksCleared : seen;
   });
   const markPlayed = (i: number) => {
-    try {
-      if (seenKey) localStorage.setItem(seenKey, String(i + 1));
-    } catch {
-      /* private window: the next visit replays it, which is harmless */
-    }
+    if (!member) return;
+    const existing = userStateRepo.get(course.id, member.memberId) ?? {};
+    userStateRepo.save(course.id, member.memberId, { ...existing, mineSeen: i + 1 });
   };
   const stoneDef = stoneStage(crew.stage);
   const packSlots = [

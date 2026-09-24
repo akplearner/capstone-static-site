@@ -86,3 +86,17 @@ describe('a completion survives a task moving weeks', () => {
     expect(localStorageProgressRepo.getWeekCompletion(SERVER_PLUS, 'm1', 'net', 6)).toBe(0);
   });
 });
+
+describe('user state — the mine pointer travels with the rest (R81)', async () => {
+  const { localStorageUserStateRepo } = await import('./localStorageUserStateRepo');
+  it('round-trips mineSeen beside resume and homeBuildAck', () => {
+    localStorage.clear();
+    localStorageUserStateRepo.save('security-plus', 'm1', { homeBuildAck: true, mineSeen: 2 });
+    expect(localStorageUserStateRepo.get('security-plus', 'm1')).toEqual({ homeBuildAck: true, mineSeen: 2 });
+    // Another student on the same device has their own pointer.
+    expect(localStorageUserStateRepo.get('security-plus', 'm2')?.mineSeen).toBeUndefined();
+    // Zero is a value, not "unset".
+    localStorageUserStateRepo.save('security-plus', 'm1', { mineSeen: 0 });
+    expect(localStorageUserStateRepo.get('security-plus', 'm1')).toEqual({ mineSeen: 0 });
+  });
+});

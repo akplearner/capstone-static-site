@@ -76,7 +76,7 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     supabase.from('step_flags').select('*').eq('course_id', course.id).eq('stuck', true),
     supabase.from('deliverable_reviews').select('*').eq('course_id', course.id),
   ]);
-  const roster = (memberships.data ?? []).map(rosterFromRow);
+  const roster = (memberships.data ?? []).map((r) => rosterFromRow(r));
   const keys = new Set<string>();
   for (const c of completions.data ?? []) keys.add(KEYS.completion(course.id, String(c.user_id), String(c.task_id), String(c.step_id)));
   const ev: CohortData['evidence'] = {};

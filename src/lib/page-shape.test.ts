@@ -1342,3 +1342,71 @@ describe('R80 — the mine', () => {
     }
   });
 });
+
+/**
+ * R81 — accounts.
+ *
+ * Every student has an account (Google or GitHub), progress and badges are
+ * saved to it, and the team sees each other's. These are the shapes that
+ * would quietly undo it: a device-only pointer, an evidence map that ignores
+ * whose it is, a policy that asks the membership question by subquery again
+ * (the recursion 0006 fixed), a sign-in screen back to one provider.
+ */
+describe('R81 — accounts', () => {
+  it('offers Google and GitHub by default', () => {
+    expect(code('src/lib/supabase/config.ts')).toContain("DEFAULT_METHODS: readonly AuthMethod[] = ['google', 'github']");
+  });
+
+  it('nothing on the course Home lives on the device only', () => {
+    const home = code('src/components/course/HomeTab.tsx');
+    expect(home).not.toMatch(/localStorage/);
+    expect(home, 'the mine pointer goes through the user-state repo').toContain('mineSeen');
+  });
+
+  it('the cloud evidence map is keyed by whose it is', () => {
+    const repo = code('src/lib/data/supabaseEvidenceRepo.ts');
+    expect(repo).toContain('cache.stepEvidence(courseId, memberId)');
+    expect(repo).toContain('cache.setStepEvidence(evidence, memberId)');
+    expect(code('src/lib/data/supabaseCache.ts')).toContain('`${userId}::${evidence.courseId}::${evidence.taskId}::${evidence.stepId}`');
+  });
+
+  it('the team page shows each teammate\'s badges, from their own ledger', () => {
+    const block = code('src/components/team/TeamBlock.tsx');
+    expect(block).toContain('evidenceRepo.getSteps(course.id, m.memberId)');
+    expect(block).toContain('taskRarity(');
+    expect(code('src/components/team/TeamProgressTable.tsx')).toContain('<GemRow');
+  });
+
+  it('no policy asks the membership question by subquery — that is the recursion 0006 fixed', () => {
+    // Every policy created from 0006 on must go through the security-definer
+    // helpers. A `create policy … (select … from public.memberships` or
+    // `public.profiles` inside a policy body is exactly the shape that recursed.
+    const dir = 'supabase/migrations';
+    const files = readdirSync(root(dir)).filter((f) => f.endsWith('.sql') && f >= '0006').sort();
+    expect(files.length).toBeGreaterThan(0);
+    for (const f of files) {
+      const sql = read(`${dir}/${f}`).replace(/^\s*--.*$/gm, '');
+      const policies = sql.match(/create policy[\s\S]*?;/g) ?? [];
+      for (const p of policies) {
+        expect(p, `${f}: ${p.split('\n')[0]}`).not.toMatch(/from\s+public\.(memberships|profiles)\b/);
+      }
+    }
+    // And the helpers themselves are what the last policy set calls.
+    const six = read('supabase/migrations/0006_accounts.sql');
+    for (const fn of ['is_instructor()', 'shares_course(', 'on_team(', 'same_team_as(']) expect(six).toContain(`public.${fn}`);
+    expect(six, 'a student cannot promote themselves').toContain('revoke update on public.profiles from anon, authenticated');
+  });
+
+  it('the schema is exercised on a real Postgres in CI', () => {
+    expect(read('.github/workflows/ci.yml')).toContain('scripts/db-check.sh');
+    expect(read('package.json')).toContain('"db:check"');
+    expect(read('supabase/tests/rls.sql')).toMatch(/^begin;/m);
+    expect(read('supabase/tests/rls.sql')).toMatch(/^rollback;/m);
+  });
+
+  it('a signed-out visitor is asked for the account before "enrol"', () => {
+    const gate = code('src/components/CourseEnrolGate.tsx');
+    expect(gate).toContain('<SignInPanel');
+    expect(gate).toContain('isSupabaseConfigured() && !loading && !user');
+  });
+});

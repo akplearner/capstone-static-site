@@ -30,8 +30,14 @@ export const localStorageUserStateRepo: UserStateRepository = {
     if (!hasWindow()) return null;
     const resume = readJson<UserCourseState['resume']>(KEYS.resume(courseId, memberId));
     const homeBuildAck = localStorage.getItem(KEYS.homeBuildAck(courseId)) === '1';
-    if (!resume && !homeBuildAck) return null;
-    return { ...(resume ? { resume } : {}), ...(homeBuildAck ? { homeBuildAck } : {}) };
+    const seenRaw = localStorage.getItem(KEYS.mineSeen(courseId, memberId));
+    const mineSeen = seenRaw === null ? undefined : Number(seenRaw);
+    if (!resume && !homeBuildAck && mineSeen === undefined) return null;
+    return {
+      ...(resume ? { resume } : {}),
+      ...(homeBuildAck ? { homeBuildAck } : {}),
+      ...(mineSeen !== undefined && !Number.isNaN(mineSeen) ? { mineSeen } : {}),
+    };
   },
 
   save(courseId: string, memberId: string, state: UserCourseState): void {
@@ -43,6 +49,8 @@ export const localStorageUserStateRepo: UserStateRepository = {
     }
     if (state.homeBuildAck) safeSetItem(KEYS.homeBuildAck(courseId), '1');
     else localStorage.removeItem(KEYS.homeBuildAck(courseId));
+    if (state.mineSeen !== undefined) safeSetItem(KEYS.mineSeen(courseId, memberId), String(state.mineSeen));
+    else localStorage.removeItem(KEYS.mineSeen(courseId, memberId));
   },
 };
 

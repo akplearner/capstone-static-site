@@ -406,6 +406,8 @@ export interface RosterEntry {
   displayName: string;
   cohort: string;
   joinedAt: number;
+  /** The picture their sign-in provider gave us (R81). Cloud mode only. */
+  avatarUrl?: string;
 }
 
 export interface TaskCompletion {
