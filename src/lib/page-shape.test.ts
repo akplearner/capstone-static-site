@@ -1296,3 +1296,34 @@ describe('R78-B — the funnel', () => {
     expect(flow).toContain('scrollIntoView');
   });
 });
+
+/**
+ * R80 — the mine comes alive.
+ *
+ * The instructor's art replaced the pixel scene; every task carries the stone
+ * it is cutting; gems are earned by proof. These are the shapes that would
+ * quietly undo it.
+ */
+describe('R80 — the mine', () => {
+  it('every own task wears its stone, and the week its gem tray', () => {
+    const tab = code('src/components/course/TasksTab.tsx');
+    expect(tab).toContain('lead={<TaskStone');
+    expect(tab).toContain('<WeekGemTray');
+    expect(code('src/components/course/TaskRow.tsx')).toContain('{lead}');
+  });
+
+  it('rarity is computed from the record, never rolled', () => {
+    expect(code('src/lib/rarity.ts')).not.toMatch(/Math\.random/);
+    expect(code('src/components/course/useRarity.ts')).toContain('taskRarity(');
+  });
+
+  it('the course Home shows the pack', () => {
+    expect(code('src/components/course/HomeTab.tsx')).toContain('<PackStrip');
+  });
+
+  it('every art component that animates on its own honours reduced motion', () => {
+    for (const f of ['MinerStrike.tsx', 'TaskStone.tsx', 'widgets.tsx']) {
+      expect(code(`src/components/quarry/art/${f}`), f).toContain('useReducedMotionSafe');
+    }
+  });
+});

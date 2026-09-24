@@ -15,6 +15,10 @@ import { WeekHeader } from '@/components/week/WeekHeader';
 import { LabAccessPanel } from '@/components/week/LabAccessPanel';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { TaskRow } from './TaskRow';
+import { useRarity } from './useRarity';
+import { TaskStone, WeekGemTray } from '@/components/quarry/art/TaskStone';
+import { tintFor } from '@/components/quarry/art/palette';
+import { weekRarity } from '@/lib/rarity';
 import { TaskReference } from './TaskReference';
 import { TaskAboutPanel } from './TaskAboutPanel';
 import { formatMinutes, getTasksByRole, getWeekTasks, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary } from '@/lib/course-helpers';
@@ -102,6 +106,8 @@ export function TasksTab({
 }) {
   // Hooks above the early return: the lab-access hint on the disclosure bar.
   const lab = useLabAccess(course.id);
+  const rarityOf = useRarity(course, member, taskStats, cohortCal);
+  const cut = tintFor(course.id).cut;
   const joined = !!member;
   if (!joined || !member || !ownRole) {
     // Not enrolled: the tasks ARE the course material, so this is where the
@@ -240,6 +246,7 @@ export function TasksTab({
       focus={i != null && !!course.sharedTrack && !task.shared}
       percent={taskStats[task.id] ?? 0}
       onToggle={() => toggleTask(task)}
+      lead={<TaskStone percent={taskStats[task.id] ?? 0} rarity={rarityOf(task)} cut={cut} />}
       renderBody={() => renderTaskBody(task, true)}
     />
   );
@@ -281,6 +288,19 @@ export function TasksTab({
         <div className="space-y-5 p-5">
           {/* 2. What this week is for. */}
           <WeekHeader id="tasks-head" course={course} role={member.role} week={viewWeek} percent={viewPct} unit={unit} />
+
+          {/* The gems earned so far: one slot per week, filled in the rarity of
+              its weakest task (R80). The same weeks as the rail, as trophies. */}
+          <WeekGemTray
+            cut={cut}
+            selected={viewWeek}
+            onSelect={pickWeek}
+            weeks={gradedWeeks.map((w) => ({
+              week: w.number,
+              label: `W${w.number}`,
+              rarity: weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf)),
+            }))}
+          />
 
           {viewLocked ? (
             <div className="flex items-start gap-3 rounded-lg depth-edge bg-panel-2 p-4">

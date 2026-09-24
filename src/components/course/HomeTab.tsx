@@ -10,6 +10,10 @@ import { Alert } from '@/components/ui/Alert';
 import { Surface } from '@/components/ui/Surface';
 import { toast } from '@/components/ui/Toast';
 import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
+import { PackStrip } from '@/components/quarry/art/PackStrip';
+import { pebbleStage } from '@/components/quarry/art/parts';
+import { tintFor } from '@/components/quarry/art/palette';
+import { useRarity } from './useRarity';
 import { EngagementStatus } from '@/components/team/EngagementStatus';
 import { EngagementBanner } from '@/components/team/EngagementBanner';
 import { RoleIcon } from '@/components/team/RoleIcon';
@@ -81,6 +85,7 @@ export function HomeTab({
 }) {
   const joined = !!member;
   const [confirmingReset, setConfirmingReset] = useState(false);
+  const rarityOf = useRarity(course, member, taskStats, cohortCal);
 
   // Whole-course completion. With gatekeeping, every gate must be passed. With
   // no gatekeeping, it's simply every week at 100% for your role — graded
@@ -96,6 +101,20 @@ export function HomeTab({
     : undefined;
   const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
+  // The pack (R80): gems by the rarity each finished task earned, and the five
+  // slots of the course, each lit when it is earned.
+  const gems: [number, number, number, number] = [0, 0, 0, 0];
+  ownTasksAll.forEach((t) => {
+    const r = rarityOf(t);
+    if (r !== null) gems[r] += 1;
+  });
+  const packSlots = [
+    { kind: 'hand' as const, name: 'Pick', earn: 'join a team', earned: joined },
+    { kind: 'ore' as const, name: 'Ore', earn: 'tick your first step', earned: crew.stepsDone > 0 },
+    { kind: 'facet' as const, name: 'Facet', earn: 'finish a task', earned: tasksComplete > 0 },
+    { kind: 'seal' as const, name: 'Seal', earn: 'finish a week', earned: crew.weeksCleared > 0 },
+    { kind: 'relic' as const, name: 'Relic', earn: 'hand over the capstone', earned: crew.stage >= 5 },
+  ];
   const contentWeeks = sortedWeeks.filter((w) => w.number >= 1);
   // Which objective the next task belongs to — Continue names it (R79).
   const objectiveOfNext = (() => {
@@ -191,6 +210,13 @@ export function HomeTab({
       {joined && member && (
         <Surface glow="accent" padding="lg">
           <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
+          <PackStrip
+            className="mt-6 border-t border-line pt-5"
+            slots={packSlots}
+            gems={gems}
+            pebble={pebbleStage(crew.weeksCleared, crew.weeksTotal)}
+            cut={tintFor(course.id).cut}
+          />
         </Surface>
       )}
 

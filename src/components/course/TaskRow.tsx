@@ -25,6 +25,7 @@ export function TaskRow({
   number,
   stuckCount,
   focus,
+  lead,
   renderBody,
 }: {
   course: Course;
@@ -41,6 +42,8 @@ export function TaskRow({
   number?: number;
   /** Teammates who have flagged a step of this task as stuck (R68). */
   stuckCount?: number;
+  /** In front of the title: the task's stone (R80). */
+  lead?: React.ReactNode;
   /** The body, as a thunk: called only where the result is used, so a closed
    *  row never builds a `GuidedTaskRunner` tree it then throws away. */
   renderBody: () => React.ReactNode;
@@ -65,6 +68,7 @@ export function TaskRow({
           canOpen ? 'hover:bg-panel-2' : 'cursor-not-allowed opacity-70'
         }`}
       >
+        {lead}
         <span className="min-w-0 flex-1">
           <span className="flex items-center gap-2">
             {number != null && (
