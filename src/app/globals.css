@@ -661,6 +661,75 @@
    origin is an explicit point on the miner's mitt, set inline. */
 .qi-swing { animation: qi-swing 2.1s cubic-bezier(0.5, 0, 0.35, 1) infinite; }
 
+/* ── R80: the quarry art kit (src/components/quarry/art) ──────────────────
+   Keyframes are `qa-` prefixed. Every loop here is ambient scene-setting and
+   is stilled by the global prefers-reduced-motion block; the one-shots
+   (burst, pop) are skipped in code under reduced motion as well. */
+@keyframes qa-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+@keyframes qa-flicker { 0%, 100% { opacity: 1; } 40% { opacity: 0.72; } 70% { opacity: 0.9; } }
+@keyframes qa-breathe { 0%, 100% { opacity: 0.55; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
+@keyframes qa-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
+@keyframes qa-drill { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(1.4px); } }
+@keyframes qa-dash { to { stroke-dashoffset: -14.8; } }
+@keyframes qa-sweep { 0% { background-position: 130% 0; } 60%, 100% { background-position: -130% 0; } }
+@keyframes qa-pulse { 0%, 100% { box-shadow: 0 0 10px -5px var(--rc); } 50% { box-shadow: 0 0 20px -2px var(--rc); } }
+@keyframes qa-pop { 0% { transform: scale(0.2) rotate(-22deg); } 58% { transform: scale(1.24) rotate(7deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes qa-ring { 0% { transform: scale(0.3); opacity: 1; } 100% { transform: scale(1.9); opacity: 0; } }
+@keyframes qa-fly { 0% { transform: translate(0, 0) scale(0.4); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1.1); opacity: 0; } }
+@keyframes qa-up { 0% { opacity: 0; transform: translateY(8px); } 30% { opacity: 1; } 100% { opacity: 0; transform: translateY(-18px); } }
+@keyframes qa-drop { 0% { transform: translateY(-26px) scale(1.4) rotate(-180deg); opacity: 0; } 70% { transform: translateY(2px) scale(0.95) rotate(8deg); opacity: 1; } 100% { transform: none; opacity: 1; } }
+
+.qa-twinkle { animation: qa-twinkle 2.8s ease-in-out infinite; }
+.qa-flicker { animation: qa-flicker 1.3s ease-in-out infinite; }
+.qa-breathe { animation: qa-breathe 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+.qa-float { animation: qa-float 3.6s ease-in-out infinite; }
+.qa-drill { animation: qa-drill 0.12s linear infinite; }
+.qa-dash { animation: qa-dash 1.2s linear infinite; }
+.qa-pop { animation: qa-pop 0.78s cubic-bezier(0.3, 1.6, 0.5, 1); }
+.qa-drop { animation: qa-drop 0.7s cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+
+/* The tilt: perspective on the host, rotation on the inner, a highlight that
+   follows the pointer. */
+.qa-3d { perspective: 600px; }
+.qa-3d-inner {
+  position: relative;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transform-style: preserve-3d;
+  transition: transform 0.18s ease-out;
+}
+.qa-3d-inner::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: 50%;
+  background: radial-gradient(circle at var(--hx, 50%) var(--hy, 50%), rgb(255 255 255 / 0.18), transparent 55%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.qa-3d:hover .qa-3d-inner::after { opacity: 1; }
+
+/* Rarity slots. */
+.qa-slot { border-radius: 12px; border: 2px solid color-mix(in srgb, var(--rc) 70%, transparent); background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--rc) 14%, transparent), transparent 72%); overflow: hidden; }
+.qa-r1 { box-shadow: 0 0 12px -6px var(--rc); }
+.qa-r2 { animation: qa-pulse 2.8s ease-in-out infinite; }
+.qa-r3 { box-shadow: 0 0 18px -4px var(--rc); }
+.qa-r3::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent 38%, rgb(255 238 190 / 0.28) 50%, transparent 62%);
+  background-size: 260% 100%;
+  animation: qa-sweep 3.4s ease-in-out infinite;
+}
+
+/* The obtain burst. */
+.qa-burst-ring { position: absolute; left: 50%; top: 50%; width: 56px; height: 56px; margin: -28px 0 0 -28px; border: 3px solid var(--rc); border-radius: 50%; animation: qa-ring 0.7s ease-out forwards; }
+.qa-burst i { position: absolute; left: 50%; top: 50%; width: 9px; height: 9px; margin: -4.5px; background: #fff6d6; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); animation: qa-fly 0.85s ease-out forwards; }
+.qa-burst-plus { position: absolute; left: 0; right: 0; top: -6px; text-align: center; font: 700 10px/1 var(--font-mono, ui-monospace, monospace); color: var(--rc); animation: qa-up 0.95s ease-out forwards; white-space: nowrap; }
+
 /* Respect the OS "reduce motion" setting for CSS transitions/animations.
    framer-motion is handled separately via <MotionConfig reducedMotion="user">. */
 @media (prefers-reduced-motion: reduce) {
