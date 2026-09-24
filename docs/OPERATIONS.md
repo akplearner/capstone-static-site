@@ -11,12 +11,14 @@
 
 ## 0. What is genuinely untested
 
-Be aware before you launch. **No Supabase project existed while this was built**, so every cloud
-path — Google sign-in, the ledger's cloud writes, the delete-account function — is verified by
-code review and against the localStorage implementation
-**only**. The route gate *is* verified end to end (see §2). Treat §2 — and the smoke test in
-[`SUPABASE_SETUP.md`](../SUPABASE_SETUP.md) — as a real test pass, not a
-formality.
+Be aware before you launch. **No Supabase project existed while this was built.** What IS
+exercised: the database schema and every row-level-security rule run on a real Postgres in CI
+(`npm run db:check`, `supabase/tests/rls.sql`) — the first such run found and fixed three
+schema bugs (R81). The route gate is verified end to end (see §2). What is NOT: the hosted
+OAuth hop itself (Google and GitHub handing a student to Supabase and back), realtime, and the
+delete-account function — those are verified by code review only until the smoke test in
+[`SUPABASE_SETUP.md`](../SUPABASE_SETUP.md) runs on the live project. Treat §2 as a real test
+pass, not a formality.
 
 ---
 
@@ -40,6 +42,10 @@ has failed silently in some deployment of some product; none takes more than a m
 
 - [ ] **Gate:** while signed out, opening `/dashboard` redirects to `/login?next=/dashboard`, and
       signing in returns you to the dashboard. `/` and `/explore` load without an account.
+- [ ] **Both providers:** sign in with Google, sign out, sign in with GitHub. The name and
+      picture on `/account` come from the provider.
+- [ ] **Team:** a teammate's row on Home shows their progress and gems; a student on another
+      team sees neither.
 - [ ] **Progress persists:** tick a step, reload, still ticked. Sign in on a second device and see it.
 - [ ] **Ledger:** paste matching output on a verify step; reload; it still reads verified.
 - [ ] **Guest migration:** in a private window do some work signed out, then register — the demo

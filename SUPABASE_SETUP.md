@@ -1,20 +1,26 @@
 # Turning on student accounts
 
 Right now the platform saves work in the browser only. Do the six steps below and
-students sign in with **Google**, and everything they produce is saved to a real
-database: progress, team deliverables, registers, the evidence ledger, and where
-they left off — on any device, visible to their teammates.
+students sign in with **Google or GitHub**, and everything they produce is saved to
+a real database: progress, the gems they earn, team deliverables, the evidence
+ledger, and where they left off — on any device, visible to their teammates.
 
-**No email is involved anywhere.** Google verifies the student and hands back their
-address, so there is no mail server to configure, no confirmation step, and no
-password to reset. That is the whole reason this is short.
+**No email is involved anywhere.** Google or GitHub verifies the student and hands
+back their name and picture, so there is no mail server to configure, no
+confirmation step, and no password to reset. That is the whole reason this is short.
 
 **Nothing changes until step 6.** Until the environment variables are set and the
 site is redeployed, the platform behaves exactly as it does today.
 
-**Time: about 30 minutes**, 15 of it inside Google Cloud.
+**Time: about 35 minutes**, 15 of it inside Google Cloud and 5 inside GitHub.
 
-Have two browser tabs open: your **Supabase** project and your **Vercel** project.
+Have three browser tabs open: your **Supabase** project, your **Vercel** project,
+and **GitHub**.
+
+> **Prefer to hand the clicks off?** Steps 2–5 can be run for you by the setup
+> script (`scripts/supabase-configure.sh`) — or by Claude in a session that has
+> the right secrets. Do step 1, create the two OAuth apps (steps 4b and 4d), then
+> see [Let the script do steps 2–5](#let-the-script-do-steps-2-5) at the end.
 
 ---
 
@@ -125,15 +131,32 @@ Supabase → **Authentication** → **Providers** (or *Sign In / Providers*) →
 **Google** in the list → toggle it **on** → paste the Client ID and Client secret
 → **Save**.
 
+**4d — the GitHub app** (5 min, no consent screen, no publishing):
+
+1. GitHub → your avatar → **Settings → Developer settings → OAuth Apps → New OAuth App**.
+2. **Application name:** *Capstone Quarry*. **Homepage URL:** your domain.
+   **Authorization callback URL:** the *same* Supabase address as step 4b —
+
+   ```
+   https://<project-ref>.supabase.co/auth/v1/callback
+   ```
+
+3. **Register application**, then **Generate a new client secret**. Copy the
+   **Client ID** and the new **secret** (the secret is shown once).
+4. Supabase → **Authentication → Providers → GitHub** → toggle it **on** → paste
+   both → **Save**.
+
+Both buttons are on by default in the platform — there is no setting to add.
+
 ---
 
 ## Step 5 · Turn off email sign-in — 1 min
 
 Supabase → **Authentication → Providers → Email** → toggle it **off** → Save.
 
-The platform only ever shows a Google button, but until you do this, someone could
-still create a password account by talking to your database's API directly. This
-step is what makes "Google only" actually true.
+The platform only ever shows the Google and GitHub buttons, but until you do this,
+someone could still create a password account by talking to your database's API
+directly. This step is what makes "Google and GitHub only" actually true.
 
 ---
 
@@ -150,7 +173,8 @@ ticked:
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | the anon public key from step 1 |
 | `NEXT_PUBLIC_SITE_URL` | `https://yourdomain.com` |
 
-That is all three. There is **no** setting to turn Google on — it is the default.
+That is all three. There is **no** setting to turn Google or GitHub on — both
+are the default.
 
 Now the part that is easy to miss:
 
@@ -171,8 +195,10 @@ Now the part that is easy to miss:
 | `"mode":"local","supabase":"not-configured"` | Still in browser-only mode — step 6, and check you redeployed. |
 | `"status":"degraded"` | Variables are set but Supabase did not answer — check the URL for typos. |
 
-**2. Can you sign in?** Open your site, click **Sign in**, choose Google. You
-should land on the dashboard with your name in the corner.
+**2. Can you sign in?** Open your site, click **Sign in / Create account**,
+choose Google. You should land on the dashboard with your name in the corner.
+Sign out and do it again with GitHub. `/api/health` also lists
+`"authMethods":["google","github"]`.
 
 **3. Does work actually save?** This is the one that proves the database, not just
 the login. Join a course, tick a step, then **hard-refresh the page**. The tick
@@ -198,7 +224,9 @@ Find what you are actually seeing:
 | Homepage says the sign-in link expired | The link was already used, or it timed out | Just sign in again |
 | A yellow box: "Accounts aren't configured on this deployment" | The site cannot see the variables | **Step 6** — then redeploy |
 | `/api/health` says `"mode":"local"` | Same as above: unset, or set but never redeployed | **Step 6** — then redeploy |
-| An error mentioning an unsupported provider | Google is not switched on in Supabase | **Step 4c** |
+| An error mentioning an unsupported provider | Google or GitHub is not switched on in Supabase | **Step 4c / 4d** |
+| GitHub says "The redirect_uri MUST match the registered callback URL" | The callback is your domain, not Supabase's | **Step 4d** |
+| Signed in with GitHub, but no name or picture shows | The GitHub account has no public name — the login is used instead; the picture needs the app's default `read:user` scope, which it has | Change the name on `/account` |
 | Google warns "this app isn't verified" | The consent screen is still in Testing | **Step 4a** — publish it |
 | Signed in fine, but ticks vanish on refresh | The tables were never created | **Step 2** |
 | Signed in, but the platform acts like you have no account | You signed in before step 2 ran | Delete the user in **Authentication → Users**, sign in again |
@@ -215,27 +243,20 @@ Supabase (steps 2–5).
 
 Everything below is genuinely optional. The setup above is complete without it.
 
-## Add a GitHub button too
+## Only one of the two buttons
 
-Faster than Google — no consent screen, no publishing.
+Both are the default. To offer just one, add a variable in Vercel and redeploy:
 
-1. GitHub → **Settings → Developer settings → OAuth Apps → New OAuth App**.
-2. **Homepage URL:** your domain. **Authorization callback URL:** the *same*
-   Supabase address as step 4b — `https://<project-ref>.supabase.co/auth/v1/callback`.
-3. Register, then **Generate a new client secret**.
-4. Supabase → **Authentication → Providers → GitHub** → enable → paste both → Save.
-5. In Vercel, add a fourth variable and redeploy:
-
-   ```
-   NEXT_PUBLIC_AUTH_METHODS=google,github
-   ```
+```
+NEXT_PUBLIC_AUTH_METHODS=google
+```
 
 ## Other sign-in methods
 
 Emailed sign-in links and email + password are both implemented:
 
 ```
-NEXT_PUBLIC_AUTH_METHODS=google,magic
+NEXT_PUBLIC_AUTH_METHODS=google,github,magic
 NEXT_PUBLIC_AUTH_METHODS=google,github,magic,password
 ```
 
@@ -245,7 +266,7 @@ and labelled test-only, so before real students you would also need custom SMTP
 (**Project Settings → Authentication → SMTP Settings**) with a provider like Resend,
 your sending domain's SPF/DKIM records verified, and the rate limit raised.
 
-Avoiding all of that is exactly why the default is Google.
+Avoiding all of that is exactly why the default is Google and GitHub.
 
 ## Let students delete their account
 
@@ -274,27 +295,35 @@ included, so a review appears on the team's Deliverables page as it is saved.
 
 ## Checking the privacy rules actually hold
 
-Being able to sign in does not prove the access rules work. Worth ten minutes
-before real students:
+The rules below are **tested on every push**: `npm run db:check` applies
+`supabase/setup.sql` to a real Postgres and runs `supabase/tests/rls.sql`, which
+plays four students and an instructor and asserts each line of the table. CI runs
+the same on a `postgres:16` container. That is where the schema's first real run
+found a self-referencing policy (every team join failed) and a column a student
+could flip to make themselves an instructor — both fixed in migration 0006.
+
+Still worth ten minutes on the live site before real students:
 
 1. Sign in as student A, tick a step, confirm it appears on a second device.
 2. As student B **on a different team**, confirm you see **nothing** of A's lab
-   notes and nothing of the other team's registers. Use a second browser.
+   notes, ticks or gems. Use a second browser.
 
 ### Who can read what
 
 | Data | Who can read it |
 |---|---|
-| Profiles | you, plus teammates (display name only) |
+| Profiles | you, plus teammates (name and picture); only you may change them, and not the instructor flag |
 | Team membership | anyone on the same course |
 | Step completions | you and your teammates |
-| Deliverables, gate status, registers | your team |
-| Personal state, evidence, chosen path | **you only** |
+| Evidence ledger (what earns each gem) | you and your teammates — hashes and counts, never pasted output |
+| Deliverables, gate status | your team |
+| Personal state (where you left off, the mine), evidence files, chosen path | **you only** |
 | Lab access notes | **you only** — not teammates, not instructors |
 | Step notes | **you only** |
 | "I'm stuck" flags | you, your teammates, and the instructor |
 | Instructor reviews of a form | your team (read); the instructor writes |
 | Cohort calendar (start date) | anyone signed in (read); the instructor writes |
+| The course document | anyone signed in (read); the instructor writes |
 
 Lab notes are the strictest on purpose: that is where students record lab details.
 Instructors can read membership, completions, deliverables, the evidence ledger
@@ -311,12 +340,42 @@ Team 1 of March are separate teams with separate documents.
 
 | | Before setup | After setup |
 |---|---|---|
-| Sign-in | not offered | Continue with Google |
+| Sign-in | not offered | Continue with Google or GitHub |
 | Course overview page | open to anyone | open to anyone |
 | Weekly tasks, guide, deliverables | open | needs an account **and** a team |
 | Saving work | this browser only | saved to their account |
-| Another device | starts empty | everything is there |
-| Teammates see their work | no | yes |
+| Another device | starts empty | everything is there, including the gems and the mine |
+| Teammates see their work | no | yes — progress, gems, name and picture |
+
+---
+
+## Let the script do steps 2–5
+
+`scripts/supabase-configure.sh` does the schema paste, the URL configuration and
+the provider toggles through Supabase's own API, so nothing is typed into a
+dashboard. It reads everything from environment variables and prints a redacted
+summary; it never prints a secret. Run it yourself, or add the variables as
+secrets to a Claude Code environment and ask Claude to run it.
+
+| Variable | Where it comes from |
+|---|---|
+| `SUPABASE_PROJECT_REF` | the `abcdefghijkl` part of the Project URL (step 1) |
+| `SUPABASE_ACCESS_TOKEN` | Supabase → your avatar → **Account → Access Tokens → Generate new token** |
+| `SUPABASE_DB_URL` | Supabase → **Connect** (top bar) → **Session pooler** URI, with your database password filled in |
+| `GOOGLE_OAUTH_CLIENT_ID`, `GOOGLE_OAUTH_CLIENT_SECRET` | step 4b |
+| `GITHUB_OAUTH_CLIENT_ID`, `GITHUB_OAUTH_CLIENT_SECRET` | step 4d |
+| `SITE_URL` | `https://yourdomain.com` |
+| `VERCEL_TOKEN`, `VERCEL_PROJECT_ID` (optional; `VERCEL_TEAM_ID` if the project is in a team) | Vercel → **Account → Tokens**; project → **Settings → General** |
+| `VERCEL_DEPLOY_HOOK_URL` (optional) | project → **Settings → Git → Deploy Hooks** |
+
+```bash
+bash scripts/supabase-configure.sh          # everything the variables allow
+bash scripts/supabase-configure.sh --check  # read the current auth config only
+```
+
+With the Vercel variables present it also sets the three `NEXT_PUBLIC_*` values
+for Production and Preview and, with the deploy hook, triggers the redeploy that
+step 6 warns about. Without them it prints the three values for you to paste.
 
 Course overview pages stay public on purpose, so someone considering the course can
 see what it involves. The material opens once a student joins a team and a role.
