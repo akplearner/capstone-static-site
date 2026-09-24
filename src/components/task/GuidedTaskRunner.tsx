@@ -37,9 +37,6 @@ interface GuidedTaskRunnerProps {
   /** A deep link (`?step=`) or the palette named this step: open on it rather
    *  than on the first incomplete one. */
   initialStepId?: string;
-  /** Open on one step at a time. The default for every course (R79); a
-   *  course sets `Course.guidedDefault: false` to open the whole ladder. */
-  guidedDefault?: boolean;
 }
 
 /**
@@ -47,22 +44,33 @@ interface GuidedTaskRunnerProps {
  * button. One disclosure holds everything else.
  *
  * The ladder is the workflow and the checklist in one: every step is a rung —
- * number, title, tick — read top to bottom. Guided mode (the default for
- * every course) opens the rung you are on with its body and the Previous /
- * Mark complete / Next row under it; "Show all" opens every rung, per the
- * instructor's decision that it stays a student's choice. The last rung is
+ * number, title, tick — read top to bottom. "Show all" is the default for
+ * every course (R80) and every rung starts closed: a plain list of steps, and
+ * a click opens the one a student wants. Guided mode, one toggle away, opens
+ * the rung you are on with the Previous / Mark complete / Next row. The last rung is
  * "Done when": the task's definition of done, ticked when every required
  * step is. What the header lost — the machines strip, the counts line — the
  * ladder says better.
  */
-export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about, initialStepId, guidedDefault }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about, initialStepId }: GuidedTaskRunnerProps) {
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
   // Bumped each time a step is newly ticked, to fire the one-shot cut beat.
   const [beat, setBeat] = useState(0);
   const { guard } = useRequireAuth();
-  const [mode, setMode] = useState<'guided' | 'all'>(guidedDefault === false ? 'all' : 'guided');
+  // R80: "Show all" is the default for every course, and every rung starts
+  // closed — the task opens as a plain list of step titles, and a student
+  // clicks the step they want. A deep link (`?step=`) opens exactly that one.
+  const [mode, setMode] = useState<'guided' | 'all'>('all');
+  const [openIds, setOpenIds] = useState<Set<string>>(() => new Set(initialStepId ? [initialStepId] : []));
+  const toggleOpen = (id: string) =>
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   const [currentIdx, setCurrentIdx] = useState(() => {
     const asked = initialStepId ? task.steps.findIndex((s) => s.id === initialStepId) : -1;
     if (asked >= 0) return asked;
@@ -74,8 +82,10 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   useEffect(() => {
     if (!initialStepId) return;
     const idx = task.steps.findIndex((s) => s.id === initialStepId);
+    if (idx < 0) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    if (idx >= 0) setCurrentIdx(idx);
+    setCurrentIdx(idx);
+    setOpenIds((prev) => (prev.has(initialStepId) ? prev : new Set(prev).add(initialStepId)));
   }, [initialStepId, task.steps]);
 
   const total = task.steps.length;
@@ -219,10 +229,12 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
             isComplete={completed.has(step.id)}
             onToggle={(checked) => setStep(step.id, checked)}
             ledger={{ courseId, taskId: task.id, stepId: step.id, memberId }}
-            open={mode === 'all' || i === currentIdx}
-            onOpen={() => setCurrentIdx(i)}
-            current={i === currentIdx}
-            howOpen={mode === 'all'}
+            open={mode === 'all' ? openIds.has(step.id) : i === currentIdx}
+            onOpen={() => {
+              setCurrentIdx(i);
+              if (mode === 'all') toggleOpen(step.id);
+            }}
+            current={mode === 'guided' && i === currentIdx}
             footer={mode === 'guided' ? guidedNav : undefined}
           />
         ))}

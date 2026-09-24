@@ -6757,7 +6757,6 @@
       }
     ],
     "noGatekeeping": true,
-    "guidedDefault": true,
     "sharedTrack": true,
     "manualSections": [
       "config-guide"

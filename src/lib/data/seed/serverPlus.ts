@@ -3366,7 +3366,6 @@ const RAW_SERVER_PLUS: Course = {
   // R71: one step at a time, commands and checks first, and the thing being
   // built kept above the task list. Students said the course was a lot of
   // tasks with no thread; the week's objectives are that thread now (R79).
-  guidedDefault: true,
   sharedTrack: true,
   // A week-by-week build guide ships with this course, so the manual carries
   // the configuration-guide section. See `docs/manual.ts`.

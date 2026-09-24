@@ -1679,7 +1679,6 @@
     ],
     "sharedTrack": true,
     "noGatekeeping": true,
-    "guidedDefault": true,
     "topologyPicture": "campus",
     "lifecyclePath": [
       {

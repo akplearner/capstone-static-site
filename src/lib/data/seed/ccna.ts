@@ -1309,7 +1309,6 @@ export const CCNA: Course = {
   // blocked out of the weeks it CAN do.
   noGatekeeping: true,
   // The compactness contract: one step at a time, explanations one click away.
-  guidedDefault: true,
   // No `manualSections: ['config-guide']` yet, deliberately: the week-by-week
   // procedures are a later round, and a course that declares a guide it has not
   // authored would render an empty section — or worse, another course's.

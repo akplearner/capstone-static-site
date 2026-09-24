@@ -191,7 +191,6 @@ export function TasksTab({
           courseId={course.id}
           memberId={member.memberId}
           initialStepId={deepStep?.taskId === task.id ? deepStep.stepId : undefined}
-          guidedDefault={course.guidedDefault}
           about={<TaskAboutPanel course={course} task={task} />}
           onProgressChange={onProgressChange}
           nextLabel={following ? 'Next task →' : 'Review & finish →'}

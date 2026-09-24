@@ -825,9 +825,9 @@ describe('R71/R78-B — a course you can follow', () => {
     expect(code('src/lib/types.ts')).not.toContain('buildMap');
   });
 
-  it('guided is a course flag, and the density switch is gone', () => {
+  it('one mode rule for every course, and the density switch is gone', () => {
+    // R80 dropped the per-course guided flag: Show all is the default everywhere.
     const runner = code('src/components/task/GuidedTaskRunner.tsx');
-    expect(runner).toContain('guidedDefault');
     expect(runner).not.toContain('onDensityChange');
     expect(runner).not.toMatch(/courseId === 'cysa-plus'/);
     // R79: the task's workflow is the step ladder, not a second diagram.
@@ -1272,8 +1272,12 @@ describe('R78-B — the funnel', () => {
     // A command's explanation is behind its toggle, with the flags.
     const cmd = code('src/components/step/CommandBlock.tsx');
     expect(cmd).toContain('showFlags && c.explain');
-    // Guided is the default for every course; only `false` opts out.
-    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain("guidedDefault === false ? 'all' : 'guided'");
+    // R80: Show all is the default for every course, and no rung opens by
+    // itself — the task is a list of step titles until the student clicks one.
+    const runner = code('src/components/task/GuidedTaskRunner.tsx');
+    expect(runner).toContain("useState<'guided' | 'all'>('all')");
+    expect(runner).toContain('new Set(initialStepId ? [initialStepId] : [])');
+    expect(runner).not.toContain('guidedDefault');
     // The task's definition of done is the ladder's last rung, not About.
     expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain('definitionOfDone');
     expect(code('src/components/course/TaskAboutPanel.tsx')).not.toContain('definitionOfDone');
