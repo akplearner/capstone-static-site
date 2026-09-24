@@ -5,7 +5,7 @@ import type { StoneStage } from '@/lib/quarry';
  *
  * WHY THIS FILE EXISTS: the same stone is drawn in five places — the progress
  * emblem (`CapstoneStone`), the reward beat (`CutMark`), the landing hero
- * (`QuarryScene`), the favicon (`app/icon.tsx`) and the social card
+ * (the landing mine), the favicon (`app/icon.tsx`) and the social card
  * (`app/opengraph-image.tsx`). Until now each one had its own hand-authored path
  * data, so there were three different stones in the product and any change to one
  * silently desynced the others. The path strings live here once; every surface

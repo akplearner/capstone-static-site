@@ -14,7 +14,8 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
-import { QuarryScene } from '@/components/quarry/QuarryScene';
+import { HeroMine } from '@/components/quarry/art/HeroMine';
+import { courseRepo } from '@/lib/data';
 import { AuthErrorBanner } from '@/components/auth/AuthErrorBanner';
 import { useAuth } from '@/lib/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
@@ -89,6 +90,7 @@ export default function HomePage() {
   }, [loading, user, router]);
 
   const summary = catalogSummary();
+  const heroCourses = courseRepo.list().filter((c) => c.isSeed !== false).map((c) => ({ id: c.id, title: c.title }));
   const regions = catalogByVendor();
 
   /**
@@ -215,19 +217,14 @@ export default function HomePage() {
           </motion.dl>
         </div>
 
-        {/* The scene, seated rather than floating. QuarryScene draws its OWN
-            border at this radius, so the page must not add a ring on top of it
-            — that was two hairlines on one edge. A soft, tight glow underneath
-            gives it somewhere to sit; the old -inset-6 blur-2xl wash was large
-            and flat enough to muddy the edge instead.
-            aspect-video, not 4/3 — the pixel scene's logical grid is 256×144
-            and any other ratio stretches the pixels. */}
+        {/* The mine (R80): the product owner's animated quarry, with the live
+            courses above it — picking one recolours the miner and the mine. */}
         <motion.div {...reveal(2)} className="relative">
           <div
             aria-hidden
             className="pointer-events-none absolute -inset-2 rounded-[calc(var(--radius-card)+0.5rem)] bg-accent-soft opacity-40 blur-xl"
           />
-          <QuarryScene className={`relative aspect-video w-full ${depthTier('card')}`} />
+          <HeroMine className="relative" sceneClassName={depthTier('card')} courses={heroCourses} />
         </motion.div>
       </section>
 

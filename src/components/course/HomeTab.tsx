@@ -9,10 +9,12 @@ import { ConfirmDialog } from '@/components/ui/Dialog';
 import { Alert } from '@/components/ui/Alert';
 import { Surface } from '@/components/ui/Surface';
 import { toast } from '@/components/ui/Toast';
-import { CapstoneStonePanel } from '@/components/quarry/CapstoneStone';
+import { MineScene } from '@/components/quarry/art/MineScene';
+import { stoneStage } from '@/lib/quarry';
+import { weekRarity } from '@/lib/rarity';
 import { PackStrip } from '@/components/quarry/art/PackStrip';
 import { pebbleStage } from '@/components/quarry/art/parts';
-import { tintFor } from '@/components/quarry/art/palette';
+import { tintFor, tintVars } from '@/components/quarry/art/palette';
 import { useRarity } from './useRarity';
 import { EngagementStatus } from '@/components/team/EngagementStatus';
 import { EngagementBanner } from '@/components/team/EngagementBanner';
@@ -108,6 +110,30 @@ export function HomeTab({
     const r = rarityOf(t);
     if (r !== null) gems[r] += 1;
   });
+  // The mine (R80): one stone per graded week with work for this role, in
+  // order. A week finished since the last visit is played once — the pointer
+  // lives on this device, like the resume pointer.
+  const mineWeeks = member
+    ? sortedWeeks.filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, member.role, w.number).length > 0)
+    : [];
+  const mineRarities = member ? mineWeeks.map((w) => weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf))) : [];
+  const seenKey = member ? `cq_mine_seen_${course.id}_${member.memberId}` : '';
+  const [seenWeeks] = useState(() => {
+    try {
+      const v = seenKey ? localStorage.getItem(seenKey) : null;
+      return v === null ? crew.weeksCleared : Number(v);
+    } catch {
+      return crew.weeksCleared;
+    }
+  });
+  const markPlayed = (i: number) => {
+    try {
+      if (seenKey) localStorage.setItem(seenKey, String(i + 1));
+    } catch {
+      /* private window: the next visit replays it, which is harmless */
+    }
+  };
+  const stoneDef = stoneStage(crew.stage);
   const packSlots = [
     { kind: 'hand' as const, name: 'Pick', earn: 'join a team', earned: joined },
     { kind: 'ore' as const, name: 'Ore', earn: 'tick your first step', earned: crew.stepsDone > 0 },
@@ -209,7 +235,24 @@ export function HomeTab({
           point of the whole thing. */}
       {joined && member && (
         <Surface glow="accent" padding="lg">
-          <CapstoneStonePanel stage={crew.stage} nextPhase={phaseForWeek(course, activeWeek)} />
+          <div style={tintVars(course.id)}>
+            <MineScene
+              mode="progress"
+              weeks={mineWeeks.length}
+              done={crew.weeksCleared}
+              currentPercent={weekStats[activeWeek] ?? 0}
+              rarities={mineRarities}
+              cut={tintFor(course.id).cut}
+              label={course.title}
+              playFrom={Math.min(seenWeeks, crew.weeksCleared)}
+              onWeekPlayed={markPlayed}
+            />
+          </div>
+          <p className="mt-3 text-sm text-muted">
+            <span className="eyebrow mr-2">Capstone progress</span>
+            <span className="font-semibold text-ink">{stoneDef.name}</span>
+            {crew.stage < 5 && phaseForWeek(course, activeWeek) ? ` · next: ${phaseForWeek(course, activeWeek)}` : ''}
+          </p>
           <PackStrip
             className="mt-6 border-t border-line pt-5"
             slots={packSlots}

@@ -1321,8 +1321,23 @@ describe('R80 — the mine', () => {
     expect(code('src/components/course/HomeTab.tsx')).toContain('<PackStrip');
   });
 
+  it('both homes are the mine; the pixel scene is gone', () => {
+    expect(code('src/components/quarry/art/HeroMine.tsx')).toContain('<MineScene');
+    expect(code('src/components/quarry/art/HeroMine.tsx'), 'picking a cert recolours the scene').toContain('tintVars(pick)');
+    expect(code('src/app/page.tsx')).toContain('<HeroMine');
+    expect(code('src/components/course/HomeTab.tsx')).toContain('mode="progress"');
+    for (const f of collectSourceFiles('src')) expect(code(f), f).not.toMatch(/PixelMiner|QuarryScene/);
+  });
+
+  it('the mine stops when nobody can see it', () => {
+    const mine = code('src/components/quarry/art/MineScene.tsx');
+    expect(mine).toContain('IntersectionObserver');
+    expect(mine).toContain('visibilitychange');
+    expect(mine).toContain('cancelAnimationFrame');
+  });
+
   it('every art component that animates on its own honours reduced motion', () => {
-    for (const f of ['MinerStrike.tsx', 'TaskStone.tsx', 'widgets.tsx']) {
+    for (const f of ['MinerStrike.tsx', 'TaskStone.tsx', 'widgets.tsx', 'MineScene.tsx']) {
       expect(code(`src/components/quarry/art/${f}`), f).toContain('useReducedMotionSafe');
     }
   });
