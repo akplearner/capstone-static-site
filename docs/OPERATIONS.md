@@ -57,6 +57,8 @@ has failed silently in some deployment of some product; none takes more than a m
 
 - Uptime check on `/api/health` — it returns **503** when Supabase is unreachable, so it will actually
   page you instead of reporting a green light over a dead database.
+- Failed sign-ins now log server-side (`[auth] …` in Vercel's function logs), so a wave of
+  provider errors is visible without error tracking.
 - **Error tracking is not wired.** Adding Sentry needs an account and a DSN, so it's yours to set up;
   the natural hook is `src/app/global-error.tsx`, which already exists.
 

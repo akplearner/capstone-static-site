@@ -17,7 +17,10 @@ import { Surface } from '@/components/ui/Surface';
 // auth callback routes use, so a crafted link can't bounce someone off-site.
 function LoginInner() {
   const params = useSearchParams();
-  const next = safeNextPath(params.get('next'));
+  // '/dashboard', not '/': a plain sign-in used to land on the marketing
+  // page, which immediately client-redirected to the dashboard — two hops and
+  // a flash of the landing page (R82).
+  const next = safeNextPath(params.get('next'), '/dashboard');
 
   return (
     <div className="mx-auto max-w-md py-10">

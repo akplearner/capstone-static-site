@@ -231,6 +231,8 @@ Find what you are actually seeing:
 | Signed in fine, but ticks vanish on refresh | The tables were never created | **Step 2** |
 | Signed in, but the platform acts like you have no account | You signed in before step 2 ran | Delete the user in **Authentication → Users**, sign in again |
 | `redirect_uri_mismatch` from Google | The redirect URI is your domain, not Supabase's | **Step 4b** |
+| "Sign-in started in a different browser" banner | The link was opened inside another app's built-in browser | Open the site in Chrome/Safari itself and sign in there |
+| Signed in with GitHub and progress is gone | GitHub's **primary** email isn't the Gmail used before, so a second empty account was created | Sign out, use Google; delete the stray user under **Authentication → Users** |
 
 Still stuck? `/api/health` tells you which half of the setup to look at: if it says
 `local`, the problem is Vercel (step 6). If it says `cloud`, the problem is in
@@ -242,6 +244,17 @@ Supabase (steps 2–5).
 # Optional extras
 
 Everything below is genuinely optional. The setup above is complete without it.
+
+## One student, both buttons — how Google and GitHub link
+
+Supabase joins a GitHub sign-in onto an EXISTING account only when the GitHub
+account's **primary, verified** email is the same address Google reported.
+Then it is one account: same progress, same team, and `/account` shows
+"Signs in with Google and GitHub". If the primary GitHub email is different,
+a **second, empty** account is created — the student looks signed in but owns
+nothing. Tell students: *use Google with your class Gmail; use GitHub only if
+GitHub → Settings → Emails lists that same Gmail as Primary.* An accidental
+duplicate is cleaned up under **Authentication → Users** (delete the stray).
 
 ## Only one of the two buttons
 
@@ -285,7 +298,10 @@ honestly reports that the login itself could not be removed.
 ## Live teammate updates
 
 Teammates seeing each other's progress update without refreshing is already
-configured by step 2. Confirm under **Database → Replication** if you want to check.
+configured by step 2 — including the evidence ledger that powers the badges
+column (migration 0007; if your project was set up before it existed, re-run
+`supabase/setup.sql` once — every statement is safe to repeat). Confirm under
+**Database → Replication** if you want to check.
 `lab_access`, `user_course_state` and `step_notes` are deliberately excluded — they
 are private to one student, so there is nobody to notify. Reviews, the cohort
 calendar and stuck flags (`deliverable_reviews`, `cohorts`, `step_flags`) are

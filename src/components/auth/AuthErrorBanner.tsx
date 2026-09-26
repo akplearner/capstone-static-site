@@ -20,6 +20,13 @@ const REASONS: Record<string, string> = {
     'That confirmation link was incomplete. Open the most recent link in your email, and make sure your mail client didn’t truncate it.',
   unconfigured:
     'Sign-in isn’t configured on this deployment yet, so your work is being saved on this device only.',
+  // The provider refused before a session existed: Cancel on the consent
+  // screen, signups disabled, or a GitHub account with no verified email.
+  provider:
+    'The sign-in provider didn’t complete your sign-in — this happens if you pressed Cancel, or your GitHub account has no verified email address. Please try again.',
+  // PKCE verifier missing: sign-in started inside an in-app browser.
+  browser:
+    'Sign-in started in a different browser — this usually means the page was opened inside another app. Open the site in Chrome or Safari itself and sign in there.',
 };
 
 const FALLBACK = 'Sign-in didn’t complete. Please try again.';

@@ -1517,3 +1517,27 @@ describe('R82 — team data', () => {
     expect(code('src/lib/useMember.ts')).toContain('isCourseHydrated(courseId)');
   });
 });
+
+describe('R82 — the sign-in round trip tells the truth', () => {
+  it('the callback reads the provider error and logs every failure', () => {
+    const cb = code('src/app/auth/callback/route.ts');
+    expect(cb).toContain("searchParams.get('error_description')");
+    expect(cb).toContain('console.error');
+    expect(cb, 'in-app browsers get their own reason').toContain('auth_error=browser');
+    const banner = code('src/components/auth/AuthErrorBanner.tsx');
+    expect(banner).toContain('provider:');
+    expect(banner).toContain('browser:');
+  });
+
+  it('proxy redirects carry rotated cookies and recover a code that landed on /', () => {
+    const px = code('src/proxy.ts');
+    expect(px).toContain('response.cookies.getAll().forEach');
+    expect(px).toContain("searchParams.has('code')");
+    expect(px, 'signed-in /login honours ?next=').toContain("safeNextPath(request.nextUrl.searchParams.get('next'), '/dashboard')");
+  });
+
+  it('sign-out is local; sign-in lands on the dashboard', () => {
+    expect(code('src/lib/useAuth.ts')).toContain("signOut({ scope: 'local' })");
+    expect(code('src/app/login/page.tsx')).toContain("safeNextPath(params.get('next'), '/dashboard')");
+  });
+});

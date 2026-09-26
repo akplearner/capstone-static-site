@@ -19,7 +19,7 @@ import { Surface } from '@/components/ui/Surface';
 // there is no account to create).
 function RegisterInner() {
   const params = useSearchParams();
-  const next = safeNextPath(params.get('next'));
+  const next = safeNextPath(params.get('next'), '/dashboard');
   // With only single-sign-on enabled there is no separate "create an account"
   // step — the first Google sign-in makes the account. The page stays (the
   // landing CTA and demo banner both link here, and it carries its own metadata

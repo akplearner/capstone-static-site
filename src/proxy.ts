@@ -2,6 +2,7 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { SUPABASE_ANON_KEY, SUPABASE_URL, isSupabaseConfigured } from '@/lib/supabase/config';
 import { isProtected } from '@/lib/routeGate';
+import { safeNextPath } from '@/lib/safeRedirect';
 
 // Next.js 16 renamed `middleware` to `proxy` (node_modules/next/dist/docs/.../proxy.md).
 // It must NOT export a `runtime` (proxy is Node-only; setting runtime throws).
@@ -57,16 +58,40 @@ export async function proxy(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const { pathname, search } = request.nextUrl;
+
+  // Any redirect must carry the cookies @supabase/ssr may have just rotated
+  // onto `response` during getUser() — a bare redirect dropped them, and a
+  // token that rotated during the /login bounce signed the student out (R82).
+  const redirectWithCookies = (url: URL) => {
+    const r = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((c) => r.cookies.set(c));
+    return r;
+  };
+
+  // A code landing on `/` means the redirect URL allow-list didn't match (the
+  // `/**` is missing, or sign-in started from a preview URL): Supabase fell
+  // back to the Site URL. Recover instead of leaving the student silently
+  // signed out — the #1 row in SUPABASE_SETUP.md's troubleshooting table (R82).
+  if (pathname === '/' && request.nextUrl.searchParams.has('code')) {
+    const cb = new URL('/auth/callback', request.url);
+    cb.search = request.nextUrl.search;
+    if (!cb.searchParams.has('next')) cb.searchParams.set('next', '/dashboard');
+    return redirectWithCookies(cb);
+  }
+
   if (!user && isProtected(pathname)) {
     const login = new URL('/login', request.url);
     // Send them back where they were aiming once they're in.
     login.searchParams.set('next', `${pathname}${search}`);
-    return NextResponse.redirect(login);
+    return redirectWithCookies(login);
   }
 
-  // Already signed in and staring at the sign-in form: skip it.
+  // Already signed in and staring at the sign-in form: skip it — to wherever
+  // they were originally headed, when the URL says.
   if (user && (pathname === '/login' || pathname === '/register')) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return redirectWithCookies(
+      new URL(safeNextPath(request.nextUrl.searchParams.get('next'), '/dashboard'), request.url)
+    );
   }
 
   return response;

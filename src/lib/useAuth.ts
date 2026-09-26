@@ -89,7 +89,9 @@ export function useAuth() {
     profile: snap.profile,
     signOut: async () => {
       const supabase = getBrowserClient();
-      await supabase?.auth.signOut();
+      // scope 'local': the default 'global' revoked EVERY session, so signing
+      // out of a classroom PC also signed the student out on their phone (R82).
+      await supabase?.auth.signOut({ scope: 'local' });
       // Drop the cached rows immediately rather than waiting for a course page to
       // remount and run useSupabaseSync. On a shared classroom machine, signing
       // out from anywhere but a course page previously left the next student
