@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useId, type ReactNode } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { SPRING } from '@/lib/motion';
 import { BookOpen, ClipboardList, Home, ListChecks } from 'lucide-react';
@@ -72,6 +72,24 @@ interface CourseSubNavProps {
 export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }: CourseSubNavProps) {
   const cur = (tab: CourseTab) => (active === tab ? 'page' : undefined);
   const pillId = `subnav-pill-${useId()}`;
+  const barRef = useRef<HTMLElement>(null);
+  // Publish the bar's REAL height as `--subnav-h`. The week rail and the
+  // manual index pin beneath this bar, and used to assume one 48px row; on a
+  // phone the tabs wrap to two rows and everything pinned under them hid a
+  // whole row of itself behind the bar (R82). Same pattern as SiteNav's
+  // `--nav-h`. Cleared on unmount so non-course pages fall back to 3rem.
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const publish = () => document.documentElement.style.setProperty('--subnav-h', `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      document.documentElement.style.removeProperty('--subnav-h');
+    };
+  }, []);
   // Each tab's inner content, written once. The onSelectTab ternary below
   // already duplicates every label/icon pair; adding the pill to both branches
   // by hand would have made that four copies of each.
@@ -83,6 +101,7 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
   );
   return (
     <nav
+      ref={barRef}
       aria-label="Course sections"
       style={{ top: 'var(--nav-h, 0px)' }}
       className="glass sticky z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b px-4 py-2"

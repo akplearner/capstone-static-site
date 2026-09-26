@@ -117,6 +117,12 @@ export function HomeTab({
     ? sortedWeeks.filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, member.role, w.number).length > 0)
     : [];
   const mineRarities = member ? mineWeeks.map((w) => weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf))) : [];
+  // The mine's stones open strictly left to right, so its "done" is the run of
+  // finished weeks FROM THE START — not the total count, which would open
+  // stone 1 for a student who finished week 2 first (R82).
+  const mineLead = mineWeeks.findIndex((w) => (weekStats[w.number] ?? 0) < 100);
+  const mineDone = mineLead === -1 ? mineWeeks.length : mineLead;
+  const mineCurrent = mineLead === -1 ? 0 : (weekStats[mineWeeks[mineLead].number] ?? 0);
   const [seenWeeks] = useState(() => {
     const seen = member ? userStateRepo.get(course.id, member.memberId)?.mineSeen : undefined;
     return seen === undefined ? crew.weeksCleared : seen;
@@ -228,19 +234,23 @@ export function HomeTab({
           point of the whole thing. */}
       {joined && member && (
         <Surface glow="accent" padding="lg">
-          <div style={tintVars(course.id)}>
-            <MineScene
-              mode="progress"
-              weeks={mineWeeks.length}
-              done={crew.weeksCleared}
-              currentPercent={weekStats[activeWeek] ?? 0}
-              rarities={mineRarities}
-              cut={tintFor(course.id).cut}
-              label={course.title}
-              playFrom={Math.min(seenWeeks, crew.weeksCleared)}
-              onWeekPlayed={markPlayed}
-            />
-          </div>
+          {/* A role whose tasks all live in setup/advanced weeks has no stones
+              to cut — no mine, rather than a made-up "week 1 of 1" (R82). */}
+          {mineWeeks.length > 0 && (
+            <div style={tintVars(course.id)}>
+              <MineScene
+                mode="progress"
+                weeks={mineWeeks.length}
+                done={mineDone}
+                currentPercent={mineCurrent}
+                rarities={mineRarities}
+                cut={tintFor(course.id).cut}
+                label={course.title}
+                playFrom={Math.min(seenWeeks, mineDone)}
+                onWeekPlayed={markPlayed}
+              />
+            </div>
+          )}
           <p className="mt-3 text-sm text-muted">
             <span className="eyebrow mr-2">Capstone progress</span>
             <span className="font-semibold text-ink">{stoneDef.name}</span>

@@ -388,8 +388,14 @@ export function MineScene({
   const lx = f.mx + 22 * MS;
   const ly = f.my + (-73 + f.pose.hat) * MS;
   const torchR = 78 + 120 * f.light;
-  const tray = (i: number): Rarity | null => (mode === 'demo' ? (i < f.done ? ((i === n - 1 ? 3 : Math.min(2, Math.floor((i / Math.max(1, n - 1)) * 3))) as Rarity) : null) : i < f.done ? (rarities[i] ?? 0) : null);
+  // `?? null` — a finished week whose rarity is unknown shows a silhouette,
+  // never a Common gem it may not have earned (R82).
+  const tray = (i: number): Rarity | null => (mode === 'demo' ? (i < f.done ? ((i === n - 1 ? 3 : Math.min(2, Math.floor((i / Math.max(1, n - 1)) * 3))) as Rarity) : null) : i < f.done ? (rarities[i] ?? null) : null);
   const hudLabel = f.done >= n ? `DELIVERED · ${n}/${n}` : `WEEK ${f.done + 1} OF ${n}`;
+
+  // After every hook, so the hook count never changes: callers normally guard
+  // this themselves (HomeTab does), but a 0-week scene must not invent one.
+  if (weeks <= 0) return null;
 
   return (
     <div
@@ -482,21 +488,22 @@ export function MineScene({
               <g transform={`translate(${sx(i, n)} 248) scale(.34) translate(-50 -50)`}>
                 <Gem u={u} cut={cut} silhouette={r === null} detail={false} />
               </g>
-              <text x={sx(i, n) + 17} y={252} fontFamily="ui-monospace,monospace" fontSize={7} fill={r === null ? '#6d5b48' : c}>
+              {/* Unreadable at phone scale (~4px) — from sm only (R82). */}
+              <text className="hidden sm:inline" x={sx(i, n) + 17} y={252} fontFamily="ui-monospace,monospace" fontSize={7} fill={r === null ? '#6d5b48' : c}>
                 W{i + 1}
               </text>
             </g>
           );
         })}
-        <rect x={8} y={8} width={hudLabel.length * 6.1 + 18} height={18} rx={9} fill="rgba(10,7,5,.78)" stroke="#3a2b1f" />
-        <text x={17} y={21} fontFamily="ui-monospace,monospace" fontSize={9.5} fontWeight={700} fill="#f3e2c3">
-          {hudLabel}
-        </text>
-        <rect x={472 - label.length * 5.6 - 16} y={8} width={label.length * 5.6 + 16} height={18} rx={9} fill="rgba(10,7,5,.78)" stroke="#3a2b1f" />
-        <text x={464} y={21} textAnchor="end" fontFamily="ui-monospace,monospace" fontSize={9} fill="#c9b596">
-          {label}
-        </text>
       </svg>
+      {/* The two HUD pills are HTML, not SVG text: the scene scales down to
+          ~280px on phones and 9px SVG text rendered at ~5px (R82). */}
+      <div className="pointer-events-none absolute left-2 top-2 rounded-full border border-[#3a2b1f] bg-[rgba(10,7,5,0.78)] px-2.5 py-0.5 font-mono text-2xs font-bold tracking-wide text-[#f3e2c3]">
+        {hudLabel}
+      </div>
+      <div className="pointer-events-none absolute right-2 top-2 max-w-[45%] truncate rounded-full border border-[#3a2b1f] bg-[rgba(10,7,5,0.78)] px-2.5 py-0.5 font-mono text-2xs text-[#c9b596]">
+        {label}
+      </div>
     </div>
   );
 }

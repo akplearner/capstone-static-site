@@ -45,7 +45,7 @@ export function TaskStone({ percent, rarity, cut, size = 52 }: { percent: number
   const done = state === 3 && rarity !== null;
   const label = done ? `Task done — ${RARITY[rarity].name} gem` : `${percent}% of this task done`;
   const art = (
-    <ArtSvg viewBox="-40 -80 80 86" width={size} height={size * (86 / 80)} label={label}>
+    <ArtSvg viewBox="-40 -80 80 86" width={size} height={size * (86 / 80)} overflow="visible" className="h-auto w-10 sm:w-[52px]" label={label}>
       {(u) => (
         <g key={jolt} className={jolt ? 'qa-pop' : undefined} style={{ transformBox: 'fill-box', transformOrigin: 'center bottom' }}>
           <Stone u={u} state={state} />

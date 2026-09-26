@@ -85,7 +85,7 @@ export function WeekRail({
     <nav
       {...rest}
       aria-label="Weeks"
-      style={sticky ? { top: 'calc(var(--nav-h, 0px) + 3rem)' } : undefined}
+      style={sticky ? { top: 'calc(var(--nav-h, 0px) + var(--subnav-h, 3rem))' } : undefined}
       className={[
         'flex flex-wrap items-center gap-1.5',
         sticky

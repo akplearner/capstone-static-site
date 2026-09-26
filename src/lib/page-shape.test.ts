@@ -1410,3 +1410,65 @@ describe('R81 — accounts', () => {
     expect(gate).toContain('isSupabaseConfigured() && !loading && !user');
   });
 });
+
+/**
+ * R82 — the chrome always wins.
+ *
+ * The instructor's phone screenshot showed the pack's miner painted OVER the
+ * sticky site nav: the art's 3D compositing (perspective + preserve-3d + a
+ * blend mode, under backdrop-filter bars) escaped the z-order on mobile
+ * Chrome. The fix is layered — flat art, isolated items, an isolated <main>,
+ * a portaled Dialog — and each layer is a one-line edit someone could undo
+ * without noticing. These make that fail here instead.
+ */
+describe('R82 — the chrome always wins', () => {
+  const css = () => read('src/app/globals.css');
+
+  it('the art is flat: no 3D context, no blend group, tilt only for hover pointers', () => {
+    expect(css()).not.toContain('preserve-3d');
+    expect(css()).not.toContain('mix-blend-mode: screen');
+    const qa3d = css().match(/\.qa-3d \{[^}]*\}/)?.[0] ?? '';
+    expect(qa3d, '.qa-3d fences its own layers').toContain('isolation: isolate');
+    // The rest-state inner rule carries no transform of its own…
+    const inner = css().match(/\.qa-3d-inner \{[^}]*\}/)?.[0] ?? '';
+    expect(inner).not.toMatch(/\n\s*transform:/);
+    // …every rotateX tilt lives inside the hover-capable media query.
+    const hoverBlock = css().match(/@media \(hover: hover\) and \(pointer: fine\) \{[\s\S]*?\n\}/)?.[0] ?? '';
+    const tilts = css().match(/rotateX\(var\(--rx/g) ?? [];
+    const tiltsInHover = hoverBlock.match(/rotateX\(var\(--rx/g) ?? [];
+    expect(tilts.length).toBeGreaterThan(0);
+    expect(tiltsInHover.length).toBe(tilts.length);
+  });
+
+  it('main is isolated AND Dialog is portaled — a pair, never undo one alone', () => {
+    // `isolate` on <main> is what guarantees the z-40 header paints over any
+    // stacking context the page content creates…
+    expect(read('src/app/layout.tsx')).toMatch(/<main[^>]*className="[^"]*\bisolate\b/);
+    // …and it would trap an inline fixed overlay, so Dialog must render
+    // through a portal to <body>.
+    expect(code('src/components/ui/Dialog.tsx')).toContain('createPortal(');
+    expect(code('src/components/ui/Dialog.tsx')).toContain('document.body');
+  });
+
+  it('art clips to its box by default, and the drop spins around the gem', () => {
+    const w = code('src/components/quarry/art/widgets.tsx');
+    expect(w, 'ArtSvg overflow defaults hidden').toContain("overflow = 'hidden'");
+    expect(w).toContain('overflow={overflow}');
+    const drop = css().match(/\.qa-drop \{[^}]*\}/)?.[0] ?? '';
+    expect(drop).toContain('transform-box: fill-box');
+  });
+
+  it('bars pinned under the sub-nav track its real, wrappable height', () => {
+    expect(code('src/components/CourseSubNav.tsx')).toContain("setProperty('--subnav-h'");
+    expect(code('src/components/week/WeekRail.tsx')).toContain('var(--subnav-h, 3rem)');
+    expect(code('src/components/docs/GuideManual.tsx')).toContain('var(--subnav-h, 3rem)');
+    expect(css()).toContain('var(--subnav-h, 3rem)');
+  });
+
+  it('the mine never invents a week', () => {
+    expect(code('src/components/course/HomeTab.tsx')).toContain('mineWeeks.length > 0 && (');
+    const mine = code('src/components/quarry/art/MineScene.tsx');
+    expect(mine).toContain('if (weeks <= 0) return null;');
+    expect(mine, 'unknown rarity is a silhouette, not a Common gem').toContain('(rarities[i] ?? null)');
+  });
+});

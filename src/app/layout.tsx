@@ -78,7 +78,7 @@ export default function RootLayout({
             <SiteNav />
             <OfflineBanner />
             <ServiceWorkerRegistrar />
-            <main id="main" tabIndex={-1} className="mx-auto max-w-6xl px-4 py-8 outline-none">
+            <main id="main" tabIndex={-1} className="isolate mx-auto max-w-6xl px-4 py-8 outline-none">
               {children}
             </main>
             <SiteFooter />

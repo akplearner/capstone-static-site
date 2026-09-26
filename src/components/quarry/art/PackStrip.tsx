@@ -57,7 +57,9 @@ export function PackStrip({
             Pebble is a <span className="font-semibold text-ink">{PEBBLE_NAMES[pebble]}</span>
           </div>
         </div>
-        <dl className="ml-auto flex flex-wrap gap-2">
+        {/* 2×2 on phones — as a single ml-auto row the four tiles wrapped
+            into a ragged 3+1 under 375px (R82). */}
+        <dl className="grid w-full grid-cols-2 gap-2 sm:ml-auto sm:flex sm:w-auto sm:flex-wrap">
           {RARITY.map((r, i) => (
             <div key={r.name} className="min-w-16 rounded-[var(--radius-control)] depth-edge bg-panel-2 px-2.5 py-1.5 text-center" title={r.means}>
               <dd className="text-lg font-bold tabular-nums leading-none" style={{ color: r.color }}>
@@ -68,22 +70,23 @@ export function PackStrip({
           ))}
         </dl>
       </div>
-      <ol className="grid grid-cols-5 gap-2" aria-label="The five slots of this course">
+      <ol className="grid grid-cols-5 gap-1.5 sm:gap-2" aria-label="The five slots of this course">
         {slots.map((s) => (
           <li
             key={s.kind}
-            className={`relative flex flex-col items-center rounded-[var(--radius-control)] px-1 pb-2 pt-1 text-center ${
+            className={`relative flex min-w-0 flex-col items-center rounded-[var(--radius-control)] px-0.5 pb-2 pt-1 text-center sm:px-1 ${
               s.earned ? 'depth-edge bg-panel-2' : 'border border-dashed border-line'
             }`}
             title={s.earned ? `${s.name} — earned` : `${s.name} — ${s.earn}`}
           >
             <Item3D float={s.earned}>
-              <ArtSvg size={52} label={s.name} style={s.earned ? undefined : { filter: 'grayscale(1) brightness(.45)', opacity: 0.7 }}>
+              {/* CSS width beats the attribute: 40px on phones, 52 from sm. */}
+              <ArtSvg size={52} className="h-auto w-10 sm:w-[52px]" label={s.name} style={s.earned ? undefined : { filter: 'grayscale(1) brightness(.45)', opacity: 0.7 }}>
                 {(u) => <Item u={u} kind={s.kind} cut={cut} />}
               </ArtSvg>
             </Item3D>
             <span className={`text-xs font-semibold ${s.earned ? 'text-ink' : 'text-muted'}`}>{s.name}</span>
-            <span className="text-3xs leading-tight text-muted">{s.earned ? 'earned' : s.earn}</span>
+            <span className="break-words text-3xs leading-tight text-muted">{s.earned ? 'earned' : s.earn}</span>
           </li>
         ))}
       </ol>

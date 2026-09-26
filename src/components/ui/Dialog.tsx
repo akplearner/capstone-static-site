@@ -1,11 +1,13 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { Button } from './Button';
 import { DUR } from '@/lib/motion';
 import { depthTier, surfaceVariants } from './Surface';
+import { useHydrated } from '@/lib/useClientStore';
 
 /**
  * Accessible modal: role="dialog" + aria-modal, Escape to close, backdrop click,
@@ -27,7 +29,8 @@ export function Dialog({
 }) {
   const panelRef = useRef<HTMLDivElement>(null);
   const restoreRef = useRef<HTMLElement | null>(null);
-
+  // The portal target exists only in the browser; render nothing during SSR.
+  const mounted = useHydrated();
   useEffect(() => {
     if (!open) return;
     restoreRef.current = document.activeElement as HTMLElement | null;
@@ -70,7 +73,11 @@ export function Dialog({
     };
   }, [open, onClose]);
 
-  return (
+  // Portaled to <body> (R82): rendered inline it sat INSIDE <main>, and once
+  // main became `isolate` (the fence that keeps the quarry art under the site
+  // header) an inline fixed overlay could never paint above that header.
+  if (!mounted) return null;
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -110,7 +117,8 @@ export function Dialog({
           </motion.div>
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }
 

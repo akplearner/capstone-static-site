@@ -189,7 +189,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           past the others. Sticky under the sub-nav, so it is still the way back
           out from the bottom of the configuration guide. */}
       <div
-        style={{ top: 'calc(var(--nav-h, 0px) + 3rem)' }}
+        style={{ top: 'calc(var(--nav-h, 0px) + var(--subnav-h, 3rem))' }}
         className="glass sticky z-20 -mx-4 space-y-2 border-b px-4 py-2"
       >
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">

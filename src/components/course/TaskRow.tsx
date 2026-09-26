@@ -70,7 +70,7 @@ export function TaskRow({
       >
         {lead}
         <span className="min-w-0 flex-1">
-          <span className="flex items-center gap-2">
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
             {number != null && (
               <span className="font-mono text-sm font-semibold text-muted">{number}.</span>
             )}

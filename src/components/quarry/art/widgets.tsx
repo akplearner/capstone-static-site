@@ -15,6 +15,7 @@ export function ArtSvg({
   label,
   className,
   style,
+  overflow = 'hidden',
   children,
 }: {
   viewBox?: string;
@@ -24,6 +25,10 @@ export function ArtSvg({
   label?: string;
   className?: string;
   style?: CSSProperties;
+  /** Hidden by default (R82): visible let cast shadows and the qa-drop gem
+   *  paint outside the icon's box, over neighbouring text. Opt in only where
+   *  the overdraw is the point (TaskStone's ground shadow). */
+  overflow?: 'visible' | 'hidden';
   children: (u: U) => ReactNode;
 }) {
   const { u, defs } = useArt();
@@ -38,7 +43,7 @@ export function ArtSvg({
       aria-label={label}
       aria-hidden={label ? undefined : true}
       focusable="false"
-      overflow="visible"
+      overflow={overflow}
     >
       {defs}
       {children(u)}
@@ -56,7 +61,11 @@ export function Item3D({ children, float = true, tilt = true, className = '' }: 
   const reduce = useReducedMotionSafe();
   const ref = useRef<HTMLSpanElement>(null);
   const [t, setT] = useState({ x: 0, y: 0 });
-  const live = tilt && !reduce;
+  // Tilt only for hover-capable fine pointers: touch has no hover to end the
+  // tilt, and every scroll-drag across an item re-rendered the art (R82).
+  const fine =
+    typeof window !== 'undefined' && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+  const live = tilt && !reduce && fine;
   return (
     <span
       ref={ref}
