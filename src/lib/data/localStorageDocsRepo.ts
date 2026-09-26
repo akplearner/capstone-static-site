@@ -24,4 +24,10 @@ export const localStorageDocsRepo: DocsRepository = {
     if (!hasWindow()) return;
     safeSetItem(KEYS.docs(courseId, teamId), JSON.stringify(data));
   },
+  saveOne(courseId, teamId, deliverableId, data): Promise<boolean> {
+    if (!hasWindow()) return Promise.resolve(false);
+    const current = localStorageDocsRepo.get(courseId, teamId) ?? {};
+    safeSetItem(KEYS.docs(courseId, teamId), JSON.stringify({ ...current, [deliverableId]: data }));
+    return Promise.resolve(true);
+  },
 };

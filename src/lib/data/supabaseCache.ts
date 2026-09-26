@@ -66,6 +66,40 @@ let courseDocumentsVersion = 0;
 const hydratedCourses = new Set<string>();
 const channels = new Map<string, RealtimeChannel>();
 
+// R82 — three small pieces of hydrate discipline:
+// a hydrate is 13 queries, so realtime events coalesce through a debounce; a
+// slow hydrate must not apply over a newer one (generation counter); and a
+// hydrate must not put the server's older row back over a form upsert that is
+// still in flight (pending doc keys, set by supabaseDocsRepo).
+const hydrateGen = new Map<string, number>();
+const hydrateTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const pendingDocs = new Set<string>();
+
+export function markDocPending(courseId: string, teamId: string, deliverableId: string) {
+  pendingDocs.add(`${courseId}::${teamId}::${deliverableId}`);
+}
+export function clearDocPending(courseId: string, teamId: string, deliverableId: string) {
+  pendingDocs.delete(`${courseId}::${teamId}::${deliverableId}`);
+}
+
+/** True once `hydrateCourse` has applied at least once for this course. */
+export function isCourseHydrated(courseId: string): boolean {
+  return hydratedCourses.has(courseId);
+}
+
+/** Debounced hydrate — what every realtime event goes through. */
+export function scheduleHydrate(courseId: string, delayMs = 400): void {
+  const t = hydrateTimers.get(courseId);
+  if (t) clearTimeout(t);
+  hydrateTimers.set(
+    courseId,
+    setTimeout(() => {
+      hydrateTimers.delete(courseId);
+      void hydrateCourse(courseId);
+    }, delayMs)
+  );
+}
+
 function teamKey(courseId: string, teamId: string) {
   return `${courseId}::${teamId}`;
 }
@@ -294,6 +328,8 @@ export function rosterFromRow(r: Record<string, unknown>, avatarUrl?: string): R
 export async function hydrateCourse(courseId: string): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
+  const gen = (hydrateGen.get(courseId) ?? 0) + 1;
+  hydrateGen.set(courseId, gen);
 
   const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles] =
     await Promise.all([
@@ -319,6 +355,10 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // profiles of people who share a team with them, on any course.
       supabase.from('profiles').select('id, avatar_url'),
     ]);
+
+  // A newer hydrate started while this one was on the wire: its data is
+  // fresher, let it apply instead.
+  if (hydrateGen.get(courseId) !== gen) return;
 
   if (memberships.data) {
     const avatars = new Map<string, string>();
@@ -357,6 +397,9 @@ export async function hydrateCourse(courseId: string): Promise<void> {
 
   if (deliverables.data) {
     deliverables.data.forEach((d) => {
+      // An upsert for this row is still in flight from this tab: the local
+      // copy is newer than whatever the server just returned.
+      if (pendingDocs.has(`${courseId}::${String(d.team_id)}::${String(d.deliverable_id)}`)) return;
       const tk = teamKey(courseId, String(d.team_id));
       const existing = docsByTeam.get(tk) ?? {};
       existing[String(d.deliverable_id)] = (d.data ?? { fields: {}, groups: {} }) as DeliverableData;
@@ -410,6 +453,10 @@ export async function hydrateCourse(courseId: string): Promise<void> {
 
   hydratedCourses.add(courseId);
   notifyStore();
+
+  // Anything the outbox still owes from a failed form save goes now, while we
+  // know the backend is reachable (the 13 selects above just succeeded).
+  void import('./outbox').then((m) => m.flushDeliverableOutbox());
 
   subscribeRealtime(courseId);
 }
@@ -537,35 +584,48 @@ export async function hydrateUser(): Promise<void> {
 function subscribeRealtime(courseId: string) {
   const supabase = getBrowserClient();
   if (!supabase || channels.has(courseId)) return;
+  // Every event goes through the debounced hydrate: one teammate's autosave
+  // used to make every open tab issue 13 selects per event (R82).
+  const rehydrate = () => scheduleHydrate(courseId);
   const channel = supabase
     .channel(`course:${courseId}`)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_completions', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverables', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'memberships', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'gate_status', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_completions', filter: `course_id=eq.${courseId}` }, rehydrate)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverables', filter: `course_id=eq.${courseId}` }, rehydrate)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'memberships', filter: `course_id=eq.${courseId}` }, rehydrate)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'gate_status', filter: `course_id=eq.${courseId}` }, rehydrate)
     // lab_access and user_course_state are single-user and deliberately NOT
     // subscribed — there is no second party to notify, and putting credentials on
     // a realtime channel would be a cost with no benefit.
     // R68: an instructor's review must reach the team; a teammate's stuck flag
     // must reach the team; a cohort date set in the studio must reach the class.
     // step_notes stays off the channel — it is owner-only, like lab_access.
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_reviews', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_flags', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'cohorts', filter: `course_id=eq.${courseId}` }, () => {
-      void hydrateCourse(courseId);
-    })
-    .subscribe();
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_reviews', filter: `course_id=eq.${courseId}` }, rehydrate)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_flags', filter: `course_id=eq.${courseId}` }, rehydrate)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cohorts', filter: `course_id=eq.${courseId}` }, rehydrate)
+    // R82: gems are derived from step_evidence, team-readable since 0006 and
+    // published since 0007 — a teammate's new "verified" arrives live.
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_evidence', filter: `course_id=eq.${courseId}` }, rehydrate);
+
+  // Supabase does not deliver DELETE events to filtered listeners, so un-ticks,
+  // leaves and resets never reached teammates (their % stayed up forever). One
+  // unfiltered DELETE listener per table, filtered here by the primary key
+  // columns DELETE payloads carry (R82).
+  const onDelete = (p: { old: Record<string, unknown> | null }) => {
+    if (p.old && String(p.old.course_id ?? '') === courseId) rehydrate();
+  };
+  for (const table of ['step_completions', 'memberships', 'step_flags', 'step_evidence'] as const) {
+    channel.on('postgres_changes', { event: 'DELETE', schema: 'public', table }, onDelete);
+  }
+
+  // On every (re)join of the channel after the first, re-hydrate: realtime does
+  // not replay what was missed while a phone tab was backgrounded or the socket
+  // was down, so the cache silently froze until a full reload (R82).
+  let joined = false;
+  channel.subscribe((status) => {
+    if (status !== 'SUBSCRIBED') return;
+    if (joined) scheduleHydrate(courseId, 0);
+    joined = true;
+    void import('./outbox').then((m) => m.flushDeliverableOutbox());
+  });
   channels.set(courseId, channel);
 }

@@ -58,7 +58,8 @@ export function JoinPanel({
   const isFull = (t: string) =>
     cap > 0 && usedOf(t) >= cap && !(member && member.teamId === composeTeamId(cohort, t));
 
-  const submit = () => {
+  const [joining, setJoining] = useState(false);
+  const submit = async () => {
     if (!name.trim()) {
       setError('Please enter your name to continue.');
       return;
@@ -74,12 +75,17 @@ export function JoinPanel({
       displayName: name.trim(),
       cohort,
     };
-    const res = progressRepo.joinTeam(course, newMember);
+    // The cloud repo confirms the membership row landed before this resolves;
+    // every team-scoped write (forms, gates, flags) is refused by RLS without
+    // it, so "joined" must mean the database agrees (R82).
+    setJoining(true);
+    const res = await Promise.resolve(progressRepo.joinTeam(course, newMember));
+    setJoining(false);
     if (!res.ok) {
       setError(
         res.reason === 'team-full'
           ? 'That team is full — pick another team.'
-          : 'Could not join this team. Try again.'
+          : 'Couldn’t reach the server to join — check your connection and try again.'
       );
       notifyStore();
       return;
@@ -229,8 +235,8 @@ export function JoinPanel({
       {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex items-center gap-3">
-        <Button onClick={submit} size="lg">
-          {member ? 'Save changes' : 'Join course'}
+        <Button onClick={() => void submit()} size="lg" disabled={joining}>
+          {joining ? 'Joining…' : member ? 'Save changes' : 'Join course'}
         </Button>
         {member && (
           <Button variant="secondary" onClick={() => setEditing(false)}>

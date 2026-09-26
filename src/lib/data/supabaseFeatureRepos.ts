@@ -55,7 +55,13 @@ export const supabaseReviewRepo: ReviewRepository = {
         },
         { onConflict: 'course_id,team_id,deliverable_id,week' }
       )
-      .then(report('review', 'Couldn’t save the review to the cloud — it is held locally until you reload.'));
+      .then((res) => {
+        report('review', 'Couldn’t save the review to the cloud — check your connection and submit it again.')(res);
+        // The cohort dashboard reloads its cloud rows on store notifications;
+        // notifying again once the upsert LANDED is what makes the
+        // instructor's own verdict read back as saved (R82).
+        if (!res.error) notifyStore();
+      });
   },
 };
 

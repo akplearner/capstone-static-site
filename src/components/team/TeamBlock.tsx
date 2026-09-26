@@ -63,7 +63,11 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
           pct: progressRepo.getWeekCompletion(course, m.memberId, m.role, week, keySet),
         }));
       const stuck = stepNotesRepo.teamStuck(course.id, teamId).filter((f) => f.memberId === m.memberId).length;
-      return { memberId: m.memberId, displayName: m.displayName, avatarUrl: m.avatarUrl, role: m.role, overall, weeks, gems, isYou: member.memberId === m.memberId, stuck };
+      // Gate readiness per member (R82): derived from their completions, which
+      // are already team-readable — no new table, the same rule the member's
+      // own gate strip uses.
+      const gates = course.gates.map((g) => progressRepo.deriveGateStatus(course, m.memberId, m.role, g, keySet));
+      return { memberId: m.memberId, displayName: m.displayName, avatarUrl: m.avatarUrl, role: m.role, overall, weeks, gems, gates, isYou: member.memberId === m.memberId, stuck };
     });
   }, EMPTY_ARRAY);
 

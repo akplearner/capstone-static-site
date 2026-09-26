@@ -73,6 +73,6 @@ export const supabaseLabAccessRepo: LabAccessRepository = {
   save(courseId: string, _memberId: string, data: LabAccessData): void {
     cache.setLabAccess(courseId, data);
     notifyStore();
-    upsert('lab_access', courseId, data, 'Couldn’t save your lab details — they’re held locally and will retry on reload.');
+    upsert('lab_access', courseId, data, 'Couldn’t save your lab details to the cloud — check your connection and save again.');
   },
 };

@@ -26,7 +26,10 @@ export type SaveStatus = 'idle' | 'pending' | 'saving' | 'saved';
  *     in the product confirmed nothing at all.
  */
 export function useAutoSave(
-  persist: (id: string, data: DeliverableData) => void,
+  /** Return false when the write was REFUSED (e.g. the auth guard said no):
+   *  the entry is re-queued and the overlay kept, instead of the typing being
+   *  silently dropped while the indicator says "Saved" (R82). */
+  persist: (id: string, data: DeliverableData) => boolean | void,
   delayMs = 500
 ) {
   const [pending, setPending] = useState<Record<string, DeliverableData>>({});
@@ -36,6 +39,9 @@ export function useAutoSave(
   // without being re-created (and re-timed) on every keystroke.
   const queue = useRef<Record<string, DeliverableData>>({});
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The refused-entry retry fires from a timer, which cannot close over the
+  // still-being-declared callback — so it goes through a ref, like persist.
+  const flushRef = useRef<() => void>(() => {});
   const persistRef = useRef(persist);
   // In an effect, not during render: the flush reads this from a timer, long
   // after any render has committed.
@@ -52,12 +58,26 @@ export function useAutoSave(
     if (Object.keys(owed).length === 0) return;
     queue.current = {};
     setStatus('saving');
-    for (const [id, data] of Object.entries(owed)) persistRef.current(id, data);
+    const refused: Record<string, DeliverableData> = {};
+    for (const [id, data] of Object.entries(owed)) {
+      if (persistRef.current(id, data) === false) refused[id] = data;
+    }
+    if (Object.keys(refused).length > 0) {
+      // The repo never saw these; they stay owed and the overlay stays up.
+      queue.current = { ...refused, ...queue.current };
+      setPending((p) => ({ ...refused, ...p }));
+      setStatus('pending');
+      timer.current = setTimeout(() => flushRef.current(), delayMs * 4);
+      return;
+    }
     // The overlay is dropped only now: until the repo has the value, it is the
     // only place the student's typing exists.
     setPending({});
     setStatus('saved');
-  }, []);
+  }, [delayMs]);
+  useEffect(() => {
+    flushRef.current = flush;
+  });
 
   const save = useCallback(
     (id: string, data: DeliverableData) => {

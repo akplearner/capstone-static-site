@@ -28,7 +28,7 @@ import { useCourse } from '@/lib/useCourse';
 import { readResume } from '@/lib/resume';
 import { useMember } from '@/lib/useMember';
 import { useRequireAuth } from '@/lib/useRequireAuth';
-import { useSupabaseSync } from '@/lib/useSupabaseSync';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { docsRepo, evidenceRepo, reviewRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
@@ -142,7 +142,6 @@ type ToolPanel = 'evidence' | 'package' | 'handoff' | null;
 
 export default function DeliverablesPage() {
   const course = useCourse();
-  useSupabaseSync(course.id);
   const { member, loading } = useMember(course.id);
   const { guard } = useRequireAuth();
   const stored = useClientStore<DocsMap>(
@@ -160,9 +159,12 @@ export default function DeliverablesPage() {
   // account or a teammate can never see them, so the persist stays behind the
   // auth guard even though it now runs on a debounce.
   const { save, flush, merge, status: saveStatus } = useAutoSave((id, data) => {
-    guard('save your team’s deliverables', () => {
-      const current = member ? docsRepo.get(course.id, member.teamId) ?? {} : {};
-      if (member) docsRepo.save(course.id, member.teamId, { ...current, [id]: data });
+    // ONE deliverable per write (R82): the old whole-map save meant any stale
+    // tab's autosave rewrote every form on the team with its own old copies.
+    // Returning guard's verdict lets the autosave re-queue instead of dropping
+    // the typing when the session is mid-refresh or expired.
+    return guard('save your team’s deliverables', () => {
+      if (member) void docsRepo.saveOne(course.id, member.teamId, id, data);
       notifyStore();
     });
   });
@@ -439,8 +441,10 @@ export default function DeliverablesPage() {
       <Dialog open={tool === 'handoff'} onClose={() => setTool(null)} title="Export & hand-off">
         <div className="space-y-3 text-sm text-body">
           <p className="text-muted">
-            Everyone fills their own deliverables on their own device — you never need a teammate to finish
-            yours. Export a <span className="font-mono text-xs">.json</span> backup, then restore it on another
+            {isSupabaseConfigured()
+              ? 'Your team’s forms are saved to your team’s account and update live for every member — exports here are backups and printable reports, not the way work is shared.'
+              : 'Everyone fills their own deliverables on their own device — you never need a teammate to finish yours.'}{' '}
+            Export a <span className="font-mono text-xs">.json</span> backup, then restore it on another
             device, or send it to whoever is assembling the combined package.
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -818,7 +822,8 @@ function FormSection({
               Engagement</strong> is signed off. Ask your team&apos;s GRC (Fixers) to complete deliverable{' '}
               <strong>1. Scope &amp; Rules of Engagement</strong> and fill in the{' '}
               <em>Authorization / sign-off</em> field. This form unlocks automatically once that is saved
-              on this device — staying in scope is the rule that keeps the work ethical and legal.
+              {isSupabaseConfigured() ? ' — for the whole team, live' : ' on this device'} — staying in
+              scope is the rule that keeps the work ethical and legal.
             </p>
           </div>
         </div>

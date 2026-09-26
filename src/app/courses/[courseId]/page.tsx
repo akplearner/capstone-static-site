@@ -17,7 +17,6 @@ import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useAuth } from '@/lib/useAuth';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
-import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { userStateRepo, docsRepo } from '@/lib/data';
 import { useClientStore, notifyStore } from '@/lib/useClientStore';
@@ -43,7 +42,6 @@ export default function CoursePage() {
   const { member, loading, setMember } = useMember(course.id);
   const { user } = useAuth();
   const { unlocked: instructorOverride } = useInstructorAuth();
-  useSupabaseSync(course.id);
   const requireAuth = isSupabaseConfigured();
   const unit = unitWord(course).toLowerCase();
   // The Week-0 build task is only for students setting up their own lab from

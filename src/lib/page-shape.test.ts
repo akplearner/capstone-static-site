@@ -1472,3 +1472,48 @@ describe('R82 — the chrome always wins', () => {
     expect(mine, 'unknown rarity is a silhouette, not a Common gem').toContain('(rarities[i] ?? null)');
   });
 });
+
+/**
+ * R82 — team data reaches the team, and never clobbers it.
+ *
+ * The shapes that would quietly undo the R82 data fixes: a whole-map form
+ * save (one stale tab overwrites every teammate's newer form), a realtime
+ * channel with no DELETE listeners (an un-tick never reaches a teammate),
+ * evidence missing from the publication (gems never stream), a join that
+ * reports ok before the membership row lands.
+ */
+describe('R82 — team data', () => {
+  it('the autosave writes ONE deliverable, never the whole team map', () => {
+    const page = code('src/app/courses/[courseId]/docs/page.tsx');
+    expect(page).toContain('docsRepo.saveOne(');
+    expect(page, 'the old clobbering shape').not.toContain('docsRepo.save(course.id, member.teamId, { ...current');
+    expect(code('src/components/team/TeamBusinessPicker.tsx')).toContain('docsRepo.saveOne(');
+  });
+
+  it('realtime survives what filters and sleep drop', () => {
+    const cacheSrc = code('src/lib/data/supabaseCache.ts');
+    expect(cacheSrc, 'DELETE events are unfiltered (Supabase drops filtered ones)').toContain("{ event: 'DELETE', schema: 'public', table }");
+    expect(cacheSrc, 'gems stream').toContain("table: 'step_evidence'");
+    expect(cacheSrc, 'rejoin re-hydrates').toContain("if (status !== 'SUBSCRIBED') return;");
+    expect(code('src/lib/useSupabaseSync.ts'), 'waking tabs re-hydrate').toContain("addEventListener('visibilitychange'");
+  });
+
+  it('a join is only ok once the membership row landed', () => {
+    const repo = code('src/lib/data/supabaseProgressRepo.ts');
+    expect(repo).toContain('async joinTeam');
+    expect(repo, 'rollback on failure').toContain("return { ok: false, reason: 'network' }");
+    expect(code('src/components/course/JoinPanel.tsx')).toContain('await Promise.resolve(progressRepo.joinTeam(');
+  });
+
+  it('step_evidence is published, and rls.sql proves the whole publication', () => {
+    expect(read('supabase/migrations/0007_evidence_realtime.sql')).toContain('add table public.step_evidence');
+    const rls = read('supabase/tests/rls.sql');
+    expect(rls).toContain('pg_publication_tables');
+    expect(rls, 'the reverse direction is asserted too').toContain("bob: reads ada''s evidence");
+  });
+
+  it('every course page hydrates through the layout, and loading means hydrated', () => {
+    expect(code('src/app/courses/[courseId]/layout.tsx')).toContain('useSupabaseSync(courseId)');
+    expect(code('src/lib/useMember.ts')).toContain('isCourseHydrated(courseId)');
+  });
+});

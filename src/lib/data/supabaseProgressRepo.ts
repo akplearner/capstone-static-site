@@ -13,7 +13,7 @@ import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
 import { JoinResult, ProgressRepository } from './types';
 import { KEYS } from './keys';
-import { cache } from './supabaseCache';
+import { cache, hydrateCourse } from './supabaseCache';
 import { toast } from '@/lib/toastBus';
 
 /**
@@ -26,7 +26,9 @@ function onWriteError(what: string, error: { message: string } | null, notify = 
   if (!error) return;
   console.error(`Supabase ${what} failed:`, error.message);
   if (notify) {
-    toast({ message: 'Couldn’t sync a change to the cloud — it’s saved locally and will retry on reload.', variant: 'warning', duration: 6000 });
+    // Honest: the cache and the server have diverged, and nothing retries a
+    // fire-and-forget upsert. Say what actually happened (R82).
+    toast({ message: 'Couldn’t reach the cloud — that change is NOT saved yet. Check your connection and redo it.', variant: 'warning', duration: 6000 });
   }
 }
 
@@ -72,7 +74,7 @@ export const supabaseProgressRepo: ProgressRepository = {
     return counts;
   },
 
-  joinTeam(course: Course, member: Member): JoinResult {
+  async joinTeam(course: Course, member: Member): Promise<JoinResult> {
     // Capacity is checked against the cached (cloud-hydrated) roster, mirroring the
     // localStorage repo. The DB's (user_id, course_id) PK additionally prevents a
     // double-join; per-team cap races are an accepted edge case for now.
@@ -81,6 +83,12 @@ export const supabaseProgressRepo: ProgressRepository = {
     if (cap > 0 && others.filter((e) => e.teamId === member.teamId).length >= cap) {
       return { ok: false, reason: 'team-full' };
     }
+
+    // Remember what to restore: the membership row is the key every team-scoped
+    // RLS policy turns on, so if it does not land, the student must not LOOK
+    // joined while every deliverable/gate/flag write silently bounces (R82).
+    const prevEntry = cache.roster(course.id).find((e) => e.memberId === member.memberId);
+    const prevContext = cache.context(course.id);
 
     const entry: RosterEntry = {
       memberId: member.memberId,
@@ -95,10 +103,9 @@ export const supabaseProgressRepo: ProgressRepository = {
     cache.setContext(member, course.id);
     notifyStore();
 
-    // Write-through (membership + profile display name).
     const supabase = db();
     if (supabase) {
-      void supabase
+      const { error } = await supabase
         .from('memberships')
         .upsert(
           {
@@ -110,13 +117,25 @@ export const supabaseProgressRepo: ProgressRepository = {
             cohort: member.cohort,
           },
           { onConflict: 'user_id,course_id' }
-        )
-        .then(({ error }) => onWriteError('joinTeam', error));
+        );
+      if (error) {
+        console.error('Supabase joinTeam failed:', error.message);
+        if (prevEntry) cache.upsertRosterEntry(course.id, prevEntry);
+        else cache.removeRosterEntry(course.id, member.memberId);
+        if (prevContext) cache.setContext(prevContext, course.id);
+        else cache.setContext(null, course.id);
+        notifyStore();
+        return { ok: false, reason: 'network' };
+      }
+      // The display name on the profile is what teammates see; not worth
+      // failing the join over.
       void supabase
         .from('profiles')
         .update({ display_name: member.displayName })
         .eq('id', member.memberId)
-        .then(({ error }) => onWriteError('profile update', error, false));
+        .then(({ error: e }) => onWriteError('profile update', e, false));
+      // Pull the roster and teammates' data now that RLS lets us see them.
+      await hydrateCourse(course.id);
     }
     return { ok: true };
   },

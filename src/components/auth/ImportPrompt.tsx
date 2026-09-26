@@ -38,7 +38,7 @@ function readLocal<T>(key: string): T | null {
 
 export function ImportPrompt({ course }: { course: Course }) {
   const { user } = useAuth();
-  const { member: cloudMember } = useMember(course.id);
+  const { member: cloudMember, loading: memberLoading } = useMember(course.id);
   const [dismissed, setDismissed] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
@@ -56,6 +56,7 @@ export function ImportPrompt({ course }: { course: Course }) {
   if (
     !isSupabaseConfigured() ||
     !user ||
+    memberLoading || // cloud rows still hydrating: don't flash an offer that may not apply (R82)
     cloudMember || // already set up in the cloud
     !localCtx ||
     dismissed ||
@@ -77,8 +78,15 @@ export function ImportPrompt({ course }: { course: Course }) {
     const oldId = localCtx.memberId;
     const member: Member = { ...localCtx, memberId: user.id, courseId: course.id };
 
-    // 1. Join the team under the account.
-    progressRepo.joinTeam(course, member);
+    // 1. Join the team under the account — and WAIT for it: every write below
+    //    is admitted by RLS only once the membership row exists, and a full
+    //    team must stop the import rather than half-run it (R82).
+    const joined = await Promise.resolve(progressRepo.joinTeam(course, member));
+    if (!joined.ok) {
+      setBusy(false);
+      setFailed(true);
+      return;
+    }
 
     // 2. Step completions (parse values to get task/step ids reliably).
     const prefix = KEYS.completionPrefix(course.id, oldId);
@@ -99,9 +107,17 @@ export function ImportPrompt({ course }: { course: Course }) {
       }
     }
 
-    // 3. Team deliverable forms.
+    // 3. Team deliverable forms — only the ones the team does NOT already have
+    //    in the cloud. This device's copies are from before the account existed,
+    //    so they must never overwrite a teammate's newer cloud version (R82).
+    //    (joinTeam hydrated the course, so the cache is the cloud's state.)
     const localDocs = readLocal<Record<string, DeliverableData>>(KEYS.docs(course.id, localCtx.teamId));
-    if (localDocs) docsRepo.save(course.id, localCtx.teamId, localDocs);
+    if (localDocs) {
+      const cloudDocs = docsRepo.get(course.id, localCtx.teamId) ?? {};
+      for (const [id, data] of Object.entries(localDocs)) {
+        if (!cloudDocs[id]) void docsRepo.saveOne(course.id, localCtx.teamId, id, data);
+      }
+    }
 
     // 4. Lab access and the resume pointer + Week-0 ack. These also live in the
     //    cloud now, so an import that skipped them would silently drop a
@@ -117,10 +133,13 @@ export function ImportPrompt({ course }: { course: Course }) {
       KEYS.resume(course.id, oldId)
     );
     const localAck = window.localStorage.getItem(KEYS.homeBuildAck(course.id)) === '1';
-    if (localResume || localAck) {
+    const localSeenRaw = window.localStorage.getItem(KEYS.mineSeen(course.id, oldId));
+    const localSeen = localSeenRaw === null ? NaN : Number(localSeenRaw);
+    if (localResume || localAck || !Number.isNaN(localSeen)) {
       userStateRepo.save(course.id, user.id, {
         ...(localResume ? { resume: localResume } : {}),
         ...(localAck ? { homeBuildAck: true } : {}),
+        ...(!Number.isNaN(localSeen) ? { mineSeen: localSeen } : {}),
       });
     }
 

@@ -131,12 +131,18 @@ export interface PathRepository {
 // Team-scoped deliverable forms (Master Package): map of deliverableId -> data.
 export interface DocsRepository {
   get(courseId: string, teamId: string): Record<string, DeliverableData> | null;
+  /** Replace the whole team map — imports and hand-offs. The cloud repo only
+   *  sends rows that actually changed, so a stale tab can't overwrite a
+   *  teammate's newer form with old copies of everything else (R82). */
   save(courseId: string, teamId: string, data: Record<string, DeliverableData>): void;
+  /** Save ONE deliverable — what the autosave calls. Resolves false when the
+   *  write did not reach the backend (it is queued for retry in cloud mode). */
+  saveOne(courseId: string, teamId: string, deliverableId: string, data: DeliverableData): Promise<boolean>;
 }
 
 export interface JoinResult {
   ok: boolean;
-  reason?: 'team-full';
+  reason?: 'team-full' | 'network';
 }
 
 // Courses: built-in seeds merged with instructor-authored courses. The only
@@ -163,8 +169,11 @@ export interface ProgressRepository {
   getRoster(courseId: string): RosterEntry[];
   getTeamCounts(courseId: string): Record<string, number>;
   /** Join (or move) a team+role, enforcing the course's teamCapacity. On success
-   *  writes the roster entry and the member context together. */
-  joinTeam(course: Course, member: Member): JoinResult;
+   *  writes the roster entry and the member context together. The cloud repo is
+   *  async: it confirms the membership row landed (and rolls back the optimistic
+   *  cache if it didn't) before anyone writes team-scoped data that RLS would
+   *  reject without it (R82). Await through `Promise.resolve(...)`. */
+  joinTeam(course: Course, member: Member): JoinResult | Promise<JoinResult>;
   leaveTeam(courseId: string, memberId: string): void;
 
   getCompletionKeySet(courseId: string, memberId: string): Set<string>;

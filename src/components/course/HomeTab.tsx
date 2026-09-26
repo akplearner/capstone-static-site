@@ -331,7 +331,8 @@ export function HomeTab({
           team or role" summary once joined. It used to be mounted twice, in
           two mutually exclusive branches. */}
       <div id={joined ? undefined : 'join-panel'}>
-        <JoinPanel course={course} member={member} userId={userId} requireAuth={requireAuth} onJoined={onJoined} />
+        <JoinPanel
+          key={member ? `${member.memberId}:${member.teamId}:${member.role}` : 'none'} course={course} member={member} userId={userId} requireAuth={requireAuth} onJoined={onJoined} />
       </div>
 
       {joined && member && (

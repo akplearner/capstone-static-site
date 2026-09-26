@@ -15,7 +15,6 @@ import { CopyButton } from '@/components/step/CommandBlock';
 import { LedgerSkeleton } from '@/components/ui/Skeletons';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
-import { useSupabaseSync } from '@/lib/useSupabaseSync';
 import { useClientStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { evidenceRepo, progressRepo } from '@/lib/data';
 import type { EvidenceArtifact, StepEvidence } from '@/lib/data/types';
@@ -39,7 +38,6 @@ import { localDay, localStamp } from '@/lib/localDate';
 export default function LedgerPage() {
   const course = useCourse();
   const { member, loading } = useMember(course.id);
-  useSupabaseSync(course.id);
   const [week, setWeek] = useState<WeekFilter>('all');
 
   const memberId = member?.memberId ?? '';

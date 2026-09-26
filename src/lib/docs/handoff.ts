@@ -5,12 +5,15 @@ import { DocMeta } from './report';
 /**
  * Self-contained (no-backend) team handoff.
  *
- * Each role's form data lives only in their own browser (localStorage,
- * team-scoped). To assemble a *complete* team package, GRC needs Red's and
- * Blue's deliverables. These helpers serialize a role's saved deliverables to a
- * portable JSON file that a teammate can hand off; GRC imports the file(s),
- * which merge into the team's saved data, and the existing team-package export
- * then contains everyone's work.
+ * In the OFFLINE build each role's form data lives only in their own browser
+ * (localStorage, team-scoped), so assembling a *complete* team package means
+ * GRC importing Red's and Blue's exported JSON. These helpers serialize a
+ * role's saved deliverables to that portable file; imports merge into the
+ * team's saved data, and the team-package export then contains everyone.
+ *
+ * With accounts on (Supabase) the forms are shared team rows that update live
+ * for every member, and the docs page says so — these exports remain as
+ * backups and printable reports, not the way work is shared (R82).
  */
 
 const KIND = 'capstone-docs';

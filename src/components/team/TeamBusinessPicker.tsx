@@ -49,9 +49,10 @@ export function TeamBusinessPicker({
   const setField = (field: string, value: string) => {
     const current = docsRepo.get(courseId, teamId) ?? {};
     const doc = current['srv_business_reqs'] ?? emptyData();
-    docsRepo.save(courseId, teamId, {
-      ...current,
-      srv_business_reqs: { ...doc, fields: { ...doc.fields, [field]: value } },
+    // One row over the wire, not the whole team map (R82).
+    void docsRepo.saveOne(courseId, teamId, 'srv_business_reqs', {
+      ...doc,
+      fields: { ...doc.fields, [field]: value },
     });
     notifyStore();
   };

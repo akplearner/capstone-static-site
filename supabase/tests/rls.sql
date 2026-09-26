@@ -146,6 +146,36 @@ reset role;
 -- open: a user may UPDATE their own profile row, and `is_instructor` is a column
 -- on it. 0006 closes it with column grants; keep these failing loudly.
 
+-- ── What Bob sees (same team as Ada) — the other direction of every teammate
+-- read, plus the co-edit that makes deliverables genuinely shared (R82) ─────
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.step_completions where user_id = '00000000-0000-4000-8000-00000000000a') = 1, 'bob: reads ada''s tick';
+  assert (select method from public.step_evidence where user_id = '00000000-0000-4000-8000-00000000000a') = 'verified-output', 'bob: reads ada''s evidence — her gems';
+  assert (select count(*) from public.step_flags where user_id = '00000000-0000-4000-8000-00000000000a') = 1, 'bob: sees ada is stuck';
+  assert (select display_name from public.profiles where id = '00000000-0000-4000-8000-00000000000a') = 'Ada L.', 'bob: ada''s (renamed) profile';
+  assert (select count(*) from public.deliverables where team_id = '2026-01-T01') = 1, 'bob: the team''s form';
+  assert (select count(*) from public.step_notes) = 0, 'bob: never ada''s notes';
+  assert (select count(*) from public.lab_access) = 0, 'bob: never ada''s lab credentials';
+  assert (select count(*) from public.user_course_state) = 0, 'bob: never ada''s private state';
+end $$;
+-- Bob edits the form Ada started: same row, team-shared.
+insert into public.deliverables (course_id, team_id, deliverable_id, data, updated_by)
+  values ('security-plus', '2026-01-T01', 'as-built', '{"fields":{"x":"2"}}', '00000000-0000-4000-8000-00000000000b')
+  on conflict (course_id, team_id, deliverable_id) do update
+    set data = excluded.data, updated_by = excluded.updated_by;
+reset role;
+
+-- Ada sees Bob's edit, and who made it.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  assert (select data->'fields'->>'x' from public.deliverables where team_id = '2026-01-T01' and deliverable_id = 'as-built') = '2', 'ada: bob''s edit of the shared form';
+  assert (select updated_by from public.deliverables where team_id = '2026-01-T01' and deliverable_id = 'as-built') = '00000000-0000-4000-8000-00000000000b', 'ada: sees who edited it';
+end $$;
+reset role;
+
 -- ── What Cy sees (other team) ───────────────────────────────────────────────
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
@@ -158,6 +188,17 @@ do $$ begin
   assert (select count(*) from public.deliverable_reviews) = 0, 'cy: not team 01''s reviews';
   assert (select count(*) from public.profiles) = 1, 'cy: only his own profile';
   assert (select count(*) from public.lab_access) = 1, 'cy: only his own lab access';
+end $$;
+do $$ begin
+  begin
+    insert into public.step_flags (user_id, course_id, task_id, step_id, stuck)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't9', 's9', true);
+    raise exception 'cy forged a flag as ada';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.deliverables set data = '{}'::jsonb where team_id = '2026-01-T01';
+    if found then raise exception 'cy edited team 01''s form'; end if;
+  end;
 end $$;
 reset role;
 
@@ -198,5 +239,19 @@ do $$ begin
   assert (select count(*) from public.profiles) = 0, 'anon: no profiles';
 end $$;
 reset role;
+
+-- ── The realtime publication carries every stream the app subscribes to ────
+-- (Run as the table owner — RLS does not apply to this catalog view.)
+do $$
+declare t text;
+begin
+  foreach t in array array['step_completions','deliverables','memberships','gate_status',
+                           'deliverable_reviews','step_flags','cohorts','course_documents',
+                           'step_evidence'] loop
+    assert (select count(*) from pg_publication_tables
+            where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) = 1,
+      'realtime publication is missing ' || t || ' (step_evidence is 0007)';
+  end loop;
+end $$;
 
 rollback;

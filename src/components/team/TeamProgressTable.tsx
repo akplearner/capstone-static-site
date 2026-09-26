@@ -23,6 +23,8 @@ export interface MemberProgress {
   stuck?: number;
   /** Gems earned, counted by rarity index — their badges (R81). */
   gems?: [number, number, number, number];
+  /** Per-gate readiness, in course.gates order (R82). */
+  gates?: string[];
 }
 
 export interface DeliverableStatus {
@@ -56,6 +58,7 @@ export function TeamProgressTable({
 }) {
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
   const showGems = rows.some((r) => r.gems);
+  const showGates = !course.noGatekeeping && course.gates.length > 0 && rows.some((r) => (r.gates ?? []).length > 0);
 
   return (
     <div className="space-y-6">
@@ -66,6 +69,7 @@ export function TeamProgressTable({
               <th scope="col" className="px-4 py-2.5">Member</th>
               <th scope="col" className="px-4 py-2.5">Overall</th>
               {showGems && <th scope="col" className="px-4 py-2.5">Badges</th>}
+              {showGates && <th scope="col" className="px-4 py-2.5">Gates</th>}
               {weeks.map((w) => (
                 <th key={w} scope="col" className="px-3 py-2.5 text-center">W{w}</th>
               ))}
@@ -74,7 +78,7 @@ export function TeamProgressTable({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={2 + (showGems ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
+                <td colSpan={2 + (showGems ? 1 : 0) + (showGates ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
                   No teammates yet. As people join this team they&apos;ll appear here.
                 </td>
               </tr>
@@ -121,6 +125,21 @@ export function TeamProgressTable({
                   {showGems && (
                     <td className="px-4 py-3">
                       <GemRow gems={m.gems ?? [0, 0, 0, 0]} cut={cut} />
+                    </td>
+                  )}
+                  {showGates && (
+                    <td className="px-4 py-3">
+                      <span className="flex items-center gap-1" aria-label="Gate readiness">
+                        {(m.gates ?? []).map((g, i) => (
+                          <span
+                            key={i}
+                            title={`Gate ${course.gates[i]?.id ?? i + 1}: ${course.gates[i]?.title ?? ''} — ${g}`}
+                            className={`inline-block h-2.5 w-2.5 rounded-full ${
+                              g === 'passed' ? 'bg-ok' : g === 'ready' ? 'bg-accent' : 'bg-line'
+                            }`}
+                          />
+                        ))}
+                      </span>
                     </td>
                   )}
                   {weeks.map((w) => {

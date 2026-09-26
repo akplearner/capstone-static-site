@@ -63,7 +63,7 @@ export const supabaseEvidenceRepo: EvidenceRepository = {
         if (error) {
           console.error('step_evidence save failed', error.message);
           toast({
-            message: 'Couldn’t save your verification record — it’s held locally and will retry on reload.',
+            message: 'Couldn’t save your verification record to the cloud — redo the check when you’re back online.',
             variant: 'warning',
             duration: 6000,
           });
@@ -104,7 +104,7 @@ export const supabaseEvidenceRepo: EvidenceRepository = {
         if (error) {
           console.error('evidence_artifacts save failed', error.message);
           toast({
-            message: 'Couldn’t record that evidence hash — it’s held locally and will retry on reload.',
+            message: 'Couldn’t record that evidence hash in the cloud — hash the file again when you’re back online.',
             variant: 'warning',
             duration: 6000,
           });
@@ -164,7 +164,7 @@ export const supabasePathRepo: PathRepository = {
         if (error) {
           console.error('user_paths save failed', error.message);
           toast({
-            message: 'Couldn’t save your chosen path — it’s held locally and will retry on reload.',
+            message: 'Couldn’t save your chosen path to the cloud — pick it again when you’re back online.',
             variant: 'warning',
             duration: 6000,
           });
