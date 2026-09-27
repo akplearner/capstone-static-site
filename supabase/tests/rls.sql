@@ -17,8 +17,11 @@ insert into auth.users (id, email, raw_user_meta_data) values
    '{"iss":"https://api.github.com","user_name":"bob-dev","preferred_username":"bob-dev","avatar_url":"https://avatars.example/bob.png","email":"bob@example.com"}'),
   ('00000000-0000-4000-8000-00000000000c', 'cy@example.com', '{}'),
   ('00000000-0000-4000-8000-00000000000d', 'ivy@example.com', '{"name":"Ivy Instructor"}'),
-  ('00000000-0000-4000-8000-00000000000e', 'zed@example.com', '{}');
+  ('00000000-0000-4000-8000-00000000000e', 'zed@example.com', '{}'),
+  ('00000000-0000-4000-8000-00000000000f', 'ana@example.com', '{"name":"Ana Admin"}');
 update public.profiles set is_instructor = true where id = '00000000-0000-4000-8000-00000000000d';
+-- R85: Ana is an ADMIN — everything Ivy can do, plus writing course content.
+update public.profiles set is_admin = true where id = '00000000-0000-4000-8000-00000000000f';
 
 -- ── the signup trigger read both providers' shapes ──────────────────────────
 do $$ begin
@@ -27,7 +30,7 @@ do $$ begin
   assert (select display_name from public.profiles where id = '00000000-0000-4000-8000-00000000000b') = 'bob-dev', 'github: user_name';
   assert (select avatar_url   from public.profiles where id = '00000000-0000-4000-8000-00000000000b') = 'https://avatars.example/bob.png', 'github: avatar_url';
   assert (select display_name from public.profiles where id = '00000000-0000-4000-8000-00000000000c') = 'cy', 'no metadata: local part of the email, never the whole address';
-  assert (select count(*) from public.profiles) = 5, 'one profile per signup';
+  assert (select count(*) from public.profiles) = 6, 'one profile per signup';
 end $$;
 
 -- ── Ada joins Team 01, ticks a step, verifies it, saves private state ────────
@@ -74,13 +77,18 @@ insert into public.lab_access (user_id, course_id, data)
   values ('00000000-0000-4000-8000-00000000000c', 'security-plus', '{"notes":"cy secret"}');
 reset role;
 
--- ── Ivy (instructor) sets the cohort date and publishes a course ────────────
+-- ── Ivy (instructor) sets the cohort date and grades; Ana (admin) publishes ─
+-- R85 split: running the class is Ivy's; the course document is Ana's.
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
 insert into public.cohorts (course_id, cohort, starts_on) values ('security-plus', '2026-01', '2026-01-12');
-insert into public.course_documents (course_id, schema, doc) values ('security-plus', 'course/1', '{"id":"security-plus"}');
 insert into public.deliverable_reviews (course_id, team_id, deliverable_id, week, status)
   values ('security-plus', '2026-01-T01', 'as-built', 1, 'approved');
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+insert into public.course_documents (course_id, schema, doc) values ('security-plus', 'course/1', '{"id":"security-plus"}');
 reset role;
 
 -- ── What Ada sees ───────────────────────────────────────────────────────────
@@ -347,6 +355,22 @@ do $$ begin
   assert (select count(*) from public.deliverable_submissions) = 1, 'ivy: every submission';
   assert (select count(*) from public.peer_review_assignments) = 1, 'ivy: every assignment';
   assert (select count(*) from public.peer_reviews) = 1, 'ivy: every review';
+  -- R85: the registrations view — every profile, with a name to print.
+  assert (select count(*) from public.profiles) = 6, 'ivy: every profile';
+  assert (select display_name from public.profiles where id = '00000000-0000-4000-8000-00000000000a') = 'Ada L.', 'ivy: sees student names (as she renamed herself)';
+  assert (select public.is_admin()) = false, 'ivy: not an admin';
+end $$;
+-- R85: content is the admin's — an instructor can no longer write the course
+-- document (insert refused, update touches nothing)…
+do $$ begin
+  begin
+    insert into public.course_documents (course_id, schema, doc) values ('other-course', 'course/1', '{"id":"other-course"}');
+    raise exception 'ivy published a course document';
+  exception when insufficient_privilege then null; end;
+  begin
+    update public.course_documents set version = 2 where course_id = 'security-plus';
+    if found then raise exception 'ivy edited the course document'; end if;
+  end;
 end $$;
 -- Ivy resolves Ada's report — the one verdict only an instructor can give.
 update public.task_reports set status = 'resolved', resolved_at = now(),
@@ -354,6 +378,52 @@ update public.task_reports set status = 'resolved', resolved_at = now(),
   where id = '00000000-0000-4000-9000-000000000001';
 do $$ begin
   assert (select status from public.task_reports where id = '00000000-0000-4000-9000-000000000001') = 'resolved', 'ivy: resolved it';
+end $$;
+reset role;
+
+-- ── R85: the roster can be fixed — by staff, and only staff ────────────────
+-- Zed finally joins (his own write, 0001), on the wrong team by mistake.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
+insert into public.memberships (user_id, course_id, team_id, role, display_name, cohort)
+  values ('00000000-0000-4000-8000-00000000000e', 'security-plus', '2026-01-T01', 'net', 'Zed', '2026-01');
+reset role;
+
+-- A student cannot manage anyone else's membership: the update touches nothing.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+do $$ begin
+  update public.memberships set team_id = '2026-01-T09'
+    where user_id = '00000000-0000-4000-8000-00000000000b';
+  if found then raise exception 'cy moved bob to another team'; end if;
+end $$;
+reset role;
+
+-- Ivy moves Zed to the right team, then removes him when he drops the course.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  update public.memberships set team_id = '2026-01-T02', role = 'sec'
+    where user_id = '00000000-0000-4000-8000-00000000000e' and course_id = 'security-plus';
+  assert (select team_id from public.memberships where user_id = '00000000-0000-4000-8000-00000000000e') = '2026-01-T02', 'ivy: moved zed';
+  delete from public.memberships where user_id = '00000000-0000-4000-8000-00000000000e' and course_id = 'security-plus';
+  assert (select count(*) from public.memberships) = 3, 'ivy: removed zed — roster back to three';
+end $$;
+reset role;
+
+-- ── What Ana (admin) sees and does ──────────────────────────────────────────
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+do $$ begin
+  assert (select public.is_admin()), 'ana: is an admin';
+  assert (select public.is_instructor()), 'ana: an admin is an instructor everywhere the platform asks';
+  assert (select count(*) from public.memberships) = 3, 'ana: every membership';
+  assert (select count(*) from public.profiles) = 6, 'ana: every profile';
+  assert (select count(*) from public.deliverable_submissions) = 1, 'ana: every submission';
+  assert (select count(*) from public.task_reports) = 1, 'ana: every report';
+  assert (select count(*) from public.lab_access) = 0, 'ana: NEVER lab access (credentials)';
+  update public.course_documents set version = 2 where course_id = 'security-plus';
+  if not found then raise exception 'ana could not edit the course document'; end if;
 end $$;
 reset role;
 

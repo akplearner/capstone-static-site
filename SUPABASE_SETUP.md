@@ -204,13 +204,30 @@ Sign out and do it again with GitHub. `/api/health` also lists
 the login. Join a course, tick a step, then **hard-refresh the page**. The tick
 must still be there. If it is, you are done.
 
-**4. Make yourself the instructor.** Sign in once first (that creates your
-profile), then Supabase → **SQL Editor** → New query → run:
+**4. Grant the staff roles.** There are two, and they nest (an admin can do
+everything an instructor can):
+
+- **Instructor** — runs the class: the cohort dashboard, grading, resolving
+  reported issues, cohort dates, fixing the roster (moving a student between
+  teams, changing a role, removing someone who dropped).
+- **Admin** — owns the platform: all of the above, **plus** the Studio —
+  creating and editing courses, deliverable definitions and reference content.
+
+Each account signs in once first (that creates the profile), then Supabase →
+**SQL Editor** → New query → run one of:
 
 ```sql
+-- the teaching account
 update public.profiles set is_instructor = true
-where id = (select id from auth.users where email = 'you@example.com');
+where id = (select id from auth.users where email = 'teacher@example.com');
+
+-- the content/admin account
+update public.profiles set is_admin = true
+where id = (select id from auth.users where email = 'admin@example.com');
 ```
+
+Students cannot set either flag on themselves — the database only lets them
+change their own display name and picture.
 
 ---
 
@@ -387,8 +404,8 @@ Still worth ten minutes on the live site before real students:
 
 | Data | Who can read it |
 |---|---|
-| Profiles | you, plus teammates (name and picture); only you may change them, and not the instructor flag |
-| Team membership | anyone on the same course |
+| Profiles | you, teammates and staff (name and picture); only you may change them, never the staff flags |
+| Team membership | anyone on the same course; staff may also move/re-role/remove (students still join themselves) |
 | Step completions | you and your teammates |
 | Evidence ledger (what earns each gem) | you and your teammates — hashes and counts, never pasted output |
 | Deliverables, gate status | your team |
@@ -396,9 +413,13 @@ Still worth ten minutes on the live site before real students:
 | Lab access notes | **you only** — not teammates, not instructors |
 | Step notes | **you only** |
 | "I'm stuck" flags | you, your teammates, and the instructor |
+| Task issue reports | you and your team (read); the instructor resolves |
+| Frozen submissions | your team and the instructor; **nobody** can edit one — a fix is a new version |
+| Peer-review assignments | only the assigned reviewer (and the instructor) — the submitting team never learns who |
+| Peer reviews (the verdict rows) | the reviewer, the submitting team (no reviewer name on the row), the instructor |
 | Instructor reviews of a form | your team (read); the instructor writes |
 | Cohort calendar (start date) | anyone signed in (read); the instructor writes |
-| The course document | anyone signed in (read); the instructor writes |
+| The course document | anyone signed in (read); **the admin** writes |
 
 Lab notes are the strictest on purpose: that is where students record lab details.
 Instructors can read membership, completions, deliverables, the evidence ledger

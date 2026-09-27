@@ -1742,3 +1742,36 @@ describe('R84 — the review bench stays blind, and verdicts have one brain', ()
     expect(md, 'the honesty note ships with the feature').toContain('does not prove which\nmachine ran a command');
   });
 });
+
+describe('R85 — two staff roles: instructors run the class, admins own the content', () => {
+  it('the course document write policy is the admin’s, and stays that way', () => {
+    const files = readdirSync(root('supabase/migrations')).filter((f) => f.endsWith('.sql')).sort();
+    const all = files.map((f) => read(`supabase/migrations/${f}`)).join('\n');
+    const defs = [...all.matchAll(/create policy "course documents [^"]*writes"[\s\S]*?;/g)];
+    expect(defs.length).toBeGreaterThan(0);
+    const last = defs[defs.length - 1][0];
+    expect(last, 'the LAST definition of the write policy must be admin-only').toContain('public.is_admin()');
+  });
+
+  it('admins inherit everything: is_instructor() answers for both flags', () => {
+    const sql = read('supabase/migrations/0010_admin_and_roster.sql');
+    expect(sql).toContain('p.is_instructor or p.is_admin');
+    expect(sql, 'students still cannot grant themselves either flag').toContain('grant  update (display_name, avatar_url)');
+  });
+
+  it('roster management is staff-only, and never lets staff enrol someone', () => {
+    const sql = read('supabase/migrations/0010_admin_and_roster.sql');
+    const policies = [...sql.matchAll(/create policy "memberships instructor [^"]*"[\s\S]*?;/g)].map((m) => m[0]);
+    expect(policies.length).toBe(2);
+    for (const p of policies) expect(p).toContain('public.is_instructor()');
+    expect(sql, 'update + delete only — no instructor insert path').not.toMatch(/create policy "memberships instructor [^"]*" on public\.memberships for insert/);
+  });
+
+  it('rls.sql proves the split and the roster fixes', () => {
+    const t = read('supabase/tests/rls.sql');
+    for (const a of ['ana: is an admin', 'an admin is an instructor', 'ivy published a course document', 'ivy: moved zed', 'cy moved bob', 'ivy: sees student names']) {
+      expect(t, `missing assert: ${a}`).toContain(a);
+    }
+    expect(read('SUPABASE_SETUP.md'), 'the operator can find the grant').toContain('set is_admin = true');
+  });
+});
