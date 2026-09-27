@@ -373,6 +373,7 @@ const TASKS: Task[] = [
       },
       {
         id: 'ccna-w0-register-s2',
+        verify: ['Codes:', 'channel-groups'],
         title: 'Prove each capability, one command at a time',
         description: 'Yes or No, with the line that says so.',
         where: 'Each device — console or SSH',

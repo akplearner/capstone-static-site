@@ -170,6 +170,7 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s2',
+        verify: ['Installation finished', 'admin'],
         where: 'SOC VM (10.10.100.100), over SSH',
         path: ['build', 'run installer', 'soc'],
         title: 'Install the entire SOC with one command',
@@ -179,7 +180,7 @@ const tasks: Task[] = [
           { cmd: 'sudo curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh && sudo bash ./wazuh-install.sh -a', explain: 'Download the installer as root, then run it. The -a flag installs all three Wazuh parts (manager, indexer, dashboard) on this one machine.' },
         ],
         whatItMeans: 'One machine runs the whole SOC — no second network card, no ISO wizard.',
-        expectedOutput: 'After a few minutes it prints a Summary box with a URL and an admin password. Copy that password now.',
+        expectedOutput: 'After a few minutes it prints a Summary box with a URL and an admin password. Copy that password now. Look for: "Installation finished".',
         files: [
           { name: 'wazuh-install.sh (v4.14)', purpose: 'the all-in-one installer for manager + indexer + dashboard', source: 'sudo curl -sO https://packages.wazuh.com/4.14/wazuh-install.sh' },
           { name: 'Official Wazuh installation guide', purpose: 'the vendor’s step-by-step reference if anything differs on your version', source: 'https://documentation.wazuh.com/current/installation-guide/index.html' },
@@ -190,6 +191,7 @@ const tasks: Task[] = [
       },
       {
         id: 'cr-w0-s3',
+        verify: ['wazuh-passwords.txt', 'admin'],
         where: 'SOC VM',
         path: ['build', 'read passwords', 'soc'],
         title: 'Save the admin password',
@@ -199,12 +201,13 @@ const tasks: Task[] = [
           { cmd: 'sudo tar -O -xvf wazuh-install-files.tar wazuh-install-files/wazuh-passwords.txt', explain: 'Every password lives in this file if you closed the terminal too soon.' },
         ],
         whatItMeans: 'You need the admin password to log in and to make student accounts.',
-        expectedOutput: 'A list of users and passwords, including admin.',
+        expectedOutput: 'A list of users and passwords, including admin. Look for: "wazuh-passwords.txt".',
         frameworks: ['NIST_CSF'],
         optional: true,
       },
       {
         id: 'cr-w0-s4',
+        verify: ['Reading package lists'],
         where: 'SOC VM',
         path: ['build', 'disable updates', 'soc'],
         title: 'Freeze the Wazuh version',
@@ -215,7 +218,7 @@ const tasks: Task[] = [
           { cmd: 'sudo apt update', explain: 'Confirm it no longer lists a Wazuh repository.' },
         ],
         whatItMeans: 'Wazuh recommends turning off its update source after install so a routine upgrade cannot break your setup halfway through the course.',
-        expectedOutput: 'apt update runs and no longer lists a Wazuh repository.',
+        expectedOutput: 'apt update runs and no longer lists a Wazuh repository. Look for: "Reading package lists".',
         frameworks: ['NIST_CSF'],
         optional: true,
       },
@@ -342,6 +345,7 @@ $ sudo systemctl status suricata --no-pager
       },
       {
         id: 'cr-w0-s8b',
+        verify: ['vulnerability-detection'],
         where: 'SOC VM + the Ubuntu template',
         path: ['build', 'enable modules', 'soc'],
         title: 'Turn on the modules Weeks 3–4 rely on (Vulnerability, SCA, FIM)',
@@ -358,7 +362,7 @@ $ sudo systemctl status suricata --no-pager
           { cmd: 'sudo systemctl restart wazuh-agent', explain: 'On the Ubuntu template: apply the syscheck change.' },
         ],
         whatItMeans: 'Week 3 reads the Vulnerabilities + SCA panels and Week 4 looks for a changed file in the web root — if these are off, those panels are empty and the steps have nothing to show.',
-        expectedOutput: 'Vulnerabilities and SCA populate within a scan cycle; touching a file under /var/www/html/dvwa raises an Integrity monitoring alert.',
+        expectedOutput: 'Vulnerabilities and SCA populate within a scan cycle; touching a file under /var/www/html/dvwa raises an Integrity monitoring alert. Look for: "vulnerability-detection".',
         files: [
           { name: 'Wazuh vulnerability detection (docs)', purpose: 'confirm/enable the CVE module on the manager', source: 'https://documentation.wazuh.com/current/user-manual/capabilities/vulnerability-detection/index.html' },
           { name: 'Wazuh File Integrity Monitoring (docs)', purpose: 'the <syscheck> directory syntax for watching the web root', source: 'https://documentation.wazuh.com/current/user-manual/capabilities/file-integrity/index.html' },
@@ -373,6 +377,7 @@ $ sudo systemctl status suricata --no-pager
       },
       {
         id: 'cr-w0-s9',
+        verify: ['Sysmon', 'Running'],
         where: 'The one Windows 11 template VM',
         path: ['build', 'install Sysmon', 'win'],
         title: 'Build the Windows pod: Sysmon + the agent',
@@ -1729,6 +1734,7 @@ Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 94.2
     steps: [
       {
         id: 'cb-w4-s1',
+        verify: ['SQL injection'],
         where: 'Wazuh dashboard',
         path: ['ubuntu', 'first alert', 'dash'],
         title: 'Find the first alert',

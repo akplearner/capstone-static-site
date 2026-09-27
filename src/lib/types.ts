@@ -375,7 +375,9 @@ export interface Course {
    * with a build guide happened to be the one with a rack. The moment a second
    * course shipped a guide it would have drawn somebody else's rack.
    */
-  topologyPicture?: 'soc' | 'rack' | 'campus';
+  /** 'lab' = the generic red/blue/grc attack-lab picture (ArchitectureDiagram).
+   *  R84 standard: every course declares its picture explicitly. */
+  topologyPicture?: 'soc' | 'rack' | 'campus' | 'lab';
   isSeed?: boolean;      // true for built-in courses shipped in code
   /** The built-in course this one was duplicated from. Its document supplies
    *  the reference content and forms this course renders (R78-D3). */

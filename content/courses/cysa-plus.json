@@ -439,6 +439,10 @@
           },
           {
             "id": "cr-w0-s2",
+            "verify": [
+              "Installation finished",
+              "admin"
+            ],
             "where": "SOC VM (10.10.100.100), over SSH",
             "path": [
               "build",
@@ -455,7 +459,7 @@
               }
             ],
             "whatItMeans": "One machine runs the whole SOC — no second network card, no ISO wizard.",
-            "expectedOutput": "After a few minutes it prints a Summary box with a URL and an admin password. Copy that password now.",
+            "expectedOutput": "After a few minutes it prints a Summary box with a URL and an admin password. Copy that password now. Look for: \"Installation finished\".",
             "files": [
               {
                 "name": "wazuh-install.sh (v4.14)",
@@ -476,6 +480,10 @@
           },
           {
             "id": "cr-w0-s3",
+            "verify": [
+              "wazuh-passwords.txt",
+              "admin"
+            ],
             "where": "SOC VM",
             "path": [
               "build",
@@ -492,7 +500,7 @@
               }
             ],
             "whatItMeans": "You need the admin password to log in and to make student accounts.",
-            "expectedOutput": "A list of users and passwords, including admin.",
+            "expectedOutput": "A list of users and passwords, including admin. Look for: \"wazuh-passwords.txt\".",
             "frameworks": [
               "NIST_CSF"
             ],
@@ -500,6 +508,9 @@
           },
           {
             "id": "cr-w0-s4",
+            "verify": [
+              "Reading package lists"
+            ],
             "where": "SOC VM",
             "path": [
               "build",
@@ -520,7 +531,7 @@
               }
             ],
             "whatItMeans": "Wazuh recommends turning off its update source after install so a routine upgrade cannot break your setup halfway through the course.",
-            "expectedOutput": "apt update runs and no longer lists a Wazuh repository.",
+            "expectedOutput": "apt update runs and no longer lists a Wazuh repository. Look for: \"Reading package lists\".",
             "frameworks": [
               "NIST_CSF"
             ],
@@ -770,6 +781,9 @@
           },
           {
             "id": "cr-w0-s8b",
+            "verify": [
+              "vulnerability-detection"
+            ],
             "where": "SOC VM + the Ubuntu template",
             "path": [
               "build",
@@ -799,7 +813,7 @@
               }
             ],
             "whatItMeans": "Week 3 reads the Vulnerabilities + SCA panels and Week 4 looks for a changed file in the web root — if these are off, those panels are empty and the steps have nothing to show.",
-            "expectedOutput": "Vulnerabilities and SCA populate within a scan cycle; touching a file under /var/www/html/dvwa raises an Integrity monitoring alert.",
+            "expectedOutput": "Vulnerabilities and SCA populate within a scan cycle; touching a file under /var/www/html/dvwa raises an Integrity monitoring alert. Look for: \"vulnerability-detection\".",
             "files": [
               {
                 "name": "Wazuh vulnerability detection (docs)",
@@ -833,6 +847,10 @@
           },
           {
             "id": "cr-w0-s9",
+            "verify": [
+              "Sysmon",
+              "Running"
+            ],
             "where": "The one Windows 11 template VM",
             "path": [
               "build",
@@ -3295,6 +3313,9 @@
         "steps": [
           {
             "id": "cb-w4-s1",
+            "verify": [
+              "SQL injection"
+            ],
             "where": "Wazuh dashboard",
             "path": [
               "ubuntu",

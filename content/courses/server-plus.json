@@ -2171,6 +2171,10 @@
         "steps": [
           {
             "id": "sp-w3-topology-s1",
+            "verify": [
+              "ens18",
+              "default via"
+            ],
             "title": "Read each host and write down what it really holds",
             "description": "Not what you planned — what the machine reports when you ask it.",
             "instruction": "Go to each host and read its address, gateway and DNS server off the machine. Where it differs from the plan, record what is true and note the difference.",
@@ -2252,6 +2256,10 @@
         "steps": [
           {
             "id": "sp-w3-connect-s1",
+            "verify": [
+              "vmbr0",
+              "172.16.0.10"
+            ],
             "title": "Apply the plan on the host and the Ubuntu VMs",
             "description": "Netplan on the guests, the interfaces file on the host — persistent, not just live.",
             "where": "The Proxmox host, websrv and linuxsrv",
@@ -2557,6 +2565,11 @@
           },
           {
             "id": "sp-w3-connect-s5",
+            "verify": [
+              "bytes from",
+              "200 OK",
+              "succeeded"
+            ],
             "title": "Prove connectivity across all three zones — and the paths that must fail",
             "description": "Every path the design promises, demonstrated from the right machine, plus the one it forbids, demonstrated too.",
             "where": "Every host, plus a campus PC on vmbr0",
@@ -2703,6 +2716,9 @@
           },
           {
             "id": "sp-w3-connect-s7",
+            "verify": [
+              "master vmbr2"
+            ],
             "title": "Later phase (optional): map vmbr2 to a physical NIC",
             "description": "The private zone moves onto real cable, and the Cisco router takes over as its gateway.",
             "where": "Proxmox host shell, and the rack",
@@ -3056,6 +3072,9 @@
           },
           {
             "id": "sp-w4-secure-s2b",
+            "verify": [
+              "Rule added"
+            ],
             "title": "Repeat on linuxsrv, then write it down once",
             "description": "You are about to do the same thing a second time. That is the signal it should be a runbook.",
             "where": "The linuxsrv console (192.168.0.3)",
@@ -3184,6 +3203,9 @@
           },
           {
             "id": "sp-w4-secure-s2d",
+            "verify": [
+              ": OK"
+            ],
             "title": "Diff the running systems against the Week 2 baseline",
             "description": "A baseline you never compare against is a description, not a control.",
             "where": "Each host, against the files in baseline/",
@@ -3262,6 +3284,10 @@
           },
           {
             "id": "sp-w4-secure-s4",
+            "verify": [
+              "proxmox-ve",
+              "Ubuntu"
+            ],
             "title": "Patch the hypervisor and the Ubuntu guests",
             "description": "The machine everything stands on gets patched too.",
             "where": "The Proxmox host, then websrv and linuxsrv",
@@ -3483,6 +3509,9 @@
         "steps": [
           {
             "id": "sp-w4-dr-s0",
+            "verify": [
+              "vzdump"
+            ],
             "title": "Schedule the backup you have been promising",
             "description": "The weekly backup check is a procedure for a job that does not exist yet. Create it.",
             "where": "The Proxmox web console — Datacenter → Backup",
@@ -3759,6 +3788,9 @@
         "steps": [
           {
             "id": "sp-w5-secmon-s0",
+            "verify": [
+              "active (running)"
+            ],
             "title": "Stand up Prometheus and Grafana",
             "description": "The monitoring VM, with an exporter on every host.",
             "where": "A new secmon VM in the private zone, and every other VM",
@@ -3792,7 +3824,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "Grafana loads, and http://192.168.0.4:9090/targets shows secmon, linuxsrv, winserver and websrv all UP.",
+            "expectedOutput": "Grafana loads, and http://192.168.0.4:9090/targets shows secmon, linuxsrv, winserver and websrv all UP. Look for: \"active (running)\".",
             "outputKind": "result",
             "fixes": [
               {
@@ -3807,6 +3839,9 @@
           },
           {
             "id": "sp-w5-secmon-s1",
+            "verify": [
+              "prometheus@pve"
+            ],
             "title": "Scrape the Proxmox host itself",
             "description": "The one target that says the hypervisor is in trouble before every VM alert fires at once.",
             "where": "The Proxmox host shell, then secmon",
@@ -3833,11 +3868,14 @@
               "NIST_CSF",
               "CIS"
             ],
-            "expectedOutput": "proxmox_host is the fifth target on the Targets page, UP, and the Grafana Proxmox dashboard shows your node with every VM.",
+            "expectedOutput": "proxmox_host is the fifth target on the Targets page, UP, and the Grafana Proxmox dashboard shows your node with every VM. Look for: \"prometheus@pve\".",
             "outputKind": "result"
           },
           {
             "id": "sp-w5-secmon-s2",
+            "verify": [
+              "ready"
+            ],
             "title": "Add Loki and one dashboard",
             "description": "Logs from every host, and one screen that answers \"is everything up?\".",
             "where": "The secmon VM (192.168.0.4) and every Linux host",
@@ -3859,7 +3897,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "One dashboard shows every VM up with its address and its logs, and the screenshot sits in 08_Evidence.",
+            "expectedOutput": "One dashboard shows every VM up with its address and its logs, and the screenshot sits in 08_Evidence. Look for: \"ready\".",
             "outputKind": "result"
           },
           {
@@ -3927,6 +3965,9 @@
         "steps": [
           {
             "id": "sp-w5-pulse-s0",
+            "verify": [
+              "pulse"
+            ],
             "title": "Install Pulse and point it at your host",
             "description": "One binary on secmon, one read-only token on the host.",
             "where": "The Proxmox host shell, then secmon",
@@ -4107,6 +4148,9 @@
           },
           {
             "id": "sp-w5-wazuh-s2",
+            "verify": [
+              "fim test"
+            ],
             "title": "Attack yourself, and watch it land",
             "description": "A brute force the SIEM should catch, and a config edit it should notice.",
             "where": "Your workstation, then the Wazuh dashboard",
@@ -4128,7 +4172,7 @@
               "NIST_CSF",
               "CIS"
             ],
-            "expectedOutput": "Threat Hunting shows rule 5710 eight times and rule 5712 (sshd brute force, level 10) once for agent websrv; Integrity Monitoring shows /etc/nginx/nginx.conf modified. Both screenshots are in 08_Evidence.",
+            "expectedOutput": "Threat Hunting shows rule 5710 eight times and rule 5712 (sshd brute force, level 10) once for agent websrv; Integrity Monitoring shows /etc/nginx/nginx.conf modified. Both screenshots are in 08_Evidence. Look for: \"fim test\".",
             "outputKind": "result"
           }
         ]
@@ -4315,6 +4359,9 @@
         "steps": [
           {
             "id": "sp-w5-netbox-s0",
+            "verify": [
+              "Superuser created successfully"
+            ],
             "title": "Run NetBox and fill it from your forms",
             "description": "The maintained Docker bundle, then your site, rack, devices and addresses.",
             "where": "The tools VM (192.168.0.21)",
@@ -4338,7 +4385,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "NetBox at http://192.168.0.21:8000 shows the rack elevation and both prefixes with every address assigned, and 20260915_TeamXX_netbox_ipam.csv is in 08_Evidence, hashed.",
+            "expectedOutput": "NetBox at http://192.168.0.21:8000 shows the rack elevation and both prefixes with every address assigned, and 20260915_TeamXX_netbox_ipam.csv is in 08_Evidence, hashed. Look for: \"Superuser created successfully\".",
             "outputKind": "result",
             "fixes": [
               {
@@ -4386,6 +4433,9 @@
         "steps": [
           {
             "id": "sp-w5-glpi-s0",
+            "verify": [
+              "glpi"
+            ],
             "title": "Run GLPI, load the register, run one change through it",
             "description": "The helpdesk and asset system a small company would actually keep.",
             "where": "The tools VM (192.168.0.21), then winserver",
@@ -4568,6 +4618,9 @@
           },
           {
             "id": "sp-w6-spine-s2",
+            "verify": [
+              "bytes from"
+            ],
             "title": "A second NIC on every server VM",
             "description": "Same host octet as its zone, moved into your team block, no gateway.",
             "where": "The Proxmox web console, then each VM",
@@ -4589,7 +4642,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "Every server VM pings obs.lab from its ops-network address, and the ops leg has no default route.",
+            "expectedOutput": "Every server VM pings obs.lab from its ops-network address, and the ops leg has no default route. Look for: \"bytes from\".",
             "outputKind": "result",
             "fixes": [
               {
@@ -5115,6 +5168,9 @@
         "steps": [
           {
             "id": "sp-w6-observe-s0",
+            "verify": [
+              "onboard"
+            ],
             "title": "The targets file and the receiver",
             "description": "Two small files in the platform repository, and five minutes.",
             "where": "The ops VM, then a browser on the Core",
@@ -5136,7 +5192,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "On the Core’s Targets page, filtered to your team, every endpoint reads UP; the Fleet dashboard set to your team shows live CPU, memory, disk and log lines for every host.",
+            "expectedOutput": "On the Core’s Targets page, filtered to your team, every endpoint reads UP; the Fleet dashboard set to your team shows live CPU, memory, disk and log lines for every host. Look for: \"onboard\".",
             "outputKind": "result",
             "fixes": [
               {
@@ -5254,6 +5310,9 @@
           },
           {
             "id": "sp-w6-vault-s1",
+            "verify": [
+              "information_schema"
+            ],
             "title": "Destroy linuxsrv and restore it against the clock",
             "description": "The Week 4 drill at machine scale, measured.",
             "where": "The Proxmox host shell, then the web console",
@@ -5277,7 +5336,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "linuxsrv restored from the vault and its database answers; the restore time is in the DR plan beside the Week 4 RTO with a sentence on which is bigger.",
+            "expectedOutput": "linuxsrv restored from the vault and its database answers; the restore time is in the DR plan beside the Week 4 RTO with a sentence on which is bigger. Look for: \"information_schema\".",
             "outputKind": "result"
           }
         ]
@@ -5362,6 +5421,9 @@
           },
           {
             "id": "sp-w6-xdr-s1",
+            "verify": [
+              "fim test"
+            ],
             "title": "SCA after hardening, one FIM event, the CVE list",
             "description": "Three screenshots that make the security posture report.",
             "where": "The ops VM, then Wazuh on the Core",
@@ -5382,7 +5444,7 @@
               "NIST_CSF",
               "CIS"
             ],
-            "expectedOutput": "Both agents Active in your group; the SCA score moved after the base role; the integrity checksum changed event for the ops VM and its CVE list are in 08_Evidence.",
+            "expectedOutput": "Both agents Active in your group; the SCA score moved after the base role; the integrity checksum changed event for the ops VM and its CVE list are in 08_Evidence. Look for: \"fim test\".",
             "outputKind": "result"
           }
         ]
@@ -5424,6 +5486,10 @@
         "steps": [
           {
             "id": "sp-w6-rebuild-s0",
+            "verify": [
+              "Apply complete",
+              "PLAY RECAP"
+            ],
             "title": "The demo",
             "description": "Two commands and a machine that comes back on its own.",
             "where": "The Proxmox host shell, then the ops VM, then the Core in a browser",
@@ -5449,7 +5515,7 @@
             "frameworks": [
               "NIST_CSF"
             ],
-            "expectedOutput": "linuxsrv’s panels on the Fleet dashboard go green, a new Active agent appears in your Wazuh group, and its target reads UP — with your targets file unchanged and the rebuild time noted.",
+            "expectedOutput": "linuxsrv’s panels on the Fleet dashboard go green, a new Active agent appears in your Wazuh group, and its target reads UP — with your targets file unchanged and the rebuild time noted. Look for: \"Apply complete\", \"PLAY RECAP\".",
             "outputKind": "result",
             "fixes": [
               {
@@ -5584,6 +5650,9 @@
             ],
             "expectedOutput": "Each vmbr has a named physical port beneath it, and every bridge you rely on appears in /etc/network/interfaces.",
             "outputKind": "result",
+            "verify": [
+              "master vmbr0"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -5652,6 +5721,10 @@
             ],
             "expectedOutput": "Every PREROUTING rule maps to a service you can name, the FORWARD chain permits only the paths the design promises, and nothing is listening that you did not intend.",
             "outputKind": "result",
+            "verify": [
+              "PREROUTING",
+              "FORWARD"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -5810,6 +5883,9 @@
             ],
             "expectedOutput": "Two files under baseline\\ and a hash for each, recorded in Baselines, Policies & Standards.",
             "outputKind": "result",
+            "verify": [
+              "Algorithm"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -5872,6 +5948,9 @@
             ],
             "expectedOutput": "The password policy reads back with your values, and the DHCP range sits inside the plan without covering any static address.",
             "outputKind": "result",
+            "verify": [
+              "ComplexityEnabled"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -5934,6 +6013,9 @@
             ],
             "expectedOutput": "The comparison returns nothing, or every difference it reports has a row in the change log.",
             "outputKind": "result",
+            "verify": [
+              "HotFixID"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -5996,6 +6078,10 @@
             ],
             "expectedOutput": "Virtualization is reported as enabled, and both the storage controller and each NIC name a driver in use.",
             "outputKind": "result",
+            "verify": [
+              "Model name",
+              "Ethernet controller"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6120,6 +6206,10 @@
             ],
             "expectedOutput": "The address and gateway match the plan, and DNS points at winserver rather than at whatever DHCP offered.",
             "outputKind": "result",
+            "verify": [
+              "network:",
+              "default via"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6189,6 +6279,10 @@
             ],
             "expectedOutput": "ufw reports default deny incoming, and every listening port has a row in the allow-list with a decision.",
             "outputKind": "result",
+            "verify": [
+              "policy changed",
+              "Netid"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6444,8 +6538,12 @@
                 "explain": "Event 4625 (failed logon) is what Wazuh turns into an alert. Fail one RDP login on purpose and find it in the dashboard."
               }
             ],
-            "expectedOutput": "All three agents read Running, and one failed Windows logon appears in Wazuh as a level-5 authentication_failed alert for agent winserver.",
+            "expectedOutput": "All three agents read Running, and one failed Windows logon appears in Wazuh as a level-5 authentication_failed alert for agent winserver. Look for: \"TimeCreated\".",
             "outputKind": "result",
+            "verify": [
+              "Running",
+              "TimeCreated"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6496,8 +6594,11 @@
                 "explain": "Exit 0 is no changes. Exit 2 means the file and the lab disagree — find which."
               }
             ],
-            "expectedOutput": "terraform state list shows four VMs, plan exits 0, and a Loki query for {job=\"varlogs\"} |= \"sshd\" returns lines from websrv, linuxsrv and secmon.",
+            "expectedOutput": "terraform state list shows four VMs, plan exits 0, and a Loki query for {job=\"varlogs\"} |= \"sshd\" returns lines from websrv, linuxsrv and secmon. Look for: \"exit 0\".",
             "outputKind": "result",
+            "verify": [
+              "exit 0"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6593,8 +6694,12 @@
                 "explain": "From your host, with N set to any other team’s number: the Core answers; that team’s node does not, because the Proxmox firewall on vmbr9 permits only the Core block. exit 1 is the fence working."
               }
             ],
-            "expectedOutput": "The trunk shows VLAN 20 active on your port, the Core answers, and a ping to another team’s ops block times out — both results recorded as rows in the connectivity proof.",
+            "expectedOutput": "The trunk shows VLAN 20 active on your port, the Core answers, and a ping to another team’s ops block times out — both results recorded as rows in the connectivity proof. Look for: \"bytes from\".",
             "outputKind": "result",
+            "verify": [
+              "trunk",
+              "bytes from"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6647,6 +6752,9 @@
             ],
             "expectedOutput": "win_ping returns pong, the second run of the Windows play reports changed=0, and winserver reads Active in your Core group with an SCA score recorded before and after.",
             "outputKind": "result",
+            "verify": [
+              "pong"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"
@@ -6701,8 +6809,12 @@
                 "explain": "On the host, with your team in three places. The ops VM is in the vault, so the Terraform or OpenTofu state is too. Lose the state and the tool no longer knows what it owns."
               }
             ],
-            "expectedOutput": "Every Linux host tracks the Core clock, proxies apt through the cache and refuses password logins, and the ops VM appears in the vault listing — the Bring-Up Log records the role as the standard.",
+            "expectedOutput": "Every Linux host tracks the Core clock, proxies apt through the cache and refuses password logins, and the ops VM appears in the vault listing — the Bring-Up Log records the role as the standard. Look for: \"Reference ID\", \"passwordauthentication\".",
             "outputKind": "result",
+            "verify": [
+              "Reference ID",
+              "passwordauthentication"
+            ],
             "isEvidenceStep": true,
             "frameworks": [
               "NIST_CSF"

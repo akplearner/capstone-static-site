@@ -1279,7 +1279,8 @@
     "framing": "engagement",
     "isSeed": true,
     "version": 1,
-    "locked": true,
+    "locked": false,
+    "topologyPicture": "lab",
     "teamCount": 16,
     "teamCapacity": 6
   },

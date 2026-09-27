@@ -242,13 +242,11 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'engagement',
     certName: 'SOC 2 + ISO 27001',
     level: 'professional',
-    // The seed says `locked: true`, so the course page turns anyone who follows
-    // this card away. A card that promises "available" and delivers "Course
-    // locked" is worse than one that says "coming soon", so until the seed is
-    // unlocked the catalogue tells the truth. `courseId` goes with it: it is
-    // documented above as being set only when the status is `available`, and it
-    // is what makes the card a link.
-    status: 'coming-soon',
+    // Unlocked in R84 (the instructor's no-unnecessary-locks rule): the seed is
+    // complete — 5 weeks, 16 tasks, 8 deliverables, 4 gates — so the card and
+    // the seed agree that it is open. helpers.test.ts keeps them agreeing.
+    status: 'available',
+    courseId: 'mssp',
     blurb: 'Run a real client engagement to audit-ready evidence.',
   },
 ];

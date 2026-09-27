@@ -81,14 +81,19 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
   // (TaskComponents.tsx). A token that appears nowhere in the step's own sample
   // output can never go green, so the student is asked to match something we never
   // showed them.
-  it('every `verify` token appears in that step`s expectedOutput', () => {
+  it('every `verify` token appears in the output the step shows (expectedOutput or a sample)', () => {
     for (const { step } of allSteps(course)) {
-      if (!step.verify?.length || !step.expectedOutput) continue;
-      const output = step.expectedOutput.toLowerCase();
+      if (!step.verify?.length) continue;
+      // R84: per-command `sample` blocks are rendered to the student exactly
+      // like expectedOutput, so a token shown there is a token we showed them.
+      const shown = [step.expectedOutput ?? '', ...(step.commands ?? []).map((c) => c.sample ?? '')]
+        .join('\n')
+        .toLowerCase();
+      if (!shown.trim()) continue;
       for (const token of step.verify) {
         expect(
-          output.includes(token.toLowerCase()),
-          `${step.id}: verify token "${token}" is not in expectedOutput`
+          shown.includes(token.toLowerCase()),
+          `${step.id}: verify token "${token}" is not in the shown output`
         ).toBe(true);
       }
     }
@@ -579,5 +584,95 @@ describe('role-week ownership — cysa-plus', () => {
       if (!produced) orphans.push(`${def.file} (${def.owner})`);
     }
     expect(orphans, `no step files these: ${orphans.join(', ')}`).toHaveLength(0);
+  });
+});
+
+/**
+ * R84 — one standard, every course (the instructor's standardization rule).
+ *
+ * The parity the R79/R80 rounds established is now a CONTRACT: same structure,
+ * same depth, same expectations in every course. A new course, week, task or
+ * step that ships below the bar fails here, not in a student's browser.
+ */
+
+/** Command steps whose outcome genuinely is not terminal text. Every entry
+ *  needs a reason; an entry without a real reason is a standard violation. */
+const VERIFY_EXEMPT: Record<string, Record<string, string>> = {
+  'cysa-plus': {
+    'cr-w0-s6': 'outcome is the DVWA login page rendering, not terminal text',
+    'cr-w0-s8': 'outcome appears in the Wazuh dashboard, not the terminal',
+    'cr-w0-s10': 'multi-clone outcome is read in the Wazuh dashboard',
+    'cg-w2-s2': 'a Wazuh dashboard query, read on screen',
+    'cg-w2-s4': 'Wireshark GUI analysis',
+    'cb-w3-s3': 'a Wazuh dashboard query, read on screen',
+    'cb-w4-s2': 'a Wazuh dashboard query, read on screen',
+    'cg-w4-s1': 'a Wazuh dashboard query, read on screen',
+  },
+  'security-plus': {
+    'blue-w1-s1': 'an interactive SSH login; the prompt varies per student',
+    'blue-w2-s2': 'Wireshark GUI analysis',
+  },
+  'server-plus': {
+    'sp-w1-install-s1': 'a physical action — the proof is the server booting the stick',
+    'sp-w3-connect-s3b': 'silent file authoring; sp-w3-connect-s5 verifies the served site',
+    'sp-w5-secmon-s3': 'the outcome is an alert firing in Grafana',
+    'sp-w6-observe-s1': 'the outcome is an alert firing in Alertmanager',
+    'sp-w4-net-s1': 'silent copies; the Baselines form records the hashes',
+    'sp-w2-lnx-s1': 'silent captures; sp-w4-secure-s2d verifies the SHA256SUMS check',
+  },
+};
+
+describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — %s', (courseId, course) => {
+  const tasks = course.tasks;
+  const graded = course.weeks.filter((w) => isGradedWeek(course, w.number));
+
+  it('every graded week states 1-4 objectives, each backed by tasks', () => {
+    for (const w of graded) {
+      expect(w.objectives?.length, `week ${w.number} objectives`).toBeGreaterThanOrEqual(1);
+      expect(w.objectives!.length, `week ${w.number} objectives`).toBeLessThanOrEqual(4);
+      for (const o of w.objectives!) {
+        expect(o.tasks.length, `week ${w.number} objective '${o.label}'`).toBeGreaterThan(0);
+      }
+    }
+  });
+
+  it('every task states its objective and carries at least one step', () => {
+    for (const t of tasks) {
+      expect((t.objective ?? '').trim().length, `${t.id} objective`).toBeGreaterThan(0);
+      expect(t.steps.length, `${t.id} steps`).toBeGreaterThan(0);
+    }
+  });
+
+  it('every command step is verifiable, or its exemption states why', () => {
+    const exempt = VERIFY_EXEMPT[courseId] ?? {};
+    for (const t of tasks) {
+      for (const s of t.steps) {
+        const hasCmd = (s.commands ?? []).some((c) => (c.cmd ?? '').trim() !== '');
+        if (!hasCmd) continue;
+        if (s.verify?.length) continue;
+        const reason = exempt[s.id];
+        expect(reason, `${t.id}/${s.id}: a command step needs verify tokens or a documented exemption`).toBeTruthy();
+        expect((reason ?? '').length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  it('every deliverable has definition-of-done checks', () => {
+    for (const d of deliverablesForCourse(course.id)) {
+      expect(d.dod?.length, `${d.id} dod`).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('the course declares gates or noGatekeeping, and its topology picture', () => {
+    expect(course.gates.length > 0 || course.noGatekeeping === true, 'gates or noGatekeeping').toBe(true);
+    expect(course.topologyPicture, 'topologyPicture').toBeTruthy();
+  });
+
+  it('the only locks are the deliberate ones', () => {
+    // `locked` hides a whole course; since R84 every shipped course is open.
+    // The deliberate locks that remain are sign-in (accounts), enrolment
+    // (join before material), gate sequencing (bypassable, off under
+    // noGatekeeping) and the Scope & RoE ethics lock — all elsewhere.
+    expect(course.locked ?? false, 'course.locked').toBe(false);
   });
 });

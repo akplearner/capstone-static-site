@@ -160,6 +160,7 @@ const RED_TASKS: Task[] = [
     steps: [
       {
         id: 'red-w0-s1',
+        verify: ['Reading package lists'],
         title: 'Boot & Update Kali',
         description: 'Boot your Kali VM and refresh then upgrade all packages.',
         instruction: 'Start the Kali VM, open a terminal, and run the update command.',
@@ -167,7 +168,7 @@ const RED_TASKS: Task[] = [
           { cmd: 'sudo apt update', explain: 'Refresh the package list so you install the newest versions.' },
           { cmd: 'sudo apt -y upgrade', explain: 'Install all available updates (-y auto-confirms).' },
         ],
-        expectedOutput: 'Packages refreshed and upgraded',
+        expectedOutput: 'Packages refreshed and upgraded Look for: "Reading package lists".',
         outputExplanation: 'A clean prompt with no errors means your tools are current; a long "upgraded, newly installed" summary is normal the first run.',
         whatItMeans: 'Your attack tools are patched and current before you begin.',
         frameworks: ['NIST_CSF'],
@@ -175,6 +176,7 @@ const RED_TASKS: Task[] = [
       },
       {
         id: 'red-w0-s2',
+        verify: ['packet loss'],
         title: 'Verify You Can Reach Your Target',
         description: 'Ping your assigned company host to confirm it is reachable.',
         instruction: 'Replace the placeholder with your target IP and run the ping.',
@@ -221,6 +223,7 @@ const RED_TASKS: Task[] = [
     steps: [
       {
         id: 'red-w1-s1',
+        verify: ['ens18', 'bytes from'],
         title: 'Verify Connectivity',
         description: 'List your own IP and ping the target to confirm you share a subnet.',
         instruction: 'Run the command and note your ens18 address and the ping reply.',
@@ -235,7 +238,7 @@ const RED_TASKS: Task[] = [
           { flag: '-c 1', meaning: 'Stop after 1 packet instead of pinging forever.' },
           { flag: '10.10.10.1', meaning: 'The host being pinged (the gateway/target).' },
         ],
-        expectedOutput: 'ens18 inet 10.10.100.X, ping reply from target',
+        expectedOutput: 'ens18 inet 10.10.100.X, ping reply from target Look for: "bytes from".',
         outputExplanation: 'The `ens18` `inet` line in the 10.10.100.X range is your IP, and a "1 received, 0% packet loss" line proves the target answers.',
         whatItMeans: 'Your Kali box and the target sit on the same subnet, so scanning will work.',
         frameworks: ['NIST_CSF'],
@@ -246,6 +249,7 @@ const RED_TASKS: Task[] = [
       },
       {
         id: 'red-w1-s2',
+        verify: ['target.local'],
         title: 'WHOIS & DNS Enumeration',
         description: 'Query registration and DNS records to map the target domain.',
         instruction: 'Run the WHOIS and DNS lookups and note the registrar, name servers, and mail servers.',
@@ -260,7 +264,7 @@ const RED_TASKS: Task[] = [
           { flag: 'dig ANY', meaning: 'Ask DNS for every record type for the domain.' },
           { flag: 'nslookup -type=mx', meaning: 'Look up only mail-exchanger (mail server) records.' },
         ],
-        expectedOutput: 'Domain info, A/MX/NS records',
+        expectedOutput: 'Domain info, A/MX/NS records Look for: "target.local".',
         outputExplanation: 'The `whois` block shows the registrar and contacts; `dig` lists A, NS and MX records, with the MX names revealing where the target receives email.',
         whatItMeans: 'You now know the target owner, mail servers, and DNS structure.',
         frameworks: ['NIST_CSF', 'CIS'],
@@ -271,6 +275,7 @@ const RED_TASKS: Task[] = [
       },
       {
         id: 'red-w1-s3',
+        verify: ['Apache'],
         title: 'Web Tech Discovery',
         description: 'Fingerprint the target web stack and save the results to Recon_Findings.md.',
         instruction: 'Run whatweb and tee its output into the canonical recon file.',
@@ -283,7 +288,7 @@ const RED_TASKS: Task[] = [
           { flag: 'whatweb', meaning: 'Fingerprint a website’s server, language and frameworks.' },
           { flag: 'http://10.10.100.X', meaning: 'The target URL to fingerprint.' },
         ],
-        expectedOutput: 'Detected technologies printed and saved to Recon_Findings.md',
+        expectedOutput: 'Detected technologies printed and saved to Recon_Findings.md Look for: "Apache".',
         outputExplanation: 'Each `[name version]` tag is a detected technology; record exact versions (e.g. Apache 2.4.x, PHP 5.x) because old versions map to known CVEs.',
         whatItMeans: 'You have a saved record of the exact software versions that may be exploitable.',
         frameworks: ['CIS', 'OWASP'],
@@ -293,6 +298,7 @@ const RED_TASKS: Task[] = [
       },
       {
         id: 'red-w1-s4',
+        verify: ['theHarvester'],
         title: 'Email/Host Discovery',
         description: 'Harvest emails, subdomains, and hosts for the target domain.',
         instruction: 'Run theHarvester against the target domain and note candidate usernames and subdomains.',
@@ -307,7 +313,7 @@ const RED_TASKS: Task[] = [
             ],
           },
         ],
-        expectedOutput: 'Email list, subdomains, hosts',
+        expectedOutput: 'Email list, subdomains, hosts Look for: "theHarvester".',
         outputExplanation: 'Results are grouped into emails, hosts and subdomains — the email addresses become candidate usernames and the subdomains reveal extra attack surface.',
         whatItMeans: 'You have candidate usernames and additional infrastructure to target.',
         frameworks: ['NIST_CSF'],
@@ -339,6 +345,7 @@ const RED_TASKS: Task[] = [
     steps: [
       {
         id: 'red-w2-s1',
+        verify: ['Nmap scan report', 'open'],
         title: 'Network Scan - All Ports',
         description: 'Scan all TCP ports with version detection.',
         commands: [
@@ -383,6 +390,7 @@ Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 88.1
       },
       {
         id: 'red-w2-s2',
+        verify: ['+ Server:'],
         title: 'Web Vulnerability Scan',
         description: 'Run automated web scanner against target.',
         commands: [
@@ -419,6 +427,7 @@ Service detection performed. Nmap done: 1 IP address (1 host up) scanned in 88.1
       },
       {
         id: 'red-w2-s3',
+        verify: ['ssh-auth-methods', 'publickey'],
         title: 'SSH Auth Methods',
         description: 'Identify authentication methods on SSH.',
         commands: [
@@ -870,6 +879,7 @@ const BLUE_TASKS: Task[] = [
       },
       {
         id: 'blue-w0-s4',
+        verify: ['302', 'dvwa'],
         title: 'Run the DVWA Target (Docker)',
         description: 'Start Docker on the Ubuntu host and run DVWA — the vulnerable web app Red will attack.',
         instruction: 'On the Ubuntu host, install Docker, run the DVWA image as a container NAMED dvwa on port 80, then confirm it answers.',
@@ -903,6 +913,7 @@ const BLUE_TASKS: Task[] = [
       },
       {
         id: 'blue-w0-s5',
+        verify: ['dvwa', 'Up'],
         title: 'Initialize DVWA & Manage the Container',
         description: 'Set up the DVWA database and security level on first run, and learn to start/stop it.',
         instruction: 'Bring DVWA up and set it to the level the payloads expect.',
@@ -971,6 +982,7 @@ const BLUE_TASKS: Task[] = [
       },
       {
         id: 'blue-w1-s2',
+        verify: ['Reading package lists'],
         title: 'Update System',
         description: 'Apply latest security patches.',
         commands: [
@@ -984,7 +996,7 @@ const BLUE_TASKS: Task[] = [
           { flag: 'apt upgrade', meaning: 'Install the available updates.' },
           { flag: '-y', meaning: 'Auto-answer “yes” to prompts.' },
         ],
-        expectedOutput: 'Packages updated',
+        expectedOutput: 'Packages updated Look for: "Reading package lists".',
         outputExplanation: 'Watch the summary line — "X upgraded, Y newly installed" — and make sure it finishes without errors, meaning known-vulnerable packages are now patched.',
         whatItMeans: 'Patches known vulnerabilities in OS and applications.',
         frameworks: ['CIS'],
@@ -996,6 +1008,7 @@ const BLUE_TASKS: Task[] = [
       },
       {
         id: 'blue-w1-s3',
+        verify: ['Status: active', 'ALLOW IN'],
         title: 'Configure Firewall',
         description: 'Enable UFW and allow only SSH and HTTP.',
         instruction: 'Run these one at a time on the Ubuntu host. UFW decides what traffic is allowed in: block everything first, then open only the ports you need.',
@@ -1033,6 +1046,7 @@ To                         Action      From
       },
       {
         id: 'blue-w1-s4',
+        verify: ['fail2ban'],
         title: 'Install Fail2Ban',
         description: 'Protect against brute force attacks.',
         commands: [
@@ -1054,6 +1068,7 @@ To                         Action      From
       },
       {
         id: 'blue-w1-s5',
+        verify: ['Hardening index'],
         title: 'System Audit with Lynis',
         description: 'Run comprehensive security audit.',
         commands: [
@@ -1090,6 +1105,7 @@ To                         Action      From
       },
       {
         id: 'blue-w1-s6',
+        verify: ['Enabled', 'True'],
         title: 'Windows: Enable & Export the Firewall',
         description: 'Turn on Windows Firewall for all profiles and save its state (run in PowerShell as Administrator on the Windows host).',
         commands: [
@@ -1133,6 +1149,7 @@ Enabled                         : True`,
       },
       {
         id: 'blue-w1-s7',
+        verify: ['RealTimeProtectionEnabled'],
         title: 'Windows: Defender Scan & Disable SMBv1',
         description: 'Update and scan with Microsoft Defender, and remove the legacy SMBv1 protocol.',
         commands: [
@@ -1170,7 +1187,7 @@ Enabled                         : True`,
             ],
           },
         ],
-        expectedOutput: 'Defender_Status.txt shows real-time protection on; SMB1 removed',
+        expectedOutput: 'Defender_Status.txt shows real-time protection on; SMB1 removed Look for: "RealTimeProtectionEnabled".',
         outputExplanation: '`AMServiceEnabled : True` and `RealTimeProtectionEnabled : True` confirm Defender is active; SMBv1 should no longer be listed as enabled.',
         whatItMeans: 'Antivirus is current and a classic wormable protocol (SMBv1) is gone.',
         frameworks: ['CIS', 'NIST_CSF'],
@@ -1197,6 +1214,7 @@ Enabled                         : True`,
     steps: [
       {
         id: 'blue-w2-s1',
+        verify: ['packets captured'],
         title: 'Capture Normal Traffic',
         description: 'Record baseline traffic while accessing application normally.',
         commands: [
@@ -1209,7 +1227,7 @@ Enabled                         : True`,
           { flag: '-i ens18', meaning: 'Capture on the ens18 interface.' },
           { flag: '-w ~/team-artifacts/week-2/Baseline_Traffic.pcap', meaning: 'Write raw packets to the canonical baseline file.' },
         ],
-        expectedOutput: 'PCAP file with normal HTTP requests',
+        expectedOutput: 'PCAP file with normal HTTP requests Look for: "packets captured".',
         outputExplanation: 'It prints `listening on ens18...` and a rising packet count; stop with Ctrl-C — the resulting `baseline.pcap` holds your normal-traffic sample.',
         whatItMeans: 'Establishes pattern of legitimate traffic for comparison.',
         frameworks: ['NIST_800_115'],
@@ -1272,6 +1290,7 @@ Enabled                         : True`,
       },
       {
         id: 'blue-w2-s4',
+        verify: ['4624'],
         title: 'Windows: Enable & Export Security Logging',
         description: 'Turn on auditing of logon events and export recent security logs (PowerShell as Administrator on the Windows host).',
         commands: [
@@ -1315,6 +1334,7 @@ Enabled                         : True`,
       },
       {
         id: 'blue-w2-s5',
+        verify: ['packets captured'],
         title: 'Capture a Labeled Attack Sample',
         description: 'Record a short capture while generating scan/login noise, to keep alongside the baseline.',
         instruction: 'Start a capture, run a quick nmap/login against your own host, then let it stop.',
@@ -1327,7 +1347,7 @@ Enabled                         : True`,
           { flag: '-c 200', meaning: 'Capture 200 packets then stop automatically.' },
           { flag: '-w ~/team-artifacts/week-2/Attack_Traffic.pcap', meaning: 'Write the sample to the canonical file.' },
         ],
-        expectedOutput: 'Attack_Traffic.pcap created',
+        expectedOutput: 'Attack_Traffic.pcap created Look for: "packets captured".',
         outputExplanation: 'A `.pcap` of ~200 packets appears; opened in Wireshark it should show the scan/login noise your filters target.',
         whatItMeans: 'Gives you an abnormal-traffic reference so detection filters can be validated before the real attack.',
         frameworks: ['NIST_800_115'],
@@ -1353,6 +1373,7 @@ Enabled                         : True`,
     steps: [
       {
         id: 'blue-w3-s1',
+        verify: ['packets captured'],
         title: 'Start Live Packet Capture',
         description: 'Begin recording before Red starts attacks.',
         commands: [
@@ -1365,7 +1386,7 @@ Enabled                         : True`,
           { flag: '-i ens18', meaning: 'Capture on the ens18 interface.' },
           { flag: '-w ~/team-artifacts/week-3/Attack_Pcap.pcap', meaning: 'Write packets to the canonical attack-capture file.' },
         ],
-        expectedOutput: 'Capture running, file growing',
+        expectedOutput: 'Capture running, file growing Look for: "packets captured".',
         outputExplanation: '`listening on ens18` plus a climbing packet count means it is recording; verify the `.pcap` file size grows as traffic arrives.',
         whatItMeans: 'Forensic evidence collection; chain of custody begins.',
         frameworks: ['NIST_800_61'],
@@ -1378,6 +1399,7 @@ Enabled                         : True`,
       },
       {
         id: 'blue-w3-s2',
+        verify: ['HTTP/1.1'],
         title: 'Monitor Logs in Real Time',
         description: 'Watch system and web server logs.',
         commands: [
@@ -1390,7 +1412,7 @@ Enabled                         : True`,
           { flag: '-f', meaning: 'Follow — stream new lines as they are written.' },
           { flag: '/var/log/apache2/access.log', meaning: 'The Apache request log to watch.' },
         ],
-        expectedOutput: 'HTTP requests, errors, failed auth attempts',
+        expectedOutput: 'HTTP requests, errors, failed auth attempts Look for: "HTTP/1.1".',
         outputExplanation: 'Each line is one HTTP request (IP, time, method, URL, status). A burst of requests or repeated 401/404s flags attacker activity in real time.',
         whatItMeans: 'Real-time visibility into attacker activity.',
         frameworks: ['NIST_CSF'],
@@ -1428,6 +1450,7 @@ Enabled                         : True`,
       },
       {
         id: 'blue-w3-s4',
+        verify: ['Rule added'],
         title: 'Block Attacker IP',
         description: 'Use firewall to deny further traffic from attacker.',
         commands: [
@@ -1453,6 +1476,7 @@ Enabled                         : True`,
       },
       {
         id: 'blue-w3-s5',
+        verify: ['4625'],
         title: 'Windows: Detect Brute Force & Contain',
         description: 'Spot the failed-logon spike on Windows and block the source (PowerShell as Administrator).',
         commands: [
@@ -1735,6 +1759,7 @@ const GRC_TASKS: Task[] = [
       },
       {
         id: 'grc-w3-s2',
+        verify: ['Attack_Pcap.pcap'],
         title: 'Hash Evidence Files',
         description: 'Create SHA256 hashes for integrity verification.',
         commands: [
@@ -1746,7 +1771,7 @@ const GRC_TASKS: Task[] = [
           { flag: 'sha256sum', meaning: 'Compute a SHA-256 fingerprint of each file.' },
           { flag: '> Evidence_Hashes.txt', meaning: 'Save the hashes to the canonical file for integrity checks.' },
         ],
-        expectedOutput: 'Hash file created',
+        expectedOutput: 'Hash file created Look for: "Attack_Pcap.pcap".',
         outputExplanation: 'The file holds a 64-character hash next to each filename; re-running the command later must produce identical hashes to prove nothing was altered.',
         whatItMeans: 'Proves evidence has not been tampered with.',
         frameworks: ['NIST_800_61'],

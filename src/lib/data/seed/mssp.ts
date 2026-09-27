@@ -729,9 +729,12 @@ export const MSSP: Course = {
   framing: 'engagement',
   isSeed: true,
   version: 1,
-  // Hidden from students for now — shows as a locked card (like CySA+); flip to
-  // false to re-enable. The course data stays intact.
-  locked: true,
+  // R84 (the instructor's no-unnecessary-locks rule): the course is complete —
+  // 5 weeks, 16 tasks, 8 deliverables, 4 gates — so the old "hidden for now"
+  // lock is gone. `locked: true` remains available for genuinely unfinished
+  // courses.
+  locked: false,
+  topologyPicture: 'lab',
   teamCount: 16,
   teamCapacity: 6,
 };
