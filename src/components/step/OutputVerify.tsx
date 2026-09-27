@@ -27,7 +27,18 @@ export interface LedgerRef {
  * exactly "output matching the expected tokens was pasted, hashed and
  * timestamped" — not that the command truly ran. The wording says that and no more.
  */
-export function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: LedgerRef }) {
+export function OutputVerify({
+  verify,
+  ledger,
+  stamp,
+}: {
+  verify: string[];
+  ledger?: LedgerRef;
+  /** The member's task stamp (R84), when it is one of the expected tokens. It
+   *  gets its own chip styling and a hint, because unlike the other tokens it
+   *  is not something the tool prints — the student adds it. */
+  stamp?: string;
+}) {
   const [text, setText] = React.useState('');
   const touched = text.trim().length > 0;
   const score = scoreOutput(text, verify);
@@ -118,16 +129,20 @@ export function OutputVerify({ verify, ledger }: { verify: string[]; ledger?: Le
         <div className="flex flex-wrap gap-1">
           {verify.map((tok) => {
             const ok = touched && !missing.has(tok.toLowerCase());
+            const isStamp = tok === stamp;
             return (
               <span
                 key={tok}
+                title={isStamp ? 'Your stamp — it ties this paste to you and this task.' : undefined}
                 className={`rounded px-1.5 py-0.5 font-mono text-2xs ${
                   ok
                     ? 'bg-ok-soft text-ok'
-                    : 'bg-panel-2 text-muted'
+                    : isStamp
+                      ? 'bg-accent-soft text-accent-ink'
+                      : 'bg-panel-2 text-muted'
                 }`}
               >
-                {touched ? (ok ? '✓' : '○') : '•'} {tok}
+                {touched ? (ok ? '✓' : '○') : '•'} {isStamp ? `${tok} (your stamp)` : tok}
               </span>
             );
           })}

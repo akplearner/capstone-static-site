@@ -14,6 +14,7 @@ import { GlossaryText } from '@/components/GlossaryText';
 import { WazuhWalkthrough } from '@/components/diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from '@/components/StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
+import { taskToken } from '@/lib/evidenceLedger';
 import { StepNotes } from '@/components/StepNotes';
 import { CommandBlock, type CommandEntry } from './CommandBlock';
 import { OutputVerify, type LedgerRef } from './OutputVerify';
@@ -174,7 +175,18 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
           )}
           {/* No `hasCommand` guard: a dashboard step has verify tokens too, and
               gating on a command silently hid the check on every GUI step. */}
-          {verify && verify.length > 0 && <OutputVerify verify={verify} ledger={ledger} />}
+          {verify && verify.length > 0 && (
+            <OutputVerify
+              // R84: with a ledger (the student's own task) the personal stamp
+              // joins the expected tokens, so "verified" structurally means the
+              // paste carried this member's stamp for this task. Read-only
+              // views (no ledger) verify against the plain tokens and record
+              // nothing, as before.
+              verify={ledger ? [...verify, taskToken(ledger.memberId, courseId, ledger.taskId)] : verify}
+              stamp={ledger ? taskToken(ledger.memberId, courseId, ledger.taskId) : undefined}
+              ledger={ledger}
+            />
+          )}
           {/* R68: the student's private note and the team-visible stuck flag.
               Only on a step that records — a read-only view of another role's
               task has nowhere to write. */}

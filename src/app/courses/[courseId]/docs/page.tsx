@@ -21,9 +21,8 @@ import { EvidenceHasher } from '@/components/docs/EvidenceHasher';
 import { WeekEvidencePackager } from '@/components/docs/WeekEvidencePackager';
 import { GateReadinessStrip } from '@/components/week/GateReadinessStrip';
 import { GlossaryText } from '@/components/GlossaryText';
-import { TriageDecisionTree } from '@/components/diagrams/TriageDecisionTree';
-import { RiskMatrix } from '@/components/diagrams/RiskMatrix';
-import { IncidentTimelineDiagram } from '@/components/diagrams/IncidentTimelineDiagram';
+import { visualFor } from '@/components/diagrams/kit/visualFor';
+import { ExpectationsPanel } from '@/components/docs/ExpectationsPanel';
 import { useCourse } from '@/lib/useCourse';
 import { readResume } from '@/lib/resume';
 import { useMember } from '@/lib/useMember';
@@ -124,20 +123,6 @@ function printHTML(html: string) {
  * `data-block` attributes mark the four regions; `src/lib/page-shape.test.ts`
  * asserts their order, which is what stops the rail drifting back down the page.
  */
-
-/** Which forms get a shape diagram, keyed by deliverable id.
- *
- *  This used to key on week number with no course guard — so Security+, whose Risk
- *  Register is Week 2, got the risk matrix in Week 3, and MSSP got all three
- *  diagrams for forms it doesn't have. Keying on the form itself is both the fix
- *  and the compaction: the diagram now sits inside the form it describes instead
- *  of floating above the page as its own card. */
-const FORM_DIAGRAM: Record<string, () => React.ReactElement | null> = {
-  cysa_alert_triage: TriageDecisionTree,
-  risk_register: RiskMatrix,
-  cysa_incident_response: IncidentTimelineDiagram,
-  incident_report: IncidentTimelineDiagram,
-};
 
 type ToolPanel = 'evidence' | 'package' | 'handoff' | null;
 
@@ -544,6 +529,8 @@ export default function DeliverablesPage() {
             authorized={authorized}
             noGatekeeping={course.noGatekeeping}
             meta={meta}
+            week={selectedWeek}
+            memberId={member.memberId}
             onChange={setDoc}
             review={reviewFor(currentDef.id)}
           />
@@ -579,6 +566,8 @@ export default function DeliverablesPage() {
                   authorized={authorized}
                   noGatekeeping={course.noGatekeeping}
                   meta={meta}
+                  week={selectedWeek}
+                  memberId={member.memberId}
                   onChange={setDoc}
                   review={reviewFor(currentDef.id)}
                 />
@@ -653,6 +642,8 @@ function FormSection({
   authorized,
   noGatekeeping,
   meta,
+  week,
+  memberId,
   onChange,
   review,
 }: {
@@ -662,6 +653,10 @@ function FormSection({
   authorized: boolean;
   noGatekeeping?: boolean;
   meta: { team: string; cohort: string; date: string; courseId: string };
+  /** The week on screen — the Expectations panel judges dod checks due BY it. */
+  week: number;
+  /** Whose evidence ledger Authenticity reads. */
+  memberId: string;
   onChange: (id: string, data: DeliverableData) => void;
   /** The instructor's latest verdict on this form (R68). */
   review?: DeliverableReview;
@@ -681,7 +676,9 @@ function FormSection({
   );
   const locked = !noGatekeeping && !!def.requiresAuth && !authorized;
   const hasGuidance = !!(def.buildSteps || def.meaning || def.useIt || def.pitfalls);
-  const Diagram = FORM_DIAGRAM[def.id];
+  // R84: every form gets its picture — the four bespoke drawings where they
+  // exist, the course's kit preset everywhere else (resolved from `def.visual`).
+  const diagram = visualFor(def);
 
   return (
     // `.stratum-week` is what actually consumes the `--week` set on the
@@ -773,7 +770,7 @@ function FormSection({
       </div>
 
       {/* The shape of the answer, beside the form it describes. */}
-      {!locked && Diagram && <Diagram />}
+      {!locked && diagram}
 
       {!locked && hasGuidance && (
         <div className="rounded-lg depth-edge bg-panel-2 px-4">
@@ -829,7 +826,12 @@ function FormSection({
           </div>
         </div>
       ) : (
-        <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
+        <>
+          {/* The grading, previewed live (R84): the same four categories the
+              submission freezes and reviewers see, judged by the same function. */}
+          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} />
+          <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
+        </>
       )}
     </section>
   );

@@ -1608,3 +1608,47 @@ describe('R83 — cohorts and lobbies', () => {
     // The grammar itself is locked by src/lib/team.test.ts.
   });
 });
+
+describe('R84 — the stamp, the grading preview, and the diagram kit', () => {
+  it('a verified paste requires the member’s stamp, and the runner explains it', () => {
+    const how = code('src/components/step/StepHow.tsx');
+    expect(how, 'StepHow appends the task stamp to the expected tokens').toContain(
+      'taskToken(ledger.memberId, courseId, ledger.taskId)'
+    );
+    const runner = code('src/components/task/GuidedTaskRunner.tsx');
+    expect(runner, 'the task header states the stamp once').toContain('Your stamp:');
+    expect(runner).toContain('taskToken(memberId, courseId, task.id)');
+  });
+
+  it('every form resolves its picture through visualFor — the id table is gone', () => {
+    const docs = code(DOCS);
+    expect(docs).toContain('visualFor(def)');
+    expect(docs, 'the per-page diagram table must not come back').not.toContain('FORM_DIAGRAM');
+    expect(docs, 'the grading preview sits with every unlocked form').toContain('<ExpectationsPanel');
+    const resolver = code('src/components/diagrams/kit/visualFor.tsx');
+    for (const bespoke of ['cysa_alert_triage', 'risk_register', 'cysa_incident_response', 'incident_report']) {
+      expect(resolver, 'the four bespoke drawings survive the kit').toContain(bespoke);
+    }
+  });
+
+  it('the kit is recolourable — not one literal colour in it', () => {
+    // Comments included on purpose: a hex "example" in a comment is how the
+    // next literal gets pasted into code.
+    const files = readdirSync(root('src/components/diagrams/kit'))
+      .map((f) => `src/components/diagrams/kit/${f}`)
+      .concat(['src/lib/diagrams/kitPresets.ts', 'src/lib/diagrams/kitSpec.ts']);
+    expect(files.length).toBeGreaterThan(6);
+    for (const f of files) {
+      expect(read(f), `${f} takes colours from theme tokens or tintVars only`).not.toMatch(
+        /#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/
+      );
+    }
+  });
+
+  it('the panel judges with the shared rubric, not a private copy', () => {
+    const panel = code('src/components/docs/ExpectationsPanel.tsx');
+    expect(panel).toContain('evaluateBundle(');
+    expect(panel).toContain('RUBRIC_CATEGORIES');
+    expect(panel, 'authenticity reads the real ledger').toContain('evidenceRepo.getSteps(');
+  });
+});

@@ -12,7 +12,7 @@ import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo, evidenceRepo } from '@/lib/data';
-import { selfAttested } from '@/lib/evidenceLedger';
+import { selfAttested, taskToken } from '@/lib/evidenceLedger';
 
 /** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
  *  inside a component-body function as render work, even when it only runs from
@@ -191,6 +191,21 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1 space-y-1">
           <p className="text-sm text-body">{task.objective}</p>
+          {/* R84: the personal stamp, stated once for the task. Every Verify box
+              below expects it alongside the tool's own tokens. The wording keeps
+              the honest claim: it ties the paste to this member and task — it
+              does not prove which machine ran the command. */}
+          {task.steps.some((s) => s.verify?.length) && (
+            <p className="text-xs text-muted">
+              Your stamp:{' '}
+              <span className="select-all font-mono font-semibold text-ink">{taskToken(memberId, courseId, task.id)}</span>
+              {' '}— include it in every output you paste to Verify (easiest: run{' '}
+              <code className="rounded bg-panel-2 px-1 py-0.5 font-mono text-2xs text-ink">
+                echo {taskToken(memberId, courseId, task.id)}
+              </code>{' '}
+              right after your command). It marks the paste as yours, for this task.
+            </p>
+          )}
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             {task.estimatedTime && (
               <span className="inline-flex items-center gap-1">
