@@ -1775,3 +1775,34 @@ describe('R85 — two staff roles: instructors run the class, admins own the con
     expect(read('SUPABASE_SETUP.md'), 'the operator can find the grant').toContain('set is_admin = true');
   });
 });
+
+describe('R85 — the instructor page plumbing and the full view', () => {
+  it('instructor pages set the user id — the silent-write bug stays dead', () => {
+    const gate = code('src/components/InstructorGate.tsx');
+    expect(gate, 'InstructorGate is the one wrapper every /instructor page shares').toContain('useUserSync(');
+  });
+
+  it('authoring is behind the admin, the dashboard is not', () => {
+    expect(code('src/app/instructor/[courseId]/page.tsx'), 'the course editor').toContain('<AdminGate>');
+    const home = code('src/app/instructor/page.tsx');
+    expect(home, 'the studio home gates its authoring verbs').toContain('isAdmin &&');
+    expect(home, 'every instructor still reaches their dashboards from it').toContain('/cohort`}');
+    expect(code('src/app/instructor/[courseId]/cohort/page.tsx'), 'the dashboard stays instructor-level').not.toContain('AdminGate');
+  });
+
+  it('the cohort dashboard shows registrations, evidence quality and verdicts', () => {
+    const page = code('src/app/instructor/[courseId]/cohort/page.tsx');
+    expect(page).toContain('<RegistrationsPanel');
+    expect(page).toContain('<SubmissionVerdictLine');
+    expect(page).toContain('<SubmissionSummary');
+    expect(page, 'verified vs self-attested reaches the screen, not only the CSV').toContain('evidence: { verified: m.verified, selfAttested: m.selfAttested }');
+    expect(code('src/components/instructor/SubmissionVerdicts.tsx'), 'verdicts derive through the one brain').toContain('verdictOf(');
+  });
+
+  it('roster fixes correct, never conscript: no insert anywhere in the verbs', () => {
+    const src = read('src/lib/data/rosterAdmin.ts');
+    expect(src).not.toContain('.insert(');
+    expect(src, 'both verbs exist').toContain('export async function moveMember');
+    expect(src).toContain('export async function removeMember');
+  });
+});

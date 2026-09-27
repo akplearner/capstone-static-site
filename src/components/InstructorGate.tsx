@@ -6,9 +6,44 @@ import { Button } from './ui/Button';
 import { AuthCardSkeleton } from './ui/Skeletons';
 import { SignInPanel } from './auth/SignInPanel';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
+import { useUserSync } from '@/lib/useUserSync';
+
+/**
+ * R85: content authoring (the Studio home and course editor) is admin-only in
+ * cloud mode; the cohort dashboard stays open to any instructor. Rendered
+ * INSIDE InstructorGate (the layout applies that one), so this only asks the
+ * one extra question — an instructor at an admin door learns which key is
+ * missing instead of getting a generic lock.
+ */
+export function AdminGate({ children }: { children: React.ReactNode }) {
+  const auth = useInstructorAuth();
+  if (!auth.ready) return <AuthCardSkeleton />;
+  if (!auth.isAdmin) {
+    return (
+      <div className="mx-auto max-w-md space-y-3 py-16 text-center">
+        <div className="mx-auto inline-flex rounded-full bg-panel-2 p-3 text-muted">
+          <ShieldAlert className="h-6 w-6" />
+        </div>
+        <h1 className="mt-3 text-2xl font-bold text-ink">Admin only</h1>
+        <p className="text-sm text-muted">
+          Editing course content needs the <strong>admin</strong> role. Your account has
+          instructor access — the cohort dashboard is yours — but content changes are made by
+          an admin account. Ask yours to be granted{' '}
+          <code className="rounded bg-panel-2 px-1 py-0.5 text-xs">is_admin</code>.
+        </p>
+      </div>
+    );
+  }
+  return children;
+}
 
 export function InstructorGate({ children }: { children: React.ReactNode }) {
   const auth = useInstructorAuth();
+  // R85: instructor pages used to be the only surface that never set the
+  // current user id — so on a fresh load of /instructor, saving a grade,
+  // resolving a report or setting a cohort date SILENTLY skipped the cloud
+  // write. This one call is what makes every instructor write real.
+  useUserSync();
   const [code, setCode] = useState('');
   const [error, setError] = useState(false);
 

@@ -13,6 +13,8 @@ import { Crumbs } from '@/components/SiteNav';
 import { TeamProgressTable, type DeliverableStatus, type MemberProgress } from '@/components/team/TeamProgressTable';
 import { ReviewCell } from '@/components/instructor/ReviewCell';
 import { CohortCalendar } from '@/components/instructor/CohortCalendar';
+import { RegistrationsPanel } from '@/components/instructor/RegistrationsPanel';
+import { SubmissionSummary, SubmissionVerdictLine } from '@/components/instructor/SubmissionVerdicts';
 import { taskReportsRepo } from '@/lib/data';
 import { reportKindLabel } from '@/lib/reportKinds';
 import { courseRepo } from '@/lib/data';
@@ -143,7 +145,13 @@ export default function CohortPage() {
         </label>
       </div>
 
-      <CohortCalendar course={course} />
+      <CohortCalendar course={course} dates={data.cohortDates} />
+
+      {/* R85: every account on the course, with the roster fixes. */}
+      <RegistrationsPanel course={course} data={data} onChanged={reload} />
+
+      {/* R84's grading machine at a glance: frozen submissions by verdict. */}
+      <SubmissionSummary data={data} />
 
       {stuck.length > 0 && (
         <Surface as="section" variant="inset" className="space-y-2" aria-labelledby="cohort-stuck">
@@ -230,11 +238,15 @@ export default function CohortPage() {
           const tableRows: MemberProgress[] = members.map((m) => ({
             memberId: m.memberId,
             displayName: m.displayName,
+            avatarUrl: data.profiles[m.memberId]?.avatarUrl,
             role: m.role,
             overall: m.overall,
             weeks: Object.entries(m.weeks).map(([w, pct]) => ({ week: Number(w), pct })),
             isYou: false,
             stuck: m.stuck.length,
+            // R85: how the ticks were earned — the number the printed sheet
+            // marks from, finally on the screen and not only in the CSV.
+            evidence: { verified: m.verified, selfAttested: m.selfAttested },
           }));
           const docs = data.docs[t] ?? {};
           const dueForms = deliverablesForCourse(course.id).filter((d) => d.weeks.includes(rWeek));
@@ -276,6 +288,15 @@ export default function CohortPage() {
                         <div className="mb-2 text-sm font-medium text-ink">
                           {d.num}. {d.title}
                           <span className="ml-2 text-xs text-muted">{isDoneBy(d, docs[d.id], rWeek) ? 'DoD met' : 'DoD not met'}</span>
+                        </div>
+                        <div className="mb-2">
+                          <SubmissionVerdictLine
+                            data={data}
+                            teamId={t}
+                            deliverableId={d.id}
+                            week={rWeek}
+                            instructorStatus={data.reviews.find((r) => r.teamId === t && r.deliverableId === d.id && r.week === rWeek)?.status}
+                          />
                         </div>
                         <ReviewCell
                           courseId={course.id}

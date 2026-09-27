@@ -12,9 +12,9 @@ import { clearOfflineCaches } from './pwa';
 // settles to { user: null, loading: false } so the UI just shows the open/guest path.
 
 export type Profile = { displayName: string; avatarUrl: string | null };
-type AuthState = { user: User | null; loading: boolean; isInstructor: boolean; profile: Profile | null };
+type AuthState = { user: User | null; loading: boolean; isInstructor: boolean; isAdmin: boolean; profile: Profile | null };
 
-const INITIAL: AuthState = { user: null, loading: true, isInstructor: false, profile: null };
+const INITIAL: AuthState = { user: null, loading: true, isInstructor: false, isAdmin: false, profile: null };
 let state: AuthState = INITIAL;
 const listeners = new Set<() => void>();
 let started = false;
@@ -33,14 +33,37 @@ export function loadProfile(user: User | null) {
   if (!supabase) return;
   supabase
     .from('profiles')
-    .select('is_instructor, display_name, avatar_url')
+    .select('is_instructor, is_admin, display_name, avatar_url')
     .eq('id', user.id)
     .maybeSingle()
-    .then(({ data }) => {
+    .then(({ data, error }) => {
+      // A database that predates migration 0010 has no is_admin column and
+      // errors the whole select. Retry without it rather than silently
+      // locking every instructor out until setup.sql is re-run.
+      if (error && /is_admin/.test(error.message)) {
+        void supabase
+          .from('profiles')
+          .select('is_instructor, display_name, avatar_url')
+          .eq('id', user.id)
+          .maybeSingle()
+          .then(({ data: old }) => {
+            emit({
+              user,
+              loading: false,
+              isInstructor: !!old?.is_instructor,
+              isAdmin: false,
+              profile: old ? { displayName: String(old.display_name ?? ''), avatarUrl: old.avatar_url ? String(old.avatar_url) : null } : null,
+            });
+          });
+        return;
+      }
       emit({
         user,
         loading: false,
-        isInstructor: !!data?.is_instructor,
+        // R85: an admin IS an instructor everywhere the UI asks — the same
+        // inheritance the database's is_instructor() helper applies.
+        isInstructor: !!data?.is_instructor || !!data?.is_admin,
+        isAdmin: !!data?.is_admin,
         profile: data ? { displayName: String(data.display_name ?? ''), avatarUrl: data.avatar_url ? String(data.avatar_url) : null } : null,
       });
     });
@@ -51,19 +74,20 @@ function ensureStarted() {
   started = true;
   const supabase = getBrowserClient();
   if (!supabase) {
-    state = { user: null, loading: false, isInstructor: false, profile: null };
+    state = { user: null, loading: false, isInstructor: false, isAdmin: false, profile: null };
     return;
   }
   supabase.auth.getSession().then(({ data }) => {
     const user = data.session?.user ?? null;
-    emit({ user, loading: false, isInstructor: false, profile: null });
+    emit({ user, loading: false, isInstructor: false, isAdmin: false, profile: null });
     loadProfile(user);
   });
   supabase.auth.onAuthStateChange((_event, session) => {
     const user = session?.user ?? null;
     // A token refresh fires this too; keep the profile we have rather than
     // blanking the name for a frame.
-    emit({ user, loading: false, isInstructor: user && state.user?.id === user.id ? state.isInstructor : false, profile: user && state.user?.id === user.id ? state.profile : null });
+    const sameUser = user && state.user?.id === user.id;
+    emit({ user, loading: false, isInstructor: sameUser ? state.isInstructor : false, isAdmin: sameUser ? state.isAdmin : false, profile: sameUser ? state.profile : null });
     loadProfile(user);
   });
 }
@@ -86,6 +110,7 @@ export function useAuth() {
     user: snap.user,
     loading: snap.loading,
     isInstructor: snap.isInstructor,
+    isAdmin: snap.isAdmin,
     profile: snap.profile,
     signOut: async () => {
       const supabase = getBrowserClient();

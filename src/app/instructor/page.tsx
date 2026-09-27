@@ -1,6 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users } from 'lucide-react';
@@ -22,6 +23,9 @@ function uniqueSuffix(): string {
 }
 
 export default function InstructorHomePage() {
+  // R85: any instructor reaches their cohort dashboards from here; the
+  // authoring verbs (create/import/edit/duplicate/delete) are the admin's.
+  const { isAdmin } = useInstructorAuth();
   const router = useRouter();
   const courses = useClientStore<Course[]>(() => courseRepo.list(), EMPTY_ARRAY);
   const [creating, setCreating] = useState(false);
@@ -119,15 +123,17 @@ export default function InstructorHomePage() {
         title="Instructor Studio"
         lede="Create and maintain courses and lab content."
         trailing={
-          <>
-            <Button onClick={() => setCreating((v) => !v)} className="flex items-center gap-1">
-              <Plus className="h-4 w-4" /> New course
-            </Button>
-            <Button variant="secondary" onClick={() => fileRef.current?.click()} className="flex items-center gap-1">
-              <Upload className="h-4 w-4" /> Import
-            </Button>
-            <input ref={fileRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" />
-          </>
+          isAdmin ? (
+            <>
+              <Button onClick={() => setCreating((v) => !v)} className="flex items-center gap-1">
+                <Plus className="h-4 w-4" /> New course
+              </Button>
+              <Button variant="secondary" onClick={() => fileRef.current?.click()} className="flex items-center gap-1">
+                <Upload className="h-4 w-4" /> Import
+              </Button>
+              <input ref={fileRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" />
+            </>
+          ) : undefined
         }
       />
 
@@ -197,26 +203,29 @@ export default function InstructorHomePage() {
               <span>{course.tasks.length} tasks</span>
             </div>
             <div className="mt-4 flex flex-wrap gap-2">
-              {course.isSeed ? (
-                <Button size="sm" onClick={() => startDuplicate(course)} className="flex items-center gap-1">
-                  <Copy className="h-3.5 w-3.5" /> Duplicate to edit
-                </Button>
-              ) : (
-                <Link href={`/instructor/${course.id}`}>
-                  <Button size="sm" className="flex items-center gap-1">
-                    <Pencil className="h-3.5 w-3.5" /> Edit
+              {isAdmin &&
+                (course.isSeed ? (
+                  <Button size="sm" onClick={() => startDuplicate(course)} className="flex items-center gap-1">
+                    <Copy className="h-3.5 w-3.5" /> Duplicate to edit
                   </Button>
-                </Link>
+                ) : (
+                  <Link href={`/instructor/${course.id}`}>
+                    <Button size="sm" className="flex items-center gap-1">
+                      <Pencil className="h-3.5 w-3.5" /> Edit
+                    </Button>
+                  </Link>
+                ))}
+              {isAdmin && (
+                <Button size="sm" variant="secondary" onClick={() => handleExport(course)} className="flex items-center gap-1">
+                  <Download className="h-3.5 w-3.5" /> Export
+                </Button>
               )}
-              <Button size="sm" variant="secondary" onClick={() => handleExport(course)} className="flex items-center gap-1">
-                <Download className="h-3.5 w-3.5" /> Export
-              </Button>
               <Link href={`/instructor/${course.id}/cohort`}>
                 <Button size="sm" variant="secondary" className="flex items-center gap-1">
                   <Users className="h-3.5 w-3.5" /> Cohort
                 </Button>
               </Link>
-              {!course.isSeed && (
+              {isAdmin && !course.isSeed && (
                 <>
                   <Button size="sm" variant="secondary" onClick={() => startDuplicate(course)} className="flex items-center gap-1">
                     <Copy className="h-3.5 w-3.5" /> Duplicate

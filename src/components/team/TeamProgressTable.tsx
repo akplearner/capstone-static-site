@@ -25,6 +25,10 @@ export interface MemberProgress {
   gems?: [number, number, number, number];
   /** Per-gate readiness, in course.gates order (R82). */
   gates?: string[];
+  /** R85: how their ticks were earned — pasted-and-matched output vs a bare
+   *  tick. Set by the cohort dashboard; the student-facing team page keeps
+   *  gems as the friendlier face of the same ledger. */
+  evidence?: { verified: number; selfAttested: number };
 }
 
 export interface DeliverableStatus {
@@ -59,6 +63,7 @@ export function TeamProgressTable({
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
   const showGems = rows.some((r) => r.gems);
   const showGates = !course.noGatekeeping && course.gates.length > 0 && rows.some((r) => (r.gates ?? []).length > 0);
+  const showEvidence = rows.some((r) => r.evidence);
 
   return (
     <div className="space-y-6">
@@ -69,6 +74,7 @@ export function TeamProgressTable({
               <th scope="col" className="px-4 py-2.5">Member</th>
               <th scope="col" className="px-4 py-2.5">Overall</th>
               {showGems && <th scope="col" className="px-4 py-2.5">Badges</th>}
+              {showEvidence && <th scope="col" className="px-4 py-2.5">Evidence</th>}
               {showGates && <th scope="col" className="px-4 py-2.5">Gates</th>}
               {weeks.map((w) => (
                 <th key={w} scope="col" className="px-3 py-2.5 text-center">W{w}</th>
@@ -78,7 +84,7 @@ export function TeamProgressTable({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={2 + (showGems ? 1 : 0) + (showGates ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
+                <td colSpan={2 + (showGems ? 1 : 0) + (showEvidence ? 1 : 0) + (showGates ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
                   No teammates yet. As people join this team they&apos;ll appear here.
                 </td>
               </tr>
@@ -125,6 +131,24 @@ export function TeamProgressTable({
                   {showGems && (
                     <td className="px-4 py-3">
                       <GemRow gems={m.gems ?? [0, 0, 0, 0]} cut={cut} />
+                    </td>
+                  )}
+                  {showEvidence && (
+                    <td className="px-4 py-3">
+                      {m.evidence ? (
+                        <span className="flex items-center gap-1.5 whitespace-nowrap text-xs tabular-nums">
+                          <span className="rounded-full bg-ok-soft px-2 py-0.5 font-medium text-ok" title="Steps verified against pasted output">
+                            {m.evidence.verified} verified
+                          </span>
+                          {m.evidence.selfAttested > 0 && (
+                            <span className="rounded-full bg-warn-soft px-2 py-0.5 font-medium text-warn" title="Steps ticked without matching output">
+                              {m.evidence.selfAttested} ticked
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-muted">—</span>
+                      )}
                     </td>
                   )}
                   {showGates && (

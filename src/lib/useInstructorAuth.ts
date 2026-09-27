@@ -18,7 +18,7 @@ const PASSCODE_SET = PASSCODE.length > 0;
 
 export function useInstructorAuth() {
   const configured = isSupabaseConfigured();
-  const { user, loading, isInstructor } = useAuth();
+  const { user, loading, isInstructor, isAdmin } = useAuth();
   const hydrated = useHydrated();
 
   const localUnlocked = useClientStore(
@@ -30,6 +30,10 @@ export function useInstructorAuth() {
     return {
       mode: 'auth' as const,
       unlocked: isInstructor,
+      // R85: the Studio (content authoring) is the admin's; the cohort
+      // dashboard is any instructor's. Gates that need the stronger role
+      // check this beside `unlocked`.
+      isAdmin,
       ready: !loading,
       signedIn: !!user,
       // Passcode no-ops in auth mode; access is granted via the profile flag.
@@ -43,6 +47,8 @@ export function useInstructorAuth() {
     // With no passcode configured the studio can't be unlocked at all, so an
     // orphaned localStorage flag never counts as access.
     unlocked: PASSCODE_SET && localUnlocked,
+    // Offline there is one operator and one passcode: it opens everything.
+    isAdmin: PASSCODE_SET && localUnlocked,
     ready: hydrated,
     signedIn: false,
     // True only when a passcode exists to enter; drives the gate's copy.

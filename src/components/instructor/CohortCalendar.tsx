@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button';
 import { cohortRepo } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import type { Course } from '@/lib/types';
+import type { Cohort as CohortRow } from '@/lib/data/types';
 import { buildIcs, shortDate, weekDueDates } from '@/lib/calendar';
 import { downloadText } from '@/lib/download';
 import { getMonthlyCohorts } from '@/lib/utils';
@@ -15,10 +16,21 @@ import { getMonthlyCohorts } from '@/lib/utils';
  * every week's due date follows. Lives in the studio's Details tab and on the
  * cohort dashboard. Seeds carry no dates — the cohort does.
  */
-export function CohortCalendar({ course }: { course: Course }) {
+export function CohortCalendar({
+  course,
+  dates,
+}: {
+  course: Course;
+  /** R85: dates the cohort dashboard already loaded. Without them the widget
+   *  falls back to the repo cache, which a fresh /instructor load has never
+   *  filled — the "calendar shows no saved date" bug. */
+  dates?: CohortRow[];
+}) {
   const cohorts = getMonthlyCohorts(12);
   const [cohort, setCohort] = useState(cohorts[0] ?? '');
-  const saved = useClientStore(() => (cohort ? cohortRepo.get(course.id, cohort) : null), null);
+  const cached = useClientStore(() => (cohort ? cohortRepo.get(course.id, cohort) : null), null);
+  // A save writes the repo (and its cache), so the freshest source wins.
+  const saved = cached ?? dates?.find((d) => d.cohort === cohort) ?? null;
   const [startsOn, setStartsOn] = useState<string | null>(null);
   const value = startsOn ?? saved?.startsOn ?? '';
   const dirty = value !== (saved?.startsOn ?? '');
