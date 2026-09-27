@@ -1695,3 +1695,50 @@ describe('R84 — frozen submissions and blind review (the DB contract)', () => 
     }
   });
 });
+
+describe('R84 — the review bench stays blind, and verdicts have one brain', () => {
+  const REVIEW = 'src/app/courses/[courseId]/review/page.tsx';
+
+  it('the review page can only see what the RPCs serve — never the submitter', () => {
+    const src = read(REVIEW); // comments included: the temptation starts there
+    // The reviewer's OWN teamId (the sub-nav) is fine — it is the submitter's
+    // identity that must be unreachable from this file.
+    for (const leak of ['deliverable_submissions', 'submitted_by', 'submittedBy']) {
+      expect(src, `the reviewer's page must never mention ${leak}`).not.toContain(leak);
+    }
+    expect(src, 'the packet is rendered from the snapshot, never from a table row').not.toMatch(/packet\.(teamId|team_id)/);
+    expect(src, 'reads through the repo (queue + packet RPCs)').toContain('submissionsRepo.queue()');
+    expect(src).toContain('submissionsRepo.packet(');
+  });
+
+  it('the six questions live in one module, and confirm is derived from them', () => {
+    const q = read('src/lib/docs/reviewQuestions.ts');
+    expect((q.match(/\{ id: '/g) ?? []).length, 'exactly six questions').toBe(6);
+    const src = code(REVIEW);
+    expect(src).toContain("from '@/lib/docs/reviewQuestions'");
+    expect(src, 'confirm = all six yes, computed, never a seventh checkbox').toContain('confirmOf(answers)');
+  });
+
+  it('verdicts are derived in deliverableRubric.ts and nowhere else', () => {
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const f of readdirSync(root(dir))) {
+        const p = `${dir}/${f}`;
+        if (statSync(root(p)).isDirectory()) walk(p);
+        else if (/\.(ts|tsx)$/.test(f) && !p.endsWith('deliverableRubric.ts') && !p.endsWith('.test.ts')) {
+          if (/return '(platform|overridden)_(pass|fail)'/.test(read(p))) offenders.push(p);
+        }
+      }
+    };
+    walk('src');
+    expect(offenders, 'a second place deriving verdicts is a desync waiting to happen').toEqual([]);
+    expect(read('src/lib/docs/deliverableRubric.ts')).toContain("return 'overridden_pass'");
+  });
+
+  it('the honest grading story is in the setup guide the instructor reads', () => {
+    const md = read('SUPABASE_SETUP.md');
+    expect(md).toContain('How grading works now');
+    expect(md).toContain('re-run it once');
+    expect(md, 'the honesty note ships with the feature').toContain('does not prove which\nmachine ran a command');
+  });
+});

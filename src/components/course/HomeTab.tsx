@@ -21,6 +21,7 @@ import { EngagementBanner } from '@/components/team/EngagementBanner';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { TeamBlock } from '@/components/team/TeamBlock';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
+import { ReviewInboxCard } from '@/components/docs/ReviewInboxCard';
 import { JoinPanel } from './JoinPanel';
 import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo, userStateRepo } from '@/lib/data';
 import { notifyStore } from '@/lib/useClientStore';
@@ -229,6 +230,10 @@ export function HomeTab({
           }
         />
       )}
+
+      {/* R84: blind reviews assigned to this student — visible only when work
+          is actually waiting. */}
+      {joined && member && <ReviewInboxCard courseId={course.id} />}
 
       {/* The stone — the one glow on the page: the artefact being cut is the
           point of the whole thing. */}

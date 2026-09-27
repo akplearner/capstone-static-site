@@ -30,6 +30,7 @@ export function ExpectationsPanel({
   week,
   memberId,
   teamId,
+  instructorReview,
 }: {
   def: DeliverableDef;
   data: DeliverableData;
@@ -37,6 +38,9 @@ export function ExpectationsPanel({
   memberId: string;
   /** With a team, the panel also carries the Submit bar (R84 phase 3). */
   teamId?: string;
+  /** The instructor's verdict on this form, if any — it outranks everything
+   *  (`verdictOf` holds the precedence; this only feeds it). */
+  instructorReview?: 'approved' | 'revise' | 'pending';
 }) {
   const course = useCourse();
   // Live: a Verify box turning green upstairs flips Authenticity down here.
@@ -102,7 +106,7 @@ export function ExpectationsPanel({
         })}
       </div>
       {teamId && (
-        <SubmitBar def={def} data={data} week={week} memberId={memberId} teamId={teamId} result={result} />
+        <SubmitBar def={def} data={data} week={week} memberId={memberId} teamId={teamId} result={result} instructorReview={instructorReview} />
       )}
       <p className="mt-2 text-3xs text-muted">
         These are the exact checks frozen into your submission and shown to your reviewers — strong
@@ -128,6 +132,7 @@ function SubmitBar({
   memberId,
   teamId,
   result,
+  instructorReview,
 }: {
   def: DeliverableDef;
   data: DeliverableData;
@@ -135,6 +140,7 @@ function SubmitBar({
   memberId: string;
   teamId: string;
   result: BundleResult;
+  instructorReview?: 'approved' | 'revise' | 'pending';
 }) {
   const course = useCourse();
   const { guard } = useRequireAuth();
@@ -217,7 +223,7 @@ function SubmitBar({
   // banner above the form; full verdict rendering is the review page's job.
   const assigned = progress?.assigned ?? 0;
   const verdict = latest
-    ? verdictOf(latest.snapshot, confirms, cloud ? assigned : 0)
+    ? verdictOf(latest.snapshot, confirms, cloud ? assigned : 0, instructorReview)
     : null;
 
   return (
@@ -242,6 +248,8 @@ function SubmitBar({
               {verdict === 'pass' && <span className="font-semibold text-ok"> · peer verdict: PASS</span>}
               {verdict === 'fail' && <span className="font-semibold text-warn"> · peer verdict: NEEDS WORK</span>}
               {verdict === 'pending_review' && <span> · awaiting peer review</span>}
+              {verdict === 'overridden_pass' && <span className="font-semibold text-ok"> · instructor override: APPROVED</span>}
+              {verdict === 'overridden_fail' && <span className="font-semibold text-warn"> · instructor override: REVISE</span>}
             </>
           ) : (
             <>Nothing submitted yet — green all four categories, then freeze it for review.</>

@@ -835,7 +835,7 @@ function FormSection({
         <>
           {/* The grading, previewed live (R84): the same four categories the
               submission freezes and reviewers see, judged by the same function. */}
-          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} />
+          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} instructorReview={review?.status} />
           <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
         </>
       )}

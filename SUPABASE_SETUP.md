@@ -325,6 +325,49 @@ included, so a review appears on the team's Deliverables page as it is saved.
 
 ---
 
+## How grading works now — frozen submissions and blind peer review
+
+Since migration `0009` (in `supabase/setup.sql` — **re-run it once** in the SQL
+Editor if your project predates it; every statement is safe to repeat), a
+deliverable is graded in three layers, and every course uses the same four
+words: **Completeness · Correctness · Authenticity · Consistency**.
+
+1. **The platform checks, live.** The "What a passing document looks like"
+   panel beside every form judges the four categories with automatic
+   validators as the student types. **Submit** unlocks only when all four are
+   green.
+2. **Submitting freezes it.** The submission stores the form as written, the
+   check results, the category verdicts and a SHA-256 — as an append-only row
+   nobody can edit, not even you (a database trigger raises). Fixing something
+   means submitting a new version; the history stays.
+3. **Two blind reviewers.** The platform picks two students from *other* teams
+   in the same cohort (deterministically, so it can't be gamed by refreshing)
+   and puts the packet in their **Peer review** queue — with every name and
+   team stripped, in both directions. They answer six yes/no questions; both
+   confirm → **pass**, both reject → **fail**, a split or fewer than two
+   eligible reviewers → the frozen automatic checks decide, labelled
+   **platform verdict**. Your review from the cohort dashboard **outranks all
+   of it** — approve or ask for revision and that is the verdict.
+
+Students also get a personal **stamp** (`CQ-XXXXXX`) per task, shown in the
+task header; the Verify boxes only turn green when the pasted output carries
+it, which ties every "verified" to one account and one task.
+
+**The honest limits**, which the UI states in the same words: this proves what
+was in the form and what the checks said at the moment of submission — hashes,
+timestamps, immutability and blind double review. It does not prove which
+machine ran a command or who typed. There is no VM inspection or device
+fingerprinting; the deterrent is that faking output past token checks, a
+personal stamp, an immutable trail and two anonymous peers is more work than
+doing the lab.
+
+Try it end-to-end with two accounts on different teams, same cohort: submit a
+green form as A, open **Peer review** as B (a card appears on B's course Home),
+confirm B never sees whose work it is, answer the six questions, and watch A's
+banner update.
+
+---
+
 ## Checking the privacy rules actually hold
 
 The rules below are **tested on every push**: `npm run db:check` applies
