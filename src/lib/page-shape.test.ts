@@ -1590,3 +1590,21 @@ describe('R83 — Report an issue', () => {
     expect(code('src/components/task/ReportIssueDialog.tsx')).toContain('REPORT_KINDS');
   });
 });
+
+describe('R83 — cohorts and lobbies', () => {
+  it('a join is current-month only, and the student picks how they attend', () => {
+    const jp = code('src/components/course/JoinPanel.tsx');
+    expect(jp, 'the 12-month free-for-all select is gone').not.toContain('getMonthlyCohorts(12)');
+    expect(jp).toContain('getMonthlyCohorts(2)');
+    expect(jp).toContain('How are you attending?');
+    expect(jp, 'lobbies and teams never mix').toContain("mode === 'local' ? (");
+    expect(jp).toContain('Start a new lobby');
+  });
+
+  it('the mode lives inside the team id, and legacy ids stay local', () => {
+    const team = code('src/lib/team.ts');
+    expect(team).toContain("mode === 'online' ? 'o' : 't'");
+    expect(team, 'labels tell the two apart').toContain("'Lobby' : 'Team'");
+    // The grammar itself is locked by src/lib/team.test.ts.
+  });
+});

@@ -1,21 +1,27 @@
 'use client';
 
 import { useState } from 'react';
+import { Laptop, Plus, School } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { SignInPanel } from '@/components/auth/SignInPanel';
 import { progressRepo } from '@/lib/data';
-import { useClientStore, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
+import { useClientStore, EMPTY_ARRAY, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef } from '@/lib/course-helpers';
 import { hasSpecificGuide, roleGuide, worksLabel } from '@/lib/roleGuide';
 import { useCourseDocument } from '@/lib/useCourse';
 import { roleGuidesOf } from '@/lib/content/read';
 import { getMonthlyCohorts } from '@/lib/utils';
-import { composeTeamId, parseTeamId, teamLabel } from '@/lib/team';
+import { composeTeamId, parseTeamId, teamLabel, type TeamMode } from '@/lib/team';
 import type { Course, Member } from '@/lib/types';
 
-// Monthly cohorts (YYYY-MM), generated for the next 12 months.
-const COHORTS = getMonthlyCohorts(12);
+// Cohort join window (R83): only the CURRENT month's cohort is joinable, so
+// everyone in a session is aligned in time. The next month shows a countdown.
+const [CURRENT_COHORT, NEXT_COHORT] = getMonthlyCohorts(2);
+function daysUntil(cohort: string): number {
+  const opens = new Date(`${cohort}-01T00:00:00`);
+  return Math.max(1, Math.ceil((opens.getTime() - Date.now()) / 86_400_000));
+}
 
 /** Inline enrollment: pick a team (capacity-aware) and role without leaving the page. */
 export function JoinPanel({
@@ -43,20 +49,48 @@ export function JoinPanel({
     () => progressRepo.getTeamCounts(course.id),
     EMPTY_OBJECT
   );
+  const roster = useClientStore(() => progressRepo.getRoster(course.id), EMPTY_ARRAY);
   const [name, setName] = useState(member?.displayName ?? '');
-  const [cohort, setCohort] = useState(member?.cohort ?? COHORTS[0]);
+  // An enrolled member keeps their cohort when editing; a new join is always
+  // the current month (R83) — past cohorts are locked, future ones counted down.
+  const cohort = member?.cohort ?? CURRENT_COHORT;
+  // How they attend (R83): a Local classroom team or an Online lobby. Two
+  // separate worlds — each mode's picker lists only its own kind of team.
+  const [mode, setMode] = useState<TeamMode>(member ? parseTeamId(member.teamId).mode : 'local');
   // The picker holds the bare team NUMBER; the cohort-scoped id is composed on
   // submit (see src/lib/team.ts — Team 1 of one class session must never share
-  // stores with Team 1 of another).
+  // stores with Team 1 of another, and lobbies never mix with local teams).
   const [team, setTeam] = useState(member ? parseTeamId(member.teamId).num : teamIds[0]);
   const [role, setRole] = useState(member?.role ?? course.roles[0]?.id ?? '');
   const [error, setError] = useState<string | null>(null);
 
-  // Counts are keyed by the scoped id, so capacity fills per class session.
-  const usedOf = (t: string) => counts[composeTeamId(cohort, t)] ?? 0;
+  // Counts are keyed by the scoped id, so capacity fills per class session and per mode.
+  const usedOf = (t: string, m: TeamMode = mode) => counts[composeTeamId(cohort, t, m)] ?? 0;
   // A team is full only for students not already on it.
-  const isFull = (t: string) =>
-    cap > 0 && usedOf(t) >= cap && !(member && member.teamId === composeTeamId(cohort, t));
+  const isFull = (t: string, m: TeamMode = mode) =>
+    cap > 0 && usedOf(t, m) >= cap && !(member && member.teamId === composeTeamId(cohort, t, m));
+
+  // The online lobbies that exist right now in this cohort, from the roster —
+  // a lobby IS its members, so an empty one disappears on its own. (First
+  // lobby slice, R83: join or create with live member counts; presence, chat
+  // and matchmaking are deliberately later rounds.)
+  const lobbies = (() => {
+    const by = new Map<string, { num: string; names: string[]; avatars: (string | undefined)[] }>();
+    for (const e of roster) {
+      const p = parseTeamId(e.teamId);
+      if (p.mode !== 'online' || p.cohort !== cohort) continue;
+      const l = by.get(p.num) ?? { num: p.num, names: [], avatars: [] };
+      l.names.push(e.displayName || 'Unnamed');
+      l.avatars.push(e.avatarUrl);
+      by.set(p.num, l);
+    }
+    return [...by.values()].sort((a, b) => Number(a.num) - Number(b.num));
+  })();
+  const nextLobbyNum = (() => {
+    let n = 1;
+    while (lobbies.some((l) => l.num === String(n))) n++;
+    return String(n);
+  })();
 
   const [joining, setJoining] = useState(false);
   const submit = async () => {
@@ -70,7 +104,7 @@ export function JoinPanel({
       memberId:
         userId ?? member?.memberId ?? `${course.id}-${cohort}-${team}-${role}-${Date.now()}`,
       courseId: course.id,
-      teamId: composeTeamId(cohort, team),
+      teamId: composeTeamId(cohort, team, mode),
       role,
       displayName: name.trim(),
       cohort,
@@ -150,52 +184,152 @@ export function JoinPanel({
             className="mt-2 w-full rounded-lg bg-panel px-4 py-2 text-ink"
           />
         </label>
-        <label className="block">
-          <span className="block text-sm font-medium text-body">Cohort</span>
-          <select
-            value={cohort}
-            onChange={(e) => setCohort(e.target.value)}
-            className="mt-2 w-full rounded-lg bg-panel px-4 py-2 text-ink"
-          >
-            {COHORTS.map((c) => (
-              <option key={c}>{c}</option>
-            ))}
-          </select>
-        </label>
+        <div>
+          <span className="block text-sm font-medium text-body">Class session</span>
+          {/* Only the current month is joinable (R83): everyone in a session
+              moves through the weeks together. The next one counts down. */}
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <span className="rounded-[var(--radius-control)] depth-lift bg-accent-soft px-3 py-2 text-sm font-medium text-accent-ink">
+              {cohort}{member ? '' : ' · open now'}
+            </span>
+            {!member && (
+              <span className="rounded-[var(--radius-control)] depth-sunk bg-panel-2 px-3 py-2 text-sm text-muted" title="Future sessions open on the 1st">
+                {NEXT_COHORT} · opens in {daysUntil(NEXT_COHORT)}d
+              </span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div>
-        <span className="block text-sm font-medium text-body">Team</span>
-        <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
-          {teamIds.map((t) => {
-            const full = isFull(t);
-            const selected = team === t;
-            return (
-              <button
-                key={t}
-                type="button"
-                disabled={full}
-                onClick={() => setTeam(t)}
-                // Selection is a TIER, not an outline: the chosen team sits
-                // proud of the others and the accent fill names it. A full team
-                // is sunk and dimmed.
-                className={`rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors ${
-                  selected
-                    ? 'depth-lift bg-accent-soft text-accent-ink'
-                    : full
-                      ? 'depth-sunk cursor-not-allowed bg-panel-2 text-muted opacity-60'
-                      : 'depth-edge depth-hover bg-panel text-body'
-                }`}
-              >
-                <span>Team {t}</span>
-                <span className="mt-0.5 block text-2xs font-normal">
-                  {cap > 0 ? `${usedOf(t)}/${cap}${full ? ' · Full' : ''}` : `${usedOf(t)} joined`}
-                </span>
-              </button>
-            );
-          })}
+        <span className="block text-sm font-medium text-body">How are you attending?</span>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={() => setMode('local')}
+            className={`flex items-start gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
+              mode === 'local' ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
+            }`}
+          >
+            <School className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+            <span>
+              <span className="block font-medium text-ink">In class</span>
+              <span className="block text-xs text-muted">Numbered teams, physical builds, your instructor in the room.</span>
+            </span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setMode('online')}
+            className={`flex items-start gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
+              mode === 'online' ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
+            }`}
+          >
+            <Laptop className="mt-0.5 h-5 w-5 shrink-0 text-accent" />
+            <span>
+              <span className="block font-medium text-ink">Online</span>
+              <span className="block text-xs text-muted">Join an open lobby or start your own — collaborate from anywhere.</span>
+            </span>
+          </button>
         </div>
       </div>
+
+      {mode === 'local' ? (
+        <div>
+          <span className="block text-sm font-medium text-body">Team</span>
+          <div className="mt-2 grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8">
+            {teamIds.map((t) => {
+              const full = isFull(t);
+              const selected = team === t;
+              return (
+                <button
+                  key={t}
+                  type="button"
+                  disabled={full}
+                  onClick={() => setTeam(t)}
+                  // Selection is a TIER, not an outline: the chosen team sits
+                  // proud of the others and the accent fill names it. A full team
+                  // is sunk and dimmed.
+                  className={`rounded-[var(--radius-control)] px-3 py-2 text-sm font-medium transition-colors ${
+                    selected
+                      ? 'depth-lift bg-accent-soft text-accent-ink'
+                      : full
+                        ? 'depth-sunk cursor-not-allowed bg-panel-2 text-muted opacity-60'
+                        : 'depth-edge depth-hover bg-panel text-body'
+                  }`}
+                >
+                  <span>Team {t}</span>
+                  <span className="mt-0.5 block text-2xs font-normal">
+                    {cap > 0 ? `${usedOf(t)}/${cap}${full ? ' · Full' : ''}` : `${usedOf(t)} joined`}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        <div>
+          <span className="block text-sm font-medium text-body">Lobby</span>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {lobbies.map((l) => {
+              const full = isFull(l.num, 'online');
+              const selected = team === l.num;
+              return (
+                <button
+                  key={l.num}
+                  type="button"
+                  disabled={full}
+                  onClick={() => setTeam(l.num)}
+                  className={`flex items-start justify-between gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
+                    selected
+                      ? 'depth-lift bg-accent-soft'
+                      : full
+                        ? 'depth-sunk cursor-not-allowed bg-panel-2 opacity-60'
+                        : 'depth-edge depth-hover bg-panel'
+                  }`}
+                >
+                  <span className="min-w-0">
+                    <span className="block font-medium text-ink">Lobby {l.num}</span>
+                    <span className="block truncate text-xs text-muted">{l.names.join(', ')}</span>
+                  </span>
+                  <span className="flex shrink-0 items-center gap-1.5">
+                    <span className="flex -space-x-1.5">
+                      {l.avatars.slice(0, 3).map((a, i) =>
+                        a ? (
+                          // eslint-disable-next-line @next/next/no-img-element -- provider-hosted picture.
+                          <img key={i} src={a} alt="" width={20} height={20} referrerPolicy="no-referrer" className="h-5 w-5 rounded-full border border-panel bg-panel-2 object-cover" />
+                        ) : (
+                          <span key={i} className="grid h-5 w-5 place-items-center rounded-full border border-panel bg-panel-2 text-3xs font-bold text-muted">
+                            {(l.names[i] ?? '?').slice(0, 1).toUpperCase()}
+                          </span>
+                        )
+                      )}
+                    </span>
+                    <span className="text-2xs text-muted">
+                      {cap > 0 ? `${l.names.length}/${cap}${full ? ' · Full' : ''}` : `${l.names.length} in`}
+                    </span>
+                  </span>
+                </button>
+              );
+            })}
+            <button
+              type="button"
+              onClick={() => setTeam(nextLobbyNum)}
+              className={`flex items-center gap-2 rounded-[var(--radius-control)] border border-dashed border-line px-4 py-3 text-left text-sm transition-colors hover:bg-panel-2 ${
+                team === nextLobbyNum && !lobbies.some((l) => l.num === team) ? 'depth-lift bg-accent-soft' : ''
+              }`}
+            >
+              <Plus className="h-4 w-4 text-accent" />
+              <span>
+                <span className="block font-medium text-ink">Start a new lobby</span>
+                <span className="block text-xs text-muted">Lobby {nextLobbyNum} — teammates can join you from anywhere.</span>
+              </span>
+            </button>
+          </div>
+          {lobbies.length === 0 && (
+            <p className="mt-2 text-xs text-muted">No open lobbies in this session yet — start the first one.</p>
+          )}
+        </div>
+      )}
 
       {course.roles.length > 0 && (
         <div>
