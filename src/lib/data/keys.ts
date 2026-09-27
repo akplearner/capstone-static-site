@@ -52,5 +52,8 @@ export const KEYS = {
   reviews: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_reviews_${teamId}`,
   cohortCalendar: (courseId: string, cohort: string) => `${STORAGE_PREFIX}${courseId}_cohort_${cohort}`,
   stepNotes: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_notes_${memberId}`,
+  // Task issue reports (R83): one blob per course — on a shared offline device
+  // the reports are as shared as the problem they describe.
+  taskReports: (courseId: string) => `${STORAGE_PREFIX}${courseId}_task_reports`,
   // R71. The student's step view — simple (commands and checks) or full.
 };

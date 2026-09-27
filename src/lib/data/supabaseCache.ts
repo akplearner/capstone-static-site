@@ -13,6 +13,7 @@ import type {
   Cohort,
   StepNote,
   StuckFlag,
+  TaskReport,
 } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
@@ -56,6 +57,8 @@ const reviewsByTeam = new Map<string, DeliverableReview[]>(); // `${courseId}::$
 const cohortsByKey = new Map<string, Cohort>(); // `${courseId}::${cohort}`
 const stepNotesByKey = new Map<string, StepNote>(); // `${courseId}::${taskId}::${stepId}`
 const stuckByCourse = new Map<string, StuckFlag[]>();
+// R83: task issue reports — own + team rows (instructor: everyone's).
+const taskReportsByCourse = new Map<string, TaskReport[]>();
 
 // R78-D: the course documents an instructor authored in the cloud — course
 // CONTENT, not student state, so it is not the current user's and is not
@@ -129,6 +132,7 @@ export function setCurrentUserId(id: string | null) {
     cohortsByKey.clear();
     stepNotesByKey.clear();
     stuckByCourse.clear();
+    taskReportsByCourse.clear();
     notifyStore();
   }
 }
@@ -251,6 +255,20 @@ export const cache = {
   stuckFlags(courseId: string): StuckFlag[] {
     return stuckByCourse.get(courseId) ?? [];
   },
+  taskReports(courseId: string): TaskReport[] {
+    return taskReportsByCourse.get(courseId) ?? [];
+  },
+  setTaskReport(report: TaskReport) {
+    const list = (taskReportsByCourse.get(report.courseId) ?? []).filter((r) => r.id !== report.id);
+    list.push(report);
+    taskReportsByCourse.set(report.courseId, list);
+  },
+  resolveTaskReport(courseId: string, id: string) {
+    taskReportsByCourse.set(
+      courseId,
+      (taskReportsByCourse.get(courseId) ?? []).map((r) => (r.id === id ? { ...r, status: 'resolved' as const } : r))
+    );
+  },
   clearStepNotes(courseId: string) {
     [...stepNotesByKey.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => stepNotesByKey.delete(k));
     if (currentUserId) {
@@ -331,7 +349,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -354,6 +372,8 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // R81: teammates' pictures. RLS returns the caller's own profile and the
       // profiles of people who share a team with them, on any course.
       supabase.from('profiles').select('id, avatar_url'),
+      // R83: the team's task reports (instructor: the course's).
+      supabase.from('task_reports').select('*').eq('course_id', courseId),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -451,6 +471,10 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     });
   }
 
+  if (reports.data) {
+    taskReportsByCourse.set(courseId, reports.data.map(taskReportFromRow));
+  }
+
   hydratedCourses.add(courseId);
   notifyStore();
 
@@ -471,6 +495,20 @@ export function reviewFromRow(r: Record<string, unknown>): DeliverableReview {
     comment: String(r.comment ?? ''),
     reviewer: String(r.reviewer ?? ''),
     at: r.reviewed_at ? Date.parse(String(r.reviewed_at)) : 0,
+  };
+}
+
+export function taskReportFromRow(r: Record<string, unknown>): TaskReport {
+  return {
+    id: String(r.id),
+    courseId: String(r.course_id),
+    taskId: String(r.task_id),
+    teamId: String(r.team_id ?? ''),
+    memberId: String(r.user_id),
+    kind: (r.kind as TaskReport['kind']) ?? 'question',
+    note: String(r.note ?? ''),
+    status: (r.status as TaskReport['status']) ?? 'open',
+    at: r.created_at ? Date.parse(String(r.created_at)) : 0,
   };
 }
 
@@ -604,7 +642,9 @@ function subscribeRealtime(courseId: string) {
     .on('postgres_changes', { event: '*', schema: 'public', table: 'cohorts', filter: `course_id=eq.${courseId}` }, rehydrate)
     // R82: gems are derived from step_evidence, team-readable since 0006 and
     // published since 0007 — a teammate's new "verified" arrives live.
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_evidence', filter: `course_id=eq.${courseId}` }, rehydrate);
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'step_evidence', filter: `course_id=eq.${courseId}` }, rehydrate)
+    // R83: a filed report reaches the team's rows and the instructor live.
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'task_reports', filter: `course_id=eq.${courseId}` }, rehydrate);
 
   // Supabase does not deliver DELETE events to filtered listeners, so un-ticks,
   // leaves and resets never reached teammates (their % stayed up forever). One

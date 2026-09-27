@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { progressRepo, stepNotesRepo, cohortRepo } from '@/lib/data';
+import { progressRepo, stepNotesRepo, cohortRepo, taskReportsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { getTasksByRole, isGradedWeek } from '@/lib/course-helpers';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
@@ -134,6 +134,16 @@ export function useCourseProgress(course: Course, member: Member | null) {
     return out;
   }, EMPTY_OBJECT);
 
+  // Open issue reports on each task, for the team's marker (R83).
+  const openReportsByTask = useClientStore<Record<string, number>>(() => {
+    if (!member) return EMPTY_OBJECT;
+    const out: Record<string, number> = {};
+    for (const r of taskReportsRepo.list(course.id)) {
+      if (r.status === 'open' && r.teamId === member.teamId) out[r.taskId] = (out[r.taskId] ?? 0) + 1;
+    }
+    return out;
+  }, EMPTY_OBJECT);
+
   // The cohort calendar, when the instructor has set a start date.
   const cohortKey = member ? (parseTeamId(member.teamId).cohort ?? member.cohort) : null;
   const cohortCal = useClientStore(() => (cohortKey ? cohortRepo.get(course.id, cohortKey) : null), null);
@@ -146,6 +156,7 @@ export function useCourseProgress(course: Course, member: Member | null) {
     nextIncompleteAfter,
     nextTask,
     stuckByTask,
+    openReportsByTask,
     teamTaskProgress,
     cohortKey,
     cohortCal,

@@ -18,6 +18,7 @@ import { TaskRow } from './TaskRow';
 import { useRarity } from './useRarity';
 import { TaskStone, WeekGemTray } from '@/components/quarry/art/TaskStone';
 import type { TeammateTaskProgress } from './useCourseProgress';
+import { ReportIssueDialog } from '@/components/task/ReportIssueDialog';
 import { tintFor } from '@/components/quarry/art/palette';
 import { weekRarity } from '@/lib/rarity';
 import { TaskReference } from './TaskReference';
@@ -62,6 +63,7 @@ export function TasksTab({
   nextIncompleteAfter,
   stuckByTask,
   teamTaskProgress,
+  openReportsByTask,
   cohortCal,
   expanded,
   setExpanded,
@@ -91,6 +93,7 @@ export function TasksTab({
   nextIncompleteAfter: (taskId: string) => Task | undefined;
   stuckByTask: Record<string, number>;
   teamTaskProgress: Record<string, TeammateTaskProgress[]>;
+  openReportsByTask: Record<string, number>;
   cohortCal: Cohort | null;
   expanded: Set<string>;
   setExpanded: Dispatch<SetStateAction<Set<string>>>;
@@ -195,7 +198,11 @@ export function TasksTab({
     if (isOwn) {
       const following = nextIncompleteAfter(task.id);
       return (
-        <GuidedTaskRunner
+        <>
+          <div className="mb-2 flex justify-end">
+            <ReportIssueDialog courseId={course.id} task={task} member={member} />
+          </div>
+          <GuidedTaskRunner
           task={task}
           courseId={course.id}
           memberId={member.memberId}
@@ -219,6 +226,7 @@ export function TasksTab({
             }
           }}
         />
+        </>
       );
     }
     return (
@@ -247,6 +255,7 @@ export function TasksTab({
       isNext={task.id === nextTask?.id}
       stuckCount={stuckByTask[task.id]}
       teammates={teamTaskProgress[task.id]}
+      reportCount={openReportsByTask[task.id]}
       focus={i != null && !!course.sharedTrack && !task.shared}
       percent={taskStats[task.id] ?? 0}
       onToggle={() => toggleTask(task)}

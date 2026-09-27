@@ -30,6 +30,7 @@ export function TaskRow({
   focus,
   lead,
   teammates,
+  reportCount,
   renderBody,
 }: {
   course: Course;
@@ -50,6 +51,8 @@ export function TaskRow({
   lead?: React.ReactNode;
   /** Teammates' standing on this task, for the avatar stack + team ring (R83). */
   teammates?: TeammateTaskProgress[];
+  /** Open issue reports the team has filed on this task (R83). */
+  reportCount?: number;
   /** The body, as a thunk: called only where the result is used, so a closed
    *  row never builds a `GuidedTaskRunner` tree it then throws away. */
   renderBody: () => React.ReactNode;
@@ -84,6 +87,11 @@ export function TaskRow({
             {!!stuckCount && (
               <span className="shrink-0 rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-semibold text-warn" title="Teammates stuck on a step here">
                 {stuckCount} stuck
+              </span>
+            )}
+            {!!reportCount && (
+              <span className="shrink-0 rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-semibold text-warn" title="Issues your team reported here — no need to file a duplicate">
+                {reportCount} {reportCount === 1 ? 'issue' : 'issues'}
               </span>
             )}
             {focus && (

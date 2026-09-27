@@ -19,8 +19,8 @@ import { supabaseEvidenceRepo, supabasePathRepo } from './supabaseEvidenceRepo';
 import { supabaseProgressRepo } from './supabaseProgressRepo';
 import { supabaseDocsRepo } from './supabaseDocsRepo';
 import { supabaseUserStateRepo, supabaseLabAccessRepo } from './supabaseUserStateRepo';
-import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo } from './localStorageFeatureRepos';
-import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo } from './supabaseFeatureRepos';
+import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo, localStorageTaskReportsRepo } from './localStorageFeatureRepos';
+import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabaseTaskReportsRepo } from './supabaseFeatureRepos';
 
 const cloud = isSupabaseConfigured();
 
@@ -35,6 +35,7 @@ export const pathRepo = cloud ? supabasePathRepo : localStoragePathRepo;
 // R68: instructor reviews, the cohort calendar, and per-step notes/stuck flags.
 export const reviewRepo = cloud ? supabaseReviewRepo : localStorageReviewRepo;
 export const cohortRepo = cloud ? supabaseCohortRepo : localStorageCohortRepo;
+export const taskReportsRepo = cloud ? supabaseTaskReportsRepo : localStorageTaskReportsRepo;
 export const stepNotesRepo = cloud ? supabaseStepNotesRepo : localStorageStepNotesRepo;
 export type {
   CourseRepository,

@@ -160,6 +160,31 @@ do $$ begin
   assert (select count(*) from public.lab_access) = 0, 'bob: never ada''s lab credentials';
   assert (select count(*) from public.user_course_state) = 0, 'bob: never ada''s private state';
 end $$;
+-- Ada reports an issue on a task (R83).
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.task_reports (id, user_id, course_id, task_id, team_id, kind, note)
+  values ('00000000-0000-4000-9000-000000000001', '00000000-0000-4000-8000-00000000000a',
+          'security-plus', 't1', '2026-01-T01', 'broken', 'nmap flag rejected');
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.task_reports) = 1, 'bob: sees the team''s report';
+  assert (select kind from public.task_reports limit 1) = 'broken', 'bob: reads its kind';
+  begin
+    update public.task_reports set status = 'resolved' where id = '00000000-0000-4000-9000-000000000001';
+    if found then raise exception 'bob resolved a report — instructor only'; end if;
+  end;
+  begin
+    insert into public.task_reports (user_id, course_id, task_id, team_id, kind)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't9', '2026-01-T01', 'question');
+    raise exception 'bob filed a report as ada';
+  exception when insufficient_privilege then null; end;
+end $$;
+reset role;
+
 -- Bob edits the form Ada started: same row, team-shared.
 insert into public.deliverables (course_id, team_id, deliverable_id, data, updated_by)
   values ('security-plus', '2026-01-T01', 'as-built', '{"fields":{"x":"2"}}', '00000000-0000-4000-8000-00000000000b')
@@ -180,6 +205,7 @@ reset role;
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
 do $$ begin
+  assert (select count(*) from public.task_reports) = 0, 'cy: never another team''s reports';
   assert (select count(*) from public.memberships) = 3, 'cy: the whole course roster';
   assert (select count(*) from public.step_completions) = 1, 'cy: only his own ticks';
   assert (select count(*) from public.step_evidence) = 1, 'cy: only his own evidence';
@@ -227,6 +253,14 @@ do $$ begin
   assert (select count(*) from public.lab_access) = 0, 'ivy: NEVER lab access (credentials)';
   assert (select count(*) from public.step_notes) = 0, 'ivy: never private notes';
   assert (select count(*) from public.user_course_state) = 0, 'ivy: never private state';
+  assert (select count(*) from public.task_reports) = 1, 'ivy: every report';
+end $$;
+-- Ivy resolves Ada's report — the one verdict only an instructor can give.
+update public.task_reports set status = 'resolved', resolved_at = now(),
+  resolved_by = '00000000-0000-4000-8000-00000000000d'
+  where id = '00000000-0000-4000-9000-000000000001';
+do $$ begin
+  assert (select status from public.task_reports where id = '00000000-0000-4000-9000-000000000001') = 'resolved', 'ivy: resolved it';
 end $$;
 reset role;
 
@@ -247,7 +281,7 @@ declare t text;
 begin
   foreach t in array array['step_completions','deliverables','memberships','gate_status',
                            'deliverable_reviews','step_flags','cohorts','course_documents',
-                           'step_evidence'] loop
+                           'step_evidence','task_reports'] loop
     assert (select count(*) from pg_publication_tables
             where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) = 1,
       'realtime publication is missing ' || t || ' (step_evidence is 0007)';

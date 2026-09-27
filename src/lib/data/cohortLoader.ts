@@ -4,12 +4,12 @@ import { getBrowserClient } from '../supabase/client';
 import { isSupabaseConfigured } from '../supabase/config';
 import type { Course, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
-import type { DeliverableReview, StepEvidence, StuckFlag } from './types';
-import { rosterFromRow, stepEvidenceFromRow, reviewFromRow } from './supabaseCache';
+import type { DeliverableReview, StepEvidence, StuckFlag, TaskReport } from './types';
+import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow } from './supabaseCache';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageEvidenceRepo } from './localStorageEvidenceRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
-import { localStorageStepNotesRepo, localStorageReviewRepo } from './localStorageFeatureRepos';
+import { localStorageStepNotesRepo, localStorageReviewRepo, localStorageTaskReportsRepo } from './localStorageFeatureRepos';
 import { KEYS } from './keys';
 import { getTasksByRole } from '../course-helpers';
 
@@ -35,6 +35,8 @@ export interface CohortData {
   docs: Record<string, Record<string, DeliverableData>>; // teamId → deliverableId → data
   stuck: StuckFlag[];
   reviews: DeliverableReview[];
+  /** Task issue reports, newest first (R83). */
+  reports: TaskReport[];
 }
 
 export function isStepDoneIn(data: CohortData, courseId: string, memberId: string, taskId: string, stepId: string): boolean {
@@ -62,19 +64,21 @@ export function loadCohortLocal(course: Course): CohortData {
   // `getTasksByRole` is imported so a course with no tasks for a role still
   // resolves cleanly in the page's derived rows; nothing else to do here.
   void getTasksByRole;
-  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews };
+  const reports = [...localStorageTaskReportsRepo.list(course.id)].sort((a, b) => b.at - a.at);
+  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports };
 }
 
 export async function loadCohortCloud(course: Course): Promise<CohortData> {
   const supabase = getBrowserClient();
   if (!supabase) return loadCohortLocal(course);
-  const [memberships, completions, evidence, deliverables, flags, reviews] = await Promise.all([
+  const [memberships, completions, evidence, deliverables, flags, reviews, reports] = await Promise.all([
     supabase.from('memberships').select('*').eq('course_id', course.id),
     supabase.from('step_completions').select('*').eq('course_id', course.id),
     supabase.from('step_evidence').select('*').eq('course_id', course.id),
     supabase.from('deliverables').select('*').eq('course_id', course.id),
     supabase.from('step_flags').select('*').eq('course_id', course.id).eq('stuck', true),
     supabase.from('deliverable_reviews').select('*').eq('course_id', course.id),
+    supabase.from('task_reports').select('*').eq('course_id', course.id),
   ]);
   const roster = (memberships.data ?? []).map((r) => rosterFromRow(r));
   const keys = new Set<string>();
@@ -95,7 +99,16 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     stepId: String(r.step_id),
     at: r.updated_at ? Date.parse(String(r.updated_at)) : 0,
   }));
-  return { mode: 'cloud', roster, completions: keys, evidence: ev, docs, stuck, reviews: (reviews.data ?? []).map(reviewFromRow) };
+  return {
+    mode: 'cloud',
+    roster,
+    completions: keys,
+    evidence: ev,
+    docs,
+    stuck,
+    reviews: (reviews.data ?? []).map(reviewFromRow),
+    reports: (reports.data ?? []).map(taskReportFromRow).sort((a, b) => b.at - a.at),
+  };
 }
 
 export function loadCohort(course: Course): Promise<CohortData> {

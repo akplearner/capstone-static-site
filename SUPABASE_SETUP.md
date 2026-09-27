@@ -281,6 +281,22 @@ your sending domain's SPF/DKIM records verified, and the rate limit raised.
 
 Avoiding all of that is exactly why the default is Google and GitHub.
 
+## Get an email when a student reports an issue
+
+Every task has a **Report an issue** button. Reports always land on your cohort
+dashboard (`/instructor/<course>/cohort`, "Reported issues") and mark the task
+for the reporter's teammates — no email needed. To ALSO get an email per
+report, deploy the optional function with a free [Resend](https://resend.com)
+account:
+
+```bash
+supabase functions deploy report-notify
+supabase secrets set RESEND_API_KEY=<your Resend API key>
+supabase secrets set REPORT_EMAIL=<where the emails should go>
+```
+
+Until then the app invokes it quietly and nothing breaks.
+
 ## Let students delete their account
 
 The privacy policy promises account deletion. Removing the login itself needs the

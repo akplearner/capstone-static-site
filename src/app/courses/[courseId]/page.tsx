@@ -352,6 +352,7 @@ export default function CoursePage() {
               nextIncompleteAfter={progress.nextIncompleteAfter}
               stuckByTask={progress.stuckByTask}
               teamTaskProgress={progress.teamTaskProgress}
+              openReportsByTask={progress.openReportsByTask}
               cohortCal={progress.cohortCal}
               expanded={expanded}
               setExpanded={setExpanded}

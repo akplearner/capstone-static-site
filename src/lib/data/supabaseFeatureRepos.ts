@@ -10,6 +10,8 @@ import type {
   StepNote,
   StepNotesRepository,
   StuckFlag,
+  TaskReport,
+  TaskReportsRepository,
 } from './types';
 import { cache, getCurrentUserId } from './supabaseCache';
 import { toast } from '@/lib/toastBus';
@@ -129,5 +131,62 @@ export const supabaseStepNotesRepo: StepNotesRepository = {
     if (!supabase || !user_id) return;
     void supabase.from('step_notes').delete().eq('user_id', user_id).eq('course_id', courseId).then(report('step notes reset', 'Couldn’t clear your notes in the cloud.'));
     void supabase.from('step_flags').delete().eq('user_id', user_id).eq('course_id', courseId).then(report('stuck flags reset', 'Couldn’t clear your stuck flags in the cloud.'));
+  },
+};
+
+// R83: task issue reports. Optimistic into the cache, insert over the wire;
+// resolution is instructor-only (RLS). After a successful insert the optional
+// report-notify Edge Function is invoked fire-and-forget — silently a no-op
+// when the instructor hasn't deployed it.
+export const supabaseTaskReportsRepo: TaskReportsRepository = {
+  list(courseId: string): TaskReport[] {
+    return cache.taskReports(courseId);
+  },
+
+  save(report: TaskReport): void {
+    cache.setTaskReport(report);
+    notifyStore();
+    const supabase = getBrowserClient();
+    if (!supabase) return;
+    const user_id = getCurrentUserId();
+    if (!user_id) return;
+    void supabase
+      .from('task_reports')
+      .insert({
+        id: report.id,
+        user_id,
+        course_id: report.courseId,
+        task_id: report.taskId,
+        team_id: report.teamId,
+        kind: report.kind,
+        note: report.note,
+        status: 'open',
+        created_at: new Date(report.at).toISOString(),
+      })
+      .then(({ error }) => {
+        if (error) {
+          console.error('task report save failed', error.message);
+          toast({ message: 'Couldn’t file the report — check your connection and send it again.', variant: 'warning', duration: 6000 });
+          return;
+        }
+        void supabase.functions
+          .invoke('report-notify', { body: { courseId: report.courseId, taskId: report.taskId, kind: report.kind, note: report.note } })
+          .catch(() => {});
+      });
+  },
+
+  resolve(courseId: string, id: string): void {
+    cache.resolveTaskReport(courseId, id);
+    notifyStore();
+    const supabase = getBrowserClient();
+    if (!supabase) return;
+    void supabase
+      .from('task_reports')
+      .update({ status: 'resolved', resolved_at: new Date().toISOString(), resolved_by: getCurrentUserId() })
+      .eq('id', id)
+      .then(({ error }) => {
+        if (error) console.error('task report resolve failed', error.message);
+        else notifyStore();
+      });
   },
 };

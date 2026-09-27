@@ -13,6 +13,8 @@ import { Crumbs } from '@/components/SiteNav';
 import { TeamProgressTable, type DeliverableStatus, type MemberProgress } from '@/components/team/TeamProgressTable';
 import { ReviewCell } from '@/components/instructor/ReviewCell';
 import { CohortCalendar } from '@/components/instructor/CohortCalendar';
+import { taskReportsRepo } from '@/lib/data';
+import { reportKindLabel } from '@/lib/reportKinds';
 import { courseRepo } from '@/lib/data';
 import { loadCohort, isStepDoneIn, type CohortData } from '@/lib/data/cohortLoader';
 import { useClientStore, subscribeStore } from '@/lib/useClientStore';
@@ -165,6 +167,58 @@ export default function CohortPage() {
           </ul>
         </Surface>
       )}
+
+      {(() => {
+        // Reported issues (R83): every open report, grouped by task, with the
+        // reporter, the kind and a one-click resolve. Same inset treatment as
+        // the stuck panel above — these are the two "look here first" lists.
+        const open = data.reports.filter((r) => r.status === 'open');
+        if (open.length === 0) return null;
+        const nameOf = (id: string) => data.roster.find((m) => m.memberId === id)?.displayName || 'Unknown';
+        const byTask = new Map<string, typeof open>();
+        for (const r of open) (byTask.get(r.taskId) ?? byTask.set(r.taskId, []).get(r.taskId))!.push(r);
+        return (
+          <Surface as="section" variant="inset" className="space-y-2" aria-labelledby="cohort-reports">
+            <h2 id="cohort-reports" className="text-base font-semibold text-ink">
+              Reported issues
+            </h2>
+            <ul className="space-y-2 text-sm">
+              {[...byTask.entries()].map(([taskId, list]) => {
+                const task = getTaskById(course, taskId);
+                return (
+                  <li key={taskId} className="space-y-1">
+                    <Link
+                      href={`/courses/${course.id}?tab=tasks&week=${task?.week ?? 1}&task=${taskId}`}
+                      className="font-medium text-accent hover:underline"
+                    >
+                      {task?.title ?? taskId}
+                    </Link>
+                    <ul className="space-y-1">
+                      {list.map((r) => (
+                        <li key={r.id} className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+                          <span className="rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-semibold text-warn">{reportKindLabel(r.kind)}</span>
+                          <span className="text-muted">{nameOf(r.memberId)} · {r.teamId ? teamLabel(r.teamId) : ''}</span>
+                          {r.note && <span className="min-w-0 flex-1 text-body">{r.note}</span>}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              taskReportsRepo.resolve(course.id, r.id);
+                              reload();
+                            }}
+                            className="rounded-md px-2 py-0.5 text-xs font-medium text-accent hover:bg-panel-2 hover:underline"
+                          >
+                            Resolve
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                );
+              })}
+            </ul>
+          </Surface>
+        );
+      })()}
 
       {rows.length === 0 && <Alert variant="info">Nobody has joined this course yet{data.mode === 'local' ? ' on this device' : ''}.</Alert>}
 

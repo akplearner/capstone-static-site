@@ -1562,3 +1562,31 @@ describe('R83 — print + task indicators', () => {
     expect(code('src/components/course/useCourseProgress.ts')).toContain('teamTaskProgress');
   });
 });
+
+describe('R83 — Report an issue', () => {
+  it('the button is on every own task and the chip on every row', () => {
+    expect(code('src/components/course/TasksTab.tsx')).toContain('<ReportIssueDialog');
+    expect(code('src/components/course/TaskRow.tsx')).toContain('reportCount');
+  });
+
+  it('reports reach the instructor and can only be resolved there', () => {
+    const page = code('src/app/instructor/[courseId]/cohort/page.tsx');
+    expect(page).toContain('Reported issues');
+    expect(page).toContain('taskReportsRepo.resolve(');
+    const sql = read('supabase/migrations/0008_task_reports.sql');
+    expect(sql).toContain('for update');
+    expect(sql).toContain('public.is_instructor()');
+    expect(sql, 'teammates read via the 0006 helper').toContain('public.same_team_as(user_id, course_id)');
+    expect(read('supabase/tests/rls.sql')).toContain("bob resolved a report");
+  });
+
+  it('the kinds come from one list shared with the CHECK constraint', () => {
+    const kinds = code('src/lib/reportKinds.ts');
+    const sql = read('supabase/migrations/0008_task_reports.sql');
+    for (const k of ['unclear', 'broken', 'environment', 'question', 'outdated']) {
+      expect(kinds).toContain(`'${k}'`);
+      expect(sql).toContain(`'${k}'`);
+    }
+    expect(code('src/components/task/ReportIssueDialog.tsx')).toContain('REPORT_KINDS');
+  });
+});

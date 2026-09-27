@@ -10,6 +10,8 @@ import type {
   StepNote,
   StepNotesRepository,
   StuckFlag,
+  TaskReport,
+  TaskReportsRepository,
 } from './types';
 
 // localStorage implementations of the three R68 stores, used when Supabase is
@@ -103,5 +105,33 @@ export const localStorageStepNotesRepo: StepNotesRepository = {
     if (!hasWindow()) return;
     localStorage.removeItem(KEYS.stepNotes(courseId, memberId));
     notifyStore();
+  },
+};
+
+// R83: task issue reports. One blob per course, mirroring the cohort repo's
+// shape — on a single offline device every member shares the same list, which
+// matches how the reports behave in the cloud (team-visible).
+export const localStorageTaskReportsRepo: TaskReportsRepository = {
+  list(courseId: string): TaskReport[] {
+    if (!hasWindow()) return [];
+    try {
+      const raw = localStorage.getItem(KEYS.taskReports(courseId));
+      return raw ? (JSON.parse(raw) as TaskReport[]) : [];
+    } catch {
+      return [];
+    }
+  },
+  save(report: TaskReport): void {
+    if (!hasWindow()) return;
+    const all = localStorageTaskReportsRepo.list(report.courseId).filter((r) => r.id !== report.id);
+    all.push(report);
+    safeSetItem(KEYS.taskReports(report.courseId), JSON.stringify(all));
+  },
+  resolve(courseId: string, id: string): void {
+    if (!hasWindow()) return;
+    const all = localStorageTaskReportsRepo.list(courseId).map((r) =>
+      r.id === id ? { ...r, status: 'resolved' as const } : r
+    );
+    safeSetItem(KEYS.taskReports(courseId), JSON.stringify(all));
   },
 };

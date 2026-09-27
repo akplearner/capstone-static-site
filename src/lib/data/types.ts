@@ -250,6 +250,27 @@ export interface StuckFlag {
   at: number;
 }
 
+/** A structured "something is wrong with this task" from a student (R83). */
+export interface TaskReport {
+  id: string;
+  courseId: string;
+  taskId: string;
+  teamId: string;
+  memberId: string;
+  kind: 'unclear' | 'broken' | 'environment' | 'question' | 'outdated';
+  note: string;
+  status: 'open' | 'resolved';
+  at: number;
+}
+
+export interface TaskReportsRepository {
+  /** Every report the caller may see for a course (RLS: own + team; instructor: all). */
+  list(courseId: string): TaskReport[];
+  save(report: TaskReport): void;
+  /** Instructor only (RLS-enforced in cloud mode). */
+  resolve(courseId: string, id: string): void;
+}
+
 export interface StepNotesRepository {
   /** The member's own notes for a course, keyed `${taskId}::${stepId}`. */
   getAll(courseId: string, memberId: string): Record<string, StepNote>;
