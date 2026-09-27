@@ -1,7 +1,7 @@
 'use client';
 
 import type { Course } from '../types';
-import type { CourseRepository, ImportResult } from './types';
+import type { CourseContentOverrides, CourseRepository, ImportResult } from './types';
 import type { CourseDto } from '../content/dto';
 import { bareDocument, courseDocument, seedCourses } from '../content/docs';
 import { courseFromDto } from '../content/load';
@@ -93,15 +93,27 @@ export const supabaseCourseRepo: CourseRepository = {
   },
 
   save(course: Course): void {
+    this.saveWithContent(course, {});
+  },
+
+  // R85: the admin studio's content edits ride the same whole-document write
+  // the course object always used — one save path, one policy (admin writes).
+  saveWithContent(course: Course, content: CourseContentOverrides): void {
     const next: Course = { ...course, isSeed: false, updatedAt: Date.now() };
-    const doc = documentFor(next);
+    const base = documentFor(next);
+    const doc: CourseDto = {
+      ...base,
+      ...(content.deliverables ? { deliverables: content.deliverables as CourseDto['deliverables'] } : {}),
+      ...(content.glossary ? { glossary: content.glossary } : {}),
+      ...(content.content ? { content: { ...base.content, ...content.content } as CourseDto['content'] } : {}),
+    };
     cache.setCourseDocument(doc);
     notifyStore();
     const supabase = getBrowserClient();
     if (!supabase) return;
     const updated_by = getCurrentUserId();
     if (!updated_by) {
-      toast({ message: 'Sign in as an instructor to publish this course — it is kept on this page until you reload.', variant: 'warning', duration: 6000 });
+      toast({ message: 'Sign in with an admin account to publish this course — it is kept on this page until you reload.', variant: 'warning', duration: 6000 });
       return;
     }
     void supabase

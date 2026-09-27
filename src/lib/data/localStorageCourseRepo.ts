@@ -1,5 +1,5 @@
 import { Course } from '../types';
-import { CourseRepository, ImportResult } from './types';
+import { CourseContentOverrides, CourseRepository, ImportResult } from './types';
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
 import { bareDocument, seedCourses } from '../content/docs';
@@ -128,13 +128,35 @@ export function validateCourse(c: unknown): { ok: true } | { ok: false; error: s
  * gets the same object back until the course changes.
  */
 const localDocuments = new Map<string, { stamp: number; doc: CourseDto }>();
+
+/** The admin studio's content edits (R85), offline: kept beside the course
+ *  and merged over its base document. Only the keys the admin replaced. */
+function readContentOverrides(courseId: string): CourseContentOverrides {
+  if (!hasWindow()) return {};
+  try {
+    const raw = localStorage.getItem(KEYS.courseContent(courseId));
+    return raw ? (JSON.parse(raw) as CourseContentOverrides) : {};
+  } catch {
+    return {};
+  }
+}
+
+function applyOverrides(doc: CourseDto, o: CourseContentOverrides): CourseDto {
+  return {
+    ...doc,
+    ...(o.deliverables ? { deliverables: o.deliverables as CourseDto['deliverables'] } : {}),
+    ...(o.glossary ? { glossary: o.glossary } : {}),
+    ...(o.content ? { content: { ...doc.content, ...o.content } as CourseDto['content'] } : {}),
+  };
+}
+
 export function localDocumentSource(courseId: string): CourseDto | undefined {
   const course = localStorageCourseRepo.list().find((c) => c.id === courseId && c.isSeed === false);
   if (!course) return undefined;
   const stamp = course.updatedAt ?? 0;
   const hit = localDocuments.get(courseId);
   if (hit && hit.stamp === stamp) return hit.doc;
-  const doc = bareDocument(course);
+  const doc = applyOverrides(bareDocument(course), readContentOverrides(courseId));
   localDocuments.set(courseId, { stamp, doc });
   return doc;
 }
@@ -164,6 +186,15 @@ export const localStorageCourseRepo: CourseRepository = {
     if (idx >= 0) authored[idx] = next;
     else authored.push(next);
     writeAuthored(authored);
+  },
+
+  saveWithContent(course: Course, content: CourseContentOverrides): void {
+    if (hasWindow() && (content.deliverables || content.glossary || content.content)) {
+      const merged = { ...readContentOverrides(course.id), ...content };
+      safeSetItem(KEYS.courseContent(course.id), JSON.stringify(merged));
+    }
+    // save() bumps updatedAt, which is what invalidates the memoised document.
+    this.save(course);
   },
 
   delete(id: string): void {

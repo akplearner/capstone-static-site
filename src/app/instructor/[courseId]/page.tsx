@@ -13,20 +13,48 @@ import { RolesEditor } from '@/components/instructor/RolesEditor';
 import { WeeksEditor } from '@/components/instructor/WeeksEditor';
 import { TasksEditor } from '@/components/instructor/TasksEditor';
 import { GatesEditor } from '@/components/instructor/GatesEditor';
+import { DeliverablesEditor } from '@/components/instructor/DeliverablesEditor';
+import { ReferenceEditor } from '@/components/instructor/ReferenceEditor';
 import { TextField, TextArea, NumberField, Toggle } from '@/components/instructor/fields';
 import { courseRepo } from '@/lib/data';
 import { useClientStore, useHydrated, notifyStore } from '@/lib/useClientStore';
 import { Course } from '@/lib/types';
 import { CohortCalendar } from '@/components/instructor/CohortCalendar';
+import { courseDocument } from '@/lib/content/docs';
+import { seedDeliverablesForCourse } from '@/lib/docs/definitions';
+import { validateDeliverableList } from '@/lib/docs/validateDeliverable';
+import type { DeliverableDef } from '@/lib/docs/types';
+import type { CourseContentOverrides } from '@/lib/data/types';
 
-type Tab = 'details' | 'roles' | 'weeks' | 'tasks' | 'gates';
+type Tab = 'details' | 'roles' | 'weeks' | 'tasks' | 'gates' | 'deliverables' | 'reference';
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: 'details', label: 'Details' },
   { id: 'roles', label: 'Roles' },
   { id: 'weeks', label: 'Weeks' },
   { id: 'tasks', label: 'Tasks' },
   { id: 'gates', label: 'Gates' },
+  { id: 'deliverables', label: 'Deliverables' },
+  { id: 'reference', label: 'Reference' },
 ];
+
+/** The document pieces the studio edits beyond the course object (R85). */
+interface ContentDraft {
+  deliverables: DeliverableDef[];
+  glossary: Record<string, string>;
+  modules: Record<string, unknown>;
+  touched: { deliverables: boolean; glossary: boolean; modules: Set<string> };
+}
+
+function seedContentDraft(courseId: string): ContentDraft {
+  const doc = courseDocument(courseId);
+  const rawDefs = (doc?.deliverables as DeliverableDef[] | undefined) ?? seedDeliverablesForCourse(courseId);
+  return {
+    deliverables: JSON.parse(JSON.stringify(rawDefs)) as DeliverableDef[],
+    glossary: { ...(doc?.glossary ?? {}) },
+    modules: JSON.parse(JSON.stringify((doc?.content as Record<string, unknown> | undefined) ?? {})) as Record<string, unknown>,
+    touched: { deliverables: false, glossary: false, modules: new Set() },
+  };
+}
 
 function validate(course: Course): string[] {
   const errors: string[] = [];
@@ -63,6 +91,7 @@ export default function CourseEditorPage() {
   const source = useClientStore<Course | null>(() => courseRepo.get(courseId) ?? null, null);
   const hydrated = useHydrated();
   const [draft, setDraft] = useState<Course | null>(null);
+  const [content, setContent] = useState<ContentDraft | null>(null);
   const [seededId, setSeededId] = useState<string | null>(null);
   const [tab, setTab] = useState<Tab>('details');
   const [saved, setSaved] = useState(false);
@@ -72,6 +101,7 @@ export default function CourseEditorPage() {
   if (hydrated && seededId !== courseId) {
     setSeededId(courseId);
     setDraft(source ? (JSON.parse(JSON.stringify(source)) as Course) : null);
+    setContent(source ? seedContentDraft(courseId) : null);
   }
   const notFound = hydrated && !source;
 
@@ -84,7 +114,29 @@ export default function CourseEditorPage() {
 
   const save = () => {
     if (errors.length > 0) return;
-    courseRepo.save(draft);
+    const t = content?.touched;
+    if (content && t && (t.deliverables || t.glossary || t.modules.size > 0)) {
+      // Content edits ride the same save. Deliverables get one last whole-list
+      // check — the per-edit validators make this unreachable, but a refused
+      // save beats a broken student page if they ever miss.
+      if (t.deliverables) {
+        const v = validateDeliverableList(content.deliverables);
+        if (!v.ok) {
+          toast({ message: `Deliverables: ${v.error}`, variant: 'warning', duration: 6000 });
+          return;
+        }
+      }
+      const overrides: CourseContentOverrides = {
+        ...(t.deliverables ? { deliverables: content.deliverables } : {}),
+        ...(t.glossary ? { glossary: content.glossary } : {}),
+        ...(t.modules.size > 0
+          ? { content: Object.fromEntries([...t.modules].map((k) => [k, content.modules[k]])) }
+          : {}),
+      };
+      courseRepo.saveWithContent(draft, overrides);
+    } else {
+      courseRepo.save(draft);
+    }
     notifyStore();
     setSaved(true);
     toast({ message: 'Course saved', variant: 'success' });
@@ -194,6 +246,27 @@ export default function CourseEditorPage() {
         {tab === 'weeks' && <WeeksEditor course={draft} onChange={setDraft} />}
         {tab === 'tasks' && <TasksEditor course={draft} onChange={setDraft} />}
         {tab === 'gates' && <GatesEditor course={draft} onChange={setDraft} />}
+        {tab === 'deliverables' && content && (
+          <DeliverablesEditor
+            course={draft}
+            defs={content.deliverables}
+            onChange={(defs) =>
+              setContent({ ...content, deliverables: defs, touched: { ...content.touched, deliverables: true } })
+            }
+          />
+        )}
+        {tab === 'reference' && content && (
+          <ReferenceEditor
+            glossary={content.glossary}
+            onGlossary={(g) => setContent({ ...content, glossary: g, touched: { ...content.touched, glossary: true } })}
+            modules={content.modules}
+            onModule={(key, value) => {
+              const touched = new Set(content.touched.modules);
+              touched.add(key);
+              setContent({ ...content, modules: { ...content.modules, [key]: value }, touched: { ...content.touched, modules: touched } });
+            }}
+          />
+        )}
       </div>
     </div>
     </AdminGate>

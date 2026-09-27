@@ -1,5 +1,5 @@
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
-import type { DeliverableData } from '../docs/types';
+import type { DeliverableData, DeliverableDef } from '../docs/types';
 
 export interface ImportResult {
   ok: boolean;
@@ -148,10 +148,20 @@ export interface JoinResult {
 // Courses: built-in seeds merged with instructor-authored courses. The only
 // implementation today is localStorage; a backend implementation can be swapped
 // in without changing any page/component.
+/** R85: the parts of a course DOCUMENT the admin studio edits beyond the
+ *  course object itself. Only the keys present are replaced. */
+export interface CourseContentOverrides {
+  deliverables?: DeliverableDef[];
+  glossary?: Record<string, string>;
+  content?: Record<string, unknown>;
+}
+
 export interface CourseRepository {
   list(): Course[];
   get(idOrSlug: string): Course | undefined;
   save(course: Course): void;
+  /** Save the course AND replace parts of its document (admin studio, R85). */
+  saveWithContent(course: Course, content: CourseContentOverrides): void;
   delete(id: string): void;
   exportJSON(id: string): string;
   importJSON(json: string): ImportResult;

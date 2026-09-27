@@ -1806,3 +1806,27 @@ describe('R85 — the instructor page plumbing and the full view', () => {
     expect(src).toContain('export async function removeMember');
   });
 });
+
+describe('R85 — the admin content studio edits safely', () => {
+  it('content editors never touch storage — everything rides the one save', () => {
+    for (const f of ['src/components/instructor/DeliverablesEditor.tsx', 'src/components/instructor/ReferenceEditor.tsx']) {
+      const src = read(f);
+      for (const leak of ['supabase', 'localStorage', 'docsRepo', 'courseRepo']) {
+        expect(src, `${f} must not reach ${leak} — edits flow up to the editor's Save`).not.toContain(leak);
+      }
+    }
+    expect(code('src/app/instructor/[courseId]/page.tsx'), 'the save path').toContain('courseRepo.saveWithContent(');
+  });
+
+  it('structure edits pass the validator before they apply, and again before save', () => {
+    expect(code('src/components/instructor/DeliverablesEditor.tsx')).toContain('validateDeliverableDef(');
+    expect(code('src/app/instructor/[courseId]/page.tsx')).toContain('validateDeliverableList(');
+  });
+
+  it('the preview is the student’s own renderer, not a lookalike', () => {
+    const src = code('src/components/instructor/DeliverablesEditor.tsx');
+    expect(src).toContain('<DeliverableForm');
+    expect(src).toContain('visualFor(');
+    expect(src, 'derived exactly as the docs page derives').toContain('withDerivedBundle(');
+  });
+});
