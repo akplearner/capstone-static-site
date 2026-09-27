@@ -531,6 +531,7 @@ export default function DeliverablesPage() {
             meta={meta}
             week={selectedWeek}
             memberId={member.memberId}
+            teamId={member.teamId}
             onChange={setDoc}
             review={reviewFor(currentDef.id)}
           />
@@ -568,6 +569,7 @@ export default function DeliverablesPage() {
                   meta={meta}
                   week={selectedWeek}
                   memberId={member.memberId}
+                  teamId={member.teamId}
                   onChange={setDoc}
                   review={reviewFor(currentDef.id)}
                 />
@@ -644,6 +646,7 @@ function FormSection({
   meta,
   week,
   memberId,
+  teamId,
   onChange,
   review,
 }: {
@@ -657,6 +660,9 @@ function FormSection({
   week: number;
   /** Whose evidence ledger Authenticity reads. */
   memberId: string;
+  /** The full team id — submissions are frozen against it (meta.team is only
+   *  the printable number). */
+  teamId: string;
   onChange: (id: string, data: DeliverableData) => void;
   /** The instructor's latest verdict on this form (R68). */
   review?: DeliverableReview;
@@ -829,7 +835,7 @@ function FormSection({
         <>
           {/* The grading, previewed live (R84): the same four categories the
               submission freezes and reviewers see, judged by the same function. */}
-          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} />
+          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} />
           <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
         </>
       )}

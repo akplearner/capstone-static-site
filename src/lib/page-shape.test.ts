@@ -1652,3 +1652,46 @@ describe('R84 — the stamp, the grading preview, and the diagram kit', () => {
     expect(panel, 'authenticity reads the real ledger').toContain('evidenceRepo.getSteps(');
   });
 });
+
+describe('R84 — frozen submissions and blind review (the DB contract)', () => {
+  const MIGRATIONS = readdirSync(root('supabase/migrations')).filter((f) => f.endsWith('.sql'));
+
+  it('submissions are append-only: no migration may ever add an update/delete policy', () => {
+    for (const f of MIGRATIONS) {
+      const sql = read(`supabase/migrations/${f}`).toLowerCase();
+      expect(sql, `${f} must not open deliverable_submissions to rewrites`).not.toMatch(
+        /create policy [^;]*on public\.deliverable_submissions for (update|delete)/
+      );
+    }
+    const sql = read('supabase/migrations/0009_evidence_bundles.sql');
+    expect(sql, 'the belt-and-braces trigger').toContain('before update on public.deliverable_submissions');
+    expect(sql).toContain('append-only');
+  });
+
+  it('a peer_reviews row can never name its reviewer, and the packet strips identity', () => {
+    const sql = read('supabase/migrations/0009_evidence_bundles.sql');
+    const table = sql.slice(
+      sql.indexOf('create table if not exists public.peer_reviews'),
+      sql.indexOf('alter table public.peer_reviews')
+    );
+    expect(table.length).toBeGreaterThan(50);
+    expect(table, 'anonymity is structural: no reviewer column on the verdict row').not.toContain('reviewer');
+    expect(sql, 'the packet strips the identifying snapshot keys').toContain("(s.snapshot - 'teamId') - 'submittedBy'");
+  });
+
+  it('the cohort is the leading YYYY-MM of the team id — split_part would return the year', () => {
+    const sql = read('supabase/migrations/0009_evidence_bundles.sql');
+    expect(sql).toContain(String.raw`substring(s.team_id from '^\d{4}-\d{2}')`);
+    expect(sql).not.toContain('split_part');
+  });
+
+  it('rls.sql proves the freeze, the blindness, and the realtime streams', () => {
+    const t = read('supabase/tests/rls.sql');
+    expect(t, 'blind-read assert').toContain('no teamId in the packet');
+    expect(t, 'owner-level freeze assert').toContain('append-only');
+    expect(t, 'double review assert').toContain('cy reviewed twice');
+    for (const tbl of ['deliverable_submissions', 'peer_reviews']) {
+      expect(t, `publication assert covers ${tbl}`).toContain(`'${tbl}'`);
+    }
+  });
+});

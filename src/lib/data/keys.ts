@@ -55,5 +55,8 @@ export const KEYS = {
   // Task issue reports (R83): one blob per course — on a shared offline device
   // the reports are as shared as the problem they describe.
   taskReports: (courseId: string) => `${STORAGE_PREFIX}${courseId}_task_reports`,
+  // Frozen deliverable submissions (R84): team-scoped like the forms they freeze.
+  submissions: (courseId: string, teamId: string) =>
+    `${STORAGE_PREFIX}${courseId}_submissions_${teamId}`,
   // R71. The student's step view — simple (commands and checks) or full.
 };

@@ -19,8 +19,8 @@ import { supabaseEvidenceRepo, supabasePathRepo } from './supabaseEvidenceRepo';
 import { supabaseProgressRepo } from './supabaseProgressRepo';
 import { supabaseDocsRepo } from './supabaseDocsRepo';
 import { supabaseUserStateRepo, supabaseLabAccessRepo } from './supabaseUserStateRepo';
-import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo, localStorageTaskReportsRepo } from './localStorageFeatureRepos';
-import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabaseTaskReportsRepo } from './supabaseFeatureRepos';
+import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo } from './localStorageFeatureRepos';
+import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabaseTaskReportsRepo, supabaseSubmissionsRepo } from './supabaseFeatureRepos';
 
 const cloud = isSupabaseConfigured();
 
@@ -37,6 +37,8 @@ export const reviewRepo = cloud ? supabaseReviewRepo : localStorageReviewRepo;
 export const cohortRepo = cloud ? supabaseCohortRepo : localStorageCohortRepo;
 export const taskReportsRepo = cloud ? supabaseTaskReportsRepo : localStorageTaskReportsRepo;
 export const stepNotesRepo = cloud ? supabaseStepNotesRepo : localStorageStepNotesRepo;
+// R84: frozen submissions and blind peer review.
+export const submissionsRepo = cloud ? supabaseSubmissionsRepo : localStorageSubmissionsRepo;
 export type {
   CourseRepository,
   ProgressRepository,
@@ -59,4 +61,11 @@ export type {
   StepNote,
   StuckFlag,
   StepNotesRepository,
+  DeliverableSubmission,
+  SubmissionSnapshot,
+  PeerReviewRow,
+  ReviewQueueItem,
+  ReviewPacket,
+  SubmissionProgress,
+  SubmissionsRepository,
 } from './types';

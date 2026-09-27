@@ -228,6 +228,94 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R84: Ada submits a deliverable; review is blind; history is frozen ──────
+-- Ada freezes a submission. The snapshot deliberately carries a teamId key so
+-- the packet-stripping assert below is not vacuous.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.deliverable_submissions
+  (id, course_id, team_id, deliverable_id, week, version, submitted_by, content_sha256, snapshot)
+  values ('00000000-0000-4000-9000-000000000100', 'security-plus', '2026-01-T01', 'as-built', 1, 1,
+          '00000000-0000-4000-8000-00000000000a', 'abc123',
+          '{"teamId":"2026-01-T01","submittedBy":"ada","data":{"fields":{"x":"1"}},"categories":{"completeness":true,"correctness":true,"authenticity":true,"consistency":true}}');
+do $$
+declare v_eligible integer;
+begin
+  -- Only Cy is outside Team 01 in this cohort: eligible = 1, and the app takes
+  -- the platform-verdict path (< 2 reviewers) — but the one assignment exists.
+  select public.assign_peer_reviews('00000000-0000-4000-9000-000000000100') into v_eligible;
+  assert v_eligible = 1, 'ada: one eligible reviewer (cy)';
+  -- Frozen means frozen, layer 1: with no UPDATE policy, RLS gives Ada's
+  -- UPDATE nothing to touch.
+  update public.deliverable_submissions set content_sha256 = 'forged'
+    where id = '00000000-0000-4000-9000-000000000100';
+  if found then raise exception 'ada rewrote a frozen submission'; end if;
+end $$;
+reset role;
+
+-- Frozen means frozen, layer 2: even the table owner, whom RLS never filters,
+-- hits the append-only trigger.
+do $$ begin
+  begin
+    update public.deliverable_submissions set content_sha256 = 'forged'
+      where id = '00000000-0000-4000-9000-000000000100';
+    raise exception 'the owner rewrote a frozen submission';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+end $$;
+
+-- Bob (teammate) sees the team's submission; Cy (other team) must not — Cy
+-- reviews through the RPCs, which never say whose work it is.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.deliverable_submissions) = 1, 'bob: reads the team''s submission';
+  assert (select assigned from public.get_submission_progress('00000000-0000-4000-9000-000000000100')) = 1, 'bob: progress counts';
+end $$;
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+do $$
+declare v_assignment uuid; v_packet jsonb;
+begin
+  assert (select count(*) from public.deliverable_submissions) = 0, 'cy: never the submission row';
+  assert (select count(*) from public.get_review_queue()) = 1, 'cy: one assignment in the queue';
+  select assignment_id into v_assignment from public.get_review_queue();
+  select public.get_review_packet(v_assignment) into v_packet;
+  assert v_packet is not null and v_packet ? 'snapshot', 'cy: the packet serves the snapshot';
+  assert not (v_packet->'snapshot' ? 'teamId'), 'cy: blind — no teamId in the packet';
+  assert not (v_packet->'snapshot' ? 'submittedBy'), 'cy: blind — no submittedBy in the packet';
+  assert not (v_packet ? 'team_id') and not (v_packet ? 'submitted_by'), 'cy: blind — no identifying columns';
+  -- Cy cannot write the tables directly (no policies)…
+  begin
+    insert into public.peer_review_assignments (submission_id, reviewer_id)
+      values ('00000000-0000-4000-9000-000000000100', '00000000-0000-4000-8000-00000000000c');
+    raise exception 'cy self-assigned a review';
+  exception when insufficient_privilege then null; end;
+  -- …reviews through the RPC, once.
+  perform public.submit_peer_review(v_assignment, '{"q1":true}'::jsonb, true);
+  begin
+    perform public.submit_peer_review(v_assignment, '{"q1":false}'::jsonb, false);
+    raise exception 'cy reviewed twice';
+  exception when unique_violation then null; end;
+end $$;
+reset role;
+
+-- Ada's team follows progress by counts, and reads the anonymous verdict rows.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$
+declare p record;
+begin
+  select * into p from public.get_submission_progress('00000000-0000-4000-9000-000000000100');
+  assert p.assigned = 1 and p.reviewed = 1 and p.confirms = 1, 'ada: 1 assigned, 1 reviewed, 1 confirm';
+  assert (select count(*) from public.peer_reviews) = 1, 'ada: reads the anonymous review row';
+  assert (select count(*) from public.peer_review_assignments) = 0, 'ada: never who reviews';
+end $$;
+reset role;
+
 -- ── What Zed sees (signed in, joined nothing) ───────────────────────────────
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
@@ -236,6 +324,8 @@ do $$ begin
   assert (select count(*) from public.step_completions) = 0, 'zed: nothing';
   assert (select count(*) from public.profiles) = 1, 'zed: his own profile only';
   assert (select count(*) from public.course_documents) = 1, 'zed: may read the course';
+  assert (select count(*) from public.deliverable_submissions) = 0, 'zed: no submissions';
+  assert (select count(*) from public.get_review_queue()) = 0, 'zed: an empty review queue';
 end $$;
 reset role;
 
@@ -254,6 +344,9 @@ do $$ begin
   assert (select count(*) from public.step_notes) = 0, 'ivy: never private notes';
   assert (select count(*) from public.user_course_state) = 0, 'ivy: never private state';
   assert (select count(*) from public.task_reports) = 1, 'ivy: every report';
+  assert (select count(*) from public.deliverable_submissions) = 1, 'ivy: every submission';
+  assert (select count(*) from public.peer_review_assignments) = 1, 'ivy: every assignment';
+  assert (select count(*) from public.peer_reviews) = 1, 'ivy: every review';
 end $$;
 -- Ivy resolves Ada's report — the one verdict only an instructor can give.
 update public.task_reports set status = 'resolved', resolved_at = now(),
@@ -281,7 +374,8 @@ declare t text;
 begin
   foreach t in array array['step_completions','deliverables','memberships','gate_status',
                            'deliverable_reviews','step_flags','cohorts','course_documents',
-                           'step_evidence','task_reports'] loop
+                           'step_evidence','task_reports',
+                           'deliverable_submissions','peer_reviews'] loop
     assert (select count(*) from pg_publication_tables
             where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) = 1,
       'realtime publication is missing ' || t || ' (step_evidence is 0007)';

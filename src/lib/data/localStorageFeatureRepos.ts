@@ -6,10 +6,16 @@ import type {
   Cohort,
   CohortRepository,
   DeliverableReview,
+  DeliverableSubmission,
+  PeerReviewRow,
+  ReviewPacket,
+  ReviewQueueItem,
   ReviewRepository,
   StepNote,
   StepNotesRepository,
   StuckFlag,
+  SubmissionProgress,
+  SubmissionsRepository,
   TaskReport,
   TaskReportsRepository,
 } from './types';
@@ -133,5 +139,46 @@ export const localStorageTaskReportsRepo: TaskReportsRepository = {
       r.id === id ? { ...r, status: 'resolved' as const } : r
     );
     safeSetItem(KEYS.taskReports(courseId), JSON.stringify(all));
+  },
+};
+
+// R84: frozen submissions. Offline there are no peers on one device by
+// definition, so the review verbs answer honestly (empty/null) and the app
+// takes the platform-verdict path — the frozen category booleans decide.
+// Append-only is kept in spirit: `submit` never replaces an id or version.
+export const localStorageSubmissionsRepo: SubmissionsRepository = {
+  list(courseId: string, teamId: string): DeliverableSubmission[] {
+    if (!hasWindow()) return [];
+    try {
+      const raw = localStorage.getItem(KEYS.submissions(courseId, teamId));
+      return raw ? (JSON.parse(raw) as DeliverableSubmission[]) : [];
+    } catch {
+      return [];
+    }
+  },
+  reviewsFor(): PeerReviewRow[] {
+    return [];
+  },
+  submit(submission: DeliverableSubmission): Promise<number | null> {
+    if (!hasWindow()) return Promise.resolve(null);
+    const all = localStorageSubmissionsRepo.list(submission.courseId, submission.teamId);
+    if (!all.some((s) => s.id === submission.id)) {
+      all.push(submission);
+      safeSetItem(KEYS.submissions(submission.courseId, submission.teamId), JSON.stringify(all));
+      notifyStore();
+    }
+    return Promise.resolve(null);
+  },
+  progress(): Promise<SubmissionProgress | null> {
+    return Promise.resolve(null);
+  },
+  queue(): Promise<ReviewQueueItem[]> {
+    return Promise.resolve([]);
+  },
+  packet(): Promise<ReviewPacket | null> {
+    return Promise.resolve(null);
+  },
+  submitReview(): Promise<boolean> {
+    return Promise.resolve(false);
   },
 };

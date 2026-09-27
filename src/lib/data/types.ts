@@ -271,6 +271,91 @@ export interface TaskReportsRepository {
   resolve(courseId: string, id: string): void;
 }
 
+/** What a submission freezes (R84): the form as submitted, the four category
+ *  verdicts of the automatic rubric, and the individual check results — enough
+ *  for a reviewer to see WHAT was claimed and for the verdict to be re-derived,
+ *  never enough to say WHO (no team or member keys; the DB strips any that
+ *  sneak in before a reviewer sees the packet). */
+export interface SubmissionSnapshot {
+  deliverableId: string;
+  week: number;
+  data: DeliverableData;
+  categories: Record<'completeness' | 'correctness' | 'authenticity' | 'consistency', boolean>;
+  checks: { id: string; label: string; ok: boolean }[];
+}
+
+/** A frozen, append-only deliverable submission (R84). Resubmitting is a new
+ *  row with `version + 1` — history is never rewritten (DB trigger enforces). */
+export interface DeliverableSubmission {
+  id: string;
+  courseId: string;
+  teamId: string;
+  deliverableId: string;
+  week: number;
+  version: number;
+  submittedBy: string;
+  contentSha256: string;
+  snapshot: SubmissionSnapshot;
+  at: number;
+}
+
+/** An anonymous verdict row the submitting team may see: which submission,
+ *  confirmed or not — never who reviewed. */
+export interface PeerReviewRow {
+  assignmentId: string;
+  submissionId: string;
+  answers: Record<string, boolean>;
+  confirm: boolean;
+  at: number;
+}
+
+/** One entry in the reviewer's blind queue (served by `get_review_queue`). */
+export interface ReviewQueueItem {
+  assignmentId: string;
+  courseId: string;
+  deliverableId: string;
+  week: number;
+  assignedAt: number;
+  done: boolean;
+}
+
+/** What a reviewer opens (served by `get_review_packet`): the frozen bundle,
+ *  stripped of every identifying key. */
+export interface ReviewPacket {
+  assignmentId: string;
+  courseId: string;
+  deliverableId: string;
+  week: number;
+  version: number;
+  contentSha256: string;
+  snapshot: SubmissionSnapshot;
+  submittedAt: number;
+}
+
+export interface SubmissionProgress {
+  assigned: number;
+  reviewed: number;
+  confirms: number;
+}
+
+export interface SubmissionsRepository {
+  /** The team's frozen submissions (cache-backed, newest version last). */
+  list(courseId: string, teamId: string): DeliverableSubmission[];
+  /** The anonymous verdict rows for one submission (cache-backed). */
+  reviewsFor(courseId: string, submissionId: string): PeerReviewRow[];
+  /** Freeze a submission and assign reviewers. Resolves to how many reviewers
+   *  were ELIGIBLE (cloud) — under 2 means the platform verdict decides — or
+   *  null offline, where there are no peers on one device by definition. */
+  submit(submission: DeliverableSubmission): Promise<number | null>;
+  /** Live counts for the anonymous progress banner (cloud; null offline). */
+  progress(submissionId: string): Promise<SubmissionProgress | null>;
+  /** The caller's blind review queue (cloud; empty offline). */
+  queue(): Promise<ReviewQueueItem[]>;
+  packet(assignmentId: string): Promise<ReviewPacket | null>;
+  /** Answer once; the database makes it final. False = rejected/failed. */
+  submitReview(assignmentId: string, answers: Record<string, boolean>, confirm: boolean): Promise<boolean>;
+}
+
 export interface StepNotesRepository {
   /** The member's own notes for a course, keyed `${taskId}::${stepId}`. */
   getAll(courseId: string, memberId: string): Record<string, StepNote>;

@@ -6,10 +6,16 @@ import type {
   Cohort,
   CohortRepository,
   DeliverableReview,
+  DeliverableSubmission,
+  PeerReviewRow,
+  ReviewPacket,
+  ReviewQueueItem,
   ReviewRepository,
   StepNote,
   StepNotesRepository,
   StuckFlag,
+  SubmissionProgress,
+  SubmissionsRepository,
   TaskReport,
   TaskReportsRepository,
 } from './types';
@@ -188,5 +194,110 @@ export const supabaseTaskReportsRepo: TaskReportsRepository = {
         if (error) console.error('task report resolve failed', error.message);
         else notifyStore();
       });
+  },
+};
+
+// R84: frozen submissions and blind review. Submitting is the one write in
+// the app that is NOT fire-and-forget: the caller awaits the insert and the
+// reviewer assignment, because "submitted" is a promise the page must not
+// make until the database has frozen the row. The review verbs are thin
+// wrappers over the four security-definer RPCs — the first `supabase.rpc`
+// calls in the codebase, because blindness means the tables themselves are
+// deliberately unreadable.
+export const supabaseSubmissionsRepo: SubmissionsRepository = {
+  list(courseId: string, teamId: string): DeliverableSubmission[] {
+    return cache.submissions(courseId, teamId);
+  },
+
+  reviewsFor(courseId: string, submissionId: string): PeerReviewRow[] {
+    return cache.peerReviews(courseId).filter((r) => r.submissionId === submissionId);
+  },
+
+  async submit(submission: DeliverableSubmission): Promise<number | null> {
+    const supabase = getBrowserClient();
+    const user_id = getCurrentUserId();
+    if (!supabase || !user_id) return null;
+    const { error } = await supabase.from('deliverable_submissions').insert({
+      id: submission.id,
+      course_id: submission.courseId,
+      team_id: submission.teamId,
+      deliverable_id: submission.deliverableId,
+      week: submission.week,
+      version: submission.version,
+      submitted_by: user_id,
+      content_sha256: submission.contentSha256,
+      snapshot: submission.snapshot,
+      created_at: new Date(submission.at).toISOString(),
+    });
+    if (error) {
+      console.error('submission failed', error.message);
+      toast({ message: 'Couldn’t freeze the submission — check your connection and submit again.', variant: 'warning', duration: 6000 });
+      return null;
+    }
+    // Only after the row is frozen does it enter the cache as truth.
+    cache.setSubmission(submission);
+    notifyStore();
+    const assigned = await supabase.rpc('assign_peer_reviews', { p_submission: submission.id });
+    if (assigned.error) {
+      console.error('reviewer assignment failed', assigned.error.message);
+      return null;
+    }
+    return Number(assigned.data ?? 0);
+  },
+
+  async progress(submissionId: string): Promise<SubmissionProgress | null> {
+    const supabase = getBrowserClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.rpc('get_submission_progress', { p_submission: submissionId });
+    if (error || !data) return null;
+    const row = Array.isArray(data) ? data[0] : data;
+    if (!row) return null;
+    return { assigned: Number(row.assigned ?? 0), reviewed: Number(row.reviewed ?? 0), confirms: Number(row.confirms ?? 0) };
+  },
+
+  async queue(): Promise<ReviewQueueItem[]> {
+    const supabase = getBrowserClient();
+    if (!supabase || !getCurrentUserId()) return [];
+    const { data, error } = await supabase.rpc('get_review_queue');
+    if (error || !data) return [];
+    return (data as Record<string, unknown>[]).map((r) => ({
+      assignmentId: String(r.assignment_id),
+      courseId: String(r.course_id),
+      deliverableId: String(r.deliverable_id),
+      week: Number(r.week ?? 0),
+      assignedAt: r.assigned_at ? Date.parse(String(r.assigned_at)) : 0,
+      done: !!r.done,
+    }));
+  },
+
+  async packet(assignmentId: string): Promise<ReviewPacket | null> {
+    const supabase = getBrowserClient();
+    if (!supabase) return null;
+    const { data, error } = await supabase.rpc('get_review_packet', { p_assignment: assignmentId });
+    if (error || !data) return null;
+    const p = data as Record<string, unknown>;
+    return {
+      assignmentId: String(p.assignmentId),
+      courseId: String(p.courseId),
+      deliverableId: String(p.deliverableId),
+      week: Number(p.week ?? 0),
+      version: Number(p.version ?? 1),
+      contentSha256: String(p.contentSha256 ?? ''),
+      snapshot: p.snapshot as ReviewPacket['snapshot'],
+      submittedAt: p.submittedAt ? Date.parse(String(p.submittedAt)) : 0,
+    };
+  },
+
+  async submitReview(assignmentId: string, answers: Record<string, boolean>, confirm: boolean): Promise<boolean> {
+    const supabase = getBrowserClient();
+    if (!supabase) return false;
+    const { error } = await supabase.rpc('submit_peer_review', { p_assignment: assignmentId, p_answers: answers, p_confirm: confirm });
+    if (error) {
+      console.error('peer review failed', error.message);
+      toast({ message: 'Couldn’t send the review — it may already be recorded.', variant: 'warning', duration: 6000 });
+      return false;
+    }
+    notifyStore();
+    return true;
   },
 };
