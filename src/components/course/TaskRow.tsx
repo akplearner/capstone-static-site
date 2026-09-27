@@ -1,7 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import { CheckCircle2, ChevronDown, ChevronRight, Lock } from 'lucide-react';
+import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 import type { Course, Task } from '@/lib/types';
+import type { TeammateTaskProgress } from './useCourseProgress';
 
 /**
  * A single collapsible task: number, title, status, and the one-line
@@ -26,6 +29,7 @@ export function TaskRow({
   stuckCount,
   focus,
   lead,
+  teammates,
   renderBody,
 }: {
   course: Course;
@@ -44,6 +48,8 @@ export function TaskRow({
   stuckCount?: number;
   /** In front of the title: the task's stone (R80). */
   lead?: React.ReactNode;
+  /** Teammates' standing on this task, for the avatar stack + team ring (R83). */
+  teammates?: TeammateTaskProgress[];
   /** The body, as a thunk: called only where the result is used, so a closed
    *  row never builds a `GuidedTaskRunner` tree it then throws away. */
   renderBody: () => React.ReactNode;
@@ -100,6 +106,7 @@ export function TaskRow({
         </span>
 
         <span className="flex shrink-0 items-center gap-3 pt-0.5">
+          {teammates && teammates.length > 1 && <TeamMarks teammates={teammates} />}
           {!canOpen ? (
             <Lock className="h-4 w-4 text-muted" />
           ) : open ? (
@@ -115,5 +122,68 @@ export function TaskRow({
         {open && canOpen && renderBody()}
       </div>
     </div>
+  );
+}
+
+/**
+ * The team on this task (R83): who has finished it (avatars pop in with a
+ * one-shot pulse the moment a teammate's tick arrives over realtime), and a
+ * dot ring for everyone still on the way. The whole mark carries a tooltip
+ * naming each member and their percent — shared progress at a glance.
+ */
+function TeamMarks({ teammates }: { teammates: TeammateTaskProgress[] }) {
+  const reduce = useReducedMotionSafe();
+  const done = teammates.filter((t) => t.pct >= 100);
+  const avg = Math.round(teammates.reduce((s, t) => s + t.pct, 0) / teammates.length);
+  const tooltip = teammates.map((t) => `${t.displayName || 'Unnamed'} — ${t.pct}%`).join('\n');
+
+  // Adjusted during render (the TaskStone pattern): pulse once when the DONE
+  // count grows — a page load is not an event.
+  const [seen, setSeen] = useState(done.length);
+  const [pulse, setPulse] = useState(0);
+  if (seen !== done.length) {
+    setSeen(done.length);
+    if (done.length > seen && !reduce) setPulse((p: number) => p + 1);
+  }
+
+  const ringColor = avg >= 100 ? 'var(--color-ok)' : avg > 0 ? 'var(--color-accent)' : 'var(--color-line)';
+  return (
+    <span className="hidden items-center gap-1.5 sm:flex" title={tooltip} aria-label={`Team progress on this task: ${avg}%`}>
+      <span className="flex -space-x-1.5">
+        {done.slice(0, 4).map((t) => (
+          <span key={`${t.memberId}${pulse && '.'}`} className={pulse ? 'qa-pop inline-flex' : 'inline-flex'}>
+            {t.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element -- provider-hosted picture; next/image would need every host allow-listed.
+              <img
+                src={t.avatarUrl}
+                alt=""
+                width={20}
+                height={20}
+                referrerPolicy="no-referrer"
+                className="h-5 w-5 rounded-full border border-panel bg-panel-2 object-cover"
+              />
+            ) : (
+              <span className="grid h-5 w-5 place-items-center rounded-full border border-panel bg-ok-soft text-3xs font-bold text-ok">
+                {(t.displayName || '?').slice(0, 1).toUpperCase()}
+              </span>
+            )}
+          </span>
+        ))}
+        {done.length > 4 && (
+          <span className="grid h-5 w-5 place-items-center rounded-full border border-panel bg-panel-2 text-3xs font-semibold text-muted">
+            +{done.length - 4}
+          </span>
+        )}
+      </span>
+      <span
+        className="grid h-5 w-5 place-items-center rounded-full text-3xs font-semibold tabular-nums"
+        style={{
+          color: avg > 0 ? ringColor : 'var(--color-muted)',
+          background: `conic-gradient(${ringColor} ${Math.min(avg, 100) * 3.6}deg, var(--color-line) 0)`,
+        }}
+      >
+        <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-panel">{done.length}</span>
+      </span>
+    </span>
   );
 }

@@ -74,6 +74,12 @@ function downloadBytes(filename: string, bytes: Uint8Array, type: string) {
  * popup-blocker proof and fires print reliably once the iframe has loaded —
  * unlike window.open()+document.write(), where the blank window's load event
  * has already passed so an inline onload="window.print()" never runs.
+ *
+ * The content goes in through `srcdoc`, NOT doc.open()/write(): with write(),
+ * the iframe's initial about:blank fires `load` too, so on Windows Chrome the
+ * FIRST print dialog showed an empty page and the real document only printed
+ * after the student cancelled it (R83). srcdoc loads exactly once, with the
+ * content; the `printed` flag is belt-and-braces against any second load.
  */
 function printHTML(html: string) {
   const iframe = document.createElement('iframe');
@@ -84,9 +90,11 @@ function printHTML(html: string) {
   iframe.style.width = '0';
   iframe.style.height = '0';
   iframe.style.border = '0';
+  let printed = false;
   iframe.onload = () => {
     const win = iframe.contentWindow;
-    if (!win) return;
+    if (!win || printed) return;
+    printed = true;
     win.focus();
     win.print();
     // Remove after the print dialog has had time to open (it blocks the
@@ -95,15 +103,8 @@ function printHTML(html: string) {
     win.addEventListener('afterprint', cleanup, { once: true });
     setTimeout(cleanup, 60000);
   };
+  iframe.srcdoc = html;
   document.body.appendChild(iframe);
-  const doc = iframe.contentWindow?.document;
-  if (!doc) {
-    iframe.remove();
-    return;
-  }
-  doc.open();
-  doc.write(html);
-  doc.close();
 }
 
 /**

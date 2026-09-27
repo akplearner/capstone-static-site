@@ -17,6 +17,7 @@ import { RoleIcon } from '@/components/team/RoleIcon';
 import { TaskRow } from './TaskRow';
 import { useRarity } from './useRarity';
 import { TaskStone, WeekGemTray } from '@/components/quarry/art/TaskStone';
+import type { TeammateTaskProgress } from './useCourseProgress';
 import { tintFor } from '@/components/quarry/art/palette';
 import { weekRarity } from '@/lib/rarity';
 import { TaskReference } from './TaskReference';
@@ -60,6 +61,7 @@ export function TasksTab({
   nextTask,
   nextIncompleteAfter,
   stuckByTask,
+  teamTaskProgress,
   cohortCal,
   expanded,
   setExpanded,
@@ -88,6 +90,7 @@ export function TasksTab({
   nextTask: Task | undefined;
   nextIncompleteAfter: (taskId: string) => Task | undefined;
   stuckByTask: Record<string, number>;
+  teamTaskProgress: Record<string, TeammateTaskProgress[]>;
   cohortCal: Cohort | null;
   expanded: Set<string>;
   setExpanded: Dispatch<SetStateAction<Set<string>>>;
@@ -243,6 +246,7 @@ export function TasksTab({
       open={expanded.has(task.id)}
       isNext={task.id === nextTask?.id}
       stuckCount={stuckByTask[task.id]}
+      teammates={teamTaskProgress[task.id]}
       focus={i != null && !!course.sharedTrack && !task.shared}
       percent={taskStats[task.id] ?? 0}
       onToggle={() => toggleTask(task)}

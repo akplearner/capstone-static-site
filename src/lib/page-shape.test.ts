@@ -1541,3 +1541,24 @@ describe('R82 — the sign-in round trip tells the truth', () => {
     expect(code('src/app/login/page.tsx')).toContain("safeNextPath(params.get('next'), '/dashboard')");
   });
 });
+
+/**
+ * R83 — the PDF prints once, and a task shows its team.
+ */
+describe('R83 — print + task indicators', () => {
+  it('printHTML loads content through srcdoc, exactly once', () => {
+    const docs = code('src/app/courses/[courseId]/docs/page.tsx');
+    expect(docs).toContain('iframe.srcdoc = html');
+    // doc.open()/write() is the double-load shape that printed a blank page
+    // first on Windows Chrome — it must not come back.
+    expect(docs).not.toContain('doc.open()');
+    expect(docs).not.toContain('doc.write(');
+    expect(docs, 'guarded against any second load').toContain('let printed = false');
+  });
+
+  it('every task row can show who on the team finished it', () => {
+    expect(code('src/components/course/TaskRow.tsx')).toContain('function TeamMarks(');
+    expect(code('src/components/course/TasksTab.tsx')).toContain('teammates={teamTaskProgress[task.id]}');
+    expect(code('src/components/course/useCourseProgress.ts')).toContain('teamTaskProgress');
+  });
+});

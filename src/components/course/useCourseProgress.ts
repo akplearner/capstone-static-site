@@ -111,6 +111,29 @@ export function useCourseProgress(course: Course, member: Member | null) {
     return out;
   }, EMPTY_OBJECT);
 
+  // Each TEAMMATE's percent on each of the week's tasks (R83): the avatars and
+  // the team ring on every task row. Same per-member derivation the team table
+  // uses; completions are team-readable, so this is live in cloud mode.
+  const teamTaskProgress = useClientStore<Record<string, TeammateTaskProgress[]>>(() => {
+    if (!member) return EMPTY_OBJECT;
+    const teammates = progressRepo.getRoster(course.id).filter((e) => e.teamId === member.teamId);
+    if (teammates.length <= 1) return EMPTY_OBJECT;
+    const out: Record<string, TeammateTaskProgress[]> = {};
+    for (const m of teammates) {
+      const keySet = progressRepo.getCompletionKeySet(course.id, m.memberId);
+      for (const t of getTasksByRole(course, m.role)) {
+        (out[t.id] ??= []).push({
+          memberId: m.memberId,
+          displayName: m.displayName,
+          avatarUrl: m.avatarUrl,
+          role: m.role,
+          pct: progressRepo.getTaskPercent(course.id, m.memberId, t, keySet),
+        });
+      }
+    }
+    return out;
+  }, EMPTY_OBJECT);
+
   // The cohort calendar, when the instructor has set a start date.
   const cohortKey = member ? (parseTeamId(member.teamId).cohort ?? member.cohort) : null;
   const cohortCal = useClientStore(() => (cohortKey ? cohortRepo.get(course.id, cohortKey) : null), null);
@@ -123,7 +146,17 @@ export function useCourseProgress(course: Course, member: Member | null) {
     nextIncompleteAfter,
     nextTask,
     stuckByTask,
+    teamTaskProgress,
     cohortKey,
     cohortCal,
   };
+}
+
+/** One teammate's standing on one task — for the row's avatar stack (R83). */
+export interface TeammateTaskProgress {
+  memberId: string;
+  displayName: string;
+  avatarUrl?: string;
+  role: string;
+  pct: number;
 }
