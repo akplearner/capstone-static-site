@@ -30,6 +30,8 @@ export type CustodyContent = ContentOf<typeof import('@/lib/docs/custodyTemplate
 export type ProcedureWeeks = Serialisable<typeof import('@/lib/docs/serverProcedures').WEEKS>;
 export type Procedures = Serialisable<typeof import('@/lib/docs/serverProcedures').PROCEDURES>;
 
+import { withDerivedBundle } from '@/lib/docs/derive';
+
 const section = <T,>(doc: CourseDto, key: string): T => ((doc.content?.[key] ?? {}) as T);
 
 /** The forms, checklists and templates this course's students fill in. */
@@ -37,7 +39,12 @@ export function deliverablesOf(doc: CourseDto): DeliverableDef[] {
   // `Serialisable<DeliverableDef>` and `DeliverableDef` are the same shape now
   // that every Definition-of-Done check is a predicate (data) — dto.test.ts
   // asserts there is no function marker anywhere in a document.
-  return (doc.deliverables ?? []) as unknown as DeliverableDef[];
+  //
+  // R84: every definition leaves here with its bundle (validators, rubric,
+  // visual) filled in — derived from the definition itself when the seed does
+  // not set it, so all 52 forms meet the standard without 52 edits, and the
+  // exported JSON stays byte-identical to the seeds.
+  return ((doc.deliverables ?? []) as unknown as DeliverableDef[]).map(withDerivedBundle);
 }
 
 export const cysaOf = (doc: CourseDto) => section<CysaContent>(doc, 'cysa');

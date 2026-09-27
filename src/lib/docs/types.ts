@@ -190,6 +190,41 @@ export interface DeliverableDef {
   sections: Section[];
   /** Objective Definition-of-Done checks (spec §8). */
   dod?: DodCheck[];
+  /** R84 — automatic field validators, evaluated live and frozen into a
+   *  submission. Absent = derived from the fields (see docs/derive.ts). */
+  checks?: FieldCheck[];
+  /** R84 — one sentence per rubric category, shown in the Expectations panel.
+   *  Absent = the generic category sentences. */
+  rubric?: Partial<Record<RubricCategory, string>>;
+  /** R84 — which platform diagram this form shows (see lib/diagrams). Absent =
+   *  the course's default. */
+  visual?: DeliverableVisual;
+}
+
+/** The four binary rubric categories (R84). Fixed — the whole platform grades
+ *  on the same four words. */
+export type RubricCategory = 'completeness' | 'correctness' | 'authenticity' | 'consistency';
+
+/** One automatic validator on a field (or a group column). JSON-safe. */
+export interface FieldCheck {
+  /** Form-level field key… */
+  field?: string;
+  /** …or a repeating group + column. */
+  group?: string;
+  column?: string;
+  rule: 'pattern' | 'keyword' | 'forbidden' | 'oneOf' | 'minLength';
+  /** pattern: a regex SOURCE (a RegExp is not JSON). keyword/forbidden/oneOf:
+   *  string[]. minLength: a number. */
+  value: string | string[] | number;
+  /** Shown beside the field while it fails — say what a passing value has. */
+  hint: string;
+}
+
+export interface DeliverableVisual {
+  kit: 'rack' | 'device' | 'topology' | 'flow';
+  /** A named preset from lib/diagrams/kitPresets; absent = the course default. */
+  preset?: string;
+  highlight?: string[];
 }
 
 /** Empty data shell for a deliverable (no example rows). */

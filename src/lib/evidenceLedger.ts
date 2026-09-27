@@ -23,6 +23,46 @@ export async function sha256Text(text: string): Promise<string> {
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
+/**
+ * The student's per-task stamp: `CQ-XXXXXX`, derived from (user, course, task).
+ *
+ * It is appended to a step's verify tokens, so pasted output only reads
+ * `verified-output` when the student's own stamp appears in it — echo it, put
+ * it in the prompt, anything. That binds a paste to THIS student on THIS task:
+ * output copied from a classmate carries the wrong stamp.
+ *
+ * Same honesty rule as the header of this file: the stamp is derived
+ * client-side (deliberately — it must work offline and render synchronously),
+ * so a determined student can compute a classmate's. It raises the effort of
+ * casual copying; it is not a cryptographic proof, and no UI wording may claim
+ * more. FNV-1a, not SHA: synchronous, and secrecy was never the point.
+ */
+export function taskToken(userId: string, courseId: string, taskId: string): string {
+  const s = `${userId}|${courseId}|${taskId}`;
+  let h = 0x811c9dc5;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  // Second pass over the reversed string widens 32 bits to the 6 characters.
+  let h2 = 0x811c9dc5;
+  for (let i = s.length - 1; i >= 0; i--) {
+    h2 ^= s.charCodeAt(i);
+    h2 = Math.imul(h2, 0x01000193) >>> 0;
+  }
+  const ALPHA = 'ABCDEFGHJKMNPQRSTVWXYZ23456789'; // no 0/O/1/I/L confusables
+  let out = '';
+  // Three characters from each 32-bit half (30^3 < 2^32, no BigInt needed).
+  for (const half of [h, h2]) {
+    let n = half;
+    for (let i = 0; i < 3; i++) {
+      out += ALPHA[n % ALPHA.length];
+      n = Math.floor(n / ALPHA.length);
+    }
+  }
+  return `CQ-${out}`;
+}
+
 export interface VerifyScore {
   matched: number;
   total: number;
