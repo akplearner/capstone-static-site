@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users } from 'lucide-react';
+import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users, BarChart3 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
@@ -125,6 +125,11 @@ export default function InstructorHomePage() {
         trailing={
           isAdmin ? (
             <>
+              <Link href="/instructor/metrics">
+                <Button variant="secondary" className="flex items-center gap-1">
+                  <BarChart3 className="h-4 w-4" /> Metrics
+                </Button>
+              </Link>
               <Button onClick={() => setCreating((v) => !v)} className="flex items-center gap-1">
                 <Plus className="h-4 w-4" /> New course
               </Button>

@@ -1856,3 +1856,28 @@ describe('R86 — nobody works unsigned, and the log never lies', () => {
     }
   });
 });
+
+describe('R86 — metrics count activity, they do not read work', () => {
+  it('every signed-in tab reports presence, throttled and self-scoped', () => {
+    expect(code('src/app/layout.tsx')).toContain('<PresenceBeacon');
+    const hook = read('src/lib/usePresence.ts');
+    expect(hook, 'heartbeat no faster than five minutes').toContain('5 * 60_000');
+    expect(hook, 'no writes from a backgrounded tab').toContain('visibilitychange');
+    expect(hook, 'the write goes through the wire layer').toContain('stampLastSeen(userId)');
+    expect(read('src/lib/data/supabaseFeatureRepos.ts'), 'the clock is the caller’s own row, nobody else’s').toContain(".eq('id', userId)");
+  });
+
+  it('the metrics page is the admin’s, and reads through the one loader', () => {
+    const page = code('src/app/instructor/metrics/page.tsx');
+    expect(page).toContain('<AdminGate>');
+    expect(page).toContain('loadMetrics()');
+    expect(code('src/app/instructor/page.tsx'), 'reachable from the studio home').toContain('/instructor/metrics');
+  });
+
+  it('the loader can never reach private data', () => {
+    const src = read('src/lib/data/metricsLoader.ts');
+    for (const t of ['lab_access', 'step_notes', 'user_course_state', 'step_evidence', 'deliverables']) {
+      expect(src, `metrics must not select ${t}`).not.toContain(`'${t}'`);
+    }
+  });
+});

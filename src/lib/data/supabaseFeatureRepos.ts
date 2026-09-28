@@ -301,3 +301,11 @@ export const supabaseSubmissionsRepo: SubmissionsRepository = {
     return true;
   },
 };
+
+// R86: the last-seen heartbeat, called (throttled) by usePresenceBeacon. It
+// lives here with the other wire timestamps: the caller's own row, one column.
+export function stampLastSeen(userId: string): void {
+  const supabase = getBrowserClient();
+  if (!supabase) return;
+  void supabase.from('profiles').update({ last_seen_at: new Date().toISOString() }).eq('id', userId);
+}

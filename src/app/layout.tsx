@@ -8,6 +8,7 @@ import { ToastProvider } from '@/components/ui/Toast';
 import { ServiceWorkerRegistrar } from '@/components/pwa/ServiceWorkerRegistrar';
 import { OfflineBanner } from '@/components/pwa/OfflineBanner';
 import { LegalGateOverlay } from '@/components/legal/AgreementGate';
+import { PresenceBeacon } from '@/components/PresenceBeacon';
 // Applies the saved theme before first paint. Shared with next.config.ts, which
 // whitelists it in the CSP by hash — see src/lib/themeScript.ts.
 import { THEME_SCRIPT } from '@/lib/themeScript';
@@ -82,6 +83,9 @@ export default function RootLayout({
             {/* R86: a signed-in account missing any current agreement version
                 sees nothing else until it is read and accepted. */}
             <LegalGateOverlay />
+            {/* R86: every signed-in tab reports presence + a throttled
+                last-seen heartbeat for the admin metrics. */}
+            <PresenceBeacon />
             <main id="main" tabIndex={-1} className="isolate mx-auto max-w-6xl px-4 py-8 outline-none">
               {children}
             </main>

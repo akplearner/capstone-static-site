@@ -211,7 +211,10 @@ everything an instructor can):
   reported issues, cohort dates, fixing the roster (moving a student between
   teams, changing a role, removing someone who dropped).
 - **Admin** — owns the platform: all of the above, **plus** the Studio —
-  creating and editing courses, deliverable definitions and reference content.
+  creating and editing courses, deliverable definitions and reference content —
+  and the platform metrics page (`/instructor/metrics`): signups and dates,
+  who is on right now, last activity, acknowledgement status, enrolments and
+  progress.
 
 Each account signs in once first (that creates the profile), then Supabase →
 **SQL Editor** → New query → run one of:
