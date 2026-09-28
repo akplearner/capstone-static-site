@@ -37,6 +37,13 @@ export function SignInPanel({
       <div className="mt-4">
         <AuthForm mode={mode} next={next} onSwitchMode={setMode} />
       </div>
+      {/* R86: acceptance itself happens (and is logged) right after sign-in —
+          the gate blocks everything until it is done — but nobody should meet
+          the agreements as a surprise. */}
+      <p className="mt-3 text-xs text-muted">
+        After signing in you’ll be asked once to accept the platform agreements — terms
+        (no exam guarantee), acceptable use, lab responsibility, data notice and conduct.
+      </p>
     </motion.div>
   );
 }

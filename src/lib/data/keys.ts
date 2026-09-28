@@ -6,6 +6,9 @@ export const STORAGE_PREFIX = 'capstone_';
 export const KEYS = {
   // Global (not course-scoped)
   courses: `${STORAGE_PREFIX}courses`, // authored courses (JSON array of Course)
+  // Offline acknowledgement log (R86): {agreementId: {version, at}} per device —
+  // with no accounts, the device is the identity the acceptance belongs to.
+  legalAcceptances: `${STORAGE_PREFIX}legal_acceptances`,
   instructorUnlocked: `${STORAGE_PREFIX}instructor_unlocked`,
   migratedV2: `${STORAGE_PREFIX}migrated_v2`,
 

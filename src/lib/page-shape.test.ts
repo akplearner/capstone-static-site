@@ -1830,3 +1830,29 @@ describe('R85 — the admin content studio edits safely', () => {
     expect(src, 'derived exactly as the docs page derives').toContain('withDerivedBundle(');
   });
 });
+
+describe('R86 — nobody works unsigned, and the log never lies', () => {
+  it('the gate covers the whole app in cloud mode, and the first join offline', () => {
+    expect(code('src/app/layout.tsx'), 'the overlay sits in the root layout').toContain('<LegalGateOverlay');
+    const join = code('src/components/course/JoinPanel.tsx');
+    expect(join, 'offline join fronts the agreements').toContain('missingAcceptances(localAcceptances())');
+    expect(join).toContain('<LocalLegalDialog');
+    expect(code('src/components/auth/SignInPanel.tsx'), 'no surprise at sign-in').toContain('platform agreements');
+  });
+
+  it('the acknowledgement log is append-only, and versions drive the re-ask', () => {
+    const sql = read('supabase/migrations/0011_agreement_log.sql').toLowerCase();
+    expect(sql).not.toMatch(/create policy [^;]*agreement_acceptances for (update|delete)/);
+    expect(sql, 'the primary key is what makes a version a new row').toContain('primary key (user_id, agreement_id, version)');
+    const gate = code('src/components/legal/AgreementGate.tsx');
+    expect(gate, 'the gate asks by version, through the one registry function').toContain('missingAcceptances(');
+    expect(gate, 'accepting writes the log, never edits it').not.toContain('.update(');
+  });
+
+  it('the rls proofs stand', () => {
+    const t = read('supabase/tests/rls.sql');
+    for (const a of ['ada acknowledged terms as bob', 'ada rewrote the acceptance log', 'the whole acknowledgement log', 'sets her own last-seen clock']) {
+      expect(t, `missing assert: ${a}`).toContain(a);
+    }
+  });
+});

@@ -324,6 +324,38 @@ begin
 end $$;
 reset role;
 
+-- ── R86: acknowledgements are logged, personal, and permanent ──────────────
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.agreement_acceptances (user_id, agreement_id, version)
+  values ('00000000-0000-4000-8000-00000000000a', 'terms', 1);
+do $$ begin
+  assert (select count(*) from public.agreement_acceptances) = 1, 'ada: reads her own acceptance';
+  -- Nobody signs for someone else…
+  begin
+    insert into public.agreement_acceptances (user_id, agreement_id, version)
+      values ('00000000-0000-4000-8000-00000000000b', 'terms', 1);
+    raise exception 'ada acknowledged terms as bob';
+  exception when insufficient_privilege then null; end;
+  -- …and the log only grows: with no update/delete policy there is nothing to touch.
+  update public.agreement_acceptances set version = 99 where agreement_id = 'terms';
+  if found then raise exception 'ada rewrote the acceptance log'; end if;
+  delete from public.agreement_acceptances where agreement_id = 'terms';
+  if found then raise exception 'ada erased the acceptance log'; end if;
+  -- The heartbeat column is hers to set (0011 column grant).
+  update public.profiles set last_seen_at = now() where id = '00000000-0000-4000-8000-00000000000a';
+  assert (select last_seen_at from public.profiles where id = '00000000-0000-4000-8000-00000000000a') is not null, 'ada: sets her own last-seen clock';
+end $$;
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.agreement_acceptances) = 0, 'bob: never ada''s acknowledgements';
+end $$;
+reset role;
+
+
 -- ── What Zed sees (signed in, joined nothing) ───────────────────────────────
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
@@ -359,6 +391,7 @@ do $$ begin
   assert (select count(*) from public.profiles) = 6, 'ivy: every profile';
   assert (select display_name from public.profiles where id = '00000000-0000-4000-8000-00000000000a') = 'Ada L.', 'ivy: sees student names (as she renamed herself)';
   assert (select public.is_admin()) = false, 'ivy: not an admin';
+  assert (select count(*) from public.agreement_acceptances) = 1, 'ivy: the whole acknowledgement log';
 end $$;
 -- R85: content is the admin's — an instructor can no longer write the course
 -- document (insert refused, update touches nothing)…

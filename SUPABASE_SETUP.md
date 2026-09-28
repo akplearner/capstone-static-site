@@ -417,6 +417,7 @@ Still worth ten minutes on the live site before real students:
 | Frozen submissions | your team and the instructor; **nobody** can edit one — a fix is a new version |
 | Peer-review assignments | only the assigned reviewer (and the instructor) — the submitting team never learns who |
 | Peer reviews (the verdict rows) | the reviewer, the submitting team (no reviewer name on the row), the instructor |
+| Agreement acknowledgements | your own log; staff read everyone's — nobody edits or deletes a row |
 | Instructor reviews of a form | your team (read); the instructor writes |
 | Cohort calendar (start date) | anyone signed in (read); the instructor writes |
 | The course document | anyone signed in (read); **the admin** writes |

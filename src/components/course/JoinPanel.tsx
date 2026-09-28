@@ -13,6 +13,9 @@ import { useCourseDocument } from '@/lib/useCourse';
 import { roleGuidesOf } from '@/lib/content/read';
 import { getMonthlyCohorts } from '@/lib/utils';
 import { composeTeamId, parseTeamId, teamLabel, type TeamMode } from '@/lib/team';
+import { LocalLegalDialog } from '@/components/legal/AgreementGate';
+import { localAcceptances } from '@/lib/legal/acceptances';
+import { missingAcceptances } from '@/lib/legal/agreements';
 import type { Course, Member } from '@/lib/types';
 
 // Cohort join window (R83): only the CURRENT month's cohort is joinable, so
@@ -93,9 +96,17 @@ export function JoinPanel({
   })();
 
   const [joining, setJoining] = useState(false);
+  const [showLegal, setShowLegal] = useState(false);
   const submit = async () => {
     if (!name.trim()) {
       setError('Please enter your name to continue.');
+      return;
+    }
+    // R86, offline mode: with no account to gate at sign-in, the agreements
+    // front the first real act — joining. Accepted once per device; the
+    // cloud path is gated app-wide by LegalGateOverlay instead.
+    if (!requireAuth && missingAcceptances(localAcceptances()).length > 0) {
+      setShowLegal(true);
       return;
     }
     // When auth is on, the Supabase user id IS the member id (stable across devices);
@@ -367,6 +378,15 @@ export function JoinPanel({
       )}
 
       {error && <p className="text-sm text-danger">{error}</p>}
+
+      <LocalLegalDialog
+        open={showLegal}
+        onClose={() => setShowLegal(false)}
+        onAccepted={() => {
+          setShowLegal(false);
+          void submit();
+        }}
+      />
 
       <div className="flex items-center gap-3">
         <Button onClick={() => void submit()} size="lg" disabled={joining}>
