@@ -31,15 +31,16 @@ export function CloudOverview({ variant, courseId }: { variant: 'home' | 'guide'
       <section aria-labelledby="cloud-build" className="space-y-4">
         <div className="space-y-1">
           <h2 id="cloud-build" className="text-xl font-bold text-ink">
-            What you’ll build
+            What you’ll build in the first month
           </h2>
           <p className="max-w-prose text-sm text-body">
-            A small company in {platform}: a website with HTTPS, a serverless visitor counter, one Linux VM — then
-            you secure it, recover it, write it as code and hand it over. Four roles, one task each a week, $5
-            budget.
+            A small company in {platform}: a website with HTTPS, a serverless visitor counter, one Linux VM. Four
+            roles, one task each a week, $5 budget. Weeks 5–12 add identity, networking, backup, code and a
+            pipeline — switch on <em>Show what comes later</em> to see them.
           </p>
         </div>
-        <CloudTopology topology={topology} controls={false} />
+        {/* Week 4 — the end of the Beginner phase — so a newcomer meets a picture they can read, not thirty resources. */}
+        <CloudTopology topology={topology} initialWeek={4} />
         {cycle && <KitDiagram spec={cycle} courseId={courseId} />}
         <Collapsible title="How it works — four more pictures">
           <div className="space-y-4 pt-2">
@@ -99,10 +100,10 @@ export function CloudOverview({ variant, courseId }: { variant: 'home' | 'guide'
 }
 
 /** The manual's "Architecture & IaC" section: the diagram and its template. */
-export function CloudManualArchitecture() {
+export function CloudManualArchitecture({ initialWeek }: { initialWeek: number }) {
   const cloud = cloudOf(useCourseDocument());
   if (!cloud) return null;
-  return <CloudArchitecture topology={cloud.topology} iac={cloud.iac} />;
+  return <CloudArchitecture topology={cloud.topology} iac={cloud.iac} initialWeek={initialWeek} />;
 }
 
 /** A document's picture (`visual.kit === 'cloud'`): Architecture vN. */

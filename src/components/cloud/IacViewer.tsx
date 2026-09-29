@@ -10,8 +10,9 @@ import { downloadText } from '@/lib/download';
  * The cloud capstones' template reader (R87). Tabs: the starter (the file
  * students complete, with its FILL-ME blanks), the full template, the
  * parameter files, the outputs and the deploy commands. The week filter fades
- * every resource that arrives after that week; a selected resource (clicked
- * in the diagram) is highlighted and scrolled into view.
+ * every resource that arrives after that week (fades rather than hides: the
+ * line numbers are what a student quotes, so they must not move); a selected
+ * resource (clicked in the diagram) is highlighted and scrolled into view.
  */
 
 type Tab = 'starter' | 'full' | 'parameters' | 'outputs' | 'commands';

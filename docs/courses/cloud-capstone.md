@@ -124,7 +124,9 @@ names the role that fills it. Each form draws Architecture vN for its week.
   AWS uses an atomic `ADD`.
 * AWS Config reports untagged resources but does not block them. Blocking
   needs an SCP in AWS Organizations.
-* The official icon packs could not be downloaded here, so the icons are
-  drawn in each platform's style. To use the official ones, drop them into
-  `public/cloud-icons/{azure,aws}/<key>.svg` and list each key in
-  `src/lib/cloud/officialIcons.ts`.
+* The icons are the official AWS Architecture Icons and Microsoft Azure
+  icons, copied unchanged into `public/cloud-icons/` (see its README for the
+  source file of each and the terms). Two Azure icons do not exist in the
+  pack (GitHub, an action group) and are drawn.
+* The picture shows one week at a time. A Week-1 student sees the foundation
+  only; "Show what comes later" reveals the rest greyed with its week.

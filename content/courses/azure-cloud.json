@@ -8749,7 +8749,7 @@
       "topology": {
         "platform": "azure",
         "title": "The company in Azure — what azuredeploy.json builds",
-        "howToRead": "Boxes are the containers Azure groups things in: subscription, resource group, virtual network, subnets. Each icon is one resource in the ARM template — click it to see its lines. Solid arrows are traffic; switch on \"Template dependencies\" to see dependsOn. Icons are drawn in the Azure icon style.",
+        "howToRead": "Boxes are the containers Azure groups things in: subscription, resource group, virtual network, subnets. Each icon is one resource in the ARM template — click it to see its lines. Blue arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Template dependencies\" to see every dependsOn. Icons are Microsoft’s official Azure icons.",
         "width": 1100,
         "height": 640,
         "containers": [
@@ -8807,6 +8807,17 @@
             "w": 300,
             "h": 118,
             "week": 6
+          },
+          {
+            "id": "governance",
+            "kind": "group",
+            "label": "Governance",
+            "sub": "resource-group scope",
+            "x": 640,
+            "y": 520,
+            "w": 332,
+            "h": 90,
+            "week": 1
           }
         ],
         "nodes": [
@@ -8965,20 +8976,20 @@
             "small": true
           },
           {
-            "id": "pip",
-            "icon": "publicip",
-            "label": "Public IP",
-            "x": 700,
-            "y": 180,
-            "week": 2,
-            "small": true
-          },
-          {
             "id": "nic",
             "icon": "nic",
             "label": "NIC",
             "x": 700,
-            "y": 262,
+            "y": 190,
+            "week": 2,
+            "small": true
+          },
+          {
+            "id": "pip",
+            "icon": "publicip",
+            "label": "Public IP",
+            "x": 700,
+            "y": 296,
             "week": 2,
             "small": true
           },
@@ -8987,16 +8998,16 @@
             "icon": "vm",
             "label": "Virtual machine",
             "name": "vm-tools-team01",
-            "x": 810,
-            "y": 220,
+            "x": 850,
+            "y": 222,
             "week": 2
           },
           {
             "id": "dataDisk",
             "icon": "disk",
             "label": "Data disk",
-            "x": 915,
-            "y": 280,
+            "x": 930,
+            "y": 252,
             "week": 7,
             "small": true
           },
@@ -9014,8 +9025,8 @@
             "id": "readerRole",
             "icon": "role",
             "label": "Reader (group)",
-            "x": 240,
-            "y": 565,
+            "x": 700,
+            "y": 572,
             "week": 5,
             "small": true
           },
@@ -9023,8 +9034,8 @@
             "id": "tagPolicy",
             "icon": "policy",
             "label": "Policy: owner tag",
-            "x": 355,
-            "y": 565,
+            "x": 810,
+            "y": 572,
             "week": 11,
             "small": true
           },
@@ -9032,17 +9043,8 @@
             "id": "funcDiag",
             "icon": "diag",
             "label": "Diagnostics",
-            "x": 480,
-            "y": 565,
-            "week": 4,
-            "small": true
-          },
-          {
-            "id": "actionGroup",
-            "icon": "notify",
-            "label": "Action group",
-            "x": 600,
-            "y": 565,
+            "x": 200,
+            "y": 570,
             "week": 4,
             "small": true
           },
@@ -9050,8 +9052,17 @@
             "id": "http5xxAlert",
             "icon": "alert",
             "label": "Alert: 5xx",
-            "x": 720,
-            "y": 565,
+            "x": 400,
+            "y": 570,
+            "week": 4,
+            "small": true
+          },
+          {
+            "id": "actionGroup",
+            "icon": "notify",
+            "label": "Action group",
+            "x": 540,
+            "y": 570,
             "week": 4,
             "small": true
           },
@@ -9059,8 +9070,8 @@
             "id": "budget",
             "icon": "budget",
             "label": "Budget $5",
-            "x": 900,
-            "y": 565,
+            "x": 920,
+            "y": 572,
             "week": 1,
             "small": true
           }
@@ -9091,8 +9102,9 @@
             "from": "func",
             "to": "kv",
             "kind": "traffic",
-            "label": "secret reference",
-            "week": 3
+            "label": "Key Vault reference (until Week 5)",
+            "week": 3,
+            "until": 4
           },
           {
             "from": "func",
@@ -9109,6 +9121,13 @@
             "week": 3
           },
           {
+            "from": "func",
+            "to": "http5xxAlert",
+            "kind": "traffic",
+            "label": "Http5xx metric",
+            "week": 4
+          },
+          {
             "from": "http5xxAlert",
             "to": "actionGroup",
             "kind": "traffic",
@@ -9117,11 +9136,22 @@
           },
           {
             "from": "admin",
-            "to": "vm",
+            "to": "pip",
             "kind": "traffic",
             "label": "SSH from your /32",
             "week": 2,
-            "until": 5
+            "until": 5,
+            "via": {
+              "x": 990,
+              "y": 322
+            }
+          },
+          {
+            "from": "vm",
+            "to": "pip",
+            "kind": "traffic",
+            "label": "outbound",
+            "week": 2
           },
           {
             "from": "admin",

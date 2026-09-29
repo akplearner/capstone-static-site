@@ -117,14 +117,15 @@ export const CONTAINER_STROKE: Record<CloudPlatform, Record<string, string>> = {
     'subnet-private': '#50A0E0',
     zone: '#8AB8E6',
   },
+  // The AWS Architecture Icons deck's group colours (R88).
   aws: {
-    account: '#232F3E',
+    account: '#242F3E',
     group: '#7D8998',
     region: '#00A4A6',
     network: '#8C4FFF',
     subnet: '#7AA116',
     'subnet-private': '#00A4A6',
-    zone: '#147EBA',
+    zone: '#00A4A6',
   },
 };
 

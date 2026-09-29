@@ -6,6 +6,10 @@ import { AZURE_TOPOLOGY } from './azureTopology';
 import { AWS_TOPOLOGY } from './awsTopology';
 import { armDependencies, cfnDependencies } from './deps';
 import type { CloudTopology, IacBundle } from './model';
+import { existsSync, readdirSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { CONTAINER_STROKE } from './brand';
+import { DARK_CONTAINER_VARIANTS, DARK_VARIANTS, OFFICIAL_CONTAINER_ICONS, OFFICIAL_ICONS } from './officialIcons';
 
 /**
  * R87 — the diagram IS the template, and the template is sound.
@@ -243,5 +247,93 @@ describe('R87 — the templates are sound', () => {
         expect(JSON.stringify(s.Resource)).toContain('VisitorTable');
       }
     }
+  });
+});
+
+/**
+ * R88 — the official icons, and a picture with nothing floating.
+ */
+describe('R88 — official icons', () => {
+  const file = (p: string) => existsSync(resolve(process.cwd(), 'public/cloud-icons', p));
+
+  it.each(['azure', 'aws'] as const)('%s: every listed key has its file, and dark twins exist where declared', (platform) => {
+    for (const key of OFFICIAL_ICONS[platform]) {
+      expect(file(`${platform}/${key}.svg`), `${platform}/${key}.svg`).toBe(true);
+    }
+    for (const key of DARK_VARIANTS[platform]) {
+      expect(OFFICIAL_ICONS[platform], `${key} has a dark twin but is not listed`).toContain(key);
+      expect(file(`${platform}/${key}.dark.svg`), `${platform}/${key}.dark.svg`).toBe(true);
+    }
+    for (const kind of OFFICIAL_CONTAINER_ICONS[platform]) {
+      expect(file(`${platform}/group-${kind}.svg`), `${platform}/group-${kind}.svg`).toBe(true);
+    }
+    for (const kind of DARK_CONTAINER_VARIANTS[platform]) {
+      expect(file(`${platform}/group-${kind}.dark.svg`), `${platform}/group-${kind}.dark.svg`).toBe(true);
+    }
+  });
+
+  it.each([
+    ['azure', AZURE_TOPOLOGY],
+    ['aws', AWS_TOPOLOGY],
+  ] as const)('%s: every drawn resource has an official icon, except the two Azure has none for', (platform, topo) => {
+    const missing = [...new Set(topo.nodes.map((n) => n.icon))].filter((k) => !OFFICIAL_ICONS[platform].includes(k));
+    expect(missing).toEqual(platform === 'azure' ? ['github', 'notify'] : []);
+  });
+
+  it('no file was added without being listed (a stray file is a key nobody renders)', () => {
+    for (const platform of ['azure', 'aws'] as const) {
+      const listed = new Set([
+        ...OFFICIAL_ICONS[platform].flatMap((k) => [`${k}.svg`, ...(DARK_VARIANTS[platform].includes(k) ? [`${k}.dark.svg`] : [])]),
+        ...OFFICIAL_CONTAINER_ICONS[platform].flatMap((k) => [`group-${k}.svg`, ...(DARK_CONTAINER_VARIANTS[platform].includes(k) ? [`group-${k}.dark.svg`] : [])]),
+      ]);
+      const onDisk = readdirSync(resolve(process.cwd(), 'public/cloud-icons', platform)).filter((f) => f.endsWith('.svg'));
+      expect(onDisk.sort()).toEqual([...listed].sort());
+    }
+  });
+});
+
+describe.each([
+  ['azure', AZURE_TOPOLOGY, AZURE_IAC],
+  ['aws', AWS_TOPOLOGY, AWS_IAC],
+] as const)('R88 — nothing floats — %s', (platform, topo, iac) => {
+  const deps = platform === 'azure' ? armDependencies(iac.full.text) : cfnDependencies(iac.full.text, iac.resources);
+  const boxes = new Set(topo.containers.map((c) => c.id));
+  const inBox = (n: { x: number; y: number }) =>
+    topo.containers.some((c) => c.id !== topo.containers[0].id && c.kind === 'group' && n.x > c.x && n.x < c.x + c.w && n.y > c.y && n.y < c.y + c.h);
+
+  it('every supporting resource is tied to something: a template reference, a traffic line, or a scope box', () => {
+    const loose: string[] = [];
+    for (const n of topo.nodes.filter((x) => x.small)) {
+      const tied =
+        deps.some((d) => d.from === n.id || d.to === n.id) ||
+        topo.edges.some((e) => e.kind === 'traffic' && (e.from === n.id || e.to === n.id)) ||
+        inBox(n);
+      if (!tied) loose.push(n.id);
+    }
+    expect(loose).toEqual([]);
+  });
+
+  it('the alert watches something: an incoming traffic edge from what it measures', () => {
+    const alert = topo.nodes.find((n) => n.icon === 'alert')!;
+    expect(topo.edges.some((e) => e.kind === 'traffic' && e.to === alert.id), alert.id).toBe(true);
+  });
+
+  it('every container kind drawn has a stroke colour', () => {
+    for (const c of topo.containers) expect(CONTAINER_STROKE[platform][c.kind], `${c.id} (${c.kind})`).toBeTruthy();
+    expect(boxes.size).toBe(topo.containers.length);
+  });
+
+  it('no traffic edge outlives the template: a line drawn "until" a week ends before the final state', () => {
+    for (const e of topo.edges.filter((x) => x.until != null)) expect(e.until!, `${e.from}→${e.to}`).toBeLessThan(12);
+  });
+});
+
+describe('R88 — Azure: the Key Vault line ends when the secret does', () => {
+  it('the Function → Key Vault edge stops at Week 4; from Week 5 the identity carries the data path', () => {
+    const kv = AZURE_TOPOLOGY.edges.find((e) => e.kind === 'traffic' && e.from === 'func' && e.to === 'kv')!;
+    expect(kv.until).toBe(4);
+    // And the template agrees: no Function setting references the vault.
+    const func = AZURE_IAC.full.text.slice(AZURE_IAC.resources.find((r) => r.id === 'func')!.start);
+    expect(func.slice(0, 4000)).not.toMatch(/@Microsoft\.KeyVault/);
   });
 });

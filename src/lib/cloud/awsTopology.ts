@@ -22,6 +22,7 @@ const TRAFFIC: CloudEdge[] = [
   { from: 'HttpApi', to: 'CounterFunction', kind: 'traffic', label: 'invoke', week: 3 },
   { from: 'CounterFunction', to: 'VisitorTable', kind: 'traffic', label: 'UpdateItem ADD', week: 3 },
   { from: 'CounterFunction', to: 'CounterLogGroup', kind: 'traffic', label: 'logs', week: 4 },
+  { from: 'CounterFunction', to: 'FunctionErrorsAlarm', kind: 'traffic', label: 'Errors metric', week: 4 },
   { from: 'FunctionErrorsAlarm', to: 'AlertTopic', kind: 'traffic', label: 'email', week: 4 },
   { from: 'admin', to: 'ToolsInstance', kind: 'traffic', label: 'SSH from your /32', week: 2, until: 5 },
   { from: 'admin', to: 'ToolsInstance', kind: 'traffic', label: 'Session Manager — no open port', week: 6 },
@@ -34,7 +35,7 @@ export const AWS_TOPOLOGY: CloudTopology = {
   platform: 'aws',
   title: 'The company in AWS — what template.yaml builds',
   howToRead:
-    'Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Solid arrows are traffic; switch on "Template dependencies" to see !Ref and DependsOn. Icons are drawn in the AWS icon style.',
+    'Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Orange arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on "Template dependencies" to see !Ref and DependsOn. Icons are the official AWS Architecture Icons.',
   width: 1100,
   height: 640,
   containers: [
@@ -44,6 +45,8 @@ export const AWS_TOPOLOGY: CloudTopology = {
     { id: 'az', kind: 'zone', label: 'Availability Zone', sub: 'us-east-1a', x: 664, y: 118, w: 298, h: 350, week: 1 },
     { id: 'PublicSubnet', kind: 'subnet', label: 'Public subnet', sub: '10.10.1.0/24', x: 678, y: 152, w: 270, h: 176, week: 1 },
     { id: 'PrivateSubnet', kind: 'subnet-private', label: 'Private subnet', sub: '10.10.2.0/24 · no internet route', x: 678, y: 342, w: 270, h: 112, week: 6 },
+    // Not a template resource: the box for what is account-level, outside any Region.
+    { id: 'account-level', kind: 'group', label: 'Account level', sub: 'IAM · Budgets', x: 126, y: 430, w: 122, h: 182, week: 1 },
   ],
   nodes: [
     { id: 'github', icon: 'github', label: 'GitHub', x: 55, y: 70, week: 1, external: true },
@@ -52,14 +55,11 @@ export const AWS_TOPOLOGY: CloudTopology = {
 
     { id: 'SiteDistribution', icon: 'cdn', label: 'CloudFront', name: 'd…cloudfront.net', x: 185, y: 150, week: 2 },
     { id: 'SiteOac', icon: 'oac', label: 'OAC', x: 185, y: 225, week: 2, small: true },
-    { id: 'InstanceRole', icon: 'role', label: 'Role: SSM', x: 160, y: 400, week: 6, small: true },
-    { id: 'InstanceProfile', icon: 'role', label: 'Profile', x: 215, y: 400, week: 6, small: true },
-    { id: 'CounterFunctionRole', icon: 'role', label: 'Role: counter', x: 160, y: 475, week: 3, small: true },
-    { id: 'ReadOnlyGroup', icon: 'group', label: 'Read-only', x: 215, y: 475, week: 5, small: true },
-    { id: 'MonthlyBudget', icon: 'budget', label: 'Budget $5', x: 185, y: 565, week: 1, small: true },
+    { id: 'ReadOnlyGroup', icon: 'group', label: 'Read-only', x: 187, y: 487, week: 5, small: true },
+    { id: 'MonthlyBudget', icon: 'budget', label: 'Budget $5', x: 187, y: 568, week: 1, small: true },
 
     { id: 'SiteBucket', icon: 'storage', label: 'Amazon S3', name: 'site bucket (private)', x: 330, y: 150, week: 2 },
-    { id: 'SiteBucketPolicy', icon: 'bucketpolicy', label: 'Bucket policy', x: 420, y: 190, week: 2, small: true },
+    { id: 'SiteBucketPolicy', icon: 'bucketpolicy', label: 'Bucket policy', x: 262, y: 225, week: 2, small: true },
 
     { id: 'HttpApi', icon: 'api', label: 'API Gateway', name: 'HTTP API', x: 330, y: 300, week: 3 },
     { id: 'ApiInvokePermission', icon: 'role', label: 'Invoke perm.', x: 405, y: 245, week: 3, small: true },
@@ -68,11 +68,15 @@ export const AWS_TOPOLOGY: CloudTopology = {
     { id: 'ApiStage', icon: 'api', label: '$default', x: 390, y: 385, week: 3, small: true },
     { id: 'CounterFunction', icon: 'function', label: 'AWS Lambda', name: 'capstone-team01-counter', x: 475, y: 300, week: 3 },
     { id: 'VisitorTable', icon: 'nosql', label: 'DynamoDB', name: 'on-demand', x: 590, y: 300, week: 3 },
-    { id: 'TableNameParameter', icon: 'param', label: 'Parameter Store', x: 590, y: 385, week: 3, small: true },
+    { id: 'TableNameParameter', icon: 'param', label: 'Parameter Store', x: 610, y: 385, week: 3, small: true },
+    // IAM is global, but AWS draws a role beside what assumes it.
+    { id: 'CounterFunctionRole', icon: 'role', label: 'Role: counter', x: 540, y: 434, week: 3, small: true },
+    { id: 'InstanceRole', icon: 'role', label: 'Role: SSM', x: 740, y: 560, week: 6, small: true },
+    { id: 'InstanceProfile', icon: 'role', label: 'Instance profile', x: 830, y: 560, week: 6, small: true },
 
-    { id: 'FunctionErrorsAlarm', icon: 'alert', label: 'CloudWatch alarm', x: 330, y: 480, week: 4 },
     { id: 'CounterLogGroup', icon: 'logs', label: 'CloudWatch Logs', x: 475, y: 480, week: 4 },
-    { id: 'AlertTopic', icon: 'notify', label: 'Amazon SNS', x: 330, y: 568, week: 4, small: true },
+    { id: 'FunctionErrorsAlarm', icon: 'alert', label: 'CloudWatch alarm', x: 600, y: 480, week: 4 },
+    { id: 'AlertTopic', icon: 'notify', label: 'Amazon SNS', x: 600, y: 568, week: 4, small: true },
 
     { id: 'GatewayAttachment', icon: 'route', label: 'Attachment', x: 880, y: 84, week: 1, small: true },
     { id: 'InternetGateway', icon: 'gateway', label: 'Internet gateway', x: 945, y: 84, week: 1, small: true },

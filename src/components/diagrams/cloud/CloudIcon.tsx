@@ -293,7 +293,15 @@ export function CloudIcon({
   const ty = y - size / 2;
   const official = officialIconHref(platform, icon);
   if (official) {
-    return <image href={official} x={tx} y={ty} width={size} height={size} />;
+    // The pack's dark-background twin, where one exists, swaps in with the theme.
+    return official.dark ? (
+      <g>
+        <image href={official.light} x={tx} y={ty} width={size} height={size} className="only-light" />
+        <image href={official.dark} x={tx} y={ty} width={size} height={size} className="only-dark" />
+      </g>
+    ) : (
+      <image href={official.light} x={tx} y={ty} width={size} height={size} />
+    );
   }
   if (platform === 'aws') {
     const tile = AWS_CATEGORY[AWS_TILE[icon]];

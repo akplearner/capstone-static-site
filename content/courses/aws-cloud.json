@@ -8691,7 +8691,7 @@
       "topology": {
         "platform": "aws",
         "title": "The company in AWS — what template.yaml builds",
-        "howToRead": "Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Solid arrows are traffic; switch on \"Template dependencies\" to see !Ref and DependsOn. Icons are drawn in the AWS icon style.",
+        "howToRead": "Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Orange arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Template dependencies\" to see !Ref and DependsOn. Icons are the official AWS Architecture Icons.",
         "width": 1100,
         "height": 640,
         "containers": [
@@ -8760,6 +8760,17 @@
             "w": 270,
             "h": 112,
             "week": 6
+          },
+          {
+            "id": "account-level",
+            "kind": "group",
+            "label": "Account level",
+            "sub": "IAM · Budgets",
+            "x": 126,
+            "y": 430,
+            "w": 122,
+            "h": 182,
+            "week": 1
           }
         ],
         "nodes": [
@@ -8809,38 +8820,11 @@
             "small": true
           },
           {
-            "id": "InstanceRole",
-            "icon": "role",
-            "label": "Role: SSM",
-            "x": 160,
-            "y": 400,
-            "week": 6,
-            "small": true
-          },
-          {
-            "id": "InstanceProfile",
-            "icon": "role",
-            "label": "Profile",
-            "x": 215,
-            "y": 400,
-            "week": 6,
-            "small": true
-          },
-          {
-            "id": "CounterFunctionRole",
-            "icon": "role",
-            "label": "Role: counter",
-            "x": 160,
-            "y": 475,
-            "week": 3,
-            "small": true
-          },
-          {
             "id": "ReadOnlyGroup",
             "icon": "group",
             "label": "Read-only",
-            "x": 215,
-            "y": 475,
+            "x": 187,
+            "y": 487,
             "week": 5,
             "small": true
           },
@@ -8848,8 +8832,8 @@
             "id": "MonthlyBudget",
             "icon": "budget",
             "label": "Budget $5",
-            "x": 185,
-            "y": 565,
+            "x": 187,
+            "y": 568,
             "week": 1,
             "small": true
           },
@@ -8866,8 +8850,8 @@
             "id": "SiteBucketPolicy",
             "icon": "bucketpolicy",
             "label": "Bucket policy",
-            "x": 420,
-            "y": 190,
+            "x": 262,
+            "y": 225,
             "week": 2,
             "small": true
           },
@@ -8938,18 +8922,37 @@
             "id": "TableNameParameter",
             "icon": "param",
             "label": "Parameter Store",
-            "x": 590,
+            "x": 610,
             "y": 385,
             "week": 3,
             "small": true
           },
           {
-            "id": "FunctionErrorsAlarm",
-            "icon": "alert",
-            "label": "CloudWatch alarm",
-            "x": 330,
-            "y": 480,
-            "week": 4
+            "id": "CounterFunctionRole",
+            "icon": "role",
+            "label": "Role: counter",
+            "x": 540,
+            "y": 434,
+            "week": 3,
+            "small": true
+          },
+          {
+            "id": "InstanceRole",
+            "icon": "role",
+            "label": "Role: SSM",
+            "x": 740,
+            "y": 560,
+            "week": 6,
+            "small": true
+          },
+          {
+            "id": "InstanceProfile",
+            "icon": "role",
+            "label": "Instance profile",
+            "x": 830,
+            "y": 560,
+            "week": 6,
+            "small": true
           },
           {
             "id": "CounterLogGroup",
@@ -8960,10 +8963,18 @@
             "week": 4
           },
           {
+            "id": "FunctionErrorsAlarm",
+            "icon": "alert",
+            "label": "CloudWatch alarm",
+            "x": 600,
+            "y": 480,
+            "week": 4
+          },
+          {
             "id": "AlertTopic",
             "icon": "notify",
             "label": "Amazon SNS",
-            "x": 330,
+            "x": 600,
             "y": 568,
             "week": 4,
             "small": true
@@ -9109,6 +9120,13 @@
             "to": "CounterLogGroup",
             "kind": "traffic",
             "label": "logs",
+            "week": 4
+          },
+          {
+            "from": "CounterFunction",
+            "to": "FunctionErrorsAlarm",
+            "kind": "traffic",
+            "label": "Errors metric",
             "week": 4
           },
           {

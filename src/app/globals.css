@@ -623,6 +623,14 @@
   --color-w12: #ff4b82;
 }
 
+/* A picture that comes in two files, one per theme — the official cloud icon
+   packs ship light- and dark-background versions of their general icons, and
+   an <image> cannot take a token. The only place the theme swaps content. */
+.only-light { display: block; }
+.dark .only-light { display: none; }
+.only-dark { display: none; }
+.dark .only-dark { display: block; }
+
 /* ISC2 — indigo. */
 [data-region='isc2'] {
   --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee;

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { CloudManualArchitecture, CloudOverview } from '@/components/cloud/CloudOverview';
+import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
 import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
 import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
@@ -71,6 +72,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   // rack, so the second course to ship a guide would have drawn its rack.
   const picture = course.topologyPicture ?? (topo ? 'soc' : undefined);
   const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
+  const progress = useCourseProgress(course, member);
 
   // The deliverable chain, with filed status recomputed whenever docs change,
   // so the diagram reads as a live status board rather than a static plan.
@@ -138,7 +140,8 @@ export function GuideManual({ course, member }: { course: Course; member: Member
         </div>
       ),
     'config-guide': <ServerConfigGuide />,
-    'cloud-iac': <CloudManualArchitecture />,
+    // Opens on the week the student is on, so the picture matches the work in front of them.
+    'cloud-iac': <CloudManualArchitecture initialWeek={progress.activeWeek} />,
     // The section composes its rows from that course's own lab, so the generic
     // terminal help renders everywhere while the panel- and tool-specific fixes
     // appear only where they are true. See `CommandTroubleshooting`.
