@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CloudOverview } from '@/components/cloud/CloudOverview';
 import Link from 'next/link';
 import { RotateCcw, Sparkles } from 'lucide-react';
 import type { Course, Member, RoleDef, Task, WeekDef } from '@/lib/types';
@@ -335,6 +336,9 @@ export function HomeTab({
           `join-panel` anchor the enrol gate links to), the compact "change
           team or role" summary once joined. It used to be mounted twice, in
           two mutually exclusive branches. */}
+      {/* R87: a cloud capstone shows what you will build before you join. */}
+      {!joined && course.topologyPicture === 'cloud' && <CloudOverview variant="home" courseId={course.id} />}
+
       <div id={joined ? undefined : 'join-panel'}>
         <JoinPanel
           key={member ? `${member.memberId}:${member.teamId}:${member.role}` : 'none'} course={course} member={member} userId={userId} requireAuth={requireAuth} onJoined={onJoined} />

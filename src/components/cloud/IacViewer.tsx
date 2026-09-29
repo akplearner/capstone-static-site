@@ -108,11 +108,11 @@ export function IacViewer({
 
       {file && (
         <>
-          <div className="flex items-center gap-2 px-3 pt-2 text-xs">
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 px-3 pt-2 text-xs">
             <span className="font-mono text-ink">{file.name}</span>
             {tab === 'starter' && <span className="text-muted">Replace each FILL-ME with the value its hint asks for.</span>}
             {range && tab === 'full' && (
-              <span className="text-muted">
+              <span className="min-w-0 break-words text-muted">
                 {range.id} · <span className="font-mono">{range.type}</span> · lines {range.start}–{range.end} · week {range.week}
               </span>
             )}
@@ -205,7 +205,7 @@ function CodeLines({
   const digits = String(lines.length).length;
   return (
     <div ref={box} className="relative mt-2 max-h-[28rem] overflow-auto border-t border-line">
-      <pre className="min-w-max py-2 font-mono text-xs leading-5">
+      <pre className="min-w-max overflow-visible rounded-none px-0 py-2 font-mono text-xs leading-5">
         {lines.map((line, i) => {
           const n = i + 1;
           const on = highlight != null && n >= highlight[0] && n <= highlight[1];
@@ -214,16 +214,19 @@ function CodeLines({
             <div
               key={n}
               data-line={n}
-              className={`flex pr-4 ${on ? 'bg-accent-soft' : fill ? 'bg-warn-soft' : ''} ${faded.has(n) && !on ? 'opacity-40' : ''}`}
+              className={`flex pr-4 ${faded.has(n) && !on ? 'opacity-40' : ''}`}
+              style={on ? { background: 'color-mix(in oklab, var(--color-term-tx) 16%, transparent)' } : undefined}
             >
               <span
                 aria-hidden
-                className="sticky left-0 select-none bg-panel pl-3 pr-3 text-right text-muted"
-                style={{ minWidth: `${digits + 2}ch` }}
+                className="sticky left-0 select-none pl-3 pr-3 text-right"
+                style={{ minWidth: `${digits + 2}ch`, background: 'var(--color-term-bg)', color: 'var(--color-term-dim)' }}
               >
                 {n}
               </span>
-              <span className={fill ? 'font-semibold text-warn' : 'text-ink'}>{line || ' '}</span>
+              <span className={fill ? 'font-semibold' : undefined} style={fill ? { color: 'var(--color-term-ip)' } : undefined}>
+                {line || ' '}
+              </span>
             </div>
           );
         })}

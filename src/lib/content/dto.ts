@@ -28,6 +28,11 @@ import { CYSA_PLUS } from '@/lib/data/seed/cysa';
 import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
 import { CCNA } from '@/lib/data/seed/ccna';
+import { AZURE_CLOUD } from '@/lib/data/seed/azureCloud';
+import { AZURE_IAC } from '@/lib/cloud/azureIac';
+import { AZURE_TOPOLOGY } from '@/lib/cloud/azureTopology';
+import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
+import { CLOUD_PHASES, CLOUD_RACI, cloudWorkflows } from '@/lib/cloud/workflows';
 import { seedDeliverablesForCourse } from '@/lib/docs/definitions';
 import { PROCEDURES, WEEKS } from '@/lib/docs/serverProcedures';
 import * as serverTopology from '@/lib/serverTopology';
@@ -53,7 +58,7 @@ export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -130,12 +135,21 @@ export function serialisable<T>(value: T): Serialisable<T> {
   return value as Serialisable<T>;
 }
 
+const CLOUD_CONTENT: Record<string, { files: string[]; topology: CloudTopology; iac: IacBundle }> = {
+  'azure-cloud': {
+    files: ['src/lib/cloud/azureTopology.ts', 'src/lib/cloud/azureIac.ts', 'src/lib/cloud/workflows.ts'],
+    topology: AZURE_TOPOLOGY,
+    iac: AZURE_IAC,
+  },
+};
+
 const SEED_FILE: Record<string, string> = {
   'security-plus': 'src/lib/data/seed/securityPlus.ts',
   mssp: 'src/lib/data/seed/mssp.ts',
   'cysa-plus': 'src/lib/data/seed/cysa.ts',
   'server-plus': 'src/lib/data/seed/serverPlus.ts',
   ccna: 'src/lib/data/seed/ccna.ts',
+  'azure-cloud': 'src/lib/data/seed/azureCloud.ts',
 };
 
 const FORM_FILE: Record<string, string> = {
@@ -144,6 +158,7 @@ const FORM_FILE: Record<string, string> = {
   'cysa-plus': 'src/lib/docs/cysaDeliverables.ts',
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
   ccna: 'src/lib/docs/ccnaDeliverables.ts',
+  'azure-cloud': 'src/lib/docs/azureCloudDeliverables.ts',
 };
 
 /**
@@ -238,6 +253,20 @@ export function courseDto(courseId: string): CourseDto {
     generatedFrom.push('src/lib/docs/ccnaKit.ts', 'src/lib/docs/ccnaDiagrams.ts');
     content.kit = contentData(ccnaKit);
     content.ccnaDiagrams = contentData(ccnaDiagrams);
+  }
+  // The cloud capstones (R87): the topology the Guide draws and the template
+  // it is drawn from, as one section, so the picture and the code a student
+  // reads are the same document.
+  const cloud = CLOUD_CONTENT[courseId];
+  if (cloud) {
+    generatedFrom.push(...cloud.files);
+    content.cloud = {
+      topology: cloud.topology,
+      iac: cloud.iac,
+      workflows: cloudWorkflows(cloud.topology.platform),
+      raci: CLOUD_RACI,
+      phases: CLOUD_PHASES,
+    };
   }
   // The chain-of-custody columns and rules: every course's evidence guide
   // renders them, and until R78-D no document carried them.

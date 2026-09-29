@@ -100,6 +100,43 @@ const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
       waitsOnFrom: 'Red & Blue (findings & control evidence)',
     },
   },
+  // The cloud capstones (R87): same four roles on both platforms; each has
+  // its own task every week, so nobody waits on anybody to start.
+  ...Object.fromEntries(
+    ['azure-cloud', 'aws-cloud'].map((id) => [
+      id,
+      {
+        arch: {
+          blurb: 'Cloud Architect — you set the standards, own the cost and the design, and assemble each week’s document.',
+          works: 'documents',
+          arc: 'Standards & budget → architecture & cost → access & network design → IaC map → handover.',
+          handsOffTo: 'the whole team (the standard every resource follows)',
+          waitsOnFrom: 'nobody to start — each role fills its own section',
+        },
+        infra: {
+          blurb: 'Infrastructure Admin — you build the network, the VM, the data store and, later, the template.',
+          works: 'commands',
+          arc: 'Network → VM → database → alerts → subnets & disks → snapshots → IaC → rebuild from the template.',
+          handsOffTo: 'App & DevOps (the resources they deploy onto)',
+          waitsOnFrom: 'nobody to start — your task stands alone each week',
+        },
+        dev: {
+          blurb: 'App & DevOps — you ship the website, the serverless API and the pipeline that deploys them.',
+          works: 'both',
+          arc: 'Repo → website → API → debugging → identity → patching → restores → deploy from code → CI/CD.',
+          handsOffTo: 'Security & Ops (the endpoints to lock down)',
+          waitsOnFrom: 'nobody to start — your task stands alone each week',
+        },
+        secops: {
+          blurb: 'Security & Ops — you lock access down, prove what must fail does fail, and work the incidents.',
+          works: 'both',
+          arc: 'Firewall → SSH from your IP → CORS → incident → denials → no open ports → drills → OIDC → posture.',
+          handsOffTo: 'the Architect (findings for the document)',
+          waitsOnFrom: 'nobody to start — your task stands alone each week',
+        },
+      } satisfies Record<string, RoleGuide>,
+    ])
+  ),
 };
 
 /**

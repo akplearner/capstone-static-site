@@ -606,6 +606,23 @@
   --color-w8: #f85ccf;
 }
 
+/* The cloud capstones (R87) — one seam for both: the accent comes from the
+   region (Microsoft azure, AWS amber); the twelve weeks colour by PHASE —
+   Beginner, Intermediate, Advanced, Integrated — so a week's colour says how
+   far through the arc it is rather than being one of twelve arbitrary hues. */
+[data-seam='cloud'] {
+  --color-w1: #038166; --color-w2: #038166; --color-w3: #038166; --color-w4: #038166;
+  --color-w5: #0057b7; --color-w6: #0057b7; --color-w7: #0057b7; --color-w8: #0057b7;
+  --color-w9: #7514bd; --color-w10: #7514bd; --color-w11: #7514bd;
+  --color-w12: #b8023a;
+}
+.dark [data-seam='cloud'] {
+  --color-w1: #0eb58d; --color-w2: #0eb58d; --color-w3: #0eb58d; --color-w4: #0eb58d;
+  --color-w5: #3890fa; --color-w6: #3890fa; --color-w7: #3890fa; --color-w8: #3890fa;
+  --color-w9: #ae74ef; --color-w10: #ae74ef; --color-w11: #ae74ef;
+  --color-w12: #ff4b82;
+}
+
 /* ISC2 — indigo. */
 [data-region='isc2'] {
   --stone-rock: #26232e; --stone-rock-dark: #14121a; --stone-vein: #ded7ee;
@@ -1127,6 +1144,12 @@ select {
 [data-week='6'] { --week: var(--color-w6); }
 [data-week='7'] { --week: var(--color-w7); }
 [data-week='8'] { --week: var(--color-w8); }
+/* Twelve-week courses (R87, the cloud capstones) colour by PHASE: the seam
+   sets w9–w12; anywhere else they fall back to the first four. */
+[data-week='9'] { --week: var(--color-w9, var(--color-w1)); }
+[data-week='10'] { --week: var(--color-w10, var(--color-w2)); }
+[data-week='11'] { --week: var(--color-w11, var(--color-w3)); }
+[data-week='12'] { --week: var(--color-w12, var(--color-w4)); }
 
 /* Level 1 — a week. The bedrock band.
 

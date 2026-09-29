@@ -24,6 +24,8 @@ export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
   'cysa-plus': { kit: 'flow' },
   'security-plus': { kit: 'topology' },
   mssp: { kit: 'topology' },
+  'azure-cloud': { kit: 'cloud' },
+  'aws-cloud': { kit: 'cloud' },
 };
 
 export function deriveChecks(def: DeliverableDef): FieldCheck[] {

@@ -362,7 +362,7 @@ export interface Course {
    * guide however much of one it shipped. A course declares what it has instead;
    * see `docs/manual.ts`.
    */
-  manualSections?: ('config-guide' | 'tools')[];
+  manualSections?: ('config-guide' | 'tools' | 'cloud-iac')[];
   /**
    * Which reference picture this course's lab section draws.
    *
@@ -377,7 +377,7 @@ export interface Course {
    */
   /** 'lab' = the generic red/blue/grc attack-lab picture (ArchitectureDiagram).
    *  R84 standard: every course declares its picture explicitly. */
-  topologyPicture?: 'soc' | 'rack' | 'campus' | 'lab';
+  topologyPicture?: 'soc' | 'rack' | 'campus' | 'lab' | 'cloud';
   isSeed?: boolean;      // true for built-in courses shipped in code
   /** The built-in course this one was duplicated from. Its document supplies
    *  the reference content and forms this course renders (R78-D3). */

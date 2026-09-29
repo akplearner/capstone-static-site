@@ -31,6 +31,8 @@ export type ManualCapability =
   | 'config-guide'
   /** Ships a tool manual for the sensors and the SIEM. */
   | 'tools'
+  /** Ships a cloud topology and its template (R87). */
+  | 'cloud-iac'
   /** Has at least one step that runs a command. */
   | 'commands'
   /** More than one role, so there are hand-offs to explain. */
@@ -42,7 +44,7 @@ export type ManualCapability =
 
 /** The capabilities a course declares rather than demonstrates. A course that
  *  ships the content for a section says so in its own definition. */
-export type DeclaredCapability = Extract<ManualCapability, 'config-guide' | 'tools'>;
+export type DeclaredCapability = Extract<ManualCapability, 'config-guide' | 'tools' | 'cloud-iac'>;
 
 export interface ManualSection {
   id: string;
@@ -67,6 +69,13 @@ export const MANUAL_SECTIONS: ManualSection[] = [
   },
   {
     id: 'lab',
+    when: 'cloud-iac',
+    title: 'How the company works',
+    blurb:
+      'The request paths, the pipeline, the incident loop and the weekly cycle — each as one picture. The detail is in each week’s tasks.',
+  },
+  {
+    id: 'lab',
     when: 'always',
     title: 'The lab',
     blurb:
@@ -80,6 +89,13 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     title: 'Configuration guide',
     blurb:
       'Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology. The task steps say what to do; this is how.',
+  },
+  {
+    id: 'cloud-iac',
+    when: 'cloud-iac',
+    title: 'Architecture & IaC',
+    blurb:
+      'The environment as the platform draws it, and the template that builds it. Move the week to see it grow; click a resource to read its lines.',
   },
   {
     id: 'tools',
@@ -146,6 +162,7 @@ export function manualCapabilities(course: Course): Record<ManualCapability, boo
     always: true,
     'config-guide': declared.has('config-guide'),
     tools: declared.has('tools'),
+    'cloud-iac': declared.has('cloud-iac'),
     commands: course.tasks.some((t) =>
       t.steps.some((s) => !!s.command || (s.commands?.length ?? 0) > 0)
     ),
@@ -192,6 +209,10 @@ export const COURSE_TOOLS: Record<string, string> = {
     'nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)',
   ccna:
     'show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible',
+  'azure-cloud':
+    'Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud',
+  'aws-cloud':
+    'AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer',
 };
 
 export const QUICK_REFERENCE = {

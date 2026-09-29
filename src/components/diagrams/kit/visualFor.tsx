@@ -7,6 +7,7 @@ import { TriageDecisionTree } from '../TriageDecisionTree';
 import { RiskMatrix } from '../RiskMatrix';
 import { IncidentTimelineDiagram } from '../IncidentTimelineDiagram';
 import { KitDiagram } from './KitDiagram';
+import { CloudWeekVisual } from '@/components/cloud/CloudOverview';
 
 /**
  * The picture a deliverable form shows (R84). This replaces the docs page's
@@ -27,6 +28,8 @@ export function visualFor(def: DeliverableDef): ReactElement | null {
   if (Bespoke) return <Bespoke />;
   const v = def.visual;
   if (!v) return null;
+  // R87: a cloud capstone form draws the architecture as it stands that week.
+  if (v.kit === 'cloud') return <CloudWeekVisual week={v.week} courseId={def.courseId} />;
   const spec = kitPreset(def.courseId, v.preset);
   if (!spec) return null;
   return <KitDiagram spec={spec} courseId={def.courseId} highlight={v.highlight} />;

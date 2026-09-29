@@ -55,6 +55,17 @@
       "steps": 42,
       "deliverables": 10,
       "procedures": 0
+    },
+    {
+      "id": "azure-cloud",
+      "title": "Azure Cloud Capstone",
+      "version": 1,
+      "file": "azure-cloud.json",
+      "weeks": 12,
+      "tasks": 48,
+      "steps": 144,
+      "deliverables": 12,
+      "procedures": 0
     }
   ]
 }

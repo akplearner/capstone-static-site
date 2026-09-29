@@ -164,8 +164,9 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'microsoft',
     certName: 'AZ-104',
     level: 'associate',
-    status: 'coming-soon',
-    blurb: 'Administer a working Azure tenant and its resources.',
+    status: 'available',
+    courseId: 'azure-cloud',
+    blurb: 'Run a small company in Azure — build, secure, recover, codify, hand over.',
   },
   {
     id: 'ms-sc-200',

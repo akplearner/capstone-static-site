@@ -5,6 +5,7 @@ import { MSSP_DELIVERABLES } from './msspDeliverables';
 import { CYSA_DELIVERABLES } from './cysaDeliverables';
 import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { CCNA_DELIVERABLES } from './ccnaDeliverables';
+import { AZURE_CLOUD_DELIVERABLES } from './azureCloudDeliverables';
 import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
 import { SEED_DOCUMENTS, courseDocument } from '../content/docs';
 import { deliverablesOf } from '../content/read';
@@ -747,6 +748,7 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...CYSA_DELIVERABLES,
   ...SERVER_PLUS_DELIVERABLES,
   ...CCNA_DELIVERABLES,
+  ...AZURE_CLOUD_DELIVERABLES,
 ];
 
 /** The course a deliverable belongs to (defaults to 'security-plus'). */

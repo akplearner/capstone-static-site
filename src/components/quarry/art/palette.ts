@@ -27,6 +27,8 @@ export const COURSE_TINT: Record<string, CourseTint> = {
   'cysa-plus': { name: 'CySA+', acc: '#f0703c', lt: '#ffc2a3', dk: '#8f3a14', cut: 'hex' },
   'server-plus': { name: 'Server+', acc: '#4c8ee6', lt: '#a9c8f7', dk: '#1f4a86', cut: 'rack' },
   ccna: { name: 'CCNA', acc: '#22a6cc', lt: '#9ee6f7', dk: '#0b5a70', cut: 'bar' },
+  'azure-cloud': { name: 'Azure', acc: '#2f74c0', lt: '#a8d0ff', dk: '#123e6e', cut: 'cloud' },
+  'aws-cloud': { name: 'AWS', acc: '#e8891c', lt: '#ffd29a', dk: '#7a4306', cut: 'cloud' },
   mssp: { name: 'MSSP', acc: '#b24ad0', lt: '#e6a8f5', dk: '#68267f', cut: 'round' },
 };
 

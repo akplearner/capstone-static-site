@@ -59,6 +59,16 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Cisco',
     certification: 'CCNA (200-301)',
   },
+  'azure-cloud': {
+    key: 'azure-cloud',
+    vendor: 'Microsoft',
+    certification: 'AZ-104',
+  },
+  'aws-cloud': {
+    key: 'aws-cloud',
+    vendor: 'AWS',
+    certification: 'Solutions Architect – Associate',
+  },
 };
 
 /** Neutral identity for a course we have no styling for — keeps the default

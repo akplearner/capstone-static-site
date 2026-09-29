@@ -105,6 +105,8 @@ const COURSE_REGION: Record<string, { region: string; seam: string }> = {
   mssp: { region: 'engagement', seam: 'mssp' },
   'server-plus': { region: 'comptia', seam: 'server-plus' },
   ccna: { region: 'cisco', seam: 'ccna' },
+  'azure-cloud': { region: 'microsoft', seam: 'cloud' },
+  'aws-cloud': { region: 'aws', seam: 'cloud' },
 };
 
 export function regionFor(course: Course): QuarryRegion {

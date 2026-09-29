@@ -221,7 +221,10 @@ export interface FieldCheck {
 }
 
 export interface DeliverableVisual {
-  kit: 'rack' | 'device' | 'topology' | 'flow';
+  kit: 'rack' | 'device' | 'topology' | 'flow' | 'cloud';
+  /** kit 'cloud' (R87): the architecture version this form draws — the
+   *  course's cloud topology as it stands in that week. */
+  week?: number;
   /** A named preset from lib/diagrams/kitPresets; absent = the course default. */
   preset?: string;
   highlight?: string[];

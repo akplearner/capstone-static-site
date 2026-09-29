@@ -52,12 +52,14 @@ const SEAMS = [...CSS.matchAll(/^\[data-seam='([a-z0-9-]+)'\]/gm)].map((m) => m[
 
 /** Which region's rock a seam sits in — a course page sets both, and the seam is
  *  authored after its region, so the seam wins where they overlap. */
-const SEAM_REGION: Record<string, string> = {
+const SEAM_REGION: Record<string, string | string[]> = {
   'security-plus': 'comptia',
   'cysa-plus': 'comptia',
   'server-plus': 'comptia',
   mssp: 'engagement',
   ccna: 'cisco',
+  // R87: one seam, two rocks — the Azure and the AWS cloud capstone share it.
+  cloud: ['microsoft', 'aws'],
 };
 
 type Context = { name: string; vars: Record<string, string> };
@@ -76,8 +78,7 @@ const CONTEXTS: Context[] = [
       vars: layer(BASE, DARK, blockVars(`[data-region='${r}']`), blockVars(`.dark [data-region='${r}']`)),
     },
   ]),
-  ...SEAMS.flatMap((s) => {
-    const r = SEAM_REGION[s];
+  ...SEAMS.flatMap((s) => [SEAM_REGION[s]].flat().map((r) => ({ s, r }))).flatMap(({ s, r }) => {
     return [
       {
         name: `light/${r}/${s}`,
@@ -140,7 +141,8 @@ describe('the palette is readable in every theme', () => {
     expect(SEAMS.length, 'seams').toBeGreaterThanOrEqual(5);
     // Every seam must name the region it sits in, or its context is wrong.
     for (const s of SEAMS) expect(SEAM_REGION[s], `seam '${s}' has no region`).toBeTruthy();
-    expect(CONTEXTS.length).toBe(2 + REGIONS.length * 2 + SEAMS.length * 2);
+    const seamContexts = SEAMS.reduce((n, s) => n + [SEAM_REGION[s]].flat().length, 0);
+    expect(CONTEXTS.length).toBe(2 + REGIONS.length * 2 + seamContexts * 2);
   });
 
   it.each(CONTEXTS.map((c) => [c.name, c] as const))('%s', (_name, ctx) => {

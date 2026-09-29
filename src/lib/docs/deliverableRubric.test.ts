@@ -7,11 +7,12 @@ import { CYSA_PLUS } from '../data/seed/cysa';
 import { MSSP } from '../data/seed/mssp';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
+import { AZURE_CLOUD } from '../data/seed/azureCloud';
 import { seedDeliverablesForCourse } from './definitions';
 import { emptyData } from './types';
 import type { StepEvidence } from '../data/types';
 
-const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA];
+const COURSES = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, AZURE_CLOUD];
 
 const ctx = (over: Partial<BundleContext> = {}): BundleContext => ({
   evidence: {},

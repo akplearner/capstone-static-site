@@ -149,7 +149,7 @@ export function CloudTopology({
           const y2 = b.y - (dy / len) * (b.r + 3);
           const dep = e.kind === 'depends';
           return (
-            <g key={`${e.from}-${e.to}-${i}`}>
+            <g key={`${e.from}-${e.to}-${i}`} pointerEvents="none">
               <line
                 x1={x1}
                 y1={y1}
@@ -210,7 +210,7 @@ function Box({ c, platform, week }: { c: CloudContainer; platform: 'azure' | 'aw
   const fill = CONTAINER_FILL[platform][c.kind] ?? 'transparent';
   const dashed = c.kind === 'group' || c.kind === 'region' || c.kind === 'zone' || (platform === 'azure' && c.kind.startsWith('subnet'));
   return (
-    <g opacity={later ? 0.35 : 1}>
+    <g opacity={later ? 0.35 : 1} pointerEvents="none">
       <rect
         x={c.x}
         y={c.y}
@@ -261,12 +261,15 @@ function NodeMark({
       opacity={later ? 0.28 : 1}
       onClick={clickable ? () => onSelect!(n.id) : undefined}
       style={clickable ? { cursor: 'pointer' } : undefined}
+      className={clickable ? 'focus:outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent' : undefined}
       role={clickable ? 'button' : undefined}
       tabIndex={clickable ? 0 : undefined}
       onKeyDown={clickable ? (e) => (e.key === 'Enter' || e.key === ' ') && onSelect!(n.id) : undefined}
       aria-label={clickable ? `${n.label}${n.name ? ` ${n.name}` : ''} — show in template` : undefined}
     >
       <title>{`${n.label}${n.name ? ` — ${n.name}` : ''}${n.external ? '' : ` · from week ${n.week}`}`}</title>
+      {/* The whole icon is the target, not only its painted strokes. */}
+      {clickable && <rect x={n.x - size / 2 - 4} y={n.y - size / 2 - 4} width={size + 8} height={size + 8} fill="transparent" />}
       {(isNew || selected) && (
         <circle
           cx={n.x}

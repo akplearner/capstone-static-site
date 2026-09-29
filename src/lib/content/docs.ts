@@ -22,6 +22,7 @@ import msspDoc from '../../../content/courses/mssp.json';
 import cysaDoc from '../../../content/courses/cysa-plus.json';
 import serverPlusDoc from '../../../content/courses/server-plus.json';
 import ccnaDoc from '../../../content/courses/ccna.json';
+import azureCloudDoc from '../../../content/courses/azure-cloud.json';
 
 /** The exported documents, keyed by course id, in catalogue order. */
 export const SEED_DOCUMENTS: Record<string, CourseDto> = {
@@ -30,6 +31,7 @@ export const SEED_DOCUMENTS: Record<string, CourseDto> = {
   'cysa-plus': cysaDoc as unknown as CourseDto,
   'server-plus': serverPlusDoc as unknown as CourseDto,
   ccna: ccnaDoc as unknown as CourseDto,
+  'azure-cloud': azureCloudDoc as unknown as CourseDto,
 };
 
 export const SEED_IDS = Object.keys(SEED_DOCUMENTS);

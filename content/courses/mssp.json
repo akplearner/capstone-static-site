@@ -2329,7 +2329,9 @@
         "security-plus": "whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum",
         "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
         "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)",
-        "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible"
+        "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
+        "azure-cloud": "Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud",
+        "aws-cloud": "AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer"
       },
       "MANUAL_COPY": {
         "title": "The manual",
@@ -2345,6 +2347,12 @@
         },
         {
           "id": "lab",
+          "when": "cloud-iac",
+          "title": "How the company works",
+          "blurb": "The request paths, the pipeline, the incident loop and the weekly cycle — each as one picture. The detail is in each week’s tasks."
+        },
+        {
+          "id": "lab",
           "when": "always",
           "title": "The lab",
           "blurb": "Every machine in the environment, what runs on it, and how to confirm you can reach it before Week 1."
@@ -2354,6 +2362,12 @@
           "when": "config-guide",
           "title": "Configuration guide",
           "blurb": "Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology. The task steps say what to do; this is how."
+        },
+        {
+          "id": "cloud-iac",
+          "when": "cloud-iac",
+          "title": "Architecture & IaC",
+          "blurb": "The environment as the platform draws it, and the template that builds it. Move the week to see it grow; click a resource to read its lines."
         },
         {
           "id": "tools",

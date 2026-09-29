@@ -145,6 +145,23 @@ export const CCNA_CHECKS: typeof LAB_CHECKS = [
   { key: 'capabilities', label: 'Each capability is answered Yes or No, with the output that proves it' },
 ];
 
+/**
+ * The cloud capstones' lab (R87): no machines to address — the environment is
+ * the team's own subscription or account. The panel records the four facts
+ * every command in the course assumes, so a student can read them back.
+ */
+export const CLOUD_FIELDS: typeof LAB_FIELDS = [
+  { key: 'CLOUD_ACCOUNT', label: 'Subscription or account (name, not a secret)', placeholder: 'e.g. Azure for Students / capstone-team01', tokens: [] },
+  { key: 'CLOUD_REGION', label: 'Region', placeholder: 'e.g. eastus / us-east-1', tokens: [] },
+  { key: 'CLOUD_GROUP', label: 'Resource group or stack', placeholder: 'e.g. rg-capstone-team01', tokens: [] },
+];
+
+export const CLOUD_CHECKS: typeof LAB_CHECKS = [
+  { key: 'budget', label: 'The $5 budget exists and alerts the team' },
+  { key: 'shell', label: 'You can open Cloud Shell and run a command' },
+  { key: 'stopped', label: 'The VM is stopped whenever nobody is using it' },
+];
+
 export const SERVER_CHECKS: typeof LAB_CHECKS = [
   { key: 'console', label: 'The Proxmox console answers on campus' },
   { key: 'remote', label: 'It answers from off campus over Tailscale' },
@@ -159,7 +176,7 @@ export const SERVER_CHECKS: typeof LAB_CHECKS = [
  * would render an input the filler never looked at — a box that silently does
  * nothing. The profile below governs the FORM; this governs substitution.
  */
-const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS];
+const ALL_FIELDS = [...LAB_FIELDS, ...SERVER_FIELDS, ...CCNA_FIELDS, ...CLOUD_FIELDS];
 
 /**
  * What a given course's lab actually consists of.
@@ -210,6 +227,15 @@ const LAB_PROFILES: Record<string, LabProfile> = {
       'Say whether you are emulating or on real hardware, and give the management address you actually set. Your Week-0 register decides which procedure each week hands you. Saved to your account, visible only to you.',
   },
 };
+
+const CLOUD_PROFILE: LabProfile = {
+  fields: CLOUD_FIELDS,
+  checks: CLOUD_CHECKS,
+  title: 'Your cloud — where it lives and what it may cost',
+  intro: 'Record where your team’s environment lives. Never paste a key or a password here. Saved to your account, visible only to you.',
+};
+LAB_PROFILES['azure-cloud'] = CLOUD_PROFILE;
+LAB_PROFILES['aws-cloud'] = CLOUD_PROFILE;
 
 export function labProfile(courseId: string): LabProfile {
   return LAB_PROFILES[courseId] ?? { fields: LAB_FIELDS, checks: LAB_CHECKS };

@@ -15,6 +15,8 @@
 import type { CourseDto, Serialisable } from './dto';
 import type { DeliverableDef } from '@/lib/docs/types';
 import type { RoleGuide } from '@/lib/roleGuide';
+import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
+import type { KitSpec } from '@/lib/diagrams/kitSpec';
 
 type DataOf<M> = { [K in keyof M as M[K] extends (...args: never[]) => unknown ? never : K]: M[K] };
 type ContentOf<M> = Serialisable<DataOf<M>>;
@@ -55,6 +57,19 @@ export const ccnaDiagramsOf = (doc: CourseDto) => section<CcnaDiagramsContent>(d
 export const ccnaKitOf = (doc: CourseDto) => section<CcnaKitContent>(doc, 'kit');
 export const troubleshootingOf = (doc: CourseDto) => section<TroubleshootingContent>(doc, 'troubleshooting');
 export const custodyOf = (doc: CourseDto) => section<CustodyContent>(doc, 'custody');
+
+/** The cloud capstones' topology and template (R87). Absent on other courses. */
+export interface CloudContent {
+  topology: CloudTopology;
+  iac: IacBundle;
+  workflows: KitSpec[];
+  raci: typeof import('@/lib/cloud/workflows').CLOUD_RACI;
+  phases: typeof import('@/lib/cloud/workflows').CLOUD_PHASES;
+}
+export function cloudOf(doc: CourseDto): CloudContent | null {
+  const c = doc.content?.cloud as CloudContent | undefined;
+  return c?.topology && c?.iac ? c : null;
+}
 
 /** Server+ only: the configuration guide the steps point at. Empty elsewhere. */
 export function proceduresOf(doc: CourseDto): { weeks: ProcedureWeeks; procedures: Procedures } {

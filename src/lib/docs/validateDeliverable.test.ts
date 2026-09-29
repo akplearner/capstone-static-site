@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { validateDeliverableDef, validateDeliverableList } from './validateDeliverable';
 import { seedDeliverablesForCourse } from './definitions';
 
-const COURSE_IDS = ['security-plus', 'cysa-plus', 'server-plus', 'ccna', 'mssp'];
+const COURSE_IDS = ['security-plus', 'cysa-plus', 'server-plus', 'ccna', 'mssp', 'azure-cloud'];
 
 describe('R85 — the admin editor refuses what would break a student’s screen', () => {
   it('every shipped definition passes its own gate', () => {

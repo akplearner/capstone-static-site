@@ -5,9 +5,10 @@ import { MSSP } from '../data/seed/mssp';
 import { CYSA_PLUS } from '../data/seed/cysa';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
+import { AZURE_CLOUD } from '../data/seed/azureCloud';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and
@@ -35,7 +36,7 @@ describe('manual sections', () => {
     // after it was replaced (CCNA) never went through that rule, so asserting it
     // against a reconstruction of the rule would only be asserting the
     // reconstruction. It is checked on its own terms below.
-    for (const c of COURSES.filter((x) => x.id !== 'ccna')) {
+    for (const c of COURSES.filter((x) => x.id !== 'ccna' && x.manualSections?.includes('cloud-iac') !== true)) {
       expect(manualSectionsFor(c).map((s) => s.id), c.id).toEqual(oldGating(c));
     }
   });
@@ -52,6 +53,14 @@ describe('manual sections', () => {
     expect(ids).not.toContain('tools');
     // Its lab section is therefore "The lab", not the deployment course's "The build".
     expect(manualSectionsFor(CCNA).find((s) => s.id === 'lab')?.title).toBe('The lab');
+  });
+
+  it('a cloud capstone gets its workflows and its architecture instead of a lab (R87)', () => {
+    const ids = manualSectionsFor(AZURE_CLOUD).map((s) => s.id);
+    expect(ids.slice(0, 2)).toEqual(['lab', 'cloud-iac']);
+    expect(manualSectionsFor(AZURE_CLOUD).find((s) => s.id === 'lab')?.title).toBe('How the company works');
+    expect(ids).not.toContain('config-guide');
+    expect(ids).not.toContain('tools');
   });
 
   it('a course gets each section at most once, and the deployment one is titled for the build', () => {
