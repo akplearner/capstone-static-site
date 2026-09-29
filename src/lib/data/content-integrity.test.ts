@@ -305,10 +305,19 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('content integrity — %s'
     }
   });
 
-  it('no two graded weeks cut the same stage, so no stage is unreachable', () => {
+  // The stone shows the HIGHEST stage among cleared weeks (quarry.ts
+  // deriveStoneStage), so what makes a stage unreachable is a GAP, or an arc
+  // that stops short of 4 — not two weeks sharing one. A four-week course
+  // still needs four distinct stages (the pigeonhole does it); a twelve-week
+  // course (R87, the cloud capstones) spreads its weeks across the same five.
+  it('the graded arc leaves no stage unreachable: no gaps, and it reaches 4', () => {
     const graded = course.weeks.filter((w) => !w.setup && !w.advanced && w.stage != null);
-    const stages = graded.map((w) => w.stage);
-    expect(new Set(stages).size, `duplicate stages: ${stages.join(',')}`).toBe(stages.length);
+    if (graded.length === 0) return;
+    const used = [...new Set(graded.map((w) => w.stage!))].sort((a, b) => a - b);
+    for (let i = 1; i < used.length; i++) {
+      expect(used[i], `stage gap between ${used[i - 1]} and ${used[i]}: stages ${used.join(',')}`).toBe(used[i - 1] + 1);
+    }
+    expect(used[used.length - 1], `the arc must reach stage 4: stages ${used.join(',')}`).toBe(4);
   });
 
   /**
