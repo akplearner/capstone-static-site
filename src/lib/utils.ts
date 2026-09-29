@@ -13,8 +13,8 @@ const FRAMEWORK_COLORS: Record<Framework, string> = {
   'STRIDE': 'bg-danger-soft text-danger',
   'CCNA': 'bg-info-soft text-info',
   'ITIL': 'bg-accent-soft text-accent-ink',
-  'AZ_104': 'bg-info-soft text-info',
-  'AWS_SAA': 'bg-warn-soft text-warn',
+  'AZ_900': 'bg-info-soft text-info',
+  'AWS_CLF': 'bg-warn-soft text-warn',
   'WAF': 'bg-ok-soft text-ok',
 };
 
@@ -30,8 +30,8 @@ const FRAMEWORK_LABELS: Record<Framework, string> = {
   'STRIDE': 'STRIDE',
   'CCNA': 'CCNA 200-301',
   'ITIL': 'ITIL 4',
-  'AZ_104': 'AZ-104',
-  'AWS_SAA': 'AWS SAA-C03',
+  'AZ_900': 'AZ-900',
+  'AWS_CLF': 'AWS CLF-C02',
   'WAF': 'Well-Architected',
 };
 
@@ -47,8 +47,8 @@ const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'STRIDE': 'STRIDE Threat Modeling',
   'CCNA': 'Cisco CCNA 200-301 v1.1 — the exam blueprint’s six domains',
   'ITIL': 'ITIL 4 — change, incident and problem management',
-  'AZ_104': 'Microsoft Azure Administrator (AZ-104)',
-  'AWS_SAA': 'AWS Certified Solutions Architect – Associate (SAA-C03)',
+  'AZ_900': 'Microsoft Azure Fundamentals (AZ-900)',
+  'AWS_CLF': 'AWS Certified Cloud Practitioner (CLF-C02)',
   'WAF': 'Well-Architected Framework — Azure and AWS',
 };
 
@@ -78,10 +78,10 @@ const FRAMEWORK_WHY: Record<Framework, string> = {
     'The CCNA 200-301 blueprint: network fundamentals, access, IP connectivity, IP services, security fundamentals and automation. This tag says which exam domain the work covers — so the portfolio and the syllabus can be read against each other.',
   'ITIL':
     'The operating disciplines a network team is judged on: change, incident and problem management. A tag here means the step is not just technically right but done the way an organisation can audit — requested, reviewed, reversible and recorded.',
-  'AZ_104':
-    'The Azure Administrator exam: identities, storage, compute, networking and monitoring. The tag says which exam area a task practises, so the course and the syllabus can be read side by side.',
-  'AWS_SAA':
-    'The AWS Solutions Architect – Associate exam: secure, resilient, high-performing and cost-optimised design. The tag says which area a task practises.',
+  'AZ_900':
+    'The Azure Fundamentals exam: cloud concepts, Azure architecture and services, and management and governance. The tag says which exam area a task practises, so the course and the syllabus can be read side by side.',
+  'AWS_CLF':
+    'The AWS Cloud Practitioner exam: cloud concepts, security and compliance, core services, and billing and pricing. The tag says which area a task practises.',
   'WAF':
     'Both clouds judge a design on the same pillars — reliability, security, cost, operational excellence and performance. A tag here means the step is a design choice one of them would ask about.',
 };

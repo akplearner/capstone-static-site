@@ -20,8 +20,8 @@
     "slug": "azure-cloud",
     "description": "Run a small company in Azure: build it, secure it, recover it, write it as an ARM template, and hand it over.",
     "vendor": "Microsoft",
-    "certification": "AZ-104",
-    "level": "associate",
+    "certification": "AZ-900",
+    "level": "entry",
     "audience": "Four roles build and run a real Azure environment for twelve weeks, on a $5 budget.",
     "roles": [
       {
@@ -560,7 +560,7 @@
         "title": "Set the naming standard and the budget",
         "objective": "Agree how everything is named and tagged, and cap spending at $5 before anything is built.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -594,7 +594,7 @@
             "outputKind": "result",
             "whatItMeans": "The budget is the guardrail. It is created first because it is the one thing that tells you a mistake is costing money.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -619,7 +619,7 @@
             "outputKind": "result",
             "whatItMeans": "A name you can read tells you the type, the purpose and the owner without opening anything. Week 11 enforces the owner tag.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -638,7 +638,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "This is the standard every later document and template refers to.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -651,7 +651,7 @@
         "title": "Create the resource group and VNet",
         "objective": "Create the resource group and a virtual network with its first subnet, named and tagged by the standard.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -687,7 +687,7 @@
             ],
             "whatItMeans": "Everything this course builds lives in this one group, so cost, access and clean-up happen in one place.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -710,7 +710,7 @@
             ],
             "whatItMeans": "A /16 leaves room for 256 /24 subnets; the course uses two. Private ranges (RFC 1918) never route on the internet.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -734,7 +734,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "The Network Design Document in Week 6 starts from these numbers.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -747,7 +747,7 @@
         "title": "Open the team repository and board",
         "objective": "Create the team repository, a README with the naming standard, and a twelve-week board.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -780,7 +780,7 @@
             "outputKind": "result",
             "whatItMeans": "Everything the team produces lives here — the site, the function, the template and the documents.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -799,7 +799,7 @@
             "outputKind": "result",
             "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -817,7 +817,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "The handover package in Week 12 points a new team at this repository.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -830,7 +830,7 @@
         "title": "Put an NSG on the subnet",
         "objective": "Create a network security group, attach it to snet-app, and review who has access to the subscription.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -872,7 +872,7 @@
             ],
             "whatItMeans": "Attach at the subnet, not the VM, so a resource added later is protected from its first second.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -894,7 +894,7 @@
             ],
             "whatItMeans": "Knowing the defaults is how you know every Allow you add is a decision.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -912,7 +912,7 @@
             "outputKind": "result",
             "whatItMeans": "Least privilege starts with knowing what is granted today. Week 5 narrows it.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -929,7 +929,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "The Week 5 access matrix builds on this list.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -942,7 +942,7 @@
         "title": "Write the architecture document and cost",
         "objective": "Estimate the monthly cost of each component, then record the first architecture decision with what was rejected.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -975,7 +975,7 @@
             "outputKind": "result",
             "whatItMeans": "Cost is an architecture property. Knowing which line dominates tells you what to switch off.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -994,7 +994,7 @@
             "outputKind": "result",
             "whatItMeans": "An ADR records the decision and the alternatives, so the next team does not reopen it without new facts.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1012,7 +1012,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "The architecture document grows every week and is handed over in Week 12.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1025,7 +1025,7 @@
         "title": "Deploy the tools VM",
         "objective": "Deploy a B1s Ubuntu VM into snet-app with SSH-key sign-in only, then deallocate it.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1062,7 +1062,7 @@
             ],
             "whatItMeans": "B1s is the free-tier size. Key-only sign-in removes password guessing entirely.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -1094,7 +1094,7 @@
             ],
             "whatItMeans": "The private IP comes from snet-app — 10.10.1.4 because Azure reserves the first four addresses.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1111,7 +1111,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "The runbook in Week 7 and the snapshot in Week 8 start from these facts.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1138,7 +1138,7 @@
             ],
             "whatItMeans": "A running B1s costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1151,7 +1151,7 @@
         "title": "Publish the website with HTTPS",
         "objective": "Publish the company website from a storage account static website, HTTPS-only, then change it and redeploy.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1192,7 +1192,7 @@
             ],
             "whatItMeans": "The static-website endpoint serves HTTPS with Microsoft’s certificate, so no CDN is needed.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1224,7 +1224,7 @@
             ],
             "whatItMeans": "Upload again after any change — that is a redeploy. Week 10 automates it.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -1248,7 +1248,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "The site URL is the origin CORS will admit in Week 3.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1261,7 +1261,7 @@
         "title": "Allow SSH from your IP only",
         "objective": "Add one inbound rule allowing SSH from your own address, then prove it is allowed from you and blocked elsewhere.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1302,7 +1302,7 @@
             ],
             "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the whole internet for open SSH within minutes.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1322,7 +1322,7 @@
             "outputKind": "result",
             "whatItMeans": "A rule is only proved when something that should fail does fail.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -1345,7 +1345,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "Week 6 removes this rule entirely; this record is the before.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1358,7 +1358,7 @@
         "title": "Draw the request flow with real URLs",
         "objective": "Trace how a page view becomes a count in the database, naming every real URL and resource.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1389,7 +1389,7 @@
             "outputKind": "result",
             "whatItMeans": "The diagram is drawn from the template, so it is the environment you are building, not an illustration.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1408,7 +1408,7 @@
             "outputKind": "result",
             "whatItMeans": "A flow with real URLs is testable. Week 6 tests each hop.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1425,7 +1425,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "Week 6’s path tests follow this flow.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1438,7 +1438,7 @@
         "title": "Create Cosmos DB and seed the counter",
         "objective": "Create a serverless Cosmos DB account, a database and a container, and seed the counter item.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1475,7 +1475,7 @@
             ],
             "whatItMeans": "Provisioned throughput would charge every hour even when nobody visits.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1502,7 +1502,7 @@
             ],
             "whatItMeans": "Choosing the partition key is the one Cosmos DB decision you cannot change later.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1520,7 +1520,7 @@
             "outputKind": "result",
             "whatItMeans": "The Function reads and updates this one item.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1538,7 +1538,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "The API spec’s data model.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1551,7 +1551,7 @@
         "title": "Build the visitor-counter Function",
         "objective": "Create a Function App with an HTTP trigger that increments the counter, and show the count on the site.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1584,7 +1584,7 @@
             "outputKind": "result",
             "whatItMeans": "Windows Consumption is the plan that lets you edit code in the portal, and it costs nothing at this scale.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1603,7 +1603,7 @@
             "outputKind": "result",
             "whatItMeans": "Bindings do the database calls, so the code is four lines. The read-then-write is a known race — fine for a counter.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -1631,7 +1631,7 @@
             ],
             "whatItMeans": "The page calls the API from the browser, which is why CORS matters next.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1648,7 +1648,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "The spec another developer would call your API from.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1661,7 +1661,7 @@
         "title": "Lock CORS and keep secrets out",
         "objective": "Allow only your site to call the API from a browser, prove another origin is refused, and keep keys out of the page.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1702,7 +1702,7 @@
             ],
             "whatItMeans": "Remove \"*\" if the portal added it. A wildcard lets any website use your API from its visitors’ browsers.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1724,7 +1724,7 @@
             ],
             "whatItMeans": "CORS protects browsers, not the API: curl still gets a count. That is why the API holds no secrets.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1742,7 +1742,7 @@
             "outputKind": "result",
             "whatItMeans": "Anything in page source is public. Week 5 removes the key altogether.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1759,7 +1759,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "The first line of the secrets register.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1772,7 +1772,7 @@
         "title": "Report the cost to date",
         "objective": "Read what the environment has cost so far, by service, and name the largest line.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1803,7 +1803,7 @@
             "outputKind": "result",
             "whatItMeans": "Actual cost against the estimate is how you find what you forgot to switch off.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1820,7 +1820,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "Week 11 turns this into the cost report.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1833,7 +1833,7 @@
         "title": "Alert on Function errors",
         "objective": "Create an action group and an alert that emails when the Function returns server errors.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1867,7 +1867,7 @@
             ],
             "whatItMeans": "One action group, many alerts: change the email once.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1889,7 +1889,7 @@
             ],
             "whatItMeans": "Errors are the signal users feel. CPU on a serverless app tells you little.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1906,7 +1906,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "The monitoring half of the incident report.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -1919,7 +1919,7 @@
         "title": "Find a failure in Application Insights",
         "objective": "Break the API on purpose, find the exception in Application Insights, and restore it.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -1952,7 +1952,7 @@
             "outputKind": "result",
             "whatItMeans": "Breaking it yourself means you know the answer, so you can learn the tool that finds it.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1970,7 +1970,7 @@
             "outputKind": "result",
             "whatItMeans": "The exception names the layer — configuration — before you open any code.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -1987,7 +1987,7 @@
             "outputKind": "result",
             "whatItMeans": "A fix is not done until the retest passes.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2004,7 +2004,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "Your half of the monitoring table.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2017,7 +2017,7 @@
         "title": "Work one incident layer by layer",
         "objective": "Break CORS on purpose, then work it as an incident: symptom, layer, evidence, root cause, fix, prevention.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2051,7 +2051,7 @@
             ],
             "whatItMeans": "A realistic fault: nothing is “down”, one feature silently stops.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2070,7 +2070,7 @@
             "outputKind": "result",
             "whatItMeans": "Working down the layers stops you fixing what is not broken.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2092,7 +2092,7 @@
             ],
             "whatItMeans": "Week 10 puts CORS in the template, so drift like this is corrected by the next deploy.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2109,7 +2109,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "Week 12 runs this loop again under time pressure.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2122,7 +2122,7 @@
         "title": "Write the access matrix",
         "objective": "List every principal, its role and scope, with a justification for each.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2156,7 +2156,7 @@
             ],
             "whatItMeans": "Inherited grants are the ones people forget; they count just the same.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2174,7 +2174,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "Week 11’s posture review reads this matrix.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2187,7 +2187,7 @@
         "title": "Grant a group Reader on the group",
         "objective": "Create a security group and give it Reader on the resource group — the access an auditor or a new hire starts with.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2222,7 +2222,7 @@
             ],
             "whatItMeans": "Groups make access reviewable at a glance.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -2250,7 +2250,7 @@
             ],
             "whatItMeans": "Scope is half of least privilege: the right role on too wide a scope is still too much.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2267,7 +2267,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "The matrix records who can see, not only who can change.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2280,7 +2280,7 @@
         "title": "Switch the Function to its identity",
         "objective": "Give the Function a managed identity, grant it data access to Cosmos DB, and delete the stored key.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2316,7 +2316,7 @@
             ],
             "whatItMeans": "An identity cannot be copied into a chat message or a commit, which is the point.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2338,7 +2338,7 @@
             ],
             "whatItMeans": "Cosmos DB data access is its own RBAC system, separate from Azure roles.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2360,7 +2360,7 @@
             ],
             "whatItMeans": "The best secret is the one that does not exist.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2377,7 +2377,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "The register now shows a secret removed, not just moved.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2390,7 +2390,7 @@
         "title": "Prove an access is denied",
         "objective": "Show what the Function’s identity can do, then prove a Reader cannot change anything.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2425,7 +2425,7 @@
             ],
             "whatItMeans": "Short lists are good lists.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2444,7 +2444,7 @@
             "outputKind": "result",
             "whatItMeans": "A permission is only proved when the thing it forbids fails.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2461,7 +2461,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "Evidence that the matrix is enforced, not just written.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2474,7 +2474,7 @@
         "title": "Write the network design document",
         "objective": "Write the address plan, the rules and the admin path, and say what production would add.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2510,7 +2510,7 @@
             ],
             "whatItMeans": "The plan is read from Azure, not remembered.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2528,7 +2528,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "Honest about the trade-off: a public IP for outbound only, to avoid $32 a month.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2541,7 +2541,7 @@
         "title": "Add the management subnet",
         "objective": "Add snet-mgmt with its own NSG, reserved for a future Bastion.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2581,7 +2581,7 @@
             ],
             "whatItMeans": "Segmenting now means a Bastion can be added later without renumbering anything.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2598,7 +2598,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "The template in Week 9 must match this plan.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2611,7 +2611,7 @@
         "title": "Trace the request paths",
         "objective": "Test each hop of the website and API paths, and one path that must be blocked.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2651,7 +2651,7 @@
             ],
             "whatItMeans": "Testing the insecure path proves the setting, not just the happy path.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2668,7 +2668,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "Paths tested both ways are the design proved.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2681,7 +2681,7 @@
         "title": "Remove SSH and use Run Command",
         "objective": "Delete the SSH rule, administer the VM through Run Command, and prove port 22 is denied.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2723,7 +2723,7 @@
             ],
             "whatItMeans": "The safest open port is none: admin goes through the Azure control plane, which is already authenticated and logged.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2745,7 +2745,7 @@
             ],
             "whatItMeans": "Proof from the platform itself, naming the rule that blocked it.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2763,7 +2763,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "The rules matrix of the network design.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2790,7 +2790,7 @@
             ],
             "whatItMeans": "A running B1s costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2803,7 +2803,7 @@
         "title": "Decide the VM size",
         "objective": "Read the VM’s CPU and memory use and decide whether B1s is still the right size.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2837,7 +2837,7 @@
             ],
             "whatItMeans": "Right-sizing is cost control with evidence, not a guess.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2854,7 +2854,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "The decision is reversible and cheap — record it anyway.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2867,7 +2867,7 @@
         "title": "Attach and mount a data disk",
         "objective": "Add a 4 GB data disk to the VM and mount it at /data so it survives a reboot.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -2903,7 +2903,7 @@
             ],
             "whatItMeans": "Separating data from the OS disk is what makes Week 8’s restore simple.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2925,7 +2925,7 @@
             ],
             "whatItMeans": "A mount that is not in fstab disappears at the next reboot.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2942,7 +2942,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "The runbook’s storage section.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -2969,7 +2969,7 @@
             ],
             "whatItMeans": "A running B1s costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -2982,7 +2982,7 @@
         "title": "Patch the VM with Update Manager",
         "objective": "Assess missing updates and install the security ones through Azure Update Manager.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3022,7 +3022,7 @@
             ],
             "whatItMeans": "Patching through the platform leaves a record in Update Manager — evidence an auditor can read.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3039,7 +3039,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "Patch evidence for the runbook and the governance report.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3066,7 +3066,7 @@
             ],
             "whatItMeans": "A running B1s costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3079,7 +3079,7 @@
         "title": "Baseline the VM and write the runbook",
         "objective": "Record what normal looks like on the VM and write the steps to check it is healthy.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3114,7 +3114,7 @@
             ],
             "whatItMeans": "You cannot say “it is slow” without knowing what fast looked like.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3132,7 +3132,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "The runbook is what a teammate on call follows.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3159,7 +3159,7 @@
             ],
             "whatItMeans": "A running B1s costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3172,7 +3172,7 @@
         "title": "Set RPO and RTO per asset",
         "objective": "For each asset, decide how much data the company can lose and how fast it must return.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3203,7 +3203,7 @@
             "outputKind": "result",
             "whatItMeans": "Targets come first, backups second: the target decides how often you back up.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3220,7 +3220,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "Week 12’s recovery scenario is judged against these numbers.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3233,7 +3233,7 @@
         "title": "Restore a disk from a snapshot",
         "objective": "Snapshot the data disk, create a new disk from it, and prove the data is there.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3273,7 +3273,7 @@
             ],
             "whatItMeans": "Snapshots are cheap; Azure Backup would be about $5 a month per VM — an optional stretch.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3300,7 +3300,7 @@
             ],
             "whatItMeans": "A restore test leaves nothing behind but the evidence.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3317,7 +3317,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "The first proven restore in the DR plan.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3330,7 +3330,7 @@
         "title": "Recover a deleted web file",
         "objective": "Turn on soft delete and versioning for the website, delete index.html, and get it back.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3365,7 +3365,7 @@
             ],
             "whatItMeans": "Protection has to be on BEFORE the accident.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3392,7 +3392,7 @@
             ],
             "whatItMeans": "A backup is only real once you have restored from it.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3409,7 +3409,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "The second proven restore.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3422,7 +3422,7 @@
         "title": "Run a timed recovery drill",
         "objective": "Snapshot the VM’s OS disk, rebuild a disk from it, time the whole thing, and compare it with the RTO.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3462,7 +3462,7 @@
             ],
             "whatItMeans": "A measured time turns an RTO from a hope into a fact.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3484,7 +3484,7 @@
             ],
             "whatItMeans": "Drills leave no cost behind.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3501,7 +3501,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "The drill record proves the plan.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3514,7 +3514,7 @@
         "title": "Map the template to the diagram",
         "objective": "Match five template resources to their diagram nodes, and say what code does that the portal cannot.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3545,7 +3545,7 @@
             "outputKind": "result",
             "whatItMeans": "The diagram is generated from the template: if they ever disagree, the template is the truth.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3563,7 +3563,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The map lets anyone navigate the template.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3576,7 +3576,7 @@
         "title": "Inventory everything with the CLI",
         "objective": "List every resource with its type and owner tag, and find anything the standard missed.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3610,7 +3610,7 @@
             ],
             "whatItMeans": "The gaps you find now are what Policy will deny in Week 11.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3627,7 +3627,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The inventory is the before-picture for the template.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3640,7 +3640,7 @@
         "title": "Fill the starter and deploy to dev",
         "objective": "Complete the starter ARM template, preview it with what-if, deploy it to a dev resource group, then delete it.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3674,7 +3674,7 @@
             "outputKind": "result",
             "whatItMeans": "Filling blanks in a real template teaches its structure faster than writing one from nothing.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3702,7 +3702,7 @@
             ],
             "whatItMeans": "Preview first, always: what-if is how you catch a delete you did not mean.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3719,7 +3719,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The deployment record Week 10 automates.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3741,7 +3741,7 @@
             ],
             "whatItMeans": "A second environment doubles the bill until it is gone.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3754,7 +3754,7 @@
         "title": "Write parameter files and validate",
         "objective": "Set dev and prod parameter values with no secrets in them, and validate the template against both.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3787,7 +3787,7 @@
             "outputKind": "result",
             "whatItMeans": "Parameters are what changes between environments; everything else stays identical, which is what makes prod predictable.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3809,7 +3809,7 @@
             ],
             "whatItMeans": "Validation is the cheapest test in the whole course.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3827,7 +3827,7 @@
             "outputKind": "result",
             "whatItMeans": "Knowing why a team picks one over the other is an interview question.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "optional": true
@@ -3845,7 +3845,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The environments, side by side.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3858,7 +3858,7 @@
         "title": "Write and approve the change request",
         "objective": "Write a change request for one template change, get it reviewed, and approve it in a pull request.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3889,7 +3889,7 @@
             "outputKind": "result",
             "whatItMeans": "The pull request is the change record: who asked, who approved, what ran.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3906,7 +3906,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "The release record’s front page.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3919,7 +3919,7 @@
         "title": "Protect main and add an environment",
         "objective": "Require a review before anything reaches main, and add a prod environment with a required reviewer.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -3951,7 +3951,7 @@
             "outputKind": "result",
             "whatItMeans": "Protection turns a convention into a rule the platform enforces.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3969,7 +3969,7 @@
             "outputKind": "result",
             "whatItMeans": "The pause before prod is where a human reads the what-if.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -3986,7 +3986,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "Evidence of change control.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -3999,7 +3999,7 @@
         "title": "Deploy from GitHub Actions",
         "objective": "Add a workflow that validates, previews and deploys the template on every merge to main.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4032,7 +4032,7 @@
             "outputKind": "result",
             "whatItMeans": "id-token: write is what lets the job ask GitHub for a sign-in token instead of using a stored key.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4051,7 +4051,7 @@
             "outputKind": "result",
             "whatItMeans": "From now on nobody deploys from a laptop.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ],
             "fixes": [
@@ -4074,7 +4074,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "The release record.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4087,7 +4087,7 @@
         "title": "Sign in with OIDC and test rollback",
         "objective": "Let GitHub sign in to Azure with no stored secret, then break a deploy on purpose and roll it back.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4127,7 +4127,7 @@
             ],
             "whatItMeans": "A stored key can leak and works from anywhere; a federated token works only for that repo, for minutes.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4149,7 +4149,7 @@
             ],
             "whatItMeans": "These IDs are not secrets — without the federated trust they sign nobody in.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4168,7 +4168,7 @@
             "outputKind": "result",
             "whatItMeans": "A rollback plan you have never run is a guess.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4185,7 +4185,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "Evidence the pipeline is both safe and reversible.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4198,7 +4198,7 @@
         "title": "Review cost by service",
         "objective": "Break this month’s cost down by service and name one action for each.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4229,7 +4229,7 @@
             "outputKind": "result",
             "whatItMeans": "Every line has an owner and a decision — that is FinOps in one table.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4246,7 +4246,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "The cost section of the governance report.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4259,7 +4259,7 @@
         "title": "Require the owner tag with Policy",
         "objective": "Assign the built-in “Require a tag on resources” policy for owner, and prove it denies an untagged resource.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4294,7 +4294,7 @@
             ],
             "whatItMeans": "A standard that is only written down is a suggestion; Policy makes it a rule.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4316,7 +4316,7 @@
             ],
             "whatItMeans": "Enforcement proved by a denial, not assumed.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4333,7 +4333,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "Governance the platform enforces for you.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4346,7 +4346,7 @@
         "title": "Query the Activity Log",
         "objective": "Find who changed what in the resource group this week from the Activity Log.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4380,7 +4380,7 @@
             ],
             "whatItMeans": "The audit log is how an incident answers “who did this, and when”.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4397,7 +4397,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "Evidence the environment is auditable.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4410,7 +4410,7 @@
         "title": "Review posture in Defender for Cloud",
         "objective": "Read the free Defender for Cloud recommendations, rank three, and own their remediation.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4441,7 +4441,7 @@
             "outputKind": "result",
             "whatItMeans": "Free CSPM is enough to find real misconfigurations. Paid plans add threat detection.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4458,7 +4458,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "Open findings become the handover’s risks.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4471,7 +4471,7 @@
         "title": "Assemble the handover package",
         "objective": "Catalogue every service, list the open risks, and sign the package off.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4503,7 +4503,7 @@
             "outputKind": "result",
             "whatItMeans": "The catalogue is the map a new team uses on day one.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4521,7 +4521,7 @@
             "outputKind": "result",
             "whatItMeans": "Handing over known risks honestly is what makes a handover trustworthy.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4538,7 +4538,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "The capstone — the package you defend.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4551,7 +4551,7 @@
         "title": "Rebuild the environment from the template",
         "objective": "Rebuild the whole environment in a new resource group from the template, time it, and delete it.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4587,7 +4587,7 @@
             ],
             "whatItMeans": "If it can be rebuilt from code, it can be recovered from anything.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4609,7 +4609,7 @@
             ],
             "whatItMeans": "Clean-up is part of the drill.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4626,7 +4626,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "Proof the template is the environment.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4639,7 +4639,7 @@
         "title": "Fix an app failure through CI",
         "objective": "Break the Function’s configuration by hand, then restore it by re-running the pipeline — no portal fixes.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4673,7 +4673,7 @@
             ],
             "whatItMeans": "This is drift: the running environment no longer matches the code.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4692,7 +4692,7 @@
             "outputKind": "result",
             "whatItMeans": "Redeploying the known-good template fixes drift without anyone touching the portal.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4709,7 +4709,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "The second scenario of the handover.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }
@@ -4722,7 +4722,7 @@
         "title": "Contain a security incident",
         "objective": "Open SSH to the internet on purpose, detect it, contain it, and run the final security checklist.",
         "frameworks": [
-          "AZ_104",
+          "AZ_900",
           "WAF"
         ],
         "deliverables": [
@@ -4758,7 +4758,7 @@
             ],
             "whatItMeans": "A realistic incident: one bad rule, easy to add, easy to miss.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4785,7 +4785,7 @@
             ],
             "whatItMeans": "Contain, then learn. Prevention: a policy that denies rules from * to 22.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           },
@@ -4803,7 +4803,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "The third scenario, and the security sign-off.",
             "frameworks": [
-              "AZ_104",
+              "AZ_900",
               "WAF"
             ]
           }

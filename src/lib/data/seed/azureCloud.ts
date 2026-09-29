@@ -19,7 +19,7 @@ import { CLOUD_CYCLE, CLOUD_FILES, CLOUD_FORMS, CLOUD_ROLES, cloudTask, cloudWee
  * every step that starts the VM ends with the VM deallocated.
  */
 
-const FW = ['AZ_104', 'WAF'];
+const FW = ['AZ_900', 'WAF'];
 const { portal, cli, record } = stepKit(FW, 'Azure Cloud Shell (Bash)');
 const P = 'az';
 
@@ -695,8 +695,8 @@ export const AZURE_CLOUD: Course = {
   slug: 'azure-cloud',
   description: 'Run a small company in Azure: build it, secure it, recover it, write it as an ARM template, and hand it over.',
   vendor: 'Microsoft',
-  certification: 'AZ-104',
-  level: 'associate',
+  certification: 'AZ-900',
+  level: 'entry',
   audience: 'Four roles build and run a real Azure environment for twelve weeks, on a $5 budget.',
   roles: CLOUD_ROLES,
   weeks: cloudWeeks(P, PLANS),

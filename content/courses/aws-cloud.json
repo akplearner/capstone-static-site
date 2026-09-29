@@ -20,8 +20,8 @@
     "slug": "aws-cloud",
     "description": "Run a small company in AWS: build it, secure it, recover it, write it as CloudFormation, and hand it over.",
     "vendor": "AWS",
-    "certification": "Solutions Architect – Associate",
-    "level": "associate",
+    "certification": "Cloud Practitioner (CLF-C02)",
+    "level": "entry",
     "audience": "Four roles build and run a real AWS environment for twelve weeks, on a $5 budget.",
     "roles": [
       {
@@ -560,7 +560,7 @@
         "title": "Set the naming standard and the budget",
         "objective": "Agree how everything is named and tagged, and cap spending at $5 before anything is built.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -593,7 +593,7 @@
             "outputKind": "result",
             "whatItMeans": "The budget is the guardrail. It is created first because it is the one thing that tells you a mistake is costing money.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -618,7 +618,7 @@
             "outputKind": "result",
             "whatItMeans": "AWS resource names are mostly free text; the Name tag and a pattern are what make them readable. Week 11 checks the owner tag.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -637,7 +637,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "This is the standard every later document and template refers to.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -650,7 +650,7 @@
         "title": "Create the VPC and public subnet",
         "objective": "Create a VPC with one public subnet, an internet gateway and a route, named and tagged by the standard.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -692,7 +692,7 @@
             ],
             "whatItMeans": "A /16 leaves room for 256 /24 subnets; the course uses two. Private ranges never route on the internet.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -719,7 +719,7 @@
             ],
             "whatItMeans": "Public or private is a routing decision, not a setting on the subnet.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -743,7 +743,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "The Network Design Document in Week 6 starts from these numbers.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -756,7 +756,7 @@
         "title": "Open the team repository and board",
         "objective": "Create the team repository, a README with the naming standard, and a twelve-week board.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -789,7 +789,7 @@
             "outputKind": "result",
             "whatItMeans": "Everything the team produces lives here — the site, the function, the template and the documents.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -808,7 +808,7 @@
             "outputKind": "result",
             "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -826,7 +826,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "The handover package in Week 12 points a new team at this repository.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -839,7 +839,7 @@
         "title": "Create the security group",
         "objective": "Create the tools security group with no inbound rules, and review who has access to the account.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -875,7 +875,7 @@
             ],
             "whatItMeans": "Security groups are allow-only: there is no deny rule, only the absence of an allow.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -897,7 +897,7 @@
             ],
             "whatItMeans": "Knowing the defaults is how you know every rule you add is a decision.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -915,7 +915,7 @@
             "outputKind": "result",
             "whatItMeans": "Least privilege starts with knowing what is granted today. Week 5 narrows it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -932,7 +932,7 @@
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
             "whatItMeans": "The Week 5 access matrix builds on this list.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -945,7 +945,7 @@
         "title": "Write the architecture document and cost",
         "objective": "Estimate the monthly cost of each component, then record the first architecture decision with what was rejected.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -978,7 +978,7 @@
             "outputKind": "result",
             "whatItMeans": "Cost is an architecture property. Knowing which line dominates tells you what to switch off.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -997,7 +997,7 @@
             "outputKind": "result",
             "whatItMeans": "An ADR records the decision and the alternatives, so the next team does not reopen it without new facts.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1015,7 +1015,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "The architecture document grows every week and is handed over in Week 12.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1028,7 +1028,7 @@
         "title": "Launch the tools instance",
         "objective": "Launch a t3.micro Amazon Linux instance in the public subnet with a key pair and IMDSv2, then stop it.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1070,7 +1070,7 @@
             ],
             "whatItMeans": "t3.micro is free-tier eligible. IMDSv2 is off by default on older launch paths — always require it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -1098,7 +1098,7 @@
             ],
             "whatItMeans": "AWS reserves the first four addresses and the last in every subnet.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1115,7 +1115,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "The runbook in Week 7 and the snapshot in Week 8 start from these facts.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1142,7 +1142,7 @@
             ],
             "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1155,7 +1155,7 @@
         "title": "Publish the website with CloudFront",
         "objective": "Publish the site from a private S3 bucket behind CloudFront with Origin Access Control, then change it and redeploy.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1192,7 +1192,7 @@
             ],
             "whatItMeans": "The bucket never becomes public. That is the difference from the old S3-website approach.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1211,7 +1211,7 @@
             "outputKind": "result",
             "whatItMeans": "OAC signs CloudFront’s requests; the bucket policy admits only this distribution. Deployment takes about five minutes.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -1239,7 +1239,7 @@
             ],
             "whatItMeans": "Upload plus invalidate is a redeploy. Week 10 automates it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1257,7 +1257,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "The CloudFront URL is the origin CORS will admit in Week 3.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1270,7 +1270,7 @@
         "title": "Allow SSH from your IP only",
         "objective": "Add one inbound rule allowing SSH from your own address, then prove it is allowed from you and blocked elsewhere.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1311,7 +1311,7 @@
             ],
             "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the whole internet for open SSH within minutes.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1331,7 +1331,7 @@
             "outputKind": "result",
             "whatItMeans": "A rule is only proved when something that should fail does fail.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -1354,7 +1354,7 @@
             "producesDeliverable": "02_Solution_Architecture_Document.md",
             "whatItMeans": "Week 6 removes this rule entirely; this record is the before.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1367,7 +1367,7 @@
         "title": "Draw the request flow with real URLs",
         "objective": "Trace how a page view becomes a count in the table, naming every real URL and resource.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1398,7 +1398,7 @@
             "outputKind": "result",
             "whatItMeans": "The diagram is drawn from the template, so it is the environment you are building, not an illustration.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1417,7 +1417,7 @@
             "outputKind": "result",
             "whatItMeans": "A flow with real URLs is testable. Week 6 tests each hop.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1434,7 +1434,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "Week 6’s path tests follow this flow.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1447,7 +1447,7 @@
         "title": "Create the DynamoDB table",
         "objective": "Create an on-demand DynamoDB table and seed the counter item.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1487,7 +1487,7 @@
             ],
             "whatItMeans": "Provisioned capacity would charge every hour even when nobody visits.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1509,7 +1509,7 @@
             ],
             "whatItMeans": "The Lambda updates this one item.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1526,7 +1526,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "The API spec’s data model.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1539,7 +1539,7 @@
         "title": "Build the counter Lambda and API",
         "objective": "Create a Lambda that atomically adds one to the counter, put an HTTP API in front, and show the count on the site.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1572,7 +1572,7 @@
             "outputKind": "result",
             "whatItMeans": "ADD is atomic: two visitors at once both count. The Test fails until the role may write the table — next step.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1591,7 +1591,7 @@
             "outputKind": "result",
             "whatItMeans": "The role names one action on one table. Week 5 checks nothing broader crept in.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1613,7 +1613,7 @@
             ],
             "whatItMeans": "The page calls the API from the browser, which is why CORS matters next.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1630,7 +1630,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "The spec another developer would call your API from.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1643,7 +1643,7 @@
         "title": "Lock CORS and keep secrets out",
         "objective": "Allow only your site to call the API from a browser, prove another origin is refused, and confirm no key exists anywhere.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1684,7 +1684,7 @@
             ],
             "whatItMeans": "Never \"*\": a wildcard lets any website use your API from its visitors’ browsers.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1706,7 +1706,7 @@
             ],
             "whatItMeans": "CORS protects browsers, not the API: curl still gets a count. That is why the API holds no secrets.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1724,7 +1724,7 @@
             "outputKind": "result",
             "whatItMeans": "An IAM role hands out short-lived credentials automatically — there is nothing to leak.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1741,7 +1741,7 @@
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
             "whatItMeans": "The first line of the secrets register.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1754,7 +1754,7 @@
         "title": "Report the cost to date",
         "objective": "Read what the environment has cost so far, by service, and name the largest line.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1788,7 +1788,7 @@
             ],
             "whatItMeans": "Actual cost against the estimate is how you find what you forgot to switch off.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1805,7 +1805,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "Week 11 turns this into the cost report.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1818,7 +1818,7 @@
         "title": "Alarm on Lambda errors",
         "objective": "Create an SNS topic and a CloudWatch alarm that emails when the function errors.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1852,7 +1852,7 @@
             ],
             "whatItMeans": "One topic, many alarms: change the email once.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1874,7 +1874,7 @@
             ],
             "whatItMeans": "Errors are the signal users feel.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1891,7 +1891,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "The monitoring half of the incident report.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -1904,7 +1904,7 @@
         "title": "Find a failure in CloudWatch Logs",
         "objective": "Break the function on purpose, find the error in CloudWatch Logs, and restore it.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -1939,7 +1939,7 @@
             ],
             "whatItMeans": "Breaking it yourself means you know the answer, so you can learn the tool that finds it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1961,7 +1961,7 @@
             ],
             "whatItMeans": "The exception names the layer — configuration — before you open any code.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -1983,7 +1983,7 @@
             ],
             "whatItMeans": "A fix is not done until the retest passes.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2000,7 +2000,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "Your half of the monitoring table.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2013,7 +2013,7 @@
         "title": "Work one incident layer by layer",
         "objective": "Break CORS on purpose, then work it as an incident: symptom, layer, evidence, root cause, fix, prevention.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2047,7 +2047,7 @@
             ],
             "whatItMeans": "A realistic fault: nothing is “down”, one feature silently stops.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2066,7 +2066,7 @@
             "outputKind": "result",
             "whatItMeans": "Working down the layers stops you fixing what is not broken.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2088,7 +2088,7 @@
             ],
             "whatItMeans": "Week 10 puts CORS in the template, so drift like this is corrected by the next deploy.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2105,7 +2105,7 @@
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
             "whatItMeans": "Week 12 runs this loop again under time pressure.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2118,7 +2118,7 @@
         "title": "Write the access matrix",
         "objective": "List every principal, its policies and scope, with a justification for each.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2152,7 +2152,7 @@
             ],
             "whatItMeans": "A policy attached to a user is the one people forget to review.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2170,7 +2170,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "Week 11’s posture review reads this matrix.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2183,7 +2183,7 @@
         "title": "Create a read-only group",
         "objective": "Create an IAM group with ReadOnlyAccess — the access an auditor or a new hire starts with.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2222,7 +2222,7 @@
             ],
             "whatItMeans": "ReadOnlyAccess can see everything and change nothing.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2239,7 +2239,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "The matrix records who can see, not only who can change.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2252,7 +2252,7 @@
         "title": "Scope the Lambda role to the table",
         "objective": "Read the function’s role and make sure it can update one item table and nothing else.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2287,7 +2287,7 @@
             ],
             "whatItMeans": "If AmazonDynamoDBFullAccess appears, the console added it — detach it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2309,7 +2309,7 @@
             ],
             "whatItMeans": "This is AWS’s answer to a managed identity: the credentials rotate by themselves, and the policy is the fence.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2326,7 +2326,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "The register shows a secret that never existed.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2339,7 +2339,7 @@
         "title": "Prove an access is denied",
         "objective": "Ask IAM whether the read-only group could stop the instance, and record the denial.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2374,7 +2374,7 @@
             ],
             "whatItMeans": "One allowed and one denied action prove the policy does what the matrix says.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2391,7 +2391,7 @@
             "producesDeliverable": "05_Access_Control_Matrix_and_Secrets_Register.md",
             "whatItMeans": "Evidence that the matrix is enforced, not just written.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2404,7 +2404,7 @@
         "title": "Write the network design document",
         "objective": "Write the address plan, the rules and the admin path, and say what production would add.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2440,7 +2440,7 @@
             ],
             "whatItMeans": "The plan is read from AWS, not remembered.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2458,7 +2458,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "Honest about the trade-off: a public IP for outbound only, to avoid $32 a month.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2471,7 +2471,7 @@
         "title": "Add the private subnet",
         "objective": "Add a private subnet with its own route table that has no route to the internet.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2511,7 +2511,7 @@
             ],
             "whatItMeans": "Private means “no route to the internet gateway”, and this output proves it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2528,7 +2528,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "The template in Week 9 must match this plan.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2541,7 +2541,7 @@
         "title": "Trace the request paths",
         "objective": "Test each hop of the website and API paths, and one path that must be refused.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2581,7 +2581,7 @@
             ],
             "whatItMeans": "The refused path proves the bucket is private — only CloudFront gets in.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2598,7 +2598,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "Paths tested both ways are the design proved.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2611,7 +2611,7 @@
         "title": "Remove SSH and use Session Manager",
         "objective": "Give the instance a Session Manager role, delete the SSH rule, and administer it with no open port.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2652,7 +2652,7 @@
             ],
             "whatItMeans": "The agent is already installed on Amazon Linux; it only needed permission.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2680,7 +2680,7 @@
             ],
             "whatItMeans": "The safest open port is none: admin goes through an authenticated, logged AWS API.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2698,7 +2698,7 @@
             "producesDeliverable": "06_Network_Design_Document.md",
             "whatItMeans": "The rules matrix of the network design.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2725,7 +2725,7 @@
             ],
             "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2738,7 +2738,7 @@
         "title": "Decide the instance size",
         "objective": "Read the instance’s CPU use and decide whether t3.micro is still the right size.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2772,7 +2772,7 @@
             ],
             "whatItMeans": "Right-sizing is cost control with evidence, not a guess.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2789,7 +2789,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "The decision is reversible and cheap — record it anyway.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2802,7 +2802,7 @@
         "title": "Attach and mount an EBS volume",
         "objective": "Add a 4 GB encrypted gp3 volume to the instance and mount it at /data so it survives a reboot.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2838,7 +2838,7 @@
             ],
             "whatItMeans": "Data on its own volume can be snapshotted and restored without touching the OS.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2860,7 +2860,7 @@
             ],
             "whatItMeans": "A mount that is not in fstab disappears at the next reboot.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2877,7 +2877,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "The runbook’s storage section.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2904,7 +2904,7 @@
             ],
             "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -2917,7 +2917,7 @@
         "title": "Patch with Patch Manager",
         "objective": "Scan for missing updates and install them through Systems Manager Patch Manager.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -2957,7 +2957,7 @@
             ],
             "whatItMeans": "Patching through the platform leaves a compliance record an auditor can read.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -2974,7 +2974,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "Patch evidence for the runbook and the governance report.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3001,7 +3001,7 @@
             ],
             "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3014,7 +3014,7 @@
         "title": "Baseline the instance and write the runbook",
         "objective": "Record what normal looks like on the instance and write the steps to check it is healthy.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3049,7 +3049,7 @@
             ],
             "whatItMeans": "You cannot say “it is slow” without knowing what fast looked like.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3067,7 +3067,7 @@
             "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
             "whatItMeans": "The runbook is what a teammate on call follows.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3094,7 +3094,7 @@
             ],
             "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3107,7 +3107,7 @@
         "title": "Set RPO and RTO per asset",
         "objective": "For each asset, decide how much data the company can lose and how fast it must return.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3138,7 +3138,7 @@
             "outputKind": "result",
             "whatItMeans": "Targets come first, backups second: the target decides how often you back up.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3155,7 +3155,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "Week 12’s recovery scenario is judged against these numbers.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3168,7 +3168,7 @@
         "title": "Restore a volume from a snapshot",
         "objective": "Snapshot the data volume, create a new volume from it, and clean up.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3209,7 +3209,7 @@
             ],
             "whatItMeans": "Snapshots are cheap; AWS Backup is an optional stretch.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3231,7 +3231,7 @@
             ],
             "whatItMeans": "A restore test leaves nothing behind but the evidence.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3248,7 +3248,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "The first proven restore in the DR plan.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3261,7 +3261,7 @@
         "title": "Recover a deleted web file",
         "objective": "Turn on bucket versioning, delete index.html, and get it back by removing the delete marker.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3301,7 +3301,7 @@
             ],
             "whatItMeans": "Protection has to be on BEFORE the accident.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3328,7 +3328,7 @@
             ],
             "whatItMeans": "A backup is only real once you have restored from it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3345,7 +3345,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "The second proven restore.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3358,7 +3358,7 @@
         "title": "Run a timed recovery drill",
         "objective": "Snapshot the instance’s root volume, rebuild a volume from it, time the whole thing, and compare with the RTO.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3398,7 +3398,7 @@
             ],
             "whatItMeans": "A measured time turns an RTO from a hope into a fact.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3420,7 +3420,7 @@
             ],
             "whatItMeans": "Clean-up is part of the drill.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3437,7 +3437,7 @@
             "producesDeliverable": "08_Backup_and_Disaster_Recovery_Plan.md",
             "whatItMeans": "The drill record proves the plan.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3450,7 +3450,7 @@
         "title": "Map the template to the diagram",
         "objective": "Match five template resources to their diagram nodes, and say what code does that the console cannot.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3481,7 +3481,7 @@
             "outputKind": "result",
             "whatItMeans": "The diagram is generated from the template: if they ever disagree, the template is the truth.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3499,7 +3499,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The map lets anyone navigate the template.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3512,7 +3512,7 @@
         "title": "Inventory everything with the CLI",
         "objective": "List every tagged resource and find anything the standard missed.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3546,7 +3546,7 @@
             ],
             "whatItMeans": "The gaps you find now are what the Config rule flags in Week 11.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3563,7 +3563,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The inventory is the before-picture for the template.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3576,7 +3576,7 @@
         "title": "Fill the starter and deploy to dev",
         "objective": "Complete the starter template, preview it with a change set, deploy a dev stack, then delete it.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3610,7 +3610,7 @@
             "outputKind": "result",
             "whatItMeans": "Filling blanks in a real template teaches its structure faster than writing one from nothing.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3638,7 +3638,7 @@
             ],
             "whatItMeans": "Preview first, always: a change set is how you catch a replacement you did not mean.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -3661,7 +3661,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The deployment record Week 10 automates.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3683,7 +3683,7 @@
             ],
             "whatItMeans": "A second environment doubles the bill until it is gone.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3696,7 +3696,7 @@
         "title": "Write parameter files and validate",
         "objective": "Set dev and prod parameter values with no secrets in them, and validate the template.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3729,7 +3729,7 @@
             "outputKind": "result",
             "whatItMeans": "Parameters are what changes between environments; everything else stays identical, which is what makes prod predictable.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3757,7 +3757,7 @@
             ],
             "whatItMeans": "Validation is the cheapest test in the whole course.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3775,7 +3775,7 @@
             "outputKind": "result",
             "whatItMeans": "Knowing why a team picks one over the other is an interview question.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "optional": true
@@ -3793,7 +3793,7 @@
             "producesDeliverable": "09_IaC_Design_and_Deployment_Record.md",
             "whatItMeans": "The environments, side by side.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3806,7 +3806,7 @@
         "title": "Write and approve the change request",
         "objective": "Write a change request for one template change, get it reviewed, and approve it in a pull request.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3837,7 +3837,7 @@
             "outputKind": "result",
             "whatItMeans": "The pull request is the change record: who asked, who approved, what ran.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3854,7 +3854,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "The release record’s front page.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3867,7 +3867,7 @@
         "title": "Protect main and add an environment",
         "objective": "Require a review before anything reaches main, and add a prod environment with a required reviewer.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3899,7 +3899,7 @@
             "outputKind": "result",
             "whatItMeans": "Protection turns a convention into a rule the platform enforces.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3917,7 +3917,7 @@
             "outputKind": "result",
             "whatItMeans": "The pause before prod is where a human reads the change set.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3934,7 +3934,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "Evidence of change control.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -3947,7 +3947,7 @@
         "title": "Deploy from GitHub Actions",
         "objective": "Add a workflow that validates and deploys the stack on every merge to main.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -3980,7 +3980,7 @@
             "outputKind": "result",
             "whatItMeans": "id-token: write lets the job ask GitHub for a token AWS trusts instead of using a stored key.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -3999,7 +3999,7 @@
             "outputKind": "result",
             "whatItMeans": "From now on nobody deploys from a laptop.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ],
             "fixes": [
@@ -4026,7 +4026,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "The release record.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4039,7 +4039,7 @@
         "title": "Sign in with OIDC and test rollback",
         "objective": "Let GitHub assume an AWS role with no stored key, then break a deploy on purpose and watch it roll back.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4075,7 +4075,7 @@
             ],
             "whatItMeans": "A stored key can leak and works from anywhere; an OIDC token works only for that repo, for an hour.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4094,7 +4094,7 @@
             "outputKind": "result",
             "whatItMeans": "The trust policy is the fence: any other repo’s token is refused.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4113,7 +4113,7 @@
             "outputKind": "result",
             "whatItMeans": "CloudFormation rolls back a failed update by itself — you proved it, not assumed it.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4130,7 +4130,7 @@
             "producesDeliverable": "10_Change_Request_and_Release_Record.md",
             "whatItMeans": "Evidence the pipeline is both safe and reversible.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4143,7 +4143,7 @@
         "title": "Review cost by service",
         "objective": "Break this month’s cost down by service and name one action for each.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4174,7 +4174,7 @@
             "outputKind": "result",
             "whatItMeans": "Every line has an owner and a decision — that is FinOps in one table.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4191,7 +4191,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "The cost section of the governance report.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4204,7 +4204,7 @@
         "title": "Require the owner tag with Config",
         "objective": "Turn on the AWS Config required-tags rule for owner, and prove it flags an untagged resource.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4236,7 +4236,7 @@
             "outputKind": "result",
             "whatItMeans": "Config records and checks; it does not block. The deny version is an SCP, which needs AWS Organizations.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4258,7 +4258,7 @@
             ],
             "whatItMeans": "Enforcement proved by a finding, not assumed.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4275,7 +4275,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "Governance the platform checks for you.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4288,7 +4288,7 @@
         "title": "Query CloudTrail event history",
         "objective": "Find who changed what this week from CloudTrail event history.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4322,7 +4322,7 @@
             ],
             "whatItMeans": "The audit log is how an incident answers “who did this, and when”.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4339,7 +4339,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "Evidence the environment is auditable.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4352,7 +4352,7 @@
         "title": "Review posture with Trusted Advisor",
         "objective": "Read the free Trusted Advisor checks and IAM Access Analyzer, rank three findings, and own their remediation.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4383,7 +4383,7 @@
             "outputKind": "result",
             "whatItMeans": "Free checks find real misconfigurations. Security Hub adds more, for a fee.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4400,7 +4400,7 @@
             "producesDeliverable": "11_Governance_Security_and_Cost_Report.md",
             "whatItMeans": "Open findings become the handover’s risks.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4413,7 +4413,7 @@
         "title": "Assemble the handover package",
         "objective": "Catalogue every service, list the open risks, and sign the package off.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4445,7 +4445,7 @@
             "outputKind": "result",
             "whatItMeans": "The catalogue is the map a new team uses on day one.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4463,7 +4463,7 @@
             "outputKind": "result",
             "whatItMeans": "Handing over known risks honestly is what makes a handover trustworthy.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4480,7 +4480,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "The capstone — the package you defend.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4493,7 +4493,7 @@
         "title": "Rebuild the environment from the template",
         "objective": "Rebuild the whole environment as a new stack from the template, time it, and delete it.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4529,7 +4529,7 @@
             ],
             "whatItMeans": "If it can be rebuilt from code, it can be recovered from anything.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4551,7 +4551,7 @@
             ],
             "whatItMeans": "Clean-up is part of the drill.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4568,7 +4568,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "Proof the template is the environment.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4581,7 +4581,7 @@
         "title": "Fix an app failure through CI",
         "objective": "Break the function’s configuration by hand, then restore it by re-running the pipeline — no console fixes.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4615,7 +4615,7 @@
             ],
             "whatItMeans": "This is drift: the running environment no longer matches the code.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4634,7 +4634,7 @@
             "outputKind": "result",
             "whatItMeans": "CloudFormation only fixes what it changes — if nothing changed in the template, update a tag to force it, and record that lesson.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4651,7 +4651,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "The second scenario of the handover.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }
@@ -4664,7 +4664,7 @@
         "title": "Contain a security incident",
         "objective": "Open SSH to the internet on purpose, detect it, contain it, and run the final security checklist.",
         "frameworks": [
-          "AWS_SAA",
+          "AWS_CLF",
           "WAF"
         ],
         "deliverables": [
@@ -4700,7 +4700,7 @@
             ],
             "whatItMeans": "A realistic incident: one bad rule, easy to add, easy to miss.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4727,7 +4727,7 @@
             ],
             "whatItMeans": "Contain, then learn. Prevention: the Config rule restricted-ssh flags this automatically.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           },
@@ -4745,7 +4745,7 @@
             "producesDeliverable": "12_Operational_Handover_Package.md",
             "whatItMeans": "The third scenario, and the security sign-off.",
             "frameworks": [
-              "AWS_SAA",
+              "AWS_CLF",
               "WAF"
             ]
           }

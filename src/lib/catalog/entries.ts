@@ -152,6 +152,15 @@ export const CATALOG: CatalogEntry[] = [
 
   // ── Microsoft — the Azure Crystal Basin ────────────────────────────────────
   {
+    id: 'ms-az-900',
+    vendorId: 'microsoft',
+    certName: 'AZ-900',
+    level: 'entry',
+    status: 'available',
+    courseId: 'azure-cloud',
+    blurb: 'Run a small company in Azure — build, secure, recover, codify, hand over.',
+  },
+  {
     id: 'ms-sc-900',
     vendorId: 'microsoft',
     certName: 'SC-900',
@@ -164,9 +173,8 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'microsoft',
     certName: 'AZ-104',
     level: 'associate',
-    status: 'available',
-    courseId: 'azure-cloud',
-    blurb: 'Run a small company in Azure — build, secure, recover, codify, hand over.',
+    status: 'coming-soon',
+    blurb: 'Administer a working Azure tenant and its resources.',
   },
   {
     id: 'ms-sc-200',
@@ -189,19 +197,19 @@ export const CATALOG: CatalogEntry[] = [
   {
     id: 'aws-cloud-practitioner',
     vendorId: 'aws',
-    certName: 'Cloud Practitioner',
+    certName: 'Cloud Practitioner (CLF-C02)',
     level: 'entry',
-    status: 'coming-soon',
-    blurb: 'Deploy your first workload and read the bill.',
+    status: 'available',
+    courseId: 'aws-cloud',
+    blurb: 'Run a small company in AWS — build, secure, recover, codify, hand over.',
   },
   {
     id: 'aws-saa',
     vendorId: 'aws',
     certName: 'Solutions Architect – Associate',
     level: 'associate',
-    status: 'available',
-    courseId: 'aws-cloud',
-    blurb: 'Run a small company in AWS — build, secure, recover, codify, hand over.',
+    status: 'coming-soon',
+    blurb: 'Design a system that survives losing an availability zone.',
   },
   {
     id: 'aws-security-specialty',

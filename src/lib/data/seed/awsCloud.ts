@@ -17,7 +17,7 @@ import { CLOUD_CYCLE, CLOUD_FILES, CLOUD_FORMS, CLOUD_ROLES, cloudTask, cloudWee
  * it uses. Every step that starts the instance ends with it stopped.
  */
 
-const FW = ['AWS_SAA', 'WAF'];
+const FW = ['AWS_CLF', 'WAF'];
 const { portal, cli, record } = stepKit(FW, 'AWS CloudShell (us-east-1)');
 const P = 'aws';
 
@@ -676,8 +676,8 @@ export const AWS_CLOUD: Course = {
   slug: 'aws-cloud',
   description: 'Run a small company in AWS: build it, secure it, recover it, write it as CloudFormation, and hand it over.',
   vendor: 'AWS',
-  certification: 'Solutions Architect – Associate',
-  level: 'associate',
+  certification: 'Cloud Practitioner (CLF-C02)',
+  level: 'entry',
   audience: 'Four roles build and run a real AWS environment for twelve weeks, on a $5 budget.',
   roles: CLOUD_ROLES,
   weeks: cloudWeeks(P, PLANS),

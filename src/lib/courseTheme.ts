@@ -62,12 +62,12 @@ const SEED_THEMES: Record<string, CourseTheme> = {
   'azure-cloud': {
     key: 'azure-cloud',
     vendor: 'Microsoft',
-    certification: 'AZ-104',
+    certification: 'AZ-900',
   },
   'aws-cloud': {
     key: 'aws-cloud',
     vendor: 'AWS',
-    certification: 'Solutions Architect – Associate',
+    certification: 'Cloud Practitioner (CLF-C02)',
   },
 };
 
