@@ -23,6 +23,38 @@ const startsMachine = (t: Task) =>
 const stopsMachine = (t: Task) =>
   t.steps.some((s) => (s.commands ?? []).some((c) => /az vm deallocate|stop-instances|az group delete|cloudformation delete-stack/.test(c.cmd)));
 
+// R92 — the instructor's three rules: free tier as far as the exam allows,
+// the portal first with the shell as the option on every step, and the
+// official documentation on every task with what to look for in it.
+const DOC_HOSTS = ['learn.microsoft.com', 'docs.aws.amazon.com', 'aws.amazon.com', 'azure.microsoft.com', 'docs.github.com'];
+/** The steps the portal genuinely cannot do, with the reason. Anything else with commands needs clicks too. */
+const SHELL_ONLY: Record<string, string> = {
+  'az-w3-secops-s2': 'a forged Origin header: only curl can send one',
+  'aws-w3-secops-s2': 'a forged Origin header: only curl can send one',
+  'az-w5-dev-s2': 'Cosmos DB data-plane roles are assigned by CLI only; the portal has no page for them',
+};
+
+function r92Problems(t: Task): string[] {
+  const out: string[] = [];
+  if (t.week > 0) {
+    if (!t.docs?.length) out.push(`${t.id}: no documentation`);
+    for (const d of t.docs ?? []) {
+      if (!DOC_HOSTS.some((h) => new URL(d.url).hostname === h)) out.push(`${t.id}: ${d.url} is not official documentation`);
+      if (words(d.lookFor) < 5) out.push(`${t.id}: "${d.title}" does not say what to look for`);
+    }
+    if (!t.freeTier) out.push(`${t.id}: no free-tier line`);
+    else if (words(t.freeTier) > 45) out.push(`${t.id}: free-tier line is ${words(t.freeTier)} words`);
+    if (startsMachine(t) && !/stop|deallocate|delete/i.test(t.freeTier ?? '')) out.push(`${t.id}: starts the VM but the free-tier line never says to stop it`);
+  }
+  for (const s of t.steps) {
+    const shell = (s.commands?.length ?? 0) > 0;
+    const clicks = (s.instructionList?.length ?? 0) > 0;
+    if (shell && !clicks && !SHELL_ONLY[s.id]) out.push(`${s.id}: shell only, with no portal path`);
+    if (shell && clicks && !(s.verify?.length)) out.push(`${s.id}: both paths but nothing to verify`);
+  }
+  return out;
+}
+
 /** Every rule, as one function, so it can be proved against a broken task. */
 function taskProblems(t: Task): string[] {
   const out: string[] = [];
@@ -75,6 +107,14 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
 
   it('every task is under an hour, five steps at most, one short line each, and records its work', () => {
     expect(course.tasks.flatMap(taskProblems)).toEqual([]);
+  });
+
+  it('R92 — free tier stated, portal first with the shell as the option, official docs with what to look for', () => {
+    expect(course.tasks.flatMap(r92Problems)).toEqual([]);
+    // Every exemption names a real step, so the list cannot go stale.
+    for (const id of Object.keys(SHELL_ONLY)) {
+      if (id.startsWith(course.tasks[0].id.slice(0, 3))) expect(ALL.some((c) => c.tasks.some((t) => t.steps.some((s) => s.id === id))), id).toBe(true);
+    }
   });
 
   it('every task carries this course’s own exam tag, not another quarter’s', () => {
@@ -147,6 +187,16 @@ describe('R90 — the guards catch what they claim to', () => {
     expect(problems).toContain('over an hour');
     expect(problems).toContain('6 steps');
     expect(problems).toContain('13 words');
+  });
+
+  it('R92: a task without docs, a doc off the official sites, a shell-only step, a VM task that never says stop', () => {
+    expect(r92Problems({ ...good, docs: undefined }).join()).toContain('no documentation');
+    expect(r92Problems({ ...good, docs: [{ title: 'x', url: 'https://example.com/a', lookFor: 'one two three four five' }] }).join()).toContain('not official');
+    expect(r92Problems({ ...good, docs: [{ ...good.docs![0], lookFor: 'too short' }] }).join()).toContain('what to look for');
+    expect(r92Problems({ ...good, freeTier: undefined }).join()).toContain('no free-tier line');
+    expect(r92Problems({ ...good, freeTier: 'Free.' }).join()).toContain('never says to stop');
+    const shellOnly = { ...good, steps: good.steps.map((s) => (s.commands ? { ...s, instructionList: undefined } : s)) };
+    expect(r92Problems(shellOnly).join()).toContain('shell only');
   });
 
   it('a document without its control block', () => {

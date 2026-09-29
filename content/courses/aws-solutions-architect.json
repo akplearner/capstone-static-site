@@ -311,8 +311,13 @@
             "id": "aws-w0-setup-s3",
             "title": "Deploy through Week 4",
             "description": "Deploy through Week 4",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Deploy the stack with ThroughWeek=4.",
+            "instructionList": [
+              "CloudFormation → Create stack → With new resources → Upload template.yaml. Stack name capstone-team01.",
+              "Parameters: ThroughWeek 4, TeamId team01, OwnerTag, AlertEmail. Tick the IAM capability. Submit.",
+              "Events tab until CREATE_COMPLETE — CloudFront takes about ten minutes."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudformation deploy --stack-name capstone-team01 --template-file infra/template.yaml --parameter-overrides ThroughWeek=4 TeamId=team01 OwnerTag=team01-lead AlertEmail=team01-alerts@school.edu --capabilities CAPABILITY_IAM",
@@ -339,8 +344,13 @@
             "id": "aws-w0-setup-s4",
             "title": "Publish what the template cannot",
             "description": "Publish what the template cannot",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Upload the site to the bucket the stack made.",
+            "instructionList": [
+              "CloudFormation → capstone-team01 → Outputs: copy SiteBucketName and SiteUrl.",
+              "S3 → that bucket → Upload → your site/ files.",
+              "Open SiteUrl: your page over HTTPS."
+            ],
             "commands": [
               {
                 "cmd": "BUCKET=$(aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='SiteBucketName'].OutputValue\" --output text); aws s3 sync ./site s3://$BUCKET && aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='SiteUrl'].OutputValue\" --output text",
@@ -361,8 +371,12 @@
             "id": "aws-w0-setup-s8",
             "title": "Stop the instance",
             "description": "Stop the instance",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Stop the instance so it stops costing money.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Stop instance.",
+              "Wait until Instance state reads “Stopped”."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 stop-instances --instance-ids $IID --query \"StoppingInstances[0].CurrentState.Name\" --output text",
@@ -378,7 +392,7 @@
             "verify": [
               "stopped"
             ],
-            "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
+            "whatItMeans": "Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.",
             "frameworks": [
               "AWS_SAA",
               "WAF"
@@ -408,13 +422,31 @@
         "definitionOfDone": [
           "Three or more justified grants"
         ],
+        "docs": [
+          {
+            "title": "Policies and permissions in IAM",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html",
+            "lookFor": "the “Identity-based policies” section and the difference between managed and inline — your matrix has a column for each"
+          },
+          {
+            "title": "Getting credential reports",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_getting-report.html",
+            "lookFor": "the “Download report” button and the columns mfa_active and access_key_1_active — the two that decide a risky row"
+          }
+        ],
+        "freeTier": "Free: IAM and its reports cost nothing.",
         "steps": [
           {
             "id": "aws-w5-arch-s1",
             "title": "Export the grants",
             "description": "Export the grants",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "List users and groups with their policies.",
+            "instructionList": [
+              "IAM → Users: open each user → Permissions tab; note attached policies and group memberships.",
+              "IAM → User groups: each group’s Permissions tab.",
+              "IAM → Credential report → Download report."
+            ],
             "commands": [
               {
                 "cmd": "aws iam get-account-authorization-details --filter User Group --query \"{users: UserDetailList[].[UserName, AttachedManagedPolicies[].PolicyName], groups: GroupDetailList[].[GroupName, AttachedManagedPolicies[].PolicyName]}\" --output json",
@@ -473,13 +505,31 @@
         "definitionOfDone": [
           "The group holds ReadOnlyAccess"
         ],
+        "docs": [
+          {
+            "title": "Creating IAM user groups",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_create.html",
+            "lookFor": "the “Attach permissions policies” step — search ReadOnlyAccess, tick exactly that one"
+          },
+          {
+            "title": "ReadOnlyAccess managed policy",
+            "url": "https://docs.aws.amazon.com/aws-managed-policy/latest/reference/ReadOnlyAccess.html",
+            "lookFor": "the length of the policy and that every action starts with Describe, Get or List — that is what “read only” means"
+          }
+        ],
+        "freeTier": "Free: IAM groups and managed policies cost nothing.",
         "steps": [
           {
             "id": "aws-w5-infra-s1",
             "title": "Create the group",
             "description": "Create the group",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Create the group and attach ReadOnlyAccess.",
+            "instructionList": [
+              "IAM → User groups → Create group: capstone-team01-readonly.",
+              "Attach permissions policies: search ReadOnlyAccess, tick it. Create group.",
+              "Open the group → Permissions: ReadOnlyAccess is listed."
+            ],
             "commands": [
               {
                 "cmd": "aws iam create-group --group-name capstone-team01-readonly --query Group.Arn --output text && aws iam attach-group-policy --group-name capstone-team01-readonly --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess",
@@ -543,13 +593,31 @@
           "The role names the table ARN only",
           "The API still works"
         ],
+        "docs": [
+          {
+            "title": "Lambda execution role",
+            "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html",
+            "lookFor": "the “View the execution role” steps under Configuration → Permissions — the role name is a link into IAM"
+          },
+          {
+            "title": "IAM JSON policy elements: Resource",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_policies_elements_resource.html",
+            "lookFor": "the ARN examples and the wildcard warning — your policy should name one table ARN and no *"
+          }
+        ],
+        "freeTier": "Free: reading and editing a role costs nothing.",
         "steps": [
           {
             "id": "aws-w5-dev-s1",
             "title": "Read the role’s policies",
             "description": "Read the role’s policies",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "List what the function’s role may do.",
+            "instructionList": [
+              "Lambda → capstone-team01-counter → Configuration → Permissions → the role name.",
+              "IAM opens the role: Permissions policies lists AWSLambdaBasicExecutionRole-… and count-visitors.",
+              "If AmazonDynamoDBFullAccess is there, Remove it."
+            ],
             "commands": [
               {
                 "cmd": "ROLE=$(aws lambda get-function-configuration --function-name capstone-team01-counter --query Role --output text | cut -d/ -f3-); aws iam list-attached-role-policies --role-name $ROLE --query \"AttachedPolicies[].PolicyName\" --output text; aws iam list-role-policies --role-name $ROLE --output text",
@@ -570,8 +638,12 @@
             "id": "aws-w5-dev-s2",
             "title": "Check the resource",
             "description": "Check the resource",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Confirm the inline policy names one table.",
+            "instructionList": [
+              "Open the inline policy count-visitors → JSON.",
+              "Action: dynamodb:UpdateItem. Resource: one table ARN, no *."
+            ],
             "commands": [
               {
                 "cmd": "aws iam get-role-policy --role-name $ROLE --policy-name count-visitors --query \"PolicyDocument.Statement[0].[Action, Resource]\" --output text",
@@ -629,13 +701,26 @@
         "definitionOfDone": [
           "A denial is recorded"
         ],
+        "docs": [
+          {
+            "title": "Testing IAM policies with the IAM policy simulator",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_testing-policies.html",
+            "lookFor": "the “Testing policies attached to a user, group or role” steps and the Results column — implicitDeny is a denial by absence of an allow"
+          }
+        ],
+        "freeTier": "Free: the simulator evaluates policies without calling any service.",
         "steps": [
           {
             "id": "aws-w5-secops-s1",
             "title": "Simulate the group",
             "description": "Simulate the group",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Simulate stopping an instance as the read-only group.",
+            "instructionList": [
+              "IAM → User groups → capstone-team01-readonly → Simulate (or policysim.aws.amazon.com → Groups).",
+              "Service EC2, actions StopInstances and DescribeInstances. Run simulation.",
+              "Read: StopInstances denied, DescribeInstances allowed."
+            ],
             "commands": [
               {
                 "cmd": "ARN=$(aws iam get-group --group-name capstone-team01-readonly --query Group.Arn --output text); aws iam simulate-principal-policy --policy-source-arn $ARN --action-names ec2:StopInstances ec2:DescribeInstances --query \"EvaluationResults[].[EvalActionName, EvalDecision]\" --output text",
@@ -696,13 +781,30 @@
           "Address plan and rules recorded",
           "The production gap is stated"
         ],
+        "docs": [
+          {
+            "title": "Subnets for your VPC",
+            "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html",
+            "lookFor": "the “Subnet types” list — public, private, VPN-only, isolated — and the sentence that defines each by its route table"
+          },
+          {
+            "title": "NAT gateways",
+            "url": "https://docs.aws.amazon.com/vpc/latest/userguide/vpc-nat-gateway.html",
+            "lookFor": "the “Pricing” link and the hourly charge: this is the $32 a month the course avoids by keeping the instance public for outbound only"
+          }
+        ],
+        "freeTier": "Free: reading the plan. The production alternative — a NAT gateway — is about $32 a month, which is why the course keeps a public IP instead.",
         "steps": [
           {
             "id": "aws-w6-arch-s1",
             "title": "Read the address plan",
             "description": "Read the address plan",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "List every subnet in the VPC.",
+            "instructionList": [
+              "VPC → Subnets → filter by vpc-capstone-team01.",
+              "Read Name, IPv4 CIDR and Availability Zone for each row."
+            ],
             "commands": [
               {
                 "cmd": "VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query \"Vpcs[0].VpcId\" --output text); aws ec2 describe-subnets --filters Name=vpc-id,Values=$VPC --query \"Subnets[].[Tags[?Key=='Name']|[0].Value, CidrBlock, AvailabilityZone]\" --output text",
@@ -762,13 +864,31 @@
           "snet-private-team01 is 10.10.2.0/24",
           "Its route table has only local"
         ],
+        "docs": [
+          {
+            "title": "Route tables",
+            "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html",
+            "lookFor": "the “Custom route tables” section and the local route every table carries — a table with only that route is what makes a subnet private"
+          },
+          {
+            "title": "Subnets for your VPC",
+            "url": "https://docs.aws.amazon.com/vpc/latest/userguide/configure-subnets.html",
+            "lookFor": "the “Create a subnet” steps — the CIDR must sit inside the VPC’s /16"
+          }
+        ],
+        "freeTier": "Free: subnets and route tables cost nothing.",
         "steps": [
           {
             "id": "aws-w6-infra-s1",
             "title": "Create the subnet and its route table",
             "description": "Create the subnet and its route table",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Create 10.10.2.0/24 with a local-only route table.",
+            "instructionList": [
+              "VPC → Subnets → Create subnet: vpc-capstone-team01, name snet-private-team01, us-east-1a, 10.10.2.0/24.",
+              "Route tables → Create: rt-private-team01 in the VPC. Subnet associations → Edit → tick snet-private-team01.",
+              "Routes tab: one row, 10.10.0.0/16 → local. Nothing else."
+            ],
             "commands": [
               {
                 "cmd": "VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query \"Vpcs[0].VpcId\" --output text); PSUB=$(aws ec2 create-subnet --vpc-id $VPC --cidr-block 10.10.2.0/24 --availability-zone us-east-1a --tag-specifications \"ResourceType=subnet,Tags=[{Key=Name,Value=snet-private-team01}]\" --query Subnet.SubnetId --output text)",
@@ -831,13 +951,31 @@
         "definitionOfDone": [
           "Reachable and refused paths recorded"
         ],
+        "docs": [
+          {
+            "title": "Requiring HTTPS between viewers and CloudFront",
+            "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/using-https-viewers-to-cloudfront.html",
+            "lookFor": "the “Redirect HTTP to HTTPS” option: the 301 you will see is that setting at work"
+          },
+          {
+            "title": "Blocking public access to S3",
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-control-block-public-access.html",
+            "lookFor": "the four settings and what each blocks — with all four on, the bucket URL answers 403 to everyone but CloudFront"
+          }
+        ],
+        "freeTier": "Free: four HTTP requests.",
         "steps": [
           {
             "id": "aws-w6-dev-s1",
             "title": "Test the public paths",
             "description": "Test the public paths",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Test HTTPS, HTTP and the bucket directly.",
+            "instructionList": [
+              "Browser: https://YOUR.cloudfront.net loads; http://YOUR.cloudfront.net redirects to https.",
+              "Browser: https://YOUR-BUCKET.s3.amazonaws.com/index.html → AccessDenied.",
+              "DevTools → Network shows the codes: 200, 301, 403."
+            ],
             "commands": [
               {
                 "cmd": "SITE=d111111abcdef8.cloudfront.net; curl -sI https://$SITE | head -1; curl -sI http://$SITE | head -1",
@@ -903,13 +1041,30 @@
           "No inbound rule",
           "A command ran through Session Manager"
         ],
+        "docs": [
+          {
+            "title": "Setting up Session Manager",
+            "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager-getting-started.html",
+            "lookFor": "the prerequisites list: the agent (already on Amazon Linux), an instance profile with AmazonSSMManagedInstanceCore, and outbound HTTPS — no inbound port"
+          },
+          {
+            "title": "IAM roles for Amazon EC2",
+            "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html",
+            "lookFor": "the “Attach an IAM role to an instance” steps under Actions → Security → Modify IAM role"
+          }
+        ],
+        "freeTier": "Free: Session Manager, IAM roles and Run Command cost nothing. Instance hours count while it runs — stop it at the end.",
         "steps": [
           {
             "id": "aws-w6-secops-s1",
             "title": "Give the instance a role",
             "description": "Give the instance a role",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Create an SSM role and attach it to the instance.",
+            "instructionList": [
+              "IAM → Roles → Create role → AWS service → EC2. Policy AmazonSSMManagedInstanceCore. Name capstone-team01-ssm.",
+              "EC2 → Instances → ec2-tools-team01 → Actions → Security → Modify IAM role → capstone-team01-ssm → Update."
+            ],
             "commands": [
               {
                 "cmd": "aws iam create-role --role-name capstone-team01-ssm --assume-role-policy-document '{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"Service\":\"ec2.amazonaws.com\"},\"Action\":\"sts:AssumeRole\"}]}' -o none && aws iam attach-role-policy --role-name capstone-team01-ssm --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
@@ -935,8 +1090,14 @@
             "id": "aws-w6-secops-s2",
             "title": "Remove SSH, run a command",
             "description": "Remove SSH, run a command",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Revoke the SSH rule and run a command through SSM.",
+            "instructionList": [
+              "EC2 → Security groups → sg-tools-team01 → Inbound rules → Edit → Delete the SSH row → Save. The table is empty.",
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Start instance; wait for “Running”.",
+              "Systems Manager → Run Command → Run command → AWS-RunShellScript; target ec2-tools-team01; commands: hostname; systemctl is-active amazon-ssm-agent. Run.",
+              "Open the command → the instance → Output: the hostname and “active”."
+            ],
             "commands": [
               {
                 "cmd": "SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query \"SecurityGroups[0].GroupId\" --output text); aws ec2 revoke-security-group-ingress --group-id $SG --ip-permissions \"$(aws ec2 describe-security-groups --group-ids $SG --query SecurityGroups[0].IpPermissions)\" -o none; aws ec2 describe-security-groups --group-ids $SG --query \"SecurityGroups[0].IpPermissions\"",
@@ -981,8 +1142,12 @@
             "id": "aws-w6-secops-s8",
             "title": "Stop the instance",
             "description": "Stop the instance",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Stop the instance so it stops costing money.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Stop instance.",
+              "Wait until Instance state reads “Stopped”."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 stop-instances --instance-ids $IID --query \"StoppingInstances[0].CurrentState.Name\" --output text",
@@ -998,7 +1163,7 @@
             "verify": [
               "stopped"
             ],
-            "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
+            "whatItMeans": "Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.",
             "frameworks": [
               "AWS_SAA",
               "WAF"
@@ -1028,13 +1193,30 @@
         "definitionOfDone": [
           "A size decision with its evidence"
         ],
+        "docs": [
+          {
+            "title": "Burstable performance instances",
+            "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/burstable-performance-instances.html",
+            "lookFor": "the “Baseline utilization” table: t3.micro’s baseline is 10% — an average under that is normal, not idle waste"
+          },
+          {
+            "title": "Monitor your instances using CloudWatch",
+            "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/viewing_metrics_with_cloudwatch.html",
+            "lookFor": "the Monitoring tab on the instance page and the CPU utilization graph; change the period to one day"
+          }
+        ],
+        "freeTier": "Free: CloudWatch basic monitoring at five-minute intervals costs nothing. Detailed monitoring would; do not enable it.",
         "steps": [
           {
             "id": "aws-w7-arch-s1",
             "title": "Read the CPU history",
             "description": "Read the CPU history",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Read the average CPU for the last week.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Monitoring tab.",
+              "CPU utilization → enlarge; time range 1 week, period 1 day, statistic Average."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --dimensions Name=InstanceId,Value=$IID --start-time $(date -d '-7 days' +%FT%T) --end-time $(date +%FT%T) --period 86400 --statistics Average --query \"Datapoints[].[Timestamp, Average]\" --output text",
@@ -1094,13 +1276,31 @@
           "/data is mounted",
           "The instance is stopped"
         ],
+        "docs": [
+          {
+            "title": "Create an Amazon EBS volume",
+            "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-creating-volume.html",
+            "lookFor": "the Availability Zone field — it must match the instance’s zone or Attach will not list the instance"
+          },
+          {
+            "title": "Make an EBS volume available for use",
+            "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-using-volumes.html",
+            "lookFor": "the “Format and mount” steps and the fstab line with UUID= — copy that form, not /dev/nvme1n1"
+          }
+        ],
+        "freeTier": "Free tier: the 4 GB gp3 volume sits inside the 30 GB free. Instance hours count while it runs — stop it at the end.",
         "steps": [
           {
             "id": "aws-w7-infra-s1",
             "title": "Create and attach the volume",
             "description": "Create and attach the volume",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Create a 4 GB encrypted volume and attach it.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Start instance; wait for “Running”.",
+              "EC2 → Volumes → Create volume: gp3, 4 GiB, us-east-1a, Encrypt ticked, tag Name ebs-data-tools-team01.",
+              "Select it → Actions → Attach volume → ec2-tools-team01, device /dev/sdf → Attach."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 start-instances --instance-ids $IID -o text > /dev/null; aws ec2 wait instance-status-ok --instance-ids $IID; VOL=$(aws ec2 create-volume --size 4 --volume-type gp3 --encrypted --availability-zone us-east-1a --tag-specifications \"ResourceType=volume,Tags=[{Key=Name,Value=ebs-data-tools-team01}]\" --query VolumeId --output text); aws ec2 wait volume-available --volume-ids $VOL; aws ec2 attach-volume --volume-id $VOL --instance-id $IID --device /dev/sdf --query State --output text",
@@ -1121,8 +1321,13 @@
             "id": "aws-w7-infra-s2",
             "title": "Format and mount it",
             "description": "Format and mount it",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Format the volume and mount it at /data.",
+            "instructionList": [
+              "Systems Manager → Run Command → AWS-RunShellScript → target ec2-tools-team01.",
+              "Commands: paste the script inside the quotes of the shell line below — format, fstab entry, mount.",
+              "Then a second command: df -h /data. Read the output."
+            ],
             "commands": [
               {
                 "cmd": "CID=$(aws ssm send-command --instance-ids $IID --document-name AWS-RunShellScript --parameters 'commands=[\"D=/dev/nvme1n1; mkfs -t xfs -q $D; mkdir -p /data; echo UUID=$(blkid -s UUID -o value $D) /data xfs defaults,nofail 0 2 >> /etc/fstab; mount -a; df -h /data\"]' --query Command.CommandId --output text); sleep 6; aws ssm get-command-invocation --command-id $CID --instance-id $IID --query StandardOutputContent --output text",
@@ -1160,8 +1365,12 @@
             "id": "aws-w7-infra-s8",
             "title": "Stop the instance",
             "description": "Stop the instance",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Stop the instance so it stops costing money.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Stop instance.",
+              "Wait until Instance state reads “Stopped”."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 stop-instances --instance-ids $IID --query \"StoppingInstances[0].CurrentState.Name\" --output text",
@@ -1177,7 +1386,7 @@
             "verify": [
               "stopped"
             ],
-            "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
+            "whatItMeans": "Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.",
             "frameworks": [
               "AWS_SAA",
               "WAF"
@@ -1208,13 +1417,31 @@
           "A patch run succeeded",
           "The instance is stopped"
         ],
+        "docs": [
+          {
+            "title": "Patch instances on demand",
+            "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-patch-now.html",
+            "lookFor": "the “Patch now” button and the Operation choice: Scan only, or Scan and install"
+          },
+          {
+            "title": "Patch compliance",
+            "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/patch-manager-compliance-states.html",
+            "lookFor": "the compliance states — Installed, Missing, Failed — the three numbers you record"
+          }
+        ],
+        "freeTier": "Free: Patch Manager and its compliance data cost nothing. Instance hours count while it runs — stop it at the end.",
         "steps": [
           {
             "id": "aws-w7-dev-s1",
             "title": "Install patches",
             "description": "Install patches",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Run the patch baseline in Install mode.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Start instance; wait for “Running”.",
+              "Systems Manager → Patch Manager → Patch now. Operation: Scan and install. Reboot if needed. Target: ec2-tools-team01. Patch now.",
+              "Patch Manager → Compliance reporting: read Installed, Missing, Failed for the instance."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 start-instances --instance-ids $IID -o text > /dev/null; aws ec2 wait instance-status-ok --instance-ids $IID; CID=$(aws ssm send-command --instance-ids $IID --document-name AWS-RunPatchBaseline --parameters Operation=Install --query Command.CommandId --output text); aws ssm wait command-executed --command-id $CID --instance-id $IID; aws ssm get-command-invocation --command-id $CID --instance-id $IID --query Status --output text",
@@ -1257,8 +1484,12 @@
             "id": "aws-w7-dev-s8",
             "title": "Stop the instance",
             "description": "Stop the instance",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Stop the instance so it stops costing money.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Stop instance.",
+              "Wait until Instance state reads “Stopped”."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 stop-instances --instance-ids $IID --query \"StoppingInstances[0].CurrentState.Name\" --output text",
@@ -1274,7 +1505,7 @@
             "verify": [
               "stopped"
             ],
-            "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
+            "whatItMeans": "Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.",
             "frameworks": [
               "AWS_SAA",
               "WAF"
@@ -1305,13 +1536,31 @@
           "Three baseline metrics",
           "A four-step runbook"
         ],
+        "docs": [
+          {
+            "title": "AWS Systems Manager Run Command",
+            "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/run-command.html",
+            "lookFor": "the “Run a command” walkthrough: document AWS-RunShellScript, targets by instance, and where the output appears"
+          },
+          {
+            "title": "Session Manager",
+            "url": "https://docs.aws.amazon.com/systems-manager/latest/userguide/session-manager.html",
+            "lookFor": "the “Start session” button on the instance’s Connect page — a shell with no port, if you prefer it to Run Command"
+          }
+        ],
+        "freeTier": "Free: Run Command and Session Manager. Instance hours count while it runs — stop it at the end.",
         "steps": [
           {
             "id": "aws-w7-secops-s1",
             "title": "Take the baseline",
             "description": "Take the baseline",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Read load, memory and disk on the instance.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Start instance; wait for “Running”.",
+              "Systems Manager → Run Command → AWS-RunShellScript → ec2-tools-team01. Commands: uptime; free -m | head -2; df -h / | tail -1",
+              "Open the command → Output: load average, free memory, disk use."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 start-instances --instance-ids $IID -o text > /dev/null; aws ec2 wait instance-status-ok --instance-ids $IID; CID=$(aws ssm send-command --instance-ids $IID --document-name AWS-RunShellScript --parameters 'commands=[\"uptime; free -m | head -2; df -h / | tail -1\"]' --query Command.CommandId --output text); sleep 6; aws ssm get-command-invocation --command-id $CID --instance-id $IID --query StandardOutputContent --output text",
@@ -1350,8 +1599,12 @@
             "id": "aws-w7-secops-s8",
             "title": "Stop the instance",
             "description": "Stop the instance",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Stop the instance so it stops costing money.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Stop instance.",
+              "Wait until Instance state reads “Stopped”."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 stop-instances --instance-ids $IID --query \"StoppingInstances[0].CurrentState.Name\" --output text",
@@ -1367,7 +1620,7 @@
             "verify": [
               "stopped"
             ],
-            "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
+            "whatItMeans": "Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.",
             "frameworks": [
               "AWS_SAA",
               "WAF"
@@ -1397,6 +1650,14 @@
         "definitionOfDone": [
           "Three assets with RPO, RTO and method"
         ],
+        "docs": [
+          {
+            "title": "Disaster recovery options in the cloud",
+            "url": "https://docs.aws.amazon.com/whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html",
+            "lookFor": "the RPO/RTO definitions at the top and the four strategies — backup and restore is the one this course uses"
+          }
+        ],
+        "freeTier": "Free: a decision, written down. Nothing is deployed.",
         "steps": [
           {
             "id": "aws-w8-arch-s1",
@@ -1459,13 +1720,30 @@
           "A volume restored from a snapshot",
           "The test volume is deleted"
         ],
+        "docs": [
+          {
+            "title": "Create Amazon EBS snapshots",
+            "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-creating-snapshot.html",
+            "lookFor": "the “Create a snapshot of a volume” steps and the Status column — wait for Completed before restoring"
+          },
+          {
+            "title": "Create a volume from a snapshot",
+            "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-restoring-volume.html",
+            "lookFor": "the “Create volume from snapshot” action — pick the same Availability Zone as the instance"
+          }
+        ],
+        "freeTier": "Free tier: 1 GB of EBS snapshot storage a month; a 4 GB volume with 61 MB used snapshots to well under that. Delete the test volume — it counts against the 30 GB.",
         "steps": [
           {
             "id": "aws-w8-infra-s1",
             "title": "Snapshot and restore",
             "description": "Snapshot and restore",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Snapshot the data volume and make a volume from it.",
+            "instructionList": [
+              "EC2 → Volumes → ebs-data-tools-team01 → Actions → Create snapshot; description “team01 data”. Wait for Completed.",
+              "Snapshots → the snapshot → Actions → Create volume from snapshot: gp3, us-east-1a. Create."
+            ],
             "commands": [
               {
                 "cmd": "VOL=$(aws ec2 describe-volumes --filters Name=tag:Name,Values=ebs-data-tools-team01 --query \"Volumes[0].VolumeId\" --output text); SNAP=$(aws ec2 create-snapshot --volume-id $VOL --description \"team01 data\" --query SnapshotId --output text); aws ec2 wait snapshot-completed --snapshot-ids $SNAP && echo $SNAP",
@@ -1492,8 +1770,12 @@
             "id": "aws-w8-infra-s2",
             "title": "Clean up the test volume",
             "description": "Clean up the test volume",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Delete the restored test volume.",
+            "instructionList": [
+              "EC2 → Volumes → the new, unattached volume → Actions → Delete volume.",
+              "ebs-data-tools-team01 still reads In-use."
+            ],
             "commands": [
               {
                 "cmd": "aws ec2 delete-volume --volume-id $NEW && aws ec2 describe-volumes --filters Name=tag:Name,Values=ebs-data-tools-team01 --query \"Volumes[].State\" --output text",
@@ -1552,13 +1834,30 @@
           "index.html was recovered",
           "The site loads again"
         ],
+        "docs": [
+          {
+            "title": "Enabling versioning on buckets",
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/manage-versioning-examples.html",
+            "lookFor": "the console steps under Properties → Bucket Versioning → Edit → Enable"
+          },
+          {
+            "title": "Working with delete markers",
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/DeleteMarker.html",
+            "lookFor": "the diagram: a delete adds a marker on top; deleting the marker brings the object back"
+          }
+        ],
+        "freeTier": "Free: versioning is a setting; the extra copies of one small file are kilobytes inside the 5 GB.",
         "steps": [
           {
             "id": "aws-w8-dev-s1",
             "title": "Turn on versioning",
             "description": "Turn on versioning",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Enable versioning on the site bucket.",
+            "instructionList": [
+              "S3 → the site bucket → Properties → Bucket Versioning → Edit → Enable → Save.",
+              "Objects → Upload site/index.html once more, so a versioned copy exists."
+            ],
             "commands": [
               {
                 "cmd": "BUCKET=$(aws s3 ls | grep capstone-team01-site | awk '{print $3}'); aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled && aws s3api get-bucket-versioning --bucket $BUCKET --output text",
@@ -1584,8 +1883,13 @@
             "id": "aws-w8-dev-s2",
             "title": "Delete and recover",
             "description": "Delete and recover",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Delete index.html, then remove the delete marker.",
+            "instructionList": [
+              "Objects → tick index.html → Delete → confirm. The site now 404s.",
+              "Toggle “Show versions”: index.html has a Delete marker on top. Tick the marker only → Delete.",
+              "The file is back; reload the site."
+            ],
             "commands": [
               {
                 "cmd": "aws s3 rm s3://$BUCKET/index.html && MARK=$(aws s3api list-object-versions --bucket $BUCKET --prefix index.html --query 'DeleteMarkers[0].VersionId' --output text)",
@@ -1649,13 +1953,30 @@
           "The drill is timed",
           "Test resources are deleted"
         ],
+        "docs": [
+          {
+            "title": "Create Amazon EBS snapshots",
+            "url": "https://docs.aws.amazon.com/ebs/latest/userguide/ebs-creating-snapshot.html",
+            "lookFor": "the note that a snapshot of a stopped instance’s root volume is consistent — you do not need to start it"
+          },
+          {
+            "title": "Amazon EBS pricing",
+            "url": "https://aws.amazon.com/ebs/pricing/",
+            "lookFor": "the snapshot line: per GB-month of changed data — the reason a drill costs cents and clean-up matters"
+          }
+        ],
+        "freeTier": "Free tier: the drill snapshot is a few hundred MB inside the 1 GB free; delete the drill volume and snapshot at the end.",
         "steps": [
           {
             "id": "aws-w8-secops-s1",
             "title": "Run the drill",
             "description": "Run the drill",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Start a timer, snapshot the root volume, restore it.",
+            "instructionList": [
+              "Note the time. EC2 → Instances → ec2-tools-team01 → Storage → the root volume → Create snapshot, description “drill”.",
+              "Snapshots → wait for Completed → Actions → Create volume from snapshot, us-east-1a. Wait for Available; note the time."
+            ],
             "commands": [
               {
                 "cmd": "date +%T; IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); ROOT=$(aws ec2 describe-instances --instance-ids $IID --query \"Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId\" --output text); DS=$(aws ec2 create-snapshot --volume-id $ROOT --description drill --query SnapshotId --output text); aws ec2 wait snapshot-completed --snapshot-ids $DS",
@@ -1681,8 +2002,12 @@
             "id": "aws-w8-secops-s2",
             "title": "Clean up",
             "description": "Clean up",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Delete the drill volume and snapshot.",
+            "instructionList": [
+              "Volumes → the drill volume → Actions → Delete volume.",
+              "Snapshots → the “drill” snapshot → Actions → Delete snapshot."
+            ],
             "commands": [
               {
                 "cmd": "aws ec2 delete-volume --volume-id $DV && aws ec2 delete-snapshot --snapshot-id $DS && echo cleaned",

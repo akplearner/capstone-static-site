@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, Check, CheckCircle2, Clock, Rows3, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock, Coins, Rows3, RotateCcw } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
 import { ChecklistItem } from './ChecklistItem';
 import { CutMark, CutBeat } from '@/components/quarry/CutBeat';
@@ -189,7 +189,8 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     <div className="space-y-4">
       {/* The task, stated once: why, and how long. */}
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1 space-y-1">
+        {/* basis-64: on a phone the text drops under the mode switch instead of squeezing beside it. */}
+        <div className="min-w-0 flex-1 basis-64 space-y-1">
           <p className="text-sm text-body">{task.objective}</p>
           {/* R84: the personal stamp, stated once for the task. Every Verify box
               below expects it alongside the tool's own tokens. The wording keeps
@@ -212,9 +213,28 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
                 <Clock className="h-3.5 w-3.5" aria-hidden /> {task.estimatedTime}
               </span>
             )}
+            {/* R92: the documentation to read first — one chip per page, always visible. */}
+            {task.docs?.map((d) => (
+              <a
+                key={d.url}
+                href={d.url}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 rounded-md depth-edge bg-panel-2 px-1.5 py-0.5 font-medium text-accent-ink hover:bg-accent-soft"
+                title={`Look for: ${d.lookFor}`}
+              >
+                <BookOpen className="h-3.5 w-3.5" aria-hidden /> {d.title}
+              </a>
+            ))}
             {/* The reward beat — a cut lands on the stone each time a step does. */}
             <CutBeat trigger={beat} />
           </div>
+          {task.freeTier && (
+            <p className="flex items-start gap-1.5 text-xs text-muted">
+              <Coins className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span>{task.freeTier}</span>
+            </p>
+          )}
         </div>
         <div className="flex overflow-hidden rounded-[var(--radius-control)] depth-edge" role="group" aria-label="How to work the steps">
           {(['guided', 'all'] as const).map((m) => (

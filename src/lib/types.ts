@@ -284,6 +284,12 @@ export interface Task {
    *  SOC already exists. Expanding it asks for confirmation first, and it is
    *  never offered as "your next task". Replaces a hardcoded 'cr-w0' check. */
   homeLabOnly?: boolean;
+  /** Official documentation to read first, and what to look for in it (R92).
+   *  Rendered as link chips on the task and, with the "look for" sentence, in
+   *  its About panel — the habit of checking the docs before the portal. */
+  docs?: { title: string; url: string; lookFor: string }[];
+  /** One line on what this task costs on the free tier and what to switch off. */
+  freeTier?: string;
   /** Every member works this task, whatever focus/role they picked. Used by
    *  shared-track courses (see `Course.sharedTrack`): the build itself is one
    *  shared lane and the role only decides what you document deeper, so the

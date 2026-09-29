@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { ArrowRight, FileText, GraduationCap, Inbox, Tag, Wrench } from 'lucide-react';
+import { ArrowRight, BookOpen, Coins, FileText, GraduationCap, Inbox, Tag, Wrench } from 'lucide-react';
 import type { Course, Task } from '@/lib/types';
 import { getRoleDef, taskCard } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
@@ -42,7 +42,7 @@ function CardRow({
 export function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
   const card = taskCard(course, task);
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
-  const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length);
+  const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length || task.docs?.length || task.freeTier);
 
   return (
     <div className="space-y-3">
@@ -100,6 +100,30 @@ export function TaskAboutPanel({ course, task }: { course: Course; task: Task })
       )}
       {hasBrief && (
         <div className="space-y-3 border-t border-line pt-3">
+          {/* R92: read the docs first, and know what to look for in them. */}
+          {task.docs && task.docs.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
+                <BookOpen className="h-3.5 w-3.5" /> Read the docs first
+              </div>
+              <ul className="mt-1 space-y-1 text-sm text-body">
+                {task.docs.map((d) => (
+                  <li key={d.url}>
+                    <a href={d.url} target="_blank" rel="noreferrer" className="font-medium text-accent hover:underline">
+                      {d.title} ↗
+                    </a>
+                    <span className="text-muted"> — look for: {d.lookFor}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {task.freeTier && (
+            <p className="flex items-start gap-1.5 text-sm text-body">
+              <Coins className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" aria-hidden />
+              <span>{task.freeTier}</span>
+            </p>
+          )}
           {task.tools && task.tools.length > 0 && (
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="flex items-center gap-1 text-xs font-semibold text-muted">

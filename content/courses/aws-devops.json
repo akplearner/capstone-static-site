@@ -311,8 +311,13 @@
             "id": "aws-w0-setup-s3",
             "title": "Deploy through Week 8",
             "description": "Deploy through Week 8",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Deploy the stack with ThroughWeek=8.",
+            "instructionList": [
+              "CloudFormation → Create stack → With new resources → Upload template.yaml. Stack name capstone-team01.",
+              "Parameters: ThroughWeek 8, TeamId team01, OwnerTag, AlertEmail. Tick the IAM capability. Submit.",
+              "Events tab until CREATE_COMPLETE — CloudFront takes about ten minutes."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudformation deploy --stack-name capstone-team01 --template-file infra/template.yaml --parameter-overrides ThroughWeek=8 TeamId=team01 OwnerTag=team01-lead AlertEmail=team01-alerts@school.edu --capabilities CAPABILITY_IAM",
@@ -339,8 +344,13 @@
             "id": "aws-w0-setup-s4",
             "title": "Publish what the template cannot",
             "description": "Publish what the template cannot",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Upload the site to the bucket the stack made.",
+            "instructionList": [
+              "CloudFormation → capstone-team01 → Outputs: copy SiteBucketName and SiteUrl.",
+              "S3 → that bucket → Upload → your site/ files.",
+              "Open SiteUrl: your page over HTTPS."
+            ],
             "commands": [
               {
                 "cmd": "BUCKET=$(aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='SiteBucketName'].OutputValue\" --output text); aws s3 sync ./site s3://$BUCKET && aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='SiteUrl'].OutputValue\" --output text",
@@ -361,8 +371,12 @@
             "id": "aws-w0-setup-s8",
             "title": "Stop the instance",
             "description": "Stop the instance",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Stop the instance so it stops costing money.",
+            "instructionList": [
+              "EC2 → Instances → ec2-tools-team01 → Instance state → Stop instance.",
+              "Wait until Instance state reads “Stopped”."
+            ],
             "commands": [
               {
                 "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 stop-instances --instance-ids $IID --query \"StoppingInstances[0].CurrentState.Name\" --output text",
@@ -378,7 +392,7 @@
             "verify": [
               "stopped"
             ],
-            "whatItMeans": "A running t3.micro costs about 1 cent an hour; a forgotten one eats the budget in weeks.",
+            "whatItMeans": "Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.",
             "frameworks": [
               "AWS_DOP",
               "WAF"
@@ -408,6 +422,19 @@
         "definitionOfDone": [
           "Five resources mapped"
         ],
+        "docs": [
+          {
+            "title": "Template anatomy",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/template-anatomy.html",
+            "lookFor": "the section list — Parameters, Conditions, Resources, Outputs — and that only Resources is required"
+          },
+          {
+            "title": "Infrastructure Composer",
+            "url": "https://docs.aws.amazon.com/infrastructure-composer/latest/dg/what-is-composer.html",
+            "lookFor": "the “Import a template” note: paste template.yaml and it draws the same picture the Guide draws"
+          }
+        ],
+        "freeTier": "Free: reading. Infrastructure Composer is free; nothing is deployed.",
         "steps": [
           {
             "id": "aws-w9-arch-s1",
@@ -470,13 +497,30 @@
         "definitionOfDone": [
           "Five or more resources listed with tags"
         ],
+        "docs": [
+          {
+            "title": "Find resources to tag",
+            "url": "https://docs.aws.amazon.com/tag-editor/latest/userguide/find-resources-to-tag.html",
+            "lookFor": "the Tag Editor search: region, “All supported resource types”, and a tag filter — the same list the shell command returns"
+          },
+          {
+            "title": "GetResources API",
+            "url": "https://docs.aws.amazon.com/resourcegroupstagging/latest/APIReference/API_GetResources.html",
+            "lookFor": "the TagFilters parameter and the note that only tagged resources are returned — untagged ones are the gap you are hunting"
+          }
+        ],
+        "freeTier": "Free: Tag Editor and the tagging API cost nothing.",
         "steps": [
           {
             "id": "aws-w9-infra-s1",
             "title": "List the resources",
             "description": "List the resources",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "List every resource tagged project=capstone.",
+            "instructionList": [
+              "Resource Groups & Tag Editor → Tag Editor. Region us-east-1, resource types All, tag project = capstone. Search.",
+              "Read the table: ARN, type, and the owner tag column. Export to CSV."
+            ],
             "commands": [
               {
                 "cmd": "aws resourcegroupstaggingapi get-resources --tag-filters Key=project,Values=capstone --query \"ResourceTagMappingList[].[ResourceARN, Tags[?Key=='owner']|[0].Value]\" --output text",
@@ -537,6 +581,19 @@
           "CREATE_COMPLETE",
           "The dev stack is deleted"
         ],
+        "docs": [
+          {
+            "title": "Create a change set",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets-create.html",
+            "lookFor": "the “Create a change set for a new stack” steps and the Changes tab: Add, Modify, Remove, with Replacement True highlighted"
+          },
+          {
+            "title": "Delete a stack",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-delete-stack.html",
+            "lookFor": "the DELETE_FAILED paragraph about non-empty buckets — empty the bucket first"
+          }
+        ],
+        "freeTier": "Free tier while it exists: the dev stack is a second copy of everything, so its instance hours and public IP count too. Delete it the same session.",
         "steps": [
           {
             "id": "aws-w9-dev-s1",
@@ -561,8 +618,13 @@
             "id": "aws-w9-dev-s2",
             "title": "Preview, then deploy",
             "description": "Preview, then deploy",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Create a change set, read it, execute it.",
+            "instructionList": [
+              "CloudFormation → Stacks → Create stack → With new resources → Upload template.yaml. Name capstone-team01-dev; enter the dev parameter values.",
+              "Tick the IAM capability box. Instead of Submit: Create change set → wait → Changes tab lists every Add.",
+              "Execute change set. Events tab until CREATE_COMPLETE (CloudFront takes ten minutes)."
+            ],
             "commands": [
               {
                 "cmd": "STACK=capstone-team01-dev; aws cloudformation create-change-set --stack-name $STACK --change-set-name preview --change-set-type CREATE --template-body file://infra/template.yaml --parameters file://infra/params-dev.json --capabilities CAPABILITY_IAM -o none; aws cloudformation wait change-set-create-complete --stack-name $STACK --change-set-name preview; aws cloudformation describe-change-set --stack-name $STACK --change-set-name preview --query \"length(Changes)\"",
@@ -612,8 +674,12 @@
             "id": "aws-w9-dev-s3",
             "title": "Delete the dev stack",
             "description": "Delete the dev stack",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Delete the dev stack.",
+            "instructionList": [
+              "CloudFormation → Stacks → capstone-team01-dev → Delete → confirm.",
+              "If it ends DELETE_FAILED: empty the dev bucket in S3, then Delete again."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudformation delete-stack --stack-name capstone-team01-dev && echo deleting",
@@ -656,6 +722,19 @@
           "The template validates",
           "No secret in either file"
         ],
+        "docs": [
+          {
+            "title": "Validate a template",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-validate-template.html",
+            "lookFor": "what validation checks — syntax and the parameter list — and what it does not: property values, which is what cfn-lint adds"
+          },
+          {
+            "title": "Parameters",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html",
+            "lookFor": "the NoEcho property: the way a template would take a secret if it had to — ours takes none"
+          }
+        ],
+        "freeTier": "Free: validation and linting. Nothing is deployed in this task.",
         "steps": [
           {
             "id": "aws-w9-secops-s1",
@@ -680,8 +759,12 @@
             "id": "aws-w9-secops-s2",
             "title": "Validate",
             "description": "Validate",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Validate the template, then lint it.",
+            "instructionList": [
+              "CloudFormation → Create stack → Upload template.yaml → Next: the parameter form appears only if the template is valid. Cancel.",
+              "Infrastructure Composer → Import template.yaml: red markers show property errors, the same ones cfn-lint reports."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudformation validate-template --template-body file://infra/template.yaml --query \"Parameters[].ParameterKey\" --output text",
@@ -764,6 +847,14 @@
         "definitionOfDone": [
           "The RFC has risk, rollback and approver"
         ],
+        "docs": [
+          {
+            "title": "Creating a pull request",
+            "url": "https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request",
+            "lookFor": "the description box and the Reviewers panel — the RFC goes in the description, the approver is the reviewer"
+          }
+        ],
+        "freeTier": "Free: GitHub pull requests.",
         "steps": [
           {
             "id": "aws-w10-arch-s1",
@@ -826,6 +917,19 @@
           "Main requires a review",
           "prod needs approval"
         ],
+        "docs": [
+          {
+            "title": "Managing a branch protection rule",
+            "url": "https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule",
+            "lookFor": "the three boxes you tick: require a pull request, required approvals, require status checks"
+          },
+          {
+            "title": "Using environments for deployment",
+            "url": "https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment",
+            "lookFor": "the “Required reviewers” protection rule and how a job that names the environment waits for it"
+          }
+        ],
+        "freeTier": "Free: branch protection and environments on a private repository need a GitHub Free organisation or a public repo; a personal private repo needs Pro — use an organisation.",
         "steps": [
           {
             "id": "aws-w10-infra-s1",
@@ -906,6 +1010,19 @@
         "definitionOfDone": [
           "A run deployed the stack"
         ],
+        "docs": [
+          {
+            "title": "Configuring OpenID Connect in AWS",
+            "url": "https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services",
+            "lookFor": "the workflow example: permissions id-token write, and the configure-aws-credentials step with role-to-assume"
+          },
+          {
+            "title": "aws cloudformation deploy",
+            "url": "https://docs.aws.amazon.com/cli/latest/reference/cloudformation/deploy/index.html",
+            "lookFor": "the --parameter-overrides and --capabilities options — the deploy action passes the same ones"
+          }
+        ],
+        "freeTier": "Free: 2,000 GitHub Actions minutes a month on a private repo; a deploy uses about ten. The stack itself is the same free-tier environment.",
         "steps": [
           {
             "id": "aws-w10-dev-s1",
@@ -999,13 +1116,30 @@
           "No access key exists",
           "A failed deploy rolled back"
         ],
+        "docs": [
+          {
+            "title": "Create an OpenID Connect identity provider in IAM",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_providers_create_oidc.html",
+            "lookFor": "the provider URL and audience for GitHub — token.actions.githubusercontent.com and sts.amazonaws.com — and the “Assign role” button after"
+          },
+          {
+            "title": "Stack failure options",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/stack-failure-options.html",
+            "lookFor": "the default behaviour: roll back all resources — the UPDATE_ROLLBACK_COMPLETE you will see"
+          }
+        ],
+        "freeTier": "Free: IAM providers and roles. The broken deploy rolls back to the same free-tier stack.",
         "steps": [
           {
             "id": "aws-w10-secops-s1",
             "title": "Trust GitHub",
             "description": "Trust GitHub",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Add GitHub as an OIDC identity provider.",
+            "instructionList": [
+              "IAM → Identity providers → Add provider → OpenID Connect.",
+              "Provider URL https://token.actions.githubusercontent.com, audience sts.amazonaws.com. Add provider."
+            ],
             "commands": [
               {
                 "cmd": "aws iam create-open-id-connect-provider --url https://token.actions.githubusercontent.com --client-id-list sts.amazonaws.com --thumbprint-list 6938fd4d98bab03faadb97b34396831e3780aea1 --query OpenIDConnectProviderArn --output text",
@@ -1101,20 +1235,41 @@
         "definitionOfDone": [
           "Three services with spend and an action"
         ],
+        "docs": [
+          {
+            "title": "Exploring your data using Cost Explorer",
+            "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-exploring-data.html",
+            "lookFor": "the Group by → Service control and the “Download CSV” button under the chart"
+          },
+          {
+            "title": "AWS Free Tier",
+            "url": "https://aws.amazon.com/free/",
+            "lookFor": "which of your services is “12 months free” — those lines start costing money when the account turns one"
+          }
+        ],
+        "freeTier": "Free: the Cost Explorer console. The shell alternative costs $0.01 per call.",
         "steps": [
           {
             "id": "aws-w11-arch-s1",
             "title": "Break down the cost",
-            "description": "Cost per service with an action for each.",
-            "where": "Billing and Cost Management → Cost Explorer",
+            "description": "Break down the cost",
+            "where": "AWS console · or CloudShell",
             "instruction": "Group this month’s cost by service.",
             "instructionList": [
-              "Date range: month to date. Group by: Service.",
-              "Check the budget: how close to the alert?",
+              "Billing and Cost Management → Cost Explorer. Date range: month to date. Group by: Service.",
+              "Budgets: how close is capstone-team01 to its alert?",
               "For each service, one action: keep, reduce, remove."
             ],
-            "expectedOutput": "Cost per service with an action for each.",
-            "outputKind": "result",
+            "commands": [
+              {
+                "cmd": "aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date -d tomorrow +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query \"ResultsByTime[0].Groups[].[Keys[0], Metrics.UnblendedCost.Amount]\" --output text",
+                "explain": "The same table from the shell. Each call costs $0.01 — the console is free.",
+                "sample": "Amazon Elastic Compute Cloud - Compute\t0.31\nAmazon Simple Storage Service\t0.01"
+              }
+            ],
+            "verify": [
+              "Amazon"
+            ],
             "whatItMeans": "Every line has an owner and a decision — that is FinOps in one table.",
             "frameworks": [
               "AWS_DOP",
@@ -1163,6 +1318,19 @@
           "The rule is active",
           "An untagged resource is NON_COMPLIANT"
         ],
+        "docs": [
+          {
+            "title": "required-tags",
+            "url": "https://docs.aws.amazon.com/config/latest/developerguide/required-tags.html",
+            "lookFor": "the tag1Key parameter and the resource types the rule can evaluate — buckets are on the list, which is why the test uses one"
+          },
+          {
+            "title": "Setting up AWS Config with the console",
+            "url": "https://docs.aws.amazon.com/config/latest/developerguide/gs-console.html",
+            "lookFor": "the “Recording strategy” choice: pick specific resource types, not all, to keep the evaluation count small"
+          }
+        ],
+        "freeTier": "Costs cents: Config charges per configuration item recorded and per rule evaluation — about $0.003 each. The DOP-C02 exam expects Config, so this is kept; record only three resource types.",
         "steps": [
           {
             "id": "aws-w11-infra-s1",
@@ -1187,8 +1355,13 @@
             "id": "aws-w11-infra-s2",
             "title": "Prove it flags",
             "description": "Prove it flags",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Create an untagged bucket and read its compliance.",
+            "instructionList": [
+              "S3 → Create bucket capstone-team01-untagged-NNNN, no tags. Wait two minutes.",
+              "AWS Config → Rules → required-tags: the bucket is listed Noncompliant.",
+              "Delete the bucket afterwards."
+            ],
             "commands": [
               {
                 "cmd": "aws s3 mb s3://capstone-team01-untagged-$RANDOM -o none; sleep 120; aws configservice get-compliance-details-by-config-rule --config-rule-name required-tags --compliance-types NON_COMPLIANT --query \"EvaluationResults[].[EvaluationResultIdentifier.EvaluationResultQualifier.ResourceId, ComplianceType]\" --output text",
@@ -1246,13 +1419,25 @@
         "definitionOfDone": [
           "Three audit events recorded"
         ],
+        "docs": [
+          {
+            "title": "Viewing CloudTrail events",
+            "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/view-cloudtrail-events.html",
+            "lookFor": "the Event history page and its lookup attributes — Read-only = false shows only changes"
+          }
+        ],
+        "freeTier": "Free: 90 days of event history for management events. Creating a trail to S3 would cost storage; you do not need one.",
         "steps": [
           {
             "id": "aws-w11-dev-s1",
             "title": "Read the audit trail",
             "description": "Read the audit trail",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "List this week’s write events.",
+            "instructionList": [
+              "CloudTrail → Event history. Lookup attribute: Read-only → false.",
+              "Read Event time, User name, Event name for the top rows."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudtrail lookup-events --lookup-attributes AttributeKey=ReadOnly,AttributeValue=false --max-results 8 --query \"Events[].[EventTime, Username, EventName]\" --output text",
@@ -1310,20 +1495,47 @@
         "definitionOfDone": [
           "Three owned findings"
         ],
+        "docs": [
+          {
+            "title": "AWS Trusted Advisor",
+            "url": "https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html",
+            "lookFor": "the checks available on Basic support — the security ones are free: MFA on root, security groups with open ports, S3 permissions"
+          },
+          {
+            "title": "IAM Access Analyzer",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/what-is-access-analyzer.html",
+            "lookFor": "the difference between an external-access analyzer (free) and an unused-access analyzer (paid) — create the first only"
+          }
+        ],
+        "freeTier": "Free: Trusted Advisor’s security checks and an external-access analyzer. Security Hub and the unused-access analyzer cost money; skip them.",
         "steps": [
           {
             "id": "aws-w11-secops-s1",
             "title": "Read the checks",
-            "description": "Three findings with severity and a remediation.",
-            "where": "Trusted Advisor, then IAM → Access Analyzer",
+            "description": "Read the checks",
+            "where": "AWS console · or CloudShell",
             "instruction": "Open the free security checks.",
             "instructionList": [
               "Trusted Advisor → Security: MFA on root, open ports, S3 permissions.",
-              "IAM Access Analyzer: create an account analyzer (free); read external-access findings.",
+              "IAM → Access Analyzer → Create analyzer → External access (free); read the findings.",
               "Pick three: severity, resource, fix."
             ],
-            "expectedOutput": "Three findings with severity and a remediation.",
-            "outputKind": "result",
+            "commands": [
+              {
+                "cmd": "aws support describe-trusted-advisor-checks --language en --query \"checks[?category=='security'].name\" --output text 2>/dev/null || echo \"Support API needs a Business plan — use the console\"",
+                "explain": "The Trusted Advisor API is Business-support only; the console shows the free checks to everyone.",
+                "sample": "Support API needs a Business plan — use the console"
+              },
+              {
+                "cmd": "AN=$(aws accessanalyzer list-analyzers --query \"analyzers[0].arn\" --output text); aws accessanalyzer list-findings --analyzer-arn $AN --query \"findings[].[resourceType, status]\" --output text",
+                "explain": "Access Analyzer findings from the shell, once the analyzer exists.",
+                "sample": "AWS::S3::Bucket\tACTIVE"
+              }
+            ],
+            "verify": [
+              "console",
+              "ACTIVE"
+            ],
             "whatItMeans": "Free checks find real misconfigurations. Security Hub adds more, for a fee.",
             "frameworks": [
               "AWS_DOP",
@@ -1373,6 +1585,14 @@
           "Three risks",
           "Signed off"
         ],
+        "docs": [
+          {
+            "title": "Operational Excellence pillar",
+            "url": "https://docs.aws.amazon.com/wellarchitected/latest/operational-excellence-pillar/welcome.html",
+            "lookFor": "the “Operate” and “Evolve” sections: runbooks, playbooks and known risks are what a handover carries"
+          }
+        ],
+        "freeTier": "Free: a document. Nothing is deployed.",
         "steps": [
           {
             "id": "aws-w12-arch-s1",
@@ -1453,13 +1673,30 @@
           "Time recorded",
           "Recovery stack deleted"
         ],
+        "docs": [
+          {
+            "title": "Create a stack from the console",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-create-stack.html",
+            "lookFor": "the Events tab: the timestamps of the first and last event are your measured recovery time"
+          },
+          {
+            "title": "Delete a stack",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/cfn-console-delete-stack.html",
+            "lookFor": "the DELETE_FAILED paragraph about non-empty buckets"
+          }
+        ],
+        "freeTier": "Free tier while it exists: the recovery stack is a full second copy — a second instance and public IP. Delete it in the same session; stop counting hours.",
         "steps": [
           {
             "id": "aws-w12-infra-s1",
             "title": "Rebuild it",
             "description": "Rebuild it",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Deploy the template as a recovery stack, timed.",
+            "instructionList": [
+              "Note the time. CloudFormation → Create stack → Upload template.yaml. Name capstone-team01-recover; TeamId t01rec, Environment prod.",
+              "Tick the IAM capability, Submit. Events tab until CREATE_COMPLETE; note the time."
+            ],
             "commands": [
               {
                 "cmd": "date +%T; aws cloudformation deploy --stack-name capstone-team01-recover --template-file infra/template.yaml --parameter-overrides TeamId=t01rec Environment=prod OwnerTag=team01-infra AlertEmail=team01-alerts@school.edu --capabilities CAPABILITY_IAM; date +%T",
@@ -1480,8 +1717,12 @@
             "id": "aws-w12-infra-s2",
             "title": "Delete the recovery stack",
             "description": "Delete the recovery stack",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Delete the recovery stack.",
+            "instructionList": [
+              "CloudFormation → Stacks → capstone-team01-recover → Delete → confirm.",
+              "Empty its bucket first if the delete fails."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudformation delete-stack --stack-name capstone-team01-recover && echo deleting",
@@ -1539,13 +1780,31 @@
         "definitionOfDone": [
           "The API failed, then recovered through CI"
         ],
+        "docs": [
+          {
+            "title": "Detect drift on a stack",
+            "url": "https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html",
+            "lookFor": "the Stack actions → Detect drift steps and the drift status MODIFIED on a resource — the proof the console change is drift"
+          },
+          {
+            "title": "Lambda environment variables",
+            "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html",
+            "lookFor": "the Edit steps — the same place you break it"
+          }
+        ],
+        "freeTier": "Free: one setting changed, one pipeline run (about ten of the 2,000 free minutes).",
         "steps": [
           {
             "id": "aws-w12-dev-s1",
             "title": "Break it",
             "description": "Break it",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Point the function at a table that does not exist.",
+            "instructionList": [
+              "CloudFormation → capstone-team01 → Resources → CounterFunction → the link opens Lambda.",
+              "Configuration → Environment variables → Edit: TABLE_NAME = wrong. Save.",
+              "Open the stack’s ApiUrl output in a browser: Internal Server Error."
+            ],
             "commands": [
               {
                 "cmd": "FN=$(aws cloudformation describe-stack-resource --stack-name capstone-team01 --logical-resource-id CounterFunction --query StackResourceDetail.PhysicalResourceId --output text); aws lambda update-function-configuration --function-name $FN --environment \"Variables={TABLE_NAME=wrong}\" -o none; sleep 10; curl -s -o /dev/null -w \"%{http_code}\\n\" $(aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='ApiUrl'].OutputValue\" --output text)",
@@ -1624,13 +1883,29 @@
           "The rule was detected and removed",
           "Checklist complete"
         ],
+        "docs": [
+          {
+            "title": "Viewing CloudTrail events",
+            "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/view-cloudtrail-events.html",
+            "lookFor": "the Event name lookup attribute — AuthorizeSecurityGroupIngress answers “who opened it”"
+          },
+          {
+            "title": "restricted-ssh",
+            "url": "https://docs.aws.amazon.com/config/latest/developerguide/restricted-ssh.html",
+            "lookFor": "what the rule checks: any security group with port 22 open to 0.0.0.0/0 — the automatic detection you name as prevention"
+          }
+        ],
+        "freeTier": "Free: one rule added and removed; CloudTrail event history. The instance stays stopped, so nothing is exposed.",
         "steps": [
           {
             "id": "aws-w12-secops-s1",
             "title": "Inject the incident",
             "description": "Inject the incident",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Add an SSH rule open to the internet.",
+            "instructionList": [
+              "EC2 → Security groups → sg-tools-team01 → Inbound rules → Edit → Add rule: SSH, source Anywhere-IPv4. Save."
+            ],
             "commands": [
               {
                 "cmd": "SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query \"SecurityGroups[0].GroupId\" --output text); aws ec2 authorize-security-group-ingress --group-id $SG --protocol tcp --port 22 --cidr 0.0.0.0/0 --query \"SecurityGroupRules[0].CidrIpv4\" --output text",
@@ -1651,8 +1926,12 @@
             "id": "aws-w12-secops-s2",
             "title": "Detect and contain",
             "description": "Detect and contain",
-            "where": "AWS CloudShell (us-east-1)",
+            "where": "AWS console · or CloudShell",
             "instruction": "Find it in CloudTrail, then revoke it.",
+            "instructionList": [
+              "CloudTrail → Event history → Event name = AuthorizeSecurityGroupIngress: read the time and user. Allow a few minutes.",
+              "EC2 → Security groups → sg-tools-team01 → Inbound rules → Edit → delete the 0.0.0.0/0 row → Save."
+            ],
             "commands": [
               {
                 "cmd": "aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=AuthorizeSecurityGroupIngress --max-results 1 --query \"Events[0].[EventTime, Username]\" --output text",

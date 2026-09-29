@@ -72,7 +72,7 @@ function HighlightedCommand({ cmd }: { cmd: string }) {
   );
 }
 
-export function CommandBlock({ command, commands }: { command?: string; commands?: CommandEntry[] }) {
+export function CommandBlock({ command, commands, heading }: { command?: string; commands?: CommandEntry[]; /** R92: a small caption above the block, e.g. "Or in the shell". */ heading?: string }) {
   const params = useParams();
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   const lab = useLabAccess(courseId);
@@ -107,7 +107,8 @@ export function CommandBlock({ command, commands }: { command?: string; commands
   // lower-casing the lot turned "Your Proxmox host address" into "proxmox".
   const rawLabel = labProfile(courseId).fields[0]?.label ?? 'Your target IP';
   const exampleLabel = rawLabel.charAt(0).toLowerCase() + rawLabel.slice(1);
-  return (
+  const block = (
+
     <div>
       <div className="flex items-center justify-between gap-2">
         <div className="text-xs font-semibold text-muted">
@@ -134,6 +135,14 @@ export function CommandBlock({ command, commands }: { command?: string; commands
         ))}
       </div>
     </div>
+  );
+  return heading ? (
+    <div>
+      <div className="mb-1 text-xs font-semibold text-muted">{heading}</div>
+      {block}
+    </div>
+  ) : (
+    block
   );
 }
 

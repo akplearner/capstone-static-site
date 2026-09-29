@@ -43,7 +43,7 @@ export function howHint(step: Step): string {
   const commands = step.commands?.length ?? (step.command ? 1 : 0);
   return [
     actions ? `${actions} action${actions === 1 ? '' : 's'}` : '',
-    commands ? `${commands} command${commands === 1 ? '' : 's'}` : '',
+    commands ? `${actions ? 'or ' : ''}${commands} command${commands === 1 ? '' : 's'}` : '',
     step.expectedOutput || step.walkthrough || step.images ? 'what you should see' : '',
     step.verify?.length ? 'verify' : '',
     step.usesForm || step.producesDeliverable ? 'where to record it' : '',
@@ -142,7 +142,8 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
               )}
             </div>
           )}
-          {hasCommand && <CommandBlock commands={cmdList} />}
+          {/* R92: the portal clicks are the way; the shell is the alternative. */}
+          {hasCommand && <CommandBlock commands={cmdList} heading={instructionList?.length ? 'Or in the shell' : undefined} />}
         </div>
 
         <div className="space-y-2">

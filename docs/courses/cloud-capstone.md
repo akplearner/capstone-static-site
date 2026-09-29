@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -37,8 +37,9 @@ the rest of the plan.
 | Roles | Cloud Architect · Infrastructure Admin · App & DevOps · Security & Ops (the Architect doubles up in a team of three). |
 | Per week | 4 objectives, one task per role, 30–55 minutes, at most 4 steps. |
 | Difficulty | Beginner 1–4 · Intermediate 5–8 · Advanced 9–11 · Integrated 12. |
-| Tasks | One visible line; "Show me how" holds the clicks, commands and sample output; "Why, and if it breaks" holds the reasoning and fixes. |
-| Cost | $5 budget in Week 1; every step that starts the VM ends with it deallocated/stopped. |
+| Tasks | One visible line; "Show me how" holds the **portal clicks first**, then the same step as Cloud Shell / CloudShell commands under "Or in the shell"; "Why, and if it breaks" holds the reasoning and fixes. |
+| Docs | Every task opens with one or two official documentation pages (Microsoft Learn, AWS docs, GitHub docs) and a **Look for:** sentence — what to read on that page and how. |
+| Cost | Students use an Azure free account and the AWS 12-month Free Tier. Every task carries a one-line free-tier note; $5 budget in Week 1; every step that starts the VM ends with it deallocated/stopped. |
 | IaC | Native first (ARM / CloudFormation), graded Weeks 9–12. Terraform is one optional comparison step. |
 
 ## Weekly plan
@@ -125,9 +126,36 @@ names the role that fills it. Each form draws Architecture vN for its week.
   * exactly one task per role per week;
   * every task is an hour or less, with 4 steps at most;
   * each visible line is 12 words or fewer;
-  * every VM that is started is stopped again;
+  * every VM that is started is stopped again, and its free-tier line says so;
+  * every graded task names official documentation with a "look for" sentence
+    and carries a free-tier line;
+  * every step with commands also has portal clicks, unless listed shell-only
+    with a reason;
   * every document has Document control and Evidence;
   * the two courses have the same shape.
+
+## Free tier (R92)
+
+The rule: free wherever the free tier allows; a paid service only where the
+exam needs it, and then the task says what it costs.
+
+| Service | Azure | AWS | Decision |
+|---|---|---|---|
+| VM | B1s, 750 h/month free for 12 months | t3.micro, 750 h/month free for 12 months | Keep; every VM task says to stop it. |
+| VM OS disk | Standard SSD (`StandardSSD_LRS`), inside the free 64 GB | 8 GB gp3, inside the free 30 GB | ARM template changed from Premium SSD (≈ $5/month) to Standard SSD. |
+| Public IPv4 | ≈ $3.60/month, bills while stopped | Free 750 h in year one | Kept (instructor decision); stated in the task; the Week 6 document records the NAT / private-subnet alternative (≈ $32/month). |
+| Website | Storage 5 GB free 12 months | S3 5 GB + CloudFront 1 TB always free | Free. |
+| API + data | Functions 1 M executions; Cosmos DB serverless ≈ 1 cent | Lambda 1 M always free; API Gateway 1 M for 12 months; DynamoDB 25 GB always free | Free or cents. |
+| Monitoring | Log Analytics 5 GB, 10 metric alerts, action-group email | 10 alarms, 5 GB logs, 1,000 SNS emails | Free. |
+| Cost data | Cost analysis free | Cost Explorer console free; **API $0.01 per call** | AWS Weeks 4 and 11: console first; the CLI is the labelled option. |
+| Backup | Incremental snapshots: cents | 1 GB of snapshots free | Cents; drills delete what they made. |
+| Governance | Policy, Activity Log, Defender free CSPM: free | Config ≈ cents per evaluation (needed for DOP-C02); CloudTrail history, Trusted Advisor basic, Access Analyzer external: free | Config kept, cost stated, three resource types only. |
+| Shell | Cloud Shell needs a 5 GB file share: cents | CloudShell free | Stated once in Week 1. |
+
+Three steps in the whole plan are shell-only, because the portal cannot do
+them: the two forged-Origin CORS tests (`curl`) and the Cosmos DB data-plane
+role assignment. `cloudCourses.test.ts` lists them with the reason; any other
+step with commands must also carry its portal clicks.
 
 ## Honest limits, stated in the course
 

@@ -107,6 +107,32 @@ export function stepKit(frameworks: Framework[], shell: string) {
     ...extra,
   });
 
+  /** R92: the portal clicks first, the shell command as the alternative, one
+   *  verify for both — the way every hands-on step of the course reads. */
+  const both = (
+    id: string,
+    title: string,
+    line: string,
+    where: string,
+    clicks: string[],
+    shell: { cmd: string; explain: string; sample: string }[],
+    verify: string[],
+    why: string,
+    extra: Partial<Step> = {}
+  ): Step => ({
+    id,
+    title,
+    description: short(title),
+    where,
+    instruction: line,
+    instructionList: clicks,
+    commands: shell,
+    verify,
+    whatItMeans: why,
+    frameworks,
+    ...extra,
+  });
+
   /** The last step of every task: write it into the week's team document. */
   const record = (id: string, form: string, file: string, section: string, actions: string[], why: string): Step => ({
     id,
@@ -121,7 +147,7 @@ export function stepKit(frameworks: Framework[], shell: string) {
     frameworks,
   });
 
-  return { portal, cli, record };
+  return { portal, cli, both, record };
 }
 
 export function cloudTask(t: {
@@ -136,6 +162,9 @@ export function cloudTask(t: {
   learn: string[];
   done: string[];
   tools?: string[];
+  /** R92: the documentation to read first, and the free-tier line. */
+  docs?: Task['docs'];
+  freeTier?: string;
   steps: Step[];
 }): Task {
   return {
@@ -151,6 +180,8 @@ export function cloudTask(t: {
     learn: t.learn,
     tools: t.tools,
     definitionOfDone: t.done,
+    docs: t.docs,
+    freeTier: t.freeTier,
     steps: t.steps,
   };
 }

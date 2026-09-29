@@ -318,7 +318,7 @@ const SOURCE = `{
             "name": "[format('{0}-osdisk', variables('vmName'))]",
             "createOption": "FromImage",
             "deleteOption": "Delete",
-            "managedDisk": { "storageAccountType": "Premium_LRS" }
+            "managedDisk": { "storageAccountType": "StandardSSD_LRS" }
           },
           "dataDisks": "[if(greaterOrEquals(parameters('throughWeek'), 7), variables('dataDisks'), createArray())]"
         },
@@ -752,6 +752,7 @@ export const AZURE_IAC: IacBundle = {
     'ARM cannot switch on the static-website feature — it is a data-plane setting. One CLI command does it after the deployment.',
     'The Function’s code is not in the template. It ships through the portal in Week 3 and through GitHub Actions from Week 10.',
     'Secret values never live in a template. The vault is created here; you add secrets to it, and the Function reads them with its identity.',
+    'The OS disk is Standard SSD: the free account includes two 64 GB Standard SSD disks for twelve months, where a Premium SSD would cost about $5 a month.',
     'Deploy with throughWeek=4 or 8 to get the environment exactly as the Fundamentals or the Administrator course leaves it; every later resource is conditional on it.',
     'The VM keeps a public IP only so it can download patches. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.',
   ],
