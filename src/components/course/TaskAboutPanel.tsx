@@ -1,5 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
-import { ArrowRight, BookOpen, Coins, FileText, GraduationCap, Inbox, Tag, Wrench } from 'lucide-react';
+import { ArrowRight, BookOpen, Coins, FileText, GraduationCap, Inbox, Tag, Users, Wrench } from 'lucide-react';
 import type { Course, Task } from '@/lib/types';
 import { getRoleDef, taskCard } from '@/lib/course-helpers';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
@@ -42,7 +42,7 @@ function CardRow({
 export function TaskAboutPanel({ course, task }: { course: Course; task: Task }) {
   const card = taskCard(course, task);
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
-  const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length || task.docs?.length || task.freeTier);
+  const hasBrief = !!(task.learn?.length || task.frameworks?.length || task.tools?.length || task.docs?.length || task.freeTier || task.prerequisites?.length);
 
   return (
     <div className="space-y-3">
@@ -100,6 +100,20 @@ export function TaskAboutPanel({ course, task }: { course: Course; task: Task })
       )}
       {hasBrief && (
         <div className="space-y-3 border-t border-line pt-3">
+          {/* R93: what must already exist, and which teammate builds it — do your
+              own part first, test when theirs is there. */}
+          {task.prerequisites && task.prerequisites.length > 0 && (
+            <div>
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-muted">
+                <Users className="h-3.5 w-3.5" /> Needs from a teammate
+              </div>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5 text-sm text-body">
+                {task.prerequisites.map((p) => (
+                  <li key={p}>{p}</li>
+                ))}
+              </ul>
+            </div>
+          )}
           {/* R92: read the docs first, and know what to look for in them. */}
           {task.docs && task.docs.length > 0 && (
             <div>

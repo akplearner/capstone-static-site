@@ -90,7 +90,7 @@ export function stepKit(frameworks: Framework[], shell: string) {
     id: string,
     title: string,
     line: string,
-    commands: { cmd: string; explain: string; sample: string }[],
+    commands: NonNullable<Step['commands']>,
     verify: string[],
     why: string,
     extra: Partial<Step> = {}
@@ -115,7 +115,7 @@ export function stepKit(frameworks: Framework[], shell: string) {
     line: string,
     where: string,
     clicks: string[],
-    shell: { cmd: string; explain: string; sample: string }[],
+    shell: NonNullable<Step['commands']>,
     verify: string[],
     why: string,
     extra: Partial<Step> = {}
@@ -165,6 +165,8 @@ export function cloudTask(t: {
   /** R92: the documentation to read first, and the free-tier line. */
   docs?: Task['docs'];
   freeTier?: string;
+  /** R93: what a teammate must have built first, so the student does their own part and then tests. */
+  prerequisites?: string[];
   steps: Step[];
 }): Task {
   return {
@@ -182,6 +184,7 @@ export function cloudTask(t: {
     definitionOfDone: t.done,
     docs: t.docs,
     freeTier: t.freeTier,
+    prerequisites: t.prerequisites,
     steps: t.steps,
   };
 }

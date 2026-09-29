@@ -169,7 +169,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('resource', 'Resource type', 'text'),
           c('pattern', 'Pattern', 'text'),
           c('example', 'Example (your team)', 'text'),
-        ], { seed: v.naming.slice(0, 2), help: 'One row per resource type you will create. The first rows are examples.' }),
+        ], { seed: v.naming.slice(0, 2), help: 'One row per resource type you will create. The first rows are examples. Read a name as three parts: what it is (the type prefix), what it is for (the workload), who owns it (the team) — so vm-tools-team01 / ec2-tools-team01 tells a stranger everything without opening it. Sixteen teams share one place, lists sort by name, and names that must be unique worldwide (storage accounts, buckets) get a random suffix.' }),
         group('tags', 'Required tags · Architect', [
           c('key', 'Tag key', 'text', { placeholder: 'owner' }),
           c('value', 'Example value', 'text', { placeholder: 'team01-lead' }),

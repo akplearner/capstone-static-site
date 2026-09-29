@@ -63,7 +63,7 @@
       "file": "azure-fundamentals.json",
       "weeks": 4,
       "tasks": 16,
-      "steps": 54,
+      "steps": 56,
       "deliverables": 4,
       "procedures": 0
     },
@@ -96,7 +96,7 @@
       "file": "aws-cloud-practitioner.json",
       "weeks": 4,
       "tasks": 16,
-      "steps": 54,
+      "steps": 55,
       "deliverables": 4,
       "procedures": 0
     },

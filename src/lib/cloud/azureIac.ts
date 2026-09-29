@@ -452,7 +452,7 @@ const SOURCE = `{
       "properties": { "resource": { "id": "[variables('cosmosDbName')]" } }
     },
     {
-      "comments": "[w3] cosmosContainer — holds the visitor counter item (id: count1).",
+      "comments": "[w3] cosmosContainer — holds the visitor counter item (id: site).",
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases/containers",
       "apiVersion": "2024-05-15",
       "name": "[format('{0}/{1}/{2}', variables('cosmosName'), variables('cosmosDbName'), variables('cosmosContainerName'))]",
@@ -619,8 +619,7 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w5] kvRoleFunc — lets the Function's identity read secrets (Key Vault Secrets User), nothing more.",
-      "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
+      "comments": "[w3] kvRoleFunc — lets the Function's identity read secrets (Key Vault Secrets User), nothing more. By hand, Week 3 points the Cosmos setting at the vault; Week 5 replaces the secret with the data role.",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', variables('kvName')), variables('funcName'), 'kv-secrets-user')]",

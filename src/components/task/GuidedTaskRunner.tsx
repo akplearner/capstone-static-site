@@ -2,7 +2,7 @@
 
 import { type ReactNode, useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock, Coins, Rows3, RotateCcw } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock, Coins, Rows3, RotateCcw, Users } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
 import { ChecklistItem } from './ChecklistItem';
 import { CutMark, CutBeat } from '@/components/quarry/CutBeat';
@@ -233,6 +233,12 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
             <p className="flex items-start gap-1.5 text-xs text-muted">
               <Coins className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
               <span>{task.freeTier}</span>
+            </p>
+          )}
+          {task.prerequisites && task.prerequisites.length > 0 && (
+            <p className="flex items-start gap-1.5 text-xs text-muted">
+              <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+              <span>Needs from a teammate: {task.prerequisites.join(' · ')}</span>
             </p>
           )}
         </div>

@@ -402,7 +402,7 @@ Resources:
     Metadata:
       Capstone:
         Week: 3
-        Summary: Holds the visitor counter item (id count1). Point-in-time recovery from Week 8.
+        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.
     Properties:
       BillingMode: ⟦FILL:pay per request, no idle cost|PAY_PER_REQUEST⟧
       AttributeDefinitions:
@@ -477,7 +477,7 @@ Resources:
 
           def handler(event, context):
               r = table.update_item(
-                  Key={"id": "count1"},
+                  Key={"id": "site"},
                   UpdateExpression="ADD #c :one",
                   ExpressionAttributeNames={"#c": "count"},
                   ExpressionAttributeValues={":one": 1},

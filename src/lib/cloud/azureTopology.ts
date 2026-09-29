@@ -18,7 +18,9 @@ const weekOf = (id: string) => AZURE_IAC.resources.find((r) => r.id === id)?.wee
 const TRAFFIC: CloudEdge[] = [
   { from: 'user', to: 'webStorage', kind: 'traffic', label: 'HTTPS', week: 2 },
   { from: 'user', to: 'func', kind: 'traffic', label: 'GET /api/visitorCount', week: 3 },
-  { from: 'func', to: 'cosmos', kind: 'traffic', label: 'managed identity', week: 3 },
+  // By hand, Weeks 3–4 reach Cosmos DB with the connection string held in Key Vault; Week 5 replaces it with the identity.
+  { from: 'func', to: 'cosmos', kind: 'traffic', label: 'connection string (until Week 5)', week: 3, until: 4 },
+  { from: 'func', to: 'cosmos', kind: 'traffic', label: 'managed identity', week: 5 },
   // Weeks 3–4 only: the template's final state has no vault reference — from Week 5 the identity replaces the secret.
   { from: 'func', to: 'kv', kind: 'traffic', label: 'Key Vault reference (until Week 5)', week: 3, until: 4 },
   { from: 'func', to: 'appi', kind: 'traffic', label: 'telemetry', week: 3 },
@@ -55,7 +57,7 @@ export const AZURE_TOPOLOGY: CloudTopology = {
 
     { id: 'webStorage', icon: 'storage', label: 'Storage account', name: 'stweb… ($web)', x: 280, y: 128, week: 2 },
     { id: 'webBlobService', icon: 'blobservice', label: 'Soft delete', x: 372, y: 170, week: 8, small: true },
-    { id: 'kvRoleFunc', icon: 'role', label: 'Secrets User', x: 425, y: 128, week: 5, small: true },
+    { id: 'kvRoleFunc', icon: 'role', label: 'Secrets User', x: 425, y: 128, week: 3, small: true },
     { id: 'kv', icon: 'secret', label: 'Key vault', name: 'kv-team01-…', x: 545, y: 128, week: 3 },
 
     { id: 'plan', icon: 'plan', label: 'Plan (Y1)', x: 200, y: 300, week: 3, small: true },

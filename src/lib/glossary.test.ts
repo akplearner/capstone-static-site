@@ -19,6 +19,13 @@ describe('glossary matcher', () => {
     expect(m.filter((x) => x.term === 'SOC')).toHaveLength(1);
   });
 
+  it('R93: the cloud vocabulary fires on cloud prose and not on a security course’s', () => {
+    const m = findTerms('Create the resource group, then attach the NSG to the subnet.');
+    expect(m.map((x) => x.term)).toEqual(expect.arrayContaining(['resource group', 'NSG', 'subnet']));
+    // "tag" is a cloud key; a security course's "tagged frame" must not trip it.
+    expect(findTerms('Paste it above the closing tag; budget three hours; git push origin main.').map((x) => x.term)).toEqual([]);
+  });
+
   it('prefers the longer multi-word term over a shorter one inside it', () => {
     const m = findTerms('Keep the chain of custody intact.');
     expect(m.map((x) => x.term)).toContain('chain of custody');

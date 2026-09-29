@@ -75,9 +75,10 @@ function T(
   done: string[],
   docs: Task['docs'],
   freeTier: string,
-  steps: Step[]
+  steps: Step[],
+  extra: { prerequisites?: string[]; tools?: string[] } = {}
 ): Task {
-  return cloudTask({ id: `${P}-w${week}-${role}`, role, week, title, objective, minutes, file: CLOUD_FILES[week - 1], frameworks: FW, learn, done, docs, freeTier, steps });
+  return cloudTask({ id: `${P}-w${week}-${role}`, role, week, title, objective, minutes, file: CLOUD_FILES[week - 1], frameworks: FW, learn, done, docs, freeTier, steps, ...extra });
 }
 const s = (week: number, role: string, n: number) => `${P}-w${week}-${role}-s${n}`;
 const rec = (week: number, role: string, section: string, actions: string[], why: string) =>
@@ -93,39 +94,57 @@ const DEALLOCATE = (week: number, role: string): Step =>
     'Wait until Status reads “Stopped (deallocated)” — not just “Stopped”.',
   ], [
     { cmd: `${VARS}; az vm deallocate -g $RG -n $VM`, explain: 'Deallocate releases the compute. A VM that is only "stopped" from inside still bills.', sample: '(no output — returns when the VM is deallocated)' },
-    { cmd: 'az vm get-instance-view -g $RG -n $VM --query "instanceView.statuses[1].displayStatus" -o tsv', explain: 'Reads the power state back.', sample: 'VM deallocated' },
+    { cmd: 'az vm get-instance-view -g $RG -n $VM --query "instanceView.statuses[1].displayStatus" -o tsv', explain: 'Reads the power state back.', sample: 'VM deallocated', flags: [
+      { flag: '--query "instanceView.statuses[1].displayStatus"', meaning: 'Pick the power-state line out of the VM’s status list.' },
+      { flag: '-o tsv', meaning: 'Plain text, no quotes.' },
+    ] },
   ], ['VM deallocated'], 'Free-tier hours count while it runs; the portal’s Stop button deallocates, a shutdown from inside the OS does not.');
 
 const TASKS: Task[] = [
   // ── Week 1 — Foundation ────────────────────────────────────────────────
   T(1, 'arch', 'Set the naming standard and the budget', 'Agree how everything is named and tagged, and cap spending at $5 before anything is built.', 40,
-    ['Cloud Adoption Framework naming', 'Tags', 'Budgets'], ['A $5 budget alerts at 80%', 'The naming and tag table is agreed'],
+    ['Why a $5 budget comes first', 'How to read a resource name', 'What tags carry that names cannot'], ['A $5 budget alerts at 80%', 'The naming and tag table is agreed'],
     [doc('Create and manage budgets', 'azure/cost-management-billing/costs/tutorial-acm-create-budgets', 'the “Create a budget” steps and the alert-conditions table — Actual vs Forecasted, and where the email goes'),
      doc('Resource abbreviations', 'azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations', 'the abbreviation column: rg, vnet, snet, nsg, vm, st, func, kv — copy them into your standard')],
     'Free: budgets and Cost Management cost nothing. Nothing is deployed this task.', [
     both(s(1, 'arch', 1), 'Create the $5 budget', 'Create a $5 monthly budget that emails the team.', PORTAL, [
-      'Search Cost Management → Budgets → Add.',
-      'Scope: your subscription. Name: budget-capstone-team01. Amount: 5.',
-      'Alert condition: Actual, 80%. Recipient: the team email.',
-      'Create.',
+      'Search “Cost Management” → Budgets → Add.',
+      'Scope: your subscription. Name: budget-capstone-team01. Amount: 5. Reset: monthly.',
+      'Alert condition: Actual, 80%. Alert recipients: the team email.',
+      'Create. Then open Cost analysis once: it fills within a day.',
     ], [
-      { cmd: 'az consumption budget create --budget-name budget-capstone-team01 --amount 5 --category Cost --time-grain Monthly --start-date $(date +%Y-%m-01) --end-date $(date -d "+1 year" +%Y-%m-01) --query name -o tsv', explain: 'The same budget from Cloud Shell. Add the alert in the portal: the CLI cannot set contact emails here.', sample: 'budget-capstone-team01' },
-    ], ['budget-capstone-team01'], 'The budget is the guardrail. It is created first because it is the one thing that tells you a mistake is costing money.', {
-      fixes: [{ symptom: 'Budgets is greyed out', fix: 'Student subscriptions sometimes need the Billing Reader role — ask the instructor, or set the budget at resource-group scope.' }],
+      { cmd: 'az consumption budget create --budget-name budget-capstone-team01 --amount 5 --category Cost --time-grain Monthly --start-date $(date +%Y-%m-01) --end-date $(date -d "+1 year" +%Y-%m-01) --query name -o tsv', explain: 'The same budget from Cloud Shell. Add the alert in the portal: this command cannot set contact emails.', sample: 'budget-capstone-team01', flags: [
+        { flag: '--amount 5', meaning: 'The monthly limit in your billing currency.' },
+        { flag: '--category Cost', meaning: 'Watch spend, not usage hours.' },
+        { flag: '--time-grain Monthly', meaning: 'The counter resets on the first of each month.' },
+        { flag: '--start-date / --end-date', meaning: 'Budgets must start on the first of a month and have an end.' },
+      ] },
+    ], ['budget-capstone-team01'], 'A budget does not stop spending; it emails you before a mistake becomes expensive. Actual means money already spent; Forecasted guesses month-end. 80% of $5 is $4: you hear early, with a dollar of room.', {
+      paths: [
+        { label: 'Azure free account', when: 'You signed up yourself, with a card', steps: ['Scope: your subscription — Budgets is available.'] },
+        { label: 'Azure for Students', when: 'Your school gave you the subscription', steps: ['Budgets may be greyed out. Set the scope to rg-capstone-team01 once the Infra Admin has created it, and note it in the document.'] },
+      ],
+      fixes: [
+        { symptom: 'Budgets is greyed out', fix: 'Student subscriptions sometimes need the Billing Reader role — ask the instructor, or set the budget at resource-group scope.' },
+        { symptom: 'No email arrives at 80%', fix: 'Alerts send once a day at most, and cost data lags 8–24 hours. Check the recipient address, then wait a day.' },
+      ],
     }),
     portal(s(1, 'arch', 2), 'Agree the naming and tags', 'Agree one naming pattern and four tags as a team.', 'Team meeting', [
-      'Pattern: type prefix, workload, team — e.g. vm-tools-team01.',
-      'Use the Azure abbreviations: rg-, vnet-, snet-, nsg-, vm-, st, func-, kv-.',
-      'Tags: project, team, env, owner.',
-    ], 'A table of prefixes and four tag keys everyone has agreed to use.', 'A name you can read tells you the type, the purpose and the owner without opening anything. Week 11 enforces the owner tag.'),
+      'Pattern: what-it-is – what-it-is-for – who-owns-it. Example: vm-tools-team01.',
+      'Prefixes from the Azure list: rg-, vnet-, snet-, nsg-, vm-, st, func-, kv-.',
+      'Names that must be unique worldwide (storage, Cosmos DB, Function App) get a random suffix.',
+      'Tags on everything: project=capstone, team=team01, env=dev, owner=your-role-email.',
+    ], 'A table of prefixes and four tag keys everyone has agreed to use.', 'Read vm-tools-team01 as three parts: a virtual machine, for the tools job, owned by team01. Sixteen teams share one subscription, so the pattern is how you find your own things. Tags carry what a name cannot: owner, environment.', {
+      fixes: [{ symptom: 'Storage account name refused', fix: 'Storage names allow only lowercase letters and digits, 3–24 characters, unique across all of Azure. stwebteam01 plus four digits fits.' }],
+    }),
     rec(1, 'arch', 'Account and guardrails, Naming, Tags, RACI', [
       'Subscription, region (eastus) and the budget.',
       'One naming row per resource type you will create.',
       'The four tags, and a short RACI.',
     ], 'This is the standard every later document and template refers to.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'] }),
   T(1, 'infra', 'Create the resource group and VNet', 'Create the resource group and a virtual network with its first subnet, named and tagged by the standard.', 35,
-    ['Resource groups', 'VNet address space', 'Subnets'], ['rg-capstone-team01 exists with tags', 'vnet-capstone-team01 is 10.10.0.0/16 with snet-app'],
+    ['Resource groups', 'VNet address space and CIDR', 'Subnets'], ['rg-capstone-team01 exists with tags', 'vnet-capstone-team01 is 10.10.0.0/16 with snet-app'],
     [doc('Manage resource groups (portal)', 'azure/azure-resource-manager/management/manage-resource-groups-portal', 'the “Create resource groups” section — region and tags are set at creation'),
      doc('Create a virtual network (portal)', 'azure/virtual-network/quick-create-portal', 'the IP addresses tab: the address space box and how a subnet is carved out of it')],
     'Free: resource groups, virtual networks and subnets cost nothing.', [
@@ -134,67 +153,95 @@ const TASKS: Task[] = [
       'Tags tab: project=capstone, team=team01, env=dev, owner=team01-infra.',
       'Review + create → Create.',
     ], [
-      { cmd: 'az group create -n rg-capstone-team01 -l eastus --tags project=capstone team=team01 env=dev owner=team01-infra', explain: 'A resource group is the folder every resource lives in; deleting it deletes them all.', sample: '"name": "rg-capstone-team01",\n"properties": { "provisioningState": "Succeeded" }' },
-    ], ['Succeeded'], 'Everything this course builds lives in this one group, so cost, access and clean-up happen in one place.'),
+      { cmd: 'az group create -n rg-capstone-team01 -l eastus --tags project=capstone team=team01 env=dev owner=team01-infra', explain: 'A resource group is the folder every resource lives in; deleting it deletes them all.', sample: '"name": "rg-capstone-team01",\n"properties": { "provisioningState": "Succeeded" }', flags: [
+        { flag: '-n', meaning: 'The name (rg- says resource group; capstone the project; team01 the owner).' },
+        { flag: '-l eastus', meaning: 'The region: which datacenter set holds the metadata. Resources inside can be elsewhere.' },
+        { flag: '--tags', meaning: 'Key=value labels, space separated. The Week 11 policy checks for owner.' },
+      ] },
+    ], ['Succeeded'], 'Everything this course builds lives in this one group, so cost, access and clean-up happen in one place. The region is where the group’s metadata lives; put resources in the same region unless a size is out of stock.', {
+      fixes: [{ symptom: 'The region list does not offer East US', fix: 'Your subscription is limited to certain regions. Pick the nearest one offered and use it for everything; note it in the document.' }],
+    }),
     both(s(1, 'infra', 2), 'Create the VNet and first subnet', 'Create the VNet 10.10.0.0/16 with snet-app 10.10.1.0/24.', PORTAL, [
-      'Virtual networks → Create. Resource group rg-capstone-team01, name vnet-capstone-team01.',
-      'IP addresses tab: address space 10.10.0.0/16; delete the default subnet.',
-      'Add subnet: name snet-app, range 10.10.1.0/24.',
-      'Review + create → Create.',
+      'Virtual networks → Create. Resource group rg-capstone-team01, name vnet-capstone-team01, region East US.',
+      'IP addresses tab: set the address space to 10.10.0.0/16; delete the default subnet.',
+      'Add subnet: name snet-app, starting address 10.10.1.0, size /24.',
+      'Tags as in the standard. Review + create → Create.',
     ], [
-      { cmd: 'az network vnet create -g rg-capstone-team01 -n vnet-capstone-team01 --address-prefix 10.10.0.0/16 --subnet-name snet-app --subnet-prefix 10.10.1.0/24', explain: 'The VNet is your private network; the subnet is the slice the VM will use.', sample: '"addressPrefixes": [ "10.10.0.0/16" ],\n"subnets": [ { "addressPrefix": "10.10.1.0/24", "name": "snet-app" } ]' },
-    ], ['10.10.1.0/24', 'snet-app'], 'A /16 leaves room for 256 /24 subnets; the course uses two. Private ranges (RFC 1918) never route on the internet.', {
-      fixes: [{ symptom: 'ResourceGroupNotFound', fix: 'Run the previous step first, and check the name is exactly rg-capstone-team01.' }],
+      { cmd: 'az network vnet create -g rg-capstone-team01 -n vnet-capstone-team01 --address-prefix 10.10.0.0/16 --subnet-name snet-app --subnet-prefix 10.10.1.0/24 --tags project=capstone team=team01 env=dev owner=team01-infra', explain: 'The VNet is your private network; the subnet is the slice the VM will use.', sample: '"addressPrefixes": [ "10.10.0.0/16" ],\n"subnets": [ { "addressPrefix": "10.10.1.0/24", "name": "snet-app" } ]', flags: [
+        { flag: '-g', meaning: 'The resource group it goes in.' },
+        { flag: '--address-prefix 10.10.0.0/16', meaning: 'The whole private range: 65,536 addresses, from the RFC 1918 10.x block.' },
+        { flag: '--subnet-prefix 10.10.1.0/24', meaning: 'The first slice: 256 addresses. Azure keeps five of them, so 251 are usable.' },
+      ] },
+    ], ['10.10.1.0/24', 'snet-app'], 'A /16 leaves room for 256 /24 subnets; the course uses two. Private ranges (RFC 1918) never route on the internet, so every company can use 10.x without clashing. snet-app is the subnet the application VM sits in.', {
+      fixes: [
+        { symptom: 'ResourceGroupNotFound', fix: 'Run the previous step first, and check the name is exactly rg-capstone-team01.' },
+        { symptom: 'Address space overlaps', fix: 'Another VNet in the subscription uses 10.10.0.0/16. Use 10.20.0.0/16 and 10.20.1.0/24 everywhere, and record it.' },
+      ],
     }),
     rec(1, 'infra', 'Landing zone', ['The resource group and VNet names.', 'The address space and the first subnet.'], 'The Network Design Document in Week 6 starts from these numbers.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'] }),
   T(1, 'dev', 'Open the team repository and board', 'Create the team repository, a README with the naming standard, and a twelve-week board.', 35,
     ['Git repositories', 'README as documentation', 'Project boards'], ['The repo exists with a README', 'The board has this week’s four tasks'],
     [doc('Create a repository', 'https://docs.github.com/repositories/creating-and-managing-repositories/creating-a-new-repository', 'the visibility choice (private) and the “Add a README” box'),
      doc('Create a project', 'https://docs.github.com/issues/planning-and-tracking-with-projects/creating-projects/creating-a-project', 'the Board layout and how to add a draft item to a column')],
     'Free: GitHub is free for private repositories and project boards.', [
     portal(s(1, 'dev', 1), 'Create the repository', 'Create the team repository with a README.', 'github.com', [
-      'New repository: capstone-team01, private, add a README.',
-      'Invite your three teammates as collaborators.',
-      'Folders: site/, api/, infra/, docs/.',
-    ], 'A private repository with a README and four folders, shared with the team.', 'Everything the team produces lives here — the site, the function, the template and the documents.'),
+      'New repository: capstone-team01, private, tick “Add a README file”.',
+      'Settings → Collaborators: invite your three teammates.',
+      'Create folders site/, api/, infra/, docs/ (a .gitkeep file in each keeps them).',
+      'README: paste the naming pattern and the four tags from the Architect.',
+    ], 'A private repository with a README and four folders, shared with the team.', 'Everything the team produces lives here — the site, the function, the template and the documents. Private, because it will hold your real resource names and URLs; a key or password must never go in even so.', {
+      fixes: [{ symptom: 'A teammate cannot see the repo', fix: 'They must accept the invitation email. Check Settings → Collaborators shows “Pending” until they do.' }],
+    }),
     portal(s(1, 'dev', 2), 'Create the board', 'Create a board with this week’s four tasks.', 'github.com — Projects', [
-      'New project (Board). Columns: To do, Doing, Done.',
+      'Your profile → Projects → New project → Board. Columns: To do, Doing, Done.',
       'Add one card per role for Week 1 and assign it.',
       'Link the board from the README.',
-    ], 'A board with four assigned cards, linked from the README.', 'A board makes the four independent tasks visible, so nobody waits on anybody without knowing it.'),
+    ], 'A board with four assigned cards, linked from the README.', 'A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is.'),
     rec(1, 'dev', 'Team tooling', ['The repository URL.', 'The board URL.'], 'The handover package in Week 12 points a new team at this repository.'),
-  ]),
+  ], { tools: ['GitHub'] }),
   T(1, 'secops', 'Put an NSG on the subnet', 'Create a network security group, attach it to snet-app, and review who has access to the subscription.', 40,
-    ['Network security groups', 'Default rules', 'Azure RBAC'], ['nsg-snet-app-team01 is attached to snet-app', 'Access is listed'],
+    ['Network security groups', 'Default rules and priority', 'Azure RBAC'], ['nsg-snet-app-team01 is attached to snet-app', 'Access is listed'],
     [doc('Network security groups overview', 'azure/virtual-network/network-security-groups-overview', 'the “Default security rules” tables — priority 65500 DenyAllInBound is what blocks everything until you allow it'),
      doc('List role assignments (portal)', 'azure/role-based-access-control/role-assignments-list-portal', 'Access control (IAM) → Role assignments, and the Scope column')],
     'Free: network security groups and role assignments cost nothing.', [
     both(s(1, 'secops', 1), 'Create and attach the NSG', 'Create the NSG and attach it to snet-app.', PORTAL, [
-      'Network security groups → Create. Resource group rg-capstone-team01, name nsg-snet-app-team01. Create.',
-      'Open it → Subnets → Associate → vnet-capstone-team01 / snet-app.',
+      'Network security groups → Create. Resource group rg-capstone-team01, name nsg-snet-app-team01, region East US. Create.',
+      'Open it → Settings → Subnets → Associate → vnet-capstone-team01 / snet-app.',
     ], [
-      { cmd: 'az network nsg create -g rg-capstone-team01 -n nsg-snet-app-team01', explain: 'An NSG is a stateful firewall. It starts with default rules that deny all inbound from the internet.', sample: '"name": "nsg-snet-app-team01",\n"provisioningState": "Succeeded"' },
-      { cmd: 'az network vnet subnet update -g rg-capstone-team01 --vnet-name vnet-capstone-team01 -n snet-app --nsg nsg-snet-app-team01', explain: 'Attaching it to the subnet protects everything placed there, including the VM next week.', sample: '"networkSecurityGroup": { "id": ".../nsg-snet-app-team01" }' },
-    ], ['Succeeded', 'nsg-snet-app-team01'], 'Attach at the subnet, not the VM, so a resource added later is protected from its first second.'),
+      { cmd: 'az network nsg create -g rg-capstone-team01 -n nsg-snet-app-team01 --tags project=capstone team=team01 env=dev owner=team01-secops', explain: 'An NSG is a stateful firewall. It starts with default rules that deny all inbound from the internet.', sample: '"name": "nsg-snet-app-team01",\n"provisioningState": "Succeeded"', flags: [
+        { flag: '-n nsg-snet-app-team01', meaning: 'Read it as: the NSG that guards subnet snet-app, owned by team01.' },
+      ] },
+      { cmd: 'az network vnet subnet update -g rg-capstone-team01 --vnet-name vnet-capstone-team01 -n snet-app --nsg nsg-snet-app-team01', explain: 'Attaching it to the subnet protects everything placed there, including the VM next week.', sample: '"networkSecurityGroup": { "id": ".../nsg-snet-app-team01" }', flags: [
+        { flag: '--nsg', meaning: 'Which NSG the subnet uses. One NSG can guard several subnets.' },
+      ] },
+    ], ['Succeeded', 'nsg-snet-app-team01'], 'Stateful means a reply to allowed traffic is let back automatically. Attach at the subnet, not the VM, so a resource added later is protected from its first second; one rule list is easier to keep right than two.', {
+      fixes: [{ symptom: 'Subnet not listed under Associate', fix: 'The Infrastructure Admin has not created the VNet yet, or it is in another region. Create the NSG now; associate it when the subnet exists.' }],
+    }),
     both(s(1, 'secops', 2), 'Read the default rules', 'Read the NSG’s default rules.', PORTAL, [
       'nsg-snet-app-team01 → Inbound security rules.',
       'Read the three default rules at the bottom, priorities 65000–65500.',
     ], [
-      { cmd: 'az network nsg rule list -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 --include-default -o table', explain: 'Shows the built-in rules. The last inbound rule, DenyAllInBound, is why nothing reaches the VM until you allow it.', sample: 'Name                 Priority  Access  Direction\nAllowVnetInBound     65000     Allow   Inbound\nDenyAllInBound       65500     Deny    Inbound' },
-    ], ['DenyAllInBound'], 'Knowing the defaults is how you know every Allow you add is a decision.'),
+      { cmd: 'az network nsg rule list -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 --include-default -o table', explain: 'Shows the built-in rules. The last inbound rule, DenyAllInBound, is why nothing reaches the VM until you allow it.', sample: 'Name                 Priority  Access  Direction\nAllowVnetInBound     65000     Allow   Inbound\nDenyAllInBound       65500     Deny    Inbound', flags: [
+        { flag: '--include-default', meaning: 'Also show the six rules Azure adds to every NSG; they are hidden otherwise.' },
+        { flag: '-o table', meaning: 'Print columns instead of JSON.' },
+      ] },
+    ], ['DenyAllInBound'], 'Rules are checked from the lowest priority number up; the first match wins. AllowVnetInBound (65000) lets your own subnets talk; DenyAllInBound (65500) blocks the rest. Any rule you add at 100–4096 is checked before both.'),
     both(s(1, 'secops', 3), 'Review access (RBAC)', 'List who holds which role on the subscription.', PORTAL, [
       'Subscriptions → yours → Access control (IAM) → Role assignments.',
       'Note each person or group, their role and scope.',
     ], [
-      { cmd: 'az role assignment list --all --query "[].{who:principalName, role:roleDefinitionName, scope:scope}" -o table', explain: 'Every assignment you can see, with its scope.', sample: 'Who                      Role     Scope\nteam01-infra@school.edu  Owner    /subscriptions/...' },
-    ], ['Role'], 'Least privilege starts with knowing what is granted today. Week 5 narrows it.'),
+      { cmd: 'az role assignment list --all --query "[].{who:principalName, role:roleDefinitionName, scope:scope}" -o table', explain: 'Every assignment you can see, with its scope.', sample: 'Who                      Role     Scope\nteam01-infra@school.edu  Owner    /subscriptions/...', flags: [
+        { flag: '--all', meaning: 'Every scope, not just the current one.' },
+        { flag: '--query', meaning: 'A JMESPath filter that keeps three fields and renames them.' },
+      ] },
+    ], ['Role'], 'A role (Reader, Contributor, Owner) at a scope (subscription, group, resource) is the whole of Azure access. Owner on the subscription can do anything, including delete the group; Week 5 gives people the smallest role that works.'),
     rec(1, 'secops', 'Access and NSG', ['One row per person or group and what they get.'], 'The Week 5 access matrix builds on this list.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'] }),
 
   // ── Week 2 — Website and VM ────────────────────────────────────────────
   T(2, 'arch', 'Write the architecture document and cost', 'Estimate the monthly cost of each component, then record the first architecture decision with what was rejected.', 45,
-    ['Pricing calculator', 'Solution architecture documents', 'ADRs'], ['Every component has a monthly cost', 'ADR-001 names the rejected option'],
+    ['Reading the free-account limits', 'Pricing calculator', 'ADRs'], ['Every component has a monthly cost', 'ADR-001 names the rejected option'],
     [doc('Azure free account — what is free', 'https://azure.microsoft.com/free/', 'the “12 months free” list: B1s 750 hours, 5 GB storage, 2 × 64 GB Standard SSD — the numbers your estimate leans on'),
      doc('Pricing calculator', 'https://azure.microsoft.com/pricing/calculator/', 'add Virtual Machines and change hours to 730, then halve them; the Public IP line is the one you cannot make free')],
     'Free: the calculator. Nothing is deployed. Your estimate should come out near $4 a month: the VM’s public IP, and cents for the rest.', [
@@ -202,89 +249,138 @@ const TASKS: Task[] = [
       'Add: Virtual Machines (B1s, Linux, 730 h), Storage Accounts (LRS, 1 GB).',
       'Add: Functions (Consumption), Azure Cosmos DB (serverless), IP Addresses (Standard).',
       'Read the monthly total; then halve the VM hours — you deallocate it.',
-    ], 'A monthly estimate per service, with the public IP the largest line after the VM.', 'Cost is an architecture property. Knowing which line dominates tells you what to switch off.'),
+      'Subtract what the free account covers: 750 B1s hours, 5 GB storage.',
+    ], 'A monthly estimate per service, with the public IP the largest line after the VM.', 'Cost is an architecture property. The calculator shows list prices; the free account removes the VM and storage lines for a year, which leaves the public IP. Knowing which line dominates tells you what to switch off.', {
+      fixes: [{ symptom: 'The VM line is $8, not $4', fix: 'You left 730 hours. A deallocated VM bills no compute: halve the hours, and note that the disk and IP still bill.' }],
+    }),
     portal(s(2, 'arch', 2), 'Write ADR-001', 'Record why the site is a storage static website.', 'The document', [
       'Context: a public site with HTTPS for under $1 a month.',
       'Decision: storage static website — HTTPS is built in.',
-      'Rejected: a VM with nginx, and Front Door (about $35 a month).',
-    ], 'ADR-001 with context, decision, rejected options and consequences.', 'An ADR records the decision and the alternatives, so the next team does not reopen it without new facts.'),
+      'Rejected: a VM with nginx (patching, a public port), and Front Door (about $35 a month).',
+      'Consequences: no server-side code; the counter must be an API.',
+    ], 'ADR-001 with context, decision, rejected options and consequences.', 'An ADR records the decision and the alternatives, so the next team does not reopen it without new facts. The rejected options matter most: they show the decision was a choice, not the only thing you knew.'),
     rec(2, 'arch', 'Components and cost, ADR-001', ['One component per row, with its monthly cost.', 'ADR-001.'], 'The architecture document grows every week and is handed over in Week 12.'),
-  ]),
+  ], { tools: ['Pricing calculator'] }),
   T(2, 'infra', 'Deploy the tools VM', 'Deploy a B1s Ubuntu VM into snet-app with SSH-key sign-in only, then deallocate it.', 45,
-    ['VM sizes', 'SSH keys', 'NICs and public IPs'], ['vm-tools-team01 runs in snet-app', 'The VM is deallocated at the end'],
+    ['VM sizes and the free tier', 'SSH keys instead of passwords', 'NICs, private and public IPs'], ['vm-tools-team01 runs in snet-app', 'The VM is deallocated at the end'],
     [doc('Create a Linux VM (portal)', 'azure/virtual-machines/linux/quick-create-portal', 'the Basics tab: size, “SSH public key” authentication, and the Networking tab where you pick the VNet and subnet'),
      doc('B-series burstable sizes', 'azure/virtual-machines/sizes/general-purpose/bv1-series', 'the B1s row — 1 vCPU, 1 GiB, and the credit model that makes a low CPU average normal')],
     'Free tier: B1s is free for 750 hours a month for 12 months, and the Standard SSD OS disk is inside the free 64 GB. The public IP costs about $3.60 a month even while the VM is stopped — deallocate the VM anyway.', [
     both(s(2, 'infra', 1), 'Create the VM', 'Create the B1s VM in snet-app, SSH key only.', PORTAL, [
-      'Virtual machines → Create. Group rg-capstone-team01, name vm-tools-team01, Ubuntu 22.04, size B1s.',
-      'Authentication: SSH public key, username azureuser, generate a new key pair.',
-      'Disks: OS disk type Standard SSD. Networking: vnet-capstone-team01, snet-app, NIC NSG: None.',
-      'Tags: owner=team01-infra. Review + create → Create; download the private key.',
+      'Virtual machines → Create → Azure virtual machine. Group rg-capstone-team01, name vm-tools-team01, East US, Ubuntu 22.04, size B1s.',
+      'Authentication: SSH public key, username azureuser, “Generate new key pair”, key name kp-team01.',
+      'Disks: OS disk type Standard SSD. Networking: vnet-capstone-team01, snet-app, public IP new, NIC network security group: None.',
+      'Tags as in the standard. Review + create → Create → Download private key (kp-team01.pem).',
     ], [
-      { cmd: `${VARS}; az vm create -g $RG -n $VM --image Ubuntu2204 --size Standard_B1s --storage-sku StandardSSD_LRS --vnet-name vnet-capstone-team01 --subnet snet-app --nsg "" --public-ip-sku Standard --admin-username azureuser --generate-ssh-keys --tags project=capstone team=team01 env=dev owner=team01-infra`, explain: '--nsg "" skips a per-VM NSG: the subnet’s NSG already protects it. --generate-ssh-keys means no password exists to guess.', sample: '"powerState": "VM running",\n"privateIpAddress": "10.10.1.4",\n"publicIpAddress": "20.119.8.41"' },
-    ], ['VM running', '10.10.1.4'], 'B1s is the free-tier size and Standard SSD is the free-tier disk. Key-only sign-in removes password guessing entirely.', {
+      { cmd: `${VARS}; az vm create -g $RG -n $VM --image Ubuntu2204 --size Standard_B1s --storage-sku StandardSSD_LRS --vnet-name vnet-capstone-team01 --subnet snet-app --nsg "" --public-ip-sku Standard --admin-username azureuser --generate-ssh-keys --tags project=capstone team=team01 env=dev owner=team01-infra`, explain: 'Creates the VM, its disk, NIC and public IP together. The key pair lands in ~/.ssh; download it from Cloud Shell (Manage files) for the Security Admin.', sample: '"powerState": "VM running",\n"privateIpAddress": "10.10.1.4",\n"publicIpAddress": "20.119.8.41"', flags: [
+        { flag: '--size Standard_B1s', meaning: 'The free-tier size: 1 vCPU, 1 GiB, burstable.' },
+        { flag: '--storage-sku StandardSSD_LRS', meaning: 'The free-tier disk type. Premium SSD would cost about $5 a month.' },
+        { flag: '--nsg ""', meaning: 'No per-VM NSG: the subnet’s NSG already guards it.' },
+        { flag: '--generate-ssh-keys', meaning: 'Makes a key pair if you have none; no password exists to guess.' },
+      ] },
+    ], ['VM running', '10.10.1.4'], 'B1s is the free-tier size and Standard SSD the free-tier disk. Key-only sign-in removes password guessing. NIC NSG None is deliberate: the subnet’s NSG from Week 1 already protects it, and one rule list beats two.', {
       fixes: [
         { symptom: 'SkuNotAvailable', fix: 'B1s is out of capacity in that region. Try eastus2 for the VM only, and record why.' },
         { symptom: 'QuotaExceeded', fix: 'Student subscriptions allow few vCPUs. Delete any other VM first.' },
+        { symptom: 'Only B2ats or B1ls offered', fix: 'Both are burstable and cheap; pick the one marked free-tier eligible, or B1ls, and record it.' },
       ],
     }),
     both(s(2, 'infra', 2), 'Read its network facts', 'Read the VM’s private IP and NIC.', PORTAL, [
       'vm-tools-team01 → Overview: note the public and private IP addresses.',
       'Networking → Network settings: the NIC and the subnet it sits in.',
     ], [
-      { cmd: `${VARS}; az vm list-ip-addresses -g $RG -n $VM -o table`, explain: 'The private IP is what other resources use; the public IP only exists for outbound patching.', sample: 'VirtualMachine    PublicIPAddresses    PrivateIPAddresses\nvm-tools-team01   20.119.8.41          10.10.1.4' },
-    ], ['10.10.1.4'], 'The private IP comes from snet-app — 10.10.1.4 because Azure reserves the first four addresses.'),
+      { cmd: `${VARS}; az vm list-ip-addresses -g $RG -n $VM -o table`, explain: 'The private IP is what other resources use; the public IP only exists for outbound patching and the SSH test.', sample: 'VirtualMachine    PublicIPAddresses    PrivateIPAddresses\nvm-tools-team01   20.119.8.41          10.10.1.4' },
+    ], ['10.10.1.4'], 'The private IP comes from snet-app — 10.10.1.4 because Azure reserves the first four addresses of every subnet. The public IP is Standard SKU and static, so it survives a deallocate; that is why it keeps billing.'),
+    both(s(2, 'infra', 3), 'Hand the key to Security', 'Share the private key privately with the Security Admin.', 'Your laptop', [
+      'Send kp-team01.pem through a private channel (Teams/Slack DM, a password manager) — never the repository or email.',
+      'Tell them the user name: azureuser.',
+    ], [
+      { cmd: 'ls -l ~/.ssh/id_rsa ~/.ssh/id_rsa.pub 2>/dev/null || ls -l ~/.ssh', explain: 'If you used the shell, the pair is here. Download the private file from Cloud Shell: Manage files → Download.', sample: '-rw------- 1 user user 2602 id_rsa\n-rw-r--r-- 1 user user  575 id_rsa.pub' },
+    ], ['id_rsa'], 'The private key is the password to this machine. Anyone holding it can sign in, so it travels one-to-one and is never committed; a leaked key in a repository is the most common cloud break-in.'),
     rec(2, 'infra', 'Virtual machine facts', ['Name, size, private IP, operating system.'], 'The runbook in Week 7 and the snapshot in Week 8 start from these facts.'),
     DEALLOCATE(2, 'infra'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'] }),
   T(2, 'dev', 'Publish the website with HTTPS', 'Publish the company website from a storage account static website, HTTPS-only, then change it and redeploy.', 45,
     ['Storage accounts', 'Static websites', 'HTTPS and TLS 1.2'], ['The site loads over HTTPS', 'A change was redeployed'],
     [doc('Create a storage account', 'azure/storage/common/storage-account-create', 'the Basics tab (Standard, LRS) and the Advanced tab: “Require secure transfer” and the minimum TLS version'),
      doc('Host a static website', 'azure/storage/blobs/storage-blob-static-website-how-to', 'the “Enable static website hosting” steps — the $web container and the primary endpoint URL')],
     'Free tier: 5 GB of LRS storage for 12 months; the static website feature costs nothing.', [
     both(s(2, 'dev', 1), 'Create the storage account', 'Create an HTTPS-only storage account with TLS 1.2.', PORTAL, [
-      'Storage accounts → Create. Group rg-capstone-team01, a unique name starting stwebteam01, Standard, LRS.',
+      'Storage accounts → Create. Group rg-capstone-team01, name stwebteam01 plus four digits, East US, Standard, LRS.',
       'Advanced: Require secure transfer on, minimum TLS 1.2, allow anonymous blob access off.',
-      'Review + create → Create. Write the name down.',
+      'Tags as in the standard. Review + create → Create. Write the name down.',
     ], [
       { cmd: 'RG=rg-capstone-team01; WEB=stwebteam01$RANDOM; echo $WEB', explain: 'Storage names are global, 3–24 lowercase letters and digits. $RANDOM makes yours unique; write it down.', sample: 'stwebteam0118342' },
-      { cmd: 'az storage account create -g $RG -n $WEB --sku Standard_LRS --kind StorageV2 --https-only true --min-tls-version TLS1_2 --allow-blob-public-access false', explain: 'HTTPS-only and TLS 1.2 refuse old, insecure connections. Blob public access stays off; the website endpoint still serves.', sample: '"enableHttpsTrafficOnly": true,\n"minimumTlsVersion": "TLS1_2"' },
-    ], ['TLS1_2'], 'The static-website endpoint serves HTTPS with Microsoft’s certificate, so no CDN is needed.'),
+      { cmd: 'az storage account create -g $RG -n $WEB --sku Standard_LRS --kind StorageV2 --https-only true --min-tls-version TLS1_2 --allow-blob-public-access false --tags project=capstone team=team01 env=dev owner=team01-dev', explain: 'HTTPS-only and TLS 1.2 refuse old, insecure connections. Blob public access stays off; the website endpoint still serves.', sample: '"enableHttpsTrafficOnly": true,\n"minimumTlsVersion": "TLS1_2"', flags: [
+        { flag: '--sku Standard_LRS', meaning: 'Standard disks, three copies in one datacenter — the free-tier kind.' },
+        { flag: '--kind StorageV2', meaning: 'The general-purpose account type that supports static websites.' },
+        { flag: '--https-only true', meaning: 'Refuse plain HTTP.' },
+        { flag: '--min-tls-version TLS1_2', meaning: 'Refuse the older, broken encryption versions.' },
+      ] },
+    ], ['TLS1_2'], 'st + web + team01: a storage account, for the website, owned by team01 — plus digits, because storage names are unique across all of Azure. LRS is enough for a site you can re-upload from the repository.', {
+      fixes: [{ symptom: 'The name is already taken', fix: 'Someone in the world has it. Change the digits and try again.' }],
+    }),
     both(s(2, 'dev', 2), 'Enable the website and upload', 'Switch on the static website and upload index.html.', PORTAL, [
-      'The storage account → Data management → Static website → Enabled; index.html, 404.html. Save.',
-      'Copy the primary endpoint URL.',
-      'Storage browser → Blob containers → $web → Upload your site files.',
+      'The storage account → Data management → Static website → Enabled; index document index.html, error path 404.html. Save.',
+      'Copy the Primary endpoint URL that appears.',
+      'Storage browser → Blob containers → $web → Upload → your site/ files (at least index.html).',
+      'Open the endpoint URL in a browser: your page, with a padlock.',
     ], [
-      { cmd: 'az storage blob service-properties update --account-name $WEB --static-website --index-document index.html --404-document 404.html --auth-mode login', explain: 'Creates the $web container and serves it as a website.', sample: '"staticWebsite": { "enabled": true, "indexDocument": "index.html" }' },
-      { cmd: "az storage blob upload-batch --account-name $WEB -s ./site -d '$web' --auth-mode login --overwrite", explain: 'Uploads the site folder. You need the Storage Blob Data Contributor role for --auth-mode login.', sample: 'Finished[#############################################################]  100.0000%' },
-      { cmd: 'az storage account show -n $WEB --query primaryEndpoints.web -o tsv', explain: 'Prints the site’s address.', sample: 'https://stwebteam0118342.z13.web.core.windows.net/' },
-    ], ['web.core.windows.net'], 'Upload again after any change — that is a redeploy. Week 10 automates it.', {
-      fixes: [{ symptom: 'AuthorizationPermissionMismatch on upload', fix: 'Assign yourself Storage Blob Data Contributor on the account, wait a minute, retry.' }],
+      { cmd: 'az storage blob service-properties update --account-name $WEB --static-website --index-document index.html --404-document 404.html --auth-mode login', explain: 'Creates the $web container and serves it as a website.', sample: '"staticWebsite": { "enabled": true, "indexDocument": "index.html" }', flags: [
+        { flag: '--static-website', meaning: 'Turn the feature on.' },
+        { flag: '--auth-mode login', meaning: 'Use your signed-in identity rather than the account key.' },
+      ] },
+      { cmd: "az storage blob upload-batch --account-name $WEB -s ./site -d '$web' --auth-mode login --overwrite", explain: 'Uploads the site folder. You need the Storage Blob Data Contributor role for --auth-mode login.', sample: 'Finished[#############################################################]  100.0000%', flags: [
+        { flag: '-s ./site -d \'$web\'', meaning: 'Source folder on your side; destination container. The quotes stop the shell reading $web as a variable.' },
+        { flag: '--overwrite', meaning: 'Replace files that already exist — that is what a redeploy is.' },
+      ] },
+      { cmd: 'az storage account show -n $WEB --query primaryEndpoints.web -o tsv', explain: 'Prints the site’s address.', sample: 'https://stwebteam0118342.z13.web.core.windows.net/', flags: [
+        { flag: '--query primaryEndpoints.web', meaning: 'Only the website endpoint out of the account’s many addresses.' },
+      ] },
+    ], ['web.core.windows.net'], 'The $web container is special: its files are served at the web endpoint over HTTPS with Microsoft’s certificate, so no CDN is needed. Upload again after any change — that is a redeploy. Week 10 automates it.', {
+      fixes: [
+        { symptom: 'AuthorizationPermissionMismatch on upload', fix: 'Assign yourself Storage Blob Data Contributor on the account (Access control → Add role assignment), wait a minute, retry.' },
+        { symptom: 'The endpoint shows “The requested content does not exist”', fix: 'index.html is not in $web, or its name differs (Index.html). Upload it to the container root.' },
+      ],
     }),
     rec(2, 'dev', 'Website', ['The HTTPS URL.', 'How you redeployed a change.'], 'The site URL is the origin CORS will admit in Week 3.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell', 'A text editor'] }),
   T(2, 'secops', 'Allow SSH from your IP only', 'Add one inbound rule allowing SSH from your own address, then prove it is allowed from you and blocked elsewhere.', 40,
     ['NSG rule priority', '/32 source addresses', 'Allowed and blocked tests'], ['SSH works from your IP', 'SSH is blocked from Cloud Shell'],
-    [doc('Create a security rule', 'azure/virtual-network/manage-network-security-group#create-a-security-rule', 'the Source field set to “My IP address” and the Priority field — lower numbers are evaluated first')],
+    [doc('Create a security rule', 'azure/virtual-network/manage-network-security-group#create-a-security-rule', 'the Source field set to “My IP address” and the Priority field — lower numbers are evaluated first'),
+     doc('Connect to a Linux VM with SSH', 'azure/virtual-machines/linux-vm-connect', 'the ssh command with -i and the private key, and the “Permission denied” cases at the end')],
     'Free: NSG rules. VM hours count while it runs — deallocate it when the test is done.', [
     both(s(2, 'secops', 1), 'Add the SSH rule', 'Allow TCP 22 from your IP address only.', PORTAL, [
       'nsg-snet-app-team01 → Inbound security rules → Add.',
-      'Source: My IP address. Destination port: 22. Protocol: TCP. Priority 1000. Name Allow-SSH-MyIP.',
-      'Add.',
+      'Source: My IP address. Destination port ranges: 22. Protocol: TCP. Action: Allow. Priority 1000. Name Allow-SSH-MyIP.',
+      'Add. The rule appears above the default rules.',
     ], [
-      { cmd: 'MYIP=$(curl -s https://ifconfig.me); echo $MYIP', explain: 'Run this on YOUR laptop, not Cloud Shell: it prints the address your laptop reaches the internet from.', sample: '203.0.113.25' },
-      { cmd: 'az network nsg rule create -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 -n Allow-SSH-MyIP --priority 1000 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes $MYIP/32 --destination-port-ranges 22', explain: 'A /32 is exactly one address. Priority 1000 is evaluated before the default deny at 65500.', sample: '"access": "Allow",\n"sourceAddressPrefix": "203.0.113.25/32"' },
-    ], ['/32'], 'Never 0.0.0.0/0 on port 22: bots scan the whole internet for open SSH within minutes.'),
+      { cmd: 'curl -s https://ifconfig.me; echo', explain: 'Run this on YOUR laptop, not Cloud Shell: it prints the address your laptop reaches the internet from.', sample: '203.0.113.25' },
+      { cmd: 'MYIP=203.0.113.25   # type the address the first line printed', explain: 'Cloud Shell is another machine with another address, so tell it yours.', sample: '(no output — the variable is set)' },
+      { cmd: 'az network nsg rule create -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 -n Allow-SSH-MyIP --priority 1000 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes $MYIP/32 --destination-port-ranges 22', explain: 'A /32 is exactly one address. Priority 1000 is evaluated before the default deny at 65500.', sample: '"access": "Allow",\n"sourceAddressPrefix": "203.0.113.25/32"', flags: [
+        { flag: '--priority 1000', meaning: 'Checked before the defaults at 65000+. Leave gaps (1000, 1100…) for rules you add later.' },
+        { flag: '--source-address-prefixes $MYIP/32', meaning: 'Only this one address may connect.' },
+        { flag: '--destination-port-ranges 22', meaning: 'SSH’s port. Nothing else is opened.' },
+      ] },
+    ], ['/32'], 'Never 0.0.0.0/0 on port 22: bots scan the whole internet for open SSH within minutes. Allow-SSH-MyIP reads as: allow SSH, from my IP. Your home address can change; when it does, edit this rule rather than widening it.'),
     portal(s(2, 'secops', 2), 'Test allowed and blocked', 'Test SSH from your laptop, then from Cloud Shell.', 'Your laptop, then Cloud Shell', [
-      'Start the VM: Virtual machines → vm-tools-team01 → Start.',
-      'From your laptop: ssh azureuser@PUBLIC_IP — expect a prompt.',
-      'From Cloud Shell: the same command — expect a timeout.',
-      'Deallocate the VM when done.',
-    ], 'SSH connects from your laptop and times out from Cloud Shell.', 'A rule is only proved when something that should fail does fail.', {
-      fixes: [{ symptom: 'Timeout from your laptop too', fix: 'Your IP changed (Wi-Fi, VPN). Re-run the first command and update the rule.' }],
+      'Start the VM: Virtual machines → vm-tools-team01 → Start; read the public IP on Overview.',
+      'From your laptop, using the key the Infra Admin shared: a prompt appears (below, by operating system).',
+      'From Cloud Shell: ssh azureuser@PUBLIC_IP — expect “Connection timed out”.',
+      'Deallocate the VM when done: vm-tools-team01 → Stop.',
+    ], 'SSH connects from your laptop and times out from Cloud Shell.', 'A rule is only proved when something that should fail does fail. Cloud Shell has a different address, so the /32 rule rightly refuses it — the same refusal any attacker gets.', {
+      paths: [
+        { label: 'macOS / Linux', when: 'Terminal', steps: ['chmod 400 kp-team01.pem', 'ssh -i kp-team01.pem azureuser@PUBLIC_IP'] },
+        { label: 'Windows', when: 'PowerShell (OpenSSH is built in)', steps: ['icacls kp-team01.pem /inheritance:r /grant:r "$env:USERNAME:R"', 'ssh -i kp-team01.pem azureuser@PUBLIC_IP'] },
+      ],
+      fixes: [
+        { symptom: 'Timeout from your laptop too', fix: 'Your IP changed (Wi-Fi, VPN), or the VM is not running. Re-run curl ifconfig.me and update the rule’s source.' },
+        { symptom: 'Permission denied (publickey)', fix: 'Wrong key file or wrong user name. The user is azureuser and the key is the one created with this VM.' },
+        { symptom: 'UNPROTECTED PRIVATE KEY FILE', fix: 'The key is readable by others. Run the chmod / icacls line first.' },
+      ],
     }),
     rec(2, 'secops', 'SSH access test', ['One allowed row, one blocked row.'], 'Week 6 removes this rule entirely; this record is the before.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell', 'Terminal or PowerShell'], prerequisites: ['The tools VM and its private key (kp-team01.pem) from the Infrastructure Admin, this week — shared privately, never in the repo.'] }),
 
   // ── Week 3 — Serverless API ────────────────────────────────────────────
   T(3, 'arch', 'Draw the request flow with real URLs', 'Trace how a page view becomes a count in the database, naming every real URL and resource.', 35,
@@ -295,14 +391,15 @@ const TASKS: Task[] = [
       'Pick Week 3. New resources glow.',
       'Follow the solid arrows from Visitors to Cosmos DB.',
       'Click the Function App: the template highlights its lines.',
-    ], 'You can name every hop from the browser to the database.', 'The diagram is drawn from the template, so it is the environment you are building, not an illustration.'),
+    ], 'You can name every hop from the browser to the database.', 'The diagram is drawn from the template, so it is the environment you are building, not an illustration. A glowing node arrived this week; a grey one was already there.'),
     portal(s(3, 'arch', 2), 'Write the flow', 'Write the flow with your real URLs.', 'The document', [
-      'Browser → https://your-site (storage static website).',
-      'Page script → GET https://func-…/api/visitorCount.',
-      'Function → Cosmos DB database capstone, container visitors, item id "site".',
-    ], 'A three-hop flow with real URLs and resource names.', 'A flow with real URLs is testable. Week 6 tests each hop.'),
+      'Browser → https://stwebteam01….web.core.windows.net (storage static website).',
+      'Page script → GET https://func-capstone-team01-….azurewebsites.net/api/visitorCount.',
+      'Function → Cosmos DB account cosmos-capstone-team01-…, database capstone, container visitors, item id "site".',
+      'Back: { "count": n } → the page writes it into #visitor-count.',
+    ], 'A three-hop flow with real URLs and resource names.', 'A flow with real URLs is testable: each arrow is something you can call and watch fail. Week 6 tests each hop, and Week 4’s incident is one arrow breaking.'),
     rec(3, 'arch', 'Request flow', ['The flow, hop by hop.'], 'Week 6’s path tests follow this flow.'),
-  ]),
+  ], { tools: ['The Guide'] }),
   T(3, 'infra', 'Create Cosmos DB and seed the counter', 'Create a serverless Cosmos DB account, a database and a container, and seed the counter item.', 45,
     ['Cosmos DB serverless', 'Partition keys', 'Data Explorer'], ['Container visitors exists with /id', 'Item id "site" has count 0'],
     [doc('Create a Cosmos DB account (portal)', 'azure/cosmos-db/nosql/quickstart-portal', 'the “Create an account” steps: API NoSQL, capacity mode Serverless — and Data Explorer, where the item goes'),
@@ -310,147 +407,240 @@ const TASKS: Task[] = [
     'About a cent a month: serverless bills per request and a counter uses almost none. The other free route is the free-tier account flag (1,000 RU/s free), one per subscription.', [
     both(s(3, 'infra', 1), 'Create the account', 'Create a serverless Cosmos DB account.', PORTAL, [
       'Azure Cosmos DB → Create → Azure Cosmos DB for NoSQL.',
-      'Group rg-capstone-team01, a unique name starting cosmos-capstone-team01, capacity mode Serverless.',
-      'Review + create → Create (a few minutes).',
+      'Group rg-capstone-team01, account name cosmos-capstone-team01 plus four digits, East US, capacity mode Serverless.',
+      'Tags as in the standard. Review + create → Create (a few minutes).',
     ], [
-      { cmd: 'RG=rg-capstone-team01; COSMOS=cosmos-capstone-team01-$RANDOM; az cosmosdb create -g $RG -n $COSMOS --capabilities EnableServerless --default-consistency-level Session', explain: 'Serverless bills per request, so an idle counter costs nearly nothing. This takes a few minutes.', sample: '"capabilities": [ { "name": "EnableServerless" } ],\n"provisioningState": "Succeeded"' },
-    ], ['EnableServerless', 'Succeeded'], 'Provisioned throughput would charge every hour even when nobody visits.'),
+      { cmd: 'RG=rg-capstone-team01; COSMOS=cosmos-capstone-team01-$RANDOM; az cosmosdb create -g $RG -n $COSMOS --capabilities EnableServerless --default-consistency-level Session --tags project=capstone team=team01 env=dev owner=team01-infra', explain: 'Serverless bills per request, so an idle counter costs nearly nothing. This takes a few minutes.', sample: '"capabilities": [ { "name": "EnableServerless" } ],\n"provisioningState": "Succeeded"', flags: [
+        { flag: '--capabilities EnableServerless', meaning: 'Pay per request instead of reserving throughput every hour.' },
+        { flag: '--default-consistency-level Session', meaning: 'You always read your own writes; the default and right for a counter.' },
+      ] },
+    ], ['EnableServerless', 'Succeeded'], 'NoSQL means items are JSON documents, not table rows. Provisioned throughput would charge every hour even when nobody visits; serverless charges per request, and a counter uses a handful a day. The name is global, hence the digits.', {
+      fixes: [{ symptom: 'Service unavailable in the region', fix: 'Serverless is not offered everywhere for new accounts. Pick East US 2 for the account only, and record it.' }],
+    }),
     both(s(3, 'infra', 2), 'Create the database and container', 'Create database capstone and container visitors.', PORTAL, [
       'The account → Data Explorer → New Container.',
-      'Database id: capstone (new). Container id: visitors. Partition key: /id. OK.',
+      'Database id: capstone (Create new). Container id: visitors. Partition key: /id. OK.',
     ], [
       { cmd: 'az cosmosdb sql database create -g $RG -a $COSMOS -n capstone', explain: 'A database groups containers.', sample: '"name": "capstone"' },
-      { cmd: 'az cosmosdb sql container create -g $RG -a $COSMOS -d capstone -n visitors --partition-key-path /id', explain: 'The partition key decides how data is spread. /id suits one small item.', sample: '"partitionKey": { "paths": [ "/id" ] }' },
-    ], ['/id'], 'Choosing the partition key is the one Cosmos DB decision you cannot change later.'),
+      { cmd: 'az cosmosdb sql container create -g $RG -a $COSMOS -d capstone -n visitors --partition-key-path /id', explain: 'The partition key decides how data is spread. /id suits one small item.', sample: '"partitionKey": { "paths": [ "/id" ] }', flags: [
+        { flag: '-a', meaning: 'The account the database belongs to.' },
+        { flag: '--partition-key-path /id', meaning: 'The JSON field used to place each item; here every item’s own id.' },
+      ] },
+    ], ['/id'], 'Account → database → container → items is the Cosmos DB hierarchy. The partition key is the one decision you cannot change later: it decides where an item is stored, so /id, the item’s own name, is safe.'),
     portal(s(3, 'infra', 3), 'Seed the counter item', 'Add the item { "id": "site", "count": 0 }.', 'Azure portal — Cosmos DB → Data Explorer', [
-      'capstone → visitors → Items → New item.',
+      'capstone → visitors → Items → New Item.',
       'Replace the body with { "id": "site", "count": 0 } and Save.',
-    ], 'The item "site" with count 0 is listed.', 'The Function reads and updates this one item.'),
+      'Settings → Keys: note where the Primary connection string is — App & DevOps will need it.',
+    ], 'The item "site" with count 0 is listed.', 'The Function reads and updates this one item; seeding it means the first visit finds a number to add to instead of an error. The connection string is the account’s key: whoever holds it can read and write everything.'),
     rec(3, 'infra', 'Data store', ['Account, database, container.', 'Partition key and the seed item.'], 'The API spec’s data model.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'] }),
   T(3, 'dev', 'Build the visitor-counter Function', 'Create a Function App with an HTTP trigger that increments the counter, and show the count on the site.', 50,
-    ['Azure Functions', 'Bindings', 'Calling an API from a page'], ['The API returns a count', 'The site shows it'],
+    ['Azure Functions and the Consumption plan', 'Bindings', 'Calling an API from a page'], ['The API returns a count', 'The site shows it'],
     [doc('Create a function app (portal)', 'azure/azure-functions/functions-create-function-app-portal', 'the hosting choice — Consumption — and the Monitoring tab that enables Application Insights'),
-     doc('Cosmos DB bindings for Functions', 'azure/azure-functions/functions-bindings-cosmosdb-v2', 'the input and output binding tables: connection, database name, container name, and the id lookup')],
+     doc('Cosmos DB bindings for Functions (Node.js v4)', 'azure/azure-functions/functions-bindings-cosmosdb-v2-input?tabs=javascript-v4', 'the JavaScript v4 example: input.cosmosDB(...) with databaseName, containerName, connection and id — the four values the code below sets')],
     'Free: the Consumption plan includes 1 million executions a month for ever; Application Insights lives inside the free 5 GB of Log Analytics.', [
     portal(s(3, 'dev', 1), 'Create the Function App', 'Create a Consumption Function App for Node.js.', 'Azure portal — Function App → Create', [
-      'Resource group rg-capstone-team01. Name func-capstone-team01-XXXX.',
-      'Runtime Node.js 20, Windows, Consumption plan.',
-      'Monitoring: enable Application Insights. Create.',
-    ], 'The Function App is running.', 'Windows Consumption is the plan that lets you edit code in the portal, and it costs nothing at this scale.'),
-    portal(s(3, 'dev', 2), 'Add the counter function', 'Add an HTTP function with Cosmos DB bindings.', 'Function App → Functions → Create', [
-      'HTTP trigger, name visitorCount, authorization Anonymous.',
-      'Integration: input and output binding to Cosmos DB, database capstone, container visitors, id site.',
-      'Code: read count, add 1, write it back, return { count }.',
-    ], 'The function is listed and its Get function URL works.', 'Bindings do the database calls, so the code is four lines. The read-then-write is a known race — fine for a counter.', {
-      fixes: [{ symptom: 'Binding asks for a connection', fix: 'Choose New → your Cosmos DB account. The portal stores a connection setting; Week 5 replaces it with the identity.' }],
+      'Hosting option: Consumption (not Flex). Resource group rg-capstone-team01. Name func-capstone-team01 plus four digits.',
+      'Runtime stack Node.js 20, operating system Windows, East US.',
+      'Monitoring: enable Application Insights (a new one). Tags as in the standard. Create.',
+    ], 'The Function App is running.', 'func + capstone + team01: the Function App for the capstone, owned by team01, with digits because its URL is global. Windows Consumption lets you edit code in the portal, scales to zero, and costs nothing at this scale.', {
+      fixes: [
+        { symptom: 'Only Flex Consumption is offered', fix: 'On the first screen choose “Select a hosting option” → Consumption. Flex cannot be edited in the portal.' },
+        { symptom: 'A storage account is created too', fix: 'Expected: Functions keep their files in one. Leave it; it is inside the free 5 GB.' },
+      ],
+    }),
+    both(s(3, 'dev', 2), 'Add the counter function', 'Add an HTTP function with Cosmos DB bindings.', PORTAL, [
+      'Settings → Environment variables → Add: name CosmosConnection, value = the Primary connection string (Cosmos DB → Keys). Apply.',
+      'Overview → Create function → HTTP trigger, name visitorCount, authorization level Anonymous. Create.',
+      'Code + Test: replace the file’s contents with the code below. Save.',
+      'Test/Run: the output is {"count":1}.',
+    ], [
+      { cmd: `const { app, input, output } = require('@azure/functions');
+const counterIn = input.cosmosDB({ databaseName: 'capstone', containerName: 'visitors', connection: 'CosmosConnection', id: 'site', partitionKey: 'site' });
+const counterOut = output.cosmosDB({ databaseName: 'capstone', containerName: 'visitors', connection: 'CosmosConnection' });
+app.http('visitorCount', {
+  methods: ['GET'], authLevel: 'anonymous', extraInputs: [counterIn], extraOutputs: [counterOut],
+  handler: async (request, context) => {
+    const item = context.extraInputs.get(counterIn);
+    item.count += 1;
+    context.extraOutputs.set(counterOut, item);
+    return { jsonBody: { count: item.count } };
+  },
+});`, explain: 'Paste this over the whole file in Code + Test. The two bindings fetch and save the item; the handler adds one and returns it.', sample: '{"count":1}' },
+    ], ['count'], 'Bindings do the database calls, so the code is four lines: read, add one, write back, return. The read-then-write is a race — fine for a counter, not for money. The code never sees the key, only its name.', {
+      fixes: [
+        { symptom: 'Cannot find module @azure/functions', fix: 'The app was created on the v3 model. Delete it and recreate with Node.js 20; the v4 model is the default there.' },
+        { symptom: 'Test returns 500 and mentions CosmosConnection', fix: 'The setting is missing or the value is not the full connection string (AccountEndpoint=…;AccountKey=…;). Fix it and Apply.' },
+      ],
     }),
     both(s(3, 'dev', 3), 'Call it and show it', 'Call the API, then add the count to the page.', PORTAL, [
-      'The function → Get function URL → open it in a new tab: {"count":1}.',
-      'In site/index.html add fetch() of that URL writing the result into #visitor-count.',
-      'Upload the changed file to $web (Week 2 step) and reload.',
+      'The function → Get function URL → open it in a new tab: {"count":2}.',
+      'In site/index.html add a fetch() of that URL writing the result into #visitor-count (snippet below).',
+      'Upload the changed file to $web (Week 2 step) and reload the site.',
     ], [
-      { cmd: 'FUNC=https://func-capstone-team01-XXXX.azurewebsites.net; curl -s $FUNC/api/visitorCount', explain: 'Each call adds one. Then add fetch() of this URL to site/index.html, writing the result into #visitor-count, and upload again.', sample: '{"count":1}' },
-    ], ['count'], 'The page calls the API from the browser, which is why CORS matters next.'),
+      { cmd: 'FUNC=https://func-capstone-team01-XXXX.azurewebsites.net; curl -s $FUNC/api/visitorCount', explain: 'Each call adds one. Replace XXXX with your digits.', sample: '{"count":2}' },
+      { cmd: `<p>Visitors: <span id="visitor-count">…</span></p>
+<script>
+  fetch('https://func-capstone-team01-XXXX.azurewebsites.net/api/visitorCount')
+    .then((r) => r.json())
+    .then((d) => { document.getElementById('visitor-count').textContent = d.count; });
+</script>`, explain: 'Paste into index.html before </body>, with your own URL. The browser calls the API and writes the answer into the page.', sample: '(the page shows: Visitors: 3)' },
+    ], ['count'], 'The page calls the API from the visitor’s browser — there is no server. That is why CORS matters next: the browser only lets the page read the answer if the API says the site is allowed.', {
+      fixes: [{ symptom: 'The page shows “…” for ever', fix: 'Open DevTools → Console. “blocked by CORS policy” means the Security task is not done yet; a 404 means the URL is wrong.' }],
+    }),
     rec(3, 'dev', 'Endpoints', ['GET /api/visitorCount, what it returns, its status codes.'], 'The spec another developer would call your API from.'),
-  ]),
-  T(3, 'secops', 'Lock CORS and keep secrets out', 'Allow only your site to call the API from a browser, prove another origin is refused, and keep keys out of the page.', 45,
-    ['CORS', 'Negative tests', 'Key Vault references'], ['Only your site is allowed', 'A foreign origin is refused'],
+  ], { tools: ['Azure portal', 'A text editor', 'Browser DevTools'], prerequisites: ['The Cosmos DB account, database capstone and container visitors from the Infrastructure Admin, this week (and its connection string).', 'Your own site from Week 2.'] }),
+  T(3, 'secops', 'Lock CORS and move the key into Key Vault', 'Allow only your site to call the API, prove another origin is refused, and move the database key into Key Vault.', 55,
+    ['CORS and origins', 'Negative tests', 'Key Vault references and managed identity'], ['Only your site is allowed', 'A foreign origin is refused', 'The Cosmos setting is a Key Vault reference'],
     [doc('CORS on a function app', 'azure/azure-functions/functions-how-to-use-azure-function-app-settings#cors', 'the CORS blade: one origin per line, no trailing slash, and why * must not stay there'),
-     doc('Key Vault references in app settings', 'azure/app-service/app-service-key-vault-references', 'the @Microsoft.KeyVault(...) syntax — a setting that points at a secret instead of holding it')],
+     doc('Key Vault references in app settings', 'azure/app-service/app-service-key-vault-references', 'the @Microsoft.KeyVault(SecretUri=…) syntax, and the “Grant your app access to Key Vault” steps: system-assigned identity plus the Key Vault Secrets User role')],
     'Free: CORS is a setting. Key Vault costs about $0.03 per 10,000 operations — cents.', [
     both(s(3, 'secops', 1), 'Allow only your site', 'Set CORS to your site origin only.', PORTAL, [
       'The Function App → API → CORS.',
-      'Remove * if it is there. Add your site’s origin (https://…web.core.windows.net, no trailing slash). Save.',
+      'Remove * if it is there. Add your site’s origin (https://stwebteam01….web.core.windows.net, no trailing slash). Save.',
     ], [
       { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; SITE=https://stwebteam0118342.z13.web.core.windows.net', explain: 'Set these to your own names. The origin has no trailing slash.', sample: '(no output — the variables are set)' },
-      { cmd: 'az functionapp cors add -g $RG -n $FN --allowed-origins $SITE && az functionapp cors show -g $RG -n $FN', explain: 'Browsers only let pages from listed origins read the API’s answers.', sample: '"allowedOrigins": [ "https://stwebteam0118342.z13.web.core.windows.net" ]' },
-    ], ['allowedOrigins'], 'Remove "*" if the portal added it. A wildcard lets any website use your API from its visitors’ browsers.'),
+      { cmd: 'az functionapp cors add -g $RG -n $FN --allowed-origins $SITE && az functionapp cors show -g $RG -n $FN', explain: 'Browsers only let pages from listed origins read the API’s answers.', sample: '"allowedOrigins": [ "https://stwebteam0118342.z13.web.core.windows.net" ]', flags: [
+        { flag: '--allowed-origins', meaning: 'The scheme + host (+ port) of pages that may read answers. No path, no trailing slash.' },
+      ] },
+    ], ['allowedOrigins'], 'An origin is scheme + host + port. CORS is a browser rule: the API answers everyone, but a browser only lets a page read the answer if its origin is listed. A wildcard admits every website.'),
     cli(s(3, 'secops', 2), 'Prove a foreign origin is refused', 'Call the API as another website would.', [
-      { cmd: 'curl -s -D - -o /dev/null -H "Origin: https://evil.example" https://$FN.azurewebsites.net/api/visitorCount | grep -i access-control || echo "no CORS header — refused"', explain: 'A foreign origin gets no Access-Control-Allow-Origin header, so its browser discards the answer. The portal has no way to send a fake Origin; this one needs the shell.', sample: 'no CORS header — refused' },
-    ], ['refused'], 'CORS protects browsers, not the API: curl still gets a count. That is why the API holds no secrets.'),
-    portal(s(3, 'secops', 3), 'Keep secrets out of the page', 'Check the page and settings hold no key.', 'Browser DevTools, then the Function App', [
-      'View the site source: only the API URL, no key.',
-      'Function App → Environment variables: the Cosmos setting should be a Key Vault reference, not a raw key.',
-    ], 'No key in the page; the Cosmos setting points at Key Vault.', 'Anything in page source is public. Week 5 removes the key altogether.'),
-    rec(3, 'secops', 'CORS and secrets', ['The allowed origin, the negative test, where the credential lives.'], 'The first line of the secrets register.'),
-  ]),
+      { cmd: 'curl -s -D - -o /dev/null -H "Origin: https://evil.example" https://$FN.azurewebsites.net/api/visitorCount | grep -i access-control || echo "no CORS header — refused"', explain: 'A foreign origin gets no Access-Control-Allow-Origin header, so its browser discards the answer. The portal has no way to send a fake Origin; this one needs the shell.', sample: 'no CORS header — refused', flags: [
+        { flag: '-D -', meaning: 'Print the response headers, which is where the CORS answer lives.' },
+        { flag: '-H "Origin: …"', meaning: 'Pretend to be a page on evil.example, as a browser would announce.' },
+      ] },
+    ], ['refused'], 'CORS protects browsers, not the API: curl still gets a count. That is why the API must hold no secrets and the key must live somewhere the page never sees.'),
+    both(s(3, 'secops', 3), 'Create the vault and store the key', 'Put the Cosmos connection string in Key Vault.', PORTAL, [
+      'Key vaults → Create. Group rg-capstone-team01, name kv-capstone-team01 plus four digits, East US, permission model: Azure RBAC. Tags. Create.',
+      'The vault → Access control (IAM) → Add role assignment → Key Vault Secrets Officer → yourself.',
+      'Objects → Secrets → Generate/Import: name CosmosConnection, value = the Primary connection string (Cosmos DB → Keys). Create.',
+      'Open the secret → the current version → copy the Secret Identifier (a URL).',
+    ], [
+      { cmd: 'KV=kv-capstone-team01-$RANDOM; az keyvault create -g $RG -n $KV --enable-rbac-authorization true --tags project=capstone team=team01 env=dev owner=team01-secops; echo $KV', explain: 'A vault in RBAC mode: who may read secrets is an Azure role, the same model as everything else.', sample: 'kv-capstone-team01-18342', flags: [
+        { flag: '--enable-rbac-authorization true', meaning: 'Use Azure roles for secret access instead of the older per-vault access policies.' },
+      ] },
+      { cmd: 'az role assignment create --role "Key Vault Secrets Officer" --assignee $(az ad signed-in-user show --query id -o tsv) --scope $(az keyvault show -n $KV --query id -o tsv) -o none; sleep 30; CS=$(az cosmosdb keys list -g $RG -n cosmos-capstone-team01-XXXX --type connection-strings --query "connectionStrings[0].connectionString" -o tsv); az keyvault secret set --vault-name $KV -n CosmosConnection --value "$CS" --query id -o tsv', explain: 'Gives you the right to write secrets, waits for it to apply, then stores the connection string. The printed id is the Secret Identifier.', sample: 'https://kv-capstone-team01-18342.vault.azure.net/secrets/CosmosConnection/3f2a…' },
+    ], ['vault.azure.net/secrets/CosmosConnection'], 'A vault is a safe with an audit log: the key has one home, and every read is recorded. Secrets Officer may write secrets; the Function gets Secrets User: read only. Vault names are global, hence the digits.', {
+      fixes: [{ symptom: 'Forbidden when creating the secret', fix: 'The Secrets Officer role has not applied yet (up to a few minutes), or you skipped it. Wait, refresh, retry.' }],
+    }),
+    both(s(3, 'secops', 4), 'Point the Function at the vault', 'Give the Function an identity and a Key Vault reference.', PORTAL, [
+      'Function App → Settings → Identity → System assigned → Status On → Save. Copy the Object ID.',
+      'The vault → Access control (IAM) → Add role assignment → Key Vault Secrets User → Managed identity → the Function App.',
+      'Function App → Environment variables → CosmosConnection → value: @Microsoft.KeyVault(SecretUri=<the Secret Identifier>) → Apply. Restart the app.',
+      'Reload the site: the counter still counts. The setting shows a green “Key vault reference” mark.',
+    ], [
+      { cmd: 'PID=$(az functionapp identity assign -g $RG -n $FN --query principalId -o tsv); az role assignment create --role "Key Vault Secrets User" --assignee-object-id $PID --assignee-principal-type ServicePrincipal --scope $(az keyvault show -n $KV --query id -o tsv) -o none; echo $PID', explain: 'Turns on the Function’s system-assigned identity and lets it read secrets from this vault only.', sample: '7d3e1b2c-…', flags: [
+        { flag: 'identity assign', meaning: 'Create the Function’s own identity in Entra ID; no password, rotated by Azure.' },
+        { flag: '--role "Key Vault Secrets User"', meaning: 'Read secret values, nothing else.' },
+      ] },
+      { cmd: 'URI=$(az keyvault secret show --vault-name $KV -n CosmosConnection --query id -o tsv); az functionapp config appsettings set -g $RG -n $FN --settings "CosmosConnection=@Microsoft.KeyVault(SecretUri=$URI)" --query "[?name==\'CosmosConnection\'].value" -o tsv; az functionapp restart -g $RG -n $FN', explain: 'Replaces the raw key with a pointer to the secret. The Function resolves it with its identity at start-up.', sample: '@Microsoft.KeyVault(SecretUri=https://kv-capstone-team01-18342.vault.azure.net/secrets/CosmosConnection/3f2a…)' },
+    ], ['@Microsoft.KeyVault'], 'A managed identity is a sign-in Azure gives the Function: no password to store, rotated for you. With Secrets User on the vault, the Function reads the key at start-up and nobody else needs it. Week 5 removes it.', {
+      fixes: [
+        { symptom: 'The setting shows a red X and the counter fails', fix: 'The role has not applied yet, or the identity is off. Wait two minutes and Restart; check the SecretUri has no spaces.' },
+        { symptom: 'Object ID not found when assigning the role', fix: 'You chose “User” instead of “Managed identity” in the assignment. Pick Managed identity → Function App.' },
+      ],
+    }),
+    rec(3, 'secops', 'CORS and secrets', ['The allowed origin, the negative test, where the credential lives (Key Vault, secret CosmosConnection).'], 'The first line of the secrets register.'),
+  ], { tools: ['Azure portal', 'Cloud Shell'], prerequisites: ['The Function App and its URL from App & DevOps, this week.', 'The site URL from Week 2 (App & DevOps).'] }),
 
   // ── Week 4 — Operate ───────────────────────────────────────────────────
   T(4, 'arch', 'Report the cost to date', 'Read what the environment has cost so far, by service, and name the largest line.', 30,
-    ['Cost analysis', 'Cost by service'], ['Spend and largest cost reported'],
+    ['Cost analysis', 'Cost by service', 'Why cost data lags'], ['Spend and largest cost reported'],
     [doc('Explore costs with cost analysis', 'azure/cost-management-billing/costs/quick-acm-cost-analysis', 'the “Group by” control and the Service name option — that is your per-service table')],
-    'Free: cost analysis.', [
+    'Free: cost analysis. It lags 8–24 hours, so today’s VM hours are not in it yet.', [
     both(s(4, 'arch', 1), 'Read the cost', 'Group cost by service for this month.', PORTAL, [
       'Cost Management → Cost analysis. Scope: rg-capstone-team01.',
       'View: Accumulated costs. Group by: Service name.',
-      'Compare with your Week 2 estimate.',
+      'Read the table under the chart: service, cost. Compare with your Week 2 estimate.',
+      'Budgets → budget-capstone-team01: how much of the $5 is used.',
     ], [
-      { cmd: 'az consumption usage list --start-date $(date +%Y-%m-01) --end-date $(date +%F) --query "[].{service:consumedService, cost:pretaxCost}" -o table | sort | uniq -c | head', explain: 'Usage rows for the month; the portal view is easier to read.', sample: 'Service                    Cost\nMicrosoft.Compute          0.31\nMicrosoft.Network          0.24' },
-    ], ['Microsoft.'], 'Actual cost against the estimate is how you find what you forgot to switch off.'),
+      { cmd: 'az consumption usage list --start-date $(date +%Y-%m-01) --end-date $(date +%F) --query "[].[consumedService, pretaxCost]" -o tsv | awk \'{c[$1]+=$2} END {for (s in c) printf "%-28s %.2f\\n", s, c[s]}\'', explain: 'Usage rows for the month, added up per service. The portal view is the main path; this API is not available on every subscription offer.', sample: 'Microsoft.Compute            0.31\nMicrosoft.Network            0.24\nMicrosoft.Storage            0.01' },
+    ], ['Microsoft.'], 'Actual cost is how you find what you forgot to switch off. Microsoft.Network is the public IP; Microsoft.Compute is VM hours — if it is not near zero, the VM was left running. Cost data arrives a day late.', {
+      fixes: [
+        { symptom: 'Cost analysis is empty', fix: 'Data takes 8–24 hours after a resource first bills; free-tier hours show as $0. Come back tomorrow and record the date you read it.' },
+        { symptom: 'Not supported for this offer (shell)', fix: 'The consumption API is off on student and sponsorship offers. Use the portal; that is the main path.' },
+      ],
+    }),
     rec(4, 'arch', 'Cost this week', ['Spend to date, and the largest cost with its reason.'], 'Week 11 turns this into the cost report.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'] }),
   T(4, 'infra', 'Alert on Function errors', 'Create an action group and an alert that emails when the Function returns server errors.', 40,
-    ['Metric alerts', 'Action groups'], ['The alert exists and emails the team'],
+    ['Metric alerts', 'Action groups', 'Why errors, not CPU'], ['The alert exists and emails the team'],
     [doc('Create a metric alert rule', 'azure/azure-monitor/alerts/alerts-create-metric-alert-rule', 'the Condition pane: signal Http5xx, aggregation Total, threshold 0 — and the Actions tab where the action group goes'),
      doc('Action groups', 'azure/azure-monitor/alerts/action-groups', 'the Notifications table — Email is free; SMS and voice are not')],
     'Free: the first ten metric alert rules and email notifications cost nothing.', [
     both(s(4, 'infra', 1), 'Create the action group', 'Create an action group that emails the team.', PORTAL, [
-      'Monitor → Alerts → Action groups → Create. Group rg-capstone-team01, name ag-capstone-team01, short name capstone.',
-      'Notifications: Email, the team address. Review + create.',
+      'Monitor → Alerts → Action groups → Create. Group rg-capstone-team01, name ag-capstone-team01, display name capstone.',
+      'Notifications: Email/SMS/Push/Voice → Email → the team address; name team-email. Review + create.',
+      'Check the inbox: Azure sends a “you were added to an action group” email.',
     ], [
-      { cmd: 'RG=rg-capstone-team01; az monitor action-group create -g $RG -n ag-capstone-team01 --short-name capstone --action email team team01-alerts@school.edu', explain: 'An action group is who gets told and how. Alerts point at it.', sample: '"groupShortName": "capstone",\n"enabled": true' },
-    ], ['capstone'], 'One action group, many alerts: change the email once.'),
+      { cmd: 'RG=rg-capstone-team01; az monitor action-group create -g $RG -n ag-capstone-team01 --short-name capstone --action email team team01-alerts@school.edu', explain: 'An action group is who gets told and how. Alerts point at it.', sample: '"groupShortName": "capstone",\n"enabled": true', flags: [
+        { flag: '--short-name', meaning: 'Up to 12 characters; appears in the subject line of every alert email.' },
+        { flag: '--action email team <address>', meaning: 'One receiver: type email, named team, this address.' },
+      ] },
+    ], ['capstone'], 'ag-capstone-team01: the action group for the capstone, owned by team01. One action group, many alerts: change the email once. Email is free; SMS and voice calls are not, which is why the course stays on email.'),
     both(s(4, 'infra', 2), 'Create the alert', 'Alert when Http5xx is above zero in five minutes.', PORTAL, [
-      'The Function App → Alerts → Create alert rule.',
-      'Signal Http5xx, Total, greater than 0; check every 1 minute, lookback 5 minutes.',
-      'Actions: ag-capstone-team01. Name alert-func-5xx-team01. Create.',
+      'The Function App → Monitoring → Alerts → Create → Alert rule.',
+      'Condition: signal Http5xx; threshold Static, aggregation Total, operator Greater than, value 0; check every 1 minute, lookback 5 minutes.',
+      'Actions: ag-capstone-team01. Details: severity 2, name alert-func-5xx-team01. Review + create.',
     ], [
-      { cmd: 'FNID=$(az functionapp show -g $RG -n func-capstone-team01-XXXX --query id -o tsv); az monitor metrics alert create -g $RG -n alert-func-5xx-team01 --scopes $FNID --condition "total Http5xx > 0" --window-size 5m --evaluation-frequency 1m --action ag-capstone-team01', explain: 'Http5xx counts server errors. Any error in five minutes fires the alert.', sample: '"name": "alert-func-5xx-team01",\n"enabled": true,\n"severity": 2' },
-    ], ['alert-func-5xx-team01'], 'Errors are the signal users feel. CPU on a serverless app tells you little.'),
+      { cmd: 'FNID=$(az functionapp show -g $RG -n func-capstone-team01-XXXX --query id -o tsv); az monitor metrics alert create -g $RG -n alert-func-5xx-team01 --scopes $FNID --condition "total Http5xx > 0" --window-size 5m --evaluation-frequency 1m --action ag-capstone-team01', explain: 'Http5xx counts server errors. Any error in five minutes fires the alert.', sample: '"name": "alert-func-5xx-team01",\n"enabled": true,\n"severity": 2', flags: [
+        { flag: '--scopes', meaning: 'The resource whose metric is watched — the Function App’s id.' },
+        { flag: '--condition "total Http5xx > 0"', meaning: 'Sum the 5xx responses in the window; fire when there is at least one.' },
+        { flag: '--window-size 5m --evaluation-frequency 1m', meaning: 'Look back five minutes, check every minute.' },
+      ] },
+    ], ['alert-func-5xx-team01'], 'Http5xx means the server failed — the signal users feel. CPU on a serverless app tells you nothing: there is no server to be busy. This week’s App & DevOps drill breaks the Function on purpose: expect an email.', {
+      fixes: [{ symptom: 'No email during the drill', fix: 'Check the action group email was confirmed, and that the alert scope is the Function App (not the plan). Alerts can take up to ten minutes the first time.' }],
+    }),
     rec(4, 'infra', 'Signals', ['The signal, where it is measured, the threshold, the action.'], 'The monitoring half of the incident report.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell'], prerequisites: ['The Function App from App & DevOps (Week 3).'] }),
   T(4, 'dev', 'Find a failure in Application Insights', 'Break the API on purpose, find the exception in Application Insights, and restore it.', 45,
-    ['Application Insights', 'Failures view', 'Log queries'], ['The exception is found', 'The API works again'],
+    ['Application Insights', 'Failures view', 'Reading an exception'], ['The exception is found', 'The API works again'],
     [doc('Failures and performance views', 'azure/azure-monitor/app/failures-and-performance-views', 'the Failures pane: Operations tab, then “Drill into” a failed sample to read the exception')],
     'Free: Application Insights data stays well inside the free 5 GB a month.', [
     both(s(4, 'dev', 1), 'Break it', 'Rename the Cosmos setting so the Function fails.', PORTAL, [
-      'Function App → Environment variables. Copy the Cosmos connection setting’s name somewhere safe.',
-      'Rename it by adding _OFF. Apply.',
-      'Load the site twice: the counter fails.',
+      'Function App → Settings → Environment variables → CosmosConnection → rename it to CosmosConnection_OFF. Apply. Confirm the restart.',
+      'Load the site twice: the counter shows “…” and never fills.',
     ], [
-      { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; az functionapp config appsettings list -g $RG -n $FN --query "[?contains(name, \'Cosmos\') || contains(name, \'cosmos\')].name" -o tsv', explain: 'Finds the setting’s name; rename it in the portal, or delete and re-add it later from the value you copied.', sample: 'CosmosConnection' },
-    ], ['Cosmos'], 'Breaking it yourself means you know the answer, so you can learn the tool that finds it.'),
+      { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; V=$(az functionapp config appsettings list -g $RG -n $FN --query "[?name==\'CosmosConnection\'].value" -o tsv); az functionapp config appsettings set -g $RG -n $FN --settings "CosmosConnection_OFF=$V" -o none; az functionapp config appsettings delete -g $RG -n $FN --setting-names CosmosConnection -o none; echo renamed', explain: 'Copies the value under a new name and removes the original. The binding looks for CosmosConnection and finds nothing.', sample: 'renamed' },
+    ], ['renamed'], 'Breaking it yourself means you know the answer. The binding asks for a setting named CosmosConnection; with the name changed, every request is a 500. The Infra Admin’s alert should email within five minutes.'),
     portal(s(4, 'dev', 2), 'Find it', 'Find the exception in Application Insights.', 'Application Insights → Failures', [
-      'Operations tab: visitorCount shows failed requests.',
-      'Open a sample: the exception names the missing setting.',
-    ], 'An exception naming the missing Cosmos setting.', 'The exception names the layer — configuration — before you open any code.'),
-    portal(s(4, 'dev', 3), 'Restore it', 'Rename the setting back and retest.', 'Function App → Environment variables', [
-      'Remove _OFF, Apply, reload the site.',
-    ], 'The counter shows a number again.', 'A fix is not done until the retest passes.'),
+      'Function App → Application Insights → View Application Insights data → Failures.',
+      'Operations tab: visitorCount shows failed requests. Click the count.',
+      'Drill into a sample: the exception says the connection setting CosmosConnection is missing.',
+    ], 'An exception naming the missing Cosmos setting.', 'The exception names the layer — configuration — before you open any code. Reading the message top to bottom: what failed (the binding), why (setting not found), where (the function name). That order is the whole skill.', {
+      fixes: [{ symptom: 'No failures yet', fix: 'Telemetry arrives after one to three minutes. Reload the site a few more times and refresh.' }],
+    }),
+    both(s(4, 'dev', 3), 'Restore it', 'Rename the setting back and retest.', PORTAL, [
+      'Environment variables → CosmosConnection_OFF → rename to CosmosConnection. Apply.',
+      'Reload the site: the counter shows a number again.',
+    ], [
+      { cmd: 'V=$(az functionapp config appsettings list -g $RG -n $FN --query "[?name==\'CosmosConnection_OFF\'].value" -o tsv); az functionapp config appsettings set -g $RG -n $FN --settings "CosmosConnection=$V" -o none; az functionapp config appsettings delete -g $RG -n $FN --setting-names CosmosConnection_OFF -o none; sleep 20; curl -s https://$FN.azurewebsites.net/api/visitorCount', explain: 'Puts the name back and calls the API. A count means it is fixed.', sample: '{"count":14}' },
+    ], ['count'], 'A fix is not done until the retest passes. Note the times: broke at, alerted at, found at, fixed at — those four numbers are the incident report.'),
     rec(4, 'dev', 'Signals', ['Add a signal row for exceptions in Application Insights.'], 'Your half of the monitoring table.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell', 'Browser DevTools'] }),
   T(4, 'secops', 'Work one incident layer by layer', 'Break CORS on purpose, then work it as an incident: symptom, layer, evidence, root cause, fix, prevention.', 45,
-    ['ITIL incident management', 'Layer-by-layer troubleshooting'], ['An incident record with all six parts'],
+    ['ITIL incident management', 'Layer-by-layer troubleshooting', 'Reading DevTools'], ['An incident record with all six parts'],
     [doc('CORS on a function app', 'azure/azure-functions/functions-how-to-use-azure-function-app-settings#cors', 'what the browser console says when an origin is missing — “blocked by CORS policy” names the layer for you')],
     'Free: settings and a browser.', [
     both(s(4, 'secops', 1), 'Inject the fault', 'Remove your site from CORS.', PORTAL, [
       'The Function App → API → CORS → delete your site’s origin → Save.',
+      'Note the time. Reload the site: the counter is missing.',
     ], [
       { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; SITE=https://stwebteam0118342.z13.web.core.windows.net; az functionapp cors remove -g $RG -n $FN --allowed-origins $SITE', explain: 'The page will still load, but its script can no longer read the count.', sample: '"allowedOrigins": []' },
-    ], ['allowedOrigins'], 'A realistic fault: nothing is “down”, one feature silently stops.'),
+    ], ['allowedOrigins'], 'A realistic fault: nothing is “down”, one feature silently stops, and no alert fires because the API still answers 200. Most real incidents look like this — not an outage, a change.'),
     portal(s(4, 'secops', 2), 'Find the layer', 'Follow the symptom down the layers.', 'Browser DevTools → Console and Network', [
-      'Symptom: the count is missing.',
-      'Network tab: the API returned 200 — the network and app layers work.',
-      'Console: “blocked by CORS policy” — the configuration layer.',
-    ], 'The console names CORS as the cause.', 'Working down the layers stops you fixing what is not broken.'),
+      'Symptom: the count is missing. Open DevTools (F12) and reload.',
+      'Network tab: the visitorCount request shows status 200 — the network and the Function work.',
+      'Console tab: “blocked by CORS policy: No Access-Control-Allow-Origin header” — the configuration layer.',
+      'Evidence: screenshot the console line.',
+    ], 'The console names CORS as the cause.', 'Working down the layers — page, network, API, configuration, data — stops you fixing what is not broken. A 200 in the Network tab rules out three layers in one look; the console message names the fourth.'),
     both(s(4, 'secops', 3), 'Fix and retest', 'Add the origin back and reload.', PORTAL, [
-      'API → CORS → add your site’s origin back → Save. Reload the site.',
+      'API → CORS → add your site’s origin back → Save. Reload the site: the count returns. Note the time.',
     ], [
       { cmd: 'az functionapp cors add -g $RG -n $FN --allowed-origins $SITE', explain: 'Restores the rule. Reload the site: the count returns.', sample: '"allowedOrigins": [ "https://stwebteam0118342.z13.web.core.windows.net" ]' },
-    ], ['allowedOrigins'], 'Week 10 puts CORS in the template, so drift like this is corrected by the next deploy.'),
+    ], ['allowedOrigins'], 'Fix, retest, then prevention: Week 10 puts CORS in the template, so drift like this is corrected by the next deploy. Root cause is “the setting changed”; prevention is “the setting is code”.'),
     rec(4, 'secops', 'Incident record', ['Symptom, layer, evidence, root cause, fix, prevention.'], 'Week 12 runs this loop again under time pressure.'),
-  ]),
+  ], { tools: ['Azure portal', 'Cloud Shell', 'Browser DevTools'] }),
 
   // ── Week 5 — Identity ──────────────────────────────────────────────────
   T(5, 'arch', 'Write the access matrix', 'List every principal, its role and scope, with a justification for each.', 35,

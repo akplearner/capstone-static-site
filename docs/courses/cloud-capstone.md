@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -156,6 +156,37 @@ Three steps in the whole plan are shell-only, because the portal cannot do
 them: the two forged-Origin CORS tests (`curl`) and the Cosmos DB data-plane
 role assignment. `cloudCourses.test.ts` lists them with the reason; any other
 step with commands must also carry its portal clicks.
+
+## The entry courses, written for a first-time reader (R93)
+
+Weeks 1–4 (AZ-900 and CLF-C02) were reviewed step by step and rewritten so
+that a student who has never opened a cloud console can follow them:
+
+* **Every step says why** — what the thing is, why it is done this way, and
+  what goes wrong otherwise — in "Why, and if it breaks" (≤ 40 words, guarded).
+  Every name is read out where it first appears: `nsg-snet-app-team01` is
+  *the NSG that guards subnet snet-app, owned by team01*.
+* **Every flag in Weeks 1–2 is explained** under the command (`flags`), and
+  the shell alternative is never the only path.
+* **Variations sit side by side** where the student's situation decides:
+  SSH from Windows vs macOS/Linux, an Azure free account vs Azure for
+  Students, an own AWS account vs an AWS Academy Learner Lab.
+* **"Needs from a teammate"** states the real cross-role timing (Security's
+  SSH test needs Infra's VM and key; Dev's function needs Infra's database;
+  Security's CORS lock needs Dev's API; Infra's alert needs Dev's function).
+* **What was missing or wrong, now fixed:** the function code is given in
+  full (Node.js v4 model on Azure, the template's Python on AWS); Week 3
+  Security on Azure builds the whole Key Vault path (vault → secret →
+  Function identity → Secrets User → `@Microsoft.KeyVault(...)` reference,
+  with the template's role assignment moved to Week 3 to match); the SSH
+  test names the key, its owner and `-i`; the laptop-vs-Cloud Shell `$MYIP`
+  gap; CloudFront's WAF checkbox (≈ $14/month) is switched off; Cost
+  Explorer is enabled in Week 1 because it needs a day; the counter item is
+  `site` in tasks, templates and forms; AWS gateways and route tables are
+  tagged so the Week 9 inventory finds them.
+* A glossary tooltip (`src/lib/glossary.ts`) now covers the cloud
+  vocabulary — resource group, VNet/VPC, NSG/security group, CIDR, RBAC/IAM,
+  managed identity, CORS, serverless, partition key and the rest.
 
 ## Honest limits, stated in the course
 

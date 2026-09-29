@@ -5,6 +5,8 @@ import { AWS_BLOCKS, AWS_COURSES } from './seed/awsCloud';
 import { seedDeliverablesForCourse } from '../docs/definitions';
 import type { DeliverableDef } from '../docs/types';
 import { isGradedWeek } from '../course-helpers';
+import { AZURE_IAC } from '../cloud/azureIac';
+import { AWS_IAC } from '../cloud/awsIac';
 
 /**
  * R87/R90 — the cloud capstones' own contract, on top of the platform-wide
@@ -33,6 +35,38 @@ const SHELL_ONLY: Record<string, string> = {
   'aws-w3-secops-s2': 'a forged Origin header: only curl can send one',
   'az-w5-dev-s2': 'Cosmos DB data-plane roles are assigned by CLI only; the portal has no page for them',
 };
+
+// R93 — the entry courses (global Weeks 1–4) are read by students who have
+// never seen a cloud console: every step carries a real reason, every
+// non-obvious flag is explained, cross-role timing is stated, and the counter
+// item is called the same thing everywhere.
+const ENTRY_WEEKS = 4;
+/** Commands whose flags need no breakdown: the reader already knows them or there are none. */
+const PLAIN = /^(curl|echo|ls|cat|MYIP=|RG=|FN=|SITE=|API=|VOL=|SUB=|SG=|VPC=|IID=|PID=|URI=|KV=|WEB=|COSMOS=|BUCKET=|TAGS=|ACCT=|\{|<|const |import )/;
+/** Task id → the role whose work it needs first (a substring of `prerequisites`). */
+const NEEDS: Record<string, string> = {
+  'az-w2-secops': 'Infrastructure', 'aws-w2-secops': 'Infrastructure',
+  'az-w3-dev': 'Infrastructure', 'aws-w3-dev': 'Infrastructure',
+  'az-w3-secops': 'App & DevOps', 'aws-w3-secops': 'App & DevOps',
+  'az-w4-infra': 'App & DevOps', 'aws-w4-infra': 'App & DevOps',
+};
+
+function r93Problems(t: Task, authoredWeek: number): string[] {
+  const out: string[] = [];
+  if (authoredWeek < 1 || authoredWeek > ENTRY_WEEKS) return out;
+  for (const s of t.steps) {
+    if (s.usesForm) continue;
+    if (words(s.whatItMeans ?? '') < 12) out.push(`${s.id}: the reason is ${words(s.whatItMeans ?? '')} words — a label, not an explanation`);
+    if (authoredWeek <= 2) {
+      for (const c of s.commands ?? []) {
+        if (/\s--?[a-z]/.test(c.cmd) && !PLAIN.test(c.cmd) && !c.flags?.length) out.push(`${s.id}: "${c.cmd.slice(0, 40)}" has flags but no breakdown`);
+      }
+    }
+  }
+  const need = NEEDS[t.id];
+  if (need && !t.prerequisites?.some((p) => p.includes(need))) out.push(`${t.id}: needs ${need}'s work first but does not say so`);
+  return out;
+}
 
 function r92Problems(t: Task): string[] {
   const out: string[] = [];
@@ -117,6 +151,14 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     }
   });
 
+  it('R93 — a reason on every step, flags explained in the first two weeks, teammate timing stated', () => {
+    const first = course.weeks.find((w) => w.number === 1)!;
+    // The course's local week 1 is the block's first global week.
+    const base = id.includes('fundamentals') || id.includes('practitioner') ? 0 : id.includes('administrator') || id.includes('solutions') ? 4 : 8;
+    expect(first.number).toBe(1);
+    expect(course.tasks.flatMap((t) => r93Problems(t, t.week === 0 ? 0 : base + t.week))).toEqual([]);
+  });
+
   it('every task carries this course’s own exam tag, not another quarter’s', () => {
     const tag = course.certification!.includes('AZ-900') ? 'AZ_900' : course.certification!.includes('AZ-104') ? 'AZ_104' : course.certification!.includes('AZ-400') ? 'AZ_400'
       : course.certification!.includes('CLF') ? 'AWS_CLF' : course.certification!.includes('SAA') ? 'AWS_SAA' : 'AWS_DOP';
@@ -185,7 +227,7 @@ describe('R90 — the guards catch what they claim to', () => {
     const long = { ...good, estimatedTime: '90 min', steps: [...good.steps, good.steps[0], good.steps[0]].map((s, i) => (i === 0 ? { ...s, instruction: 'one two three four five six seven eight nine ten eleven twelve thirteen' } : s)) };
     const problems = taskProblems(long).join();
     expect(problems).toContain('over an hour');
-    expect(problems).toContain('6 steps');
+    expect(problems).toContain(`${good.steps.length + 2} steps`);
     expect(problems).toContain('13 words');
   });
 
@@ -197,6 +239,37 @@ describe('R90 — the guards catch what they claim to', () => {
     expect(r92Problems({ ...good, freeTier: 'Free.' }).join()).toContain('never says to stop');
     const shellOnly = { ...good, steps: good.steps.map((s) => (s.commands ? { ...s, instructionList: undefined } : s)) };
     expect(r92Problems(shellOnly).join()).toContain('shell only');
+  });
+
+  it('R93: a label instead of a reason, a bare flag, a task that hides what it needs', () => {
+    const bad = { ...good, steps: good.steps.map((s) => (s.usesForm ? s : { ...s, whatItMeans: 'Because.' })) };
+    expect(r93Problems(bad, 1).join()).toContain('a label, not an explanation');
+    const bare = { ...good, steps: good.steps.map((s) => ({ ...s, commands: s.commands?.map((c) => ({ ...c, flags: undefined })) })) };
+    expect(r93Problems(bare, 1).join()).toContain('no breakdown');
+    const quiet = { ...AZURE_COURSES[0].tasks.find((t) => t.id === 'az-w2-secops')!, prerequisites: undefined };
+    expect(r93Problems(quiet, 2).join()).toContain('does not say so');
+    // Weeks after the entry courses are not held to the flag rule.
+    expect(r93Problems(bare, 5)).toEqual([]);
+  });
+
+  it('R93: the counter item is called "site" in the tasks, the templates and the Week 3 form', () => {
+    const azFlow = AZURE_COURSES[0].tasks.find((t) => t.id === 'az-w3-arch')!.steps.flatMap((s) => s.instructionList ?? []).join(' ');
+    const awsFlow = AWS_COURSES[0].tasks.find((t) => t.id === 'aws-w3-arch')!.steps.flatMap((s) => s.instructionList ?? []).join(' ');
+    expect(azFlow).toContain('"site"');
+    expect(awsFlow).toContain('"site"');
+    expect(AWS_IAC.full.text).toMatch(/Key=\{"id": "site"\}/);
+    expect(AWS_IAC.full.text).not.toContain('count1');
+    expect(AZURE_IAC.full.text).not.toContain('count1');
+    const code = AWS_COURSES[0].tasks.find((t) => t.id === 'aws-w3-dev')!.steps.flatMap((s) => (s.commands ?? []).map((c) => c.cmd)).join('\n');
+    expect(code).toContain('Key={"id": "site"}');
+  });
+
+  it('R93: Azure Week 3 agrees on the setting name CosmosConnection across dev, security and the Week 4 drill', () => {
+    const text = (id: string) => JSON.stringify(AZURE_COURSES[0].tasks.find((t) => t.id === id)!);
+    for (const id of ['az-w3-dev', 'az-w3-secops', 'az-w4-dev']) expect(text(id), id).toContain('CosmosConnection');
+    expect(text('az-w3-secops')).toContain('@Microsoft.KeyVault(SecretUri=');
+    // The template's Secrets User role now arrives with the vault, in Week 3.
+    expect(AZURE_IAC.resources.find((r) => r.id === 'kvRoleFunc')!.week).toBe(3);
   });
 
   it('a document without its control block', () => {
