@@ -79,6 +79,10 @@ export interface CloudNode {
   week: number;
   /** Draw small: supporting resources (NIC, role assignment, diagnostic setting). */
   small?: boolean;
+  /** R94: template plumbing a beginner does not need in the picture (a route-table
+   *  association, an API stage, a runtime storage account). Drawn only with
+   *  "Show template details"; always `small`. */
+  detail?: boolean;
   /** Not in the template: people, GitHub, the internet. */
   external?: boolean;
 }

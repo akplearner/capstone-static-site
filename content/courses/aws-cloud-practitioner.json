@@ -4132,7 +4132,7 @@
       "topology": {
         "platform": "aws",
         "title": "The company in AWS — what template.yaml builds",
-        "howToRead": "Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Orange arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Template dependencies\" to see !Ref and DependsOn. Icons are the official AWS Architecture Icons.",
+        "howToRead": "Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Orange arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Show template details\" to see the plumbing, !Ref and DependsOn. Icons are the official AWS Architecture Icons.",
         "width": 1100,
         "height": 640,
         "containers": [
@@ -4152,10 +4152,10 @@
             "kind": "region",
             "label": "Region",
             "sub": "us-east-1",
-            "x": 250,
+            "x": 272,
             "y": 30,
-            "w": 736,
-            "h": 588,
+            "w": 714,
+            "h": 600,
             "week": 1
           },
           {
@@ -4164,9 +4164,9 @@
             "label": "VPC",
             "sub": "vpc-capstone-team01 · 10.10.0.0/16",
             "x": 650,
-            "y": 84,
+            "y": 70,
             "w": 326,
-            "h": 396,
+            "h": 450,
             "week": 1
           },
           {
@@ -4175,9 +4175,9 @@
             "label": "Availability Zone",
             "sub": "us-east-1a",
             "x": 664,
-            "y": 118,
+            "y": 150,
             "w": 298,
-            "h": 350,
+            "h": 360,
             "week": 1
           },
           {
@@ -4186,9 +4186,9 @@
             "label": "Public subnet",
             "sub": "10.10.1.0/24",
             "x": 678,
-            "y": 152,
+            "y": 184,
             "w": 270,
-            "h": 176,
+            "h": 200,
             "week": 1
           },
           {
@@ -4197,9 +4197,9 @@
             "label": "Private subnet",
             "sub": "10.10.2.0/24 · no internet route",
             "x": 678,
-            "y": 342,
+            "y": 392,
             "w": 270,
-            "h": 112,
+            "h": 100,
             "week": 6
           },
           {
@@ -4207,10 +4207,10 @@
             "kind": "group",
             "label": "Account level",
             "sub": "IAM · Budgets",
-            "x": 126,
-            "y": 430,
-            "w": 122,
-            "h": 182,
+            "x": 112,
+            "y": 40,
+            "w": 140,
+            "h": 100,
             "week": 1
           }
         ],
@@ -4220,7 +4220,7 @@
             "icon": "github",
             "label": "GitHub",
             "x": 55,
-            "y": 70,
+            "y": 150,
             "week": 1,
             "external": true
           },
@@ -4229,7 +4229,7 @@
             "icon": "user",
             "label": "Visitors",
             "x": 55,
-            "y": 300,
+            "y": 330,
             "week": 2,
             "external": true
           },
@@ -4238,7 +4238,7 @@
             "icon": "user",
             "label": "Team admin",
             "x": 1055,
-            "y": 230,
+            "y": 262,
             "week": 2,
             "external": true
           },
@@ -4248,7 +4248,7 @@
             "label": "CloudFront",
             "name": "d…cloudfront.net",
             "x": 185,
-            "y": 150,
+            "y": 205,
             "week": 2
           },
           {
@@ -4256,7 +4256,7 @@
             "icon": "oac",
             "label": "OAC",
             "x": 185,
-            "y": 225,
+            "y": 283,
             "week": 2,
             "small": true
           },
@@ -4264,8 +4264,8 @@
             "id": "ReadOnlyGroup",
             "icon": "group",
             "label": "Read-only",
-            "x": 187,
-            "y": 487,
+            "x": 145,
+            "y": 100,
             "week": 5,
             "small": true
           },
@@ -4273,8 +4273,8 @@
             "id": "MonthlyBudget",
             "icon": "budget",
             "label": "Budget $5",
-            "x": 187,
-            "y": 568,
+            "x": 212,
+            "y": 100,
             "week": 1,
             "small": true
           },
@@ -4283,71 +4283,76 @@
             "icon": "storage",
             "label": "Amazon S3",
             "name": "site bucket (private)",
-            "x": 330,
-            "y": 150,
+            "x": 340,
+            "y": 205,
             "week": 2
           },
           {
             "id": "SiteBucketPolicy",
             "icon": "bucketpolicy",
             "label": "Bucket policy",
-            "x": 262,
-            "y": 225,
+            "x": 315,
+            "y": 283,
             "week": 2,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "HttpApi",
             "icon": "api",
             "label": "API Gateway",
             "name": "HTTP API",
-            "x": 330,
-            "y": 300,
+            "x": 340,
+            "y": 330,
             "week": 3
           },
           {
             "id": "ApiInvokePermission",
             "icon": "role",
             "label": "Invoke perm.",
-            "x": 405,
-            "y": 245,
+            "x": 410,
+            "y": 270,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "ApiIntegration",
             "icon": "api",
             "label": "Integration",
-            "x": 280,
-            "y": 385,
+            "x": 305,
+            "y": 410,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "ApiRoute",
             "icon": "route",
             "label": "GET /count",
-            "x": 335,
-            "y": 385,
+            "x": 360,
+            "y": 410,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "ApiStage",
             "icon": "api",
             "label": "$default",
-            "x": 390,
-            "y": 385,
+            "x": 415,
+            "y": 410,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "CounterFunction",
             "icon": "function",
             "label": "AWS Lambda",
             "name": "capstone-team01-counter",
-            "x": 475,
-            "y": 300,
+            "x": 480,
+            "y": 330,
             "week": 3
           },
           {
@@ -4355,8 +4360,8 @@
             "icon": "nosql",
             "label": "DynamoDB",
             "name": "on-demand",
-            "x": 590,
-            "y": 300,
+            "x": 610,
+            "y": 330,
             "week": 3
           },
           {
@@ -4364,16 +4369,17 @@
             "icon": "param",
             "label": "Parameter Store",
             "x": 610,
-            "y": 385,
+            "y": 412,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "CounterFunctionRole",
             "icon": "role",
             "label": "Role: counter",
-            "x": 540,
-            "y": 434,
+            "x": 480,
+            "y": 412,
             "week": 3,
             "small": true
           },
@@ -4381,8 +4387,8 @@
             "id": "InstanceRole",
             "icon": "role",
             "label": "Role: SSM",
-            "x": 740,
-            "y": 560,
+            "x": 860,
+            "y": 585,
             "week": 6,
             "small": true
           },
@@ -4390,60 +4396,64 @@
             "id": "InstanceProfile",
             "icon": "role",
             "label": "Instance profile",
-            "x": 830,
-            "y": 560,
+            "x": 950,
+            "y": 585,
             "week": 6,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "CounterLogGroup",
             "icon": "logs",
             "label": "CloudWatch Logs",
-            "x": 475,
-            "y": 480,
+            "name": "/aws/lambda/…counter",
+            "x": 400,
+            "y": 505,
             "week": 4
           },
           {
             "id": "FunctionErrorsAlarm",
             "icon": "alert",
             "label": "CloudWatch alarm",
+            "name": "Errors > 0",
             "x": 600,
-            "y": 480,
+            "y": 505,
             "week": 4
           },
           {
             "id": "AlertTopic",
             "icon": "notify",
             "label": "Amazon SNS",
-            "x": 600,
-            "y": 568,
-            "week": 4,
-            "small": true
+            "name": "email the team",
+            "x": 745,
+            "y": 545,
+            "week": 4
           },
           {
             "id": "GatewayAttachment",
             "icon": "route",
             "label": "Attachment",
-            "x": 880,
-            "y": 84,
+            "x": 865,
+            "y": 118,
             "week": 1,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "InternetGateway",
             "icon": "gateway",
             "label": "Internet gateway",
-            "x": 945,
-            "y": 84,
+            "x": 930,
+            "y": 118,
             "week": 1,
             "small": true
           },
           {
             "id": "PublicRouteTable",
             "icon": "route",
-            "label": "Route table",
-            "x": 712,
-            "y": 205,
+            "label": "Route table → IGW",
+            "x": 720,
+            "y": 237,
             "week": 1,
             "small": true
           },
@@ -4451,26 +4461,28 @@
             "id": "PublicDefaultRoute",
             "icon": "route",
             "label": "0.0.0.0/0 → IGW",
-            "x": 712,
-            "y": 255,
+            "x": 720,
+            "y": 290,
             "week": 1,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "PublicSubnetRouteAssoc",
             "icon": "route",
             "label": "Association",
-            "x": 712,
-            "y": 302,
+            "x": 720,
+            "y": 340,
             "week": 1,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "ToolsSecurityGroup",
             "icon": "firewall",
             "label": "Security group",
             "x": 915,
-            "y": 180,
+            "y": 217,
             "week": 1,
             "small": true
           },
@@ -4480,7 +4492,7 @@
             "label": "Amazon EC2",
             "name": "ec2-tools-team01",
             "x": 820,
-            "y": 230,
+            "y": 272,
             "week": 2
           },
           {
@@ -4488,16 +4500,17 @@
             "icon": "route",
             "label": "Attachment",
             "x": 915,
-            "y": 292,
+            "y": 332,
             "week": 7,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "DataVolume",
             "icon": "disk",
             "label": "EBS volume",
-            "x": 865,
-            "y": 308,
+            "x": 860,
+            "y": 347,
             "week": 7,
             "small": true
           },
@@ -4506,7 +4519,7 @@
             "icon": "route",
             "label": "Route table (local)",
             "x": 745,
-            "y": 410,
+            "y": 447,
             "week": 6,
             "small": true
           },
@@ -4515,9 +4528,10 @@
             "icon": "route",
             "label": "Association",
             "x": 870,
-            "y": 410,
+            "y": 447,
             "week": 6,
-            "small": true
+            "small": true,
+            "detail": true
           }
         ],
         "edges": [
@@ -4553,7 +4567,7 @@
             "from": "CounterFunction",
             "to": "VisitorTable",
             "kind": "traffic",
-            "label": "UpdateItem ADD",
+            "label": "ADD +1",
             "week": 3
           },
           {
@@ -4613,8 +4627,8 @@
             "label": "deploy code (OIDC)",
             "week": 10,
             "via": {
-              "x": 470,
-              "y": 62
+              "x": 480,
+              "y": 150
             }
           },
           {

@@ -337,3 +337,69 @@ describe('R88 — Azure: the Key Vault line ends when the secret does', () => {
     expect(func.slice(0, 4000)).not.toMatch(/@Microsoft\.KeyVault/);
   });
 });
+
+// ── R94 — the picture fits what it shows ─────────────────────────────────────
+import { layoutTopology, nodeExtent, parentOf } from './layout';
+
+describe.each([
+  ['azure', AZURE_TOPOLOGY],
+  ['aws', AWS_TOPOLOGY],
+] as const)('R94 — compact, clear layout — %s', (_p, topo) => {
+  const visibleAt = (week: number, details: boolean) =>
+    new Set(topo.nodes.filter((n) => n.week <= week && !n.external && (details || !n.detail)).map((n) => n.id));
+
+  it('plumbing is small, and every node sits inside one authored container (or is external)', () => {
+    for (const n of topo.nodes) {
+      if (n.detail) expect(n.small, `${n.id} is detail but not small`).toBe(true);
+      if (!n.external) expect(parentOf(topo, n.x, n.y)?.id, `${n.id} has no container`).toBeTruthy();
+    }
+  });
+
+  it.each([1, 2, 3, 4, 8, 12])('week %i: every drawn node is inside its computed box, boxes nest, nothing overlaps', (week) => {
+    for (const details of [false, true]) {
+      const vis = visibleAt(week, details);
+      const { boxes, view } = layoutTopology(topo, vis);
+      const nodes = topo.nodes.filter((n) => vis.has(n.id));
+      for (const n of nodes) {
+        const box = boxes.get(parentOf(topo, n.x, n.y)!.id)!;
+        const e = nodeExtent(n);
+        expect(box, `${n.id}'s container drawn`).toBeTruthy();
+        expect(e.x >= box.x && e.x + e.w <= box.x + box.w && e.y >= box.y && e.y + e.h <= box.y + box.h, `${n.id} inside its box (week ${week})`).toBe(true);
+      }
+      for (const [id, r] of boxes) {
+        const c = topo.containers.find((x) => x.id === id)!;
+        const parent = parentOf(topo, c.x + 1, c.y + 1, c.id);
+        if (!parent) continue;
+        const pr = boxes.get(parent.id)!;
+        expect(r.x >= pr.x && r.y >= pr.y && r.x + r.w <= pr.x + pr.w && r.y + r.h <= pr.y + pr.h, `${id} inside ${parent.id} (week ${week})`).toBe(true);
+      }
+      // Two icons never sit on each other: centres at least an icon apart.
+      for (let i = 0; i < nodes.length; i++)
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i];
+          const b = nodes[j];
+          const min = a.small && b.small ? 34 : a.small || b.small ? 44 : 60;
+          expect(Math.hypot(a.x - b.x, a.y - b.y) >= min, `${a.id} and ${b.id} overlap (week ${week})`).toBe(true);
+        }
+      // Sibling boxes never overlap each other.
+      const ids = [...boxes.keys()];
+      for (let i = 0; i < ids.length; i++)
+        for (let j = i + 1; j < ids.length; j++) {
+          const a = boxes.get(ids[i])!;
+          const b = boxes.get(ids[j])!;
+          const ca = topo.containers.find((x) => x.id === ids[i])!;
+          const cb = topo.containers.find((x) => x.id === ids[j])!;
+          if (parentOf(topo, ca.x + 1, ca.y + 1, ca.id)?.id !== parentOf(topo, cb.x + 1, cb.y + 1, cb.id)?.id) continue;
+          const apart = a.x + a.w <= b.x || b.x + b.w <= a.x || a.y + a.h <= b.y || b.y + b.h <= a.y;
+          expect(apart, `${ids[i]} and ${ids[j]} overlap (week ${week})`).toBe(true);
+        }
+      for (const [id, r] of boxes) expect(r.x >= view.x && r.y >= view.y && r.x + r.w <= view.x + view.w && r.y + r.h <= view.y + view.h, `${id} inside the view (week ${week})`).toBe(true);
+    }
+  });
+
+  it('an early week is a smaller picture than the last one', () => {
+    const w1 = layoutTopology(topo, visibleAt(1, false)).view;
+    const w12 = layoutTopology(topo, visibleAt(12, false)).view;
+    expect(w1.w * w1.h).toBeLessThan(w12.w * w12.h * 0.6);
+  });
+});

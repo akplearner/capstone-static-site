@@ -5,6 +5,7 @@ import { Minus, Plus } from 'lucide-react';
 import type { CloudContainer, CloudNode, CloudTopology as Topology } from '@/lib/cloud/model';
 import { CONTAINER_FILL, CONTAINER_STROKE } from '@/lib/cloud/brand';
 import { officialContainerHref } from '@/lib/cloud/officialIcons';
+import { ICON_SIZE, layoutTopology, type Rect } from '@/lib/cloud/layout';
 import { DiagramFrame } from '../DiagramFrame';
 import { CloudIcon } from './CloudIcon';
 
@@ -20,9 +21,15 @@ import { CloudIcon } from './CloudIcon';
  * comes later" is the way to peek ahead (later resources greyed, with their
  * week). "Template dependencies" swaps the arrows for the template's own
  * reference graph — what the ARM visualizer and CloudFormation's designer
- * draw. Supporting resources (a NIC, a role assignment, a route-table
- * association) always keep a thin attachment line to what they belong to, so
- * nothing floats.
+ * draw. Supporting resources (an NSG, a public IP, a role) keep a thin
+ * attachment line to what they belong to, so nothing floats.
+ *
+ * R94: the picture fits what it shows. Containers shrink-wrap their visible
+ * members and the viewBox crops to the drawn part (`layout.ts`), so an early
+ * week is a small, zoomed picture rather than empty boxes. Template plumbing
+ * (`detail` nodes: an API stage, a route association, runtime storage) and
+ * the full reference graph live behind "Show template details"; a person or
+ * GitHub is drawn only once something connects to it.
  */
 
 const TRAFFIC_COLOUR = { azure: '#0078D4', aws: '#FF9900' } as const;
@@ -69,29 +76,48 @@ export function CloudTopology({
   const traffic = TRAFFIC_COLOUR[p];
 
   const nodeById = new Map(topology.nodes.map((n) => [n.id, n]));
-  const boxById = new Map(topology.containers.map((c) => [c.id, c]));
   const exists = (w: number) => w <= week;
   const drawn = (w: number) => exists(w) || (showLater && !pinned);
-  const anchor = (id: string): { x: number; y: number; r: number } | null => {
-    const n = nodeById.get(id);
-    if (n) return { x: n.x, y: n.y, r: n.small ? 15 : 25 };
-    // A container is tied at its corner icon, where the platform names it.
-    const c = boxById.get(id);
-    if (c) return officialContainerHref(p, c.kind) ? { x: c.x + 14, y: c.y + 14, r: 14 } : { x: c.x + c.w / 2, y: c.y, r: 0 };
-    return null;
-  };
   const isSmall = (id: string) => !!nodeById.get(id)?.small;
+  const live = (e: (typeof topology.edges)[number]) => exists(e.week) && (e.until == null || week <= e.until);
+  // What is drawn this week: template resources by week, plumbing only on
+  // request, and a person or GitHub only once a line reaches them.
+  const shown = (n: CloudNode) => {
+    if (!drawn(n.week)) return false;
+    if (n.detail && !showDeps) return false;
+    if (n.external) return topology.edges.some((e) => e.kind === 'traffic' && live(e) && (e.from === n.id || e.to === n.id)) || (showLater && !pinned);
+    return true;
+  };
+  const nodes = topology.nodes.filter(shown);
+  const visible = new Set(nodes.map((n) => n.id));
   // Attachment lines: the template's references that touch a supporting
-  // resource. Drawn always, so a NIC is visibly the VM's and a role assignment
-  // visibly sits on its vault — the rest of the reference graph is the toggle.
+  // resource. Drawn always, so a public IP is visibly the VM's and a role
+  // assignment visibly sits on its vault — the rest of the graph is the toggle.
   const edges = topology.edges.filter((e) => {
     if (!exists(e.week)) return false;
+    if (!(visible.has(e.from) || boxDrawn(e.from)) || !(visible.has(e.to) || boxDrawn(e.to))) return false;
     if (e.kind === 'depends') return showDeps || isSmall(e.from) || isSmall(e.to);
     return !showDeps && (e.until == null || week <= e.until);
   });
+  function boxDrawn(id: string) {
+    const c = topology.containers.find((x) => x.id === id);
+    return !!c && drawn(c.week);
+  }
+  // Boxes wrap everything drawn — including faded later nodes when they are
+  // shown, so a Week-11 policy still sits inside its governance box.
+  const layout = layoutTopology(topology, visible, edges.filter((e) => e.via).map((e) => e.via!));
+  const containers = topology.containers.filter((c) => drawn(c.week) && layout.boxes.has(c.id));
+  const anchor = (id: string): { x: number; y: number; r: number } | null => {
+    const n = nodeById.get(id);
+    if (n) return { x: n.x, y: n.y, r: n.small ? ICON_SIZE.small / 2 + 2 : ICON_SIZE.main / 2 + 3 };
+    // A container is tied at its corner icon, where the platform names it.
+    const c = topology.containers.find((x) => x.id === id);
+    const r = c && layout.boxes.get(c.id);
+    if (c && r) return officialContainerHref(p, c.kind) ? { x: r.x + 14, y: r.y + 14, r: 14 } : { x: r.x + r.w / 2, y: r.y, r: 0 };
+    return null;
+  };
   const added = topology.nodes.filter((n) => !n.external && n.week === week).length;
-  const containers = topology.containers.filter((c) => drawn(c.week));
-  const nodes = topology.nodes.filter((n) => drawn(n.week));
+  const { view } = layout;
 
   return (
     <DiagramFrame
@@ -151,13 +177,14 @@ export function CloudTopology({
           </label>
           <label className="flex cursor-pointer items-center gap-1.5 text-muted">
             <input type="checkbox" checked={showDeps} onChange={(e) => setShowDeps(e.target.checked)} />
-            Template dependencies
+            Show template details
           </label>
         </div>
       )}
 
       <svg
-        viewBox={`0 0 ${topology.width} ${topology.height}`}
+        viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
+        data-canvas={`${topology.width}x${topology.height}`}
         className="h-auto w-full min-w-[640px]"
         role="img"
         aria-label={`${topology.title}, week ${local(week)}`}
@@ -172,7 +199,7 @@ export function CloudTopology({
         </defs>
 
         {containers.map((c) => (
-          <Box key={c.id} c={c} platform={p} week={week} />
+          <Box key={c.id} c={c} r={layout.boxes.get(c.id)!} platform={p} week={week} />
         ))}
 
         {edges.map((e, i) => {
@@ -252,20 +279,20 @@ export function CloudTopology({
   );
 }
 
-function Box({ c, platform, week }: { c: CloudContainer; platform: 'azure' | 'aws'; week: number }) {
+function Box({ c, r, platform, week }: { c: CloudContainer; r: Rect; platform: 'azure' | 'aws'; week: number }) {
   const later = c.week > week;
   const stroke = CONTAINER_STROKE[platform][c.kind];
   const fill = CONTAINER_FILL[platform][c.kind] ?? 'transparent';
   const dashed = c.kind === 'group' || c.kind === 'region' || c.kind === 'zone' || (platform === 'azure' && c.kind.startsWith('subnet'));
   const icon = officialContainerHref(platform, c.kind);
-  const textX = c.x + (icon ? 30 : 8);
+  const textX = r.x + (icon ? 30 : 8);
   return (
     <g opacity={later ? 0.35 : 1} pointerEvents="none">
       <rect
-        x={c.x}
-        y={c.y}
-        width={c.w}
-        height={c.h}
+        x={r.x}
+        y={r.y}
+        width={r.w}
+        height={r.h}
         rx={platform === 'azure' ? 6 : 2}
         fill={fill}
         stroke={stroke}
@@ -276,18 +303,18 @@ function Box({ c, platform, week }: { c: CloudContainer; platform: 'azure' | 'aw
       {icon &&
         (icon.dark ? (
           <>
-            <image href={icon.light} x={c.x + 2} y={c.y + 2} width={24} height={24} className="only-light" />
-            <image href={icon.dark} x={c.x + 2} y={c.y + 2} width={24} height={24} className="only-dark" />
+            <image href={icon.light} x={r.x + 2} y={r.y + 2} width={24} height={24} className="only-light" />
+            <image href={icon.dark} x={r.x + 2} y={r.y + 2} width={24} height={24} className="only-dark" />
           </>
         ) : (
-          <image href={icon.light} x={c.x + 2} y={c.y + 2} width={24} height={24} />
+          <image href={icon.light} x={r.x + 2} y={r.y + 2} width={24} height={24} />
         ))}
-      <text x={textX} y={c.y + 14} fontSize="11" fontWeight="600" style={{ fill: stroke }}>
+      <text x={textX} y={r.y + 14} fontSize="11.5" fontWeight="600" style={{ fill: stroke }}>
         {c.label}
         {later ? ` · Week ${c.week}` : ''}
       </text>
       {c.sub && (
-        <text x={textX} y={c.y + 26} fontSize="9.5" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-muted)' }}>
+        <text x={textX} y={r.y + 26} fontSize="9.5" fontFamily="var(--font-mono)" style={{ fill: 'var(--color-muted)' }}>
           {c.sub}
         </text>
       )}
@@ -312,7 +339,7 @@ function NodeMark({
 }) {
   const later = n.week > week;
   const isNew = !n.external && n.week === week;
-  const size = n.small ? 26 : 44;
+  const size = n.small ? ICON_SIZE.small : ICON_SIZE.main;
   const clickable = !!onSelect && !n.external;
   return (
     <g
@@ -344,7 +371,7 @@ function NodeMark({
         x={n.x}
         y={n.y + size / 2 + (n.small ? 10 : 13)}
         textAnchor="middle"
-        fontSize={n.small ? 8.5 : 10.5}
+        fontSize={n.small ? 9 : 11}
         fontWeight={n.small ? 500 : 600}
         style={{ fill: 'var(--color-ink)', paintOrder: 'stroke', stroke: 'var(--color-panel)', strokeWidth: 3 }}
       >
@@ -355,7 +382,7 @@ function NodeMark({
           x={n.x}
           y={n.y + size / 2 + 25}
           textAnchor="middle"
-          fontSize="8.5"
+          fontSize="9"
           fontFamily="var(--font-mono)"
           style={{ fill: 'var(--color-muted)', paintOrder: 'stroke', stroke: 'var(--color-panel)', strokeWidth: 3 }}
         >

@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -204,3 +204,12 @@ that a student who has never opened a cloud console can follow them:
   pack (GitHub, an action group) and are drawn.
 * The picture shows one week at a time. A Week-1 student sees the foundation
   only; "Show what comes later" reveals the rest greyed with its week.
+* R94: the picture fits what it shows. Containers shrink-wrap their visible
+  members and the viewBox crops to the drawn part (`src/lib/cloud/layout.ts`),
+  so Week 1 is a small, zoomed picture — not empty boxes. Template plumbing
+  (an API stage, a route association, runtime storage: `detail` nodes) and
+  the full reference graph sit behind "Show template details"; people and
+  GitHub appear only once a line reaches them. Governance / account-level
+  boxes sit at the top so an early week is one compact column. Guards
+  (`cloud.test.ts` R94): every drawn node inside its computed box, boxes
+  nest, no two icons overlap, and Week 1 is well under Week 12's area.

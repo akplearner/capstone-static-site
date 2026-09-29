@@ -3315,7 +3315,7 @@
       "topology": {
         "platform": "azure",
         "title": "The company in Azure — what azuredeploy.json builds",
-        "howToRead": "Boxes are the containers Azure groups things in: subscription, resource group, virtual network, subnets. Each icon is one resource in the ARM template — click it to see its lines. Blue arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Template dependencies\" to see every dependsOn. Icons are Microsoft’s official Azure icons.",
+        "howToRead": "Boxes are the containers Azure groups things in: subscription, resource group, virtual network, subnets. Each icon is one resource in the ARM template — click it to see its lines. Blue arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Show template details\" to see the plumbing and every dependsOn. Icons are Microsoft’s official Azure icons.",
         "width": 1100,
         "height": 640,
         "containers": [
@@ -3323,7 +3323,7 @@
             "id": "subscription",
             "kind": "account",
             "label": "Azure subscription",
-            "sub": "Azure for Students",
+            "sub": "your subscription",
             "x": 110,
             "y": 10,
             "w": 890,
@@ -3347,9 +3347,9 @@
             "label": "Virtual network",
             "sub": "vnet-capstone-team01 · 10.10.0.0/16",
             "x": 640,
-            "y": 84,
+            "y": 165,
             "w": 332,
-            "h": 390,
+            "h": 400,
             "week": 1
           },
           {
@@ -3358,9 +3358,9 @@
             "label": "snet-app",
             "sub": "10.10.1.0/24",
             "x": 656,
-            "y": 128,
+            "y": 209,
             "w": 300,
-            "h": 196,
+            "h": 210,
             "week": 1
           },
           {
@@ -3369,7 +3369,7 @@
             "label": "snet-mgmt",
             "sub": "10.10.2.0/24 · reserved for Bastion",
             "x": 656,
-            "y": 340,
+            "y": 440,
             "w": 300,
             "h": 118,
             "week": 6
@@ -3380,7 +3380,7 @@
             "label": "Governance",
             "sub": "resource-group scope",
             "x": 640,
-            "y": 520,
+            "y": 60,
             "w": 332,
             "h": 90,
             "week": 1
@@ -3410,7 +3410,7 @@
             "icon": "user",
             "label": "Team admin",
             "x": 1055,
-            "y": 230,
+            "y": 425,
             "week": 2,
             "external": true
           },
@@ -3419,43 +3419,34 @@
             "icon": "storage",
             "label": "Storage account",
             "name": "stweb… ($web)",
-            "x": 280,
-            "y": 128,
+            "x": 270,
+            "y": 130,
             "week": 2
           },
           {
             "id": "webBlobService",
             "icon": "blobservice",
             "label": "Soft delete",
-            "x": 372,
-            "y": 170,
+            "x": 190,
+            "y": 185,
             "week": 8,
-            "small": true
-          },
-          {
-            "id": "kvRoleFunc",
-            "icon": "role",
-            "label": "Secrets User",
-            "x": 425,
-            "y": 128,
-            "week": 3,
             "small": true
           },
           {
             "id": "kv",
             "icon": "secret",
             "label": "Key vault",
-            "name": "kv-team01-…",
-            "x": 545,
-            "y": 128,
+            "name": "kv-capstone-team01-…",
+            "x": 540,
+            "y": 130,
             "week": 3
           },
           {
-            "id": "plan",
-            "icon": "plan",
-            "label": "Plan (Y1)",
-            "x": 200,
-            "y": 300,
+            "id": "kvRoleFunc",
+            "icon": "role",
+            "label": "Secrets User",
+            "x": 622,
+            "y": 150,
             "week": 3,
             "small": true
           },
@@ -3464,62 +3455,75 @@
             "icon": "function",
             "label": "Function app",
             "name": "func-capstone-team01",
-            "x": 300,
-            "y": 270,
+            "x": 270,
+            "y": 285,
             "week": 3
+          },
+          {
+            "id": "plan",
+            "icon": "plan",
+            "label": "Plan (Y1)",
+            "x": 200,
+            "y": 345,
+            "week": 3,
+            "small": true,
+            "detail": true
           },
           {
             "id": "funcStorage",
             "icon": "storage",
             "label": "Runtime storage",
-            "x": 395,
-            "y": 335,
+            "x": 345,
+            "y": 345,
             "week": 3,
-            "small": true
-          },
-          {
-            "id": "cosmosRoleFunc",
-            "icon": "role",
-            "label": "Data Contributor",
-            "x": 425,
-            "y": 215,
-            "week": 5,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "cosmos",
             "icon": "nosql",
             "label": "Azure Cosmos DB",
             "name": "serverless",
-            "x": 545,
-            "y": 270,
+            "x": 540,
+            "y": 285,
             "week": 3
+          },
+          {
+            "id": "cosmosRoleFunc",
+            "icon": "role",
+            "label": "Data Contributor",
+            "x": 622,
+            "y": 305,
+            "week": 5,
+            "small": true
           },
           {
             "id": "cosmosDb",
             "icon": "container",
             "label": "Database",
-            "x": 510,
-            "y": 360,
+            "x": 500,
+            "y": 358,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "cosmosContainer",
             "icon": "container",
             "label": "visitors",
             "x": 580,
-            "y": 360,
+            "y": 358,
             "week": 3,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "appi",
             "icon": "apm",
             "label": "App Insights",
             "name": "appi-capstone-team01",
-            "x": 300,
-            "y": 450,
+            "x": 220,
+            "y": 458,
             "week": 3
           },
           {
@@ -3527,17 +3531,45 @@
             "icon": "logs",
             "label": "Log Analytics",
             "name": "log-capstone-team01",
-            "x": 460,
-            "y": 450,
+            "x": 350,
+            "y": 458,
             "week": 3
+          },
+          {
+            "id": "http5xxAlert",
+            "icon": "alert",
+            "label": "Alert: Http5xx",
+            "name": "alert-func-5xx",
+            "x": 480,
+            "y": 458,
+            "week": 4
+          },
+          {
+            "id": "actionGroup",
+            "icon": "notify",
+            "label": "Action group",
+            "name": "email the team",
+            "x": 600,
+            "y": 458,
+            "week": 4
+          },
+          {
+            "id": "funcDiag",
+            "icon": "diag",
+            "label": "Diagnostics",
+            "x": 220,
+            "y": 565,
+            "week": 4,
+            "small": true,
+            "detail": true
           },
           {
             "id": "nsgApp",
             "icon": "firewall",
             "label": "NSG",
             "name": "nsg-snet-app",
-            "x": 925,
-            "y": 160,
+            "x": 930,
+            "y": 246,
             "week": 1,
             "small": true
           },
@@ -3545,35 +3577,36 @@
             "id": "nic",
             "icon": "nic",
             "label": "NIC",
-            "x": 700,
-            "y": 190,
+            "x": 720,
+            "y": 271,
             "week": 2,
-            "small": true
-          },
-          {
-            "id": "pip",
-            "icon": "publicip",
-            "label": "Public IP",
-            "x": 700,
-            "y": 296,
-            "week": 2,
-            "small": true
+            "small": true,
+            "detail": true
           },
           {
             "id": "vm",
             "icon": "vm",
             "label": "Virtual machine",
             "name": "vm-tools-team01",
-            "x": 850,
-            "y": 222,
+            "x": 790,
+            "y": 301,
             "week": 2
+          },
+          {
+            "id": "pip",
+            "icon": "publicip",
+            "label": "Public IP",
+            "x": 905,
+            "y": 403,
+            "week": 2,
+            "small": true
           },
           {
             "id": "dataDisk",
             "icon": "disk",
             "label": "Data disk",
-            "x": 930,
-            "y": 252,
+            "x": 720,
+            "y": 381,
             "week": 7,
             "small": true
           },
@@ -3582,8 +3615,8 @@
             "icon": "firewall",
             "label": "NSG",
             "name": "nsg-snet-mgmt",
-            "x": 925,
-            "y": 380,
+            "x": 930,
+            "y": 502,
             "week": 6,
             "small": true
           },
@@ -3592,7 +3625,7 @@
             "icon": "role",
             "label": "Reader (group)",
             "x": 700,
-            "y": 572,
+            "y": 118,
             "week": 5,
             "small": true
           },
@@ -3601,35 +3634,8 @@
             "icon": "policy",
             "label": "Policy: owner tag",
             "x": 810,
-            "y": 572,
+            "y": 118,
             "week": 11,
-            "small": true
-          },
-          {
-            "id": "funcDiag",
-            "icon": "diag",
-            "label": "Diagnostics",
-            "x": 200,
-            "y": 570,
-            "week": 4,
-            "small": true
-          },
-          {
-            "id": "http5xxAlert",
-            "icon": "alert",
-            "label": "Alert: 5xx",
-            "x": 400,
-            "y": 570,
-            "week": 4,
-            "small": true
-          },
-          {
-            "id": "actionGroup",
-            "icon": "notify",
-            "label": "Action group",
-            "x": 540,
-            "y": 570,
-            "week": 4,
             "small": true
           },
           {
@@ -3637,7 +3643,7 @@
             "icon": "budget",
             "label": "Budget $5",
             "x": 920,
-            "y": 572,
+            "y": 118,
             "week": 1,
             "small": true
           }
@@ -3714,18 +3720,18 @@
             "kind": "traffic",
             "label": "SSH from your /32",
             "week": 2,
-            "until": 5,
-            "via": {
-              "x": 990,
-              "y": 322
-            }
+            "until": 5
           },
           {
             "from": "vm",
             "to": "pip",
             "kind": "traffic",
-            "label": "outbound",
-            "week": 2
+            "label": "outbound: patches",
+            "week": 2,
+            "via": {
+              "x": 905,
+              "y": 331
+            }
           },
           {
             "from": "admin",
