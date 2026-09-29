@@ -1309,6 +1309,8 @@ export const CCNA: Course = {
   // No week ever locks: a team waiting on kit, or on a purchase, must not be
   // blocked out of the weeks it CAN do.
   noGatekeeping: true,
+  // A class is sixteen groups (R91), like every other capstone.
+  teamCount: 16,
   // The compactness contract: one step at a time, explanations one click away.
   // No `manualSections: ['config-guide']` yet, deliberately: the week-by-week
   // procedures are a later round, and a course that declares a guide it has not

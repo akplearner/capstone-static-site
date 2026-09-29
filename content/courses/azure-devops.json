@@ -1695,6 +1695,7 @@
       }
     ],
     "noGatekeeping": true,
+    "teamCount": 16,
     "manualSections": [
       "cloud-iac"
     ],

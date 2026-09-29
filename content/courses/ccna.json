@@ -1683,6 +1683,7 @@
     ],
     "sharedTrack": true,
     "noGatekeeping": true,
+    "teamCount": 16,
     "topologyPicture": "campus",
     "lifecyclePath": [
       {

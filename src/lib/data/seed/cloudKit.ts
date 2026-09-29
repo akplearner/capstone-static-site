@@ -269,6 +269,8 @@ export function sliceCourse(
     gates: [],
     tasks,
     noGatekeeping: true,
+    // A class is sixteen groups (R91), like the security capstones.
+    teamCount: 16,
     manualSections: ['cloud-iac'],
     topologyPicture: 'cloud',
     lifecyclePath: CLOUD_CYCLE,

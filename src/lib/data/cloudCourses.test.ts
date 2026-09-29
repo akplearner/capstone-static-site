@@ -58,6 +58,8 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     expect(graded.map((w) => w.stage)).toEqual([1, 2, 3, 4]);
     expect(course.noGatekeeping).toBe(true);
     expect(course.gates).toEqual([]);
+    // A class is sixteen groups.
+    expect(course.teamCount ?? 3, `${id} teamCount`).toBeGreaterThanOrEqual(16);
     const first = id === 'azure-fundamentals' || id === 'aws-cloud-practitioner';
     expect(course.weeks.some((w) => w.setup), `${id} setup week`).toBe(!first);
   });
