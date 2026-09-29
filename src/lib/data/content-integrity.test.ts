@@ -5,8 +5,8 @@ import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
 import { CCNA } from './seed/ccna';
-import { AZURE_CLOUD } from './seed/azureCloud';
-import { AWS_CLOUD } from './seed/awsCloud';
+import { AZURE_COURSES } from './seed/azureCloud';
+import { AWS_COURSES } from './seed/awsCloud';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, seedDeliverablesForCourse as deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
@@ -18,7 +18,7 @@ import { LAB_FIELDS } from '../labAccess';
 // deliverable actually provides would render a dead link. These tests fail fast if
 // a step ever points at a form/file that isn't registered for its course.
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
   return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));

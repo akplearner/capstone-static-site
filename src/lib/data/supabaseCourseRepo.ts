@@ -15,8 +15,8 @@ import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
 import { CCNA } from './seed/ccna';
-import { AZURE_CLOUD } from './seed/azureCloud';
-import { AWS_CLOUD } from './seed/awsCloud';
+import { AZURE_COURSES } from './seed/azureCloud';
+import { AWS_COURSES } from './seed/awsCloud';
 
 /**
  * The course catalogue, cloud-backed (R78-D5).
@@ -34,7 +34,7 @@ import { AWS_CLOUD } from './seed/awsCloud';
  * seed's forms and manual beside the edited tasks, and a duplicate carries its
  * parent's content into the cloud with it.
  */
-const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
 
 function report(what: string, message: string) {
   return ({ error }: { error: { message: string } | null }) => {

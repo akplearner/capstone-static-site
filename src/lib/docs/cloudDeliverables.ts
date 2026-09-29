@@ -701,3 +701,29 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
   ];
   return docs;
 }
+
+/**
+ * The twelve documents, cut to one course (R90): the ones in its weeks,
+ * renumbered 1–4, ids re-prefixed so three courses never share one, `feeds`
+ * kept only inside the course, and the last one the course's capstone.
+ */
+export function sliceDeliverables(docs: DeliverableDef[], courseId: string, idPrefix: string, weeks: [number, number]): DeliverableDef[] {
+  const [a, b] = weeks;
+  const mine = docs.filter((d) => d.weeks[0] >= a && d.weeks[0] <= b);
+  const rename = new Map(mine.map((d) => [d.id, `${idPrefix}_${d.id.replace(/^[a-z]+_/, '')}`]));
+  return mine.map((d, i) => {
+    const local = d.weeks[0] - a + 1;
+    const out: DeliverableDef = {
+      ...d,
+      id: rename.get(d.id)!,
+      courseId,
+      num: local,
+      weeks: [local],
+      folder: `Week_${String(local).padStart(2, '0')}`,
+      feeds: (d.feeds ?? []).filter((f) => rename.has(f)).map((f) => rename.get(f)!),
+    };
+    if (i === mine.length - 1) out.capstone = true;
+    else delete out.capstone;
+    return out;
+  });
+}

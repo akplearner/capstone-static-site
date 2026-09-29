@@ -1,4 +1,4 @@
-import { cloudDeliverables, type CloudVocab } from './cloudDeliverables';
+import { cloudDeliverables, sliceDeliverables, type CloudVocab } from './cloudDeliverables';
 
 /** The AWS capstone's twelve documents (R87) — the shared set, in AWS’s words. */
 export const AWS_CLOUD_VOCAB: CloudVocab = {
@@ -54,4 +54,8 @@ export const AWS_CLOUD_VOCAB: CloudVocab = {
   ],
 };
 
-export const AWS_CLOUD_DELIVERABLES = cloudDeliverables(AWS_CLOUD_VOCAB);
+const ALL = cloudDeliverables(AWS_CLOUD_VOCAB);
+export const AWS_CLOUD_PRACTITIONER_DELIVERABLES = sliceDeliverables(ALL, 'aws-cloud-practitioner', 'awsf', [1, 4]);
+export const AWS_SOLUTIONS_ARCHITECT_DELIVERABLES = sliceDeliverables(ALL, 'aws-solutions-architect', 'awsa', [5, 8]);
+export const AWS_DEVOPS_DELIVERABLES = sliceDeliverables(ALL, 'aws-devops', 'awsd', [9, 12]);
+export const AWS_CLOUD_DELIVERABLES = [...AWS_CLOUD_PRACTITIONER_DELIVERABLES, ...AWS_SOLUTIONS_ARCHITECT_DELIVERABLES, ...AWS_DEVOPS_DELIVERABLES];

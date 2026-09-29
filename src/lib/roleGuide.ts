@@ -103,7 +103,7 @@ const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
   // The cloud capstones (R87): same four roles on both platforms; each has
   // its own task every week, so nobody waits on anybody to start.
   ...Object.fromEntries(
-    ['azure-cloud', 'aws-cloud'].map((id) => [
+    ['azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops'].map((id) => [
       id,
       {
         arch: {

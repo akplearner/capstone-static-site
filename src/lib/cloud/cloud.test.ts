@@ -21,7 +21,7 @@ import { DARK_CONTAINER_VARIANTS, DARK_VARIANTS, OFFICIAL_CONTAINER_ICONS, OFFIC
  */
 
 // CloudFormation short-form tags, kept as {tag: value} so references survive.
-const CFN_TAGS = ['!Ref', '!GetAtt', '!Sub', '!Select', '!GetAZs', '!Base64', '!Join', '!If', '!Equals'].flatMap((t) =>
+const CFN_TAGS = ['!Ref', '!GetAtt', '!Sub', '!Select', '!GetAZs', '!Base64', '!Join', '!If', '!Equals', '!Not'].flatMap((t) =>
   (['scalar', 'sequence', 'mapping'] as const).map(
     (kind) => new yaml.Type(t, { kind, construct: (d: unknown) => ({ [t]: d }) })
   )

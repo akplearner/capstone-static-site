@@ -30,8 +30,11 @@ export function IacViewer({
   selected,
   week,
   onWeekChange,
+  weekRange,
 }: {
   iac: IacBundle;
+  /** R90: this course's global weeks; the select offers them, numbered 1–4. */
+  weekRange?: [number, number];
   /** A resource id to highlight (switches to the full template). */
   selected?: string | null;
   /** Fade resources that arrive after this week. Omitted = show all. */
@@ -80,11 +83,13 @@ export function IacViewer({
               onChange={(e) => onWeekChange(Number(e.target.value))}
               className="rounded-md border border-line bg-panel px-1.5 py-0.5 text-ink"
             >
-              {Array.from({ length: 12 }, (_, i) => i + 1).map((w) => (
-                <option key={w} value={w}>
-                  {w}
-                </option>
-              ))}
+              {Array.from({ length: 12 }, (_, i) => i + 1)
+                .filter((w) => !weekRange || (w >= weekRange[0] && w <= weekRange[1]))
+                .map((w) => (
+                  <option key={w} value={w}>
+                    {weekRange ? w - weekRange[0] + 1 : w}
+                  </option>
+                ))}
             </select>
           </label>
         )}

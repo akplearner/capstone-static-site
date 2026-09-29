@@ -209,10 +209,18 @@ export const COURSE_TOOLS: Record<string, string> = {
     'nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)',
   ccna:
     'show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible',
-  'azure-cloud':
-    'Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud',
-  'aws-cloud':
-    'AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer',
+  ...Object.fromEntries(
+    ['azure-fundamentals', 'azure-administrator', 'azure-devops'].map((id) => [
+      id,
+      'Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud',
+    ])
+  ),
+  ...Object.fromEntries(
+    ['aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops'].map((id) => [
+      id,
+      'AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer',
+    ])
+  ),
 };
 
 export const QUICK_REFERENCE = {

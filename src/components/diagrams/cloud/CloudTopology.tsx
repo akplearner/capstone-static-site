@@ -38,8 +38,12 @@ export function CloudTopology({
   onSelect,
   controls = true,
   title,
+  weekRange,
 }: {
   topology: Topology;
+  /** R90: the global weeks this course is (e.g. [5, 8]). The picture still
+   *  knows all twelve; the controls show this course's four, numbered 1–4. */
+  weekRange?: [number, number];
   /** Pin the view to one week (a document's week); hides the week control. */
   week?: number;
   /** With `week`, makes the week control controlled (shared with the IaC viewer). */
@@ -58,6 +62,9 @@ export function CloudTopology({
   const pinned = fixedWeek != null && !onWeekChange;
   const week = fixedWeek ?? stateWeek;
   const markerId = useId().replace(/:/g, '');
+  const [lo, hi] = weekRange ?? [1, 12];
+  const local = (w: number) => w - lo + 1;
+  const weeksShown = WEEKS.filter((w) => w >= lo && w <= hi);
   const p = topology.platform;
   const traffic = TRAFFIC_COLOUR[p];
 
@@ -88,14 +95,14 @@ export function CloudTopology({
 
   return (
     <DiagramFrame
-      title={title ?? (pinned ? `Architecture v${week}` : topology.title)}
+      title={title ?? (pinned ? `Architecture v${local(week)}` : topology.title)}
       howToRead={topology.howToRead}
       subtitle={
-        pinned
-          ? `What exists by the end of Week ${week}. Glowing: added this week.`
-          : showLater
-            ? `What exists by the end of Week ${week}. Glowing: added this week. Faded: arrives later.`
-            : `What exists by the end of Week ${week}. Glowing: added this week.`
+        week < lo
+          ? 'What this course starts from — the previous course’s finished environment.'
+          : showLater && !pinned
+            ? `What exists by the end of Week ${local(week)}. Glowing: added this week. Faded: arrives later.`
+            : `What exists by the end of Week ${local(week)}. Glowing: added this week.`
       }
     >
       {controls && !pinned && (
@@ -104,38 +111,38 @@ export function CloudTopology({
             <button
               type="button"
               aria-label="Previous week"
-              onClick={() => setWeek(Math.max(1, week - 1))}
+              onClick={() => setWeek(Math.max(lo, week - 1))}
               className="rounded-md p-1 text-muted hover:bg-panel-2 hover:text-ink"
             >
               <Minus className="h-3.5 w-3.5" />
             </button>
             {/* One pill per week, in its phase colour — the same rail the Tasks tab draws. */}
-            {WEEKS.map((w) => (
+            {weeksShown.map((w) => (
               <button
                 key={w}
                 type="button"
-                data-week={w}
+                data-week={local(w)}
                 aria-pressed={w === week}
-                aria-label={`Week ${w}`}
+                aria-label={`Week ${local(w)}`}
                 onClick={() => setWeek(w)}
                 className={`min-w-[1.75rem] rounded-md border-b-2 px-1.5 py-0.5 font-semibold tabular-nums ${
                   w === week ? 'bg-panel-2 text-ink' : 'text-muted hover:bg-panel-2 hover:text-ink'
                 }`}
                 style={{ borderBottomColor: w === week ? 'var(--week)' : 'transparent' }}
               >
-                {w}
+                {local(w)}
               </button>
             ))}
             <button
               type="button"
               aria-label="Next week"
-              onClick={() => setWeek(Math.min(12, week + 1))}
+              onClick={() => setWeek(Math.min(hi, week + 1))}
               className="rounded-md p-1 text-muted hover:bg-panel-2 hover:text-ink"
             >
               <Plus className="h-3.5 w-3.5" />
             </button>
             <span className="ml-1 text-muted">
-              Week {week} · {added > 0 ? `${added} new this week` : 'nothing new — operate what exists'}
+              {week < lo ? 'Week 0 · what you inherit' : `Week ${local(week)} · ${added > 0 ? `${added} new this week` : 'nothing new — operate what exists'}`}
             </span>
           </div>
           <label className="flex cursor-pointer items-center gap-1.5 text-muted">
@@ -153,7 +160,7 @@ export function CloudTopology({
         viewBox={`0 0 ${topology.width} ${topology.height}`}
         className="h-auto w-full min-w-[640px]"
         role="img"
-        aria-label={`${topology.title}, week ${week}`}
+        aria-label={`${topology.title}, week ${local(week)}`}
       >
         <defs>
           <marker id={`${markerId}-t`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">

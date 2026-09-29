@@ -57,25 +57,69 @@
       "procedures": 0
     },
     {
-      "id": "azure-cloud",
-      "title": "Azure Cloud Capstone",
+      "id": "azure-fundamentals",
+      "title": "Azure Fundamentals Capstone",
       "version": 1,
-      "file": "azure-cloud.json",
-      "weeks": 12,
-      "tasks": 48,
-      "steps": 144,
-      "deliverables": 12,
+      "file": "azure-fundamentals.json",
+      "weeks": 4,
+      "tasks": 16,
+      "steps": 54,
+      "deliverables": 4,
       "procedures": 0
     },
     {
-      "id": "aws-cloud",
-      "title": "AWS Cloud Capstone",
+      "id": "azure-administrator",
+      "title": "Azure Administrator Capstone",
       "version": 1,
-      "file": "aws-cloud.json",
-      "weeks": 12,
-      "tasks": 48,
-      "steps": 141,
-      "deliverables": 12,
+      "file": "azure-administrator.json",
+      "weeks": 5,
+      "tasks": 17,
+      "steps": 50,
+      "deliverables": 4,
+      "procedures": 0
+    },
+    {
+      "id": "azure-devops",
+      "title": "Azure DevOps Capstone",
+      "version": 1,
+      "file": "azure-devops.json",
+      "weeks": 5,
+      "tasks": 17,
+      "steps": 50,
+      "deliverables": 4,
+      "procedures": 0
+    },
+    {
+      "id": "aws-cloud-practitioner",
+      "title": "AWS Cloud Practitioner Capstone",
+      "version": 1,
+      "file": "aws-cloud-practitioner.json",
+      "weeks": 4,
+      "tasks": 16,
+      "steps": 54,
+      "deliverables": 4,
+      "procedures": 0
+    },
+    {
+      "id": "aws-solutions-architect",
+      "title": "AWS Solutions Architect Capstone",
+      "version": 1,
+      "file": "aws-solutions-architect.json",
+      "weeks": 5,
+      "tasks": 17,
+      "steps": 47,
+      "deliverables": 4,
+      "procedures": 0
+    },
+    {
+      "id": "aws-devops",
+      "title": "AWS DevOps Engineer Capstone",
+      "version": 1,
+      "file": "aws-devops.json",
+      "weeks": 5,
+      "tasks": 17,
+      "steps": 50,
+      "deliverables": 4,
       "procedures": 0
     }
   ]

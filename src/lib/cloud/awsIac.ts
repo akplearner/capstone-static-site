@@ -48,6 +48,15 @@ Parameters:
     Type: Number
     Default: 5
     Description: Monthly budget in USD.
+  ThroughWeek:
+    Type: Number
+    Default: 12
+    AllowedValues: [4, 8, 12]
+    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).
+
+Conditions:
+  # Everything from Week 5 on exists only when the deployment reaches that far.
+  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]
 
 Resources:
   MonthlyBudget:
@@ -178,6 +187,7 @@ Resources:
 
   PrivateSubnet:
     Type: AWS::EC2::Subnet
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 6
@@ -193,6 +203,7 @@ Resources:
 
   PrivateRouteTable:
     Type: AWS::EC2::RouteTable
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 6
@@ -205,6 +216,7 @@ Resources:
 
   PrivateSubnetRouteAssoc:
     Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 6
@@ -215,6 +227,7 @@ Resources:
 
   InstanceRole:
     Type: AWS::IAM::Role
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 6
@@ -231,6 +244,7 @@ Resources:
 
   InstanceProfile:
     Type: AWS::IAM::InstanceProfile
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 6
@@ -250,7 +264,7 @@ Resources:
       InstanceType: !Ref InstanceType
       SubnetId: !Ref PublicSubnet
       SecurityGroupIds: [!Ref ToolsSecurityGroup]
-      IamInstanceProfile: !Ref InstanceProfile
+      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]
       MetadataOptions:
         HttpTokens: required
       BlockDeviceMappings:
@@ -272,6 +286,7 @@ Resources:
 
   DataVolume:
     Type: AWS::EC2::Volume
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 7
@@ -287,6 +302,7 @@ Resources:
 
   DataVolumeAttachment:
     Type: AWS::EC2::VolumeAttachment
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 7
@@ -583,6 +599,7 @@ Resources:
 
   ReadOnlyGroup:
     Type: AWS::IAM::Group
+    Condition: Week5Plus
     Metadata:
       Capstone:
         Week: 5
@@ -664,6 +681,7 @@ export const AWS_IAC: IacBundle = {
     'Deploy in us-east-1: CloudFront, its certificates and billing features all live there, and it keeps the course’s screenshots matching yours.',
     'The S3 website endpoint is HTTP only. HTTPS comes from CloudFront, which reads the private bucket through Origin Access Control.',
     'The Lambda code is inline for Week 3 simplicity. From Week 10 it ships through GitHub Actions instead.',
+    'Deploy with ThroughWeek=4 or 8 to get the environment exactly as the Cloud Practitioner or the Solutions Architect course leaves it; every later resource carries the Week5Plus condition.',
     'The instance keeps a public IP only so it can reach patches and Session Manager. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.',
     'AWS Config (the Week 11 required-tags rule) is set up in the console, not here: an account can have only one configuration recorder per region, and yours may already exist.',
   ],

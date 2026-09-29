@@ -234,8 +234,7 @@ const CLOUD_PROFILE: LabProfile = {
   title: 'Your cloud — where it lives and what it may cost',
   intro: 'Record where your team’s environment lives. Never paste a key or a password here. Saved to your account, visible only to you.',
 };
-LAB_PROFILES['azure-cloud'] = CLOUD_PROFILE;
-LAB_PROFILES['aws-cloud'] = CLOUD_PROFILE;
+for (const id of ['azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops']) LAB_PROFILES[id] = CLOUD_PROFILE;
 
 export function labProfile(courseId: string): LabProfile {
   return LAB_PROFILES[courseId] ?? { fields: LAB_FIELDS, checks: LAB_CHECKS };

@@ -1,4 +1,4 @@
-import type { Framework, RoleDef, Step, Task, WeekDef } from '../../types';
+import type { Course, Framework, RoleDef, Step, Task, WeekDef } from '../../types';
 
 /**
  * The shared shape of the two cloud capstones (R87) — Azure and AWS, twelve
@@ -194,3 +194,102 @@ export const CLOUD_FORMS = [
   'Governance, Security & Cost Report',
   'Operational Handover Package',
 ] as const;
+
+// ── One 12-week plan, three 4-week courses (R90) ────────────────────────────
+//
+// The instructor splits each platform into three courses, one per cert level:
+// Fundamentals (Weeks 1–4), Administrator / Solutions Architect (5–8), DevOps
+// (9–12). The tasks, documents, diagram and template are still authored ONCE
+// against the global week numbers 1–12; a course is a slice of them, renumbered
+// 1–4, plus a Week 0 that deploys the previous course's end state from the
+// template (`throughWeek`) for a team that did not take it.
+
+export interface CloudBlock {
+  /** Which quarter of the plan: global weeks [from, to]. */
+  weeks: [number, number];
+  id: string;
+  title: string;
+  description: string;
+  certification: string;
+  level: Course['level'];
+  audience: string;
+  /** The exam tag every task of this course carries (with WAF). */
+  framework: Framework;
+  /** The tag the shared tasks were authored with, to be replaced. */
+  authoredFramework: Framework;
+  /** One sentence for the overview: what this course starts from and adds. */
+  intro: string;
+}
+
+/** Local week number inside a block. */
+export const localWeek = (block: Pick<CloudBlock, 'weeks'>, globalWeek: number) => globalWeek - block.weeks[0] + 1;
+
+function retag<T extends { frameworks: Framework[] }>(x: T, from: Framework, to: Framework): T {
+  return { ...x, frameworks: x.frameworks.map((f) => (f === from ? to : f)) };
+}
+
+export function sliceCourse(
+  block: CloudBlock,
+  opts: { vendor: string; plans: WeekPlan[]; tasks: Task[]; weeks: WeekDef[]; setup?: { week: WeekDef; task: Task } }
+): Course {
+  const [a, b] = block.weeks;
+  const inBlock = (w: number) => w >= a && w <= b;
+  const weeks: WeekDef[] = opts.weeks
+    .filter((w) => inBlock(w.number))
+    .map((w) => ({
+      ...w,
+      number: localWeek(block, w.number),
+      runs: `Week ${localWeek(block, w.number)}`,
+      // Four graded weeks cut the four stages, whichever quarter this is.
+      stage: localWeek(block, w.number) as 1 | 2 | 3 | 4,
+    }));
+  const tasks: Task[] = opts.tasks
+    .filter((t) => inBlock(t.week))
+    .map((t) => ({
+      ...retag(t, block.authoredFramework, block.framework),
+      week: localWeek(block, t.week),
+      steps: t.steps.map((s) => retag(s, block.authoredFramework, block.framework)),
+    }));
+  if (opts.setup) {
+    weeks.unshift(opts.setup.week);
+    const t = opts.setup.task;
+    tasks.unshift({ ...retag(t, block.authoredFramework, block.framework), steps: t.steps.map((s) => retag(s, block.authoredFramework, block.framework)) });
+  }
+  return {
+    id: block.id,
+    title: block.title,
+    slug: block.id,
+    description: block.description,
+    vendor: opts.vendor,
+    certification: block.certification,
+    level: block.level,
+    audience: block.audience,
+    roles: CLOUD_ROLES,
+    weeks,
+    gates: [],
+    tasks,
+    noGatekeeping: true,
+    manualSections: ['cloud-iac'],
+    topologyPicture: 'cloud',
+    lifecyclePath: CLOUD_CYCLE,
+    isSeed: true,
+    version: 1,
+  };
+}
+
+/** The setup week every course after the first opens with. */
+export function setupWeek(prefix: string, previous: string): WeekDef {
+  return {
+    number: 0,
+    title: 'Start where the last course left off',
+    theme: 'The environment you inherit',
+    objective: `Have the environment ${previous} builds — deployed from the template if your team did not build it.`,
+    runs: 'Week 0',
+    setup: true,
+    stage: 0,
+    phase: 'Setup',
+    difficulty: 1,
+    objectives: [{ id: `${prefix}-w0-setup`, label: 'Stand up the inherited environment', tasks: [`${prefix}-w0-setup`] }],
+    milestone: `The resources ${previous} ends with exist in your team's environment, and the Guide's picture for Week 0 matches them.`,
+  };
+}

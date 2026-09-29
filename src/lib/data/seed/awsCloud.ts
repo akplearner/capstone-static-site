@@ -1,5 +1,5 @@
-import type { Course, Step, Task } from '../../types';
-import { CLOUD_CYCLE, CLOUD_FILES, CLOUD_FORMS, CLOUD_ROLES, cloudTask, cloudWeeks, stepKit, type WeekPlan } from './cloudKit';
+import type { Course, Step, Task, WeekDef } from '../../types';
+import { CLOUD_FILES, CLOUD_FORMS, cloudTask, cloudWeeks, setupWeek, sliceCourse, stepKit, type WeekPlan } from './cloudKit';
 
 /**
  * AWS Cloud Capstone (R87) — "Run a small company in AWS".
@@ -670,23 +670,96 @@ const TASKS: Task[] = [
   ]),
 ];
 
-export const AWS_CLOUD: Course = {
-  id: 'aws-cloud',
-  title: 'AWS Cloud Capstone',
-  slug: 'aws-cloud',
-  description: 'Run a small company in AWS: build it, secure it, recover it, write it as CloudFormation, and hand it over.',
-  vendor: 'AWS',
-  certification: 'Cloud Practitioner (CLF-C02)',
-  level: 'entry',
-  audience: 'Four roles build and run a real AWS environment for twelve weeks, on a $5 budget.',
-  roles: CLOUD_ROLES,
-  weeks: cloudWeeks(P, PLANS),
-  gates: [],
-  tasks: TASKS,
-  noGatekeeping: true,
-  manualSections: ['cloud-iac'],
-  topologyPicture: 'cloud',
-  lifecyclePath: CLOUD_CYCLE,
-  isSeed: true,
-  version: 1,
+const WEEKS = cloudWeeks(P, PLANS);
+
+/** Week 0 of the later courses: the previous course's end state, from the template. */
+function awsSetup(through: 4 | 8, previous: string, fw: string): Task {
+  return {
+    id: `${P}-w0-setup`,
+    role: 'arch',
+    shared: true,
+    week: 0,
+    title: 'Stand up the inherited environment',
+    objective: `Have the environment ${previous} ends with — skip if your team built it; deploy it from the template if not.`,
+    frameworks: [fw, 'WAF'],
+    deliverables: [],
+    estimatedTime: '40 min',
+    difficulty: 1,
+    learn: ['Deploying a CloudFormation stack', 'The ThroughWeek parameter', 'What a template does not carry'],
+    definitionOfDone: [`The stack holds every resource Architecture v${through} shows`, 'The website answers over HTTPS'],
+    steps: [
+      portal(`${P}-w0-setup-s1`, 'Check what your team already has', `Skip this week if your team finished ${previous}.`, 'AWS console — CloudFormation → Stacks', [
+        'Open the stack capstone-team01, if it exists.',
+        'Compare its resources with the Guide’s picture for Week 0.',
+        'Everything there already? Go to Week 1.',
+      ], 'You know whether the environment exists or must be deployed.', 'A team that built it keeps it; a team that did not gets the same starting point from the template, so both do the same Week 1.'),
+      portal(`${P}-w0-setup-s2`, 'Get the template', 'Download template.yaml and the prod parameter file.', 'Guide → Architecture & IaC → Full template', [
+        'Download template.yaml and params-prod.json into infra/.',
+        'Set TeamId, OwnerTag and AlertEmail in the parameter file.',
+      ], 'The two files sit in infra/ with your team’s values.', 'The template describes the whole twelve-week environment; the ThroughWeek parameter deploys only as far as this course starts.'),
+      cli(`${P}-w0-setup-s3`, `Deploy through Week ${through}`, `Deploy the stack with ThroughWeek=${through}.`, [
+        { cmd: `aws cloudformation deploy --stack-name capstone-team01 --template-file infra/template.yaml --parameter-overrides ThroughWeek=${through} TeamId=team01 OwnerTag=team01-lead AlertEmail=team01-alerts@school.edu --capabilities CAPABILITY_IAM`, explain: `ThroughWeek=${through} leaves every later resource out — the Week5Plus condition in the template does the choosing. CloudFront makes this take about ten minutes.`, sample: 'Waiting for changeset to be created..\nWaiting for stack create/update to complete\nSuccessfully created/updated stack - capstone-team01' },
+      ], ['Successfully created'], 'One command, and the environment is exactly where the previous course left it.', {
+        fixes: [{ symptom: 'AlreadyExists for a bucket or function', fix: 'A hand-built resource shares the name. Delete it, or use another TeamId and record why.' }],
+      }),
+      cli(`${P}-w0-setup-s4`, 'Publish what the template cannot', 'Upload the site to the bucket the stack made.', [
+        { cmd: "BUCKET=$(aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='SiteBucketName'].OutputValue\" --output text); aws s3 sync ./site s3://$BUCKET && aws cloudformation describe-stacks --stack-name capstone-team01 --query \"Stacks[0].Outputs[?OutputKey=='SiteUrl'].OutputValue\" --output text", explain: 'Site files never live in a template; the Lambda code does (inline). The site comes from the team repository.', sample: 'upload: site/index.html to s3://capstone-team01-site/index.html\nhttps://d111111abcdef8.cloudfront.net' },
+      ], ['cloudfront.net'], 'Infrastructure is in the template; content is in the repository. Both are needed for a working site.'),
+      STOP(0, 'setup'),
+    ],
+  };
+}
+
+const AWS_BLOCKS = {
+  fundamentals: {
+    weeks: [1, 4] as [number, number],
+    id: 'aws-cloud-practitioner',
+    title: 'AWS Cloud Practitioner Capstone',
+    description: 'Build a small company in AWS in four weeks: a VPC, an instance, a website with HTTPS and a serverless counter — then watch it run.',
+    certification: 'Cloud Practitioner (CLF-C02)',
+    level: 'entry' as const,
+    audience: 'Four roles build a real AWS environment in four weeks, on a $5 budget. Start here.',
+    framework: 'AWS_CLF',
+    authoredFramework: 'AWS_CLF',
+    intro: 'A website behind CloudFront, a serverless visitor counter, one Linux instance, and the first incident worked end to end.',
+  },
+  architect: {
+    weeks: [5, 8] as [number, number],
+    id: 'aws-solutions-architect',
+    title: 'AWS Solutions Architect Capstone',
+    description: 'Run the company’s AWS like production: least-privilege IAM, a private subnet with no open ports, instance administration, backup and recovery.',
+    certification: 'Solutions Architect – Associate (SAA-C03)',
+    level: 'associate' as const,
+    audience: 'Four roles operate the environment the Cloud Practitioner course built. Week 0 deploys it if your team is new.',
+    framework: 'AWS_SAA',
+    authoredFramework: 'AWS_CLF',
+    intro: 'Starts from the Cloud Practitioner environment and adds a table-scoped role, a private subnet and Session Manager, an EBS volume and patching, snapshots and a timed recovery drill.',
+  },
+  devops: {
+    weeks: [9, 12] as [number, number],
+    id: 'aws-devops',
+    title: 'AWS DevOps Engineer Capstone',
+    description: 'Write the company’s AWS as CloudFormation, deploy it from GitHub Actions with no stored keys, check it with Config, and hand it over.',
+    certification: 'DevOps Engineer – Professional (DOP-C02)',
+    level: 'professional' as const,
+    audience: 'Four roles codify, automate, govern and hand over the environment. Week 0 deploys it if your team is new.',
+    framework: 'AWS_DOP',
+    authoredFramework: 'AWS_CLF',
+    intro: 'Starts from the Solutions Architect environment and adds the template, change sets and a dev stack, a reviewed pipeline with OIDC, Config, CloudTrail and posture, and the handover under pressure.',
+  },
 };
+
+const slice = (b: keyof typeof AWS_BLOCKS, setup?: { week: WeekDef; task: Task }) =>
+  sliceCourse(AWS_BLOCKS[b], { vendor: 'AWS', plans: PLANS, tasks: TASKS, weeks: WEEKS, setup });
+
+export const AWS_CLOUD_PRACTITIONER: Course = slice('fundamentals');
+export const AWS_SOLUTIONS_ARCHITECT: Course = slice('architect', {
+  week: setupWeek(P, 'the Cloud Practitioner course'),
+  task: awsSetup(4, 'the Cloud Practitioner course', 'AWS_SAA'),
+});
+export const AWS_DEVOPS: Course = slice('devops', {
+  week: setupWeek(P, 'the Solutions Architect course'),
+  task: awsSetup(8, 'the Solutions Architect course', 'AWS_DOP'),
+});
+export const AWS_COURSES = [AWS_CLOUD_PRACTITIONER, AWS_SOLUTIONS_ARCHITECT, AWS_DEVOPS];
+export { AWS_BLOCKS };

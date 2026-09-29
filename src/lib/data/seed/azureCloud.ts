@@ -1,5 +1,5 @@
-import type { Course, Step, Task } from '../../types';
-import { CLOUD_CYCLE, CLOUD_FILES, CLOUD_FORMS, CLOUD_ROLES, cloudTask, cloudWeeks, stepKit, type WeekPlan } from './cloudKit';
+import type { Course, Step, Task, WeekDef } from '../../types';
+import { CLOUD_FILES, CLOUD_FORMS, cloudTask, cloudWeeks, setupWeek, sliceCourse, stepKit, type WeekPlan } from './cloudKit';
 
 /**
  * Azure Cloud Capstone (R87) — "Run a small company in Azure".
@@ -689,24 +689,97 @@ const TASKS: Task[] = [
   ]),
 ];
 
-export const AZURE_CLOUD: Course = {
-  id: 'azure-cloud',
-  title: 'Azure Cloud Capstone',
-  slug: 'azure-cloud',
-  description: 'Run a small company in Azure: build it, secure it, recover it, write it as an ARM template, and hand it over.',
-  vendor: 'Microsoft',
-  certification: 'AZ-900',
-  level: 'entry',
-  audience: 'Four roles build and run a real Azure environment for twelve weeks, on a $5 budget.',
-  roles: CLOUD_ROLES,
-  weeks: cloudWeeks(P, PLANS),
-  gates: [],
-  tasks: TASKS,
-  // No week ever locks, and every role has its own task every week.
-  noGatekeeping: true,
-  manualSections: ['cloud-iac'],
-  topologyPicture: 'cloud',
-  lifecyclePath: CLOUD_CYCLE,
-  isSeed: true,
-  version: 1,
+const WEEKS = cloudWeeks(P, PLANS);
+
+/** Week 0 of the later courses: the previous course's end state, from the template. */
+function azureSetup(through: 4 | 8, previous: string, fw: string): Task {
+  return {
+    id: `${P}-w0-setup`,
+    role: 'arch',
+    shared: true,
+    week: 0,
+    title: 'Stand up the inherited environment',
+    objective: `Have the environment ${previous} ends with — skip if your team built it; deploy it from the template if not.`,
+    frameworks: [fw, 'WAF'],
+    deliverables: [],
+    estimatedTime: '40 min',
+    difficulty: 1,
+    learn: ['Deploying an ARM template', 'The throughWeek parameter', 'What a template does not carry'],
+    definitionOfDone: [`rg-capstone-team01 holds every resource Architecture v${through} shows`, 'The website answers over HTTPS'],
+    steps: [
+      portal(`${P}-w0-setup-s1`, 'Check what your team already has', `Skip this week if your team finished ${previous}.`, 'Azure portal — Resource groups', [
+        'Open rg-capstone-team01, if it exists.',
+        'Compare it with the Guide’s picture for Week 0.',
+        'Everything there already? Go to Week 1.',
+      ], 'You know whether the environment exists or must be deployed.', 'A team that built it keeps it; a team that did not gets the same starting point from the template, so both do the same Week 1.'),
+      portal(`${P}-w0-setup-s2`, 'Get the template', 'Download azuredeploy.json and the prod parameter file.', 'Guide → Architecture & IaC → Full template', [
+        'Download azuredeploy.json and azuredeploy.parameters.prod.json into infra/.',
+        'Set teamId, ownerTag and alertEmail in the parameter file.',
+      ], 'The two files sit in infra/ with your team’s values.', 'The template describes the whole twelve-week environment; the throughWeek parameter deploys only as far as this course starts.'),
+      cli(`${P}-w0-setup-s3`, `Deploy through Week ${through}`, `Create the resource group and deploy with throughWeek=${through}.`, [
+        { cmd: 'RG=rg-capstone-team01; az group create -n $RG -l eastus -o none', explain: 'The resource group everything lives in.', sample: '(no output — the group exists)' },
+        { cmd: `az deployment group create -g $RG --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --parameters throughWeek=${through} sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --query properties.provisioningState -o tsv`, explain: `throughWeek=${through} leaves every later resource out — the conditions in the template do the choosing.`, sample: 'Succeeded' },
+      ], ['Succeeded'], 'One command, and the environment is exactly where the previous course left it.', {
+        fixes: [{ symptom: 'No SSH key at ~/.ssh/id_rsa.pub', fix: 'Run ssh-keygen -t ed25519 first and pass that .pub file instead.' }],
+      }),
+      cli(`${P}-w0-setup-s4`, 'Publish what the template cannot', 'Switch on the static website and upload the site.', [
+        { cmd: 'WEB=$(az deployment group show -g $RG -n azuredeploy --query properties.outputs.webStorageAccount.value -o tsv); az storage blob service-properties update --account-name $WEB --static-website --index-document index.html --404-document 404.html --auth-mode login -o none; az storage blob upload-batch --account-name $WEB -s ./site -d \'$web\' --auth-mode login --overwrite -o none; az storage account show -n $WEB --query primaryEndpoints.web -o tsv', explain: 'ARM cannot switch on the static website, and site files and Function code never live in a template. The site comes from the team repository; deploy api/ to the Function App as Week 3 did.', sample: 'https://stwebteam0118342.z13.web.core.windows.net/' },
+      ], ['web.core.windows.net'], 'Infrastructure is in the template; content is in the repository. Both are needed for a working site.'),
+      DEALLOCATE(0, 'setup'),
+    ],
+  };
+}
+
+const AZ_BLOCKS = {
+  fundamentals: {
+    weeks: [1, 4] as [number, number],
+    id: 'azure-fundamentals',
+    title: 'Azure Fundamentals Capstone',
+    description: 'Build a small company in Azure in four weeks: a network, a VM, a website with HTTPS and a serverless counter — then watch it run.',
+    certification: 'AZ-900',
+    level: 'entry' as const,
+    audience: 'Four roles build a real Azure environment in four weeks, on a $5 budget. Start here.',
+    framework: 'AZ_900',
+    authoredFramework: 'AZ_900',
+    intro: 'A website with HTTPS, a serverless visitor counter, one Linux VM, and the first incident worked end to end.',
+  },
+  administrator: {
+    weeks: [5, 8] as [number, number],
+    id: 'azure-administrator',
+    title: 'Azure Administrator Capstone',
+    description: 'Run the company’s Azure like production: least-privilege identity, a segmented network with no open ports, server administration, backup and recovery.',
+    certification: 'AZ-104',
+    level: 'associate' as const,
+    audience: 'Four roles operate the environment the Fundamentals course built. Week 0 deploys it if your team is new.',
+    framework: 'AZ_104',
+    authoredFramework: 'AZ_900',
+    intro: 'Starts from the Fundamentals environment and adds identity without secrets, a management subnet, a data disk and patching, snapshots and a timed recovery drill.',
+  },
+  devops: {
+    weeks: [9, 12] as [number, number],
+    id: 'azure-devops',
+    title: 'Azure DevOps Capstone',
+    description: 'Write the company’s Azure as an ARM template, deploy it from GitHub Actions with no stored keys, govern it with Policy, and hand it over.',
+    certification: 'AZ-400',
+    level: 'expert' as const,
+    audience: 'Four roles codify, automate, govern and hand over the environment. Week 0 deploys it if your team is new.',
+    framework: 'AZ_400',
+    authoredFramework: 'AZ_900',
+    intro: 'Starts from the Administrator environment and adds the template, what-if and a dev deployment, a reviewed pipeline with OIDC, Policy, audit and posture, and the handover under pressure.',
+  },
 };
+
+const slice = (b: keyof typeof AZ_BLOCKS, setup?: { week: WeekDef; task: Task }) =>
+  sliceCourse(AZ_BLOCKS[b], { vendor: 'Microsoft', plans: PLANS, tasks: TASKS, weeks: WEEKS, setup });
+
+export const AZURE_FUNDAMENTALS: Course = slice('fundamentals');
+export const AZURE_ADMINISTRATOR: Course = slice('administrator', {
+  week: setupWeek(P, 'the Fundamentals course'),
+  task: azureSetup(4, 'the Fundamentals course', 'AZ_104'),
+});
+export const AZURE_DEVOPS: Course = slice('devops', {
+  week: setupWeek(P, 'the Administrator course'),
+  task: azureSetup(8, 'the Administrator course', 'AZ_400'),
+});
+export const AZURE_COURSES = [AZURE_FUNDAMENTALS, AZURE_ADMINISTRATOR, AZURE_DEVOPS];
+export const AZURE_BLOCKS = AZ_BLOCKS;

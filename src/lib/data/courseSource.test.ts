@@ -9,8 +9,8 @@ import { SECURITY_PLUS } from './seed/securityPlus';
 import { CYSA_PLUS } from './seed/cysa';
 import { MSSP } from './seed/mssp';
 import { CCNA } from './seed/ccna';
-import { AZURE_CLOUD } from './seed/azureCloud';
-import { AWS_CLOUD } from './seed/awsCloud';
+import { AZURE_COURSES } from './seed/azureCloud';
+import { AWS_COURSES } from './seed/awsCloud';
 import serverPlusDoc from '../../../content/courses/server-plus.json';
 
 /**
@@ -21,7 +21,7 @@ import serverPlusDoc from '../../../content/courses/server-plus.json';
  * two rounds while the flag that would have used the documents was off.
  */
 describe('the built-in courses load from content/courses', () => {
-  const MODULES = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
+  const MODULES = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
 
   it('every seed course is there', () => {
     const ids = localStorageCourseRepo.list().map((c) => c.id);

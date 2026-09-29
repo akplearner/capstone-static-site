@@ -14,7 +14,11 @@ const FRAMEWORK_COLORS: Record<Framework, string> = {
   'CCNA': 'bg-info-soft text-info',
   'ITIL': 'bg-accent-soft text-accent-ink',
   'AZ_900': 'bg-info-soft text-info',
+  'AZ_104': 'bg-info-soft text-info',
+  'AZ_400': 'bg-info-soft text-info',
   'AWS_CLF': 'bg-warn-soft text-warn',
+  'AWS_SAA': 'bg-warn-soft text-warn',
+  'AWS_DOP': 'bg-warn-soft text-warn',
   'WAF': 'bg-ok-soft text-ok',
 };
 
@@ -31,7 +35,11 @@ const FRAMEWORK_LABELS: Record<Framework, string> = {
   'CCNA': 'CCNA 200-301',
   'ITIL': 'ITIL 4',
   'AZ_900': 'AZ-900',
+  'AZ_104': 'AZ-104',
+  'AZ_400': 'AZ-400',
   'AWS_CLF': 'AWS CLF-C02',
+  'AWS_SAA': 'AWS SAA-C03',
+  'AWS_DOP': 'AWS DOP-C02',
   'WAF': 'Well-Architected',
 };
 
@@ -48,7 +56,11 @@ const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'CCNA': 'Cisco CCNA 200-301 v1.1 — the exam blueprint’s six domains',
   'ITIL': 'ITIL 4 — change, incident and problem management',
   'AZ_900': 'Microsoft Azure Fundamentals (AZ-900)',
+  'AZ_104': 'Microsoft Azure Administrator (AZ-104)',
+  'AZ_400': 'Microsoft DevOps Engineer Expert (AZ-400)',
   'AWS_CLF': 'AWS Certified Cloud Practitioner (CLF-C02)',
+  'AWS_SAA': 'AWS Certified Solutions Architect – Associate (SAA-C03)',
+  'AWS_DOP': 'AWS Certified DevOps Engineer – Professional (DOP-C02)',
   'WAF': 'Well-Architected Framework — Azure and AWS',
 };
 
@@ -80,8 +92,16 @@ const FRAMEWORK_WHY: Record<Framework, string> = {
     'The operating disciplines a network team is judged on: change, incident and problem management. A tag here means the step is not just technically right but done the way an organisation can audit — requested, reviewed, reversible and recorded.',
   'AZ_900':
     'The Azure Fundamentals exam: cloud concepts, Azure architecture and services, and management and governance. The tag says which exam area a task practises, so the course and the syllabus can be read side by side.',
+  'AZ_104':
+    'The Azure Administrator exam: identities and governance, storage, compute, networking and monitoring. The tag says which exam area a task practises.',
+  'AZ_400':
+    'The DevOps Engineer exam: source control, pipelines, infrastructure as code, security and compliance in the pipeline, and monitoring. The tag says which exam area a task practises.',
   'AWS_CLF':
     'The AWS Cloud Practitioner exam: cloud concepts, security and compliance, core services, and billing and pricing. The tag says which area a task practises.',
+  'AWS_SAA':
+    'The AWS Solutions Architect – Associate exam: secure, resilient, high-performing and cost-optimised design. The tag says which area a task practises.',
+  'AWS_DOP':
+    'The AWS DevOps Engineer – Professional exam: CI/CD, infrastructure as code, monitoring, incident response and governance at scale. The tag says which area a task practises.',
   'WAF':
     'Both clouds judge a design on the same pillars — reliability, security, cost, operational excellence and performance. A tag here means the step is a design choice one of them would ask about.',
 };

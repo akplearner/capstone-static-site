@@ -63,6 +63,8 @@ export interface CloudContent {
   topology: CloudTopology;
   iac: IacBundle;
   workflows: KitSpec[];
+  /** R90: which global weeks this course is, and its one-line intro. */
+  block: { weeks: [number, number]; intro: string; title: string };
   raci: typeof import('@/lib/cloud/workflows').CLOUD_RACI;
   phases: typeof import('@/lib/cloud/workflows').CLOUD_PHASES;
 }

@@ -79,6 +79,12 @@ const SOURCE = `{
       "type": "string",
       "defaultValue": "",
       "metadata": { "description": "Optional: an Entra group given Reader on the resource group (Week 5)." }
+    },
+    "throughWeek": {
+      "type": "int",
+      "defaultValue": 12,
+      "allowedValues": [ 4, 8, 12 ],
+      "metadata": { "description": "Deploy the environment as it stands at the end of this week: 4 (Fundamentals), 8 (Administrator) or 12 (everything)." }
     }
   },
   "variables": {
@@ -112,6 +118,27 @@ const SOURCE = `{
     "agName": "[format('ag-capstone-{0}', parameters('teamId'))]",
     "alertName": "[format('alert-func-5xx-{0}', parameters('teamId'))]",
     "budgetName": "[format('budget-capstone-{0}', parameters('teamId'))]",
+    "snetApp": {
+      "name": "[variables('snetAppName')]",
+      "properties": {
+        "addressPrefix": "⟦FILL:the app subnet range|10.10.1.0/24⟧",
+        "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgAppName'))]" }
+      }
+    },
+    "snetMgmt": {
+      "name": "[variables('snetMgmtName')]",
+      "properties": {
+        "addressPrefix": "10.10.2.0/24",
+        "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgMgmtName'))]" }
+      }
+    },
+    "dataDisks": [
+      {
+        "lun": 0,
+        "createOption": "Attach",
+        "managedDisk": { "id": "[resourceId('Microsoft.Compute/disks', variables('dataDiskName'))]" }
+      }
+    ],
     "cloudInit": "#cloud-config\\npackages:\\n  - nginx\\nruncmd:\\n  - echo 'IT tools server OK' > /var/www/html/index.html\\n"
   },
   "resources": [
@@ -176,6 +203,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w6] nsgMgmt — rules for the management subnet, reserved for a future Bastion.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-11-01",
       "name": "[variables('nsgMgmtName')]",
@@ -212,22 +240,7 @@ const SOURCE = `{
       ],
       "properties": {
         "addressSpace": { "addressPrefixes": [ "⟦FILL:the VNet address space|10.10.0.0/16⟧" ] },
-        "subnets": [
-          {
-            "name": "[variables('snetAppName')]",
-            "properties": {
-              "addressPrefix": "⟦FILL:the app subnet range|10.10.1.0/24⟧",
-              "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgAppName'))]" }
-            }
-          },
-          {
-            "name": "[variables('snetMgmtName')]",
-            "properties": {
-              "addressPrefix": "10.10.2.0/24",
-              "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgMgmtName'))]" }
-            }
-          }
-        ]
+        "subnets": "[if(greaterOrEquals(parameters('throughWeek'), 6), createArray(variables('snetApp'), variables('snetMgmt')), createArray(variables('snetApp')))]"
       }
     },
     {
@@ -269,6 +282,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w7] dataDisk — the VM's second disk, for data that must outlive the OS.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 7)]",
       "type": "Microsoft.Compute/disks",
       "apiVersion": "2023-10-02",
       "name": "[variables('dataDiskName')]",
@@ -306,13 +320,7 @@ const SOURCE = `{
             "deleteOption": "Delete",
             "managedDisk": { "storageAccountType": "Premium_LRS" }
           },
-          "dataDisks": [
-            {
-              "lun": 0,
-              "createOption": "Attach",
-              "managedDisk": { "id": "[resourceId('Microsoft.Compute/disks', variables('dataDiskName'))]" }
-            }
-          ]
+          "dataDisks": "[if(greaterOrEquals(parameters('throughWeek'), 7), variables('dataDisks'), createArray())]"
         },
         "osProfile": {
           "computerName": "[variables('vmName')]",
@@ -358,6 +366,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w8] webBlobService — soft delete and versioning, so a deleted or overwritten page comes back.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 8)]",
       "type": "Microsoft.Storage/storageAccounts/blobServices",
       "apiVersion": "2023-05-01",
       "name": "[variables('webBlobServiceName')]",
@@ -595,6 +604,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w5] cosmosRoleFunc — lets the Function's identity read and write data. No key needed.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
       "type": "Microsoft.DocumentDB/databaseAccounts/sqlRoleAssignments",
       "apiVersion": "2024-05-15",
       "name": "[format('{0}/{1}', variables('cosmosName'), guid(resourceGroup().id, variables('funcName'), 'cosmos-data-contributor'))]",
@@ -610,6 +620,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w5] kvRoleFunc — lets the Function's identity read secrets (Key Vault Secrets User), nothing more.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', variables('kvName')), variables('funcName'), 'kv-secrets-user')]",
@@ -626,7 +637,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w5] readerRole — optional: an Entra group can look at everything here and change nothing.",
-      "condition": "[not(empty(parameters('readerGroupObjectId')))]",
+      "condition": "[and(greaterOrEquals(parameters('throughWeek'), 5), not(empty(parameters('readerGroupObjectId'))))]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(resourceGroup().id, parameters('readerGroupObjectId'), 'reader')]",
@@ -638,6 +649,7 @@ const SOURCE = `{
     },
     {
       "comments": "[w11] tagPolicy — Azure Policy refuses any new resource without an owner tag.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 11)]",
       "type": "Microsoft.Authorization/policyAssignments",
       "apiVersion": "2022-06-01",
       "name": "require-owner-tag",
@@ -740,6 +752,7 @@ export const AZURE_IAC: IacBundle = {
     'ARM cannot switch on the static-website feature — it is a data-plane setting. One CLI command does it after the deployment.',
     'The Function’s code is not in the template. It ships through the portal in Week 3 and through GitHub Actions from Week 10.',
     'Secret values never live in a template. The vault is created here; you add secrets to it, and the Function reads them with its identity.',
+    'Deploy with throughWeek=4 or 8 to get the environment exactly as the Fundamentals or the Administrator course leaves it; every later resource is conditional on it.',
     'The VM keeps a public IP only so it can download patches. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.',
   ],
 };

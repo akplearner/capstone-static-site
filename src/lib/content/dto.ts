@@ -28,8 +28,8 @@ import { CYSA_PLUS } from '@/lib/data/seed/cysa';
 import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
 import { CCNA } from '@/lib/data/seed/ccna';
-import { AZURE_CLOUD } from '@/lib/data/seed/azureCloud';
-import { AWS_CLOUD } from '@/lib/data/seed/awsCloud';
+import { AZURE_BLOCKS, AZURE_COURSES } from '@/lib/data/seed/azureCloud';
+import { AWS_BLOCKS, AWS_COURSES } from '@/lib/data/seed/awsCloud';
 import { AWS_IAC } from '@/lib/cloud/awsIac';
 import { AWS_TOPOLOGY } from '@/lib/cloud/awsTopology';
 import { AZURE_IAC } from '@/lib/cloud/azureIac';
@@ -61,7 +61,7 @@ export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -138,18 +138,15 @@ export function serialisable<T>(value: T): Serialisable<T> {
   return value as Serialisable<T>;
 }
 
-const CLOUD_CONTENT: Record<string, { files: string[]; topology: CloudTopology; iac: IacBundle }> = {
-  'azure-cloud': {
-    files: ['src/lib/cloud/azureTopology.ts', 'src/lib/cloud/azureIac.ts', 'src/lib/cloud/workflows.ts'],
-    topology: AZURE_TOPOLOGY,
-    iac: AZURE_IAC,
-  },
-  'aws-cloud': {
-    files: ['src/lib/cloud/awsTopology.ts', 'src/lib/cloud/awsIac.ts', 'src/lib/cloud/workflows.ts'],
-    topology: AWS_TOPOLOGY,
-    iac: AWS_IAC,
-  },
-};
+// Each cloud course is one quarter of a twelve-week plan (R90): the picture and
+// the template are the whole plan, and the document says which weeks are this
+// course's.
+type CloudBlockInfo = { weeks: [number, number]; intro: string; title: string };
+const cloudBlock = (b: CloudBlockInfo) => ({ weeks: b.weeks, intro: b.intro, title: b.title });
+const CLOUD_CONTENT: Record<string, { files: string[]; topology: CloudTopology; iac: IacBundle; block: { weeks: [number, number]; intro: string; title: string } }> = Object.fromEntries([
+  ...Object.values(AZURE_BLOCKS).map((b) => [b.id, { files: ['src/lib/cloud/azureTopology.ts', 'src/lib/cloud/azureIac.ts', 'src/lib/cloud/workflows.ts'], topology: AZURE_TOPOLOGY, iac: AZURE_IAC, block: cloudBlock(b) }]),
+  ...Object.values(AWS_BLOCKS).map((b) => [b.id, { files: ['src/lib/cloud/awsTopology.ts', 'src/lib/cloud/awsIac.ts', 'src/lib/cloud/workflows.ts'], topology: AWS_TOPOLOGY, iac: AWS_IAC, block: cloudBlock(b) }]),
+]);
 
 const SEED_FILE: Record<string, string> = {
   'security-plus': 'src/lib/data/seed/securityPlus.ts',
@@ -157,8 +154,12 @@ const SEED_FILE: Record<string, string> = {
   'cysa-plus': 'src/lib/data/seed/cysa.ts',
   'server-plus': 'src/lib/data/seed/serverPlus.ts',
   ccna: 'src/lib/data/seed/ccna.ts',
-  'azure-cloud': 'src/lib/data/seed/azureCloud.ts',
-  'aws-cloud': 'src/lib/data/seed/awsCloud.ts',
+  'azure-fundamentals': 'src/lib/data/seed/azureCloud.ts',
+  'azure-administrator': 'src/lib/data/seed/azureCloud.ts',
+  'azure-devops': 'src/lib/data/seed/azureCloud.ts',
+  'aws-cloud-practitioner': 'src/lib/data/seed/awsCloud.ts',
+  'aws-solutions-architect': 'src/lib/data/seed/awsCloud.ts',
+  'aws-devops': 'src/lib/data/seed/awsCloud.ts',
 };
 
 const FORM_FILE: Record<string, string> = {
@@ -167,8 +168,12 @@ const FORM_FILE: Record<string, string> = {
   'cysa-plus': 'src/lib/docs/cysaDeliverables.ts',
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
   ccna: 'src/lib/docs/ccnaDeliverables.ts',
-  'azure-cloud': 'src/lib/docs/azureCloudDeliverables.ts',
-  'aws-cloud': 'src/lib/docs/awsCloudDeliverables.ts',
+  'azure-fundamentals': 'src/lib/docs/azureCloudDeliverables.ts',
+  'azure-administrator': 'src/lib/docs/azureCloudDeliverables.ts',
+  'azure-devops': 'src/lib/docs/azureCloudDeliverables.ts',
+  'aws-cloud-practitioner': 'src/lib/docs/awsCloudDeliverables.ts',
+  'aws-solutions-architect': 'src/lib/docs/awsCloudDeliverables.ts',
+  'aws-devops': 'src/lib/docs/awsCloudDeliverables.ts',
 };
 
 /**
@@ -273,6 +278,7 @@ export function courseDto(courseId: string): CourseDto {
     content.cloud = {
       topology: cloud.topology,
       iac: cloud.iac,
+      block: cloud.block,
       workflows: cloudWorkflows(cloud.topology.platform),
       raci: CLOUD_RACI,
       phases: CLOUD_PHASES,

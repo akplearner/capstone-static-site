@@ -1,8 +1,21 @@
-# Cloud Capstones — Azure and AWS (R87)
+# Cloud Capstones — Azure and AWS (R87 · R90)
 
-Two parallel 12-week courses, **Azure Cloud Capstone** (`azure-cloud`) and
-**AWS Cloud Capstone** (`aws-cloud`). They have the same structure, roles and
-documents; only the services and the native tooling differ.
+One twelve-week plan per platform, delivered as **three four-week courses**,
+one per certification level. The tasks, documents, diagram and template are
+authored once against the global weeks 1–12; each course is a quarter of
+them, renumbered 1–4.
+
+| Quarter | Azure | AWS | Global weeks |
+|---|---|---|---|
+| Fundamentals | **Azure Fundamentals Capstone** (`azure-fundamentals`, AZ-900) | **AWS Cloud Practitioner Capstone** (`aws-cloud-practitioner`, CLF-C02) | 1–4 |
+| Operate | **Azure Administrator Capstone** (`azure-administrator`, AZ-104) | **AWS Solutions Architect Capstone** (`aws-solutions-architect`, SAA-C03) | 5–8 |
+| Codify & hand over | **Azure DevOps Capstone** (`azure-devops`, AZ-400) | **AWS DevOps Engineer Capstone** (`aws-devops`, DOP-C02) | 9–12 |
+
+A course after the first opens with a **Week 0** that deploys the previous
+course's end state from the template (`throughWeek=4` / `8`) for a team that
+did not build it; a team that did skips it. The diagram shows the course's own
+four weeks (Week 0 shows what is inherited); "Show what comes later" reveals
+the rest of the plan.
 
 ## Course description
 
@@ -20,7 +33,7 @@ documents; only the services and the native tooling differ.
 
 | | |
 |---|---|
-| Weeks | 12, all graded. No week is ever locked. |
+| Weeks | 4 graded per course (12 across the three), plus Week 0 in the second and third. No week is ever locked. |
 | Roles | Cloud Architect · Infrastructure Admin · App & DevOps · Security & Ops (the Architect doubles up in a team of three). |
 | Per week | 4 objectives, one task per role, 30–55 minutes, at most 4 steps. |
 | Difficulty | Beginner 1–4 · Intermediate 5–8 · Advanced 9–11 · Integrated 12. |
@@ -63,7 +76,7 @@ documents; only the services and the native tooling differ.
 | Pipeline sign-in | Federated credential (azure/login) | IAM OIDC provider + role |
 | Governance | Azure Policy (deny), Activity Log, Defender free CSPM | AWS Config (detect), CloudTrail, Trusted Advisor + Access Analyzer |
 
-## Documents — one per week, the same twelve on both platforms
+## Documents — one per week, the same twelve across the three courses, on both platforms
 
 Every document opens with **Document control** (ID, version, owner,
 approver, date, status) and closes with **Evidence** (a screenshot named
@@ -88,7 +101,9 @@ names the role that fills it. Each form draws Architecture vN for its week.
 ## Architecture and IaC
 
 * `src/lib/cloud/azureIac.ts` / `awsIac.ts`: one source template per platform
-  with `⟦FILL:hint|value⟧` markers. The full template and the Week 9 starter
+  with `⟦FILL:hint|value⟧` markers. A `throughWeek` parameter (4, 8 or 12)
+  makes every Week-5+ resource conditional, so one template deploys any
+  course's starting point. The full template and the Week 9 starter
   are both derived from it, and every resource is tagged with the week it
   arrives.
 * `azureTopology.ts` / `awsTopology.ts`: the diagram, drawn in each

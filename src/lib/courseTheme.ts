@@ -59,16 +59,12 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'Cisco',
     certification: 'CCNA (200-301)',
   },
-  'azure-cloud': {
-    key: 'azure-cloud',
-    vendor: 'Microsoft',
-    certification: 'AZ-900',
-  },
-  'aws-cloud': {
-    key: 'aws-cloud',
-    vendor: 'AWS',
-    certification: 'Cloud Practitioner (CLF-C02)',
-  },
+  'azure-fundamentals': { key: 'azure-fundamentals', vendor: 'Microsoft', certification: 'AZ-900' },
+  'azure-administrator': { key: 'azure-administrator', vendor: 'Microsoft', certification: 'AZ-104' },
+  'azure-devops': { key: 'azure-devops', vendor: 'Microsoft', certification: 'AZ-400' },
+  'aws-cloud-practitioner': { key: 'aws-cloud-practitioner', vendor: 'AWS', certification: 'Cloud Practitioner (CLF-C02)' },
+  'aws-solutions-architect': { key: 'aws-solutions-architect', vendor: 'AWS', certification: 'Solutions Architect – Associate (SAA-C03)' },
+  'aws-devops': { key: 'aws-devops', vendor: 'AWS', certification: 'DevOps Engineer – Professional (DOP-C02)' },
 };
 
 /** Neutral identity for a course we have no styling for — keeps the default

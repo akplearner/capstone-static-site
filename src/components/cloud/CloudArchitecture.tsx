@@ -14,10 +14,12 @@ export function CloudArchitecture({
   topology,
   iac,
   initialWeek = 12,
+  weekRange,
 }: {
   topology: Topology;
   iac: IacBundle;
   initialWeek?: number;
+  weekRange?: [number, number];
 }) {
   const [week, setWeek] = useState(initialWeek);
   const [selected, setSelected] = useState<string | null>(null);
@@ -29,8 +31,9 @@ export function CloudArchitecture({
         onWeekChange={setWeek}
         selected={selected}
         onSelect={(id) => setSelected((cur) => (cur === id ? null : id))}
+        weekRange={weekRange}
       />
-      <IacViewer iac={iac} selected={selected} week={week} onWeekChange={setWeek} />
+      <IacViewer iac={iac} selected={selected} week={week} onWeekChange={setWeek} weekRange={weekRange} />
     </div>
   );
 }

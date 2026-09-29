@@ -22,7 +22,8 @@ import { CloudArchitecture } from './CloudArchitecture';
 export function CloudOverview({ variant, courseId }: { variant: 'home' | 'guide'; courseId: string }) {
   const cloud = cloudOf(useCourseDocument());
   if (!cloud) return null;
-  const { topology, workflows, phases, raci } = cloud;
+  const { topology, workflows, phases, raci, block } = cloud;
+  const hi = block.weeks[1];
   const cycle = workflows[workflows.length - 1];
   const platform = topology.platform === 'azure' ? 'Azure' : 'AWS';
 
@@ -31,16 +32,16 @@ export function CloudOverview({ variant, courseId }: { variant: 'home' | 'guide'
       <section aria-labelledby="cloud-build" className="space-y-4">
         <div className="space-y-1">
           <h2 id="cloud-build" className="text-xl font-bold text-ink">
-            What you’ll build in the first month
+            What you’ll build in four weeks
           </h2>
           <p className="max-w-prose text-sm text-body">
-            A small company in {platform}: a website with HTTPS, a serverless visitor counter, one Linux VM. Four
-            roles, one task each a week, $5 budget. Weeks 5–12 add identity, networking, backup, code and a
-            pipeline — switch on <em>Show what comes later</em> to see them.
+            {block.intro} Four roles in {platform}, one task each a week, $5 budget.
+            {hi < 12 ? ' Later courses add more — switch on ' : ' Move the week to see it grow — switch on '}
+            <em>Show what comes later</em> to see it.
           </p>
         </div>
-        {/* Week 4 — the end of the Beginner phase — so a newcomer meets a picture they can read, not thirty resources. */}
-        <CloudTopology topology={topology} initialWeek={4} />
+        {/* This course's last week — the picture a newcomer can read, not the whole plan. */}
+        <CloudTopology topology={topology} initialWeek={hi} weekRange={block.weeks} />
         {cycle && <KitDiagram spec={cycle} courseId={courseId} />}
         <Collapsible title="How it works — four more pictures">
           <div className="space-y-4 pt-2">
@@ -103,7 +104,9 @@ export function CloudOverview({ variant, courseId }: { variant: 'home' | 'guide'
 export function CloudManualArchitecture({ initialWeek }: { initialWeek: number }) {
   const cloud = cloudOf(useCourseDocument());
   if (!cloud) return null;
-  return <CloudArchitecture topology={cloud.topology} iac={cloud.iac} initialWeek={initialWeek} />;
+  // `initialWeek` is the course's own week (0–4); the picture counts 1–12.
+  const global = cloud.block.weeks[0] - 1 + initialWeek;
+  return <CloudArchitecture topology={cloud.topology} iac={cloud.iac} initialWeek={global} weekRange={cloud.block.weeks} />;
 }
 
 /** A document's picture (`visual.kit === 'cloud'`): Architecture vN. */
@@ -114,5 +117,5 @@ export function CloudWeekVisual({ week, courseId }: { week?: number; courseId?: 
   const doc = inPage ?? (courseId ? courseDocument(courseId) : undefined);
   const cloud = doc ? cloudOf(doc) : null;
   if (!cloud) return null;
-  return <CloudTopology topology={cloud.topology} week={week ?? 12} />;
+  return <CloudTopology topology={cloud.topology} week={week ?? cloud.block.weeks[1]} weekRange={cloud.block.weeks} />;
 }
