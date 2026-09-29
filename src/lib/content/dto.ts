@@ -29,6 +29,9 @@ import { MSSP } from '@/lib/data/seed/mssp';
 import { SERVER_PLUS } from '@/lib/data/seed/serverPlus';
 import { CCNA } from '@/lib/data/seed/ccna';
 import { AZURE_CLOUD } from '@/lib/data/seed/azureCloud';
+import { AWS_CLOUD } from '@/lib/data/seed/awsCloud';
+import { AWS_IAC } from '@/lib/cloud/awsIac';
+import { AWS_TOPOLOGY } from '@/lib/cloud/awsTopology';
 import { AZURE_IAC } from '@/lib/cloud/azureIac';
 import { AZURE_TOPOLOGY } from '@/lib/cloud/azureTopology';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
@@ -58,7 +61,7 @@ export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -141,6 +144,11 @@ const CLOUD_CONTENT: Record<string, { files: string[]; topology: CloudTopology; 
     topology: AZURE_TOPOLOGY,
     iac: AZURE_IAC,
   },
+  'aws-cloud': {
+    files: ['src/lib/cloud/awsTopology.ts', 'src/lib/cloud/awsIac.ts', 'src/lib/cloud/workflows.ts'],
+    topology: AWS_TOPOLOGY,
+    iac: AWS_IAC,
+  },
 };
 
 const SEED_FILE: Record<string, string> = {
@@ -150,6 +158,7 @@ const SEED_FILE: Record<string, string> = {
   'server-plus': 'src/lib/data/seed/serverPlus.ts',
   ccna: 'src/lib/data/seed/ccna.ts',
   'azure-cloud': 'src/lib/data/seed/azureCloud.ts',
+  'aws-cloud': 'src/lib/data/seed/awsCloud.ts',
 };
 
 const FORM_FILE: Record<string, string> = {
@@ -159,6 +168,7 @@ const FORM_FILE: Record<string, string> = {
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
   ccna: 'src/lib/docs/ccnaDeliverables.ts',
   'azure-cloud': 'src/lib/docs/azureCloudDeliverables.ts',
+  'aws-cloud': 'src/lib/docs/awsCloudDeliverables.ts',
 };
 
 /**

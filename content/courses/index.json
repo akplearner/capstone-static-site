@@ -66,6 +66,17 @@
       "steps": 144,
       "deliverables": 12,
       "procedures": 0
+    },
+    {
+      "id": "aws-cloud",
+      "title": "AWS Cloud Capstone",
+      "version": 1,
+      "file": "aws-cloud.json",
+      "weeks": 12,
+      "tasks": 48,
+      "steps": 141,
+      "deliverables": 12,
+      "procedures": 0
     }
   ]
 }

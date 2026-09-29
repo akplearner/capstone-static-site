@@ -6,9 +6,10 @@ import { CYSA_PLUS } from '../data/seed/cysa';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
 import { AZURE_CLOUD } from '../data/seed/azureCloud';
+import { AWS_CLOUD } from '../data/seed/awsCloud';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and

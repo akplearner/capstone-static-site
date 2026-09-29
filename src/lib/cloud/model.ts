@@ -94,6 +94,8 @@ export interface CloudEdge {
   /** Last week the path exists (SSH from the admin's IP ends when Week 6
    *  removes it). Omitted = still there at the end. */
   until?: number;
+  /** A corner the line turns at, so it can route around what it would cross. */
+  via?: { x: number; y: number };
 }
 
 export interface CloudTopology {

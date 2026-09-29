@@ -10,10 +10,11 @@ import { MSSP } from './seed/mssp';
 import { SERVER_PLUS } from './seed/serverPlus';
 import { CCNA } from './seed/ccna';
 import { AZURE_CLOUD } from './seed/azureCloud';
+import { AWS_CLOUD } from './seed/awsCloud';
 
 // Built-in courses shipped in code. They are never written to localStorage so
 // they stay upgradeable; an authored course with the same id overrides a seed.
-const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD];
+const SEED_MODULES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, AZURE_CLOUD, AWS_CLOUD];
 
 /**
  * Where the built-in courses come from: the JSON documents, with the TypeScript

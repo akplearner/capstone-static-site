@@ -140,31 +140,36 @@ export function CloudTopology({
           const a = anchor(e.from);
           const b = anchor(e.to);
           if (!a || !b) return null;
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          const len = Math.hypot(dx, dy) || 1;
-          const x1 = a.x + (dx / len) * a.r;
-          const y1 = a.y + (dy / len) * a.r;
-          const x2 = b.x - (dx / len) * (b.r + 3);
-          const y2 = b.y - (dy / len) * (b.r + 3);
           const dep = e.kind === 'depends';
+          // Straight, or two legs through a waypoint. Each end stops at the
+          // icon's edge, measured along the leg that touches it.
+          const first = e.via ?? b;
+          const last = e.via ?? a;
+          const d1 = Math.hypot(first.x - a.x, first.y - a.y) || 1;
+          const d2 = Math.hypot(b.x - last.x, b.y - last.y) || 1;
+          const x1 = a.x + ((first.x - a.x) / d1) * a.r;
+          const y1 = a.y + ((first.y - a.y) / d1) * a.r;
+          const x2 = b.x - ((b.x - last.x) / d2) * (b.r + 3);
+          const y2 = b.y - ((b.y - last.y) / d2) * (b.r + 3);
+          const points = e.via ? `${x1},${y1} ${e.via.x},${e.via.y} ${x2},${y2}` : `${x1},${y1} ${x2},${y2}`;
+          const lx = e.via ? e.via.x : (x1 + x2) / 2;
+          const ly = e.via ? e.via.y : (y1 + y2) / 2;
           return (
             <g key={`${e.from}-${e.to}-${i}`} pointerEvents="none">
-              <line
-                x1={x1}
-                y1={y1}
-                x2={x2}
-                y2={y2}
+              <polyline
+                points={points}
+                fill="none"
                 stroke={dep ? DEPENDS_COLOUR : traffic}
                 strokeWidth={dep ? 1.1 : 1.8}
+                strokeLinejoin="round"
                 strokeDasharray={dep ? '4 3' : undefined}
                 markerEnd={`url(#${markerId}-${dep ? 'd' : 't'})`}
                 opacity={dep ? 0.75 : 0.9}
               />
               {e.label && !dep && (
                 <text
-                  x={(x1 + x2) / 2}
-                  y={(y1 + y2) / 2 - 4}
+                  x={lx}
+                  y={ly - 4}
                   textAnchor="middle"
                   fontSize="10"
                   style={{ fill: 'var(--color-ink)', paintOrder: 'stroke', stroke: 'var(--color-panel)', strokeWidth: 3 }}

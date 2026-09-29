@@ -231,6 +231,7 @@ describe('a course loads from its own document', () => {
       'server-plus': 0,
       ccna: 0,
       'azure-cloud': 0,
+      'aws-cloud': 0,
     });
     // And zero on disk too, not only in a freshly-built DTO.
     for (const c of SEED_COURSES) expect(read(c.id), c.id).not.toContain('"$fn"');

@@ -199,8 +199,9 @@ export const CATALOG: CatalogEntry[] = [
     vendorId: 'aws',
     certName: 'Solutions Architect – Associate',
     level: 'associate',
-    status: 'coming-soon',
-    blurb: 'Design a system that survives losing an availability zone.',
+    status: 'available',
+    courseId: 'aws-cloud',
+    blurb: 'Run a small company in AWS — build, secure, recover, codify, hand over.',
   },
   {
     id: 'aws-security-specialty',
