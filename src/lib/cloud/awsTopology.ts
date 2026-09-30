@@ -58,7 +58,7 @@ export const AWS_TOPOLOGY: CloudTopology = {
 
     { id: 'SiteDistribution', icon: 'cdn', label: 'CloudFront', name: 'd…cloudfront.net', x: 185, y: 205, week: 2 },
     { id: 'SiteOac', icon: 'oac', label: 'OAC', x: 185, y: 283, week: 2, small: true },
-    { id: 'ReadOnlyGroup', icon: 'group', label: 'Read-only', x: 145, y: 100, week: 5, small: true },
+    { id: 'ReadOnlyGroup', icon: 'group', label: 'Read-only group', x: 145, y: 100, week: 3, small: true },
     { id: 'MonthlyBudget', icon: 'budget', label: 'Budget $5', x: 212, y: 100, week: 1, small: true },
 
     { id: 'SiteBucket', icon: 'storage', label: 'Amazon S3', name: 'site bucket (private)', x: 340, y: 205, week: 2 },
@@ -71,7 +71,7 @@ export const AWS_TOPOLOGY: CloudTopology = {
     { id: 'ApiStage', icon: 'api', label: '$default', x: 415, y: 410, week: 3, small: true, detail: true },
     { id: 'CounterFunction', icon: 'function', label: 'AWS Lambda', name: 'capstone-team01-counter', x: 480, y: 330, week: 3 },
     { id: 'VisitorTable', icon: 'nosql', label: 'DynamoDB', name: 'on-demand', x: 610, y: 330, week: 3 },
-    { id: 'TableNameParameter', icon: 'param', label: 'Parameter Store', x: 610, y: 412, week: 3, small: true, detail: true },
+    { id: 'TableNameParameter', icon: 'param', label: 'Parameter Store', x: 610, y: 412, week: 5, small: true },
     // IAM is global, but AWS draws a role beside what assumes it.
     { id: 'CounterFunctionRole', icon: 'role', label: 'Role: counter', x: 480, y: 412, week: 3, small: true },
     { id: 'InstanceRole', icon: 'role', label: 'Role: SSM', x: 860, y: 585, week: 6, small: true },

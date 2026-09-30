@@ -468,7 +468,8 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w3] kv — Key Vault in RBAC mode. The vault is infrastructure; secret values never go in a template.",
+      "comments": "[w5] kv — Key Vault in RBAC mode. The vault is infrastructure; secret values never go in a template.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
       "type": "Microsoft.KeyVault/vaults",
       "apiVersion": "2023-07-01",
       "name": "[variables('kvName')]",
@@ -619,7 +620,8 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w3] kvRoleFunc — lets the Function's identity read secrets (Key Vault Secrets User), nothing more. By hand, Week 3 points the Cosmos setting at the vault; Week 5 replaces the secret with the data role.",
+      "comments": "[w5] kvRoleFunc — lets the Function's identity read secrets (Key Vault Secrets User), nothing more. By hand, Week 5 moves the key into the vault while the identity takes over the data path.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(resourceId('Microsoft.KeyVault/vaults', variables('kvName')), variables('funcName'), 'kv-secrets-user')]",
@@ -635,8 +637,8 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w5] readerRole — optional: an Entra group can look at everything here and change nothing.",
-      "condition": "[and(greaterOrEquals(parameters('throughWeek'), 5), not(empty(parameters('readerGroupObjectId'))))]",
+      "comments": "[w3] readerRole — optional: the team's Entra group can look at everything here and change nothing.",
+      "condition": "[not(empty(parameters('readerGroupObjectId')))]",
       "type": "Microsoft.Authorization/roleAssignments",
       "apiVersion": "2022-04-01",
       "name": "[guid(resourceGroup().id, parameters('readerGroupObjectId'), 'reader')]",

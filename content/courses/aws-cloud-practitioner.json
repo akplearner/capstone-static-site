@@ -60,18 +60,18 @@
     "weeks": [
       {
         "number": 1,
-        "title": "Foundation",
-        "theme": "Names, guardrails, a network",
-        "objective": "Set the standard and the $5 budget, then lay the network everything else sits in.",
+        "title": "Cloud concepts and governance",
+        "theme": "Who manages what, a budget, a network",
+        "objective": "Say who manages what, set the standard and the $5 budget, then lay the network everything else sits in.",
         "runs": "Week 1",
         "stage": 1,
         "phase": "Beginner",
         "difficulty": 1,
-        "milestone": "A budget alerts at $4, the VPC and public subnet exist with the agreed names and tags, and the team repo is live.",
+        "milestone": "A budget alerts at $4, every planned service has a model and an owner, the VPC and subnet exist, MFA is on.",
         "objectives": [
           {
             "id": "aws-w1-arch",
-            "label": "Set the naming standard and the budget",
+            "label": "Set the standard, the budget and the service model",
             "tasks": [
               "aws-w1-arch"
             ]
@@ -92,7 +92,7 @@
           },
           {
             "id": "aws-w1-secops",
-            "label": "Create the security group",
+            "label": "Create the security group and turn on MFA",
             "tasks": [
               "aws-w1-secops"
             ]
@@ -101,18 +101,18 @@
       },
       {
         "number": 2,
-        "title": "Website and EC2",
-        "theme": "First things people can reach",
-        "objective": "Publish the company website over HTTPS and bring up one small instance, reachable only from you.",
+        "title": "Core services",
+        "theme": "Compute, storage, network — and what they cost",
+        "objective": "Price it, choose storage classes, publish the website over HTTPS and bring up one small instance reachable only from you.",
         "runs": "Week 2",
         "stage": 2,
         "phase": "Beginner",
         "difficulty": 1,
-        "milestone": "The site loads through CloudFront over HTTPS, the t3.micro runs in the public subnet, SSH works from your IP only, and it is stopped.",
+        "milestone": "The estimate and storage choices are written, the site loads over HTTPS, the t3.micro runs in its zone, SSH works from your IP only.",
         "objectives": [
           {
             "id": "aws-w2-arch",
-            "label": "Write the architecture document and cost",
+            "label": "Estimate the cost and choose storage classes",
             "tasks": [
               "aws-w2-arch"
             ]
@@ -142,18 +142,18 @@
       },
       {
         "number": 3,
-        "title": "Serverless API",
-        "theme": "A counter behind the site",
-        "objective": "Add a visitor counter: Lambda behind an HTTP API, writing DynamoDB, callable only from your site.",
+        "title": "Serverless, data and identity",
+        "theme": "A counter behind the site, and the team’s access",
+        "objective": "Add a visitor counter — a Lambda reading and writing DynamoDB — and give the team its group, policy and MFA.",
         "runs": "Week 3",
         "stage": 3,
         "phase": "Beginner",
         "difficulty": 2,
-        "milestone": "The page shows a live visitor count, CORS admits only your site, and no key appears anywhere.",
+        "milestone": "The page shows a live visitor count, the team’s group holds ReadOnlyAccess with MFA on, and no key appears in the browser.",
         "objectives": [
           {
             "id": "aws-w3-arch",
-            "label": "Draw the request flow with real URLs",
+            "label": "Draw the request flow and say who manages each hop",
             "tasks": [
               "aws-w3-arch"
             ]
@@ -174,7 +174,7 @@
           },
           {
             "id": "aws-w3-secops",
-            "label": "Lock CORS and keep secrets out",
+            "label": "Give the team the right access",
             "tasks": [
               "aws-w3-secops"
             ]
@@ -183,18 +183,18 @@
       },
       {
         "number": 4,
-        "title": "Operate",
-        "theme": "Watch it, break it, fix it",
-        "objective": "Watch cost and errors, then work one failure from symptom to root cause and prevention.",
+        "title": "Monitor, govern, pay",
+        "theme": "Watch it, break it, fix it, audit it",
+        "objective": "Watch cost and errors, read Trusted Advisor, find the change in CloudTrail, and write one failure up as an incident.",
         "runs": "Week 4",
         "stage": 4,
         "phase": "Beginner",
         "difficulty": 2,
-        "milestone": "An alarm emails on Lambda errors, one incident is written up layer by layer, and spend is reported.",
+        "milestone": "An alarm emails on Lambda errors, Trusted Advisor is read, the change is found in CloudTrail, one incident is recorded, and spend is reported.",
         "objectives": [
           {
             "id": "aws-w4-arch",
-            "label": "Report the cost to date",
+            "label": "Report the cost, and read Trusted Advisor and the support plans",
             "tasks": [
               "aws-w4-arch"
             ]
@@ -215,7 +215,7 @@
           },
           {
             "id": "aws-w4-secops",
-            "label": "Work one incident layer by layer",
+            "label": "Find who changed it in CloudTrail and write the incident record",
             "tasks": [
               "aws-w4-secops"
             ]
@@ -229,8 +229,8 @@
         "id": "aws-w1-arch",
         "role": "arch",
         "week": 1,
-        "title": "Set the naming standard and the budget",
-        "objective": "Agree how everything is named and tagged, and cap spending at $5 before anything is built.",
+        "title": "Set the standard, the budget and the service model",
+        "objective": "Agree names and tags, cap spending at $5, and say who manages what for each planned service.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -238,12 +238,13 @@
         "deliverables": [
           "01_Cloud_Foundation_and_Naming_Standard.md"
         ],
-        "estimatedTime": "40 min",
+        "estimatedTime": "45 min",
         "difficulty": 1,
         "learn": [
-          "Why a $5 budget comes first",
-          "How to read a resource name",
-          "What tags carry that names cannot"
+          "CLF-C02 · Cloud Concepts",
+          "Shared responsibility and IaaS / PaaS / SaaS",
+          "Budgets and tags",
+          "How to read a resource name"
         ],
         "tools": [
           "AWS console",
@@ -251,9 +252,15 @@
         ],
         "definitionOfDone": [
           "A $5 budget alerts at 80%",
-          "The naming and tag table is agreed"
+          "The naming and tag table is agreed",
+          "Every planned service has a model and a responsibility line"
         ],
         "docs": [
+          {
+            "title": "Shared responsibility model",
+            "url": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+            "lookFor": "the diagram: AWS is responsible for security OF the cloud, you for security IN the cloud — which rows are yours changes with the service"
+          },
           {
             "title": "Creating a cost budget",
             "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create.html",
@@ -265,7 +272,7 @@
             "lookFor": "the “Tagging categories” list — technical, business, security, automation — and pick one key from each"
           }
         ],
-        "freeTier": "Free: AWS Budgets gives two budgets free, and the Free Tier usage alerts are on by default. Nothing is deployed this task.",
+        "freeTier": "Free: AWS Budgets gives two budgets free, the Free Tier usage alerts are on by default, and CloudShell is free. Nothing is deployed this task.",
         "steps": [
           {
             "id": "aws-w1-arch-s1",
@@ -275,9 +282,9 @@
             "instruction": "Create a $5 monthly budget that emails the team.",
             "instructionList": [
               "Billing and Cost Management → Budgets → Create budget → Use a template → Monthly cost budget.",
-              "Name: capstone-team01. Budgeted amount: 5. Email recipients: the team email. Create budget.",
-              "Cost Explorer → Launch Cost Explorer once now: it needs a day to fill.",
-              "Billing preferences: tick “Receive Free Tier usage alerts” and set the email."
+              "Name capstone-team01, amount 5, email recipients: the team email. Create budget.",
+              "Cost Explorer → Launch Cost Explorer once: it needs a day to fill. Billing preferences: tick “Receive Free Tier usage alerts”.",
+              "Open CloudShell (the >_ icon) once: your CLI, signed in already."
             ],
             "commands": [
               {
@@ -290,10 +297,6 @@
                     "meaning": "Prints who you are; the budget API needs your 12-digit account id."
                   },
                   {
-                    "flag": "\"TimeUnit\":\"MONTHLY\"",
-                    "meaning": "The counter resets on the first of each month."
-                  },
-                  {
                     "flag": "\"NotificationType\":\"ACTUAL\" … \"Threshold\":80",
                     "meaning": "Email when money already spent passes 80% — $4 of $5."
                   }
@@ -303,7 +306,7 @@
             "verify": [
               "created"
             ],
-            "whatItMeans": "A budget does not stop spending; it emails you before a mistake becomes expensive. Actual means money already spent; Forecasted guesses month-end. 80% of $5 is $4: you hear early, with a dollar of room.",
+            "whatItMeans": "Pay-as-you-go means you pay for what runs; a budget does not stop spending, it emails you before a mistake becomes expensive. Actual is money spent; Forecasted guesses month-end. Budgets, Cost Explorer and CloudShell are exam tools.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -337,6 +340,25 @@
           },
           {
             "id": "aws-w1-arch-s2",
+            "title": "Classify each service",
+            "description": "A table: service, model, what we manage, what AWS manages.",
+            "where": "Team meeting",
+            "instruction": "Say who manages what for each service you will build.",
+            "instructionList": [
+              "List the seven things the team will build: VPC, EC2 instance, S3 + CloudFront site, Lambda + API Gateway, DynamoDB, CloudWatch, SNS.",
+              "For each: IaaS, PaaS or serverless? Who patches the OS? Who secures the data?",
+              "Pick the region (us-east-1) and note that its Availability Zones are separate buildings."
+            ],
+            "expectedOutput": "A table: service, model, what we manage, what AWS manages.",
+            "outputKind": "result",
+            "whatItMeans": "Shared responsibility is the first exam domain: on EC2 (IaaS) you patch the OS; on Lambda and DynamoDB AWS does, and you own code, data and identities. AWS secures the cloud; you secure what you put in it.",
+            "frameworks": [
+              "AWS_CLF",
+              "WAF"
+            ]
+          },
+          {
+            "id": "aws-w1-arch-s3",
             "title": "Agree the naming and tags",
             "description": "A table of prefixes and four tag keys everyone has agreed to use.",
             "where": "Team meeting",
@@ -349,7 +371,7 @@
             ],
             "expectedOutput": "A table of prefixes and four tag keys everyone has agreed to use.",
             "outputKind": "result",
-            "whatItMeans": "Read ec2-tools-team01 as three parts: an EC2 instance, for the tools job, owned by team01. Most AWS names are just the Name tag, so the pattern is what makes a list readable. Tags carry the owner.",
+            "whatItMeans": "Read ec2-tools-team01 as three parts: an EC2 instance, for the tools job, owned by team01. Most AWS names are just the Name tag, so the pattern makes a list readable. Tags carry the owner; cost reports group by them.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -364,12 +386,12 @@
           {
             "id": "aws-w1-arch-s9",
             "title": "Record it in the Cloud Foundation & Naming Standard",
-            "description": "Your section: Account and guardrails, Naming, Tags, RACI.",
+            "description": "Your section: Account and guardrails, Service model, Naming, Tags, RACI.",
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Cloud Foundation & Naming Standard.",
             "instructionList": [
-              "Account alias, region (us-east-1) and the budget.",
-              "One naming row per resource type you will create.",
+              "Account alias, region and zone, and the budget.",
+              "One service-model row per service; one naming row per resource type.",
               "The four tags, and a short RACI."
             ],
             "usesForm": "Cloud Foundation & Naming Standard",
@@ -398,9 +420,9 @@
         "estimatedTime": "45 min",
         "difficulty": 1,
         "learn": [
-          "VPC CIDR",
-          "Subnets and Availability Zones",
-          "Internet gateways and route tables"
+          "CLF-C02 · Cloud Technology and Services",
+          "Global infrastructure: Regions and Availability Zones",
+          "VPC, subnets, internet gateways and route tables"
         ],
         "tools": [
           "AWS console",
@@ -411,6 +433,11 @@
           "The public subnet routes 0.0.0.0/0 to the IGW"
         ],
         "docs": [
+          {
+            "title": "Regions and Availability Zones",
+            "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html",
+            "lookFor": "the first two paragraphs: a Region is a separate geographic area; an Availability Zone is one or more datacenters inside it, isolated from the others"
+          },
           {
             "title": "Create a VPC",
             "url": "https://docs.aws.amazon.com/vpc/latest/userguide/create-vpc.html",
@@ -462,7 +489,7 @@
                 "flags": [
                   {
                     "flag": "--availability-zone us-east-1a",
-                    "meaning": "One of the region’s separate datacenters. Everything in this course uses 1a so the instance and its volumes can meet."
+                    "meaning": "One of the Region’s separate datacenters. Everything in this course uses 1a so the instance and its volumes can meet."
                   }
                 ]
               }
@@ -471,7 +498,7 @@
               "vpc-",
               "subnet-"
             ],
-            "whatItMeans": "A /16 leaves room for 256 /24 subnets; the course uses two. Private ranges (RFC 1918) never route on the internet. A subnet sits in one Availability Zone — a separate building with its own power.",
+            "whatItMeans": "A Region is a geographic area with several Availability Zones — separate buildings with their own power — and a subnet lives in one zone. A /16 leaves room for 256 /24 subnets.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -577,8 +604,8 @@
         "estimatedTime": "35 min",
         "difficulty": 1,
         "learn": [
-          "Git repositories",
-          "README as documentation",
+          "CLF-C02 · Cloud Technology and Services",
+          "Where a team keeps its work",
           "Project boards"
         ],
         "tools": [
@@ -611,12 +638,11 @@
             "instructionList": [
               "New repository: capstone-team01, private, tick “Add a README file”.",
               "Settings → Collaborators: invite your three teammates.",
-              "Create folders site/, api/, infra/, docs/ (a .gitkeep file in each keeps them).",
-              "README: paste the naming pattern and the four tags from the Architect."
+              "Create folders site/, api/, infra/, docs/ and paste the naming standard into the README."
             ],
             "expectedOutput": "A private repository with a README and four folders, shared with the team.",
             "outputKind": "result",
-            "whatItMeans": "Everything the team produces lives here — the site, the function, the template and the documents. Private, because it will hold your real resource names and URLs; a key or the .pem file must never go in even so.",
+            "whatItMeans": "Everything the team produces lives here — the site, the function, the template (Week 9) and the documents. Private, because it will hold your real resource names and URLs; a key or the .pem file never goes in.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -636,12 +662,11 @@
             "instruction": "Create a board with this week’s four tasks.",
             "instructionList": [
               "Your profile → Projects → New project → Board. Columns: To do, Doing, Done.",
-              "Add one card per role for Week 1 and assign it.",
-              "Link the board from the README."
+              "Add one card per role for Week 1 and assign it. Link the board from the README."
             ],
             "expectedOutput": "A board with four assigned cards, linked from the README.",
             "outputKind": "result",
-            "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is.",
+            "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is, and operating in the cloud starts with knowing who is doing what.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -671,8 +696,8 @@
         "id": "aws-w1-secops",
         "role": "secops",
         "week": 1,
-        "title": "Create the security group",
-        "objective": "Create the tools security group with no inbound rules, and review who has access to the account.",
+        "title": "Create the security group and turn on MFA",
+        "objective": "Create the tools security group with no inbound rules, review who has access to the account, and switch on MFA for your own IAM user.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -680,20 +705,23 @@
         "deliverables": [
           "01_Cloud_Foundation_and_Naming_Standard.md"
         ],
-        "estimatedTime": "40 min",
+        "estimatedTime": "45 min",
         "difficulty": 1,
         "learn": [
-          "Security groups",
-          "Stateful, allow-only rules",
-          "IAM users and the root user"
+          "CLF-C02 · Security and Compliance",
+          "Security groups: stateful, allow-only",
+          "IAM users, groups and the root user",
+          "Multi-factor authentication"
         ],
         "tools": [
           "AWS console",
-          "CloudShell"
+          "CloudShell",
+          "An authenticator app"
         ],
         "definitionOfDone": [
           "sg-tools-team01 has no inbound rule",
-          "Access is listed"
+          "Access is listed",
+          "MFA is on for you"
         ],
         "docs": [
           {
@@ -702,23 +730,28 @@
             "lookFor": "the “Security group basics” list — stateful, allow rules only, and the default outbound rule that lets everything out"
           },
           {
+            "title": "Enable a virtual MFA device for an IAM user",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html",
+            "lookFor": "the “My security credentials” route and the two consecutive codes the wizard asks for"
+          },
+          {
             "title": "Security best practices in IAM",
             "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html",
             "lookFor": "the first two items: MFA on the root user, and no access keys for it — that is your access review checklist"
           }
         ],
-        "freeTier": "Free: security groups and IAM cost nothing.",
+        "freeTier": "Free: security groups, IAM and MFA cost nothing.",
         "steps": [
           {
             "id": "aws-w1-secops-s1",
             "title": "Create the security group",
             "description": "Create the security group",
             "where": "AWS console · or CloudShell",
-            "instruction": "Create sg-tools-team01 in the VPC.",
+            "instruction": "Create sg-tools-team01 in the VPC and read its rules.",
             "instructionList": [
-              "VPC → Security groups → Create security group.",
-              "Name sg-tools-team01, description “Tools instance”, VPC vpc-capstone-team01. Tags.",
-              "Leave Inbound rules empty. Create security group."
+              "VPC → Security groups → Create security group. Name sg-tools-team01, description “Tools instance”, VPC vpc-capstone-team01. Tags.",
+              "Leave Inbound rules empty. Create security group.",
+              "Open it: Inbound rules is empty; Outbound rules has one row, All traffic to 0.0.0.0/0 — the default."
             ],
             "commands": [
               {
@@ -733,40 +766,9 @@
                   {
                     "flag": "--group-name sg-tools-team01",
                     "meaning": "Read it as: the security group for the tools instance, owned by team01."
-                  },
-                  {
-                    "flag": "--vpc-id",
-                    "meaning": "A security group belongs to one VPC."
                   }
                 ]
-              }
-            ],
-            "verify": [
-              "sg-"
-            ],
-            "whatItMeans": "Security groups are allow-only: there is no deny rule, only the absence of an allow. It attaches to an instance (Week 2), not a subnet — AWS guards subnets with network ACLs, which this course leaves at their defaults.",
-            "frameworks": [
-              "AWS_CLF",
-              "WAF"
-            ],
-            "fixes": [
-              {
-                "symptom": "vpc-capstone-team01 is not listed",
-                "fix": "The Infrastructure Admin has not created it yet. Wait for it; the group must be created in that VPC."
-              }
-            ]
-          },
-          {
-            "id": "aws-w1-secops-s2",
-            "title": "Read its rules",
-            "description": "Read its rules",
-            "where": "AWS console · or CloudShell",
-            "instruction": "List inbound and outbound rules.",
-            "instructionList": [
-              "Open sg-tools-team01 → Inbound rules: the table is empty.",
-              "Outbound rules: one row, All traffic to 0.0.0.0/0 — the default."
-            ],
-            "commands": [
+              },
               {
                 "cmd": "aws ec2 describe-security-groups --group-ids $SG --query \"SecurityGroups[0].{inbound:IpPermissions, outbound:IpPermissionsEgress[0].IpRanges}\"",
                 "explain": "Inbound is empty; outbound allows everything, which is the default.",
@@ -780,16 +782,23 @@
               }
             ],
             "verify": [
+              "sg-",
               "\"inbound\": []"
             ],
-            "whatItMeans": "Knowing the defaults is how you know every rule you add is a decision. Stateful means a reply to allowed traffic is let back: the outbound rule lets the instance fetch updates; the inbound list is what attackers meet.",
+            "whatItMeans": "Security groups are allow-only: there is no deny rule, only the absence of an allow, and replies to allowed traffic come back (stateful). It attaches to an instance; subnets have network ACLs, left at defaults.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "fixes": [
+              {
+                "symptom": "vpc-capstone-team01 is not listed",
+                "fix": "The Infrastructure Admin has not created it yet. Wait for it; the group must be created in that VPC."
+              }
             ]
           },
           {
-            "id": "aws-w1-secops-s3",
+            "id": "aws-w1-secops-s2",
             "title": "Review access (IAM)",
             "description": "Review access (IAM)",
             "where": "AWS console · or CloudShell",
@@ -814,10 +823,34 @@
             "verify": [
               "1"
             ],
-            "whatItMeans": "The root user is the account itself: it can do anything, so it gets MFA and no keys, and nobody uses it day to day. Everyone else is an IAM user in a group; Week 5 narrows their access.",
+            "whatItMeans": "The root user is the account itself: it can do anything, so it gets MFA and no keys, and nobody uses it day to day. Everyone else is an IAM user in a group with a policy.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ]
+          },
+          {
+            "id": "aws-w1-secops-s3",
+            "title": "Turn on MFA for yourself",
+            "description": "Your IAM user shows an MFA device; the next sign-in asks for a code.",
+            "where": "AWS console — top-right menu → Security credentials",
+            "instruction": "Assign a virtual MFA device to your IAM user.",
+            "instructionList": [
+              "Multi-factor authentication (MFA) → Assign MFA device → Authenticator app → scan the QR code → enter two codes → Add MFA.",
+              "Sign out, sign in again: the code is asked for. Ask each teammate to do the same."
+            ],
+            "expectedOutput": "Your IAM user shows an MFA device; the next sign-in asks for a code.",
+            "outputKind": "result",
+            "whatItMeans": "Multi-factor authentication is the single control the exam names most: a stolen password alone no longer opens the account. On AWS it is per IAM user (and the root user), so every teammate does it once.",
+            "frameworks": [
+              "AWS_CLF",
+              "WAF"
+            ],
+            "fixes": [
+              {
+                "symptom": "The Security credentials page is missing MFA",
+                "fix": "You are signed in with SSO or a lab role that manages MFA elsewhere. Record “managed by the identity provider” and move on."
+              }
             ]
           },
           {
@@ -827,11 +860,12 @@
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Cloud Foundation & Naming Standard.",
             "instructionList": [
-              "One row per person or group and what they get."
+              "One row per person or group and what they get.",
+              "MFA status per teammate."
             ],
             "usesForm": "Cloud Foundation & Naming Standard",
             "producesDeliverable": "01_Cloud_Foundation_and_Naming_Standard.md",
-            "whatItMeans": "The Week 5 access matrix builds on this list.",
+            "whatItMeans": "The Week 3 identity task builds on this list.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -843,8 +877,8 @@
         "id": "aws-w2-arch",
         "role": "arch",
         "week": 2,
-        "title": "Write the architecture document and cost",
-        "objective": "Estimate the monthly cost of each component, then record the first architecture decision with what was rejected.",
+        "title": "Estimate the cost and choose storage classes",
+        "objective": "Price each component in the calculator against the Free Tier, then choose S3 storage classes and EBS volume types with a reason.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -855,16 +889,17 @@
         "estimatedTime": "45 min",
         "difficulty": 1,
         "learn": [
-          "Reading the Free Tier",
-          "AWS Pricing Calculator",
-          "ADRs"
+          "CLF-C02 · Billing, Pricing and Support",
+          "Pricing Calculator and the Free Tier",
+          "S3 storage classes and durability",
+          "Factors that affect cost"
         ],
         "tools": [
           "AWS Pricing Calculator"
         ],
         "definitionOfDone": [
           "Every component has a monthly cost",
-          "ADR-001 names the rejected option"
+          "Storage classes chosen with a reason"
         ],
         "docs": [
           {
@@ -876,6 +911,11 @@
             "title": "AWS Pricing Calculator",
             "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/what-is-pricing-calculator.html",
             "lookFor": "the “Add service” flow and the estimate summary; the calculator prices list rates, so subtract the free tier yourself"
+          },
+          {
+            "title": "Amazon S3 storage classes",
+            "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html",
+            "lookFor": "the comparison table: Standard, Standard-IA, One Zone-IA, Glacier — the retrieval fee column is what decides for a site read every day"
           }
         ],
         "freeTier": "Free: the calculator. Nothing is deployed. Your list-price estimate should come out near $10 a month before the free tier and near $0 after it.",
@@ -894,7 +934,7 @@
             ],
             "expectedOutput": "A monthly estimate per service, with EC2 the largest line.",
             "outputKind": "result",
-            "whatItMeans": "Cost is an architecture property. The calculator shows list prices; the 12-month Free Tier removes the EC2 and S3 lines for a year, and Lambda and DynamoDB stay free. Knowing which line dominates tells you what to switch off.",
+            "whatItMeans": "Cost is set by size, hours, Region, storage class and data out — the factors the exam lists. The calculator shows list prices; the 12-month Free Tier removes the EC2 and S3 lines, and Lambda and DynamoDB stay free.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -908,19 +948,18 @@
           },
           {
             "id": "aws-w2-arch-s2",
-            "title": "Write ADR-001",
-            "description": "ADR-001 with context, decision, rejected options and consequences.",
+            "title": "Choose storage classes and volume types",
+            "description": "One row per asset: class chosen, alternative rejected, monthly cost.",
             "where": "The document",
-            "instruction": "Record why the site is S3 behind CloudFront.",
+            "instruction": "Choose S3 classes and the EBS type for each asset.",
             "instructionList": [
-              "Context: a public site with HTTPS for under $1 a month.",
-              "Decision: private S3 bucket behind CloudFront with Origin Access Control.",
-              "Rejected: the S3 website endpoint (HTTP only, bucket public); an EC2 web server (patching, a public port).",
-              "Consequences: no server-side code; the counter must be an API."
+              "Site bucket: S3 Standard — read every day, 11 nines durability, no retrieval fee. Alternative: Standard-IA, rejected for its retrieval fee.",
+              "Instance root volume: gp3 8 GB, inside the free 30 GB. Snapshots (Week 8) are the backup.",
+              "DynamoDB: on-demand, one Region. Write each alternative you rejected and its price."
             ],
-            "expectedOutput": "ADR-001 with context, decision, rejected options and consequences.",
+            "expectedOutput": "One row per asset: class chosen, alternative rejected, monthly cost.",
             "outputKind": "result",
-            "whatItMeans": "An ADR records the decision and the alternatives, so the next team does not reopen it without new facts. The rejected options matter most: they show the decision was a choice, not the only thing you knew.",
+            "whatItMeans": "S3 classes trade storage price for retrieval price and availability: Standard for data read often, IA for data read rarely, Glacier for archives. EBS types trade IOPS for price. Every step down is a fee somewhere else.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -929,12 +968,12 @@
           {
             "id": "aws-w2-arch-s9",
             "title": "Record it in the Solution Architecture Document",
-            "description": "Your section: Components and cost, ADR-001.",
+            "description": "Your section: Components and cost, Redundancy and tiers.",
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Solution Architecture Document.",
             "instructionList": [
               "One component per row, with its monthly cost.",
-              "ADR-001."
+              "One storage-class row per asset."
             ],
             "usesForm": "Solution Architecture Document",
             "producesDeliverable": "02_Solution_Architecture_Document.md",
@@ -951,7 +990,7 @@
         "role": "infra",
         "week": 2,
         "title": "Launch the tools instance",
-        "objective": "Launch a t3.micro Amazon Linux instance in the public subnet with a key pair and IMDSv2, then stop it.",
+        "objective": "Launch a t3.micro Amazon Linux instance in the public subnet with a key pair, read its facts, then stop it.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -962,9 +1001,10 @@
         "estimatedTime": "45 min",
         "difficulty": 1,
         "learn": [
-          "Instance types and the Free Tier",
+          "CLF-C02 · Cloud Technology and Services",
+          "EC2 instance types and the Free Tier",
           "Key pairs",
-          "IMDSv2"
+          "Availability Zones; stop vs terminate"
         ],
         "tools": [
           "AWS console",
@@ -981,9 +1021,9 @@
             "lookFor": "the “Free tier eligible” label beside the instance type, and the Network settings panel where you pick the subnet and security group"
           },
           {
-            "title": "Configure the instance metadata options",
-            "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/configuring-instance-metadata-options.html",
-            "lookFor": "the “Require IMDSv2” setting under Advanced details, and why it stops a credential-theft trick"
+            "title": "Instance lifecycle",
+            "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html",
+            "lookFor": "the state diagram: stopped keeps the disk and bills only storage; terminated is gone"
           }
         ],
         "freeTier": "Free tier: t3.micro is free for 750 hours a month for 12 months; the 8 GB gp3 root disk sits inside the 30 GB free. Stop it when done — hours count while it runs. The public IPv4 is free for 750 hours in year one.",
@@ -993,12 +1033,12 @@
             "title": "Launch the instance",
             "description": "Launch the instance",
             "where": "AWS console · or CloudShell",
-            "instruction": "Launch the t3.micro with IMDSv2 required.",
+            "instruction": "Launch the t3.micro in the public subnet.",
             "instructionList": [
               "EC2 → Instances → Launch instance. Name ec2-tools-team01; add tags project, team, env, owner. Amazon Linux 2023; t3.micro (Free tier eligible).",
               "Key pair → Create new key pair: kp-team01, RSA, .pem. Save the file; never commit it.",
               "Network settings → Edit: VPC vpc-capstone-team01, subnet snet-public-team01, Auto-assign public IP Enable, Select existing security group sg-tools-team01.",
-              "Advanced details → Metadata version: V2 only (token required). Launch instance."
+              "Leave Advanced details at their defaults. Launch instance."
             ],
             "commands": [
               {
@@ -1017,8 +1057,8 @@
                 ]
               },
               {
-                "cmd": "SUB=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-team01 --query \"Subnets[0].SubnetId\" --output text); SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query \"SecurityGroups[0].GroupId\" --output text); aws ec2 run-instances --image-id resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --instance-type t3.micro --key-name kp-team01 --subnet-id $SUB --security-group-ids $SG --associate-public-ip-address --metadata-options HttpTokens=required --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value=ec2-tools-team01},{Key=project,Value=capstone},{Key=team,Value=team01},{Key=env,Value=dev},{Key=owner,Value=team01-infra}]\" --query \"Instances[0].{id:InstanceId, ip:PrivateIpAddress}\"",
-                "explain": "resolve:ssm always picks the current Amazon Linux image. HttpTokens=required turns on IMDSv2, which blocks a common credential-theft trick.",
+                "cmd": "SUB=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-team01 --query \"Subnets[0].SubnetId\" --output text); SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query \"SecurityGroups[0].GroupId\" --output text); aws ec2 run-instances --image-id resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64 --instance-type t3.micro --key-name kp-team01 --subnet-id $SUB --security-group-ids $SG --associate-public-ip-address --tag-specifications \"ResourceType=instance,Tags=[{Key=Name,Value=ec2-tools-team01},{Key=project,Value=capstone},{Key=team,Value=team01},{Key=env,Value=dev},{Key=owner,Value=team01-infra}]\" --query \"Instances[0].{id:InstanceId, ip:PrivateIpAddress}\"",
+                "explain": "resolve:ssm always picks the current Amazon Linux image; every other option is the console’s default.",
                 "sample": "{ \"id\": \"i-0abc123def4567890\", \"ip\": \"10.10.1.25\" }",
                 "flags": [
                   {
@@ -1032,10 +1072,6 @@
                   {
                     "flag": "--associate-public-ip-address",
                     "meaning": "Give it an internet address, for updates and your SSH test."
-                  },
-                  {
-                    "flag": "--metadata-options HttpTokens=required",
-                    "meaning": "IMDSv2 only: a stolen web request cannot read the instance’s credentials."
                   }
                 ]
               }
@@ -1044,7 +1080,7 @@
               "i-0",
               "10.10.1."
             ],
-            "whatItMeans": "t3.micro is free-tier eligible; the security group is Security’s empty one, so nothing reaches it yet. A key pair is a lock and key: the public half goes on the instance, the private .pem stays with you.",
+            "whatItMeans": "EC2 is IaaS: you choose the image, type and zone, and you patch it. t3.micro is free-tier eligible; the security group is Security’s empty one, so nothing reaches it yet. The private .pem is your key: keep it.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1066,19 +1102,19 @@
           },
           {
             "id": "aws-w2-infra-s2",
-            "title": "Read its network facts",
-            "description": "Read its network facts",
+            "title": "Read its facts and hand over the key",
+            "description": "Read its facts and hand over the key",
             "where": "AWS console · or CloudShell",
-            "instruction": "Read the private and public IPs.",
+            "instruction": "Read the IPs and zone, then share the key privately.",
             "instructionList": [
-              "EC2 → Instances → ec2-tools-team01 → Details tab.",
-              "Read Private IPv4 address, Public IPv4 address and Instance state."
+              "EC2 → Instances → ec2-tools-team01 → Details: Private IPv4, Public IPv4, Availability Zone, Instance state.",
+              "Send kp-team01.pem through a private channel (Teams/Slack DM, a password manager) — never the repository or email. User name: ec2-user."
             ],
             "commands": [
               {
-                "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 describe-instances --instance-ids $IID --query \"Reservations[0].Instances[0].{private:PrivateIpAddress, public:PublicIpAddress, state:State.Name}\"",
-                "explain": "The private IP is what other resources use; the public IP only exists for outbound patching and your SSH test.",
-                "sample": "{ \"private\": \"10.10.1.25\", \"public\": \"3.91.12.44\", \"state\": \"running\" }",
+                "cmd": "IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query \"Reservations[0].Instances[0].InstanceId\" --output text); aws ec2 describe-instances --instance-ids $IID --query \"Reservations[0].Instances[0].{private:PrivateIpAddress, public:PublicIpAddress, az:Placement.AvailabilityZone, state:State.Name}\"",
+                "explain": "The private IP is what other resources use; the public IP only exists for outbound patching and your SSH test. Download the key from CloudShell: Actions → Download file.",
+                "sample": "{ \"private\": \"10.10.1.25\", \"public\": \"3.91.12.44\", \"az\": \"us-east-1a\", \"state\": \"running\" }",
                 "flags": [
                   {
                     "flag": "IID=$(… describe-instances --filters Name=tag:Name …)",
@@ -1090,33 +1126,7 @@
             "verify": [
               "running"
             ],
-            "whatItMeans": "AWS reserves the first four addresses and the last in every subnet. The public IP changes every time the instance stops and starts — record the private one, and look the public one up each session.",
-            "frameworks": [
-              "AWS_CLF",
-              "WAF"
-            ]
-          },
-          {
-            "id": "aws-w2-infra-s3",
-            "title": "Hand the key to Security",
-            "description": "Hand the key to Security",
-            "where": "Your laptop",
-            "instruction": "Share kp-team01.pem privately with the Security Admin.",
-            "instructionList": [
-              "Send kp-team01.pem through a private channel (Teams/Slack DM, a password manager) — never the repository or email.",
-              "Tell them the user name: ec2-user."
-            ],
-            "commands": [
-              {
-                "cmd": "ls -l kp-team01.pem",
-                "explain": "If you used the shell, the file is in CloudShell: Actions → Download file → kp-team01.pem.",
-                "sample": "-r-------- 1 cloudshell-user cloudshell-user 1678 kp-team01.pem"
-              }
-            ],
-            "verify": [
-              "kp-team01.pem"
-            ],
-            "whatItMeans": "The private key is the password to this machine. Anyone holding it can sign in, so it travels one-to-one and is never committed; a leaked key in a repository is the most common cloud break-in.",
+            "whatItMeans": "AWS reserves the first four addresses and the last in every subnet. The public IP changes every time the instance stops and starts — record the private one. The private key is the password to this machine.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1129,7 +1139,7 @@
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Solution Architecture Document.",
             "instructionList": [
-              "Name, type, private IP, operating system."
+              "Name, type, zone, private IP, operating system."
             ],
             "usesForm": "Solution Architecture Document",
             "producesDeliverable": "02_Solution_Architecture_Document.md",
@@ -1194,8 +1204,9 @@
         "estimatedTime": "50 min",
         "difficulty": 1,
         "learn": [
-          "S3 buckets",
-          "CloudFront",
+          "CLF-C02 · Cloud Technology and Services",
+          "S3 buckets and Block Public Access",
+          "CloudFront: the edge network",
           "Origin Access Control"
         ],
         "tools": [
@@ -1252,7 +1263,7 @@
             "verify": [
               "make_bucket"
             ],
-            "whatItMeans": "capstone-team01-site: the bucket for the capstone site, owned by team01, plus digits because bucket names are unique worldwide. The bucket never becomes public — unlike the old S3-website approach — which is why CloudFront sits in front.",
+            "whatItMeans": "S3 is object storage: a bucket holds files, the name is unique worldwide, and Block Public Access keeps it private. capstone-team01-site: the bucket for the capstone site, owned by team01. It never becomes public — hence CloudFront in front.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1278,7 +1289,7 @@
             ],
             "expectedOutput": "The distribution is Enabled and https://d….cloudfront.net shows your page.",
             "outputKind": "result",
-            "whatItMeans": "OAC signs CloudFront’s requests; the bucket policy admits only this distribution — that is why you paste it yourself. HTTPS comes from CloudFront’s own certificate, so no certificate work is needed. Deployment takes about five minutes.",
+            "whatItMeans": "CloudFront is the content delivery network: edge locations near visitors cache the site and serve it over HTTPS with AWS’s certificate. OAC signs CloudFront’s requests; the bucket policy admits only this distribution, which is why you paste it yourself.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1325,7 +1336,7 @@
             "verify": [
               "InProgress"
             ],
-            "whatItMeans": "Upload plus invalidate is a redeploy. CloudFront keeps a copy of each file near visitors for up to a day, so without the invalidation the old page can linger. Week 10 automates both steps.",
+            "whatItMeans": "Upload plus invalidate is a redeploy. CloudFront keeps a copy of each file at the edge for up to a day, so without the invalidation the old page can linger. Week 10 automates both steps.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1343,7 +1354,7 @@
             ],
             "usesForm": "Solution Architecture Document",
             "producesDeliverable": "02_Solution_Architecture_Document.md",
-            "whatItMeans": "The CloudFront URL is the origin CORS will admit in Week 3.",
+            "whatItMeans": "The CloudFront URL is what the counter page calls in Week 3.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1367,8 +1378,9 @@
         "estimatedTime": "40 min",
         "difficulty": 1,
         "learn": [
+          "CLF-C02 · Security and Compliance",
           "Security group rules",
-          "/32 source addresses",
+          "Defense in depth: one address, one port",
           "Allowed and blocked tests"
         ],
         "tools": [
@@ -1441,7 +1453,7 @@
             "verify": [
               "/32"
             ],
-            "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the internet for open SSH within minutes. Security groups have no priorities and no deny: this allow is the whole inbound policy. If your address changes, edit the rule, never widen it.",
+            "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the internet for open SSH within minutes. Security groups have no priorities and no deny: this allow is the whole inbound policy — one layer of defense in depth.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1522,8 +1534,8 @@
         "id": "aws-w3-arch",
         "role": "arch",
         "week": 3,
-        "title": "Draw the request flow with real URLs",
-        "objective": "Trace how a page view becomes a count in the table, naming every real URL and resource.",
+        "title": "Draw the request flow and say who manages each hop",
+        "objective": "Trace how a page view becomes a count in the table, naming every real URL and who manages each service.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -1534,14 +1546,16 @@
         "estimatedTime": "35 min",
         "difficulty": 2,
         "learn": [
-          "Request flows",
-          "Architecture versions"
+          "CLF-C02 · Cloud Concepts",
+          "Serverless: what you do not manage",
+          "Request flows"
         ],
         "tools": [
           "The Guide"
         ],
         "definitionOfDone": [
-          "The flow names real URLs"
+          "The flow names real URLs",
+          "Each hop says who manages it"
         ],
         "docs": [
           {
@@ -1550,9 +1564,9 @@
             "lookFor": "the invoke-URL shape — https://{api-id}.execute-api.{region}.amazonaws.com — so you can recognise your second hop"
           },
           {
-            "title": "Lambda with DynamoDB",
-            "url": "https://docs.aws.amazon.com/lambda/latest/dg/with-ddb.html",
-            "lookFor": "the diagram at the top: the function is the only thing that talks to the table"
+            "title": "Shared responsibility model",
+            "url": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+            "lookFor": "the “abstracted services” paragraph: for Lambda and DynamoDB, AWS runs the platform; you own code, data and access"
           }
         ],
         "freeTier": "Free: reading the diagram and writing the flow. Nothing is deployed.",
@@ -1579,18 +1593,18 @@
           {
             "id": "aws-w3-arch-s2",
             "title": "Write the flow",
-            "description": "A three-hop flow with real URLs and resource names.",
+            "description": "A three-hop flow with real URLs, resource names and who manages each.",
             "where": "The document",
-            "instruction": "Write the flow with your real URLs.",
+            "instruction": "Write the flow with your real URLs and owners.",
             "instructionList": [
-              "Browser → https://d….cloudfront.net (S3 via OAC).",
-              "Page script → GET https://….execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter.",
-              "Lambda → DynamoDB table capstone-team01-visitors, item id \"site\".",
+              "Browser → https://d….cloudfront.net (CloudFront + S3: AWS runs them).",
+              "Page script → GET https://….execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter (API Gateway + Lambda: AWS runs the servers, we own the code).",
+              "Lambda → DynamoDB table capstone-team01-visitors, item id \"site\" (AWS runs it, we own the data).",
               "Back: { \"count\": n } → the page writes it into #visitor-count."
             ],
-            "expectedOutput": "A three-hop flow with real URLs and resource names.",
+            "expectedOutput": "A three-hop flow with real URLs, resource names and who manages each.",
             "outputKind": "result",
-            "whatItMeans": "A flow with real URLs is testable: each arrow is something you can call and watch fail. Week 6 tests each hop, and Week 4’s incident is one arrow breaking.",
+            "whatItMeans": "Serverless means no server you can see: it scales to zero and you pay per request — the pay-as-you-go model. A flow with real URLs is testable: each arrow is something you can call and watch fail.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1603,7 +1617,7 @@
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Application & API Design Specification.",
             "instructionList": [
-              "The flow, hop by hop."
+              "The flow, hop by hop, with who manages each."
             ],
             "usesForm": "Application & API Design Specification",
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
@@ -1631,8 +1645,9 @@
         "estimatedTime": "35 min",
         "difficulty": 2,
         "learn": [
-          "DynamoDB on-demand",
-          "Partition keys",
+          "CLF-C02 · Cloud Technology and Services",
+          "Managed databases: DynamoDB vs RDS",
+          "On-demand capacity",
           "Items and attributes"
         ],
         "tools": [
@@ -1675,10 +1690,6 @@
                 "sample": "CREATING",
                 "flags": [
                   {
-                    "flag": "--attribute-definitions AttributeName=id,AttributeType=S",
-                    "meaning": "Declare the key field: id, a string."
-                  },
-                  {
                     "flag": "--key-schema AttributeName=id,KeyType=HASH",
                     "meaning": "id is the partition key (HASH) — the field DynamoDB uses to place each item."
                   },
@@ -1697,7 +1708,7 @@
             "verify": [
               "ACTIVE"
             ],
-            "whatItMeans": "A DynamoDB table needs only its key defined; every other attribute is free-form per item. The partition key decides where an item is stored, so id is the safe choice. Provisioned capacity would charge every hour, even idle.",
+            "whatItMeans": "DynamoDB is a managed NoSQL key-value database: no server, no schema beyond the key, AWS runs and scales it. RDS would be the managed relational choice for tables with joins. The partition key decides where an item is stored.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1717,13 +1728,7 @@
               {
                 "cmd": "aws dynamodb put-item --table-name capstone-team01-visitors --item '{\"id\":{\"S\":\"site\"},\"count\":{\"N\":\"0\"}}' && aws dynamodb get-item --table-name capstone-team01-visitors --key '{\"id\":{\"S\":\"site\"}}' --output text",
                 "explain": "DynamoDB types every value: S for string, N for number.",
-                "sample": "COUNT\t0\nID\tsite",
-                "flags": [
-                  {
-                    "flag": "--item '{\"id\":{\"S\":\"site\"},\"count\":{\"N\":\"0\"}}'",
-                    "meaning": "One item: id “site” (a string), count 0 (a number)."
-                  }
-                ]
+                "sample": "COUNT\t0\nID\tsite"
               }
             ],
             "verify": [
@@ -1770,9 +1775,10 @@
         "estimatedTime": "50 min",
         "difficulty": 2,
         "learn": [
-          "AWS Lambda",
-          "API Gateway HTTP APIs",
-          "Atomic updates"
+          "CLF-C02 · Cloud Technology and Services",
+          "Lambda: serverless compute",
+          "API Gateway",
+          "An execution role instead of a key"
         ],
         "tools": [
           "AWS console",
@@ -1791,9 +1797,9 @@
             "lookFor": "the “Author from scratch” form and the Test tab — the console editor deploys with one button"
           },
           {
-            "title": "Update expressions: ADD",
-            "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/Expressions.UpdateExpressions.html",
-            "lookFor": "the ADD section: it increments a number atomically, which is why two visitors at once both count"
+            "title": "Lambda execution role",
+            "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html",
+            "lookFor": "the first paragraph: the function assumes the role at run time, so no key is ever stored in it"
           },
           {
             "title": "Using Lambda with API Gateway",
@@ -1829,7 +1835,7 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "ADD is atomic: DynamoDB adds one inside the database, so two visitors at the same instant both count. #c stands for count because count is a reserved word. The Test fails until the next step grants the table.",
+            "whatItMeans": "Lambda is serverless compute: AWS runs the servers, your code runs when called, and you pay per request. ADD is atomic, so two visitors at once both count. The Test fails until the next step grants the table.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1866,23 +1872,13 @@
               {
                 "cmd": "ROLE=$(aws lambda get-function-configuration --function-name capstone-team01-counter --query Role --output text | cut -d/ -f2); ACCT=$(aws sts get-caller-identity --query Account --output text); aws iam put-role-policy --role-name $ROLE --policy-name count-visitors --policy-document \"{\\\"Version\\\":\\\"2012-10-17\\\",\\\"Statement\\\":[{\\\"Effect\\\":\\\"Allow\\\",\\\"Action\\\":\\\"dynamodb:UpdateItem\\\",\\\"Resource\\\":\\\"arn:aws:dynamodb:us-east-1:$ACCT:table/capstone-team01-visitors\\\"}]}\" && echo granted",
                 "explain": "The same grant from the shell: finds the function’s role and attaches the one-table policy. Add the API trigger in the console.",
-                "sample": "granted",
-                "flags": [
-                  {
-                    "flag": "put-role-policy --policy-name count-visitors",
-                    "meaning": "An inline policy that lives on this role only."
-                  },
-                  {
-                    "flag": "\"Action\":\"dynamodb:UpdateItem\"",
-                    "meaning": "The one call the code makes. No read, no delete, no other table."
-                  }
-                ]
+                "sample": "granted"
               }
             ],
             "verify": [
               "granted"
             ],
-            "whatItMeans": "An execution role is the identity the function runs as; the policy names one action on one table, so a bug cannot touch anything else. “Security: Open” means anyone can call the URL — fine: CORS is next.",
+            "whatItMeans": "An IAM role is an identity a service assumes: the policy names one action on one table, so a bug cannot touch anything else — that is least privilege. API Gateway gives the function its HTTPS URL.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1903,6 +1899,7 @@
             "instructionList": [
               "Open the API endpoint in a browser tab: {\"count\": 2}. Reload: 3.",
               "In site/index.html add a fetch() of that URL writing the result into #visitor-count (snippet below).",
+              "API Gateway → the counter API → CORS → Configure: Access-Control-Allow-Origin = your CloudFront URL (no trailing slash), Allow-Methods GET. Save.",
               "Upload the file to the bucket and invalidate /* (Week 2). Reload the site."
             ],
             "commands": [
@@ -1920,7 +1917,7 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "The page calls the API from the visitor’s browser — there is no server. That is why CORS matters next: the browser only lets the page read the answer if the API says the site is allowed.",
+            "whatItMeans": "The page calls the API from the visitor’s browser — there is no server. The browser only reads the answer because the API lists the site as an allowed origin. Nothing in the page is secret.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -1928,7 +1925,7 @@
             "fixes": [
               {
                 "symptom": "The page shows “…” for ever",
-                "fix": "Open DevTools → Console. “blocked by CORS policy” means the Security task is not done yet; a 404 means the URL is wrong."
+                "fix": "Open DevTools → Console. “blocked by CORS policy” means the origin is missing or has a trailing slash; a 404 means the URL is wrong."
               }
             ]
           },
@@ -1955,8 +1952,8 @@
         "id": "aws-w3-secops",
         "role": "secops",
         "week": 3,
-        "title": "Lock CORS and keep secrets out",
-        "objective": "Allow only your site to call the API from a browser, prove another origin is refused, and confirm no key exists anywhere.",
+        "title": "Give the team the right access",
+        "objective": "Create the team’s IAM user group, add the teammates, attach ReadOnlyAccess, confirm MFA, and confirm no key is in the page.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -1967,68 +1964,64 @@
         "estimatedTime": "45 min",
         "difficulty": 2,
         "learn": [
-          "CORS and origins",
-          "Negative tests",
-          "Roles instead of keys"
+          "CLF-C02 · Security and Compliance",
+          "IAM users, groups and managed policies",
+          "Least privilege: ReadOnlyAccess for looking",
+          "MFA for every member"
         ],
         "tools": [
           "AWS console",
           "CloudShell"
         ],
         "definitionOfDone": [
-          "Only your site is allowed",
-          "A foreign origin is refused"
+          "The group holds ReadOnlyAccess",
+          "All four are members with MFA",
+          "No key in the page"
         ],
         "docs": [
           {
-            "title": "Configuring CORS for an HTTP API",
-            "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html",
-            "lookFor": "the Access-Control-Allow-Origin row of the table, and the warning that a wildcard cannot be combined with credentials"
+            "title": "Creating IAM user groups",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_create.html",
+            "lookFor": "the “Attach permissions policies” step — search ReadOnlyAccess, tick exactly that one"
           },
           {
-            "title": "Lambda execution role",
-            "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html",
-            "lookFor": "the first paragraph: the function assumes the role at run time, so no key is ever stored in it"
+            "title": "ReadOnlyAccess managed policy",
+            "url": "https://docs.aws.amazon.com/aws-managed-policy/latest/reference/ReadOnlyAccess.html",
+            "lookFor": "the length of the policy and that every action starts with Describe, Get or List — that is what “read only” means"
+          },
+          {
+            "title": "Getting credential reports",
+            "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_getting-report.html",
+            "lookFor": "the “Download report” button and the mfa_active column — one line per user, your MFA check"
           }
         ],
-        "freeTier": "Free: CORS is a setting on the API. The negative test is one HTTP call.",
+        "freeTier": "Free: IAM groups, managed policies, MFA and the credential report cost nothing.",
         "prerequisites": [
-          "The counter API and its endpoint URL from App & DevOps, this week.",
-          "The CloudFront URL from Week 2 (App & DevOps)."
+          "The Lambda function and the site from App & DevOps, this week — for the no-key check."
         ],
         "steps": [
           {
             "id": "aws-w3-secops-s1",
-            "title": "Allow only your site",
-            "description": "Allow only your site",
+            "title": "Create the group and add the team",
+            "description": "Create the group and add the team",
             "where": "AWS console · or CloudShell",
-            "instruction": "Set the API’s CORS to your site only.",
+            "instruction": "Create the read-only group with your four teammates.",
             "instructionList": [
-              "API Gateway → APIs → capstone-team01-counter-API → Develop → CORS → Configure.",
-              "Access-Control-Allow-Origin: your CloudFront URL (https://d….cloudfront.net, no trailing slash) → Add. Access-Control-Allow-Methods: GET. Save."
+              "IAM → User groups → Create group: capstone-team01-readonly.",
+              "Attach permissions policies: search ReadOnlyAccess, tick it. Create group.",
+              "The group → Users → Add users → your four teammates. Add."
             ],
             "commands": [
               {
-                "cmd": "APIID=$(aws apigatewayv2 get-apis --query \"Items[?contains(Name, 'capstone-team01')].ApiId | [0]\" --output text); SITE=https://d111111abcdef8.cloudfront.net",
-                "explain": "Set SITE to your own CloudFront URL, no trailing slash.",
-                "sample": "(no output — the variables are set)"
-              },
-              {
-                "cmd": "aws apigatewayv2 update-api --api-id $APIID --cors-configuration AllowOrigins=$SITE,AllowMethods=GET --query CorsConfiguration",
-                "explain": "Browsers only let pages from listed origins read the API’s answers.",
-                "sample": "{ \"AllowMethods\": [ \"GET\" ],\n  \"AllowOrigins\": [ \"https://d111111abcdef8.cloudfront.net\" ] }",
-                "flags": [
-                  {
-                    "flag": "--cors-configuration AllowOrigins=…,AllowMethods=GET",
-                    "meaning": "Which page origins may read answers, and with which HTTP methods."
-                  }
-                ]
+                "cmd": "aws iam create-group --group-name capstone-team01-readonly --query Group.Arn --output text && aws iam attach-group-policy --group-name capstone-team01-readonly --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess && aws iam add-user-to-group --group-name capstone-team01-readonly --user-name team01-secops && echo added",
+                "explain": "Creates the group, attaches the AWS-managed policy, adds you; add the others the same way.",
+                "sample": "arn:aws:iam::123456789012:group/capstone-team01-readonly\nadded"
               }
             ],
             "verify": [
-              "AllowOrigins"
+              "capstone-team01-readonly"
             ],
-            "whatItMeans": "An origin is scheme + host + port. CORS is a browser rule: the API answers everyone, but a browser only lets a page read the answer if its origin is listed. A wildcard admits every website.",
+            "whatItMeans": "IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Grant to groups, not people: joining and leaving becomes one membership change. ReadOnlyAccess is AWS-managed: every action is Describe, Get or List.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2036,31 +2029,25 @@
           },
           {
             "id": "aws-w3-secops-s2",
-            "title": "Prove a foreign origin is refused",
-            "description": "Prove a foreign origin is refused",
-            "where": "AWS CloudShell (us-east-1)",
-            "instruction": "Call the API as another website would.",
+            "title": "Prove it can look and not touch",
+            "description": "Prove it can look and not touch",
+            "where": "AWS console · or CloudShell",
+            "instruction": "Sign in as a member and try to stop the instance.",
+            "instructionList": [
+              "Sign in as a teammate who is in the group only: EC2 → Instances is readable.",
+              "Select ec2-tools-team01 → Instance state → Stop instance: “You are not authorized to perform this operation”. Screenshot it."
+            ],
             "commands": [
               {
-                "cmd": "curl -s -D - -o /dev/null -H \"Origin: https://evil.example\" $API | grep -i access-control || echo \"no CORS header — refused\"",
-                "explain": "A foreign origin gets no Access-Control-Allow-Origin header, so its browser discards the answer. Set $API to your endpoint first.",
-                "sample": "no CORS header — refused",
-                "flags": [
-                  {
-                    "flag": "-D -",
-                    "meaning": "Print the response headers, which is where the CORS answer lives."
-                  },
-                  {
-                    "flag": "-H \"Origin: …\"",
-                    "meaning": "Pretend to be a page on evil.example, as a browser would announce."
-                  }
-                ]
+                "cmd": "ARN=$(aws iam get-group --group-name capstone-team01-readonly --query Group.Arn --output text); aws iam simulate-principal-policy --policy-source-arn $ARN --action-names ec2:StopInstances ec2:DescribeInstances --query \"EvaluationResults[].[EvalActionName, EvalDecision]\" --output text",
+                "explain": "The policy simulator evaluates the real policies without calling anything.",
+                "sample": "ec2:StopInstances\timplicitDeny\nec2:DescribeInstances\tallowed"
               }
             ],
             "verify": [
-              "refused"
+              "implicitDeny"
             ],
-            "whatItMeans": "CORS protects browsers, not the API: curl still gets a count. That is why the API holds no secrets. The console cannot send a forged Origin header — this test is shell only.",
+            "whatItMeans": "Least privilege is proved by a denial: one allowed and one denied action show the policy does what the document says. implicitDeny means no policy allowed it — the default in IAM is no.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2068,42 +2055,40 @@
           },
           {
             "id": "aws-w3-secops-s3",
-            "title": "Confirm there is no key",
-            "description": "Confirm there is no key",
-            "where": "AWS console · or CloudShell",
-            "instruction": "Check the page and the function hold no key.",
+            "title": "Confirm MFA and no key",
+            "description": "Four members with MFA; the page holds a URL and nothing else.",
+            "where": "IAM → Credential report, then the browser",
+            "instruction": "Check MFA on each member and no key in the page.",
             "instructionList": [
-              "View the site source (Ctrl+U): only the API URL, no key.",
-              "Lambda → Configuration → Environment variables: only TABLE_NAME. Permissions: the role, with count-visitors on one table."
+              "IAM → Credential report → Download report: mfa_active is TRUE for every teammate; access_key_1_active is FALSE for root.",
+              "View the site source (Ctrl+U): only the API URL, no key. Lambda → Environment variables: only TABLE_NAME; the role grants access."
             ],
-            "commands": [
-              {
-                "cmd": "aws lambda get-function-configuration --function-name capstone-team01-counter --query \"{env:Environment.Variables, role:Role}\"",
-                "explain": "The only variable is the table name; access comes from the role.",
-                "sample": "{ \"env\": { \"TABLE_NAME\": \"capstone-team01-visitors\" },\n  \"role\": \"arn:aws:iam::123456789012:role/capstone-team01-counter-role-…\" }"
-              }
-            ],
-            "verify": [
-              "TABLE_NAME"
-            ],
-            "whatItMeans": "An IAM role hands out short-lived credentials — there is nothing to leak, nothing to rotate, nothing for a page to expose. This is AWS’s answer to a managed identity; Azure reaches the same place in Week 5.",
+            "expectedOutput": "Four members with MFA; the page holds a URL and nothing else.",
+            "outputKind": "result",
+            "whatItMeans": "MFA per user and least privilege per group are the two identity controls CLF-C02 tests. Anything in page source is public; the function needs no key at all because its role hands out short-lived credentials.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "fixes": [
+              {
+                "symptom": "mfa_active is FALSE for a teammate",
+                "fix": "They skipped Week 1’s MFA step. Security credentials → Assign MFA device."
+              }
             ]
           },
           {
             "id": "aws-w3-secops-s9",
             "title": "Record it in the Application & API Design Specification",
-            "description": "Your section: CORS and secrets.",
+            "description": "Your section: Identity and access.",
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Application & API Design Specification.",
             "instructionList": [
-              "The allowed origin, the negative test, where access comes from."
+              "The group, its members, the policy, MFA, where access comes from."
             ],
             "usesForm": "Application & API Design Specification",
             "producesDeliverable": "03_Application_and_API_Design_Spec.md",
-            "whatItMeans": "The first line of the secrets register.",
+            "whatItMeans": "The first lines of the access matrix and the secrets register.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2115,8 +2100,8 @@
         "id": "aws-w4-arch",
         "role": "arch",
         "week": 4,
-        "title": "Report the cost to date",
-        "objective": "Read what the environment has cost so far, by service, and name the largest line.",
+        "title": "Report the cost, and read Trusted Advisor and the support plans",
+        "objective": "Read what the environment has cost by service and by Free Tier offer, then Trusted Advisor’s checks and the support-plan table.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -2124,19 +2109,22 @@
         "deliverables": [
           "04_Monitoring_and_Incident_Report.md"
         ],
-        "estimatedTime": "30 min",
+        "estimatedTime": "35 min",
         "difficulty": 2,
         "learn": [
-          "Cost Explorer",
-          "Cost by service",
-          "Why cost data lags"
+          "CLF-C02 · Billing, Pricing and Support",
+          "Cost Explorer and the Free Tier page",
+          "Trusted Advisor",
+          "Support plans"
         ],
         "tools": [
           "AWS console",
           "CloudShell"
         ],
         "definitionOfDone": [
-          "Spend and largest cost reported"
+          "Spend and largest cost reported",
+          "One Trusted Advisor check owned",
+          "The support plan noted"
         ],
         "docs": [
           {
@@ -2145,46 +2133,40 @@
             "lookFor": "the “Group by” control and the Service dimension; the table under the chart is what you copy"
           },
           {
-            "title": "Free Tier usage alerts",
-            "url": "https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/tracking-free-tier-usage.html",
-            "lookFor": "the Free Tier page under Billing: each free offer with its month-to-date usage — the number that says how close you are"
+            "title": "AWS Trusted Advisor",
+            "url": "https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html",
+            "lookFor": "the checks available on Basic support — the security ones are free: MFA on root, security groups with open ports, S3 permissions"
+          },
+          {
+            "title": "Compare AWS Support plans",
+            "url": "https://aws.amazon.com/premiumsupport/plans/",
+            "lookFor": "the four columns — Basic, Developer, Business, Enterprise — and the response-time rows; that is the exam question"
           }
         ],
-        "freeTier": "Free: the Cost Explorer console is free. The API behind the shell command costs $0.01 per call, so the console is the main path here.",
+        "freeTier": "Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 per call, so the console is the main path.",
         "steps": [
           {
             "id": "aws-w4-arch-s1",
             "title": "Read the cost",
             "description": "Read the cost",
             "where": "AWS console · or CloudShell",
-            "instruction": "Group this month’s cost by service.",
+            "instruction": "Group this month’s cost by service and by offer.",
             "instructionList": [
-              "Billing and Cost Management → Cost Explorer. Date range: month to date. Group by: Service.",
-              "Read the table under the chart: service, cost. Compare with your Week 2 estimate.",
-              "Billing → Free Tier: read the usage of each offer (EC2 hours, S3 GB).",
-              "Budgets → capstone-team01: how much of the $5 is used."
+              "Billing and Cost Management → Cost Explorer. Date range: month to date. Group by: Service. Read the table: service, cost.",
+              "Billing → Free Tier: the usage of each offer (EC2 hours, S3 GB). Budgets → capstone-team01: how much is used.",
+              "Compare with your Week 2 estimate."
             ],
             "commands": [
               {
                 "cmd": "aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date -d tomorrow +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query \"ResultsByTime[0].Groups[].[Keys[0], Metrics.UnblendedCost.Amount]\" --output text",
                 "explain": "Cost Explorer by service for the month so far. Each call costs $0.01; the console view is free.",
-                "sample": "Amazon Elastic Compute Cloud - Compute\t0.31\nAmazon Simple Storage Service\t0.01",
-                "flags": [
-                  {
-                    "flag": "--time-period Start=…,End=…",
-                    "meaning": "The first of this month to tomorrow (End is exclusive)."
-                  },
-                  {
-                    "flag": "--group-by Type=DIMENSION,Key=SERVICE",
-                    "meaning": "One row per AWS service."
-                  }
-                ]
+                "sample": "Amazon Elastic Compute Cloud - Compute\t0.31\nAmazon Simple Storage Service\t0.01"
               }
             ],
             "verify": [
               "Amazon"
             ],
-            "whatItMeans": "Actual cost shows what you forgot to switch off: if EC2 is not near zero, the instance was left running. Cost data arrives a day late, and Cost Explorer stays empty for its first day.",
+            "whatItMeans": "Actual cost shows what you forgot to switch off: if EC2 is not near zero, the instance was left running. Cost data arrives a day late; Cost Explorer stays empty for its first day.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2201,13 +2183,32 @@
             ]
           },
           {
+            "id": "aws-w4-arch-s2",
+            "title": "Read Trusted Advisor and the support plans",
+            "description": "One Trusted Advisor check with an owner, and the support plan noted.",
+            "where": "AWS console — Trusted Advisor, then Support Center",
+            "instruction": "Own one check; note your support plan.",
+            "instructionList": [
+              "Trusted Advisor → Security: MFA on root, open ports, S3 permissions. Pick one check and note who will act on it.",
+              "Support Center → your plan (Basic). Read the plans table: what Developer and Business add, and their response times."
+            ],
+            "expectedOutput": "One Trusted Advisor check with an owner, and the support plan noted.",
+            "outputKind": "result",
+            "whatItMeans": "Trusted Advisor is AWS looking at what you built and telling you how to spend less or be safer; the support plan is what you pay to get a human. Basic is free; Business unlocks every check.",
+            "frameworks": [
+              "AWS_CLF",
+              "WAF"
+            ]
+          },
+          {
             "id": "aws-w4-arch-s9",
             "title": "Record it in the Monitoring & Incident Report",
             "description": "Your section: Cost this week.",
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Monitoring & Incident Report.",
             "instructionList": [
-              "Spend to date, and the largest cost with its reason."
+              "Spend to date, and the largest cost with its reason.",
+              "The Trusted Advisor check and its owner; the support plan."
             ],
             "usesForm": "Monitoring & Incident Report",
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
@@ -2235,8 +2236,9 @@
         "estimatedTime": "40 min",
         "difficulty": 2,
         "learn": [
-          "CloudWatch alarms",
-          "SNS topics",
+          "CLF-C02 · Cloud Technology and Services",
+          "CloudWatch metrics and alarms",
+          "SNS topics and subscriptions",
           "Why errors, not CPU"
         ],
         "tools": [
@@ -2278,23 +2280,13 @@
               {
                 "cmd": "TOPIC=$(aws sns create-topic --name capstone-team01-alerts --tags Key=project,Value=capstone Key=team,Value=team01 Key=owner,Value=team01-infra --query TopicArn --output text); aws sns subscribe --topic-arn $TOPIC --protocol email --notification-endpoint team01-alerts@school.edu --query SubscriptionArn --output text",
                 "explain": "Confirm the subscription from the email AWS sends, or nothing is delivered.",
-                "sample": "pending confirmation",
-                "flags": [
-                  {
-                    "flag": "create-topic --name capstone-team01-alerts",
-                    "meaning": "The topic: a named channel alarms publish to."
-                  },
-                  {
-                    "flag": "subscribe --protocol email",
-                    "meaning": "One subscriber, by email. SMS costs money; email is free."
-                  }
-                ]
+                "sample": "pending confirmation"
               }
             ],
             "verify": [
               "pending confirmation"
             ],
-            "whatItMeans": "A topic separates “what happened” from “who gets told”: alarms publish to the topic, subscribers receive. One topic, many alarms: change the email once. An unconfirmed subscription is the most common reason an alarm is silent.",
+            "whatItMeans": "SNS separates “what happened” from “who gets told”: alarms publish to the topic, subscribers receive. One topic, many alarms: change the email once. An unconfirmed subscription is the most common reason an alarm is silent.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2315,31 +2307,13 @@
               {
                 "cmd": "aws cloudwatch put-metric-alarm --alarm-name capstone-team01-counter-errors --namespace AWS/Lambda --metric-name Errors --dimensions Name=FunctionName,Value=capstone-team01-counter --statistic Sum --period 300 --evaluation-periods 1 --threshold 0 --comparison-operator GreaterThanThreshold --treat-missing-data notBreaching --alarm-actions $TOPIC && aws cloudwatch describe-alarms --alarm-names capstone-team01-counter-errors --query \"MetricAlarms[0].StateValue\" --output text",
                 "explain": "Any error in five minutes fires it. Missing data (no traffic) is treated as fine.",
-                "sample": "OK",
-                "flags": [
-                  {
-                    "flag": "--namespace AWS/Lambda --metric-name Errors",
-                    "meaning": "The metric Lambda publishes for every failed invocation."
-                  },
-                  {
-                    "flag": "--statistic Sum --period 300",
-                    "meaning": "Add the errors up over five minutes."
-                  },
-                  {
-                    "flag": "--treat-missing-data notBreaching",
-                    "meaning": "No traffic is not a failure."
-                  },
-                  {
-                    "flag": "--alarm-actions $TOPIC",
-                    "meaning": "Publish to the topic when the alarm goes into ALARM."
-                  }
-                ]
+                "sample": "OK"
               }
             ],
             "verify": [
               "OK"
             ],
-            "whatItMeans": "Errors are the signal users feel; CPU tells you nothing about a function. Missing data must count as good, or an idle Sunday looks like an outage. The App & DevOps drill breaks the function on purpose: expect email.",
+            "whatItMeans": "CloudWatch collects metrics from every service; an alarm watches one metric against a threshold and publishes to SNS. Errors are the signal users feel; CPU tells you nothing about a function. The App & DevOps drill will fire it.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2386,6 +2360,7 @@
         "estimatedTime": "45 min",
         "difficulty": 2,
         "learn": [
+          "CLF-C02 · Cloud Technology and Services",
           "CloudWatch Logs",
           "Reading a stack trace"
         ],
@@ -2427,13 +2402,7 @@
               {
                 "cmd": "aws lambda update-function-configuration --function-name capstone-team01-counter --environment \"Variables={TABLE_NAME=capstone-team01-missing}\" --query LastUpdateStatus --output text",
                 "explain": "The API now returns 500. Load the site twice to generate errors.",
-                "sample": "InProgress",
-                "flags": [
-                  {
-                    "flag": "--environment \"Variables={…}\"",
-                    "meaning": "Replace the whole variable set — list every variable you want to keep."
-                  }
-                ]
+                "sample": "InProgress"
               }
             ],
             "verify": [
@@ -2459,23 +2428,13 @@
               {
                 "cmd": "aws logs filter-log-events --log-group-name /aws/lambda/capstone-team01-counter --filter-pattern ERROR --max-items 2 --query \"events[].message\" --output text",
                 "explain": "Every Lambda writes to a log group named after it.",
-                "sample": "[ERROR] ResourceNotFoundException: Requested resource not found",
-                "flags": [
-                  {
-                    "flag": "--log-group-name /aws/lambda/<function>",
-                    "meaning": "Lambda’s naming rule for log groups."
-                  },
-                  {
-                    "flag": "--filter-pattern ERROR",
-                    "meaning": "Only lines containing ERROR."
-                  }
-                ]
+                "sample": "[ERROR] ResourceNotFoundException: Requested resource not found"
               }
             ],
             "verify": [
               "ResourceNotFoundException"
             ],
-            "whatItMeans": "The exception names the layer — configuration — before you open any code. Read a stack trace bottom up: the last line says what failed, the lines above say where. The table name is in the message.",
+            "whatItMeans": "CloudWatch Logs holds every line the function prints, in a log group named after it. Read a stack trace bottom up: the last line says what failed, the lines above say where. The table name is in the message.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2507,7 +2466,7 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "A fix is not done until the retest passes. Note the times: broke at, alarmed at, found at, fixed at — those four numbers are the incident report, and the alarm returns to OK by itself once errors stop.",
+            "whatItMeans": "A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alarmed at, found at, fixed at — those four numbers are their incident record, and the alarm returns to OK by itself.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2536,8 +2495,8 @@
         "id": "aws-w4-secops",
         "role": "secops",
         "week": 4,
-        "title": "Work one incident layer by layer",
-        "objective": "Break CORS on purpose, then work it as an incident: symptom, layer, evidence, root cause, fix, prevention.",
+        "title": "Find who changed it in CloudTrail and write the incident record",
+        "objective": "Find this week’s drill in CloudTrail event history — who changed what, when — then write it up as an incident.",
         "frameworks": [
           "AWS_CLF",
           "WAF"
@@ -2545,57 +2504,59 @@
         "deliverables": [
           "04_Monitoring_and_Incident_Report.md"
         ],
-        "estimatedTime": "45 min",
+        "estimatedTime": "40 min",
         "difficulty": 2,
         "learn": [
-          "ITIL incident management",
-          "Layer-by-layer troubleshooting",
-          "Reading DevTools"
+          "CLF-C02 · Security and Compliance",
+          "CloudTrail event history",
+          "An incident record: symptom, evidence, cause, fix"
         ],
         "tools": [
           "AWS console",
-          "CloudShell",
-          "Browser DevTools"
+          "CloudShell"
         ],
         "definitionOfDone": [
-          "An incident record with all six parts"
+          "The change is found in CloudTrail with its user and time",
+          "The incident record is complete"
         ],
         "docs": [
           {
-            "title": "Configuring CORS for an HTTP API",
-            "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html",
-            "lookFor": "the sentence that says the API still answers 200 and the browser discards the response — that is why the Network tab looks fine"
+            "title": "Viewing CloudTrail events",
+            "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/view-cloudtrail-events.html",
+            "lookFor": "the Event history page and its lookup attributes — Event name is the one you filter on"
           },
           {
-            "title": "Troubleshooting Lambda",
-            "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-troubleshooting.html",
-            "lookFor": "the way the page splits problems by layer — deployment, invocation, execution, networking — copy that order for your incident record"
+            "title": "Using CloudWatch alarms",
+            "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html",
+            "lookFor": "the alarm History tab: the state change and its time — your incident’s “alarmed at”"
           }
         ],
-        "freeTier": "Free: one CORS setting changed twice. Nothing new is created.",
+        "freeTier": "Free: 90 days of CloudTrail event history and the alarm history cost nothing.",
+        "prerequisites": [
+          "The break-and-fix times from App & DevOps, this week."
+        ],
         "steps": [
           {
             "id": "aws-w4-secops-s1",
-            "title": "Inject the fault",
-            "description": "Inject the fault",
+            "title": "Find the change",
+            "description": "Find the change",
             "where": "AWS console · or CloudShell",
-            "instruction": "Replace the allowed origin with a wrong one.",
+            "instruction": "Find who changed the function’s variable, and when.",
             "instructionList": [
-              "API Gateway → the counter API → Develop → CORS → Configure.",
-              "Remove your CloudFront origin; add https://wrong.example instead. Save. Note the time.",
-              "Reload the site: the counter is missing."
+              "CloudTrail → Event history. Lookup attribute: Event name = UpdateFunctionConfiguration20150331v2.",
+              "Read the two rows: Event time, User name, Resource. Screenshot them for Evidence."
             ],
             "commands": [
               {
-                "cmd": "APIID=$(aws apigatewayv2 get-apis --query \"Items[?contains(Name, 'capstone-team01')].ApiId | [0]\" --output text); aws apigatewayv2 update-api --api-id $APIID --cors-configuration AllowOrigins=https://wrong.example,AllowMethods=GET --query CorsConfiguration.AllowOrigins",
-                "explain": "The page still loads, but its script can no longer read the count.",
-                "sample": "[ \"https://wrong.example\" ]"
+                "cmd": "aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=UpdateFunctionConfiguration20150331v2 --max-results 2 --query \"Events[].[EventTime, Username]\" --output text",
+                "explain": "Every console click and API call is recorded with who made it. Allow a few minutes for the newest event to appear.",
+                "sample": "2026-10-08T14:07:02+00:00\tteam01-dev\n2026-10-08T14:02:11+00:00\tteam01-dev"
               }
             ],
             "verify": [
-              "wrong.example"
+              "team01"
             ],
-            "whatItMeans": "A realistic fault: nothing is “down”, one feature silently stops, and no alarm fires because the API still answers 200. Most real incidents look like this — not an outage, a change.",
+            "whatItMeans": "CloudTrail is the audit log: who did what, when, from where — the first question of every incident and every compliance review. Event history keeps 90 days free; a trail to S3 keeps it for ever.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2603,19 +2564,24 @@
           },
           {
             "id": "aws-w4-secops-s2",
-            "title": "Find the layer",
-            "description": "The console names CORS as the cause.",
-            "where": "Browser DevTools → Console and Network",
-            "instruction": "Follow the symptom down the layers.",
+            "title": "Read the alarm history",
+            "description": "Read the alarm history",
+            "where": "AWS console · or CloudShell",
+            "instruction": "Read when the alarm fired and when it recovered.",
             "instructionList": [
-              "Symptom: the count is missing. Open DevTools (F12) and reload.",
-              "Network tab: the counter request shows status 200 — the network and the function work.",
-              "Console tab: “blocked by CORS policy: No Access-Control-Allow-Origin header” — the configuration layer.",
-              "Evidence: screenshot the console line."
+              "CloudWatch → Alarms → capstone-team01-counter-errors → History: “Alarm updated from OK to In alarm” and back, with times."
             ],
-            "expectedOutput": "The console names CORS as the cause.",
-            "outputKind": "result",
-            "whatItMeans": "Working down the layers — page, network, API, configuration, data — stops you fixing what is not broken. A 200 in the Network tab rules out three layers in one look; the console message names the fourth.",
+            "commands": [
+              {
+                "cmd": "aws cloudwatch describe-alarm-history --alarm-name capstone-team01-counter-errors --history-item-type StateUpdate --max-items 2 --query \"AlarmHistoryItems[].[Timestamp, HistorySummary]\" --output text",
+                "explain": "The state changes, newest first.",
+                "sample": "2026-10-08T14:11:30+00:00\tAlarm updated from ALARM to OK\n2026-10-08T14:06:30+00:00\tAlarm updated from OK to ALARM"
+              }
+            ],
+            "verify": [
+              "ALARM"
+            ],
+            "whatItMeans": "The alarm’s times against CloudTrail’s show whether monitoring or a user told you first — the alarm should win. Minutes from change to alarm is the number a monitoring design is judged by.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2623,24 +2589,18 @@
           },
           {
             "id": "aws-w4-secops-s3",
-            "title": "Fix and retest",
-            "description": "Fix and retest",
-            "where": "AWS console · or CloudShell",
-            "instruction": "Put your site back and reload.",
+            "title": "Write the incident record",
+            "description": "An incident record with symptom, evidence, cause, fix and the four times.",
+            "where": "The document",
+            "instruction": "Record this week’s drill: symptom, evidence, cause, fix.",
             "instructionList": [
-              "CORS → Configure: remove wrong.example, add your CloudFront URL back. Save. Reload the site: the count returns. Note the time."
+              "Symptom: the counter showed “…”. Evidence: the CloudTrail rows, the alarm history, the alert email.",
+              "Cause: TABLE_NAME was changed to a table that does not exist. Fix: changed back, retested.",
+              "Times: changed at, alarmed at, found at, fixed at. Prevention: Week 10 makes settings code."
             ],
-            "commands": [
-              {
-                "cmd": "aws apigatewayv2 update-api --api-id $APIID --cors-configuration AllowOrigins=https://d111111abcdef8.cloudfront.net,AllowMethods=GET --query CorsConfiguration.AllowOrigins",
-                "explain": "Use your own CloudFront URL. Reload the site: the count returns.",
-                "sample": "[ \"https://d111111abcdef8.cloudfront.net\" ]"
-              }
-            ],
-            "verify": [
-              "cloudfront.net"
-            ],
-            "whatItMeans": "Fix, retest, then prevention: Week 10 puts CORS in the template, so drift like this is corrected by the next deploy. Root cause is “the setting changed”; prevention is “the setting is code”.",
+            "expectedOutput": "An incident record with symptom, evidence, cause, fix and the four times.",
+            "outputKind": "result",
+            "whatItMeans": "An incident record is how a team learns: what users saw, how you knew, what it was, what fixed it. CloudTrail turns “someone changed something” into a name and a time.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
@@ -2653,7 +2613,7 @@
             "where": "Deliverables tab",
             "instruction": "Fill your section of the Monitoring & Incident Report.",
             "instructionList": [
-              "Symptom, layer, evidence, root cause, fix, prevention."
+              "Symptom, evidence, root cause, fix; who made the change."
             ],
             "usesForm": "Monitoring & Incident Report",
             "producesDeliverable": "04_Monitoring_and_Incident_Report.md",
@@ -2817,8 +2777,65 @@
               "type": "text",
               "required": true,
               "placeholder": "team01-alerts@school.edu"
+            },
+            {
+              "field": "region_zone",
+              "label": "Region and availability zone, and why",
+              "type": "text",
+              "required": true,
+              "placeholder": "us-east-1, us-east-1a — the Free Tier region with every service"
             }
           ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "service_model",
+            "label": "Service model and shared responsibility · Architect",
+            "columns": [
+              {
+                "field": "component",
+                "label": "Component",
+                "type": "select",
+                "options": [
+                  "EC2 instance",
+                  "EBS volume",
+                  "VPC / security group",
+                  "S3",
+                  "CloudFront",
+                  "Lambda",
+                  "API Gateway",
+                  "DynamoDB",
+                  "CloudWatch / SNS",
+                  "Other"
+                ]
+              },
+              {
+                "field": "model",
+                "label": "Model",
+                "type": "select",
+                "options": [
+                  "IaaS",
+                  "PaaS",
+                  "SaaS",
+                  "Serverless"
+                ]
+              },
+              {
+                "field": "we_manage",
+                "label": "We manage",
+                "type": "text",
+                "placeholder": "OS patches, our code, our data"
+              },
+              {
+                "field": "they_manage",
+                "label": "The provider manages",
+                "type": "text",
+                "placeholder": "Hardware, the datacenter, the hypervisor"
+              }
+            ],
+            "help": "One row per service the team will build. The model decides who patches, who secures and who pays for what."
+          }
         },
         {
           "kind": "group",
@@ -3130,7 +3147,7 @@
       "useIt": "Grows every week. Week 12 hands it over.",
       "pitfalls": [
         "A cost column left blank — “free” is an answer, write it.",
-        "An ADR with no rejected option is a description, not a decision."
+        "A redundancy row with no alternative is a description, not a decision."
       ],
       "sections": [
         {
@@ -3227,37 +3244,38 @@
           }
         },
         {
-          "kind": "fields",
-          "title": "ADR-001 · Architect",
-          "fields": [
-            {
-              "field": "adr_context",
-              "label": "Context",
-              "type": "area",
-              "required": true,
-              "placeholder": "We need a public website with HTTPS for under $1 a month."
-            },
-            {
-              "field": "adr_decision",
-              "label": "Decision",
-              "type": "text",
-              "required": true,
-              "placeholder": "Private S3 bucket behind CloudFront with Origin Access Control"
-            },
-            {
-              "field": "adr_rejected",
-              "label": "Rejected option, and why",
-              "type": "text",
-              "required": true,
-              "placeholder": "A VM running nginx — patching and cost for a static page."
-            },
-            {
-              "field": "adr_consequence",
-              "label": "Consequences",
-              "type": "text",
-              "placeholder": "No server-side code on the site; the API is separate."
-            }
-          ]
+          "kind": "group",
+          "group": {
+            "group": "redundancy",
+            "label": "Redundancy and tiers · Architect",
+            "columns": [
+              {
+                "field": "asset",
+                "label": "Asset",
+                "type": "text",
+                "placeholder": "Site bucket"
+              },
+              {
+                "field": "option",
+                "label": "Option chosen",
+                "type": "text",
+                "placeholder": "S3 Standard"
+              },
+              {
+                "field": "rejected",
+                "label": "Alternative, and why not",
+                "type": "text",
+                "placeholder": "S3 Standard-IA — retrieval fees for a site read every day"
+              },
+              {
+                "field": "cost",
+                "label": "Monthly cost",
+                "type": "number",
+                "unit": "USD"
+              }
+            ],
+            "help": "Redundancy is how many copies and where; a tier is how often the data is read. Both are on the exam and both are cost decisions."
+          }
         },
         {
           "kind": "fields",
@@ -3395,13 +3413,17 @@
           }
         },
         {
-          "label": "ADR-001 states the decision and what was rejected",
+          "label": "Redundancy and tiers are chosen with an alternative",
           "when": {
-            "fields": [
-              "adr_context",
-              "adr_decision",
-              "adr_rejected"
-            ]
+            "group": "redundancy",
+            "where": {
+              "filled": [
+                "asset",
+                "option",
+                "rejected"
+              ]
+            },
+            "atLeast": 2
           }
         },
         {
@@ -3605,23 +3627,37 @@
         },
         {
           "kind": "fields",
-          "title": "CORS and secrets · Security & Ops",
+          "title": "Identity and access · Security & Ops",
           "fields": [
             {
-              "field": "cors_origin",
-              "label": "Allowed origin (only this)",
+              "field": "team_group",
+              "label": "The team’s group",
               "type": "text",
               "required": true,
-              "placeholder": "https://your-site-host"
+              "placeholder": "capstone-team01-readonly (IAM user group)"
             },
             {
-              "field": "cors_negative",
-              "label": "Negative test: a different origin",
+              "field": "group_members",
+              "label": "Members",
+              "type": "text",
+              "required": true,
+              "placeholder": "the four teammates"
+            },
+            {
+              "field": "group_role",
+              "label": "Role and scope",
+              "type": "text",
+              "required": true,
+              "placeholder": "ReadOnlyAccess (account)"
+            },
+            {
+              "field": "mfa",
+              "label": "MFA on for every member",
               "type": "select",
               "required": true,
               "options": [
-                "Blocked — as expected",
-                "Allowed — needs fixing"
+                "Confirmed",
+                "Not yet"
               ]
             },
             {
@@ -3710,10 +3746,10 @@
           }
         },
         {
-          "label": "CORS allows one origin, and another is blocked",
+          "label": "The team’s group holds its role and every member has MFA",
           "when": {
-            "field": "cors_negative",
-            "equals": "Blocked — as expected"
+            "field": "mfa",
+            "equals": "Confirmed"
           }
         },
         {
@@ -3879,24 +3915,11 @@
               "placeholder": "Counter shows “—” instead of a number."
             },
             {
-              "field": "inc_layer",
-              "label": "Failing layer",
-              "type": "select",
-              "required": true,
-              "options": [
-                "Network",
-                "Identity / permissions",
-                "Application",
-                "Data",
-                "Configuration"
-              ]
-            },
-            {
               "field": "inc_evidence",
               "label": "Evidence",
               "type": "area",
               "required": true,
-              "placeholder": "The log line or query result that proved the layer."
+              "placeholder": "The alert email, the log line or the audit event that proved it."
             },
             {
               "field": "inc_root",
@@ -3909,6 +3932,13 @@
               "label": "Fix, and the retest that proved it",
               "type": "text",
               "required": true
+            },
+            {
+              "field": "guardrail",
+              "label": "Who made the change (CloudTrail)",
+              "type": "text",
+              "required": true,
+              "placeholder": "team01-dev, UpdateFunctionConfiguration, 14:02 UTC"
             },
             {
               "field": "inc_prevent",
@@ -3978,15 +4008,15 @@
           }
         },
         {
-          "label": "The incident has a layer, evidence, root cause, fix and prevention",
+          "label": "The incident has a symptom, evidence, root cause, fix and prevention",
           "when": {
             "fields": [
               "inc_symptom",
-              "inc_layer",
               "inc_evidence",
               "inc_root",
               "inc_fix",
-              "inc_prevent"
+              "inc_prevent",
+              "guardrail"
             ]
           }
         },
@@ -4263,10 +4293,10 @@
           {
             "id": "ReadOnlyGroup",
             "icon": "group",
-            "label": "Read-only",
+            "label": "Read-only group",
             "x": 145,
             "y": 100,
-            "week": 5,
+            "week": 3,
             "small": true
           },
           {
@@ -4370,9 +4400,8 @@
             "label": "Parameter Store",
             "x": 610,
             "y": 412,
-            "week": 3,
-            "small": true,
-            "detail": true
+            "week": 5,
+            "small": true
           },
           {
             "id": "CounterFunctionRole",
@@ -4791,7 +4820,7 @@
             "from": "TableNameParameter",
             "to": "VisitorTable",
             "kind": "depends",
-            "week": 3
+            "week": 5
           },
           {
             "from": "CounterFunctionRole",
@@ -4879,12 +4908,12 @@
         "full": {
           "name": "template.yaml",
           "lang": "yaml",
-          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: t3.micro\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: 10.10.0.0/16\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.1.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.2.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: redirect-to-https\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: PAY_PER_REQUEST\n      AttributeDefinitions:\n        - AttributeName: id\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: python3.12\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [GET]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: An IAM group that can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n"
+          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: t3.micro\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: 10.10.0.0/16\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.1.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.2.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: redirect-to-https\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: PAY_PER_REQUEST\n      AttributeDefinitions:\n        - AttributeName: id\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: python3.12\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [GET]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The team's IAM group - it can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n"
         },
         "starter": {
           "name": "template.starter.yaml",
           "lang": "yaml",
-          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: \"FILL-ME: the free-tier instance type\"\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: \"FILL-ME: the VPC address space\"\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the public subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the private subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: \"FILL-ME: what happens to plain HTTP\"\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: \"FILL-ME: pay per request, no idle cost\"\n      AttributeDefinitions:\n        - AttributeName: \"FILL-ME: the partition key attribute\"\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: \"FILL-ME: the Python runtime\"\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [\"FILL-ME: the one method the site uses\"]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: An IAM group that can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n"
+          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: \"FILL-ME: the free-tier instance type\"\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: \"FILL-ME: the VPC address space\"\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the public subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the private subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: \"FILL-ME: what happens to plain HTTP\"\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: \"FILL-ME: pay per request, no idle cost\"\n      AttributeDefinitions:\n        - AttributeName: \"FILL-ME: the partition key attribute\"\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: \"FILL-ME: the Python runtime\"\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [\"FILL-ME: the one method the site uses\"]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The team's IAM group - it can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n"
         },
         "fillCount": 9,
         "parameters": [
@@ -5083,85 +5112,85 @@
           {
             "id": "TableNameParameter",
             "type": "AWS::SSM::Parameter",
-            "week": 3,
+            "week": 5,
             "start": 402,
-            "end": 411
+            "end": 412
           },
           {
             "id": "CounterFunctionRole",
             "type": "AWS::IAM::Role",
             "week": 3,
-            "start": 413,
-            "end": 435
+            "start": 414,
+            "end": 436
           },
           {
             "id": "CounterFunction",
             "type": "AWS::Lambda::Function",
             "week": 3,
-            "start": 437,
-            "end": 473
+            "start": 438,
+            "end": 474
           },
           {
             "id": "HttpApi",
             "type": "AWS::ApiGatewayV2::Api",
             "week": 3,
-            "start": 475,
-            "end": 489
+            "start": 476,
+            "end": 490
           },
           {
             "id": "ApiIntegration",
             "type": "AWS::ApiGatewayV2::Integration",
             "week": 3,
-            "start": 491,
-            "end": 501
+            "start": 492,
+            "end": 502
           },
           {
             "id": "ApiRoute",
             "type": "AWS::ApiGatewayV2::Route",
             "week": 3,
-            "start": 503,
-            "end": 512
+            "start": 504,
+            "end": 513
           },
           {
             "id": "ApiStage",
             "type": "AWS::ApiGatewayV2::Stage",
             "week": 3,
-            "start": 514,
-            "end": 523
+            "start": 515,
+            "end": 524
           },
           {
             "id": "ApiInvokePermission",
             "type": "AWS::Lambda::Permission",
             "week": 3,
-            "start": 525,
-            "end": 535
+            "start": 526,
+            "end": 536
           },
           {
             "id": "CounterLogGroup",
             "type": "AWS::Logs::LogGroup",
             "week": 4,
-            "start": 537,
-            "end": 545
+            "start": 538,
+            "end": 546
           },
           {
             "id": "AlertTopic",
             "type": "AWS::SNS::Topic",
             "week": 4,
-            "start": 547,
-            "end": 557
+            "start": 548,
+            "end": 558
           },
           {
             "id": "FunctionErrorsAlarm",
             "type": "AWS::CloudWatch::Alarm",
             "week": 4,
-            "start": 559,
-            "end": 578
+            "start": 560,
+            "end": 579
           },
           {
             "id": "ReadOnlyGroup",
             "type": "AWS::IAM::Group",
-            "week": 5,
-            "start": 580,
+            "week": 3,
+            "start": 581,
             "end": 589
           }
         ],
@@ -5768,6 +5797,21 @@
     "Free Tier": "What AWS gives away: some things for 12 months after the account opens (750 EC2 hours a month), some always (Lambda, DynamoDB).",
     "Cloud Shell": "A terminal in the browser with the Azure CLI signed in already. It needs a small storage share the first time.",
     "CloudShell": "A terminal in the browser with the AWS CLI signed in already. Free.",
+    "shared responsibility": "Who secures what: the provider runs the datacenter, hardware and (for PaaS) the platform; you own your data, identities, configuration and — on a VM — the operating system.",
+    "IaaS": "Infrastructure as a Service — you rent a machine and network and manage the operating system yourself. A VM is IaaS.",
+    "PaaS": "Platform as a Service — you bring code and data; the provider runs and patches the platform. Functions, a static website and a managed database are PaaS.",
+    "SaaS": "Software as a Service — a finished application you sign in to, like Microsoft 365 or the GitHub website.",
+    "availability zone": "One of several separate datacenters inside a region, with its own power and cooling. Two zones fail independently; one region can still fail as a whole.",
+    "resource lock": "An Azure setting on a resource or group that refuses deletes (CanNotDelete) or any change (ReadOnly) until someone removes the lock first.",
+    "Advisor": "Azure’s free recommendation service: cost, security, reliability, performance and operational tips for what you have deployed.",
+    "Service Health": "Azure’s page for incidents and planned maintenance that affect your subscription’s regions and services.",
+    "Trusted Advisor": "AWS’s free checks for cost, security, fault tolerance and limits. Basic support shows the security and limit checks.",
+    "support plan": "The AWS support tier an account pays for: Basic (free), Developer, Business, Enterprise. It sets response times and which tools are unlocked.",
+    "CloudTrail": "AWS’s audit log: every console click and API call, who made it and when. Event history keeps 90 days free.",
+    "Entra ID": "Microsoft Entra ID (formerly Azure AD) — the identity service behind every Azure sign-in: users, groups, MFA, and the roles RBAC assigns.",
+    "security group (Entra)": "A group of users in Entra ID. Assign a role to the group once, and every member gets it.",
+    "user group": "A group of IAM users in AWS. Attach a policy to the group once, and every member gets it.",
+    "MFA": "Multi-factor authentication — a second proof at sign-in (an app code, a key), so a stolen password alone is not enough.",
     "ADR": "Architecture Decision Record — one page that says what was decided, what was rejected, and why, so the next team does not reopen it."
   },
   "marking": {

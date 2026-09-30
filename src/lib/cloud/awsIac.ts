@@ -421,9 +421,10 @@ Resources:
 
   TableNameParameter:
     Type: AWS::SSM::Parameter
+    Condition: Week5Plus
     Metadata:
       Capstone:
-        Week: 3
+        Week: 5
         Summary: Publishes the table name in Parameter Store - configuration, not a secret.
     Properties:
       Name: !Sub '/capstone/\${TeamId}/visitor/table'
@@ -599,11 +600,10 @@ Resources:
 
   ReadOnlyGroup:
     Type: AWS::IAM::Group
-    Condition: Week5Plus
     Metadata:
       Capstone:
-        Week: 5
-        Summary: An IAM group that can look at everything and change nothing.
+        Week: 3
+        Summary: The team's IAM group - it can look at everything and change nothing.
     Properties:
       ManagedPolicyArns:
         - !Sub 'arn:\${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'

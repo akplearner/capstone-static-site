@@ -74,7 +74,7 @@
       "file": "azure-administrator.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 50,
+      "steps": 53,
       "deliverables": 4,
       "procedures": 0
     },
@@ -85,7 +85,7 @@
       "file": "azure-devops.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 50,
+      "steps": 51,
       "deliverables": 4,
       "procedures": 0
     },
@@ -96,7 +96,7 @@
       "file": "aws-cloud-practitioner.json",
       "weeks": 4,
       "tasks": 16,
-      "steps": 55,
+      "steps": 56,
       "deliverables": 4,
       "procedures": 0
     },
@@ -107,7 +107,7 @@
       "file": "aws-solutions-architect.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 47,
+      "steps": 52,
       "deliverables": 4,
       "procedures": 0
     },
@@ -118,7 +118,7 @@
       "file": "aws-devops.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 50,
+      "steps": 51,
       "deliverables": 4,
       "procedures": 0
     }

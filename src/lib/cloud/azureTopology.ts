@@ -18,11 +18,10 @@ const weekOf = (id: string) => AZURE_IAC.resources.find((r) => r.id === id)?.wee
 const TRAFFIC: CloudEdge[] = [
   { from: 'user', to: 'webStorage', kind: 'traffic', label: 'HTTPS', week: 2 },
   { from: 'user', to: 'func', kind: 'traffic', label: 'GET /api/visitorCount', week: 3 },
-  // By hand, Weeks 3–4 reach Cosmos DB with the connection string held in Key Vault; Week 5 replaces it with the identity.
+  // By hand, Weeks 3–4 reach Cosmos DB with a connection string in an app setting; Week 5 replaces it with the identity
+  // (and files the string in Key Vault as the team's secret record — the Function never reads the vault in the final state).
   { from: 'func', to: 'cosmos', kind: 'traffic', label: 'connection string (until Week 5)', week: 3, until: 4 },
   { from: 'func', to: 'cosmos', kind: 'traffic', label: 'managed identity', week: 5 },
-  // Weeks 3–4 only: the template's final state has no vault reference — from Week 5 the identity replaces the secret.
-  { from: 'func', to: 'kv', kind: 'traffic', label: 'Key Vault reference (until Week 5)', week: 3, until: 4 },
   { from: 'func', to: 'appi', kind: 'traffic', label: 'telemetry', week: 3 },
   { from: 'appi', to: 'log', kind: 'traffic', label: 'stores in', week: 3 },
   { from: 'func', to: 'http5xxAlert', kind: 'traffic', label: 'Http5xx metric', week: 4 },
@@ -60,8 +59,8 @@ export const AZURE_TOPOLOGY: CloudTopology = {
 
     { id: 'webStorage', icon: 'storage', label: 'Storage account', name: 'stweb… ($web)', x: 270, y: 130, week: 2 },
     { id: 'webBlobService', icon: 'blobservice', label: 'Soft delete', x: 190, y: 185, week: 8, small: true },
-    { id: 'kv', icon: 'secret', label: 'Key vault', name: 'kv-capstone-team01-…', x: 540, y: 130, week: 3 },
-    { id: 'kvRoleFunc', icon: 'role', label: 'Secrets User', x: 622, y: 150, week: 3, small: true },
+    { id: 'kv', icon: 'secret', label: 'Key vault', name: 'kv-capstone-team01-…', x: 540, y: 130, week: 5 },
+    { id: 'kvRoleFunc', icon: 'role', label: 'Secrets User', x: 622, y: 150, week: 5, small: true },
 
     { id: 'func', icon: 'function', label: 'Function app', name: 'func-capstone-team01', x: 270, y: 285, week: 3 },
     { id: 'plan', icon: 'plan', label: 'Plan (Y1)', x: 200, y: 345, week: 3, small: true, detail: true },
@@ -84,7 +83,7 @@ export const AZURE_TOPOLOGY: CloudTopology = {
     { id: 'dataDisk', icon: 'disk', label: 'Data disk', x: 720, y: 381, week: 7, small: true },
     { id: 'nsgMgmt', icon: 'firewall', label: 'NSG', name: 'nsg-snet-mgmt', x: 930, y: 502, week: 6, small: true },
 
-    { id: 'readerRole', icon: 'role', label: 'Reader (group)', x: 700, y: 118, week: 5, small: true },
+    { id: 'readerRole', icon: 'role', label: 'Reader (group)', x: 700, y: 118, week: 3, small: true },
     { id: 'tagPolicy', icon: 'policy', label: 'Policy: owner tag', x: 810, y: 118, week: 11, small: true },
     { id: 'budget', icon: 'budget', label: 'Budget $5', x: 920, y: 118, week: 1, small: true },
   ],

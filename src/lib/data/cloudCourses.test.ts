@@ -31,8 +31,8 @@ const stopsMachine = (t: Task) =>
 const DOC_HOSTS = ['learn.microsoft.com', 'docs.aws.amazon.com', 'aws.amazon.com', 'azure.microsoft.com', 'docs.github.com'];
 /** The steps the portal genuinely cannot do, with the reason. Anything else with commands needs clicks too. */
 const SHELL_ONLY: Record<string, string> = {
-  'az-w3-secops-s2': 'a forged Origin header: only curl can send one',
-  'aws-w3-secops-s2': 'a forged Origin header: only curl can send one',
+  'az-w6-dev-s2': 'a forged Origin header: only curl can send one',
+  'aws-w6-dev-s2': 'a forged Origin header: only curl can send one',
   'az-w5-dev-s2': 'Cosmos DB data-plane roles are assigned by CLI only; the portal has no page for them',
 };
 
@@ -65,6 +65,36 @@ function r93Problems(t: Task, authoredWeek: number): string[] {
   }
   const need = NEEDS[t.id];
   if (need && !t.prerequisites?.some((p) => p.includes(need))) out.push(`${t.id}: needs ${need}'s work first but does not say so`);
+  return out;
+}
+
+// R95 — the two entry courses teach the exam and nothing past it. Every task
+// names its exam domain first under "What you'll learn"; the topics that
+// belong to the associate exams live in the next course; and the identity,
+// MFA, lock and audit work the exams do test is present.
+const DOMAINS: Record<string, string[]> = {
+  'azure-fundamentals': ['AZ-900 · Cloud concepts', 'AZ-900 · Azure architecture and services', 'AZ-900 · Azure management and governance'],
+  'aws-cloud-practitioner': ['CLF-C02 · Cloud Concepts', 'CLF-C02 · Security and Compliance', 'CLF-C02 · Cloud Technology and Services', 'CLF-C02 · Billing, Pricing and Support'],
+};
+/** Topics that belong to AZ-104 / SAA-C03 and later — none may appear in an entry-course step. */
+const BEYOND_EXAM = /Key Vault reference|@Microsoft\.KeyVault|managed identity|foreign origin|Origin:|IMDSv2|HttpTokens=required|ADR-0|layer by layer|Parameter Store/i;
+/** What the entry Security tasks must cover, week by week. */
+const MUST_COVER: Record<string, RegExp> = {
+  'az-w1-secops': /MFA/, 'aws-w1-secops': /MFA/,
+  'az-w3-secops': /group[\s\S]*Reader/, 'aws-w3-secops': /group[\s\S]*ReadOnlyAccess/,
+  'az-w4-secops': /lock/i, 'aws-w4-secops': /CloudTrail/,
+};
+const stepText = (t: Task) => t.steps.map((s) => JSON.stringify(s)).join('\n');
+
+function r95Problems(course: Course, t: Task): string[] {
+  const out: string[] = [];
+  const domains = DOMAINS[course.id];
+  if (!domains || t.week === 0) return out;
+  if (!domains.includes(t.learn?.[0] ?? '')) out.push(`${t.id}: "What you'll learn" does not open with an exam domain (got "${t.learn?.[0]}")`);
+  const hit = BEYOND_EXAM.exec(stepText(t));
+  if (hit) out.push(`${t.id}: teaches "${hit[0]}", which belongs to the next course`);
+  const must = MUST_COVER[t.id];
+  if (must && !must.test(JSON.stringify(t))) out.push(`${t.id}: does not cover ${must}`);
   return out;
 }
 
@@ -157,6 +187,10 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     const base = id.includes('fundamentals') || id.includes('practitioner') ? 0 : id.includes('administrator') || id.includes('solutions') ? 4 : 8;
     expect(first.number).toBe(1);
     expect(course.tasks.flatMap((t) => r93Problems(t, t.week === 0 ? 0 : base + t.week))).toEqual([]);
+  });
+
+  it('R95 — the entry courses teach the exam: a domain first, nothing from the next course, identity and audit covered', () => {
+    expect(course.tasks.flatMap((t) => r95Problems(course, t))).toEqual([]);
   });
 
   it('every task carries this course’s own exam tag, not another quarter’s', () => {
@@ -252,6 +286,25 @@ describe('R90 — the guards catch what they claim to', () => {
     expect(r93Problems(bare, 5)).toEqual([]);
   });
 
+  it('R95: nothing moved out of the entry courses was lost — each topic lives in the next course', () => {
+    const next = (id: string) => ALL.find((c) => c.id === id)!.tasks.map(stepText).join('\n');
+    const az = next('azure-administrator');
+    const aws = next('aws-solutions-architect');
+    for (const re of [/@Microsoft\.KeyVault/, /managed identity/i, /CORS/, /Origin:/, /layer/i]) expect(az, `Azure: ${re}`).toMatch(re);
+    for (const re of [/Parameter Store/, /CORS/, /Origin:/, /IMDSv2|HttpTokens/, /layer/i]) expect(aws, `AWS: ${re}`).toMatch(re);
+    for (const id of ['azure-devops', 'aws-devops']) expect(next(id)).toMatch(/ADR-001/);
+  });
+
+  it('R95: an entry task with no domain, a beyond-exam topic, or a Security task that skips MFA', () => {
+    const course = AZURE_COURSES[0];
+    expect(r95Problems(course, { ...good, learn: ['Budgets'] }).join()).toContain('does not open with an exam domain');
+    const leak = { ...good, steps: [{ ...good.steps[0], whatItMeans: 'Point the setting at a Key Vault reference.' }, ...good.steps.slice(1)] };
+    expect(r95Problems(course, leak).join()).toContain('belongs to the next course');
+    const sec = course.tasks.find((t) => t.id === 'az-w1-secops')!;
+    const noMfa = { ...sec, steps: sec.steps.map((s) => ({ ...s, title: s.title.replace(/MFA/g, ''), instruction: s.instruction?.replace(/MFA/g, ''), instructionList: s.instructionList?.map((a) => a.replace(/MFA/g, '')), whatItMeans: s.whatItMeans.replace(/MFA/g, ''), expectedOutput: s.expectedOutput?.replace(/MFA/g, ''), fixes: undefined, description: s.description?.replace(/MFA/g, '') })), learn: sec.learn?.map((l) => l.replace(/MFA/gi, '')), definitionOfDone: [], docs: [], title: 'x', objective: 'x', freeTier: 'Free.', tools: [] };
+    expect(r95Problems(course, noMfa).join()).toContain('does not cover');
+  });
+
   it('R93: the counter item is called "site" in the tasks, the templates and the Week 3 form', () => {
     const azFlow = AZURE_COURSES[0].tasks.find((t) => t.id === 'az-w3-arch')!.steps.flatMap((s) => s.instructionList ?? []).join(' ');
     const awsFlow = AWS_COURSES[0].tasks.find((t) => t.id === 'aws-w3-arch')!.steps.flatMap((s) => s.instructionList ?? []).join(' ');
@@ -264,12 +317,12 @@ describe('R90 — the guards catch what they claim to', () => {
     expect(code).toContain('Key={"id": "site"}');
   });
 
-  it('R93: Azure Week 3 agrees on the setting name CosmosConnection across dev, security and the Week 4 drill', () => {
-    const text = (id: string) => JSON.stringify(AZURE_COURSES[0].tasks.find((t) => t.id === id)!);
-    for (const id of ['az-w3-dev', 'az-w3-secops', 'az-w4-dev']) expect(text(id), id).toContain('CosmosConnection');
-    expect(text('az-w3-secops')).toContain('@Microsoft.KeyVault(SecretUri=');
-    // The template's Secrets User role now arrives with the vault, in Week 3.
-    expect(AZURE_IAC.resources.find((r) => r.id === 'kvRoleFunc')!.week).toBe(3);
+  it('R93/R95: Azure agrees on the setting name CosmosConnection across Week 3 dev, the Week 4 drill and the Week 5 vault', () => {
+    const text = (id: string) => JSON.stringify(ALL.flatMap((c) => c.tasks).find((t) => t.id === id)!);
+    for (const id of ['az-w3-dev', 'az-w4-dev', 'az-w5-infra']) expect(text(id), id).toContain('CosmosConnection');
+    expect(text('az-w5-infra')).toContain('@Microsoft.KeyVault(SecretUri=');
+    // The template's vault and Secrets User role arrive in Week 5, with the by-hand work.
+    expect(AZURE_IAC.resources.find((r) => r.id === 'kvRoleFunc')!.week).toBe(5);
   });
 
   it('a document without its control block', () => {

@@ -328,13 +328,17 @@ describe.each([
   });
 });
 
-describe('R88 — Azure: the Key Vault line ends when the secret does', () => {
-  it('the Function → Key Vault edge stops at Week 4; from Week 5 the identity carries the data path', () => {
-    const kv = AZURE_TOPOLOGY.edges.find((e) => e.kind === 'traffic' && e.from === 'func' && e.to === 'kv')!;
-    expect(kv.until).toBe(4);
+describe('R95 — Azure: the vault is Week 5 work, and the Function never reads it in the final state', () => {
+  it('no Function → Key Vault traffic line; the vault and its role arrive in Week 5; the Reader group in Week 3', () => {
+    expect(AZURE_TOPOLOGY.edges.some((e) => e.kind === 'traffic' && e.from === 'func' && e.to === 'kv')).toBe(false);
+    for (const id of ['kv', 'kvRoleFunc']) expect(AZURE_IAC.resources.find((r) => r.id === id)!.week, id).toBe(5);
+    expect(AZURE_IAC.resources.find((r) => r.id === 'readerRole')!.week).toBe(3);
     // And the template agrees: no Function setting references the vault.
     const func = AZURE_IAC.full.text.slice(AZURE_IAC.resources.find((r) => r.id === 'func')!.start);
     expect(func.slice(0, 4000)).not.toMatch(/@Microsoft\.KeyVault/);
+    // AWS mirrors it: the read-only group is Week 3, Parameter Store is Week 5.
+    expect(AWS_IAC.resources.find((r) => r.id === 'ReadOnlyGroup')!.week).toBe(3);
+    expect(AWS_IAC.resources.find((r) => r.id === 'TableNameParameter')!.week).toBe(5);
   });
 });
 

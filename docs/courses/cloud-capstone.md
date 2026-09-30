@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -46,15 +46,15 @@ the rest of the plan.
 
 | Wk | Focus | Architect | Infrastructure | App & DevOps | Security & Ops |
 |---|---|---|---|---|---|
-| 1 | Foundation | Naming/tags, $5 budget | RG + VNet / VPC + subnet | Repo and board | NSG / security group, access review |
-| 2 | Website + VM | SAD v1, cost, ADR-001 | B1s VM / t3.micro EC2 | Static website / S3 + CloudFront + OAC | SSH from your /32, allowed + blocked test |
-| 3 | Serverless API | Request flow with real URLs | Cosmos DB / DynamoDB + seed | Function / Lambda + HTTP API | CORS lock + negative test, no keys |
-| 4 | Operate | Cost to date | Error alert + action group / SNS | Find a failure in App Insights / CloudWatch Logs | Layer-by-layer incident (CORS) |
-| 5 | Identity | Access matrix | Reader group / ReadOnlyAccess group | Managed identity / table-scoped role | Prove a denial |
-| 6 | Networking | Network design doc | snet-mgmt / private subnet | Trace request paths | Remove SSH; Run Command / Session Manager |
-| 7 | Server admin | Right-size | Data disk / EBS volume at /data | Update Manager / Patch Manager | Baseline + runbook |
+| 1 | Cloud concepts and governance | Naming/tags, $5 budget, **service model and shared responsibility** | RG + VNet / VPC + subnet | Repo and board | NSG / security group, access review, **MFA** |
+| 2 | Core services | SAD v1, calculator vs free tier, **redundancy and storage classes** | B1s VM / t3.micro EC2, zone | Static website / S3 + CloudFront + OAC | SSH from your /32, allowed + blocked test |
+| 3 | Serverless, data and identity | Request flow, who manages each hop | Cosmos DB / DynamoDB + seed | Function / Lambda + HTTP API | **Entra / IAM group, Reader / ReadOnlyAccess, MFA**, no keys |
+| 4 | Monitor, govern, pay | Cost to date, **Advisor + Service Health / Trusted Advisor + support plans** | Error alert + action group / SNS | Find a failure in App Insights / CloudWatch Logs | **Resource lock / CloudTrail**, incident record |
+| 5 | Identity | Access matrix | **Key Vault + Secrets User / Parameter Store** | Managed identity / table-scoped role | Prove a denial |
+| 6 | Networking | Network design doc | snet-mgmt / private subnet | **CORS lock + negative test**, trace request paths | Remove SSH; Run Command / Session Manager |
+| 7 | Server admin | Right-size | Data disk / EBS volume at /data | Update Manager / Patch Manager | Baseline + runbook with the **five-layer step**; AWS: **require IMDSv2** |
 | 8 | Backup + recovery | RPO/RTO per asset | Snapshot → restore | Soft delete / S3 versioning restore | Timed drill |
-| 9 | Infrastructure as code | Template ↔ diagram map | CLI inventory | Fill the starter, what-if / change set, deploy dev | Parameter files, validate (Terraform optional) |
+| 9 | Infrastructure as code | Template ↔ diagram map, **ADR-001** | CLI inventory | Fill the starter, what-if / change set, deploy dev | Parameter files, validate (Terraform optional) |
 | 10 | CI/CD | RFC in a pull request | Branch protection + prod environment | GitHub Actions deploy | OIDC (no stored keys) + rollback test |
 | 11 | Governance | Cost by service | Policy / Config required-tags | Activity Log / CloudTrail | Defender free CSPM / Trusted Advisor + Access Analyzer |
 | 12 | Handover | Handover package (capstone) | Rebuild from the template | App failure fixed through CI | Security incident contained |
@@ -187,6 +187,22 @@ that a student who has never opened a cloud console can follow them:
 * A glossary tooltip (`src/lib/glossary.ts`) now covers the cloud
   vocabulary — resource group, VNet/VPC, NSG/security group, CIDR, RBAC/IAM,
   managed identity, CORS, serverless, partition key and the rest.
+
+## Exam alignment of the entry courses (R95)
+
+Weeks 1–4 teach what AZ-900 and CLF-C02 test, and nothing from the next
+exam. Every task's first "What you'll learn" line is its exam domain, and a
+guard (`cloudCourses.test.ts` R95) fails if a Week 1–4 step mentions a topic
+that belongs to the next course (Key Vault references, managed identity,
+CORS, IMDSv2, ADRs, layered troubleshooting, Parameter Store) — and fails
+again if that topic is missing from the next course.
+
+| Exam domain | Where it is done |
+|---|---|
+| AZ-900 1 · Cloud concepts / CLF 1 · Cloud Concepts | W1 Architect classifies every service IaaS/PaaS/serverless and writes the shared-responsibility line; W3 Architect says who manages each hop |
+| AZ-900 2 · Architecture and services / CLF 3 · Technology and Services | W1 RG + VNet / VPC (regions, zones); W2 VM / EC2, storage website / S3 + CloudFront, redundancy and storage classes; W3 Cosmos DB / DynamoDB, Functions / Lambda + API Gateway; W4 Monitor / CloudWatch, action group / SNS |
+| AZ-900 2 · Identity, access, security / CLF 2 · Security and Compliance | W1 NSG / security group, RBAC / IAM review, MFA; W2 SSH from one /32; W3 Entra group + Reader / IAM group + ReadOnlyAccess, MFA per member, no key in the page; W4 resource lock / CloudTrail |
+| AZ-900 3 · Management and governance / CLF 4 · Billing, Pricing and Support | W1 budget, tags, Cloud Shell / CloudShell; W2 pricing calculator vs the free account / Free Tier; W4 cost analysis / Cost Explorer, Advisor + Service Health / Trusted Advisor + support plans, lock |
 
 ## Honest limits, stated in the course
 

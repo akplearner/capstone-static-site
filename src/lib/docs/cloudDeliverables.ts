@@ -164,7 +164,14 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           { field: 'region', label: 'Primary region', type: 'text', required: true, placeholder: v.region },
           { field: 'budget', label: 'Monthly budget', type: 'number', unit: 'USD', required: true, placeholder: '5' },
           { field: 'budget_email', label: 'Budget alert goes to', type: 'text', required: true, placeholder: 'team01-alerts@school.edu' },
+          { field: 'region_zone', label: 'Region and availability zone, and why', type: 'text', required: true, placeholder: v.key === 'az' ? 'East US, zone 1 — nearest region that offers B1s' : 'us-east-1, us-east-1a — the Free Tier region with every service' },
         ]),
+        group('service_model', 'Service model and shared responsibility · Architect', [
+          c('component', 'Component', 'select', { options: v.services }),
+          c('model', 'Model', 'select', { options: ['IaaS', 'PaaS', 'SaaS', 'Serverless'] }),
+          c('we_manage', 'We manage', 'text', { placeholder: 'OS patches, our code, our data' }),
+          c('they_manage', 'The provider manages', 'text', { placeholder: 'Hardware, the datacenter, the hypervisor' }),
+        ], { help: 'One row per service the team will build. The model decides who patches, who secures and who pays for what.' }),
         group('naming', 'Naming standard · Architect', [
           c('resource', 'Resource type', 'text'),
           c('pattern', 'Pattern', 'text'),
@@ -216,7 +223,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
       howTo: 'Architect writes the components and the ADR; each builder adds the facts of what they deployed.',
       meaning: 'An architecture document someone else could build from — with the decisions and what was rejected.',
       useIt: 'Grows every week. Week 12 hands it over.',
-      pitfalls: ['A cost column left blank — “free” is an answer, write it.', 'An ADR with no rejected option is a description, not a decision.'],
+      pitfalls: ['A cost column left blank — “free” is an answer, write it.', 'A redundancy row with no alternative is a description, not a decision.'],
       sections: [
         control('CAP-SAD-001'),
         group('components', 'Components and cost · Architect', [
@@ -225,12 +232,12 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('purpose', 'Purpose', 'text'),
           c('cost', 'Monthly cost', 'number', { unit: 'USD', help: `From the ${v.calculator}.` }),
         ]),
-        fields('ADR-001 · Architect', [
-          { field: 'adr_context', label: 'Context', type: 'area', required: true, placeholder: 'We need a public website with HTTPS for under $1 a month.' },
-          { field: 'adr_decision', label: 'Decision', type: 'text', required: true, placeholder: v.hosting },
-          { field: 'adr_rejected', label: 'Rejected option, and why', type: 'text', required: true, placeholder: 'A VM running nginx — patching and cost for a static page.' },
-          { field: 'adr_consequence', label: 'Consequences', type: 'text', placeholder: 'No server-side code on the site; the API is separate.' },
-        ]),
+        group('redundancy', 'Redundancy and tiers · Architect', [
+          c('asset', 'Asset', 'text', { placeholder: v.key === 'az' ? 'Website storage account' : 'Site bucket' }),
+          c('option', 'Option chosen', 'text', { placeholder: v.key === 'az' ? 'LRS, Hot tier' : 'S3 Standard' }),
+          c('rejected', 'Alternative, and why not', 'text', { placeholder: v.key === 'az' ? 'GRS — a second region costs double; the site is re-uploaded from the repo' : 'S3 Standard-IA — retrieval fees for a site read every day' }),
+          c('cost', 'Monthly cost', 'number', { unit: 'USD' }),
+        ], { help: 'Redundancy is how many copies and where; a tier is how often the data is read. Both are on the exam and both are cost decisions.' }),
         fields(`Virtual machine facts · Infrastructure`, [
           { field: 'vm_name', label: 'VM name', type: 'text', required: true, placeholder: v.key === 'az' ? 'vm-tools-team01' : 'ec2-tools-team01' },
           { field: 'vm_size', label: 'Size', type: 'text', required: true, placeholder: v.key === 'az' ? 'Standard_B1s' : 't3.micro' },
@@ -251,7 +258,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
       dod: [
         controlDone,
         done('At least four components, each with a monthly cost', { group: 'components', where: { filled: ['service', 'name', 'cost'] }, atLeast: 4 }),
-        done('ADR-001 states the decision and what was rejected', { fields: ['adr_context', 'adr_decision', 'adr_rejected'] }),
+        done('Redundancy and tiers are chosen with an alternative', { group: 'redundancy', where: { filled: ['asset', 'option', 'rejected'] }, atLeast: 2 }),
         done('The VM is recorded with its size and private IP', { fields: ['vm_name', 'vm_size', 'vm_private_ip'] }),
         done('The website URL is HTTPS', { field: 'site_url', matches: '^https://' }),
         done('Both an allowed and a blocked SSH test', { group: 'ssh_tests', where: { filled: ['from', 'expected', 'result'] }, atLeast: 2, distinct: 'expected' }),
@@ -284,9 +291,11 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('returns', 'Returns', 'text', { placeholder: '{ "count": 42 }' }),
           c('status', 'Status codes', 'text', { placeholder: '200, 500' }),
         ]),
-        fields('CORS and secrets · Security & Ops', [
-          { field: 'cors_origin', label: 'Allowed origin (only this)', type: 'text', required: true, placeholder: 'https://your-site-host' },
-          { field: 'cors_negative', label: 'Negative test: a different origin', type: 'select', required: true, options: ['Blocked — as expected', 'Allowed — needs fixing'] },
+        fields('Identity and access · Security & Ops', [
+          { field: 'team_group', label: 'The team’s group', type: 'text', required: true, placeholder: v.key === 'az' ? 'grp-capstone-team01-readers (Entra security group)' : 'capstone-team01-readonly (IAM user group)' },
+          { field: 'group_members', label: 'Members', type: 'text', required: true, placeholder: 'the four teammates' },
+          { field: 'group_role', label: 'Role and scope', type: 'text', required: true, placeholder: v.key === 'az' ? 'Reader on rg-capstone-team01' : 'ReadOnlyAccess (account)' },
+          { field: 'mfa', label: 'MFA on for every member', type: 'select', required: true, options: ['Confirmed', 'Not yet'] },
           { field: 'secret_store', label: 'Where the database credential lives', type: 'text', required: true, placeholder: v.secrets },
           { field: 'no_secret_in_browser', label: 'Browser code contains no key', type: 'select', required: true, options: ['Confirmed', 'Not yet'] },
         ]),
@@ -297,7 +306,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         done('The request flow names real URLs', { field: 'flow', matches: 'https://' }),
         done('The data model has its partition key and a seed item', { fields: ['db_name', 'partition_key', 'sample_item'] }),
         done('At least one endpoint with its responses', { group: 'endpoints', where: { filled: ['method', 'path', 'returns'] }, atLeast: 1 }),
-        done('CORS allows one origin, and another is blocked', { field: 'cors_negative', equals: 'Blocked — as expected' }),
+        done('The team’s group holds its role and every member has MFA', { field: 'mfa', equals: 'Confirmed' }),
         done('No key in the browser', { field: 'no_secret_in_browser', equals: 'Confirmed' }),
         evidenceDone,
       ],
@@ -326,10 +335,10 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         ]),
         fields('Incident record · Security & Ops', [
           { field: 'inc_symptom', label: 'Symptom (what the user saw)', type: 'text', required: true, placeholder: 'Counter shows “—” instead of a number.' },
-          { field: 'inc_layer', label: 'Failing layer', type: 'select', required: true, options: ['Network', 'Identity / permissions', 'Application', 'Data', 'Configuration'] },
-          { field: 'inc_evidence', label: 'Evidence', type: 'area', required: true, placeholder: 'The log line or query result that proved the layer.' },
+          { field: 'inc_evidence', label: 'Evidence', type: 'area', required: true, placeholder: 'The alert email, the log line or the audit event that proved it.' },
           { field: 'inc_root', label: 'Root cause', type: 'text', required: true },
           { field: 'inc_fix', label: 'Fix, and the retest that proved it', type: 'text', required: true },
+          { field: 'guardrail', label: v.key === 'az' ? 'Resource lock in place' : 'Who made the change (CloudTrail)', type: 'text', required: true, placeholder: v.key === 'az' ? 'CanNotDelete on rg-capstone-team01 — delete refused' : 'team01-dev, UpdateFunctionConfiguration, 14:02 UTC' },
           { field: 'inc_prevent', label: 'Prevention', type: 'text', required: true, placeholder: 'An alert on this signal.' },
         ]),
         evidence(v, 4, 'alert'),
@@ -338,7 +347,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         controlDone,
         done('Spend is reported with its largest cost', { fields: ['spend', 'top_cost'] }),
         done('At least two signals, each with a threshold and an action', { group: 'signals', where: { filled: ['signal', 'threshold', 'action'] }, atLeast: 2 }),
-        done('The incident has a layer, evidence, root cause, fix and prevention', { fields: ['inc_symptom', 'inc_layer', 'inc_evidence', 'inc_root', 'inc_fix', 'inc_prevent'] }),
+        done('The incident has a symptom, evidence, root cause, fix and prevention', { fields: ['inc_symptom', 'inc_evidence', 'inc_root', 'inc_fix', 'inc_prevent', 'guardrail'] }),
         evidenceDone,
       ],
     },
@@ -413,6 +422,10 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
             c('expected', 'Expected', 'select', { options: ['Reachable', 'Blocked'] }),
             c('result', 'Result', 'select', { options: RESULT }),
           ]),
+          fields('CORS · App / DevOps', [
+            { field: 'cors_origin', label: 'Allowed origin (only this)', type: 'text', required: true, placeholder: 'https://your-site-host' },
+            { field: 'cors_negative', label: 'Negative test: a different origin', type: 'select', required: true, options: ['Blocked — as expected', 'Allowed — needs fixing'] },
+          ]),
           fields('Design summary · Architect', [
             { field: 'admin_path', label: 'How admins reach the VM now', type: 'text', required: true, placeholder: `${v.remoteAdmin} — no inbound port` },
             { field: 'prod_gap', label: 'What production would add', type: 'text', required: true, placeholder: 'NAT gateway; the VM in a private subnet.' },
@@ -464,7 +477,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('n', 'Step', 'number'),
           c('do', 'Do', 'text', { placeholder: 'Check the VM is running' }),
           c('expect', 'Expect', 'text', { placeholder: 'Status: Running' }),
-        ]),
+        ], { help: 'Four steps to check health, then one for when it is slow: work down the layers — network, identity, application, data, configuration — and stop at the first that fails.' }),
         evidence(v, 7, 'disk'),
       ],
       dod: [
@@ -540,6 +553,12 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         ]),
         fields('Portal vs code · Architect', [
           { field: 'portal_vs_code', label: 'One thing code does that the portal cannot', type: 'text', required: true, placeholder: 'Rebuild the whole environment identically in minutes.' },
+        ]),
+        fields('ADR-001 · Architect', [
+          { field: 'adr_context', label: 'Context', type: 'area', required: true, placeholder: 'Eight weeks of hand-built resources drift; a new team must get the same environment.' },
+          { field: 'adr_decision', label: 'Decision', type: 'text', required: true, placeholder: v.key === 'az' ? 'The environment is an ARM template; the portal is for reading.' : 'The environment is a CloudFormation stack; the console is for reading.' },
+          { field: 'adr_rejected', label: 'Rejected option, and why', type: 'text', required: true, placeholder: 'Keep building by hand — no record, no rebuild, no review.' },
+          { field: 'adr_consequence', label: 'Consequences', type: 'text', placeholder: 'Every change is a pull request from Week 10.' },
         ]),
         group('inventory', 'CLI inventory · Infrastructure', [
           c('name', 'Resource', 'text'),
