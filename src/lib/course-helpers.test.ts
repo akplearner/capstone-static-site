@@ -13,8 +13,7 @@ import {
   isSetupWeek, isAdvancedWeek, isGradedWeek,
   weekSummary,
   parseEstimatedMinutes,
-  formatMinutes,
-} from './course-helpers';
+  formatMinutes, weekTasksOrdered, } from './course-helpers';
 
 describe('course-helpers on the Security+ seed', () => {
   it('getTasksByRole filters by role (and optionally week)', () => {
@@ -124,6 +123,22 @@ describe('week summary aggregation', () => {
     const t = weekSummary(noObjectives, 'blue', 1);
     expect(t.flow).toEqual(t.tasks.map((x) => x.title));
     expect(t.objectives).toEqual([]);
+  });
+
+  it('R98: weekTasksOrdered lists every task of the week — shared, then yours, then the other roles in course order', () => {
+    const blue = weekTasksOrdered(CYSA_PLUS, 'blue', 1);
+    expect(blue.map((t) => t.id).sort()).toEqual(CYSA_PLUS.tasks.filter((t) => t.week === 1).map((t) => t.id).sort());
+    expect(blue[0].role).toBe('blue');
+    const roleOrder = CYSA_PLUS.roles.map((r) => r.id);
+    const rest = blue.slice(1).map((t) => roleOrder.indexOf(t.role));
+    expect(rest).toEqual([...rest].sort((a, b) => a - b));
+    // A shared build comes first for everyone; the focus task next.
+    const net = weekTasksOrdered(SERVER_PLUS, 'net', 1);
+    expect(net[0].shared).toBe(true);
+    expect(net.find((t) => !t.shared)?.id).toBe('sp-w1-net');
+    // The card's time is the whole objective's, whoever's task it is.
+    const s = weekSummary(CYSA_PLUS, 'blue', 1);
+    for (const o of s.objectives) expect(o.minutes, o.label).toBeGreaterThan(0);
   });
 
   it('on a shared-track course every objective has own tasks, and a deep-dive joins one', () => {

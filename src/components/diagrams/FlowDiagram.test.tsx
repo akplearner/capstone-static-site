@@ -24,6 +24,9 @@ describe('FlowDiagram — the clickable workflow', () => {
     expect(buttons[0].getAttribute('aria-current')).toBeNull();
     expect((buttons[3] as HTMLButtonElement).disabled).toBe(true);
     expect((buttons[2] as HTMLButtonElement).disabled).toBe(false);
+    // R98: a gate lock is the only thing that disables a node — there is no
+    // "a teammate's" status; every objective of the week is open to every member.
+    expect(buttons.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(1);
   });
 
   it('answers a click with the node id', () => {

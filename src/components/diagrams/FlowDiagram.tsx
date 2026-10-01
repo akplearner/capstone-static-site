@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ChevronRight, Flag, Lock, Users } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Flag, Lock } from 'lucide-react';
 import { meter } from '@/lib/motion';
 import { DiagramFrame } from './DiagramFrame';
 
-/** `other` is a teammate's part of the week — shown so the story reads whole,
- *  not clickable, because it is not this student's to open. */
-export type FlowStatus = 'done' | 'current' | 'upcoming' | 'locked' | 'other';
+/** `locked` is a week behind a gate the team has not passed. There is no
+ *  "a teammate's" status any more (R98): every objective of the week is open
+ *  to every member, and the card says whose it is. */
+export type FlowStatus = 'done' | 'current' | 'upcoming' | 'locked';
 
 export interface FlowNode {
   id: string;
@@ -94,7 +95,6 @@ export function FlowDiagram({
     current: 'depth-lift bg-accent-soft text-ink',
     upcoming: 'depth-edge depth-hover bg-panel text-body',
     locked: 'depth-edge bg-panel-2 text-muted',
-    other: 'depth-edge bg-panel-2 text-muted',
   };
 
   return (
@@ -106,7 +106,6 @@ export function FlowDiagram({
       legend={[
         { label: 'done', color: 'var(--color-ok)' },
         { label: 'you are here', color: 'var(--color-accent)' },
-        ...(nodes.some((n) => n.status === 'other') ? [{ label: "a teammate's", dashed: true }] : []),
         ...(nodes.some((n) => n.status === 'locked') ? [{ label: 'locked', dashed: true }] : []),
       ]}
     >
@@ -117,7 +116,6 @@ export function FlowDiagram({
       >
         {nodes.map((n, i) => {
           const locked = n.status === 'locked';
-          const other = n.status === 'other';
           const current = n.status === 'current';
           return (
             <li key={n.id} className="flex shrink-0 snap-start items-center gap-1.5">
@@ -126,19 +124,18 @@ export function FlowDiagram({
                   refs.current[i] = el;
                 }}
                 type="button"
-                disabled={locked || other}
+                disabled={locked}
                 tabIndex={i === focusIdx ? 0 : -1}
                 aria-current={current ? 'step' : undefined}
                 onClick={() => onSelect(n.id)}
                 onFocus={() => setFocusIdx(i)}
                 className={`flex min-w-[9.5rem] max-w-[13rem] flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${tone[n.status]} ${
-                  locked ? 'cursor-not-allowed' : other ? 'cursor-default' : ''
+                  locked ? 'cursor-not-allowed' : ''
                 }`}
               >
                 <span className="flex items-center gap-1.5 font-mono text-2xs font-semibold uppercase tracking-wider">
                   {n.status === 'done' && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-ok" aria-hidden />}
                   {locked && <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden />}
-                  {other && <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />}
                   <span className={current ? 'text-accent' : 'text-muted'}>{n.label}</span>
                 </span>
                 {n.sublabel && <span className="mt-0.5 line-clamp-2 text-sm font-medium">{n.sublabel}</span>}

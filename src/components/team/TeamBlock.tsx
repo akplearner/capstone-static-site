@@ -8,6 +8,7 @@ import { taskRarity } from '@/lib/rarity';
 import { weekDue } from '@/lib/calendar';
 import { useClientStore, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { getRequiredStepCount, getTasksByRole, isAdvancedWeek } from '@/lib/course-helpers';
+import { teamCompletionKeySet, teamGateStatus } from '@/lib/teamProgress';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { emptyData } from '@/lib/docs/types';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
@@ -35,6 +36,10 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
     // student's own tray (useRarity), so the badges the team sees are the
     // badges the student sees.
     const cal = cohort ? cohortRepo.get(course.id, cohort) : null;
+    // R98: a gate is a team checkpoint — passed by the team's work, whoever did
+    // it — so every row carries the same gate column, and it agrees with the rail.
+    const done = teamCompletionKeySet(progressRepo, course, teamId);
+    const gates = course.gates.map((g) => teamGateStatus(course, g, done));
     return roster.map((m) => {
       const keySet = progressRepo.getCompletionKeySet(course.id, m.memberId);
       const tasks = getTasksByRole(course, m.role);
@@ -63,10 +68,6 @@ export function TeamBlock({ course, member }: { course: Course; member: Member }
           pct: progressRepo.getWeekCompletion(course, m.memberId, m.role, week, keySet),
         }));
       const stuck = stepNotesRepo.teamStuck(course.id, teamId).filter((f) => f.memberId === m.memberId).length;
-      // Gate readiness per member (R82): derived from their completions, which
-      // are already team-readable — no new table, the same rule the member's
-      // own gate strip uses.
-      const gates = course.gates.map((g) => progressRepo.deriveGateStatus(course, m.memberId, m.role, g, keySet));
       return { memberId: m.memberId, displayName: m.displayName, avatarUrl: m.avatarUrl, role: m.role, overall, weeks, gems, gates, isYou: member.memberId === m.memberId, stuck };
     });
   }, EMPTY_ARRAY);

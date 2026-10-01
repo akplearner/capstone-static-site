@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97 · R98)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -229,6 +229,37 @@ console the task and the shell an option:
   and prove `shellOptional` is set there and nowhere else; `StepHow.test.tsx`
   proves the drawer is closed, opens to the command and the verify box, and
   is absent on a course without the flag.
+
+## Every task open to every member, done for the team (R98)
+
+A role-split week used to show a member only their own role's task; the other
+three objectives were grey and disabled, and their tasks were a read-only
+"reference" inside the closed drawer. If one member did not do their task,
+the team was stuck. The instructor's rule, for every course on the platform:
+**a role says who a task is for, never who may do it**.
+
+* The Tasks tab lists every task of the week — the shared build first, then
+  yours, then your teammates' in role order (`weekTasksOrdered`). Every
+  objective card is clickable and says whose it is ("Yours · Security & Ops ·
+  1 task · ~50 min" / "Infrastructure Admin · 1 task · ~35 min"); every row
+  carries a role chip or a **Yours** badge; every task opens in the runner
+  with checkboxes, notes and the verify box, under a line "This task is for:
+  Infrastructure Admin (Ada) — anyone on the team can do it; say who did in
+  the document."
+* **Done for the team** (`src/lib/teamProgress.ts`): the union of every
+  teammate's ticks drives the task and week percentages on the tab, the rail,
+  the gate lock and the Home banner. A step a teammate ticked reads "done by
+  Ada" and only they can untick it; your own ticks are written under your id.
+  The personal record — the stone's rarity, the gem tray, the pack and mine,
+  the evidence stamp, the portfolio, the instructor's per-student grading —
+  stays your own. A task Ada finished shows you a split stone with no gem:
+  the work is done, the gem was hers.
+* Deliverables: every form of the week is open to every member, your own
+  role's first, the others chipped "Infrastructure Admin's".
+* Guards: `cloudCourses.test.ts` R98 (every role reaches every task of every
+  week), `teamProgress.test.ts`, `useCourseProgress.test.tsx`,
+  `TasksTab.test.tsx`, and the page-shape rule that the list is never
+  filtered by the viewer's role.
 
 ## Honest limits, stated in the course
 

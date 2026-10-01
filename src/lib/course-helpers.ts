@@ -89,6 +89,19 @@ export function getTasksByRole(course: Course, role: string, week?: number): Tas
   return tasks;
 }
 
+/**
+ * R98 — the week's tasks in the order one member reads them: the shared build
+ * first, then the task that is theirs, then the other roles' in the course's
+ * role order. Every task of the week is in it: on a role-split course a
+ * teammate's task is open to anyone (done for the team), so the list, the
+ * numbering and "next task" all use this one order.
+ */
+export function weekTasksOrdered(course: Course, role: string, week: number): Task[] {
+  const tasks = getWeekTasks(course, week);
+  const rank = (t: Task) => (t.shared ? 0 : t.role === role ? 1 : 2 + Math.max(0, course.roles.findIndex((r) => r.id === t.role)));
+  return [...tasks].sort((a, b) => rank(a) - rank(b) || tasks.indexOf(a) - tasks.indexOf(b));
+}
+
 export function getTaskById(course: Course, id: string): Task | undefined {
   return course.tasks.find((t) => t.id === id);
 }
@@ -160,7 +173,7 @@ export interface ObjectiveSummary {
   own: Task[];
   /** The roles whose tasks are in it, in first-seen order; empty when every task is shared. */
   roles: string[];
-  /** Summed `estimatedTime` of the own tasks, or null if none are authored. */
+  /** Summed `estimatedTime` of the objective's tasks, or null if none are authored. */
   minutes: number | null;
 }
 
@@ -175,7 +188,8 @@ export function objectivesFor(course: Course, role: string, week: number): Objec
     tasks.forEach((t) => {
       if (!t.shared && !roles.includes(t.role)) roles.push(t.role);
     });
-    const mins = own.map((t) => parseEstimatedMinutes(t.estimatedTime)).filter((m): m is number => m != null);
+    // R98: the card's time is the objective's, whoever's task it is — every task is open to the team.
+    const mins = tasks.map((t) => parseEstimatedMinutes(t.estimatedTime)).filter((m): m is number => m != null);
     return { id: o.id, label: o.label, tasks, own, roles, minutes: mins.length ? mins.reduce((a, b) => a + b, 0) : null };
   });
 }

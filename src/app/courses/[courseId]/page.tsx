@@ -123,7 +123,7 @@ export default function CoursePage() {
   // Progress writes broadcast through the store; the hook re-reads.
   const onProgressChange = useCallback(() => notifyStore(), []);
   const progress = useCourseProgress(course, member);
-  const { weekStats, taskStats, gateStats, activeWeek, resume, sortedWeeks, nextTask } = progress;
+  const { weekStats, taskStats, teamWeekStats, teamTaskStats, gateStats, activeWeek, resume, sortedWeeks, nextTask } = progress;
 
   // Open the task the student stopped in, exactly once, after progress has
   // been read on the client. The ref makes it one-shot so it never fights a
@@ -319,6 +319,7 @@ export default function CoursePage() {
               sortedWeeks={sortedWeeks}
               weekStats={weekStats}
               taskStats={taskStats}
+              teamWeekStats={teamWeekStats}
               gateStats={gateStats}
               crew={crew}
               nextTask={nextTask}
@@ -328,8 +329,7 @@ export default function CoursePage() {
               onContinue={() => nextTask && goToTask(nextTask)}
               onReadOtherSteps={() => {
                 pickWeek(activeWeek);
-                setMoreOpen(true);
-                scrollTo('other-focuses');
+                scrollTo('tasks-head');
               }}
               onReset={() => setExpanded(new Set())}
             />
@@ -345,6 +345,9 @@ export default function CoursePage() {
               unit={unit}
               weekStats={weekStats}
               taskStats={taskStats}
+              teamWeekStats={teamWeekStats}
+              teamTaskStats={teamTaskStats}
+              teamSteps={progress.teamSteps}
               activeWeek={activeWeek}
               effectiveWeek={effectiveWeek}
               sortedWeeks={sortedWeeks}

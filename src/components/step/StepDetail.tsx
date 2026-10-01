@@ -29,9 +29,10 @@ export type { LedgerRef } from './OutputVerify';
  *   Tier 2, "Why, and if it breaks": the reasoning, the path, the files, the
  *     fixes (`StepWhy`).
  *
- * Rendered by the guided step card, the show-all checklist row (which opens
- * tier 1 for every row) and the read-only reference view of a teammate's
- * task. R78-C1: it takes the `Step` itself, never a field list.
+ * Rendered by the guided step card and the show-all checklist row (which opens
+ * tier 1 for every row). Since R98 a teammate's task opens in the same runner
+ * as your own, so there is no read-only view. R78-C1: it takes the `Step`
+ * itself, never a field list.
  */
 export function StepDetail({
   step,

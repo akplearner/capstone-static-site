@@ -241,7 +241,12 @@ export default function DeliverablesPage() {
 
   const weeks = [...course.weeks].map((w) => w.number).sort((a, b) => a - b);
   const myDefs = deliverablesForRole(member.role, course.id);
-  const dueThisWeek = myDefs.filter((d) => d.weeks.includes(selectedWeek));
+  // R98: every form of the week is open to every member — your own role's
+  // first, then the roles you may be covering for. The role report and the
+  // export stay yours (`myDefs`).
+  const isMine = (d: (typeof courseDefs)[number]) => d.shared || d.owner === member.role;
+  const dueThisWeek = [...courseDefs.filter((d) => d.weeks.includes(selectedWeek) && isMine(d)), ...courseDefs.filter((d) => d.weeks.includes(selectedWeek) && !isMine(d))];
+  const ownerName = (d: (typeof courseDefs)[number]) => course.roles.find((r) => r.id === d.owner)?.name ?? d.owner;
   const authorized = isTeamAuthorized(saved);
   const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role.toUpperCase();
   // A form that spans weeks is graded on the checks that apply BY the week being
@@ -335,7 +340,7 @@ export default function DeliverablesPage() {
         selected={selectedWeek}
         onSelect={pickWeek}
         items={weeks.map((w) => {
-          const owned = myDefs.filter((d) => d.weeks.includes(w));
+          const owned = courseDefs.filter((d) => d.weeks.includes(w));
           return {
             week: w,
             label: w === 0 ? 'Setup' : `${unitWord(course)} ${w}`,
@@ -356,7 +361,7 @@ export default function DeliverablesPage() {
         className="outline-none"
         trailing={<SaveState status={saveStatus} />}
         eyebrow={<Crumbs items={[{ label: 'Home', href: '/' }, { label: course.title, href: `/courses/${course.id}` }, { label: 'Deliverables' }]} />}
-        title={`${weekWord} · ${dueThisWeek.length === 0 ? 'no form of your own' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for you`}`}
+        title={`${weekWord} · ${dueThisWeek.length === 0 ? 'no form this week' : `${dueThisWeek.length} form${dueThisWeek.length === 1 ? '' : 's'} for the team`}`}
         lede={
           <>
             {roleName} · {teamLabel(teamId)} · fill the form, then generate the PDF. Evidence goes in{' '}
@@ -514,7 +519,7 @@ export default function DeliverablesPage() {
           // ONE empty state. There used to be two, rendering simultaneously — a
           // blue box at the top of the page and a grey card further down.
           <div className="rounded-lg depth-edge bg-panel p-6 text-sm text-muted">
-            No form of your own in {weekWord}. This {unitWord(course).toLowerCase()} your work is evidence —
+            No form in {weekWord}. This {unitWord(course).toLowerCase()} the work is evidence —
             screenshots and findings you collect and file with the week package below.{' '}
             <Link href={`/courses/${course.id}?tab=tasks`} className="font-medium text-accent underline">
               Go to this {unitWord(course).toLowerCase()}&apos;s tasks
@@ -552,6 +557,7 @@ export default function DeliverablesPage() {
                   {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-ok" />}
                   {!course.noGatekeeping && d.requiresAuth && !authorized && <Lock className="h-3.5 w-3.5 text-warn" />}
                   <span className="text-sm">{d.num}. {d.title}</span>
+                  {!isMine(d) && <span className="rounded-full bg-panel-2 px-1.5 py-0.5 text-2xs font-medium text-muted">{ownerName(d)}’s</span>}
                 </span>
               ),
             }))}

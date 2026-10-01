@@ -28,6 +28,7 @@ export function ChecklistItem({
   current = false,
   howOpen = false,
   footer,
+  doneBy,
 }: {
   step: Step;
   isComplete: boolean;
@@ -46,6 +47,8 @@ export function ChecklistItem({
   howOpen?: boolean;
   /** Under the body when open — the guided navigation row. */
   footer?: ReactNode;
+  /** R98: teammates who ticked this step when the viewer did not — "done by Ada". */
+  doneBy?: string[];
 }) {
   const panelId = React.useId();
   const { id: stepId, title, optional } = step;
@@ -63,6 +66,7 @@ export function ChecklistItem({
           checked={isComplete}
           onChange={(e) => onToggle(e.target.checked)}
           aria-label={`Step ${number ?? ''} done`}
+          title={doneBy?.length ? `Ticked by ${doneBy.join(', ')} — only they can untick it` : undefined}
           whileHover={{ scale: 1.1 }}
           className="mt-1 h-5 w-5 cursor-pointer accent-[var(--color-accent)]"
         />
@@ -76,6 +80,9 @@ export function ChecklistItem({
           <span className={`flex items-center gap-2 font-medium ${isComplete ? 'text-muted line-through' : 'text-ink'}`}>
             {number != null && <span className="font-mono text-xs font-semibold text-muted no-underline">{number}.</span>}
             {title}
+            {!!doneBy?.length && (
+              <span className="rounded-full bg-ok-soft px-2 py-0.5 text-2xs font-medium text-ok no-underline">done by {doneBy.join(', ')}</span>
+            )}
             {optional && (
               <span className="rounded-full bg-info-soft px-2 py-0.5 text-2xs font-medium text-info no-underline">Optional</span>
             )}

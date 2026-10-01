@@ -4,7 +4,7 @@ import { AZURE_BLOCKS, AZURE_COURSES } from './seed/azureCloud';
 import { AWS_BLOCKS, AWS_COURSES } from './seed/awsCloud';
 import { seedDeliverablesForCourse } from '../docs/definitions';
 import type { DeliverableDef } from '../docs/types';
-import { isGradedWeek } from '../course-helpers';
+import { isGradedWeek, weekTasksOrdered } from '../course-helpers';
 import { AZURE_IAC } from '../cloud/azureIac';
 import { AWS_IAC } from '../cloud/awsIac';
 
@@ -226,6 +226,16 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
   it('R97 — entry courses: three short clicks, what the screen shows, docs on every step; the shell is optional there only', () => {
     expect(course.tasks.flatMap((t) => r97Problems(course, t))).toEqual([]);
     expect(course.shellOptional ?? false, `${id} shellOptional`).toBe(ENTRY.has(id));
+  });
+
+  it('R98 — every role reaches every task of every week: nothing is hidden behind a role', () => {
+    for (const w of graded) {
+      const all = course.tasks.filter((t) => t.week === w.number).map((t) => t.id).sort();
+      for (const r of course.roles) {
+        expect(weekTasksOrdered(course, r.id, w.number).map((t) => t.id).sort(), `${id} week ${w.number} as ${r.id}`).toEqual(all);
+        expect(weekTasksOrdered(course, r.id, w.number)[0].role, `${id} week ${w.number}: ${r.id}'s own task comes first`).toBe(r.id);
+      }
+    }
   });
 
   it('every task carries this course’s own exam tag, not another quarter’s', () => {

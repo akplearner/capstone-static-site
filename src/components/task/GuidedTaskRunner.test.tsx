@@ -34,3 +34,37 @@ describe('GuidedTaskRunner — Show all, collapsed', () => {
     expect(screen.getByRole('button', { name: new RegExp(task.steps[2].title) })).toHaveAttribute('aria-expanded', 'true');
   });
 });
+
+/** R98: a step a teammate ticked is done for the team; your own ticks stay yours. */
+describe('GuidedTaskRunner — done for the team', () => {
+  const task = SERVER_PLUS.tasks.find((t) => t.id === 'sp-w1-install')!;
+  const [s1, s2] = task.steps;
+  const ada = { [s1.id]: [{ memberId: 'ada', displayName: 'Ada' }] };
+
+  it('shows a teammate’s tick as done, named, and will not untick it', () => {
+    localStorage.clear();
+    const { container } = render(<GuidedTaskRunner task={task} courseId="server-plus" memberId="m1" teamSteps={ada} />);
+    const box = screen.getByLabelText('Step 1 done') as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    expect(container.textContent).toContain('done by Ada');
+    fireEvent.click(box);
+    expect((screen.getByLabelText('Step 1 done') as HTMLInputElement).checked).toBe(true);
+    expect(Object.keys(localStorage).some((k) => k.includes('completion'))).toBe(false);
+  });
+
+  it('your own tick is written under your id only, and the task completes on the team’s ticks together', () => {
+    localStorage.clear();
+    const required = task.steps.filter((s) => !s.optional);
+    const others = Object.fromEntries(required.slice(1).map((s) => [s.id, [{ memberId: 'ada', displayName: 'Ada' }]]));
+    const { container } = render(<GuidedTaskRunner task={task} courseId="server-plus" memberId="m1" teamSteps={others} onNext={() => {}} />);
+    expect(container.textContent).not.toContain('Task complete');
+    fireEvent.click(screen.getByLabelText('Step 1 done'));
+    const keys = Object.keys(localStorage).filter((k) => k.includes('completion'));
+    expect(keys).toHaveLength(1);
+    expect(keys[0]).toContain('_m1_');
+    expect(keys[0]).not.toContain('ada');
+    expect(keys[0]).toContain(s1.id);
+    expect(container.textContent).toContain('Task complete');
+    void s2;
+  });
+});

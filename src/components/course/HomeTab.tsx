@@ -55,6 +55,7 @@ export function HomeTab({
   sortedWeeks,
   weekStats,
   taskStats,
+  teamWeekStats,
   gateStats,
   crew,
   nextTask,
@@ -75,6 +76,8 @@ export function HomeTab({
   sortedWeeks: WeekDef[];
   weekStats: Record<number, number>;
   taskStats: Record<string, number>;
+  /** R98: the team's week percent — the completion banner reads this. */
+  teamWeekStats: Record<number, number>;
   gateStats: Record<number, string>;
   crew: CrewProgress;
   nextTask: Task | undefined;
@@ -82,7 +85,7 @@ export function HomeTab({
   cohortCal: Cohort | null;
   unit: string;
   onContinue: () => void;
-  /** Home's "Read their steps in Tasks →": opens the week and the panel. */
+  /** Home's "Open them in Tasks →": opens the week's list. */
   onReadOtherSteps: () => void;
   /** After a reset the page forgets which tasks were open. */
   onReset: () => void;
@@ -92,18 +95,19 @@ export function HomeTab({
   const rarityOf = useRarity(course, member, taskStats, cohortCal);
 
   // Whole-course completion. With gatekeeping, every gate must be passed. With
-  // no gatekeeping, it's simply every week at 100% for your role — graded
+  // no gatekeeping, it's simply every week at 100% for the TEAM (R98) — graded
   // weeks only, so a student who skipped preparation still sees the banner.
   const gradedForCompletion = course.weeks.filter((w) => isGradedWeek(course, w.number));
   const allWeeksComplete =
-    joined && gradedForCompletion.length > 0 && gradedForCompletion.every((w) => (weekStats[w.number] ?? 0) >= 100);
+    joined && gradedForCompletion.length > 0 && gradedForCompletion.every((w) => (teamWeekStats[w.number] ?? 0) >= 100);
   const allGatesPassed = course.noGatekeeping
     ? allWeeksComplete
     : joined && course.gates.length > 0 && course.gates.every((g) => (gateStats[g.id] || 'locked') === 'passed');
   const dueLine = cohortCal
     ? dueLabel(weekDue(cohortCal.startsOn, activeWeek), undefined, (weekStats[activeWeek] ?? 0) >= 100)
     : undefined;
-  const ownTasksAll = member ? getTasksByRole(course, member.role) : [];
+  // Your own record: every task you finished yourself, your role's or a teammate's (R98).
+  const ownTasksAll = member ? course.tasks.filter((t) => isGradedWeek(course, t.week)) : [];
   const tasksComplete = ownTasksAll.filter((t) => (taskStats[t.id] ?? 0) === 100).length;
   // The pack (R80): gems by the rarity each finished task earned, and the five
   // slots of the course, each lit when it is earned.
@@ -152,9 +156,9 @@ export function HomeTab({
   })();
   const otherRoles = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
   const savedDocs = member ? docsRepo.get(course.id, member.teamId) : null;
-  // Shared track: what the other focuses document this week. Titles only — the
-  // glance. The full deep-dives are the reference panel on Tasks.
-  const otherFocuses = course.sharedTrack && member
+  // The rest of the team's tasks this week, by role. Titles only — the glance;
+  // every one of them is open to you on Tasks (R98).
+  const otherFocuses = member
     ? otherRoles
         .map((r) => ({
           role: r,
@@ -214,7 +218,7 @@ export function HomeTab({
                       : `Engagement complete — all ${course.gates.length} gates passed.`}
                   </div>
                   <p className="text-sm text-body">
-                    You&apos;ve finished {tasksComplete} of {ownTasksAll.length} tasks across every week as{' '}
+                    Every task of every week is done for the team; you finished {tasksComplete} of {ownTasksAll.length} yourself, as{' '}
                     {ownRole?.name ?? member?.role}. Compile your deliverables into the final package and hand it in.
                   </p>
                   <div className="flex flex-wrap gap-3 text-sm">
@@ -287,7 +291,7 @@ export function HomeTab({
             </div>
             {!nextTask && (
               <span className="inline-flex items-center gap-2 rounded-lg bg-ok-soft px-4 py-2 text-sm font-medium text-ok">
-                <Sparkles className="h-4 w-4" /> All your tasks complete!
+                <Sparkles className="h-4 w-4" /> Every task is done for the team!
               </span>
             )}
           </div>
@@ -296,19 +300,24 @@ export function HomeTab({
       )}
 
 
-      {/* Shared track: the deep-dives the other focuses add this week. Titles
-          only — a title tells you the slot is covered, but a hand-off can only
-          be checked against the steps, which live on Tasks. */}
+      {/* The rest of the team's tasks this week, by role. Titles only — a
+          title tells you the slot is covered; the steps live on Tasks, where
+          every one of them is open to you (R98). */}
       {otherFocuses.length > 0 && (
         <Surface as="section" variant="inset" className="space-y-3">
           <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h2 className="text-lg font-semibold text-ink">What the other focuses document this {unit}</h2>
+            <div>
+              <h2 className="text-lg font-semibold text-ink">
+                {course.sharedTrack ? `What the other focuses document this ${unit}` : `The rest of the team’s tasks this ${unit}`}
+              </h2>
+              <p className="text-sm text-muted">Anyone on the team can open and do any of them.</p>
+            </div>
             <button
               type="button"
               onClick={onReadOtherSteps}
               className="text-sm font-medium text-accent hover:text-accent-strong"
             >
-              Read their steps in Tasks →
+              Open them in Tasks →
             </button>
           </div>
           <ul className="grid gap-2 sm:grid-cols-3">

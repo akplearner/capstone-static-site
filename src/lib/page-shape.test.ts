@@ -484,12 +484,12 @@ describe('design tokens — palette classes do not come back', () => {
    * condition it should carry. This asserts nothing puts a course-shape test
    * back in front of it.
    */
-  it('the other-focus panel is not gated on sharedTrack', () => {
+  it('R98: every role’s task is a row of the week for every member — no reference panel, no role gate', () => {
     const src = code('src/components/course/TasksTab.tsx');
-    expect(src).toContain('{otherWeekTasks.length > 0 && (');
-    expect(src, 'the panel is for every course that has other roles').not.toMatch(
-      /sharedTrack\s*&&\s*otherWeekTasks/
-    );
+    expect(src).not.toContain('TaskReference');
+    expect(src, 'the list is not filtered by the viewer’s role').not.toContain('t.role === member.role');
+    expect(src).toContain('o.tasks.map(');
+    expect(src, 'the percentages on the tab are the team’s').toContain('teamTaskStats[task.id]');
   });
 
   /**
@@ -1125,11 +1125,11 @@ describe('R78-C1 — one hierarchy', () => {
       if (/<(StepDetail|ChecklistItem)\b[^>]*\b(instruction|whatItMeans|expectedOutput)=/.test(code(f))) offenders.push(f);
     }
     expect(offenders, 'pass `step={s}`').toEqual([]);
-    // …and the two renderers that take it are the only spellings of the body
-    // (R79: the runner renders rungs, and a rung renders the body).
+    // …and the one renderer that takes it is the only spelling of the body
+    // (R79: the runner renders rungs, and a rung renders the body; R98 removed
+    // the read-only reference renderer — every task opens in the runner).
     expect(code('src/components/task/GuidedTaskRunner.tsx')).not.toContain('<StepDetail');
     expect(code('src/components/task/ChecklistItem.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
-    expect(code('src/components/course/TaskReference.tsx').match(/<StepDetail\b/g)?.length).toBe(1);
   });
 });
 
@@ -1244,7 +1244,7 @@ describe('R78-B — the funnel', () => {
   });
 
   it('one disclosure per level', () => {
-    expect(code('src/components/course/TasksTab.tsx').match(/<Collapsible\b/g)?.length, 'week: More for this week, plus the reference task About').toBe(2);
+    expect(code('src/components/course/TasksTab.tsx').match(/<Collapsible\b/g)?.length, 'week: More for this week').toBe(1);
     expect(code('src/components/task/GuidedTaskRunner.tsx').match(/<Collapsible\b/g)?.length, 'task: About this task').toBe(1);
     expect(code('src/components/step/StepDetail.tsx').match(/<Collapsible\b/g)?.length, 'step: Show me how, and Why').toBe(2);
     // …and the closed bar says what it holds.

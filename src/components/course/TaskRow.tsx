@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { CheckCircle2, ChevronDown, ChevronRight, Lock } from 'lucide-react';
 import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 import type { Course, Task } from '@/lib/types';
+import { RoleIcon } from '@/components/team/RoleIcon';
 import type { TeammateTaskProgress } from './useCourseProgress';
 
 /**
@@ -16,10 +17,14 @@ import type { TeammateTaskProgress } from './useCourseProgress';
  * exist: they are the open task's header, where the student who chose this
  * task can use them. The week's flow diagram above the list carries the step
  * counts for the glance.
+ *
+ * R98: every task of the week is a row for every member, so the row says
+ * whose it is — a role chip, or "Yours" — and who finished it when that was a
+ * teammate. The role is a label, never a lock: the only closed row is one the
+ * student has not joined the course for.
  */
 export function TaskRow({
   task,
-  isOwn,
   joined,
   open,
   percent,
@@ -27,7 +32,8 @@ export function TaskRow({
   isNext,
   number,
   stuckCount,
-  focus,
+  owner,
+  doneBy,
   lead,
   teammates,
   reportCount,
@@ -35,14 +41,16 @@ export function TaskRow({
 }: {
   course: Course;
   task: Task;
-  isOwn: boolean;
   joined: boolean;
   open: boolean;
+  /** The TEAM's percent on this task (R98) — done once anyone has done it. */
   percent: number;
   onToggle: () => void;
   isNext?: boolean;
-  /** Shared-track courses: the one task of the week that is yours alone. */
-  focus?: boolean;
+  /** Whose task this is: the role, and whether that is the viewer. A shared task has none. */
+  owner?: { name: string; icon: string; color: string; isYou: boolean };
+  /** Teammates who finished it, when the viewer did not — "Done by Ada". */
+  doneBy?: string[];
   /** 1-based position in the week's checklist. Reference tasks: unnumbered. */
   number?: number;
   /** Teammates who have flagged a step of this task as stuck (R68). */
@@ -58,7 +66,8 @@ export function TaskRow({
   renderBody: () => React.ReactNode;
 }) {
   const canOpen = joined;
-  const showProgress = isOwn && joined;
+  const showProgress = joined;
+  const by = doneBy?.filter(Boolean) ?? [];
 
   return (
     <div
@@ -94,13 +103,23 @@ export function TaskRow({
                 {reportCount} {reportCount === 1 ? 'issue' : 'issues'}
               </span>
             )}
-            {focus && (
-              <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">
-                Your focus
-              </span>
-            )}
+            {owner &&
+              (owner.isYou ? (
+                <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">Yours</span>
+              ) : (
+                <span
+                  className="inline-flex shrink-0 items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-2xs font-semibold text-muted"
+                  title={`${owner.name}'s task — anyone on the team can do it`}
+                >
+                  <RoleIcon iconName={owner.icon} className="h-3 w-3" color={owner.color} />
+                  {owner.name}
+                </span>
+              ))}
             {showProgress && percent === 100 && (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" aria-label="Done" />
+              <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" aria-label={by.length ? `Done by ${by.join(', ')}` : 'Done'} />
+            )}
+            {showProgress && percent === 100 && by.length > 0 && (
+              <span className="shrink-0 rounded-full bg-ok-soft px-2 py-0.5 text-2xs font-medium text-ok">Done by {by.join(', ')}</span>
             )}
             {isNext && percent < 100 && (
               <span className="shrink-0 rounded-full bg-accent-soft px-2 py-0.5 text-2xs font-semibold text-accent-ink">

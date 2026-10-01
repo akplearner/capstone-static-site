@@ -12,6 +12,7 @@ import { getRequiredStepCount, getRequiredSteps } from '@/lib/course-helpers';
 import { recordResume } from '@/lib/resume';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo, evidenceRepo } from '@/lib/data';
+import { toast } from '@/lib/toastBus';
 import { selfAttested, taskToken } from '@/lib/evidenceLedger';
 
 /** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
@@ -25,6 +26,9 @@ interface GuidedTaskRunnerProps {
   task: Task;
   courseId: string;
   memberId: string;
+  /** R98: who on the team ticked each step (`stepId → members`). A step a
+   *  teammate ticked counts as done — the task is the team's. */
+  teamSteps?: Record<string, { memberId: string; displayName: string }[]>;
   /** Called whenever completion changes so parents can refresh progress/gates. */
   onProgressChange?: () => void;
   /** Called from the prominent advance button once the task is complete. */
@@ -52,10 +56,17 @@ interface GuidedTaskRunnerProps {
  * step is. What the header lost — the machines strip, the counts line — the
  * ladder says better.
  */
-export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, onNext, nextLabel, about, initialStepId }: GuidedTaskRunnerProps) {
+export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgressChange, onNext, nextLabel, about, initialStepId }: GuidedTaskRunnerProps) {
+  // The viewer's OWN ticks: what this component writes, what earns the beat
+  // and moves the resume pointer.
   const [completed, setCompleted] = useState<Set<string>>(
     () => new Set(progressRepo.getCompletedStepIds(courseId, memberId, task))
   );
+  // R98: what the TEAM has done — the viewer's ticks plus any teammate's. This
+  // is what the rungs, "Done when" and "Task complete" read.
+  const teamDone = useMemo(() => new Set([...completed, ...Object.keys(teamSteps ?? {})]), [completed, teamSteps]);
+  const doneByOthers = (stepId: string) =>
+    completed.has(stepId) ? [] : (teamSteps?.[stepId] ?? []).filter((p) => p.memberId !== memberId).map((p) => p.displayName || 'a teammate');
   // Bumped each time a step is newly ticked, to fire the one-shot cut beat.
   const [beat, setBeat] = useState(0);
   const { guard } = useRequireAuth();
@@ -74,7 +85,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   const [currentIdx, setCurrentIdx] = useState(() => {
     const asked = initialStepId ? task.steps.findIndex((s) => s.id === initialStepId) : -1;
     if (asked >= 0) return asked;
-    const done = new Set(progressRepo.getCompletedStepIds(courseId, memberId, task));
+    const done = new Set([...progressRepo.getCompletedStepIds(courseId, memberId, task), ...Object.keys(teamSteps ?? {})]);
     const firstIncomplete = task.steps.findIndex((s) => !done.has(s.id));
     return firstIncomplete === -1 ? 0 : firstIncomplete;
   });
@@ -89,14 +100,14 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   }, [initialStepId, task.steps]);
 
   const total = task.steps.length;
-  const allDone = total > 0 && completed.size === total;
+  const allDone = total > 0 && task.steps.every((s) => teamDone.has(s.id));
   // Required-only progress drives the "task complete" state so it matches the
   // dashboard %/gates (optional steps are tracked but never block completion).
   const requiredTotal = getRequiredStepCount(task);
   const requiredIds = useMemo(() => new Set(getRequiredSteps(task).map((s) => s.id)), [task]);
   const requiredDone = useMemo(
-    () => [...completed].filter((id) => requiredIds.has(id)).length,
-    [completed, requiredIds]
+    () => [...teamDone].filter((id) => requiredIds.has(id)).length,
+    [teamDone, requiredIds]
   );
   const allRequiredDone = requiredTotal > 0 && requiredDone === requiredTotal;
   const hasCommands = task.steps.some((s) => s.command || s.commands?.length);
@@ -108,6 +119,11 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   };
 
   const applyStep = (stepId: string, done: boolean) => {
+    // A tick that is a teammate's is theirs to remove.
+    if (!done && !completed.has(stepId) && doneByOthers(stepId).length > 0) {
+      toast({ message: `${doneByOthers(stepId).join(', ')} ticked this one — only they can untick it.` });
+      return;
+    }
     if (done) {
       progressRepo.setCompletion({ courseId, taskId: task.id, memberId, stepId, completedAt: nowMs() });
       // Remember this as the place to reopen on the next visit. Only ticking
@@ -141,7 +157,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
     const step = task.steps[currentIdx];
     if (step) setStep(step.id, true);
     const nextIncomplete = task.steps.findIndex(
-      (s, i) => i > currentIdx && !completed.has(s.id) && s.id !== step?.id
+      (s, i) => i > currentIdx && !teamDone.has(s.id) && s.id !== step?.id
     );
     if (nextIncomplete !== -1) setCurrentIdx(nextIncomplete);
     else if (currentIdx < total - 1) setCurrentIdx(currentIdx + 1);
@@ -160,7 +176,7 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
   };
 
   const current = task.steps[currentIdx];
-  const currentDone = current ? completed.has(current.id) : false;
+  const currentDone = current ? teamDone.has(current.id) : false;
   const doneWhen = task.definitionOfDone ?? [];
 
   // Under the open rung in guided mode: where to go from here.
@@ -267,7 +283,8 @@ export function GuidedTaskRunner({ task, courseId, memberId, onProgressChange, o
             key={step.id}
             step={step}
             number={i + 1}
-            isComplete={completed.has(step.id)}
+            isComplete={teamDone.has(step.id)}
+            doneBy={doneByOthers(step.id)}
             onToggle={(checked) => setStep(step.id, checked)}
             ledger={{ courseId, taskId: task.id, stepId: step.id, memberId }}
             open={mode === 'all' ? openIds.has(step.id) : i === currentIdx}
