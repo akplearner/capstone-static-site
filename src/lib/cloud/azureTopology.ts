@@ -76,7 +76,7 @@ export const AZURE_TOPOLOGY: CloudTopology = {
     { id: 'actionGroup', icon: 'notify', label: 'Action group', name: 'email the team', x: 600, y: 458, week: 4 },
     { id: 'funcDiag', icon: 'diag', label: 'Diagnostics', x: 220, y: 565, week: 4, small: true, detail: true },
 
-    { id: 'nsgApp', icon: 'firewall', label: 'NSG', name: 'nsg-snet-app', x: 930, y: 246, week: 1, small: true },
+    { id: 'nsgApp', icon: 'firewall', label: 'NSG', name: 'nsg-snet-app', x: 930, y: 246, week: 2, small: true },
     { id: 'nic', icon: 'nic', label: 'NIC', x: 720, y: 271, week: 2, small: true, detail: true },
     { id: 'vm', icon: 'vm', label: 'Virtual machine', name: 'vm-tools-team01', x: 790, y: 301, week: 2 },
     { id: 'pip', icon: 'publicip', label: 'Public IP', x: 905, y: 403, week: 2, small: true },

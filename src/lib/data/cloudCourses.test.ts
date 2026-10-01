@@ -45,6 +45,7 @@ const ENTRY_WEEKS = 4;
 const PLAIN = /^(curl|echo|ls|cat|MYIP=|RG=|FN=|SITE=|API=|VOL=|SUB=|SG=|VPC=|IID=|PID=|URI=|KV=|WEB=|COSMOS=|BUCKET=|TAGS=|ACCT=|\{|<|const |import )/;
 /** Task id → the role whose work it needs first (a substring of `prerequisites`). */
 const NEEDS: Record<string, string> = {
+  'az-w1-secops': 'Infrastructure',
   'az-w2-secops': 'Infrastructure', 'aws-w2-secops': 'Infrastructure',
   'az-w3-dev': 'Infrastructure', 'aws-w3-dev': 'Infrastructure',
   'az-w3-secops': 'App & DevOps', 'aws-w3-secops': 'App & DevOps',
@@ -80,7 +81,7 @@ const DOMAINS: Record<string, string[]> = {
 const BEYOND_EXAM = /Key Vault reference|@Microsoft\.KeyVault|managed identity|foreign origin|Origin:|IMDSv2|HttpTokens=required|ADR-0|layer by layer|Parameter Store/i;
 /** What the entry Security tasks must cover, week by week. */
 const MUST_COVER: Record<string, RegExp> = {
-  'az-w1-secops': /MFA/, 'aws-w1-secops': /MFA/,
+  'az-w1-secops': /Contributor[\s\S]*MFA/, 'aws-w1-secops': /AdministratorAccess[\s\S]*MFA/,
   'az-w3-secops': /group[\s\S]*Reader/, 'aws-w3-secops': /group[\s\S]*ReadOnlyAccess/,
   'az-w4-secops': /lock/i, 'aws-w4-secops': /CloudTrail/,
 };

@@ -172,7 +172,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Metadata:
       Capstone:
-        Week: 1
+        Week: 2
         Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.
     Properties:
       GroupDescription: IT tools server - no inbound, admin through Session Manager

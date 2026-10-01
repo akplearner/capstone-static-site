@@ -27,11 +27,11 @@ const VARS = 'RG=rg-capstone-team01; VM=vm-tools-team01';
 
 const PLANS: WeekPlan[] = [
   { n: 1, title: 'Cloud concepts and governance', theme: 'Who manages what, a budget, a network', objective: 'Say who manages what, set the standard and the $5 budget, then lay the network everything else sits in.',
-    milestone: 'A budget alerts at $4, every planned service has a model and an owner, the resource group and VNet exist, MFA is on.',
-    labels: ['Set the standard, the budget and the service model', 'Create the resource group and VNet', 'Open the team repository and board', 'Put an NSG on the subnet and turn on MFA'] },
+    milestone: 'A budget alerts at $4, every planned service has a model and an owner, the resource group and VNet exist, the team can sign in and build with MFA on.',
+    labels: ['Set the standard, the budget and the service model', 'Create the resource group and VNet', 'Open the team repository and board', 'Add the team to the account and give them access'] },
   { n: 2, title: 'Core services', theme: 'Compute, storage, network — and what they cost', objective: 'Price it, choose redundancy, publish the website over HTTPS and bring up one small VM reachable only from you.',
     milestone: 'The estimate and redundancy choices are written, the site loads over HTTPS, the B1s VM runs in its zone, SSH works from your IP only.',
-    labels: ['Estimate the cost and choose redundancy', 'Deploy the tools VM', 'Publish the website with HTTPS', 'Allow SSH from your IP only'] },
+    labels: ['Estimate the cost and choose redundancy', 'Deploy the tools VM', 'Publish the website with HTTPS', 'Put an NSG on the subnet and allow SSH from your IP'] },
   { n: 3, title: 'Serverless, data and identity', theme: 'A counter behind the site, and the team’s access', objective: 'Add a visitor counter — a Function reading and writing Cosmos DB — and give the team its group, role and MFA.',
     milestone: 'The page shows a live visitor count, the team’s group holds Reader with MFA on, and no key appears in the browser.',
     labels: ['Draw the request flow and say who manages each hop', 'Create Cosmos DB and seed the counter', 'Build the visitor-counter Function', 'Give the team the right access'] },
@@ -201,45 +201,66 @@ const TASKS: Task[] = [
     ], 'A board with four assigned cards, linked from the README.', 'A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is; managing the cloud starts with knowing who is doing what.'),
     rec(1, 'dev', 'Team tooling', ['The repository URL.', 'The board URL.'], 'The handover package in Week 12 points a new team at this repository.'),
   ], { tools: ['GitHub'] }),
-  T(1, 'secops', 'Put an NSG on the subnet and turn on MFA', 'Create a network security group on snet-app, review who has access, and switch on MFA for your own sign-in.', 45,
-    ['AZ-900 · Azure architecture and services', 'Network security groups and default rules', 'RBAC roles and scope', 'Multi-factor authentication'], ['nsg-snet-app-team01 is attached to snet-app', 'Access is listed', 'MFA is on for you'],
-    [doc('Network security groups overview', 'azure/virtual-network/network-security-groups-overview', 'the “Default security rules” tables — priority 65500 DenyAllInBound is what blocks everything until you allow it'),
-     doc('Set up the Microsoft Authenticator app', 'entra/identity/authentication/howto-authentication-authenticator-app', 'the “Register” steps at mysignins.microsoft.com → Security info → Add sign-in method'),
-     doc('List role assignments (portal)', 'azure/role-based-access-control/role-assignments-list-portal', 'Access control (IAM) → Role assignments, and the Scope column')],
-    'Free: network security groups, role assignments and MFA cost nothing.', [
-    both(s(1, 'secops', 1), 'Create and attach the NSG', 'Create the NSG and attach it to snet-app.', PORTAL, [
-      'Network security groups → Create. Resource group rg-capstone-team01, name nsg-snet-app-team01, region East US. Create.',
-      'Open it → Settings → Subnets → Associate → vnet-capstone-team01 / snet-app.',
-      'Inbound security rules: read the three default rules at the bottom, priorities 65000–65500.',
+  T(1, 'secops', 'Add the team to the account and give them access', 'Invite the three teammates into the account, put them in a builders group with Contributor on the resource group, and require MFA.', 50,
+    ['AZ-900 · Azure architecture and services', 'Entra ID users, guests and groups', 'RBAC: Contributor at resource-group scope', 'Security defaults and MFA'], ['The three teammates can sign in', 'The builders group holds Contributor on rg-capstone-team01', 'MFA is required for everyone'],
+    [doc('Invite external users (B2B)', 'entra/external-id/b2b-quickstart-add-guest-users-portal', 'the “Invite external user” steps: email, display name, the invitation message, and what the guest sees when they accept'),
+     doc('Assign roles (portal)', 'azure/role-based-access-control/role-assignments-portal', 'the “Add role assignment” steps: pick Contributor, then Members → select the group, then Review + assign'),
+     doc('Security defaults', 'entra/fundamentals/security-defaults', 'what it turns on — MFA registration for every user within 14 days — and the one switch under Properties')],
+    'Free: users, groups, role assignments and security defaults cost nothing. Do this signed in as the teammate who created the account.', [
+    both(s(1, 'secops', 1), 'Invite the three teammates', 'Invite each teammate into the account as a user.', PORTAL, [
+      'Search “Microsoft Entra ID” → Users → New user → Invite external user.',
+      'Email: the teammate’s address. Display name: their name. Message: “Capstone team01”. Review + invite. Repeat for all three.',
+      'Each teammate opens the invitation email → Accept invitation → signs in with that address.',
     ], [
-      { cmd: 'az network nsg create -g rg-capstone-team01 -n nsg-snet-app-team01 --tags project=capstone team=team01 env=dev owner=team01-secops', explain: 'An NSG is a stateful firewall. It starts with default rules that deny all inbound from the internet.', sample: '"name": "nsg-snet-app-team01",\n"provisioningState": "Succeeded"', flags: [
-        { flag: '-n nsg-snet-app-team01', meaning: 'Read it as: the NSG that guards subnet snet-app, owned by team01.' },
+      { cmd: 'az rest --method post --url https://graph.microsoft.com/v1.0/invitations --body \'{"invitedUserEmailAddress":"teammate@school.edu","invitedUserDisplayName":"Teammate Name","inviteRedirectUrl":"https://portal.azure.com","sendInvitationMessage":true}\' --query status -o tsv', explain: 'Sends the same invitation through the Graph API. Run it once per teammate.', sample: 'PendingAcceptance', flags: [
+        { flag: 'az rest --method post --url …/invitations', meaning: 'There is no az ad command for invitations; az rest calls the Graph API directly.' },
+        { flag: '"sendInvitationMessage":true', meaning: 'Email the invitation, so the teammate has the link to accept.' },
       ] },
-      { cmd: 'az network vnet subnet update -g rg-capstone-team01 --vnet-name vnet-capstone-team01 -n snet-app --nsg nsg-snet-app-team01', explain: 'Attaching it to the subnet protects everything placed there, including the VM next week.', sample: '"networkSecurityGroup": { "id": ".../nsg-snet-app-team01" }', flags: [
-        { flag: '--nsg', meaning: 'Which NSG the subnet uses. One NSG can guard several subnets.' },
-      ] },
-      { cmd: 'az network nsg rule list -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 --include-default -o table', explain: 'Shows the built-in rules. The last inbound rule, DenyAllInBound, is why nothing reaches the VM until you allow it.', sample: 'Name                 Priority  Access  Direction\nAllowVnetInBound     65000     Allow   Inbound\nDenyAllInBound       65500     Deny    Inbound', flags: [
-        { flag: '--include-default', meaning: 'Also show the six rules Azure adds to every NSG; they are hidden otherwise.' },
-      ] },
-    ], ['Succeeded', 'DenyAllInBound'], 'Rules are checked from the lowest priority number up; the first match wins, and DenyAllInBound (65500) catches the rest. Stateful means replies to allowed traffic come back. Attach at the subnet, so later resources are protected at once.', {
-      fixes: [{ symptom: 'Subnet not listed under Associate', fix: 'The Infrastructure Admin has not created the VNet yet. Create the NSG now; associate it when the subnet exists.' }],
+    ], ['PendingAcceptance'], 'Entra ID is the identity service behind every Azure sign-in. A guest keeps their own sign-in and MFA and appears in your directory; nothing is shared but the invitation. Until they accept, they are listed as Pending.', {
+      paths: [
+        { label: 'Personal free account', when: 'You created the account with your own email', steps: ['Invite external user for each teammate; they accept the email and sign in with their own address.'] },
+        { label: 'Same school tenant', when: 'The subscription lives in the school’s directory', steps: ['Users → the teammates already exist: skip the invitation and add them to the group in the next step.'] },
+      ],
+      fixes: [
+        { symptom: 'Invite external user is greyed out', fix: 'The tenant blocks guest invitations. Ask the instructor to add the three users, and record it in the document.' },
+        { symptom: 'The invitation never arrives', fix: 'Check the spam folder; or open the user in Entra ID → Resend invitation.' },
+      ],
     }),
-    both(s(1, 'secops', 2), 'Review access (RBAC)', 'List who holds which role on the subscription.', PORTAL, [
-      'Subscriptions → yours → Access control (IAM) → Role assignments.',
-      'Note each person or group, their role (Owner, Contributor, Reader) and scope.',
+    both(s(1, 'secops', 2), 'Create the builders group', 'Create grp-capstone-team01-builders with all four of you.', PORTAL, [
+      'Entra ID → Groups → New group. Type Security, name grp-capstone-team01-builders.',
+      'Members → No members selected → tick the three teammates and yourself → Select → Create.',
     ], [
-      { cmd: 'az role assignment list --all --query "[].{who:principalName, role:roleDefinitionName, scope:scope}" -o table', explain: 'Every assignment you can see, with its scope.', sample: 'Who                      Role     Scope\nteam01-infra@school.edu  Owner    /subscriptions/...', flags: [
-        { flag: '--all', meaning: 'Every scope, not just the current one.' },
+      { cmd: 'GID=$(az ad group create --display-name grp-capstone-team01-builders --mail-nickname grp-capstone-team01-builders --query id -o tsv); for U in $(az ad user list --query "[].id" -o tsv); do az ad group member add -g $GID --member-id $U; done; echo grp-capstone-team01-builders; az ad group member list -g $GID --query "[].displayName" -o tsv', explain: 'Creates the group and adds every user in the directory — in a four-person tenant, that is the team. Prints the members back.', sample: 'grp-capstone-team01-builders\nAda Lovelace\nGrace Hopper\nLinus Torvalds\nMargaret Hamilton', flags: [
+        { flag: 'az ad group create --mail-nickname', meaning: 'A required short alias; the same as the name is fine.' },
+        { flag: 'az ad group member add -g $GID --member-id $U', meaning: 'Add one user, by object id, to the group.' },
       ] },
-    ], ['Role'], 'A role (Reader, Contributor, Owner) at a scope (subscription, group, resource) is the whole of Azure access — that is RBAC. Owner on the subscription can delete everything, so it should be rare.'),
-    portal(s(1, 'secops', 3), 'Turn on MFA for yourself', 'Register the Authenticator app as your second factor.', 'mysignins.microsoft.com → Security info', [
-      'Add sign-in method → Microsoft Authenticator → follow the QR code.',
-      'Sign out, sign in again: approve the prompt. Ask each teammate to do the same.',
-    ], 'Security info lists Microsoft Authenticator; your next sign-in asks for it.', 'Multi-factor authentication is the single control the exam names most: a stolen password alone no longer opens the account. Entra ID is the identity service every Azure sign-in goes through; Week 3 uses it for the team’s group.', {
-      fixes: [{ symptom: 'Security info says MFA is managed by your organisation', fix: 'Your school tenant enforces it already, or blocks self-service. Record “enforced by tenant” and move on.' }],
+    ], ['grp-capstone-team01-builders'], 'Grant access to a group, not to people: joining and leaving the team becomes one membership change, and the access document has one row instead of four. “builders” says what the group may do.'),
+    both(s(1, 'secops', 3), 'Give the group Contributor on the resource group', 'Assign Contributor on rg-capstone-team01 to the group.', PORTAL, [
+      'Resource groups → rg-capstone-team01 → Access control (IAM) → Add → Add role assignment.',
+      'Role tab: Privileged administrator roles → Contributor → Next.',
+      'Members: User, group, or service principal → Select members → grp-capstone-team01-builders → Select → Review + assign.',
+      'A teammate signs in: the group shows, and Create is enabled.',
+    ], [
+      { cmd: 'RGID=$(az group show -n rg-capstone-team01 --query id -o tsv); az role assignment create --role Contributor --assignee-object-id $GID --assignee-principal-type Group --scope $RGID --query roleDefinitionName -o tsv', explain: 'Contributor can create and change everything in the group, and cannot grant access to others.', sample: 'Contributor', flags: [
+        { flag: '--role Contributor', meaning: 'Build and change anything in scope; no role assignments.' },
+        { flag: '--scope $RGID', meaning: 'Only this resource group — not the whole subscription.' },
+        { flag: '--assignee-principal-type Group', meaning: 'The assignee is a group, so no lookup of each person is needed.' },
+      ] },
+    ], ['Contributor'], 'RBAC is role plus scope: Contributor (the role) on rg-capstone-team01 (the scope). Builders can create and change everything there and nothing outside it; only you, the Owner, can grant access. That is least privilege for a team that builds.', {
+      fixes: [
+        { symptom: 'rg-capstone-team01 does not exist yet', fix: 'The Infrastructure Admin creates it this week. Do the invitations and the group now; assign the role when the group exists.' },
+        { symptom: 'A teammate sees “No access” on the subscription', fix: 'Expected: their access starts at the resource group. They open Resource groups → rg-capstone-team01.' },
+      ],
     }),
-    rec(1, 'secops', 'Access and NSG', ['One row per person or group and what they get.', 'MFA status per teammate.'], 'The Week 3 identity task builds on this list.'),
-  ], { tools: ['Azure portal', 'Cloud Shell', 'Microsoft Authenticator'] }),
+    portal(s(1, 'secops', 4), 'Require MFA for everyone', 'Turn on security defaults; each member registers Authenticator.', 'Azure portal — Microsoft Entra ID → Overview → Properties', [
+      'Properties → Manage security defaults → Security defaults: Enabled → Save.',
+      'Each member: at next sign-in, follow the prompt — or mysignins.microsoft.com → Security info → Add sign-in method → Microsoft Authenticator.',
+      'Entra ID → Users → a teammate → Authentication methods: Microsoft Authenticator listed.',
+    ], 'Security defaults are on; every member’s next sign-in asks for Authenticator.', 'Security defaults are the free, one-switch way to require MFA for every user — the control the exam names most. A guest keeps the MFA of their home account; a member registers here within 14 days or is blocked.', {
+      fixes: [{ symptom: 'Security defaults cannot be enabled', fix: 'The tenant uses Conditional Access instead; MFA is already enforced there. Record “enforced by Conditional Access”.' }],
+    }),
+    rec(1, 'secops', 'Team access', ['One row per person: sign-in, group, role and scope, MFA.'], 'The Week 3 identity task narrows this to Reader for people who only look.'),
+  ], { tools: ['Azure portal', 'Cloud Shell', 'Microsoft Authenticator'], prerequisites: ['The resource group rg-capstone-team01 from the Infrastructure Admin, this week — the role is assigned on it.'] }),
 
   // ── Week 2 — Core services: compute, storage, network, cost ────────────
   T(2, 'arch', 'Estimate the cost and choose redundancy', 'Price each component in the calculator against the free account, then choose storage redundancy and tiers with a reason.', 45,
@@ -341,11 +362,27 @@ const TASKS: Task[] = [
     }),
     rec(2, 'dev', 'Website', ['The HTTPS URL.', 'How you redeployed a change.'], 'The site URL is what the counter page calls in Week 3.'),
   ], { tools: ['Azure portal', 'Cloud Shell', 'A text editor'] }),
-  T(2, 'secops', 'Allow SSH from your IP only', 'Add one inbound rule allowing SSH from your own address, then prove it is allowed from you and blocked elsewhere.', 40,
-    ['AZ-900 · Azure architecture and services', 'NSG rules and priority', 'Defense in depth: one address, one port', 'Allowed and blocked tests'], ['SSH works from your IP', 'SSH is blocked from Cloud Shell'],
-    [doc('Create a security rule', 'azure/virtual-network/manage-network-security-group#create-a-security-rule', 'the Source field set to “My IP address” and the Priority field — lower numbers are evaluated first'),
+  T(2, 'secops', 'Put an NSG on the subnet and allow SSH from your IP', 'Create and attach the subnet’s NSG, allow SSH from your own address only, then prove it is allowed from you and blocked elsewhere.', 50,
+    ['AZ-900 · Azure architecture and services', 'Network security groups, default rules and priority', 'Defense in depth: one address, one port', 'Allowed and blocked tests'], ['nsg-snet-app-team01 is attached to snet-app', 'SSH works from your IP', 'SSH is blocked from Cloud Shell'],
+    [doc('Network security groups overview', 'azure/virtual-network/network-security-groups-overview', 'the “Default security rules” tables — priority 65500 DenyAllInBound is what blocks everything until you allow it'),
+     doc('Create a security rule', 'azure/virtual-network/manage-network-security-group#create-a-security-rule', 'the Source field set to “My IP address” and the Priority field — lower numbers are evaluated first'),
      doc('Connect to a Linux VM with SSH', 'azure/virtual-machines/linux-vm-connect', 'the ssh command with -i and the private key, and the “Permission denied” cases at the end')],
-    'Free: NSG rules. VM hours count while it runs — deallocate it when the test is done.', [
+    'Free: network security groups and rules. VM hours count while it runs — deallocate it when the test is done.', [
+    both(s(2, 'secops', 3), 'Create and attach the NSG', 'Create the NSG and attach it to snet-app.', PORTAL, [
+      'Network security groups → Create. Resource group rg-capstone-team01, name nsg-snet-app-team01, region East US. Create.',
+      'Open it → Settings → Subnets → Associate → vnet-capstone-team01 / snet-app.',
+      'Inbound security rules: read the three default rules at the bottom, priorities 65000–65500.',
+    ], [
+      { cmd: 'az network nsg create -g rg-capstone-team01 -n nsg-snet-app-team01 --tags project=capstone team=team01 env=dev owner=team01-secops', explain: 'An NSG is a stateful firewall. It starts with default rules that deny all inbound from the internet.', sample: '"name": "nsg-snet-app-team01",\n"provisioningState": "Succeeded"', flags: [
+        { flag: '-n nsg-snet-app-team01', meaning: 'Read it as: the NSG that guards subnet snet-app, owned by team01.' },
+      ] },
+      { cmd: 'az network vnet subnet update -g rg-capstone-team01 --vnet-name vnet-capstone-team01 -n snet-app --nsg nsg-snet-app-team01', explain: 'Attaching it to the subnet protects everything placed there, including the VM.', sample: '"networkSecurityGroup": { "id": ".../nsg-snet-app-team01" }', flags: [
+        { flag: '--nsg', meaning: 'Which NSG the subnet uses. One NSG can guard several subnets.' },
+      ] },
+      { cmd: 'az network nsg rule list -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 --include-default -o table', explain: 'Shows the built-in rules. The last inbound rule, DenyAllInBound, is why nothing reaches the VM until you allow it.', sample: 'Name                 Priority  Access  Direction\nAllowVnetInBound     65000     Allow   Inbound\nDenyAllInBound       65500     Deny    Inbound', flags: [
+        { flag: '--include-default', meaning: 'Also show the six rules Azure adds to every NSG; they are hidden otherwise.' },
+      ] },
+    ], ['Succeeded', 'DenyAllInBound'], 'Rules are checked from the lowest priority number up; the first match wins, and DenyAllInBound (65500) catches the rest. Stateful means replies to allowed traffic come back. Attach at the subnet, so later resources are protected at once.'),
     both(s(2, 'secops', 1), 'Add the SSH rule', 'Allow TCP 22 from your IP address only.', PORTAL, [
       'nsg-snet-app-team01 → Inbound security rules → Add.',
       'Source: My IP address. Destination port ranges: 22. Protocol: TCP. Action: Allow. Priority 1000. Name Allow-SSH-MyIP.',
@@ -375,7 +412,7 @@ const TASKS: Task[] = [
         { symptom: 'UNPROTECTED PRIVATE KEY FILE', fix: 'The key is readable by others. Run the chmod / icacls line first.' },
       ],
     }),
-    rec(2, 'secops', 'SSH access test', ['One allowed row, one blocked row.'], 'Week 6 removes this rule entirely; this record is the before.'),
+    rec(2, 'secops', 'SSH access test', ['The NSG and its default rules.', 'One allowed row, one blocked row.'], 'Week 6 removes this rule entirely; this record is the before.'),
   ], { tools: ['Azure portal', 'Cloud Shell', 'Terminal or PowerShell'], prerequisites: ['The tools VM and its private key (kp-team01.pem) from the Infrastructure Admin, this week — shared privately, never in the repo.'] }),
 
   // ── Week 3 — Serverless, data and identity ─────────────────────────────

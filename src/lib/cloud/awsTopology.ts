@@ -86,7 +86,7 @@ export const AWS_TOPOLOGY: CloudTopology = {
     { id: 'PublicRouteTable', icon: 'route', label: 'Route table → IGW', x: 720, y: 237, week: 1, small: true },
     { id: 'PublicDefaultRoute', icon: 'route', label: '0.0.0.0/0 → IGW', x: 720, y: 290, week: 1, small: true, detail: true },
     { id: 'PublicSubnetRouteAssoc', icon: 'route', label: 'Association', x: 720, y: 340, week: 1, small: true, detail: true },
-    { id: 'ToolsSecurityGroup', icon: 'firewall', label: 'Security group', x: 915, y: 217, week: 1, small: true },
+    { id: 'ToolsSecurityGroup', icon: 'firewall', label: 'Security group', x: 915, y: 217, week: 2, small: true },
     { id: 'ToolsInstance', icon: 'vm', label: 'Amazon EC2', name: 'ec2-tools-team01', x: 820, y: 272, week: 2 },
     { id: 'DataVolumeAttachment', icon: 'route', label: 'Attachment', x: 915, y: 332, week: 7, small: true, detail: true },
     { id: 'DataVolume', icon: 'disk', label: 'EBS volume', x: 860, y: 347, week: 7, small: true },

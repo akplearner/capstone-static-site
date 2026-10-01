@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -46,8 +46,8 @@ the rest of the plan.
 
 | Wk | Focus | Architect | Infrastructure | App & DevOps | Security & Ops |
 |---|---|---|---|---|---|
-| 1 | Cloud concepts and governance | Naming/tags, $5 budget, **service model and shared responsibility** | RG + VNet / VPC + subnet | Repo and board | NSG / security group, access review, **MFA** |
-| 2 | Core services | SAD v1, calculator vs free tier, **redundancy and storage classes** | B1s VM / t3.micro EC2, zone | Static website / S3 + CloudFront + OAC | SSH from your /32, allowed + blocked test |
+| 1 | Cloud concepts and governance | Naming/tags, $5 budget, **service model and shared responsibility** | RG + VNet / VPC + subnet | Repo and board | **Add the team to the account**: invite / create users, builders group (Contributor on the RG / AdministratorAccess), sign-in handover, **MFA for everyone** |
+| 2 | Core services | SAD v1, calculator vs free tier, **redundancy and storage classes** | B1s VM / t3.micro EC2 (+ its security group), zone | Static website / S3 + CloudFront + OAC | NSG on the subnet, SSH from your /32, allowed + blocked test |
 | 3 | Serverless, data and identity | Request flow, who manages each hop | Cosmos DB / DynamoDB + seed | Function / Lambda + HTTP API | **Entra / IAM group, Reader / ReadOnlyAccess, MFA**, no keys |
 | 4 | Monitor, govern, pay | Cost to date, **Advisor + Service Health / Trusted Advisor + support plans** | Error alert + action group / SNS | Find a failure in App Insights / CloudWatch Logs | **Resource lock / CloudTrail**, incident record |
 | 5 | Identity | Access matrix | **Key Vault + Secrets User / Parameter Store** | Managed identity / table-scoped role | Prove a denial |
@@ -201,7 +201,7 @@ again if that topic is missing from the next course.
 |---|---|
 | AZ-900 1 · Cloud concepts / CLF 1 · Cloud Concepts | W1 Architect classifies every service IaaS/PaaS/serverless and writes the shared-responsibility line; W3 Architect says who manages each hop |
 | AZ-900 2 · Architecture and services / CLF 3 · Technology and Services | W1 RG + VNet / VPC (regions, zones); W2 VM / EC2, storage website / S3 + CloudFront, redundancy and storage classes; W3 Cosmos DB / DynamoDB, Functions / Lambda + API Gateway; W4 Monitor / CloudWatch, action group / SNS |
-| AZ-900 2 · Identity, access, security / CLF 2 · Security and Compliance | W1 NSG / security group, RBAC / IAM review, MFA; W2 SSH from one /32; W3 Entra group + Reader / IAM group + ReadOnlyAccess, MFA per member, no key in the page; W4 resource lock / CloudTrail |
+| AZ-900 2 · Identity, access, security / CLF 2 · Security and Compliance | W1 the team is added to the account (Entra guests / IAM users, a builders group, Contributor / AdministratorAccess, MFA for everyone); W2 NSG / security group, SSH from one /32; W3 Entra group + Reader / IAM group + ReadOnlyAccess, MFA per member, no key in the page; W4 resource lock / CloudTrail |
 | AZ-900 3 · Management and governance / CLF 4 · Billing, Pricing and Support | W1 budget, tags, Cloud Shell / CloudShell; W2 pricing calculator vs the free account / Free Tier; W4 cost analysis / Cost Explorer, Advisor + Service Health / Trusted Advisor + support plans, lock |
 
 ## Honest limits, stated in the course

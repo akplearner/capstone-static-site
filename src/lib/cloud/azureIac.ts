@@ -164,7 +164,7 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w1] nsgApp — rules for the app subnet: SSH only from the management subnet, nothing from the internet.",
+      "comments": "[w2] nsgApp — rules for the app subnet: SSH only from the management subnet, nothing from the internet.",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-11-01",
       "name": "[variables('nsgAppName')]",

@@ -192,11 +192,12 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           { field: 'repo_url', label: 'Team repository', type: 'text', required: true, placeholder: 'https://github.com/org/capstone-team01' },
           { field: 'board_url', label: 'Task board', type: 'text', placeholder: 'GitHub Projects link' },
         ]),
-        group('access', `Access and ${v.firewall} · Security & Ops`, [
-          c('who', 'Who or what', 'text', { placeholder: 'Team admin' }),
-          c('gets', 'Gets', 'text', { placeholder: `Contributor on the ${v.group.toLowerCase()}` }),
-          c('why', 'Why', 'text', { placeholder: 'Builds the environment' }),
-        ]),
+        group('access', 'Team access · Security & Ops', [
+          c('who', 'Person', 'text', { placeholder: 'Infrastructure Admin' }),
+          c('signin', 'Sign-in', 'text', { placeholder: v.key === 'az' ? 'guest user (own email)' : 'IAM user team01-infra' }),
+          c('gets', 'Group, role and scope', 'text', { placeholder: v.key === 'az' ? 'grp-capstone-team01-builders · Contributor on rg-capstone-team01' : 'capstone-team01-builders · AdministratorAccess' }),
+          c('mfa', 'MFA', 'select', { options: ['On', 'Not yet'] }),
+        ], { help: 'One row per teammate, including the account owner. Everyone builds this month; Week 3 adds a read-only group for people who only look.' }),
         group('raci', 'RACI · Architect', [
           c('activity', 'Activity', 'text', { placeholder: 'Approve a change' }),
           c('responsible', 'Responsible', 'select', { options: ROLES }),
@@ -208,6 +209,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         controlDone,
         done('The budget is set and alerts a real address', { fields: ['budget', 'budget_email'] }),
         done('At least four resource types have a naming pattern', { group: 'naming', where: { filled: ['resource', 'pattern', 'example'] }, atLeast: 4 }),
+        done('Every teammate has a sign-in, a role and MFA', { group: 'access', where: { filled: ['who', 'signin', 'gets'] }, atLeast: 3 }),
         done('At least three required tags', { group: 'tags', where: { filled: ['key', 'why'] }, atLeast: 3 }),
         done('The landing zone is recorded with its address space', { fields: ['group_name', 'net_name', 'net_cidr', 'subnet_cidr'] }),
         done('The repository is linked', { fields: ['repo_url'] }),
