@@ -179,6 +179,13 @@ export interface Step {
    *  `troubleshooting` paragraph that packs three symptoms into one run-on: a
    *  student scanning for their symptom needs to find it, not read a paragraph. */
   fixes?: { symptom: string; fix: string }[];
+  /** The documentation page(s) for this one step, same shape as `Task.docs` (R97).
+   *  Rendered as a "Read the docs" line under the clicks on the entry courses. */
+  docs?: { title: string; url: string; lookFor: string }[];
+  /** R97: the `commands` block is code the clicks paste into the console editor
+   *  (a function body, a policy, a page snippet), not an alternative path. It
+   *  stays in the open even where the shell is tucked into a drawer. */
+  codeToPaste?: boolean;
   /** Substrings that should appear in the student's REAL command output. When set
    *  (and the step has a command), the UI shows a "paste your output to verify" box
    *  that turns the step green only when every token is present — real-tool
@@ -393,6 +400,9 @@ export interface Course {
   // Enrollment configuration (instructor-controlled, per course/class):
   locked?: boolean;      // when true, students can't enter the course
   teamCount?: number;    // number of teams available (default 3)
+  /** R97 — the console is the path; the shell is an optional drawer, closed by
+   *  default, on every step that has clicks. Set on the two entry cloud courses. */
+  shellOptional?: boolean;
   teamCapacity?: number; // max members per team; 0/undefined = unlimited
 }
 

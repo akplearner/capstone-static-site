@@ -78,6 +78,8 @@ const rec = (week: number, role: string, section: string, actions: string[], why
 const CONSOLE = 'AWS console · or CloudShell';
 const D = 'https://docs.aws.amazon.com/';
 const doc = (title: string, path: string, lookFor: string) => ({ title, url: path.startsWith('http') ? path : `${D}${path}`, lookFor });
+/** R97: what the screen shows when the clicks are done, and the page(s) to read for this step. */
+const out = (seen: string, ...docs: ReturnType<typeof doc>[]): Partial<Step> => ({ expectedOutput: seen, outputKind: 'result', docs });
 
 const STOP = (week: number, role: string): Step =>
   both(s(week, role, 8), 'Stop the instance', 'Stop the instance so it stops costing money.', CONSOLE, [
@@ -88,7 +90,8 @@ const STOP = (week: number, role: string): Step =>
     { cmd: 'aws ec2 wait instance-stopped --instance-ids $IID && echo stopped', explain: 'Waits until it is fully stopped.', sample: 'stopped', flags: [
       { flag: 'wait instance-stopped', meaning: 'Block until the state is stopped, then continue.' },
     ] },
-  ], ['stopped'], 'Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.');
+  ], ['stopped'], 'Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.',
+  out('Instance state reads “Stopped” for ec2-tools-team01.', doc('Stop and start your instance', 'AWSEC2/latest/UserGuide/Stop_Start.html', 'the “What happens when you stop an instance” list: the public IP is released, the disk is kept')));
 
 const START = `${IID}; aws ec2 start-instances --instance-ids $IID -o text > /dev/null; aws ec2 wait instance-status-ok --instance-ids $IID`;
 const START_CLICK = 'EC2 → Instances → ec2-tools-team01 → Instance state → Start instance; wait for “Running”.';
@@ -97,21 +100,21 @@ const TASKS: Task[] = [
   // ── Week 1 — Cloud concepts and governance ─────────────────────────────
   T(1, 'arch', 'Set the standard, the budget and the service model', 'Agree names and tags, cap spending at $5, and say who manages what for each planned service.', 45,
     ['CLF-C02 · Cloud Concepts', 'Shared responsibility and IaaS / PaaS / SaaS', 'Budgets and tags', 'How to read a resource name'], ['A $5 budget alerts at 80%', 'The naming and tag table is agreed', 'Every planned service has a model and a responsibility line'],
-    [doc('Shared responsibility model', 'https://aws.amazon.com/compliance/shared-responsibility-model/', 'the diagram: AWS is responsible for security OF the cloud, you for security IN the cloud — which rows are yours changes with the service'),
+    [doc('Shared responsibility model', 'https://aws.amazon.com/compliance/shared-responsibility-model/', 'the diagram: AWS secures the cloud, you secure what you put in it; rows change by service'),
      doc('Creating a cost budget', 'cost-management/latest/userguide/budgets-create.html', 'the “Create a budget” steps and the alert-threshold table — Actual vs Forecasted, and where the email goes'),
      doc('Tagging best practices', 'whitepapers/latest/tagging-best-practices/tagging-best-practices.html', 'the “Tagging categories” list — technical, business, security, automation — and pick one key from each')],
     'Free: AWS Budgets gives two budgets free, the Free Tier usage alerts are on by default, and CloudShell is free. Nothing is deployed this task.', [
     both(s(1, 'arch', 1), 'Create the $5 budget', 'Create a $5 monthly budget that emails the team.', CONSOLE, [
       'Billing and Cost Management → Budgets → Create budget → Use a template → Monthly cost budget.',
-      'Name capstone-team01, amount 5, email recipients: the team email. Create budget.',
-      'Cost Explorer → Launch Cost Explorer once: it needs a day to fill. Billing preferences: tick “Receive Free Tier usage alerts”.',
-      'Open CloudShell (the >_ icon) once: your CLI, signed in already.',
+      'Name capstone-team01, amount 5, recipients: the team email. Create budget. Billing preferences: tick Free Tier alerts.',
+      'Cost Explorer → Launch Cost Explorer once (it fills in a day). Open CloudShell (the >_ icon) once.',
     ], [
       { cmd: 'ACCT=$(aws sts get-caller-identity --query Account --output text); aws budgets create-budget --account-id $ACCT --budget \'{"BudgetName":"capstone-team01","BudgetLimit":{"Amount":"5","Unit":"USD"},"TimeUnit":"MONTHLY","BudgetType":"COST"}\' --notifications-with-subscribers \'[{"Notification":{"NotificationType":"ACTUAL","ComparisonOperator":"GREATER_THAN","Threshold":80},"Subscribers":[{"SubscriptionType":"EMAIL","Address":"team01-alerts@school.edu"}]}]\' && echo created', explain: 'The same budget from the shell: $5 a month, an email at 80% of actual spend.', sample: 'created', flags: [
         { flag: 'sts get-caller-identity', meaning: 'Prints who you are; the budget API needs your 12-digit account id.' },
         { flag: '"NotificationType":"ACTUAL" … "Threshold":80', meaning: 'Email when money already spent passes 80% — $4 of $5.' },
       ] },
-    ], ['created'], 'Pay-as-you-go means you pay for what runs; a budget does not stop spending, it emails you before a mistake becomes expensive. Actual is money spent; Forecasted guesses month-end. Budgets, Cost Explorer and CloudShell are exam tools.', {
+    ], ['created'], 'A budget does not stop spending; it emails you before a mistake gets expensive. Actual is money spent; Forecasted guesses month-end. Budgets, Cost Explorer and CloudShell are exam tools.', {
+      ...out('Budgets lists capstone-team01 at $5.00 with an alert at 80% of actual spend.', doc('Creating a cost budget', 'cost-management/latest/userguide/budgets-create.html', 'the “Create a budget” steps and the alert-threshold table — Actual vs Forecasted, and where the email goes')),
       paths: [
         { label: 'Your own free-tier account', when: 'You signed up yourself, with a card', steps: ['Budgets and Cost Explorer are available; the template monthly cost budget is the fastest path.'] },
         { label: 'AWS Academy Learner Lab', when: 'Your school gave you a lab account', steps: ['Budgets and IAM are locked. The lab page shows its own $ budget at the top: record that figure, and note the difference in the document.'] },
@@ -122,16 +125,18 @@ const TASKS: Task[] = [
       ],
     }),
     portal(s(1, 'arch', 2), 'Classify each service', 'Say who manages what for each service you will build.', 'Team meeting', [
-      'List the seven things the team will build: VPC, EC2 instance, S3 + CloudFront site, Lambda + API Gateway, DynamoDB, CloudWatch, SNS.',
+      'List the seven services: VPC, EC2, S3 + CloudFront site, Lambda + API Gateway, DynamoDB, CloudWatch, SNS.',
       'For each: IaaS, PaaS or serverless? Who patches the OS? Who secures the data?',
-      'Pick the region (us-east-1) and note that its Availability Zones are separate buildings.',
-    ], 'A table: service, model, what we manage, what AWS manages.', 'Shared responsibility is the first exam domain: on EC2 (IaaS) you patch the OS; on Lambda and DynamoDB AWS does, and you own code, data and identities. AWS secures the cloud; you secure what you put in it.'),
+      'Pick the region (us-east-1); note its Availability Zones are separate buildings.',
+    ], 'A table: service, model, what we manage, what AWS manages.', 'Shared responsibility is the first exam domain: on EC2 you patch the OS; on Lambda and DynamoDB AWS does, and you own code, data and identities.', {
+      docs: [doc('Shared responsibility model', 'https://aws.amazon.com/compliance/shared-responsibility-model/', 'the diagram: AWS secures the cloud, you secure what you put in it; rows change by service')],
+    }),
     portal(s(1, 'arch', 3), 'Agree the naming and tags', 'Agree one naming pattern and four tags as a team.', 'Team meeting', [
       'Pattern: what-it-is – what-it-is-for – who-owns-it. Example: ec2-tools-team01.',
-      'Prefixes: vpc-, snet-, rt-, igw-, sg-, ec2-, ebs-. Buckets, functions and tables start capstone-team01-.',
-      'Bucket names must be unique worldwide: add four digits.',
+      'Prefixes: vpc-, snet-, rt-, igw-, sg-, ec2-, ebs-. Buckets, functions and tables: capstone-team01-…; buckets add digits.',
       'Tags on everything: project=capstone, team=team01, env=dev, owner=your-role-email.',
-    ], 'A table of prefixes and four tag keys everyone has agreed to use.', 'Read ec2-tools-team01 as three parts: an EC2 instance, for the tools job, owned by team01. Most AWS names are just the Name tag, so the pattern makes a list readable. Tags carry the owner; cost reports group by them.', {
+    ], 'A table of prefixes and four tag keys everyone has agreed to use.', 'Read ec2-tools-team01 as three parts: an EC2 instance, for the tools job, owned by team01. Most AWS names are just the Name tag, so the pattern makes a list readable.', {
+      docs: [doc('Tagging best practices', 'whitepapers/latest/tagging-best-practices/tagging-best-practices.html', 'the “Tagging categories” list — technical, business, security, automation — and pick one key from each')],
       fixes: [{ symptom: 'Bucket name refused', fix: 'Bucket names are lowercase letters, digits and hyphens, 3–63 characters, unique across all of AWS. capstone-team01-site plus four digits fits.' }],
     }),
     rec(1, 'arch', 'Account and guardrails, Service model, Naming, Tags, RACI', [
@@ -142,12 +147,12 @@ const TASKS: Task[] = [
   ], { tools: ['AWS console', 'CloudShell'] }),
   T(1, 'infra', 'Create the VPC and public subnet', 'Create a VPC with one public subnet, an internet gateway and a route, named and tagged by the standard.', 45,
     ['CLF-C02 · Cloud Technology and Services', 'Global infrastructure: Regions and Availability Zones', 'VPC, subnets, internet gateways and route tables'], ['vpc-capstone-team01 is 10.10.0.0/16', 'The public subnet routes 0.0.0.0/0 to the IGW'],
-    [doc('Regions and Availability Zones', 'AWSEC2/latest/UserGuide/using-regions-availability-zones.html', 'the first two paragraphs: a Region is a separate geographic area; an Availability Zone is one or more datacenters inside it, isolated from the others'),
-     doc('Create a VPC', 'vpc/latest/userguide/create-vpc.html', 'the “VPC only” option (this course builds the parts one at a time so you see each) and the CIDR box'),
-     doc('Route tables', 'vpc/latest/userguide/VPC_Route_Tables.html', 'the “Main route table” paragraph — every subnet uses it until you associate another, which is why a subnet is public only by its route')],
-    'Free: VPCs, subnets, route tables and internet gateways cost nothing. A NAT gateway would cost about $32 a month, which is why this course does not create one.', [
+    [doc('Regions and Availability Zones', 'AWSEC2/latest/UserGuide/using-regions-availability-zones.html', 'the first paragraphs: a Region is a geographic area; an Availability Zone is isolated datacenters inside it'),
+     doc('Create a VPC', 'vpc/latest/userguide/create-vpc.html', 'the “VPC only” option (this course builds the parts one at a time) and the CIDR box'),
+     doc('Route tables', 'vpc/latest/userguide/VPC_Route_Tables.html', 'the “Main route table” paragraph: every subnet uses it until you associate another; public is a routing decision')],
+    'Free: VPCs, subnets, route tables and internet gateways cost nothing. A NAT gateway would cost about $32 a month, so this course never creates one.', [
     both(s(1, 'infra', 1), 'Create the VPC and subnet', 'Create the VPC 10.10.0.0/16 and subnet 10.10.1.0/24.', CONSOLE, [
-      'VPC → Your VPCs → Create VPC → “VPC only”. Name vpc-capstone-team01, IPv4 CIDR 10.10.0.0/16, tags project, team, env, owner. Create.',
+      'VPC → Your VPCs → Create VPC → “VPC only”. Name vpc-capstone-team01, IPv4 CIDR 10.10.0.0/16, tags. Create.',
       'Subnets → Create subnet: VPC vpc-capstone-team01, name snet-public-team01, Availability Zone us-east-1a, CIDR 10.10.1.0/24. Create.',
       'Open the subnet: its route table is the VPC’s main one, local only.',
     ], [
@@ -159,12 +164,13 @@ const TASKS: Task[] = [
       { cmd: 'SUB=$(aws ec2 create-subnet --vpc-id $VPC --cidr-block 10.10.1.0/24 --availability-zone us-east-1a --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=snet-public-team01},$TAGS]" --query Subnet.SubnetId --output text); echo $SUB', explain: 'A subnet lives in exactly one Availability Zone.', sample: 'subnet-0123456789abcdef0', flags: [
         { flag: '--availability-zone us-east-1a', meaning: 'One of the Region’s separate datacenters. Everything in this course uses 1a so the instance and its volumes can meet.' },
       ] },
-    ], ['vpc-', 'subnet-'], 'A Region is a geographic area with several Availability Zones — separate buildings with their own power — and a subnet lives in one zone. A /16 leaves room for 256 /24 subnets.', {
+    ], ['vpc-', 'subnet-'], 'A Region is a geographic area with several Availability Zones, separate buildings, and a subnet lives in one zone. A /16 leaves room for 256 /24 subnets.', {
+      ...out('Your VPCs lists vpc-capstone-team01 (10.10.0.0/16); Subnets lists snet-public-team01 in us-east-1a.', doc('Create a VPC', 'vpc/latest/userguide/create-vpc.html', 'the “VPC only” option (this course builds the parts one at a time) and the CIDR box')),
       fixes: [{ symptom: 'CIDR overlaps or is invalid', fix: 'Another VPC already uses 10.10.0.0/16, or you typed /26. Use 10.20.0.0/16 and 10.20.1.0/24 everywhere and record it.' }],
     }),
     both(s(1, 'infra', 2), 'Give it a way out', 'Add an internet gateway and a default route.', CONSOLE, [
-      'Internet gateways → Create: name igw-capstone-team01, tags. Then Actions → Attach to VPC → vpc-capstone-team01.',
-      'Route tables → Create: name rt-public-team01, VPC vpc-capstone-team01. Routes → Edit routes → Add route 0.0.0.0/0 → Internet Gateway → igw-capstone-team01. Save.',
+      'Internet gateways → Create: name igw-capstone-team01, tags. Actions → Attach to VPC → vpc-capstone-team01.',
+      'Route tables → Create rt-public-team01 in the VPC. Edit routes → Add 0.0.0.0/0 → Internet Gateway → igw-capstone-team01. Save.',
       'Subnet associations → Edit subnet associations → tick snet-public-team01 → Save.',
     ], [
       { cmd: 'IGW=$(aws ec2 create-internet-gateway --tag-specifications "ResourceType=internet-gateway,Tags=[{Key=Name,Value=igw-capstone-team01},$TAGS]" --query InternetGateway.InternetGatewayId --output text); aws ec2 attach-internet-gateway --internet-gateway-id $IGW --vpc-id $VPC', explain: 'The internet gateway is the VPC’s door to the internet. It does nothing until a route points at it.', sample: '(no output — attached)', flags: [
@@ -175,32 +181,36 @@ const TASKS: Task[] = [
         { flag: '--gateway-id $IGW', meaning: 'Send that traffic out through the internet gateway.' },
         { flag: 'associate-route-table', meaning: 'Make the subnet use this table instead of the VPC’s main one.' },
       ] },
-    ], ['associated'], 'Public or private is a routing decision, not a setting on the subnet: rt-public-team01 has the 0.0.0.0/0 route, so snet-public-team01 is public. Week 6 adds a subnet whose table has no such route, and that one is private.', {
+    ], ['associated'], 'Public or private is a routing decision, not a subnet setting: rt-public-team01 has the 0.0.0.0/0 route, so snet-public-team01 is public. Week 6 adds a subnet with no such route.', {
+      ...out('rt-public-team01 shows routes local and 0.0.0.0/0 → igw-capstone-team01, with snet-public-team01 associated.', doc('Route tables', 'vpc/latest/userguide/VPC_Route_Tables.html', 'the “Main route table” paragraph: every subnet uses it until you associate another; public is a routing decision')),
       fixes: [{ symptom: 'VPC variable is empty', fix: 'CloudShell restarted. Look the id up: aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01.' }],
     }),
     rec(1, 'infra', 'Landing zone', ['The VPC and subnet names.', 'The address space and the first subnet.'], 'The Network Design Document in Week 6 starts from these numbers.'),
   ], { tools: ['AWS console', 'CloudShell'] }),
   T(1, 'dev', 'Open the team repository and board', 'Create the team repository, a README with the naming standard, and a twelve-week board.', 35,
     ['CLF-C02 · Cloud Technology and Services', 'Where a team keeps its work', 'Project boards'], ['The repo exists with a README', 'The board has this week’s four tasks'],
-    [doc('Creating a new repository', 'https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository', 'the visibility choice and the “Initialize this repository with a README” box — tick it, or the repo starts empty'),
+    [doc('Creating a new repository', 'https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository', 'the visibility choice and the “Add a README file” box: tick it, or the repo starts empty'),
      doc('Creating a project', 'https://docs.github.com/en/issues/planning-and-tracking-with-projects/creating-projects/creating-a-project', 'the “Board” layout and how to add a draft item — one card per role per week')],
     'Free: GitHub is free for private repositories and project boards.', [
     portal(s(1, 'dev', 1), 'Create the repository', 'Create the team repository with a README.', 'github.com', [
       'New repository: capstone-team01, private, tick “Add a README file”.',
       'Settings → Collaborators: invite your three teammates.',
       'Create folders site/, api/, infra/, docs/ and paste the naming standard into the README.',
-    ], 'A private repository with a README and four folders, shared with the team.', 'Everything the team produces lives here — the site, the function, the template (Week 9) and the documents. Private, because it will hold your real resource names and URLs; a key or the .pem file never goes in.', {
+    ], 'A private repository with a README and four folders, shared with the team.', 'Everything the team produces lives here: the site, the function, the template and the documents. Private, because it holds real resource names; a key or .pem file never goes in.', {
+      docs: [doc('Creating a new repository', 'https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository', 'the visibility choice and the “Add a README file” box: tick it, or the repo starts empty')],
       fixes: [{ symptom: 'A teammate cannot see the repo', fix: 'They must accept the invitation email. Settings → Collaborators shows “Pending” until they do.' }],
     }),
     portal(s(1, 'dev', 2), 'Create the board', 'Create a board with this week’s four tasks.', 'github.com — Projects', [
       'Your profile → Projects → New project → Board. Columns: To do, Doing, Done.',
-      'Add one card per role for Week 1 and assign it. Link the board from the README.',
-    ], 'A board with four assigned cards, linked from the README.', 'A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is, and operating in the cloud starts with knowing who is doing what.'),
+      'Add one card per role for Week 1, assigned. Link the board from the README.',
+    ], 'A board with four assigned cards, linked from the README.', 'A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is.', {
+      docs: [doc('Creating a project', 'https://docs.github.com/en/issues/planning-and-tracking-with-projects/creating-projects/creating-a-project', 'the “Board” layout and how to add a draft item — one card per role per week')],
+    }),
     rec(1, 'dev', 'Team tooling', ['The repository URL.', 'The board URL.'], 'The handover package in Week 12 points a new team at this repository.'),
   ], { tools: ['GitHub'] }),
   T(1, 'secops', 'Add the team to the account and give them access', 'Create an IAM user for each teammate in a builders group with AdministratorAccess, hand over the sign-in, and get MFA on every user.', 50,
     ['CLF-C02 · Security and Compliance', 'IAM users, groups and managed policies', 'The account alias and sign-in URL', 'MFA for every user'], ['Three IAM users can sign in', 'The builders group holds AdministratorAccess', 'MFA is on for every user'],
-    [doc('Creating an IAM user in your AWS account', 'IAM/latest/UserGuide/id_users_create.html', 'the console steps: “Provide user access to the AWS Management Console”, autogenerated password, “must create a new password at next sign-in”, and the Download .csv at the end'),
+    [doc('Creating an IAM user in your AWS account', 'IAM/latest/UserGuide/id_users_create.html', 'the console steps: console access, autogenerated password, “must create a new password at next sign-in”, Download .csv'),
      doc('Creating IAM user groups', 'IAM/latest/UserGuide/id_groups_create.html', 'the “Attach permissions policies” step — search AdministratorAccess, tick exactly that one'),
      doc('Enable a virtual MFA device for an IAM user', 'IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html', 'the “My security credentials” route and the two consecutive codes the wizard asks for')],
     'Free: IAM users, groups, policies and MFA cost nothing. Do this signed in as the teammate who created the account.', [
@@ -212,47 +222,51 @@ const TASKS: Task[] = [
         { flag: 'create-group --group-name', meaning: 'Read it as: the builders of the capstone, owned by team01.' },
         { flag: 'attach-group-policy --policy-arn arn:aws:iam::aws:policy/AdministratorAccess', meaning: 'An AWS-managed policy: every action on every resource.' },
       ] },
-    ], ['capstone-team01-builders'], 'IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Builders get AdministratorAccess because they create everything this month — the usual sandbox grant. Week 3 adds a read-only group.', {
+    ], ['capstone-team01-builders'], 'IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Builders get AdministratorAccess because they create everything this month.', {
+      ...out('User groups lists capstone-team01-builders with AdministratorAccess under Permissions.', doc('Creating IAM user groups', 'IAM/latest/UserGuide/id_groups_create.html', 'the “Attach permissions policies” step — search AdministratorAccess, tick exactly that one')),
       paths: [
         { label: 'Your own free-tier account', when: 'You created the account yourself', steps: ['IAM is yours: create the group, the users and the alias as below.'] },
         { label: 'AWS Academy Learner Lab', when: 'Your school gave you a lab account', steps: ['IAM is locked: everyone signs in through the lab page with the same session. Record “shared lab sign-in” and skip to MFA.'] },
       ],
     }),
     both(s(1, 'secops', 2), 'Create a user for each teammate', 'Create team01-infra, team01-dev and team01-arch in the group.', CONSOLE, [
-      'IAM → Users → Create user. Name team01-infra. Tick “Provide user access to the console” → “I want to create an IAM user”.',
-      'Console password: Autogenerated. Tick “Users must create a new password at next sign-in”. Next.',
-      'Permissions: Add user to group → capstone-team01-builders. Next → Create user.',
-      'Download .csv (the sign-in URL and temporary password). Repeat for team01-dev and team01-arch.',
+      'IAM → Users → Create user: team01-infra. Tick “Provide user access to the console”, IAM user.',
+      'Password: Autogenerated, tick “must create a new password at next sign-in”. Permissions: add to capstone-team01-builders.',
+      'Create user → Download .csv (sign-in URL, temporary password). Repeat for team01-dev and team01-arch.',
     ], [
       { cmd: 'for U in team01-infra team01-dev team01-arch; do aws iam create-user --user-name $U --tags Key=team,Value=team01 -o none; aws iam create-login-profile --user-name $U --password "Capstone-$RANDOM-Start!" --password-reset-required --query "LoginProfile.UserName" --output text; aws iam add-user-to-group --group-name capstone-team01-builders --user-name $U; done', explain: 'Three users, each with a console password they must change at first sign-in, each in the builders group. Note each password as it is generated.', sample: 'team01-infra\nteam01-dev\nteam01-arch', flags: [
         { flag: 'create-login-profile --password-reset-required', meaning: 'A console password that must be changed at first sign-in.' },
         { flag: 'add-user-to-group', meaning: 'Membership is where the permissions come from; the user itself has none.' },
       ] },
-    ], ['team01-infra'], 'One IAM user per person, never a shared one: CloudTrail then records who did what. The temporary password is handed over privately and dies at first sign-in; the group membership is what grants the access.', {
+    ], ['team01-infra'], 'One IAM user per person, never a shared one: CloudTrail then records who did what. The temporary password dies at first sign-in; the group membership is what grants access.', {
+      ...out('Users lists team01-infra, team01-dev and team01-arch, each in capstone-team01-builders.', doc('Creating an IAM user in your AWS account', 'IAM/latest/UserGuide/id_users_create.html', 'the console steps: console access, autogenerated password, “must create a new password at next sign-in”, Download .csv')),
       fixes: [{ symptom: 'Access denied creating users', fix: 'You are not signed in as the account owner. Ask the teammate who created the account to run this task.' }],
     }),
     both(s(1, 'secops', 3), 'Set the account alias and hand over the sign-ins', 'Create the alias; send each teammate their sign-in privately.', CONSOLE, [
-      'IAM → Dashboard → AWS Account → Account Alias → Create → capstone-team01. The sign-in URL becomes https://capstone-team01.signin.aws.amazon.com/console.',
-      'Send each teammate their user name, temporary password and that URL privately — never the repository or a group chat.',
-      'Each teammate signs in at the URL, sets a new password, and sees the console.',
+      'IAM → Dashboard → AWS Account → Account Alias → Create → capstone-team01.',
+      'Send each teammate their user name, temporary password and https://capstone-team01.signin.aws.amazon.com/console privately, never the repository.',
+      'Each teammate signs in at that URL, sets a new password, and sees the console.',
     ], [
       { cmd: 'aws iam create-account-alias --account-alias capstone-team01 && aws iam list-account-aliases --query "AccountAliases[0]" --output text', explain: 'An alias replaces the 12-digit account id in the sign-in URL.', sample: 'capstone-team01', flags: [
         { flag: 'create-account-alias', meaning: 'One alias per account; it must be unique across AWS.' },
       ] },
-    ], ['capstone-team01'], 'IAM users sign in at the account’s own URL, not the root sign-in page; the alias makes that URL readable. A password sent through the repository is public the moment it is pushed.', {
+    ], ['capstone-team01'], 'IAM users sign in at the account’s own URL, not the root page; the alias makes it readable. A password pushed to the repository is public at once.', {
+      ...out('The IAM dashboard shows the sign-in URL https://capstone-team01.signin.aws.amazon.com/console.', doc('Your AWS account ID and its alias', 'IAM/latest/UserGuide/console_account-alias.html', 'the “Creating, deleting, and listing an AWS account alias” steps and the sign-in URL it produces')),
       fixes: [
         { symptom: 'Alias already taken', fix: 'Someone in the world has it. Add your school’s initials: capstone-team01-uni.' },
         { symptom: 'A teammate gets “Incorrect user name or password”', fix: 'They are on the root sign-in page. Send the alias URL again; the user name is team01-infra, not an email.' },
       ],
     }),
     both(s(1, 'secops', 4), 'Get MFA on every user', 'Each member assigns an MFA device; you check the column.', CONSOLE, [
-      'Each member, signed in as themselves: top-right menu → Security credentials → Assign MFA device → Authenticator app → scan → two codes → Add MFA.',
-      'You: IAM → Users: the MFA column reads “Virtual” for all four. Root user: IAM → Dashboard → Security recommendations → root MFA on.',
+      'Each member: top-right menu → Security credentials → Assign MFA device → Authenticator app → scan → two codes → Add MFA.',
+      'You: IAM → Users: the MFA column reads “Virtual” for all four.',
+      'Root user: IAM → Dashboard → Security recommendations → root MFA on.',
     ], [
       { cmd: 'aws iam list-virtual-mfa-devices --assignment-status Assigned --query "VirtualMFADevices[].User.UserName" --output text', explain: 'Every user with an MFA device assigned. All four names should appear.', sample: 'team01-arch\tteam01-dev\tteam01-infra\tteam01-secops', flags: [
         { flag: '--assignment-status Assigned', meaning: 'Only devices in use, not spare ones.' },
       ] },
-    ], ['team01'], 'Multi-factor authentication is the single control the exam names most: a stolen password alone no longer opens the account. On AWS it is per IAM user, so each person does it once; the root user gets it too.', {
+    ], ['team01'], 'Multi-factor authentication is the control the exam names most: a stolen password alone no longer opens the account. It is per IAM user, so each person does it once.', {
+      ...out('IAM → Users shows MFA “Virtual” for all four users, and the root user has MFA too.', doc('Enable a virtual MFA device for an IAM user', 'IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html', 'the “My security credentials” route and the two consecutive codes the wizard asks for')),
       fixes: [{ symptom: 'The Security credentials page is missing MFA', fix: 'That user is signed in with SSO or a lab role. Record “managed by the identity provider” and move on.' }],
     }),
     rec(1, 'secops', 'Team access', ['One row per person: sign-in, group, policy, MFA.'], 'The Week 3 identity task adds the read-only group for people who only look.'),
@@ -261,35 +275,36 @@ const TASKS: Task[] = [
   // ── Week 2 — Core services: compute, storage, network, cost ────────────
   T(2, 'arch', 'Estimate the cost and choose storage classes', 'Price each component in the calculator against the Free Tier, then choose S3 storage classes and EBS volume types with a reason.', 45,
     ['CLF-C02 · Billing, Pricing and Support', 'Pricing Calculator and the Free Tier', 'S3 storage classes and durability', 'Factors that affect cost'], ['Every component has a monthly cost', 'Storage classes chosen with a reason'],
-    [doc('AWS Free Tier', 'https://aws.amazon.com/free/', 'the three kinds of offer — 12 months free, always free, trials — and the 750-hour line under EC2; that is the budget this course lives inside'),
-     doc('AWS Pricing Calculator', 'pricing-calculator/latest/userguide/what-is-pricing-calculator.html', 'the “Add service” flow and the estimate summary; the calculator prices list rates, so subtract the free tier yourself'),
-     doc('Amazon S3 storage classes', 'AmazonS3/latest/userguide/storage-class-intro.html', 'the comparison table: Standard, Standard-IA, One Zone-IA, Glacier — the retrieval fee column is what decides for a site read every day')],
+    [doc('AWS Free Tier', 'https://aws.amazon.com/free/', 'the three kinds of offer, 12 months free, always free, trials, and the 750-hour EC2 line'),
+     doc('AWS Pricing Calculator', 'pricing-calculator/latest/userguide/what-is-pricing-calculator.html', 'the “Add service” flow and the estimate summary; it prices list rates, so subtract the free tier yourself'),
+     doc('Amazon S3 storage classes', 'AmazonS3/latest/userguide/storage-class-intro.html', 'the comparison table: Standard, Standard-IA, One Zone-IA, Glacier; the retrieval fee column decides for a daily-read site')],
     'Free: the calculator. Nothing is deployed. Your list-price estimate should come out near $10 a month before the free tier and near $0 after it.', [
     portal(s(2, 'arch', 1), 'Price it', 'Price the components in the AWS Pricing Calculator.', 'calculator.aws', [
       'Add: EC2 (t3.micro, Linux, 730 h), S3 Standard (1 GB), CloudFront (1 GB out).',
-      'Add: Lambda, API Gateway HTTP API, DynamoDB on-demand — mostly free tier.',
-      'Read the monthly total; then halve the EC2 hours — you stop it.',
-      'Subtract what the Free Tier covers in year one: 750 EC2 hours, 5 GB S3, 750 public-IP hours.',
-    ], 'A monthly estimate per service, with EC2 the largest line.', 'Cost is set by size, hours, Region, storage class and data out — the factors the exam lists. The calculator shows list prices; the 12-month Free Tier removes the EC2 and S3 lines, and Lambda and DynamoDB stay free.', {
+      'Add: Lambda, API Gateway HTTP API, DynamoDB on-demand (mostly free tier). Read the monthly total.',
+      'Halve the EC2 hours (you stop it); subtract the Free Tier: 750 hours, 5 GB S3.',
+    ], 'A monthly estimate per service, with EC2 the largest line.', 'Cost is set by size, hours, Region, storage class and data out. The 12-month Free Tier removes the EC2 and S3 lines; Lambda and DynamoDB stay free.', {
+      docs: [doc('AWS Pricing Calculator', 'pricing-calculator/latest/userguide/what-is-pricing-calculator.html', 'the “Add service” flow and the estimate summary; it prices list rates, so subtract the free tier yourself')],
       fixes: [{ symptom: 'EC2 comes out at $7–8', fix: 'You left 730 hours. A stopped instance bills no compute: halve the hours, and note that the disk still bills after the free 30 GB.' }],
     }),
     portal(s(2, 'arch', 2), 'Choose storage classes and volume types', 'Choose S3 classes and the EBS type for each asset.', 'The document', [
-      'Site bucket: S3 Standard — read every day, 11 nines durability, no retrieval fee. Alternative: Standard-IA, rejected for its retrieval fee.',
-      'Instance root volume: gp3 8 GB, inside the free 30 GB. Snapshots (Week 8) are the backup.',
+      'Site bucket: S3 Standard (read daily, 11 nines, no retrieval fee). Rejected: Standard-IA (retrieval fee).',
+      'Root volume: gp3 8 GB, inside the free 30 GB. Snapshots (Week 8) are the backup.',
       'DynamoDB: on-demand, one Region. Write each alternative you rejected and its price.',
-    ], 'One row per asset: class chosen, alternative rejected, monthly cost.', 'S3 classes trade storage price for retrieval price and availability: Standard for data read often, IA for data read rarely, Glacier for archives. EBS types trade IOPS for price. Every step down is a fee somewhere else.'),
+    ], 'One row per asset: class chosen, alternative rejected, monthly cost.', 'S3 classes trade storage price for retrieval price: Standard for data read often, IA for data read rarely, Glacier for archives. Every step down is a fee somewhere else.', {
+      docs: [doc('Amazon S3 storage classes', 'AmazonS3/latest/userguide/storage-class-intro.html', 'the comparison table: Standard, Standard-IA, One Zone-IA, Glacier; the retrieval fee column decides for a daily-read site')],
+    }),
     rec(2, 'arch', 'Components and cost, Redundancy and tiers', ['One component per row, with its monthly cost.', 'One storage-class row per asset.'], 'The architecture document grows every week and is handed over in Week 12.'),
   ], { tools: ['AWS Pricing Calculator'] }),
   T(2, 'infra', 'Launch the tools instance', 'Launch a t3.micro Amazon Linux instance in the public subnet with a key pair, read its facts, then stop it.', 45,
     ['CLF-C02 · Cloud Technology and Services', 'EC2 instance types and the Free Tier', 'Key pairs and the security group', 'Availability Zones; stop vs terminate'], ['ec2-tools-team01 runs in the public subnet', 'The instance is stopped at the end'],
-    [doc('Launch an instance using the launch wizard', 'AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html', 'the “Free tier eligible” label beside the instance type, and the Network settings panel where you pick the subnet and security group'),
+    [doc('Launch an instance using the launch wizard', 'AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html', 'the “Free tier eligible” label by the instance type, and the Network settings panel: subnet and security group'),
      doc('Instance lifecycle', 'AWSEC2/latest/UserGuide/ec2-instance-lifecycle.html', 'the state diagram: stopped keeps the disk and bills only storage; terminated is gone')],
-    'Free tier: t3.micro is free for 750 hours a month for 12 months; the 8 GB gp3 root disk sits inside the 30 GB free. Stop it when done — hours count while it runs. The public IPv4 is free for 750 hours in year one.', [
+    'Free tier: 750 t3.micro hours a month, the 8 GB gp3 disk, 750 public IPv4 hours. Stop it when done: hours count while running.', [
     both(s(2, 'infra', 1), 'Launch the instance', 'Launch the t3.micro in the public subnet.', CONSOLE, [
-      'EC2 → Instances → Launch instance. Name ec2-tools-team01; add tags project, team, env, owner. Amazon Linux 2023; t3.micro (Free tier eligible).',
-      'Key pair → Create new key pair: kp-team01, RSA, .pem. Save the file; never commit it.',
-      'Network settings → Edit: VPC vpc-capstone-team01, subnet snet-public-team01, Auto-assign public IP Enable. Create security group sg-tools-team01; untick “Allow SSH traffic”.',
-      'Leave Advanced details at their defaults. Launch instance.',
+      'EC2 → Instances → Launch instance. Name ec2-tools-team01 (tags project, team, env, owner). Amazon Linux 2023, t3.micro.',
+      'Key pair → Create new: kp-team01, RSA, .pem. Save the file; never commit it.',
+      'Network settings: vpc-capstone-team01, snet-public-team01, Auto-assign public IP Enable; new security group sg-tools-team01, untick “Allow SSH”. Launch.',
     ], [
       { cmd: 'aws ec2 create-key-pair --key-name kp-team01 --query KeyMaterial --output text > kp-team01.pem && chmod 400 kp-team01.pem', explain: 'The private key is shown once. Download it from CloudShell (Actions → Download file) and never commit it.', sample: '(no output — kp-team01.pem saved)', flags: [
         { flag: '--query KeyMaterial --output text > kp-team01.pem', meaning: 'Write only the private key text to a file.' },
@@ -301,7 +316,8 @@ const TASKS: Task[] = [
         { flag: '--instance-type t3.micro', meaning: 'The free-tier size: 2 vCPU burstable, 1 GiB.' },
         { flag: '--associate-public-ip-address', meaning: 'Give it an internet address, for updates and your SSH test.' },
       ] },
-    ], ['i-0', '10.10.1.'], 'EC2 is IaaS: you choose the image, type and zone, and you patch it. t3.micro is free-tier eligible; the new security group has no inbound rule, so nothing reaches it yet. The private .pem is your key: keep it.', {
+    ], ['i-0', '10.10.1.'], 'EC2 is IaaS: you choose the image, type and zone, and you patch it. t3.micro is free-tier eligible; the new security group has no inbound rule, so nothing reaches it.', {
+      ...out('Instances lists ec2-tools-team01 Running, t3.micro, in us-east-1a, with a public IPv4 address.', doc('Launch an instance using the launch wizard', 'AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html', 'the “Free tier eligible” label by the instance type, and the Network settings panel: subnet and security group')),
       fixes: [
         { symptom: 'InvalidParameterCombination: t3.micro', fix: 'Your account’s free tier is t2.micro. Use --instance-type t2.micro and record why.' },
         { symptom: 'The instance never gets a public IP', fix: 'Auto-assign public IP was left Disabled, and it cannot be added later. Terminate and launch again with it enabled.' },
@@ -310,37 +326,39 @@ const TASKS: Task[] = [
     }),
     both(s(2, 'infra', 2), 'Read its facts and hand over the key', 'Read the IPs and zone, then share the key privately.', CONSOLE, [
       'EC2 → Instances → ec2-tools-team01 → Details: Private IPv4, Public IPv4, Availability Zone, Instance state.',
-      'Send kp-team01.pem through a private channel (Teams/Slack DM, a password manager) — never the repository or email. User name: ec2-user.',
+      'Send kp-team01.pem privately (a DM or password manager), never the repository or email. User: ec2-user.',
     ], [
       { cmd: `${IID}; aws ec2 describe-instances --instance-ids $IID --query "Reservations[0].Instances[0].{private:PrivateIpAddress, public:PublicIpAddress, az:Placement.AvailabilityZone, state:State.Name}"`, explain: 'The private IP is what other resources use; the public IP only exists for outbound patching and your SSH test. Download the key from CloudShell: Actions → Download file.', sample: '{ "private": "10.10.1.25", "public": "3.91.12.44", "az": "us-east-1a", "state": "running" }', flags: [
         { flag: 'IID=$(… describe-instances --filters Name=tag:Name …)', meaning: 'Find the instance by its Name tag, so no id is typed by hand.' },
       ] },
-    ], ['running'], 'AWS reserves the first four addresses and the last in every subnet. The public IP changes every time the instance stops and starts — record the private one. The private key is the password to this machine.'),
+    ], ['running'], 'The public IP changes on every stop and start, so record the private one. AWS keeps five addresses in every subnet. The key is the password to this machine.',
+    out('Details shows Private IPv4 10.10.1.x, a Public IPv4, Availability Zone us-east-1a, state running.', doc('Connect to your Linux instance using SSH', 'AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html', 'the prerequisites: the .pem file, chmod 400, and the ec2-user name for Amazon Linux'))),
     rec(2, 'infra', 'Virtual machine facts', ['Name, type, zone, private IP, operating system.'], 'The runbook in Week 7 and the snapshot in Week 8 start from these facts.'),
     STOP(2, 'infra'),
   ], { tools: ['AWS console', 'CloudShell'] }),
   T(2, 'dev', 'Publish the website with CloudFront', 'Publish the site from a private S3 bucket behind CloudFront with Origin Access Control, then change it and redeploy.', 50,
     ['CLF-C02 · Cloud Technology and Services', 'S3 buckets and Block Public Access', 'CloudFront: the edge network', 'Origin Access Control'], ['The site loads over HTTPS', 'The bucket is private', 'A change was redeployed'],
-    [doc('Restrict access to an S3 origin', 'AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html', 'the “Create a new OAC” steps and the bucket policy CloudFront hands you — you paste it into the bucket, CloudFront does not do it for you'),
+    [doc('Restrict access to an S3 origin', 'AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html', 'the “Create a new OAC” steps and the bucket policy CloudFront hands you to paste into the bucket'),
      doc('Creating a bucket', 'AmazonS3/latest/userguide/create-bucket-overview.html', 'the bucket-naming rules (global, lowercase) and the Block Public Access section — leave every box ticked')],
-    'Free tier: S3 5 GB for 12 months; CloudFront 1 TB out and 10 million requests a month, always free. Invalidations: 1,000 paths a month free. Do not enable WAF on the distribution — that costs about $14 a month.', [
+    'Free tier: S3 5 GB for 12 months; CloudFront 1 TB out, always free. Do not enable WAF on the distribution: about $14 a month.', [
     both(s(2, 'dev', 1), 'Create the bucket and upload', 'Create a private bucket and upload the site.', CONSOLE, [
-      'S3 → Create bucket: name capstone-team01-site plus four digits, region us-east-1, Block all public access ticked. Tags. Create bucket.',
+      'S3 → Create bucket: capstone-team01-site plus four digits, us-east-1, Block all public access ticked. Tags. Create.',
       'Open it → Upload → Add files → site/index.html (and 404.html) → Upload.',
     ], [
       { cmd: 'BUCKET=capstone-team01-site-$RANDOM; aws s3 mb s3://$BUCKET && aws s3 sync ./site s3://$BUCKET && echo $BUCKET', explain: 'Bucket names are global. Block Public Access is on by default — leave it on; CloudFront will read the bucket for you.', sample: 'make_bucket: capstone-team01-site-18342\nupload: site/index.html to s3://capstone-team01-site-18342/index.html', flags: [
         { flag: 's3 mb', meaning: 'Make bucket.' },
         { flag: 's3 sync ./site s3://$BUCKET', meaning: 'Upload every file in site/ that is new or changed.' },
       ] },
-    ], ['make_bucket'], 'S3 is object storage: a bucket holds files, the name is unique worldwide, and Block Public Access keeps it private. capstone-team01-site: the bucket for the capstone site, owned by team01. It never becomes public — hence CloudFront in front.', {
+    ], ['make_bucket'], 'S3 is object storage: a bucket holds files, the name is unique worldwide, and Block Public Access keeps it private. It never becomes public; CloudFront sits in front instead.', {
+      ...out('The bucket lists index.html, and Permissions shows Block all public access: On.', doc('Creating a bucket', 'AmazonS3/latest/userguide/create-bucket-overview.html', 'the bucket-naming rules (global, lowercase) and the Block Public Access section — leave every box ticked')),
       fixes: [{ symptom: 'Bucket name already exists', fix: 'Someone in the world has it. Change the digits and try again.' }],
     }),
     portal(s(2, 'dev', 2), 'Put CloudFront in front', 'Create a distribution with Origin Access Control.', 'AWS console — CloudFront → Create distribution', [
-      'Origin domain: your bucket (not the website endpoint). Origin access: Origin access control settings → Create new OAC → Create.',
-      'Viewer protocol policy: Redirect HTTP to HTTPS. Web Application Firewall: Do not enable security protections.',
-      'Default root object: index.html. Create distribution.',
+      'Create distribution. Origin domain: your bucket (not the website endpoint). Origin access control → Create new OAC.',
+      'Viewer protocol: Redirect HTTP to HTTPS. WAF: Do not enable. Default root object: index.html. Create distribution.',
       'The yellow banner → Copy policy → S3 → the bucket → Permissions → Bucket policy → Edit → paste → Save.',
-    ], 'The distribution is Enabled and https://d….cloudfront.net shows your page.', 'CloudFront is the content delivery network: edge locations near visitors cache the site and serve it over HTTPS with AWS’s certificate. OAC signs CloudFront’s requests; the bucket policy admits only this distribution, which is why you paste it yourself.', {
+    ], 'The distribution is Enabled and https://d….cloudfront.net shows your page.', 'CloudFront is the content delivery network: edge locations near visitors cache the site and serve it over HTTPS. OAC signs CloudFront’s requests; the bucket policy admits only this distribution.', {
+      docs: [doc('Restrict access to an S3 origin', 'AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html', 'the “Create a new OAC” steps and the bucket policy CloudFront hands you to paste into the bucket')],
       fixes: [
         { symptom: 'AccessDenied XML page', fix: 'The bucket policy was not pasted, or the origin is the website endpoint instead of the bucket.' },
         { symptom: 'The page is “NoSuchKey”', fix: 'Default root object is empty, or index.html sits in a folder. It must be at the bucket root.' },
@@ -355,18 +373,19 @@ const TASKS: Task[] = [
       { cmd: 'aws s3 sync ./site s3://$BUCKET && DIST=$(aws cloudfront list-distributions --query "DistributionList.Items[0].Id" --output text) && aws cloudfront create-invalidation --distribution-id $DIST --paths "/*" --query Invalidation.Status --output text', explain: 'CloudFront caches; an invalidation tells it to fetch the new files.', sample: 'InProgress', flags: [
         { flag: 'create-invalidation --paths "/*"', meaning: 'Forget every cached copy. 1,000 paths a month are free.' },
       ] },
-    ], ['InProgress'], 'Upload plus invalidate is a redeploy. CloudFront keeps a copy of each file at the edge for up to a day, so without the invalidation the old page can linger. Week 10 automates both steps.'),
+    ], ['InProgress'], 'Upload plus invalidate is a redeploy. CloudFront keeps a copy of each file at the edge for up to a day, so without the invalidation the old page lingers.',
+    out('Invalidations lists one with status Completed, and the site shows your change.', doc('Invalidate files', 'AmazonCloudFront/latest/DeveloperGuide/Invalidation.html', 'the “Invalidating files using the console” steps and the /* path that clears everything'))),
     rec(2, 'dev', 'Website', ['The HTTPS URL.', 'How you redeployed a change.'], 'The CloudFront URL is what the counter page calls in Week 3.'),
   ], { tools: ['AWS console', 'CloudShell', 'A text editor'] }),
   T(2, 'secops', 'Allow SSH from your IP only', 'Add one inbound rule allowing SSH from your own address, then prove it is allowed from you and blocked elsewhere.', 40,
     ['CLF-C02 · Security and Compliance', 'Security groups: stateful, allow-only', 'Defense in depth: one address, one port', 'Allowed and blocked tests'], ['SSH works from your IP', 'SSH is blocked from CloudShell'],
     [doc('Work with security group rules', 'AWSEC2/latest/UserGuide/working-with-security-group-rules.html', 'the “Add rules” steps and the Source field’s “My IP” choice — it fills your /32 for you'),
-     doc('Connect to your Linux instance using SSH', 'AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html', 'the ssh command with -i and the user name for Amazon Linux (ec2-user), and the “Permission denied” troubleshooting for a .pem that is too open')],
+     doc('Connect to your Linux instance using SSH', 'AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html', 'the ssh command with -i, the ec2-user name, and the “Permission denied” fix for an open .pem')],
     'Free: security group rules. Instance hours count while it runs — stop it when the test is done.', [
     both(s(2, 'secops', 1), 'Add the SSH rule', 'Allow TCP 22 from your IP address only.', CONSOLE, [
       'EC2 → Security groups → sg-tools-team01: Inbound rules is empty; Outbound rules has the default All traffic.',
       'Inbound rules → Edit inbound rules → Add rule.',
-      'Type SSH, Source “My IP” — the console fills your address as a /32. Description: Allow-SSH-MyIP. Save rules.',
+      'Type SSH, Source “My IP” (the console fills your /32). Description Allow-SSH-MyIP. Save rules.',
     ], [
       { cmd: 'curl -s https://checkip.amazonaws.com', explain: 'Run this on YOUR laptop, not CloudShell: it prints the address your laptop reaches the internet from.', sample: '203.0.113.25' },
       { cmd: 'MYIP=203.0.113.25   # type the address the first line printed', explain: 'CloudShell is another machine with another address, so tell it yours.', sample: '(no output — the variable is set)' },
@@ -375,13 +394,14 @@ const TASKS: Task[] = [
         { flag: '--protocol tcp --port 22', meaning: 'SSH’s port. Nothing else is opened.' },
         { flag: '--cidr $MYIP/32', meaning: 'Only this one address may connect.' },
       ] },
-    ], ['/32'], 'Never 0.0.0.0/0 on port 22: bots scan the internet for open SSH within minutes. Security groups have no priorities and no deny: this allow is the whole inbound policy — one layer of defense in depth.'),
+    ], ['/32'], 'Never 0.0.0.0/0 on port 22: bots scan the internet for open SSH within minutes. Security groups have no priorities and no deny: this allow is the whole inbound policy.',
+    out('Inbound rules shows one row: SSH, TCP 22, source your address/32, Allow-SSH-MyIP.', doc('Work with security group rules', 'AWSEC2/latest/UserGuide/working-with-security-group-rules.html', 'the “Add rules” steps and the Source field’s “My IP” choice — it fills your /32 for you'))),
     portal(s(2, 'secops', 2), 'Test allowed and blocked', 'Test SSH from your laptop, then from CloudShell.', 'Your laptop, then CloudShell', [
-      'Start the instance: EC2 → Instances → ec2-tools-team01 → Instance state → Start; read the public IP on Details.',
-      'From your laptop, using the key the Infra Admin shared: a prompt appears (below, by operating system).',
-      'From CloudShell: ssh -i kp-team01.pem ec2-user@PUBLIC_IP — expect “Connection timed out”.',
-      'Stop the instance when done: Instance state → Stop instance.',
-    ], 'SSH connects from your laptop and times out from CloudShell.', 'A rule is only proved when something that should fail does fail. CloudShell has a different address, so the /32 rule rightly refuses it — the same refusal any attacker gets.', {
+      'Start the instance (Instance state → Start) and read the public IP on Details.',
+      'From your laptop, with the shared key, connect (below, by operating system): a prompt appears.',
+      'From CloudShell: ssh -i kp-team01.pem ec2-user@PUBLIC_IP times out. Then stop the instance.',
+    ], 'SSH connects from your laptop and times out from CloudShell.', 'A rule is only proved when something that should fail does fail. CloudShell has a different address, so the /32 rule refuses it, as it refuses any attacker.', {
+      docs: [doc('Connect to your Linux instance using SSH', 'AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html', 'the ssh command with -i, the ec2-user name, and the “Permission denied” fix for an open .pem')],
       paths: [
         { label: 'macOS / Linux', when: 'Terminal', steps: ['chmod 400 kp-team01.pem', 'ssh -i kp-team01.pem ec2-user@PUBLIC_IP'] },
         { label: 'Windows', when: 'PowerShell (OpenSSH is built in)', steps: ['icacls kp-team01.pem /inheritance:r /grant:r "$env:USERNAME:R"', 'ssh -i kp-team01.pem ec2-user@PUBLIC_IP'] },
@@ -405,19 +425,22 @@ const TASKS: Task[] = [
       'Pick Week 3. New resources glow.',
       'Follow the solid arrows from Visitors to DynamoDB.',
       'Click the Lambda function: the template highlights its lines.',
-    ], 'You can name every hop from the browser to the table.', 'The diagram is drawn from the template, so it is the environment you are building, not an illustration. A glowing node arrived this week; a grey one was already there.'),
+    ], 'You can name every hop from the browser to the table.', 'The diagram is drawn from the template, so it is the environment you are building, not an illustration. A glowing node arrived this week; a grey one was already there.', {
+      docs: [doc('Working with HTTP APIs', 'apigateway/latest/developerguide/http-api.html', 'the invoke-URL shape — https://{api-id}.execute-api.{region}.amazonaws.com — so you can recognise your second hop')],
+    }),
     portal(s(3, 'arch', 2), 'Write the flow', 'Write the flow with your real URLs and owners.', 'The document', [
-      'Browser → https://d….cloudfront.net (CloudFront + S3: AWS runs them).',
-      'Page script → GET https://….execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter (API Gateway + Lambda: AWS runs the servers, we own the code).',
-      'Lambda → DynamoDB table capstone-team01-visitors, item id "site" (AWS runs it, we own the data).',
-      'Back: { "count": n } → the page writes it into #visitor-count.',
-    ], 'A three-hop flow with real URLs, resource names and who manages each.', 'Serverless means no server you can see: it scales to zero and you pay per request — the pay-as-you-go model. A flow with real URLs is testable: each arrow is something you can call and watch fail.'),
+      'Browser → https://d….cloudfront.net. Page script → GET …execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter.',
+      'Lambda → DynamoDB table capstone-team01-visitors, item id "site". Back: { "count": n }.',
+      'For each hop: who runs it (AWS) and what we own (code, data, access).',
+    ], 'A three-hop flow with real URLs, resource names and who manages each.', 'Serverless means no server you can see: it scales to zero and you pay per request. A flow with real URLs is testable: each arrow can be called.', {
+      docs: [doc('Shared responsibility model', 'https://aws.amazon.com/compliance/shared-responsibility-model/', 'the “abstracted services” paragraph: for Lambda and DynamoDB, AWS runs the platform; you own code, data and access')],
+    }),
     rec(3, 'arch', 'Request flow', ['The flow, hop by hop, with who manages each.'], 'Week 6’s path tests follow this flow.'),
   ], { tools: ['The Guide'] }),
   T(3, 'infra', 'Create the DynamoDB table', 'Create an on-demand DynamoDB table and seed the counter item.', 35,
     ['CLF-C02 · Cloud Technology and Services', 'Managed databases: DynamoDB vs RDS', 'On-demand capacity', 'Items and attributes'], ['Table capstone-team01-visitors exists', 'Item id "site" has count 0'],
-    [doc('Create a table in DynamoDB', 'amazondynamodb/latest/developerguide/getting-started-step-1.html', 'the console steps: table name, partition key name and type, and where “Table settings → Customize” hides the capacity mode'),
-     doc('On-demand capacity mode', 'amazondynamodb/latest/developerguide/on-demand-capacity-mode.html', 'the first paragraph: you pay per request, with no capacity to plan — that is why an idle counter costs nothing')],
+    [doc('Create a table in DynamoDB', 'amazondynamodb/latest/developerguide/getting-started-step-1.html', 'the console steps: table name, partition key name and type, and Table settings → Customize for capacity mode'),
+     doc('On-demand capacity mode', 'amazondynamodb/latest/developerguide/on-demand-capacity-mode.html', 'the first paragraph: you pay per request, with no capacity to plan, so an idle counter costs nothing')],
     'Free: DynamoDB gives 25 GB and 25 read/write units always free; on-demand requests for a counter round to zero.', [
     both(s(3, 'infra', 1), 'Create the table', 'Create an on-demand table keyed on id.', CONSOLE, [
       'DynamoDB → Tables → Create table. Name capstone-team01-visitors, partition key id (String).',
@@ -429,26 +452,27 @@ const TASKS: Task[] = [
         { flag: '--billing-mode PAY_PER_REQUEST', meaning: 'On-demand: pay per read and write, nothing while idle.' },
       ] },
       { cmd: 'aws dynamodb wait table-exists --table-name capstone-team01-visitors && echo ACTIVE', explain: 'Waits until the table can take writes.', sample: 'ACTIVE' },
-    ], ['ACTIVE'], 'DynamoDB is a managed NoSQL key-value database: no server, no schema beyond the key, AWS runs and scales it. RDS would be the managed relational choice for tables with joins. The partition key decides where an item is stored.'),
+    ], ['ACTIVE'], 'DynamoDB is a managed NoSQL key-value database: no server, no schema beyond the key, AWS runs and scales it. RDS is the managed relational choice for tables with joins.',
+    out('Tables lists capstone-team01-visitors with status Active and capacity mode On-demand.', doc('Create a table in DynamoDB', 'amazondynamodb/latest/developerguide/getting-started-step-1.html', 'the console steps: table name, partition key name and type, and Table settings → Customize for capacity mode'))),
     both(s(3, 'infra', 2), 'Seed the counter', 'Put the item { id: site, count: 0 }.', CONSOLE, [
       'Open the table → Explore table items → Create item.',
       'id: site. Add new attribute → Number → name count, value 0. Create item.',
     ], [
       { cmd: 'aws dynamodb put-item --table-name capstone-team01-visitors --item \'{"id":{"S":"site"},"count":{"N":"0"}}\' && aws dynamodb get-item --table-name capstone-team01-visitors --key \'{"id":{"S":"site"}}\' --output text', explain: 'DynamoDB types every value: S for string, N for number.', sample: 'COUNT\t0\nID\tsite' },
-    ], ['site'], 'The Lambda adds one to this one item on every visit. Seeding it is optional in DynamoDB (ADD creates a missing item), but seeing the item now makes the first request easier to understand.'),
+    ], ['site'], 'The Lambda adds one to this one item. Seeding is optional in DynamoDB (ADD creates a missing item), but seeing the item now makes the first request clearer.',
+    out('Explore table items lists one item: id site, count 0.', doc('Write data to a table', 'amazondynamodb/latest/developerguide/getting-started-step-2.html', 'the console steps: Create item, the id value, then Add new attribute → Number'))),
     rec(3, 'infra', 'Data store', ['Table name, partition key, the seed item.'], 'The API spec’s data model.'),
   ], { tools: ['AWS console', 'CloudShell'] }),
   T(3, 'dev', 'Build the counter Lambda and API', 'Create a Lambda that atomically adds one to the counter, put an HTTP API in front, and show the count on the site.', 50,
     ['CLF-C02 · Cloud Technology and Services', 'Lambda: serverless compute', 'API Gateway', 'An execution role instead of a key'], ['The API returns a count', 'The site shows it'],
     [doc('Create your first Lambda function', 'lambda/latest/dg/getting-started.html', 'the “Author from scratch” form and the Test tab — the console editor deploys with one button'),
-     doc('Lambda execution role', 'lambda/latest/dg/lambda-intro-execution-role.html', 'the first paragraph: the function assumes the role at run time, so no key is ever stored in it'),
+     doc('Lambda execution role', 'lambda/latest/dg/lambda-intro-execution-role.html', 'the first paragraph: the function assumes the role at run time, so no key is stored in it'),
      doc('Using Lambda with API Gateway', 'lambda/latest/dg/services-apigateway.html', 'the “Add trigger” route for an HTTP API — it creates the API, the route and the permission together')],
     'Free: Lambda 1 million requests a month always free; API Gateway HTTP API 1 million calls a month for 12 months.', [
     both(s(3, 'dev', 1), 'Create the function', 'Create a Python Lambda that adds one to the count.', CONSOLE, [
-      'Lambda → Create function → Author from scratch. Name capstone-team01-counter, runtime Python 3.12, “Create a new role with basic Lambda permissions”. Create.',
-      'Code tab: replace lambda_function.py with the code below. Deploy.',
-      'Configuration → Environment variables → Edit → Add: TABLE_NAME = capstone-team01-visitors. Save.',
-      'Test → Create new event (any name) → Test: an AccessDenied error — expected until the next step.',
+      'Lambda → Create function → Author from scratch: capstone-team01-counter, Python 3.12, new role with basic permissions. Create.',
+      'Code tab: replace lambda_function.py with the code below. Deploy. Configuration → Environment variables → TABLE_NAME = capstone-team01-visitors.',
+      'Test → Create new event (any name) → Test: an AccessDenied error, expected until the next step.',
     ], [
       { cmd: `import json, os, boto3
 table = boto3.resource("dynamodb").Table(os.environ["TABLE_NAME"])
@@ -466,17 +490,18 @@ def lambda_handler(event, context):
         "headers": {"Content-Type": "application/json"},
         "body": json.dumps({"count": int(r["Attributes"]["count"])}),
     }`, explain: 'Paste over lambda_function.py. One update_item adds one to the item “site” and returns the new number as JSON. The same code sits in the Week 9 template.', sample: '{"statusCode": 200, "body": "{\\"count\\": 1}"}' },
-    ], ['count'], 'Lambda is serverless compute: AWS runs the servers, your code runs when called, and you pay per request. ADD is atomic, so two visitors at once both count. The Test fails until the next step grants the table.', {
+    ], ['count'], 'Lambda is serverless compute: AWS runs the servers, your code runs when called, and you pay per request. ADD is atomic, so two visitors at once both count.', {
+      ...out('Deploy reports “Successfully updated”; Test returns an AccessDeniedException for dynamodb:UpdateItem.', doc('Create your first Lambda function', 'lambda/latest/dg/getting-started.html', 'the “Author from scratch” form and the Test tab — the console editor deploys with one button')),
+      codeToPaste: true,
       fixes: [
         { symptom: 'KeyError: TABLE_NAME', fix: 'The environment variable is missing or misspelt. Configuration → Environment variables.' },
         { symptom: 'Runtime.ImportModuleError', fix: 'The file is not named lambda_function.py, or the handler setting is not lambda_function.lambda_handler.' },
       ],
     }),
     both(s(3, 'dev', 2), 'Let it write the table, add the API', 'Grant the table, then add an HTTP API trigger.', CONSOLE, [
-      'Configuration → Permissions → the role name → Add permissions → Create inline policy → JSON: paste the policy below. Name count-visitors. Create.',
-      'Back in Lambda: Test again — {"count": 1}.',
-      'Function overview → Add trigger → API Gateway → Create a new API → HTTP API, Security: Open. Add.',
-      'Configuration → Triggers: copy the API endpoint URL.',
+      'Configuration → Permissions → the role → Add permissions → Create inline policy → JSON: paste below; name count-visitors.',
+      'Back in Lambda, Test again: {"count": 1}.',
+      'Function overview → Add trigger → API Gateway → new HTTP API, Security Open. Copy the API endpoint.',
     ], [
       { cmd: `{
   "Version": "2012-10-17",
@@ -487,13 +512,14 @@ def lambda_handler(event, context):
   }]
 }`, explain: 'The inline policy: one action on one table. Replace 123456789012 with your account id (top-right menu).', sample: '(the policy count-visitors is listed under the role)' },
       { cmd: 'ROLE=$(aws lambda get-function-configuration --function-name capstone-team01-counter --query Role --output text | cut -d/ -f2); ACCT=$(aws sts get-caller-identity --query Account --output text); aws iam put-role-policy --role-name $ROLE --policy-name count-visitors --policy-document "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Effect\\":\\"Allow\\",\\"Action\\":\\"dynamodb:UpdateItem\\",\\"Resource\\":\\"arn:aws:dynamodb:us-east-1:$ACCT:table/capstone-team01-visitors\\"}]}" && echo granted', explain: 'The same grant from the shell: finds the function’s role and attaches the one-table policy. Add the API trigger in the console.', sample: 'granted' },
-    ], ['granted'], 'An IAM role is an identity a service assumes: the policy names one action on one table, so a bug cannot touch anything else — that is least privilege. API Gateway gives the function its HTTPS URL.', {
+    ], ['granted'], 'A role is an identity the function assumes; its policy allows one action on one table, so a bug cannot touch more. API Gateway gives the function its URL.', {
+      ...out('Test returns {"count": 1}, and Triggers shows an API Gateway endpoint URL.', doc('Lambda execution role', 'lambda/latest/dg/lambda-intro-execution-role.html', 'the first paragraph: the function assumes the role at run time, so no key is stored in it')),
+      codeToPaste: true,
       fixes: [{ symptom: 'AccessDeniedException still, after the policy', fix: 'The table ARN has a typo (region, account id or table name). Compare it with the table’s Overview → ARN.' }],
     }),
     both(s(3, 'dev', 3), 'Call it and show it', 'Call the API, then add the count to the page.', CONSOLE, [
       'Open the API endpoint in a browser tab: {"count": 2}. Reload: 3.',
-      'In site/index.html add a fetch() of that URL writing the result into #visitor-count (snippet below).',
-      'API Gateway → the counter API → CORS → Configure: Access-Control-Allow-Origin = your CloudFront URL (no trailing slash), Allow-Methods GET. Save.',
+      'Add the snippet below to index.html; API Gateway → CORS → Allow-Origin = your CloudFront URL, GET. Save.',
       'Upload the file to the bucket and invalidate /* (Week 2). Reload the site.',
     ], [
       { cmd: 'API=https://abc123.execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter; curl -s $API', explain: 'Each call adds one. Replace the URL with your endpoint.', sample: '{"count": 2}' },
@@ -503,7 +529,9 @@ def lambda_handler(event, context):
     .then((r) => r.json())
     .then((d) => { document.getElementById('visitor-count').textContent = d.count; });
 </script>`, explain: 'Paste into index.html before </body>, with your own URL. The browser calls the API and writes the answer into the page.', sample: '(the page shows: Visitors: 3)' },
-    ], ['count'], 'The page calls the API from the visitor’s browser — there is no server. The browser only reads the answer because the API lists the site as an allowed origin. Nothing in the page is secret.', {
+    ], ['count'], 'The page calls the API from the visitor’s browser; there is no server. The browser only reads the answer because the API lists the site as an allowed origin.', {
+      ...out('The site shows “Visitors: 3” and the number grows on every reload.', doc('Configuring CORS for an HTTP API', 'apigateway/latest/developerguide/http-api-cors.html', 'the console section: Access-Control-Allow-Origin takes the site’s origin exactly, with no trailing slash')),
+      codeToPaste: true,
       fixes: [{ symptom: 'The page shows “…” for ever', fix: 'Open DevTools → Console. “blocked by CORS policy” means the origin is missing or has a trailing slash; a 404 means the URL is wrong.' }],
     }),
     rec(3, 'dev', 'Endpoints', ['GET, the path, what it returns, its status codes.'], 'The spec another developer would call your API from.'),
@@ -511,7 +539,7 @@ def lambda_handler(event, context):
   T(3, 'secops', 'Give the team the right access', 'Create the team’s IAM user group, add the teammates, attach ReadOnlyAccess, confirm MFA, and confirm no key is in the page.', 45,
     ['CLF-C02 · Security and Compliance', 'IAM users, groups and managed policies', 'Least privilege: ReadOnlyAccess for looking', 'MFA for every member'], ['The group holds ReadOnlyAccess', 'All four are members with MFA', 'No key in the page'],
     [doc('Creating IAM user groups', 'IAM/latest/UserGuide/id_groups_create.html', 'the “Attach permissions policies” step — search ReadOnlyAccess, tick exactly that one'),
-     doc('ReadOnlyAccess managed policy', 'aws-managed-policy/latest/reference/ReadOnlyAccess.html', 'the length of the policy and that every action starts with Describe, Get or List — that is what “read only” means'),
+     doc('ReadOnlyAccess managed policy', 'aws-managed-policy/latest/reference/ReadOnlyAccess.html', 'the policy’s length, and that every action starts with Describe, Get or List: that is read only'),
      doc('Getting credential reports', 'IAM/latest/UserGuide/id_credentials_getting-report.html', 'the “Download report” button and the mfa_active column — one line per user, your MFA check')],
     'Free: IAM groups, managed policies, MFA and the credential report cost nothing.', [
     both(s(3, 'secops', 1), 'Create the group and add the team', 'Create the read-only group with your four teammates.', CONSOLE, [
@@ -520,17 +548,20 @@ def lambda_handler(event, context):
       'The group → Users → Add users → your four teammates. Add.',
     ], [
       { cmd: 'aws iam create-group --group-name capstone-team01-readonly --query Group.Arn --output text && aws iam attach-group-policy --group-name capstone-team01-readonly --policy-arn arn:aws:iam::aws:policy/ReadOnlyAccess && aws iam add-user-to-group --group-name capstone-team01-readonly --user-name team01-secops && echo added', explain: 'Creates the group, attaches the AWS-managed policy, adds you; add the others the same way.', sample: 'arn:aws:iam::123456789012:group/capstone-team01-readonly\nadded' },
-    ], ['capstone-team01-readonly'], 'IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Grant to groups, not people: joining and leaving becomes one membership change. ReadOnlyAccess is AWS-managed: every action is Describe, Get or List.'),
+    ], ['capstone-team01-readonly'], 'Grant to groups, not people: joining and leaving becomes one membership change. ReadOnlyAccess is an AWS-managed policy: every action in it is Describe, Get or List.',
+    out('User groups lists capstone-team01-readonly with ReadOnlyAccess and four users.', doc('Creating IAM user groups', 'IAM/latest/UserGuide/id_groups_create.html', 'the “Attach permissions policies” step — search ReadOnlyAccess, tick exactly that one'))),
     both(s(3, 'secops', 2), 'Prove it can look and not touch', 'Sign in as a member and try to stop the instance.', CONSOLE, [
       'Sign in as a teammate who is in the group only: EC2 → Instances is readable.',
       'Select ec2-tools-team01 → Instance state → Stop instance: “You are not authorized to perform this operation”. Screenshot it.',
     ], [
       { cmd: 'ARN=$(aws iam get-group --group-name capstone-team01-readonly --query Group.Arn --output text); aws iam simulate-principal-policy --policy-source-arn $ARN --action-names ec2:StopInstances ec2:DescribeInstances --query "EvaluationResults[].[EvalActionName, EvalDecision]" --output text', explain: 'The policy simulator evaluates the real policies without calling anything.', sample: 'ec2:StopInstances\timplicitDeny\nec2:DescribeInstances\tallowed' },
-    ], ['implicitDeny'], 'Least privilege is proved by a denial: one allowed and one denied action show the policy does what the document says. implicitDeny means no policy allowed it — the default in IAM is no.'),
+    ], ['implicitDeny'], 'Least privilege is proved by a denial: one allowed and one denied action show the policy does what the document says. In IAM the default answer is no.',
+    out('The console shows “You are not authorized to perform this operation” and the instance keeps running.', doc('ReadOnlyAccess managed policy', 'aws-managed-policy/latest/reference/ReadOnlyAccess.html', 'the policy’s length, and that every action starts with Describe, Get or List: that is read only'))),
     portal(s(3, 'secops', 3), 'Confirm MFA and no key', 'Check MFA on each member and no key in the page.', 'IAM → Credential report, then the browser', [
-      'IAM → Credential report → Download report: mfa_active is TRUE for every teammate; access_key_1_active is FALSE for root.',
-      'View the site source (Ctrl+U): only the API URL, no key. Lambda → Environment variables: only TABLE_NAME; the role grants access.',
-    ], 'Four members with MFA; the page holds a URL and nothing else.', 'MFA per user and least privilege per group are the two identity controls CLF-C02 tests. Anything in page source is public; the function needs no key at all because its role hands out short-lived credentials.', {
+      'IAM → Credential report → Download report: mfa_active TRUE for every teammate; access_key_1_active FALSE for root.',
+      'View the site source (Ctrl+U): only the API URL, no key. Lambda → Environment variables: only TABLE_NAME.',
+    ], 'Four members with MFA; the page holds a URL and nothing else.', 'MFA per user and least privilege per group are the two identity controls CLF-C02 tests. Anything in page source is public; the function needs no key at all.', {
+      docs: [doc('Getting credential reports', 'IAM/latest/UserGuide/id_credentials_getting-report.html', 'the “Download report” button and the mfa_active column — one line per user, your MFA check')],
       fixes: [{ symptom: 'mfa_active is FALSE for a teammate', fix: 'They skipped Week 1’s MFA step. Security credentials → Assign MFA device.' }],
     }),
     rec(3, 'secops', 'Identity and access', ['The group, its members, the policy, MFA, where access comes from.'], 'The first lines of the access matrix and the secrets register.'),
@@ -540,30 +571,34 @@ def lambda_handler(event, context):
   T(4, 'arch', 'Report the cost, and read Trusted Advisor and the support plans', 'Read what the environment has cost by service and by Free Tier offer, then Trusted Advisor’s checks and the support-plan table.', 35,
     ['CLF-C02 · Billing, Pricing and Support', 'Cost Explorer and the Free Tier page', 'Trusted Advisor', 'Support plans'], ['Spend and largest cost reported', 'One Trusted Advisor check owned', 'The support plan noted'],
     [doc('Exploring your data using Cost Explorer', 'cost-management/latest/userguide/ce-exploring-data.html', 'the “Group by” control and the Service dimension; the table under the chart is what you copy'),
-     doc('AWS Trusted Advisor', 'awssupport/latest/user/trusted-advisor.html', 'the checks available on Basic support — the security ones are free: MFA on root, security groups with open ports, S3 permissions'),
+     doc('AWS Trusted Advisor', 'awssupport/latest/user/trusted-advisor.html', 'the checks on Basic support: the free security ones are MFA on root, open ports, S3 permissions'),
      doc('Compare AWS Support plans', 'https://aws.amazon.com/premiumsupport/plans/', 'the four columns — Basic, Developer, Business, Enterprise — and the response-time rows; that is the exam question')],
-    'Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 per call, so the console is the main path.', [
+    'Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 a call: use the console.', [
     both(s(4, 'arch', 1), 'Read the cost', 'Group this month’s cost by service and by offer.', CONSOLE, [
-      'Billing and Cost Management → Cost Explorer. Date range: month to date. Group by: Service. Read the table: service, cost.',
-      'Billing → Free Tier: the usage of each offer (EC2 hours, S3 GB). Budgets → capstone-team01: how much is used.',
+      'Billing → Cost Explorer. Month to date, Group by Service. Read the table under the chart.',
+      'Billing → Free Tier: usage per offer (EC2 hours, S3 GB). Budgets → capstone-team01: how much is used.',
       'Compare with your Week 2 estimate.',
     ], [
       { cmd: 'aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date -d tomorrow +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query "ResultsByTime[0].Groups[].[Keys[0], Metrics.UnblendedCost.Amount]" --output text', explain: 'Cost Explorer by service for the month so far. Each call costs $0.01; the console view is free.', sample: 'Amazon Elastic Compute Cloud - Compute\t0.31\nAmazon Simple Storage Service\t0.01' },
-    ], ['Amazon'], 'Actual cost shows what you forgot to switch off: if EC2 is not near zero, the instance was left running. Cost data arrives a day late; Cost Explorer stays empty for its first day.', {
+    ], ['Amazon'], 'Actual cost shows what you forgot to switch off: if EC2 is not near zero, the instance was left running. Cost data arrives a day late.', {
+      ...out('A table of services and their month-to-date cost, with EC2 the largest line.', doc('Exploring your data using Cost Explorer', 'cost-management/latest/userguide/ce-exploring-data.html', 'the “Group by” control and the Service dimension; the table under the chart is what you copy')),
       fixes: [
         { symptom: 'Cost Explorer is empty or “being prepared”', fix: 'It was enabled less than 24 hours ago. Come back tomorrow and record the date you read it; free-tier usage shows as $0.' },
         { symptom: 'Free Tier page shows 80% of EC2 hours used', fix: 'The instance ran while nobody used it. Stop it now; the alert email is the Free Tier usage alert doing its job.' },
       ],
     }),
     portal(s(4, 'arch', 2), 'Read Trusted Advisor and the support plans', 'Own one check; note your support plan.', 'AWS console — Trusted Advisor, then Support Center', [
-      'Trusted Advisor → Security: MFA on root, open ports, S3 permissions. Pick one check and note who will act on it.',
-      'Support Center → your plan (Basic). Read the plans table: what Developer and Business add, and their response times.',
-    ], 'One Trusted Advisor check with an owner, and the support plan noted.', 'Trusted Advisor is AWS looking at what you built and telling you how to spend less or be safer; the support plan is what you pay to get a human. Basic is free; Business unlocks every check.'),
+      'Trusted Advisor → Security: MFA on root, open ports, S3 permissions. Pick one check; name its owner.',
+      'Support Center → your plan (Basic). Read the plans table: what Developer and Business add, response times.',
+    ], 'One Trusted Advisor check with an owner, and the support plan noted.', 'Trusted Advisor is AWS looking at what you built and saying how to spend less or be safer; the support plan is what you pay to get a human.', {
+      docs: [doc('AWS Trusted Advisor', 'awssupport/latest/user/trusted-advisor.html', 'the checks on Basic support: the free security ones are MFA on root, open ports, S3 permissions'),
+             doc('Compare AWS Support plans', 'https://aws.amazon.com/premiumsupport/plans/', 'the four columns — Basic, Developer, Business, Enterprise — and the response-time rows; that is the exam question')],
+    }),
     rec(4, 'arch', 'Cost this week', ['Spend to date, and the largest cost with its reason.', 'The Trusted Advisor check and its owner; the support plan.'], 'Week 11 turns this into the cost report.'),
   ], { tools: ['AWS console', 'CloudShell'] }),
   T(4, 'infra', 'Alarm on Lambda errors', 'Create an SNS topic and a CloudWatch alarm that emails when the function errors.', 40,
     ['CLF-C02 · Cloud Technology and Services', 'CloudWatch metrics and alarms', 'SNS topics and subscriptions', 'Why errors, not CPU'], ['The alarm exists and emails the team'],
-    [doc('Create a CloudWatch alarm based on a static threshold', 'AmazonCloudWatch/latest/monitoring/ConsoleAlarms.html', 'the “Select metric” step and the “Treat missing data as” option — set it to good, or an idle function looks broken'),
+    [doc('Create a CloudWatch alarm based on a static threshold', 'AmazonCloudWatch/latest/monitoring/ConsoleAlarms.html', 'the “Select metric” step and “Treat missing data as”: good, or an idle function looks broken'),
      doc('Email notifications with Amazon SNS', 'sns/latest/dg/sns-email-notifications.html', 'the “Confirm subscription” paragraph: nothing is delivered until someone clicks the link in the first email')],
     'Free: 10 CloudWatch alarms and 1,000 SNS email deliveries a month, always free.', [
     both(s(4, 'infra', 1), 'Create the topic', 'Create an SNS topic that emails the team.', CONSOLE, [
@@ -572,14 +607,16 @@ def lambda_handler(event, context):
       'Open the inbox and click “Confirm subscription” in the AWS email. Status: Confirmed.',
     ], [
       { cmd: 'TOPIC=$(aws sns create-topic --name capstone-team01-alerts --tags Key=project,Value=capstone Key=team,Value=team01 Key=owner,Value=team01-infra --query TopicArn --output text); aws sns subscribe --topic-arn $TOPIC --protocol email --notification-endpoint team01-alerts@school.edu --query SubscriptionArn --output text', explain: 'Confirm the subscription from the email AWS sends, or nothing is delivered.', sample: 'pending confirmation' },
-    ], ['pending confirmation'], 'SNS separates “what happened” from “who gets told”: alarms publish to the topic, subscribers receive. One topic, many alarms: change the email once. An unconfirmed subscription is the most common reason an alarm is silent.'),
+    ], ['pending confirmation'], 'SNS separates “what happened” from “who gets told”: alarms publish to the topic, subscribers receive. One topic, many alarms. An unconfirmed subscription is the commonest reason an alarm is silent.',
+    out('Subscriptions lists the team email with status Confirmed.', doc('Email notifications with Amazon SNS', 'sns/latest/dg/sns-email-notifications.html', 'the “Confirm subscription” paragraph: nothing is delivered until someone clicks the link in the first email'))),
     both(s(4, 'infra', 2), 'Create the alarm', 'Alarm when Errors is above zero in five minutes.', CONSOLE, [
-      'CloudWatch → Alarms → Create alarm → Select metric → Lambda → By Function Name → capstone-team01-counter, Errors → Select metric.',
-      'Statistic Sum, Period 5 minutes; Threshold Static, Greater than 0; Additional configuration → Treat missing data as good (not breaching).',
-      'Notification: In alarm → Select an existing SNS topic → capstone-team01-alerts. Name capstone-team01-counter-errors. Create alarm.',
+      'CloudWatch → Alarms → Create alarm → Select metric → Lambda → By Function Name → capstone-team01-counter Errors.',
+      'Statistic Sum, Period 5 minutes; Static, Greater than 0; Treat missing data as good (not breaching).',
+      'Notification: In alarm → existing SNS topic capstone-team01-alerts. Name capstone-team01-counter-errors. Create alarm.',
     ], [
       { cmd: 'aws cloudwatch put-metric-alarm --alarm-name capstone-team01-counter-errors --namespace AWS/Lambda --metric-name Errors --dimensions Name=FunctionName,Value=capstone-team01-counter --statistic Sum --period 300 --evaluation-periods 1 --threshold 0 --comparison-operator GreaterThanThreshold --treat-missing-data notBreaching --alarm-actions $TOPIC && aws cloudwatch describe-alarms --alarm-names capstone-team01-counter-errors --query "MetricAlarms[0].StateValue" --output text', explain: 'Any error in five minutes fires it. Missing data (no traffic) is treated as fine.', sample: 'OK' },
-    ], ['OK'], 'CloudWatch collects metrics from every service; an alarm watches one metric against a threshold and publishes to SNS. Errors are the signal users feel; CPU tells you nothing about a function. The App & DevOps drill will fire it.', {
+    ], ['OK'], 'CloudWatch collects metrics from every service; an alarm watches one metric against a threshold and publishes to SNS. Errors are the signal users feel; CPU says nothing about a function.', {
+      ...out('Alarms lists capstone-team01-counter-errors in state OK, with the SNS topic as its action.', doc('Create a CloudWatch alarm based on a static threshold', 'AmazonCloudWatch/latest/monitoring/ConsoleAlarms.html', 'the “Select metric” step and “Treat missing data as”: good, or an idle function looks broken')),
       fixes: [{ symptom: 'No email during the drill', fix: 'The subscription is still Pending confirmation, or the alarm names the wrong function. Alarms take up to ten minutes the first time.' }],
     }),
     rec(4, 'infra', 'Signals', ['The signal, where it is measured, the threshold, the action.'], 'The monitoring half of the incident report.'),
@@ -595,13 +632,15 @@ def lambda_handler(event, context):
       'Load the site twice: the counter shows “…” and never fills.',
     ], [
       { cmd: 'aws lambda update-function-configuration --function-name capstone-team01-counter --environment "Variables={TABLE_NAME=capstone-team01-missing}" --query LastUpdateStatus --output text', explain: 'The API now returns 500. Load the site twice to generate errors.', sample: 'InProgress' },
-    ], ['InProgress'], 'Breaking it yourself means you know the answer. The code asks for a table that is not there, so every request ends in an exception and a 500. The Infra Admin’s alarm should email within five minutes.'),
+    ], ['InProgress'], 'Breaking it yourself means you know the answer. The code asks for a missing table, so every request ends in a 500. The alarm should email within five minutes.',
+    out('The site’s counter stays at “…”; the API endpoint returns Internal Server Error.', doc('Lambda environment variables', 'lambda/latest/dg/configuration-envvars.html', 'the console steps under “Configure environment variables” — the Edit button is on the Configuration tab'))),
     both(s(4, 'dev', 2), 'Find it', 'Read the latest errors from the log group.', CONSOLE, [
       'Lambda → the function → Monitor → View CloudWatch logs → the newest log stream.',
       'Filter events: ERROR. Read the exception name and the line under it.',
     ], [
       { cmd: 'aws logs filter-log-events --log-group-name /aws/lambda/capstone-team01-counter --filter-pattern ERROR --max-items 2 --query "events[].message" --output text', explain: 'Every Lambda writes to a log group named after it.', sample: '[ERROR] ResourceNotFoundException: Requested resource not found' },
-    ], ['ResourceNotFoundException'], 'CloudWatch Logs holds every line the function prints, in a log group named after it. Read a stack trace bottom up: the last line says what failed, the lines above say where. The table name is in the message.', {
+    ], ['ResourceNotFoundException'], 'CloudWatch Logs holds every line the function prints, in a log group named after it. Read a stack trace bottom up: the last line says what failed.', {
+      ...out('The newest log stream shows [ERROR] ResourceNotFoundException: Requested resource not found.', doc('Using CloudWatch Logs with Lambda', 'lambda/latest/dg/monitoring-cloudwatchlogs.html', 'the log-group name pattern /aws/lambda/<function> and the Monitor tab’s “View CloudWatch logs” button')),
       fixes: [{ symptom: 'No log stream yet', fix: 'Logs arrive a minute after the call. Reload the site again and refresh the stream list.' }],
     }),
     both(s(4, 'dev', 3), 'Restore it', 'Put the right table name back and retest.', CONSOLE, [
@@ -609,7 +648,8 @@ def lambda_handler(event, context):
       'Open the API endpoint in a browser tab: a count, not an error. Note the time.',
     ], [
       { cmd: 'aws lambda update-function-configuration --function-name capstone-team01-counter --environment "Variables={TABLE_NAME=capstone-team01-visitors}" -o none; sleep 5; curl -s $API', explain: 'Set $API to your endpoint. A count means it is fixed.', sample: '{"count": 12}' },
-    ], ['count'], 'A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alarmed at, found at, fixed at — those four numbers are their incident record, and the alarm returns to OK by itself.'),
+    ], ['count'], 'A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alarmed at, found at, fixed at. The alarm returns to OK by itself.',
+    out('The API endpoint returns a count again, and the alarm goes back to OK.', doc('Lambda environment variables', 'lambda/latest/dg/configuration-envvars.html', 'the console steps under “Configure environment variables” — the value must match the real table name exactly'))),
     rec(4, 'dev', 'Signals', ['Add a signal row for errors in CloudWatch Logs.'], 'Your half of the monitoring table.'),
   ], { tools: ['AWS console', 'CloudShell', 'Browser DevTools'] }),
   T(4, 'secops', 'Find who changed it in CloudTrail and write the incident record', 'Find this week’s drill in CloudTrail event history — who changed what, when — then write it up as an incident.', 40,
@@ -622,17 +662,21 @@ def lambda_handler(event, context):
       'Read the two rows: Event time, User name, Resource. Screenshot them for Evidence.',
     ], [
       { cmd: 'aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=UpdateFunctionConfiguration20150331v2 --max-results 2 --query "Events[].[EventTime, Username]" --output text', explain: 'Every console click and API call is recorded with who made it. Allow a few minutes for the newest event to appear.', sample: '2026-10-08T14:07:02+00:00\tteam01-dev\n2026-10-08T14:02:11+00:00\tteam01-dev' },
-    ], ['team01'], 'CloudTrail is the audit log: who did what, when, from where — the first question of every incident and every compliance review. Event history keeps 90 days free; a trail to S3 keeps it for ever.'),
+    ], ['team01'], 'CloudTrail is the audit log: who did what, when, from where, the first question of every incident and compliance review. Event history keeps 90 days free.',
+    out('Event history shows two UpdateFunctionConfiguration rows with user team01-dev and their times.', doc('Viewing CloudTrail events', 'awscloudtrail/latest/userguide/view-cloudtrail-events.html', 'the Event history page and its lookup attributes — Event name is the one you filter on'))),
     both(s(4, 'secops', 2), 'Read the alarm history', 'Read when the alarm fired and when it recovered.', CONSOLE, [
       'CloudWatch → Alarms → capstone-team01-counter-errors → History: “Alarm updated from OK to In alarm” and back, with times.',
     ], [
       { cmd: 'aws cloudwatch describe-alarm-history --alarm-name capstone-team01-counter-errors --history-item-type StateUpdate --max-items 2 --query "AlarmHistoryItems[].[Timestamp, HistorySummary]" --output text', explain: 'The state changes, newest first.', sample: '2026-10-08T14:11:30+00:00\tAlarm updated from ALARM to OK\n2026-10-08T14:06:30+00:00\tAlarm updated from OK to ALARM' },
-    ], ['ALARM'], 'The alarm’s times against CloudTrail’s show whether monitoring or a user told you first — the alarm should win. Minutes from change to alarm is the number a monitoring design is judged by.'),
+    ], ['ALARM'], 'The alarm’s times against CloudTrail’s show whether monitoring or a user told you first; the alarm should win. Minutes from change to alarm is how a monitoring design is judged.',
+    out('History shows “Alarm updated from OK to In alarm” and back to OK, with times.', doc('Using CloudWatch alarms', 'AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html', 'the alarm History tab: the state change and its time — your incident’s “alarmed at”'))),
     portal(s(4, 'secops', 3), 'Write the incident record', 'Record this week’s drill: symptom, evidence, cause, fix.', 'The document', [
       'Symptom: the counter showed “…”. Evidence: the CloudTrail rows, the alarm history, the alert email.',
       'Cause: TABLE_NAME was changed to a table that does not exist. Fix: changed back, retested.',
       'Times: changed at, alarmed at, found at, fixed at. Prevention: Week 10 makes settings code.',
-    ], 'An incident record with symptom, evidence, cause, fix and the four times.', 'An incident record is how a team learns: what users saw, how you knew, what it was, what fixed it. CloudTrail turns “someone changed something” into a name and a time.'),
+    ], 'An incident record with symptom, evidence, cause, fix and the four times.', 'An incident record is how a team learns: what users saw, how you knew, the cause, the fix. CloudTrail turns “someone changed something” into a name and a time.', {
+      docs: [doc('Viewing CloudTrail events', 'awscloudtrail/latest/userguide/view-cloudtrail-events.html', 'the Event history page: the User name and Event time columns are the incident’s who and when')],
+    }),
     rec(4, 'secops', 'Incident record', ['Symptom, evidence, root cause, fix; who made the change.'], 'Week 12 runs this loop again under time pressure.'),
   ], { tools: ['AWS console', 'CloudShell'], prerequisites: ['The break-and-fix times from App & DevOps, this week.'] }),
 

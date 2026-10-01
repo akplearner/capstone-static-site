@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -37,8 +37,8 @@ the rest of the plan.
 | Roles | Cloud Architect · Infrastructure Admin · App & DevOps · Security & Ops (the Architect doubles up in a team of three). |
 | Per week | 4 objectives, one task per role, 30–55 minutes, at most 4 steps. |
 | Difficulty | Beginner 1–4 · Intermediate 5–8 · Advanced 9–11 · Integrated 12. |
-| Tasks | One visible line; "Show me how" holds the **portal clicks first**, then the same step as Cloud Shell / CloudShell commands under "Or in the shell"; "Why, and if it breaks" holds the reasoning and fixes. |
-| Docs | Every task opens with one or two official documentation pages (Microsoft Learn, AWS docs, GitHub docs) and a **Look for:** sentence — what to read on that page and how. |
+| Tasks | One visible line; "Show me how" holds the **portal clicks** (at most three on the entry courses), a **Read the docs** line, and **What you should see**; "Why, and if it breaks" holds the reasoning and fixes. On the entry courses the same step as Cloud Shell / CloudShell commands sits in a closed drawer, "Optional: the same step in Cloud Shell" (R97); on the later courses it shows under "Or in the shell". |
+| Docs | Every task opens with one or two official documentation pages (Microsoft Learn, AWS docs, GitHub docs) and a **Look for:** sentence — what to read on that page and how. On the entry courses every step names its own page too (R97). |
 | Cost | Students use an Azure free account and the AWS 12-month Free Tier. Every task carries a one-line free-tier note; $5 budget in Week 1; every step that starts the VM ends with it deallocated/stopped. |
 | IaC | Native first (ARM / CloudFormation), graded Weeks 9–12. Terraform is one optional comparison step. |
 
@@ -203,6 +203,32 @@ again if that topic is missing from the next course.
 | AZ-900 2 · Architecture and services / CLF 3 · Technology and Services | W1 RG + VNet / VPC (regions, zones); W2 VM / EC2, storage website / S3 + CloudFront, redundancy and storage classes; W3 Cosmos DB / DynamoDB, Functions / Lambda + API Gateway; W4 Monitor / CloudWatch, action group / SNS |
 | AZ-900 2 · Identity, access, security / CLF 2 · Security and Compliance | W1 the team is added to the account (Entra guests / IAM users, a builders group, Contributor / AdministratorAccess, MFA for everyone); W2 NSG / security group, SSH from one /32; W3 Entra group + Reader / IAM group + ReadOnlyAccess, MFA per member, no key in the page; W4 resource lock / CloudTrail |
 | AZ-900 3 · Management and governance / CLF 4 · Billing, Pricing and Support | W1 budget, tags, Cloud Shell / CloudShell; W2 pricing calculator vs the free account / Free Tier; W4 cost analysis / Cost Explorer, Advisor + Service Health / Trusted Advisor + support plans, lock |
+
+## Easier to follow, and the shell out of the way (R97)
+
+Students on the entry courses read "clicks AND a command" as two jobs, and
+some copied the command instead of learning the console. R97 makes the
+console the task and the shell an option:
+
+* `Course.shellOptional` is set on the two entry courses. On a step with
+  clicks, `StepHow` keeps the clicks, a **Read the docs** line and **What you
+  should see** in the open, and moves the command block and the
+  paste-to-verify box into a closed drawer, "Optional: the same step in Cloud
+  Shell / CloudShell", with the lead "Only if you are curious — the clicks
+  above are the task". The "Show me how" bar counts clicks and docs, not
+  commands. The four later courses render exactly as before.
+* A step whose "command" is code the clicks paste into the console editor (the
+  Function body, the Lambda handler, the inline policy, the page snippet) is
+  marked `codeToPaste` and stays in the open under "The code to paste".
+* Every Week 1–4 step carries `docs` (the page for that step, with a look-for
+  sentence) and `expectedOutput` (what the screen shows when the clicks are
+  done). The clicks are at most three per step and sixteen words each; the
+  reason under a step is at most thirty words; the free-tier line at most
+  twenty-five; a look-for sentence at most eighteen.
+* Guards (`cloudCourses.test.ts` R97) hold all of that on the entry courses
+  and prove `shellOptional` is set there and nowhere else; `StepHow.test.tsx`
+  proves the drawer is closed, opens to the command and the verify box, and
+  is absent on a course without the flag.
 
 ## Honest limits, stated in the course
 

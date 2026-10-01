@@ -99,6 +99,35 @@ function r95Problems(course: Course, t: Task): string[] {
   return out;
 }
 
+// R97 — the instructor's fourth round on the entry courses: easier, shorter,
+// clicks only in the open (the shell is an optional drawer), and the
+// documentation on every step, not just the task, so students learn to read it.
+const ENTRY = new Set(['azure-fundamentals', 'aws-cloud-practitioner']);
+const CLICKS = { perStep: 3, words: 16 };
+function r97Problems(course: Course, t: Task): string[] {
+  const out: string[] = [];
+  if (!ENTRY.has(course.id) || t.week === 0) return out;
+  if (words(t.freeTier ?? '') > 25) out.push(`${t.id}: free-tier line is ${words(t.freeTier ?? '')} words`);
+  for (const d of t.docs ?? []) if (words(d.lookFor) > 18) out.push(`${t.id}: "${d.title}" look-for is ${words(d.lookFor)} words`);
+  for (const s of t.steps) {
+    if (s.usesForm) continue; // the record step is the form itself
+    const clicks = s.instructionList ?? [];
+    if (clicks.length > CLICKS.perStep) out.push(`${s.id}: ${clicks.length} clicks — more than ${CLICKS.perStep}`);
+    for (const c of clicks) if (words(c) > CLICKS.words) out.push(`${s.id}: a click is ${words(c)} words`);
+    if (words(s.whatItMeans ?? '') > 30) out.push(`${s.id}: the reason is ${words(s.whatItMeans ?? '')} words`);
+    if (words(s.expectedOutput ?? '') < 5) out.push(`${s.id}: does not say what the screen shows`);
+    if (!s.docs?.length) out.push(`${s.id}: no documentation on the step`);
+    for (const d of s.docs ?? []) {
+      if (!DOC_HOSTS.some((h) => new URL(d.url).hostname === h)) out.push(`${s.id}: ${d.url} is not official documentation`);
+      if (words(d.lookFor) < 5 || words(d.lookFor) > 18) out.push(`${s.id}: "${d.title}" look-for is ${words(d.lookFor)} words`);
+    }
+    // Code the clicks paste (a function body, a policy) is not a shell alternative, and is marked so.
+    const code = (s.commands ?? []).some((c) => /^(const |import |\{|<)/.test(c.cmd));
+    if (code && !s.codeToPaste) out.push(`${s.id}: pastes code but is not marked codeToPaste`);
+  }
+  return out;
+}
+
 function r92Problems(t: Task): string[] {
   const out: string[] = [];
   if (t.week > 0) {
@@ -192,6 +221,11 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
 
   it('R95 — the entry courses teach the exam: a domain first, nothing from the next course, identity and audit covered', () => {
     expect(course.tasks.flatMap((t) => r95Problems(course, t))).toEqual([]);
+  });
+
+  it('R97 — entry courses: three short clicks, what the screen shows, docs on every step; the shell is optional there only', () => {
+    expect(course.tasks.flatMap((t) => r97Problems(course, t))).toEqual([]);
+    expect(course.shellOptional ?? false, `${id} shellOptional`).toBe(ENTRY.has(id));
   });
 
   it('every task carries this course’s own exam tag, not another quarter’s', () => {
@@ -302,8 +336,25 @@ describe('R90 — the guards catch what they claim to', () => {
     const leak = { ...good, steps: [{ ...good.steps[0], whatItMeans: 'Point the setting at a Key Vault reference.' }, ...good.steps.slice(1)] };
     expect(r95Problems(course, leak).join()).toContain('belongs to the next course');
     const sec = course.tasks.find((t) => t.id === 'az-w1-secops')!;
-    const noMfa = { ...sec, steps: sec.steps.map((s) => ({ ...s, title: s.title.replace(/MFA/g, ''), instruction: s.instruction?.replace(/MFA/g, ''), instructionList: s.instructionList?.map((a) => a.replace(/MFA/g, '')), whatItMeans: s.whatItMeans.replace(/MFA/g, ''), expectedOutput: s.expectedOutput?.replace(/MFA/g, ''), fixes: undefined, description: s.description?.replace(/MFA/g, '') })), learn: sec.learn?.map((l) => l.replace(/MFA/gi, '')), definitionOfDone: [], docs: [], title: 'x', objective: 'x', freeTier: 'Free.', tools: [] };
+    const noMfa = { ...sec, steps: sec.steps.map((s) => ({ ...s, title: s.title.replace(/MFA/g, ''), instruction: s.instruction?.replace(/MFA/g, ''), instructionList: s.instructionList?.map((a) => a.replace(/MFA/g, '')), whatItMeans: s.whatItMeans.replace(/MFA/g, ''), expectedOutput: s.expectedOutput?.replace(/MFA/g, ''), fixes: undefined, docs: undefined, description: s.description?.replace(/MFA/g, '') })), learn: sec.learn?.map((l) => l.replace(/MFA/gi, '')), definitionOfDone: [], docs: [], title: 'x', objective: 'x', freeTier: 'Free.', tools: [] };
     expect(r95Problems(course, noMfa).join()).toContain('does not cover');
+  });
+
+  it('R97: too many clicks, a long click, a long reason, no outcome, no step docs, an off-site doc, unmarked code', () => {
+    const course = AZURE_COURSES[0];
+    const first = (t: Task) => t.steps.find((s) => !s.usesForm)!;
+    const vary = (patch: Partial<Task['steps'][number]>): Task => ({ ...good, steps: good.steps.map((s) => (s === first(good) ? { ...s, ...patch } : s)) });
+    expect(r97Problems(course, good)).toEqual([]);
+    expect(r97Problems(course, vary({ instructionList: ['a', 'b', 'c', 'd'] })).join()).toContain('4 clicks');
+    expect(r97Problems(course, vary({ instructionList: ['one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen'] })).join()).toContain('17 words');
+    expect(r97Problems(course, vary({ whatItMeans: Array(31).fill('word').join(' ') })).join()).toContain('reason is 31 words');
+    expect(r97Problems(course, vary({ expectedOutput: undefined })).join()).toContain('what the screen shows');
+    expect(r97Problems(course, vary({ docs: undefined })).join()).toContain('no documentation on the step');
+    expect(r97Problems(course, vary({ docs: [{ title: 'x', url: 'https://example.com/a', lookFor: 'one two three four five' }] })).join()).toContain('not official');
+    expect(r97Problems(course, vary({ commands: [{ cmd: 'const x = 1;' }], codeToPaste: undefined })).join()).toContain('codeToPaste');
+    expect(r97Problems(course, { ...good, freeTier: Array(26).fill('free').join(' ') }).join()).toContain('26 words');
+    // The later courses are not held to the entry rules.
+    expect(r97Problems(AZURE_COURSES[1], vary({ docs: undefined }))).toEqual([]);
   });
 
   it('R93: the counter item is called "site" in the tasks, the templates and the Week 3 form', () => {

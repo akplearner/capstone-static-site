@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { BookOpen, FileCheck2, SquarePen } from 'lucide-react';
+import { BookOpen, ExternalLink, FileCheck2, SquarePen } from 'lucide-react';
 import type { Step } from '@/lib/types';
 import { procedureTitle } from '@/lib/docs/serverProcedures';
 import { useCourseDocument } from '@/lib/useCourse';
@@ -16,6 +16,7 @@ import { AnnotatedTerminal, OutcomeCard, StepImages } from '@/components/StepOut
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { taskToken } from '@/lib/evidenceLedger';
 import { StepNotes } from '@/components/StepNotes';
+import { Collapsible } from '@/components/ui/Collapsible';
 import { CommandBlock, type CommandEntry } from './CommandBlock';
 import { OutputVerify, type LedgerRef } from './OutputVerify';
 
@@ -38,18 +39,27 @@ export function hasHow(step: Step): boolean {
 }
 
 /** What the closed bar says the tier holds — the counts a student weighs before opening it. */
-export function howHint(step: Step): string {
+export function howHint(step: Step, shellOptional = false): string {
   const actions = (step.instructionList?.length ?? 0) + (step.paths ?? []).reduce((n, p) => n + p.steps.length, 0);
   const commands = step.commands?.length ?? (step.command ? 1 : 0);
+  // R97: on an entry course the shell sits in a closed drawer, so the bar
+  // counts the clicks and the docs, not the commands and the verify box.
+  const tucked = shellOptional && actions > 0 && !step.codeToPaste;
   return [
-    actions ? `${actions} action${actions === 1 ? '' : 's'}` : '',
-    commands ? `${actions ? 'or ' : ''}${commands} command${commands === 1 ? '' : 's'}` : '',
+    actions ? `${actions} ${shellOptional && actions ? 'click' : 'action'}${actions === 1 ? '' : 's'}` : '',
+    step.codeToPaste && commands ? 'code to paste' : commands && !tucked ? `${actions ? 'or ' : ''}${commands} command${commands === 1 ? '' : 's'}` : '',
     step.expectedOutput || step.walkthrough || step.images ? 'what you should see' : '',
-    step.verify?.length ? 'verify' : '',
+    tucked && step.docs?.length ? 'docs' : '',
+    step.verify?.length && !tucked ? 'verify' : '',
     step.usesForm || step.producesDeliverable ? 'where to record it' : '',
   ]
     .filter(Boolean)
     .join(' · ');
+}
+
+/** The shell's product name on each platform, for the drawer title. */
+export function shellName(courseId: string): string {
+  return courseId.startsWith('aws') ? 'CloudShell' : 'Cloud Shell';
 }
 
 /**
@@ -60,6 +70,7 @@ export function howHint(step: Step): string {
  */
 export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: LedgerRef; courseId: string }) {
   const { procedures } = proceduresOf(useCourseDocument());
+  const { shellOptional } = useCourseDocument().course;
   const {
     instructionList,
     paths,
@@ -101,6 +112,23 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
   // free; outputHighlights supplies the wording (and any extra tokens).
   const outputTargets = React.useMemo(() => buildTargets(verify, outputHighlights), [verify, outputHighlights]);
   const isConsole = outputKind ? outputKind === 'console' : !!expectedOutput && looksLikeConsoleOutput(expectedOutput);
+  // R97: on an entry course the clicks are the task. The command and its
+  // paste-to-verify box move into a drawer that opens only if the student
+  // wants it, so nobody reads "clicks AND command" as two jobs, and nobody
+  // copies a command instead of learning the console.
+  const shellTucked = !!shellOptional && !!instructionList?.length && !step.codeToPaste;
+  const verifyBox = verify && verify.length > 0 && (
+    <OutputVerify
+      // R84: with a ledger (the student's own task) the personal stamp
+      // joins the expected tokens, so "verified" structurally means the
+      // paste carried this member's stamp for this task. Read-only
+      // views (no ledger) verify against the plain tokens and record
+      // nothing, as before.
+      verify={ledger ? [...verify, taskToken(ledger.memberId, courseId, ledger.taskId)] : verify}
+      stamp={ledger ? taskToken(ledger.memberId, courseId, ledger.taskId) : undefined}
+      ledger={ledger}
+    />
+  );
 
   return (
     <div className="space-y-3 pr-2">
@@ -142,8 +170,12 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
               )}
             </div>
           )}
+          {/* R97: the page to read for this step — the habit the course is teaching. */}
+          {shellOptional && step.docs && step.docs.length > 0 && <StepDocs docs={step.docs} />}
           {/* R92: the portal clicks are the way; the shell is the alternative. */}
-          {hasCommand && <CommandBlock commands={cmdList} heading={instructionList?.length ? 'Or in the shell' : undefined} />}
+          {hasCommand && !shellTucked && (
+            <CommandBlock commands={cmdList} heading={step.codeToPaste ? 'The code to paste' : instructionList?.length ? 'Or in the shell' : undefined} />
+          )}
         </div>
 
         <div className="space-y-2">
@@ -165,7 +197,8 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
                     )}
                   </>
                 ) : (
-                  <OutcomeCard text={expectedOutput} targets={outputTargets} explanation={outputExplanation} />
+                  // R97: with the verify box in the drawer, the outcome card does not point at shell tokens.
+                  <OutcomeCard text={expectedOutput} targets={shellTucked ? [] : outputTargets} explanation={outputExplanation} />
                 ))}
               {!expectedOutput && outputExplanation && (
                 <p className="mt-1 text-sm text-muted">
@@ -176,24 +209,26 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
           )}
           {/* No `hasCommand` guard: a dashboard step has verify tokens too, and
               gating on a command silently hid the check on every GUI step. */}
-          {verify && verify.length > 0 && (
-            <OutputVerify
-              // R84: with a ledger (the student's own task) the personal stamp
-              // joins the expected tokens, so "verified" structurally means the
-              // paste carried this member's stamp for this task. Read-only
-              // views (no ledger) verify against the plain tokens and record
-              // nothing, as before.
-              verify={ledger ? [...verify, taskToken(ledger.memberId, courseId, ledger.taskId)] : verify}
-              stamp={ledger ? taskToken(ledger.memberId, courseId, ledger.taskId) : undefined}
-              ledger={ledger}
-            />
-          )}
+          {!shellTucked && verifyBox}
           {/* R68: the student's private note and the team-visible stuck flag.
               Only on a step that records — a read-only view of another role's
               task has nowhere to write. */}
           {ledger && <StepNotes ledger={ledger} />}
         </div>
       </div>
+
+      {/* R97: the same step in the shell, closed. Only if the student is curious. */}
+      {shellTucked && (hasCommand || verifyBox) && (
+        <div className="rounded-md depth-edge bg-panel-2/50 px-3" data-testid="shell-drawer">
+          <Collapsible title={`Optional: the same step in ${shellName(courseId)}`} hint="advanced">
+            <div className="space-y-3 pb-3">
+              <p className="text-xs text-muted">Only if you are curious — the clicks above are the task.</p>
+              {hasCommand && <CommandBlock commands={cmdList} />}
+              {verifyBox}
+            </div>
+          </Collapsible>
+        </div>
+      )}
 
       {/* The step's exit action, one line: where to record it, what it saves
           as, and the evidence-chain link. */}
@@ -237,6 +272,24 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/** R97: the documentation page(s) for this one step, with what to look for there. */
+function StepDocs({ docs }: { docs: NonNullable<Step['docs']> }) {
+  return (
+    <div className="mt-2 space-y-1 text-sm">
+      {docs.map((d) => (
+        <p key={d.url} className="text-muted">
+          <span className="font-semibold">Read the docs: </span>
+          <a href={d.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 font-medium text-accent hover:underline">
+            {d.title}
+            <ExternalLink className="h-3 w-3" aria-hidden />
+          </a>
+          <span> — look for {d.lookFor}</span>
+        </p>
+      ))}
     </div>
   );
 }

@@ -259,12 +259,12 @@
           {
             "title": "Shared responsibility in the cloud",
             "url": "https://learn.microsoft.com/azure/security/fundamentals/shared-responsibility",
-            "lookFor": "the diagram: which rows move from you to Microsoft as you go from on-premises to IaaS, PaaS and SaaS"
+            "lookFor": "the diagram: which rows move from you to Microsoft across IaaS, PaaS and SaaS"
           },
           {
             "title": "Create and manage budgets",
             "url": "https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets",
-            "lookFor": "the “Create a budget” steps and the alert-conditions table — Actual vs Forecasted, and where the email goes"
+            "lookFor": "the “Create a budget” steps and the alert conditions: Actual vs Forecasted, and the email"
           },
           {
             "title": "Resource abbreviations",
@@ -305,10 +305,19 @@
             "verify": [
               "budget-capstone-team01"
             ],
-            "whatItMeans": "Consumption-based pricing means you pay for what runs; a budget does not stop spending, it emails you before a mistake becomes expensive. 80% of $5 is $4: you hear early. Cloud Shell is the CLI the exam asks about.",
+            "whatItMeans": "A budget does not stop spending; it emails you before a mistake gets expensive. 80% of $5 is $4, so you hear early. Cloud Shell is the exam’s CLI.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Budgets lists budget-capstone-team01 at $5 with one alert at 80%.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create and manage budgets",
+                "url": "https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets",
+                "lookFor": "the “Create a budget” steps: scope, name, amount, reset period, then the alert condition and email"
+              }
             ],
             "paths": [
               {
@@ -344,16 +353,23 @@
             "where": "Team meeting",
             "instruction": "Say who manages what for each service you will build.",
             "instructionList": [
-              "List the seven things the team will build: VNet, VM, storage website, Function, Cosmos DB, Log Analytics, Key Vault (later).",
+              "List the seven services: VNet, VM, storage website, Function, Cosmos DB, Log Analytics, Key Vault.",
               "For each: IaaS, PaaS or serverless? Who patches the OS? Who secures the data?",
-              "Pick the region (East US) and note that its zones are separate buildings."
+              "Pick the region (East US); note its zones are separate buildings."
             ],
             "expectedOutput": "A table: service, model, what we manage, what Microsoft manages.",
             "outputKind": "result",
-            "whatItMeans": "Shared responsibility is the first exam domain: on a VM (IaaS) you patch the OS; on Functions and Cosmos DB (PaaS) Microsoft does, and you own code, data and identities. The model decides who is on call for what.",
+            "whatItMeans": "Shared responsibility is the first exam domain: on a VM you patch the OS; on Functions and Cosmos DB Microsoft does, and you own code, data and identities.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Shared responsibility in the cloud",
+                "url": "https://learn.microsoft.com/azure/security/fundamentals/shared-responsibility",
+                "lookFor": "the diagram: which rows move from you to Microsoft across IaaS, PaaS and SaaS"
+              }
             ]
           },
           {
@@ -364,16 +380,22 @@
             "instruction": "Agree one naming pattern and four tags as a team.",
             "instructionList": [
               "Pattern: what-it-is – what-it-is-for – who-owns-it. Example: vm-tools-team01.",
-              "Prefixes from the Azure list: rg-, vnet-, snet-, nsg-, vm-, st, func-.",
-              "Names that must be unique worldwide (storage, Cosmos DB, Function App) get four digits.",
+              "Prefixes from Azure’s list: rg-, vnet-, snet-, nsg-, vm-, st, func-. Global names: four digits.",
               "Tags on everything: project=capstone, team=team01, env=dev, owner=your-role-email."
             ],
             "expectedOutput": "A table of prefixes and four tag keys everyone has agreed to use.",
             "outputKind": "result",
-            "whatItMeans": "Read vm-tools-team01 as three parts: a virtual machine, for the tools job, owned by team01. Sixteen teams share one subscription, so the pattern is how you find your things. Tags carry the owner; cost reports group by them.",
+            "whatItMeans": "Read vm-tools-team01 as three parts: a virtual machine, for the tools job, owned by team01. Sixteen teams share one subscription, so the pattern is how you find your things.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Resource abbreviations",
+                "url": "https://learn.microsoft.com/azure/cloud-adoption-framework/ready/azure-best-practices/resource-abbreviations",
+                "lookFor": "the abbreviation column: rg, vnet, snet, nsg, vm, st, func — the prefixes in your standard"
+              }
             ],
             "fixes": [
               {
@@ -454,8 +476,7 @@
             "instruction": "Create the tagged resource group in eastus.",
             "instructionList": [
               "Resource groups → Create. Name rg-capstone-team01, region East US.",
-              "Tags tab: project=capstone, team=team01, env=dev, owner=team01-infra.",
-              "Review + create → Create."
+              "Tags tab: project=capstone, team=team01, env=dev, owner=team01-infra. Review + create → Create."
             ],
             "commands": [
               {
@@ -481,10 +502,19 @@
             "verify": [
               "Succeeded"
             ],
-            "whatItMeans": "Subscription › resource group › resource is Azure’s hierarchy: the group is where cost, access and clean-up happen in one place. A region is a set of datacenters; its availability zones are separate buildings that fail independently.",
+            "whatItMeans": "Subscription › resource group › resource is the hierarchy: the group is where cost, access and clean-up happen. A region’s availability zones are separate buildings that fail independently.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Resource groups lists rg-capstone-team01 in East US with four tags.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Manage resource groups (portal)",
+                "url": "https://learn.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal",
+                "lookFor": "the “Create resource groups” section: subscription, name, region, then Review + create"
+              }
             ],
             "fixes": [
               {
@@ -500,10 +530,9 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Create the VNet 10.10.0.0/16 with snet-app 10.10.1.0/24.",
             "instructionList": [
-              "Virtual networks → Create. Resource group rg-capstone-team01, name vnet-capstone-team01, region East US.",
+              "Virtual networks → Create. Group rg-capstone-team01, name vnet-capstone-team01, region East US.",
               "IP addresses tab: address space 10.10.0.0/16; delete the default subnet.",
-              "Add subnet: name snet-app, starting address 10.10.1.0, size /24.",
-              "Tags as in the standard. Review + create → Create."
+              "Add subnet snet-app, starting address 10.10.1.0, size /24. Tags, then Create."
             ],
             "commands": [
               {
@@ -530,10 +559,19 @@
               "10.10.1.0/24",
               "snet-app"
             ],
-            "whatItMeans": "A virtual network is the private network your VM sits in; a /16 leaves room for 256 /24 subnets. Private ranges (RFC 1918) never route on the internet, so every company can use 10.x. snet-app is the application subnet.",
+            "whatItMeans": "A virtual network is the private network your VM sits in; a /16 leaves room for 256 /24 subnets. Private ranges never route on the internet.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "vnet-capstone-team01 shows address space 10.10.0.0/16 and one subnet, snet-app 10.10.1.0/24.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a virtual network (portal)",
+                "url": "https://learn.microsoft.com/azure/virtual-network/quick-create-portal",
+                "lookFor": "the IP addresses tab: the address space box, and Add a subnet with its starting address and size"
+              }
             ],
             "fixes": [
               {
@@ -620,10 +658,17 @@
             ],
             "expectedOutput": "A private repository with a README and four folders, shared with the team.",
             "outputKind": "result",
-            "whatItMeans": "Everything the team produces lives here — the site, the function, the template (Week 9) and the documents. Private, because it will hold your real resource names and URLs; a key or password must never go in even so.",
+            "whatItMeans": "Everything the team produces lives here: the site, the function, the template and the documents. Private, because it holds real resource names; a key or password never goes in.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Create a repository",
+                "url": "https://docs.github.com/repositories/creating-and-managing-repositories/creating-a-new-repository",
+                "lookFor": "the visibility choice (private) and the “Add a README” box"
+              }
             ],
             "fixes": [
               {
@@ -640,14 +685,21 @@
             "instruction": "Create a board with this week’s four tasks.",
             "instructionList": [
               "Your profile → Projects → New project → Board. Columns: To do, Doing, Done.",
-              "Add one card per role for Week 1 and assign it. Link the board from the README."
+              "Add one card per role for Week 1, assigned. Link the board from the README."
             ],
             "expectedOutput": "A board with four assigned cards, linked from the README.",
             "outputKind": "result",
-            "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is; managing the cloud starts with knowing who is doing what.",
+            "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Create a project",
+                "url": "https://docs.github.com/issues/planning-and-tracking-with-projects/creating-projects/creating-a-project",
+                "lookFor": "the Board layout and how to add a draft item to a column"
+              }
             ]
           },
           {
@@ -705,7 +757,7 @@
           {
             "title": "Invite external users (B2B)",
             "url": "https://learn.microsoft.com/entra/external-id/b2b-quickstart-add-guest-users-portal",
-            "lookFor": "the “Invite external user” steps: email, display name, the invitation message, and what the guest sees when they accept"
+            "lookFor": "the “Invite external user” steps: email, display name, message, and what the guest sees on accepting"
           },
           {
             "title": "Assign roles (portal)",
@@ -715,7 +767,7 @@
           {
             "title": "Security defaults",
             "url": "https://learn.microsoft.com/entra/fundamentals/security-defaults",
-            "lookFor": "what it turns on — MFA registration for every user within 14 days — and the one switch under Properties"
+            "lookFor": "what it turns on, MFA registration for every user within 14 days, and the switch under Properties"
           }
         ],
         "freeTier": "Free: users, groups, role assignments and security defaults cost nothing. Do this signed in as the teammate who created the account.",
@@ -731,7 +783,7 @@
             "instruction": "Invite each teammate into the account as a user.",
             "instructionList": [
               "Search “Microsoft Entra ID” → Users → New user → Invite external user.",
-              "Email: the teammate’s address. Display name: their name. Message: “Capstone team01”. Review + invite. Repeat for all three.",
+              "Email, display name, message “Capstone team01”. Review + invite. Repeat for all three.",
               "Each teammate opens the invitation email → Accept invitation → signs in with that address."
             ],
             "commands": [
@@ -754,10 +806,19 @@
             "verify": [
               "PendingAcceptance"
             ],
-            "whatItMeans": "Entra ID is the identity service behind every Azure sign-in. A guest keeps their own sign-in and MFA and appears in your directory; nothing is shared but the invitation. Until they accept, they are listed as Pending.",
+            "whatItMeans": "Entra ID is the identity service behind every Azure sign-in. A guest keeps their own sign-in and MFA and appears in your directory; until they accept, they are Pending.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Users lists three guests; each reads “Pending acceptance” until the teammate accepts.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Invite external users (B2B)",
+                "url": "https://learn.microsoft.com/entra/external-id/b2b-quickstart-add-guest-users-portal",
+                "lookFor": "the “Invite external user” steps: email, display name, message, and what the guest sees on accepting"
+              }
             ],
             "paths": [
               {
@@ -816,10 +877,19 @@
             "verify": [
               "grp-capstone-team01-builders"
             ],
-            "whatItMeans": "Grant access to a group, not to people: joining and leaving the team becomes one membership change, and the access document has one row instead of four. “builders” says what the group may do.",
+            "whatItMeans": "Grant access to a group, not to people: joining and leaving the team becomes one membership change, and the access document has one row instead of four.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Groups lists grp-capstone-team01-builders, type Security, with four members.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Manage groups (Entra)",
+                "url": "https://learn.microsoft.com/entra/fundamentals/how-to-manage-groups",
+                "lookFor": "the “Create a basic group and add members” steps: Security type, then Members → select"
+              }
             ]
           },
           {
@@ -829,10 +899,9 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Assign Contributor on rg-capstone-team01 to the group.",
             "instructionList": [
-              "Resource groups → rg-capstone-team01 → Access control (IAM) → Add → Add role assignment.",
-              "Role tab: Privileged administrator roles → Contributor → Next.",
-              "Members: User, group, or service principal → Select members → grp-capstone-team01-builders → Select → Review + assign.",
-              "A teammate signs in: the group shows, and Create is enabled."
+              "rg-capstone-team01 → Access control (IAM) → Add → Add role assignment.",
+              "Role tab: Privileged administrator roles → Contributor → Next. Members: Select members → grp-capstone-team01-builders.",
+              "Review + assign. A teammate signs in: the group shows and Create is enabled."
             ],
             "commands": [
               {
@@ -858,10 +927,19 @@
             "verify": [
               "Contributor"
             ],
-            "whatItMeans": "RBAC is role plus scope: Contributor (the role) on rg-capstone-team01 (the scope). Builders can create and change everything there and nothing outside it; only you, the Owner, can grant access. That is least privilege for a team that builds.",
+            "whatItMeans": "RBAC is role plus scope: Contributor on rg-capstone-team01. Builders can change everything there and nothing outside it; only you, the Owner, can grant access. That is least privilege.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Role assignments shows grp-capstone-team01-builders as Contributor at this resource group.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Assign roles (portal)",
+                "url": "https://learn.microsoft.com/azure/role-based-access-control/role-assignments-portal",
+                "lookFor": "the “Add role assignment” steps: pick Contributor, then Members → select the group, then Review + assign"
+              }
             ],
             "fixes": [
               {
@@ -882,15 +960,22 @@
             "instruction": "Turn on security defaults; each member registers Authenticator.",
             "instructionList": [
               "Properties → Manage security defaults → Security defaults: Enabled → Save.",
-              "Each member: at next sign-in, follow the prompt — or mysignins.microsoft.com → Security info → Add sign-in method → Microsoft Authenticator.",
+              "Each member, at next sign-in: follow the prompt, or mysignins.microsoft.com → Security info → Microsoft Authenticator.",
               "Entra ID → Users → a teammate → Authentication methods: Microsoft Authenticator listed."
             ],
             "expectedOutput": "Security defaults are on; every member’s next sign-in asks for Authenticator.",
             "outputKind": "result",
-            "whatItMeans": "Security defaults are the free, one-switch way to require MFA for every user — the control the exam names most. A guest keeps the MFA of their home account; a member registers here within 14 days or is blocked.",
+            "whatItMeans": "Security defaults are the free, one-switch way to require MFA for every user, the control the exam names most. A member registers within 14 days or is blocked.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Security defaults",
+                "url": "https://learn.microsoft.com/entra/fundamentals/security-defaults",
+                "lookFor": "the “Enabling security defaults” steps and the list of what it enforces: MFA registration for every user"
+              }
             ],
             "fixes": [
               {
@@ -950,17 +1035,17 @@
           {
             "title": "Azure free account — what is free",
             "url": "https://azure.microsoft.com/free/",
-            "lookFor": "the “12 months free” list: B1s 750 hours, 5 GB storage, 2 × 64 GB Standard SSD — the numbers your estimate leans on"
+            "lookFor": "the “12 months free” list: B1s 750 hours, 5 GB storage, two 64 GB Standard SSD disks"
           },
           {
             "title": "Pricing calculator",
             "url": "https://azure.microsoft.com/pricing/calculator/",
-            "lookFor": "add Virtual Machines and change hours to 730, then halve them; the Public IP line is the one you cannot make free"
+            "lookFor": "add Virtual Machines, set hours to 730, then halve them; the Public IP line never becomes free"
           },
           {
             "title": "Storage redundancy",
             "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
-            "lookFor": "the table of LRS, ZRS, GRS and GZRS: how many copies, in how many zones or regions, and the durability nines"
+            "lookFor": "the LRS, ZRS, GRS and GZRS table: copies, zones or regions, and the durability nines"
           }
         ],
         "freeTier": "Free: the calculator. Nothing is deployed. Your estimate should come out near $4 a month: the VM’s public IP, and cents for the rest.",
@@ -973,16 +1058,22 @@
             "instruction": "Price the components in the Azure pricing calculator.",
             "instructionList": [
               "Add: Virtual Machines (B1s, Linux, 730 h), Storage Accounts (LRS, 1 GB), IP Addresses (Standard).",
-              "Add: Functions (Consumption), Azure Cosmos DB (serverless).",
-              "Read the monthly total; then halve the VM hours — you deallocate it.",
-              "Subtract what the free account covers: 750 B1s hours, 5 GB storage."
+              "Add: Functions (Consumption) and Azure Cosmos DB (serverless). Read the monthly total.",
+              "Halve the VM hours (you deallocate it); subtract the free 750 B1s hours and 5 GB."
             ],
             "expectedOutput": "A monthly estimate per service, with the public IP the largest line after the VM.",
             "outputKind": "result",
-            "whatItMeans": "Cost is set by size, hours, region, redundancy and traffic — the factors the exam lists. The calculator shows list prices; the free account removes the VM and storage lines, leaving the public IP as the biggest.",
+            "whatItMeans": "Cost is set by size, hours, region, redundancy and traffic, the factors the exam lists. The free account removes the VM and storage lines, leaving the public IP.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Pricing calculator",
+                "url": "https://azure.microsoft.com/pricing/calculator/",
+                "lookFor": "add Virtual Machines, set hours to 730, then halve them; the Public IP line never becomes free"
+              }
             ],
             "fixes": [
               {
@@ -998,16 +1089,23 @@
             "where": "The document",
             "instruction": "Choose LRS or GRS, Hot or Cool, for each asset.",
             "instructionList": [
-              "Website storage: LRS (three copies, one datacenter) — it is re-uploaded from the repo. Hot tier: read every day.",
+              "Website storage: LRS (three copies, one datacenter) and Hot: re-uploaded from the repo, read daily.",
               "VM disk: Standard SSD, LRS. Snapshots (Week 8) are the backup.",
               "Cosmos DB: single region, Session consistency. Write the alternative you rejected and its price."
             ],
             "expectedOutput": "One row per asset: option chosen, alternative rejected, monthly cost.",
             "outputKind": "result",
-            "whatItMeans": "Redundancy is how many copies and where: LRS three in one building, ZRS three zones, GRS a second region. Tiers are how often data is read: Hot costs more to store, Cool more to read.",
+            "whatItMeans": "Redundancy is how many copies and where: LRS three in one building, ZRS three zones, GRS a second region. Hot costs more to store, Cool more to read.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Storage redundancy",
+                "url": "https://learn.microsoft.com/azure/storage/common/storage-redundancy",
+                "lookFor": "the LRS, ZRS, GRS and GZRS table: copies, zones or regions, and the durability nines"
+              }
             ]
           },
           {
@@ -1063,15 +1161,15 @@
           {
             "title": "Create a Linux VM (portal)",
             "url": "https://learn.microsoft.com/azure/virtual-machines/linux/quick-create-portal",
-            "lookFor": "the Basics tab: size, availability options, “SSH public key” authentication, and the Networking tab where you pick the VNet and subnet"
+            "lookFor": "the Basics tab: size, availability options, SSH public key; the Networking tab: VNet and subnet"
           },
           {
             "title": "B-series burstable sizes",
             "url": "https://learn.microsoft.com/azure/virtual-machines/sizes/general-purpose/bv1-series",
-            "lookFor": "the B1s row — 1 vCPU, 1 GiB, and the credit model that makes a low CPU average normal"
+            "lookFor": "the B1s row: 1 vCPU, 1 GiB, and the credit model behind a low CPU average"
           }
         ],
-        "freeTier": "Free tier: B1s is free for 750 hours a month for 12 months, and the Standard SSD OS disk is inside the free 64 GB. The public IP costs about $3.60 a month even while the VM is stopped — deallocate the VM anyway.",
+        "freeTier": "Free tier: 750 B1s hours a month and the Standard SSD disk. The public IP costs about $3.60 a month; deallocate the VM anyway.",
         "steps": [
           {
             "id": "az-w2-infra-s1",
@@ -1080,10 +1178,9 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Create the B1s VM in snet-app, SSH key only.",
             "instructionList": [
-              "Virtual machines → Create → Azure virtual machine. Group rg-capstone-team01, name vm-tools-team01, East US, Availability options: zone 1, Ubuntu 22.04, size B1s.",
-              "Authentication: SSH public key, username azureuser, “Generate new key pair”, key name kp-team01.",
-              "Disks: OS disk type Standard SSD. Networking: vnet-capstone-team01, snet-app, public IP new, NIC network security group: None.",
-              "Tags as in the standard. Review + create → Create → Download private key (kp-team01.pem)."
+              "Virtual machines → Create. Group rg-capstone-team01, name vm-tools-team01, East US, zone 1, Ubuntu 22.04, size B1s.",
+              "Authentication: SSH public key, username azureuser, Generate new key pair kp-team01. Disks: Standard SSD.",
+              "Networking: vnet-capstone-team01, snet-app, new public IP, NIC security group None. Create → Download private key."
             ],
             "commands": [
               {
@@ -1118,10 +1215,19 @@
               "VM running",
               "10.10.1.4"
             ],
-            "whatItMeans": "A VM is IaaS: you choose size, image and zone, and you patch it. B1s is the free-tier size and Standard SSD the free-tier disk. Key-only sign-in removes password guessing. NIC NSG None: the subnet’s NSG already protects it.",
+            "whatItMeans": "A VM is IaaS: you choose size, image and zone, and you patch it. B1s and Standard SSD are the free-tier choices. Key-only sign-in removes password guessing.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "vm-tools-team01 shows Status Running, size Standard B1s, zone 1, and a private IP in 10.10.1.x.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a Linux VM (portal)",
+                "url": "https://learn.microsoft.com/azure/virtual-machines/linux/quick-create-portal",
+                "lookFor": "the Basics tab: size, availability options, SSH public key; the Networking tab: VNet and subnet"
+              }
             ],
             "fixes": [
               {
@@ -1146,7 +1252,7 @@
             "instruction": "Read the IPs, then share the key privately with Security.",
             "instructionList": [
               "vm-tools-team01 → Overview: note the public IP, the private IP and the zone.",
-              "Send kp-team01.pem through a private channel (Teams/Slack DM, a password manager) — never the repository or email. User name: azureuser."
+              "Send kp-team01.pem privately (a DM or password manager), never the repository or email. User: azureuser."
             ],
             "commands": [
               {
@@ -1158,10 +1264,19 @@
             "verify": [
               "10.10.1.4"
             ],
-            "whatItMeans": "The private IP comes from snet-app (Azure keeps the first four addresses); the public IP is what the internet reaches. The private key is the password to this machine: it travels one-to-one and is never committed.",
+            "whatItMeans": "The private IP comes from snet-app; the public IP is what the internet reaches. The private key is the password to this machine: never committed.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Overview shows one public IP, private IP 10.10.1.4 and Availability zone 1.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Connect to a Linux VM with SSH",
+                "url": "https://learn.microsoft.com/azure/virtual-machines/linux-vm-connect",
+                "lookFor": "the private-key handling: chmod 400, the -i flag, and keeping the key file out of the open"
+              }
             ]
           },
           {
@@ -1220,6 +1335,15 @@
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Overview shows Status “Stopped (deallocated)”.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "VM states and billing",
+                "url": "https://learn.microsoft.com/azure/virtual-machines/states-billing",
+                "lookFor": "the power-states table: Stopped still bills compute, Stopped (deallocated) does not"
+              }
             ]
           }
         ]
@@ -1274,9 +1398,9 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Create an HTTPS-only storage account with TLS 1.2.",
             "instructionList": [
-              "Storage accounts → Create. Group rg-capstone-team01, name stwebteam01 plus four digits, East US, Standard, Redundancy LRS.",
-              "Advanced: Require secure transfer on, minimum TLS 1.2, allow anonymous blob access off.",
-              "Tags as in the standard. Review + create → Create. Write the name down."
+              "Storage accounts → Create. Group rg-capstone-team01, name stwebteam01 plus four digits, East US, Standard, LRS.",
+              "Advanced: Require secure transfer on, minimum TLS 1.2, anonymous blob access off.",
+              "Review + create → Create. Write the name down."
             ],
             "commands": [
               {
@@ -1307,10 +1431,19 @@
             "verify": [
               "TLS1_2"
             ],
-            "whatItMeans": "st + web + team01: a storage account, for the website, owned by team01 — plus digits, because storage names are unique across Azure. The static website is a blob container served as a site.",
+            "whatItMeans": "st + web + team01 reads: a storage account, for the website, owned by team01. Digits, because storage names are unique across Azure.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "The account’s Configuration shows Secure transfer required Enabled and Minimum TLS version 1.2.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a storage account",
+                "url": "https://learn.microsoft.com/azure/storage/common/storage-account-create",
+                "lookFor": "the Basics tab (Standard, LRS) and the Advanced tab: “Require secure transfer” and the minimum TLS version"
+              }
             ],
             "fixes": [
               {
@@ -1326,9 +1459,8 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Switch on the static website and upload index.html.",
             "instructionList": [
-              "The storage account → Data management → Static website → Enabled; index document index.html, error path 404.html. Save.",
-              "Copy the Primary endpoint URL that appears.",
-              "Storage browser → Blob containers → $web → Upload → your site/ files (at least index.html).",
+              "The account → Data management → Static website → Enabled; index index.html, error 404.html. Save.",
+              "Copy the endpoint URL. Storage browser → Blob containers → $web → Upload your site/ files.",
               "Open the endpoint URL in a browser: your page, with a padlock."
             ],
             "commands": [
@@ -1377,10 +1509,19 @@
             "verify": [
               "web.core.windows.net"
             ],
-            "whatItMeans": "The $web container is special: its files are served at the web endpoint over HTTPS with Microsoft’s certificate, so no server is run or patched — that is PaaS. Upload again after any change; that is a redeploy.",
+            "whatItMeans": "The $web container is served at the web endpoint over HTTPS with Microsoft’s certificate, so no server is run or patched: that is PaaS. Uploading again is a redeploy.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Static website shows Enabled with a Primary endpoint ending web.core.windows.net; the URL loads your page.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Host a static website",
+                "url": "https://learn.microsoft.com/azure/storage/blobs/storage-blob-static-website-how-to",
+                "lookFor": "the “Enable static website hosting” steps — the $web container and the primary endpoint URL"
+              }
             ],
             "fixes": [
               {
@@ -1473,7 +1614,7 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Create the NSG and attach it to snet-app.",
             "instructionList": [
-              "Network security groups → Create. Resource group rg-capstone-team01, name nsg-snet-app-team01, region East US. Create.",
+              "Network security groups → Create. Group rg-capstone-team01, name nsg-snet-app-team01, East US. Create.",
               "Open it → Settings → Subnets → Associate → vnet-capstone-team01 / snet-app.",
               "Inbound security rules: read the three default rules at the bottom, priorities 65000–65500."
             ],
@@ -1516,10 +1657,19 @@
               "Succeeded",
               "DenyAllInBound"
             ],
-            "whatItMeans": "Rules are checked from the lowest priority number up; the first match wins, and DenyAllInBound (65500) catches the rest. Stateful means replies to allowed traffic come back. Attach at the subnet, so later resources are protected at once.",
+            "whatItMeans": "Rules are checked from the lowest priority number up; the first match wins, and DenyAllInBound (65500) catches the rest. Attach at the subnet, so later resources are protected at once.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Subnets lists snet-app; Inbound security rules ends with DenyAllInBound at priority 65500.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Network security groups overview",
+                "url": "https://learn.microsoft.com/azure/virtual-network/network-security-groups-overview",
+                "lookFor": "the “Default security rules” tables — priority 65500 DenyAllInBound is what blocks everything until you allow it"
+              }
             ]
           },
           {
@@ -1567,10 +1717,19 @@
             "verify": [
               "/32"
             ],
-            "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the whole internet for open SSH within minutes. This is defense in depth — the NSG is one layer, the key is another. Edit the rule, never widen it.",
+            "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the whole internet for open SSH within minutes. The NSG is one layer and the key another: defense in depth.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Allow-SSH-MyIP sits at priority 1000 with your address as a /32, above the default rules.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a security rule",
+                "url": "https://learn.microsoft.com/azure/virtual-network/manage-network-security-group#create-a-security-rule",
+                "lookFor": "the Source field set to “My IP address” and the Priority field — lower numbers are evaluated first"
+              }
             ]
           },
           {
@@ -1580,17 +1739,23 @@
             "where": "Your laptop, then Cloud Shell",
             "instruction": "Test SSH from your laptop, then from Cloud Shell.",
             "instructionList": [
-              "Start the VM: Virtual machines → vm-tools-team01 → Start; read the public IP on Overview.",
-              "From your laptop, using the key the Infra Admin shared: a prompt appears (below, by operating system).",
-              "From Cloud Shell: ssh azureuser@PUBLIC_IP — expect “Connection timed out”.",
-              "Deallocate the VM when done: vm-tools-team01 → Stop."
+              "Start the VM (vm-tools-team01 → Start) and read the public IP on Overview.",
+              "From your laptop, with the shared key, connect (below, by operating system): a prompt appears.",
+              "From Cloud Shell: ssh azureuser@PUBLIC_IP times out. Then Stop the VM."
             ],
             "expectedOutput": "SSH connects from your laptop and times out from Cloud Shell.",
             "outputKind": "result",
-            "whatItMeans": "A rule is only proved when something that should fail does fail. Cloud Shell has a different address, so the /32 rule rightly refuses it — the same refusal any attacker gets.",
+            "whatItMeans": "A rule is only proved when something that should fail does fail. Cloud Shell has a different address, so the /32 rule refuses it, as it refuses any attacker.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Connect to a Linux VM with SSH",
+                "url": "https://learn.microsoft.com/azure/virtual-machines/linux-vm-connect",
+                "lookFor": "the ssh command with -i and the private key, and the “Permission denied” cases at the end"
+              }
             ],
             "paths": [
               {
@@ -1703,6 +1868,13 @@
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Azure Functions overview",
+                "url": "https://learn.microsoft.com/azure/azure-functions/functions-overview",
+                "lookFor": "the “Scenarios” list and the diagram of a trigger calling a binding — the two hops your flow names"
+              }
             ]
           },
           {
@@ -1712,17 +1884,23 @@
             "where": "The document",
             "instruction": "Write the flow with your real URLs and owners.",
             "instructionList": [
-              "Browser → https://stwebteam01….web.core.windows.net (storage static website: Microsoft runs it).",
-              "Page script → GET https://func-capstone-team01-….azurewebsites.net/api/visitorCount (Functions: Microsoft runs the servers, we own the code).",
-              "Function → Cosmos DB account cosmos-capstone-team01-…, database capstone, container visitors, item id \"site\" (Microsoft runs it, we own the data).",
-              "Back: { \"count\": n } → the page writes it into #visitor-count."
+              "Browser → the storage website URL. Page script → GET …/api/visitorCount on the Function App.",
+              "Function → Cosmos DB: database capstone, container visitors, item \"site\". Back: { \"count\": n }.",
+              "For each hop: who runs it (Microsoft) and what we own (code, data, access)."
             ],
             "expectedOutput": "A three-hop flow with real URLs, resource names and who manages each.",
             "outputKind": "result",
-            "whatItMeans": "Serverless means no server you can see: it scales to zero and you pay per execution — the consumption model. A flow with real URLs is testable: each arrow is something you can call and watch fail.",
+            "whatItMeans": "Serverless means no server you can see: it scales to zero and you pay per execution. A flow with real URLs is testable: each arrow can be called.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Shared responsibility in the cloud",
+                "url": "https://learn.microsoft.com/azure/security/fundamentals/shared-responsibility",
+                "lookFor": "the PaaS column: the OS, runtime and scaling are Microsoft’s; the code, data and access are yours"
+              }
             ]
           },
           {
@@ -1785,7 +1963,7 @@
             "lookFor": "the “Pricing” paragraph: you pay per request unit, nothing while idle"
           }
         ],
-        "freeTier": "About a cent a month: serverless bills per request and a counter uses almost none. The other free route is the free-tier account flag (1,000 RU/s free), one per subscription.",
+        "freeTier": "About a cent a month: serverless bills per request and a counter uses almost none. The free-tier account flag is the other route.",
         "steps": [
           {
             "id": "az-w3-infra-s1",
@@ -1795,8 +1973,8 @@
             "instruction": "Create a serverless Cosmos DB account.",
             "instructionList": [
               "Azure Cosmos DB → Create → Azure Cosmos DB for NoSQL.",
-              "Group rg-capstone-team01, account name cosmos-capstone-team01 plus four digits, East US, capacity mode Serverless.",
-              "Tags as in the standard. Review + create → Create (a few minutes)."
+              "Group rg-capstone-team01, account cosmos-capstone-team01 plus four digits, East US, capacity mode Serverless.",
+              "Review + create → Create (a few minutes)."
             ],
             "commands": [
               {
@@ -1809,10 +1987,19 @@
               "EnableServerless",
               "Succeeded"
             ],
-            "whatItMeans": "Cosmos DB is a managed NoSQL database: items are JSON documents, Microsoft runs and patches it, and it can replicate to any region. Provisioned throughput charges every hour; serverless charges per request. The name is global.",
+            "whatItMeans": "Cosmos DB is a managed NoSQL database: items are JSON documents and Microsoft runs and patches it. Provisioned throughput charges every hour; serverless charges per request.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "The account’s Overview shows Capacity mode Serverless and status Online.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a Cosmos DB account (portal)",
+                "url": "https://learn.microsoft.com/azure/cosmos-db/nosql/quickstart-portal",
+                "lookFor": "the “Create an account” steps: API NoSQL, capacity mode Serverless, then Review + create"
+              }
             ],
             "fixes": [
               {
@@ -1846,10 +2033,19 @@
             "verify": [
               "/id"
             ],
-            "whatItMeans": "Account → database → container → items is the Cosmos DB hierarchy. The partition key is the one decision you cannot change later: it decides where an item is stored, so /id, the item’s own name, is safe.",
+            "whatItMeans": "Account → database → container → items is the hierarchy. The partition key is the one decision you cannot change later: /id, the item’s own name, is safe.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Data Explorer shows capstone → visitors with partition key /id.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Partitioning in Cosmos DB",
+                "url": "https://learn.microsoft.com/azure/cosmos-db/partitioning-overview",
+                "lookFor": "the first section: the partition key decides where an item is stored and cannot be changed later"
+              }
             ]
           },
           {
@@ -1865,10 +2061,17 @@
             ],
             "expectedOutput": "The item \"site\" with count 0 is listed.",
             "outputKind": "result",
-            "whatItMeans": "The Function reads and updates this one item; seeding it means the first visit finds a number instead of an error. The connection string is the account’s key: it goes in an app setting, never in a page.",
+            "whatItMeans": "The Function updates this one item; seeding it means the first visit finds a number, not an error. The connection string is a key: app setting only, never a page.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Data Explorer",
+                "url": "https://learn.microsoft.com/azure/cosmos-db/data-explorer",
+                "lookFor": "the “Items” section: New Item, the JSON body, and Save"
+              }
             ]
           },
           {
@@ -1930,7 +2133,7 @@
           {
             "title": "Cosmos DB bindings for Functions (Node.js v4)",
             "url": "https://learn.microsoft.com/azure/azure-functions/functions-bindings-cosmosdb-v2-input?tabs=javascript-v4",
-            "lookFor": "the JavaScript v4 example: input.cosmosDB(...) with databaseName, containerName, connection and id — the four values the code below sets"
+            "lookFor": "the JavaScript v4 example: input.cosmosDB with databaseName, containerName, connection and id"
           }
         ],
         "freeTier": "Free: the Consumption plan includes 1 million executions a month for ever; Application Insights lives inside the free 5 GB of Log Analytics.",
@@ -1948,14 +2151,21 @@
             "instructionList": [
               "Hosting option: Consumption (not Flex). Resource group rg-capstone-team01. Name func-capstone-team01 plus four digits.",
               "Runtime stack Node.js 20, operating system Windows, East US.",
-              "Monitoring: enable Application Insights (a new one). Tags as in the standard. Create."
+              "Monitoring: enable Application Insights (a new one). Create."
             ],
             "expectedOutput": "The Function App is running.",
             "outputKind": "result",
-            "whatItMeans": "Functions is serverless compute: Microsoft runs the servers, your code runs when called, and the Consumption plan bills per execution and scales to zero. Windows Consumption is the plan that lets you edit code in the portal.",
+            "whatItMeans": "Functions is serverless compute: Microsoft runs the servers, your code runs when called, and Consumption bills per execution. Windows Consumption lets you edit code in the portal.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Create a function app (portal)",
+                "url": "https://learn.microsoft.com/azure/azure-functions/functions-create-function-app-portal",
+                "lookFor": "the hosting choice — Consumption — and the Monitoring tab that enables Application Insights"
+              }
             ],
             "fixes": [
               {
@@ -1975,10 +2185,9 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Add an HTTP function with Cosmos DB bindings.",
             "instructionList": [
-              "Settings → Environment variables → Add: name CosmosConnection, value = the Primary connection string (Cosmos DB → Keys). Apply.",
-              "Overview → Create function → HTTP trigger, name visitorCount, authorization level Anonymous. Create.",
-              "Code + Test: replace the file’s contents with the code below. Save.",
-              "Test/Run: the output is {\"count\":1}."
+              "Settings → Environment variables → Add CosmosConnection = the Primary connection string (Cosmos DB Keys). Apply.",
+              "Overview → Create function → HTTP trigger, name visitorCount, authorization Anonymous. Create.",
+              "Code + Test: replace the file with the code below. Save. Test/Run: {\"count\":1}."
             ],
             "commands": [
               {
@@ -1990,11 +2199,21 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "Bindings do the database calls, so the code is four lines: read, add one, write back, return. CosmosConnection is an app setting: configuration lives in settings, never in code. Week 5 replaces the key with the Function’s identity.",
+            "whatItMeans": "Bindings do the database calls, so the code is four lines: read, add one, write back, return. CosmosConnection is an app setting: configuration lives in settings, never in code.",
             "frameworks": [
               "AZ_900",
               "WAF"
             ],
+            "expectedOutput": "Test/Run returns status 200 with body {\"count\":1}.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Cosmos DB bindings for Functions (Node.js v4)",
+                "url": "https://learn.microsoft.com/azure/azure-functions/functions-bindings-cosmosdb-v2-input?tabs=javascript-v4",
+                "lookFor": "the JavaScript v4 example: input.cosmosDB with databaseName, containerName, connection and id"
+              }
+            ],
+            "codeToPaste": true,
             "fixes": [
               {
                 "symptom": "Cannot find module @azure/functions",
@@ -2014,8 +2233,7 @@
             "instruction": "Call the API, then add the count to the page.",
             "instructionList": [
               "The function → Get function URL → open it in a new tab: {\"count\":2}.",
-              "In site/index.html add a fetch() of that URL writing the result into #visitor-count (snippet below).",
-              "API → CORS: add your site’s origin (https://stwebteam01….web.core.windows.net). Save.",
+              "Add the snippet below to site/index.html; API → CORS → add your site’s origin. Save.",
               "Upload the changed file to $web (Week 2 step) and reload the site."
             ],
             "commands": [
@@ -2033,11 +2251,21 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "The page calls the API from the visitor’s browser — there is no server. The browser only reads the answer because the API lists the site as an allowed origin. Nothing in the page is secret.",
+            "whatItMeans": "The page calls the API from the visitor’s browser; there is no server. The browser only reads the answer because the API lists the site as an allowed origin.",
             "frameworks": [
               "AZ_900",
               "WAF"
             ],
+            "expectedOutput": "The site shows “Visitors: 3” and the number grows on every reload.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "CORS on a function app",
+                "url": "https://learn.microsoft.com/azure/azure-functions/functions-how-to-use-azure-function-app-settings#cors",
+                "lookFor": "the “CORS” section: add the site’s origin exactly as the browser sends it, with no trailing slash"
+              }
+            ],
+            "codeToPaste": true,
             "fixes": [
               {
                 "symptom": "The page shows “…” for ever",
@@ -2108,7 +2336,7 @@
           {
             "title": "Azure built-in roles",
             "url": "https://learn.microsoft.com/azure/role-based-access-control/built-in-roles",
-            "lookFor": "the four general roles at the top — Owner, Contributor, Reader, User Access Administrator — and what each can and cannot do"
+            "lookFor": "the four general roles at the top: Owner, Contributor, Reader, User Access Administrator"
           }
         ],
         "freeTier": "Free: Entra ID groups, role assignments and MFA cost nothing.",
@@ -2136,10 +2364,19 @@
             "verify": [
               "3f2a9c1e"
             ],
-            "whatItMeans": "Entra ID holds users and groups; Azure resources trust it for every sign-in. Grant to groups, not people: joining and leaving the team becomes one membership change, and the access matrix has one row instead of four.",
+            "whatItMeans": "Entra ID holds users and groups; Azure resources trust it for every sign-in. Grant to groups, not people: joining and leaving the team becomes one membership change.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Groups lists grp-capstone-team01-readers, type Security, with four members.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Manage groups (Entra)",
+                "url": "https://learn.microsoft.com/entra/fundamentals/how-to-manage-groups",
+                "lookFor": "the “Create a basic group” steps — Security group type, and adding members"
+              }
             ],
             "fixes": [
               {
@@ -2169,10 +2406,19 @@
             "verify": [
               "Reader"
             ],
-            "whatItMeans": "RBAC is role plus scope: Reader (the role) on rg-capstone-team01 (the scope). Scope is half of least privilege: the right role on too wide a scope is still too much. Owner stays with the instructor.",
+            "whatItMeans": "RBAC is role plus scope: Reader on rg-capstone-team01. Scope is half of least privilege: the right role on too wide a scope is still too much.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Role assignments shows the readers group as Reader; a member’s portal greys every Create button.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Azure built-in roles",
+                "url": "https://learn.microsoft.com/azure/role-based-access-control/built-in-roles",
+                "lookFor": "the Reader row: view everything, change nothing — compare it with Contributor and Owner"
+              }
             ]
           },
           {
@@ -2183,14 +2429,21 @@
             "instruction": "Check MFA on each member and no key in the page.",
             "instructionList": [
               "Entra ID → Users → each teammate → Authentication methods: Microsoft Authenticator listed.",
-              "View the site source (Ctrl+U): only the API URL, no key. The key lives in the Function’s app setting."
+              "View the site source (Ctrl+U): only the API URL, no key (it is an app setting)."
             ],
             "expectedOutput": "Four members with MFA; the page holds a URL and nothing else.",
             "outputKind": "result",
-            "whatItMeans": "MFA per person and least privilege per group are the two identity controls AZ-900 tests. Anything in page source is public; the connection string stays in an app setting, and Week 5 removes it altogether.",
+            "whatItMeans": "MFA per person and least privilege per group are the two identity controls AZ-900 tests. Anything in page source is public; the connection string stays in an app setting.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Manage user authentication methods",
+                "url": "https://learn.microsoft.com/entra/identity/authentication/howto-mfa-userdevicesettings",
+                "lookFor": "the “Manage authentication methods” section: where a user’s registered methods are listed"
+              }
             ],
             "fixes": [
               {
@@ -2274,7 +2527,7 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Group cost by service for this month.",
             "instructionList": [
-              "Cost Management → Cost analysis. Scope: rg-capstone-team01. View: Accumulated costs. Group by: Service name.",
+              "Cost Management → Cost analysis. Scope rg-capstone-team01, view Accumulated costs, Group by Service name.",
               "Read the table under the chart: service, cost. Compare with your Week 2 estimate.",
               "Budgets → budget-capstone-team01: how much of the $5 is used."
             ],
@@ -2288,10 +2541,19 @@
             "verify": [
               "Microsoft."
             ],
-            "whatItMeans": "Actual cost is how you find what you forgot to switch off. Microsoft.Network is the public IP; Microsoft.Compute is VM hours — if it is not near zero, the VM was left running. Cost data arrives a day late.",
+            "whatItMeans": "Actual cost is how you find what you forgot to switch off. Microsoft.Network is the public IP; Microsoft.Compute is VM hours, which should be near zero.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "A table of services and their cost this month, with Microsoft.Network the largest line.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Explore costs with cost analysis",
+                "url": "https://learn.microsoft.com/azure/cost-management-billing/costs/quick-acm-cost-analysis",
+                "lookFor": "the “Group by” control and the Service name option — that is your per-service table"
+              }
             ],
             "fixes": [
               {
@@ -2311,16 +2573,28 @@
             "where": "Azure portal — Advisor, then Service Health",
             "instruction": "Own one Advisor recommendation; check Service Health.",
             "instructionList": [
-              "Advisor → Overview: read the five categories. Open Cost and Security; pick one recommendation and note who will act on it.",
-              "Service Health → Service issues: any incident in East US? Health advisories: any planned maintenance?",
-              "Service Health → Health alerts: create one for East US that emails the action group (Week 4 Infra)."
+              "Advisor → Overview: five categories. Open Cost and Security; pick one recommendation and name its owner.",
+              "Service Health → Service issues: any incident in East US? Health advisories: planned maintenance?",
+              "Service Health → Health alerts: create one for East US that emails the action group."
             ],
             "expectedOutput": "One recommendation with an owner, and the region’s health noted.",
             "outputKind": "result",
-            "whatItMeans": "Advisor is Azure looking at what you built and telling you how to spend less or be safer; Service Health is Azure telling you about itself. A health alert means Microsoft tells you before your users do.",
+            "whatItMeans": "Advisor is Azure looking at what you built and saying how to spend less or be safer; Service Health is Azure telling you about itself.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Azure Advisor overview",
+                "url": "https://learn.microsoft.com/azure/advisor/advisor-overview",
+                "lookFor": "the five categories — Cost, Security, Reliability, Operational excellence, Performance — and that it is free"
+              },
+              {
+                "title": "Service Health",
+                "url": "https://learn.microsoft.com/azure/service-health/service-health-overview",
+                "lookFor": "the difference between Azure status (everyone), Service Health (your subscription) and Resource Health (one resource)"
+              }
             ]
           },
           {
@@ -2374,7 +2648,7 @@
           {
             "title": "Create a metric alert rule",
             "url": "https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-create-metric-alert-rule",
-            "lookFor": "the Condition pane: signal Http5xx, aggregation Total, threshold 0 — and the Actions tab where the action group goes"
+            "lookFor": "the Condition pane: signal Http5xx, aggregation Total, threshold 0; then the Actions tab"
           },
           {
             "title": "Action groups",
@@ -2395,7 +2669,7 @@
             "instruction": "Create an action group that emails the team.",
             "instructionList": [
               "Monitor → Alerts → Action groups → Create. Group rg-capstone-team01, name ag-capstone-team01, display name capstone.",
-              "Notifications: Email/SMS/Push/Voice → Email → the team address; name team-email. Review + create.",
+              "Notifications: Email → the team address, name team-email. Review + create.",
               "Check the inbox: Azure sends a “you were added to an action group” email."
             ],
             "commands": [
@@ -2408,10 +2682,19 @@
             "verify": [
               "capstone"
             ],
-            "whatItMeans": "Azure Monitor collects metrics and logs from everything; an alert rule watches one signal and an action group is who gets told and how. One action group, many alerts: change the email once. Email is free; SMS is not.",
+            "whatItMeans": "Azure Monitor collects metrics and logs from everything; an alert rule watches one signal; an action group is who gets told. One group, many alerts: change the email once.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Action groups lists ag-capstone-team01, and the team inbox has the welcome email.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Action groups",
+                "url": "https://learn.microsoft.com/azure/azure-monitor/alerts/action-groups",
+                "lookFor": "the “Create an action group” steps and the Notifications table — Email is free; SMS and voice are not"
+              }
             ]
           },
           {
@@ -2422,7 +2705,7 @@
             "instruction": "Alert when Http5xx is above zero in five minutes.",
             "instructionList": [
               "The Function App → Monitoring → Alerts → Create → Alert rule.",
-              "Condition: signal Http5xx; threshold Static, aggregation Total, operator Greater than, value 0; check every 1 minute, lookback 5 minutes.",
+              "Condition: signal Http5xx, Total, Greater than 0, check every 1 minute, lookback 5 minutes.",
               "Actions: ag-capstone-team01. Details: severity 2, name alert-func-5xx-team01. Review + create."
             ],
             "commands": [
@@ -2435,10 +2718,19 @@
             "verify": [
               "alert-func-5xx-team01"
             ],
-            "whatItMeans": "Http5xx means the server failed — the signal users feel. CPU on a serverless app tells you nothing: there is no server to be busy. This week’s App & DevOps drill breaks the Function on purpose: expect an email.",
+            "whatItMeans": "Http5xx means the server failed, the signal users feel. CPU on a serverless app tells you nothing. This week’s drill breaks the Function on purpose: expect an email.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Alert rules lists alert-func-5xx-team01, enabled, severity 2, scoped to the Function App.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a metric alert rule",
+                "url": "https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-create-metric-alert-rule",
+                "lookFor": "the Condition pane: signal Http5xx, aggregation Total, threshold 0; then the Actions tab"
+              }
             ],
             "fixes": [
               {
@@ -2500,6 +2792,11 @@
             "title": "Failures and performance views",
             "url": "https://learn.microsoft.com/azure/azure-monitor/app/failures-and-performance-views",
             "lookFor": "the Failures pane: Operations tab, then “Drill into” a failed sample to read the exception"
+          },
+          {
+            "title": "App settings on a function app",
+            "url": "https://learn.microsoft.com/azure/azure-functions/functions-how-to-use-azure-function-app-settings",
+            "lookFor": "the “Settings” section: edit an app setting, Apply, and the restart that follows"
           }
         ],
         "freeTier": "Free: Application Insights data stays well inside the free 5 GB a month.",
@@ -2511,7 +2808,7 @@
             "where": "Azure portal · or Cloud Shell",
             "instruction": "Rename the Cosmos setting so the Function fails.",
             "instructionList": [
-              "Function App → Settings → Environment variables → CosmosConnection → rename it to CosmosConnection_OFF. Apply. Confirm the restart.",
+              "Function App → Settings → Environment variables → CosmosConnection → rename to CosmosConnection_OFF. Apply, confirm restart.",
               "Note the time. Load the site twice: the counter shows “…” and never fills."
             ],
             "commands": [
@@ -2524,10 +2821,19 @@
             "verify": [
               "renamed"
             ],
-            "whatItMeans": "Breaking it yourself means you know the answer. The binding asks for a setting named CosmosConnection; with the name changed, every request is a 500. The Infra Admin’s alert should email within five minutes.",
+            "whatItMeans": "Breaking it yourself means you know the answer. The binding asks for CosmosConnection; with the name changed, every request is a 500. The alert should email within five minutes.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "The site’s counter stays at “…”; the function URL returns a 500 error.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "App settings on a function app",
+                "url": "https://learn.microsoft.com/azure/azure-functions/functions-how-to-use-azure-function-app-settings",
+                "lookFor": "the “Settings” section: edit an app setting, Apply, and the restart that follows"
+              }
             ]
           },
           {
@@ -2543,10 +2849,17 @@
             ],
             "expectedOutput": "An exception naming the missing Cosmos setting.",
             "outputKind": "result",
-            "whatItMeans": "Application Insights records every request and exception; Log Analytics is the workspace that stores them. Reading the message top to bottom: what failed (the binding), why (setting not found), where (the function name).",
+            "whatItMeans": "Application Insights records every request and exception; Log Analytics is the workspace that stores them. Read the message: what failed (the binding), why (setting not found), where (the function).",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Failures and performance views",
+                "url": "https://learn.microsoft.com/azure/azure-monitor/app/failures-and-performance-views",
+                "lookFor": "the Failures pane: Operations tab, then “Drill into” a failed sample to read the exception"
+              }
             ],
             "fixes": [
               {
@@ -2575,10 +2888,19 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alerted at, found at, fixed at — those four numbers are their incident record.",
+            "whatItMeans": "A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alerted at, found at, fixed at. Those four numbers are their incident record.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "The site shows a growing count again and the function URL returns {\"count\":n}.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "App settings on a function app",
+                "url": "https://learn.microsoft.com/azure/azure-functions/functions-how-to-use-azure-function-app-settings",
+                "lookFor": "the “Settings” section: the setting name must match what the code asks for, exactly"
+              }
             ]
           },
           {
@@ -2633,7 +2955,7 @@
           {
             "title": "Lock your resources",
             "url": "https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources",
-            "lookFor": "the two lock levels — CanNotDelete and ReadOnly — and that a lock on a group applies to everything in it"
+            "lookFor": "the two lock levels, CanNotDelete and ReadOnly, and that a group lock covers everything in it"
           },
           {
             "title": "Metric alerts: what fired and when",
@@ -2665,10 +2987,19 @@
             "verify": [
               "CanNotDelete"
             ],
-            "whatItMeans": "A resource lock is governance, not access: even an Owner cannot delete a locked resource without removing the lock first. That one extra click stops a wrong-window delete. ReadOnly would also block changes — too much while still building.",
+            "whatItMeans": "A resource lock is governance, not access: even an Owner cannot delete a locked resource without removing the lock first. ReadOnly would also block changes, too much while still building.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Locks lists lock-capstone-team01 with lock type Delete on the resource group.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Lock your resources",
+                "url": "https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources",
+                "lookFor": "the two lock levels, CanNotDelete and ReadOnly, and that a group lock covers everything in it"
+              }
             ]
           },
           {
@@ -2695,6 +3026,15 @@
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "expectedOutput": "Delete fails with “is locked and cannot be deleted”; the storage account is still there.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Lock your resources",
+                "url": "https://learn.microsoft.com/azure/azure-resource-manager/management/lock-resources",
+                "lookFor": "the “Considerations before applying your locks” list: what a CanNotDelete lock still allows"
+              }
             ]
           },
           {
@@ -2710,10 +3050,17 @@
             ],
             "expectedOutput": "An incident record with symptom, evidence, cause, fix and the four times.",
             "outputKind": "result",
-            "whatItMeans": "An incident record is how a team learns: what users saw, how you knew, what it was, what fixed it. The four times show whether the alert or a user told you first — the alert should win.",
+            "whatItMeans": "An incident record is how a team learns: what users saw, how you knew, what it was, what fixed it. The four times show who told you first.",
             "frameworks": [
               "AZ_900",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Metric alerts: what fired and when",
+                "url": "https://learn.microsoft.com/azure/azure-monitor/alerts/alerts-page",
+                "lookFor": "the Alerts page: the fired alert’s time and severity — your incident’s “alerted at”"
+              }
             ]
           },
           {
@@ -2738,6 +3085,7 @@
     ],
     "noGatekeeping": true,
     "teamCount": 16,
+    "shellOptional": true,
     "manualSections": [
       "cloud-iac"
     ],

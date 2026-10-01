@@ -412,6 +412,15 @@
             "frameworks": [
               "AZ_400",
               "WAF"
+            ],
+            "expectedOutput": "Overview shows Status “Stopped (deallocated)”.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "VM states and billing",
+                "url": "https://learn.microsoft.com/azure/virtual-machines/states-billing",
+                "lookFor": "the power-states table: Stopped still bills compute, Stopped (deallocated) does not"
+              }
             ]
           }
         ]

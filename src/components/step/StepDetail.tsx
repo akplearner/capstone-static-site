@@ -5,6 +5,7 @@ import { AlertTriangle, Sparkles } from 'lucide-react';
 import type { Step } from '@/lib/types';
 import { GlossaryText } from '@/components/GlossaryText';
 import { Collapsible } from '@/components/ui/Button';
+import { useCourseDocument } from '@/lib/useCourse';
 import { StepHow, hasHow, howHint } from './StepHow';
 import { StepWhy, hasWhy, whyHint } from './StepWhy';
 import type { LedgerRef } from './OutputVerify';
@@ -47,6 +48,8 @@ export function StepDetail({
   const courseId = typeof params?.courseId === 'string' ? params.courseId : Array.isArray(params?.courseId) ? params.courseId[0] : '';
   const { instruction, description, danger, optional, where } = step;
   const line = instruction || description;
+  // R97: on an entry cloud course the shell is a closed drawer, so the hint counts clicks and docs.
+  const shellOptional = !!useCourseDocument().course.shellOptional;
 
   return (
     <div className="space-y-3">
@@ -89,7 +92,7 @@ export function StepDetail({
       {/* Tier 1. */}
       {hasHow(step) && (
         <div className="rounded-md depth-edge bg-panel-2/50 px-3">
-          <Collapsible title="Show me how" hint={howHint(step)} defaultOpen={howOpen}>
+          <Collapsible title="Show me how" hint={howHint(step, shellOptional)} defaultOpen={howOpen}>
             <StepHow step={step} ledger={ledger} courseId={courseId} />
           </Collapsible>
         </div>

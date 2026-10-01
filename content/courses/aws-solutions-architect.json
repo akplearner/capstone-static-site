@@ -402,6 +402,15 @@
             "frameworks": [
               "AWS_SAA",
               "WAF"
+            ],
+            "expectedOutput": "Instance state reads “Stopped” for ec2-tools-team01.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Stop and start your instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html",
+                "lookFor": "the “What happens when you stop an instance” list: the public IP is released, the disk is kept"
+              }
             ]
           }
         ]
@@ -1260,6 +1269,15 @@
             "frameworks": [
               "AWS_SAA",
               "WAF"
+            ],
+            "expectedOutput": "Instance state reads “Stopped” for ec2-tools-team01.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Stop and start your instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html",
+                "lookFor": "the “What happens when you stop an instance” list: the public IP is released, the disk is kept"
+              }
             ]
           }
         ]
@@ -1489,6 +1507,15 @@
             "frameworks": [
               "AWS_SAA",
               "WAF"
+            ],
+            "expectedOutput": "Instance state reads “Stopped” for ec2-tools-team01.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Stop and start your instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html",
+                "lookFor": "the “What happens when you stop an instance” list: the public IP is released, the disk is kept"
+              }
             ]
           }
         ]
@@ -1614,6 +1641,15 @@
             "frameworks": [
               "AWS_SAA",
               "WAF"
+            ],
+            "expectedOutput": "Instance state reads “Stopped” for ec2-tools-team01.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Stop and start your instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html",
+                "lookFor": "the “What happens when you stop an instance” list: the public IP is released, the disk is kept"
+              }
             ]
           }
         ]
@@ -1779,6 +1815,15 @@
             "frameworks": [
               "AWS_SAA",
               "WAF"
+            ],
+            "expectedOutput": "Instance state reads “Stopped” for ec2-tools-team01.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Stop and start your instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html",
+                "lookFor": "the “What happens when you stop an instance” list: the public IP is released, the disk is kept"
+              }
             ]
           }
         ]

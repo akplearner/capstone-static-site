@@ -259,7 +259,7 @@
           {
             "title": "Shared responsibility model",
             "url": "https://aws.amazon.com/compliance/shared-responsibility-model/",
-            "lookFor": "the diagram: AWS is responsible for security OF the cloud, you for security IN the cloud — which rows are yours changes with the service"
+            "lookFor": "the diagram: AWS secures the cloud, you secure what you put in it; rows change by service"
           },
           {
             "title": "Creating a cost budget",
@@ -282,9 +282,8 @@
             "instruction": "Create a $5 monthly budget that emails the team.",
             "instructionList": [
               "Billing and Cost Management → Budgets → Create budget → Use a template → Monthly cost budget.",
-              "Name capstone-team01, amount 5, email recipients: the team email. Create budget.",
-              "Cost Explorer → Launch Cost Explorer once: it needs a day to fill. Billing preferences: tick “Receive Free Tier usage alerts”.",
-              "Open CloudShell (the >_ icon) once: your CLI, signed in already."
+              "Name capstone-team01, amount 5, recipients: the team email. Create budget. Billing preferences: tick Free Tier alerts.",
+              "Cost Explorer → Launch Cost Explorer once (it fills in a day). Open CloudShell (the >_ icon) once."
             ],
             "commands": [
               {
@@ -306,10 +305,19 @@
             "verify": [
               "created"
             ],
-            "whatItMeans": "Pay-as-you-go means you pay for what runs; a budget does not stop spending, it emails you before a mistake becomes expensive. Actual is money spent; Forecasted guesses month-end. Budgets, Cost Explorer and CloudShell are exam tools.",
+            "whatItMeans": "A budget does not stop spending; it emails you before a mistake gets expensive. Actual is money spent; Forecasted guesses month-end. Budgets, Cost Explorer and CloudShell are exam tools.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Budgets lists capstone-team01 at $5.00 with an alert at 80% of actual spend.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Creating a cost budget",
+                "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/budgets-create.html",
+                "lookFor": "the “Create a budget” steps and the alert-threshold table — Actual vs Forecasted, and where the email goes"
+              }
             ],
             "paths": [
               {
@@ -345,16 +353,23 @@
             "where": "Team meeting",
             "instruction": "Say who manages what for each service you will build.",
             "instructionList": [
-              "List the seven things the team will build: VPC, EC2 instance, S3 + CloudFront site, Lambda + API Gateway, DynamoDB, CloudWatch, SNS.",
+              "List the seven services: VPC, EC2, S3 + CloudFront site, Lambda + API Gateway, DynamoDB, CloudWatch, SNS.",
               "For each: IaaS, PaaS or serverless? Who patches the OS? Who secures the data?",
-              "Pick the region (us-east-1) and note that its Availability Zones are separate buildings."
+              "Pick the region (us-east-1); note its Availability Zones are separate buildings."
             ],
             "expectedOutput": "A table: service, model, what we manage, what AWS manages.",
             "outputKind": "result",
-            "whatItMeans": "Shared responsibility is the first exam domain: on EC2 (IaaS) you patch the OS; on Lambda and DynamoDB AWS does, and you own code, data and identities. AWS secures the cloud; you secure what you put in it.",
+            "whatItMeans": "Shared responsibility is the first exam domain: on EC2 you patch the OS; on Lambda and DynamoDB AWS does, and you own code, data and identities.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Shared responsibility model",
+                "url": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+                "lookFor": "the diagram: AWS secures the cloud, you secure what you put in it; rows change by service"
+              }
             ]
           },
           {
@@ -365,16 +380,22 @@
             "instruction": "Agree one naming pattern and four tags as a team.",
             "instructionList": [
               "Pattern: what-it-is – what-it-is-for – who-owns-it. Example: ec2-tools-team01.",
-              "Prefixes: vpc-, snet-, rt-, igw-, sg-, ec2-, ebs-. Buckets, functions and tables start capstone-team01-.",
-              "Bucket names must be unique worldwide: add four digits.",
+              "Prefixes: vpc-, snet-, rt-, igw-, sg-, ec2-, ebs-. Buckets, functions and tables: capstone-team01-…; buckets add digits.",
               "Tags on everything: project=capstone, team=team01, env=dev, owner=your-role-email."
             ],
             "expectedOutput": "A table of prefixes and four tag keys everyone has agreed to use.",
             "outputKind": "result",
-            "whatItMeans": "Read ec2-tools-team01 as three parts: an EC2 instance, for the tools job, owned by team01. Most AWS names are just the Name tag, so the pattern makes a list readable. Tags carry the owner; cost reports group by them.",
+            "whatItMeans": "Read ec2-tools-team01 as three parts: an EC2 instance, for the tools job, owned by team01. Most AWS names are just the Name tag, so the pattern makes a list readable.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Tagging best practices",
+                "url": "https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/tagging-best-practices.html",
+                "lookFor": "the “Tagging categories” list — technical, business, security, automation — and pick one key from each"
+              }
             ],
             "fixes": [
               {
@@ -436,20 +457,20 @@
           {
             "title": "Regions and Availability Zones",
             "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html",
-            "lookFor": "the first two paragraphs: a Region is a separate geographic area; an Availability Zone is one or more datacenters inside it, isolated from the others"
+            "lookFor": "the first paragraphs: a Region is a geographic area; an Availability Zone is isolated datacenters inside it"
           },
           {
             "title": "Create a VPC",
             "url": "https://docs.aws.amazon.com/vpc/latest/userguide/create-vpc.html",
-            "lookFor": "the “VPC only” option (this course builds the parts one at a time so you see each) and the CIDR box"
+            "lookFor": "the “VPC only” option (this course builds the parts one at a time) and the CIDR box"
           },
           {
             "title": "Route tables",
             "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html",
-            "lookFor": "the “Main route table” paragraph — every subnet uses it until you associate another, which is why a subnet is public only by its route"
+            "lookFor": "the “Main route table” paragraph: every subnet uses it until you associate another; public is a routing decision"
           }
         ],
-        "freeTier": "Free: VPCs, subnets, route tables and internet gateways cost nothing. A NAT gateway would cost about $32 a month, which is why this course does not create one.",
+        "freeTier": "Free: VPCs, subnets, route tables and internet gateways cost nothing. A NAT gateway would cost about $32 a month, so this course never creates one.",
         "steps": [
           {
             "id": "aws-w1-infra-s1",
@@ -458,7 +479,7 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Create the VPC 10.10.0.0/16 and subnet 10.10.1.0/24.",
             "instructionList": [
-              "VPC → Your VPCs → Create VPC → “VPC only”. Name vpc-capstone-team01, IPv4 CIDR 10.10.0.0/16, tags project, team, env, owner. Create.",
+              "VPC → Your VPCs → Create VPC → “VPC only”. Name vpc-capstone-team01, IPv4 CIDR 10.10.0.0/16, tags. Create.",
               "Subnets → Create subnet: VPC vpc-capstone-team01, name snet-public-team01, Availability Zone us-east-1a, CIDR 10.10.1.0/24. Create.",
               "Open the subnet: its route table is the VPC’s main one, local only."
             ],
@@ -498,10 +519,19 @@
               "vpc-",
               "subnet-"
             ],
-            "whatItMeans": "A Region is a geographic area with several Availability Zones — separate buildings with their own power — and a subnet lives in one zone. A /16 leaves room for 256 /24 subnets.",
+            "whatItMeans": "A Region is a geographic area with several Availability Zones, separate buildings, and a subnet lives in one zone. A /16 leaves room for 256 /24 subnets.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Your VPCs lists vpc-capstone-team01 (10.10.0.0/16); Subnets lists snet-public-team01 in us-east-1a.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a VPC",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/create-vpc.html",
+                "lookFor": "the “VPC only” option (this course builds the parts one at a time) and the CIDR box"
+              }
             ],
             "fixes": [
               {
@@ -517,8 +547,8 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Add an internet gateway and a default route.",
             "instructionList": [
-              "Internet gateways → Create: name igw-capstone-team01, tags. Then Actions → Attach to VPC → vpc-capstone-team01.",
-              "Route tables → Create: name rt-public-team01, VPC vpc-capstone-team01. Routes → Edit routes → Add route 0.0.0.0/0 → Internet Gateway → igw-capstone-team01. Save.",
+              "Internet gateways → Create: name igw-capstone-team01, tags. Actions → Attach to VPC → vpc-capstone-team01.",
+              "Route tables → Create rt-public-team01 in the VPC. Edit routes → Add 0.0.0.0/0 → Internet Gateway → igw-capstone-team01. Save.",
               "Subnet associations → Edit subnet associations → tick snet-public-team01 → Save."
             ],
             "commands": [
@@ -556,10 +586,19 @@
             "verify": [
               "associated"
             ],
-            "whatItMeans": "Public or private is a routing decision, not a setting on the subnet: rt-public-team01 has the 0.0.0.0/0 route, so snet-public-team01 is public. Week 6 adds a subnet whose table has no such route, and that one is private.",
+            "whatItMeans": "Public or private is a routing decision, not a subnet setting: rt-public-team01 has the 0.0.0.0/0 route, so snet-public-team01 is public. Week 6 adds a subnet with no such route.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "rt-public-team01 shows routes local and 0.0.0.0/0 → igw-capstone-team01, with snet-public-team01 associated.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Route tables",
+                "url": "https://docs.aws.amazon.com/vpc/latest/userguide/VPC_Route_Tables.html",
+                "lookFor": "the “Main route table” paragraph: every subnet uses it until you associate another; public is a routing decision"
+              }
             ],
             "fixes": [
               {
@@ -619,7 +658,7 @@
           {
             "title": "Creating a new repository",
             "url": "https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository",
-            "lookFor": "the visibility choice and the “Initialize this repository with a README” box — tick it, or the repo starts empty"
+            "lookFor": "the visibility choice and the “Add a README file” box: tick it, or the repo starts empty"
           },
           {
             "title": "Creating a project",
@@ -642,10 +681,17 @@
             ],
             "expectedOutput": "A private repository with a README and four folders, shared with the team.",
             "outputKind": "result",
-            "whatItMeans": "Everything the team produces lives here — the site, the function, the template (Week 9) and the documents. Private, because it will hold your real resource names and URLs; a key or the .pem file never goes in.",
+            "whatItMeans": "Everything the team produces lives here: the site, the function, the template and the documents. Private, because it holds real resource names; a key or .pem file never goes in.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Creating a new repository",
+                "url": "https://docs.github.com/en/repositories/creating-and-managing-repositories/creating-a-new-repository",
+                "lookFor": "the visibility choice and the “Add a README file” box: tick it, or the repo starts empty"
+              }
             ],
             "fixes": [
               {
@@ -662,14 +708,21 @@
             "instruction": "Create a board with this week’s four tasks.",
             "instructionList": [
               "Your profile → Projects → New project → Board. Columns: To do, Doing, Done.",
-              "Add one card per role for Week 1 and assign it. Link the board from the README."
+              "Add one card per role for Week 1, assigned. Link the board from the README."
             ],
             "expectedOutput": "A board with four assigned cards, linked from the README.",
             "outputKind": "result",
-            "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is, and operating in the cloud starts with knowing who is doing what.",
+            "whatItMeans": "A board makes the four independent tasks visible, so nobody waits on anybody without knowing it. Moving a card is the cheapest status report there is.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Creating a project",
+                "url": "https://docs.github.com/en/issues/planning-and-tracking-with-projects/creating-projects/creating-a-project",
+                "lookFor": "the “Board” layout and how to add a draft item — one card per role per week"
+              }
             ]
           },
           {
@@ -727,7 +780,7 @@
           {
             "title": "Creating an IAM user in your AWS account",
             "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html",
-            "lookFor": "the console steps: “Provide user access to the AWS Management Console”, autogenerated password, “must create a new password at next sign-in”, and the Download .csv at the end"
+            "lookFor": "the console steps: console access, autogenerated password, “must create a new password at next sign-in”, Download .csv"
           },
           {
             "title": "Creating IAM user groups",
@@ -772,10 +825,19 @@
             "verify": [
               "capstone-team01-builders"
             ],
-            "whatItMeans": "IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Builders get AdministratorAccess because they create everything this month — the usual sandbox grant. Week 3 adds a read-only group.",
+            "whatItMeans": "IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Builders get AdministratorAccess because they create everything this month.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "User groups lists capstone-team01-builders with AdministratorAccess under Permissions.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Creating IAM user groups",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_create.html",
+                "lookFor": "the “Attach permissions policies” step — search AdministratorAccess, tick exactly that one"
+              }
             ],
             "paths": [
               {
@@ -801,10 +863,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Create team01-infra, team01-dev and team01-arch in the group.",
             "instructionList": [
-              "IAM → Users → Create user. Name team01-infra. Tick “Provide user access to the console” → “I want to create an IAM user”.",
-              "Console password: Autogenerated. Tick “Users must create a new password at next sign-in”. Next.",
-              "Permissions: Add user to group → capstone-team01-builders. Next → Create user.",
-              "Download .csv (the sign-in URL and temporary password). Repeat for team01-dev and team01-arch."
+              "IAM → Users → Create user: team01-infra. Tick “Provide user access to the console”, IAM user.",
+              "Password: Autogenerated, tick “must create a new password at next sign-in”. Permissions: add to capstone-team01-builders.",
+              "Create user → Download .csv (sign-in URL, temporary password). Repeat for team01-dev and team01-arch."
             ],
             "commands": [
               {
@@ -826,10 +887,19 @@
             "verify": [
               "team01-infra"
             ],
-            "whatItMeans": "One IAM user per person, never a shared one: CloudTrail then records who did what. The temporary password is handed over privately and dies at first sign-in; the group membership is what grants the access.",
+            "whatItMeans": "One IAM user per person, never a shared one: CloudTrail then records who did what. The temporary password dies at first sign-in; the group membership is what grants access.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Users lists team01-infra, team01-dev and team01-arch, each in capstone-team01-builders.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Creating an IAM user in your AWS account",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html",
+                "lookFor": "the console steps: console access, autogenerated password, “must create a new password at next sign-in”, Download .csv"
+              }
             ],
             "fixes": [
               {
@@ -845,9 +915,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Create the alias; send each teammate their sign-in privately.",
             "instructionList": [
-              "IAM → Dashboard → AWS Account → Account Alias → Create → capstone-team01. The sign-in URL becomes https://capstone-team01.signin.aws.amazon.com/console.",
-              "Send each teammate their user name, temporary password and that URL privately — never the repository or a group chat.",
-              "Each teammate signs in at the URL, sets a new password, and sees the console."
+              "IAM → Dashboard → AWS Account → Account Alias → Create → capstone-team01.",
+              "Send each teammate their user name, temporary password and https://capstone-team01.signin.aws.amazon.com/console privately, never the repository.",
+              "Each teammate signs in at that URL, sets a new password, and sees the console."
             ],
             "commands": [
               {
@@ -865,10 +935,19 @@
             "verify": [
               "capstone-team01"
             ],
-            "whatItMeans": "IAM users sign in at the account’s own URL, not the root sign-in page; the alias makes that URL readable. A password sent through the repository is public the moment it is pushed.",
+            "whatItMeans": "IAM users sign in at the account’s own URL, not the root page; the alias makes it readable. A password pushed to the repository is public at once.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "The IAM dashboard shows the sign-in URL https://capstone-team01.signin.aws.amazon.com/console.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Your AWS account ID and its alias",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/console_account-alias.html",
+                "lookFor": "the “Creating, deleting, and listing an AWS account alias” steps and the sign-in URL it produces"
+              }
             ],
             "fixes": [
               {
@@ -888,8 +967,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Each member assigns an MFA device; you check the column.",
             "instructionList": [
-              "Each member, signed in as themselves: top-right menu → Security credentials → Assign MFA device → Authenticator app → scan → two codes → Add MFA.",
-              "You: IAM → Users: the MFA column reads “Virtual” for all four. Root user: IAM → Dashboard → Security recommendations → root MFA on."
+              "Each member: top-right menu → Security credentials → Assign MFA device → Authenticator app → scan → two codes → Add MFA.",
+              "You: IAM → Users: the MFA column reads “Virtual” for all four.",
+              "Root user: IAM → Dashboard → Security recommendations → root MFA on."
             ],
             "commands": [
               {
@@ -907,10 +987,19 @@
             "verify": [
               "team01"
             ],
-            "whatItMeans": "Multi-factor authentication is the single control the exam names most: a stolen password alone no longer opens the account. On AWS it is per IAM user, so each person does it once; the root user gets it too.",
+            "whatItMeans": "Multi-factor authentication is the control the exam names most: a stolen password alone no longer opens the account. It is per IAM user, so each person does it once.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "IAM → Users shows MFA “Virtual” for all four users, and the root user has MFA too.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Enable a virtual MFA device for an IAM user",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_mfa_enable_virtual.html",
+                "lookFor": "the “My security credentials” route and the two consecutive codes the wizard asks for"
+              }
             ],
             "fixes": [
               {
@@ -970,17 +1059,17 @@
           {
             "title": "AWS Free Tier",
             "url": "https://aws.amazon.com/free/",
-            "lookFor": "the three kinds of offer — 12 months free, always free, trials — and the 750-hour line under EC2; that is the budget this course lives inside"
+            "lookFor": "the three kinds of offer, 12 months free, always free, trials, and the 750-hour EC2 line"
           },
           {
             "title": "AWS Pricing Calculator",
             "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/what-is-pricing-calculator.html",
-            "lookFor": "the “Add service” flow and the estimate summary; the calculator prices list rates, so subtract the free tier yourself"
+            "lookFor": "the “Add service” flow and the estimate summary; it prices list rates, so subtract the free tier yourself"
           },
           {
             "title": "Amazon S3 storage classes",
             "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html",
-            "lookFor": "the comparison table: Standard, Standard-IA, One Zone-IA, Glacier — the retrieval fee column is what decides for a site read every day"
+            "lookFor": "the comparison table: Standard, Standard-IA, One Zone-IA, Glacier; the retrieval fee column decides for a daily-read site"
           }
         ],
         "freeTier": "Free: the calculator. Nothing is deployed. Your list-price estimate should come out near $10 a month before the free tier and near $0 after it.",
@@ -993,16 +1082,22 @@
             "instruction": "Price the components in the AWS Pricing Calculator.",
             "instructionList": [
               "Add: EC2 (t3.micro, Linux, 730 h), S3 Standard (1 GB), CloudFront (1 GB out).",
-              "Add: Lambda, API Gateway HTTP API, DynamoDB on-demand — mostly free tier.",
-              "Read the monthly total; then halve the EC2 hours — you stop it.",
-              "Subtract what the Free Tier covers in year one: 750 EC2 hours, 5 GB S3, 750 public-IP hours."
+              "Add: Lambda, API Gateway HTTP API, DynamoDB on-demand (mostly free tier). Read the monthly total.",
+              "Halve the EC2 hours (you stop it); subtract the Free Tier: 750 hours, 5 GB S3."
             ],
             "expectedOutput": "A monthly estimate per service, with EC2 the largest line.",
             "outputKind": "result",
-            "whatItMeans": "Cost is set by size, hours, Region, storage class and data out — the factors the exam lists. The calculator shows list prices; the 12-month Free Tier removes the EC2 and S3 lines, and Lambda and DynamoDB stay free.",
+            "whatItMeans": "Cost is set by size, hours, Region, storage class and data out. The 12-month Free Tier removes the EC2 and S3 lines; Lambda and DynamoDB stay free.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "AWS Pricing Calculator",
+                "url": "https://docs.aws.amazon.com/pricing-calculator/latest/userguide/what-is-pricing-calculator.html",
+                "lookFor": "the “Add service” flow and the estimate summary; it prices list rates, so subtract the free tier yourself"
+              }
             ],
             "fixes": [
               {
@@ -1018,16 +1113,23 @@
             "where": "The document",
             "instruction": "Choose S3 classes and the EBS type for each asset.",
             "instructionList": [
-              "Site bucket: S3 Standard — read every day, 11 nines durability, no retrieval fee. Alternative: Standard-IA, rejected for its retrieval fee.",
-              "Instance root volume: gp3 8 GB, inside the free 30 GB. Snapshots (Week 8) are the backup.",
+              "Site bucket: S3 Standard (read daily, 11 nines, no retrieval fee). Rejected: Standard-IA (retrieval fee).",
+              "Root volume: gp3 8 GB, inside the free 30 GB. Snapshots (Week 8) are the backup.",
               "DynamoDB: on-demand, one Region. Write each alternative you rejected and its price."
             ],
             "expectedOutput": "One row per asset: class chosen, alternative rejected, monthly cost.",
             "outputKind": "result",
-            "whatItMeans": "S3 classes trade storage price for retrieval price and availability: Standard for data read often, IA for data read rarely, Glacier for archives. EBS types trade IOPS for price. Every step down is a fee somewhere else.",
+            "whatItMeans": "S3 classes trade storage price for retrieval price: Standard for data read often, IA for data read rarely, Glacier for archives. Every step down is a fee somewhere else.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Amazon S3 storage classes",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html",
+                "lookFor": "the comparison table: Standard, Standard-IA, One Zone-IA, Glacier; the retrieval fee column decides for a daily-read site"
+              }
             ]
           },
           {
@@ -1083,7 +1185,7 @@
           {
             "title": "Launch an instance using the launch wizard",
             "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html",
-            "lookFor": "the “Free tier eligible” label beside the instance type, and the Network settings panel where you pick the subnet and security group"
+            "lookFor": "the “Free tier eligible” label by the instance type, and the Network settings panel: subnet and security group"
           },
           {
             "title": "Instance lifecycle",
@@ -1091,7 +1193,7 @@
             "lookFor": "the state diagram: stopped keeps the disk and bills only storage; terminated is gone"
           }
         ],
-        "freeTier": "Free tier: t3.micro is free for 750 hours a month for 12 months; the 8 GB gp3 root disk sits inside the 30 GB free. Stop it when done — hours count while it runs. The public IPv4 is free for 750 hours in year one.",
+        "freeTier": "Free tier: 750 t3.micro hours a month, the 8 GB gp3 disk, 750 public IPv4 hours. Stop it when done: hours count while running.",
         "steps": [
           {
             "id": "aws-w2-infra-s1",
@@ -1100,10 +1202,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Launch the t3.micro in the public subnet.",
             "instructionList": [
-              "EC2 → Instances → Launch instance. Name ec2-tools-team01; add tags project, team, env, owner. Amazon Linux 2023; t3.micro (Free tier eligible).",
-              "Key pair → Create new key pair: kp-team01, RSA, .pem. Save the file; never commit it.",
-              "Network settings → Edit: VPC vpc-capstone-team01, subnet snet-public-team01, Auto-assign public IP Enable. Create security group sg-tools-team01; untick “Allow SSH traffic”.",
-              "Leave Advanced details at their defaults. Launch instance."
+              "EC2 → Instances → Launch instance. Name ec2-tools-team01 (tags project, team, env, owner). Amazon Linux 2023, t3.micro.",
+              "Key pair → Create new: kp-team01, RSA, .pem. Save the file; never commit it.",
+              "Network settings: vpc-capstone-team01, snet-public-team01, Auto-assign public IP Enable; new security group sg-tools-team01, untick “Allow SSH”. Launch."
             ],
             "commands": [
               {
@@ -1149,10 +1250,19 @@
               "i-0",
               "10.10.1."
             ],
-            "whatItMeans": "EC2 is IaaS: you choose the image, type and zone, and you patch it. t3.micro is free-tier eligible; the new security group has no inbound rule, so nothing reaches it yet. The private .pem is your key: keep it.",
+            "whatItMeans": "EC2 is IaaS: you choose the image, type and zone, and you patch it. t3.micro is free-tier eligible; the new security group has no inbound rule, so nothing reaches it.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Instances lists ec2-tools-team01 Running, t3.micro, in us-east-1a, with a public IPv4 address.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Launch an instance using the launch wizard",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-launch-instance-wizard.html",
+                "lookFor": "the “Free tier eligible” label by the instance type, and the Network settings panel: subnet and security group"
+              }
             ],
             "fixes": [
               {
@@ -1177,7 +1287,7 @@
             "instruction": "Read the IPs and zone, then share the key privately.",
             "instructionList": [
               "EC2 → Instances → ec2-tools-team01 → Details: Private IPv4, Public IPv4, Availability Zone, Instance state.",
-              "Send kp-team01.pem through a private channel (Teams/Slack DM, a password manager) — never the repository or email. User name: ec2-user."
+              "Send kp-team01.pem privately (a DM or password manager), never the repository or email. User: ec2-user."
             ],
             "commands": [
               {
@@ -1195,10 +1305,19 @@
             "verify": [
               "running"
             ],
-            "whatItMeans": "AWS reserves the first four addresses and the last in every subnet. The public IP changes every time the instance stops and starts — record the private one. The private key is the password to this machine.",
+            "whatItMeans": "The public IP changes on every stop and start, so record the private one. AWS keeps five addresses in every subnet. The key is the password to this machine.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Details shows Private IPv4 10.10.1.x, a Public IPv4, Availability Zone us-east-1a, state running.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Connect to your Linux instance using SSH",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html",
+                "lookFor": "the prerequisites: the .pem file, chmod 400, and the ec2-user name for Amazon Linux"
+              }
             ]
           },
           {
@@ -1253,6 +1372,15 @@
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Instance state reads “Stopped” for ec2-tools-team01.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Stop and start your instance",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Stop_Start.html",
+                "lookFor": "the “What happens when you stop an instance” list: the public IP is released, the disk is kept"
+              }
             ]
           }
         ]
@@ -1292,7 +1420,7 @@
           {
             "title": "Restrict access to an S3 origin",
             "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html",
-            "lookFor": "the “Create a new OAC” steps and the bucket policy CloudFront hands you — you paste it into the bucket, CloudFront does not do it for you"
+            "lookFor": "the “Create a new OAC” steps and the bucket policy CloudFront hands you to paste into the bucket"
           },
           {
             "title": "Creating a bucket",
@@ -1300,7 +1428,7 @@
             "lookFor": "the bucket-naming rules (global, lowercase) and the Block Public Access section — leave every box ticked"
           }
         ],
-        "freeTier": "Free tier: S3 5 GB for 12 months; CloudFront 1 TB out and 10 million requests a month, always free. Invalidations: 1,000 paths a month free. Do not enable WAF on the distribution — that costs about $14 a month.",
+        "freeTier": "Free tier: S3 5 GB for 12 months; CloudFront 1 TB out, always free. Do not enable WAF on the distribution: about $14 a month.",
         "steps": [
           {
             "id": "aws-w2-dev-s1",
@@ -1309,7 +1437,7 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Create a private bucket and upload the site.",
             "instructionList": [
-              "S3 → Create bucket: name capstone-team01-site plus four digits, region us-east-1, Block all public access ticked. Tags. Create bucket.",
+              "S3 → Create bucket: capstone-team01-site plus four digits, us-east-1, Block all public access ticked. Tags. Create.",
               "Open it → Upload → Add files → site/index.html (and 404.html) → Upload."
             ],
             "commands": [
@@ -1332,10 +1460,19 @@
             "verify": [
               "make_bucket"
             ],
-            "whatItMeans": "S3 is object storage: a bucket holds files, the name is unique worldwide, and Block Public Access keeps it private. capstone-team01-site: the bucket for the capstone site, owned by team01. It never becomes public — hence CloudFront in front.",
+            "whatItMeans": "S3 is object storage: a bucket holds files, the name is unique worldwide, and Block Public Access keeps it private. It never becomes public; CloudFront sits in front instead.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "The bucket lists index.html, and Permissions shows Block all public access: On.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Creating a bucket",
+                "url": "https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html",
+                "lookFor": "the bucket-naming rules (global, lowercase) and the Block Public Access section — leave every box ticked"
+              }
             ],
             "fixes": [
               {
@@ -1351,17 +1488,23 @@
             "where": "AWS console — CloudFront → Create distribution",
             "instruction": "Create a distribution with Origin Access Control.",
             "instructionList": [
-              "Origin domain: your bucket (not the website endpoint). Origin access: Origin access control settings → Create new OAC → Create.",
-              "Viewer protocol policy: Redirect HTTP to HTTPS. Web Application Firewall: Do not enable security protections.",
-              "Default root object: index.html. Create distribution.",
+              "Create distribution. Origin domain: your bucket (not the website endpoint). Origin access control → Create new OAC.",
+              "Viewer protocol: Redirect HTTP to HTTPS. WAF: Do not enable. Default root object: index.html. Create distribution.",
               "The yellow banner → Copy policy → S3 → the bucket → Permissions → Bucket policy → Edit → paste → Save."
             ],
             "expectedOutput": "The distribution is Enabled and https://d….cloudfront.net shows your page.",
             "outputKind": "result",
-            "whatItMeans": "CloudFront is the content delivery network: edge locations near visitors cache the site and serve it over HTTPS with AWS’s certificate. OAC signs CloudFront’s requests; the bucket policy admits only this distribution, which is why you paste it yourself.",
+            "whatItMeans": "CloudFront is the content delivery network: edge locations near visitors cache the site and serve it over HTTPS. OAC signs CloudFront’s requests; the bucket policy admits only this distribution.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Restrict access to an S3 origin",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/private-content-restricting-access-to-s3.html",
+                "lookFor": "the “Create a new OAC” steps and the bucket policy CloudFront hands you to paste into the bucket"
+              }
             ],
             "fixes": [
               {
@@ -1405,10 +1548,19 @@
             "verify": [
               "InProgress"
             ],
-            "whatItMeans": "Upload plus invalidate is a redeploy. CloudFront keeps a copy of each file at the edge for up to a day, so without the invalidation the old page can linger. Week 10 automates both steps.",
+            "whatItMeans": "Upload plus invalidate is a redeploy. CloudFront keeps a copy of each file at the edge for up to a day, so without the invalidation the old page lingers.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Invalidations lists one with status Completed, and the site shows your change.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Invalidate files",
+                "url": "https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Invalidation.html",
+                "lookFor": "the “Invalidating files using the console” steps and the /* path that clears everything"
+              }
             ]
           },
           {
@@ -1470,7 +1622,7 @@
           {
             "title": "Connect to your Linux instance using SSH",
             "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html",
-            "lookFor": "the ssh command with -i and the user name for Amazon Linux (ec2-user), and the “Permission denied” troubleshooting for a .pem that is too open"
+            "lookFor": "the ssh command with -i, the ec2-user name, and the “Permission denied” fix for an open .pem"
           }
         ],
         "freeTier": "Free: security group rules. Instance hours count while it runs — stop it when the test is done.",
@@ -1487,7 +1639,7 @@
             "instructionList": [
               "EC2 → Security groups → sg-tools-team01: Inbound rules is empty; Outbound rules has the default All traffic.",
               "Inbound rules → Edit inbound rules → Add rule.",
-              "Type SSH, Source “My IP” — the console fills your address as a /32. Description: Allow-SSH-MyIP. Save rules."
+              "Type SSH, Source “My IP” (the console fills your /32). Description Allow-SSH-MyIP. Save rules."
             ],
             "commands": [
               {
@@ -1523,10 +1675,19 @@
             "verify": [
               "/32"
             ],
-            "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the internet for open SSH within minutes. Security groups have no priorities and no deny: this allow is the whole inbound policy — one layer of defense in depth.",
+            "whatItMeans": "Never 0.0.0.0/0 on port 22: bots scan the internet for open SSH within minutes. Security groups have no priorities and no deny: this allow is the whole inbound policy.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Inbound rules shows one row: SSH, TCP 22, source your address/32, Allow-SSH-MyIP.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Work with security group rules",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/working-with-security-group-rules.html",
+                "lookFor": "the “Add rules” steps and the Source field’s “My IP” choice — it fills your /32 for you"
+              }
             ]
           },
           {
@@ -1536,17 +1697,23 @@
             "where": "Your laptop, then CloudShell",
             "instruction": "Test SSH from your laptop, then from CloudShell.",
             "instructionList": [
-              "Start the instance: EC2 → Instances → ec2-tools-team01 → Instance state → Start; read the public IP on Details.",
-              "From your laptop, using the key the Infra Admin shared: a prompt appears (below, by operating system).",
-              "From CloudShell: ssh -i kp-team01.pem ec2-user@PUBLIC_IP — expect “Connection timed out”.",
-              "Stop the instance when done: Instance state → Stop instance."
+              "Start the instance (Instance state → Start) and read the public IP on Details.",
+              "From your laptop, with the shared key, connect (below, by operating system): a prompt appears.",
+              "From CloudShell: ssh -i kp-team01.pem ec2-user@PUBLIC_IP times out. Then stop the instance."
             ],
             "expectedOutput": "SSH connects from your laptop and times out from CloudShell.",
             "outputKind": "result",
-            "whatItMeans": "A rule is only proved when something that should fail does fail. CloudShell has a different address, so the /32 rule rightly refuses it — the same refusal any attacker gets.",
+            "whatItMeans": "A rule is only proved when something that should fail does fail. CloudShell has a different address, so the /32 rule refuses it, as it refuses any attacker.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Connect to your Linux instance using SSH",
+                "url": "https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/connect-linux-inst-ssh.html",
+                "lookFor": "the ssh command with -i, the ec2-user name, and the “Permission denied” fix for an open .pem"
+              }
             ],
             "paths": [
               {
@@ -1658,6 +1825,13 @@
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Working with HTTP APIs",
+                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api.html",
+                "lookFor": "the invoke-URL shape — https://{api-id}.execute-api.{region}.amazonaws.com — so you can recognise your second hop"
+              }
             ]
           },
           {
@@ -1667,17 +1841,23 @@
             "where": "The document",
             "instruction": "Write the flow with your real URLs and owners.",
             "instructionList": [
-              "Browser → https://d….cloudfront.net (CloudFront + S3: AWS runs them).",
-              "Page script → GET https://….execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter (API Gateway + Lambda: AWS runs the servers, we own the code).",
-              "Lambda → DynamoDB table capstone-team01-visitors, item id \"site\" (AWS runs it, we own the data).",
-              "Back: { \"count\": n } → the page writes it into #visitor-count."
+              "Browser → https://d….cloudfront.net. Page script → GET …execute-api.us-east-1.amazonaws.com/default/capstone-team01-counter.",
+              "Lambda → DynamoDB table capstone-team01-visitors, item id \"site\". Back: { \"count\": n }.",
+              "For each hop: who runs it (AWS) and what we own (code, data, access)."
             ],
             "expectedOutput": "A three-hop flow with real URLs, resource names and who manages each.",
             "outputKind": "result",
-            "whatItMeans": "Serverless means no server you can see: it scales to zero and you pay per request — the pay-as-you-go model. A flow with real URLs is testable: each arrow is something you can call and watch fail.",
+            "whatItMeans": "Serverless means no server you can see: it scales to zero and you pay per request. A flow with real URLs is testable: each arrow can be called.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Shared responsibility model",
+                "url": "https://aws.amazon.com/compliance/shared-responsibility-model/",
+                "lookFor": "the “abstracted services” paragraph: for Lambda and DynamoDB, AWS runs the platform; you own code, data and access"
+              }
             ]
           },
           {
@@ -1732,12 +1912,12 @@
           {
             "title": "Create a table in DynamoDB",
             "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-1.html",
-            "lookFor": "the console steps: table name, partition key name and type, and where “Table settings → Customize” hides the capacity mode"
+            "lookFor": "the console steps: table name, partition key name and type, and Table settings → Customize for capacity mode"
           },
           {
             "title": "On-demand capacity mode",
             "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/on-demand-capacity-mode.html",
-            "lookFor": "the first paragraph: you pay per request, with no capacity to plan — that is why an idle counter costs nothing"
+            "lookFor": "the first paragraph: you pay per request, with no capacity to plan, so an idle counter costs nothing"
           }
         ],
         "freeTier": "Free: DynamoDB gives 25 GB and 25 read/write units always free; on-demand requests for a counter round to zero.",
@@ -1778,10 +1958,19 @@
             "verify": [
               "ACTIVE"
             ],
-            "whatItMeans": "DynamoDB is a managed NoSQL key-value database: no server, no schema beyond the key, AWS runs and scales it. RDS would be the managed relational choice for tables with joins. The partition key decides where an item is stored.",
+            "whatItMeans": "DynamoDB is a managed NoSQL key-value database: no server, no schema beyond the key, AWS runs and scales it. RDS is the managed relational choice for tables with joins.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Tables lists capstone-team01-visitors with status Active and capacity mode On-demand.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a table in DynamoDB",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-1.html",
+                "lookFor": "the console steps: table name, partition key name and type, and Table settings → Customize for capacity mode"
+              }
             ]
           },
           {
@@ -1804,10 +1993,19 @@
             "verify": [
               "site"
             ],
-            "whatItMeans": "The Lambda adds one to this one item on every visit. Seeding it is optional in DynamoDB (ADD creates a missing item), but seeing the item now makes the first request easier to understand.",
+            "whatItMeans": "The Lambda adds one to this one item. Seeding is optional in DynamoDB (ADD creates a missing item), but seeing the item now makes the first request clearer.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Explore table items lists one item: id site, count 0.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Write data to a table",
+                "url": "https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/getting-started-step-2.html",
+                "lookFor": "the console steps: Create item, the id value, then Add new attribute → Number"
+              }
             ]
           },
           {
@@ -1869,7 +2067,7 @@
           {
             "title": "Lambda execution role",
             "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html",
-            "lookFor": "the first paragraph: the function assumes the role at run time, so no key is ever stored in it"
+            "lookFor": "the first paragraph: the function assumes the role at run time, so no key is stored in it"
           },
           {
             "title": "Using Lambda with API Gateway",
@@ -1890,10 +2088,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Create a Python Lambda that adds one to the count.",
             "instructionList": [
-              "Lambda → Create function → Author from scratch. Name capstone-team01-counter, runtime Python 3.12, “Create a new role with basic Lambda permissions”. Create.",
-              "Code tab: replace lambda_function.py with the code below. Deploy.",
-              "Configuration → Environment variables → Edit → Add: TABLE_NAME = capstone-team01-visitors. Save.",
-              "Test → Create new event (any name) → Test: an AccessDenied error — expected until the next step."
+              "Lambda → Create function → Author from scratch: capstone-team01-counter, Python 3.12, new role with basic permissions. Create.",
+              "Code tab: replace lambda_function.py with the code below. Deploy. Configuration → Environment variables → TABLE_NAME = capstone-team01-visitors.",
+              "Test → Create new event (any name) → Test: an AccessDenied error, expected until the next step."
             ],
             "commands": [
               {
@@ -1905,11 +2102,21 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "Lambda is serverless compute: AWS runs the servers, your code runs when called, and you pay per request. ADD is atomic, so two visitors at once both count. The Test fails until the next step grants the table.",
+            "whatItMeans": "Lambda is serverless compute: AWS runs the servers, your code runs when called, and you pay per request. ADD is atomic, so two visitors at once both count.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
             ],
+            "expectedOutput": "Deploy reports “Successfully updated”; Test returns an AccessDeniedException for dynamodb:UpdateItem.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create your first Lambda function",
+                "url": "https://docs.aws.amazon.com/lambda/latest/dg/getting-started.html",
+                "lookFor": "the “Author from scratch” form and the Test tab — the console editor deploys with one button"
+              }
+            ],
+            "codeToPaste": true,
             "fixes": [
               {
                 "symptom": "KeyError: TABLE_NAME",
@@ -1928,10 +2135,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Grant the table, then add an HTTP API trigger.",
             "instructionList": [
-              "Configuration → Permissions → the role name → Add permissions → Create inline policy → JSON: paste the policy below. Name count-visitors. Create.",
-              "Back in Lambda: Test again — {\"count\": 1}.",
-              "Function overview → Add trigger → API Gateway → Create a new API → HTTP API, Security: Open. Add.",
-              "Configuration → Triggers: copy the API endpoint URL."
+              "Configuration → Permissions → the role → Add permissions → Create inline policy → JSON: paste below; name count-visitors.",
+              "Back in Lambda, Test again: {\"count\": 1}.",
+              "Function overview → Add trigger → API Gateway → new HTTP API, Security Open. Copy the API endpoint."
             ],
             "commands": [
               {
@@ -1948,11 +2154,21 @@
             "verify": [
               "granted"
             ],
-            "whatItMeans": "An IAM role is an identity a service assumes: the policy names one action on one table, so a bug cannot touch anything else — that is least privilege. API Gateway gives the function its HTTPS URL.",
+            "whatItMeans": "A role is an identity the function assumes; its policy allows one action on one table, so a bug cannot touch more. API Gateway gives the function its URL.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
             ],
+            "expectedOutput": "Test returns {\"count\": 1}, and Triggers shows an API Gateway endpoint URL.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Lambda execution role",
+                "url": "https://docs.aws.amazon.com/lambda/latest/dg/lambda-intro-execution-role.html",
+                "lookFor": "the first paragraph: the function assumes the role at run time, so no key is stored in it"
+              }
+            ],
+            "codeToPaste": true,
             "fixes": [
               {
                 "symptom": "AccessDeniedException still, after the policy",
@@ -1968,8 +2184,7 @@
             "instruction": "Call the API, then add the count to the page.",
             "instructionList": [
               "Open the API endpoint in a browser tab: {\"count\": 2}. Reload: 3.",
-              "In site/index.html add a fetch() of that URL writing the result into #visitor-count (snippet below).",
-              "API Gateway → the counter API → CORS → Configure: Access-Control-Allow-Origin = your CloudFront URL (no trailing slash), Allow-Methods GET. Save.",
+              "Add the snippet below to index.html; API Gateway → CORS → Allow-Origin = your CloudFront URL, GET. Save.",
               "Upload the file to the bucket and invalidate /* (Week 2). Reload the site."
             ],
             "commands": [
@@ -1987,11 +2202,21 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "The page calls the API from the visitor’s browser — there is no server. The browser only reads the answer because the API lists the site as an allowed origin. Nothing in the page is secret.",
+            "whatItMeans": "The page calls the API from the visitor’s browser; there is no server. The browser only reads the answer because the API lists the site as an allowed origin.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
             ],
+            "expectedOutput": "The site shows “Visitors: 3” and the number grows on every reload.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Configuring CORS for an HTTP API",
+                "url": "https://docs.aws.amazon.com/apigateway/latest/developerguide/http-api-cors.html",
+                "lookFor": "the console section: Access-Control-Allow-Origin takes the site’s origin exactly, with no trailing slash"
+              }
+            ],
+            "codeToPaste": true,
             "fixes": [
               {
                 "symptom": "The page shows “…” for ever",
@@ -2057,7 +2282,7 @@
           {
             "title": "ReadOnlyAccess managed policy",
             "url": "https://docs.aws.amazon.com/aws-managed-policy/latest/reference/ReadOnlyAccess.html",
-            "lookFor": "the length of the policy and that every action starts with Describe, Get or List — that is what “read only” means"
+            "lookFor": "the policy’s length, and that every action starts with Describe, Get or List: that is read only"
           },
           {
             "title": "Getting credential reports",
@@ -2091,10 +2316,19 @@
             "verify": [
               "capstone-team01-readonly"
             ],
-            "whatItMeans": "IAM users sign in; groups hold policies; a policy is a JSON list of allowed actions. Grant to groups, not people: joining and leaving becomes one membership change. ReadOnlyAccess is AWS-managed: every action is Describe, Get or List.",
+            "whatItMeans": "Grant to groups, not people: joining and leaving becomes one membership change. ReadOnlyAccess is an AWS-managed policy: every action in it is Describe, Get or List.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "User groups lists capstone-team01-readonly with ReadOnlyAccess and four users.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Creating IAM user groups",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_groups_create.html",
+                "lookFor": "the “Attach permissions policies” step — search ReadOnlyAccess, tick exactly that one"
+              }
             ]
           },
           {
@@ -2117,10 +2351,19 @@
             "verify": [
               "implicitDeny"
             ],
-            "whatItMeans": "Least privilege is proved by a denial: one allowed and one denied action show the policy does what the document says. implicitDeny means no policy allowed it — the default in IAM is no.",
+            "whatItMeans": "Least privilege is proved by a denial: one allowed and one denied action show the policy does what the document says. In IAM the default answer is no.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "The console shows “You are not authorized to perform this operation” and the instance keeps running.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "ReadOnlyAccess managed policy",
+                "url": "https://docs.aws.amazon.com/aws-managed-policy/latest/reference/ReadOnlyAccess.html",
+                "lookFor": "the policy’s length, and that every action starts with Describe, Get or List: that is read only"
+              }
             ]
           },
           {
@@ -2130,15 +2373,22 @@
             "where": "IAM → Credential report, then the browser",
             "instruction": "Check MFA on each member and no key in the page.",
             "instructionList": [
-              "IAM → Credential report → Download report: mfa_active is TRUE for every teammate; access_key_1_active is FALSE for root.",
-              "View the site source (Ctrl+U): only the API URL, no key. Lambda → Environment variables: only TABLE_NAME; the role grants access."
+              "IAM → Credential report → Download report: mfa_active TRUE for every teammate; access_key_1_active FALSE for root.",
+              "View the site source (Ctrl+U): only the API URL, no key. Lambda → Environment variables: only TABLE_NAME."
             ],
             "expectedOutput": "Four members with MFA; the page holds a URL and nothing else.",
             "outputKind": "result",
-            "whatItMeans": "MFA per user and least privilege per group are the two identity controls CLF-C02 tests. Anything in page source is public; the function needs no key at all because its role hands out short-lived credentials.",
+            "whatItMeans": "MFA per user and least privilege per group are the two identity controls CLF-C02 tests. Anything in page source is public; the function needs no key at all.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Getting credential reports",
+                "url": "https://docs.aws.amazon.com/IAM/latest/UserGuide/id_credentials_getting-report.html",
+                "lookFor": "the “Download report” button and the mfa_active column — one line per user, your MFA check"
+              }
             ],
             "fixes": [
               {
@@ -2205,7 +2455,7 @@
           {
             "title": "AWS Trusted Advisor",
             "url": "https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html",
-            "lookFor": "the checks available on Basic support — the security ones are free: MFA on root, security groups with open ports, S3 permissions"
+            "lookFor": "the checks on Basic support: the free security ones are MFA on root, open ports, S3 permissions"
           },
           {
             "title": "Compare AWS Support plans",
@@ -2213,7 +2463,7 @@
             "lookFor": "the four columns — Basic, Developer, Business, Enterprise — and the response-time rows; that is the exam question"
           }
         ],
-        "freeTier": "Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 per call, so the console is the main path.",
+        "freeTier": "Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 a call: use the console.",
         "steps": [
           {
             "id": "aws-w4-arch-s1",
@@ -2222,8 +2472,8 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Group this month’s cost by service and by offer.",
             "instructionList": [
-              "Billing and Cost Management → Cost Explorer. Date range: month to date. Group by: Service. Read the table: service, cost.",
-              "Billing → Free Tier: the usage of each offer (EC2 hours, S3 GB). Budgets → capstone-team01: how much is used.",
+              "Billing → Cost Explorer. Month to date, Group by Service. Read the table under the chart.",
+              "Billing → Free Tier: usage per offer (EC2 hours, S3 GB). Budgets → capstone-team01: how much is used.",
               "Compare with your Week 2 estimate."
             ],
             "commands": [
@@ -2236,10 +2486,19 @@
             "verify": [
               "Amazon"
             ],
-            "whatItMeans": "Actual cost shows what you forgot to switch off: if EC2 is not near zero, the instance was left running. Cost data arrives a day late; Cost Explorer stays empty for its first day.",
+            "whatItMeans": "Actual cost shows what you forgot to switch off: if EC2 is not near zero, the instance was left running. Cost data arrives a day late.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "A table of services and their month-to-date cost, with EC2 the largest line.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Exploring your data using Cost Explorer",
+                "url": "https://docs.aws.amazon.com/cost-management/latest/userguide/ce-exploring-data.html",
+                "lookFor": "the “Group by” control and the Service dimension; the table under the chart is what you copy"
+              }
             ],
             "fixes": [
               {
@@ -2259,15 +2518,27 @@
             "where": "AWS console — Trusted Advisor, then Support Center",
             "instruction": "Own one check; note your support plan.",
             "instructionList": [
-              "Trusted Advisor → Security: MFA on root, open ports, S3 permissions. Pick one check and note who will act on it.",
-              "Support Center → your plan (Basic). Read the plans table: what Developer and Business add, and their response times."
+              "Trusted Advisor → Security: MFA on root, open ports, S3 permissions. Pick one check; name its owner.",
+              "Support Center → your plan (Basic). Read the plans table: what Developer and Business add, response times."
             ],
             "expectedOutput": "One Trusted Advisor check with an owner, and the support plan noted.",
             "outputKind": "result",
-            "whatItMeans": "Trusted Advisor is AWS looking at what you built and telling you how to spend less or be safer; the support plan is what you pay to get a human. Basic is free; Business unlocks every check.",
+            "whatItMeans": "Trusted Advisor is AWS looking at what you built and saying how to spend less or be safer; the support plan is what you pay to get a human.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "AWS Trusted Advisor",
+                "url": "https://docs.aws.amazon.com/awssupport/latest/user/trusted-advisor.html",
+                "lookFor": "the checks on Basic support: the free security ones are MFA on root, open ports, S3 permissions"
+              },
+              {
+                "title": "Compare AWS Support plans",
+                "url": "https://aws.amazon.com/premiumsupport/plans/",
+                "lookFor": "the four columns — Basic, Developer, Business, Enterprise — and the response-time rows; that is the exam question"
+              }
             ]
           },
           {
@@ -2322,7 +2593,7 @@
           {
             "title": "Create a CloudWatch alarm based on a static threshold",
             "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ConsoleAlarms.html",
-            "lookFor": "the “Select metric” step and the “Treat missing data as” option — set it to good, or an idle function looks broken"
+            "lookFor": "the “Select metric” step and “Treat missing data as”: good, or an idle function looks broken"
           },
           {
             "title": "Email notifications with Amazon SNS",
@@ -2356,10 +2627,19 @@
             "verify": [
               "pending confirmation"
             ],
-            "whatItMeans": "SNS separates “what happened” from “who gets told”: alarms publish to the topic, subscribers receive. One topic, many alarms: change the email once. An unconfirmed subscription is the most common reason an alarm is silent.",
+            "whatItMeans": "SNS separates “what happened” from “who gets told”: alarms publish to the topic, subscribers receive. One topic, many alarms. An unconfirmed subscription is the commonest reason an alarm is silent.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Subscriptions lists the team email with status Confirmed.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Email notifications with Amazon SNS",
+                "url": "https://docs.aws.amazon.com/sns/latest/dg/sns-email-notifications.html",
+                "lookFor": "the “Confirm subscription” paragraph: nothing is delivered until someone clicks the link in the first email"
+              }
             ]
           },
           {
@@ -2369,9 +2649,9 @@
             "where": "AWS console · or CloudShell",
             "instruction": "Alarm when Errors is above zero in five minutes.",
             "instructionList": [
-              "CloudWatch → Alarms → Create alarm → Select metric → Lambda → By Function Name → capstone-team01-counter, Errors → Select metric.",
-              "Statistic Sum, Period 5 minutes; Threshold Static, Greater than 0; Additional configuration → Treat missing data as good (not breaching).",
-              "Notification: In alarm → Select an existing SNS topic → capstone-team01-alerts. Name capstone-team01-counter-errors. Create alarm."
+              "CloudWatch → Alarms → Create alarm → Select metric → Lambda → By Function Name → capstone-team01-counter Errors.",
+              "Statistic Sum, Period 5 minutes; Static, Greater than 0; Treat missing data as good (not breaching).",
+              "Notification: In alarm → existing SNS topic capstone-team01-alerts. Name capstone-team01-counter-errors. Create alarm."
             ],
             "commands": [
               {
@@ -2383,10 +2663,19 @@
             "verify": [
               "OK"
             ],
-            "whatItMeans": "CloudWatch collects metrics from every service; an alarm watches one metric against a threshold and publishes to SNS. Errors are the signal users feel; CPU tells you nothing about a function. The App & DevOps drill will fire it.",
+            "whatItMeans": "CloudWatch collects metrics from every service; an alarm watches one metric against a threshold and publishes to SNS. Errors are the signal users feel; CPU says nothing about a function.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Alarms lists capstone-team01-counter-errors in state OK, with the SNS topic as its action.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Create a CloudWatch alarm based on a static threshold",
+                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/ConsoleAlarms.html",
+                "lookFor": "the “Select metric” step and “Treat missing data as”: good, or an idle function looks broken"
+              }
             ],
             "fixes": [
               {
@@ -2478,10 +2767,19 @@
             "verify": [
               "InProgress"
             ],
-            "whatItMeans": "Breaking it yourself means you know the answer. The code asks for a table that is not there, so every request ends in an exception and a 500. The Infra Admin’s alarm should email within five minutes.",
+            "whatItMeans": "Breaking it yourself means you know the answer. The code asks for a missing table, so every request ends in a 500. The alarm should email within five minutes.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "The site’s counter stays at “…”; the API endpoint returns Internal Server Error.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Lambda environment variables",
+                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html",
+                "lookFor": "the console steps under “Configure environment variables” — the Edit button is on the Configuration tab"
+              }
             ]
           },
           {
@@ -2504,10 +2802,19 @@
             "verify": [
               "ResourceNotFoundException"
             ],
-            "whatItMeans": "CloudWatch Logs holds every line the function prints, in a log group named after it. Read a stack trace bottom up: the last line says what failed, the lines above say where. The table name is in the message.",
+            "whatItMeans": "CloudWatch Logs holds every line the function prints, in a log group named after it. Read a stack trace bottom up: the last line says what failed.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "The newest log stream shows [ERROR] ResourceNotFoundException: Requested resource not found.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Using CloudWatch Logs with Lambda",
+                "url": "https://docs.aws.amazon.com/lambda/latest/dg/monitoring-cloudwatchlogs.html",
+                "lookFor": "the log-group name pattern /aws/lambda/<function> and the Monitor tab’s “View CloudWatch logs” button"
+              }
             ],
             "fixes": [
               {
@@ -2536,10 +2843,19 @@
             "verify": [
               "count"
             ],
-            "whatItMeans": "A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alarmed at, found at, fixed at — those four numbers are their incident record, and the alarm returns to OK by itself.",
+            "whatItMeans": "A fix is not done until the retest passes. Tell the Security Admin the times: broke at, alarmed at, found at, fixed at. The alarm returns to OK by itself.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "The API endpoint returns a count again, and the alarm goes back to OK.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Lambda environment variables",
+                "url": "https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html",
+                "lookFor": "the console steps under “Configure environment variables” — the value must match the real table name exactly"
+              }
             ]
           },
           {
@@ -2626,10 +2942,19 @@
             "verify": [
               "team01"
             ],
-            "whatItMeans": "CloudTrail is the audit log: who did what, when, from where — the first question of every incident and every compliance review. Event history keeps 90 days free; a trail to S3 keeps it for ever.",
+            "whatItMeans": "CloudTrail is the audit log: who did what, when, from where, the first question of every incident and compliance review. Event history keeps 90 days free.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "Event history shows two UpdateFunctionConfiguration rows with user team01-dev and their times.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Viewing CloudTrail events",
+                "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/view-cloudtrail-events.html",
+                "lookFor": "the Event history page and its lookup attributes — Event name is the one you filter on"
+              }
             ]
           },
           {
@@ -2651,10 +2976,19 @@
             "verify": [
               "ALARM"
             ],
-            "whatItMeans": "The alarm’s times against CloudTrail’s show whether monitoring or a user told you first — the alarm should win. Minutes from change to alarm is the number a monitoring design is judged by.",
+            "whatItMeans": "The alarm’s times against CloudTrail’s show whether monitoring or a user told you first; the alarm should win. Minutes from change to alarm is how a monitoring design is judged.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "expectedOutput": "History shows “Alarm updated from OK to In alarm” and back to OK, with times.",
+            "outputKind": "result",
+            "docs": [
+              {
+                "title": "Using CloudWatch alarms",
+                "url": "https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/AlarmThatSendsEmail.html",
+                "lookFor": "the alarm History tab: the state change and its time — your incident’s “alarmed at”"
+              }
             ]
           },
           {
@@ -2670,10 +3004,17 @@
             ],
             "expectedOutput": "An incident record with symptom, evidence, cause, fix and the four times.",
             "outputKind": "result",
-            "whatItMeans": "An incident record is how a team learns: what users saw, how you knew, what it was, what fixed it. CloudTrail turns “someone changed something” into a name and a time.",
+            "whatItMeans": "An incident record is how a team learns: what users saw, how you knew, the cause, the fix. CloudTrail turns “someone changed something” into a name and a time.",
             "frameworks": [
               "AWS_CLF",
               "WAF"
+            ],
+            "docs": [
+              {
+                "title": "Viewing CloudTrail events",
+                "url": "https://docs.aws.amazon.com/awscloudtrail/latest/userguide/view-cloudtrail-events.html",
+                "lookFor": "the Event history page: the User name and Event time columns are the incident’s who and when"
+              }
             ]
           },
           {
@@ -2698,6 +3039,7 @@
     ],
     "noGatekeeping": true,
     "teamCount": 16,
+    "shellOptional": true,
     "manualSections": [
       "cloud-iac"
     ],
