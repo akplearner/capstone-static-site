@@ -7,6 +7,7 @@
     "src/lib/cloud/awsTopology.ts",
     "src/lib/cloud/awsIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -5006,6 +5007,127 @@
         }
       ]
     },
+    "weekVisuals": [
+      {
+        "week": 0,
+        "builtThrough": 4,
+        "highlight": [
+          "SiteDistribution",
+          "SiteOac",
+          "ReadOnlyGroup",
+          "MonthlyBudget",
+          "SiteBucket",
+          "HttpApi",
+          "CounterFunction",
+          "VisitorTable",
+          "CounterFunctionRole",
+          "CounterLogGroup",
+          "FunctionErrorsAlarm",
+          "AlertTopic",
+          "InternetGateway",
+          "PublicRouteTable",
+          "ToolsSecurityGroup",
+          "ToolsInstance"
+        ],
+        "caption": "What this course starts from — the previous course’s finished environment."
+      },
+      {
+        "week": 1,
+        "builtThrough": 5,
+        "highlight": [
+          "TableNameParameter"
+        ],
+        "process": {
+          "title": "Identity",
+          "steps": [
+            {
+              "from": "CounterFunction",
+              "to": "TableNameParameter",
+              "label": "read by identity, no key"
+            },
+            {
+              "from": "admin",
+              "to": "ReadOnlyGroup",
+              "label": "least privilege for readers"
+            }
+          ]
+        },
+        "caption": "New: the secret store and the roles. The function reads by identity; readers only read."
+      },
+      {
+        "week": 2,
+        "builtThrough": 6,
+        "highlight": [
+          "InstanceRole",
+          "PrivateRouteTable"
+        ],
+        "process": {
+          "title": "Networking",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "ToolsInstance",
+              "label": "Session Manager, no open port"
+            },
+            {
+              "from": "user",
+              "to": "HttpApi",
+              "label": "CORS: your site only"
+            }
+          ]
+        },
+        "caption": "New: the management subnet. SSH is gone; the admin path has no open port."
+      },
+      {
+        "week": 3,
+        "builtThrough": 7,
+        "highlight": [
+          "DataVolume"
+        ],
+        "process": {
+          "title": "Server admin",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "DataVolume",
+              "label": "attach and mount"
+            },
+            {
+              "from": "admin",
+              "to": "ToolsInstance",
+              "label": "patch and baseline"
+            }
+          ]
+        },
+        "caption": "New: the data disk. The VM is patched, measured and right-sized."
+      },
+      {
+        "week": 4,
+        "builtThrough": 8,
+        "highlight": [],
+        "process": {
+          "title": "Backup and recovery",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "DataVolume",
+              "label": "snapshot"
+            },
+            {
+              "from": "DataVolume",
+              "to": "ToolsInstance",
+              "label": "restore and time it"
+            },
+            {
+              "from": "admin",
+              "to": "SiteDistribution",
+              "label": "recover the deleted file"
+            }
+          ]
+        },
+        "caption": "Nothing new is built. Snapshot, restore, time it, and recover a deleted file."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",

@@ -878,6 +878,8 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/docs/CommandTroubleshooting.tsx', 'troubleshootingOf'],
     ['src/components/docs/QuickReferenceCard.tsx', 'manualOf'],
     ['src/components/docs/GuideManual.tsx', 'manualOf'],
+    ['src/components/diagrams/WeekBuildDiagram.tsx', 'weekVisualsOf'],
+    ['src/components/diagrams/EngagementDiagram.tsx', 'msspOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -1182,7 +1184,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|weekVisuals)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -1878,6 +1880,40 @@ describe('R86 — metrics count activity, they do not read work', () => {
     const src = read('src/lib/data/metricsLoader.ts');
     for (const t of ['lab_access', 'step_notes', 'user_course_state', 'step_evidence', 'deliverables']) {
       expect(src, `metrics must not select ${t}`).not.toContain(`'${t}'`);
+    }
+  });
+});
+
+/**
+ * R99 — every week of every course has a picture.
+ *
+ * The Tasks tab draws "What you build this week" for the week on screen, the
+ * Guide draws the same picture behind week pills, and every form draws it
+ * for the form's week. The pictures read the course document, and the
+ * overlay pieces take their colours from tokens.
+ */
+describe('R99 — every week has a picture', () => {
+  it('the Tasks tab draws the week visual, and still one objectives flow', () => {
+    const src = code('src/components/course/TasksTab.tsx');
+    expect(src).toContain('<WeekVisualPanel');
+    expect(src.match(/<FlowDiagram\b/g)?.length).toBe(1);
+  });
+
+  it('the Guide draws one week-scoped picture for every course, not five static ones', () => {
+    const src = code('src/components/docs/GuideManual.tsx');
+    expect(src).toContain('<WeekBuildDiagram');
+    for (const stale of ['ArchitectureDiagram', 'SocTopologyDiagram', 'ServerTopologyDiagram', 'CcnaTopologyDiagram']) {
+      expect(src, `${stale} is drawn by WeekBuildDiagram now`).not.toMatch(new RegExp(`import \\{ ${stale} \\}`));
+    }
+  });
+
+  it('a form draws its week', () => {
+    expect(code('src/components/diagrams/kit/visualFor.tsx')).toContain("v.kit === 'week'");
+  });
+
+  it('the overlay pieces are recolourable — not one literal colour in them', () => {
+    for (const f of ['src/components/diagrams/ProcessArrows.tsx', 'src/components/diagrams/ProcessStrip.tsx', 'src/components/week/WeekPills.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx', 'src/components/diagrams/EngagementDiagram.tsx']) {
+      expect(read(f), `${f} takes colours from theme tokens only`).not.toMatch(/#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/);
     }
   });
 });

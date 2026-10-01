@@ -734,7 +734,7 @@ export const MSSP: Course = {
   // lock is gone. `locked: true` remains available for genuinely unfinished
   // courses.
   locked: false,
-  topologyPicture: 'lab',
+  topologyPicture: 'engagement',
   teamCount: 16,
   teamCapacity: 6,
 };

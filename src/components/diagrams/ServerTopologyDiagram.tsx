@@ -1,10 +1,13 @@
 'use client';
 
 import { DiagramFrame } from './DiagramFrame';
+import type { CSSProperties } from 'react';
 import {
+  ADVANCED_HOSTS,
   CAMPUS_LAN,
   HOST,
   MACHINES,
+  OPS,
   REMOTE_ADMIN,
   TEAM_VM_START,
   ZONE_BRIDGES,
@@ -12,9 +15,11 @@ import {
   type MachineId,
 } from '@/lib/serverTopology';
 import type { RackKind } from '@/lib/docs/serverDiagrams';
+import type { WeekProcess } from '@/lib/weekVisual';
 import { useCourseDocument } from '@/lib/useCourse';
 import { fillCopy, serverDiagramsOf } from '@/lib/content/read';
 import { ZONE_COLOR } from './topologyStyle';
+import { ProcessStrip } from './ProcessStrip';
 
 /**
  * The Server+ picture: a physical 24U rack elevation beside the small virtual
@@ -59,10 +64,18 @@ const ZONES = ZONE_BRIDGES.map((b) => ({
   teamStart: TEAM_VM_START[b.id],
 }));
 
+/** What a part is called on the process strip, when its id is not a hostname. */
+const PART_NAME: Record<string, string> = {
+  campus: 'campus', host: 'host', published: 'published ports', crossZone: 'DMZ → private', tailnet: 'tailnet',
+  backup: 'backup', hardened: 'baseline', ops: OPS.bridge, opsVm: 'ops VM', core: 'Core', zones: 'zones', rack: 'rack',
+};
+
 export function ServerTopologyDiagram({
   business,
   highlight,
   builtThrough,
+  glow = [],
+  process,
 }: {
   /** The team's chosen business, from the Business Requirements record — the
    *  topology is generic until a team says who it is building for. */
@@ -74,9 +87,30 @@ export function ServerTopologyDiagram({
   /** The furthest week this student has finished. Parts that arrive later are
    *  dimmed and tagged `Week N`. Omitted = the finished design. */
   builtThrough?: number;
+  /** R99: the parts that arrive this week — they glow. Ids as in `SERVER_BUILD`. */
+  glow?: string[];
+  /** R99: the week's process, as a chip chain under the picture. */
+  process?: WeekProcess;
 } = {}) {
-  const { ARRIVES, CROSS_ZONE_LABEL, PUBLISHED_BY_VM, RACK_ELEVATION, RACK_LEGEND, SERVER_DIAGRAM_COPY: COPY } =
+  const { ARRIVES, CROSS_ZONE_LABEL, PUBLISHED_BY_VM, RACK_ELEVATION, RACK_LEGEND, SERVER_BUILD, SERVER_DIAGRAM_COPY: COPY } =
     serverDiagramsOf(useCourseDocument());
+  const arrivesOf = (id: string): number => (SERVER_BUILD?.arrives as Record<string, number> | undefined)?.[id] ?? 0;
+  const litNew = new Set(glow);
+  /** The glow ring on a part that arrives this week, and the attributes a test reads. */
+  const mark = (id: string, built = true): { style?: CSSProperties; 'data-node': string; 'data-glow'?: string; 'data-later'?: string } => ({
+    'data-node': id,
+    'data-glow': litNew.has(id) ? 'true' : undefined,
+    'data-later': built ? undefined : 'true',
+    style: litNew.has(id) ? { outline: '2px solid var(--week, var(--color-accent))', outlineOffset: 2 } : undefined,
+  });
+  const partTone = (id: string) => {
+    if (id === 'host' || id === 'rack') return 'var(--color-accent)';
+    if (id === 'tailnet') return 'var(--color-w4)';
+    if (id === 'ops' || id === 'opsVm' || id === 'core') return 'var(--color-w7)';
+    const vm = [...ZONES.flatMap((z) => z.vms), ...ADVANCED_HOSTS].find((v) => v.hostname === id);
+    if (vm) return ZONE_COLOR[vm.bridge as keyof typeof ZONE_COLOR];
+    return undefined;
+  };
   const businessLabel = [business?.name, business?.industry].filter(Boolean).join(' · ');
   if (!RACK_ELEVATION) return null;
   // Highlight and build-through are two different kinds of "not now": one is
@@ -109,9 +143,9 @@ export function ServerTopologyDiagram({
     >
       <div className="grid min-w-[560px] gap-4 sm:grid-cols-[minmax(220px,1fr)_minmax(240px,1.2fr)]">
         {/* The physical rack elevation */}
-        <div className="rounded-lg depth-edge bg-panel-2 p-3">
+        <div className={`rounded-lg depth-edge bg-panel-2 p-3 ${dim(built(arrivesOf('rack')))}`} {...mark('rack', built(arrivesOf('rack')))}>
           <div className="mb-2 flex items-baseline justify-between">
-            <span className="eyebrow-muted">{COPY.rackHeading}</span>
+            <span className="eyebrow-muted">{COPY.rackHeading}{weekTag(arrivesOf('rack'))}</span>
             <span className="text-2xs text-muted">{COPY.rackAspect}</span>
           </div>
           <div className="space-y-1">
@@ -165,7 +199,7 @@ export function ServerTopologyDiagram({
           )}
 
           {/* Campus LAN */}
-          <div className="rounded-lg depth-edge bg-panel-2 px-3 py-1.5 text-center">
+          <div className="rounded-lg depth-edge bg-panel-2 px-3 py-1.5 text-center" {...mark('campus')}>
             <span className="text-xs font-semibold text-ink">{COPY.campusLan}</span>
             <span className="ml-2 font-mono text-2xs text-muted">{CAMPUS_LAN.cidr}</span>
           </div>
@@ -173,7 +207,7 @@ export function ServerTopologyDiagram({
 
           {/* What the campus reaches THROUGH the host: the published ports, from
               the same model the host's rules file is rendered from. */}
-          <div className={`rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.published))}`}>
+          <div className={`rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.published))}`} {...mark('published', built(ARRIVES.published))}>
             <span className="font-semibold text-ink">
               {fillCopy(COPY.publishedHeading, { host: HOST.rule })}
             </span>
@@ -187,12 +221,21 @@ export function ServerTopologyDiagram({
           <div className="mx-auto h-3 w-px bg-line" aria-hidden />
 
           {/* The host */}
-          <div className={`rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center ${dim(built(ARRIVES.host) && (!lit || lit.has('host')))}`}>
-            <div className="text-sm font-bold text-ink">{COPY.hostHeading}</div>
+          <div className={`rounded-lg border-2 border-accent bg-accent-soft px-3 py-2 text-center ${dim(built(ARRIVES.host) && (!lit || lit.has('host')))}`} {...mark('host', built(ARRIVES.host))}>
+            <div className="text-sm font-bold text-ink">{COPY.hostHeading}{weekTag(ARRIVES.host)}</div>
             <div className="font-mono text-2xs text-muted">
               vmbr0 · {HOST.rule.slice(0, -HOST.teamMarker.length)}
               <span className="font-bold text-ink">{HOST.teamMarker}</span> ({HOST.teamMarker} = team #,
               Team {HOST.exampleTeam} = {HOST.exampleAddress}) · console :{HOST.consolePort}
+            </div>
+            {/* R99: what the host carries from Week 4 — the hardening baseline and the backups. */}
+            <div className="mt-1 flex flex-wrap justify-center gap-1">
+              {(['hardened', 'backup'] as const).map((id) => (
+                <span key={id} className={`rounded-full depth-edge bg-panel px-1.5 py-px font-mono text-3xs text-muted ${dim(built(arrivesOf(id)))}`} {...mark(id, built(arrivesOf(id)))}>
+                  {id === 'hardened' ? 'hardened baseline' : 'snapshots · restore'}
+                  {weekTag(arrivesOf(id))}
+                </span>
+              ))}
             </div>
           </div>
 
@@ -209,7 +252,10 @@ export function ServerTopologyDiagram({
               <div
                 key={z.bridge.id}
                 className={`flex flex-col rounded-lg border-2 bg-panel px-2.5 py-2 ${dim(built(ARRIVES.zones))}`}
-                style={{ borderColor: z.color }}
+                style={{ borderColor: z.color, ...(litNew.has('zones') ? { outline: '2px solid var(--week, var(--color-accent))', outlineOffset: 2 } : {}) }}
+                data-node={z.bridge.id}
+                data-glow={litNew.has('zones') ? 'true' : undefined}
+                data-later={built(ARRIVES.zones) ? undefined : 'true'}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                   <span className="font-mono text-xs font-bold" style={{ color: z.color }}>
@@ -222,12 +268,22 @@ export function ServerTopologyDiagram({
                 </div>
                 <div className="mt-1.5 space-y-1">
                   {z.vms.map((vm) => (
-                    <div key={vm.hostname} className={`rounded-md border bg-panel-2 px-2 py-1 ${vmDim(vm.hostname)} ${lit?.has(vm.hostname) ? 'border-2' : 'border-line'}`} style={lit?.has(vm.hostname) ? { borderColor: z.color } : undefined}>
+                    <div key={vm.hostname} className={`rounded-md border bg-panel-2 px-2 py-1 ${vmDim(vm.hostname)} ${lit?.has(vm.hostname) ? 'border-2' : 'border-line'}`} {...mark(vm.hostname, built(ARRIVES.vms))} style={{ ...(lit?.has(vm.hostname) ? { borderColor: z.color } : {}), ...(mark(vm.hostname).style ?? {}) }}>
                       <div className="flex flex-wrap items-baseline justify-between gap-x-2">
                         <span className="font-mono text-2xs font-bold text-ink">{vm.hostname}</span>
                         <span className="font-mono text-3xs text-muted">{vm.address}</span>
                       </div>
                       <div className="text-3xs text-muted">{vm.runs} · base build</div>
+                    </div>
+                  ))}
+                  {/* R99: the advanced hosts of Weeks 5–6, in the private zone, faded until they arrive. */}
+                  {ADVANCED_HOSTS.filter((vm) => vm.bridge === z.bridge.id).map((vm) => (
+                    <div key={vm.hostname} className={`rounded-md border border-dashed border-line bg-panel-2 px-2 py-1 ${dim(built(arrivesOf(vm.hostname)))}`} {...mark(vm.hostname, built(arrivesOf(vm.hostname)))}>
+                      <div className="flex flex-wrap items-baseline justify-between gap-x-2">
+                        <span className="font-mono text-2xs font-bold text-ink">{vm.hostname}{weekTag(arrivesOf(vm.hostname))}</span>
+                        <span className="font-mono text-3xs text-muted">{vm.address}</span>
+                      </div>
+                      <div className="text-3xs text-muted">{vm.runs}</div>
                     </div>
                   ))}
                   {/* The room the design leaves on purpose: the VMs that make
@@ -247,7 +303,7 @@ export function ServerTopologyDiagram({
                   </div>
                 </div>
                 {z.bridge.id === 'vmbr1' && (
-                  <div className={`mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.crossZone))}`}>
+                  <div className={`mt-2 border-t border-dashed border-line pt-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.crossZone))}`} {...mark('crossZone', built(ARRIVES.crossZone))}>
                     {COPY.crossZone.before}
                     <span className="font-semibold text-ink">{CROSS_ZONE_LABEL}</span>
                     {COPY.crossZone.after}
@@ -268,7 +324,7 @@ export function ServerTopologyDiagram({
           {/* The tailnet. It has been in the model since the host became a
               subnet router, but it was never in the picture — so the one path
               that reaches every zone was the one path students could not see. */}
-          <div className={`mt-3 rounded-lg border border-dashed px-3 py-1.5 text-3xs ${dim(built(ARRIVES.tailnet))}`} style={{ borderColor: 'var(--color-w4)' }}>
+          <div className={`mt-3 rounded-lg border border-dashed px-3 py-1.5 text-3xs ${dim(built(ARRIVES.tailnet))}`} {...mark('tailnet', built(ARRIVES.tailnet))} style={{ borderColor: 'var(--color-w4)', ...(mark('tailnet').style ?? {}) }}>
             <div className="text-center">
               <span className="font-semibold" style={{ color: 'var(--color-w4)' }}>
                 {MACHINES.laptop.label}, off campus
@@ -283,11 +339,32 @@ export function ServerTopologyDiagram({
             </div>
           </div>
 
+          {/* R99: the operations network of the advanced weeks — the ops VM
+              that joins the fleet, and the instructor's Core node it reports to. */}
+          <div className={`mt-3 rounded-lg border border-dashed px-3 py-1.5 text-3xs ${dim(built(arrivesOf('ops')))}`} {...mark('ops', built(arrivesOf('ops')))} style={{ borderColor: 'var(--color-w7)', ...(mark('ops').style ?? {}) }}>
+            <div className="text-center">
+              <span className="font-semibold" style={{ color: 'var(--color-w7)' }}>
+                {OPS.bridge} · operations network
+              </span>
+              <span className="font-mono text-muted"> · {OPS.cidr}</span>
+              {weekTag(arrivesOf('ops'))}
+            </div>
+            <div className="mt-1 flex flex-wrap justify-center gap-1">
+              <span className={`rounded-md border border-line bg-panel-2 px-1.5 py-px font-mono ${dim(built(arrivesOf('opsVm')))}`} {...mark('opsVm', built(arrivesOf('opsVm')))}>
+                ops VM · {OPS.team.opsVm}{weekTag(arrivesOf('opsVm'))}
+              </span>
+              <span className={`rounded-md border border-line bg-panel-2 px-1.5 py-px font-mono ${dim(built(arrivesOf('core')))}`} {...mark('core', built(arrivesOf('core')))}>
+                Core · git {OPS.core.git} · obs · xdr · pbs{weekTag(arrivesOf('core'))}
+              </span>
+            </div>
+          </div>
+
           <div className="mt-3 rounded-lg border border-dashed border-line px-3 py-1.5 text-center text-3xs text-muted">
             {COPY.footer}
           </div>
         </div>
       </div>
+      {process && <ProcessStrip process={process} name={(id) => PART_NAME[id] ?? id} tone={partTone} />}
     </DiagramFrame>
   );
 }

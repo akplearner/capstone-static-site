@@ -6,6 +6,7 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/securityContent.ts",
     "src/lib/docs/cysaContent.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -5649,6 +5650,103 @@
         "UTM or Parallels (Apple Silicon Macs)",
         "Proxmox / KVM (lab server)"
       ],
+      "LAB_BUILD": {
+        "arrives": {
+          "attacker": 0,
+          "network": 0,
+          "ubuntu": 0,
+          "windows": 0,
+          "grc": 1,
+          "hardened": 1,
+          "soc": 2,
+          "custody": 3,
+          "report": 4
+        },
+        "processes": {
+          "1": {
+            "title": "Cold Recon",
+            "steps": [
+              {
+                "from": "attacker",
+                "to": "network",
+                "label": "OSINT · passive recon"
+              },
+              {
+                "from": "network",
+                "to": "ubuntu",
+                "label": "map the target, quietly"
+              },
+              {
+                "from": "grc",
+                "to": "ubuntu",
+                "label": "hardening standard applied"
+              }
+            ]
+          },
+          "2": {
+            "title": "Hard Target",
+            "steps": [
+              {
+                "from": "attacker",
+                "to": "ubuntu",
+                "label": "port & web scanning"
+              },
+              {
+                "from": "ubuntu",
+                "to": "soc",
+                "label": "baseline capture"
+              },
+              {
+                "from": "soc",
+                "to": "grc",
+                "label": "findings → risk register"
+              }
+            ]
+          },
+          "3": {
+            "title": "The Breach",
+            "steps": [
+              {
+                "from": "attacker",
+                "to": "ubuntu",
+                "label": "live exploits"
+              },
+              {
+                "from": "ubuntu",
+                "to": "soc",
+                "label": "detect and contain"
+              },
+              {
+                "from": "soc",
+                "to": "custody",
+                "label": "preserve the evidence"
+              }
+            ]
+          },
+          "4": {
+            "title": "Payday",
+            "steps": [
+              {
+                "from": "soc",
+                "to": "grc",
+                "label": "evidence → findings"
+              },
+              {
+                "from": "grc",
+                "to": "report",
+                "label": "final report & presentation"
+              }
+            ]
+          }
+        },
+        "captions": {
+          "0": "The lab: a Kali attacker, one flat network, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.",
+          "1": "New: the GRC band and the hardening baseline. Red maps the target without making noise.",
+          "2": "New: the SOC. Red scans while Blue learns what normal traffic looks like and GRC opens the risk register.",
+          "3": "New: evidence custody. Red attacks for real; Blue detects, contains and preserves what it found.",
+          "4": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
+        }
+      },
       "LAB_NETWORK": [
         [
           "Put every VM on ONE isolated network — VirtualBox ",
@@ -5828,6 +5926,127 @@
         ]
       }
     },
+    "weekVisuals": [
+      {
+        "week": 0,
+        "builtThrough": 0,
+        "highlight": [
+          "attacker",
+          "network",
+          "ubuntu",
+          "windows"
+        ],
+        "caption": "The lab: a Kali attacker, one flat network, the Ubuntu web server and the optional Windows host. Nothing is hardened yet."
+      },
+      {
+        "week": 1,
+        "builtThrough": 1,
+        "highlight": [
+          "grc",
+          "hardened"
+        ],
+        "process": {
+          "title": "Cold Recon",
+          "steps": [
+            {
+              "from": "attacker",
+              "to": "network",
+              "label": "OSINT · passive recon"
+            },
+            {
+              "from": "network",
+              "to": "ubuntu",
+              "label": "map the target, quietly"
+            },
+            {
+              "from": "grc",
+              "to": "ubuntu",
+              "label": "hardening standard applied"
+            }
+          ]
+        },
+        "caption": "New: the GRC band and the hardening baseline. Red maps the target without making noise."
+      },
+      {
+        "week": 2,
+        "builtThrough": 2,
+        "highlight": [
+          "soc"
+        ],
+        "process": {
+          "title": "Hard Target",
+          "steps": [
+            {
+              "from": "attacker",
+              "to": "ubuntu",
+              "label": "port & web scanning"
+            },
+            {
+              "from": "ubuntu",
+              "to": "soc",
+              "label": "baseline capture"
+            },
+            {
+              "from": "soc",
+              "to": "grc",
+              "label": "findings → risk register"
+            }
+          ]
+        },
+        "caption": "New: the SOC. Red scans while Blue learns what normal traffic looks like and GRC opens the risk register."
+      },
+      {
+        "week": 3,
+        "builtThrough": 3,
+        "highlight": [
+          "custody"
+        ],
+        "process": {
+          "title": "The Breach",
+          "steps": [
+            {
+              "from": "attacker",
+              "to": "ubuntu",
+              "label": "live exploits"
+            },
+            {
+              "from": "ubuntu",
+              "to": "soc",
+              "label": "detect and contain"
+            },
+            {
+              "from": "soc",
+              "to": "custody",
+              "label": "preserve the evidence"
+            }
+          ]
+        },
+        "caption": "New: evidence custody. Red attacks for real; Blue detects, contains and preserves what it found."
+      },
+      {
+        "week": 4,
+        "builtThrough": 4,
+        "highlight": [
+          "report"
+        ],
+        "process": {
+          "title": "Payday",
+          "steps": [
+            {
+              "from": "soc",
+              "to": "grc",
+              "label": "evidence → findings"
+            },
+            {
+              "from": "grc",
+              "to": "report",
+              "label": "final report & presentation"
+            }
+          ]
+        },
+        "caption": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",

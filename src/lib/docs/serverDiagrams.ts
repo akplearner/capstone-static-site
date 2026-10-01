@@ -16,7 +16,8 @@
  * export below is a plain string or a plain object, and the whole module
  * serialises into the course document unchanged.
  */
-import { CROSS_ZONE_ALLOW, PUBLISHED_PORTS, RACK_UNITS } from '../serverTopology';
+import { BASE_VMS, CROSS_ZONE_ALLOW, PUBLISHED_PORTS, RACK_UNITS } from '../serverTopology';
+import type { BuildModel } from '../weekVisual';
 
 /**
  * Which week each part of the picture arrives in.
@@ -121,3 +122,76 @@ export const SERVER_DIAGRAM_COPY = {
   footer:
     'The Windows / Linux / website VMs are the base build — every team the same. Zone subnets are worked examples; record yours in the IP Plan & Connectivity Proof.',
 } as const;
+
+/* ── What you build this week (R99) ───────────────────────────────────────── */
+
+/** The week each advanced host arrives in; the base VMs all arrive with the zones. */
+const ADVANCED_WEEK: Record<string, number> = { secmon: 5, wazuh: 5, tools: 6 };
+
+/**
+ * The whole build, week by week. Ids are the parts `ServerTopologyDiagram`
+ * draws: the physical parts, the host, the zones and every VM (base and
+ * advanced, read from `BASE_VMS` so a hostname cannot drift), the published
+ * ports, the tailnet, and the operations network of Weeks 7–8.
+ */
+export const SERVER_BUILD: BuildModel = {
+  arrives: {
+    campus: 0,
+    rack: 1,
+    host: 1,
+    zones: ARRIVES.zones,
+    ...Object.fromEntries(BASE_VMS.map((v) => [v.hostname, v.optional ? ADVANCED_WEEK[v.hostname] : ARRIVES.vms])),
+    published: ARRIVES.published,
+    crossZone: ARRIVES.crossZone,
+    tailnet: ARRIVES.tailnet,
+    hardened: 4,
+    backup: 4,
+    ops: 7,
+    opsVm: 7,
+    core: 8,
+  },
+  processes: {
+    1: { title: 'Bring the server up', steps: [
+      { from: 'campus', to: 'host', label: 'console → POST → RAID → install' },
+    ] },
+    3: { title: 'Publish the website', steps: [
+      { from: 'campus', to: 'published', label: 'HTTP · HTTPS' },
+      { from: 'published', to: 'websrv', label: 'DNAT :80 :443' },
+    ] },
+    4: { title: 'Secure and hand over', steps: [
+      { from: 'host', to: 'backup', label: 'snapshot every VM' },
+      { from: 'backup', to: 'linuxsrv', label: 'restore and time it' },
+      { from: 'tailnet', to: 'host', label: 'patch over the tailnet' },
+    ] },
+    5: { title: 'Watch and detect', steps: [
+      { from: 'websrv', to: 'secmon', label: 'metrics · logs' },
+      { from: 'winserver', to: 'wazuh', label: 'Wazuh agent' },
+      { from: 'secmon', to: 'campus', label: 'alert → runbook' },
+    ] },
+    6: { title: 'The lab as code', steps: [
+      { from: 'campus', to: 'host', label: 'terraform apply' },
+      { from: 'host', to: 'tools', label: 'register in NetBox · GLPI' },
+    ] },
+    7: { title: 'Join the fleet', steps: [
+      { from: 'opsVm', to: 'core', label: 'git push' },
+      { from: 'core', to: 'opsVm', label: 'golden template' },
+      { from: 'opsVm', to: 'host', label: 'clone from the template' },
+    ] },
+    8: { title: 'Run it as a fleet', steps: [
+      { from: 'opsVm', to: 'websrv', label: 'playbook, idempotent' },
+      { from: 'host', to: 'core', label: 'metrics · backups → PBS' },
+      { from: 'core', to: 'host', label: 'rebuild from Git' },
+    ] },
+  },
+  captions: {
+    0: 'Before the build: the campus LAN and an empty rack. Everything on the right is still to come.',
+    1: 'New: the rack and the Proxmox host. The one machine you build goes in and comes up.',
+    2: 'New: the DMZ and private zones with the three base VMs — the website, the Windows server and the database.',
+    3: 'New: the published ports, the DMZ-to-private rule and the tailnet. The campus reaches the site through the host.',
+    4: 'New: the hardening baseline and the backup. Nothing is added — snapshot, restore, patch, and hand it over.',
+    5: 'New: the monitoring host and your own SIEM. Every VM reports in; the first alert runs the runbook.',
+    6: 'New: the tools host. The lab is rebuilt from code and registered in NetBox and GLPI.',
+    7: 'New: the operations network and your ops VM. The fleet’s Core node holds Git and the golden template.',
+    8: 'New: the fleet’s Core services. Playbooks, central metrics and backups, and a rebuild from Git.',
+  },
+};

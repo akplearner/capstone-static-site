@@ -7,6 +7,7 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/ccnaKit.ts",
     "src/lib/docs/ccnaDiagrams.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -4422,6 +4423,167 @@
         "policy": 4,
         "wireless": 4
       },
+      "CCNA_BUILD": {
+        "arrives": {
+          "R1-HQ": 3,
+          "SW-CORE-01": 1,
+          "SW-ACC-01": 1,
+          "SW-ACC-02": 2,
+          "AP-01": 4,
+          "R2-BR": 3,
+          "SW-BR-01": 3,
+          "SRV-CORE": 2,
+          "NETOPS": 5,
+          "ADMIN-PC": 0,
+          "site:hq": 1,
+          "site:branch": 3,
+          "vlans": 2,
+          "trunks": 2,
+          "routing": 2,
+          "etherchannel": 2,
+          "wan": 3,
+          "internet": 3,
+          "policy": 4,
+          "wireless": 4,
+          "management": 4,
+          "backups": 5,
+          "noc": 6,
+          "automation": 7
+        },
+        "processes": {
+          "1": {
+            "title": "Connect",
+            "steps": [
+              {
+                "from": "ADMIN-PC",
+                "to": "SW-CORE-01",
+                "label": "console · hostname · mgmt IP"
+              },
+              {
+                "from": "SW-CORE-01",
+                "to": "SW-ACC-01",
+                "label": "first uplink"
+              }
+            ]
+          },
+          "2": {
+            "title": "Segment",
+            "steps": [
+              {
+                "from": "SW-ACC-01",
+                "to": "SW-CORE-01",
+                "label": "trunk carries every VLAN"
+              },
+              {
+                "from": "SW-ACC-02",
+                "to": "SW-CORE-01",
+                "label": "EtherChannel — pull one cable"
+              }
+            ]
+          },
+          "3": {
+            "title": "Route",
+            "steps": [
+              {
+                "from": "R1-HQ",
+                "to": "R2-BR",
+                "label": "OSPF area 0 over the /30"
+              },
+              {
+                "from": "R1-HQ",
+                "to": "internet",
+                "label": "NAT · one public address"
+              }
+            ]
+          },
+          "4": {
+            "title": "Protect",
+            "steps": [
+              {
+                "from": "SW-CORE-01",
+                "to": "policy",
+                "label": "ACLs from the policy rows"
+              },
+              {
+                "from": "AP-01",
+                "to": "SW-ACC-01",
+                "label": "guest Wi-Fi, internet only"
+              }
+            ]
+          },
+          "5": {
+            "title": "Operate",
+            "steps": [
+              {
+                "from": "NETOPS",
+                "to": "SW-CORE-01",
+                "label": "config backup, Oxidized"
+              },
+              {
+                "from": "ADMIN-PC",
+                "to": "NETOPS",
+                "label": "change ticket"
+              }
+            ]
+          },
+          "6": {
+            "title": "Observe",
+            "steps": [
+              {
+                "from": "SW-ACC-01",
+                "to": "NETOPS",
+                "label": "syslog · SNMP"
+              },
+              {
+                "from": "NETOPS",
+                "to": "ADMIN-PC",
+                "label": "alert → ticket"
+              }
+            ]
+          },
+          "7": {
+            "title": "Automate",
+            "steps": [
+              {
+                "from": "NETOPS",
+                "to": "SW-ACC-02",
+                "label": "Ansible, from the source of truth"
+              }
+            ]
+          },
+          "8": {
+            "title": "Engineer",
+            "steps": [
+              {
+                "from": "SW-ACC-02",
+                "to": "SW-CORE-01",
+                "label": "break it on purpose"
+              },
+              {
+                "from": "ADMIN-PC",
+                "to": "NETOPS",
+                "label": "incident → RCA"
+              },
+              {
+                "from": "NETOPS",
+                "to": "ADMIN-PC",
+                "label": "handover"
+              }
+            ]
+          }
+        },
+        "captions": {
+          "0": "Before the build: the kit on the bench and the admin PC. Only what you can touch exists.",
+          "1": "New: the HQ core and first access switch. Console in, name it, give it a management address.",
+          "2": "New: the second access switch, VLANs, trunks and an EtherChannel that survives a pulled cable.",
+          "3": "New: both routers, the branch site, the WAN link and the internet. OSPF and NAT connect it all.",
+          "4": "New: the access point, the policy and the hardened management plane. The network is protected.",
+          "5": "New: config backups. Nothing is built — the network is operated: backups, changes, tickets.",
+          "6": "New: the NOC. Syslog and SNMP from every device become alerts, and alerts become tickets.",
+          "7": "New: automation. Configuration flows from the source of truth, not from the keyboard.",
+          "8": "Nothing new is built. Break it, run the incident, write the RCA, hand the network over."
+        }
+      },
       "CCNA_DIAGRAM_COPY": {
         "title": "What you build — two sites, one network",
         "howToRead": "Each column is a site. Inside it, the devices from the top of the network down to the access ports. The VLAN strip below each site is what that site's trunks carry. Dimmed parts arrive in a later week, tagged with the week they show up.",
@@ -4721,6 +4883,214 @@
         }
       ]
     },
+    "weekVisuals": [
+      {
+        "week": 0,
+        "builtThrough": 0,
+        "highlight": [
+          "ADMIN-PC"
+        ],
+        "caption": "Before the build: the kit on the bench and the admin PC. Only what you can touch exists."
+      },
+      {
+        "week": 1,
+        "builtThrough": 1,
+        "highlight": [
+          "SW-CORE-01",
+          "SW-ACC-01",
+          "site:hq"
+        ],
+        "process": {
+          "title": "Connect",
+          "steps": [
+            {
+              "from": "ADMIN-PC",
+              "to": "SW-CORE-01",
+              "label": "console · hostname · mgmt IP"
+            },
+            {
+              "from": "SW-CORE-01",
+              "to": "SW-ACC-01",
+              "label": "first uplink"
+            }
+          ]
+        },
+        "caption": "New: the HQ core and first access switch. Console in, name it, give it a management address."
+      },
+      {
+        "week": 2,
+        "builtThrough": 2,
+        "highlight": [
+          "SW-ACC-02",
+          "SRV-CORE",
+          "vlans",
+          "trunks",
+          "routing",
+          "etherchannel"
+        ],
+        "process": {
+          "title": "Segment",
+          "steps": [
+            {
+              "from": "SW-ACC-01",
+              "to": "SW-CORE-01",
+              "label": "trunk carries every VLAN"
+            },
+            {
+              "from": "SW-ACC-02",
+              "to": "SW-CORE-01",
+              "label": "EtherChannel — pull one cable"
+            }
+          ]
+        },
+        "caption": "New: the second access switch, VLANs, trunks and an EtherChannel that survives a pulled cable."
+      },
+      {
+        "week": 3,
+        "builtThrough": 3,
+        "highlight": [
+          "R1-HQ",
+          "R2-BR",
+          "SW-BR-01",
+          "site:branch",
+          "wan",
+          "internet"
+        ],
+        "process": {
+          "title": "Route",
+          "steps": [
+            {
+              "from": "R1-HQ",
+              "to": "R2-BR",
+              "label": "OSPF area 0 over the /30"
+            },
+            {
+              "from": "R1-HQ",
+              "to": "internet",
+              "label": "NAT · one public address"
+            }
+          ]
+        },
+        "caption": "New: both routers, the branch site, the WAN link and the internet. OSPF and NAT connect it all."
+      },
+      {
+        "week": 4,
+        "builtThrough": 4,
+        "highlight": [
+          "AP-01",
+          "policy",
+          "wireless",
+          "management"
+        ],
+        "process": {
+          "title": "Protect",
+          "steps": [
+            {
+              "from": "SW-CORE-01",
+              "to": "policy",
+              "label": "ACLs from the policy rows"
+            },
+            {
+              "from": "AP-01",
+              "to": "SW-ACC-01",
+              "label": "guest Wi-Fi, internet only"
+            }
+          ]
+        },
+        "caption": "New: the access point, the policy and the hardened management plane. The network is protected."
+      },
+      {
+        "week": 5,
+        "builtThrough": 5,
+        "highlight": [
+          "NETOPS",
+          "backups"
+        ],
+        "process": {
+          "title": "Operate",
+          "steps": [
+            {
+              "from": "NETOPS",
+              "to": "SW-CORE-01",
+              "label": "config backup, Oxidized"
+            },
+            {
+              "from": "ADMIN-PC",
+              "to": "NETOPS",
+              "label": "change ticket"
+            }
+          ]
+        },
+        "caption": "New: config backups. Nothing is built — the network is operated: backups, changes, tickets."
+      },
+      {
+        "week": 6,
+        "builtThrough": 6,
+        "highlight": [
+          "noc"
+        ],
+        "process": {
+          "title": "Observe",
+          "steps": [
+            {
+              "from": "SW-ACC-01",
+              "to": "NETOPS",
+              "label": "syslog · SNMP"
+            },
+            {
+              "from": "NETOPS",
+              "to": "ADMIN-PC",
+              "label": "alert → ticket"
+            }
+          ]
+        },
+        "caption": "New: the NOC. Syslog and SNMP from every device become alerts, and alerts become tickets."
+      },
+      {
+        "week": 7,
+        "builtThrough": 7,
+        "highlight": [
+          "automation"
+        ],
+        "process": {
+          "title": "Automate",
+          "steps": [
+            {
+              "from": "NETOPS",
+              "to": "SW-ACC-02",
+              "label": "Ansible, from the source of truth"
+            }
+          ]
+        },
+        "caption": "New: automation. Configuration flows from the source of truth, not from the keyboard."
+      },
+      {
+        "week": 8,
+        "builtThrough": 8,
+        "highlight": [],
+        "process": {
+          "title": "Engineer",
+          "steps": [
+            {
+              "from": "SW-ACC-02",
+              "to": "SW-CORE-01",
+              "label": "break it on purpose"
+            },
+            {
+              "from": "ADMIN-PC",
+              "to": "NETOPS",
+              "label": "incident → RCA"
+            },
+            {
+              "from": "NETOPS",
+              "to": "ADMIN-PC",
+              "label": "handover"
+            }
+          ]
+        },
+        "caption": "Nothing new is built. Break it, run the incident, write the RCA, hand the network over."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",

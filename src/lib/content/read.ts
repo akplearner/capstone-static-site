@@ -17,6 +17,7 @@ import type { DeliverableDef } from '@/lib/docs/types';
 import type { RoleGuide } from '@/lib/roleGuide';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
+import type { WeekVisual } from '@/lib/weekVisual';
 
 type DataOf<M> = { [K in keyof M as M[K] extends (...args: never[]) => unknown ? never : K]: M[K] };
 type ContentOf<M> = Serialisable<DataOf<M>>;
@@ -29,6 +30,7 @@ export type CcnaDiagramsContent = ContentOf<typeof import('@/lib/docs/ccnaDiagra
 export type CcnaKitContent = ContentOf<typeof import('@/lib/docs/ccnaKit')>;
 export type TroubleshootingContent = ContentOf<typeof import('@/lib/docs/troubleshooting')>;
 export type CustodyContent = ContentOf<typeof import('@/lib/docs/custodyTemplate')>;
+export type MsspContent = ContentOf<typeof import('@/lib/docs/msspContent')>;
 export type ProcedureWeeks = Serialisable<typeof import('@/lib/docs/serverProcedures').WEEKS>;
 export type Procedures = Serialisable<typeof import('@/lib/docs/serverProcedures').PROCEDURES>;
 
@@ -57,6 +59,9 @@ export const ccnaDiagramsOf = (doc: CourseDto) => section<CcnaDiagramsContent>(d
 export const ccnaKitOf = (doc: CourseDto) => section<CcnaKitContent>(doc, 'kit');
 export const troubleshootingOf = (doc: CourseDto) => section<TroubleshootingContent>(doc, 'troubleshooting');
 export const custodyOf = (doc: CourseDto) => section<CustodyContent>(doc, 'custody');
+export const msspOf = (doc: CourseDto) => section<MsspContent>(doc, 'mssp');
+/** R99: the course's "What you build this week" visuals, one per week. */
+export const weekVisualsOf = (doc: CourseDto): WeekVisual[] => ((doc.content?.weekVisuals ?? []) as WeekVisual[]);
 
 /** The cloud capstones' topology and template (R87). Absent on other courses. */
 export interface CloudContent {

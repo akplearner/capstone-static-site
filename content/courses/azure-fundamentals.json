@@ -7,6 +7,7 @@
     "src/lib/cloud/azureTopology.ts",
     "src/lib/cloud/azureIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -5721,6 +5722,113 @@
         }
       ]
     },
+    "weekVisuals": [
+      {
+        "week": 1,
+        "builtThrough": 1,
+        "highlight": [
+          "budget"
+        ],
+        "process": {
+          "title": "Set the standard",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "budget",
+              "label": "the $5 budget"
+            },
+            {
+              "from": "admin",
+              "to": "rg",
+              "label": "the group and the network"
+            }
+          ]
+        },
+        "caption": "New: the budget, the group and the network. The standard everything else is named by."
+      },
+      {
+        "week": 2,
+        "builtThrough": 2,
+        "highlight": [
+          "webStorage",
+          "nsgApp",
+          "vm",
+          "pip"
+        ],
+        "process": {
+          "title": "Core services",
+          "steps": [
+            {
+              "from": "user",
+              "to": "webStorage",
+              "label": "the site, over HTTPS"
+            },
+            {
+              "from": "admin",
+              "to": "vm",
+              "label": "SSH from one address only"
+            }
+          ]
+        },
+        "caption": "New: the VM, the storage site and the firewall. The company is on the internet, over HTTPS."
+      },
+      {
+        "week": 3,
+        "builtThrough": 3,
+        "highlight": [
+          "func",
+          "cosmos",
+          "appi",
+          "log",
+          "readerRole"
+        ],
+        "process": {
+          "title": "The visitor counter",
+          "steps": [
+            {
+              "from": "user",
+              "to": "func",
+              "label": "GET the count"
+            },
+            {
+              "from": "func",
+              "to": "cosmos",
+              "label": "count + 1"
+            }
+          ]
+        },
+        "caption": "New: the function, the database and the identity pieces. A page view becomes a count."
+      },
+      {
+        "week": 4,
+        "builtThrough": 4,
+        "highlight": [
+          "http5xxAlert",
+          "actionGroup"
+        ],
+        "process": {
+          "title": "The incident loop",
+          "steps": [
+            {
+              "from": "func",
+              "to": "http5xxAlert",
+              "label": "server errors"
+            },
+            {
+              "from": "http5xxAlert",
+              "to": "actionGroup",
+              "label": "email the team"
+            },
+            {
+              "from": "admin",
+              "to": "func",
+              "label": "find it, fix it, retest"
+            }
+          ]
+        },
+        "caption": "New: the alert and who it emails. Break it on purpose and watch the alert win."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",

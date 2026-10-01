@@ -84,6 +84,16 @@ describe('TasksTab — every task open to every member', () => {
     expect(container.textContent).toContain('Everyone can open and do any of them');
   });
 
+  it('R99: the week’s picture is on the tab, pinned to the week on screen, with its caption', async () => {
+    const { weekVisualsOf } = await import('@/lib/content/read');
+    const { courseDocument } = await import('@/lib/content/docs');
+    const v = weekVisualsOf(courseDocument('azure-fundamentals')!).find((x) => x.week === 2)!;
+    mount({ effectiveWeek: 2, teamWeekStats: { 1: 100, 2: 0 } });
+    expect(screen.getByRole('heading', { name: 'What you build this week' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: /week 2/ })).toBeInTheDocument();
+    expect(screen.getByText(v.caption)).toBeInTheDocument();
+  });
+
   it('a teammate’s task opens in the runner, with checkboxes and a line saying whose it is', () => {
     const infra = week1.find((t) => t.role === 'infra')!;
     mount({ expanded: new Set([infra.id]) });

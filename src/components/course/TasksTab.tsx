@@ -21,6 +21,7 @@ import { ReportIssueDialog } from '@/components/task/ReportIssueDialog';
 import { tintFor } from '@/components/quarry/art/palette';
 import { weekRarity } from '@/lib/rarity';
 import { TaskAboutPanel } from './TaskAboutPanel';
+import { WeekVisualPanel } from './WeekVisualPanel';
 import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
 import { socTopology, SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { hasLabAccess, labProfile, useLabAccess } from '@/lib/labAccess';
@@ -334,6 +335,11 @@ export function TasksTab({
               rarity: weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf)),
             }))}
           />
+
+          {/* R99: the build as it stands at the end of this week, this week's
+              additions glowing, the week's process drawn over it — shown even
+              behind a gate, because it is what the locked week is about. */}
+          <WeekVisualPanel course={course} week={viewWeek} />
 
           {viewLocked ? (
             <div className="flex items-start gap-3 rounded-lg depth-edge bg-panel-2 p-4">

@@ -13,6 +13,7 @@
  * already held all four.
  */
 import { LAB_SUBNET, labHost } from '../labTopology';
+import type { BuildModel } from '../weekVisual';
 
 /* ── The self-study lab ──────────────────────────────────────────────────── */
 
@@ -161,3 +162,42 @@ export const DOCS_REDUCTION_COPY = {
     { code: 'Team_Roles.md' },
   ] as Run[],
 } as const;
+
+/* ── What you build this week (R99) ───────────────────────────────────────── */
+
+/**
+ * The attack lab, week by week. Ids are the parts `ArchitectureDiagram` draws:
+ * the lab itself is there from Week 0; the governance band, the SOC, the
+ * custody chip and the final report arrive as the engagement moves.
+ */
+export const LAB_BUILD: BuildModel = {
+  arrives: { attacker: 0, network: 0, ubuntu: 0, windows: 0, grc: 1, hardened: 1, soc: 2, custody: 3, report: 4 },
+  processes: {
+    1: { title: 'Cold Recon', steps: [
+      { from: 'attacker', to: 'network', label: 'OSINT · passive recon' },
+      { from: 'network', to: 'ubuntu', label: 'map the target, quietly' },
+      { from: 'grc', to: 'ubuntu', label: 'hardening standard applied' },
+    ] },
+    2: { title: 'Hard Target', steps: [
+      { from: 'attacker', to: 'ubuntu', label: 'port & web scanning' },
+      { from: 'ubuntu', to: 'soc', label: 'baseline capture' },
+      { from: 'soc', to: 'grc', label: 'findings → risk register' },
+    ] },
+    3: { title: 'The Breach', steps: [
+      { from: 'attacker', to: 'ubuntu', label: 'live exploits' },
+      { from: 'ubuntu', to: 'soc', label: 'detect and contain' },
+      { from: 'soc', to: 'custody', label: 'preserve the evidence' },
+    ] },
+    4: { title: 'Payday', steps: [
+      { from: 'soc', to: 'grc', label: 'evidence → findings' },
+      { from: 'grc', to: 'report', label: 'final report & presentation' },
+    ] },
+  },
+  captions: {
+    0: 'The lab: a Kali attacker, one flat network, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.',
+    1: 'New: the GRC band and the hardening baseline. Red maps the target without making noise.',
+    2: 'New: the SOC. Red scans while Blue learns what normal traffic looks like and GRC opens the risk register.',
+    3: 'New: evidence custody. Red attacks for real; Blue detects, contains and preserves what it found.',
+    4: 'New: the final report. No new traffic — the evidence becomes findings and recommendations.',
+  },
+};

@@ -23,6 +23,7 @@
  * pixels, not content.
  */
 import { SOC_IP, SOC_LOGIN_LABEL, SOC_URL, socTopology } from '../labTopology';
+import type { BuildModel } from '../weekVisual';
 
 const SOC = socTopology('cysa-plus')!;
 
@@ -430,3 +431,48 @@ export interface FrameCopy {
   howToRead: string;
   legend?: { kind: string; label: string }[];
 }
+
+/* ── What you build this week (R99) ───────────────────────────────────────── */
+
+/**
+ * The SOC lab, week by week. Ids are the parts `SocTopologyDiagram` draws: the
+ * host, the SOC, the pod and the attacker are built for you (Week 0); each
+ * role's sensor arrives in Week 1; the vulnerability view in Week 3; the
+ * firewall rule that contains the attacker in Week 4. The process of each
+ * week is the attack-path hop of that week (`ATTACK_PATH`).
+ */
+export const SOC_BUILD: BuildModel = {
+  arrives: {
+    host: 0, soc: 0, ubuntu: 0, windows: 0, kali: 0, browser: 0,
+    'sensor-agent': 1, 'sensor-sysmon': 1, 'sensor-suricata': 1,
+    'soc-vuln': 3, firewall: 4,
+  },
+  processes: {
+    1: { title: 'See everything', steps: [
+      { from: 'ubuntu', to: 'soc', label: 'agent · port 1514' },
+      { from: 'windows', to: 'soc', label: 'Sysmon → agent' },
+      { from: 'soc', to: 'browser', label: 'prove the feed' },
+    ] },
+    2: { title: 'The attack you generate', steps: [
+      { from: 'kali', to: 'ubuntu', label: 'recon · exploit · brute force' },
+      { from: 'ubuntu', to: 'soc', label: 'the evidence each hop leaves' },
+      { from: 'soc', to: 'browser', label: 'hunt and triage' },
+    ] },
+    3: { title: 'Close the gaps', steps: [
+      { from: 'kali', to: 'ubuntu', label: 'scan from the attacker’s side' },
+      { from: 'soc-vuln', to: 'browser', label: 'rank the risk' },
+    ] },
+    4: { title: 'Hold the line', steps: [
+      { from: 'soc', to: 'browser', label: 'detect: the first alert' },
+      { from: 'browser', to: 'soc', label: 'investigate: pivot on the source' },
+      { from: 'browser', to: 'firewall', label: 'contain: ufw DENY' },
+    ] },
+  },
+  captions: {
+    0: 'The lab as it is built for you: one Proxmox host, the shared SOC, your team pod and the Kali attacker.',
+    1: 'New: a sensor per role. Every pod reports to the SOC; the baseline of normal is written.',
+    2: 'Nothing new is built. You run the attack chain yourself and hunt for the evidence each hop leaves.',
+    3: 'New: the vulnerability view. Scan the pod from both sides and rank what you find.',
+    4: 'New: the firewall rule. Detect, investigate and contain the attack, then report it.',
+  },
+};

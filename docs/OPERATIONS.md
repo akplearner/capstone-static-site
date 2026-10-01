@@ -49,6 +49,10 @@ has failed silently in some deployment of some product; none takes more than a m
       task opens in the runner, its row names the role, yours says "Yours"; a step the teammate
       ticked reads "done by <name>" and cannot be unticked by you; the week % and the gate are
       the team's.
+- [ ] **Week picture (R99):** every week of every course shows "What you build this week" on the
+      Tasks tab: the build at the end of that week, this week's parts glowing, and on a week that
+      builds nothing the week's process drawn over it. The Guide's lab picture has week pills; a
+      form shows its own week's picture.
 - [ ] **Progress persists:** tick a step, reload, still ticked. Sign in on a second device and see it.
 - [ ] **Ledger:** paste matching output on a verify step; reload; it still reads verified.
 - [ ] **Guest migration:** in a private window do some work signed out, then register — the demo

@@ -2,6 +2,7 @@ import type { KitSpec } from './kitSpec';
 import { RACK_ELEVATION, RACK_LEGEND, SERVER_DIAGRAM_COPY } from '../docs/serverDiagrams';
 import { COMPANY, DEVICES, LINKS, SITES, WAN, mgmtAddress } from '../ccnaTopology';
 import { LAB_HOSTS, LAB_SUBNET, socTopology } from '../labTopology';
+import { ENGAGEMENT } from '../docs/msspContent';
 
 /**
  * The platform's diagram presets (R84): one ready-made picture per course,
@@ -122,29 +123,16 @@ function cysaFlow(): KitSpec | null {
 
 function msspEngagement(): KitSpec {
   // The MSSP course has no machine lab of its own — the engagement IS the
-  // topology: client environments feeding one managed SOC. Small and here
-  // rather than in a model file because nothing else consumes it yet.
+  // topology (R99: drawn from `msspContent.ts`, the same data the Guide's
+  // picture and the week visuals use, so the forms and the picture agree).
   return {
     kit: 'topology',
-    title: 'The engagement — clients feeding one managed SOC',
-    howToRead:
-      'Left: the client environments your documents govern. Right: the MSSP side your team runs. Every control, SLA and report in your forms names one of these boxes.',
-    zones: [
-      { id: 'client', label: 'Client environments', note: 'what the contract covers' },
-      { id: 'mssp', label: 'MSSP SOC — your team', note: 'what the contract promises' },
-    ],
-    nodes: [
-      { id: 'client-net', label: 'Client A — corporate network', sub: 'endpoints · servers · identity', kind: 'workstation', zone: 'client' },
-      { id: 'client-edge', label: 'Client edge', sub: 'firewall · log forwarder', kind: 'firewall', zone: 'client' },
-      { id: 'siem', label: 'SIEM / log platform', sub: 'collection · detection rules', kind: 'sensor', zone: 'mssp' },
-      { id: 'analysts', label: 'Analyst bench', sub: 'triage · escalation · reporting', kind: 'people', zone: 'mssp' },
-    ],
-    links: [
-      { from: 'client-net', to: 'client-edge', kind: 'flow', label: 'telemetry' },
-      { from: 'client-edge', to: 'siem', kind: 'flow', label: 'encrypted log stream — the boundary SOC 2 / ISO 27001 audit' },
-      { from: 'siem', to: 'analysts', kind: 'flow', label: 'alerts → tickets → client reports' },
-    ],
-    footer: 'No lab VMs here on purpose: the deliverables govern process and evidence, and this is the process.',
+    title: ENGAGEMENT.copy.title,
+    howToRead: ENGAGEMENT.copy.howToRead,
+    zones: ENGAGEMENT.zones.map((z) => ({ id: z.id, label: z.label, note: z.note })),
+    nodes: ENGAGEMENT.nodes.filter((n) => !n.external).map((n) => ({ id: n.id, label: n.label, sub: n.sub, kind: n.kind, zone: n.zone })),
+    links: ENGAGEMENT.edges.map((e) => ({ from: e.from, to: e.to, kind: 'flow' as const, label: e.label })),
+    footer: ENGAGEMENT.copy.footer,
   };
 }
 

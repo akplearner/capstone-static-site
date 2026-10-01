@@ -54,6 +54,8 @@ import * as ccnaTopology from '@/lib/ccnaTopology';
 import * as ccnaKit from '@/lib/docs/ccnaKit';
 import * as ccnaDiagrams from '@/lib/docs/ccnaDiagrams';
 import * as custodyTemplate from '@/lib/docs/custodyTemplate';
+import * as msspContent from '@/lib/docs/msspContent';
+import { weekVisualsFor } from '@/lib/docs/weekVisuals';
 import { roleGuidesFor } from '@/lib/roleGuide';
 import type { RoleGuide } from '@/lib/roleGuide';
 
@@ -269,6 +271,10 @@ export function courseDto(courseId: string): CourseDto {
     content.kit = contentData(ccnaKit);
     content.ccnaDiagrams = contentData(ccnaDiagrams);
   }
+  if (courseId === 'mssp') {
+    generatedFrom.push('src/lib/docs/msspContent.ts');
+    content.mssp = contentData(msspContent);
+  }
   // The cloud capstones (R87): the topology the Guide draws and the template
   // it is drawn from, as one section, so the picture and the code a student
   // reads are the same document.
@@ -284,6 +290,12 @@ export function courseDto(courseId: string): CourseDto {
       phases: CLOUD_PHASES,
     };
   }
+  // R99: "What you build this week" — one visual per week of every course,
+  // derived from the course's build model (or the cloud topology) and the
+  // authored week processes, so the Tasks tab, the Guide and the forms draw
+  // the same thing from the document.
+  generatedFrom.push('src/lib/docs/weekVisuals.ts');
+  content.weekVisuals = weekVisualsFor(course, cloud ? { topology: cloud.topology, block: cloud.block } : undefined);
   // The chain-of-custody columns and rules: every course's evidence guide
   // renders them, and until R78-D no document carried them.
   generatedFrom.push('src/lib/docs/custodyTemplate.ts');

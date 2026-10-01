@@ -21,6 +21,7 @@ import {
   type Site,
   type Vlan,
 } from '../ccnaTopology';
+import type { BuildModel } from '../weekVisual';
 
 /**
  * Which week each part of the picture arrives in.
@@ -121,3 +122,76 @@ export const SPOKEN: string[] = [
   ...VLAN_ROWS.map((v) => `VLAN ${v.id} ${v.name}: ${v.prefix}, gateway ${v.gateway} — ${v.purpose}.`),
   `${DEVICES.filter((d) => d.optional).length} of the devices are for the advanced weeks and are not required to pass.`,
 ];
+
+/* ── What you build this week (R99) ───────────────────────────────────────── */
+
+/**
+ * The network, week by week. Device ids are the device names (each device's
+ * own `arrives` week); the rest are the parts of the picture that are not
+ * devices, plus the operating practice of the advanced weeks drawn as chips
+ * on NETOPS: config backups (Week 5), the NOC (Week 6), automation (Week 7).
+ */
+export const CCNA_BUILD: BuildModel = {
+  arrives: {
+    ...Object.fromEntries(DEVICES.map((d: Device) => [d.name, d.arrives])),
+    'site:hq': ARRIVES.site.hq,
+    'site:branch': ARRIVES.site.branch,
+    vlans: ARRIVES.vlans,
+    trunks: ARRIVES.trunks,
+    routing: ARRIVES.routing,
+    etherchannel: 2,
+    wan: ARRIVES.wan,
+    internet: ARRIVES.internet,
+    policy: ARRIVES.policy,
+    wireless: ARRIVES.wireless,
+    management: 4,
+    backups: 5,
+    noc: 6,
+    automation: 7,
+  },
+  processes: {
+    1: { title: 'Connect', steps: [
+      { from: 'ADMIN-PC', to: 'SW-CORE-01', label: 'console · hostname · mgmt IP' },
+      { from: 'SW-CORE-01', to: 'SW-ACC-01', label: 'first uplink' },
+    ] },
+    2: { title: 'Segment', steps: [
+      { from: 'SW-ACC-01', to: 'SW-CORE-01', label: 'trunk carries every VLAN' },
+      { from: 'SW-ACC-02', to: 'SW-CORE-01', label: 'EtherChannel — pull one cable' },
+    ] },
+    3: { title: 'Route', steps: [
+      { from: 'R1-HQ', to: 'R2-BR', label: 'OSPF area 0 over the /30' },
+      { from: 'R1-HQ', to: 'internet', label: 'NAT · one public address' },
+    ] },
+    4: { title: 'Protect', steps: [
+      { from: 'SW-CORE-01', to: 'policy', label: 'ACLs from the policy rows' },
+      { from: 'AP-01', to: 'SW-ACC-01', label: 'guest Wi-Fi, internet only' },
+    ] },
+    5: { title: 'Operate', steps: [
+      { from: 'NETOPS', to: 'SW-CORE-01', label: 'config backup, Oxidized' },
+      { from: 'ADMIN-PC', to: 'NETOPS', label: 'change ticket' },
+    ] },
+    6: { title: 'Observe', steps: [
+      { from: 'SW-ACC-01', to: 'NETOPS', label: 'syslog · SNMP' },
+      { from: 'NETOPS', to: 'ADMIN-PC', label: 'alert → ticket' },
+    ] },
+    7: { title: 'Automate', steps: [
+      { from: 'NETOPS', to: 'SW-ACC-02', label: 'Ansible, from the source of truth' },
+    ] },
+    8: { title: 'Engineer', steps: [
+      { from: 'SW-ACC-02', to: 'SW-CORE-01', label: 'break it on purpose' },
+      { from: 'ADMIN-PC', to: 'NETOPS', label: 'incident → RCA' },
+      { from: 'NETOPS', to: 'ADMIN-PC', label: 'handover' },
+    ] },
+  },
+  captions: {
+    0: 'Before the build: the kit on the bench and the admin PC. Only what you can touch exists.',
+    1: 'New: the HQ core and first access switch. Console in, name it, give it a management address.',
+    2: 'New: the second access switch, VLANs, trunks and an EtherChannel that survives a pulled cable.',
+    3: 'New: both routers, the branch site, the WAN link and the internet. OSPF and NAT connect it all.',
+    4: 'New: the access point, the policy and the hardened management plane. The network is protected.',
+    5: 'New: config backups. Nothing is built — the network is operated: backups, changes, tickets.',
+    6: 'New: the NOC. Syslog and SNMP from every device become alerts, and alerts become tickets.',
+    7: 'New: automation. Configuration flows from the source of truth, not from the keyboard.',
+    8: 'Nothing new is built. Break it, run the incident, write the RCA, hand the network over.',
+  },
+};

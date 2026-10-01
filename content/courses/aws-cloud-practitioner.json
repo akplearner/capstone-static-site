@@ -7,6 +7,7 @@
     "src/lib/cloud/awsTopology.ts",
     "src/lib/cloud/awsIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -5900,6 +5901,117 @@
         }
       ]
     },
+    "weekVisuals": [
+      {
+        "week": 1,
+        "builtThrough": 1,
+        "highlight": [
+          "MonthlyBudget",
+          "InternetGateway",
+          "PublicRouteTable"
+        ],
+        "process": {
+          "title": "Set the standard",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "MonthlyBudget",
+              "label": "the $5 budget"
+            },
+            {
+              "from": "admin",
+              "to": "Vpc",
+              "label": "the group and the network"
+            }
+          ]
+        },
+        "caption": "New: the budget, the group and the network. The standard everything else is named by."
+      },
+      {
+        "week": 2,
+        "builtThrough": 2,
+        "highlight": [
+          "SiteDistribution",
+          "SiteOac",
+          "SiteBucket",
+          "ToolsSecurityGroup",
+          "ToolsInstance"
+        ],
+        "process": {
+          "title": "Core services",
+          "steps": [
+            {
+              "from": "user",
+              "to": "SiteDistribution",
+              "label": "the site, over HTTPS"
+            },
+            {
+              "from": "admin",
+              "to": "ToolsInstance",
+              "label": "SSH from one address only"
+            }
+          ]
+        },
+        "caption": "New: the VM, the storage site and the firewall. The company is on the internet, over HTTPS."
+      },
+      {
+        "week": 3,
+        "builtThrough": 3,
+        "highlight": [
+          "ReadOnlyGroup",
+          "HttpApi",
+          "CounterFunction",
+          "VisitorTable",
+          "CounterFunctionRole"
+        ],
+        "process": {
+          "title": "The visitor counter",
+          "steps": [
+            {
+              "from": "user",
+              "to": "HttpApi",
+              "label": "GET the count"
+            },
+            {
+              "from": "CounterFunction",
+              "to": "VisitorTable",
+              "label": "count + 1"
+            }
+          ]
+        },
+        "caption": "New: the function, the database and the identity pieces. A page view becomes a count."
+      },
+      {
+        "week": 4,
+        "builtThrough": 4,
+        "highlight": [
+          "CounterLogGroup",
+          "FunctionErrorsAlarm",
+          "AlertTopic"
+        ],
+        "process": {
+          "title": "The incident loop",
+          "steps": [
+            {
+              "from": "CounterFunction",
+              "to": "FunctionErrorsAlarm",
+              "label": "server errors"
+            },
+            {
+              "from": "FunctionErrorsAlarm",
+              "to": "AlertTopic",
+              "label": "email the team"
+            },
+            {
+              "from": "admin",
+              "to": "CounterFunction",
+              "label": "find it, fix it, retest"
+            }
+          ]
+        },
+        "caption": "New: the alert and who it emails. Break it on purpose and watch the alert win."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",

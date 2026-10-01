@@ -3,10 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { CloudManualArchitecture, CloudOverview } from '@/components/cloud/CloudOverview';
 import { useCourseProgress } from '@/components/course/useCourseProgress';
-import { ArchitectureDiagram } from '@/components/diagrams/ArchitectureDiagram';
-import { SocTopologyDiagram } from '@/components/diagrams/SocTopologyDiagram';
-import { ServerTopologyDiagram } from '@/components/diagrams/ServerTopologyDiagram';
-import { CcnaTopologyDiagram } from '@/components/diagrams/CcnaTopologyDiagram';
+import { WeekBuildDiagram } from '@/components/diagrams/WeekBuildDiagram';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
@@ -73,6 +70,8 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   const picture = course.topologyPicture ?? (topo ? 'soc' : undefined);
   const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
   const progress = useCourseProgress(course, member);
+  // R99: the lab picture opens on the student's week and carries the week pills.
+  const [pictureWeek, setPictureWeek] = useState(progress.activeWeek);
 
   // The deliverable chain, with filed status recomputed whenever docs change,
   // so the diagram reads as a live status board rather than a static plan.
@@ -105,26 +104,18 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   const bodies: Record<string, React.ReactNode> = {
     lab: (
         <div className="space-y-6">
-          {/* Three shapes, three diagrams. The generic ArchitectureDiagram draws a
-              red/blue/grc attack lab and hardcodes those role ids, so it is the
-              fallback only — a four-bridge deployment gets its own picture. */}
-          {picture === 'soc' && topo ? (
-            <SocTopologyDiagram topo={topo} />
-          ) : picture === 'rack' ? (
-            <>
-              <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />
-              <Surface>
-                <ServerTopologyDiagram business={teamBusiness} />
-              </Surface>
-            </>
-          ) : picture === 'cloud' ? (
+          {/* R99: every course's picture is week-scoped — what is built by the
+              selected week, this week's additions glowing, the week's process
+              over it — behind the same week pills. The cloud courses keep their
+              overview here (the workflows); their week picture is the
+              "Architecture & IaC" section. */}
+          {picture === 'cloud' ? (
             <CloudOverview variant="guide" courseId={course.id} />
-          ) : picture === 'campus' ? (
-            <Surface>
-              <CcnaTopologyDiagram />
-            </Surface>
           ) : (
-            <ArchitectureDiagram roles={course.roles} highlightRole={member.role} />
+            <>
+              {picture === 'rack' && <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />}
+              <WeekBuildDiagram course={course} week={pictureWeek} controls onWeekChange={setPictureWeek} business={teamBusiness} highlightRole={member.role} />
+            </>
           )}
           {course.id === 'security-plus' && <LabSetupGuide />}
           {isCysa && (

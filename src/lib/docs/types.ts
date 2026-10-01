@@ -221,9 +221,10 @@ export interface FieldCheck {
 }
 
 export interface DeliverableVisual {
-  kit: 'rack' | 'device' | 'topology' | 'flow' | 'cloud';
-  /** kit 'cloud' (R87): the architecture version this form draws — the
-   *  course's cloud topology as it stands in that week. */
+  kit: 'rack' | 'device' | 'topology' | 'flow' | 'cloud' | 'week';
+  /** kit 'cloud' (R87) and kit 'week' (R99): the week this form draws — the
+   *  course's picture as it stands in that week, this week's parts glowing.
+   *  Absent on kit 'week' = the form's first week. */
   week?: number;
   /** A named preset from lib/diagrams/kitPresets; absent = the course default. */
   preset?: string;

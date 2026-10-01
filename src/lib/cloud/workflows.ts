@@ -1,5 +1,6 @@
 import type { KitSpec } from '../diagrams/kitSpec';
 import type { CloudPlatform } from './model';
+import type { WeekProcess } from '../weekVisual';
 
 /**
  * The cloud capstones' workflow pictures (R87) — how the company works, one
@@ -135,3 +136,92 @@ export const CLOUD_PHASES = [
   { label: 'Advanced', weeks: '9–11', detail: 'Infrastructure as code, CI/CD, governance.' },
   { label: 'Integrated', weeks: '12', detail: 'Recover, fix and contain under pressure; hand over.' },
 ];
+
+/* ── What you build this week (R99) ───────────────────────────────────────── */
+
+/** The ids the week processes name, per platform — the topology's own node and container ids. */
+const IDS = {
+  azure: { site: 'webStorage', edge: 'webStorage', vm: 'vm', disk: 'dataDisk', api: 'func', fn: 'func', db: 'cosmos', alert: 'http5xxAlert', notify: 'actionGroup', secret: 'kv', param: 'kv', reader: 'readerRole', mgmt: 'nsgMgmt', budget: 'budget', group: 'rg', deploy: 'rg', policy: 'tagPolicy', account: 'governance' },
+  aws: { site: 'SiteDistribution', edge: 'SiteDistribution', vm: 'ToolsInstance', disk: 'DataVolume', api: 'HttpApi', fn: 'CounterFunction', db: 'VisitorTable', alert: 'FunctionErrorsAlarm', notify: 'AlertTopic', secret: 'TableNameParameter', param: 'TableNameParameter', reader: 'ReadOnlyGroup', mgmt: 'ToolsInstance', budget: 'MonthlyBudget', group: 'Vpc', deploy: 'region', policy: 'account-level', account: 'account-level' },
+} as const;
+
+const DEPLOY_PREVIEW: Record<CloudPlatform, string> = { azure: 'what-if → deploy to dev', aws: 'change set → deploy to dev' };
+const NO_PORT: Record<CloudPlatform, string> = { azure: 'Run Command, no open port', aws: 'Session Manager, no open port' };
+const GOVERN: Record<CloudPlatform, string> = { azure: 'Policy: deny untagged', aws: 'Config rule · CloudTrail' };
+
+/**
+ * The process of each GLOBAL week, drawn over the architecture. Every week has
+ * one, so a week that adds nothing to the template (Weeks 9–12) still shows
+ * what it is about: a deploy, a pipeline, a review, a recovery.
+ */
+export function cloudWeekProcesses(platform: CloudPlatform): Record<number, WeekProcess> {
+  const i = IDS[platform];
+  return {
+    1: { title: 'Set the standard', steps: [
+      { from: 'admin', to: i.budget, label: 'the $5 budget' },
+      { from: 'admin', to: i.group, label: 'the group and the network' },
+    ] },
+    2: { title: 'Core services', steps: [
+      { from: 'user', to: i.site, label: 'the site, over HTTPS' },
+      { from: 'admin', to: i.vm, label: 'SSH from one address only' },
+    ] },
+    3: { title: 'The visitor counter', steps: [
+      { from: 'user', to: i.api, label: 'GET the count' },
+      { from: i.fn, to: i.db, label: 'count + 1' },
+    ] },
+    4: { title: 'The incident loop', steps: [
+      { from: i.fn, to: i.alert, label: 'server errors' },
+      { from: i.alert, to: i.notify, label: 'email the team' },
+      { from: 'admin', to: i.fn, label: 'find it, fix it, retest' },
+    ] },
+    5: { title: 'Identity', steps: [
+      { from: i.fn, to: i.secret, label: 'read by identity, no key' },
+      { from: 'admin', to: i.reader, label: 'least privilege for readers' },
+    ] },
+    6: { title: 'Networking', steps: [
+      { from: 'admin', to: i.mgmt, label: NO_PORT[platform] },
+      { from: 'user', to: i.api, label: 'CORS: your site only' },
+    ] },
+    7: { title: 'Server admin', steps: [
+      { from: 'admin', to: i.disk, label: 'attach and mount' },
+      { from: 'admin', to: i.vm, label: 'patch and baseline' },
+    ] },
+    8: { title: 'Backup and recovery', steps: [
+      { from: 'admin', to: i.disk, label: 'snapshot' },
+      { from: i.disk, to: i.vm, label: 'restore and time it' },
+      { from: 'admin', to: i.site, label: 'recover the deleted file' },
+    ] },
+    9: { title: 'Infrastructure as Code', steps: [
+      { from: 'github', to: i.deploy, label: DEPLOY_PREVIEW[platform] },
+    ] },
+    10: { title: 'CI/CD', steps: [
+      { from: 'github', to: i.site, label: 'OIDC sign-in → deploy the site' },
+      { from: 'github', to: i.fn, label: 'deploy under a change request' },
+    ] },
+    11: { title: 'Governance', steps: [
+      { from: i.policy, to: i.group, label: GOVERN[platform] },
+      { from: 'admin', to: i.budget, label: 'cost review' },
+    ] },
+    12: { title: 'Handover', steps: [
+      { from: 'user', to: i.site, label: 'the symptom' },
+      { from: 'admin', to: i.vm, label: 'recover · fix · contain' },
+      { from: 'admin', to: 'github', label: 'the handover package' },
+    ] },
+  };
+}
+
+/** One sentence per GLOBAL week, under the picture. */
+export const CLOUD_WEEK_CAPTIONS: Record<number, string> = {
+  1: 'New: the budget, the group and the network. The standard everything else is named by.',
+  2: 'New: the VM, the storage site and the firewall. The company is on the internet, over HTTPS.',
+  3: 'New: the function, the database and the identity pieces. A page view becomes a count.',
+  4: 'New: the alert and who it emails. Break it on purpose and watch the alert win.',
+  5: 'New: the secret store and the roles. The function reads by identity; readers only read.',
+  6: 'New: the management subnet. SSH is gone; the admin path has no open port.',
+  7: 'New: the data disk. The VM is patched, measured and right-sized.',
+  8: 'Nothing new is built. Snapshot, restore, time it, and recover a deleted file.',
+  9: 'Nothing new is built. The whole environment comes from the template, previewed before it deploys.',
+  10: 'Nothing new is built. GitHub signs in without a secret and deploys under a change request.',
+  11: 'New: the tag policy. Untagged resources are denied; the month’s cost is reviewed.',
+  12: 'Nothing new is built. Three scenarios under time pressure, then the handover package.',
+};

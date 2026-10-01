@@ -7,6 +7,7 @@
     "src/lib/cloud/awsTopology.ts",
     "src/lib/cloud/awsIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -4718,6 +4719,119 @@
         }
       ]
     },
+    "weekVisuals": [
+      {
+        "week": 0,
+        "builtThrough": 8,
+        "highlight": [
+          "SiteDistribution",
+          "SiteOac",
+          "ReadOnlyGroup",
+          "MonthlyBudget",
+          "SiteBucket",
+          "HttpApi",
+          "CounterFunction",
+          "VisitorTable",
+          "TableNameParameter",
+          "CounterFunctionRole",
+          "InstanceRole",
+          "CounterLogGroup",
+          "FunctionErrorsAlarm",
+          "AlertTopic",
+          "InternetGateway",
+          "PublicRouteTable",
+          "ToolsSecurityGroup",
+          "ToolsInstance",
+          "DataVolume",
+          "PrivateRouteTable"
+        ],
+        "caption": "What this course starts from — the previous course’s finished environment."
+      },
+      {
+        "week": 1,
+        "builtThrough": 9,
+        "highlight": [],
+        "process": {
+          "title": "Infrastructure as Code",
+          "steps": [
+            {
+              "from": "github",
+              "to": "region",
+              "label": "change set → deploy to dev"
+            }
+          ]
+        },
+        "caption": "Nothing new is built. The whole environment comes from the template, previewed before it deploys."
+      },
+      {
+        "week": 2,
+        "builtThrough": 10,
+        "highlight": [],
+        "process": {
+          "title": "CI/CD",
+          "steps": [
+            {
+              "from": "github",
+              "to": "SiteDistribution",
+              "label": "OIDC sign-in → deploy the site"
+            },
+            {
+              "from": "github",
+              "to": "CounterFunction",
+              "label": "deploy under a change request"
+            }
+          ]
+        },
+        "caption": "Nothing new is built. GitHub signs in without a secret and deploys under a change request."
+      },
+      {
+        "week": 3,
+        "builtThrough": 11,
+        "highlight": [],
+        "process": {
+          "title": "Governance",
+          "steps": [
+            {
+              "from": "account-level",
+              "to": "Vpc",
+              "label": "Config rule · CloudTrail"
+            },
+            {
+              "from": "admin",
+              "to": "MonthlyBudget",
+              "label": "cost review"
+            }
+          ]
+        },
+        "caption": "New: the tag policy. Untagged resources are denied; the month’s cost is reviewed."
+      },
+      {
+        "week": 4,
+        "builtThrough": 12,
+        "highlight": [],
+        "process": {
+          "title": "Handover",
+          "steps": [
+            {
+              "from": "user",
+              "to": "SiteDistribution",
+              "label": "the symptom"
+            },
+            {
+              "from": "admin",
+              "to": "ToolsInstance",
+              "label": "recover · fix · contain"
+            },
+            {
+              "from": "admin",
+              "to": "github",
+              "label": "the handover package"
+            }
+          ]
+        },
+        "caption": "Nothing new is built. Three scenarios under time pressure, then the handover package."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",

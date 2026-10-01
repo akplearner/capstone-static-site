@@ -1,8 +1,11 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { Minus, Plus } from 'lucide-react';
 import type { CloudContainer, CloudNode, CloudTopology as Topology } from '@/lib/cloud/model';
+import type { WeekProcess } from '@/lib/weekVisual';
+import { processIds } from '@/lib/weekVisual';
+import { WeekPills } from '@/components/week/WeekPills';
+import { ProcessArrows } from '../ProcessArrows';
 import { CONTAINER_FILL, CONTAINER_STROKE } from '@/lib/cloud/brand';
 import { officialContainerHref } from '@/lib/cloud/officialIcons';
 import { ICON_SIZE, layoutTopology, type Rect } from '@/lib/cloud/layout';
@@ -46,6 +49,7 @@ export function CloudTopology({
   controls = true,
   title,
   weekRange,
+  process,
 }: {
   topology: Topology;
   /** R90: the global weeks this course is (e.g. [5, 8]). The picture still
@@ -61,6 +65,8 @@ export function CloudTopology({
   controls?: boolean;
   /** Override the frame title (e.g. "Architecture v3"). */
   title?: string;
+  /** R99: the week's process, drawn over the picture as walking arrows. */
+  process?: WeekProcess;
 }) {
   const [stateWeek, setStateWeek] = useState(initialWeek);
   const [showDeps, setShowDeps] = useState(false);
@@ -82,10 +88,11 @@ export function CloudTopology({
   const live = (e: (typeof topology.edges)[number]) => exists(e.week) && (e.until == null || week <= e.until);
   // What is drawn this week: template resources by week, plumbing only on
   // request, and a person or GitHub only once a line reaches them.
+  const inProcess = new Set(processIds(process));
   const shown = (n: CloudNode) => {
     if (!drawn(n.week)) return false;
     if (n.detail && !showDeps) return false;
-    if (n.external) return topology.edges.some((e) => e.kind === 'traffic' && live(e) && (e.from === n.id || e.to === n.id)) || (showLater && !pinned);
+    if (n.external) return inProcess.has(n.id) || topology.edges.some((e) => e.kind === 'traffic' && live(e) && (e.from === n.id || e.to === n.id)) || (showLater && !pinned);
     return true;
   };
   const nodes = topology.nodes.filter(shown);
@@ -133,44 +140,14 @@ export function CloudTopology({
     >
       {controls && !pinned && (
         <div className="mb-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-xs">
-          <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Architecture version">
-            <button
-              type="button"
-              aria-label="Previous week"
-              onClick={() => setWeek(Math.max(lo, week - 1))}
-              className="rounded-md p-1 text-muted hover:bg-panel-2 hover:text-ink"
-            >
-              <Minus className="h-3.5 w-3.5" />
-            </button>
-            {/* One pill per week, in its phase colour — the same rail the Tasks tab draws. */}
-            {weeksShown.map((w) => (
-              <button
-                key={w}
-                type="button"
-                data-week={local(w)}
-                aria-pressed={w === week}
-                aria-label={`Week ${local(w)}`}
-                onClick={() => setWeek(w)}
-                className={`min-w-[1.75rem] rounded-md border-b-2 px-1.5 py-0.5 font-semibold tabular-nums ${
-                  w === week ? 'bg-panel-2 text-ink' : 'text-muted hover:bg-panel-2 hover:text-ink'
-                }`}
-                style={{ borderBottomColor: w === week ? 'var(--week)' : 'transparent' }}
-              >
-                {local(w)}
-              </button>
-            ))}
-            <button
-              type="button"
-              aria-label="Next week"
-              onClick={() => setWeek(Math.min(hi, week + 1))}
-              className="rounded-md p-1 text-muted hover:bg-panel-2 hover:text-ink"
-            >
-              <Plus className="h-3.5 w-3.5" />
-            </button>
-            <span className="ml-1 text-muted">
-              {week < lo ? 'Week 0 · what you inherit' : `Week ${local(week)} · ${added > 0 ? `${added} new this week` : 'nothing new — operate what exists'}`}
-            </span>
-          </div>
+          <WeekPills
+            weeks={weeksShown}
+            selected={week}
+            onSelect={setWeek}
+            label={(w) => `${local(w)}`}
+            ariaLabel="Architecture version"
+            status={week < lo ? 'Week 0 · what you inherit' : `Week ${local(week)} · ${added > 0 ? `${added} new this week` : 'nothing new — operate what exists'}`}
+          />
           <label className="flex cursor-pointer items-center gap-1.5 text-muted">
             <input type="checkbox" checked={showLater} onChange={(e) => setShowLater(e.target.checked)} />
             Show what comes later
@@ -262,6 +239,9 @@ export function CloudTopology({
             onSelect={onSelect}
           />
         ))}
+
+        {/* R99: the week's process, over the same picture. */}
+        {process && <ProcessArrows process={process} anchors={anchor} markerId={`${markerId}-p`} />}
       </svg>
 
       {/* The same picture, as a list, for screen readers. */}
@@ -281,13 +261,16 @@ export function CloudTopology({
 
 function Box({ c, r, platform, week }: { c: CloudContainer; r: Rect; platform: 'azure' | 'aws'; week: number }) {
   const later = c.week > week;
+  const isNew = c.week === week;
   const stroke = CONTAINER_STROKE[platform][c.kind];
   const fill = CONTAINER_FILL[platform][c.kind] ?? 'transparent';
   const dashed = c.kind === 'group' || c.kind === 'region' || c.kind === 'zone' || (platform === 'azure' && c.kind.startsWith('subnet'));
   const icon = officialContainerHref(platform, c.kind);
   const textX = r.x + (icon ? 30 : 8);
   return (
-    <g opacity={later ? 0.35 : 1} pointerEvents="none">
+    <g opacity={later ? 0.35 : 1} pointerEvents="none" data-node={c.id} data-glow={isNew ? 'true' : undefined} data-later={later ? 'true' : undefined}>
+      {/* R99: a box that arrives this week glows like a node that does. */}
+      {isNew && <rect x={r.x - 3} y={r.y - 3} width={r.w + 6} height={r.h + 6} rx={platform === 'azure' ? 8 : 4} fill="none" stroke="var(--week, var(--color-accent))" strokeWidth={2.5} opacity={0.8} />}
       <rect
         x={r.x}
         y={r.y}
@@ -351,6 +334,9 @@ function NodeMark({
       tabIndex={clickable ? 0 : undefined}
       onKeyDown={clickable ? (e) => (e.key === 'Enter' || e.key === ' ') && onSelect!(n.id) : undefined}
       aria-label={clickable ? `${n.label}${n.name ? ` ${n.name}` : ''} — show in template` : undefined}
+      data-node={n.id}
+      data-glow={isNew ? 'true' : undefined}
+      data-later={later ? 'true' : undefined}
     >
       <title>{`${n.label}${n.name ? ` — ${n.name}` : ''}${n.external ? '' : ` · from week ${n.week}`}`}</title>
       {/* The whole icon is the target, not only its painted strokes. */}

@@ -19,11 +19,12 @@ const IPV4 = String.raw`^(25[0-5]|2[0-4]\d|1?\d?\d)(\.(25[0-5]|2[0-4]\d|1?\d?\d)
 const FILEREF = String.raw`^\d{8}_Team\d{2}_[A-Za-z0-9]+_[A-Za-z0-9-]+\.[A-Za-z0-9]+$`;
 
 export const COURSE_DEFAULT_VISUAL: Record<string, DeliverableVisual> = {
-  'server-plus': { kit: 'rack' },
-  ccna: { kit: 'topology' },
-  'cysa-plus': { kit: 'flow' },
-  'security-plus': { kit: 'topology' },
-  mssp: { kit: 'topology' },
+  // R99: a form draws its course's picture as it stands in the form's week.
+  'server-plus': { kit: 'week' },
+  ccna: { kit: 'week' },
+  'cysa-plus': { kit: 'week' },
+  'security-plus': { kit: 'week' },
+  mssp: { kit: 'week' },
   'azure-fundamentals': { kit: 'cloud' },
   'azure-administrator': { kit: 'cloud' },
   'azure-devops': { kit: 'cloud' },

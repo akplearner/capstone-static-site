@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97 · R98)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97 · R98 · R99)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -260,6 +260,38 @@ the team was stuck. The instructor's rule, for every course on the platform:
   week), `teamProgress.test.ts`, `useCourseProgress.test.tsx`,
   `TasksTab.test.tsx`, and the page-shape rule that the list is never
   filtered by the viewer's role.
+
+## What you build this week, on every course (R99)
+
+Every week of every course now has a picture of the build as it stands at
+the end of that week, this week's additions glowing, and — on a week that
+adds nothing (the cloud DevOps weeks, the Server+ operations weeks, CySA's
+hunting week) — the week's process drawn over the same picture. One contract
+(`src/lib/weekVisual.ts`: `WeekVisual { week, builtThrough, highlight,
+process, caption }`), one renderer (`WeekBuildDiagram`, a switch on the
+course's `topologyPicture`), three places: the Tasks tab ("What you build
+this week", pinned to the week on screen), the Guide's lab section (with week
+pills) and every deliverable form (its own week).
+
+* The cloud courses derive their build from the topology (every node carries
+  its global week) and get a process per global week (`cloudWeekProcesses` in
+  `src/lib/cloud/workflows.ts`: the incident loop, no-open-port admin,
+  snapshot → restore, what-if/change set → deploy, OIDC → deploy, deny
+  untagged, the handover). The DevOps slice, which adds nothing to the
+  template, is carried by its processes.
+* Security+, CySA+, Server+ and CCNA carry a build model in their content
+  module (`LAB_BUILD`, `SOC_BUILD`, `SERVER_BUILD`, `CCNA_BUILD`): which part
+  arrives in which week, plus the week's process and caption. Server+ now
+  draws the advanced hosts (secmon, wazuh, tools) and the operations network;
+  CCNA draws its operating practice (backups, NOC, automation) on NETOPS.
+* MSSP gets its own picture at last: the engagement (`src/lib/docs/
+  msspContent.ts`, `EngagementDiagram`), not the borrowed attack lab; its kit
+  preset is a projection of the same data.
+* Guards: `src/lib/docs/weekVisuals.test.ts` — every graded week of every
+  course has a highlight or a process, every id it names is in the picture,
+  the build never shrinks, processes are short; page-shape R99 — the Tasks
+  tab draws the panel, the Guide draws one week-scoped picture, the overlay
+  pieces carry no literal colour.
 
 ## Honest limits, stated in the course
 

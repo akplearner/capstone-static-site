@@ -7,6 +7,7 @@
     "src/lib/cloud/azureTopology.ts",
     "src/lib/cloud/azureIac.ts",
     "src/lib/cloud/workflows.ts",
+    "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -4791,6 +4792,126 @@
         }
       ]
     },
+    "weekVisuals": [
+      {
+        "week": 0,
+        "builtThrough": 4,
+        "highlight": [
+          "webStorage",
+          "func",
+          "cosmos",
+          "appi",
+          "log",
+          "http5xxAlert",
+          "actionGroup",
+          "nsgApp",
+          "vm",
+          "pip",
+          "readerRole",
+          "budget"
+        ],
+        "caption": "What this course starts from — the previous course’s finished environment."
+      },
+      {
+        "week": 1,
+        "builtThrough": 5,
+        "highlight": [
+          "kv",
+          "kvRoleFunc",
+          "cosmosRoleFunc"
+        ],
+        "process": {
+          "title": "Identity",
+          "steps": [
+            {
+              "from": "func",
+              "to": "kv",
+              "label": "read by identity, no key"
+            },
+            {
+              "from": "admin",
+              "to": "readerRole",
+              "label": "least privilege for readers"
+            }
+          ]
+        },
+        "caption": "New: the secret store and the roles. The function reads by identity; readers only read."
+      },
+      {
+        "week": 2,
+        "builtThrough": 6,
+        "highlight": [
+          "nsgMgmt"
+        ],
+        "process": {
+          "title": "Networking",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "nsgMgmt",
+              "label": "Run Command, no open port"
+            },
+            {
+              "from": "user",
+              "to": "func",
+              "label": "CORS: your site only"
+            }
+          ]
+        },
+        "caption": "New: the management subnet. SSH is gone; the admin path has no open port."
+      },
+      {
+        "week": 3,
+        "builtThrough": 7,
+        "highlight": [
+          "dataDisk"
+        ],
+        "process": {
+          "title": "Server admin",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "dataDisk",
+              "label": "attach and mount"
+            },
+            {
+              "from": "admin",
+              "to": "vm",
+              "label": "patch and baseline"
+            }
+          ]
+        },
+        "caption": "New: the data disk. The VM is patched, measured and right-sized."
+      },
+      {
+        "week": 4,
+        "builtThrough": 8,
+        "highlight": [
+          "webBlobService"
+        ],
+        "process": {
+          "title": "Backup and recovery",
+          "steps": [
+            {
+              "from": "admin",
+              "to": "dataDisk",
+              "label": "snapshot"
+            },
+            {
+              "from": "dataDisk",
+              "to": "vm",
+              "label": "restore and time it"
+            },
+            {
+              "from": "admin",
+              "to": "webStorage",
+              "label": "recover the deleted file"
+            }
+          ]
+        },
+        "caption": "Nothing new is built. Snapshot, restore, time it, and recover a deleted file."
+      }
+    ],
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
