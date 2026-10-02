@@ -21,6 +21,7 @@ export function DiagramFrame({
   howToRead,
   legend,
   scroll = true,
+  footer,
   children,
 }: {
   title?: string;
@@ -28,6 +29,8 @@ export function DiagramFrame({
   howToRead?: string;
   legend?: LegendItem[];
   scroll?: boolean;
+  /** R100: one line that shares the legend row — a "done when", a note. */
+  footer?: ReactNode;
   children: ReactNode;
 }) {
   return (
@@ -44,9 +47,9 @@ export function DiagramFrame({
         </div>
       )}
       <div className={scroll ? 'overflow-x-auto' : ''}>{children}</div>
-      {legend && legend.length > 0 && (
+      {((legend && legend.length > 0) || footer) && (
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted">
-          {legend.map((l) => (
+          {legend?.map((l) => (
             <span key={l.label} className="inline-flex items-center gap-1.5">
               <span
                 className={`inline-block h-2.5 w-2.5 rounded-full ${
@@ -57,6 +60,7 @@ export function DiagramFrame({
               {l.label}
             </span>
           ))}
+          {footer && <span className="min-w-0 flex-1 basis-56">{footer}</span>}
         </div>
       )}
     </div>

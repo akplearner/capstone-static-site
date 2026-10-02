@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import type { Step } from '@/lib/types';
 import { StepDetail, type LedgerRef } from '@/components/step/StepDetail';
+import { Chip } from '@/components/ui/Chip';
 import { DUR, EASE } from '@/lib/motion';
 
 /**
@@ -58,7 +59,9 @@ export function ChecklistItem({
       id={`step-${stepId}`}
       data-done={isComplete ? 'true' : 'false'}
       aria-current={current ? 'step' : undefined}
-      className={`scroll-under-chrome rounded-[var(--radius-control)] px-3 py-2 ${current ? 'depth-lift bg-panel-2' : ''}`}
+      // R100: focusable by script (the ←/→ keys land the open rung), never by Tab.
+      tabIndex={-1}
+      className={`scroll-under-chrome rounded-[var(--radius-control)] px-2 py-1.5 outline-none sm:px-3 sm:py-2 ${current ? 'depth-current bg-panel-2' : ''}`}
     >
       <div className="flex items-start gap-3">
         <motion.input
@@ -81,10 +84,14 @@ export function ChecklistItem({
             {number != null && <span className="font-mono text-xs font-semibold text-muted no-underline">{number}.</span>}
             {title}
             {!!doneBy?.length && (
-              <span className="rounded-full bg-ok-soft px-2 py-0.5 text-2xs font-medium text-ok no-underline">done by {doneBy.join(', ')}</span>
+              <Chip tone="ok" className="no-underline">
+                done by {doneBy.join(', ')}
+              </Chip>
             )}
             {optional && (
-              <span className="rounded-full bg-info-soft px-2 py-0.5 text-2xs font-medium text-info no-underline">Optional</span>
+              <Chip tone="info" className="no-underline">
+                Optional
+              </Chip>
             )}
             {isComplete && <Check className="h-4 w-4 text-ok" aria-label="done" />}
           </span>
@@ -106,7 +113,7 @@ export function ChecklistItem({
               transition={{ duration: DUR.disclosure, ease: EASE.out }}
               className="overflow-hidden"
             >
-              <div className="mt-3 space-y-3 border-t border-line pl-8 pt-3">
+              <div className="mt-2.5 space-y-3 border-t border-line pl-0 pt-3 sm:pl-8">
                 <StepDetail step={step} ledger={ledger} howOpen={howOpen} />
                 {footer}
               </div>

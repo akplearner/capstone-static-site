@@ -141,7 +141,7 @@ export function ServerTopologyDiagram({
         })),
       ]}
     >
-      <div className="grid min-w-[560px] gap-4 sm:grid-cols-[minmax(220px,1fr)_minmax(240px,1.2fr)]">
+      <div className="grid min-w-0 gap-4 sm:min-w-[560px] sm:grid-cols-[minmax(220px,1fr)_minmax(240px,1.2fr)]">
         {/* The physical rack elevation */}
         <div className={`rounded-lg depth-edge bg-panel-2 p-3 ${dim(built(arrivesOf('rack')))}`} {...mark('rack', built(arrivesOf('rack')))}>
           <div className="mb-2 flex items-baseline justify-between">

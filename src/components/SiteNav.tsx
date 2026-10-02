@@ -13,6 +13,8 @@ import { useAuth } from '@/lib/useAuth';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { buildIndex, type SearchItem } from '@/lib/search';
+import { useHideOnScroll } from '@/lib/useHideOnScroll';
+import { useNavAutoHide } from '@/lib/navChrome';
 
 /**
  * Global header: brand, primary links, the command palette, theme, account.
@@ -32,6 +34,13 @@ import { buildIndex, type SearchItem } from '@/lib/search';
  * ── R63 ──
  * Below `sm` the links collapse behind one button. The header is sticky and
  * publishes its height as `--nav-h` for the bars pinned beneath it.
+ *
+ * ── R100 ──
+ * On the Tasks tab (and only there: `navChrome.ts`) the bar slides away on a
+ * scroll down and returns on the first scroll up, so a student reading down a
+ * task has the height of the header back. `--nav-top` says where the bars
+ * beneath it should pin — 0 while hidden — and `--nav-h` keeps the measured
+ * height for scroll margins.
  */
 export function SiteNav() {
   const pathname = usePathname() || '/';
@@ -40,6 +49,8 @@ export function SiteNav() {
   const [openedOn, setOpenedOn] = useState<string | null>(null);
   const menuOpen = openedOn === pathname;
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const autoHide = useNavAutoHide();
+  const hidden = useHideOnScroll(autoHide && !menuOpen && !paletteOpen, { revealWithin: barRef });
 
   const coursesActive = pathname === '/' || pathname.startsWith('/courses');
   const exploreActive = pathname.startsWith('/explore');
@@ -109,6 +120,9 @@ export function SiteNav() {
     ro.observe(el);
     return () => ro.disconnect();
   }, []);
+  useEffect(() => {
+    document.documentElement.style.setProperty('--nav-top', hidden ? '0px' : 'var(--nav-h, 0px)');
+  }, [hidden]);
 
   // Icons only in the phone menu, where a list of words needs them to scan.
   const icon = 'h-4 w-4 sm:hidden';
@@ -159,7 +173,7 @@ export function SiteNav() {
 
   return (
     <>
-      <nav ref={barRef} className="glass sticky top-0 z-40 border-b">
+      <nav ref={barRef} data-tucked={hidden ? 'true' : undefined} className="glass sticky top-0 z-40 border-b">
         <div className="mx-auto max-w-6xl px-4 py-3">
           <div className="flex items-center justify-between gap-3">
             <Link href="/" className="flex min-w-0 items-center gap-2 font-semibold tracking-tight text-ink">

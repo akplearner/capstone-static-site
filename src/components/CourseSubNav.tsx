@@ -103,8 +103,10 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
     <nav
       ref={barRef}
       aria-label="Course sections"
-      style={{ top: 'var(--nav-h, 0px)' }}
-      className="glass sticky z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b px-4 py-2"
+      // R100: `--nav-top` is 0 while the site header is hidden on a scroll
+      // down, so this bar slides up to the top edge with it and leaves no gap.
+      style={{ top: 'var(--nav-top, var(--nav-h, 0px))' }}
+      className="glass sticky z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b px-4 py-2 transition-[top] duration-200 ease-out"
     >
       {onSelectTab ? (
         <button type="button" aria-current={cur('home')} onClick={() => onSelectTab('home')} className={cls(active === 'home')}>

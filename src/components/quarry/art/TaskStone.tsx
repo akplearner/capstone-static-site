@@ -45,7 +45,7 @@ export function TaskStone({ percent, rarity, cut, size = 52 }: { percent: number
   const done = state === 3 && rarity !== null;
   const label = done ? `Task done — ${RARITY[rarity].name} gem` : `${percent}% of this task done`;
   const art = (
-    <ArtSvg viewBox="-40 -80 80 86" width={size} height={size * (86 / 80)} overflow="visible" className="h-auto w-10 sm:w-[52px]" label={label}>
+    <ArtSvg viewBox="-40 -80 80 86" width={size} height={size * (86 / 80)} overflow="visible" className={size <= 40 ? 'h-auto w-8 sm:w-9' : 'h-auto w-10 sm:w-[52px]'} label={label}>
       {(u) => (
         <g key={jolt} className={jolt ? 'qa-pop' : undefined} style={{ transformBox: 'fill-box', transformOrigin: 'center bottom' }}>
           <Stone u={u} state={state} />
@@ -85,7 +85,7 @@ export function WeekGemTray({
   onSelect: (week: number) => void;
 }) {
   return (
-    <ol aria-label="Gems earned by week" className="flex flex-wrap items-center gap-2">
+    <ol aria-label="Gems earned by week" className="flex flex-wrap items-center gap-1 sm:gap-2">
       {weeks.map((w) => (
         <li key={w.week}>
           <button
@@ -93,12 +93,12 @@ export function WeekGemTray({
             onClick={() => onSelect(w.week)}
             aria-current={w.week === selected ? 'true' : undefined}
             title={w.rarity === null ? `${w.label} — not yet cut` : `${w.label} — ${RARITY[w.rarity].name} gem`}
-            className={`flex flex-col items-center gap-0.5 rounded-[var(--radius-control)] px-1.5 py-1 transition-colors hover:bg-panel-2 ${
+            className={`flex flex-col items-center gap-0.5 rounded-[var(--radius-control)] px-1 py-0.5 transition-colors hover:bg-panel-2 sm:px-1.5 sm:py-1 ${
               w.week === selected ? 'bg-panel-2' : ''
             }`}
           >
             <span
-              className="grid h-9 w-9 place-items-center rounded-full"
+              className="grid h-8 w-8 place-items-center rounded-full sm:h-9 sm:w-9"
               style={{
                 border: `2px solid ${w.rarity === null ? 'var(--color-line)' : RARITY[w.rarity].color}`,
                 boxShadow: w.rarity === null ? undefined : `0 0 12px -4px ${RARITY[w.rarity].color}`,

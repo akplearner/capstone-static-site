@@ -5,6 +5,7 @@ import { AlertTriangle, Sparkles } from 'lucide-react';
 import type { Step } from '@/lib/types';
 import { GlossaryText } from '@/components/GlossaryText';
 import { Collapsible } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { useCourseDocument } from '@/lib/useCourse';
 import { StepHow, hasHow, howHint } from './StepHow';
 import { StepWhy, hasWhy, whyHint } from './StepWhy';
@@ -33,6 +34,11 @@ export type { LedgerRef } from './OutputVerify';
  * tier 1 for every row). Since R98 a teammate's task opens in the same runner
  * as your own, so there is no read-only view. R78-C1: it takes the `Step`
  * itself, never a field list.
+ *
+ * R100: the root is a container (`@container`), so `StepHow` goes two-column
+ * by the width of the pane it is in (42rem and up), not the window. Tier 1 is a tighter
+ * bar; tier 2 is an inline link under it, because "why" reads as "more", not
+ * as another section.
  */
 export function StepDetail({
   step,
@@ -53,7 +59,7 @@ export function StepDetail({
   const shellOptional = !!useCourseDocument().course.shellOptional;
 
   return (
-    <div className="space-y-3">
+    <div className="@container space-y-3">
       {optional && (
         <p className="flex items-center gap-1.5 text-xs text-info">
           <Sparkles className="h-3.5 w-3.5 shrink-0" aria-hidden />
@@ -78,9 +84,9 @@ export function StepDetail({
       {(line || where) && (
         <div className="space-y-1">
           {where && (
-            <div className="inline-flex items-center gap-1.5 rounded-md depth-edge bg-panel-2 px-2 py-1 font-mono text-3xs text-muted">
+            <Chip tone="muted" className="font-mono">
               <span className="font-semibold text-accent">WHERE</span> {where}
-            </div>
+            </Chip>
           )}
           {line && (
             <p className="text-sm text-body">
@@ -93,19 +99,17 @@ export function StepDetail({
       {/* Tier 1. */}
       {hasHow(step) && (
         <div className="rounded-md depth-edge bg-panel-2/50 px-3">
-          <Collapsible title="Show me how" hint={howHint(step, shellOptional)} defaultOpen={howOpen}>
+          <Collapsible title="Show me how" hint={howHint(step, shellOptional)} defaultOpen={howOpen} size="sm">
             <StepHow step={step} ledger={ledger} courseId={courseId} />
           </Collapsible>
         </div>
       )}
 
-      {/* Tier 2. */}
+      {/* Tier 2: a link, not a second bar. */}
       {hasWhy(step) && (
-        <div className="rounded-md depth-edge bg-panel-2/50 px-3">
-          <Collapsible title="Why, and if it breaks" hint={whyHint(step)}>
-            <StepWhy step={step} />
-          </Collapsible>
-        </div>
+        <Collapsible title="Why, and if it breaks" hint={whyHint(step)} variant="link">
+          <StepWhy step={step} />
+        </Collapsible>
       )}
     </div>
   );

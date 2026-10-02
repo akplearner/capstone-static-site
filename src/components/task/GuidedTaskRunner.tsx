@@ -1,9 +1,10 @@
 'use client';
 
-import { type ReactNode, useEffect, useMemo, useState } from 'react';
+import { type ReactNode, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock, Coins, Rows3, RotateCcw, Users } from 'lucide-react';
+import { ArrowLeft, ArrowRight, BookOpen, Check, CheckCircle2, Clock, Coins, Rows3, RotateCcw, Stamp, Users } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
 import { ChecklistItem } from './ChecklistItem';
 import { CutMark, CutBeat } from '@/components/quarry/CutBeat';
 import { TerminalBasics } from '@/components/docs/CommandTroubleshooting';
@@ -14,6 +15,8 @@ import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo, evidenceRepo } from '@/lib/data';
 import { toast } from '@/lib/toastBus';
 import { selfAttested, taskToken } from '@/lib/evidenceLedger';
+import { focusById } from '@/lib/focus';
+import { useStepKeys } from './useStepKeys';
 
 /** Clock read hoisted to module scope: the purity lint treats a `Date.now()`
  *  inside a component-body function as render work, even when it only runs from
@@ -55,6 +58,10 @@ interface GuidedTaskRunnerProps {
  * "Done when": the task's definition of done, ticked when every required
  * step is. What the header lost — the machines strip, the counts line — the
  * ladder says better.
+ *
+ * R100: the header is the objective and ONE row of chips — time, docs, free
+ * tier, needs, the stamp — with the Guided / Show all switch at its end.
+ * The stamp is a chip that copies itself; what it is for is its tooltip.
  */
 export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgressChange, onNext, nextLabel, about, initialStepId }: GuidedTaskRunnerProps) {
   // The viewer's OWN ticks: what this component writes, what earns the beat
@@ -179,6 +186,38 @@ export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgre
   const currentDone = current ? teamDone.has(current.id) : false;
   const doneWhen = task.definitionOfDone ?? [];
 
+  // R100: ← / → walk the steps, Esc closes the open one (`useStepKeys` says
+  // when the keys are the task's to take). In Show all the keys open ONE
+  // step, the way a reader pages; in Guided they move the current rung.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const stepIds = useMemo(() => task.steps.map((s) => s.id), [task.steps]);
+  const openId = mode === 'all' ? ([...openIds].pop() ?? null) : (current?.id ?? null);
+  const moveTo = useCallback(
+    (id: string) => {
+      const i = stepIds.indexOf(id);
+      if (i < 0) return;
+      setCurrentIdx(i);
+      if (mode === 'all') setOpenIds(new Set([id]));
+      document.getElementById(`step-${id}`)?.scrollIntoView?.({ block: 'nearest' });
+      focusById(`step-${id}`);
+    },
+    [stepIds, mode]
+  );
+  const closeOpen = useCallback(() => setOpenIds(new Set()), []);
+  useStepKeys({ rootRef, enabled: true, ids: stepIds, openId, onMove: moveTo, onClose: mode === 'all' ? closeOpen : undefined });
+  // R84: the personal stamp, stated once for the task. Every Verify box
+  // expects it alongside the tool's own tokens. The wording keeps the honest
+  // claim: it ties the paste to this member and task — it does not prove
+  // which machine ran the command.
+  const stamp = task.steps.some((s) => s.verify?.length) ? taskToken(memberId, courseId, task.id) : null;
+  const copyStamp = () => {
+    if (!stamp) return;
+    navigator.clipboard?.writeText(stamp).then(
+      () => toast({ message: 'Stamp copied — paste it after your command output.' }),
+      () => toast({ message: `Your stamp: ${stamp}` })
+    );
+  };
+
   // Under the open rung in guided mode: where to go from here.
   const guidedNav = (
     <div className="flex items-center justify-between gap-3">
@@ -202,77 +241,64 @@ export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgre
   );
 
   return (
-    <div className="space-y-4">
-      {/* The task, stated once: why, and how long. */}
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        {/* basis-64: on a phone the text drops under the mode switch instead of squeezing beside it. */}
-        <div className="min-w-0 flex-1 basis-64 space-y-1">
-          <p className="text-sm text-body">{task.objective}</p>
-          {/* R84: the personal stamp, stated once for the task. Every Verify box
-              below expects it alongside the tool's own tokens. The wording keeps
-              the honest claim: it ties the paste to this member and task — it
-              does not prove which machine ran the command. */}
-          {task.steps.some((s) => s.verify?.length) && (
-            <p className="text-xs text-muted">
-              Your stamp:{' '}
-              <span className="select-all font-mono font-semibold text-ink">{taskToken(memberId, courseId, task.id)}</span>
-              {' '}— include it in every output you paste to Verify (easiest: run{' '}
-              <code className="rounded bg-panel-2 px-1 py-0.5 font-mono text-2xs text-ink">
-                echo {taskToken(memberId, courseId, task.id)}
-              </code>{' '}
-              right after your command). It marks the paste as yours, for this task.
-            </p>
+    <div ref={rootRef} data-task-runner className="space-y-3">
+      {/* The task, stated once: why — then one row of facts, and the switch. */}
+      <div className="space-y-2">
+        <p className="text-sm text-body">{task.objective}</p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {task.estimatedTime && (
+            <Chip tone="muted" icon={<Clock />}>
+              {task.estimatedTime}
+            </Chip>
           )}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
-            {task.estimatedTime && (
-              <span className="inline-flex items-center gap-1">
-                <Clock className="h-3.5 w-3.5" aria-hidden /> {task.estimatedTime}
-              </span>
-            )}
-            {/* R92: the documentation to read first — one chip per page, always visible. */}
-            {task.docs?.map((d) => (
-              <a
-                key={d.url}
-                href={d.url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 rounded-md depth-edge bg-panel-2 px-1.5 py-0.5 font-medium text-accent-ink hover:bg-accent-soft"
-                title={`Look for: ${d.lookFor}`}
-              >
-                <BookOpen className="h-3.5 w-3.5" aria-hidden /> {d.title}
-              </a>
-            ))}
-            {/* The reward beat — a cut lands on the stone each time a step does. */}
-            <CutBeat trigger={beat} />
-          </div>
+          {/* R92: the documentation to read first — one chip per page, always visible. */}
+          {task.docs?.map((d) => (
+            <Chip key={d.url} as="a" tone="link" href={d.url} target="_blank" rel="noreferrer" icon={<BookOpen />} title={`Look for: ${d.lookFor}`}>
+              {d.title}
+            </Chip>
+          ))}
           {task.freeTier && (
-            <p className="flex items-start gap-1.5 text-xs text-muted">
-              <Coins className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-              <span>{task.freeTier}</span>
-            </p>
+            <Chip tone="muted" icon={<Coins />} title={task.freeTier} className="max-w-[18rem]">
+              {task.freeTier}
+            </Chip>
           )}
           {task.prerequisites && task.prerequisites.length > 0 && (
-            <p className="flex items-start gap-1.5 text-xs text-muted">
-              <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-              <span>Needs from a teammate: {task.prerequisites.join(' · ')}</span>
-            </p>
+            <Chip tone="info" icon={<Users />} title={`Needs from a teammate: ${task.prerequisites.join(' · ')}`} className="max-w-[18rem]">
+              Needs: {task.prerequisites.join(' · ')}
+            </Chip>
           )}
-        </div>
-        <div className="flex overflow-hidden rounded-[var(--radius-control)] depth-edge" role="group" aria-label="How to work the steps">
-          {(['guided', 'all'] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setMode(m)}
-              aria-pressed={mode === m}
-              className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium transition-colors ${
-                mode === m ? 'bg-accent text-accent-contrast' : 'bg-panel text-muted hover:bg-panel-2'
-              }`}
+          {stamp && (
+            <Chip
+              as="button"
+              tone="accent"
+              icon={<Stamp />}
+              onClick={copyStamp}
+              title={`Your stamp: ${stamp} — include it in every output you paste to Verify (easiest: run "echo ${stamp}" right after your command). It marks the paste as yours, for this task. Click to copy.`}
+              aria-label={`Your stamp: ${stamp}. Click to copy.`}
+              data-stamp={stamp}
             >
-              {m === 'guided' ? <ArrowRight className="h-3.5 w-3.5" /> : <Rows3 className="h-3.5 w-3.5" />}
-              {m === 'guided' ? 'Guided' : 'Show all'}
-            </button>
-          ))}
+              Your stamp: <span className="font-mono">{taskToken(memberId, courseId, task.id)}</span>
+            </Chip>
+          )}
+          {/* The reward beat — a cut lands on the stone each time a step does. */}
+          <CutBeat trigger={beat} />
+          <span className="flex-1" aria-hidden />
+          <div className="flex overflow-hidden rounded-[var(--radius-control)] depth-edge" role="group" aria-label="How to work the steps">
+            {(['guided', 'all'] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                aria-pressed={mode === m}
+                className={`flex items-center gap-1 px-2.5 py-1 text-xs font-medium transition-colors ${
+                  mode === m ? 'bg-accent text-accent-contrast' : 'bg-panel text-muted hover:bg-panel-2'
+                }`}
+              >
+                {m === 'guided' ? <ArrowRight className="h-3.5 w-3.5" /> : <Rows3 className="h-3.5 w-3.5" />}
+                {m === 'guided' ? 'Guided' : 'Show all'}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

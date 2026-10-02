@@ -74,7 +74,7 @@ export function EngagementDiagram({
         { label: 'People around the engagement', color: KIND_COLOR.people },
       ]}
     >
-      <svg viewBox="0 0 910 372" className="h-auto w-full min-w-[640px]" role="img" aria-label={`${ENGAGEMENT.copy.title}${builtThrough != null ? `, week ${builtThrough}` : ''}`}>
+      <svg viewBox="0 0 910 372" preserveAspectRatio="xMidYMid meet" className="h-auto w-full min-w-0 sm:min-w-[640px] lg:max-h-[28rem]" role="img" aria-label={`${ENGAGEMENT.copy.title}${builtThrough != null ? `, week ${builtThrough}` : ''}`}>
         <defs>
           <marker id={`${mid}-e`} viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
             <path d="M0 0 10 5 0 10z" fill="var(--color-line)" />

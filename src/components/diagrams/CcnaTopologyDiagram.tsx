@@ -94,7 +94,7 @@ export function CcnaTopologyDiagram({
         color: TONE[l.kind as DeviceClass],
       }))}
     >
-      <div className="min-w-[560px] space-y-3">
+      <div className="min-w-0 space-y-3 sm:min-w-[560px]">
         {/* The internet, then the WAN: what is above both sites. */}
         <div className={`rounded-lg border border-dashed border-line bg-panel-2 px-3 py-1.5 text-center ${dim(built(ARRIVES.internet))}`} {...mark('internet', built(ARRIVES.internet))}>
           <span className="text-xs font-semibold text-ink">{COPY.internetHeading}</span>

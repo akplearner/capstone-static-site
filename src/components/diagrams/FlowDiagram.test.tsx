@@ -57,10 +57,19 @@ describe('FlowDiagram — the clickable workflow', () => {
     }
   });
 
-  it('never wraps — a workflow that wraps stops reading as a sequence', () => {
+  it('never wraps from sm up — a workflow that wraps stops reading as a sequence; a phone gets a 2-column grid (R100)', () => {
     render(<FlowDiagram nodes={NODES} onSelect={() => {}} />);
     const list = screen.getByRole('list');
-    expect(list.className).toContain('overflow-x-auto');
+    expect(list.className).toContain('sm:overflow-x-auto');
+    expect(list.className).toContain('grid-cols-2');
     expect(list.className).not.toContain('flex-wrap');
+  });
+
+  it('R100: in a narrow column the grid layout keeps every node in view, with no chevrons', () => {
+    const { container } = render(<FlowDiagram nodes={NODES} onSelect={() => {}} layout="grid" />);
+    const list = screen.getByRole('list');
+    expect(list.className).toContain('grid-cols-2');
+    expect(list.className).not.toContain('overflow-x-auto');
+    for (const chevron of container.querySelectorAll('li > span[aria-hidden]')) expect(chevron.className).toBe('hidden');
   });
 });

@@ -66,4 +66,6 @@ export const KEYS = {
   submissions: (courseId: string, teamId: string) =>
     `${STORAGE_PREFIX}${courseId}_submissions_${teamId}`,
   // R71. The student's step view — simple (commands and checks) or full.
+  // R100. Focus mode on the Tasks tab — a per-device preference, like the theme.
+  focusMode: `${STORAGE_PREFIX}focus_mode`,
 };

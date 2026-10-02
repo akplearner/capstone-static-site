@@ -53,6 +53,11 @@ has failed silently in some deployment of some product; none takes more than a m
       Tasks tab: the build at the end of that week, this week's parts glowing, and on a week that
       builds nothing the week's process drawn over it. The Guide's lab picture has week pills; a
       form shows its own week's picture.
+- [ ] **One screen (R100):** at 1280 wide the Tasks tab shows the first task row without
+      scrolling; a row opens in the pane beside the list and the heading takes focus; scrolling
+      down hides the site header and the first scroll up brings it back; ←/→ walk the steps and
+      Esc closes one; Focus in the sub-nav hides the week around the task and survives a reload.
+      At 390 wide nothing scrolls sideways and the week picture is a thumbnail with Expand.
 - [ ] **Progress persists:** tick a step, reload, still ticked. Sign in on a second device and see it.
 - [ ] **Ledger:** paste matching output on a verify step; reload; it still reads verified.
 - [ ] **Guest migration:** in a private window do some work signed out, then register — the demo

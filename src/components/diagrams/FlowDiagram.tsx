@@ -38,9 +38,11 @@ export interface FlowNode {
  * from the recipe classes, never a spelled token, so the "one tier per
  * element" law holds here as everywhere.
  *
- * Mobile: the row scrolls sideways rather than wrapping — a workflow that
- * wraps stops reading as a sequence — and the current node scrolls itself
- * into view, so the student always lands on where they are.
+ * From `sm` up the row scrolls sideways rather than wrapping — a workflow
+ * that wraps stops reading as a sequence — and the current node scrolls
+ * itself into view, so the student always lands on where they are. On a
+ * phone (R100) the objectives sit in a two-column grid instead: two to four
+ * cards read top-left to bottom-right, and nothing has to be dragged.
  */
 export function FlowDiagram({
   nodes,
@@ -50,6 +52,7 @@ export function FlowDiagram({
   howToRead,
   caption,
   ariaLabel = 'Workflow',
+  layout = 'row',
 }: {
   nodes: FlowNode[];
   onSelect: (id: string) => void;
@@ -60,6 +63,9 @@ export function FlowDiagram({
   /** One line under the last node — the week's "done when". */
   caption?: string;
   ariaLabel?: string;
+  /** R100: `grid` keeps every node in view in a narrow column (the split
+   *  view's list) instead of scrolling the row sideways inside it. */
+  layout?: 'row' | 'grid';
 }) {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
   const currentIdx = Math.max(0, nodes.findIndex((n) => n.status === 'current'));
@@ -92,7 +98,7 @@ export function FlowDiagram({
 
   const tone: Record<FlowStatus, string> = {
     done: 'depth-edge bg-ok-soft text-ink',
-    current: 'depth-lift bg-accent-soft text-ink',
+    current: 'depth-edge depth-current bg-accent-soft text-ink',
     upcoming: 'depth-edge depth-hover bg-panel text-body',
     locked: 'depth-edge bg-panel-2 text-muted',
   };
@@ -108,17 +114,25 @@ export function FlowDiagram({
         { label: 'you are here', color: 'var(--color-accent)' },
         ...(nodes.some((n) => n.status === 'locked') ? [{ label: 'locked', dashed: true }] : []),
       ]}
+      footer={
+        caption && (
+          <span className="flex items-start gap-1.5">
+            <Flag className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span>{caption}</span>
+          </span>
+        )
+      }
     >
       <ol
         aria-label={ariaLabel}
         onKeyDown={onKeyDown}
-        className="flex snap-x snap-mandatory items-stretch gap-1.5 overflow-x-auto pb-1"
+        className={layout === 'grid' ? 'grid grid-cols-2 gap-1.5 pb-1' : 'grid grid-cols-2 gap-1.5 pb-1 sm:flex sm:snap-x sm:snap-mandatory sm:items-stretch sm:overflow-x-auto'}
       >
         {nodes.map((n, i) => {
           const locked = n.status === 'locked';
           const current = n.status === 'current';
           return (
-            <li key={n.id} className="flex shrink-0 snap-start items-center gap-1.5">
+            <li key={n.id} className={layout === 'grid' ? 'flex min-w-0 items-center gap-1.5' : 'flex min-w-0 items-center gap-1.5 sm:shrink-0 sm:snap-start'}>
               <button
                 ref={(el) => {
                   refs.current[i] = el;
@@ -129,7 +143,7 @@ export function FlowDiagram({
                 aria-current={current ? 'step' : undefined}
                 onClick={() => onSelect(n.id)}
                 onFocus={() => setFocusIdx(i)}
-                className={`flex min-w-[9.5rem] max-w-[13rem] flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${tone[n.status]} ${
+                className={`flex w-full min-w-0 flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${layout === 'grid' ? '' : 'sm:w-auto sm:min-w-[9.5rem] sm:max-w-[13rem]'} ${tone[n.status]} ${
                   locked ? 'cursor-not-allowed' : ''
                 }`}
               >
@@ -144,7 +158,7 @@ export function FlowDiagram({
               {i < nodes.length - 1 && (
                 <motion.span
                   aria-hidden
-                  className="shrink-0"
+                  className={layout === 'grid' ? 'hidden' : 'hidden shrink-0 sm:block'}
                   initial={false}
                   animate={{ color: n.status === 'done' ? 'var(--color-ok)' : 'var(--color-line)' }}
                   transition={meter}
@@ -156,12 +170,6 @@ export function FlowDiagram({
           );
         })}
       </ol>
-      {caption && (
-        <p className="mt-2 flex items-start gap-1.5 text-xs text-muted">
-          <Flag className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-          <span>{caption}</span>
-        </p>
-      )}
     </DiagramFrame>
   );
 }

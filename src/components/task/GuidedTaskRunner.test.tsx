@@ -67,4 +67,50 @@ describe('GuidedTaskRunner — done for the team', () => {
     expect(container.textContent).toContain('Task complete');
     void s2;
   });
+
+  it('R100: the stamp is one chip that copies itself, and the facts sit in one row', async () => {
+    const writeText = vi.fn(() => Promise.resolve());
+    Object.defineProperty(navigator, 'clipboard', { value: { writeText }, configurable: true });
+    const stamped = SERVER_PLUS.tasks.find((t) => t.steps.some((s) => s.verify?.length))!;
+    const { container } = render(<GuidedTaskRunner task={stamped} courseId="server-plus" memberId="m1" />);
+    const chip = container.querySelector('button[data-stamp]') as HTMLButtonElement;
+    expect(chip).not.toBeNull();
+    expect(chip.textContent).toContain('Your stamp:');
+    expect(chip.textContent).toContain(chip.dataset.stamp!);
+    expect(chip.title).toContain('echo ');
+    fireEvent.click(chip);
+    expect(writeText).toHaveBeenCalledWith(chip.dataset.stamp);
+    // The explanation is the tooltip, not a paragraph in the header.
+    expect(container.textContent).not.toContain('include it in every output');
+    expect(screen.getByRole('group', { name: 'How to work the steps' })).toBeInTheDocument();
+  });
+
+  it('R100: → and ← page through the steps, Esc closes, and the keys stay out of a textarea or a handled event', () => {
+    const { container } = render(<GuidedTaskRunner task={task} courseId="server-plus" memberId="m1" />);
+    const open = () => container.querySelectorAll('li[id^="step-"] [aria-expanded="true"]');
+    expect(open()).toHaveLength(0);
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(open()).toHaveLength(1);
+    expect(container.querySelector(`#step-${task.steps[0].id} [aria-expanded="true"]`)).not.toBeNull();
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(container.querySelector(`#step-${task.steps[1].id} [aria-expanded="true"]`)).not.toBeNull();
+    expect(open()).toHaveLength(1);
+    fireEvent.keyDown(window, { key: 'ArrowLeft' });
+    expect(container.querySelector(`#step-${task.steps[0].id} [aria-expanded="true"]`)).not.toBeNull();
+    // Typing: the keys are the textarea's.
+    const ta = document.createElement('textarea');
+    container.appendChild(ta);
+    ta.focus();
+    fireEvent.keyDown(window, { key: 'ArrowRight' });
+    expect(container.querySelector(`#step-${task.steps[0].id} [aria-expanded="true"]`)).not.toBeNull();
+    ta.remove();
+    (document.activeElement as HTMLElement | null)?.blur();
+    // A widget that handled the key already keeps it.
+    const handled = new KeyboardEvent('keydown', { key: 'ArrowRight', cancelable: true, bubbles: true });
+    handled.preventDefault();
+    window.dispatchEvent(handled);
+    expect(container.querySelector(`#step-${task.steps[0].id} [aria-expanded="true"]`)).not.toBeNull();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(open()).toHaveLength(0);
+  });
 });

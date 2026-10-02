@@ -2,17 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, Sparkles } from 'lucide-react';
-import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { CourseSubNav } from '@/components/CourseSubNav';
-import { Crumbs } from '@/components/SiteNav';
-import { StepTally, PixelBadge } from '@/components/ui/Pixel';
 import { CoursePageSkeleton } from '@/components/ui/Skeletons';
+import { CourseHero } from '@/components/course/CourseHero';
+import { CourseSubNavActions } from '@/components/course/CourseSubNavActions';
 import { HomeTab } from '@/components/course/HomeTab';
 import { TasksTab } from '@/components/course/TasksTab';
 import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { focusById } from '@/lib/focus';
+import { setNavAutoHide } from '@/lib/navChrome';
+import { getFocusMode, setFocusMode } from '@/lib/uiPrefs';
 import { useCourse } from '@/lib/useCourse';
 import { useMember } from '@/lib/useMember';
 import { useAuth } from '@/lib/useAuth';
@@ -23,7 +23,6 @@ import { useClientStore, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef, isSetupWeek, phaseTag, unitWord } from '@/lib/course-helpers';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
-import { courseIdentityLabel } from '@/lib/courseTheme';
 import { SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { swap } from '@/lib/motion';
 import type { Task } from '@/lib/types';
@@ -37,6 +36,11 @@ import type { Task } from '@/lib/types';
  * it — and `HomeTab` / `TasksTab` render. `useCourseProgress` owns everything
  * derived from the progress store.
  */
+
+/** R100: in the split view the open task is in the pane, so a scroll to a
+ *  task lands on the pane rather than on its row in the sticky list. */
+const resolveScroll = (id: string) => (id.startsWith('task-') && document.getElementById('task-pane') ? 'task-pane' : id);
+
 export default function CoursePage() {
   const course = useCourse();
   const { member, loading, setMember } = useMember(course.id);
@@ -105,10 +109,10 @@ export default function CoursePage() {
     const attempt = () => {
       const id = pendingScroll.current;
       if (!id) return;
-      const el = document.getElementById(id);
+      const el = document.getElementById(resolveScroll(id));
       if (el) {
         pendingScroll.current = null;
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         focusById(id);
         return;
       }
@@ -140,9 +144,22 @@ export default function CoursePage() {
     const onTasks = params.get('tab') === 'tasks' || params.get('tab') === 'weeks';
     const weekParam = params.get('week');
     if (onTasks && (weekParam === null || Number(weekParam) === resume.week)) {
-      setTimeout(() => document.getElementById(`task-${taskId}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 60);
+      setTimeout(() => document.getElementById(resolveScroll(`task-${taskId}`))?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
     }
   }, [resume]);
+
+  // R100: on the Tasks tab the page is wider (the split view) and the site
+  // header may hide on a scroll down. Both are undone on leaving the tab.
+  useEffect(() => {
+    setNavAutoHide(tab === 'tasks');
+    if (tab === 'tasks') document.documentElement.setAttribute('data-tasks-wide', 'true');
+    else document.documentElement.removeAttribute('data-tasks-wide');
+    return () => {
+      setNavAutoHide(false);
+      document.documentElement.removeAttribute('data-tasks-wide');
+    };
+  }, [tab]);
+  const focusMode = useClientStore<boolean>(getFocusMode, false);
 
   // `/team/<id>` forwards to `#team` here; the block renders only once the
   // member has loaded, so the browser's own hash jump has nothing to land on.
@@ -172,7 +189,7 @@ export default function CoursePage() {
   const crew = deriveCrewProgress(course, member?.role ?? '', weekStats, taskStats, isCapstoneFiled(course.id, savedDocs));
 
   const scrollTo = (elementId: string, block: ScrollLogicalPosition = 'start') => {
-    setTimeout(() => document.getElementById(elementId)?.scrollIntoView({ behavior: 'smooth', block }), 60);
+    setTimeout(() => document.getElementById(resolveScroll(elementId))?.scrollIntoView({ behavior: 'smooth', block }), 60);
   };
 
   /** Switch tab without an RSC round-trip, keeping the URL honest. */
@@ -219,7 +236,7 @@ export default function CoursePage() {
   const goToTask = (task: Task) => {
     pickWeek(task.week);
     setExpanded((prev) => new Set(prev).add(task.id));
-    scrollTo(`task-${task.id}`, 'center');
+    scrollTo(`task-${task.id}`, 'start');
   };
 
   const toggle = (id: string) =>
@@ -230,14 +247,19 @@ export default function CoursePage() {
       return next;
     });
 
+  // Home-lab-only build tasks confirm before revealing (once per device).
+  const askHomeBuild = (task: Task) => {
+    if (!task.homeLabOnly || homeBuildAck || expanded.has(task.id)) return false;
+    setPendingHomeBuild(task);
+    setHomeBuildDialog(true);
+    return true;
+  };
   const toggleTask = (task: Task) => {
-    // Home-lab-only build tasks confirm before revealing (once per device).
-    if (task.homeLabOnly && !homeBuildAck && !expanded.has(task.id)) {
-      setPendingHomeBuild(task);
-      setHomeBuildDialog(true);
-      return;
-    }
-    toggle(task.id);
+    if (!askHomeBuild(task)) toggle(task.id);
+  };
+  /** R100, split view: one task open at a time — a click replaces; a click on the open one closes it. */
+  const selectTask = (task: Task) => {
+    if (!askHomeBuild(task)) setExpanded((prev) => (prev.size === 1 && prev.has(task.id) ? new Set() : new Set([task.id])));
   };
 
   const confirmHomeBuild = () => {
@@ -259,21 +281,9 @@ export default function CoursePage() {
   };
 
   return (
-    <motion.div className="space-y-8" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-      {/* Identity — title, credential, one sentence. Renders on every tab, so
-          it is deliberately short: the Guide carries the description in full. */}
-      <div className="space-y-2">
-        <Crumbs items={[{ label: 'Home', href: '/' }, { label: course.title }]} />
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-3xl font-bold tracking-tight text-ink sm:text-4xl">{course.title}</h1>
-          {courseIdentityLabel(course) && (
-            <PixelBadge tone="accent">{courseIdentityLabel(course)}</PixelBadge>
-          )}
-        </div>
-        <p className="line-clamp-2 text-base text-muted sm:line-clamp-none sm:text-lg">
-          {course.description}
-        </p>
-      </div>
+    <motion.div className={tab === 'tasks' ? 'space-y-4' : 'space-y-8'} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+      {/* Identity — one line on the Tasks tab (R100), the full head on Home. */}
+      <CourseHero course={course} compact={tab === 'tasks'} />
 
       <CourseSubNav
         courseId={course.id}
@@ -282,23 +292,15 @@ export default function CoursePage() {
         onSelectTab={selectTab}
         trailing={
           joined && member ? (
-            <>
-              <StepTally done={crew.stepsDone} total={crew.stepsTotal} className="hidden md:flex" />
-              <span className="hidden text-sm text-muted sm:inline">{phaseTag(course, activeWeek)}</span>
-              {nextTask ? (
-                <Button onClick={() => nextTask && goToTask(nextTask)} size="sm" className="flex items-center gap-1.5">
-                  Continue <ArrowRight className="h-4 w-4" />
-                </Button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={goHomeTop}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-ok-soft px-3 py-1.5 text-sm font-medium text-ok hover:opacity-80"
-                >
-                  <Sparkles className="h-4 w-4" /> All done — review
-                </button>
-              )}
-            </>
+            <CourseSubNavActions
+              stepsDone={crew.stepsDone}
+              stepsTotal={crew.stepsTotal}
+              phase={phaseTag(course, activeWeek)}
+              hasNext={!!nextTask}
+              onContinue={() => nextTask && goToTask(nextTask)}
+              onReview={goHomeTop}
+              focus={tab === 'tasks' ? { on: focusMode, onToggle: () => setFocusMode(!focusMode) } : undefined}
+            />
           ) : undefined
         }
       />
@@ -360,6 +362,7 @@ export default function CoursePage() {
               expanded={expanded}
               setExpanded={setExpanded}
               toggleTask={toggleTask}
+              selectTask={selectTask}
               moreOpen={moreOpen}
               setMoreOpen={setMoreOpen}
               deepStep={deepStep}
@@ -370,6 +373,7 @@ export default function CoursePage() {
               goToTask={goToTask}
               selectTab={selectTab}
               onProgressChange={onProgressChange}
+              focusMode={focusMode}
             />
           </motion.div>
         )}

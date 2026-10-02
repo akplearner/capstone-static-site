@@ -63,8 +63,9 @@ export function CloudTopology({
   selected?: string | null;
   onSelect?: (id: string) => void;
   controls?: boolean;
-  /** Override the frame title (e.g. "Architecture v3"). */
-  title?: string;
+  /** Override the frame title (e.g. "Architecture v3"); `null` draws no
+   *  title at all — the caller already has a heading over the picture (R100). */
+  title?: string | null;
   /** R99: the week's process, drawn over the picture as walking arrows. */
   process?: WeekProcess;
 }) {
@@ -89,14 +90,23 @@ export function CloudTopology({
   // What is drawn this week: template resources by week, plumbing only on
   // request, and a person or GitHub only once a line reaches them.
   const inProcess = new Set(processIds(process));
+  // R100: a person the week's process names is drawn whatever their week —
+  // the arrow has to land on someone, and the crop has to include them. A
+  // person whose own week has not come is DISPLACED: drawn just beside the
+  // crop rather than at their authored place (which, in an early week, can be
+  // a whole canvas away from the few things built — the arrow would cross an
+  // empty picture to reach them).
+  const forced = (n: CloudNode) => !!n.external && inProcess.has(n.id);
+  const displaced = (n: CloudNode) => forced(n) && !drawn(n.week);
   const shown = (n: CloudNode) => {
+    if (forced(n)) return true;
     if (!drawn(n.week)) return false;
     if (n.detail && !showDeps) return false;
-    if (n.external) return inProcess.has(n.id) || topology.edges.some((e) => e.kind === 'traffic' && live(e) && (e.from === n.id || e.to === n.id)) || (showLater && !pinned);
+    if (n.external) return topology.edges.some((e) => e.kind === 'traffic' && live(e) && (e.from === n.id || e.to === n.id)) || (showLater && !pinned);
     return true;
   };
   const nodes = topology.nodes.filter(shown);
-  const visible = new Set(nodes.map((n) => n.id));
+  const visible = new Set(nodes.filter((n) => !displaced(n)).map((n) => n.id));
   // Attachment lines: the template's references that touch a supporting
   // resource. Drawn always, so a public IP is visibly the VM's and a role
   // assignment visibly sits on its vault — the rest of the graph is the toggle.
@@ -114,9 +124,29 @@ export function CloudTopology({
   // shown, so a Week-11 policy still sits inside its governance box.
   const layout = layoutTopology(topology, visible, edges.filter((e) => e.via).map((e) => e.via!));
   const containers = topology.containers.filter((c) => drawn(c.week) && layout.boxes.has(c.id));
+  // The displaced people stand in a column to the right of the crop, and the
+  // crop grows to hold them.
+  const placed = new Map<string, { x: number; y: number }>();
+  const extras = nodes.filter(displaced);
+  const view = { ...layout.view };
+  if (extras.length) {
+    const x = view.x + view.w + 84;
+    const gap = 92;
+    const top = view.y + view.h / 2 - ((extras.length - 1) * gap) / 2;
+    extras.forEach((n, i) => placed.set(n.id, { x, y: top + i * gap }));
+    view.w += 84 + 64;
+    const lo = Math.min(view.y, top - 48);
+    const hi = Math.max(view.y + view.h, top + (extras.length - 1) * gap + 48);
+    view.y = lo;
+    view.h = hi - lo;
+  }
+  const place = (n: CloudNode): CloudNode => (placed.has(n.id) ? { ...n, ...placed.get(n.id)! } : n);
   const anchor = (id: string): { x: number; y: number; r: number } | null => {
     const n = nodeById.get(id);
-    if (n) return { x: n.x, y: n.y, r: n.small ? ICON_SIZE.small / 2 + 2 : ICON_SIZE.main / 2 + 3 };
+    if (n) {
+      const p = place(n);
+      return { x: p.x, y: p.y, r: n.small ? ICON_SIZE.small / 2 + 2 : ICON_SIZE.main / 2 + 3 };
+    }
     // A container is tied at its corner icon, where the platform names it.
     const c = topology.containers.find((x) => x.id === id);
     const r = c && layout.boxes.get(c.id);
@@ -124,11 +154,10 @@ export function CloudTopology({
     return null;
   };
   const added = topology.nodes.filter((n) => !n.external && n.week === week).length;
-  const { view } = layout;
 
   return (
     <DiagramFrame
-      title={title ?? (pinned ? `Architecture v${local(week)}` : topology.title)}
+      title={title === null ? undefined : (title ?? (pinned ? `Architecture v${local(week)}` : topology.title))}
       howToRead={topology.howToRead}
       subtitle={
         week < lo
@@ -162,7 +191,8 @@ export function CloudTopology({
       <svg
         viewBox={`${view.x} ${view.y} ${view.w} ${view.h}`}
         data-canvas={`${topology.width}x${topology.height}`}
-        className="h-auto w-full min-w-[640px]"
+        preserveAspectRatio="xMidYMid meet"
+        className="h-auto w-full min-w-0 sm:min-w-[640px] lg:max-h-[28rem]"
         role="img"
         aria-label={`${topology.title}, week ${local(week)}`}
       >
@@ -231,9 +261,10 @@ export function CloudTopology({
         {nodes.map((n) => (
           <NodeMark
             key={n.id}
-            n={n}
+            n={place(n)}
             platform={p}
             week={week}
+            forced={forced(n)}
             selected={selected === n.id}
             glow={traffic}
             onSelect={onSelect}
@@ -309,6 +340,7 @@ function NodeMark({
   n,
   platform,
   week,
+  forced = false,
   selected,
   glow,
   onSelect,
@@ -316,11 +348,13 @@ function NodeMark({
   n: CloudNode;
   platform: 'azure' | 'aws';
   week: number;
+  /** Drawn at full strength although their week has not come (a person the process names). */
+  forced?: boolean;
   selected: boolean;
   glow: string;
   onSelect?: (id: string) => void;
 }) {
-  const later = n.week > week;
+  const later = !forced && n.week > week;
   const isNew = !n.external && n.week === week;
   const size = n.small ? ICON_SIZE.small : ICON_SIZE.main;
   const clickable = !!onSelect && !n.external;

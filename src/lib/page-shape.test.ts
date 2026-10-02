@@ -1917,3 +1917,95 @@ describe('R99 — every week has a picture', () => {
     }
   });
 });
+
+/**
+ * R100 — the Tasks tab reads on one screen.
+ *
+ * Split view beside the list from 1100px, a thumbnail week picture, one-line
+ * rows, one chip row in the runner, container-query columns in a step, a
+ * header that steps away on a scroll down, and Focus mode. These are the
+ * shapes that would quietly undo it.
+ */
+describe('R100 — the Tasks tab reads on one screen', () => {
+  it('the tab lays out through TasksLayout and the open task lives in TaskPane', () => {
+    const tab = code('src/components/course/TasksTab.tsx');
+    expect(tab).toContain('<TasksLayout');
+    expect(tab).toContain('<TaskPane');
+    expect(tab).toContain("mode={split ? 'select' : 'accordion'}");
+    expect(tab, 'a sticky column cannot live under overflow-hidden').not.toContain('className="stratum-week scroll-under-chrome overflow-hidden"');
+    expect(code('src/components/course/TasksLayout.tsx')).toContain("'(min-width: 68.75rem)'");
+    expect(code('src/components/course/TaskPane.tsx')).toContain('id="task-pane"');
+    expect(code('src/components/course/TaskPane.tsx')).toContain("focusById('task-pane-head')");
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toContain('const selectTask = ');
+    expect(page, 'a task scroll resolves to the pane in the split view').toContain('resolveScroll(');
+    expect(page, 'scrolls land the task top under the bars').not.toContain("block: 'center'");
+    expect(page).toContain("setAttribute('data-tasks-wide', 'true')");
+    expect(read('src/app/globals.css')).toContain("html[data-tasks-wide='true'] main#main");
+  });
+
+  it('a step goes two-column by its container, not the window; tier 2 is a link', () => {
+    const how = code('src/components/step/StepHow.tsx');
+    expect(how).toContain('@2xl:grid-cols-2');
+    expect(how).not.toContain('md:grid-cols-2');
+    const detail = code('src/components/step/StepDetail.tsx');
+    expect(detail).toContain('@container');
+    expect(detail).toContain('variant="link"');
+    expect(detail).toContain('size="sm"');
+  });
+
+  it('the week picture is a thumbnail with Expand, said once, and the process lands on its people', () => {
+    const panel = code('src/components/course/WeekVisualPanel.tsx');
+    expect(panel).toContain('aria-expanded={expanded}');
+    expect(panel.match(/What you build this week/g)?.length, 'the heading, and the section label').toBe(2);
+    expect(code('src/components/diagrams/WeekBuildDiagram.tsx'), 'the cloud frame draws no second title').toContain('title={null}');
+    const cloud = code('src/components/diagrams/cloud/CloudTopology.tsx');
+    expect(cloud.indexOf('if (forced(n)) return true;'), 'a process-named person is drawn before the week check').toBeLessThan(cloud.indexOf('if (!drawn(n.week)) return false;'));
+    expect(cloud).toContain('preserveAspectRatio="xMidYMid meet"');
+  });
+
+  it('pictures scale on a phone — no SVG forces a sideways scroll below sm', () => {
+    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/EngagementDiagram.tsx', 'src/components/diagrams/SocTopologyDiagram.tsx', 'src/components/diagrams/ArchitectureDiagram.tsx']) {
+      expect(code(f), f).toMatch(/min-w-0 sm:min-w-\[\d+px\]/);
+    }
+    for (const f of ['src/components/diagrams/ServerTopologyDiagram.tsx', 'src/components/diagrams/CcnaTopologyDiagram.tsx']) {
+      expect(code(f), f).toContain('sm:min-w-[560px]');
+      expect(code(f), f).not.toMatch(/(?<![\w:-])min-w-\[560px\]/);
+    }
+    expect(code('src/components/diagrams/FlowDiagram.tsx')).toContain('grid grid-cols-2');
+  });
+
+  it('one chip, used by the row, the rung and the runner; the current ring is the one current treatment', () => {
+    for (const f of ['src/components/course/TaskRow.tsx', 'src/components/task/GuidedTaskRunner.tsx', 'src/components/task/ChecklistItem.tsx', 'src/components/step/StepDetail.tsx', 'src/components/course/WeekVisualPanel.tsx']) {
+      expect(code(f), f).toContain("from '@/components/ui/Chip'");
+    }
+    expect(read('src/app/globals.css')).toContain('.depth-current {');
+    expect(code('src/components/task/ChecklistItem.tsx')).toContain("'depth-current bg-panel-2'");
+    expect(code('src/components/course/TaskRow.tsx')).toContain("select && open ? 'depth-current'");
+    expect(code('src/components/diagrams/FlowDiagram.tsx')).toContain('depth-edge depth-current');
+    // The runner's stamp is a chip that copies itself; the explanation is its tooltip.
+    const runner = code('src/components/task/GuidedTaskRunner.tsx');
+    expect(runner).toContain('data-stamp={stamp}');
+    expect(runner).toContain('data-task-runner');
+    expect(runner).toContain('useStepKeys({');
+  });
+
+  it('the header hides on the Tasks tab only, and the sub-nav follows it', () => {
+    const nav = code('src/components/SiteNav.tsx');
+    expect(nav).toContain('useNavAutoHide()');
+    expect(nav).toContain("data-tucked={hidden ? 'true' : undefined}");
+    expect(nav).toContain("setProperty('--nav-top'");
+    expect(code('src/components/CourseSubNav.tsx')).toContain("top: 'var(--nav-top, var(--nav-h, 0px))'");
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain("setNavAutoHide(tab === 'tasks')");
+    expect(read('src/app/globals.css')).toContain(".glass.sticky[data-tucked='true']");
+  });
+
+  it('Focus mode is a per-device preference with a pressed toggle, and the word "density" is not back', () => {
+    expect(code('src/lib/data/keys.ts')).toContain('focusMode:');
+    expect(code('src/components/course/CourseSubNavActions.tsx')).toContain('aria-pressed={focus.on}');
+    expect(code('src/components/course/CourseHero.tsx')).toContain('compact');
+    for (const f of ['src/components/course/TasksTab.tsx', 'src/components/course/TasksLayout.tsx', 'src/components/course/TaskPane.tsx', 'src/components/course/CourseSubNavActions.tsx', 'src/lib/uiPrefs.ts', 'src/components/ui/Chip.tsx']) {
+      expect(code(f), f).not.toMatch(/[dD]ensity/);
+    }
+  });
+});

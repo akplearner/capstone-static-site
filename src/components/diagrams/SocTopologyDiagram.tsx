@@ -95,7 +95,8 @@ export function SocTopologyDiagram({
         <div className="overflow-x-auto">
           <svg
             viewBox="0 0 960 372"
-            className="block h-auto w-full min-w-[680px]"
+            preserveAspectRatio="xMidYMid meet"
+            className="block h-auto w-full min-w-0 sm:min-w-[680px] lg:max-h-[28rem]"
             role="img"
             aria-label={`All VMs run on a Proxmox host at ${topo.proxmoxHost}, bridged to one flat ${topo.subnet} network. Kali attacks each team pod (Ubuntu ${topo.pod.ubuntu.ip} and Windows ${topo.pod.windows.ip}); both run a Wazuh agent that reports to the ${topo.soc.name} at ${topo.soc.ip}, which students open in a browser.${builtThrough != null ? ` Week ${builtThrough}.` : ''}`}
           >

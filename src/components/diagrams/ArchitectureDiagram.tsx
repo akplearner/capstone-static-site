@@ -94,7 +94,8 @@ export function ArchitectureDiagram({ roles, highlightRole, week, builtThrough, 
     >
       <svg
         viewBox="0 0 580 400"
-        className="h-auto w-full min-w-[360px]"
+        preserveAspectRatio="xMidYMid meet"
+        className="h-auto w-full min-w-0 sm:min-w-[360px] lg:max-h-[28rem]"
         role="img"
         aria-label={`Lab architecture diagram${builtThrough != null ? `, week ${builtThrough}` : ''}`}
       >

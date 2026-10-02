@@ -2,17 +2,15 @@
 
 import type { Dispatch, SetStateAction } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowRight, Lock, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import type { Course, Member, RoleDef, Task, WeekDef } from '@/lib/types';
 import type { Cohort } from '@/lib/data';
 import { Collapsible } from '@/components/ui/Button';
-import { Alert } from '@/components/ui/Alert';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { GuidedTaskRunner } from '@/components/task/GuidedTaskRunner';
 import { FlowDiagram, type FlowNode } from '@/components/diagrams/FlowDiagram';
 import { WeekRail } from '@/components/week/WeekRail';
 import { WeekHeader } from '@/components/week/WeekHeader';
-import { LabAccessPanel } from '@/components/week/LabAccessPanel';
 import { TaskRow } from './TaskRow';
 import { useRarity } from './useRarity';
 import { TaskStone, WeekGemTray } from '@/components/quarry/art/TaskStone';
@@ -22,8 +20,11 @@ import { tintFor } from '@/components/quarry/art/palette';
 import { weekRarity } from '@/lib/rarity';
 import { TaskAboutPanel } from './TaskAboutPanel';
 import { WeekVisualPanel } from './WeekVisualPanel';
+import { TasksLayout, useSplitView } from './TasksLayout';
+import { TaskPane } from './TaskPane';
+import { WeekLockedNotice } from './WeekLockedNotice';
+import { WeekMoreBody } from './WeekMoreBody';
 import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
-import { socTopology, SOC_LOGIN_LABEL, SOC_URL } from '@/lib/labTopology';
 import { hasLabAccess, labProfile, useLabAccess } from '@/lib/labAccess';
 import { dueLabel, weekDue } from '@/lib/calendar';
 import { DUR, EASE } from '@/lib/motion';
@@ -52,6 +53,13 @@ import { DUR, EASE } from '@/lib/motion';
  * every task is a row with the runner, each row carries its role (or "Yours"),
  * and the percentages here are the TEAM's. The personal record — the stone's
  * rarity, the gem tray — stays the member's own.
+ *
+ * R100: two columns when the window is wide enough (`TasksLayout`). The list
+ * — rail to disclosure — is the left column and scrolls on its own; the open
+ * task is the right pane, one at a time, and a row is a selector rather than
+ * an accordion. The week picture is a thumbnail in the list, and the full
+ * picture is what the pane shows until a task is picked. Focus mode (the
+ * sub-nav switch) hides everything but the rows and the open task.
  */
 export function TasksTab({
   course,
@@ -74,6 +82,7 @@ export function TasksTab({
   expanded,
   setExpanded,
   toggleTask,
+  selectTask,
   moreOpen,
   setMoreOpen,
   deepStep,
@@ -84,6 +93,7 @@ export function TasksTab({
   goToTask,
   selectTab,
   onProgressChange,
+  focusMode = false,
 }: {
   course: Course;
   member: Member | null;
@@ -109,7 +119,10 @@ export function TasksTab({
   cohortCal: Cohort | null;
   expanded: Set<string>;
   setExpanded: Dispatch<SetStateAction<Set<string>>>;
+  /** Stacked: open or close a row under itself. */
   toggleTask: (task: Task) => void;
+  /** Split (R100): make this the one open task, in the pane. */
+  selectTask: (task: Task) => void;
   /** The week's one disclosure. null = decide from where the student is. */
   moreOpen: boolean | null;
   setMoreOpen: Dispatch<SetStateAction<boolean | null>>;
@@ -121,10 +134,13 @@ export function TasksTab({
   goToTask: (task: Task) => void;
   selectTab: (t: 'home' | 'tasks') => void;
   onProgressChange: () => void;
+  /** R100: just the rows and the open task. */
+  focusMode?: boolean;
 }) {
   // Hooks above the early return: the lab-access hint on the disclosure bar.
   const lab = useLabAccess(course.id);
   const rarityOf = useRarity(course, member, taskStats, cohortCal);
+  const split = useSplitView();
   const cut = tintFor(course.id).cut;
   const joined = !!member;
   if (!joined || !member || !ownRole) {
@@ -155,6 +171,11 @@ export function TasksTab({
   const summary = weekSummary(course, member.role, viewWeek);
   const roleOf = (id: string) => course.roles.find((r) => r.id === id);
   const roleName = (id: string) => roleOf(id)?.name ?? id;
+
+  // R100: in the split view ONE task is open, in the pane — the one the
+  // student opened last, as long as it belongs to the week on screen.
+  const weekTasks = [...ordered, ...setupTasks];
+  const paneTask = split ? [...expanded].reverse().map((id) => weekTasks.find((t) => t.id === id)).find(Boolean) : undefined;
 
   // The disclosure opens itself when the student's place is inside it: a
   // resume pointer or deep link into a setup task, or a pointer into Setup.
@@ -200,6 +221,11 @@ export function TasksTab({
   // a deep link or a teammate's "task 3" means the same row for everyone,
   // whichever role is looking.
   const numberOf = new Map(groups.flatMap((o) => o.tasks).map((t, i) => [t.id, i + 1]));
+  // R98: the rule, said once — in the objectives' "how to read" (R100).
+  const roleRule =
+    course.roles.length > 1 && ordered.some((t) => !t.shared)
+      ? ' One task per role. Everyone can open and do any of them — if a teammate is away, take theirs and say so in the document. Yours is marked "Yours".'
+      : '';
 
   // Whose task a row is, and who finished it when that was not the viewer.
   const ownerOf = (task: Task) => {
@@ -270,7 +296,8 @@ export function TasksTab({
       course={course}
       task={task}
       joined={joined}
-      open={expanded.has(task.id)}
+      mode={split ? 'select' : 'accordion'}
+      open={split ? paneTask?.id === task.id : expanded.has(task.id)}
       isNext={task.id === nextTask?.id}
       stuckCount={stuckByTask[task.id]}
       teammates={teamTaskProgress[task.id]}
@@ -278,10 +305,141 @@ export function TasksTab({
       owner={ownerOf(task)}
       doneBy={doneByOf(task)}
       percent={teamTaskStats[task.id] ?? 0}
-      onToggle={() => toggleTask(task)}
-      lead={<TaskStone percent={taskStats[task.id] ?? 0} rarity={rarityOf(task)} cut={cut} />}
+      onToggle={() => (split ? selectTask(task) : toggleTask(task))}
+      lead={<TaskStone percent={taskStats[task.id] ?? 0} rarity={rarityOf(task)} cut={cut} size={36} />}
       renderBody={() => renderTaskBody(task)}
     />
+  );
+
+  // 4. The list, grouped under the objectives — every task of the week. An
+  //    objective that IS its one task is named once, on the row (R100).
+  const list = (
+    <div className="space-y-3">
+      {groups
+        .map((o, i) => ({ o, n: i + 1 }))
+        .filter(({ o }) => o.tasks.length > 0)
+        .map(({ o, n }) => {
+          const done = o.tasks.every((t) => (teamTaskStats[t.id] ?? 0) >= 100);
+          const heading = !!o.label && !(o.tasks.length === 1 && o.tasks[0].title === o.label);
+          return (
+            <section key={o.id} id={`objective-${o.id}`} className="space-y-1.5">
+              {heading && (
+                <h3 className="flex items-baseline gap-2 text-xs font-semibold text-ink">
+                  <span className="font-mono text-2xs uppercase tracking-wider text-muted">{n}</span>
+                  <span className={done ? 'text-muted line-through' : ''}>{o.label}</span>
+                </h3>
+              )}
+              <div className="space-y-1.5">{o.tasks.map((task) => row(task, numberOf.get(task.id)))}</div>
+            </section>
+          );
+        })}
+    </div>
+  );
+
+  const tray = (
+    <WeekGemTray
+      cut={cut}
+      selected={viewWeek}
+      onSelect={pickWeek}
+      weeks={gradedWeeks.map((w) => ({
+        week: w.number,
+        label: `W${w.number}`,
+        rarity: weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf)),
+      }))}
+    />
+  );
+
+  // The left column (or the whole tab, stacked): rail to disclosure.
+  const column = (
+    <div className="space-y-4">
+      {/* 2. What this week is for. In focus mode the heading stays for the
+            keyboard and the screen reader, invisibly. */}
+      {focusMode ? (
+        <h2 id="tasks-head" tabIndex={-1} className="sr-only">
+          {phaseTag(course, viewWeek)}
+        </h2>
+      ) : (
+        <WeekHeader id="tasks-head" course={course} role={member.role} week={viewWeek} percent={viewPct} unit={unit} />
+      )}
+
+      {/* The gems earned so far: one slot per week, filled in the rarity of
+          its weakest task (R80). The same weeks as the rail, as trophies —
+          the member's own record, from their own ticks. In the split column
+          (R100) they sit under the list, so the first row is nearer the top. */}
+      {!focusMode && !split && tray}
+
+      {/* R99: the build as it stands at the end of this week, this week's
+          additions glowing, the week's process drawn over it — shown even
+          behind a gate, because it is what the locked week is about. In the
+          split view it is a thumbnail here only while the pane holds a task;
+          otherwise the pane draws it at full size. */}
+      {!focusMode && (!split || paneTask) && <WeekVisualPanel course={course} week={viewWeek} />}
+
+      {viewLocked ? (
+        <WeekLockedNotice course={course} unit={unit} week={viewWeek} gate={lockGate} onGo={openAndScrollWeek} />
+      ) : (
+        <>
+          {/* 3. The workflow: the objectives, left to right, with the
+                milestone under them. A click opens the objective's first
+                task that is not done. */}
+          {!focusMode && ordered.length > 0 && (
+            <FlowDiagram
+              title={`This ${unit}'s objectives`}
+              nodes={weekNodes}
+              onSelect={(id) => {
+                const o = groups.find((g) => g.id === id);
+                const t = o?.tasks.find((x) => (teamTaskStats[x.id] ?? 0) < 100) ?? o?.tasks[0];
+                if (t) goToTask(t);
+              }}
+              caption={summary.milestone ? `Done when: ${summary.milestone}` : undefined}
+              layout={split ? 'grid' : 'row'}
+              ariaLabel={`Objectives this ${unit}`}
+              howToRead={`Left to right is the order to do them. Click an objective to open its next task; a tick means every task in it is done — by anyone on the team.${roleRule}`}
+            />
+          )}
+
+          {ordered.length === 0 && <p className="text-sm text-muted">No tasks for this {unit} yet.</p>}
+
+          {focusMode && expanded.size === 0 && (
+            <p className="text-xs text-muted" data-focus-hint>
+              Focus mode — pick a task. The week’s picture and objectives are hidden; switch Focus off in the bar to see them.
+            </p>
+          )}
+
+          {list}
+
+          {!focusMode && split && tray}
+
+          {/* 5. Everything else this week, behind one bar that says what it holds. */}
+          {!focusMode && hasMore && (
+            <div className="rounded-lg depth-edge bg-panel px-3">
+              <Collapsible
+                title={`More for this ${unit}`}
+                hint={hintParts.join(' · ')}
+                tone={labUnset ? 'warn' : 'neutral'}
+                open={moreIsOpen}
+                onToggle={(o) => setMoreOpen(o)}
+              >
+                <WeekMoreBody course={course} setupWeeks={setupWeeks} setupTasks={setupTasks} setupPct={setupPct} labAccess={labFields.length > 0} row={row} />
+              </Collapsible>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+
+  // The right pane (split only): the open task, else the week at full size.
+  const pane = !split ? undefined : paneTask ? (
+    <TaskPane key={paneTask.id} task={paneTask} number={numberOf.get(paneTask.id)} onClose={() => setExpanded(new Set())}>
+      {renderTaskBody(paneTask)}
+    </TaskPane>
+  ) : focusMode ? (
+    <div className="rounded-lg depth-edge bg-panel-2 p-6 text-sm text-muted" data-focus-hint>
+      Focus mode — pick a task from the list.
+    </div>
+  ) : (
+    <WeekVisualPanel course={course} week={viewWeek} fill />
   );
 
   return (
@@ -289,171 +447,42 @@ export function TasksTab({
       {/* 1. Which week. The same component the Deliverables page uses: a tick
             when the week is done (for the team), a lock while its gate is shut,
             a slow pulse on the week you are actually on. */}
-      <WeekRail
-        id="week-rail"
-        dots
-        selected={viewWeek}
-        onSelect={pickWeek}
-        items={gradedWeeks.map((w) => ({
-          week: w.number,
-          label: phaseTag(course, w.number),
-          done: (teamWeekStats[w.number] ?? 0) >= 100,
-          locked: weekLocked(w.number),
-          pulse: w.number === activeWeek && (teamWeekStats[w.number] ?? 0) < 100,
-          advanced: isAdvancedWeek(course, w.number),
-          hint: cohortCal ? dueLabel(weekDue(cohortCal.startsOn, w.number), undefined, (teamWeekStats[w.number] ?? 0) >= 100).text : undefined,
-          minutes: weekSummary(course, member.role, w.number).minutes,
-        }))}
-      />
+      {!focusMode && (
+        <WeekRail
+          id="week-rail"
+          dots
+          selected={viewWeek}
+          onSelect={pickWeek}
+          items={gradedWeeks.map((w) => ({
+            week: w.number,
+            label: phaseTag(course, w.number),
+            done: (teamWeekStats[w.number] ?? 0) >= 100,
+            locked: weekLocked(w.number),
+            pulse: w.number === activeWeek && (teamWeekStats[w.number] ?? 0) < 100,
+            advanced: isAdvancedWeek(course, w.number),
+            hint: cohortCal ? dueLabel(weekDue(cohortCal.startsOn, w.number), undefined, (teamWeekStats[w.number] ?? 0) >= 100).text : undefined,
+            minutes: weekSummary(course, member.role, w.number).minutes,
+          }))}
+        />
+      )}
 
       {/* `data-week` is one attribute, and every stratum edge inside takes this
-          phase's colour from it. See the "Phase colour" block in globals.css. */}
+          phase's colour from it. See the "Phase colour" block in globals.css.
+          No `overflow-hidden` here (R100): the split view's sticky list column
+          needs a scrolling ancestor that is the window. */}
       <motion.section
         key={`week-${viewWeek}`}
         id={`week-${viewWeek}`}
-        className="stratum-week scroll-under-chrome overflow-hidden"
+        className="stratum-week scroll-under-chrome"
         data-week={viewWeek}
         data-open="true"
+        data-focus={focusMode ? 'true' : undefined}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: DUR.swap, ease: EASE.out }}
       >
-        <div className="space-y-5 p-5">
-          {/* 2. What this week is for. */}
-          <WeekHeader id="tasks-head" course={course} role={member.role} week={viewWeek} percent={viewPct} unit={unit} />
-
-          {/* The gems earned so far: one slot per week, filled in the rarity of
-              its weakest task (R80). The same weeks as the rail, as trophies —
-              the member's own record, from their own ticks. */}
-          <WeekGemTray
-            cut={cut}
-            selected={viewWeek}
-            onSelect={pickWeek}
-            weeks={gradedWeeks.map((w) => ({
-              week: w.number,
-              label: `W${w.number}`,
-              rarity: weekRarity(getTasksByRole(course, member.role, w.number).map(rarityOf)),
-            }))}
-          />
-
-          {/* R99: the build as it stands at the end of this week, this week's
-              additions glowing, the week's process drawn over it — shown even
-              behind a gate, because it is what the locked week is about. */}
-          <WeekVisualPanel course={course} week={viewWeek} />
-
-          {viewLocked ? (
-            <div className="flex items-start gap-3 rounded-lg depth-edge bg-panel-2 p-4">
-              <Lock className="mt-0.5 h-5 w-5 shrink-0 text-muted" />
-              <div>
-                <p className="text-sm font-medium text-ink">Locked until your team clears Gate {lockGate?.id}.</p>
-                <p className="mt-1 text-sm text-muted">
-                  Finish {phaseTag(course, lockGate?.week ?? viewWeek - 1)} required tasks — whoever on the team does them — to pass Gate{' '}
-                  {lockGate?.id} and unlock this {unit}.
-                </p>
-                {lockGate && (
-                  <button
-                    type="button"
-                    onClick={() => openAndScrollWeek(lockGate.week)}
-                    className="mt-2 inline-flex items-center gap-1 text-sm font-medium text-accent hover:underline"
-                  >
-                    Go to {phaseTag(course, lockGate.week)} <ArrowRight className="h-3.5 w-3.5" />
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* 3. The workflow: the objectives, left to right, with the
-                    milestone under them. A click opens the objective's first
-                    task that is not done. */}
-              {ordered.length > 0 && (
-                <FlowDiagram
-                  title={`This ${unit}'s objectives`}
-                  nodes={weekNodes}
-                  onSelect={(id) => {
-                    const o = groups.find((g) => g.id === id);
-                    const t = o?.tasks.find((x) => (teamTaskStats[x.id] ?? 0) < 100) ?? o?.tasks[0];
-                    if (t) goToTask(t);
-                  }}
-                  caption={summary.milestone ? `Done when: ${summary.milestone}` : undefined}
-                  ariaLabel={`Objectives this ${unit}`}
-                  howToRead="Left to right is the order to do them. Click an objective to open its next task; a tick means every task in it is done — by anyone on the team."
-                />
-              )}
-
-              {ordered.length === 0 && <p className="text-sm text-muted">No tasks for this {unit} yet.</p>}
-
-              {/* R98: the rule, said once where the list starts. */}
-              {course.roles.length > 1 && ordered.some((t) => !t.shared) && (
-                <p className="flex items-start gap-1.5 text-xs text-muted">
-                  <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
-                  <span>
-                    One task per role. Everyone can open and do any of them — if a teammate is away, take theirs and say so in the document.
-                    Yours is marked <span className="font-semibold text-accent-ink">Yours</span>.
-                  </span>
-                </p>
-              )}
-
-              {/* 4. The list, grouped under the objectives — every task of the week. */}
-              <div className="space-y-5">
-                {groups
-                  .map((o, i) => ({ o, n: i + 1 }))
-                  .filter(({ o }) => o.tasks.length > 0)
-                  .map(({ o, n }) => {
-                    const done = o.tasks.every((t) => (teamTaskStats[t.id] ?? 0) >= 100);
-                    return (
-                      <section key={o.id} id={`objective-${o.id}`} className="space-y-2">
-                        {o.label && (
-                          <h3 className="flex items-baseline gap-2 text-sm font-semibold text-ink">
-                            <span className="font-mono text-2xs uppercase tracking-wider text-muted">{n}</span>
-                            <span className={done ? 'text-muted line-through' : ''}>{o.label}</span>
-                          </h3>
-                        )}
-                        <div className="space-y-3">{o.tasks.map((task) => row(task, numberOf.get(task.id)))}</div>
-                      </section>
-                    );
-                  })}
-              </div>
-
-              {/* 5. Everything else this week, behind one bar that says what it holds. */}
-              {hasMore && (
-                <div className="rounded-lg depth-edge bg-panel px-3">
-                  <Collapsible
-                    title={`More for this ${unit}`}
-                    hint={hintParts.join(' · ')}
-                    tone={labUnset ? 'warn' : 'neutral'}
-                    open={moreIsOpen}
-                    onToggle={(o) => setMoreOpen(o)}
-                  >
-                    <div className="space-y-5 py-1 pr-2">
-                      {/* Setup is "do once", not a week. In class the lab already exists. */}
-                      {setupTasks.length > 0 && (
-                        <section id="setup-strip" className="scroll-under-chrome space-y-3">
-                          <h3 className="text-sm font-semibold text-ink">
-                            Do once — {setupWeeks.map((w) => w.title).join(' · ')}
-                            <span className="ml-2 font-normal text-muted">{setupPct}%</span>
-                          </h3>
-                          {/* SOC-course banner only: it names the shared Wazuh SOC
-                              and its login, which is meaningless on a course whose
-                              setup is required prep rather than a home-lab build. */}
-                          {!!socTopology(course.id) && (
-                            <Alert variant="info" title="The classroom SOC is already set up.">
-                              Sign in at <span className="font-mono text-xs">{SOC_URL}</span> ({SOC_LOGIN_LABEL}) and start
-                              at <span className="font-semibold">Week 1</span>. The build steps here are only for students
-                              setting up their own lab at home — opening them asks you to confirm first.
-                            </Alert>
-                          )}
-                          {setupTasks.map((task) => row(task))}
-                        </section>
-                      )}
-
-                      {labFields.length > 0 && <LabAccessPanel courseId={course.id} bare />}
-                    </div>
-                  </Collapsible>
-                </div>
-              )}
-            </>
-          )}
+        <div className="p-4 sm:p-5">
+          <TasksLayout split={split} list={column} pane={pane} />
         </div>
       </motion.section>
     </>

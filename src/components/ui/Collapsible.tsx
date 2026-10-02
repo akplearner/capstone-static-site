@@ -45,9 +45,15 @@ interface CollapsibleProps {
   hint?: string;
   /** `warn` when something inside needs the student — an unset lab address. */
   tone?: 'neutral' | 'warn';
+  /** R100: `sm` is the tighter bar for a disclosure inside an open step. */
+  size?: 'md' | 'sm';
+  /** R100: `link` draws the bar as an inline text link (no rule, no full-width
+   *  bar) — for the secondary tiers of a step, which read as "more", not as
+   *  another section. The panel still animates and is still `aria-controls`. */
+  variant?: 'bar' | 'link';
 }
 
-export function Collapsible({ title, children, defaultOpen = false, open, onToggle, hint, tone = 'neutral' }: CollapsibleProps) {
+export function Collapsible({ title, children, defaultOpen = false, open, onToggle, hint, tone = 'neutral', size = 'md', variant = 'bar' }: CollapsibleProps) {
   const [inner, setInner] = React.useState(defaultOpen);
   const isOpen = open ?? inner;
   const panelId = React.useId();
@@ -57,19 +63,17 @@ export function Collapsible({ title, children, defaultOpen = false, open, onTogg
     onToggle?.(next);
   };
 
+  const link = variant === 'link';
+  const bar = link
+    ? 'focusable inline-flex max-w-full items-center gap-1 rounded-[var(--radius-sm)] py-1 text-left text-xs font-medium text-accent hover:underline'
+    : `focusable flex w-full items-center justify-between gap-3 rounded-[var(--radius-sm)] text-left font-medium transition-colors hover:text-accent ${size === 'sm' ? 'py-2 text-sm' : 'py-3'}`;
   return (
-    <div className="border-b border-line">
-      <button
-        type="button"
-        onClick={toggle}
-        aria-expanded={isOpen}
-        aria-controls={panelId}
-        className="focusable flex w-full items-center justify-between gap-3 rounded-[var(--radius-sm)] py-3 text-left font-medium transition-colors hover:text-accent"
-      >
+    <div className={link ? '' : 'border-b border-line'} data-variant={variant}>
+      <button type="button" onClick={toggle} aria-expanded={isOpen} aria-controls={panelId} className={bar}>
         <span className="min-w-0">{title}</span>
         <span className="flex min-w-0 shrink items-center gap-2">
           {hint && (
-            <span className={`truncate text-xs font-normal ${tone === 'warn' ? 'text-warn' : 'text-muted'}`}>{hint}</span>
+            <span className={`truncate font-normal ${link ? 'text-2xs' : 'text-xs'} ${tone === 'warn' ? 'text-warn' : 'text-muted'}`}>{hint}</span>
           )}
           {/* A real icon, at the weight of every other icon in the app. */}
           <motion.span
@@ -78,7 +82,7 @@ export function Collapsible({ title, children, defaultOpen = false, open, onTogg
             animate={{ rotate: isOpen ? 180 : 0 }}
             transition={{ duration: DUR.disclosure, ease: EASE.out }}
           >
-            <ChevronDown className="h-4 w-4" />
+            <ChevronDown className={link ? 'h-3.5 w-3.5' : 'h-4 w-4'} />
           </motion.span>
         </span>
       </button>
@@ -93,7 +97,7 @@ export function Collapsible({ title, children, defaultOpen = false, open, onTogg
               transition={{ duration: DUR.disclosure, ease: EASE.out }}
               className="overflow-hidden"
             >
-              <div className="pb-3 pl-4">{children}</div>
+              <div className={link ? 'pt-2' : size === 'sm' ? 'pb-2 pl-3' : 'pb-3 pl-4'}>{children}</div>
             </motion.div>
           )}
         </AnimatePresence>

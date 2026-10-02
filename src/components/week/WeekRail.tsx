@@ -87,7 +87,7 @@ export function WeekRail({
       aria-label="Weeks"
       style={sticky ? { top: 'calc(var(--nav-h, 0px) + var(--subnav-h, 3rem))' } : undefined}
       className={[
-        'flex flex-wrap items-center gap-1.5',
+        'flex flex-wrap items-center gap-1 sm:gap-1.5',
         sticky
           ? 'glass sticky z-20 -mx-4 border-b px-4 py-2'
           : 'scroll-under-chrome',
@@ -105,7 +105,7 @@ export function WeekRail({
             onClick={() => onSelect(it.week)}
             aria-current={on ? 'true' : undefined}
             title={it.hint}
-            className={`relative inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`relative inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium transition-colors sm:px-3 sm:py-1.5 ${
               on ? 'text-accent-contrast' : 'text-muted hover:bg-panel-2 hover:text-ink'
             }`}
           >
@@ -139,7 +139,7 @@ export function WeekRail({
             )}
             {it.label}
             {it.minutes != null && it.minutes > 0 && (
-              <span className={`text-2xs ${on ? 'opacity-80' : 'text-muted'}`}>~{formatMinutes(it.minutes)}</span>
+              <span className={`hidden text-2xs sm:inline ${on ? 'opacity-80' : 'text-muted'}`}>~{formatMinutes(it.minutes)}</span>
             )}
             {it.advanced && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
             {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}

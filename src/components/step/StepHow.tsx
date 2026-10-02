@@ -131,9 +131,10 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
   );
 
   return (
-    <div className="space-y-3 pr-2">
-      {/* Essentials in two columns on desktop: left = do + command(s), right = see + verify. */}
-      <div className="grid gap-3 md:grid-cols-2">
+    <div className="space-y-3">
+      {/* Essentials in two columns when the step's container is wide (R100:
+          the pane, not the window): left = do + command(s), right = see + verify. */}
+      <div className="grid gap-3 @2xl:grid-cols-2">
         <div className="space-y-3">
           {(instructionList?.length || paths?.length || guideRef) && (
             <div>
@@ -142,7 +143,7 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
                   path is the default, because which one applies is decided by
                   the card in the server, not by us. */}
               {paths && paths.length > 0 && (
-                <div className="mt-2 grid gap-2 lg:grid-cols-2">
+                <div className="mt-2 grid gap-2 @4xl:grid-cols-2">
                   {paths.map((p) => (
                     <div key={p.label} className="rounded-md depth-edge bg-panel-2 p-2.5">
                       <div className="font-mono text-2xs font-semibold text-ink">
@@ -219,9 +220,9 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
 
       {/* R97: the same step in the shell, closed. Only if the student is curious. */}
       {shellTucked && (hasCommand || verifyBox) && (
-        <div className="rounded-md depth-edge bg-panel-2/50 px-3" data-testid="shell-drawer">
-          <Collapsible title={`Optional: the same step in ${shellName(courseId)}`} hint="advanced">
-            <div className="space-y-3 pb-3">
+        <div data-testid="shell-drawer">
+          <Collapsible title={`Optional: the same step in ${shellName(courseId)}`} hint="advanced" variant="link">
+            <div className="space-y-3 rounded-md depth-edge bg-panel-2/50 p-3">
               <p className="text-xs text-muted">Only if you are curious — the clicks above are the task.</p>
               {hasCommand && <CommandBlock commands={cmdList} />}
               {verifyBox}

@@ -32,6 +32,7 @@ export function WeekBuildDiagram({
   onWeekChange,
   business,
   highlightRole,
+  compact = false,
 }: {
   course: WeekBuildCourse;
   /** The course's own week number. */
@@ -43,6 +44,9 @@ export function WeekBuildDiagram({
   business?: { name?: string; industry?: string };
   /** The lab picture keeps the viewer's role bright. */
   highlightRole?: string;
+  /** R100: a thumbnail — the drawing scaled or cropped to a short band, the
+   *  caption still under it; the panel's Expand shows it at full size. */
+  compact?: boolean;
 }) {
   const doc = useCourseDocument();
   const visuals = weekVisualsOf(useCourseDocument());
@@ -59,7 +63,7 @@ export function WeekBuildDiagram({
   if (picture === 'cloud') {
     const cloud = cloudOf(doc);
     drawing = cloud ? (
-      <CloudTopology topology={cloud.topology} week={v.builtThrough} weekRange={cloud.block.weeks} process={v.process} controls={false} title="What you build this week" />
+      <CloudTopology topology={cloud.topology} week={v.builtThrough} weekRange={cloud.block.weeks} process={v.process} controls={false} title={null} />
     ) : null;
   } else if (picture === 'rack') {
     drawing = <ServerTopologyDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} business={business} />;
@@ -77,7 +81,10 @@ export function WeekBuildDiagram({
   return (
     <div data-week-visual={v.week} data-built-through={v.builtThrough}>
       {controls && <WeekPills weeks={weeks} selected={current} onSelect={setWeek} status={status} />}
-      {picture === 'rack' || picture === 'campus' ? <Surface>{drawing}</Surface> : drawing}
+      <div className={compact ? 'week-thumb relative max-h-48 overflow-hidden' : undefined} data-compact={compact ? 'true' : undefined}>
+        {picture === 'rack' || picture === 'campus' ? <Surface padding="sm">{drawing}</Surface> : drawing}
+        {compact && <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-[linear-gradient(to_bottom,transparent,var(--color-panel))]" />}
+      </div>
       <p className="mt-2 text-sm text-body" data-caption>
         {v.caption}
       </p>

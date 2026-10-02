@@ -1,4 +1,4 @@
-# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97 · R98 · R99)
+# Cloud Capstones — Azure and AWS (R87 · R90 · R92 · R93 · R94 · R95 · R96 · R97 · R98 · R99 · R100)
 
 One twelve-week plan per platform, delivered as **three four-week courses**,
 one per certification level. The tasks, documents, diagram and template are
@@ -292,6 +292,51 @@ pills) and every deliverable form (its own week).
   the build never shrinks, processes are short; page-shape R99 — the Tasks
   tab draws the panel, the Guide draws one week-scoped picture, the overlay
   pieces carry no literal colour.
+
+## The Tasks tab on one screen (R100)
+
+The first task row sat a screen and a half down the page, and an open task
+was taller than the window with wide empty gutters. Ten changes, one aim:
+the student sees the task they are on without scrolling past the week.
+
+* **Split view** from 1100px (`TasksLayout`, `useSplitView`): the list —
+  rail, header, gem tray, picture, objectives, rows, "More" — is a sticky
+  column that scrolls on its own; the open task is the pane beside it
+  (`TaskPane`, `id="task-pane"`, its heading takes focus). A row is a
+  selector there (`TaskRow mode="select"`), one task open at a time; below
+  the breakpoint it is the accordion it always was. The page is wider on
+  this tab (`html[data-tasks-wide]`, 88rem).
+* **The week picture is a thumbnail** (`WeekVisualPanel`, Expand/Shrink)
+  in the list, and full-size in the pane while no task is open. Two bugs
+  went with it: the cloud frame printed "What you build this week" twice
+  (`CloudTopology title={null}`), and a process arrow to a person not yet
+  drawn that week ran off the picture — a person the process names is now
+  drawn whatever their week, at full strength, and the crop includes them.
+* **One line per row, one chip row per task** (`ui/Chip`: role, Yours,
+  Next, Done by, stuck, issues, time, docs, free tier, needs, and the stamp
+  — a chip that copies itself, with the explanation as its tooltip).
+* **A step breathes**: `StepDetail` is a container, so `StepHow` goes
+  two-column by the width of the pane (`@2xl:grid-cols-2`), not the window;
+  "Show me how" is a tighter bar and "Why, and if it breaks" an inline link.
+* **Resizing**: every SVG picture scales below `sm` (`min-w-0`,
+  `preserveAspectRatio`), the rack and campus pictures scroll only from
+  `sm`, the objectives flow is a 2×2 grid on a phone, the rail and the gem
+  tray wrap tighter.
+* **Chrome**: the hero is one line on the Tasks tab (`CourseHero compact`);
+  the site header hides on a scroll down and returns on the first scroll up
+  (`useHideOnScroll`, `navChrome.ts`, `--nav-top`), and the sub-nav follows
+  it; task scrolls land the top of the task under the bars.
+* **Keys**: ←/→ walk the steps of the open task, Esc closes the open one
+  (`useStepKeys`: never while typing, never under a dialog, never when the
+  objectives flow already took the key).
+* **Focus mode** (`KEYS.focusMode`, per device, the Focus switch in the
+  sub-nav on the Tasks tab): just the rows and the open task.
+* Guards: page-shape R100 — `TasksLayout`/`TaskPane` in the tab, container
+  columns in a step, the thumbnail with Expand, the process-person fix, no
+  SVG forcing a sideways scroll, one chip, the current ring, the hidden
+  header, Focus mode; tests on `TasksLayout`, `TaskPane` via `TasksTab`,
+  `TaskRow`, `Chip`, `Collapsible`, `CloudTopology`, `WeekVisualPanel`,
+  `useHideOnScroll`, and the runner's keys and stamp chip.
 
 ## Honest limits, stated in the course
 

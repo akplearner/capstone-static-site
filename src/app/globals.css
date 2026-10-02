@@ -959,6 +959,28 @@ select {
 .depth-hover:hover {
   box-shadow: var(--depth-2);
 }
+/* R100: the one "current" treatment — a ring in the accent, on the step you
+   are on, the task open in the pane, the objective you are at. Declared after
+   the tiers so it wins when stacked with .depth-edge. */
+/* R100: the week picture as a thumbnail — an SVG scales down into the band
+   (preserveAspectRatio keeps it centred); an HTML picture (rack, campus) is
+   cropped by the band and its fade. */
+.week-thumb svg {
+  max-height: 10.5rem;
+}
+/* A thumbnail never scrolls sideways: the picture's own minimum width (made
+   for a full-width frame) gives way to the band it is in — the split view's
+   list column is narrower than that minimum. */
+.week-thumb svg,
+.week-thumb div[class*='sm:min-w-'] {
+  min-width: 0;
+}
+.week-thumb div[class*='sm:grid-cols-'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+.depth-current {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--color-accent) 55%, transparent);
+}
 
 
 /* ── Recurring HTML motifs, as reusable classes ─────────────────────────── */
@@ -1087,6 +1109,17 @@ select {
    position: fixed child (it would gain the bar as containing block). */
 .glass.sticky {
   transform: translateZ(0);
+  transition: transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+/* R100: the site header steps out of the way while a student reads down a
+   task and comes back on the first scroll up (SiteNav sets `data-tucked`). */
+.glass.sticky[data-tucked='true'] {
+  transform: translate3d(0, -100%, 0);
+}
+/* R100: the Tasks tab is wider than the rest of the site, so the open task's
+   pane has room for two columns beside the week's list. */
+html[data-tasks-wide='true'] main#main {
+  max-width: 88rem;
 }
 @supports not (backdrop-filter: blur(1px)) {
   .glass {
@@ -1190,6 +1223,12 @@ select {
   border-left: 3px solid color-mix(in srgb, var(--week, var(--color-accent)) 40%, var(--color-line));
   border-radius: var(--radius-control);
   box-shadow: var(--depth-well);
+}
+/* R100: elevation only on the open task — the one thing on the page that is
+   being worked on sits up; the closed rows stay flat in the list. */
+.stratum-task[data-open='true'] {
+  box-shadow: var(--depth-2);
+  background: var(--color-panel);
 }
 
 /* Level 3 — a step. No box at all: a seam line down the left edge. A third

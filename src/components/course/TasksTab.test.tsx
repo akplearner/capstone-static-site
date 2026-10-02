@@ -1,9 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { TasksTab } from './TasksTab';
 import { AZURE_FUNDAMENTALS } from '@/lib/data/seed/azureCloud';
 import { KEYS } from '@/lib/data/keys';
 import type { Member } from '@/lib/types';
+import { weekSummary } from '@/lib/course-helpers';
 
 vi.mock('next/navigation', () => ({ useParams: () => ({ courseId: 'azure-fundamentals' }), useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('@/lib/useCourse', async (orig) => {
@@ -49,6 +50,7 @@ function mount(over: Partial<Parameters<typeof TasksTab>[0]> = {}) {
       next.forEach((id) => expanded.add(id));
     },
     toggleTask: (t) => (expanded.has(t.id) ? expanded.delete(t.id) : expanded.add(t.id)),
+    selectTask: vi.fn(),
     moreOpen: null,
     setMoreOpen: () => {},
     deepStep: null,
@@ -79,7 +81,7 @@ describe('TasksTab — every task open to every member', () => {
     expect(cards.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
     expect(container.textContent).toContain('Yours · Security & Ops');
     expect(container.textContent).toContain('Infrastructure Admin · 1 task');
-    expect(screen.getAllByText('Yours').length).toBeGreaterThanOrEqual(2); // the row's badge, and the note that names it
+    expect(screen.getAllByText('Yours').length).toBeGreaterThanOrEqual(1); // the row's badge (R100: the rule moved into the objectives' how-to-read)
     expect(screen.getAllByText('Infrastructure Admin').length).toBeGreaterThan(0);
     expect(container.textContent).toContain('Everyone can open and do any of them');
   });
@@ -89,9 +91,10 @@ describe('TasksTab — every task open to every member', () => {
     const { courseDocument } = await import('@/lib/content/docs');
     const v = weekVisualsOf(courseDocument('azure-fundamentals')!).find((x) => x.week === 2)!;
     mount({ effectiveWeek: 2, teamWeekStats: { 1: 100, 2: 0 } });
-    expect(screen.getByRole('heading', { name: 'What you build this week' })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: 'What you build this week' })).toHaveLength(1); // R100: once, not twice
     expect(screen.getByRole('img', { name: /week 2/ })).toBeInTheDocument();
     expect(screen.getByText(v.caption)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Expand' })).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('a teammate’s task opens in the runner, with checkboxes and a line saying whose it is', () => {
@@ -113,5 +116,68 @@ describe('TasksTab — every task open to every member', () => {
     const card = screen.getAllByRole('button', { name: /task · ~/ }).find((b) => b.textContent?.includes(infra.title))!;
     expect(card.textContent).toContain('Infrastructure Admin · 1 task');
     expect(card.className).toContain('bg-ok-soft');
+  });
+
+  it('R100: an objective that is its one task is named once, on the row', () => {
+    const { container } = mount();
+    const single = weekSummary(C, 'secops', 1).objectives.filter((o) => o.tasks.length === 1 && o.tasks[0].title === o.label);
+    for (const o of single) {
+      const section = container.querySelector(`#objective-${o.id}`)!;
+      expect(section.querySelector('h3'), `${o.label}: no duplicate heading`).toBeNull();
+    }
+  });
+});
+
+describe('TasksTab — R100 split view and focus mode', () => {
+  // The harness mocks matchMedia with a plain vi.fn, so swap the function and put it back by hand.
+  const prevMedia = window.matchMedia;
+  const wide = (matches: boolean) => {
+    window.matchMedia = ((q: string) => ({ matches, media: q, addEventListener: () => {}, removeEventListener: () => {} }) as unknown as MediaQueryList) as typeof window.matchMedia;
+  };
+  afterEach(() => {
+    window.matchMedia = prevMedia;
+  });
+
+  it('at 1100px the rows select, one is current, and the runner is in the pane', () => {
+    wide(true);
+    const infra = week1.find((t) => t.role === 'infra')!;
+    const selectTask = vi.fn();
+    const { container } = mount({ expanded: new Set([infra.id]), selectTask });
+    expect(container.querySelector('[data-layout="split"]')).not.toBeNull();
+    const current = container.querySelectorAll('.stratum-task [aria-current="true"]');
+    expect(current).toHaveLength(1);
+    expect(current[0].textContent).toContain(infra.title);
+    const pane = container.querySelector('#task-pane')!;
+    expect(pane).not.toBeNull();
+    expect(pane.querySelector('[data-task-runner]')).not.toBeNull();
+    expect(screen.getByRole('heading', { name: new RegExp(infra.title) })).toHaveAttribute('id', 'task-pane-head');
+    // No accordion body under the row.
+    expect(container.querySelector(`#task-${infra.id}-body`)).toBeNull();
+    // A click on another row asks the page to make it the one open task.
+    const other = week1.find((t) => t.id !== infra.id)!;
+    fireEvent.click(screen.getAllByRole('button').find((b) => b.textContent?.includes(other.title) && b.closest('.stratum-task'))!);
+    expect(selectTask).toHaveBeenCalledWith(other);
+    // The thumbnail stays in the list while the pane holds a task.
+    expect(screen.getByRole('button', { name: 'Expand' })).toBeInTheDocument();
+  });
+
+  it('with nothing open, the pane draws the week at full size and the list has no thumbnail', () => {
+    wide(true);
+    const { container } = mount();
+    expect(container.querySelector('#task-pane')).toBeNull();
+    expect(container.querySelector('[data-layout="split"] > :last-child [data-week-visual-panel]')).not.toBeNull();
+    expect(screen.queryByRole('button', { name: /Expand|Shrink/ })).toBeNull();
+    expect(screen.getAllByRole('heading', { name: 'What you build this week' })).toHaveLength(1);
+  });
+
+  it('focus mode hides the rail, the tray, the picture and the objectives, and keeps the rows', () => {
+    const { container } = mount({ focusMode: true });
+    expect(container.querySelector('#week-rail')).toBeNull();
+    expect(screen.queryByRole('list', { name: 'Gems earned by week' })).toBeNull();
+    expect(screen.queryByRole('heading', { name: 'What you build this week' })).toBeNull();
+    expect(screen.queryByRole('list', { name: /Objectives this/ })).toBeNull();
+    expect(container.querySelector('[data-focus-hint]')).not.toBeNull();
+    expect(container.querySelectorAll('.stratum-task').length).toBe(4);
+    expect(document.getElementById('tasks-head')).not.toBeNull();
   });
 });
