@@ -249,7 +249,7 @@
       "file": "aws-devops.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 51,
+      "steps": 69,
       "deliverables": 4,
       "procedures": 0,
       "vendor": "AWS",
@@ -257,10 +257,10 @@
       "level": "professional",
       "prerequisite": "aws-solutions-architect",
       "examFeeUsd": 300,
-      "coveredWeight": 0,
+      "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0
+      "costTasksUsd": 0.12
     }
   ]
 }

@@ -49,18 +49,18 @@ const PLANS: WeekPlan[] = [
   { n: 8, title: 'Scale, monitor, recover', theme: 'Prove it survives', objective: 'Set recovery targets, scale on demand, lose an instance and a database and get both back, and read the bill.',
     milestone: 'RPO and RTO per asset, a policy scaled the fleet and replaced a lost instance, a file and the database were restored, the drill was timed, and nothing bills by the hour.',
     labels: ['Set RPO, RTO and the scaling policy', 'Scale on CPU and prove self-healing', 'Recover a web file and the database', 'Run a timed drill and tear down'] },
-  { n: 9, title: 'Infrastructure as Code', theme: 'The environment, as a file', objective: 'Read the environment as CloudFormation, fill the starter, preview a change set, deploy to dev.',
-    milestone: 'The starter template is complete, a change set previewed it, the dev stack deployed, and the parameters are recorded.',
-    labels: ['Map the template to the diagram', 'Inventory everything with the CLI', 'Fill the starter and deploy to dev', 'Write parameter files and validate'] },
-  { n: 10, title: 'CI/CD', theme: 'Deploy from a pipeline', objective: 'Deploy through GitHub Actions with no stored keys, under a reviewed change request.',
-    milestone: 'Main is protected, the pipeline assumes a role with OIDC and deploys the stack, and a rollback was tested.',
-    labels: ['Write and approve the change request', 'Protect main and add an environment', 'Deploy from GitHub Actions', 'Sign in with OIDC and test rollback'] },
-  { n: 11, title: 'Governance', theme: 'Rules the platform checks', objective: 'Check the tag standard with AWS Config, read CloudTrail, review posture and cost.',
-    milestone: 'Untagged resources are flagged, audit events are read, three findings are owned, and cost is broken down.',
-    labels: ['Review cost by service', 'Require the owner tag with Config', 'Query CloudTrail event history', 'Review posture with Trusted Advisor'] },
-  { n: 12, title: 'Handover', theme: 'Survive it, then hand it on', objective: 'Recover, fix and contain under pressure, then hand the environment over.',
-    milestone: 'Three scenarios survived and recorded, and the handover package is signed off.',
-    labels: ['Assemble the handover package', 'Rebuild the environment from the template', 'Fix an app failure through CI', 'Contain a security incident'] },
+  { n: 9, title: 'Infrastructure as code, tested', theme: 'The environment, as a file that is checked', objective: 'Read the environment as a template, detect drift, lint it, check it against policy, preview and deploy to dev.',
+    milestone: 'ADR-001 and the environment strategy are written, drift was detected and repaired, the template lints and passes two Guard rules, and a dev stack was previewed, deployed and deleted.',
+    labels: ['Map the template and set the environment strategy', 'Inventory with the CLI and detect drift', 'Fill the starter and deploy to dev', 'Parameter files, validation and policy as code'] },
+  { n: 10, title: 'Pipelines with stages and gates', theme: 'Check, deploy dev, approve, deploy prod', objective: 'Deploy through a staged pipeline with no stored keys: a check job, dev, a reviewer before prod, a tested rollback.',
+    milestone: 'Main requires the check, the pipeline signs in with OIDC and deploys dev then prod behind a gate, the deploy role is scoped, and a failure stopped at dev and rolled back.',
+    labels: ['Write the change request and the gates', 'Protect main, add the environments, require the checks', 'Build the staged pipeline', 'OIDC, a scoped deploy role and a rollback test'] },
+  { n: 11, title: 'Release strategies and observability', theme: 'Ship by weight, watch by number', objective: 'Set service levels and a dashboard, release the fleet blue/green and the function as a canary, judged by an alarm.',
+    milestone: 'Three SLIs with targets, a dashboard that shows them, a blue/green shift with no failed request, a canary promoted or rolled back by an alarm, the tag rule proved and the audit log read.',
+    labels: ['Review cost by service and set the service levels', 'Blue/green the fleet with weighted target groups', 'Canary the counter with alias weights and an alarm', 'Dashboard, Config and the audit trail'] },
+  { n: 12, title: 'Incident, compliance and handover', theme: 'Survive it, learn from it, hand it on', objective: 'Recover from code, repair by runbook, fix drift through CI, contain an incident, write its post-mortem, hand over.',
+    milestone: 'The environment was rebuilt and timed, an automation runbook ran, drift was fixed through the pipeline, an incident was contained with a post-mortem, and the handover package is signed off.',
+    labels: ['Assemble the handover package', 'Rebuild from the template and automate the restart', 'Fix an app failure through CI', 'Contain a security incident and write the post-mortem'] },
 ];
 
 /** One role's task for one week. */
@@ -1094,9 +1094,9 @@ def lambda_handler(event, context):
     rec(8, 'secops', 'Drill and cost', ['Drill start, service back, RTO met, lessons.', 'What was deleted; the month’s cost by service against the $20 budget.'], 'The plan shows the drill, and the course ends with nothing billing by the hour.'),
   ], { cost: { usd: 0.0329, per: 'hour', note: 'The fleet and the ALB for the minutes of the drill; all of it deleted inside the task.' } }),
 
-  // ── Week 9 — Infrastructure as Code ────────────────────────────────────
-  T(9, 'arch', 'Map the template to the diagram', 'Match five template resources to their diagram nodes, and say what code does that the console cannot.', 35,
-    ['CloudFormation templates', 'Infrastructure Composer'], ['Five resources mapped'],
+  // ── Week 9 — Infrastructure as code, tested ────────────────────────────
+  T(9, 'arch', 'Map the template and set the environment strategy', 'Match five template resources to their diagram nodes, write ADR-001, and decide what differs between the dev and prod stacks.', 40,
+    ['DOP-C02 · Configuration Management and IaC', 'CloudFormation templates', 'Architecture decision records', 'Environment strategy'], ['Five resources mapped', 'ADR-001 written', 'The dev and prod differences are listed'],
     [doc('Template anatomy', 'AWSCloudFormation/latest/UserGuide/template-anatomy.html', 'the section list — Parameters, Conditions, Resources, Outputs — and that only Resources is required'),
      doc('Infrastructure Composer', 'infrastructure-composer/latest/dg/what-is-composer.html', 'the “Import a template” note: paste template.yaml and it draws the same picture the Guide draws')],
     'Free: reading. Infrastructure Composer is free; nothing is deployed.', [
@@ -1110,27 +1110,42 @@ def lambda_handler(event, context):
       'Decision: the environment is a CloudFormation stack; the console is for reading.',
       'Rejected: building by hand — no record, no rebuild, no review. Consequences: every change is a pull request from Week 10.',
     ], 'ADR-001 with context, decision, rejected option and consequences.', 'An Architecture Decision Record keeps the decision and the alternatives, so the next team does not reopen it without new facts. The rejected option matters most: it shows the decision was a choice.'),
-    rec(9, 'arch', 'Template map, Portal vs code, ADR-001', ['Five rows: resource, node, parameter.', 'One thing code does that the console cannot.', 'ADR-001.'], 'The map lets anyone navigate the template.'),
+    portal(s(9, 'arch', 3), 'Decide what differs between dev and prod', 'List every parameter whose value changes, and why.', 'The document', [
+      'Same template, two stacks: dev with FleetSize 0 and a $5 budget; prod with FleetSize 2 and $20.',
+      'What never differs: the security groups, encryption, the role policies. Write why.',
+    ], 'A table of parameters with their dev and prod values, and the list of what never changes.', 'The exam calls this an environment strategy: one template, parameterised only where environments genuinely differ, so a prod bug can be reproduced in dev.'),
+    rec(9, 'arch', 'Template map, Portal vs code, ADR-001', ['Five rows: resource, node, parameter.', 'One thing code does that the console cannot.', 'ADR-001 and the dev/prod differences.'], 'The map lets anyone navigate the template; the strategy says what a stack is allowed to vary.'),
   ]),
-  T(9, 'infra', 'Inventory everything with the CLI', 'List every tagged resource and find anything the standard missed.', 35,
-    ['Resource Groups Tagging API', 'JMESPath queries'], ['Five or more resources listed with tags'],
+  T(9, 'infra', 'Inventory with the CLI and detect drift', 'List every tagged resource, change one tag by hand, run drift detection on the stack and read which resource drifted.', 40,
+    ['DOP-C02 · Configuration Management and IaC', 'Resource Groups Tagging API', 'Stack drift detection', 'Configuration drift'], ['Five or more resources listed with tags', 'Drift detection reports the changed resource as MODIFIED'],
     [doc('Find resources to tag', 'tag-editor/latest/userguide/find-resources-to-tag.html', 'the Tag Editor search: region, “All supported resource types”, and a tag filter — the same list the shell command returns'),
-     doc('GetResources API', 'resourcegroupstagging/latest/APIReference/API_GetResources.html', 'the TagFilters parameter and the note that only tagged resources are returned — untagged ones are the gap you are hunting')],
-    'Free: Tag Editor and the tagging API cost nothing.', [
+     doc('Detect drift on a stack', 'AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html', 'the drift statuses — IN_SYNC, MODIFIED, DELETED — and the note that drift detection reads the live resource, not the template')],
+    'Free: Tag Editor, the tagging API and drift detection cost nothing.', [
     both(s(9, 'infra', 1), 'List the resources', 'List every resource tagged project=capstone.', CONSOLE, [
       'Resource Groups & Tag Editor → Tag Editor. Region us-east-1, resource types All, tag project = capstone. Search.',
       'Read the table: ARN, type, and the owner tag column. Export to CSV.',
     ], [
       { cmd: 'aws resourcegroupstaggingapi get-resources --tag-filters Key=project,Values=capstone --query "ResourceTagMappingList[].[ResourceARN, Tags[?Key==\'owner\']|[0].Value]" --output text', explain: 'Every resource carrying the project tag, with its owner. Anything you built but do not see here broke the standard.', sample: 'arn:aws:ec2:us-east-1:123456789012:vpc/vpc-0a1b2c3d4e5f67890\tteam01-infra' },
     ], ['arn:aws:'], 'The gaps you find now are what the Config rule flags in Week 11.'),
-    rec(9, 'infra', 'CLI inventory', ['Five or more resources, their type, tagged or not.'], 'The inventory is the before-picture for the template.'),
+    both(s(9, 'infra', 2), 'Change one tag by hand', 'Edit the VPC’s owner tag in the console.', CONSOLE, [
+      'VPC → Your VPCs → vpc-capstone-team01 → Tags → Manage tags: owner = somebody-else. Save.',
+    ], [
+      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); aws ec2 create-tags --resources $VPC --tags Key=owner,Value=somebody-else && echo tagged', explain: 'A console change the template knows nothing about — the everyday way an environment drifts.', sample: 'tagged' },
+    ], ['tagged'], 'Drift is not a mistake someone makes on purpose; it is a quick fix at 5 p.m. that nobody wrote down.'),
+    both(s(9, 'infra', 3), 'Detect the drift', 'Run drift detection; read the MODIFIED resource.', CONSOLE, [
+      'CloudFormation → capstone-team01 → Stack actions → Detect drift. View drift results: Vpc shows MODIFIED, expected and actual side by side.',
+      'Put the tag back: Manage tags → owner = team01-infra.',
+    ], [
+      { cmd: 'DID=$(aws cloudformation detect-stack-drift --stack-name capstone-team01 --query StackDriftDetectionId --output text); sleep 45; aws cloudformation describe-stack-resource-drifts --stack-name capstone-team01 --stack-resource-drift-status-filters MODIFIED --query "StackResourceDrifts[].[LogicalResourceId, StackResourceDriftStatus]" --output text; aws ec2 create-tags --resources $VPC --tags Key=owner,Value=team01-infra', explain: 'Drift detection compares every live resource with the template and names the ones that differ; then the tag is put back.', sample: 'Vpc\tMODIFIED' },
+    ], ['MODIFIED'], 'The exam asks how you find out the environment no longer matches the code: this is the command, and Week 12 fixes drift the proper way, through the pipeline.'),
+    rec(9, 'infra', 'CLI inventory and drift', ['Five or more resources, their type, tagged or not.', 'The resource that drifted, its expected and actual value.'], 'The inventory is the before-picture for the template; the drift result is why the template must be the only writer.'),
   ]),
   T(9, 'dev', 'Fill the starter and deploy to dev', 'Complete the starter template, preview it with a change set, deploy a dev stack, then delete it.', 55,
-    ['Template anatomy', 'Change sets', 'Stacks'], ['The change set previewed', 'CREATE_COMPLETE', 'The dev stack is deleted'],
+    ['DOP-C02 · Configuration Management and IaC', 'Template anatomy', 'Change sets', 'Stacks'], ['The change set previewed', 'CREATE_COMPLETE', 'The dev stack is deleted'],
     [doc('Create a change set', 'AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-changesets-create.html', 'the “Create a change set for a new stack” steps and the Changes tab: Add, Modify, Remove, with Replacement True highlighted'),
      doc('Delete a stack', 'AWSCloudFormation/latest/UserGuide/cfn-console-delete-stack.html', 'the DELETE_FAILED paragraph about non-empty buckets — empty the bucket first')],
-    'Free tier while it exists: the dev stack is a second copy of everything, so its instance hours and public IP count too. Delete it the same session.', [
-    portal(s(9, 'dev', 1), 'Fill the starter', 'Download the starter and fill its nine blanks.', 'Guide → Architecture & IaC → Starter', [
+    'The dev stack is a second copy: with FleetSize 0 and no database it is the free tier plus the balancer at about $0.0225 an hour. Delete it the same session.', [
+    portal(s(9, 'dev', 1), 'Fill the starter', 'Download the starter and fill its blanks.', 'Guide → Architecture & IaC → Starter', [
       'Download template.yaml and both parameter files into infra/.',
       'Replace each FILL-ME using its hint; the Full tab is the answer key.',
       'In params-dev.json set TeamId to t01dev, so names never clash with what you built by hand.',
@@ -1140,9 +1155,9 @@ def lambda_handler(event, context):
       'Tick the IAM capability box. Instead of Submit: Create change set → wait → Changes tab lists every Add.',
       'Execute change set. Events tab until CREATE_COMPLETE (CloudFront takes ten minutes).',
     ], [
-      { cmd: 'STACK=capstone-team01-dev; aws cloudformation create-change-set --stack-name $STACK --change-set-name preview --change-set-type CREATE --template-body file://infra/template.yaml --parameters file://infra/params-dev.json --capabilities CAPABILITY_IAM -o none; aws cloudformation wait change-set-create-complete --stack-name $STACK --change-set-name preview; aws cloudformation describe-change-set --stack-name $STACK --change-set-name preview --query "length(Changes)"', explain: 'A change set lists every add, modify and remove before anything happens.', sample: '34' },
+      { cmd: 'STACK=capstone-team01-dev; aws cloudformation create-change-set --stack-name $STACK --change-set-name preview --change-set-type CREATE --template-body file://infra/template.yaml --parameters file://infra/params-dev.json --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM -o none; aws cloudformation wait change-set-create-complete --stack-name $STACK --change-set-name preview; aws cloudformation describe-change-set --stack-name $STACK --change-set-name preview --query "length(Changes)"', explain: 'A change set lists every add, modify and remove before anything happens.', sample: '58' },
       { cmd: 'aws cloudformation execute-change-set --stack-name $STACK --change-set-name preview && aws cloudformation wait stack-create-complete --stack-name $STACK; aws cloudformation describe-stacks --stack-name $STACK --query "Stacks[0].StackStatus" --output text', explain: 'CloudFront makes this take ten minutes or so.', sample: 'CREATE_COMPLETE' },
-    ], ['34', 'CREATE_COMPLETE'], 'Preview first, always: a change set is how you catch a replacement you did not mean.', {
+    ], ['58', 'CREATE_COMPLETE'], 'Preview first, always: a change set is how you catch a replacement you did not mean.', {
       fixes: [{ symptom: 'ROLLBACK_COMPLETE, "already exists"', fix: 'A name clashes with something you built by hand. Use a different TeamId in params-dev.json and retry.' }],
     }),
     rec(9, 'dev', 'Deployment', ['Blanks filled, change set result, stack status.'], 'The deployment record Week 10 automates.'),
@@ -1152,87 +1167,101 @@ def lambda_handler(event, context):
     ], [
       { cmd: 'aws cloudformation delete-stack --stack-name capstone-team01-dev && echo deleting', explain: 'The whole copy goes in one command — that is what a stack is for. Empty its bucket first if the delete fails.', sample: 'deleting' },
     ], ['deleting'], 'A second environment doubles the bill until it is gone.'),
-  ]),
-  T(9, 'secops', 'Write parameter files and validate', 'Set dev and prod parameter values with no secrets in them, and validate the template.', 40,
-    ['Parameter files', 'Validation', 'cfn-lint'], ['The template validates', 'No secret in either file'],
+  ], { cost: { usd: 0.0225, per: 'hour', note: 'The dev stack’s balancer while the stack exists; deleted inside the task.' } }),
+  T(9, 'secops', 'Parameter files, validation and policy as code', 'Set dev and prod values with no secrets, validate and lint the template, then write two Guard rules and prove the template passes them.', 50,
+    ['DOP-C02 · Security and Compliance', 'Parameter files', 'cfn-lint', 'AWS CloudFormation Guard'], ['The template validates and lints clean', 'Two Guard rules pass', 'No secret in either file'],
     [doc('Validate a template', 'AWSCloudFormation/latest/UserGuide/using-cfn-validate-template.html', 'what validation checks — syntax and the parameter list — and what it does not: property values, which is what cfn-lint adds'),
-     doc('Parameters', 'AWSCloudFormation/latest/UserGuide/parameters-section-structure.html', 'the NoEcho property: the way a template would take a secret if it had to — ours takes none')],
-    'Free: validation and linting. Nothing is deployed in this task.', [
-    portal(s(9, 'secops', 1), 'Set the parameter values', 'Set TeamId, Environment, OwnerTag and AlertEmail.', 'infra/ in the repository', [
-      'dev: Environment dev, TeamId t01dev.',
-      'prod: Environment prod, TeamId team01.',
-      'No passwords or keys: the template takes none.',
+     doc('What is AWS CloudFormation Guard?', 'cfn-guard/latest/ug/what-is-guard.html', 'the “policy as code” paragraph: rules written against the template, run before anything deploys — the gate Week 10 puts in the pipeline')],
+    'Free: validation, linting and Guard run in CloudShell. Nothing is deployed in this task.', [
+    portal(s(9, 'secops', 1), 'Set the parameter values', 'Set TeamId, Environment, OwnerTag, FleetSize per environment.', 'infra/ in the repository', [
+      'dev: Environment dev, TeamId t01dev, FleetSize 0, CreateDatabase false.',
+      'prod: Environment prod, TeamId team01, FleetSize 2, BudgetAmount 20.',
+      'No passwords or keys: the template takes none; the database password is managed by RDS.',
     ], 'Two parameter files differing only where environments differ.', 'Parameters are what changes between environments; everything else stays identical, which is what makes prod predictable.'),
-    both(s(9, 'secops', 2), 'Validate', 'Validate the template, then lint it.', CONSOLE, [
+    both(s(9, 'secops', 2), 'Validate and lint', 'Validate the template, then lint it.', CONSOLE, [
       'CloudFormation → Create stack → Upload template.yaml → Next: the parameter form appears only if the template is valid. Cancel.',
       'Infrastructure Composer → Import template.yaml: red markers show property errors, the same ones cfn-lint reports.',
     ], [
-      { cmd: 'aws cloudformation validate-template --template-body file://infra/template.yaml --query "Parameters[].ParameterKey" --output text', explain: 'Checks the syntax and lists the parameters it expects.', sample: 'TeamId\tEnvironment\tOwnerTag\tAlertEmail\tInstanceType\tLatestAmiId\tBudgetAmount' },
+      { cmd: 'aws cloudformation validate-template --template-body file://infra/template.yaml --query "Parameters[].ParameterKey" --output text', explain: 'Checks the syntax and lists the parameters it expects.', sample: 'TeamId\tEnvironment\tOwnerTag\tAlertEmail\tInstanceType\tLatestAmiId\tBudgetAmount\tThroughWeek\tGithubRepository\tFleetSize\tCreateDatabase' },
       { cmd: 'pip install -q cfn-lint && cfn-lint infra/template.yaml && echo "lint clean"', explain: 'cfn-lint checks property names and values against the real resource specs.', sample: 'lint clean' },
     ], ['TeamId', 'lint clean'], 'Validation is the cheapest test in the whole course.'),
-    portal(s(9, 'secops', 3), 'Compare with Terraform (optional)', 'Compare CloudFormation with Terraform in two lines.', 'Your notes', [
-      'Terraform: one language across clouds, keeps a state file.',
-      'CloudFormation: AWS only, the stack is the state.',
-    ], 'Two sentences comparing native templates with Terraform.', 'Knowing why a team picks one over the other is an interview question.', { optional: true }),
-    rec(9, 'secops', 'Parameters', ['Each parameter: dev value, prod value, secret or not.'], 'The environments, side by side.'),
+    both(s(9, 'secops', 3), 'Write two Guard rules and run them', 'No SSH from the internet; every volume encrypted.', 'CloudShell (Guard has no console)', [
+      'Write infra/rules.guard with two rules: no security-group ingress on port 22 from 0.0.0.0/0; every volume Encrypted true.',
+      'Run Guard against the template: PASS.',
+    ], [
+      { cmd: 'cat > infra/rules.guard <<\'EOF\'\nlet sgs = Resources.*[ Type == "AWS::EC2::SecurityGroup" ]\nrule no_ssh_from_internet when %sgs !empty {\n  %sgs.Properties.SecurityGroupIngress[*] { when FromPort == 22 { CidrIp != "0.0.0.0/0" } }\n}\nlet vols = Resources.*[ Type == "AWS::EC2::Volume" ]\nrule volumes_encrypted when %vols !empty {\n  %vols.Properties.Encrypted == true\n}\nEOF\ncurl --proto "=https" --tlsv1.2 -sSf https://raw.githubusercontent.com/aws-cloudformation/cloudformation-guard/main/install-guard.sh | sh >/dev/null 2>&1; ~/.guard/bin/cfn-guard validate --data infra/template.yaml --rules infra/rules.guard --show-summary pass,fail 2>&1 | tail -3', explain: 'Two rules in Guard’s language, then the verdict on the template. A rule that fails names the resource and the line.', sample: 'Rule(s):\n  PASS/SKIP infra/rules.guard/no_ssh_from_internet\n  PASS/SKIP infra/rules.guard/volumes_encrypted' },
+    ], ['PASS'], 'Policy as code is the exam’s Security and Compliance domain in one file: the rule is reviewed like code, versioned like code, and runs before every deploy in Week 10.'),
+    rec(9, 'secops', 'Parameters and policy as code', ['Each parameter: dev value, prod value, secret or not.', 'The two Guard rules and their result.'], 'The environments, side by side, and the rules every deploy must pass.'),
   ]),
 
-  // ── Week 10 — CI/CD ────────────────────────────────────────────────────
-  T(10, 'arch', 'Write and approve the change request', 'Write a change request for one template change, get it reviewed, and approve it in a pull request.', 35,
-    ['Change enablement', 'Risk and rollback'], ['The RFC has risk, rollback and approver'],
-    [doc('Creating a pull request', 'https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request', 'the description box and the Reviewers panel — the RFC goes in the description, the approver is the reviewer')],
+  // ── Week 10 — Pipelines with stages and gates ──────────────────────────
+  T(10, 'arch', 'Write the change request and the gates', 'Write a change request for one template change, name the checks that gate dev and prod, and approve it in a pull request.', 35,
+    ['DOP-C02 · SDLC Automation', 'Change enablement', 'Stage gates', 'Risk and rollback'], ['The RFC has risk, rollback and approver', 'The gates before dev and prod are named'],
+    [doc('Creating a pull request', 'https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request', 'the description box and the Reviewers panel — the RFC goes in the description, the approver is the reviewer'),
+     doc('Deployment pipeline reference', 'wellarchitected/latest/devops-guidance/deployment-pipeline-reference-architecture.html', 'the stage list — source, build, test, beta, gamma, prod — and the gate between each: what the course’s dev and prod stages are a small version of')],
     'Free: GitHub pull requests.', [
     portal(s(10, 'arch', 1), 'Write the RFC in a pull request', 'Open a pull request with the RFC as its description.', 'github.com — Pull requests', [
-      'The change: e.g. add a tag to every resource.',
+      'The change: e.g. raise the fleet’s maximum to four.',
       'Risk, rollback plan, and the tests the pipeline runs.',
       'Request review from a teammate; approve only after it passes.',
     ], 'A pull request with a complete RFC, reviewed and approved.', 'The pull request is the change record: who asked, who approved, what ran.'),
-    rec(10, 'arch', 'Request for change', ['Change, risk, rollback plan, approver.'], 'The release record’s front page.'),
+    portal(s(10, 'arch', 2), 'Name the gates', 'Before dev: lint and Guard; before prod: green dev plus a reviewer.', 'The pull request description', [
+      'Gate 1, before dev: cfn-lint clean, Guard PASS, a change set with no Replacement.',
+      'Gate 2, before prod: the dev stack deployed, the counter answered, and the Architect approved the prod environment.',
+    ], 'Two gates written down, each a list of checks a machine or a person makes.', 'A pipeline without gates is a faster way to break prod. The exam’s SDLC domain is mostly about which check sits before which stage.'),
+    rec(10, 'arch', 'Request for change', ['Change, risk, rollback plan, approver.', 'The gates before dev and before prod.'], 'The release record’s front page.'),
   ]),
-  T(10, 'infra', 'Protect main and add an environment', 'Require a review before anything reaches main, and add a prod environment with a required reviewer.', 30,
-    ['Branch protection', 'Deployment environments'], ['Main requires a review', 'prod needs approval'],
+  T(10, 'infra', 'Protect main, add the environments and require the checks', 'Require a review and the passing checks before anything reaches main, and add dev and prod environments with a required reviewer on prod.', 35,
+    ['DOP-C02 · SDLC Automation', 'Branch protection', 'Required status checks', 'Deployment environments'], ['Main requires a review and the checks', 'prod needs approval'],
     [doc('Managing a branch protection rule', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule', 'the three boxes you tick: require a pull request, required approvals, require status checks'),
      doc('Using environments for deployment', 'https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment', 'the “Required reviewers” protection rule and how a job that names the environment waits for it')],
     'Free: branch protection and environments on a private repository need a GitHub Free organisation or a public repo; a personal private repo needs Pro — use an organisation.', [
-    portal(s(10, 'infra', 1), 'Protect main', 'Require a pull request and one review on main.', 'Repository → Settings → Branches', [
+    portal(s(10, 'infra', 1), 'Protect main', 'Require a pull request, one review and the checks.', 'Repository → Settings → Branches', [
       'Add a rule for main.',
-      'Require a pull request, one approval, and passing checks.',
+      'Require a pull request, one approval, and the status check named check (lint and Guard).',
       'Block force pushes.',
-    ], 'Direct pushes to main are refused.', 'Protection turns a convention into a rule the platform enforces.'),
-    portal(s(10, 'infra', 2), 'Add the prod environment', 'Create environment prod with a required reviewer.', 'Repository → Settings → Environments', [
-      'New environment: prod.',
-      'Required reviewers: the Architect.',
-    ], 'Jobs targeting prod wait for approval.', 'The pause before prod is where a human reads the change set.'),
-    rec(10, 'infra', 'Repository controls', ['The branch rule and the environment.'], 'Evidence of change control.'),
+    ], 'Direct pushes to main are refused, and a red check blocks the merge.', 'Protection turns a convention into a rule the platform enforces.'),
+    portal(s(10, 'infra', 2), 'Add the environments', 'dev with no gate; prod with a required reviewer.', 'Repository → Settings → Environments', [
+      'New environment: dev. New environment: prod.',
+      'prod → Required reviewers: the Architect. Deployment branches: main only.',
+    ], 'Jobs targeting prod wait for approval; jobs targeting dev run at once.', 'The pause before prod is where a human reads the change set.'),
+    rec(10, 'infra', 'Repository controls', ['The branch rule, the required check, the two environments.'], 'Evidence of change control.'),
   ]),
-  T(10, 'dev', 'Deploy from GitHub Actions', 'Add a workflow that validates and deploys the stack on every merge to main.', 50,
-    ['GitHub Actions', 'configure-aws-credentials', 'CloudFormation deploy'], ['A run deployed the stack'],
+  T(10, 'dev', 'Build the staged pipeline', 'Add a workflow with a check job, a dev deploy and a prod deploy behind the environment gate, keeping the change set as an artifact.', 55,
+    ['DOP-C02 · SDLC Automation', 'GitHub Actions jobs and needs', 'Artifacts', 'CloudFormation deploy'], ['The check job runs lint and Guard', 'dev deploys, then prod waits for approval', 'A run deployed both stacks'],
     [doc('Configuring OpenID Connect in AWS', 'https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services', 'the workflow example: permissions id-token write, and the configure-aws-credentials step with role-to-assume'),
-     doc('aws cloudformation deploy', 'cli/latest/reference/cloudformation/deploy/index.html', 'the --parameter-overrides and --capabilities options — the deploy action passes the same ones')],
-    'Free: 2,000 GitHub Actions minutes a month on a private repo; a deploy uses about ten. The stack itself is the same free-tier environment.', [
-    portal(s(10, 'dev', 1), 'Write the workflow', 'Add .github/workflows/deploy.yml.', 'The repository', [
-      'On: push to main, and workflow_dispatch.',
-      'permissions: id-token write, contents read.',
-      'Steps: checkout → aws-actions/configure-aws-credentials@v4 (role-to-assume) → aws-actions/aws-cloudformation-github-deploy@v1.',
-      'Use the role ARN the Security task stores as a repository variable.',
-    ], 'A workflow file committed through a pull request.', 'id-token: write lets the job ask GitHub for a token AWS trusts instead of using a stored key.'),
-    portal(s(10, 'dev', 2), 'Watch it run', 'Merge, then watch the run go green.', 'Repository → Actions', [
-      'Merge the pull request.',
-      'Open the run: credentials, then deploy.',
-      'Approve the prod environment when asked.',
-    ], 'The run is green and the stack shows CREATE_COMPLETE or UPDATE_COMPLETE.', 'From now on nobody deploys from a laptop.', {
+     doc('Storing and sharing data from a workflow', 'https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts', 'the upload-artifact step: the change-set listing is kept with the run, so a reviewer reads what was about to change')],
+    'Free: 2,000 GitHub Actions minutes a month on a private repo; a full run uses about fifteen. The dev stack adds a balancer at about $0.0225 an hour; delete it after the run.', [
+    portal(s(10, 'dev', 1), 'Write the check job', 'Lint and Guard on every pull request.', 'The repository: .github/workflows/deploy.yml', [
+      'On: pull_request and push to main. Job check: checkout → pip install cfn-lint → cfn-lint infra/template.yaml → install Guard → cfn-guard validate.',
+      'Name the job check: that is the status the branch rule requires.',
+    ], 'A pull request shows the check job; a broken template turns it red.', 'The first gate is a machine: nothing a human has to remember.'),
+    portal(s(10, 'dev', 2), 'Write the dev and prod deploys', 'Two jobs, needs, environments, an artifact.', 'The same workflow file', [
+      'Job deploy-dev: needs check, environment dev, permissions id-token write; configure-aws-credentials with the role variable.',
+      'Steps: create a change set with params-dev, describe it to a file, upload-artifact, execute.',
+      'Job deploy-prod: needs deploy-dev, environment prod; the same steps with params-prod.',
+    ], 'A workflow of three jobs: check → deploy-dev → deploy-prod.', 'needs is the pipeline’s spine: prod cannot start until dev finished, and the environment holds it for the reviewer.'),
+    portal(s(10, 'dev', 3), 'Run it end to end', 'Merge; watch dev deploy; approve prod.', 'Repository → Actions', [
+      'Merge the pull request. Open the run: check is green, deploy-dev deploys, deploy-prod waits.',
+      'Download the artifact: the change-set listing. Approve prod; the run finishes green.',
+    ], 'A green three-job run, with the change set kept as an artifact.', 'From now on nobody deploys from a laptop, and every deploy leaves the preview it was approved on.', {
       fixes: [
         { symptom: 'Not authorized to perform sts:AssumeRoleWithWebIdentity', fix: 'The OIDC task is not finished, or the role’s trust policy names a different repo or branch.' },
         { symptom: 'AlreadyExists for the function or log group', fix: 'Your hand-built Week 3 resources share the name. Delete them, or deploy prod with a different TeamId.' },
       ],
     }),
-    rec(10, 'dev', 'Pipeline runs', ['Run number, stages, result.'], 'The release record.'),
-  ]),
-  T(10, 'secops', 'Sign in with OIDC and test rollback', 'Let GitHub assume an AWS role with no stored key, then break a deploy on purpose and watch it roll back.', 50,
-    ['IAM OIDC providers', 'Trust policies', 'Stack rollback'], ['No access key exists', 'A failed deploy rolled back'],
+    both(s(10, 'dev', 4), 'Delete the dev stack', 'Delete the dev stack until the next run.', CONSOLE, [
+      'CloudFormation → Stacks → capstone-t01dev → Delete → confirm.',
+    ], [
+      { cmd: 'aws cloudformation delete-stack --stack-name capstone-t01dev && echo deleting', explain: 'The dev copy is recreated by the next run; between runs it only costs.', sample: 'deleting' },
+    ], ['deleting'], 'A staged pipeline that leaves dev running all month doubles the balancer bill for nothing.'),
+    rec(10, 'dev', 'Pipeline runs', ['Run number, the three stages, result, the artifact.'], 'The release record.'),
+  ], { cost: { usd: 0.0225, per: 'hour', note: 'The dev stack’s balancer between the run and the delete.' } }),
+  T(10, 'secops', 'Sign in with OIDC, scope the deploy role and test rollback', 'Let GitHub assume a role with no stored key, read and narrow what it may do, then break a deploy and watch it roll back.', 55,
+    ['DOP-C02 · Security and Compliance', 'IAM OIDC providers', 'Trust policies', 'Stack rollback'], ['No access key exists', 'The deploy role’s policy is reviewed', 'A failed deploy rolled back'],
     [doc('Create an OpenID Connect identity provider in IAM', 'IAM/latest/UserGuide/id_roles_providers_create_oidc.html', 'the provider URL and audience for GitHub — token.actions.githubusercontent.com and sts.amazonaws.com — and the “Assign role” button after'),
      doc('Stack failure options', 'AWSCloudFormation/latest/UserGuide/stack-failure-options.html', 'the default behaviour: roll back all resources — the UPDATE_ROLLBACK_COMPLETE you will see')],
-    'Free: IAM providers and roles. The broken deploy rolls back to the same free-tier stack.', [
+    'Free: IAM providers and roles. The broken deploy rolls back to the same stack.', [
     both(s(10, 'secops', 1), 'Trust GitHub', 'Add GitHub as an OIDC identity provider.', CONSOLE, [
       'IAM → Identity providers → Add provider → OpenID Connect.',
       'Provider URL https://token.actions.githubusercontent.com, audience sts.amazonaws.com. Add provider.',
@@ -1244,138 +1273,204 @@ def lambda_handler(event, context):
       'GitHub organization and repository capstone-team01, branch main.',
       'Permissions: enough for the stack; name it gh-capstone-team01. Save its ARN as a repo variable.',
     ], 'The role’s trust policy names repo:ORG/capstone-team01:ref:refs/heads/main.', 'The trust policy is the fence: any other repo’s token is refused.'),
-    portal(s(10, 'secops', 3), 'Break it, watch it roll back', 'Push a broken template, watch it roll back, revert.', 'github.com, then CloudFormation → Events', [
-      'In a branch, set an invalid property value. Merge after review.',
-      'The run fails; the stack shows UPDATE_ROLLBACK_COMPLETE.',
+    both(s(10, 'secops', 3), 'Read what the role may do, and narrow it', 'List its policies; replace AdministratorAccess if present.', CONSOLE, [
+      'IAM → Roles → gh-capstone-team01 → Permissions: detach AdministratorAccess if attached.',
+      'Attach PowerUserAccess plus an inline policy for iam:PassRole and the role actions the stack needs.',
+      'Last accessed: the services the role actually used in its first run.',
+    ], [
+      { cmd: 'aws iam list-attached-role-policies --role-name gh-capstone-team01 --query "AttachedPolicies[].PolicyName" --output text; aws iam generate-service-last-accessed-details --arn $(aws iam get-role --role-name gh-capstone-team01 --query Role.Arn --output text) --query JobId --output text', explain: 'What is attached, and a job that lists which services the role really touched — the evidence for narrowing it.', sample: 'PowerUserAccess\n3f1c…' },
+    ], ['PowerUserAccess'], 'The pipeline’s role is the most powerful identity in the account that nobody logs in as. The exam asks you to scope it from what it used, not from what it might need.'),
+    portal(s(10, 'secops', 4), 'Break it, watch it roll back', 'Push a broken template, watch it roll back, revert.', 'github.com, then CloudFormation → Events', [
+      'In a branch, set a value lint cannot catch (an instance type the Region lacks). Merge after review.',
+      'The run fails at deploy-dev; the stack shows UPDATE_ROLLBACK_COMPLETE; prod never ran.',
       'Revert the commit; the next run is green.',
-    ], 'A red run and a rollback, then a green revert.', 'CloudFormation rolls back a failed update by itself — you proved it, not assumed it.'),
-    rec(10, 'secops', 'Keyless access and rollback', ['How the pipeline signs in, no keys stored, the rollback test.'], 'Evidence the pipeline is both safe and reversible.'),
+    ], 'A red run stopped at dev, a rollback, then a green revert.', 'CloudFormation rolls back a failed update by itself, and the staged pipeline kept the failure out of prod — you proved both, not assumed them.'),
+    rec(10, 'secops', 'Keyless access and rollback', ['How the pipeline signs in, no keys stored, the role’s policies, the rollback test.'], 'Evidence the pipeline is safe, scoped and reversible.'),
   ]),
 
-  // ── Week 11 — Governance ───────────────────────────────────────────────
-  T(11, 'arch', 'Review cost by service', 'Break this month’s cost down by service and name one action for each.', 30,
-    ['Cost Explorer', 'Cost optimisation'], ['Three services with spend and an action'],
+  // ── Week 11 — Release strategies and observability ─────────────────────
+  T(11, 'arch', 'Review cost by service and set the service levels', 'Break this month’s cost down by service with an action for each, then write the three service-level indicators the dashboard will watch.', 35,
+    ['DOP-C02 · Monitoring and Logging', 'Cost Explorer', 'SLIs and SLOs', 'Error budgets'], ['Three services with spend and an action', 'Three SLIs with targets'],
     [doc('Exploring your data using Cost Explorer', 'cost-management/latest/userguide/ce-exploring-data.html', 'the Group by → Service control and the “Download CSV” button under the chart'),
-     doc('AWS Free Tier', 'https://aws.amazon.com/free/', 'which of your services is “12 months free” — those lines start costing money when the account turns one')],
+     doc('Application Load Balancer metrics', 'elasticloadbalancing/latest/application/load-balancer-cloudwatch-metrics.html', 'HTTPCode_Target_5XX_Count, TargetResponseTime and HealthyHostCount — the three metrics the course’s SLIs are built from')],
     'Free: the Cost Explorer console. The shell alternative costs $0.01 per call.', [
     both(s(11, 'arch', 1), 'Break down the cost', 'Group this month’s cost by service.', CONSOLE, [
       'Billing and Cost Management → Cost Explorer. Date range: month to date. Group by: Service.',
       'Budgets: how close is capstone-team01 to its alert?',
       'For each service, one action: keep, reduce, remove.',
     ], [
-      { cmd: 'aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date -d tomorrow +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query "ResultsByTime[0].Groups[].[Keys[0], Metrics.UnblendedCost.Amount]" --output text', explain: 'The same table from the shell. Each call costs $0.01 — the console is free.', sample: 'Amazon Elastic Compute Cloud - Compute\t0.31\nAmazon Simple Storage Service\t0.01' },
+      { cmd: 'aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date -d tomorrow +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query "ResultsByTime[0].Groups[].[Keys[0], Metrics.UnblendedCost.Amount]" --output text', explain: 'The same table from the shell. Each call costs $0.01 — the console is free.', sample: 'Amazon Elastic Compute Cloud - Compute\t0.31\nAmazon Elastic Load Balancing\t4.12\nAmazon Simple Storage Service\t0.01' },
     ], ['Amazon'], 'Every line has an owner and a decision — that is FinOps in one table.'),
-    rec(11, 'arch', 'Cost by service', ['Three or more services, spend, action.'], 'The cost section of the governance report.'),
+    portal(s(11, 'arch', 2), 'Write the service levels', 'Availability, latency, errors: an indicator, a target, a window.', 'The document', [
+      'Availability: healthy targets ≥ 1 for 99.5% of five-minute windows a month.',
+      'Latency: TargetResponseTime p95 under 500 ms. Errors: 5XX under 1% of requests.',
+      'The error budget: how many bad minutes a month the targets allow, and who decides to spend it.',
+    ], 'Three SLIs with targets and the monthly error budget.', 'An SLO turns “is it up?” into a number a dashboard can show and a release can be judged against — the canary in App’s task is rolled back when it eats the budget.'),
+    rec(11, 'arch', 'Cost by service and service levels', ['Three or more services, spend, action.', 'Three SLIs, targets, the error budget.'], 'The cost section of the governance report, and the levels the dashboard watches.'),
   ]),
-  T(11, 'infra', 'Require the owner tag with Config', 'Turn on the AWS Config required-tags rule for owner, and prove it flags an untagged resource.', 45,
-    ['AWS Config', 'Managed rules'], ['The rule is active', 'An untagged resource is NON_COMPLIANT'],
-    [doc('required-tags', 'config/latest/developerguide/required-tags.html', 'the tag1Key parameter and the resource types the rule can evaluate — buckets are on the list, which is why the test uses one'),
-     doc('Setting up AWS Config with the console', 'config/latest/developerguide/gs-console.html', 'the “Recording strategy” choice: pick specific resource types, not all, to keep the evaluation count small')],
-    'Costs cents: Config charges per configuration item recorded and per rule evaluation — about $0.003 each. The DOP-C02 exam expects Config, so this is kept; record only three resource types.', [
-    portal(s(11, 'infra', 1), 'Turn on the rule', 'Add the required-tags managed rule.', 'AWS Config → Rules → Add rule', [
+  T(11, 'infra', 'Blue/green the fleet with weighted target groups', 'Publish a new template version, launch a green fleet into a second target group, shift the listener 90/10 to 0/100, retire blue, park.', 60,
+    ['DOP-C02 · Resilient Cloud Solutions', 'Blue/green deployments', 'Weighted target groups', 'Launch template versions'], ['Ten percent of requests reach green, then all of them', 'Blue is retired with no failed request', 'The fleet is parked'],
+    [doc('Listener rules for your Application Load Balancer', 'elasticloadbalancing/latest/application/listener-update-rules.html', 'the forward action with multiple target groups and weights — the knob a blue/green shift turns'),
+     doc('Launch template versions', 'autoscaling/ec2/userguide/launch-templates.html#launch-template-versions', 'how a group picks a version — $Latest, $Default or a number — and why a new version is the unit of a release')],
+    'Blue and green together are up to four t3.micro for about half an hour (about $0.03 an hour beyond the free one) plus the balancer; park the group at zero at the end. Stop or delete anything you started.', [
+    both(s(11, 'infra', 1), 'Publish the green version and its target group', 'Version 2 serves a new page; a second target group.', CONSOLE, [
+      'EC2 → Launch templates → lt-web-team01 → Actions → Modify template (create new version): user data writes "web v2 from $AZ". Create.',
+      'Target groups → Create tg-web-green-team01: HTTP 80, the VPC, health check /, interval 10 s.',
+    ], [
+      { cmd: 'UD=$(echo -e "#!/bin/bash\\ndnf install -y nginx\\nTOKEN=\\$(curl -sX PUT http://169.254.169.254/latest/api/token -H \\"X-aws-ec2-metadata-token-ttl-seconds: 60\\")\\nAZ=\\$(curl -s -H \\"X-aws-ec2-metadata-token: \\$TOKEN\\" http://169.254.169.254/latest/meta-data/placement/availability-zone)\\necho \\"web v2 from \\$AZ\\" > /usr/share/nginx/html/index.html\\nsystemctl enable --now nginx" | base64 -w0); aws ec2 create-launch-template-version --launch-template-name lt-web-team01 --source-version 1 --launch-template-data "{\\"UserData\\":\\"$UD\\"}" --query LaunchTemplateVersion.VersionNumber --output text; VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); GREEN=$(aws elbv2 create-target-group --name tg-web-green-team01 --protocol HTTP --port 80 --vpc-id $VPC --health-check-path / --health-check-interval-seconds 10 --healthy-threshold-count 2 --query "TargetGroups[0].TargetGroupArn" --output text); echo $GREEN', explain: 'Version 2 of the template changes only the page; the new target group is where green will register.', sample: '2\narn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/tg-web-green-team01/def456' },
+    ], ['tg-web-green-team01'], 'A release is a new template version, never an edit to running instances: blue keeps serving while green is built beside it.'),
+    both(s(11, 'infra', 2), 'Launch green beside blue', 'A second group on version 2, registered to green.', CONSOLE, [
+      'Auto Scaling groups → asg-web-team01 → Edit: desired 2 (blue).',
+      'Create group asg-web-green-team01: lt-web-team01 version 2, both public subnets, desired 2, target group tg-web-green-team01.',
+      'Target groups: two healthy in each.',
+    ], [
+      { cmd: 'SUBA=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-team01 --query "Subnets[0].SubnetId" --output text); SUBB=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-b-team01 --query "Subnets[0].SubnetId" --output text); aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 2; aws autoscaling create-auto-scaling-group --auto-scaling-group-name asg-web-green-team01 --launch-template LaunchTemplateName=lt-web-team01,Version=2 --min-size 0 --max-size 3 --desired-capacity 2 --vpc-zone-identifier "$SUBA,$SUBB" --target-group-arns $GREEN --tags Key=owner,Value=team01,PropagateAtLaunch=true; sleep 180; aws elbv2 describe-target-health --target-group-arn $GREEN --query "TargetHealthDescriptions[].TargetHealth.State" --output text', explain: 'Blue awake, green launched on version 2 into its own target group; three minutes later two healthy green targets.', sample: 'healthy\thealthy' },
+    ], ['healthy'], 'Two complete fleets, one address: the balancer decides who answers, and that decision is a number you can change in a second.'),
+    both(s(11, 'infra', 3), 'Shift 90/10, then 0/100', 'Weight the listener; count the versions; shift all.', CONSOLE, [
+      'Load balancers → alb-web-team01 → Listeners → HTTP:80 → Edit default action: forward to tg-web-team01 weight 90, tg-web-green-team01 weight 10. Save.',
+      'Open the ALB address twenty times: about two in twenty say v2. Then set weights 0 / 100.',
+    ], [
+      { cmd: 'TG=$(aws elbv2 describe-target-groups --names tg-web-team01 --query "TargetGroups[0].TargetGroupArn" --output text); L=$(aws elbv2 describe-listeners --load-balancer-arn $(aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].LoadBalancerArn" --output text) --query "Listeners[0].ListenerArn" --output text); aws elbv2 modify-listener --listener-arn $L --default-actions "[{\\"Type\\":\\"forward\\",\\"ForwardConfig\\":{\\"TargetGroups\\":[{\\"TargetGroupArn\\":\\"$TG\\",\\"Weight\\":90},{\\"TargetGroupArn\\":\\"$GREEN\\",\\"Weight\\":10}]}}]" -o none; DNS=$(aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].DNSName" --output text); for i in $(seq 20); do curl -s http://$DNS; done | cut -d" " -f1-2 | sort | uniq -c', explain: 'Ninety to ten, then twenty requests: most say "web OK", a couple say "web v2". That is the canary.', sample: '     18 web OK\n      2 web v2' },
+      { cmd: 'aws elbv2 modify-listener --listener-arn $L --default-actions "[{\\"Type\\":\\"forward\\",\\"ForwardConfig\\":{\\"TargetGroups\\":[{\\"TargetGroupArn\\":\\"$TG\\",\\"Weight\\":0},{\\"TargetGroupArn\\":\\"$GREEN\\",\\"Weight\\":100}]}}]" -o none; for i in $(seq 10); do curl -s http://$DNS; done | cut -d" " -f1-2 | sort | uniq -c', explain: 'All traffic to green; every answer is v2 and no request failed.', sample: '     10 web v2' },
+    ], ['web v2'], 'Blue/green on the exam is this listener edit: the rollback is the same command with the weights reversed, and it takes a second, not a redeploy.'),
+    both(s(11, 'infra', 4), 'Retire blue and park', 'Blue to zero; green parked; keep the green group.', CONSOLE, [
+      'Auto Scaling groups → asg-web-team01 → Edit: desired 0. asg-web-green-team01 → Edit: desired 0.',
+    ], [
+      { cmd: 'aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 0; aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-green-team01 --desired-capacity 0; sleep 30; aws autoscaling describe-auto-scaling-groups --query "AutoScalingGroups[?starts_with(AutoScalingGroupName, \'asg-web\')].[AutoScalingGroupName, DesiredCapacity]" --output text', explain: 'Both fleets parked. The green group is next week’s blue.', sample: 'asg-web-green-team01\t0\nasg-web-team01\t0' },
+    ], ['0'], 'The release is over when the old fleet is gone and nothing that bills by the hour is left running.'),
+    rec(11, 'infra', 'Release strategy', ['Blue/green: the versions, the weights, requests counted at 90/10 and at 0/100, failed requests (none).'], 'The governance report shows a release that could be undone in a second.'),
+  ], { cost: { usd: 0.054, per: 'hour', note: 'Up to three billed t3.micro and the balancer while blue and green run together; both parked at the end.' } }),
+  T(11, 'dev', 'Canary the counter with alias weights and an alarm', 'Publish versions 1 and 2 of the function, send ten percent of traffic to version 2 through an alias, and let an alarm decide.', 50,
+    ['DOP-C02 · Resilient Cloud Solutions', 'Lambda versions and aliases', 'Weighted aliases', 'Alarm-driven rollback'], ['Two versions and a weighted alias exist', 'An alarm watches the alias', 'The canary was promoted or rolled back by weight'],
+    [doc('Lambda function versions', 'lambda/latest/dg/configuration-versions.html', 'the “Publishing a function version” paragraph: a version is immutable code plus configuration, which is what makes a rollback exact'),
+     doc('Lambda aliases and traffic shifting', 'lambda/latest/dg/configuration-aliases.html#configuring-alias-routing', 'the routing configuration: one additional version with a weight — the ten percent that is your canary')],
+    'Free: versions, aliases and one alarm stay inside the Lambda and CloudWatch free tiers.', [
+    both(s(11, 'dev', 1), 'Publish version 1 and version 2', 'Freeze the current code, change it, publish again.', CONSOLE, [
+      'Lambda → capstone-team01-counter → Actions → Publish new version: 1.',
+      'Code: add a response header X-Release: v2. Deploy. Actions → Publish new version: 2.',
+    ], [
+      { cmd: 'aws lambda publish-version --function-name capstone-team01-counter --query Version --output text; aws lambda update-function-configuration --function-name capstone-team01-counter --description "v2: release header" -o none; aws lambda wait function-updated --function-name capstone-team01-counter; aws lambda publish-version --function-name capstone-team01-counter --query Version --output text', explain: 'Version 1 is the code as it runs today; version 2 is the change. Both are immutable from here.', sample: '1\n2' },
+    ], ['1', '2'], 'A version is a release you can point at and return to; $LATEST is whatever someone last saved.'),
+    both(s(11, 'dev', 2), 'Create the alias with a ten percent canary', 'live → version 1, with 10% to version 2.', CONSOLE, [
+      'Lambda → Aliases → Create alias live: version 1, weighted alias on, additional version 2 at 10%. Save.',
+      'API Gateway → the integration → point it at the live alias (the function ARN with :live).',
+    ], [
+      { cmd: 'aws lambda create-alias --function-name capstone-team01-counter --name live --function-version 1 --routing-config AdditionalVersionWeights={"2"=0.1} --query "RoutingConfig.AdditionalVersionWeights" --output json', explain: 'The alias sends nine in ten invocations to version 1 and one in ten to version 2.', sample: '{\n    "2": 0.1\n}' },
+    ], ['0.1'], 'The canary is a weight, not a second deployment: the ten percent are real visitors, and the alarm decides if they were served well.'),
+    both(s(11, 'dev', 3), 'Alarm on the canary’s errors', 'Errors on version 2 over 0 in five minutes.', CONSOLE, [
+      'CloudWatch → Alarms → Create: Lambda → By Function Name and Resource → capstone-team01-counter:2 Errors, Sum, 5 minutes, > 0.',
+      'Notify the team topic. Name it counter-canary-errors.',
+    ], [
+      { cmd: 'TOPIC=$(aws sns list-topics --query "Topics[?contains(TopicArn,\'team01\')].TopicArn | [0]" --output text); aws cloudwatch put-metric-alarm --alarm-name counter-canary-errors --namespace AWS/Lambda --metric-name Errors --dimensions Name=FunctionName,Value=capstone-team01-counter Name=Resource,Value=capstone-team01-counter:2 --statistic Sum --period 300 --evaluation-periods 1 --threshold 0 --comparison-operator GreaterThanThreshold --alarm-actions $TOPIC && aws cloudwatch describe-alarms --alarm-names counter-canary-errors --query "MetricAlarms[0].StateValue" --output text', explain: 'The Resource dimension scopes the alarm to version 2 alone, so a healthy version 1 cannot hide a failing canary.', sample: 'INSUFFICIENT_DATA' },
+    ], ['INSUFFICIENT_DATA'], 'This alarm is the rollback trigger: in production a CodeDeploy deployment group would read it and shift the weight back without a human.'),
+    both(s(11, 'dev', 4), 'Promote or roll back', 'Alarm OK: everything to version 2; alarm: back to version 1.', CONSOLE, [
+      'Call the API thirty times; CloudWatch → counter-canary-errors stays OK.',
+      'Lambda → Aliases → live → Edit: version 2, no additional version. Save. (A rollback would be: version 1, additional 0%.)',
+    ], [
+      { cmd: 'URL=$(aws apigatewayv2 get-apis --query "Items[?Name==\'capstone-team01-api\'].ApiEndpoint" --output text); for i in $(seq 30); do curl -s -o /dev/null $URL/count; done; STATE=$(aws cloudwatch describe-alarms --alarm-names counter-canary-errors --query "MetricAlarms[0].StateValue" --output text); echo $STATE; if [ "$STATE" != "ALARM" ]; then aws lambda update-alias --function-name capstone-team01-counter --name live --function-version 2 --routing-config AdditionalVersionWeights={} --query FunctionVersion --output text; else aws lambda update-alias --function-name capstone-team01-counter --name live --function-version 1 --routing-config AdditionalVersionWeights={} --query FunctionVersion --output text; fi', explain: 'Thirty real calls, then the alarm decides: no alarm promotes version 2, an alarm sends everything back to version 1.', sample: 'OK\n2' },
+    ], ['OK'], 'Promote or roll back is one alias update either way; the decision came from a metric, not a feeling.'),
+    rec(11, 'dev', 'Release strategy', ['Canary: the versions, the weight, the alarm, the thirty calls, promoted or rolled back.'], 'The governance report shows a release judged by an alarm.'),
+  ]),
+  T(11, 'secops', 'Build the dashboard, require the tag with Config and read the audit trail', 'Build a dashboard of the service levels, turn on the required-tags rule and prove it flags, then find who changed what in CloudTrail.', 55,
+    ['DOP-C02 · Monitoring and Logging', 'CloudWatch dashboards', 'AWS Config managed rules', 'CloudTrail'], ['A dashboard shows the three SLIs', 'An untagged resource is NON_COMPLIANT', 'Three audit events recorded'],
+    [doc('Using Amazon CloudWatch dashboards', 'AmazonCloudWatch/latest/monitoring/CloudWatch_Dashboards.html', 'the “Create a dashboard” steps and that three dashboards with up to fifty metrics are free'),
+     doc('required-tags', 'config/latest/developerguide/required-tags.html', 'the tag1Key parameter and the resource types the rule can evaluate — buckets are on the list, which is why the test uses one'),
+     doc('Viewing CloudTrail events', 'awscloudtrail/latest/userguide/view-cloudtrail-events.html', 'the Event history page and its lookup attributes — Read-only = false shows only changes')],
+    'Dashboards and 90 days of event history are free. Config charges about $0.003 per item recorded and per rule evaluation — cents; record only three resource types.', [
+    both(s(11, 'secops', 1), 'Build the dashboard', 'Healthy hosts, p95 latency, 5XX, canary errors.', CONSOLE, [
+      'CloudWatch → Dashboards → Create capstone-team01: widgets for ALB HealthyHostCount, TargetResponseTime p95, HTTPCode_Target_5XX_Count.',
+      'Add Lambda Errors for the counter and the ledger. Save.',
+    ], [
+      { cmd: 'ALB=$(aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].LoadBalancerArn" --output text | cut -d/ -f2-); aws cloudwatch put-dashboard --dashboard-name capstone-team01 --dashboard-body "{\\"widgets\\":[{\\"type\\":\\"metric\\",\\"x\\":0,\\"y\\":0,\\"width\\":12,\\"height\\":6,\\"properties\\":{\\"title\\":\\"Availability and latency\\",\\"metrics\\":[[\\"AWS/ApplicationELB\\",\\"HealthyHostCount\\",\\"LoadBalancer\\",\\"$ALB\\",\\"TargetGroup\\",\\"$(aws elbv2 describe-target-groups --names tg-web-team01 --query \'TargetGroups[0].TargetGroupArn\' --output text | cut -d: -f6)\\"],[\\"AWS/ApplicationELB\\",\\"TargetResponseTime\\",\\"LoadBalancer\\",\\"$ALB\\",{\\"stat\\":\\"p95\\"}]],\\"region\\":\\"us-east-1\\"}},{\\"type\\":\\"metric\\",\\"x\\":12,\\"y\\":0,\\"width\\":12,\\"height\\":6,\\"properties\\":{\\"title\\":\\"Errors\\",\\"metrics\\":[[\\"AWS/ApplicationELB\\",\\"HTTPCode_Target_5XX_Count\\",\\"LoadBalancer\\",\\"$ALB\\"],[\\"AWS/Lambda\\",\\"Errors\\",\\"FunctionName\\",\\"capstone-team01-counter\\"],[\\"AWS/Lambda\\",\\"Errors\\",\\"FunctionName\\",\\"capstone-team01-ledger\\"]],\\"region\\":\\"us-east-1\\"}}]}" --query "length(DashboardValidationMessages)" --output text', explain: 'Two widgets: the availability and latency SLIs on the left, every error count on the right. Zero validation messages means it saved.', sample: '0' },
+    ], ['0'], 'The dashboard is the service levels made visible: when the on-call opens it at 2 a.m. the three numbers the Architect wrote are the first thing they see.'),
+    portal(s(11, 'secops', 2), 'Turn on the rule', 'Add the required-tags managed rule.', 'AWS Config → Rules → Add rule', [
       'If asked, set up Config: record specific types — EC2, S3, Lambda. One recorder per region only.',
       'Managed rule required-tags. tag1Key: owner.',
       'Scope: EC2 instances, S3 buckets, Lambda functions.',
     ], 'The rule required-tags is listed and evaluating.', 'Config records and checks; it does not block. The deny version is an SCP, which needs AWS Organizations.'),
-    both(s(11, 'infra', 2), 'Prove it flags', 'Create an untagged bucket and read its compliance.', CONSOLE, [
+    both(s(11, 'secops', 3), 'Prove it flags', 'Create an untagged bucket and read its compliance.', CONSOLE, [
       'S3 → Create bucket capstone-team01-untagged-NNNN, no tags. Wait two minutes.',
       'AWS Config → Rules → required-tags: the bucket is listed Noncompliant.',
       'Delete the bucket afterwards.',
     ], [
-      { cmd: 'aws s3 mb s3://capstone-team01-untagged-$RANDOM -o none; sleep 120; aws configservice get-compliance-details-by-config-rule --config-rule-name required-tags --compliance-types NON_COMPLIANT --query "EvaluationResults[].[EvaluationResultIdentifier.EvaluationResultQualifier.ResourceId, ComplianceType]" --output text', explain: 'Evaluation takes a minute or two. Delete the bucket afterwards.', sample: 'capstone-team01-untagged-18342\tNON_COMPLIANT' },
+      { cmd: 'B=capstone-team01-untagged-$RANDOM; aws s3 mb s3://$B -o none; sleep 120; aws configservice get-compliance-details-by-config-rule --config-rule-name required-tags --compliance-types NON_COMPLIANT --query "EvaluationResults[].[EvaluationResultIdentifier.EvaluationResultQualifier.ResourceId, ComplianceType]" --output text; aws s3 rb s3://$B', explain: 'Evaluation takes a minute or two; the bucket is removed afterwards.', sample: 'capstone-team01-untagged-18342\tNON_COMPLIANT' },
     ], ['NON_COMPLIANT'], 'Enforcement proved by a finding, not assumed.'),
-    rec(11, 'infra', 'Policy', ['The rule and the result of the test.'], 'Governance the platform checks for you.'),
-  ]),
-  T(11, 'dev', 'Query CloudTrail event history', 'Find who changed what this week from CloudTrail event history.', 35,
-    ['CloudTrail', 'Audit trails'], ['Three audit events recorded'],
-    [doc('Viewing CloudTrail events', 'awscloudtrail/latest/userguide/view-cloudtrail-events.html', 'the Event history page and its lookup attributes — Read-only = false shows only changes')],
-    'Free: 90 days of event history for management events. Creating a trail to S3 would cost storage; you do not need one.', [
-    both(s(11, 'dev', 1), 'Read the audit trail', 'List this week’s write events.', CONSOLE, [
+    both(s(11, 'secops', 4), 'Read the audit trail', 'List this week’s write events.', CONSOLE, [
       'CloudTrail → Event history. Lookup attribute: Read-only → false.',
       'Read Event time, User name, Event name for the top rows.',
     ], [
-      { cmd: 'aws cloudtrail lookup-events --lookup-attributes AttributeKey=ReadOnly,AttributeValue=false --max-results 8 --query "Events[].[EventTime, Username, EventName]" --output text', explain: 'Every management API call is recorded with who made it. Event history keeps 90 days free.', sample: '2026-11-10T14:02:07+00:00\tteam01-infra\tPutConfigRule' },
-    ], ['team01'], 'The audit log is how an incident answers “who did this, and when”.'),
-    rec(11, 'dev', 'Audit events', ['Three events: when, who, operation.'], 'Evidence the environment is auditable.'),
-  ]),
-  T(11, 'secops', 'Review posture with Trusted Advisor', 'Read the free Trusted Advisor checks and IAM Access Analyzer, rank three findings, and own their remediation.', 40,
-    ['Security posture', 'IAM Access Analyzer'], ['Three owned findings'],
-    [doc('AWS Trusted Advisor', 'awssupport/latest/user/trusted-advisor.html', 'the checks available on Basic support — the security ones are free: MFA on root, security groups with open ports, S3 permissions'),
-     doc('IAM Access Analyzer', 'IAM/latest/UserGuide/what-is-access-analyzer.html', 'the difference between an external-access analyzer (free) and an unused-access analyzer (paid) — create the first only')],
-    'Free: Trusted Advisor’s security checks and an external-access analyzer. Security Hub and the unused-access analyzer cost money; skip them.', [
-    both(s(11, 'secops', 1), 'Read the checks', 'Open the free security checks.', CONSOLE, [
-      'Trusted Advisor → Security: MFA on root, open ports, S3 permissions.',
-      'IAM → Access Analyzer → Create analyzer → External access (free); read the findings.',
-      'Pick three: severity, resource, fix.',
-    ], [
-      { cmd: 'aws support describe-trusted-advisor-checks --language en --query "checks[?category==\'security\'].name" --output text 2>/dev/null || echo "Support API needs a Business plan — use the console"', explain: 'The Trusted Advisor API is Business-support only; the console shows the free checks to everyone.', sample: 'Support API needs a Business plan — use the console' },
-      { cmd: 'AN=$(aws accessanalyzer list-analyzers --query "analyzers[0].arn" --output text); aws accessanalyzer list-findings --analyzer-arn $AN --query "findings[].[resourceType, status]" --output text', explain: 'Access Analyzer findings from the shell, once the analyzer exists.', sample: 'AWS::S3::Bucket\tACTIVE' },
-    ], ['console', 'ACTIVE'], 'Free checks find real misconfigurations. Security Hub adds more, for a fee.'),
-    rec(11, 'secops', 'Posture findings', ['Three findings: severity, owner, remediation.'], 'Open findings become the handover’s risks.'),
+      { cmd: 'aws cloudtrail lookup-events --lookup-attributes AttributeKey=ReadOnly,AttributeValue=false --max-results 8 --query "Events[].[EventTime, Username, EventName]" --output text', explain: 'Every management API call is recorded with who made it. Event history keeps 90 days free.', sample: '2026-11-10T14:02:07+00:00\tteam01-infra\tModifyListener' },
+    ], ['team01'], 'The audit log is how an incident answers “who did this, and when” — and this week it says who shifted the listener.'),
+    rec(11, 'secops', 'Policy, dashboard and audit', ['The dashboard and its widgets.', 'The rule and the result of the test.', 'Three events: when, who, operation.'], 'Governance the platform checks for you, and the picture the on-call reads.'),
   ]),
 
-  // ── Week 12 — Handover ─────────────────────────────────────────────────
+  // ── Week 12 — Incident, compliance and handover ────────────────────────
   T(12, 'arch', 'Assemble the handover package', 'Catalogue every service, list the open risks, and sign the package off.', 45,
-    ['Service transition', 'Risk registers'], ['Four services catalogued', 'Three risks', 'Signed off'],
+    ['DOP-C02 · Incident and Event Response', 'Service transition', 'Risk registers'], ['Four services catalogued', 'Three risks', 'Signed off'],
     [doc('Operational Excellence pillar', 'wellarchitected/latest/operational-excellence-pillar/welcome.html', 'the “Operate” and “Evolve” sections: runbooks, playbooks and known risks are what a handover carries')],
     'Free: a document. Nothing is deployed.', [
     portal(s(12, 'arch', 1), 'Catalogue the services', 'List each service with its URL, owner and runbook.', 'The document', [
-      'Website, API, table, tools instance.',
-      'Each points to the runbook section that fixes it.',
-    ], 'A four-row service catalogue.', 'The catalogue is the map a new team uses on day one.'),
+      'Website, API, the fleet behind the balancer, the database snapshot, the queue, the pipeline.',
+      'Each points to the runbook section that fixes it, and to the dashboard widget that shows it.',
+    ], 'A six-row service catalogue.', 'The catalogue is the map a new team uses on day one.'),
     portal(s(12, 'arch', 2), 'List the risks', 'Turn open findings into risks.', 'The document', [
-      'Start from Week 11’s open findings.',
-      'Add: the public IP, one Availability Zone, Config detects but does not block.',
+      'Start from Week 11’s open findings and the error budget spent.',
+      'Add: the balancer serves HTTP only, the database is opt-in, Config detects but does not block.',
     ], 'Three or more risks, each with a mitigation.', 'Handing over known risks honestly is what makes a handover trustworthy.'),
     rec(12, 'arch', 'Service catalogue, Risk register, Sign-off', ['Catalogue, risks, and the sign-off.'], 'The capstone — the package you defend.'),
   ]),
-  T(12, 'infra', 'Rebuild the environment from the template', 'Rebuild the whole environment as a new stack from the template, time it, and delete it.', 50,
-    ['Disaster recovery by redeploy', 'Stacks'], ['The rebuild completed', 'Time recorded', 'Recovery stack deleted'],
+  T(12, 'infra', 'Rebuild from the template and automate the restart', 'Rebuild the environment as a new stack from the template, time it, run an automation runbook against the tools instance, delete the stack.', 55,
+    ['DOP-C02 · Resilient Cloud Solutions', 'Disaster recovery by redeploy', 'Systems Manager Automation', 'Runbooks as code'], ['The rebuild completed, timed', 'An automation runbook ran to Success', 'The recovery stack is deleted'],
     [doc('Create a stack from the console', 'AWSCloudFormation/latest/UserGuide/cfn-console-create-stack.html', 'the Events tab: the timestamps of the first and last event are your measured recovery time'),
-     doc('Delete a stack', 'AWSCloudFormation/latest/UserGuide/cfn-console-delete-stack.html', 'the DELETE_FAILED paragraph about non-empty buckets')],
-    'Free tier while it exists: the recovery stack is a full second copy — a second instance and public IP. Delete it in the same session; stop counting hours.', [
+     doc('AWS Systems Manager Automation', 'systems-manager/latest/userguide/systems-manager-automation.html', 'the “Automation runbooks” paragraph and AWS-RestartEC2Instance: a repair a machine runs the same way every time')],
+    'The recovery stack is a full second copy for the minutes it exists — the balancer at $0.0225 an hour, the fleet parked. Delete it in the same session. Stop or delete anything you started.', [
     both(s(12, 'infra', 1), 'Rebuild it', 'Deploy the template as a recovery stack, timed.', CONSOLE, [
-      'Note the time. CloudFormation → Create stack → Upload template.yaml. Name capstone-team01-recover; TeamId t01rec, Environment prod.',
+      'Note the time. CloudFormation → Create stack → Upload template.yaml. Name capstone-team01-recover; TeamId t01rec, Environment prod, FleetSize 0.',
       'Tick the IAM capability, Submit. Events tab until CREATE_COMPLETE; note the time.',
     ], [
-      { cmd: 'date +%T; aws cloudformation deploy --stack-name capstone-team01-recover --template-file infra/template.yaml --parameter-overrides TeamId=t01rec Environment=prod OwnerTag=team01-infra AlertEmail=team01-alerts@school.edu --capabilities CAPABILITY_IAM; date +%T', explain: 'The whole company, rebuilt from one file. TeamId t01rec keeps names from clashing. The two times are your recovery time.', sample: '15:10:02\nSuccessfully created/updated stack - capstone-team01-recover\n15:24:47' },
+      { cmd: 'date +%T; aws cloudformation deploy --stack-name capstone-team01-recover --template-file infra/template.yaml --parameter-overrides TeamId=t01rec Environment=prod OwnerTag=team01-infra AlertEmail=team01-alerts@school.edu FleetSize=0 --capabilities CAPABILITY_IAM CAPABILITY_NAMED_IAM; date +%T', explain: 'The whole company, rebuilt from one file. TeamId t01rec keeps names from clashing. The two times are your recovery time.', sample: '15:10:02\nSuccessfully created/updated stack - capstone-team01-recover\n15:26:47' },
     ], ['Successfully created'], 'If it can be rebuilt from code, it can be recovered from anything.'),
-    both(s(12, 'infra', 2), 'Delete the recovery stack', 'Delete the recovery stack.', CONSOLE, [
+    both(s(12, 'infra', 2), 'Run an automation runbook', 'Restart the tools instance with AWS-RestartEC2Instance.', CONSOLE, [
+      'Systems Manager → Automation → Execute automation → AWS-RestartEC2Instance → InstanceId: the recovery stack’s tools instance → Execute. Watch the steps go to Success.',
+    ], [
+      { cmd: 'RID=$(aws cloudformation describe-stack-resource --stack-name capstone-team01-recover --logical-resource-id ToolsInstance --query StackResourceDetail.PhysicalResourceId --output text); EX=$(aws ssm start-automation-execution --document-name AWS-RestartEC2Instance --parameters InstanceId=$RID --query AutomationExecutionId --output text); sleep 90; aws ssm get-automation-execution --automation-execution-id $EX --query "AutomationExecution.[AutomationExecutionStatus, length(StepExecutions)]" --output text', explain: 'A runbook AWS wrote, run as one call: stop, wait, start, wait. Success, with the steps it took.', sample: 'Success\t2' },
+    ], ['Success'], 'The exam’s incident domain asks for repairs nobody types by hand: an automation document is the runbook as code, and an alarm can start it.'),
+    both(s(12, 'infra', 3), 'Delete the recovery stack', 'Delete the recovery stack.', CONSOLE, [
       'CloudFormation → Stacks → capstone-team01-recover → Delete → confirm.',
       'Empty its bucket first if the delete fails.',
     ], [
       { cmd: 'aws cloudformation delete-stack --stack-name capstone-team01-recover && echo deleting', explain: 'Keep the evidence, not the bill.', sample: 'deleting' },
     ], ['deleting'], 'Clean-up is part of the drill.'),
-    rec(12, 'infra', 'Scenario outcomes', ['Recover: rebuild from the template — time and result.'], 'Proof the template is the environment.'),
-  ]),
-  T(12, 'dev', 'Fix an app failure through CI', 'Break the function’s configuration by hand, then restore it by re-running the pipeline — no console fixes.', 45,
-    ['Configuration drift', 'Redeploy as a fix'], ['The API failed, then recovered through CI'],
+    rec(12, 'infra', 'Scenario outcomes', ['Recover: rebuild from the template — time and result.', 'The automation runbook, its steps and its result.'], 'Proof the template is the environment, and that the repair is a document.'),
+  ], { cost: { usd: 0.0225, per: 'hour', note: 'The recovery stack’s balancer while it exists; deleted inside the task.' } }),
+  T(12, 'dev', 'Fix an app failure through CI', 'Break the function’s configuration by hand, prove the drift, then restore it by re-running the pipeline — no console fixes.', 45,
+    ['DOP-C02 · Incident and Event Response', 'Configuration drift', 'Redeploy as a fix'], ['The API failed, drift was detected, and CI recovered it'],
     [doc('Detect drift on a stack', 'AWSCloudFormation/latest/UserGuide/using-cfn-stack-drift.html', 'the Stack actions → Detect drift steps and the drift status MODIFIED on a resource — the proof the console change is drift'),
      doc('Lambda environment variables', 'lambda/latest/dg/configuration-envvars.html', 'the Edit steps — the same place you break it')],
-    'Free: one setting changed, one pipeline run (about ten of the 2,000 free minutes).', [
+    'Free: one setting changed, one pipeline run (about fifteen of the 2,000 free minutes).', [
     both(s(12, 'dev', 1), 'Break it', 'Point the function at a table that does not exist.', CONSOLE, [
       'CloudFormation → capstone-team01 → Resources → CounterFunction → the link opens Lambda.',
       'Configuration → Environment variables → Edit: TABLE_NAME = wrong. Save.',
       'Open the stack’s ApiUrl output in a browser: Internal Server Error.',
     ], [
       { cmd: 'FN=$(aws cloudformation describe-stack-resource --stack-name capstone-team01 --logical-resource-id CounterFunction --query StackResourceDetail.PhysicalResourceId --output text); aws lambda update-function-configuration --function-name $FN --environment "Variables={TABLE_NAME=wrong}" -o none; sleep 10; curl -s -o /dev/null -w "%{http_code}\\n" $(aws cloudformation describe-stacks --stack-name capstone-team01 --query "Stacks[0].Outputs[?OutputKey==\'ApiUrl\'].OutputValue" --output text)', explain: 'The stack’s API now fails with a server error.', sample: '500' },
-    ], ['500'], 'This is drift: the running environment no longer matches the code.'),
-    portal(s(12, 'dev', 2), 'Fix it through CI', 'Re-run the deploy workflow, then retest.', 'Repository → Actions → deploy → Run workflow', [
+    ], ['500'], 'This is drift: the running environment no longer matches the code. The dashboard’s error widget shows it before anyone reports it.'),
+    portal(s(12, 'dev', 2), 'Fix it through CI', 'Detect the drift, re-run the deploy workflow, retest.', 'Repository → Actions → deploy → Run workflow', [
       'CloudFormation → the stack → Stack actions → Detect drift: CounterFunction is MODIFIED.',
       'Run the workflow on main; approve prod.',
       'curl the API again: a count, not 500.',
     ], 'The API returns a count again after the pipeline run.', 'CloudFormation only fixes what it changes — if nothing changed in the template, update a tag to force it, and record that lesson.'),
     rec(12, 'dev', 'Scenario outcomes', ['App failure fixed through CI — time and result.'], 'The second scenario of the handover.'),
   ]),
-  T(12, 'secops', 'Contain a security incident', 'Open SSH to the internet on purpose, detect it, contain it, and run the final security checklist.', 45,
-    ['Detection', 'Containment', 'Final checklist'], ['The rule was detected and removed', 'Checklist complete'],
+  T(12, 'secops', 'Contain a security incident and write the post-mortem', 'Open SSH to the internet on purpose, detect it in CloudTrail, contain it, write the timeline, root cause and prevention, run the checklist.', 50,
+    ['DOP-C02 · Incident and Event Response', 'Detection', 'Containment', 'Post-incident review'], ['The rule was detected and removed', 'A post-mortem with a timeline and a prevention', 'Checklist complete'],
     [doc('Viewing CloudTrail events', 'awscloudtrail/latest/userguide/view-cloudtrail-events.html', 'the Event name lookup attribute — AuthorizeSecurityGroupIngress answers “who opened it”'),
      doc('restricted-ssh', 'config/latest/developerguide/restricted-ssh.html', 'what the rule checks: any security group with port 22 open to 0.0.0.0/0 — the automatic detection you name as prevention')],
-    'Free: one rule added and removed; CloudTrail event history. The instance stays stopped, so nothing is exposed.', [
+    'Free: one rule added and removed; CloudTrail event history. The fleet is parked, so nothing is exposed.', [
     both(s(12, 'secops', 1), 'Inject the incident', 'Add an SSH rule open to the internet.', CONSOLE, [
       'EC2 → Security groups → sg-tools-team01 → Inbound rules → Edit → Add rule: SSH, source Anywhere-IPv4. Save.',
     ], [
-      { cmd: 'SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); aws ec2 authorize-security-group-ingress --group-id $SG --protocol tcp --port 22 --cidr 0.0.0.0/0 --query "SecurityGroupRules[0].CidrIpv4" --output text', explain: 'The exact misconfiguration attackers scan for. The instance is stopped, so nothing is exposed.', sample: '0.0.0.0/0' },
+      { cmd: 'SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); aws ec2 authorize-security-group-ingress --group-id $SG --protocol tcp --port 22 --cidr 0.0.0.0/0 --query "SecurityGroupRules[0].CidrIpv4" --output text', explain: 'The exact misconfiguration attackers scan for. The fleet is parked, so nothing is exposed.', sample: '0.0.0.0/0' },
     ], ['0.0.0.0/0'], 'A realistic incident: one bad rule, easy to add, easy to miss.'),
     both(s(12, 'secops', 2), 'Detect and contain', 'Find it in CloudTrail, then revoke it.', CONSOLE, [
       'CloudTrail → Event history → Event name = AuthorizeSecurityGroupIngress: read the time and user. Allow a few minutes.',
@@ -1383,9 +1478,14 @@ def lambda_handler(event, context):
     ], [
       { cmd: 'aws cloudtrail lookup-events --lookup-attributes AttributeKey=EventName,AttributeValue=AuthorizeSecurityGroupIngress --max-results 1 --query "Events[0].[EventTime, Username]" --output text', explain: 'Who opened it, and when — the first question of any incident. Allow a few minutes for the event to appear.', sample: '2026-12-01T10:02:07+00:00\tteam01-secops' },
       { cmd: 'aws ec2 revoke-security-group-ingress --group-id $SG --protocol tcp --port 22 --cidr 0.0.0.0/0 --query Return --output text && echo contained', explain: 'Containment: remove the exposure first, investigate after.', sample: 'True\ncontained' },
-    ], ['contained'], 'Contain, then learn. Prevention: the Config rule restricted-ssh flags this automatically.'),
-    rec(12, 'secops', 'Scenario outcomes, Sign-off', ['Security incident contained — time and result.', 'Final checklist: no open ports, no keys, budget alerting.'], 'The third scenario, and the security sign-off.'),
+    ], ['contained'], 'Contain, then learn. Prevention: the Config rule restricted-ssh flags this automatically, and Week 9’s Guard rule would have refused it in a template.'),
+    portal(s(12, 'secops', 3), 'Write the post-mortem', 'Timeline, root cause, blast radius, prevention, owner.', 'The document', [
+      'Timeline: opened at, detected at, contained at — from CloudTrail and your notes; time to detect and time to contain.',
+      'Root cause (a console change outside the pipeline), the blast radius, and the prevention with an owner and a date.',
+    ], 'A blameless post-mortem a stranger could learn from.', 'The exam’s incident domain ends every incident the same way: a timeline, a root cause and a change that stops the repeat — not a name.'),
+    rec(12, 'secops', 'Scenario outcomes, Post-mortem, Sign-off', ['Security incident contained — time and result.', 'The post-mortem: timeline, root cause, prevention, owner.', 'Final checklist: no open ports, no keys, budget alerting, fleet parked.'], 'The third scenario, the lesson, and the security sign-off.'),
   ]),
+
 ];
 
 const WEEKS = cloudWeeks(P, PLANS);

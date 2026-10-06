@@ -39,6 +39,8 @@ const TRAFFIC: CloudEdge[] = [
   { from: 'LedgerFunction', to: 'VisitorTable', kind: 'traffic', label: 'PutItem visit#', week: 7 },
   { from: 'VisitsQueue', to: 'VisitsDeadLetterQueue', kind: 'traffic', label: 'after 3 tries', week: 7 },
   { from: 'WebFleet', to: 'FleetCpuPolicy', kind: 'traffic', label: 'average CPU', week: 8 },
+  { from: 'SiteAlb', to: 'FleetGreenTargetGroup', kind: 'traffic', label: 'weighted: 10% → 100%', week: 11 },
+  { from: 'SiteAlb', to: 'OpsDashboard', kind: 'traffic', label: 'healthy hosts · p95 · 5XX', week: 11, via: { x: 640, y: 60 } },
 ];
 
 export const AWS_TOPOLOGY: CloudTopology = {
@@ -135,6 +137,9 @@ export const AWS_TOPOLOGY: CloudTopology = {
     { id: 'LedgerFunction', icon: 'function', label: 'Ledger function', name: 'capstone-team01-ledger', purpose: 'Writes one item per queued visit', x: 540, y: 450, week: 7 },
     { id: 'LedgerFunctionRole', icon: 'role', label: 'Role: ledger', purpose: 'Put to one table, read from one queue', x: 590, y: 450, week: 7, small: true },
     { id: 'LedgerEventSourceMapping', icon: 'route', label: 'Queue trigger', x: 440, y: 470, week: 7, small: true, detail: true },
+    // R106 — the DevOps quarter: the green target group and the dashboard.
+    { id: 'FleetGreenTargetGroup', icon: 'route', label: 'Green target group', purpose: 'Where the next release registers while blue still serves; the listener weights the two', x: 960, y: 158, week: 11, small: true },
+    { id: 'OpsDashboard', icon: 'apm', label: 'CloudWatch dashboard', name: 'the service levels', purpose: 'Healthy targets, p95 latency, 5XX and function errors on one screen', x: 560, y: 80, week: 11 },
   ],
   edges: [...TRAFFIC, ...dependencyEdges(cfnDependencies(AWS_IAC.full.text, AWS_IAC.resources), weekOf)],
 };

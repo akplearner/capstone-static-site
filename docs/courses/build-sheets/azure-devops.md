@@ -35,15 +35,15 @@ You start with:
 
 ## Week 1 — Infrastructure as Code
 
-> Nothing new is built. The whole environment comes from the template, previewed before it deploys.
+> Nothing new is built. The environment comes from the template: drift detected, linted, checked against policy, previewed, deployed to dev.
 
 Nothing new is built this week; the process is drawn over the picture.
 
-**Process — Infrastructure as Code:** github → rg (what-if → deploy to dev).
+**Process — Infrastructure as code, tested:** github → rg (what-if → deploy to dev); admin → rg (detect drift, lint, policy as code).
 
 ## Week 2 — CI/CD
 
-> New: the deploy identity. GitHub signs in by OIDC without a stored secret and deploys under a change request.
+> New: the deploy identity. GitHub signs in by OIDC, checks, deploys dev, waits for a reviewer, deploys prod; a failure stops at dev.
 
 This week adds:
 
@@ -53,11 +53,11 @@ This week adds:
 | GitHub federation | Trusts GitHub’s tokens for one repository’s main branch | — |
 | Contributor (RG) | Contributor on this resource group only | — |
 
-**Process — CI/CD:** github → deployIdentity (sign in by OIDC, no secret); github → webStorage (deploy the site); github → func (deploy under a change request).
+**Process — Pipelines with stages and gates:** github → deployIdentity (sign in by OIDC, no secret); github → webStorage (check → dev → gate → prod); github → func (under a change request).
 
 ## Week 3 — Governance
 
-> New: governance — the tag policy, the audit trail. Untagged resources are caught; the month’s cost is reviewed.
+> New: the green target group and the dashboard. A blue/green shift and a canary, judged by alarms; the tag rule and the audit trail.
 
 This week adds:
 
@@ -65,15 +65,15 @@ This week adds:
 | --- | --- | --- |
 | Policy: owner tag | Refuses any new resource without an owner tag | — |
 
-**Process — Governance:** tagPolicy → rg (Policy: deny untagged); tagPolicy → admin (who changed what, when); admin → budget (cost review).
+**Process — Release strategies and observability:** bastion → vm (blue/green by weight); func → http5xxAlert (canary: alias weights, an alarm); tagPolicy → admin (who changed what, when).
 
 ## Week 4 — Handover
 
-> Nothing new is built. Three scenarios under time pressure, then the handover package.
+> Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package.
 
 Nothing new is built this week; the process is drawn over the picture.
 
-**Process — Handover:** user → webStorage (the symptom); admin → vm (recover · fix · contain); admin → github (the handover package).
+**Process — Incident, compliance and handover:** user → webStorage (the symptom); admin → vm (recover · runbook · contain); admin → github (post-mortem and handover).
 
 ## The roles
 

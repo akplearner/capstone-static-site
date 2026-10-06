@@ -148,7 +148,6 @@ const IDS = {
 
 const DEPLOY_PREVIEW: Record<CloudPlatform, string> = { azure: 'what-if → deploy to dev', aws: 'change set → deploy to dev' };
 const NO_PORT: Record<CloudPlatform, string> = { azure: 'Bastion in the browser, no port', aws: 'Session Manager, no open port' };
-const GOVERN: Record<CloudPlatform, string> = { azure: 'Policy: deny untagged', aws: 'CloudTrail · Config (console)' };
 
 /**
  * The process of each GLOBAL week, drawn over the architecture. Every week has
@@ -195,23 +194,24 @@ export function cloudWeekProcesses(platform: CloudPlatform): Record<number, Week
       { from: i.backup, to: i.site, label: 'recover the deleted file' },
       { from: 'admin', to: i.rdb, label: 'restore from the snapshot, time it' },
     ] },
-    9: { title: 'Infrastructure as Code', steps: [
+    9: { title: 'Infrastructure as code, tested', steps: [
       { from: 'github', to: i.deploy, label: DEPLOY_PREVIEW[platform] },
+      { from: 'admin', to: i.group, label: 'detect drift, lint, policy as code' },
     ] },
-    10: { title: 'CI/CD', steps: [
+    10: { title: 'Pipelines with stages and gates', steps: [
       { from: 'github', to: i.oidc, label: 'sign in by OIDC, no secret' },
-      { from: 'github', to: i.site, label: 'deploy the site' },
-      { from: 'github', to: i.fn, label: 'deploy under a change request' },
+      { from: 'github', to: i.site, label: 'check → dev → gate → prod' },
+      { from: 'github', to: i.fn, label: 'under a change request' },
     ] },
-    11: { title: 'Governance', steps: [
-      { from: i.policy, to: i.group, label: GOVERN[platform] },
+    11: { title: 'Release strategies and observability', steps: [
+      { from: i.lb, to: i.fleet, label: 'blue/green by weight' },
+      { from: i.fn, to: i.alert, label: 'canary: alias weights, an alarm' },
       { from: i.audit, to: 'admin', label: 'who changed what, when' },
-      { from: 'admin', to: i.budget, label: 'cost review' },
     ] },
-    12: { title: 'Handover', steps: [
+    12: { title: 'Incident, compliance and handover', steps: [
       { from: 'user', to: i.site, label: 'the symptom' },
-      { from: 'admin', to: i.vm, label: 'recover · fix · contain' },
-      { from: 'admin', to: 'github', label: 'the handover package' },
+      { from: 'admin', to: i.vm, label: 'recover · runbook · contain' },
+      { from: 'admin', to: 'github', label: 'post-mortem and handover' },
     ] },
   };
 }
@@ -226,8 +226,8 @@ export const CLOUD_WEEK_CAPTIONS: Record<number, string> = {
   6: 'New: a second zone, a load balancer, a fleet of two behind it, and a private path that needs no internet. One address, two zones.',
   7: 'New: the Multi-AZ database, encrypted and private, and the queue with its dead-letter queue. The right store per workload, the right class per object.',
   8: 'New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed.',
-  9: 'Nothing new is built. The whole environment comes from the template, previewed before it deploys.',
-  10: 'New: the deploy identity. GitHub signs in by OIDC without a stored secret and deploys under a change request.',
-  11: 'New: governance — the tag policy, the audit trail. Untagged resources are caught; the month’s cost is reviewed.',
-  12: 'Nothing new is built. Three scenarios under time pressure, then the handover package.',
+  9: 'Nothing new is built. The environment comes from the template: drift detected, linted, checked against policy, previewed, deployed to dev.',
+  10: 'New: the deploy identity. GitHub signs in by OIDC, checks, deploys dev, waits for a reviewer, deploys prod; a failure stops at dev.',
+  11: 'New: the green target group and the dashboard. A blue/green shift and a canary, judged by alarms; the tag rule and the audit trail.',
+  12: 'Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package.',
 };

@@ -620,6 +620,38 @@ Resources:
       FunctionName: !Ref LedgerFunction
       BatchSize: 10
 
+  FleetGreenTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Condition: Week9Plus
+    Metadata:
+      Capstone:
+        Week: 11
+        Summary: The green target group - where the next release's fleet registers while blue still serves.
+    Properties:
+      Name: !Sub 'tg-web-green-\${TeamId}'
+      VpcId: !Ref Vpc
+      Protocol: HTTP
+      Port: 80
+      TargetType: instance
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 10
+      HealthyThresholdCount: 2
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  OpsDashboard:
+    Type: AWS::CloudWatch::Dashboard
+    Condition: Week9Plus
+    Metadata:
+      Capstone:
+        Week: 11
+        Summary: The service levels on one screen - healthy targets, p95 latency, 5XX and function errors (free).
+    Properties:
+      DashboardName: !Sub 'capstone-\${TeamId}'
+      DashboardBody: !Sub
+        - '{"widgets":[{"type":"metric","x":0,"y":0,"width":12,"height":6,"properties":{"title":"Availability and latency","region":"\${AWS::Region}","metrics":[["AWS/ApplicationELB","HealthyHostCount","LoadBalancer","\${Lb}","TargetGroup","\${Tg}"],["AWS/ApplicationELB","TargetResponseTime","LoadBalancer","\${Lb}",{"stat":"p95"}]]}},{"type":"metric","x":12,"y":0,"width":12,"height":6,"properties":{"title":"Errors","region":"\${AWS::Region}","metrics":[["AWS/ApplicationELB","HTTPCode_Target_5XX_Count","LoadBalancer","\${Lb}"],["AWS/Lambda","Errors","FunctionName","\${CounterFunction}"],["AWS/Lambda","Errors","FunctionName","\${LedgerFunction}"]]}}]}'
+        - { Lb: !GetAtt SiteAlb.LoadBalancerFullName, Tg: !GetAtt FleetTargetGroup.TargetGroupFullName }
+
   InstanceRole:
     Type: AWS::IAM::Role
     Condition: Week5Plus
@@ -1288,5 +1320,6 @@ export const AWS_IAC: IacBundle = {
     'Deploy with ThroughWeek=12 for the DevOps course’s resources: the GitHub OIDC provider and deploy role (Week 10) and the audit trail (Week 11) carry the Week9Plus condition.',
     'R106: the Solutions Architect quarter builds a two-zone fleet behind an Application Load Balancer, a Multi-AZ PostgreSQL database and a visits queue with a dead-letter queue. The fleet deploys parked (FleetSize 0, free) and the database is opt-in (CreateDatabase), because both bill by the hour; the balancer bills about $0.0225 an hour whenever the Week 5+ deployment exists.',
     'The Session Manager interface endpoints the Week 6 Security task uses are created and deleted inside that task, not here: three of them cost about $22 a month. The free S3 gateway endpoint is in the template.',
+    'The DevOps quarter adds the green target group (the fleet’s blue/green release registers there) and the dashboard of the service levels. The Week 11 function canary is a Lambda alias with weights, set from the pipeline and the CLI, not here: a template that owned the alias would reset the weight on every deploy.',
   ],
 };

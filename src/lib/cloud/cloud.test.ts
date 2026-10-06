@@ -279,7 +279,7 @@ describe('R88 — official icons', () => {
     const missing = [...new Set(topo.nodes.map((n) => n.icon))].filter((k) => !OFFICIAL_ICONS[platform].includes(k)).sort();
     // R103: Bastion, the deploy identity (Azure) and AWS Backup, the OIDC provider and CloudTrail are drawn until their official files are added.
     // R106: the associate-level resources (a load balancer, a fleet, a database, a queue, an endpoint) are drawn too.
-    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'github', 'identity', 'notify'] : ['audit', 'backup', 'db', 'endpoint', 'fleet', 'identity', 'lb', 'queue']);
+    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'github', 'identity', 'notify'] : ['apm', 'audit', 'backup', 'db', 'endpoint', 'fleet', 'identity', 'lb', 'queue']);
   });
 
   it('no file was added without being listed (a stray file is a key nobody renders)', () => {

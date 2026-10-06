@@ -49,17 +49,17 @@ You start with:
 | Ledger function · capstone-team01-ledger | Writes one item per queued visit | — |
 | Role: ledger | Put to one table, read from one queue | — |
 
-## Week 1 — Infrastructure as Code
+## Week 1 — Infrastructure as code, tested
 
-> Nothing new is built. The whole environment comes from the template, previewed before it deploys.
+> Nothing new is built. The environment comes from the template: drift detected, linted, checked against policy, previewed, deployed to dev.
 
 Nothing new is built this week; the process is drawn over the picture.
 
-**Process — Infrastructure as Code:** github → region (change set → deploy to dev).
+**Process — Infrastructure as code, tested:** github → region (change set → deploy to dev); admin → Vpc (detect drift, lint, policy as code).
 
-## Week 2 — CI/CD
+## Week 2 — Pipelines with stages and gates
 
-> New: the deploy identity. GitHub signs in by OIDC without a stored secret and deploys under a change request.
+> New: the deploy identity. GitHub signs in by OIDC, checks, deploys dev, waits for a reviewer, deploys prod; a failure stops at dev.
 
 This week adds:
 
@@ -68,11 +68,11 @@ This week adds:
 | GitHub OIDC | Trusts GitHub’s tokens; the pipeline signs in with no access key | — |
 | Deploy role | What GitHub Actions may do: deploy the site and the code | — |
 
-**Process — CI/CD:** github → DeployRole (sign in by OIDC, no secret); github → SiteDistribution (deploy the site); github → CounterFunction (deploy under a change request).
+**Process — Pipelines with stages and gates:** github → DeployRole (sign in by OIDC, no secret); github → SiteDistribution (check → dev → gate → prod); github → CounterFunction (under a change request).
 
-## Week 3 — Governance
+## Week 3 — Release strategies and observability
 
-> New: governance — the tag policy, the audit trail. Untagged resources are caught; the month’s cost is reviewed.
+> New: the green target group and the dashboard. A blue/green shift and a canary, judged by alarms; the tag rule and the audit trail.
 
 This week adds:
 
@@ -80,16 +80,18 @@ This week adds:
 | --- | --- | --- |
 | AWS CloudTrail · capstone-team01-trail | Every management call in the account, written to the bucket | — |
 | Audit log bucket | Where the audit log is kept, private and versioned | — |
+| Green target group | Where the next release registers while blue still serves; the listener weights the two | — |
+| CloudWatch dashboard · the service levels | Healthy targets, p95 latency, 5XX and function errors on one screen | — |
 
-**Process — Governance:** Trail → Vpc (CloudTrail · Config (console)); Trail → admin (who changed what, when); admin → MonthlyBudget (cost review).
+**Process — Release strategies and observability:** SiteAlb → WebFleet (blue/green by weight); CounterFunction → FunctionErrorsAlarm (canary: alias weights, an alarm); Trail → admin (who changed what, when).
 
-## Week 4 — Handover
+## Week 4 — Incident, compliance and handover
 
-> Nothing new is built. Three scenarios under time pressure, then the handover package.
+> Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package.
 
 Nothing new is built this week; the process is drawn over the picture.
 
-**Process — Handover:** user → SiteDistribution (the symptom); admin → ToolsInstance (recover · fix · contain); admin → github (the handover package).
+**Process — Incident, compliance and handover:** user → SiteDistribution (the symptom); admin → ToolsInstance (recover · runbook · contain); admin → github (post-mortem and handover).
 
 ## The roles
 
