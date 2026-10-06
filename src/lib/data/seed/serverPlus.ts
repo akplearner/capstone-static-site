@@ -3393,7 +3393,7 @@ const RAW_SERVER_PLUS: Course = {
   level: 'associate',
   audience: 'Plan, build and document your own rack-mount server in four phases — everyone builds the same, each focus documents its part deeper. Two advanced weeks put the records into running tools, then run the site as one of a fleet.',
   description:
-    'You are the only IT person at a startup where nothing is documented, and the server you have been given does not even POST. Diagnose it, build the platform on it, network it, secure it, and leave behind the records and procedures the company never had — two to three and a half hours a week, with Weeks 1 and 2 the long ones.',
+    'You are the only IT person at an undocumented startup, and the server you have been given does not POST. Diagnose it, build the platform, network and secure it, and leave the records the company never had.',
   roles,
   weeks,
   gates,

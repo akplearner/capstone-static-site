@@ -78,3 +78,12 @@ control block.
 The chain itself (`feeds`) is guarded per course: no edge points back in
 time, no document is a dead end, every document reaches the capstone, and
 every form is written by at least one step.
+
+## The roles (R104)
+
+The Guide shows the roles as one table and the manual draws the hand-offs as
+one picture, both derived from the RACI above and the `feeds` chain
+(`src/lib/docs/roleFlow.ts`): what each role drafts, reviews and approves, who
+it hands to and waits on, and how many documents cross each way. The
+Overview standard in `docs/ARCHITECTURE.md` §6 sets the word budgets for the
+description, missions, role guides and week titles that these tables print.

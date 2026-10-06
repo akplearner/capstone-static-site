@@ -88,7 +88,7 @@ const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
     archnet: {
       blurb: 'Architecture & Network — the cloud design, the network zones and the change pipeline.',
       works: 'both',
-      arc: 'Wk1 draw it → Wk2 specify crypto and rules → Wk3 prove pipeline, TLS, segmentation → Wk4 AI gateway → Wk5 re-test → Wk6 map to federal.',
+      arc: 'Wk1 draw it → Wk2 crypto and rules → Wk3 prove pipeline, TLS, segmentation → Wk4 AI gateway → Wk5 re-test → Wk6 federal.',
       handsOffTo: 'Governance (federal mappings for the SSP)',
       waitsOnFrom: 'Governance (the asset inventory)',
     },
@@ -104,12 +104,12 @@ const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
     blue: {
       blurb: 'Tier 1 · SOC Analyst — you watch the alerts and decide what’s real, what’s noise, and what to escalate.',
       works: 'both',
-      arc: 'Wk1 stand up monitoring & baseline → Wk2 triage the alerts → Wk3 read the known vulnerabilities → Wk4 find the incident and mark its start.',
+      arc: 'Wk1 stand up monitoring & baseline → Wk2 triage the alerts → Wk3 read the known vulnerabilities → Wk4 find the incident, mark its start.',
       handsOffTo: 'the Threat Hunter (the alerts worth investigating)',
       waitsOnFrom: 'nobody \u2014 you install and verify your own Ubuntu sensor',
     },
     grc: {
-      blurb: 'Tier 2 · Threat Hunter — you dig into the suspicious activity in logs and packets and prove what actually happened.',
+      blurb: 'Tier 2 · Threat Hunter — you dig into suspicious activity in logs and packets and prove what happened.',
       works: 'both',
       arc: 'Wk1 confirm every data source reports → Wk2 investigate & capture packets → Wk3 scan to confirm the weaknesses → Wk4 rebuild the attack timeline.',
       handsOffTo: 'the Incident Responder (indicators & the timeline)',

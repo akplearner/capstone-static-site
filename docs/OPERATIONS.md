@@ -61,6 +61,10 @@ has failed silently in some deployment of some product; none takes more than a m
       queue card and the form offers Approve / Return (Return asks for a reason); the approver
       can Issue; a downstream form shows "Waiting on" until its inputs are approved; the `.md`
       export of an approved form carries the Document control block.
+- [ ] **Compact overview (R104):** the Guide's "The roles" is one table (mission, works in,
+      drafts / reviews / approves counts, hands to, waits on) with your own row marked; "What
+      you owe" is one line; the manual's "How the roles hand off" is a row of role boxes with
+      weighted arrows and the same hand-offs as sentences under it. No role cards anywhere.
 - [ ] **Week picture (R99):** every week of every course shows "What you build this week" on the
       Tasks tab: the build at the end of that week, this week's parts glowing, and on a week that
       builds nothing the week's process drawn over it. The Guide's lab picture has week pills; a

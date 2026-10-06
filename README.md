@@ -109,7 +109,7 @@ src/
 │   └── instructor/                  # instructor studio (list + /[courseId] editor)
 ├── components/
 │   ├── GuidedTaskRunner, GuidedStepper, RoleIcon, CourseProvider, ...
-│   ├── diagrams/                    # LifecycleFlow, RoleWorkflow, RoleInterplayDiagram (props-driven)
+│   ├── diagrams/                    # ArchDiagram, RoleFlowDiagram, WeekBuildDiagram (read the course document)
 │   └── instructor/                  # course/roles/weeks/tasks/steps/gates editors
 └── lib/
     ├── types.ts                     # Course, RoleDef, WeekDef, Task, Step, Gate, Member, ...

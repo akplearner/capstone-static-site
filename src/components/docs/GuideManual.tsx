@@ -6,7 +6,7 @@ import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { WeekBuildDiagram } from '@/components/diagrams/WeekBuildDiagram';
 import { WeekAddsList } from '@/components/course/WeekAddsList';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
-import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
+import { RoleFlowDiagram } from '@/components/diagrams/RoleFlowDiagram';
 import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
 import { DeliverableChainDiagram } from '@/components/quarry/DeliverableChain';
 import { LabSetupGuide } from '@/components/docs/LabSetupGuide';
@@ -155,9 +155,11 @@ export function GuideManual({ course, member }: { course: Course; member: Member
           {course.id === 'security-plus' && <DocsReductionTable />}
         </div>
       ),
+    // R104: the hand-offs drawn from the RACI and the chain; the table of
+    // roles sits in the orientation above.
     roles: (
       <Surface>
-        <RoleInterplayDiagram roles={course.roles} highlightRole={member.role} />
+        <RoleFlowDiagram course={course} highlightRole={member.role} />
       </Surface>
     ),
     lifecycle: <CaseLifecycleChain stages={course.lifecyclePath ?? []} />,

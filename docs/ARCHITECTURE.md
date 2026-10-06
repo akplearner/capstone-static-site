@@ -162,6 +162,31 @@ carry **no authority** — they're rebuildable from events.
 | Evidence integrity / provenance | SHA-256 content addressing (→ in-toto later) | tamper-evidence, supply-chain-style provenance |
 | Identity of subjects | **OIDC** | humans and agents both authenticate cleanly |
 
+### Overview standard (R104)
+
+A course overview — the Guide's orientation, the join picker, the course card — is a
+table and a picture, not a read. Three or more parallel things are a table; a flow is a
+diagram; a paragraph never explains what a row can show. Everything it prints is read
+off the course document, so the overview is as short as the data and cannot drift from it.
+
+| Element | Source | Budget | Guard |
+|---|---|---|---|
+| Course description (the lede) | `Course.description` | ≤ 40 words | `content-integrity.test.ts` R104 |
+| Role mission (one table cell) | `RoleDef.mission` | ≤ 15 words | same |
+| Role guide blurb (join picker) | `roleGuide.ts` | ≤ 20 words | same |
+| Role guide arc | `roleGuide.ts` | ≤ 25 words; `handsOffTo` / `waitsOnFrom` ≤ 14 | same |
+| Week title | `WeekDef.title` | ≤ 10 words; objective labels ≤ 12 | same; `WeekObjective` |
+| The roles | the RACI on every form (`raci.ts`) + the role guide | one `RoleTable`: mission · works in · drafts · reviews · approves · hands to · waits on | `page-shape.test.ts` R104 |
+| The hand-offs | the RACI + `feeds` (`roleFlow.ts`) | one `RoleFlowDiagram`: an arrow per direction, weighted by documents, read aloud as sentences | same |
+| The arc | `Course.weeks` + gates | one `WeekGoals` list | `page-shape.test.ts` (one arc) |
+| The Guide's own prose | `guide/page.tsx` | < 170 words; no Collapsible; no mission cards | `page-shape.test.ts` |
+
+What the standard forbids: a per-role card with a sentence under it; a picture with no
+information (the old radial "roles around a hub"); a paragraph that counts what a table
+counts; a second rendering of the mission, the arc or the hand-offs on the same page.
+When a role fact is needed on a new screen, add a column to `RoleTable` or an edge kind to
+`roleFlow()`; never type it beside the markup.
+
 **Agent-readiness without agent-coupling:** keep the API capability-scoped and resource-clean
 (REST/GraphQL). An MCP server becomes a *thin adapter* over that API later; A2A interop rides on the
 ontology + xAPI. **Do not build the MCP/agent gateway now** — design so it stays a small addition, not a

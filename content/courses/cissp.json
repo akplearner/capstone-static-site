@@ -6564,7 +6564,7 @@
           "id": "roles",
           "when": "multi-role",
           "title": "How the roles hand off",
-          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them."
+          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The table above says what each role drafts, reviews and approves; the arrows count the documents that cross between roles."
         },
         {
           "id": "lifecycle",
@@ -7933,7 +7933,7 @@
     "archnet": {
       "blurb": "Architecture & Network — the cloud design, the network zones and the change pipeline.",
       "works": "both",
-      "arc": "Wk1 draw it → Wk2 specify crypto and rules → Wk3 prove pipeline, TLS, segmentation → Wk4 AI gateway → Wk5 re-test → Wk6 map to federal.",
+      "arc": "Wk1 draw it → Wk2 crypto and rules → Wk3 prove pipeline, TLS, segmentation → Wk4 AI gateway → Wk5 re-test → Wk6 federal.",
       "handsOffTo": "Governance (federal mappings for the SSP)",
       "waitsOnFrom": "Governance (the asset inventory)"
     },

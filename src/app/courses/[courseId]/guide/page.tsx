@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 import { AttackPathDiagram } from '@/components/diagrams/AttackPathDiagram';
 import { WeekGoals } from '@/components/docs/WeekGoals';
+import { RoleTable } from '@/components/docs/RoleTable';
 import { GuideManual } from '@/components/docs/GuideManual';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
@@ -29,6 +30,12 @@ import { GuideSkeleton } from '@/components/ui/Skeletons';
  * is no Collapsible on this page or in the manual. `src/lib/page-shape.test.ts`
  * budgets this file's prose, asserts the one arc (`WeekGoals`), and holds the
  * manual file to the same no-Collapsible rule.
+ *
+ * R104: the roles are one table (`RoleTable`), read off the RACI on every
+ * form — mission, how the role works, what it drafts, reviews and approves,
+ * who it hands to. The hand-offs are drawn in the manual (`RoleFlowDiagram`).
+ * "What you owe" is one line: the count and the link. The overview standard
+ * in `docs/ARCHITECTURE.md` §6 holds the page to this shape.
  */
 export default function CourseGuidePage() {
   const course = useCourse();
@@ -71,32 +78,17 @@ export default function CourseGuidePage() {
           <div>
             <h2 className="text-xl font-bold text-ink">The roles</h2>
             <p className="mt-1 text-sm text-muted">
-              {course.roles.length} lanes against one shared environment. Your role decides where on the map
-              you operate.
+              {course.roles.length} lanes against one shared environment; the counts are documents.
             </p>
           </div>
-          {/* A strip, not RoleInterplayDiagram: a mission is one short line and a
-              row shows it whole. The diagram draws the hand-offs, in the manual. */}
-          <ul className="grid gap-2 sm:grid-cols-3">
-            {course.roles.map((r) => (
-              <li key={r.id} className="rounded-lg depth-edge bg-panel p-3">
-                <div className="flex items-center gap-2">
-                  <span aria-hidden className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: r.color }} />
-                  <span className="font-semibold text-ink">{r.name}</span>
-                </div>
-                <p className="mt-1 text-sm text-muted">{r.mission}</p>
-              </li>
-            ))}
-          </ul>
+          <RoleTable course={course} highlightRole={member.role} />
         </section>
       )}
 
-      <section className="space-y-3">
+      <section className="space-y-2">
         <h2 className="text-xl font-bold text-ink">What you owe</h2>
-        <p className="max-w-2xl text-sm text-muted">
-          The {isEngagement(course) ? 'engagement' : 'course'} comes down to {formCount} graded deliverables.
-          The <strong>Deliverables</strong> tab shows the ones you own for the {unit} you&apos;re on; how
-          each feeds the next is drawn in the manual below.
+        <p className="text-sm text-muted">
+          {formCount} graded deliverables close the {isEngagement(course) ? 'engagement' : 'course'}; the manual below draws how each feeds the next.
         </p>
         <Link
           href={`/courses/${course.id}/docs`}

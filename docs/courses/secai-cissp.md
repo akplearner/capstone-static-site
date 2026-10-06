@@ -23,10 +23,17 @@ course, so each is split into three roles.
 Both specs are one person's work; the platform gives every graded week a task
 per role, so the work is split so that each role owns coherent documents.
 
-- **SecAI+** — AI Red Team (attack, P2) · AI Defender (defend and watch, P3/P4)
-  · AI Governance Lead (map, govern, release, P1/P5/RN).
-- **CISSP** — Governance & Risk (D1, D2, D6) · Architecture & Network
-  (D3, D4, D8) · Identity & Operations (D5, D7).
+| Course | Role | Drafts | Reviews | Approves |
+|---|---|---|---|---|
+| SecAI+ | AI Red Team | P2 attack casebook | P3 control set, P4 watch plan, release package | — |
+| SecAI+ | AI Defender | P3 control set, P4 watch plan | P1, P2, P5, lab rule, release note | — |
+| SecAI+ | AI Governance Lead | P1 map, P5 pack, lab rule, release note, package | — | everything; issues the package |
+| CISSP | Governance & Risk | D1, D2, D6, controls, questionnaire, release note, SSP | — | everything; issues the SSP |
+| CISSP | Architecture & Network | D3, D4, D8 | D1, D2, D5, D6, D7, controls, questionnaire, release note, SSP | — |
+| CISSP | Identity & Operations | D5, D7 | D3, D4, D8 | — |
+
+The table is the RACI in `src/lib/docs/raci.ts`; the app draws it as the role
+table on the Guide and the hand-off picture in the manual.
 
 ## How the spec maps to tasks
 

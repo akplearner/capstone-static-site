@@ -2561,7 +2561,7 @@
           "id": "roles",
           "when": "multi-role",
           "title": "How the roles hand off",
-          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them."
+          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The table above says what each role drafts, reviews and approves; the arrows count the documents that cross between roles."
         },
         {
           "id": "lifecycle",

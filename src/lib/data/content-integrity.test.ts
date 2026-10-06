@@ -14,6 +14,7 @@ import { deliverableIdByTitle, deliverableIdByFile, seedDeliverablesForCourse as
 import { looksLikeConsoleOutput } from '../stepOutcome';
 import { isGradedWeek } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';
+import { roleGuidesFor } from '../roleGuide';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -562,6 +563,24 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
       ...course.roles.flatMap((r) => [r.name, r.mission]),
     ].join(' ');
     expect(words(guideText), 'shorten a week title, a phase, or a role mission').toBeLessThan(220);
+  });
+
+  // ── R104: the overview standard (docs/ARCHITECTURE.md §6) ─────────────────
+  // The overview is a table and a picture; every string it prints has a word
+  // budget, so a sentence pasted into a description or a guide trips here.
+  it('R104: the description, missions and role guides keep to the overview budgets', () => {
+    expect(words(course.description), 'description ≤ 40 words').toBeLessThanOrEqual(40);
+    for (const r of course.roles) expect(words(r.mission), `${r.id} mission ≤ 15 words`).toBeLessThanOrEqual(15);
+    const guides = roleGuidesFor(course.id);
+    for (const r of course.roles) {
+      const g = guides[r.id];
+      if (!g) continue;
+      expect(words(g.blurb), `${r.id} blurb ≤ 20 words`).toBeLessThanOrEqual(20);
+      expect(words(g.arc), `${r.id} arc ≤ 25 words`).toBeLessThanOrEqual(25);
+      expect(words(g.handsOffTo), `${r.id} handsOffTo ≤ 14 words`).toBeLessThanOrEqual(14);
+      expect(words(g.waitsOnFrom), `${r.id} waitsOnFrom ≤ 14 words`).toBeLessThanOrEqual(14);
+    }
+    for (const w of course.weeks) expect(words(w.title), `week ${w.number} title ≤ 10 words`).toBeLessThanOrEqual(10);
   });
 });
 

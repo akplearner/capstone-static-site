@@ -92,9 +92,10 @@ describe('page shape — disclosure is for tools, not for reading', () => {
     expect(arcs).toEqual(['WeekGoals']);
     // The Guide prints each role's mission exactly once. It used to print it
     // twice in one two-column section — as a card list, and again inside
-    // RoleInterplayDiagram's SVG nodes. Either renderer is fine; both is the bug.
-    const missionSources = ['.mission', 'RoleInterplayDiagram'].filter((c) => src.includes(c));
-    expect(missionSources).toHaveLength(1);
+    // RoleInterplayDiagram's SVG nodes. Since R104 the one renderer is the
+    // role table; a mission card list pasted back beside it is the bug.
+    const missionSources = ['<RoleTable', '.mission', 'RoleInterplayDiagram'].filter((c) => src.includes(c));
+    expect(missionSources).toEqual(['<RoleTable']);
   });
 });
 
@@ -881,6 +882,8 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/diagrams/WeekBuildDiagram.tsx', 'weekVisualsOf'],
     ['src/components/diagrams/ArchDiagram.tsx', 'archOf'],
     ['src/components/course/WeekAddsList.tsx', 'weekVisualsOf'],
+    ['src/components/docs/RoleTable.tsx', 'deliverablesOf'],
+    ['src/components/diagrams/RoleFlowDiagram.tsx', 'deliverablesOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -1966,7 +1969,7 @@ describe('R100 — the Tasks tab reads on one screen', () => {
   });
 
   it('pictures scale on a phone — no SVG forces a sideways scroll below sm', () => {
-    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/ArchDiagram.tsx']) {
+    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/ArchDiagram.tsx', 'src/components/diagrams/RoleFlowDiagram.tsx']) {
       expect(code(f), f).toMatch(/min-w-0 sm:min-w-\[\d+px\]/);
     }
     for (const f of ['src/components/diagrams/ServerTopologyDiagram.tsx', 'src/components/diagrams/CcnaTopologyDiagram.tsx']) {
@@ -2155,5 +2158,43 @@ describe('R103 — build sheets', () => {
     expect(code('scripts/export-build-sheets.ts')).toContain("from '../src/lib/docs/buildSheet'");
     expect(code('src/lib/docs/buildSheet.ts')).toContain('weekAdds(doc, v.week)');
     expect(existsSync('docs/courses/arch-pictures.md')).toBe(true);
+  });
+});
+
+/**
+ * R104 — the overview standard (`docs/ARCHITECTURE.md` §6). The roles and
+ * the hand-offs are read off the RACI and the chain and shown as one table
+ * and one flow picture; three or more parallel things are a table, a flow is
+ * a diagram, and no page explains in a paragraph what a row can show.
+ */
+describe('R104 — the overview is a table and a picture', () => {
+  it('the Guide renders the role table, the manual draws the hand-offs, and the radial picture is gone', () => {
+    const guide = code(GUIDE);
+    expect(guide).toContain('<RoleTable');
+    expect(guide, 'no mission cards').not.toMatch(/<li[^>]*>[\s\S]*?\{r\.mission\}/);
+    const manual = code(MANUAL);
+    expect(manual).toContain('<RoleFlowDiagram');
+    expect(existsSync('src/components/diagrams/RoleInterplayDiagram.tsx')).toBe(false);
+    expect(code('src/lib/docs/roleFlow.ts')).toContain('export function roleFlow');
+    expect(code('src/lib/docs/roleFlow.ts')).not.toContain('localStorage');
+  });
+
+  it('the table and the flow are derived: both read the forms off the document and type no role facts', () => {
+    const table = code('src/components/docs/RoleTable.tsx');
+    expect(table).toContain('roleFlow(course.roles, defs)');
+    expect(table).toContain('<table');
+    expect(table).toContain('{row.role.mission}');
+    const flow = code('src/components/diagrams/RoleFlowDiagram.tsx');
+    expect(flow).toContain('roleFlowPairs(flow)');
+    expect(flow).toContain('describeRoleFlow(flow, name)');
+    expect(flow, 'the picture is read aloud too').toContain('aria-label="Hand-offs"');
+    for (const f of [table, flow]) expect(f).not.toMatch(/handsOffTo|waitsOnFrom/);
+  });
+
+  it('the standard is written down where the architecture lives', () => {
+    const arch = read('docs/ARCHITECTURE.md');
+    expect(arch).toContain('### Overview standard (R104)');
+    for (const rule of ['≤ 40', '≤ 15', '≤ 20', '≤ 25', 'RoleTable', 'RoleFlowDiagram']) expect(arch, rule).toContain(rule);
+    expect(read('docs/courses/arch-pictures.md')).toContain('Overview standard');
   });
 });
