@@ -4725,28 +4725,7 @@
       {
         "week": 0,
         "builtThrough": 8,
-        "highlight": [
-          "SiteDistribution",
-          "SiteOac",
-          "ReadOnlyGroup",
-          "MonthlyBudget",
-          "SiteBucket",
-          "HttpApi",
-          "CounterFunction",
-          "VisitorTable",
-          "TableNameParameter",
-          "CounterFunctionRole",
-          "InstanceRole",
-          "CounterLogGroup",
-          "FunctionErrorsAlarm",
-          "AlertTopic",
-          "InternetGateway",
-          "PublicRouteTable",
-          "ToolsSecurityGroup",
-          "ToolsInstance",
-          "DataVolume",
-          "PrivateRouteTable"
-        ],
+        "highlight": [],
         "caption": "What this course starts from — the previous course’s finished environment."
       },
       {

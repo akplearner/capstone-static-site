@@ -2,7 +2,8 @@ import type { KitSpec } from './kitSpec';
 import { RACK_ELEVATION, RACK_LEGEND, SERVER_DIAGRAM_COPY } from '../docs/serverDiagrams';
 import { COMPANY, DEVICES, LINKS, SITES, WAN, mgmtAddress } from '../ccnaTopology';
 import { LAB_HOSTS, LAB_SUBNET, socTopology } from '../labTopology';
-import { ENGAGEMENT } from '../docs/msspContent';
+import { ARCH as MSSP_ARCH } from '../docs/msspContent';
+import { kitKindOf } from '../docs/archPicture';
 
 /**
  * The platform's diagram presets (R84): one ready-made picture per course,
@@ -123,16 +124,20 @@ function cysaFlow(): KitSpec | null {
 
 function msspEngagement(): KitSpec {
   // The MSSP course has no machine lab of its own — the engagement IS the
-  // topology (R99: drawn from `msspContent.ts`, the same data the Guide's
-  // picture and the week visuals use, so the forms and the picture agree).
+  // topology (R103: a projection of the course's architecture picture, the
+  // same data the Guide's picture and the week visuals use, so the forms and
+  // the picture agree). Records and the outside parties stay off the form.
+  const zones = MSSP_ARCH.zones.filter((z) => !z.lane);
+  const nodes = MSSP_ARCH.nodes.filter((n) => !n.external && n.kind !== 'record');
+  const ids = new Set(nodes.map((n) => n.id));
   return {
     kit: 'topology',
-    title: ENGAGEMENT.copy.title,
-    howToRead: ENGAGEMENT.copy.howToRead,
-    zones: ENGAGEMENT.zones.map((z) => ({ id: z.id, label: z.label, note: z.note })),
-    nodes: ENGAGEMENT.nodes.filter((n) => !n.external).map((n) => ({ id: n.id, label: n.label, sub: n.sub, kind: n.kind, zone: n.zone })),
-    links: ENGAGEMENT.edges.map((e) => ({ from: e.from, to: e.to, kind: 'flow' as const, label: e.label })),
-    footer: ENGAGEMENT.copy.footer,
+    title: MSSP_ARCH.copy.title,
+    howToRead: MSSP_ARCH.copy.howToRead,
+    zones: zones.map((z) => ({ id: z.id, label: z.label, note: z.note })),
+    nodes: nodes.map((n) => ({ id: n.id, label: n.label, sub: n.sub, kind: kitKindOf(n.kind), zone: n.zone })),
+    links: MSSP_ARCH.edges.filter((e) => ids.has(e.from) && ids.has(e.to)).map((e) => ({ from: e.from, to: e.to, kind: 'flow' as const, label: e.label })),
+    footer: MSSP_ARCH.copy.footer,
   };
 }
 

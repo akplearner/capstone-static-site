@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { CloudManualArchitecture, CloudOverview } from '@/components/cloud/CloudOverview';
 import { useCourseProgress } from '@/components/course/useCourseProgress';
 import { WeekBuildDiagram } from '@/components/diagrams/WeekBuildDiagram';
+import { WeekAddsList } from '@/components/course/WeekAddsList';
 import { CaseLifecycleChain } from '@/components/diagrams/CaseLifecycleChain';
 import { RoleInterplayDiagram } from '@/components/diagrams/RoleInterplayDiagram';
 import { LogPipelineDiagram } from '@/components/diagrams/LogPipelineDiagram';
@@ -19,7 +20,6 @@ import { FolderTree } from '@/components/docs/FolderTree';
 import { QuickReferenceCard } from '@/components/docs/QuickReferenceCard';
 import { RoleExtractionGuide } from '@/components/docs/RoleExtractionGuide';
 import { TeamBusinessPicker } from '@/components/team/TeamBusinessPicker';
-import { socTopology } from '@/lib/labTopology';
 import { manualHas, manualSectionsFor } from '@/lib/docs/manual';
 import { useCourseDocument } from '@/lib/useCourse';
 import { manualOf } from '@/lib/content/read';
@@ -59,7 +59,6 @@ import { Surface } from '@/components/ui/Surface';
 
 export function GuideManual({ course, member }: { course: Course; member: Member }) {
   const { MANUAL_COPY, MANUAL_SECTIONS } = manualOf(useCourseDocument());
-  const topo = socTopology(course.id);
   // A course that ships a SIEM tool manual, by its own declaration rather than by
   // its id — the same test the manual's own section gating uses.
   const isCysa = manualHas(course, 'tools');
@@ -67,7 +66,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
   // It used to be inferred from the configuration-guide flag, which was a
   // coincidence: the one course with a build guide happened to be the one with a
   // rack, so the second course to ship a guide would have drawn its rack.
-  const picture = course.topologyPicture ?? (topo ? 'soc' : undefined);
+  const picture = course.topologyPicture ?? 'arch';
   const [teamBusiness, setTeamBusiness] = useState<{ name?: string; industry?: string }>({});
   const progress = useCourseProgress(course, member);
   // R99: the lab picture opens on the student's week and carries the week pills.
@@ -115,6 +114,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
             <>
               {picture === 'rack' && <TeamBusinessPicker courseId={course.id} teamId={member.teamId} onBusiness={setTeamBusiness} />}
               <WeekBuildDiagram course={course} week={pictureWeek} controls onWeekChange={setPictureWeek} business={teamBusiness} highlightRole={member.role} />
+              <WeekAddsList courseId={course.id} week={pictureWeek} />
             </>
           )}
           {course.id === 'security-plus' && <LabSetupGuide />}

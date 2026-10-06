@@ -2078,7 +2078,7 @@ export const CYSA_PLUS: Course = {
   // The tool manual (Wazuh, Suricata, Sysmon) ships with this course, so the
   // manual carries the tools section. See `docs/manual.ts`.
   manualSections: ['tools'],
-  topologyPicture: 'soc',
+  topologyPicture: 'arch',
   audience: 'Run a SOC — monitor, detect, investigate, and respond on a live Wazuh stack (CS0-003).',
   description:
     'Four weeks running a live SOC: deploy monitoring, investigate real attacks, assess risk, and handle an incident end to end. Three rotating analyst roles on a shared Wazuh stack.',

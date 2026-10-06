@@ -62,7 +62,7 @@ export const SECURITY_PLUS: Course = {
   weeks,
   gates: GATES,
   tasks,
-  topologyPicture: 'lab',
+  topologyPicture: 'arch',
   isSeed: true,
   version: 1,
   locked: false,

@@ -13,7 +13,7 @@
  * already held all four.
  */
 import { LAB_SUBNET, labHost } from '../labTopology';
-import type { BuildModel } from '../weekVisual';
+import { archBuildModel, type ArchPicture } from './archPicture';
 
 /* ── The self-study lab ──────────────────────────────────────────────────── */
 
@@ -163,41 +163,97 @@ export const DOCS_REDUCTION_COPY = {
   ] as Run[],
 } as const;
 
-/* ── What you build this week (R99) ───────────────────────────────────────── */
+/* ── The lab architecture (R99, R103) ────────────────────────────────────── */
 
 /**
- * The attack lab, week by week. Ids are the parts `ArchitectureDiagram` draws:
- * the lab itself is there from Week 0; the governance band, the SOC, the
- * custody chip and the final report arrive as the engagement moves.
+ * The attack lab as a system: the attacker outside, the edge, the LAN with
+ * its two targets and the controls Blue puts on them, the SOC that watches
+ * them, and the records GRC keeps. Every part says what it is for and which
+ * form records it; `arrives` is the week it appears. Addresses come from
+ * `labTopology`, never typed here.
  */
-export const LAB_BUILD: BuildModel = {
-  arrives: { attacker: 0, network: 0, ubuntu: 0, windows: 0, grc: 1, hardened: 1, soc: 2, custody: 3, report: 4 },
+export const ARCH: ArchPicture = {
+  copy: {
+    title: 'Lab architecture — the company you attack, defend and govern',
+    howToRead:
+      'Left: the attacker’s side. Then the edge every packet crosses, the LAN with the two targets and the controls on them, and the SOC that watches. Along the bottom: the fourteen records. Solid lines carry traffic; dashed lines carry logs, backups or trust.',
+    footer: 'The addresses are the worked example; your Lab access panel substitutes your own into every command.',
+  },
+  view: { w: 960, h: 440 },
+  zones: [
+    { id: 'outside', label: 'Outside', note: 'the attacker’s side', x: 20, y: 40, w: 160, h: 270, tone: 4 },
+    { id: 'perimeter', label: 'Perimeter', note: 'what the LAN shows', x: 200, y: 40, w: 170, h: 270, tone: 8 },
+    { id: 'lan', label: 'Lab LAN', note: LAB_SUBNET, x: 390, y: 40, w: 340, h: 270, tone: 2 },
+    { id: 'soc', label: 'SOC and management', note: 'Blue · GRC', x: 750, y: 40, w: 190, h: 270, tone: 3 },
+    { id: 'records', label: 'Records — the deliverables', note: '14 forms', x: 20, y: 350, w: 920, h: 70, tone: 6, lane: true },
+  ],
+  nodes: [
+    { id: 'internet', label: 'Internet', sub: 'OSINT sources · DNS', kind: 'outside', zone: 'outside', x: 100, y: 100, external: true, arrives: 0, records: 'scope_roe', role: 'red', purpose: 'Where passive recon starts and the scope is checked first' },
+    { id: 'kali', label: 'Kali attacker', sub: labHost('kali').note, addr: labHost('kali').ip, kind: 'endpoint', zone: 'outside', x: 100, y: 170, arrives: 0, records: 'scope_roe', role: 'red', purpose: 'The attacker’s box: recon, scanning and exploitation inside scope' },
+    { id: 'scanner', label: 'Vulnerability scanner', sub: 'nmap · OpenVAS on Kali', kind: 'scanner', zone: 'outside', x: 100, y: 240, arrives: 2, records: 'vm_sop', role: 'red', purpose: 'Finds the weaknesses the risk register ranks' },
+    { id: 'edge', label: 'Edge firewall', sub: 'ufw · default deny', kind: 'firewall', zone: 'perimeter', x: 285, y: 100, arrives: 0, records: 'hardening_baseline', role: 'blue', purpose: 'The only path in: allowed ports, everything else dropped' },
+    { id: 'logpipe', label: 'Log forwarding', sub: 'rsyslog · agent → SOC', kind: 'monitor', zone: 'perimeter', x: 285, y: 170, arrives: 2, records: 'hardening_baseline', role: 'blue', purpose: 'Sends host and web logs to the SOC as they happen' },
+    { id: 'ubuntu', label: 'Ubuntu web server', sub: labHost('ubuntu').services.join(' · '), addr: labHost('ubuntu').ip, kind: 'server', zone: 'lan', x: 475, y: 100, arrives: 0, records: 'asset_inventory', role: 'blue', purpose: 'The target: the web application the company runs' },
+    { id: 'windows', label: 'Windows host', sub: labHost('windows').note, addr: labHost('windows').ip, kind: 'endpoint', zone: 'lan', x: 645, y: 100, arrives: 0, records: 'asset_inventory', role: 'blue', purpose: 'Optional second target: RDP and local accounts' },
+    { id: 'hardening', label: 'Hardening baseline', sub: 'CIS · SSH · patching', kind: 'control', zone: 'lan', x: 475, y: 170, arrives: 1, records: 'hardening_baseline', role: 'blue', purpose: 'The settings applied before the attack and checked after it' },
+    { id: 'accounts', label: 'Accounts and sudo', sub: 'least privilege · policy', kind: 'identity', zone: 'lan', x: 645, y: 170, arrives: 1, records: 'security_policy', role: 'blue', purpose: 'Who may log in to each host, with what rights' },
+    { id: 'backup', label: 'VM snapshot', sub: 'pre-exploit restore point', kind: 'backup', zone: 'lan', x: 475, y: 240, arrives: 3, records: 'ir_runbook', role: 'blue', purpose: 'The restore point the runbook falls back to' },
+    { id: 'siem', label: 'SIEM', sub: 'Wazuh · alerts', kind: 'siem', zone: 'soc', x: 835, y: 100, arrives: 2, records: 'incident_report', role: 'blue', purpose: 'Turns forwarded logs into alerts Blue can act on' },
+    { id: 'cases', label: 'Case queue', sub: 'triage · containment', kind: 'ticket', zone: 'soc', x: 835, y: 170, arrives: 3, records: 'incident_report', role: 'blue', purpose: 'Every alert worked to a decision and a containment step' },
+    { id: 'evidence', label: 'Evidence vault', sub: 'sha256 · custody log', kind: 'evidence', zone: 'soc', x: 835, y: 240, arrives: 3, records: 'evidence_log', role: 'grc', purpose: 'Hashed copies of what the findings rest on' },
+    { id: 'r_scope', label: 'Scope & RoE', sub: '', kind: 'record', zone: 'records', x: 85, y: 368, arrives: 1, records: 'scope_roe', role: 'grc', purpose: 'Records what may be tested, when, and who authorized it' },
+    { id: 'r_assets', label: 'Asset inventory', sub: '', kind: 'record', zone: 'records', x: 216, y: 368, arrives: 1, records: 'asset_inventory', role: 'grc', purpose: 'Records every host, owner and classification' },
+    { id: 'r_framework', label: 'Framework map', sub: '', kind: 'record', zone: 'records', x: 347, y: 368, arrives: 1, records: 'framework_mapping', role: 'grc', purpose: 'Records which control each task satisfies' },
+    { id: 'r_policy', label: 'Security policy', sub: '', kind: 'record', zone: 'records', x: 478, y: 368, arrives: 1, records: 'security_policy', role: 'grc', purpose: 'Records the rules the lab runs under' },
+    { id: 'r_standard', label: 'Hardening standard', sub: '', kind: 'record', zone: 'records', x: 609, y: 368, arrives: 1, records: 'hardening_standard', role: 'grc', purpose: 'Records the settings Blue must reach' },
+    { id: 'r_baseline', label: 'Hardening baseline', sub: '', kind: 'record', zone: 'records', x: 740, y: 368, arrives: 1, records: 'hardening_baseline', role: 'blue', purpose: 'Records what Blue applied and the evidence' },
+    { id: 'r_changes', label: 'Change log', sub: '', kind: 'record', zone: 'records', x: 871, y: 368, arrives: 1, records: 'change_log', role: 'blue', purpose: 'Records every change Blue made, when and why' },
+    { id: 'r_risks', label: 'Risk register', sub: '', kind: 'record', zone: 'records', x: 85, y: 402, arrives: 2, records: 'risk_register', role: 'grc', purpose: 'Records each risk, scored, with its owner and treatment' },
+    { id: 'r_vmsop', label: 'VM SOP', sub: '', kind: 'record', zone: 'records', x: 216, y: 402, arrives: 2, records: 'vm_sop', role: 'grc', purpose: 'Records how scans run and how findings are handled' },
+    { id: 'r_pentest', label: 'Pentest report', sub: '', kind: 'record', zone: 'records', x: 347, y: 402, arrives: 2, records: 'pentest_report', role: 'red', purpose: 'Records what Red found, proved and recommends' },
+    { id: 'r_runbook', label: 'IR runbook', sub: '', kind: 'record', zone: 'records', x: 478, y: 402, arrives: 3, records: 'ir_runbook', role: 'grc', purpose: 'Records the steps Blue follows when an alert fires' },
+    { id: 'r_incident', label: 'Incident report', sub: '', kind: 'record', zone: 'records', x: 609, y: 402, arrives: 3, records: 'incident_report', role: 'blue', purpose: 'Records what happened, when it was seen, and the containment' },
+    { id: 'r_evidence', label: 'Evidence log', sub: '', kind: 'record', zone: 'records', x: 740, y: 402, arrives: 3, records: 'evidence_log', role: 'grc', purpose: 'Records every file, its hash and its custody' },
+    { id: 'r_final', label: 'Final report', sub: '', kind: 'record', zone: 'records', x: 871, y: 402, arrives: 4, records: 'final_report', role: 'grc', purpose: 'The capstone: findings, risks and recommendations' },
+  ],
+  edges: [
+    { from: 'kali', to: 'edge', label: 'recon · scans · exploits' },
+    { from: 'edge', to: 'ubuntu', label: 'allowed ports only' },
+    { from: 'ubuntu', to: 'logpipe', label: 'syslog · web logs', kind: 'log' },
+    { from: 'logpipe', to: 'siem', label: 'forwarded', kind: 'log' },
+    { from: 'siem', to: 'cases', label: 'alerts', kind: 'log' },
+    { from: 'ubuntu', to: 'backup', label: 'snapshot', kind: 'backup' },
+    { from: 'accounts', to: 'ubuntu', label: 'policy', kind: 'trust' },
+  ],
+};
+
+export const ARCH_BUILD = archBuildModel(ARCH, {
   processes: {
     1: { title: 'Cold Recon', steps: [
-      { from: 'attacker', to: 'network', label: 'OSINT · passive recon' },
-      { from: 'network', to: 'ubuntu', label: 'map the target, quietly' },
-      { from: 'grc', to: 'ubuntu', label: 'hardening standard applied' },
+      { from: 'kali', to: 'edge', label: 'OSINT · passive recon' },
+      { from: 'edge', to: 'ubuntu', label: 'map the target, quietly' },
+      { from: 'r_standard', to: 'hardening', label: 'hardening standard applied' },
     ] },
     2: { title: 'Hard Target', steps: [
-      { from: 'attacker', to: 'ubuntu', label: 'port & web scanning' },
-      { from: 'ubuntu', to: 'soc', label: 'baseline capture' },
-      { from: 'soc', to: 'grc', label: 'findings → risk register' },
+      { from: 'scanner', to: 'ubuntu', label: 'port & web scanning' },
+      { from: 'logpipe', to: 'siem', label: 'baseline capture' },
+      { from: 'siem', to: 'r_risks', label: 'findings → risk register' },
     ] },
     3: { title: 'The Breach', steps: [
-      { from: 'attacker', to: 'ubuntu', label: 'live exploits' },
-      { from: 'ubuntu', to: 'soc', label: 'detect and contain' },
-      { from: 'soc', to: 'custody', label: 'preserve the evidence' },
+      { from: 'kali', to: 'ubuntu', label: 'live exploits' },
+      { from: 'siem', to: 'cases', label: 'detect and contain' },
+      { from: 'cases', to: 'evidence', label: 'preserve the evidence' },
     ] },
     4: { title: 'Payday', steps: [
-      { from: 'soc', to: 'grc', label: 'evidence → findings' },
-      { from: 'grc', to: 'report', label: 'final report & presentation' },
+      { from: 'evidence', to: 'r_final', label: 'evidence → findings' },
+      { from: 'r_risks', to: 'r_final', label: 'final report & presentation' },
     ] },
   },
   captions: {
-    0: 'The lab: a Kali attacker, one flat network, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.',
-    1: 'New: the GRC band and the hardening baseline. Red maps the target without making noise.',
-    2: 'New: the SOC. Red scans while Blue learns what normal traffic looks like and GRC opens the risk register.',
-    3: 'New: evidence custody. Red attacks for real; Blue detects, contains and preserves what it found.',
+    0: 'The lab: a Kali attacker outside, the edge firewall, the Ubuntu web server and the optional Windows host. Nothing is hardened yet.',
+    1: 'New: the hardening baseline, the account policy and the first seven records. Red maps the target without making noise.',
+    2: 'New: the scanner, log forwarding and the SIEM. Red scans while Blue learns what normal looks like and GRC opens the risk register.',
+    3: 'New: the snapshot, the case queue and the evidence vault. Red attacks for real; Blue detects, contains and preserves what it found.',
     4: 'New: the final report. No new traffic — the evidence becomes findings and recommendations.',
   },
-};
+});

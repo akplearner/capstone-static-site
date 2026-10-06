@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Maximize2, Minimize2 } from 'lucide-react';
 import { WeekBuildDiagram, type WeekBuildCourse } from '@/components/diagrams/WeekBuildDiagram';
 import { Chip } from '@/components/ui/Chip';
+import { WeekAddsList } from './WeekAddsList';
 
 /**
  * R99: the week's picture on the Tasks tab — the build as it stands at the
@@ -32,6 +33,8 @@ export function WeekVisualPanel({ course, week, fill = false }: { course: WeekBu
         )}
       </div>
       <WeekBuildDiagram course={course} week={week} compact={!open} />
+      {/* R103: the weekly breakdown — what arrives, what it is for, where it is recorded. */}
+      <WeekAddsList courseId={course.id} week={week} limit={open ? undefined : 3} />
     </section>
   );
 }

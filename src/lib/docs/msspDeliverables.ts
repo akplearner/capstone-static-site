@@ -216,6 +216,59 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
     ],
   },
 
+  // 9 — Gap Assessment (P1, R103) ──────────────────────────────────────────
+  {
+    id: 'mssp_gap_assessment',
+    // The gap assessment is what the control matrix closes and the retest proves.
+    feeds: ['mssp_control_matrix', 'mssp_retest'],
+    courseId: 'mssp',
+    num: 9,
+    file: '09_Gap_Assessment.md',
+    title: 'Gap Assessment',
+    owner: 'red',
+    folder: '02_Assessment',
+    standard: 'CIS Controls v8 · NIST SP 800-115',
+    framework: 'NIST_800_115',
+    weeks: [1],
+    gate: 1,
+    kind: 'form',
+    exportFormat: 'md',
+    purpose:
+      'What the client has and what it lacks, measured: the external attack surface the pentester maps and the baseline gaps the scanner scores. GRC turns every gap into a control row; the retest proves each one closed.',
+    howTo: 'One row per gap. Name the control it breaks, score the severity, and point at the scan or screenshot that shows it.',
+    source: 'The external scan and the CIS baseline scan',
+    sections: [
+      {
+        kind: 'fields',
+        fields: [
+          { field: 'surface', label: 'External attack surface', type: 'area', required: true, help: 'What the pentester can reach from outside: hosts, ports, services, versions.', placeholder: 'vpn.client-a.example 443 (OpenVPN 2.4) · mail 25/587 · web 80→443 (nginx 1.18)' },
+          { field: 'method', label: 'How it was measured', type: 'text', required: true, placeholder: 'nmap -sV from outside; CIS-CAT Lite on two servers; interview with the IT lead' },
+        ],
+      },
+      {
+        kind: 'group',
+        group: {
+          group: 'gaps',
+          label: 'Gaps against the baseline',
+          columns: [
+            c('gap', 'Gap', 'text', { placeholder: 'No MFA on the VPN' }),
+            c('control', 'CIS control', 'text', { placeholder: '6.3 Require MFA for externally exposed applications' }),
+            c('severity', 'Severity', 'select', { options: ['Critical', 'High', 'Medium', 'Low'] }),
+            c('evidence', 'Evidence', 'text', { placeholder: 'scans/external-2026-06-02.txt' }),
+          ],
+          seed: [
+            { gap: 'No MFA on the VPN', control: '6.3 Require MFA for externally exposed applications', severity: 'Critical', evidence: 'scans/external-2026-06-02.txt' },
+            { gap: 'Backups never restore-tested', control: '11.5 Test data recovery', severity: 'High', evidence: 'interview-notes-it-lead.md' },
+          ],
+        },
+      },
+    ],
+    dod: [
+      { label: 'The attack surface and the method are written', when: { fields: ['surface', 'method'] } },
+      { label: 'At least five gaps, each with a control, a severity and evidence', when: { group: 'gaps', where: { filled: ['gap', 'control', 'severity', 'evidence'] }, atLeast: 5 } },
+    ],
+  },
+
   // 5 — Detection Rules (P3) ────────────────────────────────────────────────
   {
     id: 'mssp_detection_rules',

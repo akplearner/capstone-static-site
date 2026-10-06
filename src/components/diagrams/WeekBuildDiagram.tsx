@@ -2,18 +2,14 @@
 
 import { useState } from 'react';
 import type { Course } from '@/lib/types';
-import { socTopology } from '@/lib/labTopology';
 import { useCourseDocument } from '@/lib/useCourse';
 import { cloudOf, weekVisualsOf } from '@/lib/content/read';
 import { Surface } from '@/components/ui/Surface';
 import { WeekPills } from '@/components/week/WeekPills';
 import { CloudTopology } from './cloud/CloudTopology';
-import { ArchitectureDiagram } from './ArchitectureDiagram';
-import { SocTopologyDiagram } from './SocTopologyDiagram';
 import { ServerTopologyDiagram } from './ServerTopologyDiagram';
 import { CcnaTopologyDiagram } from './CcnaTopologyDiagram';
-import { EngagementDiagram } from './EngagementDiagram';
-import { HubDiagram } from './HubDiagram';
+import { ArchDiagram } from './ArchDiagram';
 
 /**
  * R99: "What you build this week", for any course.
@@ -57,8 +53,8 @@ export function WeekBuildDiagram({
   const v = visuals.find((x) => x.week === current) ?? visuals.find((x) => x.week === week);
   if (!v) return null;
   const weeks = visuals.map((x) => x.week);
-  const status = v.highlight.length > 0 ? `${v.highlight.length} new this week` : 'nothing new · the process is drawn';
-  const picture = course.topologyPicture ?? (socTopology(course.id) ? 'soc' : 'lab');
+  const status = v.week === 0 ? 'the starting point' : v.highlight.length > 0 ? `${v.highlight.length} new this week` : 'nothing new · the process is drawn';
+  const picture = course.topologyPicture ?? 'arch';
 
   let drawing: React.ReactNode = null;
   if (picture === 'cloud') {
@@ -70,15 +66,8 @@ export function WeekBuildDiagram({
     drawing = <ServerTopologyDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} business={business} />;
   } else if (picture === 'campus') {
     drawing = <CcnaTopologyDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
-  } else if (picture === 'soc') {
-    const topo = socTopology(course.id);
-    drawing = topo ? <SocTopologyDiagram topo={topo} builtThrough={v.builtThrough} glow={v.highlight} process={v.process} /> : null;
-  } else if (picture === 'engagement') {
-    drawing = <EngagementDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
-  } else if (picture === 'hub') {
-    drawing = <HubDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
   } else {
-    drawing = <ArchitectureDiagram roles={course.roles} highlightRole={highlightRole} week={v.builtThrough} builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
+    drawing = <ArchDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} highlightRole={highlightRole} />;
   }
 
   return (

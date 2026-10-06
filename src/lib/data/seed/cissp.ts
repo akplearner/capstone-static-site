@@ -1490,7 +1490,7 @@ export const CISSP: Course = {
   isSeed: true,
   version: 1,
   locked: false,
-  topologyPicture: 'hub',
+  topologyPicture: 'arch',
   teamCount: 18,
   teamCapacity: 6,
 };

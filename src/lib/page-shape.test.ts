@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 /**
@@ -879,8 +879,8 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/docs/QuickReferenceCard.tsx', 'manualOf'],
     ['src/components/docs/GuideManual.tsx', 'manualOf'],
     ['src/components/diagrams/WeekBuildDiagram.tsx', 'weekVisualsOf'],
-    ['src/components/diagrams/EngagementDiagram.tsx', 'msspOf'],
-    ['src/components/diagrams/HubDiagram.tsx', 'hubOf'],
+    ['src/components/diagrams/ArchDiagram.tsx', 'archOf'],
+    ['src/components/course/WeekAddsList.tsx', 'weekVisualsOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -1913,7 +1913,7 @@ describe('R99 — every week has a picture', () => {
   });
 
   it('the overlay pieces are recolourable — not one literal colour in them', () => {
-    for (const f of ['src/components/diagrams/ProcessArrows.tsx', 'src/components/diagrams/ProcessStrip.tsx', 'src/components/week/WeekPills.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx', 'src/components/diagrams/EngagementDiagram.tsx', 'src/components/diagrams/HubDiagram.tsx']) {
+    for (const f of ['src/components/diagrams/ProcessArrows.tsx', 'src/components/diagrams/ProcessStrip.tsx', 'src/components/week/WeekPills.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx', 'src/components/diagrams/ArchDiagram.tsx']) {
       expect(read(f), `${f} takes colours from theme tokens only`).not.toMatch(/#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/);
     }
   });
@@ -1966,7 +1966,7 @@ describe('R100 — the Tasks tab reads on one screen', () => {
   });
 
   it('pictures scale on a phone — no SVG forces a sideways scroll below sm', () => {
-    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/EngagementDiagram.tsx', 'src/components/diagrams/SocTopologyDiagram.tsx', 'src/components/diagrams/ArchitectureDiagram.tsx', 'src/components/diagrams/HubDiagram.tsx']) {
+    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/ArchDiagram.tsx']) {
       expect(code(f), f).toMatch(/min-w-0 sm:min-w-\[\d+px\]/);
     }
     for (const f of ['src/components/diagrams/ServerTopologyDiagram.tsx', 'src/components/diagrams/CcnaTopologyDiagram.tsx']) {
@@ -2033,17 +2033,17 @@ describe('R101 — SecAI+ and CISSP', () => {
     expect(code('src/lib/content/docs.ts')).toContain("content/courses/cissp.json");
   });
 
-  it('both draw the hub picture, from their own content', () => {
+  it('both draw the architecture picture, from their own content', () => {
     for (const f of ['src/lib/data/seed/secaiPlus.ts', 'src/lib/data/seed/cissp.ts']) {
-      expect(code(f), f).toContain("topologyPicture: 'hub'");
+      expect(code(f), f).toContain("topologyPicture: 'arch'");
       expect(code(f), f).toContain('noGatekeeping: true');
     }
-    const hub = code('src/components/diagrams/HubDiagram.tsx');
-    expect(hub).toContain('hubOf(useCourseDocument())');
-    expect(hub).toContain('preserveAspectRatio="xMidYMid meet"');
+    const arch = code('src/components/diagrams/ArchDiagram.tsx');
+    expect(arch).toContain('archOf(useCourseDocument())');
+    expect(arch).toContain('preserveAspectRatio="xMidYMid meet"');
     // The picture reads coordinates from the document; it holds no node table.
-    const src = hub.replace(/\/\*[\s\S]*?\*\//g, '');
-    expect(src.match(/^const\s+\w+[^=\n]*=\s*\[\{/m)?.[0], 'HubDiagram holds a table').toBeUndefined();
+    const src = arch.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(src.match(/^const\s+\w+[^=\n]*=\s*\[\{/m)?.[0], 'ArchDiagram holds a table').toBeUndefined();
   });
 
   it('both are on the catalogue, available, pointing at the seed', () => {
@@ -2073,5 +2073,52 @@ describe('R102 — step docs on every course, honest captions', () => {
   });
   it('neither SecAI+ nor CISSP tucks the shell away', () => {
     for (const f of ['src/lib/data/seed/secaiPlus.ts', 'src/lib/data/seed/cissp.ts']) expect(code(f), f).not.toContain('shellOptional');
+  });
+});
+
+/**
+ * R103 — real architectures. Every course that draws its own picture draws
+ * it from ONE data shape (`ArchPicture`): the parts, their purpose, the form
+ * that records each, and the week each arrives — read through the course
+ * document by one renderer. The old per-course renderers, with coordinates
+ * and arrival weeks typed inside them, are gone. Under the picture, the
+ * weekly breakdown lists what arrives, from the same data.
+ */
+describe('R103 — one architecture picture, the weekly breakdown', () => {
+  it('ArchDiagram reads the picture from the document and holds no table of its own', () => {
+    const arch = code('src/components/diagrams/ArchDiagram.tsx');
+    expect(arch).toContain('archOf(useCourseDocument())');
+    expect(arch).toContain('data-node={n.id}');
+    expect(arch).toContain('<title>{n.purpose}</title>');
+    for (const stale of ['ArchitectureDiagram', 'SocTopologyDiagram', 'EngagementDiagram', 'HubDiagram']) {
+      expect(existsSync(`src/components/diagrams/${stale}.tsx`), `${stale} is gone`).toBe(false);
+    }
+    expect(existsSync('src/lib/docs/hub.ts')).toBe(false);
+    // No diagram component types an arrival week or an anchor table any more.
+    for (const f of readdirSync('src/components/diagrams').filter((f) => f.endsWith('.tsx') && !f.includes('.test.'))) {
+      const src = code(`src/components/diagrams/${f}`);
+      expect(src, `${f} types arrival weeks`).not.toMatch(/^const ARRIVES\b/m);
+      expect(src, `${f} types an anchor table`).not.toMatch(/^const ANCHORS\b/m);
+    }
+  });
+
+  it('the five arch courses declare the picture, and every part carries its own arrival week', () => {
+    for (const f of ['securityPlus', 'cysa', 'mssp', 'secaiPlus', 'cissp']) expect(code(`src/lib/data/seed/${f}.ts`), f).toContain("topologyPicture: 'arch'");
+    for (const f of ['securityContent', 'cysaContent', 'msspContent', 'secaiContent', 'cisspContent']) {
+      const src = code(`src/lib/docs/${f}.ts`);
+      expect(src, f).toContain('export const ARCH: ArchPicture');
+      expect(src, f).toContain('export const ARCH_BUILD = archBuildModel(ARCH,');
+      expect(src, `${f} authors arrives twice`).not.toMatch(/^\s+arrives:\s*\{/m);
+    }
+    expect(code('src/lib/types.ts')).toContain("topologyPicture?: 'arch' | 'rack' | 'campus' | 'cloud';");
+  });
+
+  it('the weekly breakdown sits under the picture on the Tasks tab and in the Guide', () => {
+    expect(code('src/components/course/WeekVisualPanel.tsx')).toContain('<WeekAddsList');
+    expect(code('src/components/docs/GuideManual.tsx')).toContain('<WeekAddsList');
+    const list = code('src/components/course/WeekAddsList.tsx');
+    expect(list).toContain('weekAdds(doc, week)');
+    expect(list, 'no disclosure widget — the week keeps its one collapsible').not.toContain('<Collapsible');
+    expect(list).not.toContain('What you build this week');
   });
 });

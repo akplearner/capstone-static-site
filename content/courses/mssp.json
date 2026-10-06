@@ -559,7 +559,9 @@
           "NIST_800_115",
           "OWASP"
         ],
-        "deliverables": [],
+        "deliverables": [
+          "09_Gap_Assessment.md"
+        ],
         "estimatedTime": "90 min",
         "prerequisites": [
           "Rules of engagement confirmed"
@@ -587,6 +589,7 @@
           {
             "id": "mr-w1-s1",
             "title": "Scan the in-scope hosts",
+            "usesForm": "Gap Assessment",
             "description": "Enumerate services on the authorized targets.",
             "commands": [
               {
@@ -1282,7 +1285,7 @@
     "isSeed": true,
     "version": 1,
     "locked": false,
-    "topologyPicture": "engagement",
+    "topologyPicture": "arch",
     "teamCount": 16,
     "teamCapacity": 6
   },
@@ -1839,6 +1842,130 @@
                 "remediation"
               ]
             }
+          }
+        }
+      ]
+    },
+    {
+      "id": "mssp_gap_assessment",
+      "feeds": [
+        "mssp_control_matrix",
+        "mssp_retest"
+      ],
+      "courseId": "mssp",
+      "num": 9,
+      "file": "09_Gap_Assessment.md",
+      "title": "Gap Assessment",
+      "owner": "red",
+      "folder": "02_Assessment",
+      "standard": "CIS Controls v8 · NIST SP 800-115",
+      "framework": "NIST_800_115",
+      "weeks": [
+        1
+      ],
+      "gate": 1,
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "What the client has and what it lacks, measured: the external attack surface the pentester maps and the baseline gaps the scanner scores. GRC turns every gap into a control row; the retest proves each one closed.",
+      "howTo": "One row per gap. Name the control it breaks, score the severity, and point at the scan or screenshot that shows it.",
+      "source": "The external scan and the CIS baseline scan",
+      "sections": [
+        {
+          "kind": "fields",
+          "fields": [
+            {
+              "field": "surface",
+              "label": "External attack surface",
+              "type": "area",
+              "required": true,
+              "help": "What the pentester can reach from outside: hosts, ports, services, versions.",
+              "placeholder": "vpn.client-a.example 443 (OpenVPN 2.4) · mail 25/587 · web 80→443 (nginx 1.18)"
+            },
+            {
+              "field": "method",
+              "label": "How it was measured",
+              "type": "text",
+              "required": true,
+              "placeholder": "nmap -sV from outside; CIS-CAT Lite on two servers; interview with the IT lead"
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "gaps",
+            "label": "Gaps against the baseline",
+            "columns": [
+              {
+                "field": "gap",
+                "label": "Gap",
+                "type": "text",
+                "placeholder": "No MFA on the VPN"
+              },
+              {
+                "field": "control",
+                "label": "CIS control",
+                "type": "text",
+                "placeholder": "6.3 Require MFA for externally exposed applications"
+              },
+              {
+                "field": "severity",
+                "label": "Severity",
+                "type": "select",
+                "options": [
+                  "Critical",
+                  "High",
+                  "Medium",
+                  "Low"
+                ]
+              },
+              {
+                "field": "evidence",
+                "label": "Evidence",
+                "type": "text",
+                "placeholder": "scans/external-2026-06-02.txt"
+              }
+            ],
+            "seed": [
+              {
+                "gap": "No MFA on the VPN",
+                "control": "6.3 Require MFA for externally exposed applications",
+                "severity": "Critical",
+                "evidence": "scans/external-2026-06-02.txt"
+              },
+              {
+                "gap": "Backups never restore-tested",
+                "control": "11.5 Test data recovery",
+                "severity": "High",
+                "evidence": "interview-notes-it-lead.md"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "The attack surface and the method are written",
+          "when": {
+            "fields": [
+              "surface",
+              "method"
+            ]
+          }
+        },
+        {
+          "label": "At least five gaps, each with a control, a severity and evidence",
+          "when": {
+            "group": "gaps",
+            "where": {
+              "filled": [
+                "gap",
+                "control",
+                "severity",
+                "evidence"
+              ]
+            },
+            "atLeast": 5
           }
         }
       ]
@@ -2453,145 +2580,442 @@
       }
     },
     "mssp": {
-      "ENGAGEMENT": {
+      "ARCH": {
         "copy": {
-          "title": "The engagement — clients feeding one managed SOC",
-          "howToRead": "Left: the client environment your documents govern. Right: the MSSP side your team runs. Around them: the people who test and audit the arrangement. Every control, SLA and report in your forms names one of these boxes.",
+          "title": "The engagement — one client estate feeding one managed SOC",
+          "howToRead": "Top left: the client estate your documents govern. Top right: the MSSP SOC your team runs. Under them: the people who test and audit the arrangement, and the nine records. Dashed lines carry logs, backups or trust; every control, SLA and report in your forms names one of these boxes.",
           "footer": "No lab VMs here on purpose: the deliverables govern process and evidence, and this is the process."
+        },
+        "view": {
+          "w": 960,
+          "h": 550
         },
         "zones": [
           {
             "id": "client",
-            "label": "Client environment",
-            "note": "what the contract covers"
+            "label": "Client A — the estate under contract",
+            "note": "what the contract covers",
+            "x": 20,
+            "y": 40,
+            "w": 520,
+            "h": 270,
+            "tone": 2
           },
           {
             "id": "mssp",
             "label": "MSSP SOC — your team",
-            "note": "what the contract promises"
+            "note": "what the contract promises",
+            "x": 560,
+            "y": 40,
+            "w": 380,
+            "h": 270,
+            "tone": 3
+          },
+          {
+            "id": "around",
+            "label": "Around the contract",
+            "note": "who tests and audits it",
+            "x": 20,
+            "y": 350,
+            "w": 920,
+            "h": 80,
+            "tone": 4
+          },
+          {
+            "id": "records",
+            "label": "Records — the deliverables",
+            "note": "nine forms",
+            "x": 20,
+            "y": 460,
+            "w": 920,
+            "h": 70,
+            "tone": 6,
+            "lane": true
           }
         ],
         "nodes": [
           {
-            "id": "client-net",
-            "label": "Client A — corporate network",
-            "sub": "endpoints · servers · identity",
-            "kind": "workstation",
-            "zone": "client"
+            "id": "endpoints",
+            "label": "Endpoints",
+            "sub": "80 laptops · phones",
+            "kind": "endpoint",
+            "zone": "client",
+            "x": 105,
+            "y": 100,
+            "arrives": 0,
+            "records": "mssp_soa",
+            "purpose": "What staff work on; where phishing and malware land"
+          },
+          {
+            "id": "servers",
+            "label": "Servers",
+            "sub": "file · ERP · web",
+            "kind": "server",
+            "zone": "client",
+            "x": 275,
+            "y": 100,
+            "arrives": 0,
+            "records": "mssp_soa",
+            "purpose": "The systems the contract protects and the pentest targets"
+          },
+          {
+            "id": "idp",
+            "label": "Client identity",
+            "sub": "Entra ID · MFA",
+            "kind": "idp",
+            "zone": "client",
+            "x": 445,
+            "y": 100,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "One account per person; MFA is the first control implemented"
+          },
+          {
+            "id": "edr",
+            "label": "EDR agents",
+            "sub": "every endpoint and server",
+            "kind": "monitor",
+            "zone": "client",
+            "x": 105,
+            "y": 170,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "Sees process activity on every host and feeds the SIEM"
           },
           {
             "id": "client-edge",
             "label": "Client edge",
             "sub": "firewall · log forwarder",
             "kind": "firewall",
-            "zone": "client"
+            "zone": "client",
+            "x": 275,
+            "y": 170,
+            "arrives": 0,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "The boundary, and the one path the client’s logs take out"
           },
           {
-            "id": "baseline",
-            "label": "CIS baseline",
-            "sub": "gap assessment, scored",
-            "kind": "sensor",
-            "zone": "client"
+            "id": "backup",
+            "label": "Backup target",
+            "sub": "offline copy · restore test",
+            "kind": "backup",
+            "zone": "client",
+            "x": 445,
+            "y": 170,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "The copy the recovery promise in the contract rests on"
           },
           {
-            "id": "controls",
-            "label": "Controls",
-            "sub": "hardening · MFA · logging",
-            "kind": "server",
-            "zone": "client"
+            "id": "scanner",
+            "label": "Vulnerability scanner",
+            "sub": "CIS gap · monthly scan",
+            "kind": "scanner",
+            "zone": "client",
+            "x": 105,
+            "y": 240,
+            "arrives": 1,
+            "records": "mssp_gap_assessment",
+            "role": "red",
+            "purpose": "Measures the estate against the baseline, scored"
           },
           {
             "id": "siem",
             "label": "SIEM / log platform",
             "sub": "collection · retention",
-            "kind": "sensor",
-            "zone": "mssp"
+            "kind": "siem",
+            "zone": "mssp",
+            "x": 645,
+            "y": 100,
+            "arrives": 2,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Collects the client’s logs and keeps them for the contract term"
           },
           {
             "id": "detections",
             "label": "Detection rules",
             "sub": "tuned to the client",
-            "kind": "sensor",
-            "zone": "mssp"
+            "kind": "control",
+            "zone": "mssp",
+            "x": 815,
+            "y": 100,
+            "arrives": 3,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Turns the client’s logs into alerts worth a ticket"
           },
           {
             "id": "analysts",
             "label": "Analyst bench",
             "sub": "triage · escalation · reporting",
             "kind": "people",
-            "zone": "mssp"
+            "zone": "mssp",
+            "x": 645,
+            "y": 170,
+            "arrives": 0,
+            "records": "mssp_metrics",
+            "purpose": "Your team: works the queue and reports to the client"
           },
           {
             "id": "tickets",
             "label": "Ticket queue",
             "sub": "SLA clock on every alert",
-            "kind": "browser",
-            "zone": "mssp"
+            "kind": "ticket",
+            "zone": "mssp",
+            "x": 815,
+            "y": 170,
+            "arrives": 3,
+            "records": "mssp_metrics",
+            "role": "blue",
+            "purpose": "Every alert timed from raise to close: MTTD and MTTR"
           },
           {
             "id": "evidence",
             "label": "Evidence vault",
             "sub": "what the audit will ask for",
-            "kind": "server",
-            "zone": "mssp"
+            "kind": "evidence",
+            "zone": "mssp",
+            "x": 645,
+            "y": 240,
+            "arrives": 4,
+            "records": "mssp_evidence_packet",
+            "role": "grc",
+            "purpose": "Hashed copies of every artefact the packet cites"
           },
           {
-            "id": "scope",
-            "label": "Signed scope",
-            "sub": "RoE · SoA · the boundary",
-            "kind": "people",
-            "zone": "client",
-            "external": true
+            "id": "ti",
+            "label": "Threat-intel feeds",
+            "sub": "IOCs tuned to the client",
+            "kind": "data",
+            "zone": "mssp",
+            "x": 815,
+            "y": 240,
+            "arrives": 3,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Indicators the rules match against"
           },
           {
             "id": "pentester",
             "label": "Pentester",
             "sub": "tests what the controls claim",
             "kind": "people",
-            "zone": "client",
-            "external": true
+            "zone": "around",
+            "x": 275,
+            "y": 390,
+            "external": true,
+            "arrives": 1,
+            "records": "mssp_retest",
+            "role": "red",
+            "purpose": "Proves the gaps, then proves the fixes on retest"
           },
           {
             "id": "auditor",
             "label": "Auditor",
             "sub": "SOC 2 Type I · ISO 27001 Stage 1",
             "kind": "people",
-            "zone": "mssp",
-            "external": true
+            "zone": "around",
+            "x": 645,
+            "y": 390,
+            "external": true,
+            "arrives": 4,
+            "records": "mssp_internal_audit",
+            "role": "grc",
+            "purpose": "Reads the evidence packet and decides"
+          },
+          {
+            "id": "r_engagement",
+            "label": "Engagement & scope",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 112,
+            "y": 478,
+            "arrives": 0,
+            "records": "mssp_engagement",
+            "role": "grc",
+            "purpose": "Records the signed scope, RoE and the boundary"
+          },
+          {
+            "id": "r_soa",
+            "label": "SoA",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 296,
+            "y": 478,
+            "arrives": 1,
+            "records": "mssp_soa",
+            "role": "grc",
+            "purpose": "Records which controls apply and why"
+          },
+          {
+            "id": "r_gap",
+            "label": "Gap assessment",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 480,
+            "y": 478,
+            "arrives": 1,
+            "records": "mssp_gap_assessment",
+            "role": "red",
+            "purpose": "Records the attack surface and the baseline gaps, scored"
+          },
+          {
+            "id": "r_matrix",
+            "label": "Control matrix",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 664,
+            "y": 478,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "grc",
+            "purpose": "Records each control, its owner and its evidence"
+          },
+          {
+            "id": "r_rules",
+            "label": "Detection rules",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 848,
+            "y": 478,
+            "arrives": 3,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Records every rule, what it catches and its test"
+          },
+          {
+            "id": "r_retest",
+            "label": "Retest report",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 112,
+            "y": 512,
+            "arrives": 3,
+            "records": "mssp_retest",
+            "role": "red",
+            "purpose": "Records each finding, the fix and the retest result"
+          },
+          {
+            "id": "r_metrics",
+            "label": "D&R metrics",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 296,
+            "y": 512,
+            "arrives": 4,
+            "records": "mssp_metrics",
+            "role": "blue",
+            "purpose": "Records MTTD, MTTR and the SLA results"
+          },
+          {
+            "id": "r_audit",
+            "label": "Internal audit",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 480,
+            "y": 512,
+            "arrives": 4,
+            "records": "mssp_internal_audit",
+            "role": "grc",
+            "purpose": "Records the audit findings before the auditor arrives"
+          },
+          {
+            "id": "r_packet",
+            "label": "Evidence packet",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 664,
+            "y": 512,
+            "arrives": 4,
+            "records": "mssp_evidence_packet",
+            "role": "grc",
+            "purpose": "The capstone: everything the auditor will ask for"
           }
         ],
         "edges": [
           {
-            "from": "client-net",
+            "from": "endpoints",
             "to": "client-edge",
-            "label": "telemetry"
+            "label": "telemetry",
+            "kind": "log"
+          },
+          {
+            "from": "servers",
+            "to": "client-edge",
+            "label": "telemetry",
+            "kind": "log"
+          },
+          {
+            "from": "edr",
+            "to": "siem",
+            "label": "endpoint events",
+            "kind": "log"
           },
           {
             "from": "client-edge",
             "to": "siem",
-            "label": "encrypted log stream"
+            "label": "encrypted log stream",
+            "kind": "log"
           },
           {
             "from": "siem",
             "to": "analysts",
             "label": "alerts → tickets → reports"
+          },
+          {
+            "from": "servers",
+            "to": "backup",
+            "label": "nightly",
+            "kind": "backup"
+          },
+          {
+            "from": "idp",
+            "to": "endpoints",
+            "label": "MFA",
+            "kind": "trust"
           }
         ]
       },
-      "ENGAGEMENT_BUILD": {
+      "ARCH_BUILD": {
         "arrives": {
-          "client-net": 0,
+          "endpoints": 0,
+          "servers": 0,
+          "idp": 2,
+          "edr": 2,
           "client-edge": 0,
-          "analysts": 0,
-          "scope": 0,
-          "pentester": 1,
-          "baseline": 1,
+          "backup": 2,
+          "scanner": 1,
           "siem": 2,
-          "controls": 2,
           "detections": 3,
+          "analysts": 0,
           "tickets": 3,
           "evidence": 4,
-          "auditor": 4
+          "ti": 3,
+          "pentester": 1,
+          "auditor": 4,
+          "r_engagement": 0,
+          "r_soa": 1,
+          "r_gap": 1,
+          "r_matrix": 2,
+          "r_rules": 3,
+          "r_retest": 3,
+          "r_metrics": 4,
+          "r_audit": 4,
+          "r_packet": 4
         },
         "processes": {
           "0": {
@@ -2599,12 +3023,12 @@
             "steps": [
               {
                 "from": "analysts",
-                "to": "scope",
+                "to": "r_engagement",
                 "label": "sign the scope and RoE"
               },
               {
-                "from": "scope",
-                "to": "client-net",
+                "from": "r_engagement",
+                "to": "servers",
                 "label": "what the contract covers"
               }
             ]
@@ -2618,13 +3042,13 @@
                 "label": "external attack surface"
               },
               {
-                "from": "analysts",
-                "to": "baseline",
+                "from": "scanner",
+                "to": "servers",
                 "label": "CIS gap scan, scored"
               },
               {
                 "from": "analysts",
-                "to": "scope",
+                "to": "r_soa",
                 "label": "statement of applicability"
               }
             ]
@@ -2633,9 +3057,14 @@
             "title": "Control implementation",
             "steps": [
               {
-                "from": "controls",
-                "to": "client-net",
+                "from": "r_matrix",
+                "to": "servers",
                 "label": "hardening · MFA · logging"
+              },
+              {
+                "from": "idp",
+                "to": "endpoints",
+                "label": "MFA everywhere"
               },
               {
                 "from": "client-edge",
@@ -2649,7 +3078,7 @@
             "steps": [
               {
                 "from": "pentester",
-                "to": "client-net",
+                "to": "servers",
                 "label": "pentest"
               },
               {
@@ -2686,10 +3115,554 @@
           }
         },
         "captions": {
-          "0": "The engagement at signing: the client’s estate, the edge that will forward its logs, your analysts, and the signed scope.",
-          "1": "New: the pentester and the CIS baseline. The gap assessment says what the client has and what it lacks.",
-          "2": "New: the SIEM and the controls. The client’s logs reach your SOC; hardening, MFA and logging are in place.",
-          "3": "New: detection rules and the ticket queue. The pentest proves the controls; every alert runs on an SLA clock.",
+          "0": "The engagement at signing: the client’s endpoints and servers, the edge that will forward their logs, your analysts and the signed scope.",
+          "1": "New: the pentester, the vulnerability scanner, the SoA and the gap assessment. The gap says what the client has and lacks.",
+          "2": "New: client identity with MFA, EDR, the backup target and the SIEM. The client’s logs reach your SOC; the control matrix is live.",
+          "3": "New: detection rules, the ticket queue and threat-intel feeds. The pentest proves the controls; every alert runs on an SLA clock.",
+          "4": "New: the evidence vault and the auditor. MTTD and MTTR are measured and the audit packet is handed over."
+        }
+      }
+    },
+    "arch": {
+      "ARCH": {
+        "copy": {
+          "title": "The engagement — one client estate feeding one managed SOC",
+          "howToRead": "Top left: the client estate your documents govern. Top right: the MSSP SOC your team runs. Under them: the people who test and audit the arrangement, and the nine records. Dashed lines carry logs, backups or trust; every control, SLA and report in your forms names one of these boxes.",
+          "footer": "No lab VMs here on purpose: the deliverables govern process and evidence, and this is the process."
+        },
+        "view": {
+          "w": 960,
+          "h": 550
+        },
+        "zones": [
+          {
+            "id": "client",
+            "label": "Client A — the estate under contract",
+            "note": "what the contract covers",
+            "x": 20,
+            "y": 40,
+            "w": 520,
+            "h": 270,
+            "tone": 2
+          },
+          {
+            "id": "mssp",
+            "label": "MSSP SOC — your team",
+            "note": "what the contract promises",
+            "x": 560,
+            "y": 40,
+            "w": 380,
+            "h": 270,
+            "tone": 3
+          },
+          {
+            "id": "around",
+            "label": "Around the contract",
+            "note": "who tests and audits it",
+            "x": 20,
+            "y": 350,
+            "w": 920,
+            "h": 80,
+            "tone": 4
+          },
+          {
+            "id": "records",
+            "label": "Records — the deliverables",
+            "note": "nine forms",
+            "x": 20,
+            "y": 460,
+            "w": 920,
+            "h": 70,
+            "tone": 6,
+            "lane": true
+          }
+        ],
+        "nodes": [
+          {
+            "id": "endpoints",
+            "label": "Endpoints",
+            "sub": "80 laptops · phones",
+            "kind": "endpoint",
+            "zone": "client",
+            "x": 105,
+            "y": 100,
+            "arrives": 0,
+            "records": "mssp_soa",
+            "purpose": "What staff work on; where phishing and malware land"
+          },
+          {
+            "id": "servers",
+            "label": "Servers",
+            "sub": "file · ERP · web",
+            "kind": "server",
+            "zone": "client",
+            "x": 275,
+            "y": 100,
+            "arrives": 0,
+            "records": "mssp_soa",
+            "purpose": "The systems the contract protects and the pentest targets"
+          },
+          {
+            "id": "idp",
+            "label": "Client identity",
+            "sub": "Entra ID · MFA",
+            "kind": "idp",
+            "zone": "client",
+            "x": 445,
+            "y": 100,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "One account per person; MFA is the first control implemented"
+          },
+          {
+            "id": "edr",
+            "label": "EDR agents",
+            "sub": "every endpoint and server",
+            "kind": "monitor",
+            "zone": "client",
+            "x": 105,
+            "y": 170,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "Sees process activity on every host and feeds the SIEM"
+          },
+          {
+            "id": "client-edge",
+            "label": "Client edge",
+            "sub": "firewall · log forwarder",
+            "kind": "firewall",
+            "zone": "client",
+            "x": 275,
+            "y": 170,
+            "arrives": 0,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "The boundary, and the one path the client’s logs take out"
+          },
+          {
+            "id": "backup",
+            "label": "Backup target",
+            "sub": "offline copy · restore test",
+            "kind": "backup",
+            "zone": "client",
+            "x": 445,
+            "y": 170,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "blue",
+            "purpose": "The copy the recovery promise in the contract rests on"
+          },
+          {
+            "id": "scanner",
+            "label": "Vulnerability scanner",
+            "sub": "CIS gap · monthly scan",
+            "kind": "scanner",
+            "zone": "client",
+            "x": 105,
+            "y": 240,
+            "arrives": 1,
+            "records": "mssp_gap_assessment",
+            "role": "red",
+            "purpose": "Measures the estate against the baseline, scored"
+          },
+          {
+            "id": "siem",
+            "label": "SIEM / log platform",
+            "sub": "collection · retention",
+            "kind": "siem",
+            "zone": "mssp",
+            "x": 645,
+            "y": 100,
+            "arrives": 2,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Collects the client’s logs and keeps them for the contract term"
+          },
+          {
+            "id": "detections",
+            "label": "Detection rules",
+            "sub": "tuned to the client",
+            "kind": "control",
+            "zone": "mssp",
+            "x": 815,
+            "y": 100,
+            "arrives": 3,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Turns the client’s logs into alerts worth a ticket"
+          },
+          {
+            "id": "analysts",
+            "label": "Analyst bench",
+            "sub": "triage · escalation · reporting",
+            "kind": "people",
+            "zone": "mssp",
+            "x": 645,
+            "y": 170,
+            "arrives": 0,
+            "records": "mssp_metrics",
+            "purpose": "Your team: works the queue and reports to the client"
+          },
+          {
+            "id": "tickets",
+            "label": "Ticket queue",
+            "sub": "SLA clock on every alert",
+            "kind": "ticket",
+            "zone": "mssp",
+            "x": 815,
+            "y": 170,
+            "arrives": 3,
+            "records": "mssp_metrics",
+            "role": "blue",
+            "purpose": "Every alert timed from raise to close: MTTD and MTTR"
+          },
+          {
+            "id": "evidence",
+            "label": "Evidence vault",
+            "sub": "what the audit will ask for",
+            "kind": "evidence",
+            "zone": "mssp",
+            "x": 645,
+            "y": 240,
+            "arrives": 4,
+            "records": "mssp_evidence_packet",
+            "role": "grc",
+            "purpose": "Hashed copies of every artefact the packet cites"
+          },
+          {
+            "id": "ti",
+            "label": "Threat-intel feeds",
+            "sub": "IOCs tuned to the client",
+            "kind": "data",
+            "zone": "mssp",
+            "x": 815,
+            "y": 240,
+            "arrives": 3,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Indicators the rules match against"
+          },
+          {
+            "id": "pentester",
+            "label": "Pentester",
+            "sub": "tests what the controls claim",
+            "kind": "people",
+            "zone": "around",
+            "x": 275,
+            "y": 390,
+            "external": true,
+            "arrives": 1,
+            "records": "mssp_retest",
+            "role": "red",
+            "purpose": "Proves the gaps, then proves the fixes on retest"
+          },
+          {
+            "id": "auditor",
+            "label": "Auditor",
+            "sub": "SOC 2 Type I · ISO 27001 Stage 1",
+            "kind": "people",
+            "zone": "around",
+            "x": 645,
+            "y": 390,
+            "external": true,
+            "arrives": 4,
+            "records": "mssp_internal_audit",
+            "role": "grc",
+            "purpose": "Reads the evidence packet and decides"
+          },
+          {
+            "id": "r_engagement",
+            "label": "Engagement & scope",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 112,
+            "y": 478,
+            "arrives": 0,
+            "records": "mssp_engagement",
+            "role": "grc",
+            "purpose": "Records the signed scope, RoE and the boundary"
+          },
+          {
+            "id": "r_soa",
+            "label": "SoA",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 296,
+            "y": 478,
+            "arrives": 1,
+            "records": "mssp_soa",
+            "role": "grc",
+            "purpose": "Records which controls apply and why"
+          },
+          {
+            "id": "r_gap",
+            "label": "Gap assessment",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 480,
+            "y": 478,
+            "arrives": 1,
+            "records": "mssp_gap_assessment",
+            "role": "red",
+            "purpose": "Records the attack surface and the baseline gaps, scored"
+          },
+          {
+            "id": "r_matrix",
+            "label": "Control matrix",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 664,
+            "y": 478,
+            "arrives": 2,
+            "records": "mssp_control_matrix",
+            "role": "grc",
+            "purpose": "Records each control, its owner and its evidence"
+          },
+          {
+            "id": "r_rules",
+            "label": "Detection rules",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 848,
+            "y": 478,
+            "arrives": 3,
+            "records": "mssp_detection_rules",
+            "role": "blue",
+            "purpose": "Records every rule, what it catches and its test"
+          },
+          {
+            "id": "r_retest",
+            "label": "Retest report",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 112,
+            "y": 512,
+            "arrives": 3,
+            "records": "mssp_retest",
+            "role": "red",
+            "purpose": "Records each finding, the fix and the retest result"
+          },
+          {
+            "id": "r_metrics",
+            "label": "D&R metrics",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 296,
+            "y": 512,
+            "arrives": 4,
+            "records": "mssp_metrics",
+            "role": "blue",
+            "purpose": "Records MTTD, MTTR and the SLA results"
+          },
+          {
+            "id": "r_audit",
+            "label": "Internal audit",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 480,
+            "y": 512,
+            "arrives": 4,
+            "records": "mssp_internal_audit",
+            "role": "grc",
+            "purpose": "Records the audit findings before the auditor arrives"
+          },
+          {
+            "id": "r_packet",
+            "label": "Evidence packet",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 664,
+            "y": 512,
+            "arrives": 4,
+            "records": "mssp_evidence_packet",
+            "role": "grc",
+            "purpose": "The capstone: everything the auditor will ask for"
+          }
+        ],
+        "edges": [
+          {
+            "from": "endpoints",
+            "to": "client-edge",
+            "label": "telemetry",
+            "kind": "log"
+          },
+          {
+            "from": "servers",
+            "to": "client-edge",
+            "label": "telemetry",
+            "kind": "log"
+          },
+          {
+            "from": "edr",
+            "to": "siem",
+            "label": "endpoint events",
+            "kind": "log"
+          },
+          {
+            "from": "client-edge",
+            "to": "siem",
+            "label": "encrypted log stream",
+            "kind": "log"
+          },
+          {
+            "from": "siem",
+            "to": "analysts",
+            "label": "alerts → tickets → reports"
+          },
+          {
+            "from": "servers",
+            "to": "backup",
+            "label": "nightly",
+            "kind": "backup"
+          },
+          {
+            "from": "idp",
+            "to": "endpoints",
+            "label": "MFA",
+            "kind": "trust"
+          }
+        ]
+      },
+      "ARCH_BUILD": {
+        "arrives": {
+          "endpoints": 0,
+          "servers": 0,
+          "idp": 2,
+          "edr": 2,
+          "client-edge": 0,
+          "backup": 2,
+          "scanner": 1,
+          "siem": 2,
+          "detections": 3,
+          "analysts": 0,
+          "tickets": 3,
+          "evidence": 4,
+          "ti": 3,
+          "pentester": 1,
+          "auditor": 4,
+          "r_engagement": 0,
+          "r_soa": 1,
+          "r_gap": 1,
+          "r_matrix": 2,
+          "r_rules": 3,
+          "r_retest": 3,
+          "r_metrics": 4,
+          "r_audit": 4,
+          "r_packet": 4
+        },
+        "processes": {
+          "0": {
+            "title": "Onboarding & scoping",
+            "steps": [
+              {
+                "from": "analysts",
+                "to": "r_engagement",
+                "label": "sign the scope and RoE"
+              },
+              {
+                "from": "r_engagement",
+                "to": "servers",
+                "label": "what the contract covers"
+              }
+            ]
+          },
+          "1": {
+            "title": "Gap assessment",
+            "steps": [
+              {
+                "from": "pentester",
+                "to": "client-edge",
+                "label": "external attack surface"
+              },
+              {
+                "from": "scanner",
+                "to": "servers",
+                "label": "CIS gap scan, scored"
+              },
+              {
+                "from": "analysts",
+                "to": "r_soa",
+                "label": "statement of applicability"
+              }
+            ]
+          },
+          "2": {
+            "title": "Control implementation",
+            "steps": [
+              {
+                "from": "r_matrix",
+                "to": "servers",
+                "label": "hardening · MFA · logging"
+              },
+              {
+                "from": "idp",
+                "to": "endpoints",
+                "label": "MFA everywhere"
+              },
+              {
+                "from": "client-edge",
+                "to": "siem",
+                "label": "encrypted log stream"
+              }
+            ]
+          },
+          "3": {
+            "title": "Validation & testing",
+            "steps": [
+              {
+                "from": "pentester",
+                "to": "servers",
+                "label": "pentest"
+              },
+              {
+                "from": "siem",
+                "to": "tickets",
+                "label": "alert → ticket, on the clock"
+              },
+              {
+                "from": "analysts",
+                "to": "pentester",
+                "label": "fix and retest"
+              }
+            ]
+          },
+          "4": {
+            "title": "Audit readiness",
+            "steps": [
+              {
+                "from": "tickets",
+                "to": "analysts",
+                "label": "MTTD · MTTR"
+              },
+              {
+                "from": "analysts",
+                "to": "evidence",
+                "label": "the evidence packet"
+              },
+              {
+                "from": "evidence",
+                "to": "auditor",
+                "label": "Type I · Stage 1"
+              }
+            ]
+          }
+        },
+        "captions": {
+          "0": "The engagement at signing: the client’s endpoints and servers, the edge that will forward their logs, your analysts and the signed scope.",
+          "1": "New: the pentester, the vulnerability scanner, the SoA and the gap assessment. The gap says what the client has and lacks.",
+          "2": "New: client identity with MFA, EDR, the backup target and the SIEM. The client’s logs reach your SOC; the control matrix is live.",
+          "3": "New: detection rules, the ticket queue and threat-intel feeds. The pentest proves the controls; every alert runs on an SLA clock.",
           "4": "New: the evidence vault and the auditor. MTTD and MTTR are measured and the audit packet is handed over."
         }
       }
@@ -2698,35 +3671,32 @@
       {
         "week": 0,
         "builtThrough": 0,
-        "highlight": [
-          "client-net",
-          "client-edge",
-          "analysts",
-          "scope"
-        ],
+        "highlight": [],
         "process": {
           "title": "Onboarding & scoping",
           "steps": [
             {
               "from": "analysts",
-              "to": "scope",
+              "to": "r_engagement",
               "label": "sign the scope and RoE"
             },
             {
-              "from": "scope",
-              "to": "client-net",
+              "from": "r_engagement",
+              "to": "servers",
               "label": "what the contract covers"
             }
           ]
         },
-        "caption": "The engagement at signing: the client’s estate, the edge that will forward its logs, your analysts, and the signed scope."
+        "caption": "The engagement at signing: the client’s endpoints and servers, the edge that will forward their logs, your analysts and the signed scope."
       },
       {
         "week": 1,
         "builtThrough": 1,
         "highlight": [
+          "scanner",
           "pentester",
-          "baseline"
+          "r_soa",
+          "r_gap"
         ],
         "process": {
           "title": "Gap assessment",
@@ -2737,33 +3707,41 @@
               "label": "external attack surface"
             },
             {
-              "from": "analysts",
-              "to": "baseline",
+              "from": "scanner",
+              "to": "servers",
               "label": "CIS gap scan, scored"
             },
             {
               "from": "analysts",
-              "to": "scope",
+              "to": "r_soa",
               "label": "statement of applicability"
             }
           ]
         },
-        "caption": "New: the pentester and the CIS baseline. The gap assessment says what the client has and what it lacks."
+        "caption": "New: the pentester, the vulnerability scanner, the SoA and the gap assessment. The gap says what the client has and lacks."
       },
       {
         "week": 2,
         "builtThrough": 2,
         "highlight": [
+          "idp",
+          "edr",
+          "backup",
           "siem",
-          "controls"
+          "r_matrix"
         ],
         "process": {
           "title": "Control implementation",
           "steps": [
             {
-              "from": "controls",
-              "to": "client-net",
+              "from": "r_matrix",
+              "to": "servers",
               "label": "hardening · MFA · logging"
+            },
+            {
+              "from": "idp",
+              "to": "endpoints",
+              "label": "MFA everywhere"
             },
             {
               "from": "client-edge",
@@ -2772,21 +3750,24 @@
             }
           ]
         },
-        "caption": "New: the SIEM and the controls. The client’s logs reach your SOC; hardening, MFA and logging are in place."
+        "caption": "New: client identity with MFA, EDR, the backup target and the SIEM. The client’s logs reach your SOC; the control matrix is live."
       },
       {
         "week": 3,
         "builtThrough": 3,
         "highlight": [
           "detections",
-          "tickets"
+          "tickets",
+          "ti",
+          "r_rules",
+          "r_retest"
         ],
         "process": {
           "title": "Validation & testing",
           "steps": [
             {
               "from": "pentester",
-              "to": "client-net",
+              "to": "servers",
               "label": "pentest"
             },
             {
@@ -2801,14 +3782,17 @@
             }
           ]
         },
-        "caption": "New: detection rules and the ticket queue. The pentest proves the controls; every alert runs on an SLA clock."
+        "caption": "New: detection rules, the ticket queue and threat-intel feeds. The pentest proves the controls; every alert runs on an SLA clock."
       },
       {
         "week": 4,
         "builtThrough": 4,
         "highlight": [
           "evidence",
-          "auditor"
+          "auditor",
+          "r_metrics",
+          "r_audit",
+          "r_packet"
         ],
         "process": {
           "title": "Audit readiness",

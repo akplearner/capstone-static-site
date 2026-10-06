@@ -23,7 +23,7 @@
  * pixels, not content.
  */
 import { SOC_IP, SOC_LOGIN_LABEL, SOC_URL, socTopology } from '../labTopology';
-import type { BuildModel } from '../weekVisual';
+import { archBuildModel, type ArchPicture } from './archPicture';
 
 const SOC = socTopology('cysa-plus')!;
 
@@ -432,21 +432,74 @@ export interface FrameCopy {
   legend?: { kind: string; label: string }[];
 }
 
-/* ── What you build this week (R99) ───────────────────────────────────────── */
+/* ── The SOC lab architecture (R99, R103) ────────────────────────────────── */
 
 /**
- * The SOC lab, week by week. Ids are the parts `SocTopologyDiagram` draws: the
- * host, the SOC, the pod and the attacker are built for you (Week 0); each
- * role's sensor arrives in Week 1; the vulnerability view in Week 3; the
- * firewall rule that contains the attacker in Week 4. The process of each
- * week is the attack-path hop of that week (`ATTACK_PATH`).
+ * The SOC lab as a system: the attacker, your team pod with its sensors and
+ * the containment rule, the shared SOC with its views, lookups, case queue
+ * and evidence share, the lab management underneath, and the twelve records
+ * along the bottom. Addresses come from `socTopology`, never typed here.
  */
-export const SOC_BUILD: BuildModel = {
-  arrives: {
-    host: 0, soc: 0, ubuntu: 0, windows: 0, kali: 0, browser: 0,
-    'sensor-agent': 1, 'sensor-sysmon': 1, 'sensor-suricata': 1,
-    'soc-vuln': 3, firewall: 4,
+export const ARCH: ArchPicture = {
+  copy: {
+    title: 'The SOC lab — one shared SOC, your pod, the attacker you drive',
+    howToRead:
+      'Left: the attacker and the lab management under it. Middle: your team pod, its three sensors and the rule that contains the attack. Right: the shared SOC and the tools analysts work in. Bottom: the twelve records, one per role per week.',
+    footer: `One shared SOC, ${SOC.teamCount} team pods on ${SOC.subnet} — your team’s N makes an address yours.`,
   },
+  view: { w: 960, h: 440 },
+  zones: [
+    { id: 'attacker', label: 'Attacker', note: SOC.attacker.ip, x: 20, y: 40, w: 160, h: 130, tone: 4 },
+    { id: 'mgmt', label: 'Lab management', note: SOC.subnet, x: 20, y: 190, w: 160, h: 130, tone: 1 },
+    { id: 'pod', label: 'Your team pod', note: `${SOC.pod.ubuntu.ip} · ${SOC.pod.windows.ip}`, x: 200, y: 40, w: 340, h: 270, tone: 2 },
+    { id: 'soc', label: 'Shared SOC', note: SOC.soc.ip, x: 560, y: 40, w: 380, h: 270, tone: 3 },
+    { id: 'records', label: 'Records — the deliverables', note: 'one per role per week', x: 20, y: 350, w: 920, h: 70, tone: 6, lane: true },
+  ],
+  nodes: [
+    { id: 'kali', label: SOC.attacker.name, sub: SOC.attacker.note, addr: SOC.attacker.ip, kind: 'endpoint', zone: 'attacker', x: 100, y: 100, arrives: 0, records: 'cysa_incident_response', role: 'red', purpose: 'The attacker you drive: recon, exploit, brute force' },
+    { id: 'host', label: 'Proxmox host', sub: 'runs every VM', addr: SOC.proxmoxHost, kind: 'server', zone: 'mgmt', x: 100, y: 235, arrives: 0, records: 'cysa_coverage_validation', purpose: 'The hypervisor every pod and the SOC run on' },
+    { id: 'edge', label: 'Lab edge', sub: 'bridge · NAT · no inbound', kind: 'firewall', zone: 'mgmt', x: 100, y: 290, arrives: 0, records: 'cysa_coverage_validation', purpose: 'Keeps the lab off the internet; only the dashboard is reachable' },
+    { id: 'ubuntu', label: SOC.pod.ubuntu.name, sub: 'DVWA · the target', addr: SOC.pod.ubuntu.ip, kind: 'server', zone: 'pod', x: 285, y: 100, arrives: 0, records: 'cysa_sensor_deployment', role: 'blue', purpose: 'The web target the attack chain lands on' },
+    { id: 'windows', label: SOC.pod.windows.name, sub: 'the endpoint', addr: SOC.pod.windows.ip, kind: 'endpoint', zone: 'pod', x: 455, y: 100, arrives: 0, records: 'cysa_sensor_deployment', role: 'blue', purpose: 'The endpoint whose process tree Sysmon records' },
+    { id: 'sensor-agent', label: 'Wazuh agent', sub: 'ports 1514 · 1515', kind: 'monitor', zone: 'pod', x: 285, y: 170, arrives: 1, records: 'cysa_sensor_deployment', role: 'blue', purpose: 'Ships logs and file changes from the pod to the manager' },
+    { id: 'sensor-sysmon', label: 'Sysmon', sub: 'process · network events', kind: 'monitor', zone: 'pod', x: 455, y: 170, arrives: 1, records: 'cysa_sensor_deployment', role: 'blue', purpose: 'Records every process start and connection on Windows' },
+    { id: 'sensor-suricata', label: 'Suricata IDS', sub: 'eve.json', kind: 'monitor', zone: 'pod', x: 285, y: 240, arrives: 1, records: 'cysa_sensor_deployment', role: 'blue', purpose: 'Sees the attack on the wire and names the signature' },
+    { id: 'firewall', label: 'Containment rule', sub: 'ufw DENY the attacker', kind: 'firewall', zone: 'pod', x: 455, y: 240, arrives: 4, records: 'cysa_incident_response', role: 'red', purpose: 'The rule that cuts the attacker off once the case is confirmed' },
+    { id: 'soc', label: SOC.soc.name, sub: SOC.soc.lines[1], addr: SOC.soc.ip, kind: 'siem', zone: 'soc', x: 645, y: 100, arrives: 0, records: 'cysa_soc_monitoring', role: 'blue', purpose: 'Manager, indexer and dashboard: every event, scored by a rule' },
+    { id: 'soc-vuln', label: 'Vulnerability view', sub: 'SCA · CVE matches', kind: 'scanner', zone: 'soc', x: 815, y: 100, arrives: 3, records: 'cysa_vulnerability_assessment', role: 'grc', purpose: 'What the pod exposes, ranked, from the inside' },
+    { id: 'ti', label: 'Threat-intel lookups', sub: 'VirusTotal · AbuseIPDB', kind: 'data', zone: 'soc', x: 645, y: 170, arrives: 2, records: 'cysa_ioc_database', role: 'grc', purpose: 'Enriches an indicator before it goes in the database' },
+    { id: 'cases', label: 'Case queue', sub: 'triage → escalate', kind: 'ticket', zone: 'soc', x: 815, y: 170, arrives: 2, records: 'cysa_alert_triage', role: 'blue', purpose: 'Every alert worked to true, false or escalate' },
+    { id: 'evidence', label: 'Evidence share', sub: 'hashed captures', kind: 'evidence', zone: 'soc', x: 645, y: 240, arrives: 3, records: 'cysa_incident_response', role: 'red', purpose: 'Where captures and exports are kept with their hashes' },
+    { id: 'browser', label: SOC.browser.name, sub: SOC.browser.note, kind: 'endpoint', zone: 'soc', x: 815, y: 240, arrives: 0, records: 'cysa_soc_monitoring', role: 'blue', purpose: 'Dashboards, searches and the triage decisions' },
+    { id: 'r_monitoring', label: 'SOC monitoring', sub: '', kind: 'record', zone: 'records', x: 95, y: 368, arrives: 1, records: 'cysa_soc_monitoring', role: 'blue', purpose: 'Records the baseline of normal and the first alerts' },
+    { id: 'r_coverage', label: 'Coverage validation', sub: '', kind: 'record', zone: 'records', x: 248, y: 368, arrives: 1, records: 'cysa_coverage_validation', role: 'grc', purpose: 'Records which sources reach the SOC and the gaps' },
+    { id: 'r_sensors', label: 'Sensor deployment', sub: '', kind: 'record', zone: 'records', x: 401, y: 368, arrives: 1, records: 'cysa_sensor_deployment', role: 'red', purpose: 'Records each sensor, where it runs and its proof' },
+    { id: 'r_triage', label: 'Alert triage', sub: '', kind: 'record', zone: 'records', x: 554, y: 368, arrives: 2, records: 'cysa_alert_triage', role: 'blue', purpose: 'Records every alert and the triage decision' },
+    { id: 'r_investigation', label: 'Threat investigation', sub: '', kind: 'record', zone: 'records', x: 707, y: 368, arrives: 2, records: 'cysa_threat_investigation', role: 'grc', purpose: 'Records the hunt hypotheses and what they found' },
+    { id: 'r_iocs', label: 'IOC database', sub: '', kind: 'record', zone: 'records', x: 860, y: 368, arrives: 2, records: 'cysa_ioc_database', role: 'red', purpose: 'Records every indicator, enriched and attributed' },
+    { id: 'r_findings', label: 'SOC findings', sub: '', kind: 'record', zone: 'records', x: 95, y: 402, arrives: 3, records: 'cysa_soc_findings', role: 'blue', purpose: 'Records what the SOC found across the week' },
+    { id: 'r_scans', label: 'Scan validation', sub: '', kind: 'record', zone: 'records', x: 248, y: 402, arrives: 3, records: 'cysa_scan_validation', role: 'grc', purpose: 'Records the outside scan checked against the inside view' },
+    { id: 'r_vuln', label: 'Vulnerability assessment', sub: '', kind: 'record', zone: 'records', x: 401, y: 402, arrives: 3, records: 'cysa_vulnerability_assessment', role: 'red', purpose: 'Records the ranked weaknesses and the fix order' },
+    { id: 'r_detection', label: 'Detection record', sub: '', kind: 'record', zone: 'records', x: 554, y: 402, arrives: 4, records: 'cysa_detection_record', role: 'blue', purpose: 'Records the detection that caught the attack' },
+    { id: 'r_incident', label: 'Incident response', sub: '', kind: 'record', zone: 'records', x: 707, y: 402, arrives: 4, records: 'cysa_incident_response', role: 'red', purpose: 'Records containment, eradication and lessons learned' },
+    { id: 'r_debrief', label: 'Executive debrief', sub: '', kind: 'record', zone: 'records', x: 860, y: 402, arrives: 4, records: 'cysa_exec_debrief', role: 'grc', purpose: 'The capstone: the week in one page for the executives' },
+  ],
+  edges: [
+    { from: 'kali', to: 'ubuntu', label: 'attacks' },
+    { from: 'sensor-agent', to: 'soc', label: 'events · 1514', kind: 'log' },
+    { from: 'sensor-sysmon', to: 'soc', label: 'via the agent', kind: 'log' },
+    { from: 'sensor-suricata', to: 'soc', label: 'eve.json', kind: 'log' },
+    { from: 'soc', to: 'browser', label: 'alerts' },
+    { from: 'browser', to: 'cases', label: 'triage' },
+    { from: 'cases', to: 'evidence', label: 'captures' },
+  ],
+  spec: {
+    columns: ['Component', 'Address', 'Runs', 'Who'],
+    rows: SOC.spec.map((r) => [r.component, r.address, r.runs, r.who]),
+  },
+};
+
+export const ARCH_BUILD = archBuildModel(ARCH, {
   processes: {
     1: { title: 'See everything', steps: [
       { from: 'ubuntu', to: 'soc', label: 'agent · port 1514' },
@@ -457,10 +510,13 @@ export const SOC_BUILD: BuildModel = {
       { from: 'kali', to: 'ubuntu', label: 'recon · exploit · brute force' },
       { from: 'ubuntu', to: 'soc', label: 'the evidence each hop leaves' },
       { from: 'soc', to: 'browser', label: 'hunt and triage' },
+      { from: 'browser', to: 'ti', label: 'enrich the indicators' },
+      { from: 'ti', to: 'cases', label: 'open the case' },
     ] },
     3: { title: 'Close the gaps', steps: [
       { from: 'kali', to: 'ubuntu', label: 'scan from the attacker’s side' },
       { from: 'soc-vuln', to: 'browser', label: 'rank the risk' },
+      { from: 'browser', to: 'evidence', label: 'keep the exports, hashed' },
     ] },
     4: { title: 'Hold the line', steps: [
       { from: 'soc', to: 'browser', label: 'detect: the first alert' },
@@ -470,9 +526,9 @@ export const SOC_BUILD: BuildModel = {
   },
   captions: {
     0: 'The lab as it is built for you: one Proxmox host, the shared SOC, your team pod and the Kali attacker.',
-    1: 'New: a sensor per role. Every pod reports to the SOC; the baseline of normal is written.',
-    2: 'Nothing new is built. You run the attack chain yourself and hunt for the evidence each hop leaves.',
-    3: 'New: the vulnerability view. Scan the pod from both sides and rank what you find.',
-    4: 'New: the firewall rule. Detect, investigate and contain the attack, then report it.',
+    1: 'New: a sensor per role and the first three records. Every pod reports to the SOC; the baseline of normal is written.',
+    2: 'New: threat-intel lookups and the case queue. You run the attack chain yourself and hunt for the evidence each hop leaves.',
+    3: 'New: the vulnerability view and the evidence share. Scan the pod from both sides and rank what you find.',
+    4: 'New: the containment rule. Detect, investigate and contain the attack, then report it.',
   },
-};
+});

@@ -66,7 +66,8 @@ export function weekVisualsFrom(model: BuildModel, weeks: number[], toBuilt: (w:
   return weeks.map((week) => ({
     week,
     builtThrough: toBuilt(week),
-    highlight: arrivingIn(model, week),
+    // R103: week 0 is the starting point — nothing "arrives", so nothing glows.
+    highlight: week === 0 ? [] : arrivingIn(model, week),
     process: model.processes[week],
     caption: model.captions[week] ?? '',
   }));

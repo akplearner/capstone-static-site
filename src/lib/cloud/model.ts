@@ -77,6 +77,8 @@ export interface CloudNode {
   x: number;
   y: number;
   week: number;
+  /** R103: what it is for, in at most twelve words — the weekly breakdown's line. */
+  purpose?: string;
   /** Draw small: supporting resources (NIC, role assignment, diagnostic setting). */
   small?: boolean;
   /** R94: template plumbing a beginner does not need in the picture (a route-table

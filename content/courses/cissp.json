@@ -3715,7 +3715,7 @@
     "isSeed": true,
     "version": 1,
     "locked": false,
-    "topologyPicture": "hub",
+    "topologyPicture": "arch",
     "teamCount": 18,
     "teamCapacity": 6
   },
@@ -6523,16 +6523,16 @@
         "gradedOn": "Process · documentation · evidence · ethics (staying in scope) — not speed."
       }
     },
-    "hub": {
-      "HUB": {
+    "arch": {
+      "ARCH": {
         "copy": {
           "title": "Ridgeline’s security program — the estate your eight sheets cover",
-          "howToRead": "Left: the office and field estate the company is leaving. Middle: the cloud account that becomes the Service Hub. Right: the suppliers and customers who rely on it. Every control statement and sheet names one of these boxes.",
-          "footer": "Lab stand-in until the starter kit ships: containers on one Linux machine play the cloud account."
+          "howToRead": "Left: the office and field estate the company is leaving or connecting. Middle: the cloud account that becomes the Service Hub, tier by tier. Right: the suppliers and customers who rely on it. Bottom: the sheets and releases that record it. Every control statement names one of these boxes.",
+          "footer": "Lab stand-in until the starter kit ships: containers on one Linux machine play the cloud account; OPNsense, Keycloak, Jenkins, Wazuh and restic play the services."
         },
         "view": {
           "w": 960,
-          "h": 400
+          "h": 570
         },
         "zones": [
           {
@@ -6541,58 +6541,78 @@
             "note": "being retired or connected",
             "x": 20,
             "y": 40,
-            "w": 220,
-            "h": 340,
+            "w": 210,
+            "h": 400,
             "tone": 4
           },
           {
             "id": "cloud",
             "label": "Cloud account — the Service Hub",
             "note": "what Ridgeline answers for",
-            "x": 260,
+            "x": 250,
             "y": 40,
-            "w": 460,
-            "h": 340,
+            "w": 500,
+            "h": 400,
             "tone": 2
           },
           {
             "id": "outside",
             "label": "Suppliers and customers",
-            "note": "shared responsibility",
-            "x": 740,
+            "note": "see D3",
+            "x": 770,
             "y": 40,
-            "w": 200,
-            "h": 340,
+            "w": 170,
+            "h": 400,
             "tone": 1
+          },
+          {
+            "id": "records",
+            "label": "Records — the eight sheets and the releases",
+            "note": "D1–D8 · v1–v6",
+            "x": 20,
+            "y": 470,
+            "w": 920,
+            "h": 70,
+            "tone": 6,
+            "lane": true
           }
         ],
         "nodes": [
           {
             "id": "staff",
             "label": "Office staff",
-            "sub": "policy · training",
+            "sub": "40 people · policy · training",
             "kind": "people",
             "zone": "office",
-            "x": 130,
-            "y": 100
+            "x": 125,
+            "y": 100,
+            "arrives": 0,
+            "records": "cissp_d1",
+            "purpose": "Who the policy binds and who the training reaches"
           },
           {
             "id": "oldserver",
             "label": "Old scheduling server",
             "sub": "past end of support (S-10)",
-            "kind": "data",
+            "kind": "server",
             "zone": "office",
-            "x": 130,
-            "y": 170
+            "x": 125,
+            "y": 170,
+            "arrives": 0,
+            "records": "cissp_d2",
+            "purpose": "The on-premises server to migrate, then sanitize"
           },
           {
             "id": "phones",
             "label": "Technicians’ phones",
-            "sub": "remote access",
-            "kind": "people",
+            "sub": "80 field devices",
+            "kind": "endpoint",
             "zone": "office",
-            "x": 130,
-            "y": 240
+            "x": 125,
+            "y": 240,
+            "arrives": 1,
+            "records": "cissp_d4",
+            "purpose": "Remote access from the field; the biggest endpoint fleet"
           },
           {
             "id": "sensors",
@@ -6600,44 +6620,101 @@
             "sub": "IoT readings",
             "kind": "network",
             "zone": "office",
-            "x": 130,
-            "y": 310
+            "x": 125,
+            "y": 310,
+            "arrives": 2,
+            "records": "cissp_d4",
+            "purpose": "Untrusted devices that feed the failure predictor"
+          },
+          {
+            "id": "mdm",
+            "label": "Device management",
+            "sub": "MDM · encryption · wipe",
+            "kind": "control",
+            "zone": "office",
+            "x": 125,
+            "y": 380,
+            "arrives": 1,
+            "records": "cissp_d5",
+            "purpose": "Enrols the phones, enforces encryption and remote wipe"
           },
           {
             "id": "firewall",
             "label": "Zones and firewall",
-            "sub": "default deny",
-            "kind": "network",
+            "sub": "default deny · OPNsense",
+            "kind": "firewall",
             "zone": "cloud",
-            "x": 370,
-            "y": 100
+            "x": 325,
+            "y": 100,
+            "arrives": 1,
+            "records": "cissp_d4",
+            "role": "archnet",
+            "purpose": "Separates office, cloud and sensor traffic; default deny"
+          },
+          {
+            "id": "vpn",
+            "label": "VPN remote access",
+            "sub": "WireGuard · MFA",
+            "kind": "router",
+            "zone": "cloud",
+            "x": 495,
+            "y": 100,
+            "arrives": 1,
+            "records": "cissp_d4",
+            "role": "archnet",
+            "purpose": "The one recorded path for administrators and phones"
           },
           {
             "id": "idp",
             "label": "Identity provider",
             "sub": "Keycloak · MFA",
-            "kind": "identity",
+            "kind": "idp",
             "zone": "cloud",
-            "x": 610,
-            "y": 100
+            "x": 665,
+            "y": 100,
+            "arrives": 1,
+            "records": "cissp_d5",
+            "role": "idops",
+            "purpose": "One account per person, MFA on every administrative login"
           },
           {
-            "id": "hub",
-            "label": "Service Hub app",
-            "sub": "web · API · agent",
+            "id": "web",
+            "label": "Hub web app",
+            "sub": "customer portal · TLS 1.3",
             "kind": "app",
             "zone": "cloud",
-            "x": 370,
-            "y": 170
+            "x": 325,
+            "y": 170,
+            "arrives": 0,
+            "records": "cissp_d8",
+            "role": "archnet",
+            "purpose": "What customers and dispatchers see"
           },
           {
-            "id": "db",
-            "label": "Database and documents",
-            "sub": "customer data · keys",
-            "kind": "data",
+            "id": "api",
+            "label": "Hub API",
+            "sub": "work orders · invoices",
+            "kind": "app",
             "zone": "cloud",
-            "x": 610,
-            "y": 170
+            "x": 495,
+            "y": 170,
+            "arrives": 0,
+            "records": "cissp_d8",
+            "role": "archnet",
+            "purpose": "The business logic every client and agent calls"
+          },
+          {
+            "id": "agent",
+            "label": "Dispatch agent",
+            "sub": "assigns · messages",
+            "kind": "ai",
+            "zone": "cloud",
+            "x": 665,
+            "y": 170,
+            "arrives": 0,
+            "records": "cissp_d8",
+            "role": "archnet",
+            "purpose": "The AI that assigns technicians through the API"
           },
           {
             "id": "gateway",
@@ -6645,17 +6722,38 @@
             "sub": "sole path to the model",
             "kind": "control",
             "zone": "cloud",
-            "x": 370,
-            "y": 240
+            "x": 325,
+            "y": 240,
+            "arrives": 4,
+            "records": "cissp_d3",
+            "role": "archnet",
+            "purpose": "Tenant separation and a fallback when the provider is down"
           },
           {
-            "id": "siem",
-            "label": "Logs and SIEM",
-            "sub": "12 months · reviewed",
-            "kind": "monitor",
+            "id": "db",
+            "label": "Database and documents",
+            "sub": "customer data · federal info",
+            "kind": "data",
             "zone": "cloud",
-            "x": 610,
-            "y": 240
+            "x": 495,
+            "y": 240,
+            "arrives": 0,
+            "records": "cissp_d2",
+            "role": "archnet",
+            "purpose": "Where building records, contracts and work orders live"
+          },
+          {
+            "id": "kms",
+            "label": "Key management",
+            "sub": "AES-256 at rest · rotation",
+            "kind": "identity",
+            "zone": "cloud",
+            "x": 665,
+            "y": 240,
+            "arrives": 2,
+            "records": "cissp_d3",
+            "role": "archnet",
+            "purpose": "Owns the encryption keys and their yearly rotation"
           },
           {
             "id": "pipeline",
@@ -6663,17 +6761,38 @@
             "sub": "review · scan · approve",
             "kind": "pipeline",
             "zone": "cloud",
-            "x": 370,
-            "y": 310
+            "x": 325,
+            "y": 310,
+            "arrives": 3,
+            "records": "cissp_d8",
+            "role": "archnet",
+            "purpose": "No change reaches production without a scan and a second person"
+          },
+          {
+            "id": "siem",
+            "label": "Logs and SIEM",
+            "sub": "12 months · reviewed weekly",
+            "kind": "siem",
+            "zone": "cloud",
+            "x": 495,
+            "y": 310,
+            "arrives": 4,
+            "records": "cissp_d7",
+            "role": "idops",
+            "purpose": "Keeps and reviews the logs; raises the detections"
           },
           {
             "id": "backup",
             "label": "Backup vault",
             "sub": "encrypted · offline copy",
-            "kind": "data",
+            "kind": "backup",
             "zone": "cloud",
-            "x": 610,
-            "y": 310
+            "x": 665,
+            "y": 310,
+            "arrives": 2,
+            "records": "cissp_d7",
+            "role": "idops",
+            "purpose": "The restore-tested copy the recovery targets depend on"
           },
           {
             "id": "modelapi",
@@ -6681,19 +6800,25 @@
             "sub": "third-party LLM",
             "kind": "ai",
             "zone": "outside",
-            "x": 840,
+            "x": 855,
             "y": 100,
-            "external": true
+            "external": true,
+            "arrives": 0,
+            "records": "cissp_d3",
+            "purpose": "The supplier whose outage stops dispatch"
           },
           {
             "id": "custidp",
             "label": "Customer identity",
             "sub": "SAML · OIDC",
-            "kind": "identity",
+            "kind": "idp",
             "zone": "outside",
-            "x": 840,
+            "x": 855,
             "y": 170,
-            "external": true
+            "external": true,
+            "arrives": 3,
+            "records": "cissp_d5",
+            "purpose": "Federated sign-on for the customers’ own staff"
           },
           {
             "id": "customer",
@@ -6701,9 +6826,12 @@
             "sub": "72-hour notice · SOC 2",
             "kind": "people",
             "zone": "outside",
-            "x": 840,
+            "x": 855,
             "y": 240,
-            "external": true
+            "external": true,
+            "arrives": 0,
+            "records": "cissp_d1",
+            "purpose": "Sets the contract terms and sends the questionnaire"
           },
           {
             "id": "federal",
@@ -6711,9 +6839,168 @@
             "sub": "FCI now · CUI next year",
             "kind": "outside",
             "zone": "outside",
-            "x": 840,
+            "x": 855,
             "y": 310,
-            "external": true
+            "external": true,
+            "arrives": 6,
+            "records": "cissp_d1",
+            "purpose": "The information that must stay inside authorized services"
+          },
+          {
+            "id": "r_d1",
+            "label": "D1 Governance",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 95,
+            "y": 492,
+            "arrives": 1,
+            "records": "cissp_d1",
+            "role": "govrisk",
+            "purpose": "Records the policy, risks, legal and supplier registers"
+          },
+          {
+            "id": "r_d2",
+            "label": "D2 Assets",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 248,
+            "y": 492,
+            "arrives": 1,
+            "records": "cissp_d2",
+            "role": "govrisk",
+            "purpose": "Records the inventory, classification and categorization"
+          },
+          {
+            "id": "r_d3",
+            "label": "D3 Architecture",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 401,
+            "y": 492,
+            "arrives": 1,
+            "records": "cissp_d3",
+            "role": "archnet",
+            "purpose": "Records boundaries, cryptography and shared responsibility"
+          },
+          {
+            "id": "r_d4",
+            "label": "D4 Network",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 554,
+            "y": 492,
+            "arrives": 1,
+            "records": "cissp_d4",
+            "role": "archnet",
+            "purpose": "Records zones, the rule base and remote access"
+          },
+          {
+            "id": "r_d5",
+            "label": "D5 Identity",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 707,
+            "y": 492,
+            "arrives": 1,
+            "records": "cissp_d5",
+            "role": "idops",
+            "purpose": "Records accounts, MFA, privileged access and reviews"
+          },
+          {
+            "id": "r_d6",
+            "label": "D6 Assessment",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 860,
+            "y": 492,
+            "arrives": 1,
+            "records": "cissp_d6",
+            "role": "govrisk",
+            "purpose": "Records the profiles, scores, metrics and the assessment"
+          },
+          {
+            "id": "r_d7",
+            "label": "D7 Operations",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 95,
+            "y": 526,
+            "arrives": 1,
+            "records": "cissp_d7",
+            "role": "idops",
+            "purpose": "Records logging, incidents, impact, backup and contingency"
+          },
+          {
+            "id": "r_d8",
+            "label": "D8 Software",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 248,
+            "y": 526,
+            "arrives": 1,
+            "records": "cissp_d8",
+            "role": "archnet",
+            "purpose": "Records the pipeline gates and change control"
+          },
+          {
+            "id": "r_note",
+            "label": "Release note",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 401,
+            "y": 526,
+            "arrives": 1,
+            "records": "cissp_release_note",
+            "role": "govrisk",
+            "purpose": "Records what each release shipped and its score"
+          },
+          {
+            "id": "r_controls",
+            "label": "Control statements",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 554,
+            "y": 526,
+            "arrives": 2,
+            "records": "cissp_controls",
+            "role": "govrisk",
+            "purpose": "Records sixteen controls: who does what, how often"
+          },
+          {
+            "id": "r_questionnaire",
+            "label": "Questionnaire",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 707,
+            "y": 526,
+            "arrives": 5,
+            "records": "cissp_questionnaire",
+            "role": "govrisk",
+            "purpose": "Records the sixteen answers, each with evidence"
+          },
+          {
+            "id": "r_ssp",
+            "label": "SSP (capstone)",
+            "sub": "",
+            "kind": "record",
+            "zone": "records",
+            "x": 860,
+            "y": 526,
+            "arrives": 6,
+            "records": "cissp_ssp",
+            "role": "govrisk",
+            "purpose": "The system security plan and traceability matrix"
           }
         ],
         "edges": [
@@ -6723,35 +7010,86 @@
             "label": "spreadsheets · scheduling"
           },
           {
-            "from": "hub",
+            "from": "web",
+            "to": "api",
+            "label": "calls"
+          },
+          {
+            "from": "api",
             "to": "db",
             "label": "customer data"
           },
           {
-            "from": "hub",
+            "from": "api",
+            "to": "gateway",
+            "label": "prompts"
+          },
+          {
+            "from": "gateway",
             "to": "modelapi",
             "label": "AI calls"
+          },
+          {
+            "from": "idp",
+            "to": "web",
+            "label": "single sign-on",
+            "kind": "trust"
+          },
+          {
+            "from": "phones",
+            "to": "vpn",
+            "label": "remote access",
+            "kind": "admin"
+          },
+          {
+            "from": "api",
+            "to": "siem",
+            "label": "audit log",
+            "kind": "log"
+          },
+          {
+            "from": "db",
+            "to": "backup",
+            "label": "nightly",
+            "kind": "backup"
           }
         ]
       },
-      "HUB_BUILD": {
+      "ARCH_BUILD": {
         "arrives": {
           "staff": 0,
           "oldserver": 0,
-          "hub": 0,
-          "db": 0,
-          "modelapi": 0,
-          "customer": 0,
-          "firewall": 1,
-          "idp": 1,
           "phones": 1,
           "sensors": 2,
-          "backup": 2,
-          "pipeline": 3,
-          "custidp": 3,
+          "mdm": 1,
+          "firewall": 1,
+          "vpn": 1,
+          "idp": 1,
+          "web": 0,
+          "api": 0,
+          "agent": 0,
           "gateway": 4,
+          "db": 0,
+          "kms": 2,
+          "pipeline": 3,
           "siem": 4,
-          "federal": 6
+          "backup": 2,
+          "modelapi": 0,
+          "custidp": 3,
+          "customer": 0,
+          "federal": 6,
+          "r_d1": 1,
+          "r_d2": 1,
+          "r_d3": 1,
+          "r_d4": 1,
+          "r_d5": 1,
+          "r_d6": 1,
+          "r_d7": 1,
+          "r_d8": 1,
+          "r_note": 1,
+          "r_controls": 2,
+          "r_questionnaire": 5,
+          "r_ssp": 6
         },
         "processes": {
           "0": {
@@ -6763,7 +7101,7 @@
                 "label": "spreadsheets and the scheduling app"
               },
               {
-                "from": "hub",
+                "from": "api",
                 "to": "modelapi",
                 "label": "AI at the center"
               }
@@ -6779,8 +7117,13 @@
               },
               {
                 "from": "staff",
-                "to": "hub",
+                "to": "r_d1",
                 "label": "eight sheets, signed by the CEO"
+              },
+              {
+                "from": "phones",
+                "to": "vpn",
+                "label": "the one path in"
               }
             ]
           },
@@ -6791,6 +7134,11 @@
                 "from": "customer",
                 "to": "staff",
                 "label": "“promptly” eleven times: give numbers"
+              },
+              {
+                "from": "kms",
+                "to": "db",
+                "label": "keys owned and rotated"
               },
               {
                 "from": "backup",
@@ -6804,7 +7152,7 @@
             "steps": [
               {
                 "from": "pipeline",
-                "to": "hub",
+                "to": "api",
                 "label": "a critical finding blocks release"
               },
               {
@@ -6836,6 +7184,11 @@
                 "from": "backup",
                 "to": "db",
                 "label": "restore, hashes match"
+              },
+              {
+                "from": "api",
+                "to": "siem",
+                "label": "the detection fires"
               }
             ]
           },
@@ -6844,7 +7197,7 @@
             "steps": [
               {
                 "from": "customer",
-                "to": "staff",
+                "to": "r_questionnaire",
                 "label": "sixteen questions, each with evidence"
               },
               {
@@ -6871,18 +7224,23 @@
                 "from": "db",
                 "to": "federal",
                 "label": "federal information stays inside"
+              },
+              {
+                "from": "r_d6",
+                "to": "r_ssp",
+                "label": "the plan assembled"
               }
             ]
           }
         },
         "captions": {
-          "0": "Where Ridgeline starts: staff, an old server and spreadsheets, and the planned Service Hub with a third-party model at its center.",
-          "1": "New: zones, an identity provider and technicians’ phones on the page. Every domain is written down once, with an owner.",
-          "2": "New: building sensors and the backup vault. Every rule now has a number, an owner and a time limit.",
+          "0": "Where Ridgeline starts: staff, an old server and spreadsheets, and the Hub’s web, API and agent tiers with a third-party model behind them.",
+          "1": "New: zones, the VPN, the identity provider and device management for the phones. Every domain is written down once, with an owner.",
+          "2": "New: building sensors, key management and the backup vault. Every rule now has a number, an owner and a time limit.",
           "3": "New: the pipeline and the customer’s identity provider. Gates block, TLS 1.2 is refused, and the old server is sanitized.",
           "4": "New: the AI gateway and the SIEM. A detection fires, a restore matches, and one customer never sees another’s records.",
           "5": "Nothing new is built: every control is assessed, the questionnaire is answered with evidence, and a tabletop tests the plans.",
-          "6": "New: the federal boundary. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the plan is assembled."
+          "6": "New: the federal boundary and the plan. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the SSP is assembled."
         }
       }
     },
@@ -6890,14 +7248,7 @@
       {
         "week": 0,
         "builtThrough": 0,
-        "highlight": [
-          "staff",
-          "oldserver",
-          "hub",
-          "db",
-          "modelapi",
-          "customer"
-        ],
+        "highlight": [],
         "process": {
           "title": "Where things stand",
           "steps": [
@@ -6907,21 +7258,32 @@
               "label": "spreadsheets and the scheduling app"
             },
             {
-              "from": "hub",
+              "from": "api",
               "to": "modelapi",
               "label": "AI at the center"
             }
           ]
         },
-        "caption": "Where Ridgeline starts: staff, an old server and spreadsheets, and the planned Service Hub with a third-party model at its center."
+        "caption": "Where Ridgeline starts: staff, an old server and spreadsheets, and the Hub’s web, API and agent tiers with a third-party model behind them."
       },
       {
         "week": 1,
         "builtThrough": 1,
         "highlight": [
+          "phones",
+          "mdm",
           "firewall",
+          "vpn",
           "idp",
-          "phones"
+          "r_d1",
+          "r_d2",
+          "r_d3",
+          "r_d4",
+          "r_d5",
+          "r_d6",
+          "r_d7",
+          "r_d8",
+          "r_note"
         ],
         "process": {
           "title": "Release v1: one page per domain",
@@ -6933,19 +7295,26 @@
             },
             {
               "from": "staff",
-              "to": "hub",
+              "to": "r_d1",
               "label": "eight sheets, signed by the CEO"
+            },
+            {
+              "from": "phones",
+              "to": "vpn",
+              "label": "the one path in"
             }
           ]
         },
-        "caption": "New: zones, an identity provider and technicians’ phones on the page. Every domain is written down once, with an owner."
+        "caption": "New: zones, the VPN, the identity provider and device management for the phones. Every domain is written down once, with an owner."
       },
       {
         "week": 2,
         "builtThrough": 2,
         "highlight": [
           "sensors",
-          "backup"
+          "kms",
+          "backup",
+          "r_controls"
         ],
         "process": {
           "title": "Release v2: numbers, owners, time limits",
@@ -6956,13 +7325,18 @@
               "label": "“promptly” eleven times: give numbers"
             },
             {
+              "from": "kms",
+              "to": "db",
+              "label": "keys owned and rotated"
+            },
+            {
               "from": "backup",
               "to": "db",
               "label": "recovery targets per process"
             }
           ]
         },
-        "caption": "New: building sensors and the backup vault. Every rule now has a number, an owner and a time limit."
+        "caption": "New: building sensors, key management and the backup vault. Every rule now has a number, an owner and a time limit."
       },
       {
         "week": 3,
@@ -6976,7 +7350,7 @@
           "steps": [
             {
               "from": "pipeline",
-              "to": "hub",
+              "to": "api",
               "label": "a critical finding blocks release"
             },
             {
@@ -7017,6 +7391,11 @@
               "from": "backup",
               "to": "db",
               "label": "restore, hashes match"
+            },
+            {
+              "from": "api",
+              "to": "siem",
+              "label": "the detection fires"
             }
           ]
         },
@@ -7025,13 +7404,15 @@
       {
         "week": 5,
         "builtThrough": 5,
-        "highlight": [],
+        "highlight": [
+          "r_questionnaire"
+        ],
         "process": {
           "title": "Release v5: tested",
           "steps": [
             {
               "from": "customer",
-              "to": "staff",
+              "to": "r_questionnaire",
               "label": "sixteen questions, each with evidence"
             },
             {
@@ -7052,7 +7433,8 @@
         "week": 6,
         "builtThrough": 6,
         "highlight": [
-          "federal"
+          "federal",
+          "r_ssp"
         ],
         "process": {
           "title": "Release v6: federal-ready",
@@ -7066,10 +7448,15 @@
               "from": "db",
               "to": "federal",
               "label": "federal information stays inside"
+            },
+            {
+              "from": "r_d6",
+              "to": "r_ssp",
+              "label": "the plan assembled"
             }
           ]
         },
-        "caption": "New: the federal boundary. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the plan is assembled."
+        "caption": "New: the federal boundary and the plan. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the SSP is assembled."
       }
     ],
     "custody": {

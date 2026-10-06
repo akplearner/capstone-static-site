@@ -285,7 +285,7 @@ type=USER_LOGIN msg=audit(1754384: pid=1442 uid=0 auid=1000
     title: 'External attack-surface assessment',
     objective: 'Map the in-scope external attack surface to feed the gap analysis.',
     frameworks: ['NIST_800_115', 'OWASP'],
-    deliverables: [],
+    deliverables: ['09_Gap_Assessment.md'],
     estimatedTime: '90 min',
     prerequisites: ['Rules of engagement confirmed'],
     learn: ['Attack-surface enumeration', 'TLS/config hygiene'],
@@ -296,6 +296,7 @@ type=USER_LOGIN msg=audit(1754384: pid=1442 uid=0 auid=1000
       {
         id: 'mr-w1-s1',
         title: 'Scan the in-scope hosts',
+        usesForm: 'Gap Assessment',
         description: 'Enumerate services on the authorized targets.',
         commands: [
           {
@@ -734,7 +735,7 @@ export const MSSP: Course = {
   // lock is gone. `locked: true` remains available for genuinely unfinished
   // courses.
   locked: false,
-  topologyPicture: 'engagement',
+  topologyPicture: 'arch',
   teamCount: 16,
   teamCapacity: 6,
 };

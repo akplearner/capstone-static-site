@@ -14,7 +14,11 @@ import { AWS_TOPOLOGY } from '../cloud/awsTopology';
 import { isGradedWeek } from '../course-helpers';
 import { BASE_VMS } from '../serverTopology';
 import { DEVICES } from '../ccnaTopology';
-import { ENGAGEMENT } from './msspContent';
+import { ARCH as MSSP_ARCH } from './msspContent';
+import { ARCH as SEC_ARCH } from './securityContent';
+import { ARCH as CYSA_ARCH } from './cysaContent';
+import { ARCH as SECAI_ARCH } from './secaiContent';
+import { ARCH as CISSP_ARCH } from './cisspContent';
 import { partsBuiltThrough, processIds, type WeekVisual } from '../weekVisual';
 import { BUILD_MODELS, cloudBuildModel, weekVisualsFor } from './weekVisuals';
 
@@ -95,11 +99,14 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R99 — what you build this w
 });
 
 describe('R99 — the build models cover their topologies', () => {
-  it('Server+ draws every base and advanced VM; CCNA every device; MSSP every engagement node', () => {
+  it('Server+ draws every base and advanced VM; CCNA every device; every arch course every part of its picture', () => {
     for (const v of BASE_VMS) expect(BUILD_MODELS['server-plus'].arrives, v.hostname).toHaveProperty(v.hostname);
     for (const d of DEVICES) expect(BUILD_MODELS.ccna.arrives, d.name).toHaveProperty(d.name);
-    for (const n of ENGAGEMENT.nodes) expect(BUILD_MODELS.mssp.arrives, n.id).toHaveProperty(n.id);
-    for (const e of ENGAGEMENT.edges) for (const end of [e.from, e.to]) expect(ENGAGEMENT.nodes.some((n) => n.id === end), end).toBe(true);
+    const ARCHES = { mssp: MSSP_ARCH, 'security-plus': SEC_ARCH, 'cysa-plus': CYSA_ARCH, 'secai-plus': SECAI_ARCH, cissp: CISSP_ARCH };
+    for (const [id, arch] of Object.entries(ARCHES)) {
+      for (const n of arch.nodes) expect(BUILD_MODELS[id].arrives, `${id} ${n.id}`).toHaveProperty(n.id);
+      for (const e of arch.edges) for (const end of [e.from, e.to]) expect(arch.nodes.some((n) => n.id === end), `${id} ${end}`).toBe(true);
+    }
   });
 
   it('the cloud slices count weeks from their block: Week 0 inherits, Week 1 is the block’s first global week', () => {
@@ -107,7 +114,7 @@ describe('R99 — the build models cover their topologies', () => {
     const v = weekVisualsFor(admin, cloudOf(admin));
     expect(v.find((x) => x.week === 0)?.builtThrough).toBe(4);
     expect(v.find((x) => x.week === 1)?.builtThrough).toBe(5);
-    expect(v.find((x) => x.week === 0)?.highlight).toContain('vm'); // inherited from the first course
+    expect(v.find((x) => x.week === 0)?.highlight).toEqual([]); // R103: the starting point glows nothing
     expect(v.find((x) => x.week === 1)?.highlight).toContain('kv'); // Key Vault arrives in global week 5
     // The DevOps slice adds almost nothing to the template: its process carries each week.
     const devops = AZURE_COURSES.find((c) => c.id === 'azure-devops')!;

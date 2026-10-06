@@ -4798,20 +4798,7 @@
       {
         "week": 0,
         "builtThrough": 4,
-        "highlight": [
-          "webStorage",
-          "func",
-          "cosmos",
-          "appi",
-          "log",
-          "http5xxAlert",
-          "actionGroup",
-          "nsgApp",
-          "vm",
-          "pip",
-          "readerRole",
-          "budget"
-        ],
+        "highlight": [],
         "caption": "What this course starts from — the previous course’s finished environment."
       },
       {

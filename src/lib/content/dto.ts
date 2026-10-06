@@ -60,6 +60,8 @@ import { CISSP } from '@/lib/data/seed/cissp';
 import * as secaiContent from '@/lib/docs/secaiContent';
 import * as cisspContent from '@/lib/docs/cisspContent';
 import { weekVisualsFor } from '@/lib/docs/weekVisuals';
+import type { BuildModel } from '@/lib/weekVisual';
+import type { ArchPicture } from '@/lib/docs/archPicture';
 import { roleGuidesFor } from '@/lib/roleGuide';
 import type { RoleGuide } from '@/lib/roleGuide';
 
@@ -224,8 +226,11 @@ export function contentData(mod: Record<string, unknown>): Record<string, unknow
   return topologyData(mod);
 }
 
-/** R101: the courses whose picture is a hub, and the module that draws it. */
-const HUB_CONTENT: Record<string, { file: string; mod: Record<string, unknown> }> = {
+/** R103: the courses that draw their own architecture picture, and the module that holds it. */
+const ARCH_CONTENT: Record<string, { file: string; mod: { ARCH: ArchPicture; ARCH_BUILD: BuildModel } }> = {
+  'security-plus': { file: 'src/lib/docs/securityContent.ts', mod: securityContent },
+  'cysa-plus': { file: 'src/lib/docs/cysaContent.ts', mod: cysaContent },
+  mssp: { file: 'src/lib/docs/msspContent.ts', mod: msspContent },
   'secai-plus': { file: 'src/lib/docs/secaiContent.ts', mod: secaiContent },
   cissp: { file: 'src/lib/docs/cisspContent.ts', mod: cisspContent },
 };
@@ -289,12 +294,12 @@ export function courseDto(courseId: string): CourseDto {
     generatedFrom.push('src/lib/docs/msspContent.ts');
     content.mssp = contentData(msspContent);
   }
-  // R101: the two Ridgeline courses draw the system they secure — one shape,
-  // one renderer (`HubDiagram`), each course's own parts.
-  const hub = HUB_CONTENT[courseId];
-  if (hub) {
-    generatedFrom.push(hub.file);
-    content.hub = contentData(hub.mod);
+  // R103: the courses that draw their own picture draw the system they work
+  // on — one shape, one renderer (`ArchDiagram`), each course's own parts.
+  const arch = ARCH_CONTENT[courseId];
+  if (arch) {
+    if (!generatedFrom.includes(arch.file)) generatedFrom.push(arch.file);
+    content.arch = contentData({ ARCH: arch.mod.ARCH, ARCH_BUILD: arch.mod.ARCH_BUILD });
   }
   // The cloud capstones (R87): the topology the Guide draws and the template
   // it is drawn from, as one section, so the picture and the code a student

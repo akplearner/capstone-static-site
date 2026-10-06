@@ -1449,7 +1449,7 @@ export const SECAI_PLUS: Course = {
   isSeed: true,
   version: 1,
   locked: false,
-  topologyPicture: 'hub',
+  topologyPicture: 'arch',
   teamCount: 12,
   teamCapacity: 6,
 };

@@ -1,8 +1,9 @@
 /**
  * R99 — every course's "What you build this week", one visual per week.
  *
- * Five courses have a build model in their content module (which part of the
- * picture arrives in which week, plus the week's process and caption). The
+ * Five courses derive their build model from their architecture picture
+ * (R103: each part carries the week it arrives, plus the authored process and
+ * caption per week); the rack and the campus author theirs directly. The
  * six cloud courses derive theirs from the topology itself — every node and
  * container already carries its global week — plus the week processes in
  * `cloud/workflows.ts`. Both come out as the same `WeekVisual[]`, written
@@ -12,13 +13,13 @@ import type { Course } from '../types';
 import type { CloudTopology } from '../cloud/model';
 import { cloudWeekProcesses, CLOUD_WEEK_CAPTIONS } from '../cloud/workflows';
 import { weekVisualsFrom, type BuildModel, type WeekVisual } from '../weekVisual';
-import { LAB_BUILD } from './securityContent';
-import { SOC_BUILD } from './cysaContent';
-import { ENGAGEMENT_BUILD } from './msspContent';
+import { ARCH_BUILD as LAB_BUILD } from './securityContent';
+import { ARCH_BUILD as SOC_BUILD } from './cysaContent';
+import { ARCH_BUILD as ENGAGEMENT_BUILD } from './msspContent';
 import { SERVER_BUILD } from './serverDiagrams';
 import { CCNA_BUILD } from './ccnaDiagrams';
-import { HUB_BUILD as SECAI_BUILD } from './secaiContent';
-import { HUB_BUILD as CISSP_BUILD } from './cisspContent';
+import { ARCH_BUILD as SECAI_BUILD } from './secaiContent';
+import { ARCH_BUILD as CISSP_BUILD } from './cisspContent';
 
 /** The build model of each course that draws its own picture. */
 export const BUILD_MODELS: Record<string, BuildModel> = {
