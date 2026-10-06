@@ -2061,6 +2061,15 @@
         "kit": "cloud",
         "week": 9
       },
+      "raci": {
+        "drafts": "arch",
+        "reviews": "secops",
+        "approves": "infra"
+      },
+      "handoff": {
+        "to": "infra",
+        "when": "approved"
+      },
       "feeds": [
         "awsd_change"
       ],
@@ -2410,6 +2419,15 @@
         "kit": "cloud",
         "week": 10
       },
+      "raci": {
+        "drafts": "arch",
+        "reviews": "secops",
+        "approves": "dev"
+      },
+      "handoff": {
+        "to": "dev",
+        "when": "approved"
+      },
       "feeds": [
         "awsd_governance"
       ],
@@ -2698,6 +2716,15 @@
       "visual": {
         "kit": "cloud",
         "week": 11
+      },
+      "raci": {
+        "drafts": "arch",
+        "reviews": "infra",
+        "approves": "secops"
+      },
+      "handoff": {
+        "to": "secops",
+        "when": "approved"
       },
       "feeds": [
         "awsd_handover"
@@ -3000,6 +3027,18 @@
       "visual": {
         "kit": "cloud",
         "week": 12
+      },
+      "raci": {
+        "drafts": "arch",
+        "reviews": "secops",
+        "approves": "dev",
+        "informed": [
+          "infra"
+        ]
+      },
+      "handoff": {
+        "to": "dev",
+        "when": "approved"
       },
       "capstone": true,
       "purpose": "Everything a new team needs to run the company’s cloud on Monday: the services, the runbooks, the risks, and proof it survives failure.",

@@ -111,10 +111,6 @@ const gates: Gate[] = [
     description: 'The engagement agreement is signed and the Statement of Applicability defines which controls are in scope. Nothing is implemented before this.',
     requiredArtifactTypes: ['01_Engagement_and_Scope.md', '02_Statement_of_Applicability.csv'],
     requiredTasks: ['mg-w0', 'mg-w1', 'mr-w1', 'mb-w1'],
-    handoffs: [
-      { from: 'grc', to: 'blue', artifact: 'Statement of Applicability', label: 'GRC → Blue: which controls to implement' },
-      { from: 'grc', to: 'red', artifact: 'Engagement scope', label: 'GRC → Red: what may be tested' },
-    ],
   },
   {
     id: 2,
@@ -123,9 +119,6 @@ const gates: Gate[] = [
     description: 'Every applicable control is implemented and mapped in the Control Matrix with an owner and its evidence source.',
     requiredArtifactTypes: ['03_Control_Matrix.csv'],
     requiredTasks: ['mg-w2', 'mb-w2', 'mr-w2'],
-    handoffs: [
-      { from: 'blue', to: 'grc', artifact: 'Implemented controls', label: 'Blue → GRC: controls + evidence' },
-    ],
   },
   {
     id: 3,
@@ -135,10 +128,6 @@ const gates: Gate[] = [
       'The controls have been tested rather than merely built: findings recorded with remediations, detections written and shown to fire against the test, and evidence collection under way.',
     requiredArtifactTypes: ['04_Retest_and_Validation.md', '05_Detection_Rules.csv'],
     requiredTasks: ['mr-w3', 'mb-w3', 'mg-w3'],
-    handoffs: [
-      { from: 'red', to: 'blue', artifact: 'Attack telemetry', label: 'Red → Blue: what to detect' },
-      { from: 'red', to: 'grc', artifact: 'Retest results', label: 'Red → GRC: what closed' },
-    ],
   },
   {
     id: 4,

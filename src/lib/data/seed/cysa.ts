@@ -96,10 +96,6 @@ const gates: Gate[] = [
     description: 'Each role’s own sensor reports to the SOC, the baseline of "normal" is written, and coverage is validated.',
     requiredArtifactTypes: ['01_SOC_Monitoring_Report.md', '06_Coverage_Validation.md', '10_Sensor_Deployment_Record.md'],
     requiredTasks: ['cr-w1', 'cb-w1', 'cg-w1'],
-    handoffs: [
-      { from: 'red', to: 'blue', artifact: 'Windows lane live', label: 'Optional: compare the Windows and Ubuntu feeds' },
-      { from: 'blue', to: 'grc', artifact: 'Baseline', label: 'Optional: share what normal looks like' },
-    ],
   },
   {
     id: 2,
@@ -108,10 +104,6 @@ const gates: Gate[] = [
     description: 'A suspicious activity is triaged, investigated in the packets, and turned into indicators.',
     requiredArtifactTypes: ['07_Alert_Triage_Report.md', '02_Threat_Investigation_Report.md', '05_IOC_Database.csv'],
     requiredTasks: ['cb-w2', 'cg-w2', 'cr-w2'],
-    handoffs: [
-      { from: 'blue', to: 'grc', artifact: 'Escalated alerts', label: 'Analyst → Hunter: the real alerts to chase' },
-      { from: 'grc', to: 'red', artifact: 'Findings', label: 'Hunter → Responder: findings to index as IOCs' },
-    ],
   },
   {
     id: 3,
@@ -120,10 +112,6 @@ const gates: Gate[] = [
     description: 'Each role finds weaknesses its own way — from the SOC, from a scan, and from public CVE data — and the findings are ranked into a fix plan.',
     requiredArtifactTypes: ['11_SOC_Findings_Record.md', '12_Scan_Validation_Report.md', '03_Vulnerability_Assessment.md'],
     requiredTasks: ['cb-w3', 'cg-w3', 'cr-w3'],
-    handoffs: [
-      { from: 'blue', to: 'red', artifact: 'SOC findings', label: 'Optional: the SOC’s vuln + SCA list gives the ranking more to work with' },
-      { from: 'grc', to: 'red', artifact: 'Scan validation', label: 'Optional: a finding confirmed from outside ranks higher than one only inferred' },
-    ],
   },
   {
     id: 4,
@@ -132,11 +120,6 @@ const gates: Gate[] = [
     description: 'The attack is detected, its timeline rebuilt, contained, evidenced with hashes, and reported — then the team delivers the executive debrief and lessons learned.',
     requiredArtifactTypes: ['08_Detection_Record.md', '04_Incident_Response_Report.md', '09_Executive_Debrief.md'],
     requiredTasks: ['cb-w4', 'cg-w4', 'cr-w4', 'cg-w4b'],
-    handoffs: [
-      { from: 'blue', to: 'grc', artifact: 'Detection record', label: 'Analyst → Hunter: first alert + attacker IP' },
-      { from: 'grc', to: 'red', artifact: 'Timeline', label: 'Hunter → Responder: the rebuilt attack timeline' },
-      { from: 'red', to: 'grc', artifact: 'Incident report', label: 'Responder → Hunter: closed incident feeds the debrief' },
-    ],
   },
 ];
 

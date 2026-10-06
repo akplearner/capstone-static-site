@@ -3,6 +3,9 @@ import { CYSA_PLUS } from './data/seed/cysa';
 import { SECURITY_PLUS } from './data/seed/securityPlus';
 import { MSSP } from './data/seed/mssp';
 import { SERVER_PLUS } from './data/seed/serverPlus';
+import { CCNA } from './data/seed/ccna';
+import { SECAI_PLUS } from './data/seed/secaiPlus';
+import { CISSP } from './data/seed/cissp';
 import {
   buildDeliverableChain,
   describeChain,
@@ -114,6 +117,9 @@ describe.each([
   ['cysa-plus', CYSA_PLUS],
   ['mssp', MSSP],
   ['server-plus', SERVER_PLUS],
+  ['ccna', CCNA],
+  ['secai-plus', SECAI_PLUS],
+  ['cissp', CISSP],
 ] as const)('every course has a real chain — %s', (_id, course) => {
   const chain = buildDeliverableChain(course);
 

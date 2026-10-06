@@ -7,6 +7,7 @@ import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { CCNA_DELIVERABLES } from './ccnaDeliverables';
 import { SECAI_DELIVERABLES } from './secaiDeliverables';
 import { CISSP_DELIVERABLES } from './cisspDeliverables';
+import { RACI } from './raci';
 import { AZURE_CLOUD_DELIVERABLES } from './azureCloudDeliverables';
 import { AWS_CLOUD_DELIVERABLES } from './awsCloudDeliverables';
 import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
@@ -226,6 +227,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 5 ─────────────────────────────────────────────────────────────────────
   {
     id: 'change_log',
+    // Every change Blue made is what the evidence log cites.
+    feeds: ['evidence_log'],
     num: 5,
     file: '05_Change_Log.md',
     title: 'Change Log',
@@ -336,7 +339,7 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   {
     id: 'incident_report',
     // The live incident is what the runbook is written from.
-    feeds: ['final_report', 'ir_runbook'],
+    feeds: ['final_report', 'evidence_log'],
     num: 7,
     file: '07_Incident_Report.md',
     title: 'Incident Report',
@@ -595,6 +598,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 12 ── Vulnerability-Management SOP (GRC → Blue) ─────────────────────────
   {
     id: 'vm_sop',
+    // The scanning procedure Red follows; the pentest report cites it.
+    feeds: ['pentest_report'],
     num: 12,
     file: '12_VM_SOP.md',
     title: 'Vulnerability-Management SOP',
@@ -645,6 +650,8 @@ const SECURITY_PLUS_DELIVERABLES: DeliverableDef[] = [
   // 13 ── Incident-Response Runbook (GRC → Blue) ───────────────────────────
   {
     id: 'ir_runbook',
+    // The runbook Blue follows when the alert fires; the incident report records how it went.
+    feeds: ['incident_report'],
     num: 13,
     file: '13_IR_Runbook.md',
     title: 'Incident-Response Runbook',
@@ -755,7 +762,9 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...CISSP_DELIVERABLES,
   ...AZURE_CLOUD_DELIVERABLES,
   ...AWS_CLOUD_DELIVERABLES,
-];
+  // R103: every document carries who drafts, reviews and approves it, and —
+  // once approved — who it is handed to. The cloud factory sets its own.
+].map((d) => (d.raci ? d : RACI[d.id] ? { ...d, raci: RACI[d.id], handoff: d.handoff ?? (RACI[d.id].approves !== RACI[d.id].drafts ? { to: RACI[d.id].approves, when: 'approved' as const } : undefined) } : d));
 
 /** The course a deliverable belongs to (defaults to 'security-plus'). */
 export function courseIdOf(d: DeliverableDef): string {

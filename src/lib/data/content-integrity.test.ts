@@ -681,6 +681,58 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — 
     expect(course.topologyPicture, 'topologyPicture').toBeTruthy();
   });
 
+  // ── R103: RACI and the chain ───────────────────────────────────────────────
+  it('R103: every document says who drafts, reviews and approves it, and the owner is the drafter', () => {
+    const roles = new Set(course.roles.map((r) => r.id));
+    for (const d of deliverablesForCourse(course.id)) {
+      expect(d.raci, `${d.id} raci`).toBeTruthy();
+      const { drafts, reviews, approves, informed = [] } = d.raci!;
+      for (const r of [drafts, reviews, approves, ...informed]) expect(roles.has(r), `${d.id}: ${r} is not a role of ${course.id}`).toBe(true);
+      expect(d.owner, `${d.id}: owner is the drafting role`).toBe(drafts);
+      expect(reviews, `${d.id}: the drafter never reviews their own work`).not.toBe(drafts);
+      if (roles.size >= 3) expect(approves, `${d.id}: reviewer and approver differ`).not.toBe(reviews);
+      if (d.handoff) {
+        expect(roles.has(d.handoff.to), `${d.id} handoff role`).toBe(true);
+        expect(d.handoff.to, `${d.id}: a hand-off goes to another role`).not.toBe(drafts);
+      }
+    }
+  });
+
+  it('R103: the chain runs forward in time, has no dead ends, and every document reaches the capstone', () => {
+    const defs = deliverablesForCourse(course.id);
+    const byId = new Map(defs.map((d) => [d.id, d]));
+    const minWeek = (d: (typeof defs)[number]) => Math.min(...d.weeks);
+    for (const d of defs) {
+      for (const f of d.feeds ?? []) expect(minWeek(byId.get(f)!), `${d.id} → ${f} points back in time`).toBeGreaterThanOrEqual(minWeek(d));
+      if (!d.capstone) expect(d.feeds?.length ?? 0, `${d.id} is a dead end`).toBeGreaterThan(0);
+      const seen = new Set<string>();
+      const stack = [d.id];
+      let reached = false;
+      while (stack.length && !reached) {
+        const id = stack.pop()!;
+        if (seen.has(id)) continue;
+        seen.add(id);
+        const x = byId.get(id)!;
+        if (x.capstone) reached = true;
+        else stack.push(...(x.feeds ?? []));
+      }
+      expect(reached, `${d.id} never reaches the capstone`).toBe(true);
+    }
+  });
+
+  it('R103: a task hand-off that names a form names one of this course’s forms, and every form is written by a step', () => {
+    const defs = deliverablesForCourse(course.id);
+    const ids = new Set(defs.map((d) => d.id));
+    for (const t of course.tasks) for (const h of [...(t.handoff ?? []), ...(t.consumes ?? [])]) if (h.deliverable) expect(ids.has(h.deliverable), `${t.id}: ${h.deliverable}`).toBe(true);
+    const used = new Set<string>();
+    for (const { step } of allSteps(course)) {
+      if (step.usesForm) used.add(`t:${step.usesForm}`);
+      if (step.producesDeliverable) used.add(`f:${step.producesDeliverable}`);
+    }
+    const unwritten = defs.filter((d) => !used.has(`t:${d.title}`) && !used.has(`f:${d.file}`)).map((d) => d.id);
+    expect(unwritten, `no step writes: ${unwritten.join(', ')}`).toEqual([]);
+  });
+
   it('the only locks are the deliberate ones', () => {
     // `locked` hides a whole course; since R84 every shipped course is open.
     // The deliberate locks that remain are sign-in (accounts), enrolment

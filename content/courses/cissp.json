@@ -839,6 +839,7 @@
             "id": "ci-w1-gov-s3",
             "title": "Score the program and sign v1 (D6)",
             "description": "The first number; the release note.",
+            "producesDeliverable": "09_Release_Note.md",
             "where": "ridgeline-program · terminal, then D6 and the Release Note",
             "instruction": "Hash the eight sheets, write the Current Profile, score each domain, sign v1.",
             "instructionList": [
@@ -1452,6 +1453,7 @@
             "id": "ci-w2-arch-s2",
             "title": "Rule base and change gates (D4, D8 v2)",
             "description": "Firewall rules; development gates.",
+            "producesDeliverable": "08_Software_and_Change.md",
             "where": "Deliverables tab · D4 Network and D8 Software & Change",
             "instruction": "Write the rule base with owners and dates, protocols, a gate per phase.",
             "instructionList": [
@@ -4456,13 +4458,19 @@
           },
           "week": 6
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      }
     },
     {
       "id": "cissp_d2",
       "courseId": "cissp",
       "feeds": [
-        "cissp_d3"
+        "cissp_d3",
+        "cissp_d5"
       ],
       "num": 2,
       "file": "02_Assets_and_Data.md",
@@ -4610,13 +4618,20 @@
           },
           "week": 6
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      }
     },
     {
       "id": "cissp_d3",
       "courseId": "cissp",
       "feeds": [
-        "cissp_d6"
+        "cissp_d6",
+        "cissp_d4",
+        "cissp_d8"
       ],
       "num": 3,
       "file": "03_Architecture.md",
@@ -4775,7 +4790,16 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "archnet",
+        "reviews": "idops",
+        "approves": "govrisk"
+      },
+      "handoff": {
+        "to": "govrisk",
+        "when": "approved"
+      }
     },
     {
       "id": "cissp_d4",
@@ -4939,7 +4963,16 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "archnet",
+        "reviews": "idops",
+        "approves": "govrisk"
+      },
+      "handoff": {
+        "to": "govrisk",
+        "when": "approved"
+      }
     },
     {
       "id": "cissp_d5",
@@ -5094,7 +5127,16 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "idops",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      },
+      "handoff": {
+        "to": "govrisk",
+        "when": "approved"
+      }
     },
     {
       "id": "cissp_d6",
@@ -5458,7 +5500,12 @@
           },
           "week": 6
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      }
     },
     {
       "id": "cissp_d7",
@@ -5656,7 +5703,16 @@
           },
           "week": 5
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "idops",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      },
+      "handoff": {
+        "to": "govrisk",
+        "when": "approved"
+      }
     },
     {
       "id": "cissp_d8",
@@ -5752,7 +5808,16 @@
           },
           "week": 3
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "archnet",
+        "reviews": "idops",
+        "approves": "govrisk"
+      },
+      "handoff": {
+        "to": "govrisk",
+        "when": "approved"
+      }
     },
     {
       "id": "cissp_release_note",
@@ -5852,7 +5917,12 @@
             "atLeast": 1
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      }
     },
     {
       "id": "cissp_questionnaire",
@@ -6066,7 +6136,12 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      }
     },
     {
       "id": "cissp_controls",
@@ -6287,7 +6362,12 @@
           },
           "week": 5
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk"
+      }
     },
     {
       "id": "cissp_ssp",
@@ -6393,7 +6473,15 @@
             "atLeast": 1
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "govrisk",
+        "reviews": "archnet",
+        "approves": "govrisk",
+        "informed": [
+          "idops"
+        ]
+      }
     }
   ],
   "content": {

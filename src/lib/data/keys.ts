@@ -53,6 +53,8 @@ export const KEYS = {
   // cohort calendar is one date per (course, cohort); step notes are one blob
   // per (course, member) — read whole, like the evidence ledger.
   reviews: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_reviews_${teamId}`,
+  // R103: the team's document lifecycle rows, one blob per (course, team).
+  docStatus: (courseId: string, teamId: string) => `${STORAGE_PREFIX}${courseId}_doc_status_${teamId}`,
   cohortCalendar: (courseId: string, cohort: string) => `${STORAGE_PREFIX}${courseId}_cohort_${cohort}`,
   stepNotes: (courseId: string, memberId: string) => `${STORAGE_PREFIX}${courseId}_notes_${memberId}`,
   // Task issue reports (R83): one blob per course — on a shared offline device

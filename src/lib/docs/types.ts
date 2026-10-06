@@ -136,6 +136,14 @@ export interface DodCheck {
   week?: number;
 }
 
+/** R103 — the responsibility assignment of one document. */
+export interface Raci {
+  drafts: Role;
+  reviews: Role;
+  approves: Role;
+  informed?: Role[];
+}
+
 export interface DeliverableDef {
   id: string; // 'asset_inventory'
   num: number; // 1..8
@@ -187,6 +195,15 @@ export interface DeliverableDef {
    *  filed. Exactly one deliverable per course carries this, and filing it is
    *  what completes the Capstone Stone. */
   capstone?: boolean;
+  /** R103 — who drafts, reviews and approves this document, as roles of the
+   *  course. `owner` stays the lane it is drawn in and equals `raci.drafts`.
+   *  The lifecycle (docs/lifecycle.ts) enforces it: only the drafting role
+   *  submits, only the reviewing role approves or returns, only the approving
+   *  role issues. */
+  raci?: Raci;
+  /** R103 — once approved (or issued), this document is handed to that role:
+   *  the "Waiting on" notice on their forms clears and their queue shows it. */
+  handoff?: { to: Role; when: 'approved' | 'issued' };
   sections: Section[];
   /** Objective Definition-of-Done checks (spec §8). */
   dod?: DodCheck[];

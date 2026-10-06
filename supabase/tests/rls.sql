@@ -460,6 +460,50 @@ do $$ begin
 end $$;
 reset role;
 
+-- ── R103: the document lifecycle — the team's own rows, append-only ────────
+-- Ada (Team 01) records that a form went into review; Bob reads it; Cy never
+-- sees it; nobody rewrites it.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.deliverable_status (course_id, team_id, deliverable_id, status, changed_by, role, version)
+  values ('security-plus', '2026-01-T01', 'as-built', 'in_review', '00000000-0000-4000-8000-00000000000a', 'red', 1);
+do $$ begin
+  assert (select count(*) from public.deliverable_status) = 1, 'ada: reads her own team''s status row';
+  update public.deliverable_status set status = 'approved' where deliverable_id = 'as-built';
+  if found then raise exception 'ada rewrote a status row'; end if;
+  begin
+    insert into public.deliverable_status (course_id, team_id, deliverable_id, status, changed_by, role)
+      values ('security-plus', '2026-01-T02', 'as-built', 'in_review', '00000000-0000-4000-8000-00000000000a', 'red');
+    raise exception 'ada wrote a status row for another team';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.deliverable_status) = 1, 'bob: reads the team''s status row';
+end $$;
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.deliverable_status) = 0, 'cy: never another team''s status';
+end $$;
+reset role;
+
+-- Frozen, layer 2: even the owner hits the append-only trigger.
+do $$ begin
+  begin
+    update public.deliverable_status set status = 'approved' where deliverable_id = 'as-built';
+    raise exception 'the owner rewrote a status row';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+end $$;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null
@@ -478,7 +522,7 @@ begin
   foreach t in array array['step_completions','deliverables','memberships','gate_status',
                            'deliverable_reviews','step_flags','cohorts','course_documents',
                            'step_evidence','task_reports',
-                           'deliverable_submissions','peer_reviews'] loop
+                           'deliverable_submissions','peer_reviews','deliverable_status'] loop
     assert (select count(*) from pg_publication_tables
             where pubname = 'supabase_realtime' and schemaname = 'public' and tablename = t) = 1,
       'realtime publication is missing ' || t || ' (step_evidence is 0007)';

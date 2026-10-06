@@ -122,7 +122,7 @@ export const SECAI_DELIVERABLES: DeliverableDef[] = [
   {
     id: 'secai_attack_casebook',
     courseId: 'secai-plus',
-    feeds: ['secai_control_set'],
+    feeds: ['secai_control_set', 'secai_watch_plan'],
     num: 3,
     file: '03_Attack_Casebook.md',
     title: 'P2 Attack Casebook',

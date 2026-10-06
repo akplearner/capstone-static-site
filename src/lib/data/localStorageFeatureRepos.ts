@@ -6,11 +6,13 @@ import type {
   Cohort,
   CohortRepository,
   DeliverableReview,
+  DeliverableStatus,
   DeliverableSubmission,
   PeerReviewRow,
   ReviewPacket,
   ReviewQueueItem,
   ReviewRepository,
+  StatusRepository,
   StepNote,
   StepNotesRepository,
   StuckFlag,
@@ -57,6 +59,21 @@ export const localStorageReviewRepo: ReviewRepository = {
     );
     next.push(review);
     safeSetItem(key, JSON.stringify(next));
+    notifyStore();
+  },
+};
+
+/** R103: lifecycle transitions, appended to one blob per team. */
+export const localStorageStatusRepo: StatusRepository = {
+  list(courseId: string, teamId: string): DeliverableStatus[] {
+    return readJson<DeliverableStatus[]>(KEYS.docStatus(courseId, teamId), []);
+  },
+  save(row: DeliverableStatus): void {
+    if (!hasWindow()) return;
+    const key = KEYS.docStatus(row.courseId, row.teamId);
+    const all = readJson<DeliverableStatus[]>(key, []);
+    all.push(row);
+    safeSetItem(key, JSON.stringify(all));
     notifyStore();
   },
 };

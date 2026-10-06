@@ -243,20 +243,6 @@
           "mg-w1",
           "mr-w1",
           "mb-w1"
-        ],
-        "handoffs": [
-          {
-            "from": "grc",
-            "to": "blue",
-            "artifact": "Statement of Applicability",
-            "label": "GRC → Blue: which controls to implement"
-          },
-          {
-            "from": "grc",
-            "to": "red",
-            "artifact": "Engagement scope",
-            "label": "GRC → Red: what may be tested"
-          }
         ]
       },
       {
@@ -271,14 +257,6 @@
           "mg-w2",
           "mb-w2",
           "mr-w2"
-        ],
-        "handoffs": [
-          {
-            "from": "blue",
-            "to": "grc",
-            "artifact": "Implemented controls",
-            "label": "Blue → GRC: controls + evidence"
-          }
         ]
       },
       {
@@ -294,20 +272,6 @@
           "mr-w3",
           "mb-w3",
           "mg-w3"
-        ],
-        "handoffs": [
-          {
-            "from": "red",
-            "to": "blue",
-            "artifact": "Attack telemetry",
-            "label": "Red → Blue: what to detect"
-          },
-          {
-            "from": "red",
-            "to": "grc",
-            "artifact": "Retest results",
-            "label": "Red → GRC: what closed"
-          }
         ]
       },
       {
@@ -1293,7 +1257,8 @@
     {
       "id": "mssp_engagement",
       "feeds": [
-        "mssp_soa"
+        "mssp_soa",
+        "mssp_gap_assessment"
       ],
       "courseId": "mssp",
       "num": 1,
@@ -1405,7 +1370,12 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "grc"
+      }
     },
     {
       "id": "mssp_soa",
@@ -1545,7 +1515,12 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "grc"
+      }
     },
     {
       "id": "mssp_control_matrix",
@@ -1704,7 +1679,12 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "grc"
+      }
     },
     {
       "id": "mssp_retest",
@@ -1844,7 +1824,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "red",
+        "reviews": "blue",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "mssp_gap_assessment",
@@ -1968,7 +1957,16 @@
             "atLeast": 5
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "red",
+        "reviews": "blue",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "mssp_detection_rules",
@@ -2078,7 +2076,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "blue",
+        "reviews": "red",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "mssp_metrics",
@@ -2170,7 +2177,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "blue",
+        "reviews": "red",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "mssp_internal_audit",
@@ -2309,7 +2325,12 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "red",
+        "approves": "grc"
+      }
     },
     {
       "id": "mssp_evidence_packet",
@@ -2449,7 +2470,15 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "grc",
+        "informed": [
+          "red"
+        ]
+      }
     }
   ],
   "content": {

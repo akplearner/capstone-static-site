@@ -152,7 +152,7 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
 
   // 2 — D2 Assets & Data ────────────────────────────────────────────────────
   {
-    id: 'cissp_d2', courseId: 'cissp', feeds: ['cissp_d3'],
+    id: 'cissp_d2', courseId: 'cissp', feeds: ['cissp_d3', 'cissp_d5'],
     num: 2, file: '02_Assets_and_Data.md', title: 'D2 Assets & Data', owner: 'govrisk',
     folder: '02_Assets', standard: 'NIST CSF (Identify) · SP 800-88', framework: 'NIST_CSF', weeks: ALL,
     kind: 'form', exportFormat: 'csv',
@@ -195,7 +195,7 @@ export const CISSP_DELIVERABLES: DeliverableDef[] = [
 
   // 3 — D3 Architecture ─────────────────────────────────────────────────────
   {
-    id: 'cissp_d3', courseId: 'cissp', feeds: ['cissp_d6'],
+    id: 'cissp_d3', courseId: 'cissp', feeds: ['cissp_d6', 'cissp_d4', 'cissp_d8'],
     num: 3, file: '03_Architecture.md', title: 'D3 Architecture', owner: 'archnet',
     folder: '03_Architecture', standard: 'NIST CSF (Protect) · SP 800-53', framework: 'NIST_800_53', weeks: ALL, gate: 3,
     kind: 'form', exportFormat: 'md',

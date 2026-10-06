@@ -19,8 +19,8 @@ import { supabaseEvidenceRepo, supabasePathRepo } from './supabaseEvidenceRepo';
 import { supabaseProgressRepo } from './supabaseProgressRepo';
 import { supabaseDocsRepo } from './supabaseDocsRepo';
 import { supabaseUserStateRepo, supabaseLabAccessRepo } from './supabaseUserStateRepo';
-import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo } from './localStorageFeatureRepos';
-import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabaseTaskReportsRepo, supabaseSubmissionsRepo } from './supabaseFeatureRepos';
+import { localStorageReviewRepo, localStorageCohortRepo, localStorageStepNotesRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo, localStorageStatusRepo } from './localStorageFeatureRepos';
+import { supabaseReviewRepo, supabaseCohortRepo, supabaseStepNotesRepo, supabaseTaskReportsRepo, supabaseSubmissionsRepo, supabaseStatusRepo } from './supabaseFeatureRepos';
 
 const cloud = isSupabaseConfigured();
 
@@ -39,6 +39,8 @@ export const taskReportsRepo = cloud ? supabaseTaskReportsRepo : localStorageTas
 export const stepNotesRepo = cloud ? supabaseStepNotesRepo : localStorageStepNotesRepo;
 // R84: frozen submissions and blind peer review.
 export const submissionsRepo = cloud ? supabaseSubmissionsRepo : localStorageSubmissionsRepo;
+// R103: the team's document lifecycle (draft → in review → approved → issued).
+export const statusRepo = cloud ? supabaseStatusRepo : localStorageStatusRepo;
 export type {
   CourseRepository,
   ProgressRepository,

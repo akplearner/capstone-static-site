@@ -2122,3 +2122,27 @@ describe('R103 — one architecture picture, the weekly breakdown', () => {
     expect(list).not.toContain('What you build this week');
   });
 });
+
+/**
+ * R103 — the document lifecycle. Every form says who drafts, reviews and
+ * approves it; the team moves it draft → in review → approved → issued in
+ * the app; what it waits on is a notice, never a lock.
+ */
+describe('R103 — the deliverable lifecycle', () => {
+  it('the docs page shows the status strip and the waiting-on notice; Home shows the team queue', () => {
+    const docs = code('src/app/courses/[courseId]/docs/page.tsx');
+    expect(docs).toContain('<StatusStrip');
+    expect(docs).toContain('<WaitingOnNotice');
+    expect(docs).toContain('role={member.role}');
+    expect(code('src/components/course/HomeTab.tsx')).toContain('<TeamReviewQueueCard');
+    expect(code('src/components/docs/ExpectationsPanel.tsx')).toContain("transition(def, rows, 'submit'");
+  });
+  it('the rules live in one pure module, the RACI in one table, and the gates no longer carry hand-offs nobody rendered', () => {
+    expect(code('src/lib/docs/lifecycle.ts')).toContain('export function allowedActions');
+    expect(code('src/lib/docs/lifecycle.ts')).not.toContain('localStorage');
+    expect(code('src/lib/docs/definitions.ts')).toContain('RACI[d.id]');
+    expect(code('src/lib/types.ts')).not.toContain('handoffs?:');
+    for (const f of readdirSync('src/lib/data/seed').filter((f) => f.endsWith('.ts'))) expect(code(`src/lib/data/seed/${f}`), f).not.toContain('handoffs:');
+    expect(existsSync('supabase/migrations/0012_deliverable_lifecycle.sql')).toBe(true);
+  });
+});

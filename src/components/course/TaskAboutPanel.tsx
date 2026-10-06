@@ -1,7 +1,9 @@
+import Link from 'next/link';
 import type { LucideIcon } from 'lucide-react';
 import { ArrowRight, BookOpen, Coins, FileText, GraduationCap, Inbox, Tag, Users, Wrench } from 'lucide-react';
 import type { Course, Task } from '@/lib/types';
 import { getRoleDef, taskCard } from '@/lib/course-helpers';
+import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { getFrameworkColor, getFrameworkLabel } from '@/lib/utils';
 
 /** One row of the card: a label and its content, omitted entirely when there is
@@ -62,6 +64,7 @@ export function TaskAboutPanel({ course, task }: { course: Course; task: Task })
                       </span>
                     )}
                     {i.label}
+                    {i.deliverable && <FormLink courseId={course.id} id={i.deliverable} />}
                   </li>
                 ))}
               </ul>
@@ -91,6 +94,7 @@ export function TaskAboutPanel({ course, task }: { course: Course; task: Task })
                     </span>
                     {h.artifact ? ` — ${h.artifact}` : ''}
                     <span className="text-muted"> · {h.note}</span>
+                    {h.deliverable && <FormLink courseId={course.id} id={h.deliverable} />}
                   </li>
                 ))}
               </ul>
@@ -183,5 +187,16 @@ export function TaskAboutPanel({ course, task }: { course: Course; task: Task })
         </div>
       )}
     </div>
+  );
+}
+
+/** R103: a hand-off that names a form links to it. */
+function FormLink({ courseId, id }: { courseId: string; id: string }) {
+  const def = deliverablesForCourse(courseId).find((d) => d.id === id);
+  if (!def) return null;
+  return (
+    <Link href={`/courses/${courseId}/docs?week=${Math.min(...def.weeks)}&form=${def.id}`} className="ml-1 text-2xs text-accent underline-offset-2 hover:underline">
+      {def.title} →
+    </Link>
   );
 }

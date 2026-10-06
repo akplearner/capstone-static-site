@@ -94,12 +94,6 @@ export const GATES: Gate[] = [
     description: 'Case + Scope authored',
     requiredArtifactTypes: ['case_overview', 'scope_document'],
     requiredTasks: ['red-w1-osint', 'blue-w1-hardening', 'grc-w1-framework'],
-    handoffs: [
-      { from: 'grc', to: 'red', artifact: 'Rules_of_Engagement.md', label: 'Confirm authorized scope before any scanning' },
-      { from: 'grc', to: 'blue', artifact: 'Hardening_Standard.md', label: 'Issue the hardening standard Blue implements' },
-      { from: 'red', to: 'grc', artifact: 'Recon_Findings.md', label: 'Hand recon to GRC for the asset inventory' },
-      { from: 'blue', to: 'grc', artifact: 'Hardening_Checklist.txt', label: 'Report what was hardened for the policy baseline' },
-    ],
   },
   {
     id: 2,
@@ -108,11 +102,6 @@ export const GATES: Gate[] = [
     description: 'Hardening + Logs in place',
     requiredArtifactTypes: ['hardening_checklist', 'baseline_logs'],
     requiredTasks: ['blue-w2-baseline', 'red-w2-enumeration', 'grc-w2-risk'],
-    handoffs: [
-      { from: 'grc', to: 'blue', artifact: 'VM_SOP.md', label: 'Issue the vulnerability-management SOP Blue follows' },
-      { from: 'red', to: 'grc', artifact: 'Vulnerability_Summary.md', label: 'Hand findings to GRC for risk scoring' },
-      { from: 'blue', to: 'grc', artifact: 'Detection_Rules.txt', label: 'Report the detections now in place' },
-    ],
   },
   {
     id: 3,
@@ -121,11 +110,6 @@ export const GATES: Gate[] = [
     description: 'Findings + Evidence complete',
     requiredArtifactTypes: ['pcap', 'findings', 'evidence_log'],
     requiredTasks: ['red-w3-attacks', 'blue-w3-detection', 'grc-w3-custody'],
-    handoffs: [
-      { from: 'grc', to: 'blue', artifact: 'IR_Runbook.md', label: 'Issue the incident-response runbook Blue follows during the breach' },
-      { from: 'red', to: 'grc', artifact: 'Evidence_Photos.zip', label: 'Submit attack evidence for chain of custody' },
-      { from: 'blue', to: 'grc', artifact: 'Incident_Response.txt', label: 'Submit IR notes and logs for custody' },
-    ],
   },
   {
     id: 4,
@@ -134,11 +118,6 @@ export const GATES: Gate[] = [
     description: 'Final report & briefing delivered',
     requiredArtifactTypes: ['final_report'],
     requiredTasks: ['red-w4-briefing', 'blue-w4-response', 'grc-w4-report'],
-    handoffs: [
-      { from: 'red', to: 'grc', artifact: 'Attack_Briefing.md', label: 'Hand the attacker’s story to GRC for the final report' },
-      { from: 'blue', to: 'grc', artifact: 'Defense_Summary.md', label: 'Hand the detection & response summary to GRC' },
-      { from: 'grc', to: 'grc', artifact: '08_Final_Report_and_Briefing.md', label: 'GRC compiles everything into the final report & client briefing' },
-    ],
   }
 ];
 

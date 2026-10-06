@@ -246,13 +246,13 @@ export interface TaskCard {
   /** 5 */ difficulty?: 1 | 2 | 3 | 4;
   /** 6 */ minutes: number | null;
   /** 7 */ objective: string;
-  /** 8 */ inputs: { from?: Role; label: string }[];
+  /** 8 */ inputs: { from?: Role; label: string; deliverable?: string }[];
   /** 9 */ tools: string[];
   /** 10 */ teaches: string[];
   /** 11 */ steps: { done: number; total: number; optional: number };
   /** 12 */ doneWhen: string[];
   /** 13 */ produces: string[];
-  /** 14 */ handoff: { to: Role; artifact?: string; note: string }[];
+  /** 14 */ handoff: { to: Role; artifact?: string; note: string; deliverable?: string }[];
   /** 15 */ domains: string[];
   /** 16 */ status: 'not-started' | 'in-progress' | 'cleared';
   /** Setup/home-lab-only work, which is opt-in rather than assigned. */
@@ -265,10 +265,11 @@ export function taskCard(course: Course, task: Task, percent = 0): TaskCard {
 
   // Prerequisites are free text with no stated author; `consumes` names one.
   // Both are "what has to exist before you start", so they render as one list.
-  const inputs: { from?: Role; label: string }[] = [
+  const inputs: { from?: Role; label: string; deliverable?: string }[] = [
     ...(task.consumes ?? []).map((c) => ({
       from: c.from,
       label: c.artifact ? `${c.artifact} — ${c.note}` : c.note,
+      deliverable: c.deliverable,
     })),
     ...(task.prerequisites ?? []).map((p) => ({ label: p })),
   ];

@@ -329,7 +329,7 @@ const CCNA_FORMS: DeliverableDef[] = [
     weeks: [1],
     kind: 'template',
     exportFormat: 'md',
-    feeds: ['ccna_lld'],
+    feeds: ['ccna_lld', 'ccna_build_log'],
     purpose:
       'The shape of the network: the sites, what connects them, where the security boundaries are, and which requirement each decision serves. No interface numbers — that is the Low-Level Design.',
     howTo: 'One decision per row, each traced back to a requirement line, each with the alternative you rejected and why.',
@@ -392,7 +392,7 @@ const CCNA_FORMS: DeliverableDef[] = [
     weeks: [2],
     kind: 'form',
     exportFormat: 'csv',
-    feeds: ['ccna_build_log', 'ccna_validation'],
+    feeds: ['ccna_validation', 'ccna_security'],
     purpose:
       'Every VLAN, prefix, gateway, DHCP range and port assignment — the document an engineer configures from without asking a single question.',
     howTo:
@@ -453,6 +453,8 @@ const CCNA_FORMS: DeliverableDef[] = [
   // 5 — Build & Configuration Log ─────────────────────────────────────────────
   {
     id: 'ccna_build_log',
+    // What was built is what the validation matrix tests.
+    feeds: ['ccna_validation'],
     courseId: 'ccna',
     num: 5,
     file: '05_Build_and_Configuration_Log.md',
@@ -636,6 +638,8 @@ const CCNA_FORMS: DeliverableDef[] = [
   // 8 — Operations & Change Records ───────────────────────────────────────────
   {
     id: 'ccna_ops',
+    // Change records are what the monitoring log correlates alerts against.
+    feeds: ['ccna_monitoring'],
     courseId: 'ccna',
     num: 8,
     file: '08_Operations_and_Change_Records.md',
@@ -705,6 +709,8 @@ const CCNA_FORMS: DeliverableDef[] = [
   // 9 — Monitoring & Incident Log ─────────────────────────────────────────────
   {
     id: 'ccna_monitoring',
+    // The incident log is part of the handover.
+    feeds: ['ccna_handover'],
     courseId: 'ccna',
     num: 9,
     file: '09_Monitoring_and_Incident_Log.md',

@@ -9,6 +9,33 @@ export interface DocMeta {
   /** Course this package belongs to; scopes which deliverables the ZIP/README
    *  include. Defaults to 'security-plus' when absent. */
   courseId?: string;
+  /** R103: the document-control block — who drafts, reviews and approves,
+   *  where the document stands and which frozen version that refers to. */
+  control?: DocControl;
+}
+
+export interface DocControl {
+  status: string;
+  version: number;
+  drafts: string;
+  reviews: string;
+  approves: string;
+  /** Who made the latest transition and when, as printable strings. */
+  lastBy?: string;
+  lastAt?: string;
+  note?: string;
+}
+
+function controlRows(c: DocControl): [string, string][] {
+  return [
+    ['Status', c.status],
+    ['Version', c.version ? `v${c.version}` : 'unsubmitted'],
+    ['Drafted by', c.drafts],
+    ['Reviewed by', c.reviews],
+    ['Approved by', c.approves],
+    ...(c.lastBy ? ([['Last change', `${c.lastBy}${c.lastAt ? ` · ${c.lastAt}` : ''}`]] as [string, string][]) : []),
+    ...(c.note ? ([['Note', c.note]] as [string, string][]) : []),
+  ];
 }
 
 function fieldValue(f: Field, fields: Record<string, string>): string {
@@ -43,12 +70,20 @@ export function toDeliverableMarkdown(def: DeliverableDef, data: DeliverableData
     meta.team ? `team: ${meta.team}` : '',
     meta.cohort ? `cohort: ${meta.cohort}` : '',
     meta.date ? `date: ${meta.date}` : '',
+    meta.control ? `status: ${meta.control.status}` : '',
+    meta.control ? `version: ${meta.control.version}` : '',
+    meta.control ? `drafted_by: ${meta.control.drafts}` : '',
+    meta.control ? `reviewed_by: ${meta.control.reviews}` : '',
+    meta.control ? `approved_by: ${meta.control.approves}` : '',
     '---',
   ]
     .filter(Boolean)
     .join('\n');
 
   const parts: string[] = [fm, '', `# ${def.title}`, '', `> ${def.purpose}`, `>`, `> _Standard: ${def.standard}_`, ''];
+  if (meta.control) {
+    parts.push('## Document control', '', '| Field | Value |', '| --- | --- |', ...controlRows(meta.control).map(([k, v]) => `| ${k} | ${mdCell(v)} |`), '');
+  }
   def.sections.forEach((s) => {
     if (s.kind === 'fields') {
       if (s.title) parts.push(`## ${s.title}`, '');
@@ -197,6 +232,7 @@ export function toDeliverableHTML(def: DeliverableDef, data: DeliverableData, me
     ${metaLine ? `<div class="meta">${esc(metaLine)}</div>` : ''}
   </div>
   <p class="purpose">${esc(def.purpose)}</p>
+  ${meta.control ? `<h2>Document control</h2><table><tbody>${controlRows(meta.control).map(([k, v]) => `<tr><th>${esc(k)}</th><td>${esc(v)}</td></tr>`).join('')}</tbody></table>` : ''}
   ${findingsSummaryHTML([def], { [def.id]: data })}
   ${sections}
 </body></html>`;

@@ -228,14 +228,6 @@
           "sa-w1-gov",
           "sa-w1-red",
           "sa-w1-def"
-        ],
-        "handoffs": [
-          {
-            "from": "redteam",
-            "to": "defender",
-            "artifact": "Attack casebook",
-            "label": "Red Team → Defender: what to block and log"
-          }
         ]
       },
       {
@@ -250,14 +242,6 @@
           "sa-w2-gov",
           "sa-w2-red",
           "sa-w2-def"
-        ],
-        "handoffs": [
-          {
-            "from": "defender",
-            "to": "governance",
-            "artifact": "Control set",
-            "label": "Defender → Governance: controls for the risk register"
-          }
         ]
       },
       {
@@ -272,14 +256,6 @@
           "sa-w3-gov",
           "sa-w3-red",
           "sa-w3-def"
-        ],
-        "handoffs": [
-          {
-            "from": "redteam",
-            "to": "defender",
-            "artifact": "Automated suite",
-            "label": "Red Team → Defender: the pipeline regression test"
-          }
         ]
       }
     ],
@@ -3451,7 +3427,12 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "governance",
+        "reviews": "defender",
+        "approves": "governance"
+      }
     },
     {
       "id": "secai_system_map",
@@ -3650,13 +3631,19 @@
           },
           "week": 3
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "governance",
+        "reviews": "defender",
+        "approves": "governance"
+      }
     },
     {
       "id": "secai_attack_casebook",
       "courseId": "secai-plus",
       "feeds": [
-        "secai_control_set"
+        "secai_control_set",
+        "secai_watch_plan"
       ],
       "num": 3,
       "file": "03_Attack_Casebook.md",
@@ -3818,7 +3805,16 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "redteam",
+        "reviews": "defender",
+        "approves": "governance"
+      },
+      "handoff": {
+        "to": "governance",
+        "when": "approved"
+      }
     },
     {
       "id": "secai_control_set",
@@ -4173,7 +4169,16 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "defender",
+        "reviews": "redteam",
+        "approves": "governance"
+      },
+      "handoff": {
+        "to": "governance",
+        "when": "approved"
+      }
     },
     {
       "id": "secai_watch_plan",
@@ -4348,7 +4353,16 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "defender",
+        "reviews": "redteam",
+        "approves": "governance"
+      },
+      "handoff": {
+        "to": "governance",
+        "when": "approved"
+      }
     },
     {
       "id": "secai_governance_pack",
@@ -4933,7 +4947,12 @@
           },
           "week": 4
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "governance",
+        "reviews": "defender",
+        "approves": "governance"
+      }
     },
     {
       "id": "secai_release_note",
@@ -5030,7 +5049,12 @@
             "atLeast": 1
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "governance",
+        "reviews": "defender",
+        "approves": "governance"
+      }
     },
     {
       "id": "secai_release_package",
@@ -5132,7 +5156,15 @@
             "atLeast": 6
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "governance",
+        "reviews": "redteam",
+        "approves": "governance",
+        "informed": [
+          "defender"
+        ]
+      }
     }
   ],
   "content": {

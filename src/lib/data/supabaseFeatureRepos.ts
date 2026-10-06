@@ -6,11 +6,13 @@ import type {
   Cohort,
   CohortRepository,
   DeliverableReview,
+  DeliverableStatus,
   DeliverableSubmission,
   PeerReviewRow,
   ReviewPacket,
   ReviewQueueItem,
   ReviewRepository,
+  StatusRepository,
   StepNote,
   StepNotesRepository,
   StuckFlag,
@@ -70,6 +72,35 @@ export const supabaseReviewRepo: ReviewRepository = {
         // instructor's own verdict read back as saved (R82).
         if (!res.error) notifyStore();
       });
+  },
+};
+
+/** R103: lifecycle transitions — optimistic into the cache, then an insert
+ *  (the table is append-only; a failed insert is reported, not retried). */
+export const supabaseStatusRepo: StatusRepository = {
+  list(courseId: string, teamId: string): DeliverableStatus[] {
+    return cache.docStatus(courseId, teamId);
+  },
+  save(row: DeliverableStatus): void {
+    cache.setDocStatus(row);
+    notifyStore();
+    const supabase = getBrowserClient();
+    const changed_by = getCurrentUserId();
+    if (!supabase || !changed_by) return;
+    void supabase
+      .from('deliverable_status')
+      .insert({
+        course_id: row.courseId,
+        team_id: row.teamId,
+        deliverable_id: row.deliverableId,
+        status: row.status,
+        changed_by,
+        role: row.role,
+        note: row.note ?? '',
+        version: row.version,
+        created_at: new Date(row.at).toISOString(),
+      })
+      .then(report('document status', 'Couldn’t record the document’s status in the cloud — check your connection and try again.'));
   },
 };
 

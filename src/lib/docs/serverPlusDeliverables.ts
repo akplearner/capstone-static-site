@@ -72,7 +72,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
   // directly, and the topology diagram's "Building for:" chip depends on them.
   {
     id: 'srv_business_reqs',
-    feeds: ['srv_hardware', 'srv_ip_plan'],
+    feeds: ['srv_ip_plan', 'srv_as_built'],
     courseId: 'server-plus',
     num: 1,
     file: '01_Architecture_Brief.md',
@@ -705,7 +705,7 @@ const SERVER_PLUS_FORMS: DeliverableDef[] = [
   // 6 — Baselines, Policies & Standards ─────────────────────────────────────
   {
     id: 'srv_standards',
-    feeds: ['srv_operations', 'srv_as_built'],
+    feeds: ['srv_as_built'],
     courseId: 'server-plus',
     num: 6,
     file: '06_Baselines_and_Policies.md',

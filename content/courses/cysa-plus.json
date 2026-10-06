@@ -278,20 +278,6 @@
           "cr-w1",
           "cb-w1",
           "cg-w1"
-        ],
-        "handoffs": [
-          {
-            "from": "red",
-            "to": "blue",
-            "artifact": "Windows lane live",
-            "label": "Optional: compare the Windows and Ubuntu feeds"
-          },
-          {
-            "from": "blue",
-            "to": "grc",
-            "artifact": "Baseline",
-            "label": "Optional: share what normal looks like"
-          }
         ]
       },
       {
@@ -308,20 +294,6 @@
           "cb-w2",
           "cg-w2",
           "cr-w2"
-        ],
-        "handoffs": [
-          {
-            "from": "blue",
-            "to": "grc",
-            "artifact": "Escalated alerts",
-            "label": "Analyst → Hunter: the real alerts to chase"
-          },
-          {
-            "from": "grc",
-            "to": "red",
-            "artifact": "Findings",
-            "label": "Hunter → Responder: findings to index as IOCs"
-          }
         ]
       },
       {
@@ -338,20 +310,6 @@
           "cb-w3",
           "cg-w3",
           "cr-w3"
-        ],
-        "handoffs": [
-          {
-            "from": "blue",
-            "to": "red",
-            "artifact": "SOC findings",
-            "label": "Optional: the SOC’s vuln + SCA list gives the ranking more to work with"
-          },
-          {
-            "from": "grc",
-            "to": "red",
-            "artifact": "Scan validation",
-            "label": "Optional: a finding confirmed from outside ranks higher than one only inferred"
-          }
         ]
       },
       {
@@ -369,26 +327,6 @@
           "cg-w4",
           "cr-w4",
           "cg-w4b"
-        ],
-        "handoffs": [
-          {
-            "from": "blue",
-            "to": "grc",
-            "artifact": "Detection record",
-            "label": "Analyst → Hunter: first alert + attacker IP"
-          },
-          {
-            "from": "grc",
-            "to": "red",
-            "artifact": "Timeline",
-            "label": "Hunter → Responder: the rebuilt attack timeline"
-          },
-          {
-            "from": "red",
-            "to": "grc",
-            "artifact": "Incident report",
-            "label": "Responder → Hunter: closed incident feeds the debrief"
-          }
         ]
       }
     ],
@@ -4017,7 +3955,16 @@
             "atLeast": 3
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "blue",
+        "reviews": "grc",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_threat_investigation",
@@ -4222,7 +4169,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_vulnerability_assessment",
@@ -4524,7 +4480,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "red",
+        "reviews": "blue",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_incident_response",
@@ -4795,7 +4760,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "red",
+        "reviews": "blue",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_ioc_database",
@@ -4959,7 +4933,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "red",
+        "reviews": "blue",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_coverage_validation",
@@ -5097,7 +5080,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_alert_triage",
@@ -5248,7 +5240,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "blue",
+        "reviews": "grc",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_detection_record",
@@ -5349,7 +5350,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "blue",
+        "reviews": "grc",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_exec_debrief",
@@ -5493,7 +5503,16 @@
             "atLeast": 2
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "red",
+        "approves": "blue"
+      },
+      "handoff": {
+        "to": "blue",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_sensor_deployment",
@@ -5742,7 +5761,16 @@
             "atLeast": 2
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "red",
+        "reviews": "blue",
+        "approves": "grc"
+      },
+      "handoff": {
+        "to": "grc",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_soc_findings",
@@ -5984,7 +6012,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "blue",
+        "reviews": "grc",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     },
     {
       "id": "cysa_scan_validation",
@@ -6260,7 +6297,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "grc",
+        "reviews": "blue",
+        "approves": "red"
+      },
+      "handoff": {
+        "to": "red",
+        "when": "approved"
+      }
     }
   ],
   "topology": {

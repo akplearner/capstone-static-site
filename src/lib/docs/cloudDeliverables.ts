@@ -1,4 +1,5 @@
 import type { Column } from '../grc/templates';
+import { CLOUD_RACI } from './raci';
 import type { DeliverableDef, Field, FieldCheck, Section } from './types';
 import { deriveChecks } from './derive';
 import type { Predicate } from './predicate';
@@ -135,6 +136,10 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
     kind: 'form' as const,
     exportFormat: 'md' as const,
     visual: { kit: 'cloud' as const, week },
+    // R103: the Architect drafts, Security & Ops reviews, the role whose work
+    // the document records approves — and receives it once approved.
+    raci: CLOUD_RACI[slug],
+    handoff: { to: CLOUD_RACI[slug].approves, when: 'approved' as const },
   });
   const withChecks = (d: DeliverableDef, extra: FieldCheck[] = []): DeliverableDef => ({
     ...d,

@@ -5,7 +5,8 @@ import { CheckCircle2, Circle, Lock, Send } from 'lucide-react';
 import type { DeliverableData, DeliverableDef } from '@/lib/docs/types';
 import type { StepEvidence, SubmissionProgress, SubmissionSnapshot } from '@/lib/data/types';
 import { RUBRIC_CATEGORIES, evaluateBundle, stepsProducing, verdictOf, type BundleResult } from '@/lib/docs/deliverableRubric';
-import { evidenceRepo, submissionsRepo } from '@/lib/data';
+import { evidenceRepo, progressRepo, statusRepo, submissionsRepo } from '@/lib/data';
+import { allowedActions, transition } from '@/lib/docs/lifecycle';
 import { withoutSeedRows } from '@/lib/docs/definitions';
 import { sha256Text } from '@/lib/evidenceLedger';
 import { useClientStore, notifyStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore';
@@ -30,12 +31,15 @@ export function ExpectationsPanel({
   week,
   memberId,
   teamId,
+  role,
   instructorReview,
 }: {
   def: DeliverableDef;
   data: DeliverableData;
   week: number;
   memberId: string;
+  /** R103: the viewer's role — only the drafting role submits. */
+  role?: string;
   /** With a team, the panel also carries the Submit bar (R84 phase 3). */
   teamId?: string;
   /** The instructor's verdict on this form, if any — it outranks everything
@@ -106,7 +110,7 @@ export function ExpectationsPanel({
         })}
       </div>
       {teamId && (
-        <SubmitBar def={def} data={data} week={week} memberId={memberId} teamId={teamId} result={result} instructorReview={instructorReview} />
+        <SubmitBar def={def} data={data} week={week} memberId={memberId} teamId={teamId} role={role} result={result} instructorReview={instructorReview} />
       )}
       <p className="mt-2 text-3xs text-muted">
         These are the exact checks frozen into your submission and shown to your reviewers — strong
@@ -131,6 +135,7 @@ function SubmitBar({
   week,
   memberId,
   teamId,
+  role,
   result,
   instructorReview,
 }: {
@@ -139,6 +144,7 @@ function SubmitBar({
   week: number;
   memberId: string;
   teamId: string;
+  role?: string;
   result: BundleResult;
   instructorReview?: 'approved' | 'revise' | 'pending';
 }) {
@@ -204,6 +210,15 @@ function SubmitBar({
           at: Date.now(),
         });
         setBusy(false);
+        // R103: freezing the document is the drafter's submission for review.
+        if (def.raci && role) {
+          const rows = statusRepo.list(course.id, teamId);
+          const team = progressRepo.getRoster(course.id).filter((r) => r.teamId === teamId).map((r) => ({ memberId: r.memberId, role: r.role }));
+          const actor = { memberId, role };
+          if (allowedActions(def, rows, actor, team, true).includes('submit')) {
+            statusRepo.save(transition(def, rows, 'submit', actor, { courseId: course.id, teamId, team, version: (latest?.version ?? 0) + 1 }));
+          }
+        }
         notifyStore();
         if (eligible === null && cloud) return; // the repo already toasted
         toast({
@@ -255,6 +270,9 @@ function SubmitBar({
             <>Nothing submitted yet — green all four categories, then freeze it for review.</>
           )}
         </div>
+        {def.raci && role && role !== def.raci.drafts ? (
+          <span className="text-2xs text-muted">Submitted by the {course.roles.find((r) => r.id === def.raci!.drafts)?.name ?? def.raci.drafts} role</span>
+        ) : (
         <button
           type="button"
           disabled={!result.allGreen || busy}
@@ -269,6 +287,7 @@ function SubmitBar({
           {result.allGreen ? <Send className="h-3.5 w-3.5" /> : <Lock className="h-3.5 w-3.5" />}
           {busy ? 'Freezing…' : latest ? `Submit v${latest.version + 1}` : 'Submit for review'}
         </button>
+        )}
       </div>
     </div>
   );

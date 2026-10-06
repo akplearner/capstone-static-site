@@ -76,14 +76,11 @@ const weeks: WeekDef[] = [
 // per role, so the Home tab can say which release the team has signed.
 const gates: Gate[] = [
   { id: 1, week: 1, title: 'Release v1 signed', description: 'Two attacks proven, blocked and logged; no secret in any prompt; the CEO has signed the release note.',
-    requiredArtifactTypes: ['07_Release_Note.md'], requiredTasks: ['sa-w1-gov', 'sa-w1-red', 'sa-w1-def'],
-    handoffs: [{ from: 'redteam', to: 'defender', artifact: 'Attack casebook', label: 'Red Team → Defender: what to block and log' }] },
+    requiredArtifactTypes: ['07_Release_Note.md'], requiredTasks: ['sa-w1-gov', 'sa-w1-red', 'sa-w1-def'] },
   { id: 2, week: 2, title: 'Release v2 signed', description: 'All six cases in the suite, four or more contained, all six logged; the agent holds no admin right.',
-    requiredArtifactTypes: ['04_Control_Set.md'], requiredTasks: ['sa-w2-gov', 'sa-w2-red', 'sa-w2-def'],
-    handoffs: [{ from: 'defender', to: 'governance', artifact: 'Control set', label: 'Defender → Governance: controls for the risk register' }] },
+    requiredArtifactTypes: ['04_Control_Set.md'], requiredTasks: ['sa-w2-gov', 'sa-w2-red', 'sa-w2-def'] },
   { id: 3, week: 3, title: 'Release v3 signed', description: 'The suite runs in the pipeline, a removed guardrail blocks the build, and every case alerts.',
-    requiredArtifactTypes: ['05_Watch_Plan.md'], requiredTasks: ['sa-w3-gov', 'sa-w3-red', 'sa-w3-def'],
-    handoffs: [{ from: 'redteam', to: 'defender', artifact: 'Automated suite', label: 'Red Team → Defender: the pipeline regression test' }] },
+    requiredArtifactTypes: ['05_Watch_Plan.md'], requiredTasks: ['sa-w3-gov', 'sa-w3-red', 'sa-w3-def'] },
 ];
 
 /** One documentation reference: the page, and what to find and use on it. */

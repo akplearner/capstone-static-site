@@ -253,6 +253,7 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R90 cloud capstone — %s', (
     expect(docs.map((d) => d.num)).toEqual([1, 2, 3, 4]);
     expect(docs.flatMap(documentProblems)).toEqual([]);
     expect(docs.filter((d) => d.capstone).map((d) => d.num)).toEqual([4]);
+    for (const d of docs) expect(d.raci?.drafts, `${d.id} raci`).toBe('arch'); // R103
     for (const d of docs) for (const f of d.feeds ?? []) expect(docs.some((x) => x.id === f), `${d.id} feeds ${f}`).toBe(true);
   });
 });

@@ -23,6 +23,7 @@ import { RoleIcon } from '@/components/team/RoleIcon';
 import { TeamBlock } from '@/components/team/TeamBlock';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { ReviewInboxCard } from '@/components/docs/ReviewInboxCard';
+import { TeamReviewQueueCard } from '@/components/docs/TeamReviewQueueCard';
 import { JoinPanel } from './JoinPanel';
 import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo, userStateRepo } from '@/lib/data';
 import { notifyStore } from '@/lib/useClientStore';
@@ -239,6 +240,8 @@ export function HomeTab({
       {/* R84: blind reviews assigned to this student — visible only when work
           is actually waiting. */}
       {joined && member && <ReviewInboxCard courseId={course.id} />}
+      {/* R103: the team's own documents waiting on this member's review or issue. */}
+      {joined && member && <TeamReviewQueueCard courseId={course.id} teamId={member.teamId} role={member.role} />}
 
       {/* The stone — the one glow on the page: the artefact being cut is the
           point of the whole thing. */}

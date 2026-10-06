@@ -1,6 +1,9 @@
 import { Course, Gate, GateStatus, Member, RosterEntry, Task, TaskCompletion } from '../types';
 import type { DeliverableData, DeliverableDef } from '../docs/types';
 
+import type { DeliverableStatus } from '../docs/lifecycle';
+export type { DeliverableStatus };
+
 export interface ImportResult {
   ok: boolean;
   course?: Course;
@@ -224,6 +227,15 @@ export interface DeliverableReview {
 export interface ReviewRepository {
   list(courseId: string, teamId: string): DeliverableReview[];
   save(review: DeliverableReview): void;
+}
+
+/** R103: the team's document lifecycle — append-only transitions (draft →
+ *  in review → approved → issued); the current state is the latest row per
+ *  form. Team-scoped: every member reads and writes their own team's rows;
+ *  the rules of who may write which transition live in docs/lifecycle.ts. */
+export interface StatusRepository {
+  list(courseId: string, teamId: string): DeliverableStatus[];
+  save(row: DeliverableStatus): void;
 }
 
 /** A cohort's calendar: the one date everything else is derived from. Seeds

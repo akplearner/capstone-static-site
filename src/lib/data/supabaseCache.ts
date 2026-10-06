@@ -5,6 +5,7 @@ import { Member, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
 import type { CourseDto } from '../content/dto';
 import type {
+  DeliverableStatus,
   EvidenceArtifact,
   LabAccessData,
   StepEvidence,
@@ -65,6 +66,8 @@ const taskReportsByCourse = new Map<string, TaskReport[]>();
 // R84: the team's frozen submissions, and the anonymous verdict rows on them.
 const submissionsByTeam = new Map<string, DeliverableSubmission[]>(); // `${courseId}::${teamId}`
 const peerReviewsByCourse = new Map<string, PeerReviewRow[]>();
+// R103: the team's document lifecycle transitions, append-only.
+const docStatusByTeam = new Map<string, DeliverableStatus[]>(); // `${courseId}::${teamId}`
 
 // R78-D: the course documents an instructor authored in the cloud — course
 // CONTENT, not student state, so it is not the current user's and is not
@@ -141,6 +144,7 @@ export function setCurrentUserId(id: string | null) {
     taskReportsByCourse.clear();
     submissionsByTeam.clear();
     peerReviewsByCourse.clear();
+    docStatusByTeam.clear();
     notifyStore();
   }
 }
@@ -290,6 +294,16 @@ export const cache = {
   peerReviews(courseId: string): PeerReviewRow[] {
     return peerReviewsByCourse.get(courseId) ?? [];
   },
+  docStatus(courseId: string, teamId: string): DeliverableStatus[] {
+    return docStatusByTeam.get(teamKey(courseId, teamId)) ?? [];
+  },
+  setDocStatus(row: DeliverableStatus) {
+    const tk = teamKey(row.courseId, row.teamId);
+    const list = (docStatusByTeam.get(tk) ?? []).filter((r) => !(r.deliverableId === row.deliverableId && r.at === row.at && r.changedBy === row.changedBy));
+    list.push(row);
+    list.sort((a, b) => a.at - b.at);
+    docStatusByTeam.set(tk, list);
+  },
   clearStepNotes(courseId: string) {
     [...stepNotesByKey.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => stepNotesByKey.delete(k));
     if (currentUserId) {
@@ -370,7 +384,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -401,6 +415,8 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       // confirmed or not" — so the course filter rides the embedded join.
       supabase.from('deliverable_submissions').select('*').eq('course_id', courseId),
       supabase.from('peer_reviews').select('*, deliverable_submissions!inner(course_id)').eq('deliverable_submissions.course_id', courseId),
+      // R103: the team's lifecycle transitions (instructor: the course's).
+      supabase.from('deliverable_status').select('*').eq('course_id', courseId),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -509,6 +525,10 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   if (peerReviews.data) {
     peerReviewsByCourse.set(courseId, peerReviews.data.map(peerReviewFromRow));
   }
+  if (docStatus.data) {
+    [...docStatusByTeam.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => docStatusByTeam.delete(k));
+    docStatus.data.forEach((r) => cache.setDocStatus(docStatusFromRow(r)));
+  }
 
   hydratedCourses.add(courseId);
   notifyStore();
@@ -559,6 +579,20 @@ export function submissionFromRow(r: Record<string, unknown>): DeliverableSubmis
     contentSha256: String(r.content_sha256 ?? ''),
     snapshot: (r.snapshot ?? { deliverableId: String(r.deliverable_id), week: Number(r.week ?? 0), data: { fields: {}, groups: {} }, categories: { completeness: false, correctness: false, authenticity: false, consistency: false }, checks: [] }) as SubmissionSnapshot,
     at: r.created_at ? Date.parse(String(r.created_at)) : 0,
+  };
+}
+
+export function docStatusFromRow(r: Record<string, unknown>): DeliverableStatus {
+  return {
+    courseId: String(r.course_id),
+    teamId: String(r.team_id),
+    deliverableId: String(r.deliverable_id),
+    status: (r.status as DeliverableStatus['status']) ?? 'draft',
+    changedBy: String(r.changed_by ?? ''),
+    role: String(r.role ?? ''),
+    at: r.created_at ? Date.parse(String(r.created_at)) : 0,
+    note: r.note ? String(r.note) : undefined,
+    version: Number(r.version ?? 0),
   };
 }
 
@@ -709,7 +743,9 @@ function subscribeRealtime(courseId: string) {
     // flips the verdict banner. peer_reviews carries no course_id (anonymity),
     // so it listens unfiltered — RLS only delivers rows the caller may read.
     .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_submissions', filter: `course_id=eq.${courseId}` }, rehydrate)
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'peer_reviews' }, rehydrate);
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'peer_reviews' }, rehydrate)
+    // R103: a teammate's approval or return reaches the form live.
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'deliverable_status', filter: `course_id=eq.${courseId}` }, rehydrate);
 
   // Supabase does not deliver DELETE events to filtered listeners, so un-ticks,
   // leaves and resets never reached teammates (their % stayed up forever). One

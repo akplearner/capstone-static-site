@@ -350,6 +350,7 @@ const tasks: Task[] = [
       },
       {
         id: 'ci-w1-gov-s3', title: 'Score the program and sign v1 (D6)', description: 'The first number; the release note.',
+        producesDeliverable: '09_Release_Note.md',
         where: 'ridgeline-program · terminal, then D6 and the Release Note',
         instruction: 'Hash the eight sheets, write the Current Profile, score each domain, sign v1.',
         instructionList: [
@@ -599,6 +600,7 @@ const tasks: Task[] = [
       },
       {
         id: 'ci-w2-arch-s2', title: 'Rule base and change gates (D4, D8 v2)', description: 'Firewall rules; development gates.',
+        producesDeliverable: '08_Software_and_Change.md',
         where: 'Deliverables tab · D4 Network and D8 Software & Change',
         instruction: 'Write the rule base with owners and dates, protocols, a gate per phase.',
         instructionList: [

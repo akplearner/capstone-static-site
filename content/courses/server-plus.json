@@ -6914,8 +6914,8 @@
     {
       "id": "srv_business_reqs",
       "feeds": [
-        "srv_hardware",
-        "srv_ip_plan"
+        "srv_ip_plan",
+        "srv_as_built"
       ],
       "courseId": "server-plus",
       "num": 1,
@@ -7151,7 +7151,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "net",
+        "reviews": "win",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_hardware",
@@ -7559,7 +7568,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "lnx",
+        "reviews": "net",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_bringup",
@@ -8026,7 +8044,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "win",
+        "reviews": "lnx",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_rack_assets",
@@ -8397,7 +8424,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "net",
+        "reviews": "win",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_ip_plan",
@@ -8852,12 +8888,20 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "net",
+        "reviews": "win",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_standards",
       "feeds": [
-        "srv_operations",
         "srv_as_built"
       ],
       "courseId": "server-plus",
@@ -9331,7 +9375,16 @@
             "atLeast": 3
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "lnx",
+        "reviews": "net",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_operations",
@@ -9760,7 +9813,16 @@
           },
           "week": 6
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "win",
+        "reviews": "lnx",
+        "approves": "mgmt"
+      },
+      "handoff": {
+        "to": "mgmt",
+        "when": "approved"
+      }
     },
     {
       "id": "srv_as_built",
@@ -10504,7 +10566,16 @@
           },
           "week": 8
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "mgmt",
+        "reviews": "net",
+        "approves": "mgmt",
+        "informed": [
+          "win",
+          "lnx"
+        ]
+      }
     }
   ],
   "procedureWeeks": [

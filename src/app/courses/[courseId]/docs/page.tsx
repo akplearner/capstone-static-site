@@ -28,14 +28,14 @@ import { readResume } from '@/lib/resume';
 import { useMember } from '@/lib/useMember';
 import { useRequireAuth } from '@/lib/useRequireAuth';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { docsRepo, evidenceRepo, reviewRepo } from '@/lib/data';
+import { docsRepo, evidenceRepo, reviewRepo, statusRepo, progressRepo } from '@/lib/data';
 import { useClientStore, notifyStore, EMPTY_OBJECT, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { DeliverableData, emptyData, type FormContext } from '@/lib/docs/types';
 import { deliverablesForCourse, deliverablesForRole, isTeamAuthorized, seedDeliverable, withoutSeedRows } from '@/lib/docs/definitions';
 import { applyCarryForward, buildFormContext } from '@/lib/docs/formContext';
 import { useAutoSave, type SaveStatus } from '@/lib/docs/useAutoSave';
 import type { DeliverableDef } from '@/lib/docs/types';
-import { unitWord } from '@/lib/course-helpers';
+import { unitWord, getRoleDef } from '@/lib/course-helpers';
 import { toDeliverableCSV, toDeliverableHTML, toDeliverableMarkdown, toRoleReportHTML } from '@/lib/docs/report';
 import { buildTeamPackage, packageFileName, packageRoot } from '@/lib/docs/package';
 import { exportTeamData, mergeTeamData, parseTeamData } from '@/lib/docs/handoff';
@@ -44,6 +44,9 @@ import { DeliverablesSkeleton } from '@/components/ui/Skeletons';
 import { WeekRail } from '@/components/week/WeekRail';
 import { localDay } from '@/lib/localDate';
 import { ReviewBanner } from '@/components/docs/ReviewBanner';
+import { StatusStrip } from '@/components/docs/StatusStrip';
+import { WaitingOnNotice } from '@/components/docs/WaitingOnNotice';
+import { STATUS_LABEL, latestStatus, statusOf } from '@/lib/docs/lifecycle';
 import type { DeliverableReview } from '@/lib/data/types';
 
 type DocsMap = Record<string, DeliverableData>;
@@ -537,6 +540,7 @@ export default function DeliverablesPage() {
             week={selectedWeek}
             memberId={member.memberId}
             teamId={member.teamId}
+            role={member.role}
             onChange={setDoc}
             review={reviewFor(currentDef.id)}
           />
@@ -576,6 +580,7 @@ export default function DeliverablesPage() {
                   week={selectedWeek}
                   memberId={member.memberId}
                   teamId={member.teamId}
+                  role={member.role}
                   onChange={setDoc}
                   review={reviewFor(currentDef.id)}
                 />
@@ -653,6 +658,7 @@ function FormSection({
   week,
   memberId,
   teamId,
+  role,
   onChange,
   review,
 }: {
@@ -662,6 +668,8 @@ function FormSection({
   authorized: boolean;
   noGatekeeping?: boolean;
   meta: { team: string; cohort: string; date: string; courseId: string };
+  /** R103: the viewer's role — which lifecycle action, if any, is theirs. */
+  role: string;
   /** The week on screen — the Expectations panel judges dod checks due BY it. */
   week: number;
   /** Whose evidence ledger Authenticity reads. */
@@ -691,6 +699,28 @@ function FormSection({
   // R84: every form gets its picture — the four bespoke drawings where they
   // exist, the course's kit preset everywhere else (resolved from `def.visual`).
   const diagram = visualFor(def);
+  // R103: the document's lifecycle state and the control block its exports carry.
+  const dodOk = isDoneBy(def, withoutSeedRows(def, data), week);
+  const course = useCourse();
+  const statusRows = useClientStore(() => statusRepo.list(meta.courseId, teamId), EMPTY_ARRAY);
+  const roster = useClientStore(() => progressRepo.getRoster(meta.courseId), EMPTY_ARRAY);
+  const latest = latestStatus(statusRows, def.id);
+  const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
+  const exportMeta = def.raci
+    ? {
+        ...meta,
+        control: {
+          status: STATUS_LABEL[statusOf(statusRows, def.id)],
+          version: latest?.version ?? 0,
+          drafts: roleName(def.raci.drafts),
+          reviews: roleName(def.raci.reviews),
+          approves: roleName(def.raci.approves),
+          lastBy: latest ? `${roster.find((r) => r.memberId === latest.changedBy)?.displayName ?? 'a teammate'} (${roleName(latest.role)})` : undefined,
+          lastAt: latest ? new Date(latest.at).toLocaleDateString() : undefined,
+          note: latest?.note,
+        },
+      }
+    : meta;
 
   return (
     // `.stratum-week` is what actually consumes the `--week` set on the
@@ -702,6 +732,8 @@ function FormSection({
       className="stratum-week scroll-under-chrome space-y-4 p-5"
     >
       {review && <ReviewBanner review={review} />}
+      {/* R103: draft → in review → approved → issued, and whose move it is. */}
+      {!locked && <StatusStrip def={def} courseId={meta.courseId} teamId={teamId} member={{ memberId, role }} dodOk={dodOk} />}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">
@@ -756,14 +788,14 @@ function FormSection({
             ))}
             <button
               type="button"
-              onClick={() => printHTML(toDeliverableHTML(def, data, meta))}
+              onClick={() => printHTML(toDeliverableHTML(def, data, exportMeta))}
               className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-contrast hover:bg-accent-strong"
             >
               <Printer className="h-3.5 w-3.5" /> Generate PDF
             </button>
             <button
               type="button"
-              onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, meta))}
+              onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, exportMeta))}
               className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-muted hover:bg-panel-2 hover:text-body"
             >
               <FileText className="h-3.5 w-3.5" /> .md
@@ -841,7 +873,8 @@ function FormSection({
         <>
           {/* The grading, previewed live (R84): the same four categories the
               submission freezes and reviewers see, judged by the same function. */}
-          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} instructorReview={review?.status} />
+          <WaitingOnNotice def={def} courseId={meta.courseId} teamId={teamId} />
+          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} role={role} instructorReview={review?.status} />
           <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
         </>
       )}

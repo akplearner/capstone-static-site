@@ -271,14 +271,16 @@ export interface Task {
   prerequisites?: string[];
   /** Checklist that defines when the task is truly finished. */
   definitionOfDone?: string[];
-  /** Artifacts/notes handed to another role at the end of the task. */
-  handoff?: { to: Role; artifact?: string; note: string }[];
+  /** Artifacts/notes handed to another role at the end of the task. `deliverable`
+   *  (R103) names the form (by id) the hand-off is recorded in, so the About
+   *  panel links to it; `artifact` stays for evidence files. */
+  handoff?: { to: Role; artifact?: string; note: string; deliverable?: string }[];
   /** The mirror of `handoff`: what this task needs handed *to* it, and by whom.
    *  Without it the crew graph only points forward — a student could see who
    *  they hand to but never who they are waiting on, which is the half that
    *  actually blocks people. `from` is a role id; the receiving role is this
    *  task's own `role`. */
-  consumes?: { from: Role; artifact?: string; note: string }[];
+  consumes?: { from: Role; artifact?: string; note: string; deliverable?: string }[];
   /** How hard this specific task is, 1-4. Falls back to the week's difficulty,
    *  which is often too coarse — one week can hold a 20-minute check and a
    *  90-minute build. */
@@ -317,8 +319,6 @@ export interface Gate {
   description: string;
   requiredArtifactTypes: string[];
   requiredTasks: string[]; // task IDs that must be completed
-  /** End-of-week company-sync hand-offs between roles (self-attested today). */
-  handoffs?: { from: Role; to: Role; artifact?: string; label: string }[];
 }
 
 // A complete course definition. Built-in courses are seeds; instructor-authored

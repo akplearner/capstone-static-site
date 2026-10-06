@@ -2089,7 +2089,16 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "arch",
+        "reviews": "impl",
+        "approves": "ops"
+      },
+      "handoff": {
+        "to": "ops",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_requirements",
@@ -2254,7 +2263,16 @@
             "atLeast": 2
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "arch",
+        "reviews": "impl",
+        "approves": "ops"
+      },
+      "handoff": {
+        "to": "ops",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_hld",
@@ -2272,7 +2290,8 @@
       "kind": "template",
       "exportFormat": "md",
       "feeds": [
-        "ccna_lld"
+        "ccna_lld",
+        "ccna_build_log"
       ],
       "purpose": "The shape of the network: the sites, what connects them, where the security boundaries are, and which requirement each decision serves. No interface numbers — that is the Low-Level Design.",
       "howTo": "One decision per row, each traced back to a requirement line, each with the alternative you rejected and why.",
@@ -2391,7 +2410,16 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "arch",
+        "reviews": "impl",
+        "approves": "ops"
+      },
+      "handoff": {
+        "to": "ops",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_lld",
@@ -2409,8 +2437,8 @@
       "kind": "form",
       "exportFormat": "csv",
       "feeds": [
-        "ccna_build_log",
-        "ccna_validation"
+        "ccna_validation",
+        "ccna_security"
       ],
       "purpose": "Every VLAN, prefix, gateway, DHCP range and port assignment — the document an engineer configures from without asking a single question.",
       "howTo": "One row per VLAN, one row per port range. The convention this course uses: the third octet IS the VLAN id, so an address tells you which VLAN it is in.",
@@ -2594,10 +2622,22 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "arch",
+        "reviews": "impl",
+        "approves": "ops"
+      },
+      "handoff": {
+        "to": "ops",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_build_log",
+      "feeds": [
+        "ccna_validation"
+      ],
       "courseId": "ccna",
       "num": 5,
       "file": "05_Build_and_Configuration_Log.md",
@@ -2713,7 +2753,16 @@
           },
           "week": 3
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "impl",
+        "reviews": "ops",
+        "approves": "arch"
+      },
+      "handoff": {
+        "to": "arch",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_validation",
@@ -2837,7 +2886,16 @@
           },
           "week": 3
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "ops",
+        "reviews": "impl",
+        "approves": "arch"
+      },
+      "handoff": {
+        "to": "arch",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_security",
@@ -2995,10 +3053,22 @@
             "atLeast": 5
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "auto",
+        "reviews": "ops",
+        "approves": "arch"
+      },
+      "handoff": {
+        "to": "arch",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_ops",
+      "feeds": [
+        "ccna_monitoring"
+      ],
       "courseId": "ccna",
       "num": 8,
       "file": "08_Operations_and_Change_Records.md",
@@ -3162,10 +3232,22 @@
             }
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "ops",
+        "reviews": "impl",
+        "approves": "arch"
+      },
+      "handoff": {
+        "to": "arch",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_monitoring",
+      "feeds": [
+        "ccna_handover"
+      ],
       "courseId": "ccna",
       "num": 9,
       "file": "09_Monitoring_and_Incident_Log.md",
@@ -3317,7 +3399,16 @@
           },
           "week": 8
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "ops",
+        "reviews": "impl",
+        "approves": "arch"
+      },
+      "handoff": {
+        "to": "arch",
+        "when": "approved"
+      }
     },
     {
       "id": "ccna_handover",
@@ -3425,7 +3516,19 @@
             ]
           }
         }
-      ]
+      ],
+      "raci": {
+        "drafts": "arch",
+        "reviews": "ops",
+        "approves": "auto",
+        "informed": [
+          "impl"
+        ]
+      },
+      "handoff": {
+        "to": "auto",
+        "when": "approved"
+      }
     }
   ],
   "topology": {

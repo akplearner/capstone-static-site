@@ -22,7 +22,7 @@ export const MSSP_DELIVERABLES: DeliverableDef[] = [
   {
     id: 'mssp_engagement',
     // Scope decides which controls are even applicable.
-    feeds: ['mssp_soa'],
+    feeds: ['mssp_soa', 'mssp_gap_assessment'],
     courseId: 'mssp',
     num: 1,
     file: '01_Engagement_and_Scope.md',
