@@ -85,6 +85,11 @@ const SOURCE = `{
       "defaultValue": 12,
       "allowedValues": [ 4, 8, 12 ],
       "metadata": { "description": "Deploy the environment as it stands at the end of this week: 4 (Fundamentals), 8 (Administrator) or 12 (everything)." }
+    },
+    "githubRepository": {
+      "type": "string",
+      "defaultValue": "your-org/your-repo",
+      "metadata": { "description": "owner/name of the GitHub repository the Week 10 pipeline deploys from — the federated credential trusts exactly this repo's main branch." }
     }
   },
   "variables": {
@@ -118,6 +123,8 @@ const SOURCE = `{
     "agName": "[format('ag-capstone-{0}', parameters('teamId'))]",
     "alertName": "[format('alert-func-5xx-{0}', parameters('teamId'))]",
     "budgetName": "[format('budget-capstone-{0}', parameters('teamId'))]",
+    "bastionName": "[format('bas-capstone-{0}', parameters('teamId'))]",
+    "deployIdentityName": "[format('id-deploy-capstone-{0}', parameters('teamId'))]",
     "snetApp": {
       "name": "[variables('snetAppName')]",
       "properties": {
@@ -649,6 +656,61 @@ const SOURCE = `{
       }
     },
     {
+      "comments": "[w6] bastion — Bastion Developer: a browser SSH session to the VM's private IP, no public port, no cost. The management subnet is reserved for the paid SKUs.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
+      "type": "Microsoft.Network/bastionHosts",
+      "apiVersion": "2023-11-01",
+      "name": "[variables('bastionName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "sku": { "name": "Developer" },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ],
+      "properties": {
+        "virtualNetwork": { "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]" }
+      }
+    },
+    {
+      "comments": "[w10] deployIdentity — the identity GitHub Actions deploys as. A managed identity has no password to leak.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 10)]",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities",
+      "apiVersion": "2023-01-31",
+      "name": "[variables('deployIdentityName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]"
+    },
+    {
+      "comments": "[w10] githubFederation — trusts GitHub's OIDC tokens for one repository's main branch; the pipeline signs in with no stored secret.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 10)]",
+      "type": "Microsoft.ManagedIdentity/userAssignedIdentities/federatedIdentityCredentials",
+      "apiVersion": "2023-01-31",
+      "name": "[format('{0}/github-main', variables('deployIdentityName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployIdentityName'))]"
+      ],
+      "properties": {
+        "issuer": "https://token.actions.githubusercontent.com",
+        "subject": "[format('repo:{0}:ref:refs/heads/main', parameters('githubRepository'))]",
+        "audiences": [ "api://AzureADTokenExchange" ]
+      }
+    },
+    {
+      "comments": "[w10] deployRole — Contributor on this resource group only, for the deploy identity. Never Owner, never the subscription.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 10)]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[guid(resourceGroup().id, variables('deployIdentityName'), 'contributor')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployIdentityName'))]"
+      ],
+      "properties": {
+        "roleDefinitionId": "[subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b24988ac-6180-42a0-ab88-20f7382dd24c')]",
+        "principalId": "[reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployIdentityName')), '2023-01-31').principalId]",
+        "principalType": "ServicePrincipal"
+      }
+    },
+    {
       "comments": "[w11] tagPolicy — Azure Policy refuses any new resource without an owner tag.",
       "condition": "[greaterOrEquals(parameters('throughWeek'), 11)]",
       "type": "Microsoft.Authorization/policyAssignments",
@@ -686,6 +748,10 @@ const SOURCE = `{
     "webStorageAccount": {
       "type": "string",
       "value": "[variables('webStorageName')]"
+    },
+    "deployClientId": {
+      "type": "string",
+      "value": "[if(greaterOrEquals(parameters('throughWeek'), 10), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployIdentityName')), '2023-01-31').clientId, '')]"
     }
   }
 }
@@ -740,6 +806,7 @@ export const AZURE_IAC: IacBundle = {
     { name: 'cosmosEndpoint', description: 'The database account’s endpoint (not a secret).' },
     { name: 'keyVaultUri', description: 'The vault’s address, for Key Vault references.' },
     { name: 'webStorageAccount', description: 'Needed once, to switch on the static website.' },
+    { name: 'deployClientId', description: 'The deploy identity’s client id — the AZURE_CLIENT_ID the Week 10 workflow signs in with (empty before Week 10).' },
   ],
   resources: armRanges(FULL),
   commands: [
@@ -756,5 +823,7 @@ export const AZURE_IAC: IacBundle = {
     'The OS disk is Standard SSD: the free account includes two 64 GB Standard SSD disks for twelve months, where a Premium SSD would cost about $5 a month.',
     'Deploy with throughWeek=4 or 8 to get the environment exactly as the Fundamentals or the Administrator course leaves it; every later resource is conditional on it.',
     'The VM keeps a public IP only so it can download patches. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.',
+    'Bastion is the Developer SKU: free, no AzureBastionSubnet, a browser session only. It is not offered in every region; where it is missing, Run Command remains the admin path and the management subnet waits for a paid SKU.',
+    'Backups stay as disk snapshots (Week 8). Azure Backup and a Recovery Services vault cost about $5 a month per VM, so the course records the trade-off instead of deploying the vault.',
   ],
 };

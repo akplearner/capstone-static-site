@@ -347,11 +347,26 @@ the student sees the task they are on without scrolling past the week.
 * The Azure counter uses bindings, and its read-then-write is a known race.
   AWS uses an atomic `ADD`.
 * AWS Config reports untagged resources but does not block them. Blocking
-  needs an SCP in AWS Organizations.
+  needs an SCP in AWS Organizations. Config stays a console step (one
+  recorder per region); CloudTrail, which has no such limit, is in the
+  template from Week 11.
+* R103: the missing components are template resources now. Azure: Bastion
+  Developer (Week 6, free, no AzureBastionSubnet, not offered in every
+  region), the GitHub deploy identity with its federated credential and a
+  resource-group Contributor assignment (Week 10). AWS: an AWS Backup vault,
+  daily plan, role and selection for the data volume (Week 8), the GitHub
+  OIDC provider and deploy role (Week 10), CloudTrail with its bucket and
+  policy (Week 11, `Week9Plus`). Azure keeps disk snapshots in Week 8 on
+  purpose: a Recovery Services vault costs about $5 a month per VM, so the
+  course records the trade-off instead of deploying it. Every non-plumbing
+  node carries a `purpose`, which the weekly breakdown ("This week adds")
+  and the build sheets print.
 * The icons are the official AWS Architecture Icons and Microsoft Azure
   icons, copied unchanged into `public/cloud-icons/` (see its README for the
-  source file of each and the terms). Two Azure icons do not exist in the
-  pack (GitHub, an action group) and are drawn.
+  source file of each and the terms). The keys the packs have no file for
+  are drawn (`CloudIcon.tsx`): on Azure GitHub, an action group, Bastion and
+  the managed identity; on AWS the Backup vault, the OIDC provider and
+  CloudTrail. `cloud.test.ts` pins that list.
 * The picture shows one week at a time. A Week-1 student sees the foundation
   only; "Show what comes later" reveals the rest greyed with its week.
 * R94: the picture fits what it shows. Containers shrink-wrap their visible

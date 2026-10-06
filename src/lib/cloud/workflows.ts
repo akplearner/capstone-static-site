@@ -141,13 +141,13 @@ export const CLOUD_PHASES = [
 
 /** The ids the week processes name, per platform — the topology's own node and container ids. */
 const IDS = {
-  azure: { site: 'webStorage', edge: 'webStorage', vm: 'vm', disk: 'dataDisk', api: 'func', fn: 'func', db: 'cosmos', alert: 'http5xxAlert', notify: 'actionGroup', secret: 'kv', param: 'kv', reader: 'readerRole', mgmt: 'nsgMgmt', budget: 'budget', group: 'rg', deploy: 'rg', policy: 'tagPolicy', account: 'governance' },
-  aws: { site: 'SiteDistribution', edge: 'SiteDistribution', vm: 'ToolsInstance', disk: 'DataVolume', api: 'HttpApi', fn: 'CounterFunction', db: 'VisitorTable', alert: 'FunctionErrorsAlarm', notify: 'AlertTopic', secret: 'TableNameParameter', param: 'TableNameParameter', reader: 'ReadOnlyGroup', mgmt: 'ToolsInstance', budget: 'MonthlyBudget', group: 'Vpc', deploy: 'region', policy: 'account-level', account: 'account-level' },
+  azure: { site: 'webStorage', edge: 'webStorage', vm: 'vm', disk: 'dataDisk', api: 'func', fn: 'func', db: 'cosmos', alert: 'http5xxAlert', notify: 'actionGroup', secret: 'kv', param: 'kv', reader: 'readerRole', mgmt: 'bastion', budget: 'budget', group: 'rg', deploy: 'rg', policy: 'tagPolicy', account: 'governance', backup: 'webBlobService', oidc: 'deployIdentity', audit: 'tagPolicy' },
+  aws: { site: 'SiteDistribution', edge: 'SiteDistribution', vm: 'ToolsInstance', disk: 'DataVolume', api: 'HttpApi', fn: 'CounterFunction', db: 'VisitorTable', alert: 'FunctionErrorsAlarm', notify: 'AlertTopic', secret: 'TableNameParameter', param: 'TableNameParameter', reader: 'ReadOnlyGroup', mgmt: 'ToolsInstance', budget: 'MonthlyBudget', group: 'Vpc', deploy: 'region', policy: 'Trail', account: 'account-level', backup: 'BackupVault', oidc: 'DeployRole', audit: 'Trail' },
 } as const;
 
 const DEPLOY_PREVIEW: Record<CloudPlatform, string> = { azure: 'what-if → deploy to dev', aws: 'change set → deploy to dev' };
-const NO_PORT: Record<CloudPlatform, string> = { azure: 'Run Command, no open port', aws: 'Session Manager, no open port' };
-const GOVERN: Record<CloudPlatform, string> = { azure: 'Policy: deny untagged', aws: 'Config rule · CloudTrail' };
+const NO_PORT: Record<CloudPlatform, string> = { azure: 'Bastion in the browser, no port', aws: 'Session Manager, no open port' };
+const GOVERN: Record<CloudPlatform, string> = { azure: 'Policy: deny untagged', aws: 'CloudTrail · Config (console)' };
 
 /**
  * The process of each GLOBAL week, drawn over the architecture. Every week has
@@ -189,17 +189,19 @@ export function cloudWeekProcesses(platform: CloudPlatform): Record<number, Week
     8: { title: 'Backup and recovery', steps: [
       { from: 'admin', to: i.disk, label: 'snapshot' },
       { from: i.disk, to: i.vm, label: 'restore and time it' },
-      { from: 'admin', to: i.site, label: 'recover the deleted file' },
+      { from: i.backup, to: i.site, label: 'recover the deleted file' },
     ] },
     9: { title: 'Infrastructure as Code', steps: [
       { from: 'github', to: i.deploy, label: DEPLOY_PREVIEW[platform] },
     ] },
     10: { title: 'CI/CD', steps: [
-      { from: 'github', to: i.site, label: 'OIDC sign-in → deploy the site' },
+      { from: 'github', to: i.oidc, label: 'sign in by OIDC, no secret' },
+      { from: 'github', to: i.site, label: 'deploy the site' },
       { from: 'github', to: i.fn, label: 'deploy under a change request' },
     ] },
     11: { title: 'Governance', steps: [
       { from: i.policy, to: i.group, label: GOVERN[platform] },
+      { from: i.audit, to: 'admin', label: 'who changed what, when' },
       { from: 'admin', to: i.budget, label: 'cost review' },
     ] },
     12: { title: 'Handover', steps: [
@@ -217,11 +219,11 @@ export const CLOUD_WEEK_CAPTIONS: Record<number, string> = {
   3: 'New: the function, the database and the identity pieces. A page view becomes a count.',
   4: 'New: the alert and who it emails. Break it on purpose and watch the alert win.',
   5: 'New: the secret store and the roles. The function reads by identity; readers only read.',
-  6: 'New: the management subnet. SSH is gone; the admin path has no open port.',
+  6: 'New: the management subnet and the admin path with no open port. SSH is gone.',
   7: 'New: the data disk. The VM is patched, measured and right-sized.',
-  8: 'Nothing new is built. Snapshot, restore, time it, and recover a deleted file.',
+  8: 'New: the backup protection — soft delete on Azure, a daily AWS Backup plan. Snapshot, restore, time it, and recover a deleted file.',
   9: 'Nothing new is built. The whole environment comes from the template, previewed before it deploys.',
-  10: 'Nothing new is built. GitHub signs in without a secret and deploys under a change request.',
-  11: 'New: the tag policy. Untagged resources are denied; the month’s cost is reviewed.',
+  10: 'New: the deploy identity. GitHub signs in by OIDC without a stored secret and deploys under a change request.',
+  11: 'New: governance — the tag policy, the audit trail. Untagged resources are caught; the month’s cost is reviewed.',
   12: 'Nothing new is built. Three scenarios under time pressure, then the handover package.',
 };

@@ -68,6 +68,10 @@ export const AWS_TILE: Record<CloudIconKey, keyof typeof AWS_CATEGORY> = {
   blobservice: 'storage',
   bucketpolicy: 'security',
   container: 'database',
+  bastion: 'networking',
+  backup: 'storage',
+  identity: 'security',
+  audit: 'management',
 };
 
 /** The main colour an Azure glyph is drawn in. */
@@ -104,6 +108,10 @@ export const AZURE_GLYPH: Record<CloudIconKey, string> = {
   blobservice: AZURE.teal,
   bucketpolicy: AZURE.blue,
   container: AZURE.dark,
+  bastion: AZURE.blue,
+  backup: AZURE.teal,
+  identity: AZURE.gold,
+  audit: AZURE.purple,
 };
 
 /** Container chrome per platform: the outline colours platform diagrams use. */

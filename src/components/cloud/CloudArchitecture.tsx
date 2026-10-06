@@ -15,13 +15,20 @@ export function CloudArchitecture({
   iac,
   initialWeek = 12,
   weekRange,
+  onWeekChange,
 }: {
   topology: Topology;
   iac: IacBundle;
   initialWeek?: number;
   weekRange?: [number, number];
+  /** R103: the week the slider is on, so the section can show "This week adds" under it. */
+  onWeekChange?: (week: number) => void;
 }) {
-  const [week, setWeek] = useState(initialWeek);
+  const [week, setWeekState] = useState(initialWeek);
+  const setWeek = (w: number) => {
+    setWeekState(w);
+    onWeekChange?.(w);
+  };
   const [selected, setSelected] = useState<string | null>(null);
   return (
     <div className="space-y-4">

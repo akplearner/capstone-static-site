@@ -9,6 +9,11 @@ packs and are used only in the two cloud capstones' architecture diagrams
 | `aws/` | AWS Architecture Icons, package `Icon-package_07312026` (also browsable at awsicons.dev) | AWS permits the icons in architecture diagrams, training material and documentation about AWS. Do not alter the icons. |
 | `azure/` | Microsoft Azure Public Service Icons, V24 (also browsable at az-icons.com) | Microsoft permits the icons in architecture diagrams, training material and documentation about Azure. Do not recolour or reshape them; the pack's `Microsoft_Terms_of_Use.pdf` and `Azure_Icons_FAQ.pdf` state the terms. |
 
+Keys with no file here are drawn in `src/components/diagrams/cloud/CloudIcon.tsx`
+(R103: `bastion`, `backup`, `identity`, `audit`, plus Azure's `github` and
+`notify`); add the pack's file and list the key in `officialIcons.ts` to
+replace a drawing.
+
 Naming: `<key>.svg` is the icon for `CloudIconKey` `<key>`; `<key>.dark.svg`
 is the pack's dark-background version, used when the site is in dark mode;
 `group-<kind>.svg` is the group icon drawn in a container's corner.

@@ -1,6 +1,6 @@
 'use client';
 
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { cloudOf } from '@/lib/content/read';
 import { courseDocument } from '@/lib/content/docs';
 import { CourseDocumentContext, useCourseDocument } from '@/lib/useCourse';
@@ -8,6 +8,7 @@ import { Collapsible } from '@/components/ui/Button';
 import { KitDiagram } from '@/components/diagrams/kit/KitDiagram';
 import { CloudTopology } from '@/components/diagrams/cloud/CloudTopology';
 import { CloudArchitecture } from './CloudArchitecture';
+import { WeekAddsList } from '@/components/course/WeekAddsList';
 
 /**
  * The cloud capstones' overview (R87): one paragraph, then pictures.
@@ -102,11 +103,20 @@ export function CloudOverview({ variant, courseId }: { variant: 'home' | 'guide'
 
 /** The manual's "Architecture & IaC" section: the diagram and its template. */
 export function CloudManualArchitecture({ initialWeek }: { initialWeek: number }) {
-  const cloud = cloudOf(useCourseDocument());
-  if (!cloud) return null;
+  const doc = useCourseDocument();
+  const cloud = cloudOf(doc);
   // `initialWeek` is the course's own week (0–4); the picture counts 1–12.
-  const global = cloud.block.weeks[0] - 1 + initialWeek;
-  return <CloudArchitecture topology={cloud.topology} iac={cloud.iac} initialWeek={global} weekRange={cloud.block.weeks} />;
+  const lo = cloud?.block.weeks[0] ?? 1;
+  const [global, setGlobal] = useState(lo - 1 + initialWeek);
+  if (!cloud) return null;
+  // R103: the weekly breakdown follows the slider, in the course's own weeks.
+  const local = Math.max(0, global - lo + 1);
+  return (
+    <div className="space-y-3">
+      <CloudArchitecture topology={cloud.topology} iac={cloud.iac} initialWeek={lo - 1 + initialWeek} weekRange={cloud.block.weeks} onWeekChange={setGlobal} />
+      {local <= cloud.block.weeks[1] - lo + 1 && <WeekAddsList courseId={doc.course.id} week={local} />}
+    </div>
+  );
 }
 
 /** A document's picture (`visual.kit === 'cloud'`): Architecture vN. */

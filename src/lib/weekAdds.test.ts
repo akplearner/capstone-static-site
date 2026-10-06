@@ -8,7 +8,9 @@ import { weekAdds } from './weekAdds';
  * that glows in a week has a row with a purpose, and every row that names a
  * form points at a form of the course. Week 0 lists the starting parts.
  */
-const ARCH_COURSES = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp', 'server-plus', 'ccna'];
+const SELF_DRAWN = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp', 'server-plus', 'ccna'];
+const CLOUD = ['azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops'];
+const ARCH_COURSES = [...SELF_DRAWN, ...CLOUD];
 
 describe.each(ARCH_COURSES)('R103 — this week adds · %s', (id) => {
   const doc = courseDocument(id)!;
@@ -30,7 +32,7 @@ describe.each(ARCH_COURSES)('R103 — this week adds · %s', (id) => {
     }
   });
 
-  it('the catalogue covers every part the build model knows', () => {
+  it.skipIf(CLOUD.includes(id))('the catalogue covers every part the build model knows', () => {
     const model = (doc.content as { arch?: { ARCH_BUILD: { arrives: Record<string, number> } }; diagrams?: { SERVER_BUILD: { arrives: Record<string, number> } }; ccnaDiagrams?: { CCNA_BUILD: { arrives: Record<string, number> } } }).arch?.ARCH_BUILD
       ?? (doc.content as { diagrams?: { SERVER_BUILD: { arrives: Record<string, number> } } }).diagrams?.SERVER_BUILD
       ?? (doc.content as { ccnaDiagrams?: { CCNA_BUILD: { arrives: Record<string, number> } } }).ccnaDiagrams?.CCNA_BUILD;

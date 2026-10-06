@@ -801,8 +801,14 @@ app.http('visitorCount', {
     ], [
       { cmd: 'RG=rg-capstone-team01; az network nsg create -g $RG -n nsg-snet-mgmt-team01', explain: 'Its own NSG, so rules for admin traffic never mix with app rules.', sample: '"provisioningState": "Succeeded"' },
       { cmd: 'az network vnet subnet create -g $RG --vnet-name vnet-capstone-team01 -n snet-mgmt --address-prefixes 10.10.2.0/24 --nsg nsg-snet-mgmt-team01', explain: 'The next /24 after snet-app. No overlap is possible inside the /16.', sample: '"addressPrefix": "10.10.2.0/24",\n"name": "snet-mgmt"' },
-    ], ['10.10.2.0/24', 'snet-mgmt'], 'Segmenting now means a Bastion can be added later without renumbering anything.'),
-    rec(6, 'infra', 'Address plan', ['One row per subnet: CIDR, purpose, route to internet.'], 'The template in Week 9 must match this plan.'),
+    ], ['10.10.2.0/24', 'snet-mgmt'], 'Segmenting now means a paid Bastion SKU can be added later without renumbering anything.'),
+    both(s(6, 'infra', 2), 'Open the VM through Bastion', 'Deploy Bastion Developer (free) and connect in the browser.', PORTAL, [
+      'vnet-capstone-team01 → Bastion → Deploy Bastion Developer. It needs no subnet and costs nothing.',
+      'vm-tools-team01 → Connect → Bastion: username azureuser, authentication SSH private key. The shell opens in the browser.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; az network bastion create -g $RG -n bas-capstone-team01 --vnet-name vnet-capstone-team01 --sku Developer -o none; az network bastion list -g $RG --query "[].{name:name, sku:sku.name}" -o table', explain: 'The Developer SKU: a browser session to the private IP, no public port, no AzureBastionSubnet, no charge.', sample: 'Name                 Sku\nbas-capstone-team01  Developer' },
+    ], ['Developer'], 'The admin path now has no open port at all: the NSG can deny every inbound rule and you still reach the VM.'),
+    rec(6, 'infra', 'Address plan', ['One row per subnet: CIDR, purpose, route to internet.', 'How admins reach the VM: Bastion Developer, in the browser.'], 'The template in Week 9 must match this plan.'),
   ]),
   T(6, 'dev', 'Lock CORS and trace the request paths', 'Allow only your site to call the API from a browser, prove a foreign origin is refused, and test each public path both ways.', 45,
     ['CORS and origins', 'Negative tests', 'HTTP status codes'], ['Only your site is allowed', 'A foreign origin is refused', 'Reachable and blocked paths recorded'],

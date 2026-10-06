@@ -53,10 +53,16 @@ Parameters:
     Default: 12
     AllowedValues: [4, 8, 12]
     Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).
+  GithubRepository:
+    Type: String
+    Default: your-org/your-repo
+    Description: owner/name of the GitHub repository the Week 10 pipeline deploys from - the OIDC role trusts exactly this repository.
 
 Conditions:
   # Everything from Week 5 on exists only when the deployment reaches that far.
   Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]
+  # The DevOps course's resources (Weeks 9-12) exist only in the full deployment.
+  Week9Plus: !Equals [!Ref ThroughWeek, 12]
 
 Resources:
   MonthlyBudget:
@@ -608,6 +614,192 @@ Resources:
       ManagedPolicyArns:
         - !Sub 'arn:\${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'
 
+  BackupVault:
+    Type: AWS::Backup::BackupVault
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 8
+        Summary: Where AWS Backup keeps the recovery points - the vault itself costs nothing.
+    Properties:
+      BackupVaultName: !Sub 'capstone-\${TeamId}-vault'
+      BackupVaultTags:
+        project: capstone
+        owner: !Ref OwnerTag
+
+  BackupRole:
+    Type: AWS::IAM::Role
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 8
+        Summary: Lets AWS Backup snapshot the data volume on the team's behalf.
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: backup.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub 'arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup'
+        - !Sub 'arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores'
+
+  BackupPlan:
+    Type: AWS::Backup::BackupPlan
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 8
+        Summary: A daily recovery point of the data volume, kept 35 days - the RPO the DR plan promises.
+    Properties:
+      BackupPlan:
+        BackupPlanName: !Sub 'capstone-\${TeamId}-daily'
+        BackupPlanRule:
+          - RuleName: daily-0300-utc
+            TargetBackupVault: !Ref BackupVault
+            ScheduleExpression: cron(0 3 * * ? *)
+            StartWindowMinutes: 60
+            CompletionWindowMinutes: 180
+            Lifecycle:
+              DeleteAfterDays: 35
+
+  BackupSelection:
+    Type: AWS::Backup::BackupSelection
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 8
+        Summary: Which resources the plan protects - the data volume, named by ARN.
+    Properties:
+      BackupPlanId: !Ref BackupPlan
+      BackupSelection:
+        SelectionName: data-volume
+        IamRoleArn: !GetAtt BackupRole.Arn
+        Resources:
+          - !Sub 'arn:\${AWS::Partition}:ec2:\${AWS::Region}:\${AWS::AccountId}:volume/\${DataVolume}'
+
+  GithubOidcProvider:
+    Type: AWS::IAM::OIDCProvider
+    Condition: Week9Plus
+    Metadata:
+      Capstone:
+        Week: 10
+        Summary: Trusts GitHub's OIDC tokens, so the pipeline signs in with no stored access key.
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList: [sts.amazonaws.com]
+      ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]
+      Tags:
+        - { Key: project, Value: capstone }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  DeployRole:
+    Type: AWS::IAM::Role
+    Condition: Week9Plus
+    Metadata:
+      Capstone:
+        Week: 10
+        Summary: The role GitHub Actions assumes - one repository, and only what a deploy needs.
+    Properties:
+      RoleName: !Sub 'capstone-\${TeamId}-deploy'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Federated: !GetAtt GithubOidcProvider.Arn }
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+              StringLike:
+                token.actions.githubusercontent.com:sub: !Sub 'repo:\${GithubRepository}:*'
+      Policies:
+        - PolicyName: deploy-site-and-code
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: [s3:PutObject, s3:DeleteObject, s3:ListBucket]
+                Resource: [!GetAtt SiteBucket.Arn, !Sub '\${SiteBucket.Arn}/*']
+              - Effect: Allow
+                Action: cloudfront:CreateInvalidation
+                Resource: !Sub 'arn:\${AWS::Partition}:cloudfront::\${AWS::AccountId}:distribution/\${SiteDistribution}'
+              - Effect: Allow
+                Action: lambda:UpdateFunctionCode
+                Resource: !GetAtt CounterFunction.Arn
+      Tags:
+        - { Key: project, Value: capstone }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  TrailBucket:
+    Type: AWS::S3::Bucket
+    Condition: Week9Plus
+    Metadata:
+      Capstone:
+        Week: 11
+        Summary: Where CloudTrail writes the account's audit log - private, encrypted, versioned.
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      Tags:
+        - { Key: project, Value: capstone }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  TrailBucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Condition: Week9Plus
+    Metadata:
+      Capstone:
+        Week: 11
+        Summary: Lets exactly one trail write to the bucket - nobody else.
+    Properties:
+      Bucket: !Ref TrailBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Sid: AllowTrailAclCheck
+            Effect: Allow
+            Principal: { Service: cloudtrail.amazonaws.com }
+            Action: s3:GetBucketAcl
+            Resource: !GetAtt TrailBucket.Arn
+          - Sid: AllowTrailWrite
+            Effect: Allow
+            Principal: { Service: cloudtrail.amazonaws.com }
+            Action: s3:PutObject
+            Resource: !Sub '\${TrailBucket.Arn}/AWSLogs/\${AWS::AccountId}/*'
+            Condition:
+              StringEquals:
+                s3:x-amz-acl: bucket-owner-full-control
+
+  Trail:
+    Type: AWS::CloudTrail::Trail
+    Condition: Week9Plus
+    DependsOn: TrailBucketPolicy
+    Metadata:
+      Capstone:
+        Week: 11
+        Summary: Every management call in the account, written to the bucket - the audit trail governance reads.
+    Properties:
+      TrailName: !Sub 'capstone-\${TeamId}-trail'
+      S3BucketName: !Ref TrailBucket
+      IsLogging: true
+      IsMultiRegionTrail: true
+      IncludeGlobalServiceEvents: true
+      EnableLogFileValidation: true
+      Tags:
+        - { Key: project, Value: capstone }
+        - { Key: owner, Value: !Ref OwnerTag }
+
 Outputs:
   SiteUrl:
     Description: The website's HTTPS address.
@@ -627,6 +819,10 @@ Outputs:
   VisitorTableName:
     Description: The table that holds the count.
     Value: !Ref VisitorTable
+  DeployRoleArn:
+    Condition: Week9Plus
+    Description: The role the Week 10 workflow assumes - goes into the repository as AWS_ROLE_ARN.
+    Value: !GetAtt DeployRole.Arn
 `;
 
 const PARAMS_DEV = `[
@@ -668,6 +864,7 @@ export const AWS_IAC: IacBundle = {
     { name: 'SiteBucketName', description: 'Where the site files are uploaded.' },
     { name: 'DistributionId', description: 'Needed to invalidate CloudFront’s cache after an upload.' },
     { name: 'VisitorTableName', description: 'The table that holds the count.' },
+    { name: 'DeployRoleArn', description: 'The role the Week 10 workflow assumes — goes into the repository as AWS_ROLE_ARN (full deployment only).' },
   ],
   resources: cfnRanges(FULL),
   commands: [
@@ -683,6 +880,8 @@ export const AWS_IAC: IacBundle = {
     'The Lambda code is inline for Week 3 simplicity. From Week 10 it ships through GitHub Actions instead.',
     'Deploy with ThroughWeek=4 or 8 to get the environment exactly as the Cloud Practitioner or the Solutions Architect course leaves it; every later resource carries the Week5Plus condition.',
     'The instance keeps a public IP only so it can reach patches and Session Manager. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.',
-    'AWS Config (the Week 11 required-tags rule) is set up in the console, not here: an account can have only one configuration recorder per region, and yours may already exist.',
+    'AWS Config (the Week 11 required-tags rule) is set up in the console, not here: an account can have only one configuration recorder per region, and yours may already exist. CloudTrail, which has no such limit, is in the template.',
+    'AWS Backup protects the data volume with a daily plan from Week 8. The vault and the plan are free; each recovery point is an EBS snapshot and bills like one (cents).',
+    'Deploy with ThroughWeek=12 for the DevOps course’s resources: the GitHub OIDC provider and deploy role (Week 10) and the audit trail (Week 11) carry the Week9Plus condition.',
   ],
 };

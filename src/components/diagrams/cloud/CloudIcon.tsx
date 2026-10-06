@@ -239,6 +239,36 @@ const GLYPHS: Record<CloudIconKey, Glyph> = {
       <path d="M5 10l11 6 11-6M16 16v12" stroke={bg} strokeWidth="1.5" fill="none" opacity="0.8" />
     </g>
   ),
+  bastion: (c, bg) => (
+    <g>
+      <path d="M5 27V11l5-4 6 4 6-4 5 4v16z" fill={c} />
+      <path d="M13 27v-7h6v7" fill={bg} opacity="0.9" />
+      <path d="M9 15h3M20 15h3" stroke={bg} strokeWidth="1.6" strokeLinecap="round" />
+    </g>
+  ),
+  backup: (c, bg) => (
+    <g>
+      <path d="M6 8h20v18H6z" fill={c} />
+      <path d="M10 8V5h12v3" stroke={c} strokeWidth="2" fill="none" />
+      <path d="M16 12v9M12 17l4 4 4-4" stroke={bg} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  ),
+  identity: (c, bg) => (
+    <g>
+      <circle cx="13" cy="12" r="6" fill={c} />
+      <path d="M4 27a9 8 0 0 1 18 0z" fill={c} />
+      <path d="M19 19l9-9M24 14l2 2M21 17l2 2" stroke={bg} strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M19 19l9-9M24 14l2 2M21 17l2 2" stroke={c} strokeWidth="1.2" strokeLinecap="round" />
+    </g>
+  ),
+  audit: (c, bg) => (
+    <g>
+      <rect x="6" y="4" width="20" height="24" rx="2" fill={c} />
+      <path d="M10 10h12M10 15h12M10 20h7" stroke={bg} strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="22" cy="22" r="3.5" fill="none" stroke={bg} strokeWidth="1.8" />
+      <path d="M24.5 24.5 27 27" stroke={bg} strokeWidth="1.8" strokeLinecap="round" />
+    </g>
+  ),
 };
 
 /** AWS glyphs that differ in kind, not just colour, from the shared drawing. */

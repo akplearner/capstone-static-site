@@ -275,9 +275,10 @@ describe('R88 — official icons', () => {
   it.each([
     ['azure', AZURE_TOPOLOGY],
     ['aws', AWS_TOPOLOGY],
-  ] as const)('%s: every drawn resource has an official icon, except the two Azure has none for', (platform, topo) => {
-    const missing = [...new Set(topo.nodes.map((n) => n.icon))].filter((k) => !OFFICIAL_ICONS[platform].includes(k));
-    expect(missing).toEqual(platform === 'azure' ? ['github', 'notify'] : []);
+  ] as const)('%s: every drawn resource has an official icon, except the keys the packs have none for (drawn glyphs)', (platform, topo) => {
+    const missing = [...new Set(topo.nodes.map((n) => n.icon))].filter((k) => !OFFICIAL_ICONS[platform].includes(k)).sort();
+    // R103: Bastion, the deploy identity (Azure) and AWS Backup, the OIDC provider and CloudTrail are drawn until their official files are added.
+    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'github', 'identity', 'notify'] : ['audit', 'backup', 'identity']);
   });
 
   it('no file was added without being listed (a stray file is a key nobody renders)', () => {

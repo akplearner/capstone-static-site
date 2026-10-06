@@ -47,7 +47,12 @@ export type CloudIconKey =
   | 'api'
   | 'blobservice'
   | 'bucketpolicy'
-  | 'container';
+  | 'container'
+  // R103: drawn glyphs (no official file yet)
+  | 'bastion'
+  | 'backup'
+  | 'identity'
+  | 'audit';
 
 /** A box that holds other things: subscription, resource group, VNet, subnet;
  *  or AWS Cloud, Region, VPC, subnet. */

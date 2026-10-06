@@ -18,7 +18,15 @@ export function WeekAddsList({ courseId, week, limit }: { courseId: string; week
   const visuals = weekVisualsOf(useCourseDocument());
   const [all, setAll] = useState(false);
   const adds = weekAdds(doc, week);
-  if (!visuals.length || adds.rows.length === 0) return null;
+  if (!visuals.length) return null;
+  if (adds.rows.length === 0) {
+    // Honest about an empty week: the process is drawn, nothing new is built.
+    return (
+      <p className="text-2xs text-muted" data-week-adds={week}>
+        {adds.starting ? 'Nothing is built yet.' : 'Nothing new this week: the process is drawn over the picture.'}
+      </p>
+    );
+  }
   const rows = limit && !all ? adds.rows.slice(0, limit) : adds.rows;
   const hidden = adds.rows.length - rows.length;
   return (
