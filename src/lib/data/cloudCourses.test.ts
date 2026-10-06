@@ -332,14 +332,14 @@ describe.each(ALL.map((c) => [c.id, c] as const))('R106f level contract — %s',
         expect(byWeek(w).some((t) => t.steps.some((s) => PROOF.test(s.title))), `${id} week ${w}: a step that proves something`).toBe(true);
       } else {
         expect(byWeek(w).some((t) => AUTOMATED.test(taskText(t))), `${id} week ${w}: a task that works through automation, not by hand`).toBe(true);
-        for (const t of byWeek(w)) expect(t.learn.length, `${t.id}: three or more things to learn`).toBeGreaterThanOrEqual(3);
+        for (const t of byWeek(w)) expect((t.learn ?? []).length, `${t.id}: three or more things to learn`).toBeGreaterThanOrEqual(3);
       }
     }
   });
 
   it('every graded task names its own exam first, and the quarter’s difficulty matches the level', () => {
     const code = CERTS[course.id].code;
-    for (const t of graded) expect(t.learn[0], `${t.id} learn[0]`).toMatch(new RegExp(`^${code.replace(/[-+]/g, '\\$&')} · `));
+    for (const t of graded) expect((t.learn ?? [])[0], `${t.id} learn[0]`).toMatch(new RegExp(`^${code.replace(/[-+]/g, '\\$&')} · `));
     const difficulties = new Set(course.weeks.filter((w) => w.number > 0).map((w) => w.difficulty));
     const expected = course.level === 'entry' ? [1, 2] : course.level === 'associate' ? [3] : [4];
     expect([...difficulties].sort(), `${id} difficulty arc`).toEqual(expected);
