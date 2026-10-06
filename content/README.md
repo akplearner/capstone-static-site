@@ -10,7 +10,15 @@ One JSON document per course, generated from the TypeScript seeds:
 | `courses/server-plus.json` | Server+ Build & Handover | `src/lib/data/seed/serverPlus.ts` · `src/lib/docs/serverPlusDeliverables.ts` · `src/lib/docs/serverProcedures.ts` · `src/lib/serverTopology.ts` |
 | `courses/secai-plus.json` | SecAI+ (CY0-001) | `src/lib/data/seed/secaiPlus.ts` · `src/lib/docs/secaiDeliverables.ts` · `src/lib/docs/secaiContent.ts` |
 | `courses/cissp.json` | CISSP | `src/lib/data/seed/cissp.ts` · `src/lib/docs/cisspDeliverables.ts` · `src/lib/docs/cisspContent.ts` |
+| `courses/ccna.json` | CCNA | `src/lib/data/seed/ccna.ts` · `src/lib/docs/ccnaDeliverables.ts` · `src/lib/docs/ccnaDiagrams.ts` · `src/lib/ccnaTopology.ts` |
+| `courses/azure-{fundamentals,administrator,devops}.json` | Azure (three quarters) | `src/lib/data/seed/azureCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/azureTopology.ts` · `azureIac.ts` |
+| `courses/aws-{cloud-practitioner,solutions-architect,devops}.json` | AWS (three quarters) | `src/lib/data/seed/awsCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/awsTopology.ts` · `awsIac.ts` |
 | `courses/index.json` | catalogue | counts per course |
+
+Every course's `deliverables[]` carries its RACI (`src/lib/docs/raci.ts`), and the
+self-drawn courses carry `content.arch` — the architecture picture and its build
+model (`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same
+export writes the weekly build sheets to `docs/courses/build-sheets/`.
 
 **The TypeScript is the source of truth.** Edit the seed, then regenerate:
 
@@ -37,9 +45,8 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
 
 ## What is deliberately absent
 
-- **Definition-of-Done check functions** and **derived columns** cannot be JSON. They
-  appear as `{ "$fn": "test" }` / `{ "$fn": "derived" }` markers beside their labels;
-  the code lives in the deliverables file named in `generatedFrom`.
+- **Definition-of-Done checks** are predicates (data) since R84, so every document is
+  plain JSON — `dto.test.ts` asserts there is no function marker anywhere in it.
 - **React components** (diagrams, the guide's rendering) and **student state**
   (progress, forms, evidence — localStorage or Supabase) are not content.
 - **Glossary and lab-access field definitions** are platform-wide, in

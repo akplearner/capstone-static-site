@@ -2146,3 +2146,14 @@ describe('R103 — the deliverable lifecycle', () => {
     expect(existsSync('supabase/migrations/0012_deliverable_lifecycle.sql')).toBe(true);
   });
 });
+
+/** R103 — the build sheets are generated with the content, and CI diffs them. */
+describe('R103 — build sheets', () => {
+  it('the export writes the sheets from the same renderer the test checks, and CI diffs the folder', () => {
+    expect(read('package.json')).toContain('tsx scripts/export-courses.ts && tsx scripts/export-build-sheets.ts');
+    expect(read('.github/workflows/ci.yml')).toContain('git diff --exit-code -- content/ docs/courses/build-sheets/');
+    expect(code('scripts/export-build-sheets.ts')).toContain("from '../src/lib/docs/buildSheet'");
+    expect(code('src/lib/docs/buildSheet.ts')).toContain('weekAdds(doc, v.week)');
+    expect(existsSync('docs/courses/arch-pictures.md')).toBe(true);
+  });
+});

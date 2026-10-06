@@ -101,6 +101,8 @@ names the role that fills it. Each form draws Architecture vN for its week.
 
 ## Architecture and IaC
 
+R103: every template resource that is not plumbing carries a `purpose`; the Tasks tab, the Guide's architecture slider and `docs/courses/build-sheets/<course>.md` print what each week adds from it. The four documents of each quarter carry a RACI (the Architect drafts, Security & Ops reviews, the role whose work it records approves) and move through the lifecycle described in `docs/courses/arch-pictures.md`.
+
 * `src/lib/cloud/azureIac.ts` / `awsIac.ts`: one source template per platform
   with `⟦FILL:hint|value⟧` markers. A `throughWeek` parameter (4, 8 or 12)
   makes every Week-5+ resource conditional, so one template deploys any

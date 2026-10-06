@@ -39,6 +39,8 @@ per role, so the work is split so that each role owns coherent documents.
 
 ## The picture
 
+R103: both pictures are `ArchPicture`s (`docs/courses/arch-pictures.md`): SecAI+ gained identity, the WAF, the runtime, backups and the quality audit; CISSP's app is drawn as web, API and agent with key management, device management and the VPN; both carry a records lane of their forms and a purpose per part. The weekly tables are in `build-sheets/secai-plus.md` and `build-sheets/cissp.md`. Their documents move through the lifecycle (RACI in `src/lib/docs/raci.ts`).
+
 Neither course has a machine lab of its own, so each draws the SYSTEM it
 secures through one generic renderer, `HubDiagram`, fed by its own content
 module (`secaiContent.ts`, `cisspContent.ts`). The data carries the parts,

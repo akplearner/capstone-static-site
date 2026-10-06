@@ -49,7 +49,18 @@ has failed silently in some deployment of some product; none takes more than a m
       task opens in the runner, its row names the role, yours says "Yours"; a step the teammate
       ticked reads "done by <name>" and cannot be unticked by you; the week % and the gate are
       the team's.
-- [ ] **The two Ridgeline capstones (R101):** SecAI+ (four releases) and CISSP (six releases) each join, show a role-marked task per week, draw the "hub" picture with its process and caption, and file their forms. Both are open (no gate locks a week).
+- [ ] **The two Ridgeline capstones (R101):** SecAI+ (four releases) and CISSP (six releases) each join, show a role-marked task per week, draw their architecture picture with its process and caption, and file their forms. Both are open (no gate locks a week).
+- [ ] **Real architectures (R103):** every course's week picture shows components, not chips —
+      a firewall, identity, logs into a SIEM, backups, the records lane — and under it "This
+      week adds" lists each arriving part with its purpose and a "Recorded in" link that opens
+      the form. The cloud Guide's architecture slider shows the same list for the week it is on.
+      `docs/courses/build-sheets/` holds the same tables, one file per course.
+- [ ] **Document lifecycle (R103):** on a form, the status strip reads Draft and names who
+      drafts, reviews and approves; the drafting role sees "Submit from the Expectations panel"
+      and every other role sees who submits; after a submit the reviewer's Home shows the team
+      queue card and the form offers Approve / Return (Return asks for a reason); the approver
+      can Issue; a downstream form shows "Waiting on" until its inputs are approved; the `.md`
+      export of an approved form carries the Document control block.
 - [ ] **Week picture (R99):** every week of every course shows "What you build this week" on the
       Tasks tab: the build at the end of that week, this week's parts glowing, and on a week that
       builds nothing the week's process drawn over it. The Guide's lab picture has week pills; a
