@@ -21,7 +21,7 @@
     "id": "aws-solutions-architect",
     "title": "AWS Solutions Architect Capstone",
     "slug": "aws-solutions-architect",
-    "description": "Run the company’s AWS like production: least-privilege IAM, a private subnet with no open ports, instance administration, backup and recovery.",
+    "description": "Run the company’s AWS like production: least-privilege IAM and a customer key, a two-zone fleet behind a load balancer, a Multi-AZ database and a queue, scaling and a timed recovery.",
     "vendor": "AWS",
     "certification": "Solutions Architect – Associate (SAA-C03)",
     "level": "associate",
@@ -6556,7 +6556,7 @@
           5,
           8
         ],
-        "intro": "Starts from the Cloud Practitioner environment and adds a table-scoped role, a private subnet and Session Manager, an EBS volume and patching, snapshots and a timed recovery drill.",
+        "intro": "Starts from the Cloud Practitioner environment and adds a customer-managed key and a locked API, an Auto Scaling group across two zones behind an ALB, a Multi-AZ PostgreSQL and an SQS queue, target tracking, and a timed recovery drill against SAA-C03.",
         "title": "AWS Solutions Architect Capstone"
       },
       "workflows": [
@@ -7075,7 +7075,7 @@
           "item": "RDS PostgreSQL db.t3.micro, Multi-AZ",
           "usd": 0.036,
           "per": "hour",
-          "note": "Created in the data week and deleted the same day; a final snapshot is kept.",
+          "note": "Created in the data week and stopped or deleted the same day; the backups are kept for the restore drill.",
           "weeks": [
             3
           ]

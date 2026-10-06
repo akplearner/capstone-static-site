@@ -50,10 +50,10 @@ the rest of the plan.
 | 2 | Core services | SAD v1, calculator vs free tier, **redundancy and storage classes** | B1s VM / t3.micro EC2 (+ its security group), zone | Static website / S3 + CloudFront + OAC | NSG on the subnet, SSH from your /32, allowed + blocked test |
 | 3 | Serverless, data and identity | Request flow, who manages each hop | Cosmos DB / DynamoDB + seed | Function / Lambda + HTTP API | **Entra / IAM group, Reader / ReadOnlyAccess, MFA**, no keys |
 | 4 | Monitor, govern, pay | Cost to date, **Advisor + Service Health / Trusted Advisor + support plans** | Error alert + action group / SNS | Find a failure in App Insights / CloudWatch Logs | **Resource lock / CloudTrail**, incident record |
-| 5 | Identity | Access matrix | **Key Vault + Secrets User / Parameter Store** | Managed identity / table-scoped role | Prove a denial |
-| 6 | Networking | Network design doc | snet-mgmt / private subnet | **CORS lock + negative test**, trace request paths | Remove SSH; Run Command / Session Manager |
-| 7 | Server admin | Right-size | Data disk / EBS volume at /data | Update Manager / Patch Manager | Baseline + runbook with the **five-layer step**; AWS: **require IMDSv2** |
-| 8 | Backup + recovery | RPO/RTO per asset | Snapshot → restore | Soft delete / S3 versioning restore | Timed drill |
+| 5 | Secure by design | Access matrix and the **five layers** | **Key Vault, purge protection + AuditEvent / Parameter Store + customer-managed KMS key** | Managed identity + data role / table-scoped role; **CORS lock + negative test** | Prove a denial; Defender recommendations / Access Analyzer |
+| 6 | Resilient compute | ADR-002: two zones, costed | **Scale set (Flexible, zones 1–2) in snet-web / launch template + Auto Scaling group across two subnets** | **Standard Load Balancer / ALB** + health probe, both zones answer | Close port 22, Bastion Developer, Key Vault private endpoint + private DNS / S3 gateway + Session Manager endpoints |
+| 7 | Data and storage | ADR-003: data store, tiers / classes, costed | **PostgreSQL flexible server, zone-redundant HA, delegated subnet, stopped / RDS Multi-AZ, snapshotted, deleted** | **Storage queue + poison queue / SQS + DLQ** feeding a ledger function | Storage hardening + lifecycle rule / Block Public Access + lifecycle rule |
+| 8 | Scale, monitor, recover | RPO/RTO per asset, autoscale target, final design costed | **Autoscale / target tracking** on CPU, lost instance replaced, fleet parked | Soft delete / S3 versioning restore; **point-in-time / snapshot restore** of the database, then deleted | Timed drill (RTO measured), balancer and fleet torn down, cost read |
 | 9 | Infrastructure as code | Template ↔ diagram map, **ADR-001** | CLI inventory | Fill the starter, what-if / change set, deploy dev | Parameter files, validate (Terraform optional) |
 | 10 | CI/CD | RFC in a pull request | Branch protection + prod environment | GitHub Actions deploy | OIDC (no stored keys) + rollback test |
 | 11 | Governance | Cost by service | Policy / Config required-tags | Activity Log / CloudTrail | Defender free CSPM / Trusted Advisor + Access Analyzer |
@@ -71,7 +71,12 @@ the rest of the plan.
 | Database | Cosmos DB serverless | DynamoDB on-demand (atomic `ADD`) |
 | No-secret access | Managed identity + Cosmos data role | Execution role scoped to one table ARN |
 | Monitoring | Log Analytics, App Insights, metric alert, action group | CloudWatch Logs, alarm, SNS |
-| Admin without ports | Run Command | Session Manager |
+| Admin without ports | Bastion Developer (browser), Run Command | Session Manager over interface endpoints |
+| Fleet (R106) | VM scale set, Flexible, zones 1–2, parked at 0 | Launch template + Auto Scaling group, two subnets, parked at 0 |
+| Load balancer (R106) | Standard Load Balancer, zone-redundant address, HTTP probe | Application Load Balancer, two public subnets, target group |
+| Relational database (R106) | PostgreSQL flexible server D2ds_v4, zone-redundant HA, delegated subnet | RDS PostgreSQL db.t3.micro, Multi-AZ, DB subnet group |
+| Queue (R106) | Storage queue `visits` + `visits-poison`, queue-triggered function | SQS `visits` + dead-letter queue, event source mapping |
+| Private path (R106) | Private endpoint + private DNS zone (proved, then deleted) | S3 gateway endpoint (kept, free) + SSM interface endpoints (deleted) |
 | Backup | Incremental disk snapshot, blob soft delete + versioning | EBS snapshot, S3 versioning |
 | IaC | ARM template, `what-if` | CloudFormation, change set |
 | Pipeline sign-in | Federated credential (azure/login) | IAM OIDC provider + role |

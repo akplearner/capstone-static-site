@@ -23,7 +23,7 @@ This week adds:
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
 | Storage account · stweb… ($web) | Hosts the company website over HTTPS | — |
-| NSG · nsg-snet-app | Rules for the app subnet: SSH from management only | — |
+| NSG · nsg-snet-app | Rules for the app subnet: nothing inbound from the internet | — |
 | Virtual machine · vm-tools-team01 | The internal IT tools server | — |
 | Public IP | The VM’s public address, outbound only after week 6 | — |
 
@@ -37,8 +37,8 @@ This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| Function app · func-capstone-team01 | The visitor-counter API | — |
-| Azure Cosmos DB · serverless | The database the counter lives in | — |
+| Function app · func-capstone-team01 | The visitor-counter API and the ledger that drains the queue | — |
+| Azure Cosmos DB · serverless | The database the counter and the ledger live in | — |
 | App Insights · appi-capstone-team01 | Requests, failures and traces from the function | — |
 | Log Analytics · log-capstone-team01 | Where every log and metric ends up | — |
 | Reader (group) | The team’s group can look at everything and change nothing | — |

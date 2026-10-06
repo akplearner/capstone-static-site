@@ -12,9 +12,13 @@ import { armRanges, fillCount, fullFrom, starterFrom } from './iacText';
  * parity tests all read those tags; nothing restates them.
  *
  * Soundness choices, stated in the course too:
- *  - no SSH from the internet: the app subnet admits SSH only from the
- *    management subnet (reserved for a future Bastion); day-to-day admin is
- *    Run Command, which needs no open port;
+ *  - nothing inbound from the internet except HTTP to the web subnet, where
+ *    the load-balanced fleet lives; the app subnet admits nothing, admin is
+ *    Bastion Developer in the browser and Run Command, which need no open port;
+ *  - R106: the fleet (a Flexible scale set across two zones behind a Standard
+ *    Load Balancer) is parked at `fleetSize` 0 by default, and the
+ *    zone-redundant PostgreSQL server only exists when `createDatabase` is
+ *    true — both bill by the hour, so the template never starts them unasked;
  *  - Windows Consumption plan for the Function App — the plan that supports
  *    editing code in the portal, which Week 3 relies on;
  *  - the Function reaches Cosmos DB with its managed identity (no key in any
@@ -90,6 +94,23 @@ const SOURCE = `{
       "type": "string",
       "defaultValue": "your-org/your-repo",
       "metadata": { "description": "owner/name of the GitHub repository the Week 10 pipeline deploys from — the federated credential trusts exactly this repo's main branch." }
+    },
+    "fleetSize": {
+      "type": "int",
+      "defaultValue": 0,
+      "minValue": 0,
+      "maxValue": 3,
+      "metadata": { "description": "Instances in the Week 6 web scale set. 0 parks the fleet (free); autoscale is enabled only when this is above 0." }
+    },
+    "createDatabase": {
+      "type": "bool",
+      "defaultValue": false,
+      "metadata": { "description": "Create the Week 7 zone-redundant PostgreSQL server (about $0.30 an hour). False by default: the course creates, stops and deletes it by hand." }
+    },
+    "dbAdminPassword": {
+      "type": "securestring",
+      "defaultValue": "",
+      "metadata": { "description": "The PostgreSQL admin password, required only when createDatabase is true. Pass it on the command line; never write it in a file." }
     }
   },
   "variables": {
@@ -102,9 +123,19 @@ const SOURCE = `{
     },
     "vnetName": "[format('vnet-capstone-{0}', parameters('teamId'))]",
     "snetAppName": "snet-app",
-    "snetMgmtName": "snet-mgmt",
+    "snetWebName": "snet-web",
+    "snetDbName": "snet-db",
     "nsgAppName": "[format('nsg-snet-app-{0}', parameters('teamId'))]",
-    "nsgMgmtName": "[format('nsg-snet-mgmt-{0}', parameters('teamId'))]",
+    "nsgWebName": "[format('nsg-snet-web-{0}', parameters('teamId'))]",
+    "nsgDbName": "[format('nsg-snet-db-{0}', parameters('teamId'))]",
+    "lbName": "[format('lb-web-{0}', parameters('teamId'))]",
+    "lbPipName": "[format('pip-lb-web-{0}', parameters('teamId'))]",
+    "fleetName": "[format('vmss-web-{0}', parameters('teamId'))]",
+    "autoscaleName": "[format('autoscale-web-{0}', parameters('teamId'))]",
+    "pgName": "[toLower(format('pg-capstone-{0}-{1}', parameters('teamId'), variables('suffix')))]",
+    "pgDnsZoneName": "[format('{0}.private.postgres.database.azure.com', variables('pgName'))]",
+    "visitsQueueName": "visits",
+    "withDatabase": "[and(greaterOrEquals(parameters('throughWeek'), 7), parameters('createDatabase'))]",
     "pipName": "[format('pip-vm-tools-{0}', parameters('teamId'))]",
     "nicName": "[format('nic-vm-tools-{0}', parameters('teamId'))]",
     "vmName": "[format('vm-tools-{0}', parameters('teamId'))]",
@@ -132,13 +163,23 @@ const SOURCE = `{
         "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgAppName'))]" }
       }
     },
-    "snetMgmt": {
-      "name": "[variables('snetMgmtName')]",
+    "snetWeb": {
+      "name": "[variables('snetWebName')]",
       "properties": {
         "addressPrefix": "10.10.2.0/24",
-        "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgMgmtName'))]" }
+        "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgWebName'))]" }
       }
     },
+    "snetDb": {
+      "name": "[variables('snetDbName')]",
+      "properties": {
+        "addressPrefix": "10.10.3.0/24",
+        "networkSecurityGroup": { "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgDbName'))]" },
+        "delegations": [ { "name": "postgres", "properties": { "serviceName": "Microsoft.DBforPostgreSQL/flexibleServers" } } ]
+      }
+    },
+    "subnets": "[if(greaterOrEquals(parameters('throughWeek'), 7), createArray(variables('snetApp'), variables('snetWeb'), variables('snetDb')), if(greaterOrEquals(parameters('throughWeek'), 6), createArray(variables('snetApp'), variables('snetWeb')), createArray(variables('snetApp'))))]",
+    "fleetInit": "#cloud-config\\nruncmd:\\n  - mkdir -p /srv/www\\n  - Z=$(curl -s -H Metadata:true \\"http://169.254.169.254/metadata/instance/compute/zone?api-version=2021-02-01&format=text\\"); echo \\"web OK from zone $Z\\" > /srv/www/index.html\\n  - cd /srv/www && nohup python3 -m http.server 80 >/dev/null 2>&1 &\\n",
     "dataDisks": [
       {
         "lun": 0,
@@ -171,7 +212,7 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w2] nsgApp — rules for the app subnet: SSH only from the management subnet, nothing from the internet.",
+      "comments": "[w2] nsgApp — rules for the app subnet: nothing inbound from the internet; admin is Bastion and Run Command, which need no port.",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-11-01",
       "name": "[variables('nsgAppName')]",
@@ -180,16 +221,42 @@ const SOURCE = `{
       "properties": {
         "securityRules": [
           {
-            "name": "Allow-SSH-From-Mgmt",
+            "name": "Deny-Internet-Inbound",
             "properties": {
-              "priority": 100,
+              "priority": 4096,
+              "direction": "Inbound",
+              "access": "Deny",
+              "protocol": "*",
+              "sourceAddressPrefix": "Internet",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "*"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "[w6] nsgWeb — rules for the web subnet: HTTP from the internet to the fleet (the balancer passes the visitor's address through), nothing else.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2023-11-01",
+      "name": "[variables('nsgWebName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "Allow-HTTP-Internet",
+            "properties": {
+              "priority": 110,
               "direction": "Inbound",
               "access": "Allow",
               "protocol": "Tcp",
-              "sourceAddressPrefix": "⟦FILL:the management subnet range|10.10.2.0/24⟧",
+              "sourceAddressPrefix": "Internet",
               "sourcePortRange": "*",
               "destinationAddressPrefix": "*",
-              "destinationPortRange": "22"
+              "destinationPortRange": "⟦FILL:the port the fleet serves|80⟧"
             }
           },
           {
@@ -209,15 +276,28 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w6] nsgMgmt — rules for the management subnet, reserved for a future Bastion.",
-      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
+      "comments": "[w7] nsgDb — rules for the database subnet: PostgreSQL from the app and web subnets only, nothing from the internet.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 7)]",
       "type": "Microsoft.Network/networkSecurityGroups",
       "apiVersion": "2023-11-01",
-      "name": "[variables('nsgMgmtName')]",
+      "name": "[variables('nsgDbName')]",
       "location": "[parameters('location')]",
       "tags": "[variables('tags')]",
       "properties": {
         "securityRules": [
+          {
+            "name": "Allow-Postgres-From-VNet",
+            "properties": {
+              "priority": 100,
+              "direction": "Inbound",
+              "access": "Allow",
+              "protocol": "Tcp",
+              "sourceAddressPrefixes": [ "10.10.1.0/24", "10.10.2.0/24" ],
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "5432"
+            }
+          },
           {
             "name": "Deny-Internet-Inbound",
             "properties": {
@@ -235,7 +315,7 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w1] vnet — the company network: an app subnet now, a management subnet from Week 6.",
+      "comments": "[w1] vnet — the company network: an app subnet now, the web subnet from Week 6, the database subnet from Week 7.",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2023-11-01",
       "name": "[variables('vnetName')]",
@@ -243,15 +323,16 @@ const SOURCE = `{
       "tags": "[variables('tags')]",
       "dependsOn": [
         "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgAppName'))]",
-        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgMgmtName'))]"
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgWebName'))]",
+        "[resourceId('Microsoft.Network/networkSecurityGroups', variables('nsgDbName'))]"
       ],
       "properties": {
         "addressSpace": { "addressPrefixes": [ "⟦FILL:the VNet address space|10.10.0.0/16⟧" ] },
-        "subnets": "[if(greaterOrEquals(parameters('throughWeek'), 6), createArray(variables('snetApp'), variables('snetMgmt')), createArray(variables('snetApp')))]"
+        "subnets": "[variables('subnets')]"
       }
     },
     {
-      "comments": "[w2] pip — the VM's public address. After Week 6 it only carries outbound traffic (patches).",
+      "comments": "[w2] pip — the VM's public address. From Week 6 nothing inbound reaches it; it only carries outbound traffic (patches).",
       "type": "Microsoft.Network/publicIPAddresses",
       "apiVersion": "2023-11-01",
       "name": "[variables('pipName')]",
@@ -475,6 +556,245 @@ const SOURCE = `{
       }
     },
     {
+      "comments": "[w6] lbPip — the balancer's public address, zone-redundant: it survives the loss of any one zone.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
+      "type": "Microsoft.Network/publicIPAddresses",
+      "apiVersion": "2023-11-01",
+      "name": "[variables('lbPipName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "sku": { "name": "Standard", "tier": "Regional" },
+      "zones": [ "1", "2", "3" ],
+      "properties": {
+        "publicIPAllocationMethod": "Static",
+        "publicIPAddressVersion": "IPv4"
+      }
+    },
+    {
+      "comments": "[w6] lb — the Standard Load Balancer: one address, a health probe on /, port 80 to whichever instance answers.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
+      "type": "Microsoft.Network/loadBalancers",
+      "apiVersion": "2023-11-01",
+      "name": "[variables('lbName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "sku": { "name": "Standard", "tier": "Regional" },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/publicIPAddresses', variables('lbPipName'))]"
+      ],
+      "properties": {
+        "frontendIPConfigurations": [
+          { "name": "fe", "properties": { "publicIPAddress": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('lbPipName'))]" } } }
+        ],
+        "backendAddressPools": [ { "name": "bepool" } ],
+        "probes": [
+          { "name": "http", "properties": { "protocol": "Http", "port": 80, "requestPath": "/", "intervalInSeconds": 5, "probeThreshold": 2 } }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "http",
+            "properties": {
+              "frontendIPConfiguration": { "id": "[resourceId('Microsoft.Network/loadBalancers/frontendIPConfigurations', variables('lbName'), 'fe')]" },
+              "backendAddressPool": { "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), 'bepool')]" },
+              "probe": { "id": "[resourceId('Microsoft.Network/loadBalancers/probes', variables('lbName'), 'http')]" },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "idleTimeoutInMinutes": 4
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "[w6] vmss — the web fleet: a Flexible scale set of B1s across zones 1 and 2, no public addresses, parked at fleetSize 0.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "apiVersion": "2024-03-01",
+      "name": "[variables('fleetName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "zones": [ "1", "2" ],
+      "sku": { "name": "[parameters('vmSize')]", "tier": "Standard", "capacity": "[parameters('fleetSize')]" },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]"
+      ],
+      "properties": {
+        "orchestrationMode": "Flexible",
+        "platformFaultDomainCount": 1,
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "imageReference": { "publisher": "Canonical", "offer": "0001-com-ubuntu-server-jammy", "sku": "22_04-lts-gen2", "version": "latest" },
+            "osDisk": { "createOption": "FromImage", "deleteOption": "Delete", "managedDisk": { "storageAccountType": "StandardSSD_LRS" } }
+          },
+          "osProfile": {
+            "computerNamePrefix": "web",
+            "adminUsername": "[parameters('adminUsername')]",
+            "customData": "[base64(variables('fleetInit'))]",
+            "linuxConfiguration": {
+              "disablePasswordAuthentication": true,
+              "ssh": { "publicKeys": [ { "path": "[format('/home/{0}/.ssh/authorized_keys', parameters('adminUsername'))]", "keyData": "[parameters('sshPublicKey')]" } ] }
+            }
+          },
+          "networkProfile": {
+            "networkApiVersion": "2020-11-01",
+            "networkInterfaceConfigurations": [
+              {
+                "name": "nic-web",
+                "properties": {
+                  "primary": true,
+                  "ipConfigurations": [
+                    {
+                      "name": "ipconfig1",
+                      "properties": {
+                        "subnet": { "id": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('snetWebName'))]" },
+                        "loadBalancerBackendAddressPools": [ { "id": "[resourceId('Microsoft.Network/loadBalancers/backendAddressPools', variables('lbName'), 'bepool')]" } ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "comments": "[w8] autoscale — adds an instance above 50% average CPU and removes one below 25%, between one and three; enabled only when the fleet is not parked.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 8)]",
+      "type": "Microsoft.Insights/autoscalesettings",
+      "apiVersion": "2022-10-01",
+      "name": "[variables('autoscaleName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('fleetName'))]"
+      ],
+      "properties": {
+        "enabled": "[greater(parameters('fleetSize'), 0)]",
+        "targetResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('fleetName'))]",
+        "profiles": [
+          {
+            "name": "cpu",
+            "capacity": { "minimum": "1", "maximum": "3", "default": "[string(max(parameters('fleetSize'), 1))]" },
+            "rules": [
+              {
+                "metricTrigger": { "metricName": "Percentage CPU", "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('fleetName'))]", "timeGrain": "PT1M", "statistic": "Average", "timeWindow": "PT5M", "timeAggregation": "Average", "operator": "GreaterThan", "threshold": 50 },
+                "scaleAction": { "direction": "Increase", "type": "ChangeCount", "value": "1", "cooldown": "PT5M" }
+              },
+              {
+                "metricTrigger": { "metricName": "Percentage CPU", "metricResourceUri": "[resourceId('Microsoft.Compute/virtualMachineScaleSets', variables('fleetName'))]", "timeGrain": "PT1M", "statistic": "Average", "timeWindow": "PT5M", "timeAggregation": "Average", "operator": "LessThan", "threshold": 25 },
+                "scaleAction": { "direction": "Decrease", "type": "ChangeCount", "value": "1", "cooldown": "PT5M" }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "comments": "[w7] pgDnsZone — the private DNS zone a VNet-integrated PostgreSQL server resolves its name in.",
+      "condition": "[variables('withDatabase')]",
+      "type": "Microsoft.Network/privateDnsZones",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('pgDnsZoneName')]",
+      "location": "global",
+      "tags": "[variables('tags')]"
+    },
+    {
+      "comments": "[w7] pgDnsLink — ties the zone to the company network, so the fleet resolves the server to its private address.",
+      "condition": "[variables('withDatabase')]",
+      "type": "Microsoft.Network/privateDnsZones/virtualNetworkLinks",
+      "apiVersion": "2020-06-01",
+      "name": "[format('{0}/link-vnet', variables('pgDnsZoneName'))]",
+      "location": "global",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/privateDnsZones', variables('pgDnsZoneName'))]",
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]"
+      ],
+      "properties": {
+        "registrationEnabled": false,
+        "virtualNetwork": { "id": "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]" }
+      }
+    },
+    {
+      "comments": "[w7] pg — Azure Database for PostgreSQL flexible server: zone-redundant HA, encrypted, private in snet-db; created only when createDatabase is true.",
+      "condition": "[variables('withDatabase')]",
+      "type": "Microsoft.DBforPostgreSQL/flexibleServers",
+      "apiVersion": "2024-08-01",
+      "name": "[variables('pgName')]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "sku": { "name": "Standard_D2ds_v4", "tier": "GeneralPurpose" },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetName'))]",
+        "[resourceId('Microsoft.Network/privateDnsZones/virtualNetworkLinks', variables('pgDnsZoneName'), 'link-vnet')]"
+      ],
+      "properties": {
+        "version": "16",
+        "administratorLogin": "capstone",
+        "administratorLoginPassword": "[parameters('dbAdminPassword')]",
+        "storage": { "storageSizeGB": 32 },
+        "backup": { "backupRetentionDays": 7, "geoRedundantBackup": "Disabled" },
+        "availabilityZone": "1",
+        "highAvailability": { "mode": "⟦FILL:the HA mode that puts the standby in another zone|ZoneRedundant⟧", "standbyAvailabilityZone": "2" },
+        "network": {
+          "delegatedSubnetResourceId": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetName'), variables('snetDbName'))]",
+          "privateDnsZoneArmResourceId": "[resourceId('Microsoft.Network/privateDnsZones', variables('pgDnsZoneName'))]"
+        }
+      }
+    },
+    {
+      "comments": "[w7] visitsQueue — the storage queue between the counter and the ledger: the API answers now, the write happens when it can.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 7)]",
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/default/{1}', variables('funcStorageName'), variables('visitsQueueName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageName'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "comments": "[w7] visitsPoisonQueue — where a message the ledger rejects five times ends up, instead of blocking the queue.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 7)]",
+      "type": "Microsoft.Storage/storageAccounts/queueServices/queues",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/default/{1}-poison', variables('funcStorageName'), variables('visitsQueueName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('funcStorageName'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "comments": "[w7] lifecycle — ages the site account's blobs: Cool after 30 days, old versions deleted after 90.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 7)]",
+      "type": "Microsoft.Storage/storageAccounts/managementPolicies",
+      "apiVersion": "2023-05-01",
+      "name": "[format('{0}/default', variables('webStorageName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('webStorageName'))]"
+      ],
+      "properties": {
+        "policy": {
+          "rules": [
+            {
+              "enabled": true,
+              "name": "age-out",
+              "type": "Lifecycle",
+              "definition": {
+                "filters": { "blobTypes": [ "blockBlob" ] },
+                "actions": {
+                  "baseBlob": { "tierToCool": { "daysAfterModificationGreaterThan": 30 } },
+                  "version": { "delete": { "daysAfterCreationGreaterThan": 90 } }
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
       "comments": "[w5] kv — Key Vault in RBAC mode. The vault is infrastructure; secret values never go in a template.",
       "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
       "type": "Microsoft.KeyVault/vaults",
@@ -656,7 +976,7 @@ const SOURCE = `{
       }
     },
     {
-      "comments": "[w6] bastion — Bastion Developer: a browser SSH session to the VM's private IP, no public port, no cost. The management subnet is reserved for the paid SKUs.",
+      "comments": "[w6] bastion — Bastion Developer: a browser SSH session to the VM's private IP, no public port, no cost. The admin path once port 22 is closed.",
       "condition": "[greaterOrEquals(parameters('throughWeek'), 6)]",
       "type": "Microsoft.Network/bastionHosts",
       "apiVersion": "2023-11-01",
@@ -752,6 +1072,14 @@ const SOURCE = `{
     "deployClientId": {
       "type": "string",
       "value": "[if(greaterOrEquals(parameters('throughWeek'), 10), reference(resourceId('Microsoft.ManagedIdentity/userAssignedIdentities', variables('deployIdentityName')), '2023-01-31').clientId, '')]"
+    },
+    "siteLbIp": {
+      "type": "string",
+      "value": "[if(greaterOrEquals(parameters('throughWeek'), 6), reference(resourceId('Microsoft.Network/publicIPAddresses', variables('lbPipName')), '2023-11-01').ipAddress, '')]"
+    },
+    "postgresHost": {
+      "type": "string",
+      "value": "[if(variables('withDatabase'), reference(resourceId('Microsoft.DBforPostgreSQL/flexibleServers', variables('pgName')), '2024-08-01').fullyQualifiedDomainName, '')]"
     }
   }
 }
@@ -767,7 +1095,9 @@ const PARAMS_DEV = `{
     "alertEmail": { "value": "team01@example.com" },
     "sshPublicKey": { "value": "ssh-ed25519 AAAA...paste-your-public-key" },
     "vmSize": { "value": "Standard_B1s" },
-    "budgetAmount": { "value": 5 }
+    "budgetAmount": { "value": 5 },
+    "fleetSize": { "value": 0 },
+    "createDatabase": { "value": false }
   }
 }
 `;
@@ -782,7 +1112,9 @@ const PARAMS_PROD = `{
     "alertEmail": { "value": "team01@example.com" },
     "sshPublicKey": { "value": "ssh-ed25519 AAAA...paste-your-public-key" },
     "vmSize": { "value": "Standard_B1s" },
-    "budgetAmount": { "value": 10 }
+    "budgetAmount": { "value": 20 },
+    "fleetSize": { "value": 2 },
+    "createDatabase": { "value": false }
   }
 }
 `;
@@ -807,6 +1139,8 @@ export const AZURE_IAC: IacBundle = {
     { name: 'keyVaultUri', description: 'The vault’s address, for Key Vault references.' },
     { name: 'webStorageAccount', description: 'Needed once, to switch on the static website.' },
     { name: 'deployClientId', description: 'The deploy identity’s client id — the AZURE_CLIENT_ID the Week 10 workflow signs in with (empty before Week 10).' },
+    { name: 'siteLbIp', description: 'The load balancer’s zone-redundant address — the fleet’s one front door (empty before Week 6).' },
+    { name: 'postgresHost', description: 'The PostgreSQL server’s private host name (empty unless createDatabase is true).' },
   ],
   resources: armRanges(FULL),
   commands: [
@@ -823,7 +1157,10 @@ export const AZURE_IAC: IacBundle = {
     'The OS disk is Standard SSD: the free account includes two 64 GB Standard SSD disks for twelve months, where a Premium SSD would cost about $5 a month.',
     'Deploy with throughWeek=4 or 8 to get the environment exactly as the Fundamentals or the Administrator course leaves it; every later resource is conditional on it.',
     'The VM keeps a public IP only so it can download patches. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.',
-    'Bastion is the Developer SKU: free, no AzureBastionSubnet, a browser session only. It is not offered in every region; where it is missing, Run Command remains the admin path and the management subnet waits for a paid SKU.',
+    'Bastion is the Developer SKU: free, no AzureBastionSubnet, a browser session only. It is not offered in every region; where it is missing, Run Command remains the admin path.',
+    'The fleet is parked: fleetSize defaults to 0, so the scale set and the balancer exist but no instance bills. Set fleetSize=2 (the prod file does) to serve; autoscale is enabled only then and holds the fleet between one and three.',
+    'The fleet serves its page with what the Ubuntu image already has (python3), so an instance needs no outbound internet to come up — a Standard Load Balancer gives none unless you add an outbound rule or a NAT gateway.',
+    'The database exists only with createDatabase=true and a dbAdminPassword passed on the command line. Zone-redundant HA is two D2ds_v4 nodes (about $0.30 an hour) and is not offered in every region; the course creates it by hand, stops it and deletes it in Week 8. A stopped server restarts by itself after seven days.',
     'Backups stay as disk snapshots (Week 8). Azure Backup and a Recovery Services vault cost about $5 a month per VM, so the course records the trade-off instead of deploying the vault.',
   ],
 };

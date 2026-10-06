@@ -10,26 +10,35 @@ You start with:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
-| Visitors | The visitors who load the site and call the counter | — |
+| Visitors | The visitors who load the site, call the counter and reach the fleet | — |
 | GitHub | The repository the site, the code and the template ship from | — |
 | Team admin | The team member who administers the environment | — |
 | Storage account · stweb… ($web) | Hosts the company website over HTTPS | — |
 | Soft delete | Brings a deleted or overwritten page back | — |
+| Lifecycle: age-out | Moves blobs to Cool after 30 days and deletes old versions after 90 | — |
 | Key vault · kv-capstone-team01-… | Holds secrets the function reads by identity | — |
 | Secrets User | Lets the function read secrets, nothing more | — |
-| Function app · func-capstone-team01 | The visitor-counter API | — |
-| Azure Cosmos DB · serverless | The database the counter lives in | — |
+| Function app · func-capstone-team01 | The visitor-counter API and the ledger that drains the queue | — |
+| Queue: visits · on the runtime storage | Decouples the counter from the ledger: the API answers now, the write happens when it can | — |
+| visits-poison | Where a message the ledger rejects five times ends up | — |
+| Azure Cosmos DB · serverless | The database the counter and the ledger live in | — |
 | Data Contributor | Lets the function read and write data by identity | — |
 | App Insights · appi-capstone-team01 | Requests, failures and traces from the function | — |
 | Log Analytics · log-capstone-team01 | Where every log and metric ends up | — |
 | Alert: Http5xx · alert-func-5xx | Fires when the API returns a server error | — |
 | Action group · email the team | Who gets told when the alert fires | — |
-| NSG · nsg-snet-app | Rules for the app subnet: SSH from management only | — |
+| Load balancer · lb-web-team01 · Standard | One address for the fleet; a health probe decides which instance answers | — |
+| Public IP · zone-redundant | The balancer’s address, present in every zone | — |
+| Azure Bastion · Developer SKU · free | A browser SSH session to the VM with no open port | — |
+| NSG · nsg-snet-app | Rules for the app subnet: nothing inbound from the internet | — |
 | Virtual machine · vm-tools-team01 | The internal IT tools server | — |
 | Public IP | The VM’s public address, outbound only after week 6 | — |
 | Data disk | Data that must outlive the operating system | — |
-| NSG · nsg-snet-mgmt | Rules for the management subnet: nothing from the internet | — |
-| Azure Bastion · Developer SKU · free | A browser SSH session to the VM with no open port | — |
+| NSG · nsg-snet-web | Rules for the web subnet: HTTP from the internet, nothing else | — |
+| Scale set · vmss-web-team01 · B1s × 0–3 | The web fleet across two zones, parked at zero between tasks | — |
+| Autoscale · CPU 50% / 25% | Adds an instance above 50% average CPU, removes one below 25% | — |
+| NSG · nsg-snet-db | Rules for the database subnet: PostgreSQL from the app and web subnets only | — |
+| PostgreSQL · flexible server · zone-redundant | The relational store: a standby in another zone, encrypted, no public address | — |
 | Reader (group) | The team’s group can look at everything and change nothing | — |
 | Budget $5 | The $5 guardrail, set before anything can cost money | — |
 
@@ -65,7 +74,7 @@ This week adds:
 | --- | --- | --- |
 | Policy: owner tag | Refuses any new resource without an owner tag | — |
 
-**Process — Release strategies and observability:** bastion → vm (blue/green by weight); func → http5xxAlert (canary: alias weights, an alarm); tagPolicy → admin (who changed what, when).
+**Process — Release strategies and observability:** lb → vmss (blue/green by weight); func → http5xxAlert (canary: alias weights, an alarm); tagPolicy → admin (who changed what, when).
 
 ## Week 4 — Handover
 

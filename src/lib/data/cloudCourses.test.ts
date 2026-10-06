@@ -31,7 +31,7 @@ const stopsMachine = (t: Task) =>
 const DOC_HOSTS = ['learn.microsoft.com', 'docs.aws.amazon.com', 'aws.amazon.com', 'azure.microsoft.com', 'docs.github.com'];
 /** The steps the portal genuinely cannot do, with the reason. Anything else with commands needs clicks too. */
 const SHELL_ONLY: Record<string, string> = {
-  'az-w6-dev-s2': 'a forged Origin header: only curl can send one',
+  'az-w5-dev-s4': 'a forged Origin header: only curl can send one',
   'aws-w5-dev-s4': 'a forged Origin header: only curl can send one',
   'az-w5-dev-s2': 'Cosmos DB data-plane roles are assigned by CLI only; the portal has no page for them',
 };

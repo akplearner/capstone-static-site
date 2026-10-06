@@ -167,7 +167,7 @@
       "file": "azure-administrator.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 54,
+      "steps": 73,
       "deliverables": 4,
       "procedures": 0,
       "vendor": "Microsoft",
@@ -176,10 +176,10 @@
       "prerequisite": "azure-fundamentals",
       "next": "azure-devops",
       "examFeeUsd": 165,
-      "coveredWeight": 0,
+      "coveredWeight": 95,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0
+      "costTasksUsd": 0.85
     },
     {
       "id": "azure-devops",

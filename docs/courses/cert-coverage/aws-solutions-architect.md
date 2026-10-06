@@ -26,7 +26,7 @@ Exam $150 · one-off $0 · monthly ceiling $20 · tasks $0.19
 | AWS account, free tier plus pay-as-you-go | cloud | $0 / month (approx.) | The free tier still covers the small instance, the function and the table. |
 | Application Load Balancer (weeks 2, 4) | cloud | $0.02 / hour | Runs only during the week it is built and the drills; torn down at the end of each task. |
 | Two t3.micro instances across two zones (weeks 2, 4) | cloud | $0.02 / hour | One is free-tier; the second is billed while the fleet runs. |
-| RDS PostgreSQL db.t3.micro, Multi-AZ (weeks 3) | cloud | $0.04 / hour | Created in the data week and deleted the same day; a final snapshot is kept. |
+| RDS PostgreSQL db.t3.micro, Multi-AZ (weeks 3) | cloud | $0.04 / hour | Created in the data week and stopped or deleted the same day; the backups are kept for the restore drill. |
 | VPC interface endpoints (SSM, S3 gateway) (weeks 2) | cloud | $0.01 / hour | Per endpoint-hour; the gateway endpoint is free. |
 | Budget guardrail | cloud | $20 / month (approx.) | The cap the course sets for a team that tears down on time. |
 

@@ -1,4 +1,4 @@
-import type { Course, Step, Task, WeekDef } from '../../types';
+import type { Course, Step, Task, TaskCost, WeekDef } from '../../types';
 import { CLOUD_FILES, CLOUD_FORMS, cloudTask, cloudWeeks, setupWeek, sliceCourse, stepKit, type WeekPlan } from './cloudKit';
 
 /**
@@ -38,18 +38,18 @@ const PLANS: WeekPlan[] = [
   { n: 4, title: 'Monitor, govern, pay', theme: 'Watch it, break it, fix it, lock it', objective: 'Watch cost and errors, read Advisor and Service Health, lock the group, and write one failure up as an incident.',
     milestone: 'An alert emails on Function errors, the group is locked, Advisor is read, one incident is recorded, and spend is reported.',
     labels: ['Report the cost, and read Advisor and Service Health', 'Alert on Function errors', 'Find a failure in Application Insights', 'Lock the resource group and write the incident record'] },
-  { n: 5, title: 'Identity', theme: 'Least privilege, no secrets', objective: 'Give people and the Function exactly the access they need, and remove the last stored secret.',
-    milestone: 'The Function reaches Cosmos DB with its managed identity, a group holds Reader, and a denial is proved.',
-    labels: ['Write the access matrix', 'Grant a group Reader on the group', 'Switch the Function to its identity', 'Prove an access is denied'] },
-  { n: 6, title: 'Networking', theme: 'Segment it, close the door', objective: 'Add a management subnet, remove SSH entirely, and prove every path with Network Watcher.',
-    milestone: 'Two subnets with their own NSGs, no inbound management port, admin through Run Command, every path tested.',
-    labels: ['Write the network design document', 'Add the management subnet', 'Trace the request paths', 'Remove SSH and use Run Command'] },
-  { n: 7, title: 'Server Admin', theme: 'Disks, patches, baselines', objective: 'Run the VM like production: right-size it, add a data disk, patch it, and baseline it.',
-    milestone: 'A data disk is mounted at /data, patches are installed, the baseline and runbook are written, and the VM is off.',
-    labels: ['Decide the VM size', 'Attach and mount a data disk', 'Patch the VM with Update Manager', 'Baseline the VM and write the runbook'] },
-  { n: 8, title: 'Backup and Recovery', theme: 'Prove you can get it back', objective: 'Set recovery targets, restore a disk and a web file, and time a recovery drill.',
-    milestone: 'RPO and RTO per asset, a disk restored from a snapshot, a deleted file recovered, and a timed drill.',
-    labels: ['Set RPO and RTO per asset', 'Restore a disk from a snapshot', 'Recover a deleted web file', 'Run a timed recovery drill'] },
+  { n: 5, title: 'Secure by design', theme: 'Least privilege, every layer', objective: 'Give people and the Function exactly the access they need, protect the secrets, fence the API, find what is exposed.',
+    milestone: 'The Function reaches Cosmos DB by identity, the key sits in a protected vault, a foreign origin is refused, a denial is proved and the recommendations are owned.',
+    labels: ['Write the access matrix and the layers', 'Key Vault, protected and audited', 'The Function’s identity and a locked CORS', 'Prove a denial and find what is exposed'] },
+  { n: 6, title: 'Resilient compute', theme: 'Two zones, one address', objective: 'Design, build and fence a two-zone scale set behind a load balancer, with no open port and a private path.',
+    milestone: 'ADR-002 is costed, a scale set runs two instances in two zones behind a Standard Load Balancer, the fleet is parked, port 22 is closed and the vault was reached privately.',
+    labels: ['Design the two-zone fleet and record the decision', 'Build the scale set across two zones', 'Put the fleet behind a load balancer', 'Close port 22, Bastion, a private endpoint'] },
+  { n: 7, title: 'Data and storage', theme: 'The right store, the right tier', objective: 'Choose the data store, run a zone-redundant encrypted PostgreSQL, decouple the counter with a queue, and age blobs out.',
+    milestone: 'ADR-003 is costed, a zone-redundant PostgreSQL ran private and encrypted and is stopped, a queue with a poison queue feeds a ledger, and a lifecycle rule ages the site account.',
+    labels: ['Choose the data store and the storage tiers', 'Create a zone-redundant PostgreSQL server', 'Queue the visits and write a ledger', 'Lock the data down and age it out'] },
+  { n: 8, title: 'Scale, monitor, recover', theme: 'Prove it survives', objective: 'Set recovery targets, scale on demand, lose an instance and a database and get both back, and read the bill.',
+    milestone: 'RPO and RTO per asset, autoscale grew the fleet and replaced a lost instance, a file and the database were restored, the drill was timed, and nothing bills by the hour.',
+    labels: ['Set RPO, RTO and the autoscale target', 'Autoscale on CPU and prove self-healing', 'Recover a web file and the database', 'Run a timed drill and tear down'] },
   { n: 9, title: 'Infrastructure as Code', theme: 'The environment, as a file', objective: 'Read the environment as an ARM template, fill the starter, preview with what-if, deploy to dev.',
     milestone: 'The starter template is complete, what-if previewed it, dev deployed, and the parameters are recorded.',
     labels: ['Map the template to the diagram', 'Inventory everything with the CLI', 'Fill the starter and deploy to dev', 'Write parameter files and validate'] },
@@ -76,7 +76,7 @@ function T(
   docs: Task['docs'],
   freeTier: string,
   steps: Step[],
-  extra: { prerequisites?: string[]; tools?: string[] } = {}
+  extra: { prerequisites?: string[]; tools?: string[]; cost?: TaskCost } = {}
 ): Task {
   return cloudTask({ id: `${P}-w${week}-${role}`, role, week, title, objective, minutes, file: CLOUD_FILES[week - 1], frameworks: FW, learn, done, docs, freeTier, steps, ...extra });
 }
@@ -692,33 +692,41 @@ app.http('visitorCount', {
     rec(4, 'secops', 'Incident record', ['Symptom, evidence, root cause, fix; the lock.'], 'Week 12 runs this loop again under time pressure.'),
   ], { tools: ['Azure portal', 'Cloud Shell'], prerequisites: ['The break-and-fix times from App & DevOps, this week.'] }),
 
-  // ── Week 5 — Identity ──────────────────────────────────────────────────
-  T(5, 'arch', 'Write the access matrix', 'List every principal, its role and scope, with a justification for each.', 35,
-    ['Least privilege', 'Role scope'], ['Three or more justified grants'],
-    [doc('List role assignments (portal)', 'azure/role-based-access-control/role-assignments-list-portal', 'the “List role assignments for a resource group” steps and the Scope column — inherited grants show “(Inherited)”')],
-    'Free: reading role assignments.', [
-    both(s(5, 'arch', 1), 'Export the assignments', 'List role assignments on the resource group.', PORTAL, [
+  // ── Week 5 — Secure by design ──────────────────────────────────────────
+  T(5, 'arch', 'Write the access matrix and the security design', 'List every principal with its role, scope and justification, then decide the layers a request crosses and what each one refuses.', 40,
+    ['AZ-104 · Manage Azure identities and governance', 'Least privilege', 'Defence in depth', 'Built-in and custom roles'], ['Three or more justified grants', 'The layers are named with what each refuses'],
+    [doc('List role assignments (portal)', 'azure/role-based-access-control/role-assignments-list-portal', 'the “List role assignments for a resource group” steps and the Scope column — inherited grants show “(Inherited)”'),
+     doc('Azure custom roles', 'azure/role-based-access-control/custom-roles', 'the “Steps to create a custom role” list and the Actions / NotActions pair — your matrix says which built-in role each grant would be, and whether a custom one is justified')],
+    'Free: reading role assignments and the Well-Architected guidance costs nothing.', [
+    both(s(5, 'arch', 1), 'Export the assignments', 'List every role assignment on the resource group.', PORTAL, [
       'rg-capstone-team01 → Access control (IAM) → Role assignments.',
       'Note each row: who, role, scope, and whether it is inherited.',
+      'Access control (IAM) → Roles: open Contributor → Permissions, and read what it cannot do.',
     ], [
-      { cmd: 'az role assignment list -g rg-capstone-team01 --include-inherited -o table', explain: 'Shows every grant that applies here, including those inherited from the subscription.', sample: 'Principal              Role                     Scope\nteam01-infra@...       Contributor              /subscriptions/.../resourceGroups/rg-capstone-team01' },
-    ], ['Contributor'], 'Inherited grants are the ones people forget; they count just the same.'),
-    rec(5, 'arch', 'Access matrix', ['One row per grant: principal, role, scope, why.', 'Mark any grant broader than it needs to be.'], 'Week 11’s posture review reads this matrix.'),
+      { cmd: 'az role assignment list -g rg-capstone-team01 --include-inherited --query "[].[principalName, roleDefinitionName, scope]" -o tsv', explain: 'Every grant that applies here, including those inherited from the subscription.', sample: 'team01-infra@contoso.com\tContributor\t/subscriptions/…/resourceGroups/rg-capstone-team01\ngrp-capstone-team01-readers\tReader\t/subscriptions/…/resourceGroups/rg-capstone-team01' },
+      { cmd: 'az role definition list -n Contributor --query "[0].permissions[0].notActions" -o tsv', explain: 'What Contributor is refused: granting access, and a few others. The matrix needs the refusals as much as the grants.', sample: 'Microsoft.Authorization/*/Delete\nMicrosoft.Authorization/*/Write\nMicrosoft.Authorization/elevateAccess/Action' },
+    ], ['Contributor'], 'Inherited grants are the ones people forget; they count just the same. A role is defined by what it refuses too.'),
+    portal(s(5, 'arch', 2), 'Name the layers', 'Write one line per layer a request crosses.', 'Deliverables tab · Access matrix', [
+      'Edge (the static site, the load balancer), network (subnets, NSGs), identity (roles, scopes), application (CORS), data (encryption, data-plane roles).',
+      'For each layer write what it refuses and which role owns the rule.',
+    ], 'Five layers, each with a refusal and an owner.', 'The exam asks which layer stops a given request; the matrix is where the team agrees on it before anything is built.'),
+    rec(5, 'arch', 'Access matrix', ['One row per grant: principal, role, scope, why.', 'Mark any grant broader than it needs to be.', 'The layers, each with what it refuses.'], 'Week 11’s posture review reads this matrix.'),
   ]),
-  T(5, 'infra', 'Move the key into Key Vault', 'Create the vault, store the Cosmos connection string as a secret, and let the Function read it through its identity — no key in any setting.', 50,
-    ['Key Vault in RBAC mode', 'Secrets Officer vs Secrets User', 'Managed identity and Key Vault references'], ['The secret CosmosConnection is in the vault', 'The Function’s setting is a Key Vault reference and the counter still counts'],
+  T(5, 'infra', 'Move the key into Key Vault, protected and audited', 'Create the vault in RBAC mode, store the Cosmos connection string, point the Function at it, then turn on purge protection and the audit log.', 55,
+    ['AZ-104 · Manage Azure identities and governance', 'Key Vault in RBAC mode', 'Secrets Officer vs Secrets User', 'Soft delete, purge protection and AuditEvent'], ['The secret CosmosConnection is in the vault', 'The Function’s setting is a Key Vault reference and the counter still counts', 'Purge protection is on and reads are logged'],
     [doc('Key Vault references in app settings', 'azure/app-service/app-service-key-vault-references', 'the @Microsoft.KeyVault(SecretUri=…) syntax, and the “Grant your app access to Key Vault” steps: system-assigned identity plus the Key Vault Secrets User role'),
-     doc('Provide access to Key Vault with RBAC', 'azure/key-vault/general/rbac-guide', 'the roles table: Secrets Officer writes secrets, Secrets User only reads them')],
-    'Key Vault costs about $0.03 per 10,000 operations — cents. The AZ-104 exam expects it.', [
+     doc('Provide access to Key Vault with RBAC', 'azure/key-vault/general/rbac-guide', 'the roles table: Secrets Officer writes secrets, Secrets User only reads them'),
+     doc('Key Vault soft-delete and purge protection', 'azure/key-vault/general/soft-delete-overview', 'the “Purge protection” paragraph: once on, nobody can purge a deleted vault or secret before the retention period ends — not even an Owner')],
+    'Key Vault costs about $0.03 per 10,000 operations: cents. The audit log lands in the Week 3 workspace, inside its free 5 GB.', [
     both(s(5, 'infra', 1), 'Create the vault and store the key', 'Put the Cosmos connection string in Key Vault.', PORTAL, [
       'Key vaults → Create. Group rg-capstone-team01, name kv-capstone-team01 plus four digits, East US, permission model: Azure RBAC. Tags. Create.',
       'The vault → Access control (IAM) → Add role assignment → Key Vault Secrets Officer → yourself.',
       'Objects → Secrets → Generate/Import: name CosmosConnection, value = the Primary connection string (Cosmos DB → Keys). Create.',
       'Open the secret → the current version → copy the Secret Identifier (a URL).',
     ], [
-      { cmd: 'RG=rg-capstone-team01; KV=kv-capstone-team01-$RANDOM; az keyvault create -g $RG -n $KV --enable-rbac-authorization true --tags project=capstone team=team01 env=dev owner=team01-infra; echo $KV', explain: 'A vault in RBAC mode: who may read secrets is an Azure role, the same model as everything else.', sample: 'kv-capstone-team01-18342' },
+      { cmd: 'RG=rg-capstone-team01; KV=kv-capstone-team01-$RANDOM; az keyvault create -g $RG -n $KV --enable-rbac-authorization true --tags project=capstone team=team01 env=dev owner=team01-infra -o none; echo $KV', explain: 'A vault in RBAC mode: who may read secrets is an Azure role, the same model as everything else.', sample: 'kv-capstone-team01-18342' },
       { cmd: 'az role assignment create --role "Key Vault Secrets Officer" --assignee $(az ad signed-in-user show --query id -o tsv) --scope $(az keyvault show -n $KV --query id -o tsv) -o none; sleep 30; CS=$(az cosmosdb keys list -g $RG -n cosmos-capstone-team01-XXXX --type connection-strings --query "connectionStrings[0].connectionString" -o tsv); az keyvault secret set --vault-name $KV -n CosmosConnection --value "$CS" --query id -o tsv', explain: 'Gives you the right to write secrets, waits for it to apply, then stores the connection string. The printed id is the Secret Identifier.', sample: 'https://kv-capstone-team01-18342.vault.azure.net/secrets/CosmosConnection/3f2a…' },
-    ], ['vault.azure.net/secrets/CosmosConnection'], 'A vault is a safe with an audit log: the key has one home, and every read is recorded. Secrets Officer may write secrets; the Function gets Secrets User: read only. Vault names are global, hence the digits.', {
+    ], ['vault.azure.net/secrets/CosmosConnection'], 'A vault is a safe with an audit log: the key has one home, and every read is recorded. Secrets Officer may write; the Function gets Secrets User, read only. Vault names are global, hence the digits.', {
       fixes: [{ symptom: 'Forbidden when creating the secret', fix: 'The Secrets Officer role has not applied yet (up to a few minutes), or you skipped it. Wait, refresh, retry.' }],
     }),
     both(s(5, 'infra', 2), 'Point the Function at the vault', 'Give the Function an identity and a Key Vault reference.', PORTAL, [
@@ -735,14 +743,22 @@ app.http('visitorCount', {
         { symptom: 'Object ID not found when assigning the role', fix: 'You chose “User” instead of “Managed identity” in the assignment. Pick Managed identity → Function App.' },
       ],
     }),
-    rec(5, 'infra', 'Secrets register', ['The vault, the secret name, who may read it (the Function’s identity) and who may write it.'], 'The register shows where every credential lives.'),
+    both(s(5, 'infra', 3), 'Protect the vault and log every read', 'Purge protection on; AuditEvent to Log Analytics.', PORTAL, [
+      'The vault → Settings → Properties → Purge protection: Enable → Save. It cannot be switched off again.',
+      'Monitoring → Diagnostic settings → Add: name audit, category AuditEvent, destination log-capstone-team01. Save.',
+      'After a few minutes: Logs → AzureDiagnostics | where OperationName == "SecretGet": the Function’s reads.',
+    ], [
+      { cmd: 'az keyvault update -n $KV --enable-purge-protection true --query "properties.[enableSoftDelete, enablePurgeProtection]" -o tsv', explain: 'Soft delete keeps a deleted secret for the retention period; purge protection stops anyone emptying the bin early.', sample: 'True\tTrue' },
+      { cmd: 'LOG=$(az monitor log-analytics workspace show -g $RG -n log-capstone-team01 --query id -o tsv); az monitor diagnostic-settings create -n audit --resource $(az keyvault show -n $KV --query id -o tsv) --workspace $LOG --logs \'[{"category":"AuditEvent","enabled":true}]\' --query "logs[0].category" -o tsv', explain: 'Every data-plane call on the vault, who made it and whether it was allowed, lands in the workspace.', sample: 'AuditEvent' },
+    ], ['True', 'AuditEvent'], 'The exam asks what protects a secret from a careless delete and who read it last week; these two switches are the answer, and an auditor reads the same log.'),
+    rec(5, 'infra', 'Secrets register', ['The vault, the secret name, who may read it (the Function’s identity) and who may write it.', 'Purge protection on; the audit log destination.'], 'The register shows where every credential lives, and that its reads are recorded.'),
   ], { prerequisites: ['The Function App from App & DevOps (Week 3).'] }),
-  T(5, 'dev', 'Switch the Function to its identity', 'Give the Function a managed identity, grant it data access to Cosmos DB, and delete the stored key.', 50,
-    ['Managed identities', 'Cosmos DB data-plane roles', 'Identity-based connections'], ['The Function uses its identity', 'No Cosmos key remains in settings'],
+  T(5, 'dev', 'Switch the Function to its identity and lock CORS', 'Give the Function a managed identity with a data-plane role, delete the stored key, then allow only your site to call the API.', 55,
+    ['AZ-104 · Manage Azure identities and governance', 'Managed identities', 'Cosmos DB data-plane roles', 'CORS at the API'], ['The Function uses its identity', 'No Cosmos key remains in settings', 'A foreign origin is refused and the API still works'],
     [doc('Managed identities for App Service and Functions', 'azure/app-service/overview-managed-identity', 'the “Add a system-assigned identity” steps — the Identity blade, Status On'),
      doc('Cosmos DB data-plane RBAC', 'azure/cosmos-db/nosql/how-to-grant-data-plane-role-based-access', 'the built-in role ids — 00000000-0000-0000-0000-000000000002 is Data Contributor — and the az cosmosdb sql role assignment command'),
-     doc('Identity-based connections', 'azure/azure-functions/functions-reference#configure-an-identity-based-connection', 'the __accountEndpoint setting name for Cosmos DB')],
-    'Free: managed identities and data-plane role assignments cost nothing.', [
+     doc('CORS on a function app', 'azure/azure-functions/functions-how-to-use-azure-function-app-settings#cors', 'the CORS blade: one origin per line, no trailing slash, and why * must not stay there')],
+    'Free: managed identities, data-plane role assignments and CORS settings cost nothing.', [
     both(s(5, 'dev', 1), 'Turn on the identity', 'Enable the Function’s system-assigned identity.', PORTAL, [
       'The Function App → Settings → Identity → System assigned → Status On → Save.',
       'Copy the Object (principal) ID.',
@@ -750,246 +766,380 @@ app.http('visitorCount', {
       { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; PID=$(az functionapp identity assign -g $RG -n $FN --query principalId -o tsv); echo $PID', explain: 'Azure creates an identity tied to this Function’s lifetime. There is no password to store or leak.', sample: '7c1e2d3f-4a5b-6c7d-8e9f-0a1b2c3d4e5f' },
     ], ['7c1e2d3f'], 'An identity cannot be copied into a chat message or a commit, which is the point.'),
     cli(s(5, 'dev', 2), 'Grant it the data role', 'Grant Cosmos DB Built-in Data Contributor.', [
-      { cmd: 'COSMOS=cosmos-capstone-team01-XXXX; az cosmosdb sql role assignment create -g $RG -a $COSMOS --role-definition-id 00000000-0000-0000-0000-000000000002 --principal-id $PID --scope "/"', explain: 'The ...0002 role reads and writes items and nothing else — no keys, no account settings. The portal has no page for Cosmos data-plane roles; this one needs the shell.', sample: '"roleDefinitionId": ".../sqlRoleDefinitions/00000000-0000-0000-0000-000000000002"' },
-    ], ['00000000-0000-0000-0000-000000000002'], 'Cosmos DB data access is its own RBAC system, separate from Azure roles.'),
-    both(s(5, 'dev', 3), 'Swap the setting', 'Point the binding at the endpoint, then delete the key.', PORTAL, [
-      'Environment variables → Add: CosmosConnection__accountEndpoint = https://COSMOS.documents.azure.com:443/.',
-      'Point the bindings’ connection at CosmosConnection; delete the old key setting. Apply.',
+      { cmd: 'COSMOS=cosmos-capstone-team01-XXXX; az cosmosdb sql role assignment create -g $RG -a $COSMOS --role-definition-id 00000000-0000-0000-0000-000000000002 --principal-id $PID --scope "/" --query roleDefinitionId -o tsv', explain: 'The …0002 role reads and writes items and nothing else: no keys, no account settings. The portal has no page for Cosmos data-plane roles; this one needs the shell.', sample: '/subscriptions/…/sqlRoleDefinitions/00000000-0000-0000-0000-000000000002' },
+    ], ['00000000-0000-0000-0000-000000000002'], 'Cosmos DB data access is its own RBAC system, separate from Azure roles: a Contributor on the account still cannot read a document.'),
+    both(s(5, 'dev', 3), 'Swap the setting and allow your origin only', 'Endpoint instead of key; CORS to your site.', PORTAL, [
+      'Environment variables → Add: CosmosConnection__accountEndpoint = https://COSMOS.documents.azure.com:443/. Delete the old key setting. Apply.',
+      'API → CORS: remove * if it is there; keep only your site’s origin (https://stwebteam01….web.core.windows.net, no trailing slash). Save.',
       'Open the function URL: a count means the identity works.',
     ], [
-      { cmd: 'az functionapp config appsettings set -g $RG -n $FN --settings CosmosConnection__accountEndpoint=https://$COSMOS.documents.azure.com:443/', explain: 'The __accountEndpoint suffix tells the binding to sign in with the identity. Point the bindings at CosmosConnection, delete the old key setting, then curl the API.', sample: '"name": "CosmosConnection__accountEndpoint"' },
-    ], ['CosmosConnection__accountEndpoint'], 'The best secret is the one that does not exist.'),
-    rec(5, 'dev', 'Secrets register', ['The database access row: stored in — nothing; read by — the managed identity.'], 'The register now shows a secret removed, not just moved.'),
+      { cmd: 'SITE=https://stwebteam0118342.z13.web.core.windows.net; az functionapp config appsettings set -g $RG -n $FN --settings CosmosConnection__accountEndpoint=https://$COSMOS.documents.azure.com:443/ --query "[?name==\'CosmosConnection__accountEndpoint\'].name" -o tsv; az functionapp cors remove -g $RG -n $FN --allowed-origins "*" -o none; az functionapp cors add -g $RG -n $FN --allowed-origins $SITE --query allowedOrigins -o tsv', explain: 'The __accountEndpoint suffix tells the binding to sign in with the identity; then one allowed origin, no wildcard.', sample: 'CosmosConnection__accountEndpoint\nhttps://stwebteam0118342.z13.web.core.windows.net' },
+    ], ['CosmosConnection__accountEndpoint', 'web.core.windows.net'], 'The best secret is the one that does not exist. CORS is the application layer’s fence: the API still answers anyone, but a browser on another site is refused the answer.'),
+    cli(s(5, 'dev', 4), 'Prove a foreign origin is refused', 'Send a forged Origin header; expect no allow header.', [
+      { cmd: 'curl -s -D - -o /dev/null -H "Origin: https://evil.example" https://$FN.azurewebsites.net/api/visitorCount | grep -ci "access-control-allow-origin" || echo "no allow header"', explain: 'A request claiming to come from another site. The count is still returned, but without the header a browser needs.', sample: 'no allow header' },
+      { cmd: 'curl -s -D - -o /dev/null -H "Origin: $SITE" https://$FN.azurewebsites.net/api/visitorCount | grep -i "access-control-allow-origin"', explain: 'The same request from your own site: the header is present.', sample: 'access-control-allow-origin: https://stwebteam0118342.z13.web.core.windows.net' },
+    ], ['no allow header', 'access-control-allow-origin'], 'A negative test is the proof: the exam asks what happens to the other origin, and the answer is in this output. CORS protects browsers, not the API, which is why the API holds no secret.'),
+    rec(5, 'dev', 'Secrets register', ['The database access row: stored in — nothing; read by — the managed identity.', 'The CORS origin and the negative test result.'], 'The register shows a secret removed, not just moved, and a fence that was tested.'),
   ]),
-  T(5, 'secops', 'Prove an access is denied', 'Show what the Function’s identity can do, then prove a Reader cannot change anything.', 40,
-    ['Effective permissions', 'Denied-access tests'], ['The identity’s roles are listed', 'A denial is recorded'],
-    [doc('Check access for a user (portal)', 'azure/role-based-access-control/check-access', 'the “Check access” button on Access control (IAM) — it lists what a user or identity can do at that scope')],
-    'Free: reading and testing access.', [
+  T(5, 'secops', 'Prove an access is denied and find what is exposed', 'Show what the Function’s identity can do, prove a Reader cannot change anything, then read Defender for Cloud’s recommendations for the group.', 40,
+    ['AZ-104 · Manage Azure identities and governance', 'Effective permissions', 'Denied-access tests', 'Defender for Cloud recommendations'], ['The identity’s roles are listed', 'A denial is recorded', 'Each recommendation is owned or accepted'],
+    [doc('Check access for a user (portal)', 'azure/role-based-access-control/check-access', 'the “Check access” button on Access control (IAM) — it lists what a user or identity can do at that scope'),
+     doc('Defender for Cloud recommendations', 'azure/defender-for-cloud/review-security-recommendations', 'the recommendation page: the affected resources list, the severity, and the Exempt option for a finding the team accepts on purpose')],
+    'Free: Check access, the simulator and the foundational Defender for Cloud posture cost nothing.', [
     both(s(5, 'secops', 1), 'List the identity’s roles', 'List every role the Function’s identity holds.', PORTAL, [
       'rg-capstone-team01 → Access control (IAM) → Check access → search the Function App’s name.',
       'Read the roles listed; the Cosmos data role is separate and will not appear.',
     ], [
-      { cmd: 'PID=$(az functionapp identity show -g rg-capstone-team01 -n func-capstone-team01-XXXX --query principalId -o tsv); az role assignment list --assignee $PID --all -o table', explain: 'Azure roles only. The Cosmos data role is separate — it will not appear here, so the list should be short or empty.', sample: 'Principal    Role                  Scope\n7c1e2d3f...  Key Vault Secrets User  .../kv-team01-...' },
-    ], ['Key Vault Secrets User'], 'Short lists are good lists.'),
-    portal(s(5, 'secops', 2), 'Test a denial', 'As a Reader, try to stop the VM.', 'Azure portal — signed in as a Reader', [
+      { cmd: 'PID=$(az functionapp identity show -g rg-capstone-team01 -n func-capstone-team01-XXXX --query principalId -o tsv); az role assignment list --assignee $PID --all --query "[].[roleDefinitionName, scope]" -o tsv', explain: 'Azure roles only. The Cosmos data role lives in its own system, so this list should be one line.', sample: 'Key Vault Secrets User\t/subscriptions/…/vaults/kv-capstone-team01-18342' },
+    ], ['Key Vault Secrets User'], 'Short lists are good lists: one role, one scope, and the exam’s “least privilege” is a fact you can print.'),
+    both(s(5, 'secops', 2), 'Test a denial', 'As a Reader, try to deallocate the VM.', 'Azure portal — signed in as a Reader', [
       'Use a teammate in the readers group, or Check access → their account.',
       'Open vm-tools-team01 → Stop.',
       'Expect: “does not have authorization to perform action”.',
-    ], 'The portal refuses the stop with an authorization error.', 'A permission is only proved when the thing it forbids fails.'),
-    rec(5, 'secops', 'Access tests', ['Who, what they tried, expected, result.'], 'Evidence that the matrix is enforced, not just written.'),
+    ], [
+      { cmd: 'GID=$(az ad group show -g grp-capstone-team01-readers --query id -o tsv); az role assignment list --assignee $GID -g rg-capstone-team01 --query "[].roleDefinitionName" -o tsv; az role definition list -n Reader --query "[0].permissions[0].actions" -o tsv', explain: 'The group holds Reader, and Reader’s only action is */read. A deallocate is an action, so it is refused by absence of an allow.', sample: 'Reader\n*/read' },
+    ], ['Reader', '*/read'], 'A permission is only proved when the thing it forbids fails. The portal shows the refusal; the role definition shows why.'),
+    both(s(5, 'secops', 3), 'Read the posture', 'Defender for Cloud recommendations for the group.', PORTAL, [
+      'Microsoft Defender for Cloud → Recommendations → filter Resource group = rg-capstone-team01.',
+      'Read each row: the resource, the severity, the fix. Decide: fix it, own it, or exempt it with a reason.',
+    ], [
+      { cmd: 'az security assessment list --query "[?status.code==\'Unhealthy\'].[displayName]" -o tsv | sort | uniq -c | sort -rn | head -5', explain: 'The unhealthy assessments across the subscription, most frequent first. The storage and Cosmos public-network rows are expected: the site must be public.', sample: '      2 Storage accounts should restrict network access using virtual network rules\n      1 Azure Cosmos DB accounts should have firewall rules' },
+    ], ['should'], 'A recommendation is not a fault until you have read it: the site is meant to be public. Own what is not intended, exempt what is, and write the reason.'),
+    rec(5, 'secops', 'Access tests', ['Who, what they tried, expected, result.', 'Each recommendation: fixed, owned or exempted, and why.'], 'Evidence that the matrix is enforced, not just written.'),
   ]),
 
-  // ── Week 6 — Networking ────────────────────────────────────────────────
-  T(6, 'arch', 'Write the network design document', 'Write the address plan, the rules and the admin path, and say what production would add.', 40,
-    ['RFC 1918', 'Segmentation', 'Design trade-offs'], ['Address plan and rules recorded', 'The production gap is stated'],
-    [doc('Default outbound access in Azure', 'azure/virtual-network/ip-services/default-outbound-access', 'why a VM needs an explicit outbound path — a public IP, a NAT gateway or a load balancer — and what each costs')],
-    'Free: the document. The public IP the VM keeps for outbound is the one line that costs (about $3.60 a month); a NAT gateway would be ten times that.', [
-    both(s(6, 'arch', 1), 'Read the effective address plan', 'List every subnet and its NSG.', PORTAL, [
-      'vnet-capstone-team01 → Subnets: read each range and the security group column.',
+  // ── Week 6 — Resilient compute ─────────────────────────────────────────
+  T(6, 'arch', 'Design the two-zone fleet and record the decision', 'Decide how the site survives a zone: two zones, a load balancer, a scale set of two; cost it against the alternative.', 40,
+    ['AZ-104 · Deploy and manage Azure compute resources', 'Availability zones', 'Load Balancer SKUs', 'Architecture decision records'], ['Two zones are named with their roles', 'The design is costed against the single-VM alternative', 'ADR-002 is written'],
+    [doc('Availability zones', 'azure/reliability/availability-zones-overview', 'the “Zonal and zone-redundant services” paragraph: a zonal VM lives in one zone, a zone-redundant load balancer in all of them — your design uses both'),
+     doc('Load Balancer pricing', 'https://azure.microsoft.com/pricing/details/load-balancer/', 'the Standard tier: the hourly rate per rule and the data-processed line — the cost the team accepts for a fleet that survives a zone')],
+    'Free: the design is on paper; the fleet it describes is costed on the next tasks.', [
+    both(s(6, 'arch', 1), 'Read the zones', 'List the region’s zones and where the VM sits.', PORTAL, [
+      'vm-tools-team01 → Overview → Availability zone: one number, or “No infrastructure redundancy”.',
+      'Virtual machines → Create → Availability options → Availability zone: read the zones the region offers for B1s.',
     ], [
-      { cmd: 'az network vnet subnet list -g rg-capstone-team01 --vnet-name vnet-capstone-team01 --query "[].{name:name, prefix:addressPrefix, nsg:networkSecurityGroup.id}" -o table', explain: 'One line per subnet: its range and the NSG guarding it.', sample: 'Name       Prefix         Nsg\nsnet-app   10.10.1.0/24   .../nsg-snet-app-team01\nsnet-mgmt  10.10.2.0/24   .../nsg-snet-mgmt-team01' },
-    ], ['10.10.2.0/24'], 'The plan is read from Azure, not remembered.'),
-    rec(6, 'arch', 'Design summary', ['How admins reach the VM now.', 'What production would add: a NAT gateway and a private VM.'], 'Honest about the trade-off: a public IP for outbound only, to avoid $32 a month.'),
+      { cmd: 'RG=rg-capstone-team01; az vm show -g $RG -n vm-tools-team01 --query "zones" -o tsv; az vm list-skus -l eastus --size Standard_B1s --query "[0].locationInfo[0].zones" -o tsv', explain: 'The VM’s zone (or none), then the zones B1s is offered in. Today everything is in one.', sample: '1\n1\t2\t3' },
+    ], ['1'], 'A design that lives in one zone has one zone’s failure rate. The exam calls the fix “zone-redundant”; the picture calls it instances in two zones behind one address.'),
+    portal(s(6, 'arch', 2), 'Cost the fleet', 'Price the load balancer and two VMs, against one.', 'Azure Pricing Calculator (azure.microsoft.com/pricing/calculator)', [
+      'Add Load Balancer, Standard, 1 rule, 730 hours, 10 GB processed: read the monthly total.',
+      'Add Virtual Machines: two B1s Linux, 730 hours each, pay as you go; the free account covers one.',
+      'Write both totals and the difference against the single VM the company runs today.',
+    ], 'A monthly figure for the fleet and for the single VM, and the difference.', 'Resilience is bought: the exam asks you to say what a zone’s worth of protection costs and who decided to pay it.'),
+    rec(6, 'arch', 'Design summary', ['ADR-002: two zones, a Standard Load Balancer, a scale set of two; the single-VM alternative and why it lost.', 'The monthly cost of each, from the calculator.'], 'Week 9’s template must build exactly this design.'),
   ]),
-  T(6, 'infra', 'Add the management subnet', 'Add snet-mgmt with its own NSG, reserved for a future Bastion.', 35,
-    ['Subnet planning', 'Per-subnet NSGs'], ['snet-mgmt is 10.10.2.0/24 with its own NSG'],
-    [doc('Add, change or delete a subnet', 'azure/virtual-network/virtual-network-manage-subnet', 'the “Add a subnet” steps and the Network security group dropdown on the same pane')],
-    'Free: subnets and NSGs.', [
-    both(s(6, 'infra', 1), 'Create the NSG and subnet', 'Create nsg-snet-mgmt-team01 and snet-mgmt.', PORTAL, [
-      'Network security groups → Create: nsg-snet-mgmt-team01 in rg-capstone-team01.',
-      'vnet-capstone-team01 → Subnets → Add: name snet-mgmt, range 10.10.2.0/24, NSG nsg-snet-mgmt-team01. Save.',
+  T(6, 'infra', 'Build the fleet: a web subnet and a scale set across two zones', 'Add a web subnet that admits port 80 only, run a scale set of two B1s across two zones with no public addresses, park it.', 55,
+    ['AZ-104 · Deploy and manage Azure compute resources', 'Virtual Machine Scale Sets (Flexible)', 'Zonal placement', 'Custom data and cloud-init'], ['A web subnet with its own NSG exists', 'The scale set runs two instances in different zones with no public address', 'The scale set is parked at zero at the end'],
+    [doc('Virtual Machine Scale Sets overview', 'azure/virtual-machine-scale-sets/overview', 'the “Flexible orchestration” paragraph: instances are ordinary VMs, spread across zones and fault domains, that you can scale to zero'),
+     doc('Create a scale set across availability zones', 'azure/virtual-machine-scale-sets/virtual-machine-scale-sets-use-availability-zones', 'the “Zone balancing” section: list two zones and the set spreads instances evenly between them')],
+    'The second B1s bills about $0.01 an hour while the fleet runs (the first is in the free account’s hours); park the set at zero when you stop. Stop or delete anything you started.', [
+    both(s(6, 'infra', 1), 'Add the web subnet and its NSG', '10.10.2.0/24; port 80 from the internet, nothing else.', PORTAL, [
+      'Network security groups → Create nsg-snet-web-team01. Inbound rule Allow-HTTP-Internet: source Internet, port 80, TCP, Allow, priority 110.',
+      'vnet-capstone-team01 → Subnets → Add: snet-web, 10.10.2.0/24, NSG nsg-snet-web-team01. Save.',
     ], [
-      { cmd: 'RG=rg-capstone-team01; az network nsg create -g $RG -n nsg-snet-mgmt-team01', explain: 'Its own NSG, so rules for admin traffic never mix with app rules.', sample: '"provisioningState": "Succeeded"' },
-      { cmd: 'az network vnet subnet create -g $RG --vnet-name vnet-capstone-team01 -n snet-mgmt --address-prefixes 10.10.2.0/24 --nsg nsg-snet-mgmt-team01', explain: 'The next /24 after snet-app. No overlap is possible inside the /16.', sample: '"addressPrefix": "10.10.2.0/24",\n"name": "snet-mgmt"' },
-    ], ['10.10.2.0/24', 'snet-mgmt'], 'Segmenting now means a paid Bastion SKU can be added later without renumbering anything.'),
-    both(s(6, 'infra', 2), 'Open the VM through Bastion', 'Deploy Bastion Developer (free) and connect in the browser.', PORTAL, [
-      'vnet-capstone-team01 → Bastion → Deploy Bastion Developer. It needs no subnet and costs nothing.',
-      'vm-tools-team01 → Connect → Bastion: username azureuser, authentication SSH private key. The shell opens in the browser.',
+      { cmd: 'RG=rg-capstone-team01; az network nsg create -g $RG -n nsg-snet-web-team01 -o none; az network nsg rule create -g $RG --nsg-name nsg-snet-web-team01 -n Allow-HTTP-Internet --priority 110 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes Internet --destination-port-ranges 80 -o none; az network vnet subnet create -g $RG --vnet-name vnet-capstone-team01 -n snet-web --address-prefixes 10.10.2.0/24 --nsg nsg-snet-web-team01 --query "[name, addressPrefix]" -o tsv', explain: 'A subnet of its own for the fleet, with an NSG that admits 80 from the internet and nothing else. The app subnet, and the tools VM in it, stay closed.', sample: 'snet-web\t10.10.2.0/24' },
+    ], ['snet-web'], 'The fleet is the only thing the internet may reach, so it gets its own subnet and its own rule; a rule on the app subnet would have opened the tools VM too.'),
+    both(s(6, 'infra', 2), 'Create the scale set', 'Two B1s across zones 1 and 2, no public IPs.', PORTAL, [
+      'Virtual machine scale sets → Create: rg-capstone-team01, vmss-web-team01, zones 1 and 2, orchestration Flexible, Ubuntu 22.04, B1s.',
+      'Networking: vnet-capstone-team01, snet-web, no public IP per instance, no load balancer yet. Scaling: initial 2, manual.',
+      'Advanced → Custom data: paste the cloud-init below. Review + create.',
     ], [
-      { cmd: 'RG=rg-capstone-team01; az network bastion create -g $RG -n bas-capstone-team01 --vnet-name vnet-capstone-team01 --sku Developer -o none; az network bastion list -g $RG --query "[].{name:name, sku:sku.name}" -o table', explain: 'The Developer SKU: a browser session to the private IP, no public port, no AzureBastionSubnet, no charge.', sample: 'Name                 Sku\nbas-capstone-team01  Developer' },
-    ], ['Developer'], 'The admin path now has no open port at all: the NSG can deny every inbound rule and you still reach the VM.'),
-    rec(6, 'infra', 'Address plan', ['One row per subnet: CIDR, purpose, route to internet.', 'How admins reach the VM: Bastion Developer, in the browser.'], 'The template in Week 9 must match this plan.'),
-  ]),
-  T(6, 'dev', 'Lock CORS and trace the request paths', 'Allow only your site to call the API from a browser, prove a foreign origin is refused, and test each public path both ways.', 45,
-    ['CORS and origins', 'Negative tests', 'HTTP status codes'], ['Only your site is allowed', 'A foreign origin is refused', 'Reachable and blocked paths recorded'],
-    [doc('CORS on a function app', 'azure/azure-functions/functions-how-to-use-azure-function-app-settings#cors', 'the CORS blade: one origin per line, no trailing slash, and why * must not stay there'),
-     doc('Require secure transfer', 'azure/storage/common/storage-require-secure-transfer', 'what an HTTP request to a secure-transfer-only account returns — the 400 you are about to see')],
-    'Free: CORS is a setting; the tests are four HTTP requests.', [
-    both(s(6, 'dev', 3), 'Allow only your site', 'Set CORS to your site origin only.', PORTAL, [
-      'The Function App → API → CORS.',
-      'Remove * if it is there. Keep only your site’s origin (https://stwebteam01….web.core.windows.net, no trailing slash). Save.',
+      { cmd: 'RG=rg-capstone-team01; printf \'#cloud-config\\nruncmd:\\n  - mkdir -p /srv/www\\n  - Z=$(curl -s -H Metadata:true "http://169.254.169.254/metadata/instance/compute/zone?api-version=2021-02-01&format=text"); echo "web OK from zone $Z" > /srv/www/index.html\\n  - cd /srv/www && nohup python3 -m http.server 80 >/dev/null 2>&1 &\\n\' > fleet-init.yaml; az vmss create -g $RG -n vmss-web-team01 --orchestration-mode Flexible --image Ubuntu2204 --vm-sku Standard_B1s --instance-count 2 --zones 1 2 --vnet-name vnet-capstone-team01 --subnet snet-web --public-ip-address "" --load-balancer "" --admin-username azureuser --generate-ssh-keys --custom-data fleet-init.yaml --platform-fault-domain-count 1 --tags owner=team01 --query "[orchestrationMode, zones]" -o tsv', explain: 'A start-up script that serves the instance’s zone on port 80 with what the image already has, then the set: Flexible, two zones, two instances, no public addresses.', sample: 'Flexible\n1\t2' },
+    ], ['Flexible'], 'A scale set is the VM written down: it can run a hundred identical copies, and the Week 9 template holds the same definition. Serving the zone name lets the balancer show which zone answered.'),
+    both(s(6, 'infra', 3), 'Read the instances', 'Two instances, one in each zone, no public IP.', PORTAL, [
+      'vmss-web-team01 → Instances: two rows, Availability zone 1 and 2, Status Running.',
+      'Open one → Networking: Public IP address is empty.',
     ], [
-      { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; SITE=https://stwebteam0118342.z13.web.core.windows.net; az functionapp cors remove -g $RG -n $FN --allowed-origins "*" -o none; az functionapp cors add -g $RG -n $FN --allowed-origins $SITE && az functionapp cors show -g $RG -n $FN', explain: 'Browsers only let pages from listed origins read the API’s answers.', sample: '"allowedOrigins": [ "https://stwebteam0118342.z13.web.core.windows.net" ]' },
-    ], ['allowedOrigins'], 'An origin is scheme + host + port. CORS is a browser rule: the API answers everyone, but a browser only lets a page read the answer if its origin is listed. A wildcard admits every website.'),
-    cli(s(6, 'dev', 2), 'Prove a foreign origin is refused', 'Call the API as another website would.', [
-      { cmd: 'curl -s -D - -o /dev/null -H "Origin: https://evil.example" https://$FN.azurewebsites.net/api/visitorCount | grep -i access-control || echo "no CORS header — refused"', explain: 'A foreign origin gets no Access-Control-Allow-Origin header, so its browser discards the answer. The portal has no way to send a fake Origin; this one needs the shell.', sample: 'no CORS header — refused' },
-    ], ['refused'], 'CORS protects browsers, not the API: curl still gets a count. That is why the API must hold no secrets — and since Week 5 it holds none.'),
-    both(s(6, 'dev', 1), 'Test the public paths', 'Test the site and the API.', 'Browser DevTools · or Cloud Shell', [
-      'Open the site over https:// — the Network tab shows 200.',
-      'Change the address to http:// — the account refuses it.',
+      { cmd: 'az vmss list-instances -g $RG -n vmss-web-team01 --query "[].[name, zones[0], provisioningState]" -o tsv; az vmss list-instance-public-ips -g $RG -n vmss-web-team01 --query "length(@)" -o tsv', explain: 'Each instance with its zone, then the count of public addresses: zero.', sample: 'vmss-web-team01_a1b2c3d4\t1\tSucceeded\nvmss-web-team01_e5f6a7b8\t2\tSucceeded\n0' },
+    ], ['Succeeded', '0'], 'The set keeps the count you ask for, in the zones you list. Delete one and autoscale restores it; Week 8 proves it.'),
+    both(s(6, 'infra', 4), 'Park the fleet', 'Scale to zero until the next task.', PORTAL, [
+      'vmss-web-team01 → Availability + scaling → Scaling → Instance count 0 → Save.',
+      'Instances: both rows show Deleting, then disappear.',
     ], [
-      { cmd: 'curl -sI https://stwebteam0118342.z13.web.core.windows.net | head -1', explain: 'The first line is the status: 200 means the site answered over HTTPS.', sample: 'HTTP/1.1 200 OK' },
-      { cmd: 'curl -sI http://stwebteam0118342.z13.web.core.windows.net | head -1', explain: 'Plain HTTP should be refused — the account is HTTPS-only.', sample: 'HTTP/1.1 400 The account being accessed does not support http.' },
-    ], ['200 OK', 'does not support http'], 'Testing the insecure path proves the setting, not just the happy path.'),
-    rec(6, 'dev', 'Request paths, CORS', ['HTTPS site reachable, HTTP refused, API reachable.', 'The allowed origin and the negative test.'], 'Paths tested both ways are the design proved.'),
-  ]),
-  T(6, 'secops', 'Remove SSH and use Run Command', 'Delete the SSH rule, administer the VM through Run Command, and prove port 22 is denied.', 45,
-    ['Run Command', 'IP flow verify', 'Attack surface'], ['No inbound SSH rule', 'Run Command works', 'IP flow verify says Deny'],
-    [doc('Run scripts in a Linux VM (Run Command)', 'azure/virtual-machines/linux/run-command', 'the “Azure portal” section: Operations → Run command → RunShellScript'),
-     doc('IP flow verify', 'azure/network-watcher/ip-flow-verify-overview', 'what the result reports — Access and the name of the rule that decided it')],
-    'Free: Run Command and IP flow verify. VM hours count while it runs — deallocate at the end.', [
-    both(s(6, 'secops', 1), 'Remove SSH, start the VM', 'Delete the SSH rule and start the VM.', PORTAL, [
+      { cmd: 'az vmss scale -g $RG -n vmss-web-team01 --new-capacity 0 -o none; sleep 30; az vmss show -g $RG -n vmss-web-team01 --query "sku.capacity" -o tsv', explain: 'Capacity zero: the set deletes its instances and costs nothing until it is asked for more.', sample: '0' },
+    ], ['0'], 'A parked set is free; a forgotten one is the second instance’s hourly rate all week. Every task that scales it up ends by parking it.'),
+    rec(6, 'infra', 'Address plan and fleet', ['The web subnet: name, CIDR, its NSG and the one rule.', 'The scale set: image, size, zones, orchestration mode, capacity now and maximum.'], 'Week 9’s template must match this plan exactly.'),
+  ], { cost: { usd: 0.0104, per: 'hour', note: 'The second B1s while the fleet runs; parked at zero at the end of the task.' } }),
+  T(6, 'dev', 'Put the fleet behind a Standard Load Balancer', 'Create a zone-redundant Standard Load Balancer with a health probe, join the fleet to its pool, and prove both zones answer.', 55,
+    ['AZ-104 · Implement and manage virtual networking', 'Standard Load Balancer', 'Health probes and rules', 'NSG rules for a fleet'], ['The balancer answers on port 80 from a zone-redundant address', 'Both zones serve requests', 'Only the balancer’s port 80 reaches the fleet'],
+    [doc('What is Azure Load Balancer?', 'azure/load-balancer/load-balancer-overview', 'the “Why use Azure Load Balancer?” list and the Standard SKU: zone-redundant front ends and a health probe that decides which instances receive traffic'),
+     doc('Load Balancer health probes', 'azure/load-balancer/load-balancer-custom-probe-overview', 'the “Probe interval and threshold” paragraph: an instance that fails the probe stops receiving new flows within seconds')],
+    'A Standard Load Balancer bills about $0.025 an hour plus a little per GB while it exists; it stays for Weeks 6–8 and is deleted in the Week 8 drill. Stop or delete anything you started.', [
+    both(s(6, 'dev', 1), 'Create the balancer, the probe and the rule', 'Zone-redundant public address, HTTP probe on /, port 80.', PORTAL, [
+      'Load balancers → Create: rg-capstone-team01, lb-web-team01, Standard, Public. Frontend: new IP pip-lb-web-team01, zone-redundant.',
+      'Backend pool bepool (vnet-capstone-team01). Inbound rule http: port 80 → 80, probe http (HTTP, 80, /). Review + create.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; az network lb create -g $RG -n lb-web-team01 --sku Standard --public-ip-address pip-lb-web-team01 --public-ip-zone 1 2 3 --frontend-ip-name fe --backend-pool-name bepool --tags owner=team01 --query "loadBalancer.sku.name" -o tsv; az network lb probe create -g $RG --lb-name lb-web-team01 -n http --protocol Http --port 80 --path / --interval 5 --threshold 2 -o none; az network lb rule create -g $RG --lb-name lb-web-team01 -n http --protocol Tcp --frontend-port 80 --backend-port 80 --frontend-ip-name fe --backend-pool-name bepool --probe-name http --query provisioningState -o tsv', explain: 'A Standard balancer with an address in every zone, a probe that asks each instance for / every five seconds, and the rule that forwards 80.', sample: 'Standard\nSucceeded' },
+    ], ['Standard', 'Succeeded'], 'The probe is the design’s nerve: an instance that stops answering / is taken out of rotation in ten seconds, before a visitor notices. Zone-redundant means the address survives a zone too.'),
+    both(s(6, 'dev', 2), 'Join the fleet to the pool', 'The set’s NICs in bepool; capacity two.', PORTAL, [
+      'vmss-web-team01 → Networking → Load balancing → Add: lb-web-team01, bepool. Then Scaling → Instance count 2 → Save.',
+      'nsg-snet-web-team01 → Inbound security rules: Allow-HTTP-Internet (80) is there; probes use the AzureLoadBalancer default rule.',
+    ], [
+      { cmd: 'POOL=$(az network lb address-pool show -g $RG --lb-name lb-web-team01 -n bepool --query id -o tsv); az vmss update -g $RG -n vmss-web-team01 --set "virtualMachineProfile.networkProfile.networkInterfaceConfigurations[0].ipConfigurations[0].loadBalancerBackendAddressPools=[{\\"id\\":\\"$POOL\\"}]" -o none; az vmss scale -g $RG -n vmss-web-team01 --new-capacity 2 -o none; sleep 120; az network lb address-pool show -g $RG --lb-name lb-web-team01 -n bepool --query "length(backendIPConfigurations)" -o tsv', explain: 'The set’s network profile now names the pool, so every new instance joins it; scale to two and count the pool members.', sample: '2' },
+    ], ['2'], 'The exam’s favourite pairing: the NSG says what may enter the subnet, the balancer says which instance answers. The instances themselves have no address to attack.'),
+    both(s(6, 'dev', 3), 'Prove both zones answer', 'Curl the balancer ten times; both zones reply.', PORTAL, [
+      'lb-web-team01 → Frontend IP configuration: copy the address. Open http://<address> and refresh; the zone in the page changes.',
+      'Insights → the topology shows the probe healthy on both instances.',
+    ], [
+      { cmd: 'IP=$(az network public-ip show -g $RG -n pip-lb-web-team01 --query ipAddress -o tsv); for i in 1 2 3 4 5 6 7 8 9 10; do curl -s --max-time 5 http://$IP; done | sort | uniq -c', explain: 'Ten requests through the balancer: both zones answer, roughly half each.', sample: '      5 web OK from zone 1\n      5 web OK from zone 2' },
+    ], ['zone 1', 'zone 2'], 'That output is the whole domain in one line: two zones, one address, and a visitor who cannot tell which answered.'),
+    both(s(6, 'dev', 4), 'Park the fleet', 'Capacity zero; the balancer stays for next week.', PORTAL, [
+      'vmss-web-team01 → Scaling → Instance count 0 → Save.',
+    ], [
+      { cmd: 'az vmss scale -g $RG -n vmss-web-team01 --new-capacity 0 -o none; az network lb show -g $RG -n lb-web-team01 --query provisioningState -o tsv', explain: 'Instances gone, the balancer kept: its hourly rate is the price of not rebuilding it twice.', sample: 'Succeeded' },
+    ], ['Succeeded'], 'The balancer costs about sixty cents a day; the instances cost more and come back in a minute, so they are what gets parked.'),
+    rec(6, 'dev', 'Request paths', ['Visitor → balancer → fleet (both zones): reachable.', 'Internet → an instance directly: no address, blocked.', 'The NSG rule and the probe settings.'], 'The network document shows the path and the fence around it.'),
+  ], { prerequisites: ['The scale set from Infrastructure (this week).'], cost: { usd: 0.0354, per: 'hour', note: 'The Standard Load Balancer ($0.025) and the second B1s while attached; the fleet is parked at the end, the balancer stays until the Week 8 drill.' } }),
+  T(6, 'secops', 'Close port 22, add Bastion, and reach the vault privately', 'Delete the SSH rule and prove 22 is denied, deploy Bastion Developer, reach Key Vault through a private endpoint, then remove it.', 55,
+    ['AZ-104 · Implement and manage virtual networking', 'NSG rules and IP flow verify', 'Azure Bastion', 'Private endpoints and private DNS'], ['No inbound SSH rule and IP flow verify says Deny', 'Bastion Developer opens a browser session', 'The vault resolved to a private address from the VM, and the endpoint is gone'],
+    [doc('IP flow verify', 'azure/network-watcher/ip-flow-verify-overview', 'what the result reports — Access and the name of the rule that decided it'),
+     doc('Bastion Developer SKU', 'azure/bastion/quickstart-developer-sku', 'the “Deploy Bastion Developer” steps: no AzureBastionSubnet, no public IP, a browser session to the VM’s private address'),
+     doc('Private endpoint DNS integration', 'azure/private-link/private-endpoint-dns-integration', 'the vault row of the zone table: privatelink.vaultcore.azure.net, and why the zone must be linked to the VNet for the name to resolve privately')],
+    'Bastion Developer, IP flow verify and Run Command are free. The private endpoint bills about $0.01 an hour and is deleted inside the task. VM hours count while it runs — deallocate at the end.', [
+    both(s(6, 'secops', 1), 'Close port 22 and open Bastion', 'Delete the SSH rule; deploy Bastion Developer; verify 22.', PORTAL, [
       'nsg-snet-app-team01 → Inbound security rules → Allow-SSH-MyIP → Delete.',
-      'vm-tools-team01 → Start. Then Operations → Run command → RunShellScript.',
-      'Script: hostname; systemctl is-active nginx → Run.',
+      'vnet-capstone-team01 → Bastion → Deploy Bastion Developer. vm-tools-team01 → Start → Connect → Bastion: the shell opens in the browser.',
+      'Network Watcher → IP flow verify: vm-tools-team01, Inbound, TCP, local port 22, remote 203.0.113.25:50000 → Access denied, DenyAllInBound.',
     ], [
-      { cmd: `${VARS}; az network nsg rule delete -g $RG --nsg-name nsg-snet-app-team01 -n Allow-SSH-MyIP && az vm start -g $RG -n $VM`, explain: 'With the rule gone, nothing on the internet can reach port 22.', sample: '(no output — the rule is deleted and the VM starts)' },
-      { cmd: 'az vm run-command invoke -g $RG -n $VM --command-id RunShellScript --scripts "hostname; systemctl is-active nginx"', explain: 'Run Command goes through the Azure agent, not the network. No port, no key.', sample: '"message": "Enable succeeded: \\n[stdout]\\nvm-tools-team01\\nactive\\n"' },
-    ], ['active'], 'The safest open port is none: admin goes through the Azure control plane, which is already authenticated and logged.'),
-    both(s(6, 'secops', 2), 'Prove port 22 is denied', 'Ask Network Watcher whether SSH would be allowed.', PORTAL, [
-      'Network Watcher → IP flow verify. VM vm-tools-team01, Inbound, TCP, local port 22, remote 203.0.113.25:50000.',
-      'Check: Access denied, by DenyAllInBound.',
+      { cmd: `${VARS}; az network nsg rule delete -g $RG --nsg-name nsg-snet-app-team01 -n Allow-SSH-MyIP; az network bastion create -g $RG -n bas-capstone-team01 --vnet-name vnet-capstone-team01 --sku Developer --query "sku.name" -o tsv; az vm start -g $RG -n $VM -o none`, explain: 'The rule gone, Bastion Developer deployed (no subnet, no public IP, no charge), the VM started for the next steps.', sample: 'Developer' },
+      { cmd: 'az network watcher test-ip-flow -g $RG --vm $VM --direction Inbound --protocol TCP --local 10.10.1.4:22 --remote 203.0.113.25:50000 --query "[access, ruleName]" -o tsv', explain: 'Evaluates the NSG rules for that exact packet, without sending one.', sample: 'Deny\tsecurityRules/DenyAllInBound' },
+    ], ['Developer', 'Deny'], 'The safest open port is none: admin goes through the Azure control plane, which is already authenticated and logged, and the platform itself names the rule that blocks 22.'),
+    both(s(6, 'secops', 2), 'Create the private endpoint and its DNS zone', 'The vault gets an address in snet-app.', PORTAL, [
+      'The vault → Networking → Private endpoint connections → Create: pe-kv-team01, vnet-capstone-team01, snet-app, target sub-resource vault.',
+      'DNS: integrate with private DNS zone privatelink.vaultcore.azure.net. Create.',
     ], [
-      { cmd: 'az network watcher test-ip-flow -g $RG --vm $VM --direction Inbound --protocol TCP --local 10.10.1.4:22 --remote 203.0.113.25:50000', explain: 'Evaluates the NSG rules for that exact packet, without sending one.', sample: '"access": "Deny",\n"ruleName": "securityRules/DenyAllInBound"' },
-    ], ['Deny'], 'Proof from the platform itself, naming the rule that blocked it.'),
-    rec(6, 'secops', 'NSG rules', ['Every inbound and outbound rule with its reason.', 'The IP flow verify result.'], 'The rules matrix of the network design.'),
+      { cmd: 'KVID=$(az keyvault list -g $RG --query "[0].id" -o tsv); az network private-endpoint create -g $RG -n pe-kv-team01 --vnet-name vnet-capstone-team01 --subnet snet-app --private-connection-resource-id $KVID --group-id vault --connection-name kv --query "customDnsConfigs[0].ipAddresses[0]" -o tsv', explain: 'A network card in your subnet that answers for the vault; the printed address is private.', sample: '10.10.1.5' },
+      { cmd: 'az network private-dns zone create -g $RG -n privatelink.vaultcore.azure.net -o none; az network private-dns link vnet create -g $RG -z privatelink.vaultcore.azure.net -n link-vnet -v vnet-capstone-team01 -e false -o none; az network private-endpoint dns-zone-group create -g $RG --endpoint-name pe-kv-team01 -n default --private-dns-zone privatelink.vaultcore.azure.net --zone-name vault --query provisioningState -o tsv', explain: 'The zone, its link to the network, and the record the endpoint writes into it; inside the VNet the vault’s name now resolves to the private address.', sample: 'Succeeded' },
+    ], ['10.10.1', 'Succeeded'], 'A private endpoint is the exam’s answer to “reach a PaaS service without the internet”; the DNS zone is the half people forget, and without it the name still resolves publicly.'),
+    both(s(6, 'secops', 3), 'Prove it from the VM, then remove the endpoint', 'nslookup from the VM; delete the endpoint and the zone.', PORTAL, [
+      'vm-tools-team01 → Operations → Run command → RunShellScript: nslookup <your vault>.vault.azure.net → Run. The address is 10.10.1.x.',
+      'Private endpoints → pe-kv-team01 → Delete. Private DNS zones → privatelink.vaultcore.azure.net → Delete.',
+    ], [
+      { cmd: 'KV=$(az keyvault list -g $RG --query "[0].name" -o tsv); az vm run-command invoke -g $RG -n $VM --command-id RunShellScript --scripts "nslookup $KV.vault.azure.net | tail -2" --query "value[0].message" -o tsv', explain: 'From inside the network the public name answers with the private address: the path to the vault never leaves Azure.', sample: 'Enable succeeded: \n[stdout]\nName:\tkv-capstone-team01-18342.privatelink.vaultcore.azure.net\nAddress: 10.10.1.5' },
+      { cmd: 'az network private-endpoint delete -g $RG -n pe-kv-team01; az network private-dns zone delete -g $RG -n privatelink.vaultcore.azure.net --yes; az network private-endpoint list -g $RG --query "length(@)" -o tsv', explain: 'The proof is recorded; the hourly endpoint and its zone are deleted. Zero endpoints remain.', sample: '0' },
+    ], ['Address: 10.10.1', '0'], 'A cent an hour is nothing for an afternoon and seven dollars for a month left running. The record says what was kept (Bastion, free) and what was used and deleted.'),
+    rec(6, 'secops', 'Rules and private path', ['Every inbound rule with its reason; the IP flow verify result.', 'How admins reach the VM: Bastion Developer, in the browser, no open port.', 'The private endpoint test: name, private address, deleted at the end.'], 'The network document now shows the private path and proves it.'),
     DEALLOCATE(6, 'secops'),
+  ], { cost: { usd: 0.01, per: 'hour', note: 'The private endpoint while it exists; deleted at the end of the task.' } }),
+
+  // ── Week 7 — Data and storage ──────────────────────────────────────────
+  T(7, 'arch', 'Choose the data store and the storage tiers', 'Compare the serverless database with a relational one for the next workload, choose blob access tiers and redundancy, and record the decision with its cost.', 40,
+    ['AZ-104 · Implement and manage storage', 'Cosmos DB vs PostgreSQL', 'Blob access tiers', 'Storage redundancy'], ['A data-store decision with its monthly cost', 'An access tier and a redundancy per object kind, with a lifecycle rule'],
+    [doc('Blob access tiers', 'azure/storage/blobs/access-tiers-overview', 'the comparison table: Hot, Cool, Cold and Archive — minimum retention days and retrieval latency per tier, the two numbers that decide where logs and backups go'),
+     doc('Azure Storage redundancy', 'azure/storage/common/storage-redundancy', 'the “Durability and availability parameters” table: LRS, ZRS, GRS — the copies each keeps and where')],
+    'Free: the decision is on paper; the database it describes is costed on Infrastructure’s task.', [
+    both(s(7, 'arch', 1), 'Read today’s data costs', 'What Cosmos DB and the storage accounts cost this month.', PORTAL, [
+      'Cost Management → Cost analysis → scope rg-capstone-team01 → group by Service name: read Cosmos DB and Storage, month to date.',
+      'Each storage account → Insights: capacity and transactions.',
+    ], [
+      { cmd: 'az consumption usage list --start-date $(date +%Y-%m-01) --end-date $(date +%F) --query "[?contains(instanceName, \'cosmos\') || contains(instanceName, \'stweb\')].[instanceName, pretaxCost]" -o tsv | sort | uniq', explain: 'Month-to-date cost for the database account and the site storage. On the free account, cents.', sample: 'cosmos-capstone-team01-a1b2c3\t0.0000\nstwebteam0118342\t0.0210' },
+    ], ['cosmos'], 'A decision that starts from what the current design costs is one the finance side can follow.'),
+    portal(s(7, 'arch', 2), 'Price the relational alternative', 'Cost a small zone-redundant PostgreSQL for a month.', 'Azure Pricing Calculator (azure.microsoft.com/pricing/calculator)', [
+      'Add Azure Database for PostgreSQL flexible server: General Purpose, D2ds v4, zone-redundant HA, 32 GB. Read the monthly total.',
+      'Write the workloads each store fits: the counter stays on Cosmos DB; orders, customers and reports go relational.',
+      'Pick a tier per kind: site files Hot, LRS; logs to Cool after 30 days; backups Archive, ZRS.',
+    ], 'A monthly figure for the database, the workload split, and a tier and redundancy per object kind.', 'The storage domain is a set of these trade-offs: the right store for the access pattern, the cheapest tier that still meets the retrieval time, the redundancy the data deserves.'),
+    rec(7, 'arch', 'Sizing and data decisions', ['ADR-003: which workloads use Cosmos DB, which PostgreSQL, and the monthly cost of each.', 'The access tier, redundancy and lifecycle per object kind.'], 'Week 9’s template holds the database and the lifecycle rule this decides.'),
+  ]),
+  T(7, 'infra', 'Create a zone-redundant PostgreSQL server in its own subnet, then stop it', 'Add a delegated subnet with its NSG, run an encrypted zone-redundant PostgreSQL flexible server reachable only from the app subnet, read its facts, stop it.', 60,
+    ['AZ-104 · Implement and manage virtual networking', 'Subnet delegation and private DNS', 'Zone-redundant high availability', 'Encryption at rest'], ['The server ran zone-redundant, encrypted, with no public access', 'Only the app subnet may reach port 5432', 'The server is stopped at the end'],
+    [doc('High availability in PostgreSQL flexible server', 'azure/postgresql/flexible-server/concepts-high-availability', 'the “Zone-redundant” paragraph: a synchronous standby in another zone and a failover in about a minute — the RTO your plan can promise'),
+     doc('Networking with private access (VNet integration)', 'azure/postgresql/flexible-server/concepts-networking-private', 'the “Virtual network concepts” list: a subnet delegated to Microsoft.DBforPostgreSQL/flexibleServers and a private DNS zone — why the subnet comes first')],
+    'D2ds v4 zone-redundant bills about $0.30 an hour while it runs; created and stopped inside this task. Stopped, it bills storage only, and Azure restarts it after seven days, so Week 8 deletes it. Stop or delete anything you started.', [
+    both(s(7, 'infra', 1), 'Add the delegated subnet and its NSG', '10.10.3.0/24, delegated; 5432 from inside the VNet only.', PORTAL, [
+      'Network security groups → Create nsg-snet-db-team01. Inbound rule Allow-Postgres-From-VNet: sources 10.10.1.0/24 and 10.10.2.0/24, port 5432, TCP, Allow, 100.',
+      'vnet-capstone-team01 → Subnets → Add: snet-db, 10.10.3.0/24, NSG nsg-snet-db-team01, Subnet delegation Microsoft.DBforPostgreSQL/flexibleServers. Save.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; az network nsg create -g $RG -n nsg-snet-db-team01 -o none; az network nsg rule create -g $RG --nsg-name nsg-snet-db-team01 -n Allow-Postgres-From-VNet --priority 100 --direction Inbound --access Allow --protocol Tcp --source-address-prefixes 10.10.1.0/24 10.10.2.0/24 --destination-port-ranges 5432 -o none; az network vnet subnet create -g $RG --vnet-name vnet-capstone-team01 -n snet-db --address-prefixes 10.10.3.0/24 --nsg nsg-snet-db-team01 --delegations Microsoft.DBforPostgreSQL/flexibleServers --query "[addressPrefix, delegations[0].serviceName]" -o tsv', explain: 'An NSG that admits 5432 from the app and web subnets only, then a subnet handed to the PostgreSQL service: the server’s network cards live here.', sample: '10.10.3.0/24\tMicrosoft.DBforPostgreSQL/flexibleServers' },
+    ], ['10.10.3.0/24', 'flexibleServers'], 'A database with a rule from the internet is one click from exposed; a delegated subnet with a rule from the app subnet follows the fleet wherever it moves.'),
+    both(s(7, 'infra', 2), 'Create the server, zone-redundant and private', 'D2ds v4, HA across zones, in snet-db.', PORTAL, [
+      'Azure Database for PostgreSQL flexible servers → Create: rg-capstone-team01, pg-capstone-team01 plus digits, PostgreSQL 16, Production, General Purpose D2ds_v4, 32 GiB.',
+      'High availability: Zone redundant, zone 1, standby 2. Networking: Private access, vnet-capstone-team01, snet-db, new private DNS zone. Review + create.',
+      'Wait for Deployment succeeded (about ten minutes).',
+    ], [
+      { cmd: 'PG=pg-capstone-team01-$RANDOM; PW="Pg-$(openssl rand -hex 8)"; echo "$PG"; az network private-dns zone create -g $RG -n $PG.private.postgres.database.azure.com -o none; az postgres flexible-server create -g $RG -n $PG -l eastus --tier GeneralPurpose --sku-name Standard_D2ds_v4 --storage-size 32 --version 16 --high-availability ZoneRedundant --zone 1 --standby-zone 2 --vnet vnet-capstone-team01 --subnet snet-db --private-dns-zone $PG.private.postgres.database.azure.com --admin-user capstone --admin-password "$PW" --tags owner=team01 --yes --query "[host, state]" -o tsv', explain: 'The DNS zone the server needs, then the server: a standby in another zone, inside the delegated subnet, no public address. The password stays in the shell and goes to Key Vault, never a file.', sample: 'pg-capstone-team01-18342\npg-capstone-team01-18342.postgres.database.azure.com\tReady' },
+    ], ['Ready'], 'Zone-redundant is not a backup: it is a standby that takes over in a minute. The automatic backups kept with the server are the backup; Week 8 restores from them.'),
+    both(s(7, 'infra', 3), 'Read the five facts', 'HA mode and state, public access, zones, encryption.', PORTAL, [
+      'The server → Overview: High availability Zone redundant (Healthy), Availability zone 1, Standby zone 2.',
+      'Networking: Public access Disabled, delegated subnet snet-db. Data encryption: Service-managed key.',
+    ], [
+      { cmd: 'az postgres flexible-server show -g $RG -n $PG --query "[highAvailability.mode, highAvailability.state, network.publicNetworkAccess, availabilityZone, highAvailability.standbyAvailabilityZone, dataEncryption.type]" -o tsv', explain: 'The facts the exam asks about a database: a standby in another zone and healthy, no public address, encrypted at rest.', sample: 'ZoneRedundant\tHealthy\tDisabled\t1\t2\tSystemManaged' },
+    ], ['ZoneRedundant', 'Disabled', 'SystemManaged'], 'Five facts, one line: the record copies this output, and the plan names its RPO and RTO from it.'),
+    both(s(7, 'infra', 4), 'Stop the server', 'Compute off; storage and backups kept.', PORTAL, [
+      'The server → Overview → Stop → Yes. State reads Stopped.',
+    ], [
+      { cmd: 'az postgres flexible-server stop -g $RG -n $PG -o none; az postgres flexible-server show -g $RG -n $PG --query state -o tsv', explain: 'A stopped server bills storage only; compute, the expensive line, stops. Azure restarts it after seven days, so Week 8 must delete it.', sample: 'Stopped' },
+    ], ['Stopped'], 'An hour of zone-redundant PostgreSQL is thirty cents; a week of it forgotten is the course budget. Stopped, it keeps its data and its backups for cents a day.'),
+    rec(7, 'infra', 'Database', ['Engine, size, HA mode, encrypted, public access, the zones, the subnet and the NSG rule.', 'Backups kept: automatic, 7 days; the server is stopped.'], 'Week 8 restores this database and the plan names its RPO and RTO.'),
+  ], { cost: { usd: 0.3, per: 'hour', note: 'General Purpose D2ds_v4 zone-redundant (two nodes) plus 32 GB while it runs; stopped inside the task, storage kept for cents a day.' } }),
+  T(7, 'dev', 'Queue the visits and write a ledger', 'Put a storage queue between the API and a ledger function that records each visit in Cosmos DB, and prove a poison message moves aside.', 55,
+    ['AZ-104 · Implement and manage storage', 'Storage queues', 'Queue-triggered functions', 'Poison messages'], ['A visits queue exists on the runtime storage account', 'A visit sent to the queue becomes an item in Cosmos DB', 'A poison message ends in the visits-poison queue'],
+    [doc('Queue storage trigger for Functions', 'azure/azure-functions/functions-bindings-storage-queue-trigger?tabs=javascript-v4', 'the “Poison messages” section: after five failed attempts a message moves to <queue>-poison instead of looping forever'),
+     doc('Cosmos DB output binding (Node.js v4)', 'azure/azure-functions/functions-bindings-cosmosdb-v2-output?tabs=javascript-v4', 'the JavaScript v4 example: output.cosmosDB with databaseName, containerName and connection, returned from the handler')],
+    'Free: a storage queue holds this many messages for nothing, and the Consumption plan’s million executions cover the ledger many times over.', [
+    both(s(7, 'dev', 1), 'Create the queue', 'A visits queue on the Function’s runtime storage.', PORTAL, [
+      'Storage accounts → the stfn… account → Queues → Add queue: visits. OK.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; FN=func-capstone-team01-XXXX; STFN=$(az storage account list -g $RG --query "[?starts_with(name, \'stfn\')].name | [0]" -o tsv); az storage queue create --account-name $STFN -n visits --auth-mode login --query created -o tsv', explain: 'The queue, on the account the Function already has a connection to (AzureWebJobsStorage). Poison messages will get visits-poison beside it, created by the runtime.', sample: 'True' },
+    ], ['True'], 'A queue lets the API answer in milliseconds and the write happen when it can; the poison queue is where a bad message goes instead of blocking the good ones.'),
+    both(s(7, 'dev', 2), 'Create the ledger function', 'One Cosmos item per message; an error on a bad one.', PORTAL, [
+      'The Function App → Overview → Create function → Azure Queue Storage trigger, name ledger, queue visits, connection AzureWebJobsStorage. Create.',
+      'Code + Test: replace the file with the code below. Save.',
+    ], [
+      { cmd: `const { app, output } = require('@azure/functions');
+const ledger = output.cosmosDB({ databaseName: 'capstone', containerName: 'visitors', connection: 'CosmosConnection' });
+app.storageQueue('ledger', {
+  queueName: 'visits', connection: 'AzureWebJobsStorage', return: ledger,
+  handler: (message, context) => {
+    if (!message.page) throw new Error('no page');
+    return { id: 'visit#' + context.triggerMetadata.id, page: message.page, at: Date.now() };
+  },
+});`, explain: 'Paste this over the whole file. The trigger hands over one message; the handler returns one item, written by the output binding with the Function’s identity. A message with no page throws: the poison case.', sample: '(the function appears under Functions as ledger)' },
+    ], ['ledger'], 'Two functions, each with one job, is the shape the exam calls “decoupled”: the counter never waits for the ledger, and the ledger’s identity already holds the data role from Week 5.', {
+      codeToPaste: true,
+      fixes: [{ symptom: 'The function does not appear after Save', fix: 'Code + Test → Save again and refresh the Functions list; the v4 model registers the function from the file, so a syntax error hides it. Check Logs.' }],
+    }),
+    both(s(7, 'dev', 3), 'Send a visit and find the item', 'One message becomes one item in Cosmos DB.', PORTAL, [
+      'The stfn… account → Queues → visits → Add message: {"page":"/"}. OK. The message disappears within a few seconds.',
+      'Cosmos DB → Data Explorer → capstone → visitors → Items: an item visit#… appears.',
+    ], [
+      { cmd: 'az storage message put --account-name $STFN -q visits --content \'{"page":"/"}\' --auth-mode login --query id -o tsv; sleep 30; az monitor app-insights query --app appi-capstone-team01 -g $RG --analytics-query "requests | where name == \'ledger\' | summarize runs=count(), failed=countif(success == false)" --query "tables[0].rows[0]" -o tsv', explain: 'A message, then the ledger’s own telemetry a few seconds later: one run, none failed. The item is in Data Explorer.', sample: 'a1b2c3d4-…\n1\t0' },
+    ], ['1'], 'The write happened without the API knowing; that gap is what lets the front door stay fast when the back room is slow.'),
+    both(s(7, 'dev', 4), 'Poison the queue and read the poison queue', 'A message with no page fails five times, then moves.', PORTAL, [
+      'Queues → visits → Add message: {} → OK. After two minutes a queue visits-poison appears with one message.',
+      'The Function App → ledger → Monitor: five failed invocations, each “no page”.',
+    ], [
+      { cmd: 'az storage message put --account-name $STFN -q visits --content \'{}\' --auth-mode login -o none; sleep 120; az storage message peek --account-name $STFN -q visits-poison --auth-mode login --query "[0].content" -o tsv', explain: 'A message the function rejects; after five tries the runtime moves it to visits-poison, where you can read it.', sample: '{}' },
+    ], ['{}'], 'Without the poison queue that message would be retried forever and every good message behind it would wait. The exam asks for exactly this behaviour and its default count.'),
+    rec(7, 'dev', 'Queue and ledger', ['The queue, its poison queue and the attempts before a message moves.', 'The ledger function, its trigger and its output binding.', 'The poison test and where the message ended.'], 'The design document shows the decoupled path and its failure mode.'),
+  ], { prerequisites: ['The Function’s managed identity and data role from Week 5.'] }),
+  T(7, 'secops', 'Lock the data down and age it out', 'Prove the database is private and encrypted, harden every storage account, say who may restore the backups, and age old blobs to a colder tier.', 40,
+    ['AZ-104 · Implement and manage storage', 'Storage account security settings', 'Backup restore permissions', 'Lifecycle management'], ['Every storage account is HTTPS-only, TLS 1.2, no anonymous blobs', 'The backups can be restored only by Contributors on the group', 'A lifecycle rule ages the site account'],
+    [doc('Security recommendations for Blob storage', 'azure/storage/blobs/security-recommendations', 'the “Data protection” and “Networking” tables: secure transfer, TLS version, anonymous access — the switches the next step reads back'),
+     doc('Lifecycle management policies', 'azure/storage/blobs/lifecycle-management-overview', 'the “Rule actions” table: tierToCool, tierToArchive, delete, and the minimum days before an object may move')],
+    'Free: the settings, the role check and the lifecycle rule cost nothing; colder tiers cost less, not more.', [
+    both(s(7, 'secops', 1), 'Harden every storage account', 'HTTPS only, TLS 1.2, no anonymous blob access.', PORTAL, [
+      'Each storage account → Configuration: Secure transfer required Enabled, Minimum TLS version 1.2, Allow Blob anonymous access Disabled. Save.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; for A in $(az storage account list -g $RG --query "[].name" -o tsv); do az storage account update -g $RG -n $A --https-only true --min-tls-version TLS1_2 --allow-blob-public-access false -o none; done; az storage account list -g $RG --query "[].[name, enableHttpsTrafficOnly, minimumTlsVersion, allowBlobPublicAccess]" -o tsv', explain: 'The three switches on every account, then read back: true, TLS1_2, false. The static website still serves; it does not use anonymous container access.', sample: 'stfnteam0118342\tTrue\tTLS1_2\tFalse\nstwebteam0118342\tTrue\tTLS1_2\tFalse' },
+    ], ['TLS1_2', 'False'], 'The site stays reachable because the static-website endpoint is its own front door: the fence blocks only the mistake, a container accidentally made public.'),
+    both(s(7, 'secops', 2), 'Check the database and who may restore it', 'Private, encrypted, backups kept; restore needs Contributor.', PORTAL, [
+      'The pg… server → Backup and restore: automatic backups, retention 7 days. Networking: Public access Disabled.',
+      'Access control (IAM) → Role assignments: who holds Contributor or Owner here — only they can restore.',
+    ], [
+      { cmd: 'PG=$(az postgres flexible-server list -g $RG --query "[0].name" -o tsv); az postgres flexible-server show -g $RG -n $PG --query "[backup.backupRetentionDays, network.publicNetworkAccess, dataEncryption.type]" -o tsv; az role assignment list -g $RG --query "[?roleDefinitionName==\'Contributor\' || roleDefinitionName==\'Owner\'].principalName" -o tsv', explain: 'Seven days of backups, no public access, encrypted; then the principals who could run a restore. Readers cannot.', sample: '7\tDisabled\tSystemManaged\nteam01-infra@contoso.com' },
+    ], ['Disabled', 'SystemManaged'], 'A backup is the database’s data without its fence; the role that may restore it is the fence, and the exam asks who holds it.'),
+    both(s(7, 'secops', 3), 'Age the old blobs', 'Cool after 30 days; old versions deleted after 90.', PORTAL, [
+      'The stweb… account → Data management → Lifecycle management → Add rule: age-out, all block blobs.',
+      'Move to cool 30 days after modification; delete previous versions after 90 days. Add.',
+    ], [
+      { cmd: 'WEB=$(az storage account list -g $RG --query "[?starts_with(name, \'stweb\')].name | [0]" -o tsv); az storage account management-policy create -g $RG --account-name $WEB --policy \'{"rules":[{"enabled":true,"name":"age-out","type":"Lifecycle","definition":{"filters":{"blobTypes":["blockBlob"]},"actions":{"baseBlob":{"tierToCool":{"daysAfterModificationGreaterThan":30}},"version":{"delete":{"daysAfterCreationGreaterThan":90}}}}}]}\' --query "policy.rules[0].[name, enabled, definition.actions.baseBlob.tierToCool.daysAfterModificationGreaterThan]" -o tsv', explain: 'One rule: after thirty days a blob moves to a tier that costs half as much and still answers in milliseconds; versions older than ninety days are deleted.', sample: 'age-out\tTrue\t30' },
+    ], ['age-out', '30'], 'Cost optimisation in the storage domain is mostly this rule: say how soon an object will be read, and let the account move it to the tier that matches.'),
+    rec(7, 'secops', 'Data controls', ['Every storage account: HTTPS-only, TLS 1.2, anonymous access off.', 'The database: private, encrypted, backups kept, who may restore.', 'The lifecycle rule and the tier it moves to.'], 'The runbook’s data section says what protects the data at rest and who may copy it.'),
   ]),
 
-  // ── Week 7 — Server Admin ──────────────────────────────────────────────
-  T(7, 'arch', 'Decide the VM size', 'Read the VM’s CPU and memory use and decide whether B1s is still the right size.', 30,
-    ['Right-sizing', 'Burstable VMs'], ['A size decision with its evidence'],
-    [doc('Monitor a VM', 'azure/virtual-machines/monitor-vm', 'the Metrics pane: Percentage CPU, Average, and the time range picker')],
-    'Free: metrics.', [
-    both(s(7, 'arch', 1), 'Read the CPU history', 'Read the average CPU for the last week.', PORTAL, [
-      'vm-tools-team01 → Monitoring → Metrics. Metric Percentage CPU, aggregation Avg, last 7 days.',
+  // ── Week 8 — Scale, monitor, recover ───────────────────────────────────
+  T(8, 'arch', 'Set RPO and RTO per asset and the autoscale target', 'Decide per asset how much data can be lost and how fast it must return, set the autoscale target, and cost the final design.', 35,
+    ['AZ-104 · Monitor and maintain Azure resources', 'RPO and RTO', 'Autoscale metrics', 'Right-sizing'], ['RPO and RTO for every asset', 'An autoscale target with its reason', 'The final design is costed'],
+    [doc('Reliability: recovery targets', 'azure/well-architected/reliability/metrics', 'the definitions of RPO and RTO and the worked example — the two numbers every asset row needs'),
+     doc('Autoscale overview', 'azure/azure-monitor/autoscale/autoscale-overview', 'the “Autoscale settings” section: a metric that rises with load and falls when instances are added — CPU is the textbook one, and the cool-down between actions')],
+    'Free: targets, metrics and the calculator cost nothing.', [
+    both(s(8, 'arch', 1), 'Read the fleet’s usage', 'CPU over the week for the fleet and the VM.', PORTAL, [
+      'vmss-web-team01 → Monitoring → Metrics: Percentage CPU, Avg and Max, last 7 days.',
+      'vm-tools-team01 → Monitoring → Metrics: Percentage CPU, last 7 days.',
     ], [
-      { cmd: 'VMID=$(az vm show -g rg-capstone-team01 -n vm-tools-team01 --query id -o tsv); az monitor metrics list --resource $VMID --metric "Percentage CPU" --interval PT1H --aggregation Average --offset 7d -o table | tail -5', explain: 'Hourly averages. B-series VMs earn credits while idle, so a low average is normal and healthy.', sample: 'Timestamp            Name            Average\n2026-10-20 14:00:00  Percentage CPU  3.2' },
-    ], ['Percentage CPU'], 'Right-sizing is cost control with evidence, not a guess.'),
-    rec(7, 'arch', 'Sizing decision', ['Size now; keep, grow or shrink, and why.'], 'The decision is reversible and cheap — record it anyway.'),
+      { cmd: 'RG=rg-capstone-team01; VMSS=$(az vmss show -g $RG -n vmss-web-team01 --query id -o tsv); az monitor metrics list --resource $VMSS --metric "Percentage CPU" --interval PT1H --aggregation Average Maximum --offset 7d --query "value[0].timeseries[0].data[?average != null].[average, maximum]" -o tsv | tail -3', explain: 'Hourly average and peak CPU for the fleet while it ran. Low numbers argue for a small size and a high target.', sample: '3.1\t12.4\n2.8\t9.7\n4.0\t15.2' },
+    ], ['12.4'], 'A scaling target is a number you defend: 50 % CPU on a B1s leaves headroom for a burst before the next instance is ready.'),
+    portal(s(8, 'arch', 2), 'Cost the final design', 'The fleet, balancer, database and queue for a month.', 'Azure Pricing Calculator (azure.microsoft.com/pricing/calculator)', [
+      'Add Load Balancer Standard, two B1s, PostgreSQL D2ds v4 zone-redundant 32 GB, Cosmos DB serverless, Storage. Read the total.',
+      'Write it next to Week 6’s single-VM figure; the difference buys a zone, a standby and a queue.',
+    ], 'A monthly total for the final design with the difference explained.', 'The exam’s cost questions are not “cheapest”: they ask for the cheapest design that still meets the RPO, the RTO and the availability the company wrote down.'),
+    rec(8, 'arch', 'Business impact and scaling', ['Asset, criticality, RPO, RTO, protected by.', 'The autoscale target and why.', 'The monthly cost of the final design.'], 'Week 12’s recovery scenario is judged against these targets.'),
   ]),
-  T(7, 'infra', 'Attach and mount a data disk', 'Add a 4 GB data disk to the VM and mount it at /data so it survives a reboot.', 45,
-    ['Managed disks', 'Filesystems', 'fstab'], ['/data is mounted', 'The VM is deallocated'],
-    [doc('Attach a data disk (portal)', 'azure/virtual-machines/linux/attach-disk-portal', 'the “Attach a new disk” steps and, below, the “Prepare the disk” commands — the same ones Run Command runs')],
-    'About 20 cents a month: a 4 GB Standard HDD data disk. VM hours count while it runs — deallocate at the end.', [
-    both(s(7, 'infra', 1), 'Attach the disk', 'Create and attach a 4 GB data disk.', PORTAL, [
-      'vm-tools-team01 → Start. Then Settings → Disks → Create and attach a new disk.',
-      'Name disk-data-tools-team01, Standard HDD, 4 GiB. Save.',
+  T(8, 'infra', 'Autoscale the fleet on CPU and prove a lost instance is replaced', 'Add an autoscale setting, load one instance until the set adds a third, delete one and watch the minimum restore it, then park the fleet.', 55,
+    ['AZ-104 · Deploy and manage Azure compute resources', 'Autoscale rules', 'Scale-out and scale-in', 'Instance replacement'], ['A rule scales out on CPU', 'A deleted instance is replaced without a human', 'The fleet is parked at the end'],
+    [doc('Autoscale a scale set with the CLI', 'azure/virtual-machine-scale-sets/tutorial-autoscale-cli', 'the az monitor autoscale create and rule create commands: a profile with min, max and default, then a rule per direction'),
+     doc('Autoscale best practices', 'azure/azure-monitor/autoscale/autoscale-best-practices', 'the “Ensure the maximum and minimum values are different” and “Choose the thresholds carefully” sections: a gap between the out and in thresholds, or the set flaps')],
+    'The fleet runs two to three B1s for under an hour (about $0.01 to $0.02 an hour beyond the free one); park it at zero at the end. Stop or delete anything you started.', [
+    both(s(8, 'infra', 1), 'Wake the fleet and add the autoscale setting', 'Min 2, max 3; out above 50 %, in below 25 %.', PORTAL, [
+      'vmss-web-team01 → Availability + scaling → Scaling → Custom autoscale: minimum 2, maximum 3, default 2.',
+      'Rules: Percentage CPU average > 50 for 5 minutes → +1; < 25 for 5 minutes → −1. Save.',
     ], [
-      { cmd: `${VARS}; az vm start -g $RG -n $VM; az vm disk attach -g $RG --vm-name $VM --name disk-data-tools-team01 --new --size-gb 4 --sku Standard_LRS`, explain: 'Data lives on its own disk so the OS disk can be replaced without losing it.', sample: '"lun": 0,\n"name": "disk-data-tools-team01"' },
-    ], ['disk-data-tools-team01'], 'Separating data from the OS disk is what makes Week 8’s restore simple.'),
-    both(s(7, 'infra', 2), 'Format and mount it', 'Format the disk and mount it at /data.', PORTAL, [
-      'Operations → Run command → RunShellScript.',
-      'Paste: D=/dev/disk/azure/scsi1/lun0; mkfs.ext4 -q $D; mkdir -p /data; echo "$D /data ext4 defaults,nofail 0 2" >> /etc/fstab; mount -a',
-      'Run; then run df -h /data and read the size.',
+      { cmd: 'RG=rg-capstone-team01; VMSS=$(az vmss show -g $RG -n vmss-web-team01 --query id -o tsv); az monitor autoscale create -g $RG --resource $VMSS -n autoscale-web-team01 --min-count 2 --max-count 3 --count 2 --query "profiles[0].capacity" -o tsv; az monitor autoscale rule create -g $RG --autoscale-name autoscale-web-team01 --condition "Percentage CPU > 50 avg 5m" --scale out 1 -o none; az monitor autoscale rule create -g $RG --autoscale-name autoscale-web-team01 --condition "Percentage CPU < 25 avg 5m" --scale in 1 --query "scaleAction.direction" -o tsv', explain: 'The setting brings the set to two and holds it between two and three; one rule adds an instance above the target, one removes it below.', sample: '{\n  "default": "2",\n  "maximum": "3",\n  "minimum": "2"\n}\nDecrease' },
+    ], ['"minimum": "2"', 'Decrease'], 'Autoscale is the exam’s default answer for “scale on demand”: you give the thresholds and the limits, and the service does the clicking.'),
+    both(s(8, 'infra', 2), 'Load an instance until the set adds one', 'Burn CPU on one instance; watch capacity reach three.', PORTAL, [
+      'vmss-web-team01 → Instances → open one → Operations → Run command → RunShellScript.',
+      'Script: for i in 1 2; do yes > /dev/null & done; sleep 420; pkill yes → Run.',
+      'Availability + scaling → Scaling → Run history: after five to eight minutes a scale-out action; Instances: three rows.',
     ], [
-      { cmd: 'az vm run-command invoke -g $RG -n $VM --command-id RunShellScript --scripts "D=/dev/disk/azure/scsi1/lun0; mkfs.ext4 -q $D; mkdir -p /data; echo \\"$D /data ext4 defaults,nofail 0 2\\" >> /etc/fstab; mount -a; df -h /data"', explain: 'The lun0 path never changes between boots, unlike sdc. nofail lets the VM boot even if the disk is missing.', sample: '[stdout]\nFilesystem  Size  Used Avail Use% Mounted on\n/dev/sdc    3.9G   24K  3.7G   1% /data' },
-    ], ['/data'], 'A mount that is not in fstab disappears at the next reboot.'),
-    rec(7, 'infra', 'Storage', ['The disk, its size, where it is mounted.'], 'The runbook’s storage section.'),
-    DEALLOCATE(7, 'infra'),
-  ]),
-  T(7, 'dev', 'Patch the VM with Update Manager', 'Assess missing updates and install the security ones through Azure Update Manager.', 40,
-    ['Update Manager', 'Patch classifications'], ['A patch run succeeded', 'The VM is deallocated'],
-    [doc('Deploy updates with Update Manager', 'azure/update-manager/deploy-updates', 'the “Install updates now” steps and the classification checkboxes — Critical and Security')],
-    'Free: Update Manager costs nothing for Azure VMs. VM hours count while it runs — deallocate it at the end.', [
-    both(s(7, 'dev', 1), 'Assess and install', 'Assess, then install security updates.', PORTAL, [
-      'vm-tools-team01 → Start. Then Updates → Check for updates; read the count.',
-      'One-time update → Install now. Classifications: Critical, Security. Reboot if required. Install.',
+      { cmd: 'ONE=$(az vmss list-instances -g $RG -n vmss-web-team01 --query "[0].name" -o tsv); az vm run-command invoke -g $RG -n $ONE --command-id RunShellScript --scripts "for i in 1 2; do yes > /dev/null & done; sleep 420; pkill yes" --no-wait; sleep 480; az vmss show -g $RG -n vmss-web-team01 --query "sku.capacity" -o tsv', explain: 'Two CPU burners for seven minutes on one instance; the average crosses 50 % and the rule raises capacity to three.', sample: '3' },
+    ], ['3'], 'The third instance is the rule acting on the metric; nobody clicked. When the load ends the scale-in rule removes it again, a few minutes later.'),
+    both(s(8, 'infra', 3), 'Delete one and watch it come back', 'Delete an instance; the minimum restores it.', PORTAL, [
+      'vmss-web-team01 → Instances → tick one → Delete. Instances: the count drops, then a new row appears within five minutes.',
     ], [
-      { cmd: `${VARS}; az vm start -g $RG -n $VM; az vm assess-patches -g $RG -n $VM --query "{critical:criticalAndSecurityPatchCount, other:otherPatchCount}"`, explain: 'Assessment lists what is missing without changing anything.', sample: '{ "critical": 12, "other": 30 }' },
-      { cmd: 'az vm install-patches -g $RG -n $VM --maximum-duration PT1H --reboot-setting IfRequired --classifications-to-include-linux Critical Security --query "{status:status, installed:installedPatchCount}"', explain: 'Installs only critical and security updates, rebooting only if one requires it.', sample: '{ "status": "Succeeded", "installed": 12 }' },
-    ], ['Succeeded'], 'Patching through the platform leaves a record in Update Manager — evidence an auditor can read.'),
-    rec(7, 'dev', 'Patching', ['The tool, and the result of the run.'], 'Patch evidence for the runbook and the governance report.'),
-    DEALLOCATE(7, 'dev'),
-  ]),
-  T(7, 'secops', 'Baseline the VM and write the runbook', 'Record what normal looks like on the VM and write the steps to check it is healthy.', 45,
-    ['Performance baselines', 'Runbooks'], ['Three baseline metrics', 'A four-step runbook'],
-    [doc('Run scripts in a Linux VM (Run Command)', 'azure/virtual-machines/linux/run-command', 'RunShellScript and where the output appears — uptime, free and df are the three numbers you baseline')],
-    'Free: Run Command. VM hours count while it runs — deallocate at the end.', [
-    both(s(7, 'secops', 1), 'Take the baseline', 'Read load, memory and disk on the VM.', PORTAL, [
-      'vm-tools-team01 → Start. Operations → Run command → RunShellScript.',
-      'Paste: uptime; free -m | head -2; df -h / | tail -1 → Run.',
+      { cmd: 'az vm delete -g $RG -n $ONE --yes -o none; sleep 300; az vmss list-instances -g $RG -n vmss-web-team01 --query "[].[name, zones[0], provisioningState]" -o tsv', explain: 'The deletion, then the set’s instances five minutes later: a new name has taken the lost one’s place, and the count is back at the minimum.', sample: 'vmss-web-team01_e5f6a7b8\t2\tSucceeded\nvmss-web-team01_c9d0e1f2\t1\tSucceeded' },
+    ], ['Succeeded'], 'This is self-healing on the exam: autoscale holds the minimum, the balancer stops sending to the dead one within seconds, and the visitor never knew.'),
+    both(s(8, 'infra', 4), 'Park the fleet', 'Autoscale off, capacity zero.', PORTAL, [
+      'vmss-web-team01 → Scaling → Manual scale → Instance count 0 → Save.',
     ], [
-      { cmd: `${VARS}; az vm start -g $RG -n $VM; az vm run-command invoke -g $RG -n $VM --command-id RunShellScript --scripts "uptime; free -m | head -2; df -h / | tail -1"`, explain: 'Load average, free memory and disk use, taken while the VM is idle — that is what normal means.', sample: '[stdout]\n 14:02:11 up 3 min,  load average: 0.08, 0.10, 0.04\nMem:  848  312  201\n/dev/sda1  29G  2.1G  27G   8% /' },
-    ], ['load average'], 'You cannot say “it is slow” without knowing what fast looked like.'),
-    portal(s(7, 'secops', 2), 'Write the “when it is slow” step', 'Add the layer-by-layer check to the runbook.', 'The document', [
-      'Layers, in order: network (reachable?), identity (allowed?), application (answers?), data (store there?), configuration (setting changed?).',
-      'For each layer, one check and one expected result: ping / NSG rules, sign-in, curl the API, Data Explorer, app settings.',
-      'Stop at the first layer that fails; that is where the fix goes.',
-    ], 'A runbook step that walks the five layers with one check each.', 'Working down the layers stops you fixing what is not broken: a 200 from the API rules out three layers in one look. Week 4’s incident was a configuration fault; this step finds the next one in minutes.'),
-    rec(7, 'secops', 'Performance baseline, Runbook', ['Three metrics: normal and alert level.', 'Four runbook steps: check, expect — and the five-layer step.'], 'The runbook is what a teammate on call follows.'),
-    DEALLOCATE(7, 'secops'),
-  ]),
-
-  // ── Week 8 — Backup and Recovery ───────────────────────────────────────
-  T(8, 'arch', 'Set RPO and RTO per asset', 'For each asset, decide how much data the company can lose and how fast it must return.', 30,
-    ['Business impact analysis', 'RPO and RTO'], ['Three assets with RPO, RTO and method'],
-    [doc('Reliability: recovery targets', 'azure/well-architected/reliability/metrics', 'the definitions of RPO and RTO and the worked example — the two numbers every asset row needs')],
-    'Free: a team decision.', [
-    portal(s(8, 'arch', 1), 'Rank the assets', 'Rank the website, the counter data and the VM.', 'Team meeting', [
-      'Ask: what does an hour of this being down cost?',
-      'RPO: how much data can we lose? RTO: how fast must it return?',
-      'Name the protection: versioning, snapshot, or the template.',
-    ], 'Three assets ranked, each with an RPO, an RTO and a method.', 'Targets come first, backups second: the target decides how often you back up.'),
-    rec(8, 'arch', 'Business impact', ['One row per asset.'], 'Week 12’s recovery scenario is judged against these numbers.'),
-  ]),
-  T(8, 'infra', 'Restore a disk from a snapshot', 'Snapshot the data disk, create a new disk from it, and prove the data is there.', 45,
-    ['Snapshots', 'Restore testing'], ['A disk restored from a snapshot', 'The test disk is deleted'],
-    [doc('Create a snapshot of a managed disk', 'azure/virtual-machines/snapshot-copy-managed-disk', 'the portal steps — Incremental snapshot — and “Create a disk from a snapshot”')],
-    'Cents: an incremental snapshot bills only changed blocks. Delete the test disk so it does not bill; Azure Backup (about $5 a month per VM) is the paid alternative.', [
-    both(s(8, 'infra', 1), 'Snapshot and restore', 'Snapshot the data disk and make a disk from it.', PORTAL, [
-      'Disks → disk-data-tools-team01 → Create snapshot: name snap-data-tools-team01, Incremental. Create.',
-      'Snapshots → snap-data-tools-team01 → Create disk: name disk-data-restore-team01, Standard HDD. Create.',
+      { cmd: 'az monitor autoscale update -g $RG -n autoscale-web-team01 --enabled false -o none; az vmss scale -g $RG -n vmss-web-team01 --new-capacity 0 -o none; sleep 30; az vmss show -g $RG -n vmss-web-team01 --query "sku.capacity" -o tsv', explain: 'Autoscale disabled so it does not fight the next command; capacity zero. The setting stays for Week 9’s template to copy.', sample: '0' },
+    ], ['0'], 'Parked is free. The drill on Security & Ops’ task wakes it one more time and then deletes it all.'),
+    rec(8, 'infra', 'Scaling and replacement', ['The autoscale setting: metric, thresholds, limits.', 'The scale-out time and the replacement time, from the run history.'], 'The plan names the time a lost instance takes to come back.'),
+  ], { cost: { usd: 0.021, per: 'hour', note: 'Up to two billed B1s beyond the free one while the fleet runs; parked at the end.' } }),
+  T(8, 'dev', 'Recover a deleted web file and restore the database to a point in time', 'Turn on soft delete and versioning, delete index.html and get it back, restore the database to ten minutes ago, then delete both servers.', 55,
+    ['AZ-104 · Monitor and maintain Azure resources', 'Blob soft delete and versioning', 'Point-in-time restore', 'Recovery proof'], ['The deleted file is back', 'A server restored to a point in time reached Ready', 'Both servers are deleted'],
+    [doc('Restore a soft-deleted blob', 'azure/storage/blobs/soft-delete-blob-manage', 'the “Show deleted blobs” toggle in the container view, then Undelete'),
+     doc('Point-in-time restore for PostgreSQL flexible server', 'azure/postgresql/flexible-server/how-to-restore-server-portal', 'the “Restoring to the latest restore point” steps and the note that a restore creates a new server with a new name — and that a private-access server restores into a subnet you choose')],
+    'The restored D2ds v4 bills about $0.14 an hour and the original about $0.30 while they run; both are deleted at the end of the task. Soft delete and versions sit inside the free 5 GB. Stop or delete anything you started.', [
+    both(s(8, 'dev', 1), 'Turn on protection', 'Soft delete and versioning for the site.', PORTAL, [
+      'The stweb… account → Data management → Data protection: Enable soft delete for blobs (7 days), Enable versioning for blobs. Save.',
     ], [
-      { cmd: 'RG=rg-capstone-team01; az snapshot create -g $RG -n snap-data-tools-team01 --source disk-data-tools-team01 --incremental true', explain: 'Incremental snapshots store only changed blocks — cents a month.', sample: '"provisioningState": "Succeeded",\n"incremental": true' },
-      { cmd: 'az disk create -g $RG -n disk-data-restore-team01 --source snap-data-tools-team01 --sku Standard_LRS --query provisioningState -o tsv', explain: 'A new disk from the snapshot. Attach it to the VM and ls /data to see the files.', sample: 'Succeeded' },
-    ], ['Succeeded'], 'Snapshots are cheap; Azure Backup would be about $5 a month per VM — an optional stretch.'),
-    both(s(8, 'infra', 2), 'Clean up the test disk', 'Delete the restored test disk.', PORTAL, [
-      'Disks → disk-data-restore-team01 → Delete. Keep the snapshot.',
-    ], [
-      { cmd: 'az disk delete -g $RG -n disk-data-restore-team01 --yes', explain: 'Keep the snapshot, delete the test disk: it proved the restore and now only costs money.', sample: '(no output — the disk is deleted)' },
-      { cmd: 'az disk list -g $RG --query "[].name" -o tsv', explain: 'The restore disk should be gone.', sample: 'disk-data-tools-team01\nvm-tools-team01_OsDisk_1' },
-    ], ['disk-data-tools-team01'], 'A restore test leaves nothing behind but the evidence.'),
-    rec(8, 'infra', 'VM restore', ['The snapshot name, and whether the data was present.'], 'The first proven restore in the DR plan.'),
-  ]),
-  T(8, 'dev', 'Recover a deleted web file', 'Turn on soft delete and versioning for the website, delete index.html, and get it back.', 40,
-    ['Blob soft delete', 'Versioning'], ['index.html was recovered', 'The site loads again'],
-    [doc('Enable soft delete for blobs', 'azure/storage/blobs/soft-delete-blob-enable', 'Data protection → “Enable soft delete for blobs” and the retention days'),
-     doc('Restore a soft-deleted blob', 'azure/storage/blobs/soft-delete-blob-manage', 'the “Show deleted blobs” toggle in the container view, then Undelete')],
-    'Free: soft delete and versioning are settings; retained versions count toward the free 5 GB.', [
-    both(s(8, 'dev', 1), 'Turn on protection', 'Enable soft delete and versioning.', PORTAL, [
-      'The storage account → Data management → Data protection.',
-      'Enable soft delete for blobs (7 days) and Enable versioning for blobs. Save.',
-    ], [
-      { cmd: 'RG=rg-capstone-team01; WEB=stwebteam0118342; az storage account blob-service-properties update -g $RG -n $WEB --enable-delete-retention true --delete-retention-days 7 --enable-versioning true', explain: 'Deleted files are kept for seven days; every overwrite keeps the previous version.', sample: '"deleteRetentionPolicy": { "days": 7, "enabled": true },\n"isVersioningEnabled": true' },
-    ], ['isVersioningEnabled'], 'Protection has to be on BEFORE the accident.'),
-    both(s(8, 'dev', 2), 'Delete and recover', 'Delete index.html, then undelete it.', PORTAL, [
+      { cmd: 'RG=rg-capstone-team01; WEB=$(az storage account list -g $RG --query "[?starts_with(name, \'stweb\')].name | [0]" -o tsv); az storage account blob-service-properties update -g $RG -n $WEB --enable-delete-retention true --delete-retention-days 7 --enable-versioning true --query "[deleteRetentionPolicy.enabled, isVersioningEnabled]" -o tsv', explain: 'Deleted files are kept for seven days; every overwrite keeps the previous version.', sample: 'True\tTrue' },
+    ], ['True'], 'Protection has to be on before the accident. Versioning is the cheapest backup there is, and the one the exam expects for a static site.'),
+    both(s(8, 'dev', 2), 'Delete the page and bring it back', 'Delete index.html; undelete it; the site answers.', PORTAL, [
       'Storage browser → $web → index.html → Delete. The site returns 404.',
       'Toggle “Show deleted blobs” → index.html → Undelete. Reload the site.',
     ], [
-      { cmd: "az storage blob delete --account-name $WEB -c '$web' -n index.html --auth-mode login", explain: 'The site now returns 404.', sample: '(no output — the blob is soft-deleted)' },
-      { cmd: "az storage blob undelete --account-name $WEB -c '$web' -n index.html --auth-mode login && curl -sI https://$WEB.z13.web.core.windows.net | head -1", explain: 'Restores the soft-deleted blob. Your endpoint’s zone may differ from z13.', sample: 'HTTP/1.1 200 OK' },
-    ], ['200 OK'], 'A backup is only real once you have restored from it.'),
-    rec(8, 'dev', 'Website restore', ['What you deleted and how you restored it.'], 'The second proven restore.'),
-  ]),
-  T(8, 'secops', 'Run a timed recovery drill', 'Snapshot the VM’s OS disk, rebuild a disk from it, time the whole thing, and compare it with the RTO.', 45,
-    ['Recovery drills', 'RTO measurement'], ['The drill is timed', 'Test resources are deleted'],
-    [doc('Create a snapshot of a managed disk', 'azure/virtual-machines/snapshot-copy-managed-disk', 'the time the portal reports between Create and Succeeded — the drill measures that, end to end')],
-    'Cents: one incremental snapshot and one test disk, both deleted at the end.', [
-    both(s(8, 'secops', 1), 'Run the drill', 'Start a timer, snapshot the OS disk, restore it.', PORTAL, [
-      'Note the time. vm-tools-team01 → Disks → the OS disk → Create snapshot snap-os-drill (Incremental).',
-      'Snapshots → snap-os-drill → Create disk disk-os-drill. Note the time when it shows Succeeded.',
+      { cmd: 'az storage blob delete --account-name $WEB -c \'$web\' -n index.html --auth-mode login; curl -s -o /dev/null -w "%{http_code}\\n" https://$WEB.z13.web.core.windows.net/', explain: 'The delete, then the site: 404. The page is gone from the visitor’s view.', sample: '404' },
+      { cmd: 'az storage blob undelete --account-name $WEB -c \'$web\' -n index.html --auth-mode login -o none; curl -s -o /dev/null -w "%{http_code}\\n" https://$WEB.z13.web.core.windows.net/', explain: 'Undelete brings the soft-deleted blob back; nothing was uploaded. Your endpoint’s zone may differ from z13.', sample: '200' },
+    ], ['404', '200'], 'The restore took one call and uploaded nothing: the object was always there, in the bin.'),
+    both(s(8, 'dev', 3), 'Start the database and restore it to a point in time', 'A new server from ten minutes ago; wait; check.', PORTAL, [
+      'The pg… server → Start. Backup and restore → Restore: ten minutes ago, name pg-capstone-team01-restore, subnet snet-db. Review + create.',
+      'Wait for Ready (about ten minutes): Overview shows a new server name and no high availability.',
     ], [
-      { cmd: `${VARS}; date +%T; OS=$(az vm show -g $RG -n $VM --query storageProfile.osDisk.managedDisk.id -o tsv); az snapshot create -g $RG -n snap-os-drill --source $OS --incremental true -o none`, explain: 'Note the start time. The snapshot works while the VM is deallocated.', sample: '14:02:07' },
-      { cmd: 'az disk create -g $RG -n disk-os-drill --source snap-os-drill -o none && date +%T', explain: 'The end time. The difference is your measured restore time.', sample: '14:05:52' },
-    ], ['14:0'], 'A measured time turns an RTO from a hope into a fact.'),
-    both(s(8, 'secops', 2), 'Clean up', 'Delete the drill disk and snapshot.', PORTAL, [
-      'Disks → disk-os-drill → Delete. Snapshots → snap-os-drill → Delete.',
+      { cmd: 'PG=$(az postgres flexible-server list -g $RG --query "[?!contains(name, \'restore\')].name | [0]" -o tsv); az postgres flexible-server start -g $RG -n $PG -o none; az postgres flexible-server restore -g $RG -n $PG-restore --source-server $PG --restore-time "$(date -u -d \'-10 minutes\' +%Y-%m-%dT%H:%M:%SZ)" --subnet $(az network vnet subnet show -g $RG --vnet-name vnet-capstone-team01 -n snet-db --query id -o tsv) --private-dns-zone $PG.private.postgres.database.azure.com --yes --query "[state, fullyQualifiedDomainName, highAvailability.mode]" -o tsv', explain: 'The source started, then a new server built from the backups as they were ten minutes ago, in the same subnet, with a new name: the application would be pointed at it.', sample: 'Ready\tpg-capstone-team01-18342-restore.postgres.database.azure.com\tDisabled' },
+    ], ['Ready', 'restore'], 'A restore is a new database, not the old one repaired: the name changes, and the runbook has to say where the application reads the new one from.'),
+    both(s(8, 'dev', 4), 'Delete both servers', 'The original and the restore: gone.', PORTAL, [
+      'pg-capstone-team01-restore → Delete → confirm. The pg… server → Delete → confirm.',
     ], [
-      { cmd: 'az disk delete -g $RG -n disk-os-drill --yes && az snapshot delete -g $RG -n snap-os-drill && az snapshot list -g $RG --query "[].name" -o tsv', explain: 'Only the infra team’s data snapshot should remain.', sample: 'snap-data-tools-team01' },
-    ], ['snap-data-tools-team01'], 'Drills leave no cost behind.'),
-    rec(8, 'secops', 'Drill', ['Start, end, RTO met, lessons.'], 'The drill record proves the plan.'),
-  ]),
+      { cmd: 'az postgres flexible-server delete -g $RG -n $PG-restore --yes; az postgres flexible-server delete -g $RG -n $PG --yes; az postgres flexible-server list -g $RG --query "length(@)" -o tsv', explain: 'The proof is recorded; the two hourly servers are not needed any more. Zero remain.', sample: '0' },
+    ], ['0'], 'The restore was the drill. Week 9 rebuilds the database from the template when a team wants it; keeping it by hand would be paying twice for the same design.'),
+    rec(8, 'dev', 'Website and database restore', ['What you deleted and restored, and how.', 'The point in time restored, the time it took, the new server name.'], 'The plan proves both restores were done, not planned.'),
+  ], { cost: { usd: 0.44, per: 'hour', note: 'The original zone-redundant server ($0.30) and the restored single server ($0.14) while they run; both deleted at the end of the task.' } }),
+  T(8, 'secops', 'Run a timed recovery drill and tear the fleet down', 'Take the fleet from zero to serving as if a zone failed, time it against the RTO, delete everything hourly, read the bill.', 55,
+    ['AZ-104 · Monitor and maintain Azure resources', 'Recovery drills', 'RTO measurement', 'Tear-down and cost review'], ['The drill is timed against the RTO', 'The balancer, its address, the scale set and the autoscale setting are deleted', 'This month’s cost is read'],
+    [doc('Load Balancer health probes', 'azure/load-balancer/load-balancer-custom-probe-overview', 'the probe interval and threshold: how long a fresh instance takes to receive traffic — the floor of your RTO'),
+     doc('Cost analysis', 'azure/cost-management-billing/costs/quick-acm-cost-analysis', 'the “Group by” and “Granularity” controls: service name, month to date — what this week’s fleet, balancer and database cost')],
+    'The fleet runs for the minutes of the drill; the balancer is deleted at the end of this task, so Week 8 closes with nothing billing by the hour. Stop or delete anything you started.', [
+    both(s(8, 'secops', 1), 'Start the clock and wake the fleet', 'Note the time; capacity 2; wait until the balancer answers.', PORTAL, [
+      'Write the time. vmss-web-team01 → Scaling → Instance count 2 → Save.',
+      'Open the balancer’s address and refresh until the page answers. Write the time again.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; START=$(date +%s); az vmss scale -g $RG -n vmss-web-team01 --new-capacity 2 -o none; IP=$(az network public-ip show -g $RG -n pip-lb-web-team01 --query ipAddress -o tsv); until curl -sf --max-time 3 http://$IP >/dev/null; do sleep 10; done; echo "RTO $(( $(date +%s) - START )) s"', explain: 'From zero instances to a page served through the balancer, timed by the shell: that number is the measured RTO.', sample: 'RTO 162 s' },
+    ], ['RTO'], 'An RTO in the plan is a promise; this is the measurement. Three minutes from nothing to serving is what a two-zone scale set with a start-up script buys.'),
+    both(s(8, 'secops', 2), 'Serve through it, then tear it all down', 'Curl once; delete autoscale, scale set, balancer, address.', PORTAL, [
+      'Open the balancer’s address once: the page answers.',
+      'Autoscale settings → autoscale-web-team01 → Delete. vmss-web-team01 → Delete. lb-web-team01 → Delete. pip-lb-web-team01 → Delete.',
+    ], [
+      { cmd: 'curl -s http://$IP; az monitor autoscale delete -g $RG -n autoscale-web-team01; az vmss delete -g $RG -n vmss-web-team01; az network lb delete -g $RG -n lb-web-team01; az network public-ip delete -g $RG -n pip-lb-web-team01; az vmss list -g $RG --query "length(@)" -o tsv', explain: 'One request through the balancer, then everything that bills by the hour is deleted; the subnet and its rule stay for the template to match. Zero scale sets remain.', sample: 'web OK from zone 2\n0' },
+    ], ['web OK', '0'], 'Week 9 rebuilds all of this from the template in one command; keeping it by hand would be paying twice for the same design.'),
+    both(s(8, 'secops', 3), 'Read the month’s cost', 'What the fleet, the balancer and the database cost.', PORTAL, [
+      'Cost Management → Cost analysis → scope rg-capstone-team01 → month to date → group by Service name.',
+      'Read Virtual Machines, Load Balancer, Azure Database for PostgreSQL; compare with the $20 budget.',
+    ], [
+      { cmd: 'az consumption usage list --start-date $(date +%Y-%m-01) --end-date $(date +%F) --query "[?contains(instanceName, \'web\') || contains(instanceName, \'pg-\')].[instanceName, pretaxCost]" -o tsv | sort | uniq', explain: 'Month-to-date by resource for the things this quarter paid for: the fleet, the balancer, the database.', sample: 'lb-web-team01\t3.4200\npg-capstone-team01-18342\t0.6100\nvmss-web-team01_a1b2c3d4\t0.3800' },
+    ], ['lb-web-team01'], 'A design is not finished until its bill has been read against the budget it was given.'),
+    rec(8, 'secops', 'Drill and cost', ['Drill start, service back, RTO met, lessons.', 'What was deleted; the month’s cost by service against the $20 budget.'], 'The plan shows the drill, and the course ends with nothing billing by the hour.'),
+  ], { cost: { usd: 0.0354, per: 'hour', note: 'The fleet and the balancer for the minutes of the drill; all of it deleted inside the task.' } }),
 
   // ── Week 9 — Infrastructure as Code ────────────────────────────────────
   T(9, 'arch', 'Map the template to the diagram', 'Match five template resources to their diagram nodes, and say what code does that the portal cannot.', 35,
@@ -1337,13 +1487,13 @@ const AZ_BLOCKS = {
     weeks: [5, 8] as [number, number],
     id: 'azure-administrator',
     title: 'Azure Administrator Capstone',
-    description: 'Run the company’s Azure like production: least-privilege identity, a segmented network with no open ports, server administration, backup and recovery.',
+    description: 'Run the company’s Azure like production: identity without secrets, a two-zone fleet behind a load balancer, a zone-redundant database and a queue, autoscale and a timed recovery.',
     certification: 'AZ-104',
     level: 'associate' as const,
     audience: 'Four roles operate the environment the Fundamentals course built. Week 0 deploys it if your team is new.',
     framework: 'AZ_104',
     authoredFramework: 'AZ_900',
-    intro: 'Starts from the Fundamentals environment and adds identity without secrets, a management subnet, a data disk and patching, snapshots and a timed recovery drill.',
+    intro: 'Starts from the Fundamentals environment and adds a protected vault and a locked API, a scale set across two zones behind a Standard Load Balancer, a zone-redundant PostgreSQL server and a queue, autoscale, and a timed recovery drill against AZ-104.',
   },
   devops: {
     weeks: [9, 12] as [number, number],

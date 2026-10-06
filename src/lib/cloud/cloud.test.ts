@@ -185,17 +185,22 @@ describe('R87 — the templates are sound', () => {
   const arm = JSON.parse(AZURE_IAC.full.text) as ArmDoc;
   const byType = (t: string) => arm.resources.filter((r) => r.type === t);
 
-  it('Azure: no inbound rule admits SSH/RDP (or anything) from the internet', () => {
+  it('Azure: no inbound rule admits anything from the internet, except HTTP to the web subnet the fleet lives in (R106)', () => {
     const OPEN = ['*', 'Internet', '0.0.0.0/0', 'Any'];
     for (const nsg of byType('Microsoft.Network/networkSecurityGroups')) {
       const rules = (nsg.properties!.securityRules as { name: string; properties: Record<string, string | number> }[]);
       for (const r of rules) {
         const p = r.properties;
-        if (p.direction === 'Inbound' && p.access === 'Allow') {
-          expect(OPEN, `${nsg.comments}: ${r.name} allows from ${p.sourceAddressPrefix}`).not.toContain(p.sourceAddressPrefix);
+        if (p.direction === 'Inbound' && p.access === 'Allow' && OPEN.includes(String(p.sourceAddressPrefix))) {
+          expect(nsg.comments, `${nsg.comments}: ${r.name} allows from ${p.sourceAddressPrefix}`).toMatch(/^\[w6\] nsgWeb/);
+          expect(String(p.destinationPortRange), `${r.name} opens more than HTTP`).toBe('80');
+          expect(p.protocol).toBe('Tcp');
         }
       }
     }
+    // The app subnet, where the tools VM lives, admits nothing at all from the internet.
+    const app = byType('Microsoft.Network/networkSecurityGroups').find((n) => /nsgApp/.test(n.comments ?? ''))!;
+    expect((app.properties!.securityRules as { properties: { access: string } }[]).filter((r) => r.properties.access === 'Allow')).toEqual([]);
   });
 
   it('Azure: storage is HTTPS-only with TLS 1.2 and no anonymous blobs; the Function is HTTPS-only', () => {
@@ -279,7 +284,7 @@ describe('R88 — official icons', () => {
     const missing = [...new Set(topo.nodes.map((n) => n.icon))].filter((k) => !OFFICIAL_ICONS[platform].includes(k)).sort();
     // R103: Bastion, the deploy identity (Azure) and AWS Backup, the OIDC provider and CloudTrail are drawn until their official files are added.
     // R106: the associate-level resources (a load balancer, a fleet, a database, a queue, an endpoint) are drawn too.
-    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'github', 'identity', 'notify'] : ['apm', 'audit', 'backup', 'db', 'endpoint', 'fleet', 'identity', 'lb', 'queue']);
+    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'db', 'fleet', 'github', 'identity', 'lb', 'notify', 'queue', 'route'] : ['apm', 'audit', 'backup', 'db', 'endpoint', 'fleet', 'identity', 'lb', 'queue']);
   });
 
   it('no file was added without being listed (a stray file is a key nobody renders)', () => {
