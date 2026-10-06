@@ -72,6 +72,15 @@ has failed silently in some deployment of some product; none takes more than a m
       (solid review, dashed approve, dotted feeds), boxes and lines draw in once, and with the
       OS reduced-motion setting on nothing moves; the team package's Team_Roles.md lists the
       course's own roles and what each drafts.
+- [ ] **Exam and cost (R106):** every course's Guide has "The exam and the cost": the ladder
+      with this course bold, one row per exam domain with its weight and the tasks that practise
+      it (a gap says why), then the cost lines and the tasks that spend; the catalogue card and
+      `content/courses/index.json` carry the certification, level, coverage and cost; on the
+      cloud associate and professional courses the Tasks tab shows the hourly cost on the
+      tasks that bill, and every such task ends by stopping, parking or deleting what it started;
+      the Azure picture shows three subnets (app, web, database) with the balancer, the fleet,
+      the database, the queue, the green pool, the slot and the dashboard arriving in Weeks 6,
+      7 and 11.
 - [ ] **Week picture (R99):** every week of every course shows "What you build this week" on the
       Tasks tab: the build at the end of that week, this week's parts glowing, and on a week that
       builds nothing the week's process drawn over it. The Guide's lab picture has week pills; a

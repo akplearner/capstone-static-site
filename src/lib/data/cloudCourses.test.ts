@@ -7,6 +7,7 @@ import type { DeliverableDef } from '../docs/types';
 import { isGradedWeek, weekTasksOrdered } from '../course-helpers';
 import { AZURE_IAC } from '../cloud/azureIac';
 import { AWS_IAC } from '../cloud/awsIac';
+import { CERTS } from '../docs/certs';
 
 /**
  * R87/R90 — the cloud capstones' own contract, on top of the platform-wide
@@ -292,6 +293,56 @@ describe('R90 — three quarters make one plan', () => {
       const docs = (id: string) => seedDeliverablesForCourse(id).map((d) => [d.num, d.title, d.file, d.sections.length]);
       expect(docs(aws.id)).toEqual(docs(az.id));
     }
+  });
+});
+
+// ── R106f — the level contract ───────────────────────────────────────────────
+// Each cert level asks for a different kind of task. The entry quarter stays
+// in the free tier and is held to R93/R95/R97 above. The associate quarter
+// builds real, billable things and proves them: every week has a proof step,
+// at least three tasks pay by the hour, and every one of those says what it
+// tore down. The professional quarter never works by hand alone: every week
+// has a task that goes through the pipeline, a preview, a policy or a
+// runbook, every task teaches three or more things, and the dev copies it
+// deploys are deleted inside the task.
+const PAID = (t: Task) => (t.cost?.usd ?? 0) > 0 && t.cost?.per === 'hour';
+const TEARDOWN = /delet|park|stop|torn down/i;
+const PROOF = /prove|proof|watch|refus|den(y|ied)|drill|answer|poison|replaced|come back/i;
+const AUTOMATED = /pipeline|workflow|what-if|change set|drift|roll(s|ed)? ?back|post-mortem|runbook|policy|guard/i;
+const taskText = (t: Task) => [t.title, t.objective, ...t.steps.flatMap((s) => [s.title, s.instruction ?? '', ...(s.instructionList ?? [])])].join(' ');
+
+describe.each(ALL.map((c) => [c.id, c] as const))('R106f level contract — %s', (id, course: Course) => {
+  const graded = course.tasks.filter((t) => t.week > 0);
+  const weeks = [...new Set(graded.map((t) => t.week))];
+  const byWeek = (w: number) => graded.filter((t) => t.week === w);
+
+  it('entry: nothing bills; associate: proof and tear-down; professional: automation in every week', () => {
+    if (course.level === 'entry') {
+      expect(graded.filter(PAID).map((t) => t.id), 'an entry task that pays by the hour').toEqual([]);
+      return;
+    }
+    const paid = graded.filter(PAID);
+    expect(paid.length, `${id}: tasks that pay by the hour`).toBeGreaterThanOrEqual(course.level === 'associate' ? 3 : 2);
+    for (const t of paid) {
+      expect(t.cost!.note, `${t.id}: the cost note says what was torn down`).toMatch(TEARDOWN);
+      expect(t.freeTier ?? '', `${t.id}: the free-tier line says to stop or delete`).toMatch(/stop|delet|park|deallocat/i);
+    }
+    for (const w of weeks) {
+      if (course.level === 'associate') {
+        expect(byWeek(w).some((t) => t.steps.some((s) => PROOF.test(s.title))), `${id} week ${w}: a step that proves something`).toBe(true);
+      } else {
+        expect(byWeek(w).some((t) => AUTOMATED.test(taskText(t))), `${id} week ${w}: a task that works through automation, not by hand`).toBe(true);
+        for (const t of byWeek(w)) expect(t.learn.length, `${t.id}: three or more things to learn`).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it('every graded task names its own exam first, and the quarter’s difficulty matches the level', () => {
+    const code = CERTS[course.id].code;
+    for (const t of graded) expect(t.learn[0], `${t.id} learn[0]`).toMatch(new RegExp(`^${code.replace(/[-+]/g, '\\$&')} · `));
+    const difficulties = new Set(course.weeks.filter((w) => w.number > 0).map((w) => w.difficulty));
+    const expected = course.level === 'entry' ? [1, 2] : course.level === 'associate' ? [3] : [4];
+    expect([...difficulties].sort(), `${id} difficulty arc`).toEqual(expected);
   });
 });
 

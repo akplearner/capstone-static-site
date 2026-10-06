@@ -241,8 +241,19 @@ vendor, an exam code, a level, an exam domain, a fee or a prerequisite is writte
 least 70 % of the exam's weight; every gap has a note; the registry and the seed agree on the
 level; a rung's `next` points back with `prerequisite`; a course that creates a billable resource
 says its hourly rate on the task and tears it down in the same task. Content-integrity asserts
-all of it; the four associate and professional cloud courses are held to coverage as each is
-rewritten against its exam.
+all of it, for every course.
+
+**The level contract (R106f).** `cloudCourses.test.ts` holds what each cert level asks of a task.
+Entry: nothing bills by the hour, and the R93/R95/R97 first-reader rules. Associate: every week
+has a step that proves something (a refused origin, both zones answering, a poison message, a
+replaced instance, a timed drill); at least three tasks pay by the hour and each says in its
+cost note what it tore down, and in its free-tier line that it must be stopped or deleted.
+Professional: every week has a task that works through automation (a pipeline, a preview, a
+policy, a runbook, a post-mortem), every task teaches three or more things, and the dev copies
+it deploys are deleted inside the task. Every graded task names its own exam first and the
+week difficulty matches the level (1–2, 3, 4). The two platforms are one course in two
+vocabularies: week titles, task shape and documents match quarter by quarter, and the shared
+document fields read in each platform's words where the platforms differ.
 
 **What is printed.** The Guide's "The exam and the cost" section is two tables (`CertCoverage`):
 the ladder and each domain with its weight and the tasks that practise it; the cost lines and

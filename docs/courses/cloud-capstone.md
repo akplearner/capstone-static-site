@@ -35,11 +35,11 @@ the rest of the plan.
 |---|---|
 | Weeks | 4 graded per course (12 across the three), plus Week 0 in the second and third. No week is ever locked. |
 | Roles | Cloud Architect · Infrastructure Admin · App & DevOps · Security & Ops (the Architect doubles up in a team of three). |
-| Per week | 4 objectives, one task per role, 30–55 minutes, at most 4 steps. |
-| Difficulty | Beginner 1–4 · Intermediate 5–8 · Advanced 9–11 · Integrated 12. |
+| Per week | 4 objectives, one task per role, 30–60 minutes, at most 5 steps (the record step included). |
+| Difficulty | Beginner 1–4 · Intermediate 5–8 · Advanced 9–11 · Integrated 12 — and a level contract per quarter (R106, below). |
 | Tasks | One visible line; "Show me how" holds the **portal clicks** (at most three on the entry courses), a **Read the docs** line, and **What you should see**; "Why, and if it breaks" holds the reasoning and fixes. On the entry courses the same step as Cloud Shell / CloudShell commands sits in a closed drawer, "Optional: the same step in Cloud Shell" (R97); on the later courses it shows under "Or in the shell". |
 | Docs | Every task opens with one or two official documentation pages (Microsoft Learn, AWS docs, GitHub docs) and a **Look for:** sentence — what to read on that page and how. On the entry courses every step names its own page too (R97). |
-| Cost | Students use an Azure free account and the AWS 12-month Free Tier. Every task carries a one-line free-tier note; $5 budget in Week 1; every step that starts the VM ends with it deallocated/stopped. |
+| Cost | Students use an Azure free account and the AWS 12-month Free Tier. Every task carries a one-line free-tier note and a `cost` line ($0 unless it bills by the hour); $5 budget in Week 1, $20 on the later quarters; every resource a task starts is stopped, parked or deleted inside the task. |
 | IaC | Native first (ARM / CloudFormation), graded Weeks 9–12. Terraform is one optional comparison step. |
 
 ## Weekly plan
@@ -54,10 +54,10 @@ the rest of the plan.
 | 6 | Resilient compute | ADR-002: two zones, costed | **Scale set (Flexible, zones 1–2) in snet-web / launch template + Auto Scaling group across two subnets** | **Standard Load Balancer / ALB** + health probe, both zones answer | Close port 22, Bastion Developer, Key Vault private endpoint + private DNS / S3 gateway + Session Manager endpoints |
 | 7 | Data and storage | ADR-003: data store, tiers / classes, costed | **PostgreSQL flexible server, zone-redundant HA, delegated subnet, stopped / RDS Multi-AZ, snapshotted, deleted** | **Storage queue + poison queue / SQS + DLQ** feeding a ledger function | Storage hardening + lifecycle rule / Block Public Access + lifecycle rule |
 | 8 | Scale, monitor, recover | RPO/RTO per asset, autoscale target, final design costed | **Autoscale / target tracking** on CPU, lost instance replaced, fleet parked | Soft delete / S3 versioning restore; **point-in-time / snapshot restore** of the database, then deleted | Timed drill (RTO measured), balancer and fleet torn down, cost read |
-| 9 | Infrastructure as code | Template ↔ diagram map, **ADR-001** | CLI inventory | Fill the starter, what-if / change set, deploy dev | Parameter files, validate (Terraform optional) |
-| 10 | CI/CD | RFC in a pull request | Branch protection + prod environment | GitHub Actions deploy | OIDC (no stored keys) + rollback test |
-| 11 | Governance | Cost by service | Policy / Config required-tags | Activity Log / CloudTrail | Defender free CSPM / Trusted Advisor + Access Analyzer |
-| 12 | Handover | Handover package (capstone) | Rebuild from the template | App failure fixed through CI | Security incident contained |
+| 9 | Infrastructure as code, tested | Template ↔ diagram map, **ADR-001**, dev/prod environment strategy | CLI inventory, **drift detected** (what-if / stack drift) and repaired | Fill the starter, what-if / change set, deploy dev, delete it | Parameter files with no secrets, validate; **policy as code**: two deny policies / two Guard rules, proved |
+| 10 | Pipelines with stages and gates | RFC in a pull request, **the gates before dev and prod** | Branch protection, required check, dev + prod environments with a reviewer | **check → deploy-dev → deploy-prod** with the preview kept as an artifact | OIDC: managed identity + federated credential / OIDC provider + role, **scoped**; a broken deploy **rolls back** at dev |
+| 11 | Release strategies and observability | Cost by service, **three SLIs and an error budget** | **Blue/green**: second backend pool + cut-over / weighted target groups | **Canary**: staging slot judged by Http5xx / Lambda alias weights judged by an alarm | Shared dashboard / CloudWatch dashboard; owner-tag Policy deny / Config required-tags; Activity Log / CloudTrail |
+| 12 | Incident, compliance and handover | Handover package: six services, risks, sign-off | Rebuild from the template, timed; **Automation runbook / SSM Automation document** | App failure: drift proved, fixed through CI | Security incident (RDP / SSH opened), detected in the audit log, contained, **post-mortem**; the policy widened |
 
 ## Service translation
 
@@ -131,7 +131,7 @@ R103: every template resource that is not plumbing carries a `purpose`; the Task
 * `src/lib/data/cloudCourses.test.ts` holds this document's rules as
   numbers:
   * exactly one task per role per week;
-  * every task is an hour or less, with 4 steps at most;
+  * every task is an hour or less, with 5 steps at most;
   * each visible line is 12 words or fewer;
   * every VM that is started is stopped again, and its free-tier line says so;
   * every graded task names official documentation with a "look for" sentence
@@ -139,7 +139,17 @@ R103: every template resource that is not plumbing carries a `purpose`; the Task
   * every step with commands also has portal clicks, unless listed shell-only
     with a reason;
   * every document has Document control and Evidence;
-  * the two courses have the same shape.
+  * the two courses have the same shape;
+  * R106f: the level contract — the entry quarter bills nothing; the associate
+    quarter has a proof step in every week and at least three tasks that pay by
+    the hour, each saying what it tore down; the professional quarter works
+    through automation in every week (a pipeline, a preview, a policy, a
+    runbook) and teaches three or more things per task; every graded task
+    names its own exam first and the week difficulty matches the level.
+* R106: the templates take `fleetSize` (0 parks the Week 6 fleet; the prod
+  file sets 2) and `createDatabase` (false by default: the Week 7 database
+  bills by the hour and is created, stopped and deleted by hand), so the
+  template never starts a billable resource unasked.
 
 ## Free tier (R92)
 
@@ -210,6 +220,33 @@ again if that topic is missing from the next course.
 | AZ-900 2 · Architecture and services / CLF 3 · Technology and Services | W1 RG + VNet / VPC (regions, zones); W2 VM / EC2, storage website / S3 + CloudFront, redundancy and storage classes; W3 Cosmos DB / DynamoDB, Functions / Lambda + API Gateway; W4 Monitor / CloudWatch, action group / SNS |
 | AZ-900 2 · Identity, access, security / CLF 2 · Security and Compliance | W1 the team is added to the account (Entra guests / IAM users, a builders group, Contributor / AdministratorAccess, MFA for everyone); W2 NSG / security group, SSH from one /32; W3 Entra group + Reader / IAM group + ReadOnlyAccess, MFA per member, no key in the page; W4 resource lock / CloudTrail |
 | AZ-900 3 · Management and governance / CLF 4 · Billing, Pricing and Support | W1 budget, tags, Cloud Shell / CloudShell; W2 pricing calculator vs the free account / Free Tier; W4 cost analysis / Cost Explorer, Advisor + Service Health / Trusted Advisor + support plans, lock |
+
+## Exam alignment of the associate and professional courses (R106)
+
+Weeks 5–8 are written against AZ-104 and SAA-C03, Weeks 9–12 against AZ-400
+and DOP-C02. Every task's first "What you'll learn" line is `CODE · Domain`,
+the registry (`src/lib/docs/certs.ts`) holds the domains and their weights,
+and `docs/courses/cert-coverage/<course>.md` prints which tasks practise
+each domain. Content-integrity fails a course that leaves a domain
+unpractised without a note or covers less than 70 % of the weight.
+
+| Course | Coverage | Where the weight is practised |
+|---|---|---|
+| Azure Administrator (AZ-104) | 95 % (all five domains) | Identity and governance: W5 (RBAC matrix, Key Vault RBAC + purge protection + audit, managed identity, Check access, Defender recommendations). Storage: W7 (tiers and redundancy, storage queue + poison queue, hardening + lifecycle). Compute: W6 scale set across zones, W8 autoscale and replacement. Networking: W6 Standard Load Balancer, Bastion + private endpoint + private DNS; W7 delegated subnet. Monitor and maintain: W8 RPO/RTO, soft delete + point-in-time restore, the timed drill and cost. |
+| AWS Solutions Architect (SAA-C03) | 100 % | Secure: W5 (matrix and layers, KMS + Parameter Store, scoped role + CORS, policy simulator + Access Analyzer), W6 endpoints, W7 Block Public Access. Resilient: W6 ALB + ASG across two zones, W7 Multi-AZ RDS, W8 target tracking, restores, the drill. High-performing: W7 SQS + DLQ + ledger. Cost-optimized: W7 storage classes and lifecycle, W8 the costed design. |
+| Azure DevOps Engineer (AZ-400) | 96 % | Processes: W9 ADR-001 + environment strategy, W10 RFC and gates, W12 handover. Source control: W10 branch protection and environments. Pipelines (52 %): W9 what-if drift + dev deploy, W10 the staged pipeline, W11 blue/green cut-over + slot canary, W12 rebuild + runbook + drift fixed through CI. Security and compliance: W9 policy as code, W10 federated identity scoped and rollback, W12 incident + post-mortem. Instrumentation: W11 SLIs and the shared dashboard. |
+| AWS DevOps Engineer (DOP-C02) | 100 % | SDLC: W10 RFC, protection, the staged pipeline. IaC: W9 map + drift + dev stack. Resilient: W11 blue/green + canary, W12 rebuild + automation. Monitoring: W11 SLIs, dashboard, Config, CloudTrail. Incident: W12 drift through CI, incident + post-mortem; W9 Guard rules under Security and Compliance. |
+
+**The level contract.** The entry quarter stays in the free tier and is written for a first-time
+reader (R93/R95/R97). The associate quarter builds real, billable things — a fleet, a balancer, a
+relational database, a queue — proves each with a negative test or a measured drill, and tears
+each down inside the task; the hourly cost sits on the task and in the coverage sheet. The
+professional quarter never works by hand alone: every week goes through the pipeline, a
+preview, a policy or a runbook, and every task teaches three or more things. The two platforms
+match week for week (`cloudCourses.test.ts`, "one course in two vocabularies"), and the Azure
+and AWS versions of each task differ only where the platforms do: a cut-over between backend
+pools where AWS weights target groups, a slot swap judged by a metric where AWS weights a
+Lambda alias under an alarm, what-if as the drift detector where AWS has stack drift detection.
 
 ## Easier to follow, and the shell out of the way (R97)
 
@@ -374,6 +411,20 @@ the student sees the task they are on without scrolling past the week.
   are drawn (`CloudIcon.tsx`): on Azure GitHub, an action group, Bastion and
   the managed identity; on AWS the Backup vault, the OIDC provider and
   CloudTrail. `cloud.test.ts` pins that list.
+* R106: the Azure fleet serves its page with `python3 -m http.server` from the
+  Ubuntu image, so an instance needs no outbound internet to come up — a
+  Standard Load Balancer gives none without an outbound rule or a NAT gateway.
+  Both balancers serve HTTP only; TLS at the balancer needs a certificate the
+  course does not buy. The zone-redundant PostgreSQL server is stopped at the
+  end of Week 7 and Azure restarts a stopped server after seven days, so
+  Week 8 deletes it; the template creates it only with `createDatabase=true`.
+  Azure autoscale keeps a minimum of one in the template, so it is enabled
+  only when `fleetSize` is above 0; the course parks the fleet by disabling
+  autoscale and scaling to zero. Blue/green on Azure is a cut-over between
+  two backend pools with a test port, not a weighted split; the slot canary
+  is judged by its Http5xx metric in the task, where production would wire
+  an alert to the swap. The Week 9 deny policy covers port 22 alone until the
+  Week 12 incident widens it — on purpose.
 * The picture shows one week at a time. A Week-1 student sees the foundation
   only; "Show what comes later" reveals the rest greyed with its week.
 * R94: the picture fits what it shows. Containers shrink-wrap their visible
