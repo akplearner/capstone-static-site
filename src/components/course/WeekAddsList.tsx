@@ -23,7 +23,7 @@ export function WeekAddsList({ courseId, week, limit }: { courseId: string; week
     // Honest about an empty week: the process is drawn, nothing new is built.
     return (
       <p className="text-2xs text-muted" data-week-adds={week}>
-        {adds.starting ? 'Nothing is built yet.' : 'Nothing new this week: the process is drawn over the picture.'}
+        {adds.starting ? 'Nothing built yet' : 'Nothing new this week; the process is drawn'}
       </p>
     );
   }
