@@ -15,10 +15,12 @@ One JSON document per course, generated from the TypeScript seeds:
 | `courses/aws-{cloud-practitioner,solutions-architect,devops}.json` | AWS (three quarters) | `src/lib/data/seed/awsCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/awsTopology.ts` · `awsIac.ts` |
 | `courses/index.json` | catalogue | counts per course |
 
-Every course's `deliverables[]` carries its RACI (`src/lib/docs/raci.ts`), and the
-self-drawn courses carry `content.arch` — the architecture picture and its build
-model (`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same
-export writes the weekly build sheets to `docs/courses/build-sheets/`.
+Every course's `deliverables[]` carries its RACI (`src/lib/docs/raci.ts`), every course
+carries `content.roles` — the role profiles, the motion spec and the labels of the role
+pictures (`src/lib/docs/roles.ts`; see `docs/ARCHITECTURE.md` §6) — and the self-drawn
+courses carry `content.arch` — the architecture picture and its build model
+(`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same export
+writes the weekly build sheets to `docs/courses/build-sheets/`.
 
 **The TypeScript is the source of truth.** Edit the seed, then regenerate:
 
@@ -39,9 +41,40 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
   "deliverables":  [ { id, title, file, folder, weeks, sections[ fields | groups(columns, seed) ], dod[ {label, week} ] } ],
   "procedureWeeks": [ … ],            // Server+ only — the configuration guide
   "procedures":     [ { id, week, title, where, summary, steps[ {cmd|gui, explain, doc} ] } ],
-  "topology":       { HOST, BRIDGES, BASE_VMS, OPS … }   // the addressing single source of truth
+  "topology":       { HOST, BRIDGES, BASE_VMS, OPS … },  // the addressing single source of truth
+  "content": {
+    "manual":         { MANUAL_SECTIONS, MANUAL_COPY … },           // every course
+    "roles":          { PROFILES[ {id, summary, responsibilities, works, arc} ], MOTION {stagger, draw, ease},
+                        WORKS_LABEL, WORKS_SHORT, FLOW_KIND_LABEL, FLOW_HOW_TO_READ },   // every course (R105)
+    "weekVisuals":    [ { week, builtThrough, highlight, process, caption } ],   // every course (R99)
+    "custody":        { CUSTODY_COLUMNS, CUSTODY_RULES },            // every course
+    "troubleshooting": { … },                                        // courses that run commands
+    "arch":           { ARCH, ARCH_BUILD },                          // the five self-drawn courses (R103)
+    "cloud":          { topology, iac, block, workflows, raci, phases },   // the six cloud courses
+    "security" | "cysa" | "mssp" | "diagrams" | "kit" | "ccnaDiagrams": { … }   // per course
+  },
+  "glossary": { … }, "marking": { teamWeight, focusWeight }, "labAccess": { … }, "iacTools": { … }
 }
 ```
+
+Components never import these tables: they call `useCourseDocument()` and an accessor in
+`src/lib/content/read.ts` (`rolesOf`, `archOf`, `weekVisualsOf`, `deliverablesOf` …), and
+`src/lib/page-shape.test.ts` fails a component that imports a table from `src/lib/docs/`.
+
+## Adding a section
+
+1. Write a **data-only module** under `src/lib/docs/` (uppercase exports are the tables;
+   lowercase helpers are allowed and never reach the JSON).
+2. In `src/lib/content/dto.ts`: `generatedFrom.push('<module path>')` and
+   `content.<key> = contentData(module)` (or a hand-built object for a per-course lookup).
+3. In `src/lib/content/read.ts`: a typed accessor `<key>Of(doc)` over `section<T>(doc, '<key>')`,
+   with defaults for an authored course that lacks the section; if a bare document needs the
+   shared part of it, add it in `src/lib/content/docs.ts` `sharedContent()`.
+4. The renderer reads `<key>Of(useCourseDocument())` literally and joins `RENDERERS` in
+   `src/lib/page-shape.test.ts`; add the module to the content-module regex there too.
+5. Give every string a word budget in `src/lib/data/content-integrity.test.ts`.
+6. `npm run content:export`; commit `content/` and `docs/courses/build-sheets/`.
+7. Document the section here and the standard it serves in `docs/ARCHITECTURE.md`.
 
 ## What is deliberately absent
 
@@ -50,7 +83,10 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
 - **React components** (diagrams, the guide's rendering) and **student state**
   (progress, forms, evidence — localStorage or Supabase) are not content.
 - **Glossary and lab-access field definitions** are platform-wide, in
-  `src/lib/glossary.ts` and `src/lib/labAccess.ts`.
+  `src/lib/glossary.ts` and `src/lib/labAccess.ts`; each document carries a copy so a
+  reader needs nothing else.
+- **Derived facts** — who hands what to whom, the weighted hand-off arrows — are never
+  stored; `roleFlow()` projects them from the RACI and `feeds` at read time.
 
 ## Reading the Server+ document
 

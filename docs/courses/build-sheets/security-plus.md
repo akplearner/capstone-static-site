@@ -82,3 +82,11 @@ This week adds:
 
 **Process — Payday:** evidence → r_final (evidence → findings); r_risks → r_final (final report & presentation).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Offensive Security (Red Team) | Reconnaissance, enumeration and exploitation of the in-scope hosts, with proof. | Penetration Test Report | Scope & Rules of Engagement, Risk Register, Hardening Baseline, Incident Report, Final Report & Briefing | — | Defensive Operations (Blue Team), Governance & Compliance (GRC) | Defensive Operations (Blue Team), Governance & Compliance (GRC) |
+| Defensive Operations (Blue Team) | Hardening, detection and incident response across the lab hosts. | Hardening Baseline, Change Log, Incident Report | Asset Inventory, Penetration Test Report, Framework Mapping, Lab Security Policy, Hardening Standard, Vulnerability-Management SOP, Incident-Response Runbook, Evidence Log | Change Log | Offensive Security (Red Team), Governance & Compliance (GRC) | Offensive Security (Red Team), Governance & Compliance (GRC) |
+| Governance & Compliance (GRC) | Governance, risk, compliance and the reports the client reads. | Scope & Rules of Engagement, Asset Inventory, Risk Register, Final Report & Briefing, Framework Mapping, Lab Security Policy, Hardening Standard, Vulnerability-Management SOP, Incident-Response Runbook, Evidence Log | Change Log | Scope & Rules of Engagement, Asset Inventory, Risk Register, Hardening Baseline, Penetration Test Report, Incident Report, Final Report & Briefing, Framework Mapping, Lab Security Policy, Hardening Standard, Vulnerability-Management SOP, Incident-Response Runbook, Evidence Log | Offensive Security (Red Team), Defensive Operations (Blue Team) | Offensive Security (Red Team), Defensive Operations (Blue Team) |
+

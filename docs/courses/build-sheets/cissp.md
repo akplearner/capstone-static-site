@@ -112,3 +112,11 @@ This week adds:
 
 **Process — Release v6: federal-ready:** federal → staff (show basic safeguarding); db → federal (federal information stays inside); r_d6 → r_ssp (the plan assembled).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Governance & Risk (Program Lead) | Policy, assets, risk and the maturity score: the program’s spine. | D1 Governance & Risk, D2 Assets & Data, D6 Assessment, Release Note, Customer Questionnaire Response, Control Statements, System Security Plan & Traceability | — | D1 Governance & Risk, D2 Assets & Data, D3 Architecture, D4 Network, D5 Identity, D6 Assessment, D7 Operations, D8 Software & Change, Release Note, Customer Questionnaire Response, Control Statements, System Security Plan & Traceability | Architecture & Network (Security Architect) | Architecture & Network (Security Architect), Identity & Operations (Operations Lead) |
+| Architecture & Network (Security Architect) | The cloud design, the network zones and the change pipeline. | D3 Architecture, D4 Network, D8 Software & Change | D1 Governance & Risk, D2 Assets & Data, D5 Identity, D6 Assessment, D7 Operations, Release Note, Customer Questionnaire Response, Control Statements, System Security Plan & Traceability | — | Governance & Risk (Program Lead), Identity & Operations (Operations Lead) | Governance & Risk (Program Lead), Identity & Operations (Operations Lead) |
+| Identity & Operations (Operations Lead) | Identity, access, logging, incident response and recovery. | D5 Identity, D7 Operations | D3 Architecture, D4 Network, D8 Software & Change | — | Governance & Risk (Program Lead), Architecture & Network (Security Architect) | Architecture & Network (Security Architect) |
+

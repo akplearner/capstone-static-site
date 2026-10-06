@@ -78,3 +78,12 @@ Nothing new is built this week; the process is drawn over the picture.
 
 **Process — Handover:** user → SiteDistribution (the symptom); admin → ToolsInstance (recover · fix · contain); admin → github (the handover package).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Design & Standards (Cloud Architect) | Owns the design, the standards, the cost and each week’s document. | IaC Design & Deployment Record, Change Request & Release Record, Governance, Security & Cost Report, Operational Handover Package | — | — | Platform Build (Infrastructure Admin), Application Delivery (DevOps Engineer), Security Operations (SecOps Engineer) | — |
+| Platform Build (Infrastructure Admin) | Builds the network, the VM, the data and the templates. | — | Governance, Security & Cost Report | IaC Design & Deployment Record | — | Design & Standards (Cloud Architect) |
+| Application Delivery (DevOps Engineer) | Ships the website, the API and the pipeline. | — | — | Change Request & Release Record, Operational Handover Package | — | Design & Standards (Cloud Architect) |
+| Security Operations (SecOps Engineer) | Locks access down, watches it run, and works the incidents. | — | IaC Design & Deployment Record, Change Request & Release Record, Operational Handover Package | Governance, Security & Cost Report | — | Design & Standards (Cloud Architect) |
+

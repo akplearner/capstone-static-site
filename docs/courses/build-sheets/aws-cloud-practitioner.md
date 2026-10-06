@@ -62,3 +62,12 @@ This week adds:
 
 **Process — The incident loop:** CounterFunction → FunctionErrorsAlarm (server errors); FunctionErrorsAlarm → AlertTopic (email the team); admin → CounterFunction (find it, fix it, retest).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Design & Standards (Cloud Architect) | Owns the design, the standards, the cost and each week’s document. | Cloud Foundation & Naming Standard, Solution Architecture Document, Application & API Design Specification, Monitoring & Incident Report | — | — | Platform Build (Infrastructure Admin), Application Delivery (DevOps Engineer), Security Operations (SecOps Engineer) | — |
+| Platform Build (Infrastructure Admin) | Builds the network, the VM, the data and the templates. | — | Monitoring & Incident Report | Cloud Foundation & Naming Standard | — | Design & Standards (Cloud Architect) |
+| Application Delivery (DevOps Engineer) | Ships the website, the API and the pipeline. | — | — | Solution Architecture Document, Application & API Design Specification | — | Design & Standards (Cloud Architect) |
+| Security Operations (SecOps Engineer) | Locks access down, watches it run, and works the incidents. | — | Cloud Foundation & Naming Standard, Solution Architecture Document, Application & API Design Specification | Monitoring & Incident Report | — | Design & Standards (Cloud Architect) |
+

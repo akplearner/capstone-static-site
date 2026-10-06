@@ -8,7 +8,10 @@ import { SignInPanel } from '@/components/auth/SignInPanel';
 import { progressRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef } from '@/lib/course-helpers';
-import { profileOf } from '@/lib/docs/roles';
+import { profileOf, splitRoleName } from '@/lib/docs/roles';
+import { resolveRoleMotion } from '@/lib/roleMotion';
+import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
+import { motion } from 'framer-motion';
 import { useCourseDocument } from '@/lib/useCourse';
 import { rolesOf } from '@/lib/content/read';
 import { getMonthlyCohorts } from '@/lib/utils';
@@ -47,6 +50,7 @@ export function JoinPanel({
   const teamIds = Array.from({ length: Math.max(1, teamCount) }, (_, i) => String(i + 1));
 
   const roles = rolesOf(useCourseDocument());
+  const roleMotion = resolveRoleMotion(roles.MOTION, useReducedMotionSafe());
   const [editing, setEditing] = useState(!member);
   const counts = useClientStore<Record<string, number>>(
     () => progressRepo.getTeamCounts(course.id),
@@ -346,34 +350,45 @@ export function JoinPanel({
         <div>
           <span className="block text-sm font-medium text-body">Role</span>
           <div className="mt-2 space-y-2">
-            {course.roles.map((r) => (
-              <button
-                key={r.id}
-                type="button"
-                onClick={() => setRole(r.id)}
-                className={`flex w-full items-center gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
-                  role === r.id ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
-                }`}
-              >
-                <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
-                <span>
-                  <span className="block font-medium text-ink">{r.name}</span>
-                  {/* The line that tells the roles APART: the role's profile
-                      where the document carries one, else its mission. */}
-                  {(() => {
-                    const profile = profileOf(roles.PROFILES, r.id);
-                    return profile ? (
+            {course.roles.map((r, i) => {
+              const profile = profileOf(roles.PROFILES, r.id);
+              const { fn, tag } = splitRoleName(r.name);
+              return (
+                <motion.button
+                  key={r.id}
+                  type="button"
+                  data-role-pick={r.id}
+                  onClick={() => setRole(r.id)}
+                  aria-pressed={role === r.id}
+                  className={`flex w-full items-start gap-3 rounded-[var(--radius-control)] px-4 py-3 text-left transition-colors ${
+                    role === r.id ? 'depth-lift bg-accent-soft' : 'depth-edge depth-hover bg-panel'
+                  }`}
+                  initial={roleMotion.on ? { opacity: 0, y: 4 } : false}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={roleMotion.row(i)}
+                >
+                  <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
+                  <span className="min-w-0">
+                    <span className="block font-medium text-ink">
+                      {fn}
+                      {tag && <span className="ml-1.5 text-xs font-normal text-muted">{tag}</span>}
+                    </span>
+                    {/* The lines that tell the roles APART: the profile where the
+                        document carries one, else the role's mission. */}
+                    {profile ? (
                       <>
-                        <span className="block text-xs text-muted">{profile.summary}</span>
-                        <span className="mt-0.5 block text-2xs text-muted">{roles.WORKS_LABEL[profile.works]}</span>
+                        <span className="mt-0.5 block text-xs text-body">{profile.summary}</span>
+                        <span className="mt-1 block text-2xs text-muted">
+                          {roles.WORKS_LABEL[profile.works]} {profile.responsibilities.join(' · ')}
+                        </span>
                       </>
                     ) : (
                       <span className="block text-xs text-muted">{r.mission}</span>
-                    );
-                  })()}
-                </span>
-              </button>
-            ))}
+                    )}
+                  </span>
+                </motion.button>
+              );
+            })}
           </div>
         </div>
       )}

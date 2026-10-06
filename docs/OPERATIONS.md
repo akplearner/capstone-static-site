@@ -65,6 +65,13 @@ has failed silently in some deployment of some product; none takes more than a m
       drafts / reviews / approves counts, hands to, waits on) with your own row marked; "What
       you owe" is one line; the manual's "How the roles hand off" is a row of role boxes with
       weighted arrows and the same hand-offs as sentences under it. No role cards anywhere.
+- [ ] **Professional roles (R105):** every course's role reads "Function (Role)" with no emoji;
+      the join picker shows each role's summary, how it works and three or four
+      responsibilities; the Guide's role table and the manual's hand-off picture start with
+      your role in focus and a click on another role dims the rest; the picture has a legend
+      (solid review, dashed approve, dotted feeds), boxes and lines draw in once, and with the
+      OS reduced-motion setting on nothing moves; the team package's Team_Roles.md lists the
+      course's own roles and what each drafts.
 - [ ] **Week picture (R99):** every week of every course shows "What you build this week" on the
       Tasks tab: the build at the end of that week, this week's parts glowing, and on a week that
       builds nothing the week's process drawn over it. The Guide's lab picture has week pills; a

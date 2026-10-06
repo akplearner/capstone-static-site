@@ -124,3 +124,12 @@ Nothing new is built this week; the process is drawn over the picture.
 
 **Process — Engineer:** SW-ACC-02 → SW-CORE-01 (break it on purpose); ADMIN-PC → NETOPS (incident → RCA); NETOPS → ADMIN-PC (handover).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Network Design (Architect) | Owns requirements, design and the addressing plan; reviews every change for design fit. | Kit & Capability Register, Requirements & Site Survey, High-Level Design, Low-Level Design & IP Plan, As-Built & Operations Handover | — | Build & Configuration Log, Validation & Test Matrix, Security Baseline & ACL Policy, Operations & Change Records, Monitoring & Incident Log | Device Build (Implementation Engineer), Network Operations (Operations Engineer), Automation & Security (Automation Engineer) | Device Build (Implementation Engineer), Network Operations (Operations Engineer), Automation & Security (Automation Engineer) |
+| Device Build (Implementation Engineer) | Owns switching, interfaces, wireless and the device build; reviews the configuration itself. | Build & Configuration Log | Kit & Capability Register, Requirements & Site Survey, High-Level Design, Low-Level Design & IP Plan, Validation & Test Matrix, Operations & Change Records, Monitoring & Incident Log | — | Network Design (Architect), Network Operations (Operations Engineer) | Network Design (Architect), Network Operations (Operations Engineer) |
+| Network Operations (Operations Engineer) | Owns monitoring, backups, tickets and change records; reviews the rollback on every change. | Validation & Test Matrix, Operations & Change Records, Monitoring & Incident Log | Build & Configuration Log, Security Baseline & ACL Policy, As-Built & Operations Handover | Kit & Capability Register, Requirements & Site Survey, High-Level Design, Low-Level Design & IP Plan | Network Design (Architect), Device Build (Implementation Engineer) | Network Design (Architect), Device Build (Implementation Engineer), Automation & Security (Automation Engineer) |
+| Automation & Security (Automation Engineer) | Owns ACL policy, the management plane, Git and automation; reviews the validation evidence. | Security Baseline & ACL Policy | — | As-Built & Operations Handover | Network Design (Architect), Network Operations (Operations Engineer) | Network Design (Architect) |
+

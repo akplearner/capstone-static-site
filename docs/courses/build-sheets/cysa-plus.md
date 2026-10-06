@@ -82,3 +82,11 @@ This week adds:
 
 **Process — Hold the line:** soc → browser (detect: the first alert); browser → soc (investigate: pivot on the source); browser → firewall (contain: ufw DENY).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Monitoring & Triage (SOC Analyst) | Watches the alerts, separates signal from noise and escalates what matters. | SOC Monitoring Report, Alert Triage Report, Detection Record, SOC Findings Record | Threat Investigation Report, Vulnerability Assessment, Incident Response Report, IOC Database, Coverage Validation Report, Sensor Deployment Record, Scan Validation Report | Executive Debrief & Lessons Learned | Investigation (Threat Hunter), Response & Reporting (Incident Responder) | Investigation (Threat Hunter), Response & Reporting (Incident Responder) |
+| Investigation (Threat Hunter) | Investigates suspicious activity in logs and packets and proves what happened. | Threat Investigation Report, Coverage Validation Report, Executive Debrief & Lessons Learned, Scan Validation Report | SOC Monitoring Report, Alert Triage Report, Detection Record, SOC Findings Record | Vulnerability Assessment, Incident Response Report, IOC Database, Sensor Deployment Record | Monitoring & Triage (SOC Analyst), Response & Reporting (Incident Responder) | Monitoring & Triage (SOC Analyst), Response & Reporting (Incident Responder) |
+| Response & Reporting (Incident Responder) | Contains the attack, preserves the evidence and writes the report leadership reads. | Vulnerability Assessment, Incident Response Report, IOC Database, Sensor Deployment Record | Executive Debrief & Lessons Learned | SOC Monitoring Report, Threat Investigation Report, Coverage Validation Report, Alert Triage Report, Detection Record, SOC Findings Record, Scan Validation Report | Monitoring & Triage (SOC Analyst), Investigation (Threat Hunter) | Monitoring & Triage (SOC Analyst), Investigation (Threat Hunter) |
+

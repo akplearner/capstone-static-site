@@ -77,3 +77,12 @@ This week adds:
 
 **Process — Backup and recovery:** admin → dataDisk (snapshot); dataDisk → vm (restore and time it); webBlobService → webStorage (recover the deleted file).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Design & Standards (Cloud Architect) | Owns the design, the standards, the cost and each week’s document. | Access Control Matrix & Secrets Register, Network Design Document, Server Configuration & Maintenance Runbook, Backup & Disaster Recovery Plan | — | — | Platform Build (Infrastructure Admin), Application Delivery (DevOps Engineer), Security Operations (SecOps Engineer) | — |
+| Platform Build (Infrastructure Admin) | Builds the network, the VM, the data and the templates. | — | — | Network Design Document, Server Configuration & Maintenance Runbook, Backup & Disaster Recovery Plan | — | Design & Standards (Cloud Architect) |
+| Application Delivery (DevOps Engineer) | Ships the website, the API and the pipeline. | — | Access Control Matrix & Secrets Register | — | — | Design & Standards (Cloud Architect) |
+| Security Operations (SecOps Engineer) | Locks access down, watches it run, and works the incidents. | — | Network Design Document, Server Configuration & Maintenance Runbook, Backup & Disaster Recovery Plan | Access Control Matrix & Secrets Register | — | Design & Standards (Cloud Architect) |
+

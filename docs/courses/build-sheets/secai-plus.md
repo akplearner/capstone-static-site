@@ -88,3 +88,11 @@ This week adds:
 
 **Process — Release v4: proven and handed over:** backup → runtime (clean rebuild, same results); siem → governance (six of six alerts); governance → customer (three answers, with evidence).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| AI Assurance Testing (AI Red Team) | Tests the Hub’s AI on a dedicated instance and proves each case. | P2 Attack Casebook | P3 Control Set, P4 Watch Plan, Release v4 Package & Assurance Response | — | AI Controls Engineering (AI Defender), AI Governance (Governance Lead) | AI Controls Engineering (AI Defender), AI Governance (Governance Lead) |
+| AI Controls Engineering (AI Defender) | Builds the controls, logging and alerts that stop and catch each case. | P3 Control Set, P4 Watch Plan | Lab Rule & Evidence Ledger, P1 System Map, P2 Attack Casebook, P5 Governance Pack, Release Note | — | AI Assurance Testing (AI Red Team), AI Governance (Governance Lead) | AI Assurance Testing (AI Red Team), AI Governance (Governance Lead) |
+| AI Governance (Governance Lead) | Maps the system, owns the risks and rules, and signs each release. | Lab Rule & Evidence Ledger, P1 System Map, P5 Governance Pack, Release Note, Release v4 Package & Assurance Response | — | Lab Rule & Evidence Ledger, P1 System Map, P2 Attack Casebook, P3 Control Set, P4 Watch Plan, P5 Governance Pack, Release Note, Release v4 Package & Assurance Response | AI Assurance Testing (AI Red Team), AI Controls Engineering (AI Defender) | AI Assurance Testing (AI Red Team), AI Controls Engineering (AI Defender) |
+

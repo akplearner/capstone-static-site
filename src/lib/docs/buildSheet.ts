@@ -8,8 +8,9 @@
  * fails when a picture changed without regenerating.
  */
 import type { CourseDto } from '../content/dto';
-import { weekVisualsOf } from '../content/read';
+import { deliverablesOf, weekVisualsOf } from '../content/read';
 import { weekAdds } from '../weekAdds';
+import { roleFlow } from './roleFlow';
 
 const cell = (s: string) => s.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
 
@@ -37,6 +38,20 @@ export function buildSheet(doc: CourseDto): string {
     if (v.process) {
       out.push(`**Process — ${cell(v.process.title)}:** ${v.process.steps.map((s) => `${s.from} → ${s.to} (${cell(s.label)})`).join('; ')}.`, '');
     }
+  }
+  // R105: the roles, derived from the RACI — the same rows the Guide's table shows.
+  const defs = deliverablesOf(doc);
+  const title = (id: string) => defs.find((d) => d.id === id)?.title ?? id;
+  const roleName = (id: string) => course.roles.find((r) => r.id === id)?.name ?? id;
+  const flow = roleFlow(course.roles, defs);
+  if (flow.rows.length) {
+    out.push('## The roles', '', '| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |', '| --- | --- | --- | --- | --- | --- | --- |');
+    for (const r of flow.rows) {
+      const list = (ids: string[]) => (ids.length ? ids.map(title).map(cell).join(', ') : '—');
+      const who = (ids: string[]) => (ids.length ? ids.map(roleName).map(cell).join(', ') : '—');
+      out.push(`| ${cell(r.role.name)} | ${cell(r.role.mission)} | ${list(r.drafts)} | ${list(r.reviews)} | ${list(r.approves)} | ${who(r.handsTo)} | ${who(r.waitsOn)} |`);
+    }
+    out.push('');
   }
   return out.join('\n');
 }

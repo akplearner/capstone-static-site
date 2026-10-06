@@ -173,11 +173,13 @@ off the course document, so the overview is as short as the data and cannot drif
 |---|---|---|---|
 | Course description (the lede) | `Course.description` | ≤ 40 words | `content-integrity.test.ts` R104 |
 | Role mission (one table cell) | `RoleDef.mission` | ≤ 15 words | same |
-| Role guide blurb (join picker) | `roleGuide.ts` | ≤ 20 words | same |
-| Role guide arc | `roleGuide.ts` | ≤ 25 words; `handsOffTo` / `waitsOnFrom` ≤ 14 | same |
+| Role name | `RoleDef.name` | `Function (Role)`, no decorated label | `content-integrity.test.ts` R105 |
+| Role summary (join picker, Home) | `docs/roles.ts` → `content.roles` | ≤ 20 words | same |
+| Role arc | `docs/roles.ts` | ≤ 25 words | same |
+| Responsibilities | `docs/roles.ts` | three or four, ≤ 6 words each | same |
 | Week title | `WeekDef.title` | ≤ 10 words; objective labels ≤ 12 | same; `WeekObjective` |
-| The roles | the RACI on every form (`raci.ts`) + the role guide | one `RoleTable`: mission · works in · drafts · reviews · approves · hands to · waits on | `page-shape.test.ts` R104 |
-| The hand-offs | the RACI + `feeds` (`roleFlow.ts`) | one `RoleFlowDiagram`: an arrow per direction, weighted by documents, read aloud as sentences | same |
+| The roles | the RACI on every form (`raci.ts`) + `content.roles` | one `RoleTable`: function · title · mission · works in · drafts · reviews · approves · hands to · waits on | `page-shape.test.ts` R104/R105 |
+| The hand-offs | the RACI + `feeds` (`roleFlow.ts`) | one `RoleFlowDiagram`: a line per direction and kind, weighted by documents, read aloud as sentences | same |
 | The arc | `Course.weeks` + gates | one `WeekGoals` list | `page-shape.test.ts` (one arc) |
 | The Guide's own prose | `guide/page.tsx` | < 170 words; no Collapsible; no mission cards | `page-shape.test.ts` |
 
@@ -186,6 +188,41 @@ information (the old radial "roles around a hub"); a paragraph that counts what 
 counts; a second rendering of the mission, the arc or the hand-offs on the same page.
 When a role fact is needed on a new screen, add a column to `RoleTable` or an edge kind to
 `roleFlow()`; never type it beside the markup.
+
+### Role content and motion (R105)
+
+Role facts have one home each, and nothing is typed twice:
+
+| Fact | Home | Who edits it |
+|---|---|---|
+| id, name, mission, colour, icon | the seed's `RoleDef` | the instructor, in RolesEditor |
+| summary, responsibilities, works (commands · documents · both), arc | `src/lib/docs/roles.ts` → `content.roles.PROFILES`, one per role in the seed's order | the content author |
+| who drafts, reviews, approves; hands to / waits on; the weighted hand-off arrows | **derived** by `roleFlow(roles, deliverables)` from the RACI and `feeds` on every form | nobody — it is a projection |
+| the motion of the role pictures | `content.roles.MOTION` — `{ stagger, draw, ease }`, every value a token name of `src/lib/motion.ts` | the content author |
+| the labels the pictures print (works, edge kinds, how to read) | `content.roles.WORKS_LABEL / WORKS_SHORT / FLOW_KIND_LABEL / FLOW_HOW_TO_READ` | the content author |
+
+**The register.** Every role is named `Function (Role)`: the function is what the lane does and
+is drawn in the box and bold in the table; the parenthesised title is the professional role, set
+small beneath it (`splitRoleName()`). Missions, summaries, arcs and responsibilities are third
+person, present tense, with the lane as the subject: no "you", no contractions, no em dash, no
+emoji. `content-integrity.test.ts` asserts the shape and the register for all 13 courses.
+
+**Motion as data.** A picture never carries a number of its own: `resolveRoleMotion(spec,
+reduce)` (`src/lib/roleMotion.ts`) turns the spec into framer transitions from `DUR`/`EASE`,
+caps every delay at `DUR.meter`, and under reduced motion returns `on: false` with every
+duration zero, so boxes and lines render whole from the first frame. Draw-ins run on a mask
+path so a line's dash array (its kind) survives the animation. No role picture loops.
+
+**Focus.** `useRoleFocus(defaultRole)` is the one interaction: the viewer's role starts in
+focus, a click or Enter on another role moves it, hover previews it, a second click clears it;
+elements that do not touch the focused role dim, they never disappear. The same hook drives the
+table rows and the picture, and call sites pass `key={member.role}` so a new viewer gets a new
+picture.
+
+**Adding a role fact.** Put it in the profile (or derive it in `roleFlow()`), regenerate with
+`npm run content:export`, give it a budget in content-integrity, and read it through
+`rolesOf(doc)`; never import a table from `roles.ts` into a component (`page-shape.test.ts`
+forbids it along with every other content module).
 
 **Agent-readiness without agent-coupling:** keep the API capability-scoped and resource-clean
 (REST/GraphQL). An MCP server becomes a *thin adapter* over that API later; A2A interop rides on the

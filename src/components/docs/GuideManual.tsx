@@ -159,7 +159,7 @@ export function GuideManual({ course, member }: { course: Course; member: Member
     // roles sits in the orientation above.
     roles: (
       <Surface>
-        <RoleFlowDiagram course={course} highlightRole={member.role} />
+        <RoleFlowDiagram key={member.role} course={course} highlightRole={member.role} />
       </Surface>
     ),
     lifecycle: <CaseLifecycleChain stages={course.lifecyclePath ?? []} />,

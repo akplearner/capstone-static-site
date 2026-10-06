@@ -20,6 +20,9 @@ import { useRarity } from './useRarity';
 import { EngagementStatus } from '@/components/team/EngagementStatus';
 import { EngagementBanner } from '@/components/team/EngagementBanner';
 import { RoleIcon } from '@/components/team/RoleIcon';
+import { useCourseDocument } from '@/lib/useCourse';
+import { rolesOf } from '@/lib/content/read';
+import { profileOf, splitRoleName } from '@/lib/docs/roles';
 import { TeamBlock } from '@/components/team/TeamBlock';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { ReviewInboxCard } from '@/components/docs/ReviewInboxCard';
@@ -91,6 +94,7 @@ export function HomeTab({
   /** After a reset the page forgets which tasks were open. */
   onReset: () => void;
 }) {
+  const roleContent = rolesOf(useCourseDocument());
   const joined = !!member;
   const [confirmingReset, setConfirmingReset] = useState(false);
   const rarityOf = useRarity(course, member, taskStats, cohortCal);
@@ -286,10 +290,12 @@ export function HomeTab({
             <div className="flex items-center gap-3">
               <RoleIcon iconName={ownRole.icon} className="h-9 w-9 shrink-0" color={ownRole.color} />
               <div>
-                <div className="text-lg font-semibold text-ink">You&apos;re {ownRole.name}</div>
+                <div className="text-lg font-semibold text-ink">{splitRoleName(ownRole.name).fn}</div>
                 <div className="text-sm text-muted">
+                  {splitRoleName(ownRole.name).tag && <>{splitRoleName(ownRole.name).tag} · </>}
                   {phaseTag(course, activeWeek)} of {contentWeeks.length}
                 </div>
+                {profileOf(roleContent.PROFILES, ownRole.id) && <p className="mt-1 max-w-xl text-sm text-body">{profileOf(roleContent.PROFILES, ownRole.id)!.summary}</p>}
               </div>
             </div>
             {!nextTask && (

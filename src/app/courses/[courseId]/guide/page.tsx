@@ -81,7 +81,7 @@ export default function CourseGuidePage() {
               {course.roles.length} lanes against one shared environment; the counts are documents.
             </p>
           </div>
-          <RoleTable course={course} highlightRole={member.role} />
+          <RoleTable key={member.role} course={course} highlightRole={member.role} />
         </section>
       )}
 

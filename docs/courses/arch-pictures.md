@@ -79,11 +79,16 @@ The chain itself (`feeds`) is guarded per course: no edge points back in
 time, no document is a dead end, every document reaches the capstone, and
 every form is written by at least one step.
 
-## The roles (R104)
+## The roles (R104/R105)
 
 The Guide shows the roles as one table and the manual draws the hand-offs as
 one picture, both derived from the RACI above and the `feeds` chain
 (`src/lib/docs/roleFlow.ts`): what each role drafts, reviews and approves, who
-it hands to and waits on, and how many documents cross each way. The
-Overview standard in `docs/ARCHITECTURE.md` §6 sets the word budgets for the
-description, missions, role guides and week titles that these tables print.
+it hands to and waits on, and how many documents cross each way. The picture
+draws a line per direction and kind — review solid, approve dashed, feeds
+dotted — with a legend, and the viewer's role in focus (click another to move
+it). Each role's profile (summary, responsibilities, how it works, its arc)
+and the motion of the pictures live in the document's `content.roles`
+(`src/lib/docs/roles.ts`); the Overview standard and the role content
+standard in `docs/ARCHITECTURE.md` §6 set the register and the word budgets.
+Every build sheet ends with the course's role table.

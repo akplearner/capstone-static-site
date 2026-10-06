@@ -122,3 +122,12 @@ This week adds:
 
 **Process — Run it as a fleet:** opsVm → websrv (playbook, idempotent); host → core (metrics · backups → PBS); core → host (rebuild from Git).
 
+## The roles
+
+| Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
+| --- | --- | --- | --- | --- | --- | --- |
+| Networking (Network Lead) | Leads the network record: cabling, addressing, topology and the connectivity proof. | Architecture Brief, Rack, Power & Asset Register, IP Plan & Connectivity Proof | Hardware Discovery, HCL & Upgrade Plan, Baselines, Policies & Standards, DR Plan & As-Built Handover | — | Windows Platform (Windows Lead), Project Records (Management Lead) | Linux Platform (Linux Lead), Project Records (Management Lead) |
+| Windows Platform (Windows Lead) | Leads the Windows record: the Server VM, its roles, patching and its restore. | Server Bring-Up Log, Operations Log & SOPs | Architecture Brief, Rack, Power & Asset Register, IP Plan & Connectivity Proof | — | Linux Platform (Linux Lead), Project Records (Management Lead) | Networking (Network Lead) |
+| Linux Platform (Linux Lead) | Leads the Linux record: the hypervisor, the Linux VM, services and snapshots. | Hardware Discovery, HCL & Upgrade Plan, Baselines, Policies & Standards | Server Bring-Up Log, Operations Log & SOPs | — | Networking (Network Lead), Project Records (Management Lead) | Windows Platform (Windows Lead) |
+| Project Records (Management Lead) | Leads the records that outlive the build: requirements, assets, change control, handover. | DR Plan & As-Built Handover | — | Architecture Brief, Hardware Discovery, HCL & Upgrade Plan, Server Bring-Up Log, Rack, Power & Asset Register, IP Plan & Connectivity Proof, Baselines, Policies & Standards, Operations Log & SOPs, DR Plan & As-Built Handover | Networking (Network Lead) | Networking (Network Lead), Windows Platform (Windows Lead), Linux Platform (Linux Lead) |
+

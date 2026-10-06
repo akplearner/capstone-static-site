@@ -882,8 +882,8 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/diagrams/WeekBuildDiagram.tsx', 'weekVisualsOf'],
     ['src/components/diagrams/ArchDiagram.tsx', 'archOf'],
     ['src/components/course/WeekAddsList.tsx', 'weekVisualsOf'],
-    ['src/components/docs/RoleTable.tsx', 'deliverablesOf'],
-    ['src/components/diagrams/RoleFlowDiagram.tsx', 'deliverablesOf'],
+    ['src/components/docs/RoleTable.tsx', 'rolesOf'],
+    ['src/components/diagrams/RoleFlowDiagram.tsx', 'rolesOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -925,6 +925,7 @@ describe('R75-B — the content is not in the components', () => {
       'src/lib/docs/securityContent.ts',
       'src/lib/docs/troubleshooting.ts',
       'src/lib/docs/manual.ts',
+      'src/lib/docs/roles.ts',
     ];
     for (const m of modules) {
       const src = code(m).replace(/\/\*[\s\S]*?\*\//g, '');
@@ -1188,7 +1189,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -2196,5 +2197,59 @@ describe('R104 — the overview is a table and a picture', () => {
     expect(arch).toContain('### Overview standard (R104)');
     for (const rule of ['≤ 40', '≤ 15', '≤ 20', '≤ 25', 'RoleTable', 'RoleFlowDiagram']) expect(arch, rule).toContain(rule);
     expect(read('docs/courses/arch-pictures.md')).toContain('Overview standard');
+  });
+});
+
+/**
+ * R105 — the roles are one section, one register and one motion scale.
+ * Profiles and the motion spec live in `content.roles`; every role is named
+ * Function (Role) with no decorated label; the table, the picture, the
+ * picker and the Home surface read the section; the picture draws from
+ * the motion scale only and goes still under reduced motion.
+ */
+describe('R105 — roles: one section, one register, one motion scale', () => {
+  it('the section replaces the role guide and every consumer reads it from the document', () => {
+    expect(existsSync('src/lib/roleGuide.ts')).toBe(false);
+    const dto = code('src/lib/content/dto.ts');
+    expect(dto).toContain('content.roles = contentData(');
+    expect(dto).not.toContain('roleGuide');
+    expect(code('src/lib/content/read.ts')).toContain('export function rolesOf');
+    for (const f of ['src/components/docs/RoleTable.tsx', 'src/components/diagrams/RoleFlowDiagram.tsx', 'src/components/course/JoinPanel.tsx', 'src/components/course/HomeTab.tsx']) {
+      expect(code(f), f).toContain('rolesOf(useCourseDocument())');
+    }
+    expect(code('src/lib/types.ts')).not.toContain('label?: string;    //');
+    for (const f of readdirSync('src/lib/data/seed').filter((f) => f.endsWith('.ts'))) {
+      expect(code(`src/lib/data/seed/${f}`), `${f} carries a decorated label`).not.toMatch(/label: '[^\x00-\x7F]/);
+    }
+  });
+
+  it('no nickname survives anywhere in the source or the hand-written docs', () => {
+    const files = [...collectSourceFiles('src'), ...readdirSync('docs').filter((f) => f.endsWith('.md')).map((f) => `docs/${f}`), ...readdirSync('docs/courses').filter((f) => f.endsWith('.md')).map((f) => `docs/courses/${f}`), 'README.md', 'content/README.md'];
+    const offenders = files.filter((f) => !f.endsWith('roles.test.ts') && /Runners|Wardens|Fixers/.test(read(f)));
+    expect(offenders).toEqual([]);
+  });
+
+  it('the picture draws from the motion scale, honours reduced motion and is focusable', () => {
+    const flow = code('src/components/diagrams/RoleFlowDiagram.tsx');
+    for (const needle of ['strokeDasharray', 'legend=', 'useRoleFocus(', 'data-focus', 'resolveRoleMotion(', 'useReducedMotionSafe()', 'aria-pressed', 'onKeyDown']) expect(flow, needle).toContain(needle);
+    expect(flow, 'seconds come only from tokens').not.toMatch(/duration:\s*0?\.\d/);
+    expect(flow).not.toContain('repeat: Infinity');
+    const table = code('src/components/docs/RoleTable.tsx');
+    for (const needle of ['splitRoleName(', 'resolveRoleMotion(', 'useRoleFocus(', 'data-focus']) expect(table, needle).toContain(needle);
+    const resolver = code('src/lib/roleMotion.ts');
+    expect(resolver).toMatch(/DUR\[|DUR\./);
+    expect(resolver, 'no decimal of its own').not.toMatch(/\b0?\.\d+\b/);
+    expect(code('src/components/course/JoinPanel.tsx')).toContain('profile.responsibilities');
+    expect(code('src/lib/docs/package.ts')).toContain('roleFlow(meta.roles');
+  });
+
+  it('the standard is written down', () => {
+    const arch = read('docs/ARCHITECTURE.md');
+    expect(arch).toContain('### Role content and motion (R105)');
+    expect(arch).toContain('Function (Role)');
+    const readme = read('content/README.md');
+    expect(readme).toContain('content.roles');
+    expect(readme).toContain('## Adding a section');
+    expect(read('docs/OPERATIONS.md')).toContain('(R105)');
   });
 });
