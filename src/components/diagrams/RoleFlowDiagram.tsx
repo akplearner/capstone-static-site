@@ -72,7 +72,7 @@ export function RoleFlowDiagram({ course, highlightRole }: { course: Course; hig
     const cy = forward ? y - 2 * h : y + 2 * h;
     return { path: `M${x1} ${y} Q${(x1 + x2) / 2} ${cy} ${x2} ${y}`, apex: { x: (x1 + x2) / 2, y: forward ? y - h : y + h } };
   };
-  const breakdown = (p: RoleFlowPair) => p.edges.map((e) => `${e.ids.length} ${content.FLOW_KIND_LABEL[e.kind].toLowerCase()}`).join(' · ');
+  const breakdown = (p: RoleFlowPair) => p.edges.map((e) => `${content.FLOW_KIND_LABEL[e.kind].toLowerCase()} ${e.ids.length}`).join(' · ');
   const pillW = (p: RoleFlowPair) => Math.max(44, breakdown(p).length * 4.6 + 16);
   const sentences = describeRoleFlow(flow, name);
   const onKey = (id: string) => (e: KeyboardEvent<SVGGElement>) => {
