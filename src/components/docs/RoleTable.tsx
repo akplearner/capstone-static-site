@@ -2,7 +2,8 @@
 
 import type { Course } from '@/lib/types';
 import { roleFlow } from '@/lib/docs/roleFlow';
-import { deliverablesOf, roleGuidesOf } from '@/lib/content/read';
+import { deliverablesOf, rolesOf } from '@/lib/content/read';
+import { profileOf } from '@/lib/docs/roles';
 import { useCourseDocument } from '@/lib/useCourse';
 import { RoleIcon } from '@/components/team/RoleIcon';
 
@@ -13,12 +14,9 @@ import { RoleIcon } from '@/components/team/RoleIcon';
  * guide), so the overview is as short as the data. Replaces the mission
  * cards and the "what you owe" paragraph.
  */
-const WORKS: Record<string, string> = { commands: 'Commands', documents: 'Documents', both: 'Both' };
-
 export function RoleTable({ course, highlightRole }: { course: Course; highlightRole?: string }) {
-  const doc = useCourseDocument();
+  const roles = rolesOf(useCourseDocument());
   const defs = deliverablesOf(useCourseDocument());
-  const guides = roleGuidesOf(doc);
   const flow = roleFlow(course.roles, defs);
   const title = (id: string) => defs.find((d) => d.id === id)?.title ?? id;
   const name = (id: string) => course.roles.find((r) => r.id === id)?.name ?? id;
@@ -42,7 +40,7 @@ export function RoleTable({ course, highlightRole }: { course: Course; highlight
         </thead>
         <tbody>
           {flow.rows.map((row) => {
-            const guide = guides[row.role.id];
+            const profile = profileOf(roles.PROFILES, row.role.id);
             const mine = highlightRole === row.role.id;
             return (
               <tr key={row.role.id} data-role-row={row.role.id} aria-current={mine ? 'true' : undefined} className={`border-t border-line align-top ${mine ? 'bg-accent-soft/40' : ''}`}>
@@ -53,7 +51,7 @@ export function RoleTable({ course, highlightRole }: { course: Course; highlight
                   </span>
                 </th>
                 <td className="px-3 py-2 text-body">{row.role.mission}</td>
-                <td className="whitespace-nowrap px-3 py-2 text-muted">{guide ? WORKS[guide.works] : '–'}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-muted">{profile ? roles.WORKS_SHORT[profile.works] : '–'}</td>
                 <td className="px-3 py-2 text-center">{count(row.drafts)}</td>
                 <td className="px-3 py-2 text-center">{count(row.reviews)}</td>
                 <td className="px-3 py-2 text-center">{count(row.approves)}</td>

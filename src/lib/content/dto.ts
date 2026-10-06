@@ -62,8 +62,7 @@ import * as cisspContent from '@/lib/docs/cisspContent';
 import { weekVisualsFor } from '@/lib/docs/weekVisuals';
 import type { BuildModel } from '@/lib/weekVisual';
 import type { ArchPicture } from '@/lib/docs/archPicture';
-import { roleGuidesFor } from '@/lib/roleGuide';
-import type { RoleGuide } from '@/lib/roleGuide';
+import { FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_SHORT, roleContentFor } from '@/lib/docs/roles';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
@@ -119,8 +118,6 @@ export interface CourseDto {
   labAccess?: Record<string, unknown>;
   iacTools?: Record<string, unknown>;
   marking?: { teamWeight: number; focusWeight: number };
-  /** The role guides written for this course, keyed by role id (R78-D). */
-  roleGuide?: Record<string, Serialisable<RoleGuide>>;
 }
 
 /**
@@ -322,6 +319,11 @@ export function courseDto(courseId: string): CourseDto {
   // the same thing from the document.
   generatedFrom.push('src/lib/docs/weekVisuals.ts');
   content.weekVisuals = weekVisualsFor(course, cloud ? { topology: cloud.topology, block: cloud.block } : undefined);
+  // R105: the roles' profiles and their motion spec, with the labels the role
+  // pictures print — one section, every course, so the table, the hand-off
+  // picture and the join picker read the same words.
+  generatedFrom.push('src/lib/docs/roles.ts');
+  content.roles = contentData({ ...roleContentFor(courseId), WORKS_LABEL, WORKS_SHORT, FLOW_KIND_LABEL, FLOW_HOW_TO_READ });
   // The chain-of-custody columns and rules: every course's evidence guide
   // renders them, and until R78-D no document carried them.
   generatedFrom.push('src/lib/docs/custodyTemplate.ts');
@@ -339,8 +341,6 @@ export function courseDto(courseId: string): CourseDto {
   generatedFrom.push('src/lib/glossary.ts', 'src/lib/rubric.ts');
   dto.glossary = serialisable(GLOSSARY);
   dto.marking = { teamWeight: TEAM_WEIGHT, focusWeight: FOCUS_WEIGHT };
-  generatedFrom.push('src/lib/roleGuide.ts');
-  dto.roleGuide = serialisable(roleGuidesFor(courseId));
   if (hasLabAccess(courseId)) {
     generatedFrom.push('src/lib/labAccess.ts');
     dto.labAccess = serialisable(labProfile(courseId) as unknown as Record<string, unknown>);

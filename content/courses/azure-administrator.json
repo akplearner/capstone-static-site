@@ -8,11 +8,11 @@
     "src/lib/cloud/azureIac.ts",
     "src/lib/cloud/workflows.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -5093,6 +5093,79 @@
         "caption": "New: the backup protection — soft delete on Azure, a daily AWS Backup plan. Snapshot, restore, time it, and recover a deleted file."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "press",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "arch",
+          "summary": "Sets the standards, owns the cost and the design, and assembles each week’s document.",
+          "responsibilities": [
+            "Standards and budget",
+            "Architecture and cost",
+            "Access and network design",
+            "Infrastructure map and handover"
+          ],
+          "works": "documents",
+          "arc": "Standards and budget; architecture and cost; access and network design; infrastructure-as-code map; handover."
+        },
+        {
+          "id": "infra",
+          "summary": "Builds the network, the virtual machine, the data store and, later, the template that rebuilds them.",
+          "responsibilities": [
+            "Network and virtual machine",
+            "Database and alerts",
+            "Subnets, disks and snapshots",
+            "Template rebuild"
+          ],
+          "works": "commands",
+          "arc": "Network; virtual machine; database; alerts; subnets and disks; snapshots; infrastructure as code; rebuild from the template."
+        },
+        {
+          "id": "dev",
+          "summary": "Ships the website, the serverless API and the pipeline that deploys them.",
+          "responsibilities": [
+            "Repository and website",
+            "Serverless API",
+            "Identity and patching",
+            "Deploy from code"
+          ],
+          "works": "both",
+          "arc": "Repository; website; API; debugging; identity; patching; restores; deploy from code; CI/CD."
+        },
+        {
+          "id": "secops",
+          "summary": "Locks access down, proves what must fail does fail, and works the incidents.",
+          "responsibilities": [
+            "Firewall and access rules",
+            "Denial proofs",
+            "Incident and recovery drills",
+            "Identity federation and posture"
+          ],
+          "works": "both",
+          "arc": "Firewall; SSH from one address; CORS; incident; denials; no open ports; drills; OIDC; posture."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -5446,57 +5519,6 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
-      "works": "commands",
-      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
-      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
-      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
-    },
-    "blue": {
-      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
-      "works": "both",
-      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
-      "handsOffTo": "GRC (what you hardened and the incident write-up)",
-      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
-    },
-    "grc": {
-      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
-      "works": "documents",
-      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
-      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
-      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
-    },
-    "arch": {
-      "blurb": "Cloud Architect — you set the standards, own the cost and the design, and assemble each week’s document.",
-      "works": "documents",
-      "arc": "Standards & budget → architecture & cost → access & network design → IaC map → handover.",
-      "handsOffTo": "the whole team (the standard every resource follows)",
-      "waitsOnFrom": "nobody to start — each role fills its own section"
-    },
-    "infra": {
-      "blurb": "Infrastructure Admin — you build the network, the VM, the data store and, later, the template.",
-      "works": "commands",
-      "arc": "Network → VM → database → alerts → subnets & disks → snapshots → IaC → rebuild from the template.",
-      "handsOffTo": "App & DevOps (the resources they deploy onto)",
-      "waitsOnFrom": "nobody to start — your task stands alone each week"
-    },
-    "dev": {
-      "blurb": "App & DevOps — you ship the website, the serverless API and the pipeline that deploys them.",
-      "works": "both",
-      "arc": "Repo → website → API → debugging → identity → patching → restores → deploy from code → CI/CD.",
-      "handsOffTo": "Security & Ops (the endpoints to lock down)",
-      "waitsOnFrom": "nobody to start — your task stands alone each week"
-    },
-    "secops": {
-      "blurb": "Security & Ops — you lock access down, prove what must fail does fail, and work the incidents.",
-      "works": "both",
-      "arc": "Firewall → SSH from your IP → CORS → incident → denials → no open ports → drills → OIDC → posture.",
-      "handsOffTo": "the Architect (findings for the document)",
-      "waitsOnFrom": "nobody to start — your task stands alone each week"
-    }
   },
   "labAccess": {
     "fields": [

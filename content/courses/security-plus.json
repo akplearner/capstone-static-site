@@ -7,11 +7,11 @@
     "src/lib/docs/securityContent.ts",
     "src/lib/docs/cysaContent.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -7130,6 +7130,67 @@
         "caption": "New: the final report. No new traffic — the evidence becomes findings and recommendations."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "swap",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "red",
+          "summary": "Finds and proves the weaknesses in the in-scope hosts before a real attacker does.",
+          "responsibilities": [
+            "Reconnaissance and enumeration",
+            "Vulnerability discovery",
+            "Authorized exploitation with proof",
+            "Penetration test report"
+          ],
+          "works": "commands",
+          "arc": "Week 1 reconnaissance; Week 2 vulnerability discovery; Week 3 authorized attacks with evidence; Week 4 technical findings briefing."
+        },
+        {
+          "id": "blue",
+          "summary": "Hardens the hosts, watches for the attack and responds when it lands.",
+          "responsibilities": [
+            "Host hardening baseline",
+            "Detection engineering",
+            "Live detection and containment",
+            "Incident report"
+          ],
+          "works": "both",
+          "arc": "Week 1 hardens Ubuntu and Windows; Week 2 baseline capture and detections; Week 3 detects and contains the breach; Week 4 reports the incident."
+        },
+        {
+          "id": "grc",
+          "summary": "Sets the rules, scores the risk and turns the team’s work into the reports a client reads.",
+          "responsibilities": [
+            "Scope and rules of engagement",
+            "Asset inventory and risk register",
+            "Policy and response runbook",
+            "Final report and briefing"
+          ],
+          "works": "documents",
+          "arc": "Week 1 framework mapping and hardening standard; Week 2 risk register and vulnerability SOP; Week 3 response runbook and custody; Week 4 final report."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -7483,29 +7544,6 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
-      "works": "commands",
-      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
-      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
-      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
-    },
-    "blue": {
-      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
-      "works": "both",
-      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
-      "handsOffTo": "GRC (what you hardened and the incident write-up)",
-      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
-    },
-    "grc": {
-      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
-      "works": "documents",
-      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
-      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
-      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
-    }
   },
   "labAccess": {
     "fields": [

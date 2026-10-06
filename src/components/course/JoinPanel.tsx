@@ -8,9 +8,9 @@ import { SignInPanel } from '@/components/auth/SignInPanel';
 import { progressRepo } from '@/lib/data';
 import { useClientStore, EMPTY_ARRAY, EMPTY_OBJECT, notifyStore } from '@/lib/useClientStore';
 import { getRoleDef } from '@/lib/course-helpers';
-import { hasSpecificGuide, roleGuide, worksLabel } from '@/lib/roleGuide';
+import { profileOf } from '@/lib/docs/roles';
 import { useCourseDocument } from '@/lib/useCourse';
-import { roleGuidesOf } from '@/lib/content/read';
+import { rolesOf } from '@/lib/content/read';
 import { getMonthlyCohorts } from '@/lib/utils';
 import { composeTeamId, parseTeamId, teamLabel, type TeamMode } from '@/lib/team';
 import { LocalLegalDialog } from '@/components/legal/AgreementGate';
@@ -46,7 +46,7 @@ export function JoinPanel({
   const cap = course.teamCapacity ?? 0; // 0 = unlimited
   const teamIds = Array.from({ length: Math.max(1, teamCount) }, (_, i) => String(i + 1));
 
-  const guides = roleGuidesOf(useCourseDocument());
+  const roles = rolesOf(useCourseDocument());
   const [editing, setEditing] = useState(!member);
   const counts = useClientStore<Record<string, number>>(
     () => progressRepo.getTeamCounts(course.id),
@@ -358,18 +358,19 @@ export function JoinPanel({
                 <RoleIcon iconName={r.icon} className="mt-0.5 h-5 w-5 shrink-0" color={r.color} />
                 <span>
                   <span className="block font-medium text-ink">{r.name}</span>
-                  {/* The line that tells the roles APART: the authored role
-                      guide where one exists, else the role's mission. */}
-                  {hasSpecificGuide(guides, r.id) ? (
-                    <>
-                      <span className="block text-xs text-muted">{roleGuide(guides, r.id).blurb}</span>
-                      <span className="mt-0.5 block text-2xs text-muted">
-                        {worksLabel(roleGuide(guides, r.id).works)}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="block text-xs text-muted">{r.mission}</span>
-                  )}
+                  {/* The line that tells the roles APART: the role's profile
+                      where the document carries one, else its mission. */}
+                  {(() => {
+                    const profile = profileOf(roles.PROFILES, r.id);
+                    return profile ? (
+                      <>
+                        <span className="block text-xs text-muted">{profile.summary}</span>
+                        <span className="mt-0.5 block text-2xs text-muted">{roles.WORKS_LABEL[profile.works]}</span>
+                      </>
+                    ) : (
+                      <span className="block text-xs text-muted">{r.mission}</span>
+                    );
+                  })()}
                 </span>
               </button>
             ))}

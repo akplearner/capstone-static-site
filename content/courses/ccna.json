@@ -8,11 +8,11 @@
     "src/lib/docs/ccnaKit.ts",
     "src/lib/docs/ccnaDiagrams.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -5510,6 +5510,79 @@
         "caption": "Nothing new is built. Break it, run the incident, write the RCA, hand the network over."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "press",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "arch",
+          "summary": "Owns the requirements, the design and the addressing plan, and reviews every change for design fit.",
+          "responsibilities": [
+            "Kit register and requirements",
+            "High-level and low-level design",
+            "Second-building design",
+            "Network handover"
+          ],
+          "works": "documents",
+          "arc": "Week 0 kit and requirements; Week 1 discovery and design; Week 3 the second building; Week 8 handover of the network."
+        },
+        {
+          "id": "impl",
+          "summary": "Builds the switches, the VLANs, the routing and the wireless, and reviews the configuration itself.",
+          "responsibilities": [
+            "Switch bring-up",
+            "VLANs and inter-VLAN routing",
+            "Internet edge",
+            "Wireless build"
+          ],
+          "works": "commands",
+          "arc": "Week 1 first switches up; Week 2 departments cut and routed; Week 3 one way out to the internet; Week 4 WLANs on the air."
+        },
+        {
+          "id": "ops",
+          "summary": "Runs the network: monitoring, backups, tickets and change records, and reviews the rollback on every change.",
+          "responsibilities": [
+            "Resilience test",
+            "Source of truth and backups",
+            "Monitoring and NOC",
+            "Tickets and change records"
+          ],
+          "works": "both",
+          "arc": "Week 2 survives a pulled cable; Week 5 source of truth and backups; Week 6 small NOC and tickets; Week 8 works a real fault."
+        },
+        {
+          "id": "auto",
+          "summary": "Turns policy into access lists, hardens the management plane and configures from the source of truth.",
+          "responsibilities": [
+            "Access-list policy",
+            "Management-plane hardening",
+            "Network as data",
+            "Configuration from source"
+          ],
+          "works": "commands",
+          "arc": "Week 4 access lists and the management plane; Week 7 the network as data and configuration from the source of truth."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -5863,29 +5936,6 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
-      "works": "commands",
-      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
-      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
-      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
-    },
-    "blue": {
-      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
-      "works": "both",
-      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
-      "handsOffTo": "GRC (what you hardened and the incident write-up)",
-      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
-    },
-    "grc": {
-      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
-      "works": "documents",
-      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
-      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
-      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
-    }
   },
   "labAccess": {
     "fields": [

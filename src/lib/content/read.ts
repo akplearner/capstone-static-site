@@ -14,7 +14,8 @@
  */
 import type { CourseDto, Serialisable } from './dto';
 import type { DeliverableDef } from '@/lib/docs/types';
-import type { RoleGuide } from '@/lib/roleGuide';
+import { DEFAULT_MOTION, FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_SHORT, type RoleMotion, type RoleProfile, type RoleWorks } from '@/lib/docs/roles';
+import type { RoleFlowKind } from '@/lib/docs/roleFlow';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
 import type { BuildModel, WeekVisual } from '@/lib/weekVisual';
@@ -112,10 +113,25 @@ export function proceduresOf(doc: CourseDto): { weeks: ProcedureWeeks; procedure
   };
 }
 
-/** The role guides written for this course, keyed by role id. A role with no
- *  entry has no specific guide, and the join picker shows its mission instead. */
-export function roleGuidesOf(doc: CourseDto): Record<string, RoleGuide> {
-  return (doc.roleGuide ?? {}) as Record<string, RoleGuide>;
+/** R105: `content.roles` — the profiles, the motion spec and the labels. */
+export interface RolesContent {
+  PROFILES: RoleProfile[];
+  MOTION: RoleMotion;
+  WORKS_LABEL: Record<RoleWorks, string>;
+  WORKS_SHORT: Record<RoleWorks, string>;
+  FLOW_KIND_LABEL: Record<RoleFlowKind, string>;
+  FLOW_HOW_TO_READ: string;
+}
+
+/**
+ * The role content. `roles.ts` is a leaf module (it imports nothing at
+ * runtime), so taking its defaults here keeps the reader outside the writer's
+ * graph while an authored course without the section still gets the shared
+ * labels and motion — and no profiles, so every renderer falls back to the
+ * role's mission.
+ */
+export function rolesOf(doc: CourseDto): RolesContent {
+  return { PROFILES: [], MOTION: DEFAULT_MOTION, WORKS_LABEL, WORKS_SHORT, FLOW_KIND_LABEL, FLOW_HOW_TO_READ, ...section<Partial<RolesContent>>(doc, 'roles') };
 }
 
 export function glossaryOf(doc: CourseDto): Record<string, string> {

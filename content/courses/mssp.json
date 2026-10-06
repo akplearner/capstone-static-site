@@ -6,11 +6,11 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/msspContent.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -3846,6 +3846,67 @@
         "caption": "New: the evidence vault and the auditor. MTTD and MTTR are measured and the audit packet is handed over."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "swap",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "red",
+          "summary": "Tests the in-scope systems and hands the gaps to governance for the audit.",
+          "responsibilities": [
+            "Attack-surface assessment",
+            "Control threat modelling",
+            "Penetration test and retest",
+            "Attestation of closure"
+          ],
+          "works": "commands",
+          "arc": "Phase 1 attack-surface assessment; Phase 2 threat model of the controls; Phase 3 penetration test and retest; Phase 4 close-out and attestation."
+        },
+        {
+          "id": "blue",
+          "summary": "Stands up detections for the client and proves they work with measured response times.",
+          "responsibilities": [
+            "Logging and sensors",
+            "CIS baseline gap scan",
+            "Technical control implementation",
+            "Detection metrics"
+          ],
+          "works": "both",
+          "arc": "Phase 1 baseline gap scan; Phase 2 technical controls; Phase 3 detection engineering; Phase 4 detection and response metrics."
+        },
+        {
+          "id": "grc",
+          "summary": "Owns the scope, the risk, the controls and the evidence spine the auditor reads.",
+          "responsibilities": [
+            "Engagement and statement of applicability",
+            "Control matrix",
+            "Internal audit",
+            "Audit evidence packet"
+          ],
+          "works": "documents",
+          "arc": "Phase 1 risk assessment and statement of applicability; Phase 2 control matrix; Phase 3 validation and evidence; Phase 4 internal audit and evidence packet."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -4199,29 +4260,6 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "Offensive Security — you test the in-scope systems and feed the gaps to GRC.",
-      "works": "commands",
-      "arc": "Scope → attack-surface & validation testing → retest the fixes → evidence for the audit.",
-      "handsOffTo": "GRC (findings & retest results)",
-      "waitsOnFrom": "GRC (the signed scope)"
-    },
-    "blue": {
-      "blurb": "MDR / Detection & Response — you stand up detections and prove they work with real metrics.",
-      "works": "both",
-      "arc": "Baseline → implement controls & detections → validate & measure (MTTD/MTTR) → detection evidence.",
-      "handsOffTo": "GRC (control & detection evidence)",
-      "waitsOnFrom": "GRC (the Statement of Applicability)"
-    },
-    "grc": {
-      "blurb": "GRC / vCISO — you own scope, risk, controls, and the audit-evidence spine.",
-      "works": "documents",
-      "arc": "Engagement & SoA → control matrix → internal audit → assemble the evidence package.",
-      "handsOffTo": "Red & Blue (scope & controls) and the auditor (the evidence)",
-      "waitsOnFrom": "Red & Blue (findings & control evidence)"
-    }
   },
   "labAccess": {
     "fields": [

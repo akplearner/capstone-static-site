@@ -7,11 +7,11 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/cysaContent.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts"
   ],
   "course": {
@@ -8565,6 +8565,67 @@
         "caption": "New: the containment rule. Detect, investigate and contain the attack, then report it."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "swap",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "blue",
+          "summary": "Watches the alerts and decides what is real, what is noise and what to escalate.",
+          "responsibilities": [
+            "Sensor deployment and baseline",
+            "Alert triage",
+            "Known-vulnerability review",
+            "Incident detection"
+          ],
+          "works": "both",
+          "arc": "Week 1 deploys the sensor and writes the baseline; Week 2 triages the alerts; Week 3 reads the known vulnerabilities; Week 4 finds the incident."
+        },
+        {
+          "id": "grc",
+          "summary": "Digs into suspicious activity in logs and packets and proves what happened.",
+          "responsibilities": [
+            "Coverage validation",
+            "Investigation and packet capture",
+            "Scan validation",
+            "Attack timeline and debrief"
+          ],
+          "works": "both",
+          "arc": "Week 1 validates every data source; Week 2 investigates and captures packets; Week 3 scans from the attacker side; Week 4 attack timeline and debrief."
+        },
+        {
+          "id": "red",
+          "summary": "Contains the attack, keeps the evidence clean and writes the report leadership reads.",
+          "responsibilities": [
+            "Endpoint sensor deployment",
+            "Indicator database",
+            "Risk ranking and fix plan",
+            "Containment, evidence and report"
+          ],
+          "works": "both",
+          "arc": "Week 1 Windows sensor; Week 2 findings into indicators; Week 3 risk ranking and fix plan; Week 4 containment, evidence and report."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -8918,29 +8979,6 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "Tier 3 · Incident Responder — you contain the attack, keep the evidence clean, and write the report leadership reads.",
-      "works": "both",
-      "arc": "Wk1 deploy the agents → Wk2 turn findings into indicators → Wk3 rank the risk & fix plan → Wk4 contain, preserve evidence, and report.",
-      "handsOffTo": "leadership (the incident report & executive summary)",
-      "waitsOnFrom": "the SOC Analyst & Threat Hunter (alerts, indicators, timeline)"
-    },
-    "blue": {
-      "blurb": "Tier 1 · SOC Analyst — you watch the alerts and decide what’s real, what’s noise, and what to escalate.",
-      "works": "both",
-      "arc": "Wk1 stand up monitoring & baseline → Wk2 triage the alerts → Wk3 read the known vulnerabilities → Wk4 find the incident, mark its start.",
-      "handsOffTo": "the Threat Hunter (the alerts worth investigating)",
-      "waitsOnFrom": "nobody — you install and verify your own Ubuntu sensor"
-    },
-    "grc": {
-      "blurb": "Tier 2 · Threat Hunter — you dig into suspicious activity in logs and packets and prove what happened.",
-      "works": "both",
-      "arc": "Wk1 confirm every data source reports → Wk2 investigate & capture packets → Wk3 scan to confirm the weaknesses → Wk4 rebuild the attack timeline.",
-      "handsOffTo": "the Incident Responder (indicators & the timeline)",
-      "waitsOnFrom": "the SOC Analyst (the alerts to chase)"
-    }
   },
   "labAccess": {
     "fields": [

@@ -97,7 +97,9 @@ function sharedContent(): Pick<CourseDto, 'schema' | 'content' | 'glossary' | 'm
   const content = first?.content ?? {};
   return {
     schema: DTO_SCHEMA,
-    content: { manual: content.manual, custody: content.custody, troubleshooting: content.troubleshooting },
+    // R105: the role labels and motion are shared; the profiles are the
+    // course's own, so a bare document carries none.
+    content: { manual: content.manual, custody: content.custody, troubleshooting: content.troubleshooting, roles: { ...((content.roles as object | undefined) ?? {}), PROFILES: [] } },
     glossary: first?.glossary,
     marking: first?.marking,
   };

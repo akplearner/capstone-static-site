@@ -8,11 +8,11 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/serverDiagrams.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
     "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts",
     "src/lib/labAccess.ts",
     "src/lib/iacTool.ts"
   ],
@@ -14573,6 +14573,79 @@
         "caption": "New: the fleet’s Core services. Playbooks, central metrics and backups, and a rebuild from Git."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "press",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "net",
+          "summary": "Leads the network record: cabling, addressing, topology and the proof that it all connects.",
+          "responsibilities": [
+            "Cabling and port plan",
+            "Bridges and NIC mapping",
+            "Routing and published ports",
+            "Connectivity proof"
+          ],
+          "works": "both",
+          "arc": "Week 1 cabling and port plan; Week 2 bridges and NIC mapping; Week 3 routing and published ports; Week 4 recovery of the network path."
+        },
+        {
+          "id": "win",
+          "summary": "Leads the Windows record: the Server VM, its roles, its patching and its restore.",
+          "responsibilities": [
+            "Windows baseline",
+            "Directory, DNS and DHCP",
+            "Patching and restore",
+            "Operating procedures"
+          ],
+          "works": "both",
+          "arc": "Week 1 requirements; Week 2 baseline captured; Week 3 procedures, password policy and DHCP scope; Week 4 patching and the restore."
+        },
+        {
+          "id": "lnx",
+          "summary": "Leads the Linux record: the hypervisor, the Linux VM, its services and its snapshots.",
+          "responsibilities": [
+            "Firmware and virtualization",
+            "Hypervisor and Linux baseline",
+            "Networking and persistence",
+            "Allow-list and snapshot restore"
+          ],
+          "works": "both",
+          "arc": "Week 1 firmware and virtualization flags; Week 2 hypervisor and Linux baseline; Week 3 netplan and persistence; Week 4 allow-list and snapshot restore."
+        },
+        {
+          "id": "mgmt",
+          "summary": "Leads the records that outlive the build: requirements, assets, change control and the handover.",
+          "responsibilities": [
+            "Business requirements",
+            "Rack and asset record",
+            "Change control",
+            "As-built handover package"
+          ],
+          "works": "documents",
+          "arc": "Week 1 compliance and SLA mapping; Week 2 naming standard; Week 3 change control with an approver; Week 4 the numbers and the handover."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -14926,29 +14999,6 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
-      "works": "commands",
-      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
-      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
-      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
-    },
-    "blue": {
-      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
-      "works": "both",
-      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
-      "handsOffTo": "GRC (what you hardened and the incident write-up)",
-      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
-    },
-    "grc": {
-      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
-      "works": "documents",
-      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
-      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
-      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
-    }
   },
   "labAccess": {
     "fields": [

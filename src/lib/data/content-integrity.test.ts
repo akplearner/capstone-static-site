@@ -14,7 +14,7 @@ import { deliverableIdByTitle, deliverableIdByFile, seedDeliverablesForCourse as
 import { looksLikeConsoleOutput } from '../stepOutcome';
 import { isGradedWeek } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';
-import { roleGuidesFor } from '../roleGuide';
+import { profileOf, roleContentFor } from '../docs/roles';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -565,20 +565,21 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
     expect(words(guideText), 'shorten a week title, a phase, or a role mission').toBeLessThan(220);
   });
 
-  // ── R104: the overview standard (docs/ARCHITECTURE.md §6) ─────────────────
+  // ── R104/R105: the overview standard (docs/ARCHITECTURE.md §6) ────────────
   // The overview is a table and a picture; every string it prints has a word
-  // budget, so a sentence pasted into a description or a guide trips here.
-  it('R104: the description, missions and role guides keep to the overview budgets', () => {
+  // budget, so a sentence pasted into a description or a profile trips here.
+  it('R105: every role has a profile in the seed’s order, and the description, missions and profiles keep to the budgets', () => {
     expect(words(course.description), 'description ≤ 40 words').toBeLessThanOrEqual(40);
-    for (const r of course.roles) expect(words(r.mission), `${r.id} mission ≤ 15 words`).toBeLessThanOrEqual(15);
-    const guides = roleGuidesFor(course.id);
+    const { PROFILES } = roleContentFor(course.id);
+    expect(PROFILES.map((x) => x.id), 'a profile per role, in order').toEqual(course.roles.map((r) => r.id));
     for (const r of course.roles) {
-      const g = guides[r.id];
-      if (!g) continue;
-      expect(words(g.blurb), `${r.id} blurb ≤ 20 words`).toBeLessThanOrEqual(20);
-      expect(words(g.arc), `${r.id} arc ≤ 25 words`).toBeLessThanOrEqual(25);
-      expect(words(g.handsOffTo), `${r.id} handsOffTo ≤ 14 words`).toBeLessThanOrEqual(14);
-      expect(words(g.waitsOnFrom), `${r.id} waitsOnFrom ≤ 14 words`).toBeLessThanOrEqual(14);
+      expect(words(r.mission), `${r.id} mission ≤ 15 words`).toBeLessThanOrEqual(15);
+      const x = profileOf(PROFILES, r.id)!;
+      expect(words(x.summary), `${r.id} summary ≤ 20 words`).toBeLessThanOrEqual(20);
+      expect(words(x.arc), `${r.id} arc ≤ 25 words`).toBeLessThanOrEqual(25);
+      expect(x.responsibilities.length, `${r.id} three or four responsibilities`).toBeGreaterThanOrEqual(3);
+      expect(x.responsibilities.length, `${r.id} three or four responsibilities`).toBeLessThanOrEqual(4);
+      for (const line of x.responsibilities) expect(words(line), `${r.id}: "${line}" ≤ 6 words`).toBeLessThanOrEqual(6);
     }
     for (const w of course.weeks) expect(words(w.title), `week ${w.number} title ≤ 10 words`).toBeLessThanOrEqual(10);
   });

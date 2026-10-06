@@ -6,11 +6,11 @@
     "src/lib/docs/manual.ts",
     "src/lib/docs/cisspContent.ts",
     "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/roles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
-    "src/lib/rubric.ts",
-    "src/lib/roleGuide.ts"
+    "src/lib/rubric.ts"
   ],
   "course": {
     "id": "cissp",
@@ -7547,6 +7547,67 @@
         "caption": "New: the federal boundary and the plan. Basic safeguarding has evidence, the SP 800-171 gaps have dates, and the SSP is assembled."
       }
     ],
+    "roles": {
+      "FLOW_HOW_TO_READ": "One box per role and an arrow per direction that carries documents, weighted by their count. Select a role to show only its hand-offs.",
+      "FLOW_KIND_LABEL": {
+        "review": "Reviews",
+        "approve": "Approves",
+        "feeds": "Feeds"
+      },
+      "MOTION": {
+        "stagger": "swap",
+        "draw": "meter",
+        "ease": "out"
+      },
+      "PROFILES": [
+        {
+          "id": "govrisk",
+          "summary": "Writes governance, assets, risk and the maturity score, and assembles the system security plan.",
+          "responsibilities": [
+            "Governance and risk sheets",
+            "Supplier and migration proof",
+            "Control assessment",
+            "System security plan"
+          ],
+          "works": "documents",
+          "arc": "Week 1 governance and first score; Week 2 risk and metrics; Week 3 suppliers and migration; Week 4 categorization; Week 5 assessment; Week 6 SSP."
+        },
+        {
+          "id": "archnet",
+          "summary": "Designs the cloud, the network zones and the change pipeline, and proves them with scans.",
+          "responsibilities": [
+            "Architecture and network sheets",
+            "Cryptography and rule base",
+            "Pipeline and component proof",
+            "Federal mapping"
+          ],
+          "works": "both",
+          "arc": "Week 1 architecture and network; Week 2 cryptography and rules; Week 3 pipeline proof; Week 4 AI controls; Week 5 re-test; Week 6 federal mapping."
+        },
+        {
+          "id": "idops",
+          "summary": "Runs identity, access, logging, incident response and recovery, and proves each with a drill.",
+          "responsibilities": [
+            "Identity and operations sheets",
+            "Access, recovery and response",
+            "MFA and federation proof",
+            "Tabletop and incident reporting"
+          ],
+          "works": "both",
+          "arc": "Week 1 identity and operations; Week 2 access and recovery; Week 3 MFA and federation; Week 4 detection, restore; Week 5 tabletop; Week 6 reporting."
+        }
+      ],
+      "WORKS_LABEL": {
+        "commands": "Runs commands in a terminal.",
+        "documents": "Authors documents; no terminal needed.",
+        "both": "Runs commands and authors documents."
+      },
+      "WORKS_SHORT": {
+        "commands": "Commands",
+        "documents": "Documents",
+        "both": "Both"
+      }
+    },
     "custody": {
       "CUSTODY_COLUMNS": [
         "Evidence ID",
@@ -7900,49 +7961,5 @@
   "marking": {
     "teamWeight": 70,
     "focusWeight": 30
-  },
-  "roleGuide": {
-    "red": {
-      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
-      "works": "commands",
-      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
-      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
-      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
-    },
-    "blue": {
-      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
-      "works": "both",
-      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
-      "handsOffTo": "GRC (what you hardened and the incident write-up)",
-      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
-    },
-    "grc": {
-      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
-      "works": "documents",
-      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
-      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
-      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
-    },
-    "govrisk": {
-      "blurb": "Governance & Risk — policy, assets, risk and the maturity score: the program’s spine.",
-      "works": "both",
-      "arc": "Wk1 document → Wk2 specify and score → Wk3 suppliers and migration → Wk4 categorize → Wk5 assess → Wk6 federal-ready.",
-      "handsOffTo": "the customer and the contracting officer (evidence)",
-      "waitsOnFrom": "both teammates (their mappings and proofs)"
-    },
-    "archnet": {
-      "blurb": "Architecture & Network — the cloud design, the network zones and the change pipeline.",
-      "works": "both",
-      "arc": "Wk1 draw it → Wk2 crypto and rules → Wk3 prove pipeline, TLS, segmentation → Wk4 AI gateway → Wk5 re-test → Wk6 federal.",
-      "handsOffTo": "Governance (federal mappings for the SSP)",
-      "waitsOnFrom": "Governance (the asset inventory)"
-    },
-    "idops": {
-      "blurb": "Identity & Operations — identity, access, logging, incident response and recovery.",
-      "works": "both",
-      "arc": "Wk1 access and logging → Wk2 recovery targets → Wk3 MFA and federation → Wk4 detection and restore → Wk5 tabletop → Wk6 federal reporting.",
-      "handsOffTo": "Governance (incident reporting for the SSP)",
-      "waitsOnFrom": "Architecture (the zones to operate in)"
-    }
   }
 }

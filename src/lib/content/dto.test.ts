@@ -135,9 +135,13 @@ describe('the DTO exports the whole model, not a remembered subset', () => {
       const dto = courseDto(c.id);
       expect(Object.keys(dto.glossary ?? {}).length, `${c.id} glossary`).toBe(Object.keys(GLOSSARY).length);
       expect(dto.marking, `${c.id} marking`).toEqual({ teamWeight: 70, focusWeight: 30 });
-      // R78-D: the custody columns and the role guides reach every document.
+      // R78-D: the custody columns reach every document.
       expect(Object.keys((dto.content?.custody as object) ?? {}), `${c.id} custody`).toContain('CUSTODY_COLUMNS');
-      expect(Object.keys(dto.roleGuide ?? {}).length, `${c.id} role guides`).toBeGreaterThan(0);
+      // R105: the roles section — a profile per seed role, in the seed's order.
+      const roles = dto.content?.roles as { PROFILES: { id: string }[] };
+      expect(Object.keys(roles), `${c.id} roles keys`).toEqual(['FLOW_HOW_TO_READ', 'FLOW_KIND_LABEL', 'MOTION', 'PROFILES', 'WORKS_LABEL', 'WORKS_SHORT']);
+      expect(roles.PROFILES.map((x) => x.id), `${c.id} role profiles`).toEqual(c.roles.map((r) => r.id));
+      expect(dto.generatedFrom).toContain('src/lib/docs/roles.ts');
     }
   });
 
