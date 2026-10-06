@@ -226,6 +226,12 @@ const LAB_PROFILES: Record<string, LabProfile> = {
     intro:
       'Say whether you are emulating or on real hardware, and give the management address you actually set. Your Week-0 register decides which procedure each week hands you. Saved to your account, visible only to you.',
   },
+  // R101: both Ridgeline courses run against a shared lab stand-in (one
+  // open-weight model, or containers on one machine), so there is no per-team
+  // address a command fills in. An empty profile skips the panel rather than
+  // offering the Security+ target/attacker fields, which mean nothing here.
+  'secai-plus': { fields: [], checks: [] },
+  cissp: { fields: [], checks: [] },
 };
 
 const CLOUD_PROFILE: LabProfile = {

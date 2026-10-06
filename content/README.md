@@ -8,6 +8,8 @@ One JSON document per course, generated from the TypeScript seeds:
 | `courses/cysa-plus.json` | CySA+ SOC | `src/lib/data/seed/cysa.ts` · `src/lib/docs/cysaDeliverables.ts` · `src/lib/labTopology.ts` |
 | `courses/mssp.json` | MSSP | `src/lib/data/seed/mssp.ts` · `src/lib/docs/msspDeliverables.ts` |
 | `courses/server-plus.json` | Server+ Build & Handover | `src/lib/data/seed/serverPlus.ts` · `src/lib/docs/serverPlusDeliverables.ts` · `src/lib/docs/serverProcedures.ts` · `src/lib/serverTopology.ts` |
+| `courses/secai-plus.json` | SecAI+ (CY0-001) | `src/lib/data/seed/secaiPlus.ts` · `src/lib/docs/secaiDeliverables.ts` · `src/lib/docs/secaiContent.ts` |
+| `courses/cissp.json` | CISSP | `src/lib/data/seed/cissp.ts` · `src/lib/docs/cisspDeliverables.ts` · `src/lib/docs/cisspContent.ts` |
 | `courses/index.json` | catalogue | counts per course |
 
 **The TypeScript is the source of truth.** Edit the seed, then regenerate:

@@ -22,6 +22,8 @@ import msspDoc from '../../../content/courses/mssp.json';
 import cysaDoc from '../../../content/courses/cysa-plus.json';
 import serverPlusDoc from '../../../content/courses/server-plus.json';
 import ccnaDoc from '../../../content/courses/ccna.json';
+import secaiDoc from '../../../content/courses/secai-plus.json';
+import cisspDoc from '../../../content/courses/cissp.json';
 import azureFundamentalsDoc from '../../../content/courses/azure-fundamentals.json';
 import azureAdministratorDoc from '../../../content/courses/azure-administrator.json';
 import azureDevopsDoc from '../../../content/courses/azure-devops.json';
@@ -36,6 +38,8 @@ export const SEED_DOCUMENTS: Record<string, CourseDto> = {
   'cysa-plus': cysaDoc as unknown as CourseDto,
   'server-plus': serverPlusDoc as unknown as CourseDto,
   ccna: ccnaDoc as unknown as CourseDto,
+  'secai-plus': secaiDoc as unknown as CourseDto,
+  cissp: cisspDoc as unknown as CourseDto,
   'azure-fundamentals': azureFundamentalsDoc as unknown as CourseDto,
   'azure-administrator': azureAdministratorDoc as unknown as CourseDto,
   'azure-devops': azureDevopsDoc as unknown as CourseDto,

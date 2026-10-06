@@ -520,6 +520,74 @@
   --color-w6: #56daf4;
 }
 
+/* R101 — SecAI+ (CompTIA region): a teal AI vein. */
+[data-seam='secai'] {
+  --color-accent: #0b7a6c;
+  --color-accent-strong: #0a7064;
+  --color-accent-ink: #085c52;
+  --color-accent-soft: #d7f5f0;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #19b8a6;
+  --color-w1: #0b7a6c;
+  --color-w2: #1f6fb0;
+  --color-w3: #b06a06;
+  --color-w4: #6b43c4;
+  --color-w5: #a60e4d;
+  --color-w6: #077183;
+  --color-w7: #5b6f03;
+  --color-w8: #980372;
+}
+.dark [data-seam='secai'] {
+  --color-accent: #4dd6c4;
+  --color-accent-strong: #76e3d4;
+  --color-accent-ink: #d2f8f2;
+  --color-accent-soft: #063c36;
+  --color-accent-contrast: #0a2420;
+  --stone-crystal: #5fe0cf;
+  --color-w1: #4dd6c4;
+  --color-w2: #66a7ff;
+  --color-w3: #ee9b0d;
+  --color-w4: #a98cff;
+  --color-w5: #fe96b7;
+  --color-w6: #56daf4;
+  --color-w7: #a6c000;
+  --color-w8: #f85ccf;
+}
+
+/* R101 — CISSP (ISC2 region): an indigo program vein. */
+[data-seam='cissp'] {
+  --color-accent: #4740c9;
+  --color-accent-strong: #3a33a8;
+  --color-accent-ink: #2f2a8c;
+  --color-accent-soft: #e6e5fb;
+  --color-accent-contrast: #ffffff;
+  --stone-crystal: #6f68e0;
+  --color-w1: #4740c9;
+  --color-w2: #1f6fb0;
+  --color-w3: #b06a06;
+  --color-w4: #7a2f9e;
+  --color-w5: #a60e4d;
+  --color-w6: #077183;
+  --color-w7: #5b6f03;
+  --color-w8: #980372;
+}
+.dark [data-seam='cissp'] {
+  --color-accent: #9a94ff;
+  --color-accent-strong: #b2adff;
+  --color-accent-ink: #e0ddff;
+  --color-accent-soft: #221c66;
+  --color-accent-contrast: #12102e;
+  --stone-crystal: #a9a3ff;
+  --color-w1: #9a94ff;
+  --color-w2: #66a7ff;
+  --color-w3: #ee9b0d;
+  --color-w4: #cf8ae7;
+  --color-w5: #fe96b7;
+  --color-w6: #56daf4;
+  --color-w7: #a6c000;
+  --color-w8: #f85ccf;
+}
+
 /* Regions whose courses are coming soon. They carry the full theme anyway, so a
    vendor reads as its own brand on Explore and the landing page today, and adding
    the capstone later is a data change rather than a CSS change. Each names a

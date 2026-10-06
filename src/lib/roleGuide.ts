@@ -54,6 +54,52 @@ const FALLBACK: RoleGuide = {
 // engagement; other courses reuse the same role ids with different meaning, so
 // give them their own blurbs (keyed by courseId → roleId).
 const BY_COURSE: Record<string, Record<string, RoleGuide>> = {
+  'secai-plus': {
+    redteam: {
+      blurb: 'AI Red Team — you test the Hub’s AI on your own instance and prove each case with evidence.',
+      works: 'both',
+      arc: 'Wk1 two cases → Wk2 six cases mapped → Wk3 automate the suite → Wk4 reproduce and four paper cases.',
+      handsOffTo: 'the AI Defender (what to block and log)',
+      waitsOnFrom: 'the Governance Lead (the signed lab rule)',
+    },
+    defender: {
+      blurb: 'AI Defender — you build the controls, logging and alerts that stop and catch each case.',
+      works: 'both',
+      arc: 'Wk1 close SA-1, log everything → Wk2 guardrails and redaction → Wk3 pipeline gates and alerts → Wk4 rebuild clean and hand over.',
+      handsOffTo: 'the Governance Lead (controls for the register)',
+      waitsOnFrom: 'the AI Red Team (the proven cases)',
+    },
+    governance: {
+      blurb: 'AI Governance Lead — you map the system, own the risks and rules, and sign each release.',
+      works: 'both',
+      arc: 'Wk1 map and sign v1 → Wk2 data and compliance → Wk3 shadow AI and accuracy → Wk4 accept risks and answer customers.',
+      handsOffTo: 'the customer (evidence-backed answers)',
+      waitsOnFrom: 'both teammates (cases and controls for the release)',
+    },
+  },
+  cissp: {
+    govrisk: {
+      blurb: 'Governance & Risk — policy, assets, risk and the maturity score: the program’s spine.',
+      works: 'both',
+      arc: 'Wk1 document → Wk2 specify and score → Wk3 suppliers and migration → Wk4 categorize → Wk5 assess → Wk6 federal-ready.',
+      handsOffTo: 'the customer and the contracting officer (evidence)',
+      waitsOnFrom: 'both teammates (their mappings and proofs)',
+    },
+    archnet: {
+      blurb: 'Architecture & Network — the cloud design, the network zones and the change pipeline.',
+      works: 'both',
+      arc: 'Wk1 draw it → Wk2 specify crypto and rules → Wk3 prove pipeline, TLS, segmentation → Wk4 AI gateway → Wk5 re-test → Wk6 map to federal.',
+      handsOffTo: 'Governance (federal mappings for the SSP)',
+      waitsOnFrom: 'Governance (the asset inventory)',
+    },
+    idops: {
+      blurb: 'Identity & Operations — identity, access, logging, incident response and recovery.',
+      works: 'both',
+      arc: 'Wk1 access and logging → Wk2 recovery targets → Wk3 MFA and federation → Wk4 detection and restore → Wk5 tabletop → Wk6 federal reporting.',
+      handsOffTo: 'Governance (incident reporting for the SSP)',
+      waitsOnFrom: 'Architecture (the zones to operate in)',
+    },
+  },
   'cysa-plus': {
     blue: {
       blurb: 'Tier 1 · SOC Analyst — you watch the alerts and decide what’s real, what’s noise, and what to escalate.',

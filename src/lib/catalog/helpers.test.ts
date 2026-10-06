@@ -20,11 +20,13 @@ import { CYSA_PLUS } from '../data/seed/cysa';
 import { MSSP } from '../data/seed/mssp';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
+import { SECAI_PLUS } from '../data/seed/secaiPlus';
+import { CISSP } from '../data/seed/cissp';
 import { AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_COURSES } from '../data/seed/awsCloud';
 import type { Course, Level } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
+const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 const COURSE_BY_ID = new Map(COURSES.map((c) => [c.id, c]));
 const LEVEL_IDS = new Set<Level>(LEVELS.map((l) => l.id));
 

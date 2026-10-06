@@ -1,6 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import type { Course } from '../types';
 import { SECURITY_PLUS } from '../data/seed/securityPlus';
+import { SECAI_PLUS } from '../data/seed/secaiPlus';
+import { CISSP } from '../data/seed/cissp';
 import { CYSA_PLUS } from '../data/seed/cysa';
 import { MSSP } from '../data/seed/mssp';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
@@ -35,7 +37,7 @@ const pictureIds = (c: Course): Set<string> => {
   return new Set(Object.keys(BUILD_MODELS[c.id].arrives));
 };
 
-const ALL: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
+const ALL: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 
 describe.each(ALL.map((c) => [c.id, c] as const))('R99 — what you build this week · %s', (id, course) => {
   const visuals: WeekVisual[] = weekVisualsFor(course, cloudOf(course));

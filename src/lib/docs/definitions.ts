@@ -5,6 +5,8 @@ import { MSSP_DELIVERABLES } from './msspDeliverables';
 import { CYSA_DELIVERABLES } from './cysaDeliverables';
 import { SERVER_PLUS_DELIVERABLES } from './serverPlusDeliverables';
 import { CCNA_DELIVERABLES } from './ccnaDeliverables';
+import { SECAI_DELIVERABLES } from './secaiDeliverables';
+import { CISSP_DELIVERABLES } from './cisspDeliverables';
 import { AZURE_CLOUD_DELIVERABLES } from './azureCloudDeliverables';
 import { AWS_CLOUD_DELIVERABLES } from './awsCloudDeliverables';
 import { EVIDENCE_NAMING, EVIDENCE_WORKING_DIR } from '../evidence';
@@ -749,6 +751,8 @@ export const DELIVERABLES: DeliverableDef[] = [
   ...CYSA_DELIVERABLES,
   ...SERVER_PLUS_DELIVERABLES,
   ...CCNA_DELIVERABLES,
+  ...SECAI_DELIVERABLES,
+  ...CISSP_DELIVERABLES,
   ...AZURE_CLOUD_DELIVERABLES,
   ...AWS_CLOUD_DELIVERABLES,
 ];

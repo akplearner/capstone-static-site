@@ -1,0 +1,3961 @@
+{
+  "schema": "capstone-course-dto/1",
+  "generatedFrom": [
+    "src/lib/data/seed/secaiPlus.ts",
+    "src/lib/docs/secaiDeliverables.ts",
+    "src/lib/docs/manual.ts",
+    "src/lib/docs/secaiContent.ts",
+    "src/lib/docs/weekVisuals.ts",
+    "src/lib/docs/custodyTemplate.ts",
+    "src/lib/docs/troubleshooting.ts",
+    "src/lib/glossary.ts",
+    "src/lib/rubric.ts",
+    "src/lib/roleGuide.ts"
+  ],
+  "course": {
+    "id": "secai-plus",
+    "title": "SecAI+ Capstone: Four Releases",
+    "slug": "secai-plus",
+    "vendor": "CompTIA",
+    "certification": "SecAI+ (CY0-001)",
+    "level": "professional",
+    "audience": "Secure an AI product end to end: attack it, defend it, watch it, govern it, release it.",
+    "description": "Secure the AI at the center of a facility-services company. Every week ships a complete release: attack cases with evidence, controls, monitoring, governance and a signed release note.",
+    "roles": [
+      {
+        "id": "redteam",
+        "name": "AI Red Team",
+        "mission": "Test the Hub’s AI on your own instance and prove each case.",
+        "color": "#dc2626",
+        "icon": "Bug",
+        "label": "🧪 AI Red Team"
+      },
+      {
+        "id": "defender",
+        "name": "AI Defender",
+        "mission": "Build the controls, logging and alerts that stop and catch each case.",
+        "color": "#2563eb",
+        "icon": "ShieldCheck",
+        "label": "🛡️ AI Defender"
+      },
+      {
+        "id": "governance",
+        "name": "AI Governance Lead",
+        "mission": "Map the system, own the risks and rules, and sign each release.",
+        "color": "#16a34a",
+        "icon": "ClipboardList",
+        "label": "📋 AI Governance Lead"
+      }
+    ],
+    "weeks": [
+      {
+        "number": 0,
+        "title": "Lab and ground rules",
+        "theme": "Agree the rules",
+        "objective": "Sign the lab rule, open the ledger, and capture the product as found.",
+        "setup": true,
+        "stage": 0,
+        "phase": "Set up",
+        "difficulty": 1,
+        "objectives": [
+          {
+            "id": "sign-the-lab-rule-and-open-the-ledger",
+            "label": "Sign the lab rule and open the ledger",
+            "tasks": [
+              "sa-w0-gov"
+            ]
+          },
+          {
+            "id": "run-the-hub-as-found",
+            "label": "Run the Service Hub stand-in as found",
+            "tasks": [
+              "sa-w0-def"
+            ]
+          },
+          {
+            "id": "capture-the-baseline",
+            "label": "Capture the baseline transcripts",
+            "tasks": [
+              "sa-w0-red"
+            ]
+          }
+        ],
+        "milestone": "Every member has signed the lab rule, the ledger is open, and five baseline transcripts are hashed into it."
+      },
+      {
+        "number": 1,
+        "title": "Release v1",
+        "theme": "Minimum viable security",
+        "objective": "Ship the smallest complete release: two attacks proven, blocked and logged, and no secret in a prompt.",
+        "stage": 1,
+        "phase": "Minimum viable security",
+        "difficulty": 2,
+        "objectives": [
+          {
+            "id": "map-the-system-and-sign-v1",
+            "label": "Map the system, write the rules, sign v1",
+            "tasks": [
+              "sa-w1-gov"
+            ]
+          },
+          {
+            "id": "prove-two-attack-cases",
+            "label": "Prove two attack cases with evidence",
+            "tasks": [
+              "sa-w1-red"
+            ]
+          },
+          {
+            "id": "close-sa-1-and-log-every-attempt",
+            "label": "Close SA-1 and log every attempt",
+            "tasks": [
+              "sa-w1-def"
+            ]
+          }
+        ],
+        "milestone": "2 attacks in the suite, 2 blocked, 2 found in the logs. No secret in any prompt. SA-1 closed, SA-6 flagged. Release note v1 signed, ledger clean."
+      },
+      {
+        "number": 2,
+        "title": "Release v2",
+        "theme": "Full coverage",
+        "objective": "Cover all six attack cases: guardrails, a scoped agent, redacted logs and owned alert thresholds.",
+        "stage": 2,
+        "phase": "Full coverage",
+        "difficulty": 3,
+        "objectives": [
+          {
+            "id": "six-cases-and-the-threat-model",
+            "label": "Six cases and a mapped threat model",
+            "tasks": [
+              "sa-w2-red"
+            ]
+          },
+          {
+            "id": "guard-scope-and-redact",
+            "label": "Guard the inputs, scope the agent, redact the logs",
+            "tasks": [
+              "sa-w2-def"
+            ]
+          },
+          {
+            "id": "map-the-data-and-the-rules",
+            "label": "Map the data and every rule that applies",
+            "tasks": [
+              "sa-w2-gov"
+            ]
+          }
+        ],
+        "milestone": "6 attacks in the suite, 4 or more blocked or contained, all 6 in the logs. The agent holds no admin right; no tenant names or access codes in logs. Release note v2 signed."
+      },
+      {
+        "number": 3,
+        "title": "Release v3",
+        "theme": "Automated and measured",
+        "objective": "Make the suite a pipeline test, alert on all six cases, and measure accuracy.",
+        "stage": 3,
+        "phase": "Automated and measured",
+        "difficulty": 3,
+        "objectives": [
+          {
+            "id": "gate-the-pipeline-and-alert",
+            "label": "Gate the pipeline and alert on every case",
+            "tasks": [
+              "sa-w3-def"
+            ]
+          },
+          {
+            "id": "automate-the-suite-and-check-ai-help",
+            "label": "Automate the suite and check AI-assisted work",
+            "tasks": [
+              "sa-w3-red"
+            ]
+          },
+          {
+            "id": "find-shadow-ai-and-audit-accuracy",
+            "label": "Find shadow AI and measure accuracy",
+            "tasks": [
+              "sa-w3-gov"
+            ]
+          }
+        ],
+        "milestone": "The 6-case suite runs in the pipeline; a removed guardrail blocks the build and one rollback is recorded. All 6 attempts alert. SA-7 closed. Release note v3 signed."
+      },
+      {
+        "number": 4,
+        "title": "Release v4",
+        "theme": "Proven and handed over",
+        "objective": "Rebuild clean, prove the same results, and hand customers evidence-backed answers.",
+        "stage": 4,
+        "phase": "Proven and handed over",
+        "difficulty": 3,
+        "objectives": [
+          {
+            "id": "rebuild-clean-and-hand-over",
+            "label": "Rebuild clean and hand over monitoring",
+            "tasks": [
+              "sa-w4-def"
+            ]
+          },
+          {
+            "id": "reproduce-and-add-paper-cases",
+            "label": "Reproduce the suite and add four paper cases",
+            "tasks": [
+              "sa-w4-red"
+            ]
+          },
+          {
+            "id": "accept-the-risks-and-answer-customers",
+            "label": "Accept the risks and answer the customers",
+            "tasks": [
+              "sa-w4-gov"
+            ]
+          }
+        ],
+        "milestone": "The rebuilt copy matches v3 and alerts on all 6. All 8 planted weaknesses closed or accepted in writing. The assurance response cites the ledger."
+      }
+    ],
+    "gates": [
+      {
+        "id": 1,
+        "week": 1,
+        "title": "Release v1 signed",
+        "description": "Two attacks proven, blocked and logged; no secret in any prompt; the CEO has signed the release note.",
+        "requiredArtifactTypes": [
+          "07_Release_Note.md"
+        ],
+        "requiredTasks": [
+          "sa-w1-gov",
+          "sa-w1-red",
+          "sa-w1-def"
+        ],
+        "handoffs": [
+          {
+            "from": "redteam",
+            "to": "defender",
+            "artifact": "Attack casebook",
+            "label": "Red Team → Defender: what to block and log"
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "week": 2,
+        "title": "Release v2 signed",
+        "description": "All six cases in the suite, four or more contained, all six logged; the agent holds no admin right.",
+        "requiredArtifactTypes": [
+          "04_Control_Set.md"
+        ],
+        "requiredTasks": [
+          "sa-w2-gov",
+          "sa-w2-red",
+          "sa-w2-def"
+        ],
+        "handoffs": [
+          {
+            "from": "defender",
+            "to": "governance",
+            "artifact": "Control set",
+            "label": "Defender → Governance: controls for the risk register"
+          }
+        ]
+      },
+      {
+        "id": 3,
+        "week": 3,
+        "title": "Release v3 signed",
+        "description": "The suite runs in the pipeline, a removed guardrail blocks the build, and every case alerts.",
+        "requiredArtifactTypes": [
+          "05_Watch_Plan.md"
+        ],
+        "requiredTasks": [
+          "sa-w3-gov",
+          "sa-w3-red",
+          "sa-w3-def"
+        ],
+        "handoffs": [
+          {
+            "from": "redteam",
+            "to": "defender",
+            "artifact": "Automated suite",
+            "label": "Red Team → Defender: the pipeline regression test"
+          }
+        ]
+      }
+    ],
+    "tasks": [
+      {
+        "id": "sa-w0-gov",
+        "role": "governance",
+        "week": 0,
+        "title": "Sign the lab rule and open the evidence ledger",
+        "objective": "Agree in writing that attacks run only on your own instance, and start the ledger every artifact is hashed into.",
+        "frameworks": [
+          "SECAI",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "01_Lab_Rule_and_Ledger.md"
+        ],
+        "estimatedTime": "30 min",
+        "learn": [
+          "Authorisation before testing",
+          "Why a hash plus a timestamp is evidence"
+        ],
+        "tools": [
+          "Git",
+          "sha256sum"
+        ],
+        "docs": [
+          {
+            "title": "NIST Cybersecurity Framework 2.0",
+            "url": "https://www.nist.gov/cyberframework",
+            "lookFor": "the function each step of the loop maps to"
+          }
+        ],
+        "definitionOfDone": [
+          "Lab rule signed by every member (R1)",
+          "Ledger repository opened (R2)"
+        ],
+        "handoff": [
+          {
+            "to": "redteam",
+            "artifact": "Signed lab rule",
+            "note": "No attack runs before every member has signed."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w0-gov-s1",
+            "title": "Sign the lab rule",
+            "description": "Record the boundary every attack stays inside.",
+            "instruction": "In the Lab Rule & Evidence Ledger form, name your team’s lab instance and have every member sign that attacks run only there.",
+            "usesForm": "Lab Rule & Evidence Ledger",
+            "whatItMeans": "Testing a system you do not own is illegal, however good the intent. The signed rule is the authorisation every later attack case rests on.",
+            "frameworks": [
+              "SECAI"
+            ]
+          },
+          {
+            "id": "sa-w0-gov-s2",
+            "title": "Open the evidence ledger",
+            "description": "A Git repository is the time-stamped record.",
+            "commands": [
+              {
+                "cmd": "git init ridgeline-evidence && cd ridgeline-evidence && git commit --allow-empty -m \"ledger opened\"",
+                "explain": "Creates the repository the ledger lives in and makes its first commit, so every later artifact has a dated place in history.",
+                "sample": "Initialized empty Git repository in /home/student/ridgeline-evidence/.git/\n[main (root-commit) 3f2a1c0] ledger opened"
+              }
+            ],
+            "whatItMeans": "Each commit is a timestamp nobody can quietly change. With a file hash per artifact, the ledger proves what existed and when.",
+            "frameworks": [
+              "NIST_CSF"
+            ],
+            "verify": [
+              "Initialized empty Git repository",
+              "ledger opened"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w0-def",
+        "role": "defender",
+        "week": 0,
+        "title": "Run the Service Hub stand-in as found",
+        "objective": "Bring up the assistant exactly as found, planted weaknesses included, so every later fix has a before.",
+        "frameworks": [
+          "SECAI"
+        ],
+        "deliverables": [],
+        "estimatedTime": "45 min",
+        "learn": [
+          "Open-weight models run locally",
+          "A system prompt is configuration, not a secret store"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "docs": [
+          {
+            "title": "Ollama Modelfile reference",
+            "url": "https://github.com/ollama/ollama/blob/main/docs/modelfile.md",
+            "lookFor": "SYSTEM and PARAMETER instructions"
+          }
+        ],
+        "definitionOfDone": [
+          "Model pulled and listed",
+          "Assistant created from the as-found Modelfile and answering"
+        ],
+        "steps": [
+          {
+            "id": "sa-w0-def-s1",
+            "title": "Pull a small open-weight model",
+            "description": "The lab model runs on the machine; no data leaves it.",
+            "commands": [
+              {
+                "cmd": "ollama pull llama3.2:3b && ollama list",
+                "explain": "Downloads a 3-billion-parameter model that runs in 16 GB of memory without a GPU, then lists what is installed.",
+                "sample": "NAME           ID              SIZE      MODIFIED\nllama3.2:3b    a80c4f17acd5    2.0 GB    5 seconds ago"
+              }
+            ],
+            "whatItMeans": "Production uses a third-party model API; the lab uses a local model so attacks and data stay on your machine.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "llama3.2:3b"
+            ]
+          },
+          {
+            "id": "sa-w0-def-s2",
+            "title": "Create the assistant as found",
+            "description": "The as-found system prompt, weaknesses included.",
+            "instruction": "Until Service Hub Lite ships, use the instructor’s as-found Modelfile. It carries the planted SA-1 prompt.",
+            "commands": [
+              {
+                "cmd": "ollama create hub-assistant -f Modelfile && ollama run hub-assistant \"Which filter does the RTU-40 take?\"",
+                "explain": "Builds the assistant from the as-found Modelfile, then asks it one ordinary question.",
+                "sample": "transferring model data\nusing existing layer sha256:dde5aa3fc5ff\ncreating new layer sha256:6c1e2f0a9b1d\nwriting manifest\nsuccess\nThe RTU-40 takes two 20x25x2 MERV 13 filters (manual section 4.2)."
+              }
+            ],
+            "whatItMeans": "Securing a system starts from what is actually running. Every control you add later is measured against this as-found copy.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "success"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w0-red",
+        "role": "redteam",
+        "week": 0,
+        "title": "Capture the baseline transcripts",
+        "objective": "Record five ordinary questions and answers from the product as found, and hash them into the ledger.",
+        "frameworks": [
+          "SECAI"
+        ],
+        "deliverables": [],
+        "estimatedTime": "30 min",
+        "prerequisites": [
+          "Lab rule signed by every member"
+        ],
+        "learn": [
+          "A baseline is what normal looks like",
+          "Hashing a transcript freezes it"
+        ],
+        "tools": [
+          "Ollama",
+          "sha256sum"
+        ],
+        "docs": [
+          {
+            "title": "Ollama Modelfile reference",
+            "url": "https://github.com/ollama/ollama/blob/main/docs/modelfile.md",
+            "lookFor": "SYSTEM and PARAMETER instructions"
+          }
+        ],
+        "definitionOfDone": [
+          "Five baseline transcripts saved (R3)",
+          "Their hashes appended to the ledger"
+        ],
+        "steps": [
+          {
+            "id": "sa-w0-red-s1",
+            "title": "Ask five ordinary questions",
+            "description": "Normal use, saved word for word.",
+            "instructionList": [
+              "Ask about a manual, a building record, a contract term, a work order and a schedule.",
+              "Save each answer as baseline-01.txt to baseline-05.txt."
+            ],
+            "commands": [
+              {
+                "cmd": "ollama run hub-assistant \"What does the RTU-40 maintenance schedule say?\" | tee baseline-01.txt",
+                "explain": "Asks one question and writes the answer to a file while showing it on screen.",
+                "sample": "The RTU-40 maintenance schedule calls for filter changes every 90 days and a coil inspection each spring."
+              }
+            ],
+            "whatItMeans": "You cannot say an attack changed the product’s behaviour without a record of how it behaved before.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "RTU-40"
+            ]
+          },
+          {
+            "id": "sa-w0-red-s2",
+            "title": "Hash them into the ledger",
+            "description": "One line per transcript.",
+            "commands": [
+              {
+                "cmd": "sha256sum baseline-*.txt >> ledger.sha256 && tail -n 2 ledger.sha256",
+                "explain": "Appends a SHA-256 hash for each transcript to the ledger file and shows the last two lines.",
+                "sample": "9b1c4e7f0a2d6c8b3e5f7a9c1d2e4f6a8b0c2d4e6f8a0b2c4d6e8f0a2b4c6d8e  baseline-04.txt\n4e7d2a9c8b1f0e3d6c5b4a3f2e1d0c9b8a7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d  baseline-05.txt"
+              }
+            ],
+            "whatItMeans": "A hash changes if a single character changes, so the ledger proves the transcripts you cite later are the ones you captured today.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "baseline-05.txt"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w1-gov",
+        "role": "governance",
+        "week": 1,
+        "title": "Map the system, write the rules, sign v1",
+        "objective": "Write P1 and P5 at v1, assemble the release note, and get the CEO’s signature.",
+        "frameworks": [
+          "SECAI",
+          "NIST_AI_RMF",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "02_System_Map.md",
+          "06_Governance_Pack.md",
+          "07_Release_Note.md"
+        ],
+        "estimatedTime": "2 hours",
+        "learn": [
+          "Model types and how each was trained or tuned",
+          "Zero-, one- and multi-shot prompts",
+          "Policy “shall” statements"
+        ],
+        "tools": [
+          "draw.io or Mermaid",
+          "Git"
+        ],
+        "docs": [
+          {
+            "title": "NIST AI Risk Management Framework",
+            "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+            "lookFor": "the Govern, Map, Measure and Manage functions"
+          },
+          {
+            "title": "NIST Cybersecurity Framework 2.0",
+            "url": "https://www.nist.gov/cyberframework",
+            "lookFor": "the function each step of the loop maps to"
+          }
+        ],
+        "definitionOfDone": [
+          "P1 v1 lists every model, the prompt structure and the data writers",
+          "SA-6 flagged",
+          "P5 v1 has five shall statements and five owned risks",
+          "Release note v1 signed"
+        ],
+        "consumes": [
+          {
+            "from": "redteam",
+            "artifact": "Attack casebook v1",
+            "note": "The scoreboard counts these cases."
+          },
+          {
+            "from": "defender",
+            "artifact": "Control set v1",
+            "note": "The release note lists what shipped."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w1-gov-s1",
+            "title": "Write the system map (P1 v1)",
+            "description": "What the product is made of.",
+            "instructionList": [
+              "List every model: type, training or tuning method, host, settings.",
+              "Record the prompt structure: system, user, template, examples, shot count.",
+              "List each data source with its origin and who can write to it.",
+              "Name one human checkpoint, and flag SA-6: the predictor’s training data has no known origin."
+            ],
+            "usesForm": "P1 System Map",
+            "whatItMeans": "You cannot defend a component nobody listed. The map is also where an unknown training source first becomes visible as a risk.",
+            "frameworks": [
+              "SECAI",
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "sa-w1-gov-s2",
+            "title": "Write the governance pack (P5 v1)",
+            "description": "Rules, risks and one accountable person.",
+            "instructionList": [
+              "Write five policy statements using “shall”.",
+              "Enter five risks, each with an owner and a treatment.",
+              "Name the accountable executive."
+            ],
+            "usesForm": "P5 Governance Pack",
+            "whatItMeans": "An AI system with no accountable person and no written rules is the first thing a customer or regulator asks about.",
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "sa-w1-gov-s3",
+            "title": "Verify the ledger and sign v1",
+            "description": "The release note closes the release.",
+            "instruction": "Check every hash still matches, then fill Release Note v1: what shipped, the scoreboard, open risks, and the CEO’s signature.",
+            "commands": [
+              {
+                "cmd": "sha256sum -c ledger.sha256 | tail -n 3",
+                "explain": "Re-hashes every file the ledger lists and reports OK or FAILED for each.",
+                "sample": "case-01-v1.txt: OK\ncase-02-v1.txt: OK\nbaseline-05.txt: OK"
+              }
+            ],
+            "usesForm": "Release Note",
+            "whatItMeans": "A release is complete when its evidence still matches and someone with authority has accepted what remains open.",
+            "frameworks": [
+              "NIST_CSF"
+            ],
+            "verify": [
+              "OK"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w1-red",
+        "role": "redteam",
+        "week": 1,
+        "title": "Prove two attack cases with evidence",
+        "objective": "Rank five threats, then prove two cases against your own instance: prompt injection and sensitive information disclosure.",
+        "frameworks": [
+          "SECAI",
+          "OWASP_LLM"
+        ],
+        "deliverables": [
+          "03_Attack_Casebook.md"
+        ],
+        "estimatedTime": "2 hours",
+        "prerequisites": [
+          "Lab rule signed",
+          "Baseline transcripts in the ledger"
+        ],
+        "learn": [
+          "LLM01 prompt injection",
+          "LLM02 sensitive information disclosure",
+          "Evidence: input, transcript, hash"
+        ],
+        "tools": [
+          "garak",
+          "Ollama"
+        ],
+        "docs": [
+          {
+            "title": "OWASP Top 10 for LLM Applications",
+            "url": "https://genai.owasp.org/llm-top-10/",
+            "lookFor": "the entry each case maps to, and its prevention list"
+          },
+          {
+            "title": "garak LLM vulnerability scanner",
+            "url": "https://github.com/NVIDIA/garak",
+            "lookFor": "running a named probe set against an Ollama model"
+          }
+        ],
+        "definitionOfDone": [
+          "Five threats ranked, each with an OWASP reference",
+          "Two cases with input file, transcript and ledger hash",
+          "Both cases re-run after the Defender’s fix"
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "Two proven cases",
+            "note": "The Defender blocks and logs exactly these."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w1-red-s1",
+            "title": "Run the injection probe set",
+            "description": "A standard scanner, against your own instance only.",
+            "commands": [
+              {
+                "cmd": "python -m garak --model_type ollama --model_name hub-assistant --probes promptinject --report_prefix v1-injection",
+                "explain": "Runs garak’s prompt-injection probes against your lab assistant and writes a report you can cite.",
+                "sample": "garak LLM vulnerability scanner v0.10.3\n📜 reporting to garak_runs/v1-injection.report.jsonl\nprobes.promptinject.HijackHateHumansMini  promptinject.AttackRogueString: FAIL  ok on  12/ 20   (failure rate:  40.00%)\n✔️  garak run complete in 94.21s"
+              }
+            ],
+            "whatItMeans": "A named, repeatable probe set turns “it seemed vulnerable” into a failure rate you can re-run after the fix.",
+            "frameworks": [
+              "OWASP_LLM"
+            ],
+            "verify": [
+              "report.jsonl",
+              "FAIL"
+            ]
+          },
+          {
+            "id": "sa-w1-red-s2",
+            "title": "Record both cases in the casebook",
+            "description": "Input, transcript, hash, OWASP reference.",
+            "instructionList": [
+              "Rank five threats, each with an OWASP LLM reference.",
+              "Case 1: the probe report, failure rate and transcript (LLM01).",
+              "Case 2: the as-found key appearing in output (LLM02), with its transcript.",
+              "Hash each input and transcript into the ledger."
+            ],
+            "usesForm": "P2 Attack Casebook",
+            "whatItMeans": "A case without its input and output cannot be re-run or believed. The ledger hash makes the evidence stand on its own.",
+            "frameworks": [
+              "OWASP_LLM",
+              "SECAI"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w1-def",
+        "role": "defender",
+        "week": 1,
+        "title": "Close SA-1 and log every attempt",
+        "objective": "Move the key out of the prompt, put a rate-limited gateway in front, log every request, and write P3 and P4 at v1.",
+        "frameworks": [
+          "SECAI",
+          "OWASP_LLM",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "04_Control_Set.md",
+          "05_Watch_Plan.md"
+        ],
+        "estimatedTime": "2.5 hours",
+        "prerequisites": [
+          "The Red Team’s two proven cases"
+        ],
+        "learn": [
+          "Secrets belong in a secret store",
+          "A gateway is the one place to limit and log",
+          "Control rows: who, how often, with what, record"
+        ],
+        "tools": [
+          "OpenBao",
+          "LiteLLM",
+          "Gitleaks"
+        ],
+        "docs": [
+          {
+            "title": "OpenBao KV secrets engine",
+            "url": "https://openbao.org/docs/secrets/kv/",
+            "lookFor": "kv put, kv get, and versioning"
+          },
+          {
+            "title": "LiteLLM proxy: budgets and rate limits",
+            "url": "https://docs.litellm.ai/docs/proxy/users",
+            "lookFor": "rpm_limit and tpm_limit per key"
+          },
+          {
+            "title": "Gitleaks",
+            "url": "https://github.com/gitleaks/gitleaks",
+            "lookFor": "detect --no-git, and the exit code on a leak"
+          }
+        ],
+        "definitionOfDone": [
+          "No secret in any prompt (Gitleaks clean)",
+          "Rate limit returns 429",
+          "P3 v1 has three or more complete rows",
+          "P4 v1 says what is logged, who reads it, how long it is kept"
+        ],
+        "steps": [
+          {
+            "id": "sa-w1-def-s1",
+            "title": "Move the key into the secret store",
+            "description": "SA-1: the key leaves the prompt.",
+            "commands": [
+              {
+                "cmd": "bao kv put secret/hub/llm api_key=@key.txt && shred -u key.txt",
+                "explain": "Stores the model key in OpenBao’s key-value store, then destroys the plain-text copy on disk.",
+                "sample": "== Secret Path ==\nsecret/data/hub/llm\n\n======= Metadata =======\nKey                Value\n---                -----\ncreated_time       2026-10-06T14:02:11Z\nversion            1"
+              }
+            ],
+            "whatItMeans": "Anything in a prompt can be repeated back by the model. A key held in a secret store, with an owner and rotation, cannot.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "secret/data/hub/llm",
+              "version"
+            ]
+          },
+          {
+            "id": "sa-w1-def-s2",
+            "title": "Prove no secret is left in a prompt",
+            "description": "The template and Modelfile, scanned.",
+            "commands": [
+              {
+                "cmd": "gitleaks detect --no-git --source prompts/ -v",
+                "explain": "Scans the prompt templates and Modelfile for anything shaped like a key or token.",
+                "sample": "    ○\n    │╲\n    │ ○\n    ○ ░\n    ░    gitleaks\n\n2:05PM INF scanned ~2.1 KB in 31ms\n2:05PM INF no leaks found"
+              }
+            ],
+            "whatItMeans": "“No secret in any prompt” is a Done-when line; a scanner turns it from a promise into evidence.",
+            "frameworks": [
+              "OWASP_LLM"
+            ],
+            "verify": [
+              "no leaks found"
+            ]
+          },
+          {
+            "id": "sa-w1-def-s3",
+            "title": "Rate-limit and log at the gateway",
+            "description": "One door, with a limit and a log.",
+            "instruction": "Start LiteLLM with a per-key limit of 10 requests a minute and request logging on, then send twelve requests.",
+            "commands": [
+              {
+                "cmd": "for i in $(seq 1 12); do curl -s -o /dev/null -w \"%{http_code}\\n\" http://localhost:4000/v1/chat/completions -H \"Authorization: Bearer $HUB_KEY\" -d @ping.json; done | sort | uniq -c",
+                "explain": "Sends twelve requests through the gateway and counts the status codes: allowed ones return 200, limited ones 429.",
+                "sample": "     10 200\n      2 429"
+              }
+            ],
+            "whatItMeans": "SA-4: with no limit, one caller can exhaust the budget or the model. The 429s prove the limit is enforced, not just configured.",
+            "frameworks": [
+              "SECAI",
+              "OWASP_LLM"
+            ],
+            "verify": [
+              "429"
+            ]
+          },
+          {
+            "id": "sa-w1-def-s4",
+            "title": "Write P3 and P4 at v1",
+            "description": "Controls as rows; the log as a plan.",
+            "instructionList": [
+              "P3: three or more rows — control, who, how often, with what, record.",
+              "P4: what is logged, who can read it, how long it is kept.",
+              "Confirm both of the Red Team’s cases appear in the gateway log."
+            ],
+            "usesForm": "P3 Control Set",
+            "whatItMeans": "A control with no owner and no record is an intention. Rows with all five columns are what an auditor can test.",
+            "frameworks": [
+              "SECAI",
+              "NIST_CSF"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w2-red",
+        "role": "redteam",
+        "week": 2,
+        "title": "Six cases and a mapped threat model",
+        "objective": "Grow the suite to six cases, map twelve threats to OWASP and MITRE ATLAS, and describe three AI-enabled attacker scenarios.",
+        "frameworks": [
+          "SECAI",
+          "OWASP_LLM",
+          "MITRE_ATLAS",
+          "STRIDE"
+        ],
+        "deliverables": [
+          "03_Attack_Casebook.md"
+        ],
+        "estimatedTime": "2.5 hours",
+        "learn": [
+          "Indirect injection through documents",
+          "Excessive agency",
+          "Insecure output handling",
+          "Model denial of service"
+        ],
+        "tools": [
+          "OWASP Threat Dragon",
+          "garak"
+        ],
+        "docs": [
+          {
+            "title": "MITRE ATLAS",
+            "url": "https://atlas.mitre.org/",
+            "lookFor": "the technique ID that matches each case"
+          },
+          {
+            "title": "OWASP Threat Dragon",
+            "url": "https://www.threatdragon.com/docs/",
+            "lookFor": "drawing trust boundaries and adding STRIDE threats"
+          },
+          {
+            "title": "OWASP Top 10 for LLM Applications",
+            "url": "https://genai.owasp.org/llm-top-10/",
+            "lookFor": "the entry each case maps to, and its prevention list"
+          }
+        ],
+        "definitionOfDone": [
+          "Six cases with evidence",
+          "Twelve threats mapped to OWASP and ATLAS",
+          "Three AI-enabled attacker scenarios, each with a detection and a control"
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "Six-case suite",
+            "note": "Four or more must be blocked or contained by the release."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w2-red-s1",
+            "title": "Run all six cases",
+            "description": "The suite, one input file per case.",
+            "instruction": "Add the four new cases to attacks/: the instructor’s poisoned work order, an agent overreach, unencoded output and an oversized request.",
+            "commands": [
+              {
+                "cmd": "for f in attacks/case-0*.txt; do ollama run hub-assistant < \"$f\" > \"results/$(basename \"$f\" .txt)-v2.txt\"; done; ls results/*-v2.txt | wc -l",
+                "explain": "Runs every case file through the assistant, saves one result per case, and counts them.",
+                "sample": "6"
+              }
+            ],
+            "whatItMeans": "The suite is the release’s yardstick: the same six inputs, every release, so “four or more contained” is a count, not an impression.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "6"
+            ]
+          },
+          {
+            "id": "sa-w2-red-s2",
+            "title": "Map the threats and the attacker’s use of AI",
+            "description": "P2 v2 in the casebook.",
+            "instructionList": [
+              "Draw the data flow with trust boundaries in Threat Dragon.",
+              "Map twelve threats to an OWASP list and an ATLAS technique.",
+              "Describe three AI-enabled attacker scenarios, each with one detection and one control."
+            ],
+            "usesForm": "P2 Attack Casebook",
+            "whatItMeans": "Mapping to shared catalogues lets a customer compare your threat model with anyone else’s, and shows nothing obvious was skipped.",
+            "frameworks": [
+              "MITRE_ATLAS",
+              "STRIDE"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w2-def",
+        "role": "defender",
+        "week": 2,
+        "title": "Guard the inputs, scope the agent, redact the logs",
+        "objective": "Close SA-2, SA-3, SA-4, SA-5 and SA-8 with guardrails, a scoped agent, encoded output, redacted logs and owned alert thresholds.",
+        "frameworks": [
+          "SECAI",
+          "OWASP_LLM",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "04_Control_Set.md",
+          "05_Watch_Plan.md"
+        ],
+        "estimatedTime": "3 hours",
+        "prerequisites": [
+          "The six-case suite"
+        ],
+        "learn": [
+          "Input and output guardrails",
+          "Least privilege for agents",
+          "Redaction before write"
+        ],
+        "tools": [
+          "LLM Guard",
+          "Microsoft Presidio",
+          "LiteLLM",
+          "Wazuh"
+        ],
+        "docs": [
+          {
+            "title": "LLM Guard input scanners",
+            "url": "https://protectai.github.io/llm-guard/input_scanners/prompt_injection/",
+            "lookFor": "what scan() returns and the threshold"
+          },
+          {
+            "title": "Microsoft Presidio",
+            "url": "https://microsoft.github.io/presidio/",
+            "lookFor": "adding a custom PatternRecognizer"
+          },
+          {
+            "title": "Wazuh custom rules",
+            "url": "https://documentation.wazuh.com/current/user-manual/ruleset/rules/custom.html",
+            "lookFor": "rule level, match and frequency"
+          }
+        ],
+        "definitionOfDone": [
+          "Four or more cases blocked or contained",
+          "Agent holds no admin right",
+          "No tenant names or access codes in logs",
+          "Access matrix and data protection rules in P3",
+          "Thresholds with owners in P4"
+        ],
+        "handoff": [
+          {
+            "to": "governance",
+            "artifact": "Control set v2",
+            "note": "Governance enters each control against a risk."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w2-def-s1",
+            "title": "Screen inputs before the model",
+            "description": "The guardrail result, per case.",
+            "commands": [
+              {
+                "cmd": "python - <<'PY'\nfrom llm_guard.input_scanners import PromptInjection\ntext = open('attacks/case-03.txt').read()\n_, valid, score = PromptInjection().scan(text)\nprint('BLOCKED' if not valid else 'ALLOWED', round(score, 2))\nPY",
+                "explain": "Runs LLM Guard’s prompt-injection scanner over one case file and prints whether it would be blocked, with its risk score.",
+                "sample": "BLOCKED 1.0"
+              }
+            ],
+            "whatItMeans": "A guardrail in front of the model is a compensating control: it does not make the model safe, but it stops known patterns reaching it.",
+            "frameworks": [
+              "OWASP_LLM"
+            ],
+            "verify": [
+              "BLOCKED"
+            ]
+          },
+          {
+            "id": "sa-w2-def-s2",
+            "title": "Redact before anything is logged",
+            "description": "SA-5: names and access codes out of the logs.",
+            "commands": [
+              {
+                "cmd": "python - <<'PY'\nfrom presidio_analyzer import AnalyzerEngine, PatternRecognizer, Pattern\nfrom presidio_anonymizer import AnonymizerEngine\ncode = PatternRecognizer(supported_entity='ACCESS_CODE', patterns=[Pattern('code', r'\\b\\d{4}#', 0.9)])\nengine = AnalyzerEngine(); engine.registry.add_recognizer(code)\ntext = 'Tenant Maria Lopez, door code 4417#'\nprint(AnonymizerEngine().anonymize(text, engine.analyze(text, language='en')).text)\nPY",
+                "explain": "Adds an access-code recognizer to Presidio, then replaces the tenant’s name and the code with placeholders before the line is written.",
+                "sample": "Tenant <PERSON>, door code <ACCESS_CODE>"
+              }
+            ],
+            "whatItMeans": "Logs are read by more people than the product is. Redacting before the write means a log reader never sees what a customer typed.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "<PERSON>",
+              "<ACCESS_CODE>"
+            ]
+          },
+          {
+            "id": "sa-w2-def-s3",
+            "title": "Scope the agent and encode the output",
+            "description": "SA-3 and SA-8.",
+            "instructionList": [
+              "Replace the work-order tool’s admin token with a scoped one.",
+              "Require a person to approve every outbound email.",
+              "Encode the assistant’s output before the portal renders it.",
+              "Fill the access matrix and data protection rules in P3."
+            ],
+            "usesForm": "P3 Control Set",
+            "whatItMeans": "An agent can only do the damage its tools allow. A scoped token and an approval step turn a hijacked agent into a stopped one.",
+            "frameworks": [
+              "OWASP_LLM",
+              "SECAI"
+            ]
+          },
+          {
+            "id": "sa-w2-def-s4",
+            "title": "Set the alert thresholds",
+            "description": "Rate and four cost drivers, each owned.",
+            "instruction": "In P4, set thresholds for request rate and for prompt, storage, response and processing cost, each with an owner.",
+            "usesForm": "P4 Watch Plan",
+            "whatItMeans": "A model can be attacked through the bill. A cost threshold with a named owner turns a slow drain into an alert someone answers.",
+            "frameworks": [
+              "NIST_CSF"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w2-gov",
+        "role": "governance",
+        "week": 2,
+        "title": "Map the data and every rule that applies",
+        "objective": "Write P1 and P5 at v2: data lineage and life cycle, ten risks, ten roles, and a compliance table for every rule.",
+        "frameworks": [
+          "SECAI",
+          "NIST_AI_RMF",
+          "ISO_42001"
+        ],
+        "deliverables": [
+          "02_System_Map.md",
+          "06_Governance_Pack.md",
+          "07_Release_Note.md"
+        ],
+        "estimatedTime": "2.5 hours",
+        "learn": [
+          "Structured, semi-structured and unstructured data",
+          "The nine-stage AI life cycle",
+          "Applicability, with a reason"
+        ],
+        "tools": [
+          "CISO Assistant Community",
+          "draw.io"
+        ],
+        "docs": [
+          {
+            "title": "NIST AI Risk Management Framework",
+            "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+            "lookFor": "the Govern, Map, Measure and Manage functions"
+          }
+        ],
+        "definitionOfDone": [
+          "Life-cycle table with risk and human checkpoint",
+          "Ten risks including bias, leakage and autonomous action",
+          "Compliance table covers every rule in the scenario",
+          "Release note v2 signed with owners and dates for any open case"
+        ],
+        "consumes": [
+          {
+            "from": "defender",
+            "artifact": "Control set v2",
+            "note": "Each control is entered against a risk."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w2-gov-s1",
+            "title": "Map the data and the life cycle (P1 v2)",
+            "description": "Lineage, embeddings, nine stages.",
+            "instructionList": [
+              "Classify each data type: structured, semi-structured or unstructured.",
+              "Show its processing steps and where it is embedded.",
+              "Fill the nine-stage life cycle with a risk and a human checkpoint each."
+            ],
+            "usesForm": "P1 System Map",
+            "whatItMeans": "SA-2 happened because uploads went straight into retrieval. Lineage shows every such path before an attacker finds it.",
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "sa-w2-gov-s2",
+            "title": "Risks, roles and the compliance table (P5 v2)",
+            "description": "Every rule: applies, because, owner.",
+            "instructionList": [
+              "Grow the register to ten risks: bias, leakage, reputation, accuracy, IP and autonomous action included.",
+              "Map ten AI roles to the six-person IT team.",
+              "For each rule in the scenario: does it apply, why, and who owns it.",
+              "Record whether the EU AI Act applies, and why."
+            ],
+            "usesForm": "P5 Governance Pack",
+            "whatItMeans": "A compliance table that says “does not apply, because…” is as valuable as one that says “applies”: it shows the question was asked.",
+            "frameworks": [
+              "ISO_42001",
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "sa-w2-gov-s3",
+            "title": "Sign release v2",
+            "description": "Owner and date for every case still open.",
+            "instruction": "Fill Release Note v2: scoreboard, open risks, and an owner and date for each case that still gets through.",
+            "usesForm": "Release Note",
+            "whatItMeans": "A working attack with an owner and a date is a managed risk. One without is an unmanaged one.",
+            "frameworks": [
+              "NIST_CSF"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w3-def",
+        "role": "defender",
+        "week": 3,
+        "title": "Gate the pipeline and alert on every case",
+        "objective": "Put code, dependency and secret scans and the attack suite in the pipeline, prove a block and a rollback, and alert on all six.",
+        "frameworks": [
+          "SECAI",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "04_Control_Set.md",
+          "05_Watch_Plan.md"
+        ],
+        "estimatedTime": "3 hours",
+        "learn": [
+          "Security gates in a pipeline",
+          "Regression tests for guardrails",
+          "Alert to ticket"
+        ],
+        "tools": [
+          "Semgrep",
+          "Trivy",
+          "Gitleaks",
+          "Jenkins or GitLab CI",
+          "Wazuh",
+          "GLPI"
+        ],
+        "docs": [
+          {
+            "title": "Semgrep CLI",
+            "url": "https://semgrep.dev/docs/cli-reference",
+            "lookFor": "the --error flag for a blocking gate"
+          },
+          {
+            "title": "Trivy filesystem scanning",
+            "url": "https://trivy.dev/latest/docs/target/filesystem/",
+            "lookFor": "--exit-code and --severity"
+          },
+          {
+            "title": "Wazuh custom rules",
+            "url": "https://documentation.wazuh.com/current/user-manual/ruleset/rules/custom.html",
+            "lookFor": "rule level, match and frequency"
+          }
+        ],
+        "definitionOfDone": [
+          "Scans block on findings",
+          "A removed guardrail blocks the build",
+          "One rollback recorded (R10)",
+          "Two detections; all six attempts alert into a ticket"
+        ],
+        "steps": [
+          {
+            "id": "sa-w3-def-s1",
+            "title": "Code scan as a gate",
+            "description": "Findings stop the build.",
+            "commands": [
+              {
+                "cmd": "semgrep scan --config p/python --error src/",
+                "explain": "Scans the Hub’s code with the Python ruleset; --error makes any finding fail the pipeline stage.",
+                "sample": "┌──────────────┐\n│ Scan Summary │\n└──────────────┘\nRan 151 rules on 23 files: 0 findings."
+              }
+            ],
+            "whatItMeans": "A scan that only reports is advice. A scan that fails the build is a control, and the pipeline log is its record.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "0 findings"
+            ]
+          },
+          {
+            "id": "sa-w3-def-s2",
+            "title": "Dependency scan as a gate",
+            "description": "Known-vulnerable libraries stop the build.",
+            "commands": [
+              {
+                "cmd": "trivy fs --scanners vuln --severity HIGH,CRITICAL --exit-code 1 .",
+                "explain": "Checks every dependency against known vulnerabilities and exits non-zero on any high or critical one.",
+                "sample": "requirements.txt (pip)\n======================\nTotal: 0 (HIGH: 0, CRITICAL: 0)"
+              }
+            ],
+            "whatItMeans": "AI stacks pull in many fast-moving libraries. A gate on known CVEs stops one of them shipping a published hole.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "Total: 0"
+            ]
+          },
+          {
+            "id": "sa-w3-def-s3",
+            "title": "Prove the suite blocks a weak build",
+            "description": "Remove a guardrail; watch the build stop.",
+            "instructionList": [
+              "Turn the input guardrail off in a branch and push.",
+              "Save the failed run as R10.",
+              "Roll back the last release and record it."
+            ],
+            "commands": [
+              {
+                "cmd": "python run_suite.py --pass-line 4",
+                "explain": "Runs the six cases through the gateway and fails if fewer than four are blocked or contained.",
+                "sample": "case-01 BLOCKED\ncase-02 BLOCKED\ncase-03 PASSED THROUGH\ncase-04 BLOCKED\ncase-05 PASSED THROUGH\ncase-06 PASSED THROUGH\n6 run · 3 blocked · pass line 4\nFAIL: below the pass line — build stopped"
+              }
+            ],
+            "whatItMeans": "Guardrails get switched off by accident. The suite as a regression test is what catches it before customers do.",
+            "frameworks": [
+              "SECAI",
+              "OWASP_LLM"
+            ],
+            "verify": [
+              "build stopped"
+            ]
+          },
+          {
+            "id": "sa-w3-def-s4",
+            "title": "Two detections, alert to ticket",
+            "description": "Injection pattern and cost spike.",
+            "instruction": "Write two Wazuh rules, injection pattern and cost spike, route alerts to GLPI tickets, and record them in P4.",
+            "usesForm": "P4 Watch Plan",
+            "whatItMeans": "An alert nobody owns is noise. A ticket gives each one an owner and a closing record.",
+            "frameworks": [
+              "NIST_CSF"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w3-red",
+        "role": "redteam",
+        "week": 3,
+        "title": "Automate the suite and check AI-assisted work",
+        "objective": "Define the suite’s pass line, add two variants of each case that still works, and validate an AI assistant’s triage by hand.",
+        "frameworks": [
+          "SECAI",
+          "OWASP_LLM"
+        ],
+        "deliverables": [
+          "03_Attack_Casebook.md"
+        ],
+        "estimatedTime": "2 hours",
+        "learn": [
+          "A pass line makes a suite a test",
+          "AI-assisted triage still needs a human check"
+        ],
+        "tools": [
+          "Continue with a local model",
+          "Ollama"
+        ],
+        "docs": [
+          {
+            "title": "garak LLM vulnerability scanner",
+            "url": "https://github.com/NVIDIA/garak",
+            "lookFor": "running a named probe set against an Ollama model"
+          }
+        ],
+        "definitionOfDone": [
+          "Suite definition with pass line in P2",
+          "Two variants per surviving case",
+          "AI triage claims checked by hand; at least one error recorded (R9)"
+        ],
+        "handoff": [
+          {
+            "to": "defender",
+            "artifact": "Automated suite",
+            "note": "The Defender runs it as the pipeline’s regression stage."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w3-red-s1",
+            "title": "Define the automated suite",
+            "description": "Pass line and variants in P2 v3.",
+            "instructionList": [
+              "State the pass line: four or more of six blocked or contained.",
+              "For each case that still gets through, add two variants to the suite.",
+              "Record which variants the guardrails catch."
+            ],
+            "usesForm": "P2 Attack Casebook",
+            "whatItMeans": "A fix that blocks one exact input but not a reworded one is not a fix. Variants test the control, not the sentence.",
+            "frameworks": [
+              "OWASP_LLM"
+            ]
+          },
+          {
+            "id": "sa-w3-red-s2",
+            "title": "Triage a scan report with AI, then check it",
+            "description": "R9: every claim checked by hand.",
+            "commands": [
+              {
+                "cmd": "ollama run llama3.2:3b \"List the three highest-risk findings in this report, with CVE and package.\" < scan-report.txt | tee ai-triage.txt",
+                "explain": "Asks the local model to summarise the instructor’s scan report and saves its answer for checking.",
+                "sample": "1. CVE-2024-34064 in jinja2 3.1.3 (Medium)\n2. CVE-2024-35195 in requests 2.31.0 (Medium)\n3. CVE-2023-45803 in urllib3 2.0.6 (Medium)"
+              }
+            ],
+            "whatItMeans": "AI assistants misread reports and invent details. Checking each claim against the source, and recording the misses, is the control.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "CVE-"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w3-gov",
+        "role": "governance",
+        "week": 3,
+        "title": "Find shadow AI and measure accuracy",
+        "objective": "Find the AI services staff use, decide each one, write the tool rules, and record an accuracy figure.",
+        "frameworks": [
+          "SECAI",
+          "NIST_AI_RMF"
+        ],
+        "deliverables": [
+          "02_System_Map.md",
+          "06_Governance_Pack.md",
+          "07_Release_Note.md"
+        ],
+        "estimatedTime": "2.5 hours",
+        "learn": [
+          "Sanctioned and unsanctioned tools",
+          "Public and private models",
+          "Accuracy, hallucination and bias as measured risks"
+        ],
+        "tools": [
+          "Zeek",
+          "CISO Assistant Community"
+        ],
+        "docs": [
+          {
+            "title": "Zeek dns.log",
+            "url": "https://docs.zeek.org/en/master/logs/dns.html",
+            "lookFor": "the query field"
+          },
+          {
+            "title": "NIST AI Risk Management Framework",
+            "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+            "lookFor": "the Govern, Map, Measure and Manage functions"
+          }
+        ],
+        "definitionOfDone": [
+          "Every unsanctioned tool has a decision (R7); SA-7 closed",
+          "Tool allow-list in P1",
+          "Accuracy figure from 20 reference questions in the register (R8)",
+          "Release note v3 signed"
+        ],
+        "steps": [
+          {
+            "id": "sa-w3-gov-s1",
+            "title": "Find AI services in the DNS log",
+            "description": "SA-7, from the sample proxy and DNS logs.",
+            "commands": [
+              {
+                "cmd": "zeek-cut query < dns.log | grep -Ei 'openai|chatgpt|claude|gemini|copilot' | sort | uniq -c | sort -rn",
+                "explain": "Pulls the looked-up names from the instructor’s sample DNS log and counts the ones that belong to AI services.",
+                "sample": "    214 chatgpt.com\n     61 gemini.google.com\n     18 claude.ai\n      7 copilot.microsoft.com"
+              }
+            ],
+            "whatItMeans": "Staff pasting contracts into personal chatbots is a data leak no gateway sees. The network is where it shows up.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "chatgpt.com"
+            ]
+          },
+          {
+            "id": "sa-w3-gov-s2",
+            "title": "Decide each tool and write the rules",
+            "description": "P1 v3 allow-list; P5 v3 policy.",
+            "instructionList": [
+              "Give each tool found a decision: sanction, replace or block.",
+              "List allowed tools by type, account type and data class.",
+              "Write what never goes to a public model, and who validates AI output."
+            ],
+            "usesForm": "P5 Governance Pack",
+            "whatItMeans": "Banning every tool pushes use underground. An allow-list with a sanctioned option is what actually stops contracts leaking.",
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          },
+          {
+            "id": "sa-w3-gov-s3",
+            "title": "Measure accuracy and sign v3",
+            "description": "Twenty reference questions; one figure.",
+            "instruction": "Score the assistant on the 20 reference questions, enter the accuracy figure in the risk register, and sign Release Note v3.",
+            "usesForm": "Release Note",
+            "whatItMeans": "Accuracy is a risk like any other: it needs a number, an owner and a schedule, or it is only a feeling.",
+            "frameworks": [
+              "NIST_AI_RMF"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w4-def",
+        "role": "defender",
+        "week": 4,
+        "title": "Rebuild clean and hand over monitoring",
+        "objective": "Rebuild a fresh copy with every control, scan the model files, write the evaluation checklist, and hand over monitoring.",
+        "frameworks": [
+          "SECAI",
+          "NIST_CSF"
+        ],
+        "deliverables": [
+          "04_Control_Set.md",
+          "05_Watch_Plan.md"
+        ],
+        "estimatedTime": "3 hours",
+        "learn": [
+          "Reproducibility as evidence",
+          "Unsafe code in serialised models",
+          "Model evaluation before replacement"
+        ],
+        "tools": [
+          "ModelScan",
+          "Prowler"
+        ],
+        "docs": [
+          {
+            "title": "ModelScan",
+            "url": "https://github.com/protectai/modelscan",
+            "lookFor": "which serialisation formats it checks"
+          }
+        ],
+        "definitionOfDone": [
+          "Timed rebuild record (R11)",
+          "Model files scanned clean",
+          "Evaluation checklist with pass marks",
+          "Handover sheet: who watches what, how often"
+        ],
+        "steps": [
+          {
+            "id": "sa-w4-def-s1",
+            "title": "Scan the model files",
+            "description": "Tampered models carry code.",
+            "commands": [
+              {
+                "cmd": "modelscan -p models/failure-predictor.pkl",
+                "explain": "Checks the predictor’s serialised file for operations that would run code when it is loaded.",
+                "sample": "--- Summary ---\n\n No issues found! 🎉"
+              }
+            ],
+            "whatItMeans": "A pickled model can execute anything when loaded. Scanning it is the compensating control for a supply chain you do not fully see.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "No issues found"
+            ]
+          },
+          {
+            "id": "sa-w4-def-s2",
+            "title": "Rebuild a clean copy, timed",
+            "description": "Every control reapplied from the record.",
+            "commands": [
+              {
+                "cmd": "time ./rebuild.sh",
+                "explain": "Runs your rebuild script on a fresh copy and reports how long it took.",
+                "sample": "gateway ........ ok\nsecrets ........ ok\nguardrails ..... ok\nagent scopes ... ok\nlogging ........ ok\n\nreal\t18m42.311s"
+              }
+            ],
+            "whatItMeans": "If only the person who built it can rebuild it, the controls are not documented. A timed rebuild proves they are.",
+            "frameworks": [
+              "NIST_CSF"
+            ],
+            "verify": [
+              "real"
+            ]
+          },
+          {
+            "id": "sa-w4-def-s3",
+            "title": "Checklist and handover",
+            "description": "P3 v4 and P4 v4.",
+            "instructionList": [
+              "Write the model evaluation checklist: accuracy, refusals, licence, provenance, pass marks.",
+              "Run it on the candidate replacement model.",
+              "Give every final control row a test result.",
+              "Fill the handover sheet: who watches what, how often."
+            ],
+            "usesForm": "P4 Watch Plan",
+            "whatItMeans": "Monitoring that lives in one person’s head stops when they leave. The handover sheet is what keeps it running.",
+            "frameworks": [
+              "NIST_CSF",
+              "SECAI"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w4-red",
+        "role": "redteam",
+        "week": 4,
+        "title": "Reproduce the suite and add four paper cases",
+        "objective": "Re-run the suite on the rebuilt copy, and write four paper cases for the attacks the lab cannot run.",
+        "frameworks": [
+          "SECAI",
+          "OWASP_LLM",
+          "MITRE_ATLAS"
+        ],
+        "deliverables": [
+          "03_Attack_Casebook.md"
+        ],
+        "estimatedTime": "2 hours",
+        "learn": [
+          "Training data poisoning",
+          "Model theft",
+          "Membership inference",
+          "Tampered models and dependencies"
+        ],
+        "tools": [
+          "Ollama"
+        ],
+        "docs": [
+          {
+            "title": "MITRE ATLAS",
+            "url": "https://atlas.mitre.org/",
+            "lookFor": "the technique ID that matches each case"
+          },
+          {
+            "title": "OWASP Top 10 for LLM Applications",
+            "url": "https://genai.owasp.org/llm-top-10/",
+            "lookFor": "the entry each case maps to, and its prevention list"
+          }
+        ],
+        "definitionOfDone": [
+          "Rebuilt copy matches the v3 result",
+          "Four paper cases with expected evidence and a compensating control",
+          "Final ranked threat table: ten cases in all"
+        ],
+        "steps": [
+          {
+            "id": "sa-w4-red-s1",
+            "title": "Re-run the suite on the rebuild",
+            "description": "Same inputs, same result.",
+            "commands": [
+              {
+                "cmd": "python run_suite.py --pass-line 4 --target rebuilt",
+                "explain": "Runs the six cases against the rebuilt copy and compares the count with the pass line.",
+                "sample": "6 run · 5 blocked · pass line 4\nPASS"
+              }
+            ],
+            "whatItMeans": "The same result on a fresh copy proves the controls come from the record, not from leftover state on one machine.",
+            "frameworks": [
+              "SECAI"
+            ],
+            "verify": [
+              "PASS"
+            ]
+          },
+          {
+            "id": "sa-w4-red-s2",
+            "title": "Write the four paper cases",
+            "description": "Expected evidence and a compensating control each.",
+            "instructionList": [
+              "Training data poisoning, tied to SA-6.",
+              "Model theft through the API.",
+              "Membership inference on the predictor.",
+              "A tampered model file or dependency.",
+              "Rank all ten cases in the final threat table."
+            ],
+            "usesForm": "P2 Attack Casebook",
+            "whatItMeans": "Some attacks are too costly to stage in a lab. A paper case still says what evidence would show it and what control answers it.",
+            "frameworks": [
+              "MITRE_ATLAS"
+            ]
+          }
+        ]
+      },
+      {
+        "id": "sa-w4-gov",
+        "role": "governance",
+        "week": 4,
+        "title": "Accept the risks and answer the customers",
+        "objective": "Finish the model cards and responsible-AI assessment, get every remaining risk accepted, and answer the customers’ three questions with evidence.",
+        "frameworks": [
+          "SECAI",
+          "NIST_AI_RMF",
+          "ISO_42001"
+        ],
+        "deliverables": [
+          "02_System_Map.md",
+          "06_Governance_Pack.md",
+          "07_Release_Note.md",
+          "08_Release_Package.md"
+        ],
+        "estimatedTime": "3 hours",
+        "learn": [
+          "Model cards",
+          "Responsible-AI principles as evidence or gaps",
+          "Writing for a contracting officer and a lawyer"
+        ],
+        "tools": [
+          "Git"
+        ],
+        "docs": [
+          {
+            "title": "NIST AI Risk Management Framework",
+            "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+            "lookFor": "the Govern, Map, Measure and Manage functions"
+          }
+        ],
+        "definitionOfDone": [
+          "A model card per model; SA-6 resolved or accepted",
+          "Responsible-AI assessment, evidence or gap per principle",
+          "Every remaining risk accepted in writing",
+          "Assurance response cites documents and ledger entries",
+          "Release note v4 signed"
+        ],
+        "consumes": [
+          {
+            "from": "redteam",
+            "artifact": "Final threat table",
+            "note": "The residual risks come from it."
+          },
+          {
+            "from": "defender",
+            "artifact": "Handover sheet",
+            "note": "The assurance response cites it."
+          }
+        ],
+        "steps": [
+          {
+            "id": "sa-w4-gov-s1",
+            "title": "Model cards and the responsible-AI assessment",
+            "description": "P1 v4 and P5 v4.",
+            "instructionList": [
+              "Write a model card for each model.",
+              "Resolve SA-6 with a known data source, or carry it as an accepted risk.",
+              "For each responsible-AI principle, cite evidence or name the gap.",
+              "Get the CEO’s signed acceptance of each remaining risk."
+            ],
+            "usesForm": "P5 Governance Pack",
+            "whatItMeans": "A gap stated plainly is something a customer can plan around. A gap hidden behind “we follow responsible AI” is not.",
+            "frameworks": [
+              "NIST_AI_RMF",
+              "ISO_42001"
+            ]
+          },
+          {
+            "id": "sa-w4-gov-s2",
+            "title": "Answer the three questions",
+            "description": "Who is accountable, what rules apply, what happens when it is wrong.",
+            "instruction": "Fill the Release v4 Package: one page answering the three questions, each answer citing a document and a ledger entry, plus the package index.",
+            "usesForm": "Release v4 Package & Assurance Response",
+            "whatItMeans": "This is the capstone: four weeks of evidence turned into answers a buyer can verify for themselves.",
+            "frameworks": [
+              "SECAI",
+              "NIST_AI_RMF"
+            ]
+          }
+        ]
+      }
+    ],
+    "noGatekeeping": true,
+    "isSeed": true,
+    "version": 1,
+    "locked": false,
+    "topologyPicture": "hub",
+    "teamCount": 12,
+    "teamCapacity": 6
+  },
+  "deliverables": [
+    {
+      "id": "secai_lab_rule",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_release_note"
+      ],
+      "num": 1,
+      "file": "01_Lab_Rule_and_Ledger.md",
+      "title": "Lab Rule & Evidence Ledger",
+      "owner": "governance",
+      "folder": "01_Ground_Rules",
+      "standard": "Authorisation · evidence integrity",
+      "framework": "SECAI",
+      "weeks": [
+        0
+      ],
+      "kind": "template",
+      "exportFormat": "md",
+      "purpose": "Record that every attack runs only on the team’s own instance, and open the ledger every later artifact is hashed into.",
+      "howTo": "Name your lab instance, have every member sign, and record where the ledger repository lives. Nothing is attacked before this is signed.",
+      "sections": [
+        {
+          "kind": "fields",
+          "fields": [
+            {
+              "field": "instance",
+              "label": "Team lab instance",
+              "type": "text",
+              "required": true,
+              "placeholder": "hub-assistant on team-07’s machine"
+            },
+            {
+              "field": "rule",
+              "label": "The rule, in one sentence",
+              "type": "area",
+              "required": true,
+              "placeholder": "We run attacks only against our own instance named above, and nowhere else."
+            },
+            {
+              "field": "signed_by",
+              "label": "Signed by (every member)",
+              "type": "area",
+              "required": true,
+              "placeholder": "Grace, Ada, Omar — 2026-10-06"
+            },
+            {
+              "field": "ledger_repo",
+              "label": "Ledger repository",
+              "type": "text",
+              "required": true,
+              "placeholder": "ridgeline-evidence (git)"
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "The lab instance and the rule are written down",
+          "when": {
+            "fields": [
+              "instance",
+              "rule"
+            ]
+          }
+        },
+        {
+          "label": "Every member has signed and the ledger repository is named",
+          "when": {
+            "fields": [
+              "signed_by",
+              "ledger_repo"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "secai_system_map",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_attack_casebook",
+        "secai_control_set"
+      ],
+      "num": 2,
+      "file": "02_System_Map.md",
+      "title": "P1 System Map",
+      "owner": "governance",
+      "folder": "02_System_Map",
+      "standard": "NIST AI RMF (Map)",
+      "framework": "NIST_AI_RMF",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "What the product is made of: every model, the prompt structure, the data and its life cycle, and the AI tools in use.",
+      "howTo": "Add a row per model and per data source. From v2 add the life-cycle stages; from v3 add the AI tools staff use.",
+      "source": "The Service Hub as found (week 0)",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "models",
+            "label": "Models",
+            "columns": [
+              {
+                "field": "model",
+                "label": "Model",
+                "type": "text",
+                "placeholder": "Service assistant LLM"
+              },
+              {
+                "field": "type",
+                "label": "Type",
+                "type": "text",
+                "placeholder": "Third-party API; lab: llama3.2:3b"
+              },
+              {
+                "field": "tuning",
+                "label": "Training / tuning",
+                "type": "text",
+                "placeholder": "Base model, no tuning"
+              },
+              {
+                "field": "host",
+                "label": "Host",
+                "type": "text",
+                "placeholder": "Ollama, on the team machine"
+              },
+              {
+                "field": "settings",
+                "label": "Settings",
+                "type": "text",
+                "placeholder": "temp 0.2, 8k context"
+              }
+            ],
+            "seed": [
+              {
+                "model": "Service assistant",
+                "type": "Third-party API (lab: llama3.2:3b)",
+                "tuning": "None",
+                "host": "Ollama",
+                "settings": "temp 0.2"
+              },
+              {
+                "model": "Failure predictor",
+                "type": "Small fine-tuned",
+                "tuning": "Fine-tuned on sensor history — origin UNKNOWN (SA-6)",
+                "host": "Local",
+                "settings": "n/a"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "data",
+            "label": "Data sources",
+            "columns": [
+              {
+                "field": "source",
+                "label": "Source",
+                "type": "text",
+                "placeholder": "Equipment manuals"
+              },
+              {
+                "field": "kind",
+                "label": "Kind",
+                "type": "select",
+                "options": [
+                  "Structured",
+                  "Semi-structured",
+                  "Unstructured"
+                ]
+              },
+              {
+                "field": "origin",
+                "label": "Origin",
+                "type": "text",
+                "placeholder": "Vendor PDFs"
+              },
+              {
+                "field": "writers",
+                "label": "Who can write",
+                "type": "text",
+                "placeholder": "Document reader (on upload)"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "tools",
+            "label": "AI tools in use (v3)",
+            "help": "IDE plug-in, browser plug-in, command-line tool, chatbot, personal assistant, MCP server.",
+            "columns": [
+              {
+                "field": "tool",
+                "label": "Tool",
+                "type": "text",
+                "placeholder": "ChatGPT"
+              },
+              {
+                "field": "type",
+                "label": "Type",
+                "type": "text",
+                "placeholder": "Chatbot"
+              },
+              {
+                "field": "account",
+                "label": "Account type",
+                "type": "select",
+                "options": [
+                  "Company",
+                  "Personal",
+                  "None"
+                ]
+              },
+              {
+                "field": "data_class",
+                "label": "Data class allowed",
+                "type": "text",
+                "placeholder": "Public only"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "Every model has a type, a tuning method and a host",
+          "when": {
+            "group": "models",
+            "every": {
+              "filled": [
+                "type",
+                "tuning",
+                "host"
+              ]
+            }
+          }
+        },
+        {
+          "label": "At least two data sources name their writers",
+          "when": {
+            "group": "data",
+            "where": {
+              "filled": [
+                "writers"
+              ]
+            },
+            "atLeast": 2
+          }
+        },
+        {
+          "label": "AI tools in use are listed by type and account",
+          "when": {
+            "group": "tools",
+            "where": {
+              "filled": [
+                "type",
+                "account"
+              ]
+            },
+            "atLeast": 1
+          },
+          "week": 3
+        }
+      ]
+    },
+    {
+      "id": "secai_attack_casebook",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_control_set"
+      ],
+      "num": 3,
+      "file": "03_Attack_Casebook.md",
+      "title": "P2 Attack Casebook",
+      "owner": "redteam",
+      "folder": "03_Attack_Casebook",
+      "standard": "OWASP LLM Top 10 · MITRE ATLAS",
+      "framework": "OWASP_LLM",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "The threat model and the attack cases, each with evidence: input file, transcript and a ledger hash.",
+      "howTo": "Add a row per case. v1: two cases. v2: six, mapped to OWASP and ATLAS. v3: a pass line and variants. v4: four paper cases, ten in all.",
+      "source": "Attacks run on the team’s own instance",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "cases",
+            "label": "Attack cases",
+            "columns": [
+              {
+                "field": "case",
+                "label": "Case",
+                "type": "text",
+                "placeholder": "Direct prompt injection"
+              },
+              {
+                "field": "owasp",
+                "label": "OWASP LLM",
+                "type": "text",
+                "placeholder": "LLM01"
+              },
+              {
+                "field": "atlas",
+                "label": "ATLAS technique",
+                "type": "text",
+                "placeholder": "AML.T0051"
+              },
+              {
+                "field": "evidence",
+                "label": "Evidence (file + hash)",
+                "type": "text",
+                "placeholder": "case-01.txt · 9b1c4e…"
+              },
+              {
+                "field": "status",
+                "label": "Status",
+                "type": "select",
+                "options": [
+                  "Works",
+                  "Blocked",
+                  "Contained",
+                  "Accepted"
+                ]
+              }
+            ],
+            "seed": [
+              {
+                "case": "Direct prompt injection",
+                "owasp": "LLM01",
+                "atlas": "AML.T0051",
+                "evidence": "case-01.txt · 9b1c4e…",
+                "status": "Works"
+              },
+              {
+                "case": "Sensitive information disclosure (the key)",
+                "owasp": "LLM02",
+                "atlas": "AML.T0057",
+                "evidence": "case-02.txt · 4e7d2a…",
+                "status": "Works"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "fields",
+          "title": "Suite",
+          "fields": [
+            {
+              "field": "pass_line",
+              "label": "Pass line (v3)",
+              "type": "text",
+              "placeholder": "4 or more of 6 blocked or contained"
+            },
+            {
+              "field": "ai_attacker",
+              "label": "AI-enabled attacker scenarios (v2)",
+              "type": "area",
+              "placeholder": "Three scenarios, each with one detection and one control."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least two cases, each with an OWASP reference and evidence",
+          "when": {
+            "group": "cases",
+            "where": {
+              "filled": [
+                "owasp",
+                "evidence"
+              ]
+            },
+            "atLeast": 2
+          }
+        },
+        {
+          "label": "Six cases are recorded by v2",
+          "when": {
+            "group": "cases",
+            "where": {
+              "filled": [
+                "case",
+                "status"
+              ]
+            },
+            "atLeast": 6
+          },
+          "week": 2
+        },
+        {
+          "label": "Every case maps to an ATLAS technique by v2",
+          "when": {
+            "group": "cases",
+            "every": {
+              "filled": [
+                "atlas"
+              ]
+            }
+          },
+          "week": 2
+        },
+        {
+          "label": "The suite has a pass line by v3",
+          "when": {
+            "fields": [
+              "pass_line"
+            ]
+          },
+          "week": 3
+        },
+        {
+          "label": "Ten cases in all by v4",
+          "when": {
+            "group": "cases",
+            "where": {
+              "filled": [
+                "case"
+              ]
+            },
+            "atLeast": 10
+          },
+          "week": 4
+        }
+      ]
+    },
+    {
+      "id": "secai_control_set",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_governance_pack"
+      ],
+      "num": 4,
+      "file": "04_Control_Set.md",
+      "title": "P3 Control Set",
+      "owner": "defender",
+      "folder": "04_Control_Set",
+      "standard": "NIST CSF (Protect)",
+      "framework": "NIST_CSF",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "gate": 2,
+      "kind": "form",
+      "exportFormat": "csv",
+      "purpose": "The controls as rows — control, who, how often, with what, record — plus the access matrix and the data protection rules.",
+      "howTo": "Add a row per control with all five columns. v2 adds the access matrix and data rules; v4 gives each row a test result.",
+      "source": "The cases the Red Team proved",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "controls",
+            "label": "Controls",
+            "columns": [
+              {
+                "field": "control",
+                "label": "Control",
+                "type": "text",
+                "placeholder": "Key in a secret store"
+              },
+              {
+                "field": "who",
+                "label": "Who",
+                "type": "text",
+                "placeholder": "AI Defender"
+              },
+              {
+                "field": "cadence",
+                "label": "How often",
+                "type": "text",
+                "placeholder": "Rotated every 90 days"
+              },
+              {
+                "field": "with",
+                "label": "With what",
+                "type": "text",
+                "placeholder": "OpenBao"
+              },
+              {
+                "field": "record",
+                "label": "Record",
+                "type": "text",
+                "placeholder": "Rotation log"
+              },
+              {
+                "field": "closes",
+                "label": "Closes",
+                "type": "text",
+                "placeholder": "SA-1"
+              },
+              {
+                "field": "result",
+                "label": "Test result (v4)",
+                "type": "text",
+                "placeholder": "Pass — gitleaks clean"
+              }
+            ],
+            "seed": [
+              {
+                "control": "Key in a secret store",
+                "who": "AI Defender",
+                "cadence": "90-day rotation",
+                "with": "OpenBao",
+                "record": "Rotation log",
+                "closes": "SA-1",
+                "result": ""
+              },
+              {
+                "control": "Per-key rate limit",
+                "who": "AI Defender",
+                "cadence": "Always on",
+                "with": "LiteLLM",
+                "record": "Gateway log",
+                "closes": "SA-4",
+                "result": ""
+              },
+              {
+                "control": "Input guardrail",
+                "who": "AI Defender",
+                "cadence": "Every request",
+                "with": "LLM Guard",
+                "record": "Guardrail log",
+                "closes": "SA-2",
+                "result": ""
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "access",
+            "label": "Access matrix (v2)",
+            "help": "Subjects against objects: who may reach the model endpoint, system prompt, retrieval store, logs, tools and keys.",
+            "columns": [
+              {
+                "field": "subject",
+                "label": "Subject",
+                "type": "text",
+                "placeholder": "Dispatch agent"
+              },
+              {
+                "field": "object",
+                "label": "Object",
+                "type": "text",
+                "placeholder": "Work-order tool"
+              },
+              {
+                "field": "access",
+                "label": "Access",
+                "type": "select",
+                "options": [
+                  "None",
+                  "Read",
+                  "Write",
+                  "Read/Write"
+                ]
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least three controls with all five columns",
+          "when": {
+            "group": "controls",
+            "where": {
+              "filled": [
+                "control",
+                "who",
+                "cadence",
+                "with",
+                "record"
+              ]
+            },
+            "atLeast": 3
+          }
+        },
+        {
+          "label": "The access matrix has entries by v2",
+          "when": {
+            "group": "access",
+            "where": {
+              "filled": [
+                "subject",
+                "object",
+                "access"
+              ]
+            },
+            "atLeast": 3
+          },
+          "week": 2
+        },
+        {
+          "label": "Every control has a test result by v4",
+          "when": {
+            "group": "controls",
+            "every": {
+              "filled": [
+                "result"
+              ]
+            }
+          },
+          "week": 4
+        }
+      ]
+    },
+    {
+      "id": "secai_watch_plan",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_governance_pack"
+      ],
+      "num": 5,
+      "file": "05_Watch_Plan.md",
+      "title": "P4 Watch Plan",
+      "owner": "defender",
+      "folder": "05_Watch_Plan",
+      "standard": "NIST CSF (Detect, Respond)",
+      "framework": "NIST_CSF",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "gate": 3,
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "Logging, alert thresholds, detections, the quality audit and the monitoring handover.",
+      "howTo": "v1: what is logged, who reads it, how long. v2: redaction and thresholds. v3: detections and audit. v4: the handover sheet.",
+      "source": "The gateway and SIEM the Defender built",
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "Logging",
+          "fields": [
+            {
+              "field": "logged",
+              "label": "What is logged",
+              "type": "area",
+              "required": true,
+              "placeholder": "Query, response, caller, time."
+            },
+            {
+              "field": "readers",
+              "label": "Who can read it",
+              "type": "text",
+              "required": true,
+              "placeholder": "Two roles: on-call, auditor."
+            },
+            {
+              "field": "retention",
+              "label": "How long it is kept",
+              "type": "text",
+              "required": true,
+              "placeholder": "90 days"
+            },
+            {
+              "field": "redaction",
+              "label": "Redaction before write (v2)",
+              "type": "area",
+              "placeholder": "Names and access codes replaced by Presidio."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "alerts",
+            "label": "Alert thresholds (v2) and detections (v3)",
+            "columns": [
+              {
+                "field": "signal",
+                "label": "Signal",
+                "type": "text",
+                "placeholder": "Requests per minute"
+              },
+              {
+                "field": "threshold",
+                "label": "Threshold",
+                "type": "text",
+                "placeholder": "> 60 / min / key"
+              },
+              {
+                "field": "owner",
+                "label": "Owner",
+                "type": "text",
+                "placeholder": "On-call defender"
+              },
+              {
+                "field": "action",
+                "label": "Action",
+                "type": "text",
+                "placeholder": "Ticket in GLPI"
+              }
+            ],
+            "seed": [
+              {
+                "signal": "Request rate",
+                "threshold": "> 60 / min / key",
+                "owner": "On-call",
+                "action": "GLPI ticket"
+              },
+              {
+                "signal": "Prompt cost",
+                "threshold": "> $5 / hour",
+                "owner": "FinOps",
+                "action": "GLPI ticket"
+              }
+            ]
+          }
+        },
+        {
+          "kind": "fields",
+          "title": "Handover (v4)",
+          "fields": [
+            {
+              "field": "handover",
+              "label": "Who watches what, how often",
+              "type": "area",
+              "placeholder": "On-call watches injection and cost alerts, daily; the auditor reviews log access, monthly."
+            }
+          ]
+        }
+      ],
+      "dod": [
+        {
+          "label": "What is logged, who reads it and for how long are set",
+          "when": {
+            "fields": [
+              "logged",
+              "readers",
+              "retention"
+            ]
+          }
+        },
+        {
+          "label": "Alert thresholds have owners by v2",
+          "when": {
+            "group": "alerts",
+            "every": {
+              "filled": [
+                "threshold",
+                "owner"
+              ]
+            }
+          },
+          "week": 2
+        },
+        {
+          "label": "The monitoring handover is written by v4",
+          "when": {
+            "fields": [
+              "handover"
+            ]
+          },
+          "week": 4
+        }
+      ]
+    },
+    {
+      "id": "secai_governance_pack",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_release_package"
+      ],
+      "num": 6,
+      "file": "06_Governance_Pack.md",
+      "title": "P5 Governance Pack",
+      "owner": "governance",
+      "folder": "06_Governance_Pack",
+      "standard": "NIST AI RMF · ISO/IEC 42001",
+      "framework": "NIST_AI_RMF",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "The AI policy, the risk register, the compliance table and the responsible-AI assessment.",
+      "howTo": "v1: five shall statements and five risks. v2: ten risks, ten roles, the compliance table. v3: tool rules and accuracy. v4: the responsible-AI assessment and signed acceptances.",
+      "source": "The controls and cases of each release",
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "Policy",
+          "fields": [
+            {
+              "field": "policy",
+              "label": "Policy “shall” statements",
+              "type": "area",
+              "required": true,
+              "placeholder": "The assistant shall carry no secret in its prompt. …"
+            },
+            {
+              "field": "accountable",
+              "label": "Accountable executive",
+              "type": "text",
+              "required": true,
+              "placeholder": "CEO — [name]"
+            },
+            {
+              "field": "tool_rules",
+              "label": "AI tool rules (v3)",
+              "type": "area",
+              "placeholder": "What never goes to a public model; who validates AI output."
+            },
+            {
+              "field": "rai",
+              "label": "Responsible-AI assessment (v4)",
+              "type": "area",
+              "placeholder": "One line per principle: evidence, or the gap."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "risks",
+            "label": "Risk register",
+            "columns": [
+              {
+                "field": "risk",
+                "label": "Risk",
+                "type": "text",
+                "placeholder": "Data leakage through prompts"
+              },
+              {
+                "field": "owner",
+                "label": "Owner",
+                "type": "text",
+                "placeholder": "AI Defender"
+              },
+              {
+                "field": "treatment",
+                "label": "Treatment",
+                "type": "text",
+                "placeholder": "Guardrail + redaction"
+              },
+              {
+                "field": "accepted",
+                "label": "Accepted by (v4)",
+                "type": "text",
+                "placeholder": "CEO — [date]"
+              }
+            ],
+            "seed": [
+              {
+                "risk": "Prompt injection",
+                "owner": "AI Defender",
+                "treatment": "Input guardrail + suite as a test",
+                "accepted": ""
+              },
+              {
+                "risk": "Unknown training data (SA-6)",
+                "owner": "Governance",
+                "treatment": "Resolve source or accept",
+                "accepted": ""
+              }
+            ]
+          }
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "compliance",
+            "label": "Compliance table (v2)",
+            "help": "Every rule in the scenario: does it apply, why, and who owns it.",
+            "columns": [
+              {
+                "field": "rule",
+                "label": "Rule",
+                "type": "text",
+                "placeholder": "Texas Responsible AI Governance Act"
+              },
+              {
+                "field": "applies",
+                "label": "Applies?",
+                "type": "select",
+                "options": [
+                  "Yes",
+                  "No"
+                ]
+              },
+              {
+                "field": "because",
+                "label": "Because",
+                "type": "text",
+                "placeholder": "Develops and deploys AI in Texas"
+              },
+              {
+                "field": "owner",
+                "label": "Owner",
+                "type": "text",
+                "placeholder": "Governance"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "Five policy statements and an accountable executive",
+          "when": {
+            "fields": [
+              "policy",
+              "accountable"
+            ]
+          }
+        },
+        {
+          "label": "At least five risks with owner and treatment",
+          "when": {
+            "group": "risks",
+            "where": {
+              "filled": [
+                "owner",
+                "treatment"
+              ]
+            },
+            "atLeast": 5
+          }
+        },
+        {
+          "label": "The compliance table covers the rules by v2",
+          "when": {
+            "group": "compliance",
+            "where": {
+              "filled": [
+                "rule",
+                "applies",
+                "because"
+              ]
+            },
+            "atLeast": 6
+          },
+          "week": 2
+        },
+        {
+          "label": "Every remaining risk is accepted in writing by v4",
+          "when": {
+            "group": "risks",
+            "every": {
+              "filled": [
+                "accepted"
+              ]
+            }
+          },
+          "week": 4
+        }
+      ]
+    },
+    {
+      "id": "secai_release_note",
+      "courseId": "secai-plus",
+      "feeds": [
+        "secai_release_package"
+      ],
+      "num": 7,
+      "file": "07_Release_Note.md",
+      "title": "Release Note",
+      "owner": "governance",
+      "folder": "07_Release_Notes",
+      "standard": "Release record",
+      "framework": "NIST_CSF",
+      "weeks": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "gate": 1,
+      "kind": "form",
+      "exportFormat": "md",
+      "purpose": "One page per release: what shipped, the scoreboard, open risks, and the CEO’s signature.",
+      "howTo": "Fill one block per release. The scoreboard is the attack and detection counts; the CEO signs each one.",
+      "source": "The three documents of the release",
+      "sections": [
+        {
+          "kind": "group",
+          "group": {
+            "group": "releases",
+            "label": "Releases",
+            "columns": [
+              {
+                "field": "version",
+                "label": "Release",
+                "type": "select",
+                "options": [
+                  "v1",
+                  "v2",
+                  "v3",
+                  "v4"
+                ]
+              },
+              {
+                "field": "shipped",
+                "label": "What shipped",
+                "type": "text",
+                "placeholder": "Gateway, secret store, logging"
+              },
+              {
+                "field": "scoreboard",
+                "label": "Scoreboard",
+                "type": "text",
+                "placeholder": "2 attacks · 2 blocked · 2 logged"
+              },
+              {
+                "field": "open",
+                "label": "Open risks",
+                "type": "text",
+                "placeholder": "SA-6 flagged"
+              },
+              {
+                "field": "signed",
+                "label": "CEO signed",
+                "type": "text",
+                "placeholder": "[name] · 2026-10-06"
+              }
+            ],
+            "seed": [
+              {
+                "version": "v1",
+                "shipped": "",
+                "scoreboard": "",
+                "open": "",
+                "signed": ""
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "At least one release is signed off",
+          "when": {
+            "group": "releases",
+            "where": {
+              "filled": [
+                "version",
+                "scoreboard",
+                "signed"
+              ]
+            },
+            "atLeast": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "secai_release_package",
+      "courseId": "secai-plus",
+      "capstone": true,
+      "num": 8,
+      "file": "08_Release_Package.md",
+      "title": "Release v4 Package & Assurance Response",
+      "owner": "governance",
+      "folder": "08_Release_Package",
+      "standard": "Customer assurance",
+      "framework": "SECAI",
+      "weeks": [
+        4
+      ],
+      "kind": "template",
+      "exportFormat": "md",
+      "purpose": "The final package: the three customer answers, each citing a document and a ledger entry, plus the index of everything shipped.",
+      "howTo": "Answer the three questions, cite a document and a ledger hash for each, and list every document with its version and ledger entry.",
+      "source": "All five documents at v4 and the ledger",
+      "sections": [
+        {
+          "kind": "fields",
+          "title": "The three questions",
+          "fields": [
+            {
+              "field": "accountable",
+              "label": "Who is accountable for the AI?",
+              "type": "area",
+              "required": true,
+              "placeholder": "The CEO, named in P5 v4 (ledger 06_…:4e7d)."
+            },
+            {
+              "field": "rules",
+              "label": "What rules apply to it?",
+              "type": "area",
+              "required": true,
+              "placeholder": "The compliance table in P5 v4 (ledger …)."
+            },
+            {
+              "field": "wrong",
+              "label": "What happens when it is wrong?",
+              "type": "area",
+              "required": true,
+              "placeholder": "The watch plan and incident procedure in P4 v4 (ledger …)."
+            }
+          ]
+        },
+        {
+          "kind": "group",
+          "group": {
+            "group": "index",
+            "label": "Package index",
+            "columns": [
+              {
+                "field": "document",
+                "label": "Document",
+                "type": "text",
+                "placeholder": "P1 System Map"
+              },
+              {
+                "field": "version",
+                "label": "Version",
+                "type": "text",
+                "placeholder": "v4"
+              },
+              {
+                "field": "ledger",
+                "label": "Ledger entry",
+                "type": "text",
+                "placeholder": "02_System_Map.md · 9b1c4e…"
+              }
+            ]
+          }
+        }
+      ],
+      "dod": [
+        {
+          "label": "All three customer questions are answered with a citation",
+          "when": {
+            "fields": [
+              "accountable",
+              "rules",
+              "wrong"
+            ]
+          }
+        },
+        {
+          "label": "The package index lists every document with a ledger entry",
+          "when": {
+            "group": "index",
+            "where": {
+              "filled": [
+                "document",
+                "version",
+                "ledger"
+              ]
+            },
+            "atLeast": 6
+          }
+        }
+      ]
+    }
+  ],
+  "content": {
+    "manual": {
+      "COURSE_TOOLS": {
+        "security-plus": "whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum",
+        "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
+        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)",
+        "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
+        "secai-plus": "Ollama · LiteLLM · OpenBao · Chroma · garak · LLM Guard · Microsoft Presidio · Semgrep · Trivy · Gitleaks · ModelScan · Prowler · Wazuh · Git · sha256sum",
+        "cissp": "eramba · draw.io · OPNsense · nmap · OpenSSL · Keycloak · Trivy · Gitleaks · OpenVAS · Lynis · Wazuh · restic · OSCAL Compass · Git · sha256sum",
+        "azure-fundamentals": "Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud",
+        "azure-administrator": "Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud",
+        "azure-devops": "Azure portal · Cloud Shell (az) · Cost Management · Network Watcher · Application Insights · Run Command · Update Manager · ARM templates (what-if) · GitHub Actions · Azure Policy · Defender for Cloud",
+        "aws-cloud-practitioner": "AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer",
+        "aws-solutions-architect": "AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer",
+        "aws-devops": "AWS console · CloudShell (aws) · Budgets · Reachability Analyzer · CloudWatch · Session Manager · Patch Manager · CloudFormation (change sets) · GitHub Actions · AWS Config · Trusted Advisor · IAM Access Analyzer"
+      },
+      "MANUAL_COPY": {
+        "title": "The manual",
+        "subtitle": "Look things up here. Everything is open, so search the page.",
+        "navLabel": "Manual sections"
+      },
+      "MANUAL_SECTIONS": [
+        {
+          "id": "lab",
+          "when": "config-guide",
+          "title": "The build",
+          "blurb": "One rack-mount server on the campus LAN running a hypervisor with two zones — a DMZ for the website, a private network for the Windows server and the Linux database. Your host is 10.10.30.T (T = your team number)."
+        },
+        {
+          "id": "lab",
+          "when": "cloud-iac",
+          "title": "How the company works",
+          "blurb": "The request paths, the pipeline, the incident loop and the weekly cycle — each as one picture. The detail is in each week’s tasks."
+        },
+        {
+          "id": "lab",
+          "when": "always",
+          "title": "The lab",
+          "blurb": "Every machine in the environment, what runs on it, and how to confirm you can reach it before Week 1."
+        },
+        {
+          "id": "config-guide",
+          "when": "config-guide",
+          "title": "Configuration guide",
+          "blurb": "Every build procedure for the deployment, week by week — the exact commands, click-paths and BIOS keystrokes, written against this topology. The task steps say what to do; this is how."
+        },
+        {
+          "id": "cloud-iac",
+          "when": "cloud-iac",
+          "title": "Architecture & IaC",
+          "blurb": "The environment as the platform draws it, and the template that builds it. Move the week to see it grow; click a resource to read its lines."
+        },
+        {
+          "id": "tools",
+          "when": "tools",
+          "title": "Using the tools — Wazuh, Suricata & Sysmon",
+          "blurb": "What each tool is, how it is configured, and the exact searches and event IDs you reuse all course. The step-by-step commands live in each week’s task."
+        },
+        {
+          "id": "terminal",
+          "when": "commands",
+          "title": "Running commands & getting unstuck",
+          "blurb": "How to use a terminal, and the fixes for the errors almost every beginner hits."
+        },
+        {
+          "id": "evidence",
+          "when": "always",
+          "title": "Evidence & chain of custody",
+          "blurb": "How to name, hash, log and hand off an artifact so it would hold up under scrutiny — and a ready-to-fill custody log."
+        },
+        {
+          "id": "forms",
+          "when": "always",
+          "title": "The forms, and how they connect",
+          "blurb": "Every form in the course, which one feeds the next, where its content comes from, and the folder layout you submit. The forms themselves are filled on the Deliverables tab."
+        },
+        {
+          "id": "roles",
+          "when": "multi-role",
+          "title": "How the roles hand off",
+          "blurb": "Each role works its own lane, but the week only closes when the hand-offs land. The strip above lists what each role owns; this is how the work moves between them."
+        },
+        {
+          "id": "lifecycle",
+          "when": "lifecycle",
+          "title": "The case lifecycle",
+          "blurb": "The path every case follows, whatever raised it. The specific attack this course runs is drawn above, under the arc."
+        },
+        {
+          "id": "frameworks",
+          "when": "frameworks",
+          "title": "Frameworks",
+          "blurb": "Every task is mapped to a recognized standard. The tags on a task aren’t decoration — they say how an auditor or employer would read your work."
+        }
+      ],
+      "QUICK_REFERENCE": {
+        "title": "Quick reference card",
+        "filesTitle": "{n} FILES",
+        "everyFormTitle": "EVERY FORM",
+        "everyForm": [
+          "Run the tool → read the output → pull the 3 things (",
+          {
+            "em": "what you found · the proof · why it matters"
+          },
+          ") → enter in the form → Generate → save as PDF."
+        ],
+        "everyToolTitle": "EVERY TOOL",
+        "nameItTitle": "NAME IT",
+        "nameIt": [
+          "Deliverables ",
+          {
+            "code": "NN_Name.ext"
+          },
+          "; evidence ",
+          {
+            "code": "{evidence}"
+          },
+          "; hash with ",
+          {
+            "code": "sha256sum"
+          },
+          "."
+        ],
+        "gradedOnTitle": "GRADED ON",
+        "gradedOn": "Process · documentation · evidence · ethics (staying in scope) — not speed."
+      }
+    },
+    "hub": {
+      "HUB": {
+        "copy": {
+          "title": "The Service Hub’s AI — what you attack, defend, watch and govern",
+          "howToRead": "Left: the people who use it. Middle: the app, the gateway and the agent your team controls. Right, top: the AI services behind it. Right, bottom: the logs, alerts, pipeline and governance you build. Every attack case and control row names one of these boxes.",
+          "footer": "Lab stand-in until the starter kit ships: a small open-weight model in Ollama, Chroma, and LiteLLM as the gateway."
+        },
+        "view": {
+          "w": 960,
+          "h": 400
+        },
+        "zones": [
+          {
+            "id": "people",
+            "label": "People",
+            "note": "customers · staff",
+            "x": 20,
+            "y": 40,
+            "w": 170,
+            "h": 340,
+            "tone": 4
+          },
+          {
+            "id": "app",
+            "label": "Service Hub — your build",
+            "note": "what you configure",
+            "x": 210,
+            "y": 40,
+            "w": 360,
+            "h": 340,
+            "tone": 2
+          },
+          {
+            "id": "ai",
+            "label": "AI services",
+            "note": "models · retrieval",
+            "x": 590,
+            "y": 40,
+            "w": 350,
+            "h": 180,
+            "tone": 1
+          },
+          {
+            "id": "ops",
+            "label": "Watch and govern",
+            "note": "what proves it",
+            "x": 590,
+            "y": 240,
+            "w": 350,
+            "h": 140,
+            "tone": 3
+          }
+        ],
+        "nodes": [
+          {
+            "id": "customer",
+            "label": "Customer",
+            "sub": "property managers",
+            "kind": "people",
+            "zone": "people",
+            "x": 105,
+            "y": 100
+          },
+          {
+            "id": "technician",
+            "label": "Technician",
+            "sub": "field app",
+            "kind": "people",
+            "zone": "people",
+            "x": 105,
+            "y": 170
+          },
+          {
+            "id": "staff",
+            "label": "Office staff",
+            "sub": "personal chatbots (SA-7)",
+            "kind": "people",
+            "zone": "people",
+            "x": 105,
+            "y": 250
+          },
+          {
+            "id": "outside",
+            "label": "Outside inbox",
+            "sub": "where leaks land",
+            "kind": "outside",
+            "zone": "people",
+            "x": 105,
+            "y": 320,
+            "external": true
+          },
+          {
+            "id": "portal",
+            "label": "Customer portal",
+            "sub": "renders the answer",
+            "kind": "app",
+            "zone": "app",
+            "x": 305,
+            "y": 100
+          },
+          {
+            "id": "gateway",
+            "label": "AI gateway",
+            "sub": "keys · limits · logging",
+            "kind": "control",
+            "zone": "app",
+            "x": 475,
+            "y": 100
+          },
+          {
+            "id": "intake",
+            "label": "Document intake",
+            "sub": "scan · quarantine · label",
+            "kind": "control",
+            "zone": "app",
+            "x": 305,
+            "y": 170
+          },
+          {
+            "id": "guardrail",
+            "label": "Guardrails",
+            "sub": "input · output screening",
+            "kind": "control",
+            "zone": "app",
+            "x": 475,
+            "y": 170
+          },
+          {
+            "id": "agent",
+            "label": "Dispatch agent",
+            "sub": "assigns · messages",
+            "kind": "ai",
+            "zone": "app",
+            "x": 305,
+            "y": 250
+          },
+          {
+            "id": "tools",
+            "label": "Work-order + email tools",
+            "sub": "scoped tokens",
+            "kind": "app",
+            "zone": "app",
+            "x": 475,
+            "y": 250
+          },
+          {
+            "id": "secrets",
+            "label": "Secret store",
+            "sub": "keys out of prompts",
+            "kind": "identity",
+            "zone": "app",
+            "x": 305,
+            "y": 320
+          },
+          {
+            "id": "llm",
+            "label": "Language model",
+            "sub": "third-party API · lab: Ollama",
+            "kind": "ai",
+            "zone": "ai",
+            "x": 680,
+            "y": 100
+          },
+          {
+            "id": "retrieval",
+            "label": "Retrieval store",
+            "sub": "manuals · records · contracts",
+            "kind": "data",
+            "zone": "ai",
+            "x": 850,
+            "y": 100
+          },
+          {
+            "id": "predictor",
+            "label": "Failure predictor",
+            "sub": "fine-tuned (SA-6)",
+            "kind": "ai",
+            "zone": "ai",
+            "x": 680,
+            "y": 175
+          },
+          {
+            "id": "logs",
+            "label": "Logs and traces",
+            "sub": "redacted · two readers",
+            "kind": "monitor",
+            "zone": "ops",
+            "x": 680,
+            "y": 280
+          },
+          {
+            "id": "siem",
+            "label": "Wazuh alerts",
+            "sub": "injection · cost spike",
+            "kind": "monitor",
+            "zone": "ops",
+            "x": 850,
+            "y": 280
+          },
+          {
+            "id": "pipeline",
+            "label": "Pipeline gates",
+            "sub": "attack suite as a test",
+            "kind": "pipeline",
+            "zone": "ops",
+            "x": 680,
+            "y": 345
+          },
+          {
+            "id": "governance",
+            "label": "Governance pack",
+            "sub": "policy · risks · sign-off",
+            "kind": "control",
+            "zone": "ops",
+            "x": 850,
+            "y": 345
+          }
+        ],
+        "edges": [
+          {
+            "from": "customer",
+            "to": "portal",
+            "label": "questions"
+          },
+          {
+            "from": "portal",
+            "to": "llm",
+            "label": "prompt + retrieved text"
+          },
+          {
+            "from": "llm",
+            "to": "retrieval",
+            "label": "reads"
+          }
+        ]
+      },
+      "HUB_BUILD": {
+        "arrives": {
+          "customer": 0,
+          "technician": 0,
+          "portal": 0,
+          "agent": 0,
+          "tools": 0,
+          "llm": 0,
+          "retrieval": 0,
+          "predictor": 0,
+          "gateway": 1,
+          "secrets": 1,
+          "logs": 1,
+          "governance": 1,
+          "guardrail": 2,
+          "intake": 2,
+          "outside": 2,
+          "siem": 2,
+          "pipeline": 3,
+          "staff": 3
+        },
+        "processes": {
+          "0": {
+            "title": "The product as found",
+            "steps": [
+              {
+                "from": "customer",
+                "to": "portal",
+                "label": "asks a question"
+              },
+              {
+                "from": "portal",
+                "to": "llm",
+                "label": "prompt with the key inside"
+              },
+              {
+                "from": "llm",
+                "to": "retrieval",
+                "label": "reads manuals and records"
+              }
+            ]
+          },
+          "1": {
+            "title": "Release v1: stop the leak",
+            "steps": [
+              {
+                "from": "customer",
+                "to": "gateway",
+                "label": "print your hidden instructions"
+              },
+              {
+                "from": "gateway",
+                "to": "llm",
+                "label": "rate-limited, no key inside"
+              },
+              {
+                "from": "gateway",
+                "to": "logs",
+                "label": "every attempt logged"
+              }
+            ]
+          },
+          "2": {
+            "title": "Release v2: the poisoned work order",
+            "steps": [
+              {
+                "from": "intake",
+                "to": "retrieval",
+                "label": "scanned before it is stored"
+              },
+              {
+                "from": "agent",
+                "to": "tools",
+                "label": "scoped token, no admin"
+              },
+              {
+                "from": "tools",
+                "to": "outside",
+                "label": "outbound email needs approval"
+              },
+              {
+                "from": "logs",
+                "to": "siem",
+                "label": "thresholds with an owner"
+              }
+            ]
+          },
+          "3": {
+            "title": "Release v3: automated and measured",
+            "steps": [
+              {
+                "from": "pipeline",
+                "to": "guardrail",
+                "label": "guardrail removed: build blocked"
+              },
+              {
+                "from": "logs",
+                "to": "siem",
+                "label": "injection pattern raises an alert"
+              },
+              {
+                "from": "staff",
+                "to": "governance",
+                "label": "a decision for every tool"
+              }
+            ]
+          },
+          "4": {
+            "title": "Release v4: proven and handed over",
+            "steps": [
+              {
+                "from": "pipeline",
+                "to": "portal",
+                "label": "clean rebuild, same results"
+              },
+              {
+                "from": "siem",
+                "to": "governance",
+                "label": "six of six alerts"
+              },
+              {
+                "from": "governance",
+                "to": "customer",
+                "label": "three answers, with evidence"
+              }
+            ]
+          }
+        },
+        "captions": {
+          "0": "The product as found: the assistant, the agent and its tools, the models and the retrieval store, every planted weakness still in place.",
+          "1": "New: the gateway, the secret store, logging and the governance pack. The key leaves the prompt and every attempt is logged.",
+          "2": "New: guardrails, document intake and alerts. A poisoned work order is quarantined and the agent cannot email without a person.",
+          "3": "New: the pipeline and the staff’s own AI tools. The attack suite runs as a test and a missing guardrail blocks the build.",
+          "4": "Nothing new is built: a clean copy is rebuilt, matches v3 and alerts on all six, and the customers get evidence-backed answers."
+        }
+      }
+    },
+    "weekVisuals": [
+      {
+        "week": 0,
+        "builtThrough": 0,
+        "highlight": [
+          "customer",
+          "technician",
+          "portal",
+          "agent",
+          "tools",
+          "llm",
+          "retrieval",
+          "predictor"
+        ],
+        "process": {
+          "title": "The product as found",
+          "steps": [
+            {
+              "from": "customer",
+              "to": "portal",
+              "label": "asks a question"
+            },
+            {
+              "from": "portal",
+              "to": "llm",
+              "label": "prompt with the key inside"
+            },
+            {
+              "from": "llm",
+              "to": "retrieval",
+              "label": "reads manuals and records"
+            }
+          ]
+        },
+        "caption": "The product as found: the assistant, the agent and its tools, the models and the retrieval store, every planted weakness still in place."
+      },
+      {
+        "week": 1,
+        "builtThrough": 1,
+        "highlight": [
+          "gateway",
+          "secrets",
+          "logs",
+          "governance"
+        ],
+        "process": {
+          "title": "Release v1: stop the leak",
+          "steps": [
+            {
+              "from": "customer",
+              "to": "gateway",
+              "label": "print your hidden instructions"
+            },
+            {
+              "from": "gateway",
+              "to": "llm",
+              "label": "rate-limited, no key inside"
+            },
+            {
+              "from": "gateway",
+              "to": "logs",
+              "label": "every attempt logged"
+            }
+          ]
+        },
+        "caption": "New: the gateway, the secret store, logging and the governance pack. The key leaves the prompt and every attempt is logged."
+      },
+      {
+        "week": 2,
+        "builtThrough": 2,
+        "highlight": [
+          "guardrail",
+          "intake",
+          "outside",
+          "siem"
+        ],
+        "process": {
+          "title": "Release v2: the poisoned work order",
+          "steps": [
+            {
+              "from": "intake",
+              "to": "retrieval",
+              "label": "scanned before it is stored"
+            },
+            {
+              "from": "agent",
+              "to": "tools",
+              "label": "scoped token, no admin"
+            },
+            {
+              "from": "tools",
+              "to": "outside",
+              "label": "outbound email needs approval"
+            },
+            {
+              "from": "logs",
+              "to": "siem",
+              "label": "thresholds with an owner"
+            }
+          ]
+        },
+        "caption": "New: guardrails, document intake and alerts. A poisoned work order is quarantined and the agent cannot email without a person."
+      },
+      {
+        "week": 3,
+        "builtThrough": 3,
+        "highlight": [
+          "pipeline",
+          "staff"
+        ],
+        "process": {
+          "title": "Release v3: automated and measured",
+          "steps": [
+            {
+              "from": "pipeline",
+              "to": "guardrail",
+              "label": "guardrail removed: build blocked"
+            },
+            {
+              "from": "logs",
+              "to": "siem",
+              "label": "injection pattern raises an alert"
+            },
+            {
+              "from": "staff",
+              "to": "governance",
+              "label": "a decision for every tool"
+            }
+          ]
+        },
+        "caption": "New: the pipeline and the staff’s own AI tools. The attack suite runs as a test and a missing guardrail blocks the build."
+      },
+      {
+        "week": 4,
+        "builtThrough": 4,
+        "highlight": [],
+        "process": {
+          "title": "Release v4: proven and handed over",
+          "steps": [
+            {
+              "from": "pipeline",
+              "to": "portal",
+              "label": "clean rebuild, same results"
+            },
+            {
+              "from": "siem",
+              "to": "governance",
+              "label": "six of six alerts"
+            },
+            {
+              "from": "governance",
+              "to": "customer",
+              "label": "three answers, with evidence"
+            }
+          ]
+        },
+        "caption": "Nothing new is built: a clean copy is rebuilt, matches v3 and alerts on all six, and the customers get evidence-backed answers."
+      }
+    ],
+    "custody": {
+      "CUSTODY_COLUMNS": [
+        "Evidence ID",
+        "Description",
+        "Collected by",
+        "Date/Time",
+        "Location (path)",
+        "SHA-256",
+        "Transferred to",
+        "Transferred (date/time)",
+        "Notes"
+      ],
+      "CUSTODY_RULES": [
+        "Preserve the original — work on copies; never edit or rename the original artifact after collection.",
+        "Name every artifact `YYYYMMDD_TeamXX_Tool_Action.ext` so it is dated, attributed and self-describing.",
+        "Hash on collection: `sha256sum <file> >> Evidence_Hashes.txt`. Verify on receipt/before reporting: `sha256sum -c Evidence_Hashes.txt`.",
+        "Log every artifact in this file the moment it is collected — and log every hand-off (who → who, when).",
+        "Keep every artifact for a week in `~/team-artifacts/week-N/`; the team package gathers them into `04_Testing_and_Findings/Evidence/`. Keep originals read-only and backed up.",
+        "One custodian holds the evidence at a time; record each transfer so the chain is unbroken."
+      ]
+    },
+    "troubleshooting": {
+      "ERROR_ROWS": [
+        {
+          "symptom": "command not found",
+          "meaning": "The terminal doesn’t recognise the program — usually a typo or the tool isn’t installed.",
+          "fix": "Check the spelling. If it’s really missing, install it: sudo apt update && sudo apt install <tool>",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " (e.g. nmap, nikto, hydra).",
+              "otherwise": " — the step that first uses a tool says how to install it."
+            }
+          ]
+        },
+        {
+          "symptom": "Permission denied / Operation not permitted",
+          "meaning": "The command needs admin rights.",
+          "fix": "Add sudo in front on Linux (sudo <command>). On Windows/PowerShell, close it and reopen with “Run as administrator”."
+        },
+        {
+          "symptom": "Connection refused / No route to host / host seems down",
+          "meaning": "You can’t reach the target — it’s off, the IP is wrong, or you’re not on the right network.",
+          "fix": "ping the address first. Confirm the machine is powered on and that you are on the same subnet as it",
+          "variants": [
+            {
+              "when": "panel",
+              "then": ", and that you set the right IP in Lab access.",
+              "otherwise": " — a host in another zone only answers once the route between them exists."
+            },
+            {
+              "when": "attackTools",
+              "then": " For nmap, add -Pn to scan a host that blocks ping."
+            }
+          ]
+        },
+        {
+          "symptom": "No such file or directory",
+          "meaning": "You’re in the wrong folder, or the path/filename is wrong.",
+          "fix": "Run pwd to see where you are and cd ~ to go home.",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " For hydra, rockyou is gzipped by default — unzip it once: sudo gunzip /usr/share/wordlists/rockyou.txt.gz",
+              "otherwise": " Check the file really exists with ls before you edit it — a config path is easy to mistype."
+            }
+          ]
+        },
+        {
+          "needs": [
+            "panel"
+          ],
+          "symptom": "The command still shows {token}",
+          "meaning": "That’s a placeholder, not a real address — you copied it literally.",
+          "fix": "Open the Lab access panel at the top of the Tasks tab and enter {label}; the site then fills it into every command automatically."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "ssh: connect to host … Operation timed out (from home)",
+          "meaning": "Your laptop is not on the tailnet, or the host is not.",
+          "fix": "Check the Tailscale client is signed in and connected on your laptop, then run tailscale status on the host — it must list the host as online. On campus you can still reach it on its 10.10.30.T address while you sort this out."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "The Proxmox console times out but SSH works",
+          "meaning": "The path is fine; the web service or the port is not.",
+          "fix": "Run systemctl status pveproxy --no-pager over SSH. Remember the console is on port 8006 and https, not http — a plain http:// URL simply hangs."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "It worked yesterday and not today",
+          "meaning": "The host rebooted and something did not come back, or your address changed.",
+          "fix": "systemctl is-active tailscaled on the host must read active. The host keeps the same Tailscale address across reboots, so if the address you saved has changed, you are looking at a rebuilt host that was re-authorised as a new device."
+        },
+        {
+          "needs": [
+            "remote"
+          ],
+          "symptom": "Permission denied (publickey) after setting up keys",
+          "meaning": "The key is not where the server expects it, or the account is wrong.",
+          "fix": "Run ssh -v to see which key is offered, and confirm you are connecting as the right user. Password login is still enabled until Week 4 hardens it, so you have a way back in — use it rather than locking yourself out further."
+        },
+        {
+          "needs": [
+            "ops"
+          ],
+          "symptom": "ping 10.20.0.11 fails from a VM (Week 6)",
+          "meaning": "The VM cannot reach the Core over the ops network — the second NIC, the VLAN tag or the bridge is wrong.",
+          "fix": "On the host, ip -br a must show vmbr9 UP with the team’s 10.20.T.1 address. Inside the VM, the second interface needs its 10.20.T.x address and no gateway. Still nothing: the switch port is not trunking VLAN 20 — the Networking deep-dive owns that."
+        },
+        {
+          "symptom": "It just hangs / never finishes",
+          "meaning": "Some commands (a bare ping, a large download, a package install) run until you stop them, or they’re waiting on a slow or unreachable host.",
+          "fix": "Press Ctrl+C to stop it. Re-check reachability (ping), and give a genuinely long job a minute",
+          "variants": [
+            {
+              "when": "attackTools",
+              "then": " — an all-port nmap is slow.",
+              "otherwise": " — an OS install or a big apt upgrade takes minutes, not seconds."
+            }
+          ]
+        },
+        {
+          "symptom": "Read the last line first",
+          "meaning": "When anything fails, the error’s last line usually names the real problem.",
+          "fix": "Match that line to the rows above. Also double-check you’re on the machine the step’s WHERE chip names — running the right command on the wrong host is the most common cause."
+        }
+      ],
+      "TERMINAL_BASICS": [
+        {
+          "label": "Open a terminal",
+          "body": "On a Linux desktop, click the black terminal icon or press Ctrl+Alt+T. On a server you reach over SSH, the terminal is the session itself. You type commands here and press Enter to run them."
+        },
+        {
+          "label": "The prompt",
+          "body": "A line ending in $ (or #) is the prompt — it means the terminal is waiting for you. You don’t type the $ itself."
+        },
+        {
+          "label": "Paste a command",
+          "body": "Copy from this site, then in the terminal press Ctrl+Shift+V (plain Ctrl+V often does nothing in a terminal). Right-click → Paste also works."
+        },
+        {
+          "label": "Run one line at a time",
+          "body": "When a step shows several numbered commands, run them one by one — paste one, press Enter, wait for it to finish, then the next."
+        },
+        {
+          "label": "sudo = run as admin",
+          "body": "sudo runs a command with admin rights (it may ask for your password — typing shows nothing, that’s normal). On Windows/PowerShell, instead right-click PowerShell → “Run as administrator”."
+        },
+        {
+          "label": "Stop a stuck command",
+          "body": "Press Ctrl+C to cancel a command that hangs or runs forever (e.g. a ping with no -c limit)."
+        }
+      ],
+      "TERMINAL_COPY": {
+        "title": "Terminal basics",
+        "intro": "New to the command line? These are the only things you need to know to run every command in this course.",
+        "errorsTitle": "When a command won’t run",
+        "errorsIntro": "The errors almost everyone hits, and the one-line fix for each. Match the message you see to a row.",
+        "fixLabel": "Fix: "
+      }
+    }
+  },
+  "glossary": {
+    "data.src_ip": "The Wazuh search field holding the source address of a network (Suricata) alert — who the traffic came from.",
+    "data.srcip": "The Wazuh search field holding the source address of a host alert (logins, web requests). Its network twin is data.src_ip — search both.",
+    "ossec.conf": "The Wazuh agent's config file. It names the SOC to report to and any extra log files to ship.",
+    "hydra": "A password-guessing tool. In this lab you run it against your own pod so the SOC has a brute-force attack to detect.",
+    "tcpdump": "A command-line tool that records network traffic to a .pcap file you can open in Wireshark.",
+    "Wireshark": "A traffic viewer. Open a .pcap in it and \"Follow HTTP Stream\" to read the exact request an attacker sent.",
+    "Kali": "The attacker machine in your lab — a Linux build that ships with nmap, nikto, hydra and the rest.",
+    "Proxmox": "A hypervisor — an operating system whose job is to run virtual machines. In Server+ you install it on your own server; in the CySA lab it already runs the lab.",
+    "POST": "Power-On Self-Test — the hardware check a machine runs the moment you power it on, before any operating system. Beeps and blink codes are POST talking to you.",
+    "DIMM": "A memory stick. Which slots they go in is dictated by the motherboard manual, and the wrong slots can stop the machine starting at all.",
+    "ECC": "Error-Correcting Code memory — server RAM that detects and fixes single-bit corruption on the fly. Servers use it; desktops usually do not.",
+    "HCL": "Hardware Compatibility List — the check that the software you plan to run officially supports the exact hardware you have, before you build on it.",
+    "UEFI": "The modern replacement for the old BIOS firmware. Boot mode matters: an OS installed under UEFI will not boot if the firmware is later switched to legacy.",
+    "IOMMU": "The chip feature (Intel VT-d / AMD-Vi) that lets a virtual machine be handed a real piece of hardware, like a NIC, as its own.",
+    "VT-x": "Intel’s virtualization extensions. Present is not enough — they must be ENABLED in firmware setup, or the hypervisor cannot start a single VM.",
+    "stripe size": "How large a chunk of data a RAID array writes to one disk before moving to the next. The default is right for this build.",
+    "IDS": "Intrusion Detection System — software that watches traffic and raises an alert when it matches a known attack pattern. Suricata is yours.",
+    "NVD": "National Vulnerability Database — the public catalogue you search to find a CVE and its score for a given software version.",
+    "pod": "Your team’s pair of machines: one Ubuntu web server and one Windows PC.",
+    "escalate": "Pass an alert on for deeper investigation, with the reason written down, instead of closing it yourself.",
+    "SOC": "Security Operations Centre — the team (and dashboard) that watches for attacks around the clock.",
+    "SIEM": "Security Information and Event Management — software that gathers logs from everywhere and raises alerts. Wazuh is your SIEM.",
+    "IOC": "Indicator of Compromise — a clue an attacker leaves behind, like a bad IP address, file name, or hash.",
+    "CVE": "Common Vulnerabilities and Exposures — a public ID for one specific known software flaw, e.g. CVE-2021-41773.",
+    "CVSS": "A 0–10 score for how severe a vulnerability is, so you can rank what to fix first.",
+    "pcap": "A 'packet capture' — a saved recording of network traffic you can open in Wireshark.",
+    "SQLi": "SQL injection — tricking a website into running database commands it shouldn't, often to steal data.",
+    "WAF": "Web Application Firewall — a filter in front of a website that blocks common attacks like SQL injection.",
+    "POA&M": "Plan of Action & Milestones — a to-do list for fixing findings: what, who owns it, and by when.",
+    "PTES": "Penetration Testing Execution Standard — the agreed steps of a pentest: recon, scan, exploit, report.",
+    "STRIDE": "A checklist of threat types: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege.",
+    "NIC": "Network Interface Card — a machine's network connection. On these VMs it's usually named ens18.",
+    "IaC": "Infrastructure as Code — describing machines in a text file a tool applies, so the build is repeatable and the file is the record. Terraform or OpenTofu is yours.",
+    "OpenTofu": "The open-source fork of Terraform, kept under the Linux Foundation after HashiCorp changed Terraform’s licence in 2023. Same HCL, same providers, same state files; the command is tofu instead of terraform.",
+    "exporter": "A small program on a host that publishes its metrics on an HTTP port for Prometheus to collect. node_exporter for Linux, windows_exporter for Windows.",
+    "IPAM": "IP Address Management — the tool that holds every subnet and address and who has it, so the plan and reality are the same document. NetBox is yours.",
+    "FIM": "File Integrity Monitoring — an agent that hashes important files and alerts when one changes, which is how a tampered config gets noticed.",
+    "cloud-init": "The first-boot setup a cloud image runs: hostname, user, keys and addressing handed in from outside, so a clone comes up configured instead of blank.",
+    "DNAT": "Destination NAT — the host rewriting where a packet is going. The rule that turns a request to the host’s campus address on port 80 into a request to websrv in the DMZ.",
+    "MASQUERADE": "Source NAT behind the host’s own address, so a reply from the campus LAN or the internet comes back to the host and is handed to the guest that asked.",
+    "published port": "A port on the host’s campus address that a DNAT rule hands to a VM behind it. Each one is a deliberate hole in the segmentation, and you should be able to say why it exists.",
+    "idempotent": "Running it twice gives the same result as running it once. The property that makes a playbook safe to run every night — and why changed=0 on the second run is the proof.",
+    "drift": "Reality diverging from what the code says — a change made in the console instead of the repository. terraform plan (tofu plan) detects it; the next apply may undo it.",
+    "dynamic inventory": "Ansible asking the hypervisor which hosts exist instead of reading a list someone typed. The list is never out of date because there is no list.",
+    "XDR": "Extended Detection and Response — one platform watching endpoints, logs and files across a whole fleet. Wazuh on the Core is the MSP’s.",
+    "verify job": "The backup server re-reading a backup, chunk by chunk, to confirm it is restorable before anyone needs it.",
+    "SLO": "Service Level Objective — the availability you promise a client, as a number. The SLA is the contract around it.",
+    "SCA": "Security Configuration Assessment — checking a machine's settings against a hardening benchmark.",
+    "Rules of Engagement": "The written agreement of what you're allowed to test, and when.",
+    "RoE": "Rules of Engagement — the written agreement of what you're allowed to test, and when.",
+    "triage": "Quickly sorting alerts into real vs noise and deciding what to escalate — like an ER nurse.",
+    "baseline": "A record of what 'normal' looks like, so you can spot what's abnormal later.",
+    "chain of custody": "A documented trail of who handled each piece of evidence and when — so it holds up as proof.",
+    "agent": "A small program installed on each machine that ships its logs to the SOC.",
+    "gate": "A checkpoint at the end of a week — finish its required work before the next week unlocks.",
+    "eve.json": "The file where Suricata writes its network alerts.",
+    "subnet": "A slice of a network sharing an address range, e.g. 10.10.100.x.",
+    "Wazuh": "The free, open-source SIEM/SOC platform this lab is built on.",
+    "Suricata": "An open-source network intrusion detector that watches traffic and raises alerts.",
+    "Sysmon": "A Windows tool that records detailed activity — processes, connections, file changes.",
+    "DVWA": "Damn Vulnerable Web App — a deliberately insecure web app used as a safe attack target.",
+    "nmap": "A scanner that finds open ports and what software is running on them.",
+    "nikto": "A scanner that checks a web server for known issues.",
+    "MITRE ATT&CK": "A public catalogue of attacker techniques, used to describe how an attack was carried out.",
+    "MTTD": "Mean Time To Detect — the average time from an attack starting to it being noticed.",
+    "MTTR": "Mean Time To Respond — the average time from detecting an attack to containing it.",
+    "rule.level": "Wazuh scores every alert 0–15 by severity; searching rule.level:>=7 keeps the ones that usually matter.",
+    "rule.groups": "The category tags Wazuh puts on an alert (e.g. authentication_failed, ids, web) — handy for filtering by attack type.",
+    "agent.name": "The Wazuh field naming which machine an alert came from (e.g. Team07-ubuntu) — use it to filter to one host.",
+    "event channel": "A named Windows log stream — Sysmon writes to Microsoft-Windows-Sysmon/Operational, which the agent forwards.",
+    "Emerging Threats ruleset": "The community alert rules Suricata downloads with suricata-update — without them it sees traffic but raises nothing.",
+    "DQL": "Dashboard Query Language — the field:value search syntax in the Wazuh/OpenSearch search bar (e.g. data.src_ip:10.10.30.7).",
+    "Discover": "The Wazuh/OpenSearch view that lists raw events in a table you can search, add columns to, and save.",
+    "time picker": "The date/time control (top-right) that sets which window of events you see — the #1 reason a correct search looks empty.",
+    "visualization": "A saved chart (bar, pie, table) built from a search — the building block you drop onto a dashboard.",
+    "dashboard": "A saved page of visualizations and searches you assemble to watch at a glance.",
+    "rule.description": "The Wazuh field holding the human-readable name of the rule that fired — useful to group and count alerts by.",
+    "syscheck": "Wazuh’s File Integrity Monitoring engine; its events carry syscheck.path and whether a file was added/modified/deleted.",
+    "sensor": "A program on a machine that watches activity and reports it to the SOC — your Wazuh agent, Suricata and Sysmon are all sensors.",
+    "endpoint": "Any individual computer on the network — a laptop, server or VM — as opposed to the network gear between them.",
+    "telemetry": "The stream of activity data a machine sends about itself — processes, logins, connections — that the SOC watches.",
+    "hash": "A short fingerprint calculated from a file; change one byte and the fingerprint changes, so it proves the file was not tampered with.",
+    "hashing": "Running a file through a formula to get its fixed-length fingerprint (its hash).",
+    "SHA-256": "A widely trusted hashing method that turns any file into a 64-character fingerprint.",
+    "false positive": "An alert that turned out to be harmless — the tool flagged something that was not actually an attack.",
+    "true positive": "An alert that was real — the flagged activity really was malicious.",
+    "enroll": "To register a machine with the SOC so its agent starts sending logs.",
+    "brute force": "Guessing a password by automatically trying huge numbers of combinations until one works.",
+    "port scan": "Probing a machine to list which network ports are open, to discover what services it is running.",
+    "SSH": "Secure Shell — a way to log in to and run commands on another machine over the network, from your terminal.",
+    "pivot": "To follow a clue (like an IP or username) from one log into related events, tracing an attacker’s movements.",
+    "hardening": "Making a machine harder to attack by closing unused services, fixing weak settings and applying updates.",
+    "containment": "Stopping an attack from spreading — e.g. isolating the affected machine — once you have detected it.",
+    "vulnerability": "A weakness in software or configuration that an attacker could exploit.",
+    "vuln": "Short for vulnerability — a weakness an attacker could exploit.",
+    "firewall": "A filter that allows or blocks network connections by rule, to keep unwanted traffic out.",
+    "ufw": "Uncomplicated Firewall — the simple command-line firewall on Ubuntu (e.g. ufw allow 22).",
+    "VLAN": "A virtual LAN — one physical switch split into separate networks. Ports in different VLANs cannot talk without something routing between them, which is the whole point.",
+    "trunk": "A link between switches that carries several VLANs at once, tagging each frame with its VLAN id (802.1Q). The alternative is one cable per VLAN.",
+    "native VLAN": "The one VLAN a trunk carries UNTAGGED. If the two ends disagree about which it is, traffic silently lands in the wrong network — the classic trunk fault.",
+    "SVI": "Switched Virtual Interface — a VLAN’s gateway configured on the switch itself. A switch with SVIs routes between VLANs at wire speed; a switch without them needs a router.",
+    "router-on-a-stick": "Inter-VLAN routing done by a router over a single trunk, with one subinterface per VLAN. What you build when the switch cannot route — same outcome, one link carrying all of it.",
+    "EtherChannel": "Two or more physical links bundled into one logical link, so a cable can fail without an outage and the bandwidth adds up. LACP is the protocol that negotiates it.",
+    "spanning tree": "The protocol that stops a loop when switches have more than one path between them, by blocking all but one. It always picks a root switch — set it deliberately or it picks the oldest one.",
+    "PortFast": "Tells spanning tree an access port has a PC on it, not a switch, so it forwards immediately instead of waiting. Never on a port that could reach another switch.",
+    "BPDU Guard": "Shuts a PortFast port the moment it hears spanning-tree messages — which means somebody plugged a switch into a desk port. The protection that makes PortFast safe.",
+    "OSPF": "A routing protocol: routers tell each other which networks they can reach, so each works out its own routes. It replaces static routes and reacts when a link dies.",
+    "OSPF area": "A grouping that limits how far routing detail spreads. This course uses a single area 0 — the backbone — because one correctly adjacent area is the CCNA outcome.",
+    "adjacency": "Two OSPF routers that have agreed to exchange routes. It has to reach the FULL state; anything less is the protocol telling you what does not match.",
+    "NAT": "Network Address Translation — rewriting addresses as traffic crosses the edge, so internal addresses that mean nothing on the internet can still reach it.",
+    "PAT": "Port Address Translation, sometimes \"NAT overload\" — the whole company sharing one public address, told apart by port number. What almost every small site actually runs.",
+    "ACL": "Access Control List — an ordered list of permit and deny rules applied to an interface in one direction. It ends with an implicit deny, which is why the order matters.",
+    "port security": "Limits which or how many MAC addresses a switch port accepts, so a stranger plugging into a desk port cannot quietly join the network.",
+    "ip helper-address": "Tells a router to forward DHCP requests from a VLAN to a DHCP server somewhere else. The enterprise pattern, versus the router serving DHCP itself.",
+    "SNMP": "The protocol a monitoring system uses to read a device’s interfaces, CPU and memory. Read-only is all a NOC needs; v3 is the version with real authentication.",
+    "syslog": "Device log messages sent to a central collector. With synchronised clocks it turns \"it broke this morning\" into a readable sequence across every device.",
+    "NetBox": "The source of truth for the network: sites, devices, interfaces, cables, VLANs and prefixes, with an API. It replaces the spreadsheet once the spreadsheet stops scaling.",
+    "Oxidized": "Collects every device’s configuration on a schedule and commits it to Git, so you have both a backup and a history of what changed.",
+    "source of truth": "The one system that DEFINES what the network should be. Tools read from it and configure devices to match, so the documentation cannot drift from reality.",
+    "PoE": "Power over Ethernet — the switch powering the device on the far end of the cable, which is how phones and access points run without a plug of their own.",
+    "SFP": "The slot a fibre (or copper) transceiver plugs into, for uplinks that go further or faster than the built-in ports.",
+    "resource group": "Azure’s folder for resources. Everything in it shares a lifecycle: delete the group and everything inside goes with it.",
+    "VNet": "Virtual network — your own private network inside Azure, with an address range you choose. AWS calls it a VPC.",
+    "VPC": "Virtual Private Cloud — your own private network inside AWS, with an address range you choose. Azure calls it a VNet.",
+    "NSG": "Network security group — Azure’s firewall rule set for a subnet or a network card. Rules are checked by priority, lowest number first.",
+    "security group": "AWS’s firewall around an instance. It only has allow rules: anything not allowed is blocked, and replies to allowed traffic are let back in automatically.",
+    "CIDR": "The slash notation for an address range: 10.10.0.0/16 means the first 16 bits are fixed, leaving 65,536 addresses. /24 leaves 256.",
+    "RFC 1918": "The three private address ranges (10.x, 172.16–31.x, 192.168.x) that never route on the public internet, so every company can reuse them.",
+    "RBAC": "Role-based access control — Azure’s way of granting access: a person or group gets a role (Reader, Contributor, Owner) at a scope (subscription, group, resource).",
+    "IAM": "Identity and Access Management — AWS’s service for users, groups, roles and the policies that say what each may do.",
+    "managed identity": "An identity Azure gives a resource (like a Function) so it can sign in to other services with no password or key stored anywhere.",
+    "IAM role": "An identity a service (like a Lambda function or an EC2 instance) assumes to get short-lived credentials — the AWS equivalent of a managed identity.",
+    "tags": "Key=value labels on a resource (owner=team01-infra). They carry what a name cannot: who to ask, which environment, which cost centre.",
+    "$5 budget": "A spending limit with alerts. It does not stop spending by itself — it emails you before a mistake becomes expensive.",
+    "TLS 1.2": "The minimum modern version of the encryption behind HTTPS. Older versions have known weaknesses, so servers are told to refuse them.",
+    "SSH key": "A key pair for signing in to a Linux machine: the public half goes on the server, the private half stays with you. No password exists to guess.",
+    "key pair": "AWS’s name for an SSH key pair. The private .pem file is shown once at creation — download it and keep it out of the repository.",
+    "deallocate": "Stop an Azure VM so its compute is released and stops billing. A shutdown from inside the OS leaves it “stopped” but still allocated and still paid for.",
+    "public IP": "An internet-routable address on a resource. It is what the outside world (and your SSH test) reaches; the private IP is what other resources use.",
+    "IMDSv2": "The token-based version of the instance metadata service on EC2. Requiring it blocks a common trick that steals an instance’s credentials.",
+    "static website": "A site made of plain files (HTML, CSS, JavaScript) served straight from storage — no web server to run or patch.",
+    "S3": "Simple Storage Service — AWS object storage. A bucket holds files; the name is unique across all of AWS.",
+    "CloudFront": "AWS’s content delivery network. It sits in front of the bucket, serves the site over HTTPS, and caches copies near visitors.",
+    "OAC": "Origin Access Control — the setting that lets CloudFront read a private bucket on your behalf, so the bucket itself never becomes public.",
+    "serverless": "Code or a database you pay for per request, with no server to size, patch or switch off. Idle means free.",
+    "Consumption plan": "The Azure Functions plan that bills per execution and scales to zero. The first million executions a month are free.",
+    "Lambda": "AWS’s serverless code service: upload a function, it runs when triggered, and you pay per call.",
+    "API Gateway": "The AWS front door for an API: it gives your function an HTTPS URL and handles CORS.",
+    "Cosmos DB": "Azure’s globally distributed NoSQL database. In serverless mode it bills per request unit used.",
+    "DynamoDB": "AWS’s NoSQL key-value database. On-demand mode bills per request; 25 GB is always free.",
+    "partition key": "The field a NoSQL database uses to decide where an item is stored. Chosen at creation, and cannot be changed later.",
+    "binding": "An Azure Functions shortcut that connects a function to a service (like Cosmos DB) through configuration, so the code never opens a connection itself.",
+    "CORS": "Cross-Origin Resource Sharing — the browser rule that lets a page from one site read an API’s answer only if the API lists that site as an allowed origin.",
+    "allowed origin": "The scheme, host and port of a page (https://mysite.example). CORS decides per origin which pages may read an API.",
+    "Application Insights": "Azure’s application monitoring: every request, failure and exception from the Function, searchable.",
+    "CloudWatch": "AWS’s monitoring service: logs, metrics and alarms in one place.",
+    "action group": "Azure’s “who gets told and how” list. Alerts point at it, so the email address changes in one place.",
+    "SNS": "Simple Notification Service — AWS’s “who gets told” topic. Alarms publish to it; email subscribers must confirm once.",
+    "Key Vault": "Azure’s safe for secrets, keys and certificates. An app setting can point at a secret instead of holding it.",
+    "Cost Explorer": "AWS’s cost report. Must be enabled once and takes up to a day to fill; the console view is free, the API is not.",
+    "Free Tier": "What AWS gives away: some things for 12 months after the account opens (750 EC2 hours a month), some always (Lambda, DynamoDB).",
+    "Cloud Shell": "A terminal in the browser with the Azure CLI signed in already. It needs a small storage share the first time.",
+    "CloudShell": "A terminal in the browser with the AWS CLI signed in already. Free.",
+    "shared responsibility": "Who secures what: the provider runs the datacenter, hardware and (for PaaS) the platform; you own your data, identities, configuration and — on a VM — the operating system.",
+    "IaaS": "Infrastructure as a Service — you rent a machine and network and manage the operating system yourself. A VM is IaaS.",
+    "PaaS": "Platform as a Service — you bring code and data; the provider runs and patches the platform. Functions, a static website and a managed database are PaaS.",
+    "SaaS": "Software as a Service — a finished application you sign in to, like Microsoft 365 or the GitHub website.",
+    "availability zone": "One of several separate datacenters inside a region, with its own power and cooling. Two zones fail independently; one region can still fail as a whole.",
+    "resource lock": "An Azure setting on a resource or group that refuses deletes (CanNotDelete) or any change (ReadOnly) until someone removes the lock first.",
+    "Advisor": "Azure’s free recommendation service: cost, security, reliability, performance and operational tips for what you have deployed.",
+    "Service Health": "Azure’s page for incidents and planned maintenance that affect your subscription’s regions and services.",
+    "Trusted Advisor": "AWS’s free checks for cost, security, fault tolerance and limits. Basic support shows the security and limit checks.",
+    "support plan": "The AWS support tier an account pays for: Basic (free), Developer, Business, Enterprise. It sets response times and which tools are unlocked.",
+    "CloudTrail": "AWS’s audit log: every console click and API call, who made it and when. Event history keeps 90 days free.",
+    "Entra ID": "Microsoft Entra ID (formerly Azure AD) — the identity service behind every Azure sign-in: users, groups, MFA, and the roles RBAC assigns.",
+    "security group (Entra)": "A group of users in Entra ID. Assign a role to the group once, and every member gets it.",
+    "user group": "A group of IAM users in AWS. Attach a policy to the group once, and every member gets it.",
+    "MFA": "Multi-factor authentication — a second proof at sign-in (an app code, a key), so a stolen password alone is not enough.",
+    "ADR": "Architecture Decision Record — one page that says what was decided, what was rejected, and why, so the next team does not reopen it."
+  },
+  "marking": {
+    "teamWeight": 70,
+    "focusWeight": 30
+  },
+  "roleGuide": {
+    "red": {
+      "blurb": "You’re the ethical attacker — you find and prove the weaknesses before a real attacker does.",
+      "works": "commands",
+      "arc": "Wk1 recon → Wk2 scan for weaknesses → Wk3 exploit with proof → Wk4 write up findings.",
+      "handsOffTo": "GRC (your findings) and Blue (your attack evidence)",
+      "waitsOnFrom": "GRC (the signed scope that authorizes testing)"
+    },
+    "blue": {
+      "blurb": "You’re the defender — you harden the systems, watch for the attack, and respond when it happens.",
+      "works": "both",
+      "arc": "Wk1 harden the hosts → Wk2 set up monitoring → Wk3 detect & contain the attack → Wk4 report the incident.",
+      "handsOffTo": "GRC (what you hardened and the incident write-up)",
+      "waitsOnFrom": "GRC (the hardening standard) and Red (the attack to detect)"
+    },
+    "grc": {
+      "blurb": "You’re governance — you set the rules, score the risk, and turn everyone’s work into the reports.",
+      "works": "documents",
+      "arc": "Wk1 scope & asset inventory → Wk2 risk register → Wk3 policy & response plan → Wk4 final report & briefing.",
+      "handsOffTo": "Red & Blue (scope, standards) and leadership (the final report)",
+      "waitsOnFrom": "Red (findings) and Blue (hardening & incident details)"
+    },
+    "redteam": {
+      "blurb": "AI Red Team — you test the Hub’s AI on your own instance and prove each case with evidence.",
+      "works": "both",
+      "arc": "Wk1 two cases → Wk2 six cases mapped → Wk3 automate the suite → Wk4 reproduce and four paper cases.",
+      "handsOffTo": "the AI Defender (what to block and log)",
+      "waitsOnFrom": "the Governance Lead (the signed lab rule)"
+    },
+    "defender": {
+      "blurb": "AI Defender — you build the controls, logging and alerts that stop and catch each case.",
+      "works": "both",
+      "arc": "Wk1 close SA-1, log everything → Wk2 guardrails and redaction → Wk3 pipeline gates and alerts → Wk4 rebuild clean and hand over.",
+      "handsOffTo": "the Governance Lead (controls for the register)",
+      "waitsOnFrom": "the AI Red Team (the proven cases)"
+    },
+    "governance": {
+      "blurb": "AI Governance Lead — you map the system, own the risks and rules, and sign each release.",
+      "works": "both",
+      "arc": "Wk1 map and sign v1 → Wk2 data and compliance → Wk3 shadow AI and accuracy → Wk4 accept risks and answer customers.",
+      "handsOffTo": "the customer (evidence-backed answers)",
+      "waitsOnFrom": "both teammates (cases and controls for the release)"
+    }
+  }
+}

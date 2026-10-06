@@ -34,6 +34,8 @@ export const COURSE_TINT: Record<string, CourseTint> = {
   'aws-solutions-architect': { name: 'SAA-C03', acc: '#e8891c', lt: '#ffd29a', dk: '#7a4306', cut: 'cloud' },
   'aws-devops': { name: 'DOP-C02', acc: '#e8891c', lt: '#ffd29a', dk: '#7a4306', cut: 'cloud' },
   mssp: { name: 'MSSP', acc: '#b24ad0', lt: '#e6a8f5', dk: '#68267f', cut: 'round' },
+  'secai-plus': { name: 'SecAI+', acc: '#0b7a6c', lt: '#9ee6dc', dk: '#085c52', cut: 'hex' },
+  cissp: { name: 'CISSP', acc: '#4740c9', lt: '#bcb9f5', dk: '#2f2a8c', cut: 'shield' },
 };
 
 export const NEUTRAL_TINT: CourseTint = { name: 'Quarry', acc: '#c9a064', lt: '#f3dcb0', dk: '#7a5a2c', cut: 'quad' };

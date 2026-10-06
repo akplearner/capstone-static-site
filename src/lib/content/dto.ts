@@ -55,6 +55,10 @@ import * as ccnaKit from '@/lib/docs/ccnaKit';
 import * as ccnaDiagrams from '@/lib/docs/ccnaDiagrams';
 import * as custodyTemplate from '@/lib/docs/custodyTemplate';
 import * as msspContent from '@/lib/docs/msspContent';
+import { SECAI_PLUS } from '@/lib/data/seed/secaiPlus';
+import { CISSP } from '@/lib/data/seed/cissp';
+import * as secaiContent from '@/lib/docs/secaiContent';
+import * as cisspContent from '@/lib/docs/cisspContent';
 import { weekVisualsFor } from '@/lib/docs/weekVisuals';
 import { roleGuidesFor } from '@/lib/roleGuide';
 import type { RoleGuide } from '@/lib/roleGuide';
@@ -63,7 +67,7 @@ export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
 
 /** The seed courses, in the order the catalogue lists them. */
-export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
+export const SEED_COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 
 /** A function replaced on the way to JSON: the name says what was there. */
 export type FnMarker = { $fn: string };
@@ -156,6 +160,8 @@ const SEED_FILE: Record<string, string> = {
   'cysa-plus': 'src/lib/data/seed/cysa.ts',
   'server-plus': 'src/lib/data/seed/serverPlus.ts',
   ccna: 'src/lib/data/seed/ccna.ts',
+  'secai-plus': 'src/lib/data/seed/secaiPlus.ts',
+  cissp: 'src/lib/data/seed/cissp.ts',
   'azure-fundamentals': 'src/lib/data/seed/azureCloud.ts',
   'azure-administrator': 'src/lib/data/seed/azureCloud.ts',
   'azure-devops': 'src/lib/data/seed/azureCloud.ts',
@@ -170,6 +176,8 @@ const FORM_FILE: Record<string, string> = {
   'cysa-plus': 'src/lib/docs/cysaDeliverables.ts',
   'server-plus': 'src/lib/docs/serverPlusDeliverables.ts',
   ccna: 'src/lib/docs/ccnaDeliverables.ts',
+  'secai-plus': 'src/lib/docs/secaiDeliverables.ts',
+  cissp: 'src/lib/docs/cisspDeliverables.ts',
   'azure-fundamentals': 'src/lib/docs/azureCloudDeliverables.ts',
   'azure-administrator': 'src/lib/docs/azureCloudDeliverables.ts',
   'azure-devops': 'src/lib/docs/azureCloudDeliverables.ts',
@@ -215,6 +223,12 @@ export function topologyData(mod: Record<string, unknown>): Record<string, unkno
 export function contentData(mod: Record<string, unknown>): Record<string, unknown> {
   return topologyData(mod);
 }
+
+/** R101: the courses whose picture is a hub, and the module that draws it. */
+const HUB_CONTENT: Record<string, { file: string; mod: Record<string, unknown> }> = {
+  'secai-plus': { file: 'src/lib/docs/secaiContent.ts', mod: secaiContent },
+  cissp: { file: 'src/lib/docs/cisspContent.ts', mod: cisspContent },
+};
 
 export function courseDto(courseId: string): CourseDto {
   const course = SEED_COURSES.find((c) => c.id === courseId);
@@ -274,6 +288,13 @@ export function courseDto(courseId: string): CourseDto {
   if (courseId === 'mssp') {
     generatedFrom.push('src/lib/docs/msspContent.ts');
     content.mssp = contentData(msspContent);
+  }
+  // R101: the two Ridgeline courses draw the system they secure — one shape,
+  // one renderer (`HubDiagram`), each course's own parts.
+  const hub = HUB_CONTENT[courseId];
+  if (hub) {
+    generatedFrom.push(hub.file);
+    content.hub = contentData(hub.mod);
   }
   // The cloud capstones (R87): the topology the Guide draws and the template
   // it is drawn from, as one section, so the picture and the code a student

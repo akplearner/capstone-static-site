@@ -235,7 +235,9 @@ describe('career paths', () => {
 
   it('leaves no rung current once every available capstone is done', () => {
     const grc = pathById('grc')!;
-    const rungs = resolvePath(grc, new Set(['security-plus', 'mssp']));
+    // R101: CISSP is the GRC path's third available rung now, so the path is
+    // only complete once it too is done.
+    const rungs = resolvePath(grc, new Set(['security-plus', 'mssp', 'cissp']));
     expect(rungs.some((r) => r.current)).toBe(false);
   });
 });

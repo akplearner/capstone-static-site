@@ -17,6 +17,8 @@ import { SOC_BUILD } from './cysaContent';
 import { ENGAGEMENT_BUILD } from './msspContent';
 import { SERVER_BUILD } from './serverDiagrams';
 import { CCNA_BUILD } from './ccnaDiagrams';
+import { HUB_BUILD as SECAI_BUILD } from './secaiContent';
+import { HUB_BUILD as CISSP_BUILD } from './cisspContent';
 
 /** The build model of each course that draws its own picture. */
 export const BUILD_MODELS: Record<string, BuildModel> = {
@@ -25,6 +27,8 @@ export const BUILD_MODELS: Record<string, BuildModel> = {
   mssp: ENGAGEMENT_BUILD,
   'server-plus': SERVER_BUILD,
   ccna: CCNA_BUILD,
+  'secai-plus': SECAI_BUILD,
+  cissp: CISSP_BUILD,
 };
 
 /**

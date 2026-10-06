@@ -57,6 +57,28 @@
       "procedures": 0
     },
     {
+      "id": "secai-plus",
+      "title": "SecAI+ Capstone: Four Releases",
+      "version": 1,
+      "file": "secai-plus.json",
+      "weeks": 5,
+      "tasks": 15,
+      "steps": 40,
+      "deliverables": 8,
+      "procedures": 0
+    },
+    {
+      "id": "cissp",
+      "title": "CISSP Capstone: Six Releases",
+      "version": 1,
+      "file": "cissp.json",
+      "weeks": 7,
+      "tasks": 21,
+      "steps": 40,
+      "deliverables": 12,
+      "procedures": 0
+    },
+    {
       "id": "azure-fundamentals",
       "title": "Azure Fundamentals Capstone",
       "version": 1,

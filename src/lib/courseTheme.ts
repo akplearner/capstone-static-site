@@ -54,6 +54,16 @@ const SEED_THEMES: Record<string, CourseTheme> = {
     vendor: 'CompTIA',
     certification: 'Server+',
   },
+  'secai-plus': {
+    key: 'secai-plus',
+    vendor: 'CompTIA',
+    certification: 'SecAI+ (CY0-001)',
+  },
+  cissp: {
+    key: 'cissp',
+    vendor: 'ISC2',
+    certification: 'CISSP',
+  },
   ccna: {
     key: 'ccna',
     vendor: 'Cisco',

@@ -13,6 +13,7 @@ import { SocTopologyDiagram } from './SocTopologyDiagram';
 import { ServerTopologyDiagram } from './ServerTopologyDiagram';
 import { CcnaTopologyDiagram } from './CcnaTopologyDiagram';
 import { EngagementDiagram } from './EngagementDiagram';
+import { HubDiagram } from './HubDiagram';
 
 /**
  * R99: "What you build this week", for any course.
@@ -74,6 +75,8 @@ export function WeekBuildDiagram({
     drawing = topo ? <SocTopologyDiagram topo={topo} builtThrough={v.builtThrough} glow={v.highlight} process={v.process} /> : null;
   } else if (picture === 'engagement') {
     drawing = <EngagementDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
+  } else if (picture === 'hub') {
+    drawing = <HubDiagram builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
   } else {
     drawing = <ArchitectureDiagram roles={course.roles} highlightRole={highlightRole} week={v.builtThrough} builtThrough={v.builtThrough} glow={v.highlight} process={v.process} />;
   }

@@ -230,6 +230,8 @@ describe('a course loads from its own document', () => {
       'cysa-plus': 0,
       'server-plus': 0,
       ccna: 0,
+      'secai-plus': 0,
+      cissp: 0,
       'azure-fundamentals': 0,
       'azure-administrator': 0,
       'azure-devops': 0,

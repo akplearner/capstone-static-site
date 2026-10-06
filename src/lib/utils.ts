@@ -20,6 +20,14 @@ const FRAMEWORK_COLORS: Record<Framework, string> = {
   'AWS_SAA': 'bg-warn-soft text-warn',
   'AWS_DOP': 'bg-warn-soft text-warn',
   'WAF': 'bg-ok-soft text-ok',
+  'SECAI': 'bg-info-soft text-info',
+  'CISSP': 'bg-accent-soft text-accent-ink',
+  'NIST_AI_RMF': 'bg-ok-soft text-ok',
+  'OWASP_LLM': 'bg-warn-soft text-warn',
+  'MITRE_ATLAS': 'bg-danger-soft text-danger',
+  'ISO_42001': 'bg-ok-soft text-ok',
+  'NIST_800_53': 'bg-info-soft text-info',
+  'NIST_800_171': 'bg-warn-soft text-warn',
 };
 
 const FRAMEWORK_LABELS: Record<Framework, string> = {
@@ -41,6 +49,14 @@ const FRAMEWORK_LABELS: Record<Framework, string> = {
   'AWS_SAA': 'AWS SAA-C03',
   'AWS_DOP': 'AWS DOP-C02',
   'WAF': 'Well-Architected',
+  'SECAI': 'SecAI+ CY0-001',
+  'CISSP': 'CISSP',
+  'NIST_AI_RMF': 'NIST AI RMF',
+  'OWASP_LLM': 'OWASP LLM Top 10',
+  'MITRE_ATLAS': 'MITRE ATLAS',
+  'ISO_42001': 'ISO/IEC 42001',
+  'NIST_800_53': 'NIST SP 800-53',
+  'NIST_800_171': 'NIST SP 800-171',
 };
 
 const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
@@ -62,6 +78,14 @@ const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   'AWS_SAA': 'AWS Certified Solutions Architect – Associate (SAA-C03)',
   'AWS_DOP': 'AWS Certified DevOps Engineer – Professional (DOP-C02)',
   'WAF': 'Well-Architected Framework — Azure and AWS',
+  'SECAI': 'CompTIA SecAI+ (CY0-001) — securing AI systems',
+  'CISSP': 'ISC2 CISSP — the eight domains of the Common Body of Knowledge',
+  'NIST_AI_RMF': 'NIST AI Risk Management Framework and its Generative AI Profile',
+  'OWASP_LLM': 'OWASP Top 10 for Large Language Model Applications',
+  'MITRE_ATLAS': 'MITRE ATLAS — adversary tactics and techniques against AI systems',
+  'ISO_42001': 'ISO/IEC 42001 — AI management system',
+  'NIST_800_53': 'NIST SP 800-53 Rev. 5 — security and privacy controls',
+  'NIST_800_171': 'NIST SP 800-171 — protecting controlled unclassified information',
 };
 
 // Why each framework matters and the role it plays in the engagement. Surfaced
@@ -104,6 +128,14 @@ const FRAMEWORK_WHY: Record<Framework, string> = {
     'The AWS DevOps Engineer – Professional exam: CI/CD, infrastructure as code, monitoring, incident response and governance at scale. The tag says which area a task practises.',
   'WAF':
     'Both clouds judge a design on the same pillars — reliability, security, cost, operational excellence and performance. A tag here means the step is a design choice one of them would ask about.',
+  'SECAI': 'The SecAI+ exam: AI concepts and data, securing AI systems, AI-assisted security, and AI governance and compliance. The tag says which exam objective a task practises.',
+  'CISSP': 'The CISSP exam outline’s eight domains, from security and risk management to software development security. The tag says which domain a sheet or control belongs to.',
+  'NIST_AI_RMF': 'The AI framework Ridgeline adopts: Govern, Map, Measure, Manage. A tag here means the step produces something an AI risk register or a buyer’s AI questions will ask for.',
+  'OWASP_LLM': 'The shared catalogue of LLM application weaknesses — prompt injection, sensitive disclosure, excessive agency and the rest. A tag here names the weakness the step attacks or defends.',
+  'MITRE_ATLAS': 'ATT&CK for AI: real-world techniques attackers use against models and their data. Mapping a case to an ATLAS technique makes it comparable with everyone else’s threat intelligence.',
+  'ISO_42001': 'The certifiable management-system standard for AI. Customers ask about it; a tag here means the step produces the kind of record an AI management system keeps.',
+  'NIST_800_53': 'The federal control catalogue the course’s sixteen control statements are drawn from (PM-1, SC-7, AC-2…). A tag here means the step writes or proves one of those controls.',
+  'NIST_800_171': 'What a federal contract requires once controlled unclassified information arrives. A tag here means the step feeds the gap analysis or the System Security Plan.',
 };
 
 const FRAMEWORK_FALLBACK_COLOR =

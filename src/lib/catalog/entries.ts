@@ -88,6 +88,15 @@ export const CATALOG: CatalogEntry[] = [
     status: 'coming-soon',
     blurb: 'Architect and defend an enterprise security programme.',
   },
+  {
+    id: 'comptia-secai-plus',
+    vendorId: 'comptia',
+    certName: 'SecAI+',
+    level: 'professional',
+    status: 'available',
+    courseId: 'secai-plus',
+    blurb: 'Secure an AI product: attack it, defend it, watch it, govern it, release it.',
+  },
 
   // ── Cisco — the Copper Network Canyon ──────────────────────────────────────
   {
@@ -137,9 +146,10 @@ export const CATALOG: CatalogEntry[] = [
     id: 'isc2-cissp',
     vendorId: 'isc2',
     certName: 'CISSP',
-    level: 'professional',
-    status: 'coming-soon',
-    blurb: 'Assemble a security programme across all eight domains.',
+    level: 'expert',
+    status: 'available',
+    courseId: 'cissp',
+    blurb: 'Build a security programme across all eight domains, six releases to federal-ready.',
   },
   {
     id: 'isc2-ccsp',

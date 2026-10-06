@@ -29,6 +29,8 @@ describe('WeekBuildDiagram', () => {
     ['mssp', 3],
     ['security-plus', 2],
     ['cysa-plus', 3],
+    ['secai-plus', 1],
+    ['cissp', 3],
   ])('%s week %i: this week’s parts glow, later parts are marked, the process is drawn', (courseId, week) => {
     const { container, v } = mount(courseId, week);
     expect(v.highlight.length).toBeGreaterThan(0);

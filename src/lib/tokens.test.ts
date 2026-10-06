@@ -58,6 +58,9 @@ const SEAM_REGION: Record<string, string | string[]> = {
   'server-plus': 'comptia',
   mssp: 'engagement',
   ccna: 'cisco',
+  // R101: the two Ridgeline capstones.
+  secai: 'comptia',
+  cissp: 'isc2',
   // R87: one seam, two rocks — the Azure and the AWS cloud capstone share it.
   cloud: ['microsoft', 'aws'],
 };

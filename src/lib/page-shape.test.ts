@@ -880,6 +880,7 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/docs/GuideManual.tsx', 'manualOf'],
     ['src/components/diagrams/WeekBuildDiagram.tsx', 'weekVisualsOf'],
     ['src/components/diagrams/EngagementDiagram.tsx', 'msspOf'],
+    ['src/components/diagrams/HubDiagram.tsx', 'hubOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -1184,7 +1185,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|weekVisuals)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -1912,7 +1913,7 @@ describe('R99 — every week has a picture', () => {
   });
 
   it('the overlay pieces are recolourable — not one literal colour in them', () => {
-    for (const f of ['src/components/diagrams/ProcessArrows.tsx', 'src/components/diagrams/ProcessStrip.tsx', 'src/components/week/WeekPills.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx', 'src/components/diagrams/EngagementDiagram.tsx']) {
+    for (const f of ['src/components/diagrams/ProcessArrows.tsx', 'src/components/diagrams/ProcessStrip.tsx', 'src/components/week/WeekPills.tsx', 'src/components/diagrams/WeekBuildDiagram.tsx', 'src/components/diagrams/EngagementDiagram.tsx', 'src/components/diagrams/HubDiagram.tsx']) {
       expect(read(f), `${f} takes colours from theme tokens only`).not.toMatch(/#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/);
     }
   });
@@ -1965,7 +1966,7 @@ describe('R100 — the Tasks tab reads on one screen', () => {
   });
 
   it('pictures scale on a phone — no SVG forces a sideways scroll below sm', () => {
-    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/EngagementDiagram.tsx', 'src/components/diagrams/SocTopologyDiagram.tsx', 'src/components/diagrams/ArchitectureDiagram.tsx']) {
+    for (const f of ['src/components/diagrams/cloud/CloudTopology.tsx', 'src/components/diagrams/EngagementDiagram.tsx', 'src/components/diagrams/SocTopologyDiagram.tsx', 'src/components/diagrams/ArchitectureDiagram.tsx', 'src/components/diagrams/HubDiagram.tsx']) {
       expect(code(f), f).toMatch(/min-w-0 sm:min-w-\[\d+px\]/);
     }
     for (const f of ['src/components/diagrams/ServerTopologyDiagram.tsx', 'src/components/diagrams/CcnaTopologyDiagram.tsx']) {
@@ -2007,5 +2008,49 @@ describe('R100 — the Tasks tab reads on one screen', () => {
     for (const f of ['src/components/course/TasksTab.tsx', 'src/components/course/TasksLayout.tsx', 'src/components/course/TaskPane.tsx', 'src/components/course/CourseSubNavActions.tsx', 'src/lib/uiPrefs.ts', 'src/components/ui/Chip.tsx']) {
       expect(code(f), f).not.toMatch(/[dD]ensity/);
     }
+  });
+});
+
+/**
+ * R101 — two new capstones: SecAI+ (four releases) and CISSP (six releases).
+ *
+ * Both secure the same fictional company's move to the Ridgeline Service Hub,
+ * both draw the generic `hub` picture from their own content module, and both
+ * are open (no gatekeeping). These are the shapes that would quietly break
+ * either of them.
+ */
+describe('R101 — SecAI+ and CISSP', () => {
+  it('both seeds are registered everywhere a seed must be', () => {
+    const dto = code('src/lib/content/dto.ts');
+    for (const id of ['SECAI_PLUS', 'CISSP']) expect(dto, id).toContain(id);
+    for (const f of ['src/lib/data/localStorageCourseRepo.ts', 'src/lib/data/supabaseCourseRepo.ts']) {
+      expect(code(f), f).toContain('SECAI_PLUS');
+      expect(code(f), f).toContain('CISSP');
+    }
+    expect(code('src/lib/docs/definitions.ts')).toContain('SECAI_DELIVERABLES');
+    expect(code('src/lib/docs/definitions.ts')).toContain('CISSP_DELIVERABLES');
+    expect(code('src/lib/content/docs.ts')).toContain("content/courses/secai-plus.json");
+    expect(code('src/lib/content/docs.ts')).toContain("content/courses/cissp.json");
+  });
+
+  it('both draw the hub picture, from their own content', () => {
+    for (const f of ['src/lib/data/seed/secaiPlus.ts', 'src/lib/data/seed/cissp.ts']) {
+      expect(code(f), f).toContain("topologyPicture: 'hub'");
+      expect(code(f), f).toContain('noGatekeeping: true');
+    }
+    const hub = code('src/components/diagrams/HubDiagram.tsx');
+    expect(hub).toContain('hubOf(useCourseDocument())');
+    expect(hub).toContain('preserveAspectRatio="xMidYMid meet"');
+    // The picture reads coordinates from the document; it holds no node table.
+    const src = hub.replace(/\/\*[\s\S]*?\*\//g, '');
+    expect(src.match(/^const\s+\w+[^=\n]*=\s*\[\{/m)?.[0], 'HubDiagram holds a table').toBeUndefined();
+  });
+
+  it('both are on the catalogue, available, pointing at the seed', () => {
+    const cat = code('src/lib/catalog/entries.ts');
+    expect(cat).toContain("courseId: 'secai-plus'");
+    expect(cat).toContain("courseId: 'cissp'");
+    const cisspEntry = cat.slice(cat.indexOf("id: 'isc2-cissp'"), cat.indexOf("id: 'isc2-cissp'") + 220);
+    expect(cisspEntry, 'CISSP is no longer coming-soon').toContain("status: 'available'");
   });
 });

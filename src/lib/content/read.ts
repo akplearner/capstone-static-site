@@ -31,6 +31,8 @@ export type CcnaKitContent = ContentOf<typeof import('@/lib/docs/ccnaKit')>;
 export type TroubleshootingContent = ContentOf<typeof import('@/lib/docs/troubleshooting')>;
 export type CustodyContent = ContentOf<typeof import('@/lib/docs/custodyTemplate')>;
 export type MsspContent = ContentOf<typeof import('@/lib/docs/msspContent')>;
+/** R101: SecAI+ and CISSP share one shape (`docs/hub.ts`); either module names it. */
+export type HubContent = ContentOf<typeof import('@/lib/docs/secaiContent')>;
 export type ProcedureWeeks = Serialisable<typeof import('@/lib/docs/serverProcedures').WEEKS>;
 export type Procedures = Serialisable<typeof import('@/lib/docs/serverProcedures').PROCEDURES>;
 
@@ -60,6 +62,8 @@ export const ccnaKitOf = (doc: CourseDto) => section<CcnaKitContent>(doc, 'kit')
 export const troubleshootingOf = (doc: CourseDto) => section<TroubleshootingContent>(doc, 'troubleshooting');
 export const custodyOf = (doc: CourseDto) => section<CustodyContent>(doc, 'custody');
 export const msspOf = (doc: CourseDto) => section<MsspContent>(doc, 'mssp');
+/** R101: the hub picture of the course (SecAI+, CISSP). */
+export const hubOf = (doc: CourseDto) => section<HubContent>(doc, 'hub');
 /** R99: the course's "What you build this week" visuals, one per week. */
 export const weekVisualsOf = (doc: CourseDto): WeekVisual[] => ((doc.content?.weekVisuals ?? []) as WeekVisual[]);
 
