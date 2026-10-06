@@ -8,7 +8,7 @@ import { weekAdds } from './weekAdds';
  * that glows in a week has a row with a purpose, and every row that names a
  * form points at a form of the course. Week 0 lists the starting parts.
  */
-const ARCH_COURSES = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp'];
+const ARCH_COURSES = ['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp', 'server-plus', 'ccna'];
 
 describe.each(ARCH_COURSES)('R103 — this week adds · %s', (id) => {
   const doc = courseDocument(id)!;
@@ -28,6 +28,15 @@ describe.each(ARCH_COURSES)('R103 — this week adds · %s', (id) => {
         expect(r.purpose.length).toBeGreaterThan(0);
       }
     }
+  });
+
+  it('the catalogue covers every part the build model knows', () => {
+    const model = (doc.content as { arch?: { ARCH_BUILD: { arrives: Record<string, number> } }; diagrams?: { SERVER_BUILD: { arrives: Record<string, number> } }; ccnaDiagrams?: { CCNA_BUILD: { arrives: Record<string, number> } } }).arch?.ARCH_BUILD
+      ?? (doc.content as { diagrams?: { SERVER_BUILD: { arrives: Record<string, number> } } }).diagrams?.SERVER_BUILD
+      ?? (doc.content as { ccnaDiagrams?: { CCNA_BUILD: { arrives: Record<string, number> } } }).ccnaDiagrams?.CCNA_BUILD;
+    expect(model).toBeTruthy();
+    expect(partsOf(doc).map((p) => p.id).sort()).toEqual(Object.keys(model!.arrives).sort());
+    for (const p of partsOf(doc)) expect(p.records, `${p.id} records`).toBeTruthy();
   });
 
   it('every row that names a form names one of the course’s forms', () => {

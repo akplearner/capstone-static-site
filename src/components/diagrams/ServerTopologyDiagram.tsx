@@ -68,6 +68,7 @@ const ZONES = ZONE_BRIDGES.map((b) => ({
 const PART_NAME: Record<string, string> = {
   campus: 'campus', host: 'host', published: 'published ports', crossZone: 'DMZ → private', tailnet: 'tailnet',
   backup: 'backup', hardened: 'baseline', ops: OPS.bridge, opsVm: 'ops VM', core: 'Core', zones: 'zones', rack: 'rack',
+  edge: 'campus edge', directory: 'directory', backupStore: 'datastore',
 };
 
 export function ServerTopologyDiagram({
@@ -205,6 +206,15 @@ export function ServerTopologyDiagram({
           </div>
           <div className="mx-auto h-3 w-px bg-line" aria-hidden />
 
+          {/* R103: the campus edge — the router and firewall the model always
+              named as "a later phase", now a part that arrives in its week. */}
+          <div className={`rounded-lg border border-dashed px-3 py-1.5 text-center text-3xs text-muted ${dim(built(arrivesOf('edge')))}`} {...mark('edge', built(arrivesOf('edge')))} style={{ borderColor: 'var(--color-w8)', ...(mark('edge').style ?? {}) }}>
+            <span className="font-semibold" style={{ color: 'var(--color-w8)' }}>{COPY.edge?.label}</span>
+            <span className="ml-2">{COPY.edge?.sub}</span>
+            {weekTag(arrivesOf('edge'))}
+          </div>
+          <div className="mx-auto h-3 w-px bg-line" aria-hidden />
+
           {/* What the campus reaches THROUGH the host: the published ports, from
               the same model the host's rules file is rendered from. */}
           <div className={`rounded-lg border border-dashed border-accent/60 bg-panel px-3 py-1.5 text-center text-3xs text-muted ${dim(built(ARRIVES.published))}`} {...mark('published', built(ARRIVES.published))}>
@@ -230,9 +240,9 @@ export function ServerTopologyDiagram({
             </div>
             {/* R99: what the host carries from Week 4 — the hardening baseline and the backups. */}
             <div className="mt-1 flex flex-wrap justify-center gap-1">
-              {(['hardened', 'backup'] as const).map((id) => (
+              {(['hardened', 'backup', 'backupStore'] as const).map((id) => (
                 <span key={id} className={`rounded-full depth-edge bg-panel px-1.5 py-px font-mono text-3xs text-muted ${dim(built(arrivesOf(id)))}`} {...mark(id, built(arrivesOf(id)))}>
-                  {id === 'hardened' ? 'hardened baseline' : 'snapshots · restore'}
+                  {id === 'hardened' ? 'hardened baseline' : id === 'backup' ? 'snapshots · restore' : COPY.backupStoreChip}
                   {weekTag(arrivesOf(id))}
                 </span>
               ))}
@@ -247,14 +257,13 @@ export function ServerTopologyDiagram({
             <div className="h-3 w-px bg-line" />
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 sm:grid-cols-2" {...mark('zones', built(ARRIVES.zones))} style={undefined}>
             {ZONES.map((z) => (
               <div
                 key={z.bridge.id}
                 className={`flex flex-col rounded-lg border-2 bg-panel px-2.5 py-2 ${dim(built(ARRIVES.zones))}`}
                 style={{ borderColor: z.color, ...(litNew.has('zones') ? { outline: '2px solid var(--week, var(--color-accent))', outlineOffset: 2 } : {}) }}
                 data-node={z.bridge.id}
-                data-glow={litNew.has('zones') ? 'true' : undefined}
                 data-later={built(ARRIVES.zones) ? undefined : 'true'}
               >
                 <div className="flex flex-wrap items-baseline justify-between gap-x-2">
@@ -274,6 +283,13 @@ export function ServerTopologyDiagram({
                         <span className="font-mono text-3xs text-muted">{vm.address}</span>
                       </div>
                       <div className="text-3xs text-muted">{vm.runs} · base build</div>
+                      {/* R103: the directory role the Windows server carries for the zone. */}
+                      {vm.hostname === 'winserver' && (
+                        <span className={`mt-0.5 inline-block rounded-full depth-edge bg-panel px-1.5 py-px font-mono text-3xs text-muted ${dim(built(arrivesOf('directory')))}`} {...mark('directory', built(arrivesOf('directory')))}>
+                          {COPY.directoryChip}
+                          {weekTag(arrivesOf('directory'))}
+                        </span>
+                      )}
                     </div>
                   ))}
                   {/* R99: the advanced hosts of Weeks 5–6, in the private zone, faded until they arrive. */}

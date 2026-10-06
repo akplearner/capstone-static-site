@@ -22,6 +22,7 @@ import {
   type Vlan,
 } from '../ccnaTopology';
 import type { BuildModel } from '../weekVisual';
+import type { ArchPart } from './archPicture';
 
 /**
  * Which week each part of the picture arrives in.
@@ -89,6 +90,8 @@ export const CCNA_DIAGRAM_COPY = {
     { kind: 'l3-switch', label: 'Switch that routes — SVIs and the core' },
     { kind: 'l2-switch', label: 'Access switch — where users plug in' },
     { kind: 'ap', label: 'Access point — the WLANs' },
+    { kind: 'wlc', label: 'Wireless controller — the APs as one system' },
+    { kind: 'firewall', label: 'Firewall — inspection at the edge' },
     { kind: 'server', label: 'Server — DNS, DHCP, the tools' },
     { kind: 'workstation', label: 'Where you work from' },
   ],
@@ -98,6 +101,9 @@ export const CCNA_DIAGRAM_COPY = {
   wanHeading: `WAN · ${WAN.prefix} · OSPF area ${WAN.ospfArea}`,
   wanNote: 'A point-to-point link needs exactly two addresses, which is what a /30 gives you.',
   internetHeading: `Internet · ${ISP.name} · ${ISP.speed}`,
+  /** R103: the circuit itself, as a part. */
+  ispChip: `${ISP.name} · ${ISP.circuit} · gateway ${ISP.gateway}`,
+  aaaChip: 'RADIUS · AAA for device login',
   internetNote: `The whole company leaves through one address (${ISP.outside}). That is what NAT is for.`,
   policyNote: 'Guest reaches the internet and nothing else. Only the network team reaches management.',
   wirelessNote: 'Each SSID lands in its own VLAN, so wireless inherits the wired segmentation.',
@@ -145,6 +151,8 @@ export const CCNA_BUILD: BuildModel = {
     policy: ARRIVES.policy,
     wireless: ARRIVES.wireless,
     management: 4,
+    aaa: 4,
+    isp: 3,
     backups: 5,
     noc: 6,
     automation: 7,
@@ -160,11 +168,13 @@ export const CCNA_BUILD: BuildModel = {
     ] },
     3: { title: 'Route', steps: [
       { from: 'R1-HQ', to: 'R2-BR', label: 'OSPF area 0 over the /30' },
-      { from: 'R1-HQ', to: 'internet', label: 'NAT · one public address' },
+      { from: 'R1-HQ', to: 'isp', label: 'NAT · one public address' },
     ] },
     4: { title: 'Protect', steps: [
       { from: 'SW-CORE-01', to: 'policy', label: 'ACLs from the policy rows' },
+      { from: 'FW-HQ', to: 'R1-HQ', label: 'inspect what the router passes' },
       { from: 'AP-01', to: 'SW-ACC-01', label: 'guest Wi-Fi, internet only' },
+      { from: 'SRV-CORE', to: 'aaa', label: 'RADIUS for every login' },
     ] },
     5: { title: 'Operate', steps: [
       { from: 'NETOPS', to: 'SW-CORE-01', label: 'config backup, Oxidized' },
@@ -187,11 +197,40 @@ export const CCNA_BUILD: BuildModel = {
     0: 'Before the build: the kit on the bench and the admin PC. Only what you can touch exists.',
     1: 'New: the HQ core and first access switch. Console in, name it, give it a management address.',
     2: 'New: the second access switch, VLANs, trunks and an EtherChannel that survives a pulled cable.',
-    3: 'New: both routers, the branch site, the WAN link and the internet. OSPF and NAT connect it all.',
-    4: 'New: the access point, the policy and the hardened management plane. The network is protected.',
+    3: 'New: both routers, the branch site, the WAN link and the ISP circuit. OSPF and NAT connect it all.',
+    4: 'New: the access point, the controller, the firewall, AAA, the policy and the hardened management plane.',
     5: 'New: config backups. Nothing is built — the network is operated: backups, changes, tickets.',
     6: 'New: the NOC. Syslog and SNMP from every device become alerts, and alerts become tickets.',
     7: 'New: automation. Configuration flows from the source of truth, not from the keyboard.',
     8: 'Nothing new is built. Break it, run the incident, write the RCA, hand the network over.',
   },
 };
+
+/* ── The parts, for the weekly breakdown (R103) ───────────────────────────── */
+
+const CONCEPT_ROWS: Record<string, { label: string; purpose: string; records: string }> = {
+  'site:hq': { label: 'Austin HQ', purpose: 'The main site: core, access, servers and the edge', records: 'ccna_requirements' },
+  'site:branch': { label: 'Round Rock branch', purpose: 'The second site, joined to HQ over the WAN', records: 'ccna_requirements' },
+  vlans: { label: 'VLANs', purpose: 'One segment per kind of traffic, with its own gateway', records: 'ccna_lld' },
+  trunks: { label: 'Trunks', purpose: 'The links that carry every VLAN between switches', records: 'ccna_lld' },
+  routing: { label: 'Inter-VLAN routing', purpose: 'SVIs on the core so the segments can reach each other', records: 'ccna_lld' },
+  etherchannel: { label: 'EtherChannel', purpose: 'Two cables as one link; survives a pulled cable', records: 'ccna_validation' },
+  wan: { label: 'WAN link', purpose: 'The /30 between the sites, in OSPF area 0', records: 'ccna_hld' },
+  internet: { label: 'Internet', purpose: 'The one public address the whole company leaves through', records: 'ccna_hld' },
+  isp: { label: 'ISP circuit', purpose: 'The provider, the circuit id and the gateway on the other end', records: 'ccna_hld' },
+  policy: { label: 'Access policy', purpose: 'Who may reach what, as ACL rows', records: 'ccna_security' },
+  wireless: { label: 'Wireless', purpose: 'Each SSID in its own VLAN; wireless inherits the segmentation', records: 'ccna_lld' },
+  management: { label: 'Management plane', purpose: 'SSH only, no telnet, logging on, a management VLAN', records: 'ccna_security' },
+  aaa: { label: 'AAA (RADIUS)', purpose: 'Every device login checked against the server, not a local password', records: 'ccna_security' },
+  backups: { label: 'Config backups', purpose: 'Every configuration saved automatically after a change', records: 'ccna_ops' },
+  noc: { label: 'NOC', purpose: 'Syslog and SNMP from every device become alerts and tickets', records: 'ccna_monitoring' },
+  automation: { label: 'Automation', purpose: 'Configuration from the source of truth, not the keyboard', records: 'ccna_monitoring' },
+};
+const DEVICE_RECORDS: Record<string, string> = { 'ADMIN-PC': 'ccna_kit', NETOPS: 'ccna_ops', 'FW-HQ': 'ccna_security' };
+
+export const PARTS: ArchPart[] = Object.keys(CCNA_BUILD.arrives).map((id) => {
+  const row = CONCEPT_ROWS[id];
+  if (row) return { id, label: row.label, purpose: row.purpose, records: row.records, arrives: CCNA_BUILD.arrives[id] };
+  const d = DEVICES.find((x) => x.name === id)!;
+  return { id, label: d.name, purpose: d.runs, records: DEVICE_RECORDS[id] ?? 'ccna_build_log', arrives: CCNA_BUILD.arrives[id] };
+});

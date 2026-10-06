@@ -41,6 +41,7 @@ const TONE: Record<DeviceClass, string> = {
 const PART_NAME: Record<string, string> = {
   internet: 'internet', wan: 'WAN link', policy: 'policy', wireless: 'Wi-Fi', management: 'mgmt plane', vlans: 'VLANs', trunks: 'trunks',
   routing: 'routing', etherchannel: 'EtherChannel', backups: 'config backups', noc: 'NOC', automation: 'automation', 'site:hq': 'HQ', 'site:branch': 'branch',
+  isp: 'ISP', aaa: 'AAA',
 };
 /** The operating practice of the advanced weeks, drawn as chips on NETOPS. */
 const NETOPS_CHIPS: { id: string; label: string }[] = [
@@ -100,6 +101,11 @@ export function CcnaTopologyDiagram({
           <span className="text-xs font-semibold text-ink">{COPY.internetHeading}</span>
           {weekTag(ARRIVES.internet)}
           <span className="mt-0.5 block text-3xs text-muted">{COPY.internetNote}</span>
+          {/* R103: the circuit itself, as a part that arrives with the routing. */}
+          <span className={`mt-1 inline-block rounded-full depth-edge bg-panel px-1.5 py-px font-mono text-3xs text-muted ${dim(built(arrivesOf('isp')))}`} {...mark('isp', built(arrivesOf('isp')))}>
+            {COPY.ispChip}
+            {weekTag(arrivesOf('isp'))}
+          </span>
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2">
@@ -132,6 +138,13 @@ export function CcnaTopologyDiagram({
                       {weekTag(d.arrives)}
                     </div>
                     <span className="block text-3xs text-muted">{d.runs}</span>
+                    {/* R103: the AAA server the device logins check against. */}
+                    {d.name === 'SRV-CORE' && (
+                      <span className={`mt-1 inline-block rounded-full depth-edge bg-panel px-1.5 py-px font-mono text-3xs text-muted ${dim(built(arrivesOf('aaa')))}`} {...mark('aaa', built(arrivesOf('aaa')))}>
+                        {COPY.aaaChip}
+                        {weekTag(arrivesOf('aaa'))}
+                      </span>
+                    )}
                     {/* R99: what the operations host does from Week 5 on. */}
                     {d.name === 'NETOPS' && (
                       <div className="mt-1 flex flex-wrap gap-1">

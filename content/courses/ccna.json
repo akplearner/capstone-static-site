@@ -3537,6 +3537,30 @@
         "optional": true
       },
       {
+        "name": "FW-HQ",
+        "class": "firewall",
+        "site": "hq",
+        "runs": "Edge firewall — inspects what the router passes",
+        "mgmt": {
+          "vlan": 99,
+          "host": 3
+        },
+        "arrives": 4,
+        "optional": true
+      },
+      {
+        "name": "WLC-01",
+        "class": "wlc",
+        "site": "hq",
+        "runs": "Wireless controller — the WLANs as one system",
+        "mgmt": {
+          "vlan": 99,
+          "host": 21
+        },
+        "arrives": 4,
+        "optional": true
+      },
+      {
         "name": "ADMIN-PC",
         "class": "workstation",
         "site": "hq",
@@ -3656,6 +3680,38 @@
           "port": "Gi1/0/20"
         },
         "kind": "uplink",
+        "media": "cat6",
+        "vlans": [
+          10,
+          50,
+          60,
+          99
+        ],
+        "arrives": 4
+      },
+      {
+        "from": {
+          "device": "FW-HQ",
+          "port": "Gi1/1"
+        },
+        "to": {
+          "device": "R1-HQ",
+          "port": "Gi0/0/2"
+        },
+        "kind": "routed",
+        "media": "cat6",
+        "arrives": 4
+      },
+      {
+        "from": {
+          "device": "WLC-01",
+          "port": "Gi1"
+        },
+        "to": {
+          "device": "SW-CORE-01",
+          "port": "Gi1/0/3"
+        },
+        "kind": "trunk",
         "media": "cat6",
         "vlans": [
           10,
@@ -4436,6 +4492,8 @@
           "SW-BR-01": 3,
           "SRV-CORE": 2,
           "NETOPS": 5,
+          "FW-HQ": 4,
+          "WLC-01": 4,
           "ADMIN-PC": 0,
           "site:hq": 1,
           "site:branch": 3,
@@ -4448,6 +4506,8 @@
           "policy": 4,
           "wireless": 4,
           "management": 4,
+          "aaa": 4,
+          "isp": 3,
           "backups": 5,
           "noc": 6,
           "automation": 7
@@ -4493,7 +4553,7 @@
               },
               {
                 "from": "R1-HQ",
-                "to": "internet",
+                "to": "isp",
                 "label": "NAT · one public address"
               }
             ]
@@ -4507,9 +4567,19 @@
                 "label": "ACLs from the policy rows"
               },
               {
+                "from": "FW-HQ",
+                "to": "R1-HQ",
+                "label": "inspect what the router passes"
+              },
+              {
                 "from": "AP-01",
                 "to": "SW-ACC-01",
                 "label": "guest Wi-Fi, internet only"
+              },
+              {
+                "from": "SRV-CORE",
+                "to": "aaa",
+                "label": "RADIUS for every login"
               }
             ]
           },
@@ -4578,8 +4648,8 @@
           "0": "Before the build: the kit on the bench and the admin PC. Only what you can touch exists.",
           "1": "New: the HQ core and first access switch. Console in, name it, give it a management address.",
           "2": "New: the second access switch, VLANs, trunks and an EtherChannel that survives a pulled cable.",
-          "3": "New: both routers, the branch site, the WAN link and the internet. OSPF and NAT connect it all.",
-          "4": "New: the access point, the policy and the hardened management plane. The network is protected.",
+          "3": "New: both routers, the branch site, the WAN link and the ISP circuit. OSPF and NAT connect it all.",
+          "4": "New: the access point, the controller, the firewall, AAA, the policy and the hardened management plane.",
           "5": "New: config backups. Nothing is built — the network is operated: backups, changes, tickets.",
           "6": "New: the NOC. Syslog and SNMP from every device become alerts, and alerts become tickets.",
           "7": "New: automation. Configuration flows from the source of truth, not from the keyboard.",
@@ -4607,6 +4677,14 @@
             "label": "Access point — the WLANs"
           },
           {
+            "kind": "wlc",
+            "label": "Wireless controller — the APs as one system"
+          },
+          {
+            "kind": "firewall",
+            "label": "Firewall — inspection at the edge"
+          },
+          {
             "kind": "server",
             "label": "Server — DNS, DHCP, the tools"
           },
@@ -4621,12 +4699,212 @@
         "wanHeading": "WAN · 10.255.255.0/30 · OSPF area 0",
         "wanNote": "A point-to-point link needs exactly two addresses, which is what a /30 gives you.",
         "internetHeading": "Internet · Lonestar Fibre · 200 Mbps symmetric",
+        "ispChip": "Lonestar Fibre · LSF-44127 · gateway 198.51.100.1",
+        "aaaChip": "RADIUS · AAA for device login",
         "internetNote": "The whole company leaves through one address (198.51.100.2). That is what NAT is for.",
         "policyNote": "Guest reaches the internet and nothing else. Only the network team reaches management.",
         "wirelessNote": "Each SSID lands in its own VLAN, so wireless inherits the wired segmentation.",
         "footer": "These are the worked-example numbers the course is written around. Record your own in the Low-Level Design — and what your kit can actually do in the Kit & Capability Register.",
         "routerOnAStick": "Your register says no switch here routes, so inter-VLAN routing happens on the router over one trunk — router-on-a-stick."
       },
+      "PARTS": [
+        {
+          "id": "R1-HQ",
+          "label": "R1-HQ",
+          "purpose": "Edge router — internet, NAT, OSPF",
+          "records": "ccna_build_log",
+          "arrives": 3
+        },
+        {
+          "id": "SW-CORE-01",
+          "label": "SW-CORE-01",
+          "purpose": "Core switch — SVIs, inter-VLAN routing",
+          "records": "ccna_build_log",
+          "arrives": 1
+        },
+        {
+          "id": "SW-ACC-01",
+          "label": "SW-ACC-01",
+          "purpose": "Access switch — offices, trunk to core",
+          "records": "ccna_build_log",
+          "arrives": 1
+        },
+        {
+          "id": "SW-ACC-02",
+          "label": "SW-ACC-02",
+          "purpose": "Access switch — warehouse IDF, PoE for phones",
+          "records": "ccna_build_log",
+          "arrives": 2
+        },
+        {
+          "id": "AP-01",
+          "label": "AP-01",
+          "purpose": "Access point — CORP, GUEST and IOT WLANs",
+          "records": "ccna_build_log",
+          "arrives": 4
+        },
+        {
+          "id": "R2-BR",
+          "label": "R2-BR",
+          "purpose": "Branch router — WAN to HQ, OSPF",
+          "records": "ccna_build_log",
+          "arrives": 3
+        },
+        {
+          "id": "SW-BR-01",
+          "label": "SW-BR-01",
+          "purpose": "Branch access switch",
+          "records": "ccna_build_log",
+          "arrives": 3
+        },
+        {
+          "id": "SRV-CORE",
+          "label": "SRV-CORE",
+          "purpose": "DNS · DHCP · the order system",
+          "records": "ccna_build_log",
+          "arrives": 2
+        },
+        {
+          "id": "NETOPS",
+          "label": "NETOPS",
+          "purpose": "NetBox · LibreNMS · Oxidized — the advanced weeks",
+          "records": "ccna_ops",
+          "arrives": 5
+        },
+        {
+          "id": "FW-HQ",
+          "label": "FW-HQ",
+          "purpose": "Edge firewall — inspects what the router passes",
+          "records": "ccna_security",
+          "arrives": 4
+        },
+        {
+          "id": "WLC-01",
+          "label": "WLC-01",
+          "purpose": "Wireless controller — the WLANs as one system",
+          "records": "ccna_build_log",
+          "arrives": 4
+        },
+        {
+          "id": "ADMIN-PC",
+          "label": "ADMIN-PC",
+          "purpose": "Where you work — console, SSH, browser",
+          "records": "ccna_kit",
+          "arrives": 0
+        },
+        {
+          "id": "site:hq",
+          "label": "Austin HQ",
+          "purpose": "The main site: core, access, servers and the edge",
+          "records": "ccna_requirements",
+          "arrives": 1
+        },
+        {
+          "id": "site:branch",
+          "label": "Round Rock branch",
+          "purpose": "The second site, joined to HQ over the WAN",
+          "records": "ccna_requirements",
+          "arrives": 3
+        },
+        {
+          "id": "vlans",
+          "label": "VLANs",
+          "purpose": "One segment per kind of traffic, with its own gateway",
+          "records": "ccna_lld",
+          "arrives": 2
+        },
+        {
+          "id": "trunks",
+          "label": "Trunks",
+          "purpose": "The links that carry every VLAN between switches",
+          "records": "ccna_lld",
+          "arrives": 2
+        },
+        {
+          "id": "routing",
+          "label": "Inter-VLAN routing",
+          "purpose": "SVIs on the core so the segments can reach each other",
+          "records": "ccna_lld",
+          "arrives": 2
+        },
+        {
+          "id": "etherchannel",
+          "label": "EtherChannel",
+          "purpose": "Two cables as one link; survives a pulled cable",
+          "records": "ccna_validation",
+          "arrives": 2
+        },
+        {
+          "id": "wan",
+          "label": "WAN link",
+          "purpose": "The /30 between the sites, in OSPF area 0",
+          "records": "ccna_hld",
+          "arrives": 3
+        },
+        {
+          "id": "internet",
+          "label": "Internet",
+          "purpose": "The one public address the whole company leaves through",
+          "records": "ccna_hld",
+          "arrives": 3
+        },
+        {
+          "id": "policy",
+          "label": "Access policy",
+          "purpose": "Who may reach what, as ACL rows",
+          "records": "ccna_security",
+          "arrives": 4
+        },
+        {
+          "id": "wireless",
+          "label": "Wireless",
+          "purpose": "Each SSID in its own VLAN; wireless inherits the segmentation",
+          "records": "ccna_lld",
+          "arrives": 4
+        },
+        {
+          "id": "management",
+          "label": "Management plane",
+          "purpose": "SSH only, no telnet, logging on, a management VLAN",
+          "records": "ccna_security",
+          "arrives": 4
+        },
+        {
+          "id": "aaa",
+          "label": "AAA (RADIUS)",
+          "purpose": "Every device login checked against the server, not a local password",
+          "records": "ccna_security",
+          "arrives": 4
+        },
+        {
+          "id": "isp",
+          "label": "ISP circuit",
+          "purpose": "The provider, the circuit id and the gateway on the other end",
+          "records": "ccna_hld",
+          "arrives": 3
+        },
+        {
+          "id": "backups",
+          "label": "Config backups",
+          "purpose": "Every configuration saved automatically after a change",
+          "records": "ccna_ops",
+          "arrives": 5
+        },
+        {
+          "id": "noc",
+          "label": "NOC",
+          "purpose": "Syslog and SNMP from every device become alerts and tickets",
+          "records": "ccna_monitoring",
+          "arrives": 6
+        },
+        {
+          "id": "automation",
+          "label": "Automation",
+          "purpose": "Configuration from the source of truth, not the keyboard",
+          "records": "ccna_monitoring",
+          "arrives": 7
+        }
+      ],
       "SITE_COLUMNS": [
         {
           "site": {
@@ -4715,6 +4993,30 @@
               "arrives": 4
             },
             {
+              "name": "FW-HQ",
+              "class": "firewall",
+              "site": "hq",
+              "runs": "Edge firewall — inspects what the router passes",
+              "mgmt": {
+                "vlan": 99,
+                "host": 3
+              },
+              "arrives": 4,
+              "optional": true
+            },
+            {
+              "name": "WLC-01",
+              "class": "wlc",
+              "site": "hq",
+              "runs": "Wireless controller — the WLANs as one system",
+              "mgmt": {
+                "vlan": 99,
+                "host": 21
+              },
+              "arrives": 4,
+              "optional": true
+            },
+            {
               "name": "NETOPS",
               "class": "server",
               "site": "hq",
@@ -4763,7 +5065,7 @@
         }
       ],
       "SPOKEN": [
-        "Austin HQ: ADMIN-PC, Where you work — console, SSH, browser; SW-CORE-01, Core switch — SVIs, inter-VLAN routing; SW-ACC-01, Access switch — offices, trunk to core; SW-ACC-02, Access switch — warehouse IDF, PoE for phones; SRV-CORE, DNS · DHCP · the order system; R1-HQ, Edge router — internet, NAT, OSPF; AP-01, Access point — CORP, GUEST and IOT WLANs; NETOPS, NetBox · LibreNMS · Oxidized — the advanced weeks.",
+        "Austin HQ: ADMIN-PC, Where you work — console, SSH, browser; SW-CORE-01, Core switch — SVIs, inter-VLAN routing; SW-ACC-01, Access switch — offices, trunk to core; SW-ACC-02, Access switch — warehouse IDF, PoE for phones; SRV-CORE, DNS · DHCP · the order system; R1-HQ, Edge router — internet, NAT, OSPF; AP-01, Access point — CORP, GUEST and IOT WLANs; FW-HQ, Edge firewall — inspects what the router passes; WLC-01, Wireless controller — the WLANs as one system; NETOPS, NetBox · LibreNMS · Oxidized — the advanced weeks.",
         "Round Rock branch: R2-BR, Branch router — WAN to HQ, OSPF; SW-BR-01, Branch access switch.",
         "The sites are joined by a 10.255.255.0/30 link in OSPF area 0.",
         "VLAN 10 CORP-USERS: 10.50.10.0/24, gateway 10.50.10.1 — Staff PCs and laptops.",
@@ -4776,7 +5078,7 @@
         "VLAN 110 BR-USERS: 10.60.110.0/24, gateway 10.60.110.1 — Branch staff PCs.",
         "VLAN 130 BR-VOICE: 10.60.130.0/24, gateway 10.60.130.1 — Branch desk phones.",
         "VLAN 199 BR-MGMT: 10.60.199.0/24, gateway 10.60.199.1 — Branch kit management only.",
-        "1 of the devices are for the advanced weeks and are not required to pass."
+        "3 of the devices are for the advanced weeks and are not required to pass."
       ],
       "TRUNK_LOAD": {
         "hq": 7,
@@ -4954,7 +5256,8 @@
           "SW-BR-01",
           "site:branch",
           "wan",
-          "internet"
+          "internet",
+          "isp"
         ],
         "process": {
           "title": "Route",
@@ -4966,21 +5269,24 @@
             },
             {
               "from": "R1-HQ",
-              "to": "internet",
+              "to": "isp",
               "label": "NAT · one public address"
             }
           ]
         },
-        "caption": "New: both routers, the branch site, the WAN link and the internet. OSPF and NAT connect it all."
+        "caption": "New: both routers, the branch site, the WAN link and the ISP circuit. OSPF and NAT connect it all."
       },
       {
         "week": 4,
         "builtThrough": 4,
         "highlight": [
           "AP-01",
+          "FW-HQ",
+          "WLC-01",
           "policy",
           "wireless",
-          "management"
+          "management",
+          "aaa"
         ],
         "process": {
           "title": "Protect",
@@ -4991,13 +5297,23 @@
               "label": "ACLs from the policy rows"
             },
             {
+              "from": "FW-HQ",
+              "to": "R1-HQ",
+              "label": "inspect what the router passes"
+            },
+            {
               "from": "AP-01",
               "to": "SW-ACC-01",
               "label": "guest Wi-Fi, internet only"
+            },
+            {
+              "from": "SRV-CORE",
+              "to": "aaa",
+              "label": "RADIUS for every login"
             }
           ]
         },
-        "caption": "New: the access point, the policy and the hardened management plane. The network is protected."
+        "caption": "New: the access point, the controller, the firewall, AAA, the policy and the hardened management plane."
       },
       {
         "week": 5,

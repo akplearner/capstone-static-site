@@ -18,6 +18,7 @@
  */
 import { BASE_VMS, CROSS_ZONE_ALLOW, PUBLISHED_PORTS, RACK_UNITS } from '../serverTopology';
 import type { BuildModel } from '../weekVisual';
+import type { ArchPart } from './archPicture';
 
 /**
  * Which week each part of the picture arrives in.
@@ -119,6 +120,10 @@ export const SERVER_DIAGRAM_COPY = {
   tailnetPath: { after: ' → tailnet → the host → both zones' },
   tailnetNote:
     'Administration only: {allow}. Nothing in the private zone is published to the campus.',
+  /** R103: the parts that were in the model but not in the picture. */
+  edge: { label: 'Campus edge', sub: 'router + firewall · the servers’ only internet path' },
+  directoryChip: 'AD DS · DNS · DHCP',
+  backupStoreChip: 'PBS datastore · local',
   footer:
     'The Windows / Linux / website VMs are the base build — every team the same. Zone subnets are worked examples; record yours in the IP Plan & Connectivity Proof.',
 } as const;
@@ -144,15 +149,26 @@ export const SERVER_BUILD: BuildModel = {
     published: ARRIVES.published,
     crossZone: ARRIVES.crossZone,
     tailnet: ARRIVES.tailnet,
+    directory: 2,
+    edge: 3,
     hardened: 4,
     backup: 4,
+    backupStore: 4,
     ops: 7,
     opsVm: 7,
     core: 8,
   },
   processes: {
+    0: { title: 'Survey the campus', steps: [
+      { from: 'campus', to: 'rack', label: 'power · cooling · the uplink drop' },
+    ] },
     1: { title: 'Bring the server up', steps: [
       { from: 'campus', to: 'host', label: 'console → POST → RAID → install' },
+    ] },
+    2: { title: 'Build the base VMs', steps: [
+      { from: 'host', to: 'winserver', label: 'install · promote the directory' },
+      { from: 'winserver', to: 'linuxsrv', label: 'DNS · DHCP for the zone' },
+      { from: 'host', to: 'websrv', label: 'install · first page' },
     ] },
     3: { title: 'Publish the website', steps: [
       { from: 'campus', to: 'published', label: 'HTTP · HTTPS' },
@@ -186,12 +202,41 @@ export const SERVER_BUILD: BuildModel = {
   captions: {
     0: 'Before the build: the campus LAN and an empty rack. Everything on the right is still to come.',
     1: 'New: the rack and the Proxmox host. The one machine you build goes in and comes up.',
-    2: 'New: the DMZ and private zones with the three base VMs — the website, the Windows server and the database.',
-    3: 'New: the published ports, the DMZ-to-private rule and the tailnet. The campus reaches the site through the host.',
-    4: 'New: the hardening baseline and the backup. Nothing is added — snapshot, restore, patch, and hand it over.',
+    2: 'New: the DMZ and private zones with the three base VMs, and the directory role: AD DS, DNS and DHCP on the Windows server.',
+    3: 'New: the campus edge, the published ports, the DMZ-to-private rule and the tailnet. The campus reaches the site through the host.',
+    4: 'New: the hardening baseline, the backup and its local datastore. Snapshot, restore, patch, and hand it over.',
     5: 'New: the monitoring host and your own SIEM. Every VM reports in; the first alert runs the runbook.',
     6: 'New: the tools host. The lab is rebuilt from code and registered in NetBox and GLPI.',
     7: 'New: the operations network and your ops VM. The fleet’s Core node holds Git and the golden template.',
     8: 'New: the fleet’s Core services. Playbooks, central metrics and backups, and a rebuild from Git.',
   },
 };
+
+/* ── The parts, for the weekly breakdown (R103) ───────────────────────────── */
+
+/** What each part is for and which form records it; ids as in `SERVER_BUILD`. */
+const PART_ROWS: Record<string, { label: string; purpose: string; records: string }> = {
+  campus: { label: 'Campus LAN', purpose: 'The network the rack plugs into and the team works from', records: 'srv_business_reqs' },
+  rack: { label: 'Rack A', purpose: 'Patch panel, switch, the server and the PDU, labelled and logged', records: 'srv_rack_assets' },
+  host: { label: 'Proxmox host', purpose: 'The one machine you build; every VM runs on it', records: 'srv_hardware' },
+  zones: { label: 'DMZ and private zones', purpose: 'Two bridges: public-facing services apart from internal systems', records: 'srv_ip_plan' },
+  directory: { label: 'Directory role', purpose: 'AD DS, DNS and DHCP on the Windows server for the zone', records: 'srv_bringup' },
+  edge: { label: 'Campus edge', purpose: 'Router and firewall: the servers’ only path to the internet', records: 'srv_ip_plan' },
+  published: { label: 'Published ports', purpose: 'What the campus reaches through the host, port by port', records: 'srv_ip_plan' },
+  crossZone: { label: 'DMZ → private rule', purpose: 'The one thing the DMZ may open into the private zone', records: 'srv_standards' },
+  tailnet: { label: 'Tailnet', purpose: 'Administration from off campus, into both zones', records: 'srv_ip_plan' },
+  hardened: { label: 'Hardening baseline', purpose: 'The settings every VM must reach before handover', records: 'srv_standards' },
+  backup: { label: 'Snapshots and restore', purpose: 'Every VM snapshotted; a restore timed and recorded', records: 'srv_as_built' },
+  backupStore: { label: 'Backup datastore', purpose: 'Where the snapshots live until the fleet’s PBS takes over', records: 'srv_as_built' },
+  ops: { label: 'Operations network', purpose: 'The bridge the ops VM and the Core node talk on', records: 'srv_as_built' },
+  opsVm: { label: 'Ops VM', purpose: 'Your seat in the fleet: playbooks, Git, the golden template', records: 'srv_as_built' },
+  core: { label: 'Core services', purpose: 'Git, central metrics, XDR and backups for the whole fleet', records: 'srv_as_built' },
+};
+const VM_RECORDS: Record<string, string> = { secmon: 'srv_operations', wazuh: 'srv_operations', tools: 'srv_operations' };
+
+export const PARTS: ArchPart[] = Object.keys(SERVER_BUILD.arrives).map((id) => {
+  const row = PART_ROWS[id];
+  if (row) return { id, label: row.label, purpose: row.purpose, records: row.records, arrives: SERVER_BUILD.arrives[id] };
+  const vm = BASE_VMS.find((v) => v.hostname === id)!;
+  return { id, label: vm.hostname, purpose: vm.runs, records: VM_RECORDS[id] ?? 'srv_bringup', arrives: SERVER_BUILD.arrives[id] };
+});
