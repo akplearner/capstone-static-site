@@ -51,7 +51,12 @@ export interface RoleFlowPair {
   approve: number;
   feeds: number;
   total: number;
+  /** The edges that make the pair, one per kind present, in kind order — the picture draws one line each. */
+  edges: RoleFlowEdge[];
 }
+
+/** The key the renderers put on a directed pair: `from>to`. */
+export const pairKey = (p: { from: Role; to: Role }): string => `${p.from}>${p.to}`;
 
 const KIND_ORDER: RoleFlowKind[] = ['review', 'approve', 'feeds'];
 
@@ -105,10 +110,11 @@ export function roleFlow(roles: RoleDef[], defs: DeliverableDef[]): RoleFlow {
 export function roleFlowPairs(flow: RoleFlow): RoleFlowPair[] {
   const out = new Map<string, RoleFlowPair>();
   for (const e of flow.edges) {
-    const key = `${e.from}>${e.to}`;
-    const p = out.get(key) ?? { from: e.from, to: e.to, review: 0, approve: 0, feeds: 0, total: 0 };
+    const key = pairKey(e);
+    const p = out.get(key) ?? { from: e.from, to: e.to, review: 0, approve: 0, feeds: 0, total: 0, edges: [] };
     p[e.kind] += e.ids.length;
     p.total += e.ids.length;
+    p.edges.push(e);
     out.set(key, p);
   }
   return [...out.values()];

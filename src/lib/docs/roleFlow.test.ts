@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { describeRoleFlow, roleFlow, roleFlowPairs } from './roleFlow';
+import { describeRoleFlow, pairKey, roleFlow, roleFlowPairs } from './roleFlow';
 import { deliverablesForCourse } from './definitions';
 import { SECURITY_PLUS } from '../data/seed/securityPlus';
 import { CYSA_PLUS } from '../data/seed/cysa';
@@ -45,7 +45,9 @@ describe('roleFlow', () => {
       { from: 'b', to: 'c', kind: 'approve', ids: ['d1', 'd3'] },
     ]);
     const pairs = roleFlowPairs(flow);
-    expect(pairs.find((p) => p.from === 'a' && p.to === 'b')).toMatchObject({ review: 2, feeds: 1, total: 3 });
+    const ab = pairs.find((p) => pairKey(p) === 'a>b')!;
+    expect(ab).toMatchObject({ review: 2, feeds: 1, total: 3 });
+    expect(ab.edges.map((e) => e.kind)).toEqual(['review', 'feeds']);
     expect(describeRoleFlow(flow, (id) => id.toUpperCase())).toEqual(['B reviews 2, is fed by 1 of A\'s documents.', 'C reviews 1, approves 2 of B\'s documents.']);
   });
 
@@ -69,6 +71,8 @@ describe('roleFlow', () => {
     expect(reviewArrows).toBe(defs.filter((d) => d.raci).length);
     const approveArrows = flow.edges.filter((e) => e.kind === 'approve').reduce((n, e) => n + e.ids.length, 0);
     expect(approveArrows).toBe(flow.rows.reduce((n, r) => n + r.approves.length, 0));
-    expect(roleFlowPairs(flow).length).toBeLessThanOrEqual(course.roles.length * (course.roles.length - 1));
+    const pairs = roleFlowPairs(flow);
+    expect(pairs.length).toBeLessThanOrEqual(course.roles.length * (course.roles.length - 1));
+    for (const p of pairs) expect(p.edges.reduce((n, e) => n + e.ids.length, 0), `${pairKey(p)} edges add up`).toBe(p.total);
   });
 });

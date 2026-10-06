@@ -9,6 +9,8 @@ export interface LegendItem {
   color?: string;
   /** Render the swatch as a dashed outline (e.g. "monitoring" / "optional"). */
   dashed?: boolean;
+  /** R105: a line swatch — an SVG dash array, or `true` for a solid line. */
+  dash?: string | true;
 }
 
 /**
@@ -51,12 +53,18 @@ export function DiagramFrame({
         <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted">
           {legend?.map((l) => (
             <span key={l.label} className="inline-flex items-center gap-1.5">
-              <span
-                className={`inline-block h-2.5 w-2.5 rounded-full ${
-                  l.color ? '' : 'bg-line'
-                } ${l.dashed ? 'border border-dashed bg-transparent' : ''}`}
-                style={l.color ? { backgroundColor: l.dashed ? 'transparent' : l.color, borderColor: l.color } : undefined}
-              />
+              {l.dash ? (
+                <svg width="22" height="6" viewBox="0 0 22 6" aria-hidden className="shrink-0">
+                  <line x1="0" y1="3" x2="22" y2="3" stroke={l.color ?? 'var(--color-muted)'} strokeWidth="2" strokeDasharray={l.dash === true ? undefined : l.dash} />
+                </svg>
+              ) : (
+                <span
+                  className={`inline-block h-2.5 w-2.5 rounded-full ${
+                    l.color ? '' : 'bg-line'
+                  } ${l.dashed ? 'border border-dashed bg-transparent' : ''}`}
+                  style={l.color ? { backgroundColor: l.dashed ? 'transparent' : l.color, borderColor: l.color } : undefined}
+                />
+              )}
               {l.label}
             </span>
           ))}
