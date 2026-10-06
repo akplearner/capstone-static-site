@@ -5,11 +5,13 @@ import { MSSP } from '../data/seed/mssp';
 import { CYSA_PLUS } from '../data/seed/cysa';
 import { SERVER_PLUS } from '../data/seed/serverPlus';
 import { CCNA } from '../data/seed/ccna';
+import { SECAI_PLUS } from '../data/seed/secaiPlus';
+import { CISSP } from '../data/seed/cissp';
 import { AZURE_COURSES } from '../data/seed/azureCloud';
 import { AWS_COURSES } from '../data/seed/awsCloud';
 import type { Course } from '../types';
 
-const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, ...AZURE_COURSES, ...AWS_COURSES];
+const COURSES: Course[] = [SECURITY_PLUS, MSSP, CYSA_PLUS, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 
 /**
  * The manual's sections used to be gated on `course.id === 'server-plus'` and

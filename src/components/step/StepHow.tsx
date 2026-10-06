@@ -49,7 +49,7 @@ export function howHint(step: Step, shellOptional = false): string {
     actions ? `${actions} ${shellOptional && actions ? 'click' : 'action'}${actions === 1 ? '' : 's'}` : '',
     step.codeToPaste && commands ? 'code to paste' : commands && !tucked ? `${actions ? 'or ' : ''}${commands} command${commands === 1 ? '' : 's'}` : '',
     step.expectedOutput || step.walkthrough || step.images ? 'what you should see' : '',
-    tucked && step.docs?.length ? 'docs' : '',
+    step.docs?.length ? 'docs' : '',
     step.verify?.length && !tucked ? 'verify' : '',
     step.usesForm || step.producesDeliverable ? 'where to record it' : '',
   ]
@@ -172,10 +172,11 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
             </div>
           )}
           {/* R97: the page to read for this step — the habit the course is teaching. */}
-          {shellOptional && step.docs && step.docs.length > 0 && <StepDocs docs={step.docs} />}
+          {/* R102: every course — the page to read for this step is part of the step. */}
+          {!!step.docs?.length && <StepDocs docs={step.docs} />}
           {/* R92: the portal clicks are the way; the shell is the alternative. */}
           {hasCommand && !shellTucked && (
-            <CommandBlock commands={cmdList} heading={step.codeToPaste ? 'The code to paste' : instructionList?.length ? 'Or in the shell' : undefined} />
+            <CommandBlock commands={cmdList} heading={step.codeToPaste ? 'The code to paste' : instructionList?.length ? (shellOptional ? 'Or in the shell' : 'Then run') : undefined} />
           )}
         </div>
 

@@ -2054,3 +2054,24 @@ describe('R101 — SecAI+ and CISSP', () => {
     expect(cisspEntry, 'CISSP is no longer coming-soon').toContain("status: 'available'");
   });
 });
+
+/**
+ * R102 — every step shows how: the page to read is part of the step on every
+ * course, a command next to actions is required work ("Then run"), and the two
+ * new capstones never tuck the shell away.
+ */
+describe('R102 — step docs on every course, honest captions', () => {
+  it('StepHow renders the docs line whenever a step has docs, not only when the shell is tucked', () => {
+    const how = code('src/components/step/StepHow.tsx');
+    const at = how.indexOf('<StepDocs');
+    expect(at, 'StepDocs is rendered').toBeGreaterThan(0);
+    const guard = how.slice(how.lastIndexOf('\n', at), at);
+    expect(guard).toContain('step.docs?.length');
+    expect(guard, 'docs are no longer gated on shellOptional').not.toContain('shellOptional &&');
+    expect(how).toContain("'Then run'");
+    expect(how).toContain("'Or in the shell'");
+  });
+  it('neither SecAI+ nor CISSP tucks the shell away', () => {
+    for (const f of ['src/lib/data/seed/secaiPlus.ts', 'src/lib/data/seed/cissp.ts']) expect(code(f), f).not.toContain('shellOptional');
+  });
+});

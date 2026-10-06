@@ -72,3 +72,41 @@ the method, not a frozen legal snapshot.
 Both ship `noGatekeeping: true`: every week is open from the start. The gates
 still mark each release (v1–v3 for SecAI+, v1–v5 for CISSP) so the Home tab
 can say which release the team has signed, but no gate locks a week.
+
+## The step contract (R102)
+
+Every one of the 80 steps on both courses is written to one shape, and
+`src/lib/data/secaiCissp.test.ts` ("R102 — the step contract") fails the build
+when a step drifts from it:
+
+| Element | Rule |
+|---|---|
+| `where` | the place the step happens, 2–5 words (the WHERE chip) |
+| `instruction` | one line, ≤14 words, starts with a verb |
+| `instructionList` | 2–4 actions, ≤20 prose words each, with a Ridgeline example value |
+| `commands[]` | each with `explain`, `flags` (every non-obvious flag) and `sample` |
+| `expectedOutput` + `outputHighlights` | the sample, with the lines that prove it labelled |
+| `verify` | tokens of ≥4 characters that only appear when it worked (never `1`, `OK`) |
+| `docs` | 1–2 official pages with a `lookFor` of 5–18 words: what to find and how to use it |
+| `fixes` | the two most likely failures, symptom → fix |
+| `whatItMeans` | ≤30 words, names the weakness or control |
+
+Form-only steps carry the same shape with a result sentence as
+`expectedOutput` instead of a command. No task has more than three steps;
+every graded task names its `prerequisites` and a `handoff` or `consumes`.
+
+Step docs now render on every course (`StepHow` no longer gates the
+"Read the docs" line on `shellOptional`), and a command that sits under a
+list of actions is captioned "Then run" unless the course tucks the shell
+away ("Or in the shell" on the entry cloud courses).
+
+### The spec's tables, seeded into the forms
+
+- SecAI+: P3 holds the 18 configuration items of spec §3.5; P4 the five
+  alert thresholds; P5 the 11 rules of §2.3, procedures PR1–PR14 and
+  weaknesses SA-1–SA-8.
+- CISSP: the questionnaire holds all 16 questions with their domain; the
+  control statements all 16 ids with domain and release; D6 the six CSF
+  profile rows and the 15 basic-safeguarding requirements of FAR 52.204-21;
+  D1 procedures PR1–PR33, weaknesses S-1–S-10 and a risk row per weakness;
+  D7 the four recovery-target processes; D3 five shared-responsibility rows.

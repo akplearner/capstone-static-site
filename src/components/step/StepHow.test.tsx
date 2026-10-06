@@ -51,14 +51,25 @@ describe('StepHow — R97 shell drawer', () => {
     current = 'later';
     const later = docs.later.course.tasks.find((t) => t.id === 'az-w5-infra')!.steps[0];
     render(<StepHow step={later} courseId="azure-administrator" />);
-    expect(screen.getByText('Or in the shell')).toBeInTheDocument();
+    // R102: the commands are required work here, so the caption says so.
+    expect(screen.getByText('Then run')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Optional: the same step/ })).toBeNull();
-    expect(screen.queryByText('Read the docs:')).toBeNull();
+    expect(screen.queryByText('Read the docs:')).toBeNull(); // this step has none
+  });
+
+  it('R102: a step with docs shows them on any course, with its verify box in the open', () => {
+    current = 'later';
+    const withDocs = { ...step, docs: [{ title: 'Resource groups', url: 'https://learn.microsoft.com/azure/azure-resource-manager/management/manage-resource-groups-portal', lookFor: 'Create resource groups' }] };
+    const { container } = render(<StepHow step={withDocs} courseId="azure-administrator" />);
+    expect(screen.getByText('Read the docs:')).toBeInTheDocument();
+    expect(container.textContent).toContain('look for Create resource groups');
+    expect(screen.getByRole('textbox')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Optional: the same step/ })).toBeNull();
   });
 
   it('the bar counts clicks and docs where the shell is tucked away, commands and verify elsewhere', () => {
     expect(howHint(step, true)).toBe('2 clicks · what you should see · docs');
-    expect(howHint(step, false)).toBe('2 actions · or 1 command · what you should see · verify');
+    expect(howHint(step, false)).toBe('2 actions · or 1 command · what you should see · docs · verify');
     expect(howHint(codeStep, true)).toContain('code to paste');
   });
 });
