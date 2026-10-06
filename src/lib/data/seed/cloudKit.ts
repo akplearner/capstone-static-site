@@ -1,4 +1,4 @@
-import type { Course, Framework, RoleDef, Step, Task, WeekDef } from '../../types';
+import type { Course, Framework, RoleDef, Step, Task, TaskCost, WeekDef } from '../../types';
 
 /**
  * The shared shape of the two cloud capstones (R87) — Azure and AWS, twelve
@@ -165,6 +165,8 @@ export function cloudTask(t: {
   /** R92: the documentation to read first, and the free-tier line. */
   docs?: Task['docs'];
   freeTier?: string;
+  /** R106: what the task spends while it runs; omitted = free tier. */
+  cost?: TaskCost;
   /** R93: what a teammate must have built first, so the student does their own part and then tests. */
   prerequisites?: string[];
   steps: Step[];
@@ -184,6 +186,7 @@ export function cloudTask(t: {
     definitionOfDone: t.done,
     docs: t.docs,
     freeTier: t.freeTier,
+    cost: t.cost ?? { usd: 0, per: 'run', note: t.freeTier ?? 'Free tier.' },
     prerequisites: t.prerequisites,
     steps: t.steps,
   };

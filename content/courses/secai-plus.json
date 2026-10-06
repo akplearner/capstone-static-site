@@ -7,6 +7,8 @@
     "src/lib/docs/secaiContent.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -6188,6 +6190,101 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "secai-plus",
+        "vendorId": "comptia",
+        "vendor": "CompTIA",
+        "code": "CY0-001",
+        "name": "SecAI+",
+        "level": "professional",
+        "exam": true,
+        "examFeeUsd": 404,
+        "feeCheckedYear": 2026,
+        "prerequisite": "cysa-plus",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "AI Concepts and Data",
+            "weight": 25,
+            "weightLabel": "approx."
+          },
+          {
+            "id": "d2",
+            "name": "Securing AI Systems",
+            "weight": 25,
+            "weightLabel": "approx."
+          },
+          {
+            "id": "d3",
+            "name": "AI-Assisted Security",
+            "weight": 25,
+            "weightLabel": "approx."
+          },
+          {
+            "id": "d4",
+            "name": "AI Governance and Compliance",
+            "weight": 25,
+            "weightLabel": "approx."
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "hub",
+          "kind": "lab",
+          "item": "The Service Hub stand-in and a model endpoint",
+          "usd": 0,
+          "per": "month",
+          "note": "Runs locally or on a free API tier; the cases are rate-limited by design."
+        },
+        {
+          "id": "vbox",
+          "kind": "software",
+          "item": "VirtualBox or VMware Workstation Player",
+          "usd": 0,
+          "per": "once",
+          "note": "Free for personal and classroom use."
+        }
+      ],
+      "DOMAIN_OF": {
+        "sa-w0-gov": "d4",
+        "sa-w0-def": "d2",
+        "sa-w0-red": "d1",
+        "sa-w1-gov": "d4",
+        "sa-w1-red": "d2",
+        "sa-w1-def": "d2",
+        "sa-w2-red": "d2",
+        "sa-w2-def": "d2",
+        "sa-w2-gov": "d1",
+        "sa-w3-def": "d3",
+        "sa-w3-red": "d3",
+        "sa-w3-gov": "d4",
+        "sa-w4-def": "d2",
+        "sa-w4-red": "d3",
+        "sa-w4-gov": "d4"
+      },
+      "LADDER": [
+        {
+          "courseId": "security-plus",
+          "code": "SY0-701",
+          "name": "Security+",
+          "level": "associate"
+        },
+        {
+          "courseId": "cysa-plus",
+          "code": "CS0-003",
+          "name": "CySA+",
+          "level": "professional"
+        },
+        {
+          "courseId": "secai-plus",
+          "code": "CY0-001",
+          "name": "SecAI+",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

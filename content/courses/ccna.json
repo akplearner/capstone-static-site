@@ -9,6 +9,8 @@
     "src/lib/docs/ccnaDiagrams.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -5578,6 +5580,128 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "ccna",
+        "vendorId": "cisco",
+        "vendor": "Cisco",
+        "code": "200-301",
+        "name": "CCNA",
+        "level": "associate",
+        "exam": true,
+        "examFeeUsd": 300,
+        "feeCheckedYear": 2026,
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Network Fundamentals",
+            "weight": 20
+          },
+          {
+            "id": "d2",
+            "name": "Network Access",
+            "weight": 20
+          },
+          {
+            "id": "d3",
+            "name": "IP Connectivity",
+            "weight": 25
+          },
+          {
+            "id": "d4",
+            "name": "IP Services",
+            "weight": 10
+          },
+          {
+            "id": "d5",
+            "name": "Security Fundamentals",
+            "weight": 15
+          },
+          {
+            "id": "d6",
+            "name": "Automation and Programmability",
+            "weight": 10
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "kit-l2",
+          "kind": "hardware",
+          "item": "Two managed Layer-2 switches (low band)",
+          "usd": 40,
+          "per": "once",
+          "note": "Second-hand; the kit guide bands it rather than pricing it.",
+          "approx": true
+        },
+        {
+          "id": "kit-l3",
+          "kind": "hardware",
+          "item": "A router or Layer-3 switch (medium band)",
+          "usd": 120,
+          "per": "once",
+          "note": "Second-hand; a considered purchase, or emulate it.",
+          "approx": true
+        },
+        {
+          "id": "kit-ap",
+          "kind": "hardware",
+          "item": "An access point (optional, Week 4)",
+          "usd": 40,
+          "per": "once",
+          "note": "Optional; the WLAN week can run on a lightweight AP.",
+          "approx": true
+        },
+        {
+          "id": "console",
+          "kind": "hardware",
+          "item": "A console cable",
+          "usd": 10,
+          "per": "once",
+          "note": "USB-to-RJ45.",
+          "approx": true
+        },
+        {
+          "id": "emulate",
+          "kind": "software",
+          "item": "Packet Tracer or CML as the alternative",
+          "usd": 0,
+          "per": "once",
+          "note": "Free (Packet Tracer) where the kit is borrowed or shared."
+        }
+      ],
+      "DOMAIN_OF": {
+        "ccna-w0-path": "d1",
+        "ccna-w0-register": "d1",
+        "ccna-w1-discover": "d1",
+        "ccna-w1-design": "d1",
+        "ccna-w1-bringup": "d2",
+        "ccna-w2-vlans": "d2",
+        "ccna-w2-route": "d3",
+        "ccna-w2-resilience": "d2",
+        "ccna-w3-wan": "d3",
+        "ccna-w3-internet": "d4",
+        "ccna-w4-policy": "d5",
+        "ccna-w4-harden": "d5",
+        "ccna-w4-wireless": "d2",
+        "ccna-w5-sot": "d6",
+        "ccna-w5-change": "d4",
+        "ccna-w6-noc": "d4",
+        "ccna-w6-ticket": "d3",
+        "ccna-w7-data": "d6",
+        "ccna-w7-ansible": "d6",
+        "ccna-w8-incident": "d3",
+        "ccna-w8-handover": "d1"
+      },
+      "LADDER": [
+        {
+          "courseId": "ccna",
+          "code": "200-301",
+          "name": "CCNA",
+          "level": "associate"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

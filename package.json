@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "content:export": "tsx scripts/export-courses.ts && tsx scripts/export-build-sheets.ts",
+    "content:export": "tsx scripts/export-courses.ts && tsx scripts/export-build-sheets.ts && tsx scripts/export-cert-sheets.ts",
     "db:check": "bash scripts/db-check.sh"
   },
   "dependencies": {

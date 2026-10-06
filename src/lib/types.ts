@@ -14,6 +14,13 @@ export type Framework = string;
  *  `difficulty` (pacing stars) — an expert cert can still open with an easy week. */
 export type Level = 'entry' | 'associate' | 'professional' | 'expert';
 
+/** R106 — what one task spends while it runs; `usd: 0` is free. */
+export interface TaskCost {
+  usd: number;
+  per: 'run' | 'hour' | 'month';
+  note: string;
+}
+
 // A role/track within a course (e.g. Red, Blue, GRC — or a single "Student" track).
 export interface RoleDef {
   id: string;        // 'red' — stable; team state and the RACI key on it
@@ -298,6 +305,8 @@ export interface Task {
   docs?: { title: string; url: string; lookFor: string }[];
   /** One line on what this task costs on the free tier and what to switch off. */
   freeTier?: string;
+  /** R106: what the task spends while it runs; `usd: 0` is free. Summed into the course's cost sheet. */
+  cost?: TaskCost;
   /** Every member works this task, whatever focus/role they picked. Used by
    *  shared-track courses (see `Course.sharedTrack`): the build itself is one
    *  shared lane and the role only decides what you document deeper, so the

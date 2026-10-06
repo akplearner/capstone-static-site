@@ -9,6 +9,8 @@
     "src/lib/cloud/workflows.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -270,6 +272,11 @@
           }
         ],
         "freeTier": "Free: AWS Budgets gives two budgets free, the Free Tier usage alerts are on by default, and CloudShell is free. Nothing is deployed this task.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: AWS Budgets gives two budgets free, the Free Tier usage alerts are on by default, and CloudShell is free. Nothing is deployed this task."
+        },
         "steps": [
           {
             "id": "aws-w1-arch-s1",
@@ -468,6 +475,11 @@
           }
         ],
         "freeTier": "Free: VPCs, subnets, route tables and internet gateways cost nothing. A NAT gateway would cost about $32 a month, so this course never creates one.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: VPCs, subnets, route tables and internet gateways cost nothing. A NAT gateway would cost about $32 a month, so this course never creates one."
+        },
         "steps": [
           {
             "id": "aws-w1-infra-s1",
@@ -664,6 +676,11 @@
           }
         ],
         "freeTier": "Free: GitHub is free for private repositories and project boards.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: GitHub is free for private repositories and project boards."
+        },
         "steps": [
           {
             "id": "aws-w1-dev-s1",
@@ -791,6 +808,11 @@
           }
         ],
         "freeTier": "Free: IAM users, groups, policies and MFA cost nothing. Do this signed in as the teammate who created the account.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: IAM users, groups, policies and MFA cost nothing. Do this signed in as the teammate who created the account."
+        },
         "steps": [
           {
             "id": "aws-w1-secops-s1",
@@ -1070,6 +1092,11 @@
           }
         ],
         "freeTier": "Free: the calculator. Nothing is deployed. Your list-price estimate should come out near $10 a month before the free tier and near $0 after it.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the calculator. Nothing is deployed. Your list-price estimate should come out near $10 a month before the free tier and near $0 after it."
+        },
         "steps": [
           {
             "id": "aws-w2-arch-s1",
@@ -1191,6 +1218,11 @@
           }
         ],
         "freeTier": "Free tier: 750 t3.micro hours a month, the 8 GB gp3 disk, 750 public IPv4 hours. Stop it when done: hours count while running.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free tier: 750 t3.micro hours a month, the 8 GB gp3 disk, 750 public IPv4 hours. Stop it when done: hours count while running."
+        },
         "steps": [
           {
             "id": "aws-w2-infra-s1",
@@ -1426,6 +1458,11 @@
           }
         ],
         "freeTier": "Free tier: S3 5 GB for 12 months; CloudFront 1 TB out, always free. Do not enable WAF on the distribution: about $14 a month.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free tier: S3 5 GB for 12 months; CloudFront 1 TB out, always free. Do not enable WAF on the distribution: about $14 a month."
+        },
         "steps": [
           {
             "id": "aws-w2-dev-s1",
@@ -1623,6 +1660,11 @@
           }
         ],
         "freeTier": "Free: security group rules. Instance hours count while it runs — stop it when the test is done.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: security group rules. Instance hours count while it runs — stop it when the test is done."
+        },
         "prerequisites": [
           "The tools instance and its private key (kp-team01.pem) from the Infrastructure Admin, this week — shared privately, never in the repo."
         ],
@@ -1804,6 +1846,11 @@
           }
         ],
         "freeTier": "Free: reading the diagram and writing the flow. Nothing is deployed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: reading the diagram and writing the flow. Nothing is deployed."
+        },
         "steps": [
           {
             "id": "aws-w3-arch-s1",
@@ -1918,6 +1965,11 @@
           }
         ],
         "freeTier": "Free: DynamoDB gives 25 GB and 25 read/write units always free; on-demand requests for a counter round to zero.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: DynamoDB gives 25 GB and 25 read/write units always free; on-demand requests for a counter round to zero."
+        },
         "steps": [
           {
             "id": "aws-w3-infra-s1",
@@ -2073,6 +2125,11 @@
           }
         ],
         "freeTier": "Free: Lambda 1 million requests a month always free; API Gateway HTTP API 1 million calls a month for 12 months.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Lambda 1 million requests a month always free; API Gateway HTTP API 1 million calls a month for 12 months."
+        },
         "prerequisites": [
           "The DynamoDB table capstone-team01-visitors from the Infrastructure Admin, this week.",
           "Your own site from Week 2."
@@ -2288,6 +2345,11 @@
           }
         ],
         "freeTier": "Free: IAM groups, managed policies, MFA and the credential report cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: IAM groups, managed policies, MFA and the credential report cost nothing."
+        },
         "prerequisites": [
           "The Lambda function and the site from App & DevOps, this week — for the no-key check."
         ],
@@ -2461,6 +2523,11 @@
           }
         ],
         "freeTier": "Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 a call: use the console.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the Cost Explorer console, the Free Tier page and Trusted Advisor’s basic checks. The Cost Explorer API costs $0.01 a call: use the console."
+        },
         "steps": [
           {
             "id": "aws-w4-arch-s1",
@@ -2599,6 +2666,11 @@
           }
         ],
         "freeTier": "Free: 10 CloudWatch alarms and 1,000 SNS email deliveries a month, always free.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: 10 CloudWatch alarms and 1,000 SNS email deliveries a month, always free."
+        },
         "prerequisites": [
           "The Lambda function capstone-team01-counter from App & DevOps (Week 3)."
         ],
@@ -2742,6 +2814,11 @@
           }
         ],
         "freeTier": "Free: CloudWatch Logs 5 GB of ingestion a month; a few hundred errors are kilobytes.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: CloudWatch Logs 5 GB of ingestion a month; a few hundred errors are kilobytes."
+        },
         "steps": [
           {
             "id": "aws-w4-dev-s1",
@@ -2915,6 +2992,11 @@
           }
         ],
         "freeTier": "Free: 90 days of CloudTrail event history and the alarm history cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: 90 days of CloudTrail event history and the alarm history cost nothing."
+        },
         "prerequisites": [
           "The break-and-fix times from App & DevOps, this week."
         ],
@@ -6373,6 +6455,84 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "aws-cloud-practitioner",
+        "vendorId": "aws",
+        "vendor": "AWS",
+        "code": "CLF-C02",
+        "name": "Cloud Practitioner",
+        "level": "entry",
+        "vendorLevel": "Foundational",
+        "exam": true,
+        "examFeeUsd": 100,
+        "feeCheckedYear": 2026,
+        "next": "aws-solutions-architect",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Cloud Concepts",
+            "weight": 24
+          },
+          {
+            "id": "d2",
+            "name": "Security and Compliance",
+            "weight": 30
+          },
+          {
+            "id": "d3",
+            "name": "Cloud Technology and Services",
+            "weight": 34
+          },
+          {
+            "id": "d4",
+            "name": "Billing, Pricing and Support",
+            "weight": 12
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "account",
+          "kind": "cloud",
+          "item": "AWS account on the free tier",
+          "usd": 0,
+          "per": "month",
+          "note": "Twelve months of free-tier allowances cover every entry-course resource; the budget alerts at $4.",
+          "approx": true
+        },
+        {
+          "id": "budget",
+          "kind": "cloud",
+          "item": "Budget guardrail",
+          "usd": 5,
+          "per": "month",
+          "note": "The cap the course sets; the entry course should end well under it.",
+          "approx": true
+        }
+      ],
+      "DOMAIN_OF": {},
+      "LADDER": [
+        {
+          "courseId": "aws-cloud-practitioner",
+          "code": "CLF-C02",
+          "name": "Cloud Practitioner",
+          "level": "entry"
+        },
+        {
+          "courseId": "aws-solutions-architect",
+          "code": "SAA-C03",
+          "name": "Solutions Architect – Associate",
+          "level": "associate"
+        },
+        {
+          "courseId": "aws-devops",
+          "code": "DOP-C02",
+          "name": "DevOps Engineer – Professional",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

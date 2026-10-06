@@ -58,6 +58,20 @@ export const PATHS: CareerPath[] = [
     entryIds: ['aws-cloud-practitioner', 'aws-saa', 'ms-az-500', 'aws-security-specialty'],
   },
   {
+    id: 'azure-platform',
+    name: 'Azure Platform',
+    role: 'Azure Administrator → DevOps Engineer',
+    blurb: 'Run one company in Azure for a year: the basics, then operate it like production, then codify and automate it.',
+    entryIds: ['ms-az-900', 'ms-az-104', 'ms-az-400'],
+  },
+  {
+    id: 'aws-platform',
+    name: 'AWS Platform',
+    role: 'Solutions Architect → DevOps Engineer',
+    blurb: 'Run one company in AWS for a year: the basics, then design it resilient and secure, then automate every change.',
+    entryIds: ['aws-cloud-practitioner', 'aws-saa', 'aws-devops-pro'],
+  },
+  {
     id: 'infrastructure',
     name: 'Infrastructure',
     role: 'Systems / Network Engineer',

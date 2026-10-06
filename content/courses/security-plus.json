@@ -8,6 +8,8 @@
     "src/lib/docs/cysaContent.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -7187,6 +7189,111 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "security-plus",
+        "vendorId": "comptia",
+        "vendor": "CompTIA",
+        "code": "SY0-701",
+        "name": "Security+",
+        "level": "associate",
+        "exam": true,
+        "examFeeUsd": 404,
+        "feeCheckedYear": 2026,
+        "next": "cysa-plus",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "General Security Concepts",
+            "weight": 12,
+            "gapNote": "Read with the exam guide; the lab assumes the vocabulary"
+          },
+          {
+            "id": "d2",
+            "name": "Threats, Vulnerabilities, and Mitigations",
+            "weight": 22
+          },
+          {
+            "id": "d3",
+            "name": "Security Architecture",
+            "weight": 18
+          },
+          {
+            "id": "d4",
+            "name": "Security Operations",
+            "weight": 28
+          },
+          {
+            "id": "d5",
+            "name": "Security Program Management and Oversight",
+            "weight": 20
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "vbox",
+          "kind": "software",
+          "item": "VirtualBox or VMware Workstation Player",
+          "usd": 0,
+          "per": "once",
+          "note": "Free for personal and classroom use."
+        },
+        {
+          "id": "kali",
+          "kind": "software",
+          "item": "Kali Linux and Ubuntu Server images",
+          "usd": 0,
+          "per": "once",
+          "note": "Free downloads."
+        },
+        {
+          "id": "win-eval",
+          "kind": "software",
+          "item": "Windows Server evaluation",
+          "usd": 0,
+          "per": "once",
+          "note": "Free 180-day evaluation; re-arm or rebuild after it."
+        }
+      ],
+      "DOMAIN_OF": {
+        "red-w0-setup": "d1",
+        "red-w1-osint": "d2",
+        "red-w2-enumeration": "d2",
+        "red-w3-attacks": "d2",
+        "red-w4-briefing": "d5",
+        "blue-w0-setup": "d3",
+        "blue-w1-hardening": "d3",
+        "blue-w2-baseline": "d4",
+        "blue-w3-detection": "d4",
+        "blue-w4-response": "d4",
+        "grc-w0-setup": "d5",
+        "grc-w1-framework": "d5",
+        "grc-w2-risk": "d5",
+        "grc-w3-custody": "d4",
+        "grc-w4-report": "d5"
+      },
+      "LADDER": [
+        {
+          "courseId": "security-plus",
+          "code": "SY0-701",
+          "name": "Security+",
+          "level": "associate"
+        },
+        {
+          "courseId": "cysa-plus",
+          "code": "CS0-003",
+          "name": "CySA+",
+          "level": "professional"
+        },
+        {
+          "courseId": "secai-plus",
+          "code": "CY0-001",
+          "name": "SecAI+",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

@@ -63,6 +63,8 @@ import { weekVisualsFor } from '@/lib/docs/weekVisuals';
 import type { BuildModel } from '@/lib/weekVisual';
 import type { ArchPicture } from '@/lib/docs/archPicture';
 import { FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_SHORT, roleContentFor } from '@/lib/docs/roles';
+import { TASK_DOMAINS, certFor, coverageOf, ladderRows } from '@/lib/docs/certs';
+import { costSummary, costsFor } from '@/lib/docs/costs';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
@@ -324,6 +326,12 @@ export function courseDto(courseId: string): CourseDto {
   // picture and the join picker read the same words.
   generatedFrom.push('src/lib/docs/roles.ts');
   content.roles = contentData({ ...roleContentFor(courseId), WORKS_LABEL, WORKS_SHORT, FLOW_KIND_LABEL, FLOW_HOW_TO_READ });
+  // R106: the certification this course prepares for, its exam domains, which
+  // domain each task practises, the ladder around it and what it costs — the
+  // registry's rows for this course, so the Guide, the catalogue and the
+  // coverage sheet read one source. Coverage itself is derived at read time.
+  generatedFrom.push('src/lib/docs/certs.ts', 'src/lib/docs/costs.ts');
+  content.cert = contentData({ CERT: certFor(courseId) ?? null, DOMAIN_OF: TASK_DOMAINS[courseId] ?? {}, COSTS: costsFor(courseId), LADDER: ladderRows(courseId) });
   // The chain-of-custody columns and rules: every course's evidence guide
   // renders them, and until R78-D no document carried them.
   generatedFrom.push('src/lib/docs/custodyTemplate.ts');
@@ -366,6 +374,18 @@ export interface CourseIndexEntry {
   steps: number;
   deliverables: number;
   procedures: number;
+  /** R106: the ladder and the cost, so the catalogue needs no second source. */
+  vendor?: string;
+  certification?: string;
+  level?: string;
+  prerequisite?: string;
+  next?: string;
+  examFeeUsd?: number;
+  /** Percent of the exam weight the graded tasks practise. */
+  coveredWeight?: number;
+  costOnceUsd?: number;
+  costMonthlyUsd?: number;
+  costTasksUsd?: number;
 }
 
 export function courseIndex(): { schema: typeof DTO_SCHEMA; courses: CourseIndexEntry[] } {
@@ -383,8 +403,27 @@ export function courseIndex(): { schema: typeof DTO_SCHEMA; courses: CourseIndex
         steps: c.tasks.reduce((n, t) => n + t.steps.length, 0),
         deliverables: dto.deliverables.length,
         procedures: dto.procedures?.length ?? 0,
+        ...certIndex(c),
       };
     }),
+  };
+}
+
+function certIndex(c: Course): Partial<CourseIndexEntry> {
+  const cert = certFor(c.id);
+  if (!cert) return {};
+  const sum = costSummary(costsFor(c.id), cert.examFeeUsd, c.tasks);
+  return {
+    vendor: cert.vendor,
+    certification: `${cert.name} (${cert.code})`,
+    level: cert.level,
+    prerequisite: cert.prerequisite,
+    next: cert.next,
+    examFeeUsd: cert.examFeeUsd,
+    coveredWeight: coverageOf(c, cert, TASK_DOMAINS[c.id] ?? {}).coveredWeight,
+    costOnceUsd: sum.onceUsd,
+    costMonthlyUsd: sum.monthlyUsd,
+    costTasksUsd: sum.tasksUsd,
   };
 }
 

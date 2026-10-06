@@ -9,6 +9,8 @@
     "src/lib/cloud/workflows.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -452,6 +454,11 @@
           }
         ],
         "freeTier": "Free: reading.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: reading."
+        },
         "steps": [
           {
             "id": "az-w9-arch-s1",
@@ -547,6 +554,11 @@
           }
         ],
         "freeTier": "Free: listing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: listing."
+        },
         "steps": [
           {
             "id": "az-w9-infra-s1",
@@ -631,6 +643,11 @@
           }
         ],
         "freeTier": "Free to deploy; the dev copy runs a second VM and public IP — delete the group the same session so nothing bills overnight.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free to deploy; the dev copy runs a second VM and public IP — delete the group the same session so nothing bills overnight."
+        },
         "steps": [
           {
             "id": "az-w9-dev-s1",
@@ -760,6 +777,11 @@
           }
         ],
         "freeTier": "Free: validation deploys nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: validation deploys nothing."
+        },
         "steps": [
           {
             "id": "az-w9-secops-s1",
@@ -874,6 +896,11 @@
           }
         ],
         "freeTier": "Free: GitHub.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: GitHub."
+        },
         "steps": [
           {
             "id": "az-w10-arch-s1",
@@ -949,6 +976,11 @@
           }
         ],
         "freeTier": "Free: GitHub settings.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: GitHub settings."
+        },
         "steps": [
           {
             "id": "az-w10-infra-s1",
@@ -1037,6 +1069,11 @@
           }
         ],
         "freeTier": "Free: GitHub Actions gives 2,000 minutes a month on private repositories; a deploy uses about three.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: GitHub Actions gives 2,000 minutes a month on private repositories; a deploy uses about three."
+        },
         "steps": [
           {
             "id": "az-w10-dev-s1",
@@ -1141,6 +1178,11 @@
           }
         ],
         "freeTier": "Free: app registrations and federated credentials.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: app registrations and federated credentials."
+        },
         "steps": [
           {
             "id": "az-w10-secops-s1",
@@ -1268,6 +1310,11 @@
           }
         ],
         "freeTier": "Free: cost analysis.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: cost analysis."
+        },
         "steps": [
           {
             "id": "az-w11-arch-s1",
@@ -1346,6 +1393,11 @@
           }
         ],
         "freeTier": "Free: Azure Policy costs nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Azure Policy costs nothing."
+        },
         "steps": [
           {
             "id": "az-w11-infra-s1",
@@ -1448,6 +1500,11 @@
           }
         ],
         "freeTier": "Free: the Activity Log keeps 90 days at no cost.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the Activity Log keeps 90 days at no cost."
+        },
         "steps": [
           {
             "id": "az-w11-dev-s1",
@@ -1524,6 +1581,11 @@
           }
         ],
         "freeTier": "Free: the foundational CSPM plan of Defender for Cloud costs nothing; the paid plans are not needed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the foundational CSPM plan of Defender for Cloud costs nothing; the paid plans are not needed."
+        },
         "steps": [
           {
             "id": "az-w11-secops-s1",
@@ -1602,6 +1664,11 @@
           }
         ],
         "freeTier": "Free: a document.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: a document."
+        },
         "steps": [
           {
             "id": "az-w12-arch-s1",
@@ -1690,6 +1757,11 @@
           }
         ],
         "freeTier": "Free to deploy; the recovery copy runs a second VM and public IP — delete the group the same session.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free to deploy; the recovery copy runs a second VM and public IP — delete the group the same session."
+        },
         "steps": [
           {
             "id": "az-w12-infra-s1",
@@ -1792,6 +1864,11 @@
           }
         ],
         "freeTier": "Free: a setting change and one pipeline run.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: a setting change and one pipeline run."
+        },
         "steps": [
           {
             "id": "az-w12-dev-s1",
@@ -1889,6 +1966,11 @@
           }
         ],
         "freeTier": "Free: an NSG rule and the Activity Log. The VM stays deallocated, so nothing is exposed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: an NSG rule and the Activity Log. The VM stays deallocated, so nothing is exposed."
+        },
         "steps": [
           {
             "id": "az-w12-secops-s1",
@@ -4800,6 +4882,117 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "azure-devops",
+        "vendorId": "microsoft",
+        "vendor": "Microsoft",
+        "code": "AZ-400",
+        "name": "DevOps Engineer",
+        "level": "expert",
+        "vendorLevel": "Expert",
+        "exam": true,
+        "examFeeUsd": 165,
+        "feeCheckedYear": 2026,
+        "prerequisite": "azure-administrator",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Design and implement processes and communications",
+            "weight": 13,
+            "weightLabel": "11–15%"
+          },
+          {
+            "id": "d2",
+            "name": "Design and implement a source control strategy",
+            "weight": 12,
+            "weightLabel": "10–15%"
+          },
+          {
+            "id": "d3",
+            "name": "Design and implement build and release pipelines",
+            "weight": 52,
+            "weightLabel": "50–55%"
+          },
+          {
+            "id": "d4",
+            "name": "Develop a security and compliance plan",
+            "weight": 12,
+            "weightLabel": "10–15%"
+          },
+          {
+            "id": "d5",
+            "name": "Implement an instrumentation strategy",
+            "weight": 7,
+            "weightLabel": "5–10%"
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "account",
+          "kind": "cloud",
+          "item": "Azure account, pay-as-you-go",
+          "usd": 0,
+          "per": "month",
+          "note": "The inherited environment, deployed from the template for the drills and deleted after.",
+          "approx": true
+        },
+        {
+          "id": "stacks",
+          "kind": "cloud",
+          "item": "A dev and a prod stack of the environment",
+          "usd": 0.05,
+          "per": "hour",
+          "note": "Two copies of the fleet and the database while a pipeline run or a drill is in flight.",
+          "approx": true,
+          "weeks": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "id": "ci",
+          "kind": "software",
+          "item": "GitHub Actions",
+          "usd": 0,
+          "per": "month",
+          "note": "Free minutes on a public or small private repository cover the course."
+        },
+        {
+          "id": "budget",
+          "kind": "cloud",
+          "item": "Budget guardrail",
+          "usd": 20,
+          "per": "month",
+          "note": "The cap the course sets; a forgotten prod stack is the way to exceed it.",
+          "approx": true
+        }
+      ],
+      "DOMAIN_OF": {},
+      "LADDER": [
+        {
+          "courseId": "azure-fundamentals",
+          "code": "AZ-900",
+          "name": "Azure Fundamentals",
+          "level": "entry"
+        },
+        {
+          "courseId": "azure-administrator",
+          "code": "AZ-104",
+          "name": "Azure Administrator",
+          "level": "associate"
+        },
+        {
+          "courseId": "azure-devops",
+          "code": "AZ-400",
+          "name": "DevOps Engineer",
+          "level": "expert"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

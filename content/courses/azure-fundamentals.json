@@ -9,6 +9,8 @@
     "src/lib/cloud/workflows.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -270,6 +272,11 @@
           }
         ],
         "freeTier": "Free: budgets, Cost Management and Cloud Shell’s first 5 GB share are inside the free account. Nothing is deployed this task.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: budgets, Cost Management and Cloud Shell’s first 5 GB share are inside the free account. Nothing is deployed this task."
+        },
         "steps": [
           {
             "id": "az-w1-arch-s1",
@@ -464,6 +471,11 @@
           }
         ],
         "freeTier": "Free: resource groups, virtual networks and subnets cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: resource groups, virtual networks and subnets cost nothing."
+        },
         "steps": [
           {
             "id": "az-w1-infra-s1",
@@ -641,6 +653,11 @@
           }
         ],
         "freeTier": "Free: GitHub is free for private repositories and project boards.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: GitHub is free for private repositories and project boards."
+        },
         "steps": [
           {
             "id": "az-w1-dev-s1",
@@ -768,6 +785,11 @@
           }
         ],
         "freeTier": "Free: users, groups, role assignments and security defaults cost nothing. Do this signed in as the teammate who created the account.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: users, groups, role assignments and security defaults cost nothing. Do this signed in as the teammate who created the account."
+        },
         "prerequisites": [
           "The resource group rg-capstone-team01 from the Infrastructure Admin, this week — the role is assigned on it."
         ],
@@ -1046,6 +1068,11 @@
           }
         ],
         "freeTier": "Free: the calculator. Nothing is deployed. Your estimate should come out near $4 a month: the VM’s public IP, and cents for the rest.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the calculator. Nothing is deployed. Your estimate should come out near $4 a month: the VM’s public IP, and cents for the rest."
+        },
         "steps": [
           {
             "id": "az-w2-arch-s1",
@@ -1167,6 +1194,11 @@
           }
         ],
         "freeTier": "Free tier: 750 B1s hours a month and the Standard SSD disk. The public IP costs about $3.60 a month; deallocate the VM anyway.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free tier: 750 B1s hours a month and the Standard SSD disk. The public IP costs about $3.60 a month; deallocate the VM anyway."
+        },
         "steps": [
           {
             "id": "az-w2-infra-s1",
@@ -1387,6 +1419,11 @@
           }
         ],
         "freeTier": "Free tier: 5 GB of LRS storage for 12 months; the static website feature costs nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free tier: 5 GB of LRS storage for 12 months; the static website feature costs nothing."
+        },
         "steps": [
           {
             "id": "az-w2-dev-s1",
@@ -1600,6 +1637,11 @@
           }
         ],
         "freeTier": "Free: network security groups and rules. VM hours count while it runs — deallocate it when the test is done.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: network security groups and rules. VM hours count while it runs — deallocate it when the test is done."
+        },
         "prerequisites": [
           "The tools VM and its private key (kp-team01.pem) from the Infrastructure Admin, this week — shared privately, never in the repo."
         ],
@@ -1847,6 +1889,11 @@
           }
         ],
         "freeTier": "Free: reading the diagram and writing the flow. Nothing is deployed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: reading the diagram and writing the flow. Nothing is deployed."
+        },
         "steps": [
           {
             "id": "az-w3-arch-s1",
@@ -1961,6 +2008,11 @@
           }
         ],
         "freeTier": "About a cent a month: serverless bills per request and a counter uses almost none. The free-tier account flag is the other route.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "About a cent a month: serverless bills per request and a counter uses almost none. The free-tier account flag is the other route."
+        },
         "steps": [
           {
             "id": "az-w3-infra-s1",
@@ -2134,6 +2186,11 @@
           }
         ],
         "freeTier": "Free: the Consumption plan includes 1 million executions a month for ever; Application Insights lives inside the free 5 GB of Log Analytics.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the Consumption plan includes 1 million executions a month for ever; Application Insights lives inside the free 5 GB of Log Analytics."
+        },
         "prerequisites": [
           "The Cosmos DB account, database capstone and container visitors from the Infrastructure Admin, this week (and its connection string).",
           "Your own site from Week 2."
@@ -2337,6 +2394,11 @@
           }
         ],
         "freeTier": "Free: Entra ID groups, role assignments and MFA cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Entra ID groups, role assignments and MFA cost nothing."
+        },
         "prerequisites": [
           "The Function and the site from App & DevOps, this week — for the no-key check."
         ],
@@ -2516,6 +2578,11 @@
           }
         ],
         "freeTier": "Free: cost analysis, Advisor and Service Health. Cost data lags 8–24 hours, so today’s VM hours are not in it yet.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: cost analysis, Advisor and Service Health. Cost data lags 8–24 hours, so today’s VM hours are not in it yet."
+        },
         "steps": [
           {
             "id": "az-w4-arch-s1",
@@ -2654,6 +2721,11 @@
           }
         ],
         "freeTier": "Free: the first ten metric alert rules and email notifications cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the first ten metric alert rules and email notifications cost nothing."
+        },
         "prerequisites": [
           "The Function App from App & DevOps (Week 3)."
         ],
@@ -2797,6 +2869,11 @@
           }
         ],
         "freeTier": "Free: Application Insights data stays well inside the free 5 GB a month.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Application Insights data stays well inside the free 5 GB a month."
+        },
         "steps": [
           {
             "id": "az-w4-dev-s1",
@@ -2961,6 +3038,11 @@
           }
         ],
         "freeTier": "Free: locks and the alerts page cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: locks and the alerts page cost nothing."
+        },
         "prerequisites": [
           "The break-and-fix times from App & DevOps, this week."
         ],
@@ -6063,6 +6145,82 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "azure-fundamentals",
+        "vendorId": "microsoft",
+        "vendor": "Microsoft",
+        "code": "AZ-900",
+        "name": "Azure Fundamentals",
+        "level": "entry",
+        "vendorLevel": "Fundamentals",
+        "exam": true,
+        "examFeeUsd": 99,
+        "feeCheckedYear": 2026,
+        "next": "azure-administrator",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Cloud concepts",
+            "weight": 27,
+            "weightLabel": "25–30%"
+          },
+          {
+            "id": "d2",
+            "name": "Azure architecture and services",
+            "weight": 37,
+            "weightLabel": "35–40%"
+          },
+          {
+            "id": "d3",
+            "name": "Azure management and governance",
+            "weight": 32,
+            "weightLabel": "30–35%"
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "account",
+          "kind": "cloud",
+          "item": "Azure account on the free tier",
+          "usd": 0,
+          "per": "month",
+          "note": "Twelve months of free-tier allowances cover every entry-course resource; the budget alerts at $4.",
+          "approx": true
+        },
+        {
+          "id": "budget",
+          "kind": "cloud",
+          "item": "Budget guardrail",
+          "usd": 5,
+          "per": "month",
+          "note": "The cap the course sets; the entry course should end well under it.",
+          "approx": true
+        }
+      ],
+      "DOMAIN_OF": {},
+      "LADDER": [
+        {
+          "courseId": "azure-fundamentals",
+          "code": "AZ-900",
+          "name": "Azure Fundamentals",
+          "level": "entry"
+        },
+        {
+          "courseId": "azure-administrator",
+          "code": "AZ-104",
+          "name": "Azure Administrator",
+          "level": "associate"
+        },
+        {
+          "courseId": "azure-devops",
+          "code": "AZ-400",
+          "name": "DevOps Engineer",
+          "level": "expert"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

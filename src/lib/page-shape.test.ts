@@ -884,6 +884,7 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/course/WeekAddsList.tsx', 'weekVisualsOf'],
     ['src/components/docs/RoleTable.tsx', 'rolesOf'],
     ['src/components/diagrams/RoleFlowDiagram.tsx', 'rolesOf'],
+    ['src/components/docs/CertCoverage.tsx', 'certOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -926,6 +927,7 @@ describe('R75-B — the content is not in the components', () => {
       'src/lib/docs/troubleshooting.ts',
       'src/lib/docs/manual.ts',
       'src/lib/docs/roles.ts',
+      'src/lib/docs/costs.ts',
     ];
     for (const m of modules) {
       const src = code(m).replace(/\/\*[\s\S]*?\*\//g, '');
@@ -1189,7 +1191,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles|certs|costs)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -2251,5 +2253,38 @@ describe('R105 — roles: one section, one register, one motion scale', () => {
     expect(readme).toContain('content.roles');
     expect(readme).toContain('## Adding a section');
     expect(read('docs/OPERATIONS.md')).toContain('(R105)');
+  });
+});
+
+/**
+ * R106 — the certification ladder and the cost live in one registry, reach
+ * every document as `content.cert`, and are printed as tables: the Guide's
+ * exam-and-cost section, the generated coverage sheets, the catalogue index.
+ */
+describe('R106 — the certification ladder and the cost', () => {
+  it('the registry is one module per concern, written into every document and read off it', () => {
+    expect(code('src/lib/docs/certs.ts')).toContain('export const CERTS');
+    expect(code('src/lib/docs/certs.ts')).toContain('export const TASK_DOMAINS');
+    expect(code('src/lib/docs/costs.ts')).toContain('export const COURSE_COSTS');
+    const dto = code('src/lib/content/dto.ts');
+    expect(dto).toContain('content.cert = contentData(');
+    expect(dto).toContain('coveredWeight: coverageOf(');
+    expect(code('src/lib/content/read.ts')).toContain('export function certOf');
+    expect(code(GUIDE)).toContain('<CertCoverage');
+    const cover = code('src/components/docs/CertCoverage.tsx');
+    expect(cover).toContain('coverageOf(course, CERT, DOMAIN_OF)');
+    expect(cover).toContain('data-domains');
+    expect(cover).toContain('data-costs');
+    expect(cover, 'the ladder comes from the document, not the registry').not.toContain('ladderOf(');
+  });
+
+  it('the sheets are generated with the content and CI diffs them', () => {
+    expect(read('package.json')).toContain('tsx scripts/export-cert-sheets.ts');
+    expect(read('.github/workflows/ci.yml')).toContain('docs/courses/cert-coverage/');
+    expect(code('scripts/export-cert-sheets.ts')).toContain("from '../src/lib/docs/certSheet'");
+    expect(existsSync('docs/courses/cert-coverage')).toBe(true);
+    expect(code('src/lib/data/seed/cloudKit.ts'), 'every cloud task carries a cost').toContain("cost: t.cost ?? { usd: 0, per: 'run'");
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Certification ladder and cost (R106)');
+    expect(read('content/README.md')).toContain('content.cert');
   });
 });

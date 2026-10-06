@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { AttackPathDiagram } from '@/components/diagrams/AttackPathDiagram';
 import { WeekGoals } from '@/components/docs/WeekGoals';
 import { RoleTable } from '@/components/docs/RoleTable';
+import { CertCoverage } from '@/components/docs/CertCoverage';
 import { GuideManual } from '@/components/docs/GuideManual';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
@@ -84,6 +85,14 @@ export default function CourseGuidePage() {
           <RoleTable key={member.role} course={course} highlightRole={member.role} />
         </section>
       )}
+
+      <section className="space-y-3">
+        <div>
+          <h2 className="text-xl font-bold text-ink">The exam and the cost</h2>
+          <p className="mt-1 text-sm text-muted">Which exam domains the graded tasks practise, and what the course costs.</p>
+        </div>
+        <CertCoverage course={course} />
+      </section>
 
       <section className="space-y-2">
         <h2 className="text-xl font-bold text-ink">What you owe</h2>

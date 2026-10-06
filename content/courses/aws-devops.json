@@ -9,6 +9,8 @@
     "src/lib/cloud/workflows.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -447,6 +449,11 @@
           }
         ],
         "freeTier": "Free: reading. Infrastructure Composer is free; nothing is deployed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: reading. Infrastructure Composer is free; nothing is deployed."
+        },
         "steps": [
           {
             "id": "aws-w9-arch-s1",
@@ -542,6 +549,11 @@
           }
         ],
         "freeTier": "Free: Tag Editor and the tagging API cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Tag Editor and the tagging API cost nothing."
+        },
         "steps": [
           {
             "id": "aws-w9-infra-s1",
@@ -626,6 +638,11 @@
           }
         ],
         "freeTier": "Free tier while it exists: the dev stack is a second copy of everything, so its instance hours and public IP count too. Delete it the same session.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free tier while it exists: the dev stack is a second copy of everything, so its instance hours and public IP count too. Delete it the same session."
+        },
         "steps": [
           {
             "id": "aws-w9-dev-s1",
@@ -767,6 +784,11 @@
           }
         ],
         "freeTier": "Free: validation and linting. Nothing is deployed in this task.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: validation and linting. Nothing is deployed in this task."
+        },
         "steps": [
           {
             "id": "aws-w9-secops-s1",
@@ -887,6 +909,11 @@
           }
         ],
         "freeTier": "Free: GitHub pull requests.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: GitHub pull requests."
+        },
         "steps": [
           {
             "id": "aws-w10-arch-s1",
@@ -962,6 +989,11 @@
           }
         ],
         "freeTier": "Free: branch protection and environments on a private repository need a GitHub Free organisation or a public repo; a personal private repo needs Pro — use an organisation.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: branch protection and environments on a private repository need a GitHub Free organisation or a public repo; a personal private repo needs Pro — use an organisation."
+        },
         "steps": [
           {
             "id": "aws-w10-infra-s1",
@@ -1055,6 +1087,11 @@
           }
         ],
         "freeTier": "Free: 2,000 GitHub Actions minutes a month on a private repo; a deploy uses about ten. The stack itself is the same free-tier environment.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: 2,000 GitHub Actions minutes a month on a private repo; a deploy uses about ten. The stack itself is the same free-tier environment."
+        },
         "steps": [
           {
             "id": "aws-w10-dev-s1",
@@ -1161,6 +1198,11 @@
           }
         ],
         "freeTier": "Free: IAM providers and roles. The broken deploy rolls back to the same free-tier stack.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: IAM providers and roles. The broken deploy rolls back to the same free-tier stack."
+        },
         "steps": [
           {
             "id": "aws-w10-secops-s1",
@@ -1280,6 +1322,11 @@
           }
         ],
         "freeTier": "Free: the Cost Explorer console. The shell alternative costs $0.01 per call.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the Cost Explorer console. The shell alternative costs $0.01 per call."
+        },
         "steps": [
           {
             "id": "aws-w11-arch-s1",
@@ -1363,6 +1410,11 @@
           }
         ],
         "freeTier": "Costs cents: Config charges per configuration item recorded and per rule evaluation — about $0.003 each. The DOP-C02 exam expects Config, so this is kept; record only three resource types.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Costs cents: Config charges per configuration item recorded and per rule evaluation — about $0.003 each. The DOP-C02 exam expects Config, so this is kept; record only three resource types."
+        },
         "steps": [
           {
             "id": "aws-w11-infra-s1",
@@ -1459,6 +1511,11 @@
           }
         ],
         "freeTier": "Free: 90 days of event history for management events. Creating a trail to S3 would cost storage; you do not need one.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: 90 days of event history for management events. Creating a trail to S3 would cost storage; you do not need one."
+        },
         "steps": [
           {
             "id": "aws-w11-dev-s1",
@@ -1540,6 +1597,11 @@
           }
         ],
         "freeTier": "Free: Trusted Advisor’s security checks and an external-access analyzer. Security Hub and the unused-access analyzer cost money; skip them.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Trusted Advisor’s security checks and an external-access analyzer. Security Hub and the unused-access analyzer cost money; skip them."
+        },
         "steps": [
           {
             "id": "aws-w11-secops-s1",
@@ -1625,6 +1687,11 @@
           }
         ],
         "freeTier": "Free: a document. Nothing is deployed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: a document. Nothing is deployed."
+        },
         "steps": [
           {
             "id": "aws-w12-arch-s1",
@@ -1718,6 +1785,11 @@
           }
         ],
         "freeTier": "Free tier while it exists: the recovery stack is a full second copy — a second instance and public IP. Delete it in the same session; stop counting hours.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free tier while it exists: the recovery stack is a full second copy — a second instance and public IP. Delete it in the same session; stop counting hours."
+        },
         "steps": [
           {
             "id": "aws-w12-infra-s1",
@@ -1825,6 +1897,11 @@
           }
         ],
         "freeTier": "Free: one setting changed, one pipeline run (about ten of the 2,000 free minutes).",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: one setting changed, one pipeline run (about ten of the 2,000 free minutes)."
+        },
         "steps": [
           {
             "id": "aws-w12-dev-s1",
@@ -1928,6 +2005,11 @@
           }
         ],
         "freeTier": "Free: one rule added and removed; CloudTrail event history. The instance stays stopped, so nothing is exposed.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: one rule added and removed; CloudTrail event history. The instance stays stopped, so nothing is exposed."
+        },
         "steps": [
           {
             "id": "aws-w12-secops-s1",
@@ -5191,6 +5273,117 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "aws-devops",
+        "vendorId": "aws",
+        "vendor": "AWS",
+        "code": "DOP-C02",
+        "name": "DevOps Engineer – Professional",
+        "level": "professional",
+        "vendorLevel": "Professional",
+        "exam": true,
+        "examFeeUsd": 300,
+        "feeCheckedYear": 2026,
+        "prerequisite": "aws-solutions-architect",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "SDLC Automation",
+            "weight": 22
+          },
+          {
+            "id": "d2",
+            "name": "Configuration Management and IaC",
+            "weight": 17
+          },
+          {
+            "id": "d3",
+            "name": "Resilient Cloud Solutions",
+            "weight": 15
+          },
+          {
+            "id": "d4",
+            "name": "Monitoring and Logging",
+            "weight": 15
+          },
+          {
+            "id": "d5",
+            "name": "Incident and Event Response",
+            "weight": 14
+          },
+          {
+            "id": "d6",
+            "name": "Security and Compliance",
+            "weight": 17
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "account",
+          "kind": "cloud",
+          "item": "AWS account, pay-as-you-go",
+          "usd": 0,
+          "per": "month",
+          "note": "The inherited environment, deployed from the template for the drills and deleted after.",
+          "approx": true
+        },
+        {
+          "id": "stacks",
+          "kind": "cloud",
+          "item": "A dev and a prod stack of the environment",
+          "usd": 0.05,
+          "per": "hour",
+          "note": "Two copies of the fleet and the database while a pipeline run or a drill is in flight.",
+          "approx": true,
+          "weeks": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "id": "ci",
+          "kind": "software",
+          "item": "GitHub Actions",
+          "usd": 0,
+          "per": "month",
+          "note": "Free minutes on a public or small private repository cover the course."
+        },
+        {
+          "id": "budget",
+          "kind": "cloud",
+          "item": "Budget guardrail",
+          "usd": 20,
+          "per": "month",
+          "note": "The cap the course sets; a forgotten prod stack is the way to exceed it.",
+          "approx": true
+        }
+      ],
+      "DOMAIN_OF": {},
+      "LADDER": [
+        {
+          "courseId": "aws-cloud-practitioner",
+          "code": "CLF-C02",
+          "name": "Cloud Practitioner",
+          "level": "entry"
+        },
+        {
+          "courseId": "aws-solutions-architect",
+          "code": "SAA-C03",
+          "name": "Solutions Architect – Associate",
+          "level": "associate"
+        },
+        {
+          "courseId": "aws-devops",
+          "code": "DOP-C02",
+          "name": "DevOps Engineer – Professional",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

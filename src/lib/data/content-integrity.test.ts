@@ -15,6 +15,8 @@ import { looksLikeConsoleOutput } from '../stepOutcome';
 import { isGradedWeek } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';
 import { profileOf, roleContentFor } from '../docs/roles';
+import { CERTS, TASK_DOMAINS, certFor, coverageOf, domainOf } from '../docs/certs';
+import { costsFor } from '../docs/costs';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -22,6 +24,8 @@ import { profileOf, roleContentFor } from '../docs/roles';
 // a step ever points at a form/file that isn't registered for its course.
 
 const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
+/** R106: the associate and professional cloud courses are being rewritten against their exams; coverage is enforced as each lands. */
+const PENDING_REWRITE = new Set(['azure-administrator', 'azure-devops', 'aws-solutions-architect', 'aws-devops']);
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
   return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));
@@ -757,6 +761,35 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — 
     }
     const unwritten = defs.filter((d) => !used.has(`t:${d.title}`) && !used.has(`f:${d.file}`)).map((d) => d.id);
     expect(unwritten, `no step writes: ${unwritten.join(', ')}`).toEqual([]);
+  });
+
+  // ── R106: the certification ladder and the cost ───────────────────────────
+  // Every course prepares for one registered credential; every graded task
+  // names a domain of that exam (the cloud courses in `learn[0]`, the rest in
+  // the registry's map); a domain the course does not practise says why; the
+  // weighted coverage is honest; and every course has a cost sheet.
+  it('R106: the course is on the ladder, every graded task practises a domain of its own exam, and the gaps are explained', () => {
+    const cert = certFor(course.id)!;
+    expect(cert, `${course.id} is in the certification registry`).toBeTruthy();
+    expect(cert.level, 'the registry and the seed agree on the level').toBe(course.level);
+    expect(cert.domains.reduce((n, x) => n + x.weight, 0), 'weights add up').toBeGreaterThanOrEqual(95);
+    expect(cert.domains.reduce((n, x) => n + x.weight, 0)).toBeLessThanOrEqual(105);
+    if (cert.prerequisite) expect(CERTS[cert.prerequisite], `${cert.prerequisite} exists`).toBeTruthy();
+    if (cert.next) expect(CERTS[cert.next]?.prerequisite, 'the next rung points back').toBe(course.id);
+    const map = TASK_DOMAINS[course.id] ?? {};
+    for (const id of Object.keys(map)) expect(course.tasks.some((t) => t.id === id), `${id} in the domain map is a task`).toBe(true);
+    const cov = coverageOf(course, cert, map);
+    if (!PENDING_REWRITE.has(course.id)) {
+      expect(cov.unmapped, 'graded tasks that name no domain of this exam').toEqual([]);
+      expect(cov.coveredWeight, 'most of the exam weight is practised').toBeGreaterThanOrEqual(70);
+      for (const r of cov.rows) if (!r.tasks.length) expect(r.domain.gapNote, `${r.domain.name}: a gap says why`).toBeTruthy();
+    }
+    for (const t of course.tasks) {
+      const dom = domainOf(cert, map, t);
+      if (dom) expect(cert.domains).toContain(dom);
+    }
+    expect(costsFor(course.id).length, 'a cost sheet').toBeGreaterThan(0);
+    for (const t of course.tasks) if (t.cost) expect(t.cost.usd, `${t.id} cost`).toBeGreaterThanOrEqual(0);
   });
 
   it('the only locks are the deliberate ones', () => {

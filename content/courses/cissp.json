@@ -7,6 +7,8 @@
     "src/lib/docs/cisspContent.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -7604,6 +7606,115 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "cissp",
+        "vendorId": "isc2",
+        "vendor": "ISC2",
+        "code": "CISSP",
+        "name": "CISSP",
+        "level": "expert",
+        "exam": true,
+        "examFeeUsd": 749,
+        "feeCheckedYear": 2026,
+        "prerequisite": "cysa-plus",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Security and Risk Management",
+            "weight": 16
+          },
+          {
+            "id": "d2",
+            "name": "Asset Security",
+            "weight": 10
+          },
+          {
+            "id": "d3",
+            "name": "Security Architecture and Engineering",
+            "weight": 13
+          },
+          {
+            "id": "d4",
+            "name": "Communication and Network Security",
+            "weight": 13
+          },
+          {
+            "id": "d5",
+            "name": "Identity and Access Management",
+            "weight": 13
+          },
+          {
+            "id": "d6",
+            "name": "Security Assessment and Testing",
+            "weight": 12
+          },
+          {
+            "id": "d7",
+            "name": "Security Operations",
+            "weight": 13
+          },
+          {
+            "id": "d8",
+            "name": "Software Development Security",
+            "weight": 10
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "lab",
+          "kind": "lab",
+          "item": "Paper exercises on the Ridgeline case",
+          "usd": 0,
+          "per": "month",
+          "note": "Documents and a config scan of the lab you already have; nothing is bought."
+        }
+      ],
+      "DOMAIN_OF": {
+        "ci-w0-gov": "d1",
+        "ci-w0-arch": "d3",
+        "ci-w0-idops": "d5",
+        "ci-w1-gov": "d1",
+        "ci-w1-arch": "d3",
+        "ci-w1-idops": "d5",
+        "ci-w2-gov": "d2",
+        "ci-w2-arch": "d3",
+        "ci-w2-idops": "d7",
+        "ci-w3-arch": "d8",
+        "ci-w3-idops": "d5",
+        "ci-w3-gov": "d1",
+        "ci-w4-idops": "d7",
+        "ci-w4-gov": "d2",
+        "ci-w4-arch": "d4",
+        "ci-w5-gov": "d6",
+        "ci-w5-arch": "d6",
+        "ci-w5-idops": "d6",
+        "ci-w6-gov": "d1",
+        "ci-w6-arch": "d4",
+        "ci-w6-idops": "d7"
+      },
+      "LADDER": [
+        {
+          "courseId": "security-plus",
+          "code": "SY0-701",
+          "name": "Security+",
+          "level": "associate"
+        },
+        {
+          "courseId": "cysa-plus",
+          "code": "CS0-003",
+          "name": "CySA+",
+          "level": "professional"
+        },
+        {
+          "courseId": "secai-plus",
+          "code": "CY0-001",
+          "name": "SecAI+",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

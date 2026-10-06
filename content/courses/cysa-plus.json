@@ -8,6 +8,8 @@
     "src/lib/docs/cysaContent.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -8622,6 +8624,115 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "cysa-plus",
+        "vendorId": "comptia",
+        "vendor": "CompTIA",
+        "code": "CS0-003",
+        "name": "CySA+",
+        "level": "professional",
+        "exam": true,
+        "examFeeUsd": 404,
+        "feeCheckedYear": 2026,
+        "prerequisite": "security-plus",
+        "next": "secai-plus",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Security Operations",
+            "weight": 33
+          },
+          {
+            "id": "d2",
+            "name": "Vulnerability Management",
+            "weight": 30
+          },
+          {
+            "id": "d3",
+            "name": "Incident Response and Management",
+            "weight": 20
+          },
+          {
+            "id": "d4",
+            "name": "Reporting and Communication",
+            "weight": 17
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "soc",
+          "kind": "lab",
+          "item": "The shared Wazuh SOC and team pods",
+          "usd": 0,
+          "per": "month",
+          "note": "Built by the course; a home student rebuilds it on VirtualBox for free."
+        },
+        {
+          "id": "vbox",
+          "kind": "software",
+          "item": "VirtualBox or VMware Workstation Player",
+          "usd": 0,
+          "per": "once",
+          "note": "Free for personal and classroom use."
+        },
+        {
+          "id": "kali",
+          "kind": "software",
+          "item": "Kali Linux and Ubuntu Server images",
+          "usd": 0,
+          "per": "once",
+          "note": "Free downloads."
+        },
+        {
+          "id": "win-eval",
+          "kind": "software",
+          "item": "Windows Server evaluation",
+          "usd": 0,
+          "per": "once",
+          "note": "Free 180-day evaluation; re-arm or rebuild after it."
+        }
+      ],
+      "DOMAIN_OF": {
+        "cr-w0": "d1",
+        "cb-w0": "d1",
+        "cg-w0": "d1",
+        "cr-w1": "d1",
+        "cb-w1": "d1",
+        "cg-w1": "d1",
+        "cb-w2": "d1",
+        "cg-w2": "d1",
+        "cr-w2": "d3",
+        "cb-w3": "d2",
+        "cg-w3": "d2",
+        "cr-w3": "d2",
+        "cb-w4": "d3",
+        "cg-w4": "d3",
+        "cg-w4b": "d4",
+        "cr-w4": "d4"
+      },
+      "LADDER": [
+        {
+          "courseId": "security-plus",
+          "code": "SY0-701",
+          "name": "Security+",
+          "level": "associate"
+        },
+        {
+          "courseId": "cysa-plus",
+          "code": "CS0-003",
+          "name": "CySA+",
+          "level": "professional"
+        },
+        {
+          "courseId": "secai-plus",
+          "code": "CY0-001",
+          "name": "SecAI+",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

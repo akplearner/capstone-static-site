@@ -16,6 +16,8 @@ import type { CourseDto, Serialisable } from './dto';
 import type { DeliverableDef } from '@/lib/docs/types';
 import { DEFAULT_MOTION, FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_SHORT, type RoleMotion, type RoleProfile, type RoleWorks } from '@/lib/docs/roles';
 import type { RoleFlowKind } from '@/lib/docs/roleFlow';
+import type { CertDef, LadderRung } from '@/lib/docs/certs';
+import type { CostLine } from '@/lib/docs/costs';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
 import type { BuildModel, WeekVisual } from '@/lib/weekVisual';
@@ -143,4 +145,16 @@ export function glossaryOf(doc: CourseDto): Record<string, string> {
  *  silently blank. Lived in two content modules until R78-D3. */
 export function fillCopy(text: string, values: Record<string, string | number>): string {
   return text.replace(/\{(\w+)\}/g, (m, k) => (k in values ? String(values[k]) : m));
+}
+
+/** R106: `content.cert` — the certification, which domain each task practises, the ladder and the cost lines. */
+export interface CertContent {
+  CERT: CertDef | null;
+  DOMAIN_OF: Record<string, string>;
+  COSTS: CostLine[];
+  LADDER: LadderRung[];
+}
+
+export function certOf(doc: CourseDto): CertContent {
+  return { CERT: null, DOMAIN_OF: {}, COSTS: [], LADDER: [], ...section<Partial<CertContent>>(doc, 'cert') };
 }

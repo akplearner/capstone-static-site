@@ -7,6 +7,8 @@
     "src/lib/docs/msspContent.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -3903,6 +3905,96 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "mssp",
+        "vendorId": "engagement",
+        "vendor": "Engagement",
+        "code": "SOC 2 · ISO 27001",
+        "name": "SOC 2 + ISO 27001 readiness",
+        "level": "professional",
+        "exam": false,
+        "examFeeUsd": 0,
+        "feeCheckedYear": 2026,
+        "prerequisite": "security-plus",
+        "domains": [
+          {
+            "id": "c1",
+            "name": "Context and scope (ISO 27001 cl. 4)",
+            "weight": 20,
+            "gapNote": "Scope and the rules of engagement are set in the setup week; the graded weeks start from a signed scope"
+          },
+          {
+            "id": "c2",
+            "name": "Leadership, planning and risk (cl. 5–6)",
+            "weight": 20
+          },
+          {
+            "id": "c3",
+            "name": "Support, operation and controls (cl. 7–8, Annex A)",
+            "weight": 20
+          },
+          {
+            "id": "c4",
+            "name": "Performance evaluation (cl. 9)",
+            "weight": 20
+          },
+          {
+            "id": "c5",
+            "name": "Improvement (cl. 10)",
+            "weight": 20
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "lab",
+          "kind": "lab",
+          "item": "The Security+ range reused as the client estate",
+          "usd": 0,
+          "per": "month",
+          "note": "No new resources; the engagement is documents and the existing lab."
+        }
+      ],
+      "DOMAIN_OF": {
+        "mg-w0": "c1",
+        "mr-w0": "c1",
+        "mb-w0": "c3",
+        "mg-w1": "c2",
+        "mr-w1": "c2",
+        "mb-w1": "c2",
+        "mg-w2": "c3",
+        "mb-w2": "c3",
+        "mr-w2": "c2",
+        "mr-w3": "c4",
+        "mb-w3": "c3",
+        "mg-w3": "c4",
+        "mr-w4": "c5",
+        "mb-w4": "c4",
+        "mg-w4a": "c4",
+        "mg-w4b": "c4"
+      },
+      "LADDER": [
+        {
+          "courseId": "security-plus",
+          "code": "SY0-701",
+          "name": "Security+",
+          "level": "associate"
+        },
+        {
+          "courseId": "cysa-plus",
+          "code": "CS0-003",
+          "name": "CySA+",
+          "level": "professional"
+        },
+        {
+          "courseId": "secai-plus",
+          "code": "CY0-001",
+          "name": "SecAI+",
+          "level": "professional"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [

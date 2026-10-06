@@ -13,10 +13,12 @@ One JSON document per course, generated from the TypeScript seeds:
 | `courses/ccna.json` | CCNA | `src/lib/data/seed/ccna.ts` · `src/lib/docs/ccnaDeliverables.ts` · `src/lib/docs/ccnaDiagrams.ts` · `src/lib/ccnaTopology.ts` |
 | `courses/azure-{fundamentals,administrator,devops}.json` | Azure (three quarters) | `src/lib/data/seed/azureCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/azureTopology.ts` · `azureIac.ts` |
 | `courses/aws-{cloud-practitioner,solutions-architect,devops}.json` | AWS (three quarters) | `src/lib/data/seed/awsCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/awsTopology.ts` · `awsIac.ts` |
-| `courses/index.json` | catalogue | counts per course |
+| `courses/index.json` | catalogue | counts per course, plus vendor, certification, level, prerequisite, next, exam fee, coverage and cost (R106) |
 
 Every course's `deliverables[]` carries its RACI (`src/lib/docs/raci.ts`), every course
-carries `content.roles` — the role profiles, the motion spec and the labels of the role
+carries `content.cert` — the certification it prepares for, its exam domains, which domain
+each task practises, the ladder and the cost (`src/lib/docs/certs.ts`, `costs.ts`; the
+readable copy is `docs/courses/cert-coverage/`) — every course carries `content.roles` — the role profiles, the motion spec and the labels of the role
 pictures (`src/lib/docs/roles.ts`; see `docs/ARCHITECTURE.md` §6) — and the self-drawn
 courses carry `content.arch` — the architecture picture and its build model
 (`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same export
@@ -46,6 +48,8 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
     "manual":         { MANUAL_SECTIONS, MANUAL_COPY … },           // every course
     "roles":          { PROFILES[ {id, summary, responsibilities, works, arc} ], MOTION {stagger, draw, ease},
                         WORKS_LABEL, WORKS_SHORT, FLOW_KIND_LABEL, FLOW_HOW_TO_READ },   // every course (R105)
+    "cert":           { CERT {vendor, code, name, level, examFeeUsd, domains[ {id, name, weight, gapNote?} ], prerequisite?, next?},
+                        DOMAIN_OF {taskId: domainId}, COSTS[ {item, kind, usd, per, note} ], LADDER[] },   // every course (R106)
     "weekVisuals":    [ { week, builtThrough, highlight, process, caption } ],   // every course (R99)
     "custody":        { CUSTODY_COLUMNS, CUSTODY_RULES },            // every course
     "troubleshooting": { … },                                        // courses that run commands

@@ -224,6 +224,32 @@ picture.
 `rolesOf(doc)`; never import a table from `roles.ts` into a component (`page-shape.test.ts`
 forbids it along with every other content module).
 
+### Certification ladder and cost (R106)
+
+Every course prepares for one registered credential, and the registry is the only place a
+vendor, an exam code, a level, an exam domain, a fee or a prerequisite is written:
+
+| Fact | Home | Reaches |
+|---|---|---|
+| vendor, code, name, level, the vendor's own tier word, exam fee (USD, year checked), domains with weights, prerequisite and next rung | `src/lib/docs/certs.ts` `CERTS` | `content.cert.CERT`, `content.cert.LADDER`, `index.json` |
+| which exam domain a task practises | the seven self-authored courses: `TASK_DOMAINS` in the registry; the cloud courses: `learn[0]` as `CODE · Domain` | `content.cert.DOMAIN_OF`; coverage is **derived** by `coverageOf()` at read time |
+| a domain the course does not practise | `gapNote` on the domain | printed as the gap, never hidden |
+| what the course costs: exam, lab, kit, software, cloud by the hour | `src/lib/docs/costs.ts` `COURSE_COSTS` | `content.cert.COSTS`; summed by `costSummary()` into `index.json` |
+| what a task spends while it runs | `Task.cost {usd, per, note}`; every cloud task carries one (free unless said) | the Guide's cost table and the coverage sheet |
+
+**The rules.** A graded task names exactly one domain of its own exam; the course practises at
+least 70 % of the exam's weight; every gap has a note; the registry and the seed agree on the
+level; a rung's `next` points back with `prerequisite`; a course that creates a billable resource
+says its hourly rate on the task and tears it down in the same task. Content-integrity asserts
+all of it; the four associate and professional cloud courses are held to coverage as each is
+rewritten against its exam.
+
+**What is printed.** The Guide's "The exam and the cost" section is two tables (`CertCoverage`):
+the ladder and each domain with its weight and the tasks that practise it; the cost lines and
+the tasks that spend. `docs/courses/cert-coverage/<course>.md` is the same, generated with the
+content and diffed by CI. Second-hand kit keeps the CCNA guide's rule: an order of magnitude,
+marked approximate, never a price.
+
 **Agent-readiness without agent-coupling:** keep the API capability-scoped and resource-clean
 (REST/GraphQL). An MCP server becomes a *thin adapter* over that API later; A2A interop rides on the
 ontology + xAPI. **Do not build the MCP/agent gateway now** — design so it stays a small addition, not a

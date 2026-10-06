@@ -10,7 +10,16 @@
       "tasks": 15,
       "steps": 66,
       "deliverables": 14,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "CompTIA",
+      "certification": "Security+ (SY0-701)",
+      "level": "associate",
+      "next": "cysa-plus",
+      "examFeeUsd": 404,
+      "coveredWeight": 88,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "mssp",
@@ -21,7 +30,16 @@
       "tasks": 16,
       "steps": 19,
       "deliverables": 9,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "Engagement",
+      "certification": "SOC 2 + ISO 27001 readiness (SOC 2 · ISO 27001)",
+      "level": "professional",
+      "prerequisite": "security-plus",
+      "examFeeUsd": 0,
+      "coveredWeight": 80,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "cysa-plus",
@@ -32,7 +50,17 @@
       "tasks": 16,
       "steps": 62,
       "deliverables": 12,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "CompTIA",
+      "certification": "CySA+ (CS0-003)",
+      "level": "professional",
+      "prerequisite": "security-plus",
+      "next": "secai-plus",
+      "examFeeUsd": 404,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "server-plus",
@@ -43,7 +71,15 @@
       "tasks": 59,
       "steps": 114,
       "deliverables": 8,
-      "procedures": 51
+      "procedures": 51,
+      "vendor": "CompTIA",
+      "certification": "Server+ (SK0-005)",
+      "level": "associate",
+      "examFeeUsd": 369,
+      "coveredWeight": 100,
+      "costOnceUsd": 370,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "ccna",
@@ -54,7 +90,15 @@
       "tasks": 21,
       "steps": 42,
       "deliverables": 10,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "Cisco",
+      "certification": "CCNA (200-301)",
+      "level": "associate",
+      "examFeeUsd": 300,
+      "coveredWeight": 100,
+      "costOnceUsd": 210,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "secai-plus",
@@ -65,7 +109,16 @@
       "tasks": 15,
       "steps": 37,
       "deliverables": 8,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "CompTIA",
+      "certification": "SecAI+ (CY0-001)",
+      "level": "professional",
+      "prerequisite": "cysa-plus",
+      "examFeeUsd": 404,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "cissp",
@@ -76,7 +129,16 @@
       "tasks": 21,
       "steps": 41,
       "deliverables": 12,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "ISC2",
+      "certification": "CISSP (CISSP)",
+      "level": "expert",
+      "prerequisite": "cysa-plus",
+      "examFeeUsd": 749,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 0,
+      "costTasksUsd": 0
     },
     {
       "id": "azure-fundamentals",
@@ -87,7 +149,16 @@
       "tasks": 16,
       "steps": 58,
       "deliverables": 4,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "Microsoft",
+      "certification": "Azure Fundamentals (AZ-900)",
+      "level": "entry",
+      "next": "azure-administrator",
+      "examFeeUsd": 99,
+      "coveredWeight": 96,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 5,
+      "costTasksUsd": 0
     },
     {
       "id": "azure-administrator",
@@ -98,7 +169,17 @@
       "tasks": 17,
       "steps": 54,
       "deliverables": 4,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "Microsoft",
+      "certification": "Azure Administrator (AZ-104)",
+      "level": "associate",
+      "prerequisite": "azure-fundamentals",
+      "next": "azure-devops",
+      "examFeeUsd": 165,
+      "coveredWeight": 0,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 20,
+      "costTasksUsd": 0
     },
     {
       "id": "azure-devops",
@@ -109,7 +190,16 @@
       "tasks": 17,
       "steps": 51,
       "deliverables": 4,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "Microsoft",
+      "certification": "DevOps Engineer (AZ-400)",
+      "level": "expert",
+      "prerequisite": "azure-administrator",
+      "examFeeUsd": 165,
+      "coveredWeight": 0,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 20,
+      "costTasksUsd": 0
     },
     {
       "id": "aws-cloud-practitioner",
@@ -120,7 +210,16 @@
       "tasks": 16,
       "steps": 57,
       "deliverables": 4,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "AWS",
+      "certification": "Cloud Practitioner (CLF-C02)",
+      "level": "entry",
+      "next": "aws-solutions-architect",
+      "examFeeUsd": 100,
+      "coveredWeight": 100,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 5,
+      "costTasksUsd": 0
     },
     {
       "id": "aws-solutions-architect",
@@ -131,7 +230,17 @@
       "tasks": 17,
       "steps": 52,
       "deliverables": 4,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "AWS",
+      "certification": "Solutions Architect – Associate (SAA-C03)",
+      "level": "associate",
+      "prerequisite": "aws-cloud-practitioner",
+      "next": "aws-devops",
+      "examFeeUsd": 150,
+      "coveredWeight": 0,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 20,
+      "costTasksUsd": 0
     },
     {
       "id": "aws-devops",
@@ -142,7 +251,16 @@
       "tasks": 17,
       "steps": 51,
       "deliverables": 4,
-      "procedures": 0
+      "procedures": 0,
+      "vendor": "AWS",
+      "certification": "DevOps Engineer – Professional (DOP-C02)",
+      "level": "professional",
+      "prerequisite": "aws-solutions-architect",
+      "examFeeUsd": 300,
+      "coveredWeight": 0,
+      "costOnceUsd": 0,
+      "costMonthlyUsd": 20,
+      "costTasksUsd": 0
     }
   ]
 }

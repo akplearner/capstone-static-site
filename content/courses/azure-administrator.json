@@ -9,6 +9,8 @@
     "src/lib/cloud/workflows.ts",
     "src/lib/docs/weekVisuals.ts",
     "src/lib/docs/roles.ts",
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/costs.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -452,6 +454,11 @@
           }
         ],
         "freeTier": "Free: reading role assignments.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: reading role assignments."
+        },
         "steps": [
           {
             "id": "az-w5-arch-s1",
@@ -536,6 +543,11 @@
           }
         ],
         "freeTier": "Key Vault costs about $0.03 per 10,000 operations — cents. The AZ-104 exam expects it.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Key Vault costs about $0.03 per 10,000 operations — cents. The AZ-104 exam expects it."
+        },
         "prerequisites": [
           "The Function App from App & DevOps (Week 3)."
         ],
@@ -683,6 +695,11 @@
           }
         ],
         "freeTier": "Free: managed identities and data-plane role assignments cost nothing.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: managed identities and data-plane role assignments cost nothing."
+        },
         "steps": [
           {
             "id": "az-w5-dev-s1",
@@ -809,6 +826,11 @@
           }
         ],
         "freeTier": "Free: reading and testing access.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: reading and testing access."
+        },
         "steps": [
           {
             "id": "az-w5-secops-s1",
@@ -906,6 +928,11 @@
           }
         ],
         "freeTier": "Free: the document. The public IP the VM keeps for outbound is the one line that costs (about $3.60 a month); a NAT gateway would be ten times that.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: the document. The public IP the VM keeps for outbound is the one line that costs (about $3.60 a month); a NAT gateway would be ten times that."
+        },
         "steps": [
           {
             "id": "az-w6-arch-s1",
@@ -982,6 +1009,11 @@
           }
         ],
         "freeTier": "Free: subnets and NSGs.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: subnets and NSGs."
+        },
         "steps": [
           {
             "id": "az-w6-infra-s1",
@@ -1099,6 +1131,11 @@
           }
         ],
         "freeTier": "Free: CORS is a setting; the tests are four HTTP requests.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: CORS is a setting; the tests are four HTTP requests."
+        },
         "steps": [
           {
             "id": "az-w6-dev-s3",
@@ -1238,6 +1275,11 @@
           }
         ],
         "freeTier": "Free: Run Command and IP flow verify. VM hours count while it runs — deallocate at the end.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Run Command and IP flow verify. VM hours count while it runs — deallocate at the end."
+        },
         "steps": [
           {
             "id": "az-w6-secops-s1",
@@ -1397,6 +1439,11 @@
           }
         ],
         "freeTier": "Free: metrics.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: metrics."
+        },
         "steps": [
           {
             "id": "az-w7-arch-s1",
@@ -1474,6 +1521,11 @@
           }
         ],
         "freeTier": "About 20 cents a month: a 4 GB Standard HDD data disk. VM hours count while it runs — deallocate at the end.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "About 20 cents a month: a 4 GB Standard HDD data disk. VM hours count while it runs — deallocate at the end."
+        },
         "steps": [
           {
             "id": "az-w7-infra-s1",
@@ -1628,6 +1680,11 @@
           }
         ],
         "freeTier": "Free: Update Manager costs nothing for Azure VMs. VM hours count while it runs — deallocate it at the end.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Update Manager costs nothing for Azure VMs. VM hours count while it runs — deallocate it at the end."
+        },
         "steps": [
           {
             "id": "az-w7-dev-s1",
@@ -1760,6 +1817,11 @@
           }
         ],
         "freeTier": "Free: Run Command. VM hours count while it runs — deallocate at the end.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: Run Command. VM hours count while it runs — deallocate at the end."
+        },
         "steps": [
           {
             "id": "az-w7-secops-s1",
@@ -1906,6 +1968,11 @@
           }
         ],
         "freeTier": "Free: a team decision.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: a team decision."
+        },
         "steps": [
           {
             "id": "az-w8-arch-s1",
@@ -1976,6 +2043,11 @@
           }
         ],
         "freeTier": "Cents: an incremental snapshot bills only changed blocks. Delete the test disk so it does not bill; Azure Backup (about $5 a month per VM) is the paid alternative.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Cents: an incremental snapshot bills only changed blocks. Delete the test disk so it does not bill; Azure Backup (about $5 a month per VM) is the paid alternative."
+        },
         "steps": [
           {
             "id": "az-w8-infra-s1",
@@ -2093,6 +2165,11 @@
           }
         ],
         "freeTier": "Free: soft delete and versioning are settings; retained versions count toward the free 5 GB.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Free: soft delete and versioning are settings; retained versions count toward the free 5 GB."
+        },
         "steps": [
           {
             "id": "az-w8-dev-s1",
@@ -2201,6 +2278,11 @@
           }
         ],
         "freeTier": "Cents: one incremental snapshot and one test disk, both deleted at the end.",
+        "cost": {
+          "usd": 0,
+          "per": "run",
+          "note": "Cents: one incremental snapshot and one test disk, both deleted at the end."
+        },
         "steps": [
           {
             "id": "az-w8-secops-s1",
@@ -5161,6 +5243,141 @@
         "documents": "Documents",
         "both": "Both"
       }
+    },
+    "cert": {
+      "CERT": {
+        "courseId": "azure-administrator",
+        "vendorId": "microsoft",
+        "vendor": "Microsoft",
+        "code": "AZ-104",
+        "name": "Azure Administrator",
+        "level": "associate",
+        "vendorLevel": "Associate",
+        "exam": true,
+        "examFeeUsd": 165,
+        "feeCheckedYear": 2026,
+        "prerequisite": "azure-fundamentals",
+        "next": "azure-devops",
+        "domains": [
+          {
+            "id": "d1",
+            "name": "Manage Azure identities and governance",
+            "weight": 23,
+            "weightLabel": "20–25%"
+          },
+          {
+            "id": "d2",
+            "name": "Implement and manage storage",
+            "weight": 18,
+            "weightLabel": "15–20%"
+          },
+          {
+            "id": "d3",
+            "name": "Deploy and manage Azure compute resources",
+            "weight": 23,
+            "weightLabel": "20–25%"
+          },
+          {
+            "id": "d4",
+            "name": "Implement and manage virtual networking",
+            "weight": 18,
+            "weightLabel": "15–20%"
+          },
+          {
+            "id": "d5",
+            "name": "Monitor and maintain Azure resources",
+            "weight": 13,
+            "weightLabel": "10–15%"
+          }
+        ]
+      },
+      "COSTS": [
+        {
+          "id": "account",
+          "kind": "cloud",
+          "item": "Azure account, free tier plus pay-as-you-go",
+          "usd": 0,
+          "per": "month",
+          "note": "The free tier still covers the small instance, the function and the table.",
+          "approx": true
+        },
+        {
+          "id": "lb",
+          "kind": "cloud",
+          "item": "Standard Load Balancer",
+          "usd": 0.025,
+          "per": "hour",
+          "note": "Runs only during the week it is built and the drills; torn down at the end of each task.",
+          "weeks": [
+            2,
+            4
+          ]
+        },
+        {
+          "id": "fleet",
+          "kind": "cloud",
+          "item": "Two B1s instances in a scale set across two zones",
+          "usd": 0.0208,
+          "per": "hour",
+          "note": "One is free-tier; the second is billed while the fleet runs.",
+          "weeks": [
+            2,
+            4
+          ]
+        },
+        {
+          "id": "db",
+          "kind": "cloud",
+          "item": "Azure Database for PostgreSQL flexible server B1ms, zone-redundant",
+          "usd": 0.034,
+          "per": "hour",
+          "note": "Created in the data week and deleted the same day; a final snapshot is kept.",
+          "weeks": [
+            3
+          ]
+        },
+        {
+          "id": "endpoints",
+          "kind": "cloud",
+          "item": "Private endpoint",
+          "usd": 0.01,
+          "per": "hour",
+          "note": "Per endpoint-hour; the gateway endpoint is free.",
+          "weeks": [
+            2
+          ]
+        },
+        {
+          "id": "budget",
+          "kind": "cloud",
+          "item": "Budget guardrail",
+          "usd": 20,
+          "per": "month",
+          "note": "The cap the course sets for a team that tears down on time.",
+          "approx": true
+        }
+      ],
+      "DOMAIN_OF": {},
+      "LADDER": [
+        {
+          "courseId": "azure-fundamentals",
+          "code": "AZ-900",
+          "name": "Azure Fundamentals",
+          "level": "entry"
+        },
+        {
+          "courseId": "azure-administrator",
+          "code": "AZ-104",
+          "name": "Azure Administrator",
+          "level": "associate"
+        },
+        {
+          "courseId": "azure-devops",
+          "code": "AZ-400",
+          "name": "DevOps Engineer",
+          "level": "expert"
+        }
+      ]
     },
     "custody": {
       "CUSTODY_COLUMNS": [
