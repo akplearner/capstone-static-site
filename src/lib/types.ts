@@ -16,12 +16,11 @@ export type Level = 'entry' | 'associate' | 'professional' | 'expert';
 
 // A role/track within a course (e.g. Red, Blue, GRC — or a single "Student" track).
 export interface RoleDef {
-  id: string;        // 'red'
-  name: string;      // 'Red (Runners)'
-  mission: string;   // short description of what this role does
+  id: string;        // 'red' — stable; team state and the RACI key on it
+  name: string;      // 'Offensive Security (Red Team)' — Function (Role); see docs/ARCHITECTURE.md §6
+  mission: string;   // one sentence, ≤ 15 words, third person (R105 register)
   color: string;     // hex, e.g. '#dc2626' — drives badges, diagrams (works for N roles)
   icon: string;      // lucide icon name from the icons whitelist (src/lib/icons.ts)
-  label?: string;    // optional decorated label, e.g. '🏃 Red (Runners)'
 }
 
 export interface WeekObjective {

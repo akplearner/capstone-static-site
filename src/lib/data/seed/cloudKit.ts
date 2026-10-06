@@ -11,10 +11,10 @@ import type { Course, Framework, RoleDef, Step, Task, WeekDef } from '../../type
  */
 
 export const CLOUD_ROLES: RoleDef[] = [
-  { id: 'arch', name: 'Cloud Architect', mission: 'Owns the design, the standards, the cost and each week’s document.', color: '#0369a1', icon: 'Layers', label: '📐 Cloud Architect' },
-  { id: 'infra', name: 'Infrastructure Admin', mission: 'Builds the network, the VM, the data and the templates.', color: '#15803d', icon: 'Server', label: '🧱 Infrastructure Admin' },
-  { id: 'dev', name: 'App & DevOps', mission: 'Ships the website, the API and the pipeline.', color: '#b45309', icon: 'Code', label: '🚀 App & DevOps' },
-  { id: 'secops', name: 'Security & Ops', mission: 'Locks access down, watches it run, and works the incidents.', color: '#7c3aed', icon: 'Shield', label: '🛡️ Security & Ops' },
+  { id: 'arch', name: 'Design & Standards (Cloud Architect)', mission: 'Owns the design, the standards, the cost and each week’s document.', color: '#0369a1', icon: 'Layers' },
+  { id: 'infra', name: 'Platform Build (Infrastructure Admin)', mission: 'Builds the network, the VM, the data and the templates.', color: '#15803d', icon: 'Server' },
+  { id: 'dev', name: 'Application Delivery (DevOps Engineer)', mission: 'Ships the website, the API and the pipeline.', color: '#b45309', icon: 'Code' },
+  { id: 'secops', name: 'Security Operations (SecOps Engineer)', mission: 'Locks access down, watches it run, and works the incidents.', color: '#7c3aed', icon: 'Shield' },
 ];
 
 /** The MD's difficulty arc: Beginner 1–4, Intermediate 5–8, Advanced 9–11, Integrated 12. */

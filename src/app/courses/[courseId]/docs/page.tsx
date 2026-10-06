@@ -226,7 +226,7 @@ export default function DeliverablesPage() {
 
   const teamId = member.teamId;
   // Generated documents print the team NUMBER; the cohort is its own meta field.
-  const meta = { team: parseTeamId(teamId).num, cohort: member.cohort, date: localDay(), courseId: course.id };
+  const meta = { team: parseTeamId(teamId).num, cohort: member.cohort, date: localDay(), courseId: course.id, roles: course.roles };
 
   // Typing lands in React state; the write is coalesced and flushed on a pause,
   // on tab-hide and on unmount. See `useAutoSave` for why: every keystroke used
@@ -706,6 +706,8 @@ function FormSection({
   const roster = useClientStore(() => progressRepo.getRoster(meta.courseId), EMPTY_ARRAY);
   const latest = latestStatus(statusRows, def.id);
   const roleName = (id: string) => getRoleDef(course, id)?.name ?? id;
+  // The lock copy names the role that drafts the scope, not a fixed nickname.
+  const scopeOwner = deliverablesForCourse(course.id).find((d) => d.id === 'scope_roe')?.owner ?? 'grc';
   const exportMeta = def.raci
     ? {
         ...meta,
@@ -861,7 +863,7 @@ function FormSection({
             <p className="font-semibold">Locked until scope is authorized</p>
             <p className="mt-1">
               No scanning or testing begins until your team&apos;s <strong>Scope &amp; Rules of
-              Engagement</strong> is signed off. Ask your team&apos;s GRC (Fixers) to complete deliverable{' '}
+              Engagement</strong> is signed off. Ask your team&apos;s {roleName(scopeOwner)} to complete deliverable{' '}
               <strong>1. Scope &amp; Rules of Engagement</strong> and fill in the{' '}
               <em>Authorization / sign-off</em> field. This form unlocks automatically once that is saved
               {isSupabaseConfigured() ? ' — for the whole team, live' : ' on this device'} — staying in

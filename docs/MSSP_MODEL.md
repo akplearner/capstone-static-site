@@ -45,14 +45,15 @@ not rewriting the engine (see [§7](#7-how-this-maps-onto-the-app)).
 
 ## 2. The three role families, professionalized
 
-The capstone's three roles map cleanly onto how an MSSP actually staffs an engagement. The mission
-strings shipped in the seed are the seed of the professional titles below.
+The capstone's three roles map cleanly onto how an MSSP actually staffs an engagement. Since R105
+every role is named `Function (Role)`; the MSSP course names its own (Offensive Security (Penetration
+Tester), Detection & Response (MDR Analyst), Governance & Audit (vCISO)).
 
 | Capstone role | Seed mission | MSSP function | Professional titles |
 |---|---|---|---|
-| **Red (Runners)** | *Reconnaissance, enumeration, and exploitation* | **Offensive Security / Penetration Testing** | Penetration Tester, Red Team Operator, Offensive Security Engineer |
-| **Blue (Wardens)** | *Hardening, detection, and incident response* | **Managed Detection & Response (MDR) / SecOps** | SOC Analyst (Tier 1–3), Detection Engineer, Incident Responder, Security Engineer |
-| **GRC (Fixers)** | *Governance, risk, compliance, and reporting* | **GRC / vCISO / Audit Readiness** | GRC Analyst, Compliance Lead, virtual CISO, Internal Auditor |
+| **Offensive Security (Red Team)** | *Reconnaissance, enumeration and exploitation of the in-scope hosts* | **Offensive Security / Penetration Testing** | Penetration Tester, Red Team Operator, Offensive Security Engineer |
+| **Defensive Operations (Blue Team)** | *Hardening, detection and incident response* | **Managed Detection & Response (MDR) / SecOps** | SOC Analyst (Tier 1–3), Detection Engineer, Incident Responder, Security Engineer |
+| **Governance & Compliance (GRC)** | *Governance, risk, compliance and the client reports* | **GRC / vCISO / Audit Readiness** | GRC Analyst, Compliance Lead, virtual CISO, Internal Auditor |
 
 **GRC is the spine.** In a compliance-driven MSSP, GRC owns the framework, defines the controls, and
 assembles the audit evidence; Red and Blue *produce the evidence that proves the controls work*.

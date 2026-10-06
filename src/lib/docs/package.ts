@@ -1,5 +1,6 @@
 import { DeliverableData, emptyData } from './types';
 import { deliverablesForCourse } from './definitions';
+import { roleFlow } from './roleFlow';
 import { DocMeta, toDeliverableCSV, toDeliverableMarkdown } from './report';
 import { CUSTODY_RULES, CustodyRow, custodyLogCSV, custodyLogMarkdown } from './custodyTemplate';
 import { makeZip, ZipEntry } from './zip';
@@ -78,18 +79,14 @@ function readme(root: string, meta: DocMeta): string {
 }
 
 function teamRoles(meta: DocMeta): string {
-  return [
-    '# Team Roles',
-    '',
-    meta.team ? `Team: ${meta.team}` : 'Team: __',
-    '',
-    '| Member | Role | Responsibilities |',
-    '| --- | --- | --- |',
-    '| | GRC (Fixers) | Scope & RoE, Asset Inventory, Risk Register, Final Report |',
-    '| | Red | Penetration Test Report |',
-    '| | Blue | Hardening Baseline, Change Log, Incident Report |',
-    '',
-  ].join('\n');
+  // R105: derived from the RACI — the role, then the documents it drafts. A
+  // package built without roles (an authored course) falls back to one row
+  // per owner id.
+  const defs = deliverablesForCourse(meta.courseId ?? 'security-plus');
+  const rows = meta.roles?.length
+    ? roleFlow(meta.roles, defs).rows.map((r) => `| | ${r.role.name} | ${r.drafts.map((id) => defs.find((d) => d.id === id)?.title ?? id).join(', ')} |`)
+    : [...new Set(defs.map((d) => d.owner))].map((owner) => `| | ${owner} | ${defs.filter((d) => d.owner === owner).map((d) => d.title).join(', ')} |`);
+  return ['# Team Roles', '', meta.team ? `Team: ${meta.team}` : 'Team: __', '', '| Member | Role | Drafts |', '| --- | --- | --- |', ...rows, ''].join('\n');
 }
 
 /**

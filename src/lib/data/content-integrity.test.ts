@@ -573,7 +573,13 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('reading length — %s', (
     const { PROFILES } = roleContentFor(course.id);
     expect(PROFILES.map((x) => x.id), 'a profile per role, in order').toEqual(course.roles.map((r) => r.id));
     for (const r of course.roles) {
+      // The register: `Function (Role)`, no emoji label, one third-person sentence.
+      expect(r.name, `${r.id}: name reads Function (Role)`).toMatch(/^[A-Z][A-Za-z&,\- ]+ \([A-Za-z][A-Za-z&\/\- ]+\)$/);
+      expect((r as { label?: string }).label, `${r.id}: no decorated label`).toBeUndefined();
       expect(words(r.mission), `${r.id} mission ≤ 15 words`).toBeLessThanOrEqual(15);
+      expect(r.mission, `${r.id} mission: second person`).not.toMatch(/\b(you|your|yours|we|our)\b/i);
+      expect(r.mission, `${r.id} mission: em dash or emoji`).not.toMatch(/—|\p{Extended_Pictographic}/u);
+      expect(r.mission, `${r.id} mission: contraction`).not.toMatch(/\b\w+n[’']t\b|\b\w+[’'](re|ll|ve|m)\b|\b(it|that|what|there|here)[’']s\b/i);
       const x = profileOf(PROFILES, r.id)!;
       expect(words(x.summary), `${r.id} summary ≤ 20 words`).toBeLessThanOrEqual(20);
       expect(words(x.arc), `${r.id} arc ≤ 25 words`).toBeLessThanOrEqual(25);

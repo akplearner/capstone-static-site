@@ -79,10 +79,10 @@ describe('TasksTab — every task open to every member', () => {
     const cards = screen.getAllByRole('button', { name: /task · ~/ });
     expect(cards).toHaveLength(4);
     expect(cards.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
-    expect(container.textContent).toContain('Yours · Security & Ops');
-    expect(container.textContent).toContain('Infrastructure Admin · 1 task');
+    expect(container.textContent).toContain('Yours · Security Operations (SecOps Engineer)');
+    expect(container.textContent).toContain('Platform Build (Infrastructure Admin) · 1 task');
     expect(screen.getAllByText('Yours').length).toBeGreaterThanOrEqual(1); // the row's badge (R100: the rule moved into the objectives' how-to-read)
-    expect(screen.getAllByText('Infrastructure Admin').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Platform Build (Infrastructure Admin)').length).toBeGreaterThan(0);
     expect(container.textContent).toContain('Everyone can open and do any of them');
   });
 
@@ -101,7 +101,7 @@ describe('TasksTab — every task open to every member', () => {
     const infra = week1.find((t) => t.role === 'infra')!;
     mount({ expanded: new Set([infra.id]) });
     expect(screen.getByLabelText('Step 1 done')).toBeInTheDocument();
-    expect(screen.getByText(/This task is for:/).textContent).toContain('Infrastructure Admin');
+    expect(screen.getByText(/This task is for:/).textContent).toContain('Platform Build (Infrastructure Admin)');
     expect(screen.getByText(/anyone on the team can do it/)).toBeInTheDocument();
   });
 
@@ -114,7 +114,7 @@ describe('TasksTab — every task open to every member', () => {
     expect(container.textContent).toContain('Done by Ada');
     expect(screen.getByLabelText('Done by Ada')).toBeInTheDocument();
     const card = screen.getAllByRole('button', { name: /task · ~/ }).find((b) => b.textContent?.includes(infra.title))!;
-    expect(card.textContent).toContain('Infrastructure Admin · 1 task');
+    expect(card.textContent).toContain('Platform Build (Infrastructure Admin) · 1 task');
     expect(card.className).toContain('bg-ok-soft');
   });
 

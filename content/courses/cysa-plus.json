@@ -65,27 +65,24 @@
     "roles": [
       {
         "id": "blue",
-        "name": "SOC Analyst",
-        "mission": "Watch the alerts — decide what is real, what is noise, and what to escalate.",
+        "name": "Monitoring & Triage (SOC Analyst)",
+        "mission": "Watches the alerts, separates signal from noise and escalates what matters.",
         "color": "#1f5aa8",
-        "icon": "Eye",
-        "label": "🖥️ SOC Analyst"
+        "icon": "Eye"
       },
       {
         "id": "grc",
-        "name": "Threat Hunter",
-        "mission": "Dig into the suspicious activity in logs and packets, and prove what happened.",
+        "name": "Investigation (Threat Hunter)",
+        "mission": "Investigates suspicious activity in logs and packets and proves what happened.",
         "color": "#0d9488",
-        "icon": "Search",
-        "label": "🔎 Threat Hunter"
+        "icon": "Search"
       },
       {
         "id": "red",
-        "name": "Incident Responder",
-        "mission": "Stop the attack, keep the evidence clean, and write the report leadership reads.",
+        "name": "Response & Reporting (Incident Responder)",
+        "mission": "Contains the attack, preserves the evidence and writes the report leadership reads.",
         "color": "#b22222",
-        "icon": "ShieldAlert",
-        "label": "🛡️ Incident Responder"
+        "icon": "ShieldAlert"
       }
     ],
     "weeks": [

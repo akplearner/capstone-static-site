@@ -8,27 +8,24 @@ import { WEEKS, GATES, ALL_TASKS, STEP_DELIVERABLES } from '../../content-data';
 const roles: RoleDef[] = [
   {
     id: 'red',
-    name: 'Red (Runners)',
-    mission: 'Reconnaissance, enumeration, and exploitation.',
+    name: 'Offensive Security (Red Team)',
+    mission: 'Reconnaissance, enumeration and exploitation of the in-scope hosts, with proof.',
     color: '#dc2626',
     icon: 'Target',
-    label: '🏃 Red (Runners)',
   },
   {
     id: 'blue',
-    name: 'Blue (Wardens)',
-    mission: 'Hardening, detection, and incident response.',
+    name: 'Defensive Operations (Blue Team)',
+    mission: 'Hardening, detection and incident response across the lab hosts.',
     color: '#2563eb',
     icon: 'Shield',
-    label: '🛡️ Blue (Wardens)',
   },
   {
     id: 'grc',
-    name: 'GRC (Fixers)',
-    mission: 'Governance, risk, compliance, and reporting.',
+    name: 'Governance & Compliance (GRC)',
+    mission: 'Governance, risk, compliance and the reports the client reads.',
     color: '#16a34a',
     icon: 'ClipboardList',
-    label: '📋 GRC (Fixers)',
   },
 ];
 

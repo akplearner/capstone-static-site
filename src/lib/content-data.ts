@@ -121,7 +121,7 @@ export const GATES: Gate[] = [
   }
 ];
 
-// RED (Runners) Tasks
+// Offensive Security (red) tasks
 const RED_TASKS: Task[] = [
   {
     id: 'red-w0-setup',
@@ -802,7 +802,7 @@ Server username: www-data`,
   }
 ];
 
-// BLUE (Wardens) Tasks
+// Defensive Operations (blue) tasks
 const BLUE_TASKS: Task[] = [
   {
     id: 'blue-w0-setup',
@@ -1545,7 +1545,7 @@ Enabled                         : True`,
   }
 ];
 
-// GRC (Fixers) Tasks
+// Governance & Compliance (grc) tasks
 const GRC_TASKS: Task[] = [
   {
     id: 'grc-w0-setup',

@@ -27,35 +27,31 @@
     "roles": [
       {
         "id": "arch",
-        "name": "Cloud Architect",
+        "name": "Design & Standards (Cloud Architect)",
         "mission": "Owns the design, the standards, the cost and each week’s document.",
         "color": "#0369a1",
-        "icon": "Layers",
-        "label": "📐 Cloud Architect"
+        "icon": "Layers"
       },
       {
         "id": "infra",
-        "name": "Infrastructure Admin",
+        "name": "Platform Build (Infrastructure Admin)",
         "mission": "Builds the network, the VM, the data and the templates.",
         "color": "#15803d",
-        "icon": "Server",
-        "label": "🧱 Infrastructure Admin"
+        "icon": "Server"
       },
       {
         "id": "dev",
-        "name": "App & DevOps",
+        "name": "Application Delivery (DevOps Engineer)",
         "mission": "Ships the website, the API and the pipeline.",
         "color": "#b45309",
-        "icon": "Code",
-        "label": "🚀 App & DevOps"
+        "icon": "Code"
       },
       {
         "id": "secops",
-        "name": "Security & Ops",
+        "name": "Security Operations (SecOps Engineer)",
         "mission": "Locks access down, watches it run, and works the incidents.",
         "color": "#7c3aed",
-        "icon": "Shield",
-        "label": "🛡️ Security & Ops"
+        "icon": "Shield"
       }
     ],
     "weeks": [

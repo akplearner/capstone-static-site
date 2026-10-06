@@ -1,3 +1,4 @@
+import type { RoleDef } from '../types';
 import { Column, cellValue } from '../grc/templates';
 import { derive } from './predicate';
 import { DeliverableData, DeliverableDef, Field } from './types';
@@ -12,6 +13,9 @@ export interface DocMeta {
   /** R103: the document-control block — who drafts, reviews and approves,
    *  where the document stands and which frozen version that refers to. */
   control?: DocControl;
+  /** R105: the course's roles, so the package's Team_Roles.md lists the
+   *  course's own lanes and what each drafts, not a fixed Security+ table. */
+  roles?: RoleDef[];
 }
 
 export interface DocControl {

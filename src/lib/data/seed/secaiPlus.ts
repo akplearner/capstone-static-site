@@ -23,9 +23,9 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 // docs/secaiDeliverables.ts; the picture in docs/secaiContent.ts.
 
 const roles: RoleDef[] = [
-  { id: 'redteam', name: 'AI Red Team', mission: 'Test the Hub’s AI on your own instance and prove each case.', color: '#dc2626', icon: 'Bug', label: '🧪 AI Red Team' },
-  { id: 'defender', name: 'AI Defender', mission: 'Build the controls, logging and alerts that stop and catch each case.', color: '#2563eb', icon: 'ShieldCheck', label: '🛡️ AI Defender' },
-  { id: 'governance', name: 'AI Governance Lead', mission: 'Map the system, own the risks and rules, and sign each release.', color: '#16a34a', icon: 'ClipboardList', label: '📋 AI Governance Lead' },
+  { id: 'redteam', name: 'AI Assurance Testing (AI Red Team)', mission: 'Tests the Hub’s AI on a dedicated instance and proves each case.', color: '#dc2626', icon: 'Bug' },
+  { id: 'defender', name: 'AI Controls Engineering (AI Defender)', mission: 'Builds the controls, logging and alerts that stop and catch each case.', color: '#2563eb', icon: 'ShieldCheck' },
+  { id: 'governance', name: 'AI Governance (Governance Lead)', mission: 'Maps the system, owns the risks and rules, and signs each release.', color: '#16a34a', icon: 'ClipboardList' },
 ];
 
 const weeks: WeekDef[] = [

@@ -24,27 +24,24 @@
     "roles": [
       {
         "id": "govrisk",
-        "name": "Governance & Risk",
-        "mission": "Policy, assets, risk and the maturity score — the program’s spine.",
+        "name": "Governance & Risk (Program Lead)",
+        "mission": "Policy, assets, risk and the maturity score: the program’s spine.",
         "color": "#16a34a",
-        "icon": "ClipboardList",
-        "label": "📋 Governance & Risk"
+        "icon": "ClipboardList"
       },
       {
         "id": "archnet",
-        "name": "Architecture & Network",
+        "name": "Architecture & Network (Security Architect)",
         "mission": "The cloud design, the network zones and the change pipeline.",
         "color": "#7c3aed",
-        "icon": "Network",
-        "label": "🏛️ Architecture & Network"
+        "icon": "Network"
       },
       {
         "id": "idops",
-        "name": "Identity & Operations",
+        "name": "Identity & Operations (Operations Lead)",
         "mission": "Identity, access, logging, incident response and recovery.",
         "color": "#2563eb",
-        "icon": "ShieldCheck",
-        "label": "🔑 Identity & Operations"
+        "icon": "ShieldCheck"
       }
     ],
     "weeks": [

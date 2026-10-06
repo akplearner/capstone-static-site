@@ -13,27 +13,24 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 const roles: RoleDef[] = [
   {
     id: 'red',
-    name: 'Offensive Security (Red)',
+    name: 'Offensive Security (Penetration Tester)',
     mission: 'Penetration testing and control validation for the client.',
     color: '#dc2626',
     icon: 'Target',
-    label: '🎯 Offensive Security',
   },
   {
     id: 'blue',
-    name: 'Managed Detection & Response (Blue)',
-    mission: 'Hardening, detection engineering, and incident response.',
+    name: 'Detection & Response (MDR Analyst)',
+    mission: 'Hardening, detection engineering and incident response for the client.',
     color: '#2563eb',
     icon: 'Shield',
-    label: '🛡️ Managed Detection & Response',
   },
   {
     id: 'grc',
-    name: 'GRC / vCISO',
-    mission: 'Scope, risk, controls, and audit evidence — the compliance spine.',
+    name: 'Governance & Audit (vCISO)',
+    mission: 'Scope, risk, controls and the audit evidence spine.',
     color: '#16a34a',
     icon: 'ClipboardList',
-    label: '📋 GRC / vCISO',
   },
 ];
 

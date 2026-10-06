@@ -64,35 +64,31 @@ import { NGINX_TLS_SITE_CMD, SITE_CSS_CMD, SITE_HTML_CMD, SITE_UPLOAD_CMD } from
 const roles: RoleDef[] = [
   {
     id: 'net',
-    name: 'Networking',
-    mission: 'Lead the network record: cabling, addressing, topology and the connectivity proof.',
+    name: 'Networking (Network Lead)',
+    mission: 'Leads the network record: cabling, addressing, topology and the connectivity proof.',
     color: '#0369a1',
     icon: 'Network',
-    label: '🔌 Networking',
   },
   {
     id: 'win',
-    name: 'Windows',
-    mission: 'Lead the Windows record: the Server VM, its roles, patching and its restore.',
+    name: 'Windows Platform (Windows Lead)',
+    mission: 'Leads the Windows record: the Server VM, its roles, patching and its restore.',
     color: '#2563eb',
     icon: 'Server',
-    label: '🪟 Windows',
   },
   {
     id: 'lnx',
-    name: 'Linux',
-    mission: 'Lead the Linux record: the hypervisor, the Linux VM, services and snapshots.',
+    name: 'Linux Platform (Linux Lead)',
+    mission: 'Leads the Linux record: the hypervisor, the Linux VM, services and snapshots.',
     color: '#7c3aed',
     icon: 'Cpu',
-    label: '🐧 Linux',
   },
   {
     id: 'mgmt',
-    name: 'Management',
-    mission: 'Lead the paperwork that outlives the build: requirements, assets, change control, handover.',
+    name: 'Project Records (Management Lead)',
+    mission: 'Leads the records that outlive the build: requirements, assets, change control, handover.',
     color: '#0f766e',
     icon: 'ClipboardList',
-    label: '📋 Management',
   },
 ];
 

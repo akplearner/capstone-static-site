@@ -23,9 +23,9 @@ import { Course, Gate, RoleDef, Task, WeekDef } from '../../types';
 // each release. Forms: docs/cisspDeliverables.ts; picture: docs/cisspContent.ts.
 
 const roles: RoleDef[] = [
-  { id: 'govrisk', name: 'Governance & Risk', mission: 'Policy, assets, risk and the maturity score — the program’s spine.', color: '#16a34a', icon: 'ClipboardList', label: '📋 Governance & Risk' },
-  { id: 'archnet', name: 'Architecture & Network', mission: 'The cloud design, the network zones and the change pipeline.', color: '#7c3aed', icon: 'Network', label: '🏛️ Architecture & Network' },
-  { id: 'idops', name: 'Identity & Operations', mission: 'Identity, access, logging, incident response and recovery.', color: '#2563eb', icon: 'ShieldCheck', label: '🔑 Identity & Operations' },
+  { id: 'govrisk', name: 'Governance & Risk (Program Lead)', mission: 'Policy, assets, risk and the maturity score: the program’s spine.', color: '#16a34a', icon: 'ClipboardList' },
+  { id: 'archnet', name: 'Architecture & Network (Security Architect)', mission: 'The cloud design, the network zones and the change pipeline.', color: '#7c3aed', icon: 'Network' },
+  { id: 'idops', name: 'Identity & Operations (Operations Lead)', mission: 'Identity, access, logging, incident response and recovery.', color: '#2563eb', icon: 'ShieldCheck' },
 ];
 
 const weeks: WeekDef[] = [

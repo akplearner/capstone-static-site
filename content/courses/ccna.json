@@ -27,35 +27,31 @@
     "roles": [
       {
         "id": "arch",
-        "name": "Architecture",
-        "mission": "Owns the requirements, the design and the addressing plan. Reviews every change for design fit.",
+        "name": "Network Design (Architect)",
+        "mission": "Owns requirements, design and the addressing plan; reviews every change for design fit.",
         "color": "#0369a1",
-        "icon": "Layers",
-        "label": "📐 Architecture"
+        "icon": "Layers"
       },
       {
         "id": "impl",
-        "name": "Implementation",
-        "mission": "Owns switching, interfaces, wireless and the device build. Reviews the configuration itself.",
+        "name": "Device Build (Implementation Engineer)",
+        "mission": "Owns switching, interfaces, wireless and the device build; reviews the configuration itself.",
         "color": "#15803d",
-        "icon": "Network",
-        "label": "🔌 Implementation"
+        "icon": "Network"
       },
       {
         "id": "ops",
-        "name": "Operations",
-        "mission": "Owns monitoring, backups, tickets and change records. Reviews the rollback on every change.",
+        "name": "Network Operations (Operations Engineer)",
+        "mission": "Owns monitoring, backups, tickets and change records; reviews the rollback on every change.",
         "color": "#b45309",
-        "icon": "Activity",
-        "label": "📡 Operations"
+        "icon": "Activity"
       },
       {
         "id": "auto",
-        "name": "Automation & Security",
-        "mission": "Owns ACL policy, the management plane, Git and automation. Reviews the validation evidence.",
+        "name": "Automation & Security (Automation Engineer)",
+        "mission": "Owns ACL policy, the management plane, Git and automation; reviews the validation evidence.",
         "color": "#7c3aed",
-        "icon": "Code",
-        "label": "🤖 Automation & Security"
+        "icon": "Code"
       }
     ],
     "weeks": [
