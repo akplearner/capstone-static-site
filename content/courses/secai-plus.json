@@ -741,6 +741,11 @@
         ],
         "docs": [
           {
+            "title": "OWASP Top 10 for LLM Applications",
+            "url": "https://genai.owasp.org/llm-top-10/",
+            "lookFor": "the entry each case maps to, and its prevention list"
+          },
+          {
             "title": "OpenBao KV secrets engine",
             "url": "https://openbao.org/docs/secrets/kv/",
             "lookFor": "kv put, kv get, and versioning"
@@ -1097,6 +1102,11 @@
             "title": "NIST AI Risk Management Framework",
             "url": "https://www.nist.gov/itl/ai-risk-management-framework",
             "lookFor": "the Govern, Map, Measure and Manage functions"
+          },
+          {
+            "title": "ISO/IEC 42001 AI management system",
+            "url": "https://www.iso.org/standard/81230.html",
+            "lookFor": "the scope and the management-system clauses"
           }
         ],
         "definitionOfDone": [
@@ -1201,6 +1211,11 @@
             "title": "Wazuh custom rules",
             "url": "https://documentation.wazuh.com/current/user-manual/ruleset/rules/custom.html",
             "lookFor": "rule level, match and frequency"
+          },
+          {
+            "title": "OWASP Top 10 for LLM Applications",
+            "url": "https://genai.owasp.org/llm-top-10/",
+            "lookFor": "the entry each case maps to, and its prevention list"
           }
         ],
         "definitionOfDone": [
@@ -1313,6 +1328,11 @@
             "title": "garak LLM vulnerability scanner",
             "url": "https://github.com/NVIDIA/garak",
             "lookFor": "running a named probe set against an Ollama model"
+          },
+          {
+            "title": "OWASP Top 10 for LLM Applications",
+            "url": "https://genai.owasp.org/llm-top-10/",
+            "lookFor": "the entry each case maps to, and its prevention list"
           }
         ],
         "definitionOfDone": [
@@ -1484,6 +1504,11 @@
             "title": "ModelScan",
             "url": "https://github.com/protectai/modelscan",
             "lookFor": "which serialisation formats it checks"
+          },
+          {
+            "title": "Prowler",
+            "url": "https://docs.prowler.com/",
+            "lookFor": "running a scan and reading the compliance output"
           }
         ],
         "definitionOfDone": [
@@ -1661,6 +1686,11 @@
             "title": "NIST AI Risk Management Framework",
             "url": "https://www.nist.gov/itl/ai-risk-management-framework",
             "lookFor": "the Govern, Map, Measure and Manage functions"
+          },
+          {
+            "title": "Model cards",
+            "url": "https://huggingface.co/docs/hub/model-cards",
+            "lookFor": "the sections a model card should carry"
           }
         ],
         "definitionOfDone": [

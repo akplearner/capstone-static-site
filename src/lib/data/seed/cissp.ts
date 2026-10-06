@@ -110,6 +110,13 @@ const DOCS = {
   c171: { title: 'NIST SP 800-171', url: 'https://csrc.nist.gov/pubs/sp/800/171/r3/final', lookFor: 'the requirement families and basic safeguarding' },
   far: { title: 'FAR 52.204-21', url: 'https://www.acquisition.gov/far/52.204-21', lookFor: 'the fifteen basic safeguarding requirements' },
   c34: { title: 'NIST SP 800-34 Rev. 1', url: 'https://csrc.nist.gov/pubs/sp/800/34/r1/final', lookFor: 'activation, recovery and reconstitution' },
+  c63: { title: 'NIST SP 800-63-4 (digital identity)', url: 'https://pages.nist.gov/800-63-4/', lookFor: 'the authenticator assurance levels' },
+  c61inc: { title: 'NIST SP 800-61 Rev. 3 (incident handling)', url: 'https://csrc.nist.gov/pubs/sp/800/61/r3/final', lookFor: 'the incident response life cycle' },
+  c57: { title: 'NIST SP 800-57 Part 1 (key management)', url: 'https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final', lookFor: 'key lengths and crypto-periods' },
+  ssdf: { title: 'NIST SP 800-218 (SSDF)', url: 'https://csrc.nist.gov/pubs/sp/800/218/final', lookFor: 'the secure-development practices and their gates' },
+  c161: { title: 'NIST SP 800-161 Rev. 1 (supply chain)', url: 'https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final', lookFor: 'supplier tiering and flow-down terms' },
+  c60: { title: 'FIPS 199 and NIST SP 800-60 (categorization)', url: 'https://csrc.nist.gov/pubs/fips/199/final', lookFor: 'the low, moderate and high impact levels' },
+  aiRmf: { title: 'NIST AI Risk Management Framework', url: 'https://www.nist.gov/itl/ai-risk-management-framework', lookFor: 'the Govern, Map, Measure and Manage functions' },
 };
 
 const tasks: Task[] = [
@@ -223,7 +230,7 @@ const tasks: Task[] = [
     objective: 'Write D3 and D4 at v1: the architecture with trust boundaries, shared responsibility, and the network zones.',
     frameworks: ['CISSP', 'NIST_CSF'], deliverables: ['03_Architecture.md', '04_Network.md'], estimatedTime: '2 hours',
     learn: ['Trust boundaries', 'Shared responsibility', 'Default deny'],
-    tools: ['draw.io or Mermaid'], docs: [DOCS.csf],
+    tools: ['draw.io or Mermaid'], docs: [DOCS.csf, DOCS.c53],
     definitionOfDone: ['D3 has an architecture with trust boundaries and five shared-responsibility rows', 'D4 has zones, ten or fewer allowed flows, and a default-deny statement'],
     steps: [
       {
@@ -248,7 +255,7 @@ const tasks: Task[] = [
     objective: 'Write D5 and D7 at v1: roles against systems, the MFA rule, logging, the incident first hour, and backups.',
     frameworks: ['CISSP', 'NIST_CSF'], deliverables: ['05_Identity.md', '07_Operations.md'], estimatedTime: '2 hours',
     learn: ['Role-based access control', 'Joiner and leaver', 'The 72-hour customer notice'],
-    tools: ['Notes'], docs: [DOCS.csf],
+    tools: ['Notes'], docs: [DOCS.csf, DOCS.c63, DOCS.c61inc],
     definitionOfDone: ['D5 has six roles against systems, an MFA rule and no-shared-accounts rule', 'D7 has logging, the incident first hour with the 72-hour notice, and backups'],
     steps: [
       {
@@ -300,7 +307,7 @@ const tasks: Task[] = [
     objective: 'Put numbers on D3, D4 and D8: a cryptography standard, a rule base, baselines and a secure-coding checklist.',
     frameworks: ['CISSP', 'NIST_800_53'], deliverables: ['03_Architecture.md', '04_Network.md', '08_Software_and_Change.md'], estimatedTime: '2.5 hours',
     learn: ['Key sizes and rotation', 'Bell-LaPadula, Biba, Clark-Wilson', 'A security gate per development phase'],
-    tools: ['draw.io'], docs: [DOCS.c53],
+    tools: ['draw.io'], docs: [DOCS.c53, DOCS.c57, DOCS.ssdf],
     definitionOfDone: ['D3 has a cryptography standard and six secure design principles on the diagram', 'D4 has a rule base and approved and banned protocols', 'D8 has a gate per phase and a ten-item coding checklist'],
     steps: [
       {
@@ -398,7 +405,7 @@ const tasks: Task[] = [
     objective: 'Prove identity in the lab: MFA on admin login, individual accounts, orphans disabled, and federation with a customer.',
     frameworks: ['CISSP', 'NIST_800_53'], deliverables: ['05_Identity.md', '07_Operations.md'], estimatedTime: '2.5 hours',
     learn: ['Why MFA on the console matters', 'Orphan accounts', 'SAML and OIDC'],
-    tools: ['Keycloak'], docs: [DOCS.keycloak],
+    tools: ['Keycloak'], docs: [DOCS.keycloak, DOCS.c63],
     definitionOfDone: ['Login without a second factor refused', 'Individual admin accounts, two orphans disabled', 'Federation with a customer identity provider', 'S-2, S-3 closed'],
     steps: [
       {
@@ -428,7 +435,7 @@ const tasks: Task[] = [
     objective: 'Tier the suppliers, threat-model with STRIDE, and migrate and sanitize the old end-of-support server.',
     frameworks: ['CISSP', 'STRIDE'], deliverables: ['01_Governance_and_Risk.md', '02_Assets_and_Data.md', '06_Assessment.md'], estimatedTime: '2.5 hours',
     learn: ['Supplier tiering', 'STRIDE', 'Media sanitization (clear, purge, destroy)'],
-    tools: ['OWASP Threat Dragon', 'shred'], docs: [DOCS.c88],
+    tools: ['OWASP Threat Dragon', 'shred'], docs: [DOCS.c88, DOCS.c161],
     definitionOfDone: ['Eight suppliers in tiers with tier-1 terms', 'STRIDE threat model, top six linked to risks', 'Old server data migrated, server sanitized and recorded', 'S-10 closed', 'Rescore to 20'],
     steps: [
       {
@@ -502,7 +509,7 @@ const tasks: Task[] = [
     objective: 'Find and sanitize personal data, categorize the system by high-water mark, and record the AI rules in the register.',
     frameworks: ['CISSP', 'NIST_AI_RMF'], deliverables: ['02_Assets_and_Data.md', '01_Governance_and_Risk.md', '06_Assessment.md'], estimatedTime: '2.5 hours',
     learn: ['Finding personal data', 'High-water mark categorization', 'The EU AI Act applicability decision'],
-    tools: ['Microsoft Presidio'], docs: [DOCS.c53],
+    tools: ['Microsoft Presidio'], docs: [DOCS.c53, DOCS.c60, DOCS.aiRmf],
     definitionOfDone: ['Personal data count above zero before, zero after', 'System categorized with high-water mark and baseline', 'AI rules in the register, EU AI Act recorded', 'Five scan findings dated'],
     steps: [
       {
@@ -564,7 +571,7 @@ const tasks: Task[] = [
     objective: 'Assess every control with evidence, write the report, and accept or close each finding. Reach score 32.',
     frameworks: ['CISSP', 'SOC_2'], deliverables: ['06_Assessment.md', '01_Governance_and_Risk.md', '10_Questionnaire_Response.md'], estimatedTime: '3 hours',
     learn: ['Examine, interview, test', 'Satisfied and other-than-satisfied', 'The four ISC2 canons, in order'],
-    tools: ['OpenCRE', 'eramba'], docs: [DOCS.ethics],
+    tools: ['OpenCRE', 'eramba'], docs: [DOCS.ethics, DOCS.c53],
     definitionOfDone: ['All 16 controls assessed with result, evidence and a SOC 2 criterion', 'Three or more findings', 'The 16 questions answered, no yes without a ledger entry', 'Score 32'],
     steps: [
       {
@@ -612,7 +619,7 @@ const tasks: Task[] = [
     objective: 'Repeat the access review, time an account disablement, and run a four-inject tabletop with an after-action report.',
     frameworks: ['CISSP', 'NIST_800_53'], deliverables: ['05_Identity.md', '07_Operations.md'], estimatedTime: '2.5 hours',
     learn: ['Timed account disablement', 'Tabletop injects', 'The five recovery test types'],
-    tools: ['Keycloak', 'Notes'], docs: [DOCS.keycloak],
+    tools: ['Keycloak', 'Notes'], docs: [DOCS.keycloak, DOCS.c34],
     definitionOfDone: ['Access review repeated, disablement timed against the leaver limit', 'Tabletop after-action report with three improvements', 'The five recovery test types compared'],
     steps: [
       {
@@ -675,7 +682,7 @@ const tasks: Task[] = [
     objective: 'Map encryption, boundary and network controls to the federal requirements, and confirm the authorized cloud services.',
     frameworks: ['CISSP', 'NIST_800_171'], deliverables: ['03_Architecture.md', '04_Network.md', '08_Software_and_Change.md'], estimatedTime: '2 hours',
     learn: ['FedRAMP authorization levels', 'Mapping a control to a requirement', 'The federal information boundary'],
-    tools: ['draw.io'], docs: [DOCS.c171],
+    tools: ['draw.io'], docs: [DOCS.c171, DOCS.far],
     definitionOfDone: ['Encryption and boundary controls mapped, with gaps', 'Authorized cloud services confirmed at the required level', 'Change control for the federal part of the system'],
     handoff: [{ to: 'govrisk', artifact: 'Federal mappings', note: 'Governance folds them into the SSP.' }],
     steps: [
@@ -694,7 +701,7 @@ const tasks: Task[] = [
     objective: 'Map identity and access controls to the federal requirements, and write the federal incident reporting procedure.',
     frameworks: ['CISSP', 'NIST_800_171'], deliverables: ['05_Identity.md', '07_Operations.md'], estimatedTime: '2 hours',
     learn: ['Mapping identity controls', 'Federal incident reporting', 'Media and physical protection'],
-    tools: ['Notes'], docs: [DOCS.c171],
+    tools: ['Notes'], docs: [DOCS.c171, DOCS.far],
     definitionOfDone: ['Identity, authentication and access controls mapped, with gaps', 'Incident reporting to the contracting officer written', 'Media and physical protection mapped'],
     handoff: [{ to: 'govrisk', artifact: 'Incident reporting', note: 'Governance folds it into the SSP.' }],
     steps: [

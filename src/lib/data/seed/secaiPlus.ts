@@ -101,6 +101,9 @@ const DOCS = {
   zeek: { title: 'Zeek dns.log', url: 'https://docs.zeek.org/en/master/logs/dns.html', lookFor: 'the query field' },
   modelscan: { title: 'ModelScan', url: 'https://github.com/protectai/modelscan', lookFor: 'which serialisation formats it checks' },
   threatDragon: { title: 'OWASP Threat Dragon', url: 'https://www.threatdragon.com/docs/', lookFor: 'drawing trust boundaries and adding STRIDE threats' },
+  iso42001: { title: 'ISO/IEC 42001 AI management system', url: 'https://www.iso.org/standard/81230.html', lookFor: 'the scope and the management-system clauses' },
+  prowler: { title: 'Prowler', url: 'https://docs.prowler.com/', lookFor: 'running a scan and reading the compliance output' },
+  modelcard: { title: 'Model cards', url: 'https://huggingface.co/docs/hub/model-cards', lookFor: 'the sections a model card should carry' },
 };
 
 const tasks: Task[] = [
@@ -283,7 +286,7 @@ const tasks: Task[] = [
     frameworks: ['SECAI', 'OWASP_LLM', 'NIST_CSF'], deliverables: ['04_Control_Set.md', '05_Watch_Plan.md'], estimatedTime: '2.5 hours',
     prerequisites: ['The Red Team’s two proven cases'],
     learn: ['Secrets belong in a secret store', 'A gateway is the one place to limit and log', 'Control rows: who, how often, with what, record'],
-    tools: ['OpenBao', 'LiteLLM', 'Gitleaks'], docs: [DOCS.openbao, DOCS.litellm, DOCS.gitleaks],
+    tools: ['OpenBao', 'LiteLLM', 'Gitleaks'], docs: [DOCS.owaspLlm, DOCS.openbao, DOCS.litellm, DOCS.gitleaks],
     definitionOfDone: ['No secret in any prompt (Gitleaks clean)', 'Rate limit returns 429', 'P3 v1 has three or more complete rows', 'P4 v1 says what is logged, who reads it, how long it is kept'],
     steps: [
       {
@@ -417,7 +420,7 @@ const tasks: Task[] = [
     objective: 'Write P1 and P5 at v2: data lineage and life cycle, ten risks, ten roles, and a compliance table for every rule.',
     frameworks: ['SECAI', 'NIST_AI_RMF', 'ISO_42001'], deliverables: ['02_System_Map.md', '06_Governance_Pack.md', '07_Release_Note.md'], estimatedTime: '2.5 hours',
     learn: ['Structured, semi-structured and unstructured data', 'The nine-stage AI life cycle', 'Applicability, with a reason'],
-    tools: ['CISO Assistant Community', 'draw.io'], docs: [DOCS.aiRmf],
+    tools: ['CISO Assistant Community', 'draw.io'], docs: [DOCS.aiRmf, DOCS.iso42001],
     definitionOfDone: ['Life-cycle table with risk and human checkpoint', 'Ten risks including bias, leakage and autonomous action', 'Compliance table covers every rule in the scenario', 'Release note v2 signed with owners and dates for any open case'],
     consumes: [{ from: 'defender', artifact: 'Control set v2', note: 'Each control is entered against a risk.' }],
     steps: [
@@ -452,7 +455,7 @@ const tasks: Task[] = [
     objective: 'Put code, dependency and secret scans and the attack suite in the pipeline, prove a block and a rollback, and alert on all six.',
     frameworks: ['SECAI', 'NIST_CSF'], deliverables: ['04_Control_Set.md', '05_Watch_Plan.md'], estimatedTime: '3 hours',
     learn: ['Security gates in a pipeline', 'Regression tests for guardrails', 'Alert to ticket'],
-    tools: ['Semgrep', 'Trivy', 'Gitleaks', 'Jenkins or GitLab CI', 'Wazuh', 'GLPI'], docs: [DOCS.semgrep, DOCS.trivy, DOCS.wazuh],
+    tools: ['Semgrep', 'Trivy', 'Gitleaks', 'Jenkins or GitLab CI', 'Wazuh', 'GLPI'], docs: [DOCS.semgrep, DOCS.trivy, DOCS.wazuh, DOCS.owaspLlm],
     definitionOfDone: ['Scans block on findings', 'A removed guardrail blocks the build', 'One rollback recorded (R10)', 'Two detections; all six attempts alert into a ticket'],
     steps: [
       {
@@ -504,7 +507,7 @@ const tasks: Task[] = [
     objective: 'Define the suite’s pass line, add two variants of each case that still works, and validate an AI assistant’s triage by hand.',
     frameworks: ['SECAI', 'OWASP_LLM'], deliverables: ['03_Attack_Casebook.md'], estimatedTime: '2 hours',
     learn: ['A pass line makes a suite a test', 'AI-assisted triage still needs a human check'],
-    tools: ['Continue with a local model', 'Ollama'], docs: [DOCS.garak],
+    tools: ['Continue with a local model', 'Ollama'], docs: [DOCS.garak, DOCS.owaspLlm],
     definitionOfDone: ['Suite definition with pass line in P2', 'Two variants per surviving case', 'AI triage claims checked by hand; at least one error recorded (R9)'],
     handoff: [{ to: 'defender', artifact: 'Automated suite', note: 'The Defender runs it as the pipeline’s regression stage.' }],
     steps: [
@@ -572,7 +575,7 @@ const tasks: Task[] = [
     objective: 'Rebuild a fresh copy with every control, scan the model files, write the evaluation checklist, and hand over monitoring.',
     frameworks: ['SECAI', 'NIST_CSF'], deliverables: ['04_Control_Set.md', '05_Watch_Plan.md'], estimatedTime: '3 hours',
     learn: ['Reproducibility as evidence', 'Unsafe code in serialised models', 'Model evaluation before replacement'],
-    tools: ['ModelScan', 'Prowler'], docs: [DOCS.modelscan],
+    tools: ['ModelScan', 'Prowler'], docs: [DOCS.modelscan, DOCS.prowler],
     definitionOfDone: ['Timed rebuild record (R11)', 'Model files scanned clean', 'Evaluation checklist with pass marks', 'Handover sheet: who watches what, how often'],
     steps: [
       {
@@ -641,7 +644,7 @@ const tasks: Task[] = [
     objective: 'Finish the model cards and responsible-AI assessment, get every remaining risk accepted, and answer the customers’ three questions with evidence.',
     frameworks: ['SECAI', 'NIST_AI_RMF', 'ISO_42001'], deliverables: ['02_System_Map.md', '06_Governance_Pack.md', '07_Release_Note.md', '08_Release_Package.md'], estimatedTime: '3 hours',
     learn: ['Model cards', 'Responsible-AI principles as evidence or gaps', 'Writing for a contracting officer and a lawyer'],
-    tools: ['Git'], docs: [DOCS.aiRmf],
+    tools: ['Git'], docs: [DOCS.aiRmf, DOCS.modelcard],
     definitionOfDone: ['A model card per model; SA-6 resolved or accepted', 'Responsible-AI assessment, evidence or gap per principle', 'Every remaining risk accepted in writing', 'Assurance response cites documents and ledger entries', 'Release note v4 signed'],
     consumes: [{ from: 'redteam', artifact: 'Final threat table', note: 'The residual risks come from it.' }, { from: 'defender', artifact: 'Handover sheet', note: 'The assurance response cites it.' }],
     steps: [

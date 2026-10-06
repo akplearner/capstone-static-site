@@ -639,6 +639,11 @@
             "title": "NIST Cybersecurity Framework 2.0",
             "url": "https://www.nist.gov/cyberframework",
             "lookFor": "the functions and the Current and Target Profiles"
+          },
+          {
+            "title": "NIST SP 800-53 Rev. 5",
+            "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+            "lookFor": "the control families and identifiers (PM, SC, AC…)"
           }
         ],
         "definitionOfDone": [
@@ -707,6 +712,16 @@
             "title": "NIST Cybersecurity Framework 2.0",
             "url": "https://www.nist.gov/cyberframework",
             "lookFor": "the functions and the Current and Target Profiles"
+          },
+          {
+            "title": "NIST SP 800-63-4 (digital identity)",
+            "url": "https://pages.nist.gov/800-63-4/",
+            "lookFor": "the authenticator assurance levels"
+          },
+          {
+            "title": "NIST SP 800-61 Rev. 3 (incident handling)",
+            "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+            "lookFor": "the incident response life cycle"
           }
         ],
         "definitionOfDone": [
@@ -854,6 +869,16 @@
             "title": "NIST SP 800-53 Rev. 5",
             "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
             "lookFor": "the control families and identifiers (PM, SC, AC…)"
+          },
+          {
+            "title": "NIST SP 800-57 Part 1 (key management)",
+            "url": "https://csrc.nist.gov/pubs/sp/800/57/pt1/r5/final",
+            "lookFor": "key lengths and crypto-periods"
+          },
+          {
+            "title": "NIST SP 800-218 (SSDF)",
+            "url": "https://csrc.nist.gov/pubs/sp/800/218/final",
+            "lookFor": "the secure-development practices and their gates"
           }
         ],
         "definitionOfDone": [
@@ -1114,6 +1139,11 @@
             "title": "Keycloak OTP policy",
             "url": "https://www.keycloak.org/docs/latest/server_admin/#one-time-password-otp-policies",
             "lookFor": "requiring OTP for a realm"
+          },
+          {
+            "title": "NIST SP 800-63-4 (digital identity)",
+            "url": "https://pages.nist.gov/800-63-4/",
+            "lookFor": "the authenticator assurance levels"
           }
         ],
         "definitionOfDone": [
@@ -1191,6 +1221,11 @@
             "title": "NIST SP 800-88",
             "url": "https://csrc.nist.gov/pubs/sp/800/88/r1/final",
             "lookFor": "clear, purge and destroy"
+          },
+          {
+            "title": "NIST SP 800-161 Rev. 1 (supply chain)",
+            "url": "https://csrc.nist.gov/pubs/sp/800/161/r1/upd1/final",
+            "lookFor": "supplier tiering and flow-down terms"
           }
         ],
         "definitionOfDone": [
@@ -1370,6 +1405,16 @@
             "title": "NIST SP 800-53 Rev. 5",
             "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
             "lookFor": "the control families and identifiers (PM, SC, AC…)"
+          },
+          {
+            "title": "FIPS 199 and NIST SP 800-60 (categorization)",
+            "url": "https://csrc.nist.gov/pubs/fips/199/final",
+            "lookFor": "the low, moderate and high impact levels"
+          },
+          {
+            "title": "NIST AI Risk Management Framework",
+            "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+            "lookFor": "the Govern, Map, Measure and Manage functions"
           }
         ],
         "definitionOfDone": [
@@ -1531,6 +1576,11 @@
             "title": "ISC2 Code of Ethics",
             "url": "https://www.isc2.org/ethics",
             "lookFor": "the four canons, in order"
+          },
+          {
+            "title": "NIST SP 800-53 Rev. 5",
+            "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+            "lookFor": "the control families and identifiers (PM, SC, AC…)"
           }
         ],
         "definitionOfDone": [
@@ -1660,6 +1710,11 @@
             "title": "Keycloak OTP policy",
             "url": "https://www.keycloak.org/docs/latest/server_admin/#one-time-password-otp-policies",
             "lookFor": "requiring OTP for a realm"
+          },
+          {
+            "title": "NIST SP 800-34 Rev. 1",
+            "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/final",
+            "lookFor": "activation, recovery and reconstitution"
           }
         ],
         "definitionOfDone": [
@@ -1825,6 +1880,11 @@
             "title": "NIST SP 800-171",
             "url": "https://csrc.nist.gov/pubs/sp/800/171/r3/final",
             "lookFor": "the requirement families and basic safeguarding"
+          },
+          {
+            "title": "FAR 52.204-21",
+            "url": "https://www.acquisition.gov/far/52.204-21",
+            "lookFor": "the fifteen basic safeguarding requirements"
           }
         ],
         "definitionOfDone": [
@@ -1886,6 +1946,11 @@
             "title": "NIST SP 800-171",
             "url": "https://csrc.nist.gov/pubs/sp/800/171/r3/final",
             "lookFor": "the requirement families and basic safeguarding"
+          },
+          {
+            "title": "FAR 52.204-21",
+            "url": "https://www.acquisition.gov/far/52.204-21",
+            "lookFor": "the fifteen basic safeguarding requirements"
           }
         ],
         "definitionOfDone": [
