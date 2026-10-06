@@ -148,6 +148,8 @@ const IDS = {
 
 const DEPLOY_PREVIEW: Record<CloudPlatform, string> = { azure: 'what-if → deploy to dev', aws: 'change set → deploy to dev' };
 const NO_PORT: Record<CloudPlatform, string> = { azure: 'Bastion in the browser, no port', aws: 'Session Manager, no open port' };
+const RELEASE_FLEET: Record<CloudPlatform, string> = { azure: 'blue/green: test port, cut-over', aws: 'blue/green by weight' };
+const RELEASE_FN: Record<CloudPlatform, string> = { azure: 'canary: a slot, a metric, a swap', aws: 'canary: alias weights, an alarm' };
 
 /**
  * The process of each GLOBAL week, drawn over the architecture. Every week has
@@ -204,8 +206,8 @@ export function cloudWeekProcesses(platform: CloudPlatform): Record<number, Week
       { from: 'github', to: i.fn, label: 'under a change request' },
     ] },
     11: { title: 'Release strategies and observability', steps: [
-      { from: i.lb, to: i.fleet, label: 'blue/green by weight' },
-      { from: i.fn, to: i.alert, label: 'canary: alias weights, an alarm' },
+      { from: i.lb, to: i.fleet, label: RELEASE_FLEET[platform] },
+      { from: i.fn, to: i.alert, label: RELEASE_FN[platform] },
       { from: i.audit, to: 'admin', label: 'who changed what, when' },
     ] },
     12: { title: 'Incident, compliance and handover', steps: [
@@ -228,6 +230,6 @@ export const CLOUD_WEEK_CAPTIONS: Record<number, string> = {
   8: 'New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed.',
   9: 'Nothing new is built. The environment comes from the template: drift detected, linted, checked against policy, previewed, deployed to dev.',
   10: 'New: the deploy identity. GitHub signs in by OIDC, checks, deploys dev, waits for a reviewer, deploys prod; a failure stops at dev.',
-  11: 'New: the green target group and the dashboard. A blue/green shift and a canary, judged by alarms; the tag rule and the audit trail.',
+  11: 'New: the green pool and the dashboard. A blue/green shift and a canary, judged by metrics; the tag rule and the audit trail.',
   12: 'Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package.',
 };

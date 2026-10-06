@@ -556,7 +556,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           { field: 'drill_end', label: 'Service back', type: 'text', required: true, placeholder: '14:05' },
           { field: 'drill_met', label: 'RTO met', type: 'select', required: true, options: ['Yes', 'No — see lessons'] },
           { field: 'drill_lessons', label: 'Lessons', type: 'text', placeholder: 'Write the health-check interval into the runbook.' },
-          { field: 'teardown', label: 'What was deleted at the end', type: 'text', required: true, placeholder: `${v.lb}, ${v.fleet}, the launch template` },
+          { field: 'teardown', label: 'What was deleted at the end', type: 'text', required: true, placeholder: `${v.lb}, ${v.fleet}, ${v.key === 'az' ? 'the autoscale setting' : 'the launch template'}` },
           { field: 'month_cost', label: 'This month’s cost so far', type: 'number', unit: 'USD', required: true, placeholder: '11.43' },
         ]),
         evidence(v, 8, 'restore'),
@@ -653,7 +653,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           { field: 'rfc_risk', label: 'Risk', type: 'select', required: true, options: SEVERITY },
           { field: 'rfc_rollback', label: 'Rollback plan', type: 'text', required: true, placeholder: 'Revert the commit; the pipeline redeploys the previous template.' },
           { field: 'rfc_approver', label: 'Approved by', type: 'text', required: true },
-          { field: 'rfc_gates', label: 'Gates: before dev, before prod', type: 'text', required: true, placeholder: 'dev: lint + policy PASS; prod: green dev + the Architect approves' },
+          { field: 'rfc_gates', label: 'Gates: before dev, before prod', type: 'text', required: true, placeholder: v.key === 'az' ? 'dev: validation under the policies, what-if with no Delete; prod: green dev + the Architect approves' : 'dev: lint + policy PASS; prod: green dev + the Architect approves' },
         ]),
         fields('Repository controls · Infrastructure', [
           { field: 'branch_rule', label: 'Branch protection on main', type: 'text', required: true, placeholder: '1 review required; the check job must pass; no direct pushes' },
@@ -667,7 +667,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
         fields('Keyless access and rollback · Security & Ops', [
           { field: 'oidc', label: 'How the pipeline signs in', type: 'text', required: true, placeholder: v.oidc },
           { field: 'no_keys', label: 'No cloud keys stored in GitHub', type: 'select', required: true, options: ['Confirmed', 'Not yet'] },
-          { field: 'deploy_scope', label: 'What the deploy identity may do, and what was removed', type: 'text', required: true, placeholder: 'PowerUserAccess + PassRole; AdministratorAccess removed' },
+          { field: 'deploy_scope', label: 'What the deploy identity may do, and what was removed', type: 'text', required: true, placeholder: v.key === 'az' ? 'Contributor on the prod and dev groups; nothing at subscription scope' : 'PowerUserAccess + PassRole; AdministratorAccess removed' },
           { field: 'rollback_test', label: 'Rollback test', type: 'text', required: true, placeholder: 'Broke the template on purpose; the run failed at dev; prod never ran; reverted; green.' },
         ]),
         evidence(v, 10, 'pipeline'),
@@ -705,9 +705,9 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('budget', 'Error budget a month', 'text', { placeholder: '3 h 36 min' }),
         ]),
         fields('Release strategy · Infrastructure and App / DevOps', [
-          { field: 'bluegreen', label: 'Blue/green: versions, weights, requests at 90/10 and at 0/100', type: 'text', required: true, placeholder: 'v1 → v2; 18/2 then 0/10; 0 failed' },
-          { field: 'canary', label: 'Canary: versions, weight, alarm, outcome', type: 'text', required: true, placeholder: '1 → 2 at 10%; errors alarm stayed OK over 30 calls; promoted' },
-          { field: 'rollback_trigger', label: 'What rolls a release back', type: 'text', required: true, placeholder: 'The canary errors alarm; the listener weights reversed' },
+          { field: 'bluegreen', label: v.key === 'az' ? 'Blue/green: the two sets, the test port, requests before and after the cut-over' : 'Blue/green: versions, weights, requests at 90/10 and at 0/100', type: 'text', required: true, placeholder: v.key === 'az' ? 'blue → green; 10/10 v2 on :8080, then 10/10 on :80; 0 failed' : 'v1 → v2; 18/2 then 0/10; 0 failed' },
+          { field: 'canary', label: v.key === 'az' ? 'Canary: the slot, the calls, the metric, outcome' : 'Canary: versions, weight, alarm, outcome', type: 'text', required: true, placeholder: v.key === 'az' ? 'staging = v2; Http5xx 0 over 30 calls; swapped into production' : '1 → 2 at 10%; errors alarm stayed OK over 30 calls; promoted' },
+          { field: 'rollback_trigger', label: 'What rolls a release back', type: 'text', required: true, placeholder: v.key === 'az' ? 'An Http5xx alert on the slot; the rule’s pool switched back; the slot swapped again' : 'The canary errors alarm; the listener weights reversed' },
         ]),
         fields(`Policy and dashboard · Security & Ops`, [
           { field: 'policy_name', label: 'Policy / rule', type: 'text', required: true, placeholder: v.policy },

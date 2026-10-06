@@ -72,7 +72,7 @@ This week adds:
 
 ## Week 3 — Release strategies and observability
 
-> New: the green target group and the dashboard. A blue/green shift and a canary, judged by alarms; the tag rule and the audit trail.
+> New: the green pool and the dashboard. A blue/green shift and a canary, judged by metrics; the tag rule and the audit trail.
 
 This week adds:
 

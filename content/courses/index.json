@@ -188,7 +188,7 @@
       "file": "azure-devops.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 51,
+      "steps": 70,
       "deliverables": 4,
       "procedures": 0,
       "vendor": "Microsoft",
@@ -196,10 +196,10 @@
       "level": "expert",
       "prerequisite": "azure-administrator",
       "examFeeUsd": 165,
-      "coveredWeight": 0,
+      "coveredWeight": 96,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0
+      "costTasksUsd": 0.18
     },
     {
       "id": "aws-cloud-practitioner",

@@ -50,18 +50,18 @@ const PLANS: WeekPlan[] = [
   { n: 8, title: 'Scale, monitor, recover', theme: 'Prove it survives', objective: 'Set recovery targets, scale on demand, lose an instance and a database and get both back, and read the bill.',
     milestone: 'RPO and RTO per asset, autoscale grew the fleet and replaced a lost instance, a file and the database were restored, the drill was timed, and nothing bills by the hour.',
     labels: ['Set RPO, RTO and the autoscale target', 'Autoscale on CPU and prove self-healing', 'Recover a web file and the database', 'Run a timed drill and tear down'] },
-  { n: 9, title: 'Infrastructure as Code', theme: 'The environment, as a file', objective: 'Read the environment as an ARM template, fill the starter, preview with what-if, deploy to dev.',
-    milestone: 'The starter template is complete, what-if previewed it, dev deployed, and the parameters are recorded.',
-    labels: ['Map the template to the diagram', 'Inventory everything with the CLI', 'Fill the starter and deploy to dev', 'Write parameter files and validate'] },
-  { n: 10, title: 'CI/CD', theme: 'Deploy from a pipeline', objective: 'Deploy through GitHub Actions with no stored keys, under a reviewed change request.',
-    milestone: 'Main is protected, the pipeline signs in with OIDC and deploys the template, and a rollback was tested.',
-    labels: ['Write and approve the change request', 'Protect main and add an environment', 'Deploy from GitHub Actions', 'Sign in with OIDC and test rollback'] },
-  { n: 11, title: 'Governance', theme: 'Rules the platform enforces', objective: 'Enforce the tag standard with Policy, read the audit log, review posture and cost.',
-    milestone: 'Untagged resources are denied, audit events are read, three findings are owned, and cost is broken down.',
-    labels: ['Review cost by service', 'Require the owner tag with Policy', 'Query the Activity Log', 'Review posture in Defender for Cloud'] },
-  { n: 12, title: 'Handover', theme: 'Survive it, then hand it on', objective: 'Recover, fix and contain under pressure, then hand the environment over.',
-    milestone: 'Three scenarios survived and recorded, and the handover package is signed off.',
-    labels: ['Assemble the handover package', 'Rebuild the environment from the template', 'Fix an app failure through CI', 'Contain a security incident'] },
+  { n: 9, title: 'Infrastructure as code, tested', theme: 'The environment, as a file that is checked', objective: 'Read the environment as a template, detect drift, validate it, check it against policy, preview and deploy to dev.',
+    milestone: 'ADR-001 and the environment strategy are written, drift was detected and repaired, the template validates and passes two deny policies, and a dev group was previewed, deployed and deleted.',
+    labels: ['Map the template and set the environment strategy', 'Inventory with the CLI and detect drift', 'Fill the starter and deploy to dev', 'Parameter files, validation and policy as code'] },
+  { n: 10, title: 'Pipelines with stages and gates', theme: 'Check, deploy dev, approve, deploy prod', objective: 'Deploy through a staged pipeline with no stored keys: a check job, dev, a reviewer before prod, a tested rollback.',
+    milestone: 'Main requires the check, the pipeline signs in with OIDC and deploys dev then prod behind a gate, the deploy identity is scoped, and a failure stopped at dev and rolled back.',
+    labels: ['Write the change request and the gates', 'Protect main, add the environments, require the checks', 'Build the staged pipeline', 'OIDC, a scoped deploy identity and a rollback test'] },
+  { n: 11, title: 'Release strategies and observability', theme: 'Ship by cut-over, watch by number', objective: 'Set service levels and a dashboard, release the fleet blue/green and the function through a slot, judged by a metric.',
+    milestone: 'Three SLIs with targets, a shared dashboard that shows them, a blue/green cut-over with no failed request, a slot swapped in or kept out by a metric, the tag rule proved and the audit log read.',
+    labels: ['Review cost by service and set the service levels', 'Blue/green the fleet with a second pool', 'Canary the counter with a slot and a metric', 'Dashboard, Policy and the audit trail'] },
+  { n: 12, title: 'Incident, compliance and handover', theme: 'Survive it, learn from it, hand it on', objective: 'Recover from code, repair by runbook, fix drift through CI, contain an incident, write its post-mortem, hand over.',
+    milestone: 'The environment was rebuilt and timed, an Automation runbook ran, drift was fixed through the pipeline, an incident was contained with a post-mortem, and the handover package is signed off.',
+    labels: ['Assemble the handover package', 'Rebuild from the template and automate the restart', 'Fix an app failure through CI', 'Contain a security incident and write the post-mortem'] },
 ];
 
 /** One role's task for one week. */
@@ -1141,11 +1141,12 @@ app.storageQueue('ledger', {
     rec(8, 'secops', 'Drill and cost', ['Drill start, service back, RTO met, lessons.', 'What was deleted; the month’s cost by service against the $20 budget.'], 'The plan shows the drill, and the course ends with nothing billing by the hour.'),
   ], { cost: { usd: 0.0354, per: 'hour', note: 'The fleet and the balancer for the minutes of the drill; all of it deleted inside the task.' } }),
 
-  // ── Week 9 — Infrastructure as Code ────────────────────────────────────
-  T(9, 'arch', 'Map the template to the diagram', 'Match five template resources to their diagram nodes, and say what code does that the portal cannot.', 35,
-    ['ARM templates', 'The ARM visualizer'], ['Five resources mapped'],
-    [doc('ARM template structure and syntax', 'azure/azure-resource-manager/templates/syntax', 'the sections table: parameters, variables, resources, outputs — and what dependsOn means')],
-    'Free: reading.', [
+  // ── Week 9 — Infrastructure as code, tested ────────────────────────────
+  T(9, 'arch', 'Map the template and set the environment strategy', 'Match five template resources to their diagram nodes, write ADR-001, and decide what differs between the dev and prod deployments.', 40,
+    ['AZ-400 · Design and implement processes and communications', 'ARM templates', 'Architecture decision records', 'Environment strategy'], ['Five resources mapped', 'ADR-001 written', 'The dev and prod differences are listed'],
+    [doc('ARM template structure and syntax', 'azure/azure-resource-manager/templates/syntax', 'the sections table: parameters, variables, resources, outputs — and what dependsOn means'),
+     doc('Deployment environments and DevOps', 'azure/cloud-adoption-framework/ready/considerations/environments', 'the “Environment types” list — dev, test, prod — and the rule that one template with different parameters builds each of them')],
+    'Free: reading. Nothing is deployed.', [
     portal(s(9, 'arch', 1), 'Read the template beside the diagram', 'Click five resources and read their template lines.', 'Guide → Architecture & IaC', [
       'Click a node: the template scrolls to its resource.',
       'Note its type, and which parameters and variables it reads.',
@@ -1156,268 +1157,395 @@ app.storageQueue('ledger', {
       'Decision: the environment is an ARM template; the portal is for reading.',
       'Rejected: building by hand — no record, no rebuild, no review. Consequences: every change is a pull request from Week 10.',
     ], 'ADR-001 with context, decision, rejected option and consequences.', 'An Architecture Decision Record keeps the decision and the alternatives, so the next team does not reopen it without new facts. The rejected option matters most: it shows the decision was a choice.'),
-    rec(9, 'arch', 'Template map, Portal vs code, ADR-001', ['Five rows: resource, node, parameter.', 'One thing code does that the portal cannot.', 'ADR-001.'], 'The map lets anyone navigate the template.'),
+    portal(s(9, 'arch', 3), 'Decide what differs between dev and prod', 'List every parameter whose value changes, and why.', 'The document', [
+      'Same template, two groups: dev with fleetSize 0 and a $5 budget; prod with fleetSize 2 and $20.',
+      'What never differs: the NSG rules, HTTPS-only storage, the role assignments. Write why.',
+    ], 'A table of parameters with their dev and prod values, and the list of what never changes.', 'The exam calls this an environment strategy: one template, parameterised only where environments genuinely differ, so a prod bug can be reproduced in dev.'),
+    rec(9, 'arch', 'Template map, Portal vs code, ADR-001', ['Five rows: resource, node, parameter.', 'One thing code does that the portal cannot.', 'ADR-001 and the dev/prod differences.'], 'The map lets anyone navigate the template; the strategy says what a deployment is allowed to vary.'),
   ]),
-  T(9, 'infra', 'Inventory everything with the CLI', 'List every resource with its type and owner tag, and find anything the standard missed.', 35,
-    ['JMESPath queries', 'Resource inventory'], ['Five or more resources listed with tags'],
+  T(9, 'infra', 'Inventory with the CLI and detect drift', 'List every resource with its owner tag, change one tag by hand, run what-if against the live group and read which resource drifted.', 40,
+    ['AZ-400 · Design and implement build and release pipelines', 'Resource inventory with JMESPath', 'what-if as a drift detector', 'Configuration drift'], ['Five or more resources listed with tags', 'what-if reports the changed tag as a Modify'],
     [doc('az resource list', 'cli/azure/resource#az-resource-list', 'the --query examples — JMESPath picks the columns'),
-     doc('Filter resources by tag (portal)', 'azure/azure-resource-manager/management/tag-resources-portal', 'the “View resources by tag” steps — the same inventory without the shell')],
-    'Free: listing.', [
+     doc('What-if deployments', 'azure/azure-resource-manager/templates/deploy-what-if', 'the change types — Create, Modify, Delete, NoChange — and the note that what-if compares the template with the live resources, which is what makes it a drift detector')],
+    'Free: listing and what-if deploy nothing.', [
     both(s(9, 'infra', 1), 'List the resources', 'List every resource with its owner tag.', PORTAL, [
       'rg-capstone-team01 → Overview: the resource list. Add the Tags column with “Manage view”.',
       'Sort by owner; an empty cell is a resource that broke the standard.',
     ], [
-      { cmd: 'az resource list -g rg-capstone-team01 --query "[].{name:name, type:type, owner:tags.owner}" -o table', explain: '--query picks fields with JMESPath. An empty Owner column is a resource that broke the standard.', sample: 'Name                   Type                                     Owner\nvm-tools-team01        Microsoft.Compute/virtualMachines        team01-infra\nnsg-snet-app-team01    Microsoft.Network/networkSecurityGroups' },
-    ], ['Microsoft.Compute/virtualMachines'], 'The gaps you find now are what Policy will deny in Week 11.'),
-    rec(9, 'infra', 'CLI inventory', ['Five or more resources, their type, tagged or not.'], 'The inventory is the before-picture for the template.'),
+      { cmd: 'az resource list -g rg-capstone-team01 --query "[].[name, type, tags.owner]" -o tsv | sort', explain: 'Every resource, its type and its owner. Anything you built but do not see tagged here broke the standard.', sample: 'lb-web-team01\tMicrosoft.Network/loadBalancers\tteam01-lead\nvm-tools-team01\tMicrosoft.Compute/virtualMachines\tteam01-lead\nvnet-capstone-team01\tMicrosoft.Network/virtualNetworks\tteam01-lead' },
+    ], ['Microsoft.Compute/virtualMachines'], 'The gaps you find now are what the Week 11 policy denies.'),
+    both(s(9, 'infra', 2), 'Change one tag by hand', 'Edit the VNet’s owner tag in the portal.', PORTAL, [
+      'vnet-capstone-team01 → Tags: owner = somebody-else. Apply.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; VNETID=$(az network vnet show -g $RG -n vnet-capstone-team01 --query id -o tsv); az tag update --resource-id $VNETID --operation merge --tags owner=somebody-else --query "properties.tags.owner" -o tsv', explain: 'A portal change the template knows nothing about — the everyday way an environment drifts.', sample: 'somebody-else' },
+    ], ['somebody-else'], 'Drift is not a mistake someone makes on purpose; it is a quick fix at 5 p.m. that nobody wrote down.'),
+    both(s(9, 'infra', 3), 'Detect the drift with what-if', 'Run what-if; read the Modify; put the tag back.', PORTAL, [
+      'Deploy a custom template → Load file infra/azuredeploy.json → prod parameters → Review + create → the preview lists vnet-capstone-team01 as Modify: tags.owner.',
+      'Cancel. vnet-capstone-team01 → Tags → owner = team01-lead. Apply.',
+    ], [
+      { cmd: 'az deployment group what-if -g $RG --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --no-pretty-print 2>/dev/null | grep -A 2 "virtualNetworks/vnet-capstone-team01"; az tag update --resource-id $VNETID --operation merge --tags owner=team01-lead -o none', explain: 'what-if compares every live resource with the template and names what differs: the tag, with the live value and the template’s; then the tag is put back.', sample: '~ Microsoft.Network/virtualNetworks/vnet-capstone-team01 [2023-11-01]\n  ~ tags.owner: "somebody-else" => "team01-lead"' },
+    ], ['=>'], 'The exam asks how you find out the environment no longer matches the code: this is the command, and Week 12 fixes drift the proper way, through the pipeline.'),
+    rec(9, 'infra', 'CLI inventory and drift', ['Five or more resources, their type, tagged or not.', 'The resource that drifted, its expected and actual value.'], 'The inventory is the before-picture for the template; the drift result is why the template must be the only writer.'),
   ]),
-  T(9, 'dev', 'Fill the starter and deploy to dev', 'Complete the starter ARM template, preview it with what-if, deploy it to a dev resource group, then delete it.', 55,
-    ['ARM template structure', 'what-if', 'Deployments'], ['what-if previewed', 'Deployment Succeeded', 'The dev group is deleted'],
+  T(9, 'dev', 'Fill the starter and deploy to dev', 'Complete the starter template, preview it with what-if, deploy it to a dev resource group, then delete the group.', 55,
+    ['AZ-400 · Design and implement build and release pipelines', 'Template anatomy', 'what-if', 'Deployments'], ['what-if previewed', 'Deployment Succeeded', 'The dev group is deleted'],
     [doc('Deploy resources from a custom template (portal)', 'azure/azure-resource-manager/templates/deploy-portal', 'the “Deploy resources from custom template” steps: Build your own template → load file → parameters'),
      doc('What-if deployments', 'azure/azure-resource-manager/templates/deploy-what-if', 'the result legend — Create, Modify, Delete, NoChange — and the az deployment group what-if command')],
-    'Free to deploy; the dev copy runs a second VM and public IP — delete the group the same session so nothing bills overnight.', [
-    portal(s(9, 'dev', 1), 'Fill the starter', 'Download the starter and fill its seven blanks.', 'Guide → Architecture & IaC → Starter', [
+    'The dev copy is a second environment: with fleetSize 0 and no database it is the B1s VM and the balancer, about $0.04 an hour. Delete the group the same session.', [
+    portal(s(9, 'dev', 1), 'Fill the starter', 'Download the starter and fill its blanks.', 'Guide → Architecture & IaC → Starter', [
       'Download azuredeploy.json and both parameter files into infra/.',
       'Replace each FILL-ME using its hint; the Full tab is the answer key.',
-      'Commit to a branch.',
+      'In the dev parameter file set teamId to t01dev, so names never clash with what you built by hand.',
     ], 'A template with no FILL-ME left.', 'Filling blanks in a real template teaches its structure faster than writing one from nothing.'),
     both(s(9, 'dev', 2), 'Preview, then deploy', 'Run what-if, then deploy into a dev group.', PORTAL, [
       'Resource groups → Create rg-capstone-team01-dev.',
       'Deploy a custom template → Build your own template → Load file azuredeploy.json → Save.',
-      'Fill the parameters (teamId, alertEmail, sshPublicKey). Review + create — the portal shows what it will create — then Create.',
+      'Fill the parameters; Review + create shows what it will create; Create.',
+      'Deployments → azuredeploy: wait for Succeeded.',
     ], [
-      { cmd: 'DEV=rg-capstone-team01-dev; az group create -n $DEV -l eastus -o none; az deployment group what-if -g $DEV --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.dev.json', explain: 'what-if lists every create, change and delete before anything happens.', sample: 'Resource changes: 26 to create.' },
-      { cmd: 'az deployment group create -g $DEV --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.dev.json --query properties.provisioningState -o tsv', explain: 'You will be asked for the SSH key and email parameters.', sample: 'Succeeded' },
-    ], ['to create', 'Succeeded'], 'Preview first, always: what-if is how you catch a delete you did not mean.'),
+      { cmd: 'DEV=rg-capstone-team01-dev; az group create -n $DEV -l eastus -o none; az deployment group what-if -g $DEV --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.dev.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --no-pretty-print 2>/dev/null | tail -1', explain: 'what-if lists every create, change and delete before anything happens; in an empty group, everything is a create.', sample: 'Resource changes: 37 to create.' },
+      { cmd: 'az deployment group create -g $DEV --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.dev.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --query properties.provisioningState -o tsv', explain: 'The whole environment, as the dev file describes it: fleet parked, no database.', sample: 'Succeeded' },
+    ], ['to create', 'Succeeded'], 'Preview first, always: what-if is how you catch a delete you did not mean.', {
+      fixes: [{ symptom: 'Conflict: a vault or storage name already exists', fix: 'A name clashes with something you built by hand. Use a different teamId in the dev parameter file and retry.' }],
+    }),
     rec(9, 'dev', 'Deployment', ['Blanks filled, what-if result, deployment result.'], 'The deployment record Week 10 automates.'),
     both(s(9, 'dev', 3), 'Delete the dev copy', 'Delete the dev resource group.', PORTAL, [
       'Resource groups → rg-capstone-team01-dev → Delete resource group → type the name → Delete.',
     ], [
-      { cmd: 'az group delete -n rg-capstone-team01-dev --yes --no-wait && az group list --query "[].name" -o tsv', explain: 'The whole copy goes in one command — that is why everything lives in one group.', sample: 'rg-capstone-team01\nrg-capstone-team01-dev' },
-    ], ['rg-capstone-team01'], 'A second environment doubles the bill until it is gone.'),
-  ]),
-  T(9, 'secops', 'Write parameter files and validate', 'Set dev and prod parameter values with no secrets in them, and validate the template against both.', 40,
-    ['Parameter files', 'Validation', 'Secure parameters'], ['Both parameter files validate', 'No secret in either file'],
-    [doc('ARM parameter files', 'azure/azure-resource-manager/templates/parameter-files', 'the file format and the “Parameter precedence” section — why the SSH key is passed on the command line, never stored')],
-    'Free: validation deploys nothing.', [
-    portal(s(9, 'secops', 1), 'Set the parameter values', 'Set teamId, environment, ownerTag and alertEmail.', 'infra/ in the repository', [
-      'dev: environment dev, a small budget.',
-      'prod: environment prod.',
-      'Leave sshPublicKey out: it is supplied at deploy time.',
+      { cmd: 'az group delete -n rg-capstone-team01-dev --yes --no-wait && echo deleting', explain: 'The whole copy goes in one command — that is why everything lives in one group.', sample: 'deleting' },
+    ], ['deleting'], 'A second environment doubles the bill until it is gone.'),
+  ], { cost: { usd: 0.04, per: 'hour', note: 'The dev copy’s VM and balancer while the group exists; deleted inside the task.' } }),
+  T(9, 'secops', 'Parameter files, validation and policy as code', 'Set dev and prod values with no secrets, validate the template against both, then write two deny policies and prove the template passes them.', 50,
+    ['AZ-400 · Develop a security and compliance plan', 'Parameter files and secure parameters', 'Template validation', 'Azure Policy as code'], ['The template validates against both files', 'Two deny policies are assigned and proved', 'No secret in either file'],
+    [doc('ARM parameter files', 'azure/azure-resource-manager/templates/parameter-files', 'the file format and the “Parameter precedence” section — why the SSH key and the database password are passed on the command line, never stored'),
+     doc('Azure Policy definition structure', 'azure/governance/policy/concepts/definition-structure-basics', 'the if/then shape: a condition on fields and aliases, then an effect — deny is the one the pipeline relies on')],
+    'Free: validation deploys nothing, and Azure Policy costs nothing.', [
+    portal(s(9, 'secops', 1), 'Set the parameter values', 'Set teamId, environment, ownerTag, fleetSize per environment.', 'infra/ in the repository', [
+      'dev: environment dev, teamId t01dev, fleetSize 0, createDatabase false, budgetAmount 5.',
+      'prod: environment prod, teamId team01, fleetSize 2, budgetAmount 20.',
+      'No keys: sshPublicKey and dbAdminPassword are passed at deploy time, never written in a file.',
     ], 'Two parameter files differing only where environments differ.', 'Parameters are what changes between environments; everything else stays identical, which is what makes prod predictable.'),
     both(s(9, 'secops', 2), 'Validate both', 'Validate the template with each parameter file.', PORTAL, [
       'Deploy a custom template → Load file → fill parameters → Review + create: “Validation passed” is the check. Do not click Create.',
       'Repeat with the other parameter values.',
     ], [
-      { cmd: 'az deployment group validate -g rg-capstone-team01 --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --query properties.provisioningState -o tsv', explain: 'Validation checks syntax and the values against Azure, deploying nothing. Repeat with the dev file.', sample: 'Succeeded' },
-    ], ['Succeeded'], 'Validation is the cheapest test in the whole course.'),
-    portal(s(9, 'secops', 3), 'Compare with Terraform (optional)', 'Compare ARM with Terraform in two lines.', 'Your notes', [
-      'Terraform: one language across clouds, keeps a state file.',
-      'ARM: Azure only, no state file — Azure is the state.',
-    ], 'Two sentences comparing native templates with Terraform.', 'Knowing why a team picks one over the other is an interview question.', { optional: true }),
-    rec(9, 'secops', 'Parameters', ['Each parameter: dev value, prod value, secret or not.'], 'The environments, side by side.'),
+      { cmd: 'RG=rg-capstone-team01; for F in dev prod; do az deployment group validate -g $RG --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.$F.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --query properties.provisioningState -o tsv; done', explain: 'Validation checks the syntax and the values against Azure — and the policies in scope — deploying nothing. Once per file.', sample: 'Succeeded\nSucceeded' },
+    ], ['Succeeded'], 'Validation is the cheapest test in the whole course, and from the next step it also runs the policies.'),
+    both(s(9, 'secops', 3), 'Write two deny policies and assign them', 'No SSH from the internet; storage HTTPS-only.', PORTAL, [
+      'Policy → Definitions → + Policy definition: scope the subscription, name deny-nsg-ssh-internet, rule: the JSON below. Save. Assign it to rg-capstone-team01.',
+      'Policy → Assignments → Assign policy: rg-capstone-team01, definition “Secure transfer to storage accounts should be enabled”, Parameters: Effect = Deny. Create.',
+    ], [
+      { cmd: 'cat > infra/deny-nsg-ssh-internet.json <<\'EOF\'\n{ "if": { "allOf": [\n  { "field": "type", "equals": "Microsoft.Network/networkSecurityGroups/securityRules" },\n  { "field": "Microsoft.Network/networkSecurityGroups/securityRules/access", "equals": "Allow" },\n  { "field": "Microsoft.Network/networkSecurityGroups/securityRules/direction", "equals": "Inbound" },\n  { "field": "Microsoft.Network/networkSecurityGroups/securityRules/destinationPortRange", "equals": "22" },\n  { "field": "Microsoft.Network/networkSecurityGroups/securityRules/sourceAddressPrefix", "in": [ "*", "Internet", "0.0.0.0/0" ] }\n] }, "then": { "effect": "deny" } }\nEOF\nRGID=$(az group show -n $RG --query id -o tsv); az policy definition create -n deny-nsg-ssh-internet --display-name "Deny SSH from the internet" --mode All --rules @infra/deny-nsg-ssh-internet.json --query name -o tsv; az policy assignment create -n deny-ssh-internet --policy deny-nsg-ssh-internet --scope $RGID --query name -o tsv', explain: 'A rule in Policy’s language: an inbound allow to port 22 from anywhere is refused. The file is committed; the definition and its assignment are created from it.', sample: 'deny-nsg-ssh-internet\ndeny-ssh-internet' },
+      { cmd: 'az policy assignment create -n deny-http-storage --policy 404c3081-a854-4457-ae30-26a93ef643f9 --scope $RGID --params \'{"effect":{"value":"Deny"}}\' --query "parameters.effect.value" -o tsv', explain: 'A built-in definition, assigned with the Deny effect: a storage account that accepts plain HTTP cannot be created here.', sample: 'Deny' },
+    ], ['deny-ssh-internet', 'Deny'], 'Policy as code is the exam’s compliance domain in one file: the rule is reviewed like code, versioned like code, and refuses the request before anything deploys.'),
+    both(s(9, 'secops', 4), 'Prove the policies', 'The template passes; a bad rule is refused.', PORTAL, [
+      'After ten minutes: Deploy a custom template → azuredeploy.json → Review + create: Validation passed.',
+      'nsg-snet-app-team01 → Inbound security rules → Add: source Any, port 22, Allow → Add: “RequestDisallowedByPolicy”.',
+    ], [
+      { cmd: 'sleep 600; az deployment group validate -g $RG --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --query properties.provisioningState -o tsv; az network nsg rule create -g $RG --nsg-name nsg-snet-app-team01 -n Test-SSH-Any --priority 900 --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 22 2>&1 | grep -o RequestDisallowedByPolicy', explain: 'Ten minutes for the assignments to apply, then the two verdicts: the template passes, the bad rule is refused by name.', sample: 'Succeeded\nRequestDisallowedByPolicy' },
+    ], ['Succeeded', 'RequestDisallowedByPolicy'], 'A policy proved by a refusal, not assumed. Week 10 runs the same validation in the pipeline, so a template that breaks a rule never reaches dev.', {
+      fixes: [{ symptom: 'The bad rule is created instead of refused', fix: 'The assignment has not applied yet (up to fifteen minutes). Delete the rule, wait, retry.' }],
+    }),
+    rec(9, 'secops', 'Parameters and policy as code', ['Each parameter: dev value, prod value, secret or not.', 'The two policies, what each checks, and the result of the test.'], 'The environments, side by side, and the rules every deploy must pass.'),
   ]),
 
-  // ── Week 10 — CI/CD ────────────────────────────────────────────────────
-  T(10, 'arch', 'Write and approve the change request', 'Write a change request for one template change, get it reviewed, and approve it in a pull request.', 35,
-    ['Change enablement', 'Risk and rollback'], ['The RFC has risk, rollback and approver'],
-    [doc('About pull requests', 'https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests', 'the review flow — request, approve, merge — and where the description lives')],
-    'Free: GitHub.', [
+  // ── Week 10 — Pipelines with stages and gates ──────────────────────────
+  T(10, 'arch', 'Write the change request and the gates', 'Write a change request for one template change, name the checks that gate dev and prod, and approve it in a pull request.', 35,
+    ['AZ-400 · Design and implement processes and communications', 'Change enablement', 'Stage gates', 'Risk and rollback'], ['The RFC has risk, rollback and approver', 'The gates before dev and prod are named'],
+    [doc('Creating a pull request', 'https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/creating-a-pull-request', 'the description box and the Reviewers panel — the RFC goes in the description, the approver is the reviewer'),
+     doc('Release gates and approvals', 'azure/devops/pipelines/release/approvals/', 'the “Approvals” and “Gates” sections: a human check and an automated check between stages — what the course’s dev and prod environments are a small version of')],
+    'Free: GitHub pull requests.', [
     portal(s(10, 'arch', 1), 'Write the RFC in a pull request', 'Open a pull request with the RFC as its description.', 'github.com — Pull requests', [
-      'The change: e.g. add a tag to every resource.',
+      'The change: e.g. raise the fleet’s autoscale maximum to four.',
       'Risk, rollback plan, and the tests the pipeline runs.',
       'Request review from a teammate; approve only after it passes.',
     ], 'A pull request with a complete RFC, reviewed and approved.', 'The pull request is the change record: who asked, who approved, what ran.'),
-    rec(10, 'arch', 'Request for change', ['Change, risk, rollback plan, approver.'], 'The release record’s front page.'),
+    portal(s(10, 'arch', 2), 'Name the gates', 'Before dev: validate and what-if; before prod: green dev plus a reviewer.', 'The pull request description', [
+      'Gate 1, before dev: validation passed under the policies, a what-if with no Delete.',
+      'Gate 2, before prod: the dev group deployed, the counter answered, and the Architect approved the prod environment.',
+    ], 'Two gates written down, each a list of checks a machine or a person makes.', 'A pipeline without gates is a faster way to break prod. The exam’s pipeline domain is mostly about which check sits before which stage.'),
+    rec(10, 'arch', 'Request for change', ['Change, risk, rollback plan, approver.', 'The gates before dev and before prod.'], 'The release record’s front page.'),
   ]),
-  T(10, 'infra', 'Protect main and add an environment', 'Require a review before anything reaches main, and add a prod environment with a required reviewer.', 30,
-    ['Branch protection', 'Deployment environments'], ['Main requires a review', 'prod needs approval'],
-    [doc('About protected branches', 'https://docs.github.com/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches', '“Require a pull request before merging” and “Require approvals”'),
-     doc('Using environments for deployment', 'https://docs.github.com/actions/deployment/targeting-different-environments/using-environments-for-deployment', 'the “Required reviewers” protection rule')],
-    'Free: GitHub settings.', [
-    portal(s(10, 'infra', 1), 'Protect main', 'Require a pull request and one review on main.', 'Repository → Settings → Branches', [
+  T(10, 'infra', 'Protect main, add the environments and require the checks', 'Require a review and the passing checks before anything reaches main, and add dev and prod environments with a required reviewer on prod.', 35,
+    ['AZ-400 · Design and implement a source control strategy', 'Branch protection', 'Required status checks', 'Deployment environments'], ['Main requires a review and the checks', 'prod needs approval'],
+    [doc('Managing a branch protection rule', 'https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/managing-a-branch-protection-rule', 'the three boxes you tick: require a pull request, required approvals, require status checks'),
+     doc('Using environments for deployment', 'https://docs.github.com/en/actions/deployment/targeting-different-environments/using-environments-for-deployment', 'the “Required reviewers” protection rule and how a job that names the environment waits for it')],
+    'Free: branch protection and environments on a private repository need a GitHub Free organisation or a public repo; a personal private repo needs Pro — use an organisation.', [
+    portal(s(10, 'infra', 1), 'Protect main', 'Require a pull request, one review and the checks.', 'Repository → Settings → Branches', [
       'Add a rule for main.',
-      'Require a pull request, one approval, and passing checks.',
+      'Require a pull request, one approval, and the status check named check (validate and what-if).',
       'Block force pushes.',
-    ], 'Direct pushes to main are refused.', 'Protection turns a convention into a rule the platform enforces.'),
-    portal(s(10, 'infra', 2), 'Add the prod environment', 'Create environment prod with a required reviewer.', 'Repository → Settings → Environments', [
-      'New environment: prod.',
-      'Required reviewers: the Architect.',
-    ], 'Jobs targeting prod wait for approval.', 'The pause before prod is where a human reads the what-if.'),
-    rec(10, 'infra', 'Repository controls', ['The branch rule and the environment.'], 'Evidence of change control.'),
+    ], 'Direct pushes to main are refused, and a red check blocks the merge.', 'Protection turns a convention into a rule the platform enforces.'),
+    portal(s(10, 'infra', 2), 'Add the environments', 'dev with no gate; prod with a required reviewer.', 'Repository → Settings → Environments', [
+      'New environment: dev. New environment: prod.',
+      'prod → Required reviewers: the Architect. Deployment branches: main only.',
+    ], 'Jobs targeting prod wait for approval; jobs targeting dev run at once.', 'The pause before prod is where a human reads the what-if.'),
+    rec(10, 'infra', 'Repository controls', ['The branch rule, the required check, the two environments.'], 'Evidence of change control.'),
   ]),
-  T(10, 'dev', 'Deploy from GitHub Actions', 'Add a workflow that validates, previews and deploys the template on every merge to main.', 50,
-    ['GitHub Actions', 'azure/login', 'azure/arm-deploy'], ['A run deployed the template'],
-    [doc('Deploy ARM templates with GitHub Actions', 'azure/azure-resource-manager/templates/deploy-github-actions', 'the “Workflow file” example with azure/login and azure/arm-deploy — copy its shape, use OIDC not a secret')],
-    'Free: GitHub Actions gives 2,000 minutes a month on private repositories; a deploy uses about three.', [
-    portal(s(10, 'dev', 1), 'Write the workflow', 'Add .github/workflows/deploy.yml.', 'The repository', [
-      'On: push to main, and workflow_dispatch.',
-      'permissions: id-token write, contents read.',
-      'Steps: checkout → azure/login@v2 → azure/arm-deploy@v2 with the prod parameters.',
-      'Use the three IDs the Security task stores as repository variables.',
-    ], 'A workflow file committed through a pull request.', 'id-token: write is what lets the job ask GitHub for a sign-in token instead of using a stored key.'),
-    both(s(10, 'dev', 2), 'Watch it run', 'Merge, then watch the run go green.', 'Repository → Actions · or Cloud Shell', [
-      'Merge the pull request. Open the run: login, then deploy.',
-      'Approve the prod environment when asked.',
-      'Deployments → the resource group → Deployments: the new one reads Succeeded.',
-    ], [
-      { cmd: 'az deployment group list -g rg-capstone-team01 --query "[0].{name:name, state:properties.provisioningState, when:properties.timestamp}" -o table', explain: 'The latest deployment on the group — the pipeline’s.', sample: 'Name         State      When\nazuredeploy  Succeeded  2026-11-03T14:02:07' },
-    ], ['Succeeded'], 'From now on nobody deploys from a laptop.', {
-      fixes: [{ symptom: 'AADSTS70021: no matching federated identity', fix: 'The OIDC task is not finished, or its subject does not match your repo and branch exactly.' }],
+  T(10, 'dev', 'Build the staged pipeline', 'Add a workflow with a check job, a dev deploy and a prod deploy behind the environment gate, keeping the what-if as an artifact.', 55,
+    ['AZ-400 · Design and implement build and release pipelines', 'GitHub Actions jobs and needs', 'Artifacts', 'azure/login and az deployment'], ['The check job validates and runs what-if', 'dev deploys, then prod waits for approval', 'A run deployed both groups'],
+    [doc('Deploy ARM templates with GitHub Actions', 'azure/azure-resource-manager/templates/deploy-github-actions', 'the workflow example: permissions id-token write, azure/login with client-id, tenant-id and subscription-id, then the deployment step'),
+     doc('Storing and sharing data from a workflow', 'https://docs.github.com/en/actions/using-workflows/storing-workflow-data-as-artifacts', 'the upload-artifact step: the what-if listing is kept with the run, so a reviewer reads what was about to change')],
+    'Free: 2,000 GitHub Actions minutes a month on a private repo; a full run uses about ten. The dev copy adds a VM and a balancer at about $0.04 an hour; delete the group after the run.', [
+    portal(s(10, 'dev', 1), 'Write the check job', 'Validate and what-if on every pull request.', 'The repository: .github/workflows/deploy.yml', [
+      'On: pull_request and push to main. permissions: id-token write, contents read.',
+      'Job check: checkout → azure/login@v2 (client-id, tenant-id, subscription-id from repository variables) → az deployment group validate → az deployment group what-if > whatif.txt → upload-artifact.',
+      'Name the job check: that is the status the branch rule requires.',
+    ], 'A pull request shows the check job; a template that breaks a policy turns it red.', 'The first gate is a machine: validation runs the Week 9 policies, and nothing a human has to remember.'),
+    portal(s(10, 'dev', 2), 'Write the dev and prod deploys', 'Two jobs, needs, environments, rollback on error.', 'The same workflow file', [
+      'Job deploy-dev: needs check, environment dev; azure/login; az deployment group create -g rg-capstone-team01-dev with the dev file and --rollback-on-error.',
+      'Job deploy-prod: needs deploy-dev, environment prod; the same step into rg-capstone-team01 with the prod file.',
+      'sshPublicKey comes from a repository secret, passed as a parameter; nothing else is secret.',
+    ], 'A workflow of three jobs: check → deploy-dev → deploy-prod.', 'needs is the pipeline’s spine: prod cannot start until dev finished, and the environment holds it for the reviewer.'),
+    portal(s(10, 'dev', 3), 'Run it end to end', 'Merge; watch dev deploy; approve prod.', 'Repository → Actions', [
+      'Merge the pull request. Open the run: check is green, deploy-dev deploys, deploy-prod waits.',
+      'Download the artifact: the what-if listing. Approve prod; the run finishes green.',
+    ], 'A green three-job run, with the what-if kept as an artifact.', 'From now on nobody deploys from a laptop, and every deploy leaves the preview it was approved on.', {
+      fixes: [
+        { symptom: 'AADSTS70021: no matching federated identity record', fix: 'The OIDC task is not finished, or its subject does not match repo:ORG/REPO:ref:refs/heads/main exactly.' },
+        { symptom: 'Conflict: a name already exists', fix: 'Your hand-built resources share the name. Delete them, or deploy prod with a different teamId.' },
+      ],
     }),
-    rec(10, 'dev', 'Pipeline runs', ['Run number, stages, result.'], 'The release record.'),
-  ]),
-  T(10, 'secops', 'Sign in with OIDC and test rollback', 'Let GitHub sign in to Azure with no stored secret, then break a deploy on purpose and roll it back.', 50,
-    ['Workload identity federation', 'Rollback'], ['No client secret exists', 'A failed deploy was rolled back'],
-    [doc('Connect GitHub to Azure with OpenID Connect', 'azure/developer/github/connect-from-azure-openid-connect', 'the “Add federated credentials” steps and the subject format repo:ORG/REPO:ref:refs/heads/main — one character off and sign-in fails')],
-    'Free: app registrations and federated credentials.', [
-    both(s(10, 'secops', 1), 'Create the federated sign-in', 'Create an app with a federated credential.', PORTAL, [
-      'Microsoft Entra ID → App registrations → New registration: gh-capstone-team01. Register.',
-      'Certificates & secrets → Federated credentials → Add: GitHub Actions, your org, repo capstone-team01, entity Branch main.',
-      'Copy the Application (client) ID and the Directory (tenant) ID.',
+    both(s(10, 'dev', 4), 'Delete the dev copy', 'Delete the dev group until the next run.', PORTAL, [
+      'Resource groups → rg-capstone-team01-dev → Delete resource group → confirm.',
     ], [
-      { cmd: 'APP=$(az ad app create --display-name gh-capstone-team01 --query appId -o tsv); az ad sp create --id $APP -o none', explain: 'An app registration is the identity the pipeline signs in as. Echo $APP to see its ID.', sample: '(no output — the app and its service principal exist)' },
-      { cmd: 'az ad app federated-credential create --id $APP --parameters \'{"name":"main","issuer":"https://token.actions.githubusercontent.com","subject":"repo:ORG/capstone-team01:ref:refs/heads/main","audiences":["api://AzureADTokenExchange"]}\'', explain: 'Trusts tokens GitHub issues for exactly this repo and branch. No secret is created.', sample: '"issuer": "https://token.actions.githubusercontent.com",\n"subject": "repo:ORG/capstone-team01:ref:refs/heads/main"' },
-    ], ['token.actions.githubusercontent.com'], 'A stored key can leak and works from anywhere; a federated token works only for that repo, for minutes.'),
-    both(s(10, 'secops', 2), 'Grant it the resource group only', 'Give the pipeline Contributor on the resource group.', PORTAL, [
-      'rg-capstone-team01 → Access control (IAM) → Add role assignment: Contributor → Members: gh-capstone-team01.',
-      'Save AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID as repository variables (not secrets).',
+      { cmd: 'az group delete -n rg-capstone-team01-dev --yes --no-wait && echo deleting', explain: 'The dev copy is recreated by the next run; between runs it only costs.', sample: 'deleting' },
+    ], ['deleting'], 'A staged pipeline that leaves dev running all month doubles the VM and balancer bill for nothing.'),
+    rec(10, 'dev', 'Pipeline runs', ['Run number, the three stages, result, the artifact.'], 'The release record.'),
+  ], { prerequisites: ['The deploy identity and its federated credential from Security & Ops (this week).'], cost: { usd: 0.04, per: 'hour', note: 'The dev copy’s VM and balancer between the run and the delete.' } }),
+  T(10, 'secops', 'Sign in with OIDC, scope the deploy identity and test rollback', 'Let GitHub sign in as a managed identity with no secret, narrow what it may do, then break a deploy and watch it roll back.', 55,
+    ['AZ-400 · Develop a security and compliance plan', 'Workload identity federation', 'Least-privilege deploy identities', 'Rollback on error'], ['No client secret exists', 'The deploy identity holds Contributor on two groups and nothing else', 'A failed deploy rolled back'],
+    [doc('Connect GitHub to Azure with OpenID Connect', 'azure/developer/github/connect-from-azure-openid-connect', 'the “Add federated credentials” steps and the subject format repo:ORG/REPO:ref:refs/heads/main — one character off and sign-in fails'),
+     doc('Rollback on error', 'azure/azure-resource-manager/templates/rollback-on-error', 'the --rollback-on-error flag: a failed deployment redeploys the last successful one — the UPDATE you will see after the failure')],
+    'Free: managed identities, federated credentials and role assignments. The broken deploy rolls back to the same environment.', [
+    both(s(10, 'secops', 1), 'Create the deploy identity and trust GitHub', 'A managed identity with a federated credential.', PORTAL, [
+      'Managed Identities → Create: rg-capstone-team01, id-deploy-capstone-team01. Create.',
+      'The identity → Federated credentials → Add: GitHub Actions deploying Azure resources, your org, repo capstone-team01, entity Branch main, name github-main. Add.',
+      'Overview: copy the Client ID.',
     ], [
-      { cmd: 'az role assignment create --assignee $APP --role Contributor --scope $(az group show -n rg-capstone-team01 --query id -o tsv) --query roleDefinitionName -o tsv', explain: 'Contributor on one group: the pipeline cannot touch the rest of the subscription. Save AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID as repository variables.', sample: 'Contributor' },
-    ], ['Contributor'], 'These IDs are not secrets — without the federated trust they sign nobody in.'),
-    portal(s(10, 'secops', 3), 'Break it, roll it back', 'Push a broken template, watch it fail, revert.', 'github.com', [
-      'In a branch, misspell a resource type. Merge after review.',
-      'The run fails at deploy; the environment is unchanged.',
+      { cmd: 'RG=rg-capstone-team01; CID=$(az identity create -g $RG -n id-deploy-capstone-team01 --query clientId -o tsv); az identity federated-credential create -g $RG --identity-name id-deploy-capstone-team01 -n github-main --issuer https://token.actions.githubusercontent.com --subject repo:ORG/capstone-team01:ref:refs/heads/main --audiences api://AzureADTokenExchange --query subject -o tsv; echo $CID', explain: 'An identity with no password, and a credential that trusts tokens GitHub issues for exactly this repo and branch.', sample: 'repo:ORG/capstone-team01:ref:refs/heads/main\n3f2a9c1e-…' },
+    ], ['repo:ORG/capstone-team01'], 'A stored secret can leak and works from anywhere; a federated token works only for that repo, for minutes. The Week 9 template holds this same identity.'),
+    both(s(10, 'secops', 2), 'Grant it the two groups only', 'Contributor on prod and dev; the IDs as variables.', PORTAL, [
+      'rg-capstone-team01 → Access control (IAM) → Add role assignment: Contributor → Managed identity → id-deploy-capstone-team01. Repeat on rg-capstone-team01-dev (create it first).',
+      'GitHub → Settings → Variables: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID (variables, not secrets).',
+    ], [
+      { cmd: 'PID=$(az identity show -g $RG -n id-deploy-capstone-team01 --query principalId -o tsv); az group create -n $RG-dev -l eastus -o none; for G in $RG $RG-dev; do az role assignment create --assignee-object-id $PID --assignee-principal-type ServicePrincipal --role Contributor --scope $(az group show -n $G --query id -o tsv) --query scope -o tsv; done', explain: 'Contributor on exactly two groups: the pipeline cannot touch the rest of the subscription, and cannot grant access.', sample: '/subscriptions/…/resourceGroups/rg-capstone-team01\n/subscriptions/…/resourceGroups/rg-capstone-team01-dev' },
+    ], ['rg-capstone-team01-dev'], 'The three IDs are not secrets — without the federated trust they sign nobody in. The scope is the fence.'),
+    both(s(10, 'secops', 3), 'Read what it may do, and narrow it', 'List its assignments; remove anything wider.', PORTAL, [
+      'Microsoft Entra ID → Enterprise applications → id-deploy-capstone-team01 → Azure role assignments: two Contributor rows, both resource groups.',
+      'Anything at subscription scope, or Owner anywhere: Remove.',
+    ], [
+      { cmd: 'az role assignment list --assignee $PID --all --query "[].[roleDefinitionName, scope]" -o tsv; az role assignment list --assignee $PID --all --query "[?!contains(scope, \'resourceGroups\')].id" -o tsv | xargs -r az role assignment delete --ids', explain: 'Every grant the identity holds, then any grant above a resource group removed. The list should read two Contributor rows and nothing else.', sample: 'Contributor\t/subscriptions/…/resourceGroups/rg-capstone-team01\nContributor\t/subscriptions/…/resourceGroups/rg-capstone-team01-dev' },
+    ], ['Contributor'], 'The pipeline’s identity is the most powerful identity in the subscription that nobody logs in as. The exam asks you to scope it to what it deploys, not to what it might need.'),
+    portal(s(10, 'secops', 4), 'Break it, watch it roll back', 'Push a broken template, watch it roll back, revert.', 'github.com, then rg-capstone-team01-dev → Deployments', [
+      'In a branch, set a value validation cannot catch (a VM size the region lacks). Merge after review.',
+      'The run fails at deploy-dev; Deployments shows the failed one and, right after, the previous one redeployed; prod never ran.',
       'Revert the commit; the next run is green.',
-    ], 'A red run followed by a green revert.', 'A rollback plan you have never run is a guess.'),
-    rec(10, 'secops', 'Keyless access and rollback', ['How the pipeline signs in, no keys stored, the rollback test.'], 'Evidence the pipeline is both safe and reversible.'),
+    ], 'A red run stopped at dev, a rollback, then a green revert.', 'Rollback on error redeploys the last good deployment by itself, and the staged pipeline kept the failure out of prod — you proved both, not assumed them.'),
+    rec(10, 'secops', 'Keyless access and rollback', ['How the pipeline signs in, no keys stored, the identity’s two grants, the rollback test.'], 'Evidence the pipeline is safe, scoped and reversible.'),
   ]),
 
-  // ── Week 11 — Governance ───────────────────────────────────────────────
-  T(11, 'arch', 'Review cost by service', 'Break this month’s cost down by service and name one action for each.', 30,
-    ['Cost analysis', 'Cost optimisation'], ['Three services with spend and an action'],
-    [doc('Explore costs with cost analysis', 'azure/cost-management-billing/costs/quick-acm-cost-analysis', 'Group by Service name, and the Budgets view that shows how close to the alert you are')],
-    'Free: cost analysis.', [
+  // ── Week 11 — Release strategies and observability ─────────────────────
+  T(11, 'arch', 'Review cost by service and set the service levels', 'Break this month’s cost down by service with an action for each, then write the three service-level indicators the dashboard will watch.', 35,
+    ['AZ-400 · Implement an instrumentation strategy', 'Cost analysis', 'SLIs and SLOs', 'Error budgets'], ['Three services with spend and an action', 'Three SLIs with targets'],
+    [doc('Explore costs with cost analysis', 'azure/cost-management-billing/costs/quick-acm-cost-analysis', 'Group by Service name, and the Budgets view that shows how close to the alert you are'),
+     doc('Load Balancer metrics', 'azure/load-balancer/load-balancer-standard-diagnostics', 'the metrics table: Health probe status (DipAvailability) and Data path availability (VipAvailability) — the two availability signals the course’s SLIs are built from')],
+    'Free: cost analysis and metrics.', [
     both(s(11, 'arch', 1), 'Break down the cost', 'Group this month’s cost by service.', PORTAL, [
       'Cost Management → Cost analysis, scope rg-capstone-team01, group by Service name.',
-      'Check the budget: how close to the $4 alert?',
+      'Check the budget: how close to the alert?',
       'For each service, one action: keep, reduce, remove.',
     ], [
-      { cmd: 'az consumption budget list --query "[].{name:name, amount:amount, spent:currentSpend.amount}" -o table', explain: 'Where the budget stands, from the shell.', sample: 'Name                    Amount  Spent\nbudget-capstone-team01  5.0     3.12' },
+      { cmd: 'az consumption budget list --query "[].[name, amount, currentSpend.amount]" -o tsv; az consumption usage list --start-date $(date +%Y-%m-01) --end-date $(date +%F) --query "[].[instanceName, pretaxCost]" -o tsv | sort -k2 -nr | head -5', explain: 'Where the budget stands, then the five resources that cost most this month.', sample: 'budget-capstone-team01\t20.0\t6.12\nlb-web-team01\t4.1200\nvm-tools-team01\t1.9800' },
     ], ['budget-capstone-team01'], 'Every line has an owner and a decision — that is FinOps in one table.'),
-    rec(11, 'arch', 'Cost by service', ['Three or more services, spend, action.'], 'The cost section of the governance report.'),
+    portal(s(11, 'arch', 2), 'Write the service levels', 'Availability, latency, errors: an indicator, a target, a window.', 'The document', [
+      'Availability: health probe status ≥ 1 healthy instance for 99.5% of five-minute windows a month.',
+      'Latency: Function HttpResponseTime p95 under 500 ms. Errors: Http5xx under 1% of requests.',
+      'The error budget: how many bad minutes a month the targets allow, and who decides to spend it.',
+    ], 'Three SLIs with targets and the monthly error budget.', 'An SLO turns “is it up?” into a number a dashboard can show and a release can be judged against — the canary in App’s task is swapped back when it eats the budget.'),
+    rec(11, 'arch', 'Cost by service and service levels', ['Three or more services, spend, action.', 'Three SLIs, targets, the error budget.'], 'The cost section of the governance report, and the levels the dashboard watches.'),
   ]),
-  T(11, 'infra', 'Require the owner tag with Policy', 'Assign the built-in “Require a tag on resources” policy for owner, and prove it denies an untagged resource.', 40,
-    ['Azure Policy', 'Deny effects'], ['The policy is assigned', 'An untagged create is denied'],
-    [doc('Assign a policy (portal)', 'azure/governance/policy/assign-policy-portal', 'the “Create a policy assignment” steps: scope, the definition picker, and the Parameters tab where the tag name goes')],
-    'Free: Azure Policy costs nothing.', [
-    both(s(11, 'infra', 1), 'Assign the policy', 'Assign “Require a tag on resources” for owner.', PORTAL, [
-      'Policy → Assignments → Assign policy. Scope rg-capstone-team01.',
-      'Definition: search “Require a tag on resources”. Parameters: tag name owner. Review + create.',
+  T(11, 'infra', 'Blue/green the fleet with a second pool and a cut-over', 'Build a green scale set beside blue, test it on a second port, cut the production rule over to green, retire blue, park.', 60,
+    ['AZ-400 · Design and implement build and release pipelines', 'Blue/green deployments', 'Backend pools and rules', 'Instant rollback'], ['Green answered on the test port', 'The cut-over served every request from green', 'Blue is retired and the fleet parked'],
+    [doc('Load Balancer rules', 'azure/load-balancer/manage-rules-how-to', 'the “Update a load-balancing rule” section: the backend pool a rule points at is one property — the knob a blue/green cut-over turns'),
+     doc('Deployment strategies', 'azure/architecture/framework/devops/release-engineering-cd', 'the blue-green and canary definitions: two complete environments and a switch, versus a slice of traffic')],
+    'Blue and green together are up to four B1s for about half an hour (about $0.03 an hour beyond the free one) plus the balancer; park both at zero at the end. Stop or delete anything you started.', [
+    both(s(11, 'infra', 1), 'Build green beside blue', 'A green scale set on v2, in its own pool.', PORTAL, [
+      'lb-web-team01 → Backend pools → Add: bepool-green.',
+      'Virtual machine scale sets → Create vmss-web-green-team01 like Week 6: Flexible, B1s, zones 1 and 2, snet-web, no public IP.',
+      'Custom data writes “web v2 from zone”; load balancer lb-web-team01, pool bepool-green; 2 instances. Create.',
     ], [
-      { cmd: 'RGID=$(az group show -n rg-capstone-team01 --query id -o tsv); az policy assignment create -n require-owner-tag --policy 871b6d14-10aa-478d-b590-94f262ecfa99 --scope $RGID --params \'{"tagName":{"value":"owner"}}\'', explain: 'The GUID is the built-in policy. From now on, resources without an owner tag are refused.', sample: '"displayName": null,\n"name": "require-owner-tag",\n"enforcementMode": "Default"' },
-    ], ['require-owner-tag'], 'A standard that is only written down is a suggestion; Policy makes it a rule.'),
-    both(s(11, 'infra', 2), 'Prove it denies', 'Try to create an untagged storage account.', PORTAL, [
-      'Storage accounts → Create in rg-capstone-team01 with no tags → Review + create.',
-      'Validation fails with RequestDisallowedByPolicy (allow a few minutes after assigning).',
+      { cmd: 'RG=rg-capstone-team01; az network lb address-pool create -g $RG --lb-name lb-web-team01 -n bepool-green -o none; sed "s/web OK/web v2/" fleet-init.yaml > fleet-init-v2.yaml; az vmss create -g $RG -n vmss-web-green-team01 --orchestration-mode Flexible --image Ubuntu2204 --vm-sku Standard_B1s --instance-count 2 --zones 1 2 --vnet-name vnet-capstone-team01 --subnet snet-web --public-ip-address "" --lb lb-web-team01 --backend-pool-name bepool-green --admin-username azureuser --generate-ssh-keys --custom-data fleet-init-v2.yaml --platform-fault-domain-count 1 --tags owner=team01 --query "[orchestrationMode, sku.capacity]" -o tsv', explain: 'A second pool, then a second fleet whose only difference is the page it serves, registered to the green pool. Blue keeps serving.', sample: 'Flexible\n2' },
+    ], ['Flexible'], 'A release is a new scale set, never an edit to running instances: blue keeps serving while green is built beside it.'),
+    both(s(11, 'infra', 2), 'Wake blue and open a test door to green', 'Blue at two; port 8080 → green.', PORTAL, [
+      'vmss-web-team01 → Scaling → Instance count 2 → Save.',
+      'lb-web-team01 → Load balancing rules → Add http-test: frontend fe, port 8080 → backend 80, pool bepool-green, probe http. Save.',
     ], [
-      { cmd: 'az storage account create -g rg-capstone-team01 -n sttagtest$RANDOM --sku Standard_LRS 2>&1 | grep -o RequestDisallowedByPolicy', explain: 'Policy can take a few minutes to apply. Retry if the account is created — then delete it.', sample: 'RequestDisallowedByPolicy' },
-    ], ['RequestDisallowedByPolicy'], 'Enforcement proved by a denial, not assumed.'),
-    rec(11, 'infra', 'Policy', ['The policy and the result of the test.'], 'Governance the platform enforces for you.'),
+      { cmd: 'az vmss scale -g $RG -n vmss-web-team01 --new-capacity 2 -o none; az network lb rule create -g $RG --lb-name lb-web-team01 -n http-test --protocol Tcp --frontend-port 8080 --backend-port 80 --frontend-ip-name fe --backend-pool-name bepool-green --probe-name http --query provisioningState -o tsv; sleep 150; IP=$(az network public-ip show -g $RG -n pip-lb-web-team01 --query ipAddress -o tsv); for i in 1 2 3 4 5 6 7 8 9 10; do curl -s --max-time 5 http://$IP:8080; done | cut -d" " -f1-2 | sort | uniq -c', explain: 'Blue awake on port 80; a test rule on 8080 that reaches only green. Ten requests on the test port all say v2.', sample: 'Succeeded\n     10 web v2' },
+    ], ['web v2'], 'Two complete fleets, one address: the test port lets the team read green with real traffic before any visitor does.'),
+    both(s(11, 'infra', 3), 'Cut over, count, keep the way back', 'Point the http rule at green; every answer is v2.', PORTAL, [
+      'lb-web-team01 → Load balancing rules → http → Backend pool: bepool-green. Save. Open the address ten times: every page says v2.',
+      'The rollback is the same edit with bepool: write it in the record.',
+    ], [
+      { cmd: 'az network lb rule update -g $RG --lb-name lb-web-team01 -n http --backend-pool-name bepool-green --query "backendAddressPool.id" -o tsv | sed "s|.*/||"; sleep 20; for i in 1 2 3 4 5 6 7 8 9 10; do curl -s --max-time 5 -o /dev/null -w "%{http_code} " http://$IP; echo; done | sort | uniq -c; for i in 1 2 3 4 5; do curl -s http://$IP; done | cut -d" " -f1-2 | sort | uniq -c', explain: 'One property changed on the production rule; then ten status codes (all 200, none failed) and five pages (all v2).', sample: 'bepool-green\n     10 200 \n      5 web v2' },
+    ], ['bepool-green', '200', 'web v2'], 'Blue/green on the exam is this one edit: the rollback is the same command with the pools reversed, and it takes seconds, not a redeploy.'),
+    both(s(11, 'infra', 4), 'Retire blue and park', 'Blue to zero; green parked; the test rule removed.', PORTAL, [
+      'vmss-web-team01 → Scaling → 0. vmss-web-green-team01 → Scaling → 0. lb-web-team01 → Load balancing rules → http-test → Delete.',
+    ], [
+      { cmd: 'az vmss scale -g $RG -n vmss-web-team01 --new-capacity 0 -o none; az vmss scale -g $RG -n vmss-web-green-team01 --new-capacity 0 -o none; az network lb rule delete -g $RG --lb-name lb-web-team01 -n http-test; az vmss list -g $RG --query "[].[name, sku.capacity]" -o tsv', explain: 'Both fleets parked, the test door closed. The green set is next week’s blue.', sample: 'vmss-web-green-team01\t0\nvmss-web-team01\t0' },
+    ], ['0'], 'The release is over when the old fleet is parked and nothing that bills by the hour is left running.'),
+    rec(11, 'infra', 'Release strategy', ['Blue/green: the two sets, the test port, requests counted before and after the cut-over, failed requests (none).'], 'The governance report shows a release that could be undone in seconds.'),
+  ], { cost: { usd: 0.056, per: 'hour', note: 'Up to three billed B1s and the balancer while blue and green run together; both parked at the end.' } }),
+  T(11, 'dev', 'Canary the counter with a deployment slot and a metric', 'Add a staging slot, deploy version 2 to it, call it thirty times, and let the error metric decide whether it is swapped into production.', 50,
+    ['AZ-400 · Design and implement build and release pipelines', 'Deployment slots', 'Slot swap', 'Metric-driven promotion'], ['A staging slot runs version 2', 'The slot’s Http5xx metric is read after thirty calls', 'The slot was swapped in, or kept out, by the metric'],
+    [doc('Azure Functions deployment slots', 'azure/azure-functions/functions-deployment-slots', 'the “Swap slots” section and the Consumption plan note: one slot, and a swap that is also the rollback'),
+     doc('Azure Monitor metrics for App Service', 'azure/app-service/web-sites-monitor', 'the Http5xx and HttpResponseTime rows of the metrics table — read per slot, which is what judges the canary')],
+    'Free: one slot on the Consumption plan, and metrics, cost nothing.', [
+    both(s(11, 'dev', 1), 'Add the staging slot', 'A slot cloned from production.', PORTAL, [
+      'The Function App → Deployment → Deployment slots → Add slot: staging, clone settings from production. Add.',
+    ], [
+      { cmd: 'RG=rg-capstone-team01; FN=$(az functionapp list -g $RG --query "[0].name" -o tsv); az functionapp deployment slot create -g $RG -n $FN --slot staging --configuration-source $FN --query "[name, state]" -o tsv', explain: 'A second copy of the app with the same settings and its own URL, at …-staging.azurewebsites.net.', sample: 'func-capstone-team01-a1b2c3/staging\tRunning' },
+    ], ['staging'], 'A slot is a release you can point at and return to; production is whatever the last swap left there.'),
+    both(s(11, 'dev', 2), 'Deploy version 2 to the slot', 'Add a response header in the slot only.', PORTAL, [
+      'The slot → Functions → visitorCount → Code + Test: add headers: { "X-Release": "v2" } to the returned object. Save.',
+      'Open the slot URL /api/visitorCount: a count, and X-Release: v2 in the response headers (DevTools → Network).',
+    ], [
+      { cmd: 'curl -s -D - -o /dev/null https://$FN-staging.azurewebsites.net/api/visitorCount | grep -i "x-release"', explain: 'Version 2 answers on the slot’s own address with the new header; production is untouched.', sample: 'x-release: v2' },
+    ], ['x-release'], 'Version 2 exists beside version 1 and takes no visitor yet: the canary is the slot, and nothing has changed for production.'),
+    both(s(11, 'dev', 3), 'Call it thirty times and read the metric', 'Thirty calls; Http5xx on the slot.', PORTAL, [
+      'Call the slot URL thirty times (reload). The slot → Monitoring → Metrics: Http 5xx, Sum, last 30 minutes: 0.',
+    ], [
+      { cmd: 'for i in $(seq 30); do curl -s -o /dev/null https://$FN-staging.azurewebsites.net/api/visitorCount; done; sleep 120; SLOT=$(az functionapp deployment slot list -g $RG -n $FN --query "[0].id" -o tsv); az monitor metrics list --resource $SLOT --metric Http5xx --aggregation Total --interval PT30M --offset 30m --query "value[0].timeseries[0].data[-1].total" -o tsv', explain: 'Thirty real calls, then the slot’s own error count over the window. Zero is the verdict that promotes.', sample: '0.0' },
+    ], ['0'], 'This metric is the promotion trigger: in production an alert on it would swap the slot back without a human.'),
+    both(s(11, 'dev', 4), 'Promote or keep it out', 'Zero errors: swap; errors: leave the slot where it is.', PORTAL, [
+      'The Function App → Deployment slots → Swap: staging → production. Swap.',
+      'Production now answers with X-Release: v2; a rollback is the same Swap again.',
+    ], [
+      { cmd: 'if [ "$(az monitor metrics list --resource $SLOT --metric Http5xx --aggregation Total --interval PT30M --offset 30m --query "value[0].timeseries[0].data[-1].total" -o tsv)" = "0.0" ]; then az functionapp deployment slot swap -g $RG -n $FN --slot staging --target-slot production; echo swapped; else echo "kept out"; fi; curl -s -D - -o /dev/null https://$FN.azurewebsites.net/api/visitorCount | grep -i "x-release"', explain: 'Zero errors swaps the slot into production and the header now comes from the production address; any error leaves version 2 in the slot.', sample: 'swapped\nx-release: v2' },
+    ], ['swapped', 'x-release'], 'Promote or roll back is one swap either way; the decision came from a metric, not a feeling.'),
+    rec(11, 'dev', 'Release strategy', ['Canary: the slot, version 2, the thirty calls, the metric, swapped or kept out.'], 'The governance report shows a release judged by a metric.'),
   ]),
-  T(11, 'dev', 'Query the Activity Log', 'Find who changed what in the resource group this week from the Activity Log.', 35,
-    ['Activity Log', 'Audit trails'], ['Three audit events recorded'],
-    [doc('Azure Monitor activity log', 'azure/azure-monitor/essentials/activity-log', 'the “View the activity log” section and the filters — Operation, Event initiated by, and the 90-day retention')],
-    'Free: the Activity Log keeps 90 days at no cost.', [
-    both(s(11, 'dev', 1), 'Read the audit trail', 'List this week’s write operations.', PORTAL, [
-      'rg-capstone-team01 → Activity log. Timespan: last 7 days.',
-      'Read the Operation name, Event initiated by and Time columns.',
+  T(11, 'secops', 'Build the dashboard, require the tag with Policy and read the audit trail', 'Build a shared dashboard of the service levels, assign the owner-tag policy and prove it denies, then find who changed what in the Activity Log.', 55,
+    ['AZ-400 · Implement an instrumentation strategy', 'Azure dashboards', 'Azure Policy deny effects', 'Activity Log'], ['A shared dashboard shows the three SLIs', 'An untagged resource is denied', 'Three audit events recorded'],
+    [doc('Create a dashboard in the Azure portal', 'azure/azure-portal/azure-portal-dashboards', 'the “Create a dashboard” steps, the Metrics tile, and “Share”: a shared dashboard is a resource in the group, so the template can carry it'),
+     doc('Assign a policy (portal)', 'azure/governance/policy/assign-policy-portal', 'the “Create a policy assignment” steps: scope, the definition picker, and the Parameters tab where the tag name goes'),
+     doc('Azure Monitor activity log', 'azure/azure-monitor/essentials/activity-log', 'the “View the activity log” section and the filters — Operation, Event initiated by, and the 90-day retention')],
+    'Free: dashboards, Azure Policy and 90 days of Activity Log cost nothing.', [
+    both(s(11, 'secops', 1), 'Build and share the dashboard', 'Probe status, response time, 5xx, on one screen.', PORTAL, [
+      'Dashboard → New dashboard → Blank: dash-capstone-team01. Add Metrics tiles: lb-web-team01 Health probe status; the Function HttpResponseTime (p95) and Http5xx. Save.',
+      'Share → resource group rg-capstone-team01 → Publish. The dashboard is now a resource the template can hold.',
     ], [
-      { cmd: 'az monitor activity-log list -g rg-capstone-team01 --offset 7d --query "[?contains(operationName.value, \'write\')].{time:eventTimestamp, who:caller, op:operationName.value}" -o table | head -8', explain: 'Every control-plane change is logged with who did it. Kept 90 days free.', sample: 'Time                  Who                    Op\n2026-11-10T14:02:07Z  team01-infra@school    Microsoft.Authorization/policyAssignments/write' },
-    ], ['Microsoft.'], 'The audit log is how an incident answers “who did this, and when”.'),
-    rec(11, 'dev', 'Audit events', ['Three events: when, who, operation.'], 'Evidence the environment is auditable.'),
-  ]),
-  T(11, 'secops', 'Review posture in Defender for Cloud', 'Read the free Defender for Cloud recommendations, rank three, and own their remediation.', 40,
-    ['Cloud security posture', 'Secure score'], ['Three owned findings'],
-    [doc('Review security recommendations', 'azure/defender-for-cloud/review-security-recommendations', 'the Recommendations page: severity, affected resource, and the Remediation steps tab')],
-    'Free: the foundational CSPM plan of Defender for Cloud costs nothing; the paid plans are not needed.', [
-    both(s(11, 'secops', 1), 'Read the recommendations', 'Open the free recommendations and the secure score.', PORTAL, [
-      'Defender for Cloud → Recommendations. Note the secure score.',
-      'Filter to rg-capstone-team01. Pick three: severity, affected resource, fix.',
+      { cmd: 'RG=rg-capstone-team01; cat > dash.json <<\'EOF\'\n{ "lenses": { "0": { "order": 0, "parts": { "0": { "position": { "x": 0, "y": 0, "colSpan": 6, "rowSpan": 3 }, "metadata": { "inputs": [], "type": "Extension/HubsExtension/PartType/MarkdownPart", "settings": { "content": { "settings": { "content": "# Service levels\\n- Availability: health probe status, 99.5% of 5-minute windows\\n- Latency: HttpResponseTime p95 < 500 ms\\n- Errors: Http5xx < 1%", "title": "capstone-team01", "subtitle": "add the three metric tiles beside this card" } } } } } } } }, "metadata": { "model": { "timeRange": { "value": { "relative": { "duration": 24, "timeUnit": 1 } }, "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange" } } } }\nEOF\naz portal dashboard create -g $RG -n dash-capstone-team01 --input-path dash.json --tags owner=team01 --query name -o tsv', explain: 'The shared dashboard as a resource, with the service levels written on its first card; the metric tiles are added in the portal and saved back into it.', sample: 'dash-capstone-team01' },
+    ], ['dash-capstone-team01'], 'The dashboard is the service levels made visible: when the on-call opens it at 2 a.m. the three numbers the Architect wrote are the first thing they see.'),
+    both(s(11, 'secops', 2), 'Assign the policy and prove it denies', 'Require the owner tag; an untagged create fails.', PORTAL, [
+      'Policy → Assignments → Assign policy: scope rg-capstone-team01, definition “Require a tag on resources”, tag name owner. Review + create.',
+      'After a few minutes: Storage accounts → Create in rg-capstone-team01 with no tags → Review + create: RequestDisallowedByPolicy.',
     ], [
-      { cmd: 'az security assessment list --query "[?status.code==\'Unhealthy\'].{name:displayName, severity:metadata.severity}" -o table | head -6', explain: 'The same findings from the shell.', sample: 'Name                                          Severity\nManagement ports should be closed on your VMs  High' },
-    ], ['Severity'], 'Free CSPM is enough to find real misconfigurations. Paid plans add threat detection.'),
-    rec(11, 'secops', 'Posture findings', ['Three findings: severity, owner, remediation.'], 'Open findings become the handover’s risks.'),
+      { cmd: 'RGID=$(az group show -n $RG --query id -o tsv); az policy assignment create -n require-owner-tag --policy 871b6d14-10aa-478d-b590-94f262ecfa99 --scope $RGID --params \'{"tagName":{"value":"owner"}}\' --query name -o tsv; sleep 600; az storage account create -g $RG -n sttagtest$RANDOM --sku Standard_LRS 2>&1 | grep -o RequestDisallowedByPolicy', explain: 'The built-in definition assigned, ten minutes for it to apply, then a creation without the tag refused by name.', sample: 'require-owner-tag\nRequestDisallowedByPolicy' },
+    ], ['require-owner-tag', 'RequestDisallowedByPolicy'], 'Policy denies at the request, before anything exists: the exam contrasts this with tools that only record a finding after the fact.', {
+      fixes: [{ symptom: 'The account is created instead of refused', fix: 'The assignment has not applied yet (up to fifteen minutes). Delete the account, wait, retry.' }],
+    }),
+    both(s(11, 'secops', 3), 'Read the audit trail', 'List this week’s write operations.', PORTAL, [
+      'rg-capstone-team01 → Activity log. Timespan: last 7 days. Read Operation name, Event initiated by and Time.',
+    ], [
+      { cmd: 'az monitor activity-log list -g $RG --offset 7d --query "[?contains(operationName.value, \'write\') || contains(operationName.value, \'swap\')].[eventTimestamp, caller, operationName.value]" -o tsv | head -8', explain: 'Every control-plane change is logged with who did it; this week it includes the rule cut-over and the slot swap. Kept 90 days free.', sample: '2026-11-10T14:02:07Z\tteam01-infra@school.edu\tMicrosoft.Network/loadBalancers/write\n2026-11-10T14:40:51Z\tteam01-dev@school.edu\tMicrosoft.Web/sites/slots/slotsswap/action' },
+    ], ['Microsoft.'], 'The audit log is how an incident answers “who did this, and when” — and this week it says who cut the rule over and who swapped the slot.'),
+    rec(11, 'secops', 'Policy, dashboard and audit', ['The dashboard and its tiles.', 'The policy and the result of the test.', 'Three events: when, who, operation.'], 'Governance the platform enforces for you, and the picture the on-call reads.'),
   ]),
 
-  // ── Week 12 — Handover ─────────────────────────────────────────────────
+  // ── Week 12 — Incident, compliance and handover ────────────────────────
   T(12, 'arch', 'Assemble the handover package', 'Catalogue every service, list the open risks, and sign the package off.', 45,
-    ['Service transition', 'Risk registers'], ['Four services catalogued', 'Three risks', 'Signed off'],
+    ['AZ-400 · Design and implement processes and communications', 'Service transition', 'Risk registers', 'Release notes and runbooks'], ['Six services catalogued', 'Three risks', 'Signed off'],
     [doc('Operational excellence pillar', 'azure/well-architected/operational-excellence/', 'the checklist — the items on documentation, runbooks and handover are what the package must cover')],
-    'Free: a document.', [
+    'Free: a document. Nothing is deployed.', [
     portal(s(12, 'arch', 1), 'Catalogue the services', 'List each service with its URL, owner and runbook.', 'The document', [
-      'Website, API, database, tools VM.',
-      'Each points to the runbook section that fixes it.',
-    ], 'A four-row service catalogue.', 'The catalogue is the map a new team uses on day one.'),
+      'Website, API, the fleet behind the balancer, the database (opt-in), the queue, the pipeline.',
+      'Each points to the runbook section that fixes it, and to the dashboard tile that shows it.',
+    ], 'A six-row service catalogue.', 'The catalogue is the map a new team uses on day one.'),
     portal(s(12, 'arch', 2), 'List the risks', 'Turn open findings into risks.', 'The document', [
-      'Start from Week 11’s open findings.',
-      'Add: the public IP, the counter race, one-region hosting.',
+      'Start from Week 11’s recommendations and the error budget spent.',
+      'Add: the balancer serves HTTP only, the database is opt-in, the SSH policy covers port 22 alone, one region.',
     ], 'Three or more risks, each with a mitigation.', 'Handing over known risks honestly is what makes a handover trustworthy.'),
     rec(12, 'arch', 'Service catalogue, Risk register, Sign-off', ['Catalogue, risks, and the sign-off.'], 'The capstone — the package you defend.'),
   ]),
-  T(12, 'infra', 'Rebuild the environment from the template', 'Rebuild the whole environment in a new resource group from the template, time it, and delete it.', 50,
-    ['Disaster recovery by redeploy', 'Idempotent templates'], ['The rebuild Succeeded', 'Time recorded', 'Recovery group deleted'],
-    [doc('Deploy resources from a custom template (portal)', 'azure/azure-resource-manager/templates/deploy-portal', 'the deployment’s Overview page after Create — its start and end times are your recovery time')],
-    'Free to deploy; the recovery copy runs a second VM and public IP — delete the group the same session.', [
+  T(12, 'infra', 'Rebuild from the template and automate the restart', 'Rebuild the environment in a new group from the template, time it, run an Automation runbook against the tools VM, delete the group.', 55,
+    ['AZ-400 · Design and implement build and release pipelines', 'Disaster recovery by redeploy', 'Azure Automation runbooks', 'Runbooks as code'], ['The rebuild Succeeded, timed', 'A runbook job Completed', 'The recovery group is deleted'],
+    [doc('Deploy resources from a custom template (portal)', 'azure/azure-resource-manager/templates/deploy-portal', 'the deployment’s Overview page after Create — its start and end times are your recovery time'),
+     doc('Azure Automation runbooks', 'azure/automation/automation-runbook-types', 'the PowerShell runbook type and the “Managed identities” note: the runbook signs in as the account, with no credential stored')],
+    'The recovery copy is a second environment for the minutes it exists: the VM and balancer at about $0.04 an hour, fleet parked; Automation’s first 500 minutes a month are free. Delete the group the same session. Stop or delete anything you started.', [
     both(s(12, 'infra', 1), 'Rebuild it', 'Deploy the template into a new group, timed.', PORTAL, [
       'Resource groups → Create rg-capstone-team01-recover. Note the time.',
-      'Deploy a custom template → Load file azuredeploy.json → prod parameters → Create.',
+      'Deploy a custom template → Load file azuredeploy.json → prod parameters, teamId t01rec, fleetSize 0 → Create.',
       'Deployments → the deployment: Succeeded; note the duration.',
     ], [
-      { cmd: 'REC=rg-capstone-team01-recover; date +%T; az group create -n $REC -l eastus -o none; az deployment group create -g $REC --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --query properties.provisioningState -o tsv; date +%T', explain: 'The whole company, rebuilt from one file. The two times are your recovery time.', sample: '15:10:02\nSucceeded\n15:19:47' },
+      { cmd: 'REC=rg-capstone-team01-recover; date +%T; az group create -n $REC -l eastus -o none; az deployment group create -g $REC --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --parameters teamId=t01rec fleetSize=0 sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --query properties.provisioningState -o tsv; date +%T', explain: 'The whole company, rebuilt from one file. teamId t01rec keeps names from clashing. The two times are your recovery time.', sample: '15:10:02\nSucceeded\n15:21:47' },
     ], ['Succeeded'], 'If it can be rebuilt from code, it can be recovered from anything.'),
-    both(s(12, 'infra', 2), 'Delete the recovery copy', 'Delete the recovery group.', PORTAL, [
-      'Resource groups → rg-capstone-team01-recover → Delete resource group.',
+    both(s(12, 'infra', 2), 'Run an Automation runbook', 'Restart the tools VM from a published runbook.', PORTAL, [
+      'Automation Accounts → Create aa-capstone-team01 in rg-capstone-team01-recover, system-assigned identity on.',
+      'The account → Identity → Azure role assignments → Virtual Machine Contributor on the group.',
+      'Runbooks → Create: Restart-ToolsVm, PowerShell 7.2; paste Connect-AzAccount -Identity; Restart-AzVM -ResourceGroupName rg-capstone-team01-recover -Name vm-tools-t01rec. Publish → Start → Output.',
     ], [
-      { cmd: 'az group delete -n rg-capstone-team01-recover --yes --no-wait && echo deleting', explain: 'Keep the evidence, not the bill.', sample: 'deleting' },
+      { cmd: 'AA=aa-capstone-team01; az automation account create -g $REC -n $AA -o none; AAID=$(az automation account show -g $REC -n $AA --query id -o tsv); PID=$(az resource update --ids $AAID --set identity.type=SystemAssigned --query identity.principalId -o tsv); sleep 30; az role assignment create --assignee-object-id $PID --assignee-principal-type ServicePrincipal --role "Virtual Machine Contributor" --scope $(az group show -n $REC --query id -o tsv) -o none; echo granted', explain: 'The account, its own identity, and one role on one group: the runbook restarts VMs here and nothing else.', sample: 'granted' },
+      { cmd: 'printf \'Connect-AzAccount -Identity | Out-Null\\nRestart-AzVM -ResourceGroupName "%s" -Name "vm-tools-t01rec"\\n\' $REC > restart.ps1; az automation runbook create -g $REC --automation-account-name $AA -n Restart-ToolsVm --type PowerShell72 -o none; az automation runbook replace-content -g $REC --automation-account-name $AA -n Restart-ToolsVm --content @restart.ps1; az automation runbook publish -g $REC --automation-account-name $AA -n Restart-ToolsVm -o none; JOB=$(az automation runbook start -g $REC --automation-account-name $AA -n Restart-ToolsVm --query name -o tsv); sleep 180; az automation job show -g $REC --automation-account-name $AA -n $JOB --query status -o tsv', explain: 'The runbook as a file, created, published and started; three minutes later its job status: Completed, and the VM restarted.', sample: 'Completed' },
+    ], ['granted', 'Completed'], 'The exam asks for repairs nobody types by hand: a runbook is the repair as code, signed in by identity, and an alert can start it.'),
+    both(s(12, 'infra', 3), 'Delete the recovery copy', 'Delete the recovery group, Automation account included.', PORTAL, [
+      'Resource groups → rg-capstone-team01-recover → Delete resource group → type the name → Delete.',
+    ], [
+      { cmd: 'az group delete -n rg-capstone-team01-recover --yes --no-wait && echo deleting', explain: 'Keep the evidence, not the bill. The Automation account goes with the group.', sample: 'deleting' },
     ], ['deleting'], 'Clean-up is part of the drill.'),
-    rec(12, 'infra', 'Scenario outcomes', ['Recover: rebuild from the template — time and result.'], 'Proof the template is the environment.'),
-  ]),
-  T(12, 'dev', 'Fix an app failure through CI', 'Break the Function’s configuration by hand, then restore it by re-running the pipeline — no portal fixes.', 45,
-    ['Configuration drift', 'Redeploy as a fix'], ['The API failed, then recovered through CI'],
-    [doc('Manually run a workflow', 'https://docs.github.com/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow', 'the “Run workflow” button — it only appears when the workflow has workflow_dispatch')],
-    'Free: a setting change and one pipeline run.', [
+    rec(12, 'infra', 'Scenario outcomes', ['Recover: rebuild from the template — time and result.', 'The runbook, its role and its job result.'], 'Proof the template is the environment, and that the repair is a document.'),
+  ], { cost: { usd: 0.04, per: 'hour', note: 'The recovery copy’s VM and balancer while the group exists; deleted inside the task.' } }),
+  T(12, 'dev', 'Fix an app failure through CI', 'Break the Function’s configuration by hand, prove the drift with what-if, then restore it by re-running the pipeline — no portal fixes.', 45,
+    ['AZ-400 · Design and implement build and release pipelines', 'Configuration drift', 'Redeploy as a fix'], ['The API failed, drift was detected, and CI recovered it'],
+    [doc('What-if deployments', 'azure/azure-resource-manager/templates/deploy-what-if', 'the Modify change type with the property path — the proof the portal change is drift'),
+     doc('Manually run a workflow', 'https://docs.github.com/en/actions/managing-workflow-runs-and-deployments/managing-workflow-runs/manually-running-a-workflow', 'the “Run workflow” button — it only appears when the workflow has workflow_dispatch')],
+    'Free: a setting change, one what-if and one pipeline run (about ten of the 2,000 free minutes).', [
     both(s(12, 'dev', 1), 'Break it', 'Point the Function at a wrong Cosmos endpoint.', PORTAL, [
-      'Function App → Environment variables → CosmosConnection__accountEndpoint → set https://wrong.documents.azure.com:443/ → Apply.',
+      'Function App → Environment variables → CosmosConnection__accountEndpoint → https://wrong.documents.azure.com:443/ → Apply.',
       'Open the function URL: a server error.',
     ], [
-      { cmd: 'az functionapp config appsettings set -g rg-capstone-team01 -n func-capstone-team01-XXXX --settings CosmosConnection__accountEndpoint=https://wrong.documents.azure.com:443/ -o none; sleep 30; curl -s -o /dev/null -w "%{http_code}\\n" https://func-capstone-team01-XXXX.azurewebsites.net/api/visitorCount', explain: 'The API now fails with a server error.', sample: '500' },
+      { cmd: 'RG=rg-capstone-team01; FN=$(az functionapp list -g $RG --query "[0].name" -o tsv); az functionapp config appsettings set -g $RG -n $FN --settings CosmosConnection__accountEndpoint=https://wrong.documents.azure.com:443/ -o none; sleep 30; curl -s -o /dev/null -w "%{http_code}\\n" https://$FN.azurewebsites.net/api/visitorCount', explain: 'The API now fails with a server error. The dashboard’s 5xx tile shows it before anyone reports it.', sample: '500' },
     ], ['500'], 'This is drift: the running environment no longer matches the code.'),
-    portal(s(12, 'dev', 2), 'Fix it through CI', 'Re-run the deploy workflow, then retest.', 'Repository → Actions → deploy → Run workflow', [
+    both(s(12, 'dev', 2), 'Prove the drift', 'what-if names the setting and both values.', PORTAL, [
+      'Deploy a custom template → azuredeploy.json → prod parameters → Review + create: the Function App shows Modify on appSettings.',
+    ], [
+      { cmd: 'az deployment group what-if -g $RG --template-file infra/azuredeploy.json --parameters @infra/azuredeploy.parameters.prod.json --parameters sshPublicKey="$(cat ~/.ssh/id_rsa.pub)" --no-pretty-print 2>/dev/null | grep -B 1 -A 1 "wrong.documents"', explain: 'The template says one endpoint, the live app another: a Modify with both values, found by the same command the pipeline runs.', sample: '~ properties.siteConfig.appSettings[9].value: "https://wrong.documents.azure.com:443/" => "https://cosmos-capstone-team01-a1b2c3.documents.azure.com:443/"' },
+    ], ['=>'], 'Detection by comparison, not by memory: the pipeline would have shown the same line in its artifact.'),
+    portal(s(12, 'dev', 3), 'Fix it through CI', 'Re-run the deploy workflow, then retest.', 'Repository → Actions → deploy → Run workflow', [
       'Run the workflow on main; approve prod.',
       'The template resets the setting.',
       'Open the function URL again: a count, not an error.',
-    ], 'The API returns a count again after the pipeline run.', 'Redeploying the known-good template fixes drift without anyone touching the portal.'),
+    ], 'The API returns a count again after the pipeline run.', 'Redeploying the known-good template fixes drift without anyone touching the portal — and leaves a run that says so.'),
     rec(12, 'dev', 'Scenario outcomes', ['App failure fixed through CI — time and result.'], 'The second scenario of the handover.'),
   ]),
-  T(12, 'secops', 'Contain a security incident', 'Open SSH to the internet on purpose, detect it, contain it, and run the final security checklist.', 45,
-    ['Detection', 'Containment', 'Final checklist'], ['The rule was detected and removed', 'Checklist complete'],
-    [doc('Azure Monitor activity log', 'azure/azure-monitor/essentials/activity-log', 'filter Operation to “Create or Update Security Rule” — the entry names who opened the port and when')],
-    'Free: an NSG rule and the Activity Log. The VM stays deallocated, so nothing is exposed.', [
-    both(s(12, 'secops', 1), 'Inject the incident', 'Add an SSH rule open to the internet.', PORTAL, [
-      'nsg-snet-app-team01 → Inbound security rules → Add: source Any, port 22, TCP, Allow, priority 900, name Bad-SSH-Any.',
+  T(12, 'secops', 'Contain a security incident and write the post-mortem', 'Open RDP to the internet on purpose, detect it in the Activity Log, contain it, write the timeline, root cause and prevention, widen the policy.', 50,
+    ['AZ-400 · Develop a security and compliance plan', 'Detection', 'Containment', 'Post-incident review'], ['The rule was detected and removed', 'A post-mortem with a timeline and a prevention', 'The policy now denies 3389 too'],
+    [doc('Azure Monitor activity log', 'azure/azure-monitor/essentials/activity-log', 'filter Operation to “Create or Update Security Rule” — the entry names who opened the port and when'),
+     doc('Azure Policy definition structure', 'azure/governance/policy/concepts/definition-structure-basics', 'the “in” condition: a list of values one field may match — how a rule for one port becomes a rule for several')],
+    'Free: an NSG rule, the Activity Log and a policy update. The VM stays deallocated, so nothing is exposed.', [
+    both(s(12, 'secops', 1), 'Inject the incident', 'Add an RDP rule open to the internet.', PORTAL, [
+      'nsg-snet-app-team01 → Inbound security rules → Add: source Any, port 3389, TCP, Allow, priority 900, name Bad-RDP-Any. Add.',
+      'It is created: the Week 9 policy covers port 22 only.',
     ], [
-      { cmd: 'az network nsg rule create -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 -n Bad-SSH-Any --priority 900 --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 22 --query access -o tsv', explain: 'The exact misconfiguration attackers scan for. The VM is deallocated, so nothing is exposed.', sample: 'Allow' },
-    ], ['Allow'], 'A realistic incident: one bad rule, easy to add, easy to miss.'),
+      { cmd: 'RG=rg-capstone-team01; az network nsg rule create -g $RG --nsg-name nsg-snet-app-team01 -n Bad-RDP-Any --priority 900 --access Allow --protocol Tcp --source-address-prefixes "*" --destination-port-ranges 3389 --query access -o tsv', explain: 'The exact misconfiguration attackers scan for, and it goes through: the deny policy names port 22 alone. The VM is deallocated, so nothing is exposed.', sample: 'Allow' },
+    ], ['Allow'], 'A realistic incident: one bad rule, easy to add, easy to miss, and a control that almost caught it.'),
     both(s(12, 'secops', 2), 'Detect and contain', 'Find it in the Activity Log, then delete it.', PORTAL, [
       'rg-capstone-team01 → Activity log → the “Create or Update Security Rule” entry: who, when.',
-      'nsg-snet-app-team01 → Inbound security rules → Bad-SSH-Any → Delete.',
+      'nsg-snet-app-team01 → Inbound security rules → Bad-RDP-Any → Delete.',
     ], [
-      { cmd: 'az monitor activity-log list -g rg-capstone-team01 --offset 1h --query "[?contains(operationName.value, \'securityRules/write\')].caller" -o tsv | head -1', explain: 'Who created the rule, and when — the first question of any incident.', sample: 'team01-secops@school.edu' },
-      { cmd: 'az network nsg rule delete -g rg-capstone-team01 --nsg-name nsg-snet-app-team01 -n Bad-SSH-Any && echo contained', explain: 'Containment: remove the exposure first, investigate after.', sample: 'contained' },
-    ], ['contained'], 'Contain, then learn. Prevention: a policy that denies rules from * to 22.'),
-    rec(12, 'secops', 'Scenario outcomes, Sign-off', ['Security incident contained — time and result.', 'Final checklist: no open ports, no keys, budget alerting.'], 'The third scenario, and the security sign-off.'),
+      { cmd: 'az monitor activity-log list -g $RG --offset 1h --query "[?contains(operationName.value, \'securityRules/write\')].[eventTimestamp, caller]" -o tsv | head -1', explain: 'Who created the rule, and when — the first question of any incident.', sample: '2026-12-01T10:02:07Z\tteam01-secops@school.edu' },
+      { cmd: 'az network nsg rule delete -g $RG --nsg-name nsg-snet-app-team01 -n Bad-RDP-Any && echo contained', explain: 'Containment: remove the exposure first, investigate after.', sample: 'contained' },
+    ], ['contained'], 'Contain, then learn. The time between the two commands is the number the post-mortem is built around.'),
+    both(s(12, 'secops', 3), 'Write the post-mortem and widen the rule', 'Timeline, root cause, prevention; the policy covers 3389.', 'The document, then Azure Policy', [
+      'Timeline: opened, detected, contained — from the Activity Log and your notes; time to detect, time to contain.',
+      'Root cause: a portal change outside the pipeline, a policy written for one port. Blast radius; prevention, owner, date.',
+      'Policy → Definitions → deny-nsg-ssh-internet → Edit definition: destinationPortRange in [22, 3389, *]. Save.',
+    ], [
+      { cmd: 'sed -i \'s/"destinationPortRange", "equals": "22"/"destinationPortRange", "in": [ "22", "3389", "*" ]/\' infra/deny-nsg-ssh-internet.json; az policy definition update -n deny-nsg-ssh-internet --rules @infra/deny-nsg-ssh-internet.json --query "policyRule.if.allOf[3].in" -o tsv', explain: 'The prevention, as code: the same file widened to three values, committed, and the definition updated from it.', sample: '22\t3389\t*' },
+    ], ['3389'], 'The exam ends every incident the same way: a timeline, a root cause and a change that stops the repeat — not a name. Here the change is one line in a policy file.'),
+    rec(12, 'secops', 'Scenario outcomes, Post-mortem, Sign-off', ['Security incident contained — time and result.', 'The post-mortem: timeline, root cause, prevention, owner.', 'Final checklist: no open ports, no keys, budget alerting, fleet parked.'], 'The third scenario, the lesson, and the security sign-off.'),
   ]),
+
 ];
 
 const WEEKS = cloudWeeks(P, PLANS);
@@ -1499,13 +1627,13 @@ const AZ_BLOCKS = {
     weeks: [9, 12] as [number, number],
     id: 'azure-devops',
     title: 'Azure DevOps Capstone',
-    description: 'Write the company’s Azure as an ARM template, deploy it from GitHub Actions with no stored keys, govern it with Policy, and hand it over.',
+    description: 'Run the company’s Azure the DevOps way: a tested template with drift detection and policy as code, a staged OIDC pipeline, blue/green and slot releases judged by metrics, incidents with post-mortems.',
     certification: 'AZ-400',
     level: 'expert' as const,
     audience: 'Four roles codify, automate, govern and hand over the environment. Week 0 deploys it if your team is new.',
     framework: 'AZ_400',
     authoredFramework: 'AZ_900',
-    intro: 'Starts from the Administrator environment and adds the template, what-if and a dev deployment, a reviewed pipeline with OIDC, Policy, audit and posture, and the handover under pressure.',
+    intro: 'Starts from the Administrator environment and adds what-if as a drift detector and two deny policies, a check → dev → prod pipeline signed in by a federated identity, a blue/green cut-over and a slot canary judged by metrics, a shared dashboard, a rebuild and a runbook, an incident with its post-mortem, and the handover against AZ-400.',
   },
 };
 

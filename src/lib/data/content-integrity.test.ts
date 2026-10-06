@@ -25,7 +25,7 @@ import { costsFor } from '../docs/costs';
 
 const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 /** R106: the associate and professional cloud courses are being rewritten against their exams; coverage is enforced as each lands. */
-const PENDING_REWRITE = new Set(['azure-devops']);
+const PENDING_REWRITE = new Set<string>([]);
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
   return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));

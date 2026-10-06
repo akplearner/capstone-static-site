@@ -41,6 +41,9 @@ const TRAFFIC: CloudEdge[] = [
   { from: 'func', to: 'visitsQueue', kind: 'traffic', label: 'queue the visit', week: 7 },
   { from: 'visitsQueue', to: 'func', kind: 'traffic', label: 'trigger: ledger', week: 7 },
   { from: 'vmss', to: 'autoscale', kind: 'traffic', label: 'average CPU', week: 8 },
+  { from: 'lb', to: 'lbGreenPool', kind: 'traffic', label: 'test port, then cut-over', week: 11 },
+  { from: 'func', to: 'funcSlot', kind: 'traffic', label: 'canary, then swap', week: 11 },
+  { from: 'lb', to: 'dashboard', kind: 'traffic', label: 'probe status · 5xx', week: 11 },
   { from: 'github', to: 'deployIdentity', kind: 'traffic', label: 'OIDC sign-in', week: 10 },
   { from: 'github', to: 'webStorage', kind: 'traffic', label: 'deploy site (OIDC)', week: 10 },
   { from: 'github', to: 'func', kind: 'traffic', label: 'deploy code (OIDC)', week: 10 },
@@ -79,6 +82,7 @@ export const AZURE_TOPOLOGY: CloudTopology = {
     { id: 'kvRoleFunc', icon: 'role', label: 'Secrets User', purpose: 'Lets the function read secrets, nothing more', x: 622, y: 150, week: 5, small: true },
 
     { id: 'func', icon: 'function', label: 'Function app', name: 'func-capstone-team01', purpose: 'The visitor-counter API and the ledger that drains the queue', x: 270, y: 285, week: 3 },
+    { id: 'funcSlot', icon: 'function', label: 'Slot: staging', purpose: 'Where the canary runs before a swap makes it production', x: 200, y: 240, week: 11, small: true },
     { id: 'plan', icon: 'plan', label: 'Plan (Y1)', x: 200, y: 345, week: 3, small: true, detail: true },
     { id: 'funcStorage', icon: 'storage', label: 'Runtime storage', x: 345, y: 345, week: 3, small: true, detail: true },
     { id: 'visitsQueue', icon: 'queue', label: 'Queue: visits', name: 'on the runtime storage', purpose: 'Decouples the counter from the ledger: the API answers now, the write happens when it can', x: 420, y: 285, week: 7 },
@@ -93,10 +97,12 @@ export const AZURE_TOPOLOGY: CloudTopology = {
     { id: 'http5xxAlert', icon: 'alert', label: 'Alert: Http5xx', name: 'alert-func-5xx', purpose: 'Fires when the API returns a server error', x: 480, y: 458, week: 4 },
     { id: 'actionGroup', icon: 'notify', label: 'Action group', name: 'email the team', purpose: 'Who gets told when the alert fires', x: 600, y: 458, week: 4 },
     { id: 'funcDiag', icon: 'diag', label: 'Diagnostics', x: 220, y: 565, week: 4, small: true, detail: true },
+    { id: 'dashboard', icon: 'apm', label: 'Dashboard', name: 'the service levels', purpose: 'Probe status, p95 response time and 5xx on one screen', x: 480, y: 560, week: 11 },
 
     { id: 'lb', icon: 'lb', label: 'Load balancer', name: 'lb-web-team01 · Standard', purpose: 'One address for the fleet; a health probe decides which instance answers', x: 700, y: 222, week: 6 },
-    { id: 'lbPip', icon: 'publicip', label: 'Public IP', name: 'zone-redundant', purpose: 'The balancer’s address, present in every zone', x: 770, y: 222, week: 6, small: true },
-    { id: 'bastion', icon: 'bastion', label: 'Azure Bastion', name: 'Developer SKU · free', purpose: 'A browser SSH session to the VM with no open port', x: 870, y: 222, week: 6 },
+    { id: 'lbPip', icon: 'publicip', label: 'Public IP', name: 'zone-redundant', purpose: 'The balancer’s address, present in every zone', x: 765, y: 222, week: 6, small: true },
+    { id: 'lbGreenPool', icon: 'route', label: 'Green pool', purpose: 'Where the next release registers while blue still serves; the rule is cut over to it', x: 830, y: 236, week: 11, small: true },
+    { id: 'bastion', icon: 'bastion', label: 'Azure Bastion', name: 'Developer SKU · free', purpose: 'A browser SSH session to the VM with no open port', x: 920, y: 222, week: 6 },
 
     { id: 'nsgApp', icon: 'firewall', label: 'NSG', name: 'nsg-snet-app', purpose: 'Rules for the app subnet: nothing inbound from the internet', x: 930, y: 329, week: 2, small: true },
     { id: 'nic', icon: 'nic', label: 'NIC', x: 720, y: 341, week: 2, small: true, detail: true },

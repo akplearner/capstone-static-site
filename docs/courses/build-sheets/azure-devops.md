@@ -42,7 +42,7 @@ You start with:
 | Reader (group) | The team’s group can look at everything and change nothing | — |
 | Budget $5 | The $5 guardrail, set before anything can cost money | — |
 
-## Week 1 — Infrastructure as Code
+## Week 1 — Infrastructure as code, tested
 
 > Nothing new is built. The environment comes from the template: drift detected, linted, checked against policy, previewed, deployed to dev.
 
@@ -50,7 +50,7 @@ Nothing new is built this week; the process is drawn over the picture.
 
 **Process — Infrastructure as code, tested:** github → rg (what-if → deploy to dev); admin → rg (detect drift, lint, policy as code).
 
-## Week 2 — CI/CD
+## Week 2 — Pipelines with stages and gates
 
 > New: the deploy identity. GitHub signs in by OIDC, checks, deploys dev, waits for a reviewer, deploys prod; a failure stops at dev.
 
@@ -64,19 +64,22 @@ This week adds:
 
 **Process — Pipelines with stages and gates:** github → deployIdentity (sign in by OIDC, no secret); github → webStorage (check → dev → gate → prod); github → func (under a change request).
 
-## Week 3 — Governance
+## Week 3 — Release strategies and observability
 
-> New: the green target group and the dashboard. A blue/green shift and a canary, judged by alarms; the tag rule and the audit trail.
+> New: the green pool and the dashboard. A blue/green shift and a canary, judged by metrics; the tag rule and the audit trail.
 
 This week adds:
 
 | Part | Purpose | Recorded in |
 | --- | --- | --- |
+| Slot: staging | Where the canary runs before a swap makes it production | — |
+| Dashboard · the service levels | Probe status, p95 response time and 5xx on one screen | — |
+| Green pool | Where the next release registers while blue still serves; the rule is cut over to it | — |
 | Policy: owner tag | Refuses any new resource without an owner tag | — |
 
-**Process — Release strategies and observability:** lb → vmss (blue/green by weight); func → http5xxAlert (canary: alias weights, an alarm); tagPolicy → admin (who changed what, when).
+**Process — Release strategies and observability:** lb → vmss (blue/green: test port, cut-over); func → http5xxAlert (canary: a slot, a metric, a swap); tagPolicy → admin (who changed what, when).
 
-## Week 4 — Handover
+## Week 4 — Incident, compliance and handover
 
 > Nothing new is built. Rebuild from code, a runbook, drift fixed through CI, an incident with its post-mortem, then the handover package.
 

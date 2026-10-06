@@ -135,6 +135,7 @@ const SOURCE = `{
     "pgName": "[toLower(format('pg-capstone-{0}-{1}', parameters('teamId'), variables('suffix')))]",
     "pgDnsZoneName": "[format('{0}.private.postgres.database.azure.com', variables('pgName'))]",
     "visitsQueueName": "visits",
+    "dashboardName": "[format('dash-capstone-{0}', parameters('teamId'))]",
     "withDatabase": "[and(greaterOrEquals(parameters('throughWeek'), 7), parameters('createDatabase'))]",
     "pipName": "[format('pip-vm-tools-{0}', parameters('teamId'))]",
     "nicName": "[format('nic-vm-tools-{0}', parameters('teamId'))]",
@@ -795,6 +796,67 @@ const SOURCE = `{
       }
     },
     {
+      "comments": "[w11] lbGreenPool — the second backend pool: the next release registers here while the first pool still serves; the rule is cut over to it.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 11)]",
+      "type": "Microsoft.Network/loadBalancers/backendAddressPools",
+      "apiVersion": "2023-11-01",
+      "name": "[format('{0}/bepool-green', variables('lbName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/loadBalancers', variables('lbName'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "comments": "[w11] funcSlot — the Function App's staging slot: the canary runs here and is swapped into production when its metric says so.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 11)]",
+      "type": "Microsoft.Web/sites/slots",
+      "apiVersion": "2023-12-01",
+      "name": "[format('{0}/staging', variables('funcName'))]",
+      "location": "[parameters('location')]",
+      "tags": "[variables('tags')]",
+      "kind": "functionapp",
+      "identity": { "type": "SystemAssigned" },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', variables('funcName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('planName'))]",
+        "httpsOnly": true,
+        "siteConfig": { "minTlsVersion": "1.2", "ftpsState": "Disabled" }
+      }
+    },
+    {
+      "comments": "[w11] dashboard — the shared dashboard the on-call opens: the service levels on its first card, the metric tiles beside it.",
+      "condition": "[greaterOrEquals(parameters('throughWeek'), 11)]",
+      "type": "Microsoft.Portal/dashboards",
+      "apiVersion": "2020-09-01-preview",
+      "name": "[variables('dashboardName')]",
+      "location": "[parameters('location')]",
+      "tags": "[union(variables('tags'), createObject('hidden-title', 'capstone service levels'))]",
+      "properties": {
+        "lenses": [
+          {
+            "order": 0,
+            "parts": [
+              {
+                "position": { "x": 0, "y": 0, "colSpan": 6, "rowSpan": 3 },
+                "metadata": {
+                  "inputs": [],
+                  "type": "Extension/HubsExtension/PartType/MarkdownPart",
+                  "settings": { "content": { "settings": { "content": "# Service levels\\n- Availability: health probe status, 99.5% of 5-minute windows\\n- Latency: HttpResponseTime p95 < 500 ms\\n- Errors: Http5xx < 1%", "title": "capstone", "subtitle": "the three numbers the on-call reads first" } } }
+                }
+              }
+            ]
+          }
+        ],
+        "metadata": {
+          "model": {
+            "timeRange": { "value": { "relative": { "duration": 24, "timeUnit": 1 } }, "type": "MsPortalFx.Composition.Configuration.ValueTypes.TimeRange" }
+          }
+        }
+      }
+    },
+    {
       "comments": "[w5] kv — Key Vault in RBAC mode. The vault is infrastructure; secret values never go in a template.",
       "condition": "[greaterOrEquals(parameters('throughWeek'), 5)]",
       "type": "Microsoft.KeyVault/vaults",
@@ -1160,6 +1222,7 @@ export const AZURE_IAC: IacBundle = {
     'Bastion is the Developer SKU: free, no AzureBastionSubnet, a browser session only. It is not offered in every region; where it is missing, Run Command remains the admin path.',
     'The fleet is parked: fleetSize defaults to 0, so the scale set and the balancer exist but no instance bills. Set fleetSize=2 (the prod file does) to serve; autoscale is enabled only then and holds the fleet between one and three.',
     'The fleet serves its page with what the Ubuntu image already has (python3), so an instance needs no outbound internet to come up — a Standard Load Balancer gives none unless you add an outbound rule or a NAT gateway.',
+    'Week 11 adds the release machinery: a second backend pool the rule can be cut over to, a staging slot the canary swaps from, and the shared dashboard. None of them bills.',
     'The database exists only with createDatabase=true and a dbAdminPassword passed on the command line. Zone-redundant HA is two D2ds_v4 nodes (about $0.30 an hour) and is not offered in every region; the course creates it by hand, stops it and deletes it in Week 8. A stopped server restarts by itself after seven days.',
     'Backups stay as disk snapshots (Week 8). Azure Backup and a Recovery Services vault cost about $5 a month per VM, so the course records the trade-off instead of deploying the vault.',
   ],
