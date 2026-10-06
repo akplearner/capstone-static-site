@@ -1,4 +1,4 @@
-import type { Course, Step, Task, WeekDef } from '../../types';
+import type { Course, Step, Task, TaskCost, WeekDef } from '../../types';
 import { CLOUD_FILES, CLOUD_FORMS, cloudTask, cloudWeeks, setupWeek, sliceCourse, stepKit, type WeekPlan } from './cloudKit';
 
 /**
@@ -23,9 +23,6 @@ const P = 'aws';
 
 /** Finds the tools instance by its Name tag, so no step needs an id typed in. */
 const IID = 'IID=$(aws ec2 describe-instances --filters Name=tag:Name,Values=ec2-tools-team01 Name=instance-state-name,Values=running,stopped --query "Reservations[0].Instances[0].InstanceId" --output text)';
-/** Runs a shell script on the instance through Session Manager and prints its output. */
-const ssm = (script: string) =>
-  `CID=$(aws ssm send-command --instance-ids $IID --document-name AWS-RunShellScript --parameters 'commands=["${script}"]' --query Command.CommandId --output text); sleep 6; aws ssm get-command-invocation --command-id $CID --instance-id $IID --query StandardOutputContent --output text`;
 
 const PLANS: WeekPlan[] = [
   { n: 1, title: 'Cloud concepts and governance', theme: 'Who manages what, a budget, a network', objective: 'Say who manages what, set the standard and the $5 budget, then lay the network everything else sits in.',
@@ -40,18 +37,18 @@ const PLANS: WeekPlan[] = [
   { n: 4, title: 'Monitor, govern, pay', theme: 'Watch it, break it, fix it, audit it', objective: 'Watch cost and errors, read Trusted Advisor, find the change in CloudTrail, and write one failure up as an incident.',
     milestone: 'An alarm emails on Lambda errors, Trusted Advisor is read, the change is found in CloudTrail, one incident is recorded, and spend is reported.',
     labels: ['Report the cost, and read Trusted Advisor and the support plans', 'Alarm on Lambda errors', 'Find a failure in CloudWatch Logs', 'Find who changed it in CloudTrail and write the incident record'] },
-  { n: 5, title: 'Identity', theme: 'Least privilege, no secrets', objective: 'Give people and the function exactly the access they need, and no broader.',
-    milestone: 'The Lambda role reaches one table only, a group holds ReadOnlyAccess, and a denial is proved.',
-    labels: ['Write the access matrix', 'Create a read-only group', 'Scope the Lambda role to the table', 'Prove an access is denied'] },
-  { n: 6, title: 'Networking', theme: 'Segment it, close the door', objective: 'Add a private subnet, remove SSH entirely, and administer through Session Manager.',
-    milestone: 'A private subnet with no internet route, no inbound rule on the security group, admin through Session Manager.',
-    labels: ['Write the network design document', 'Add the private subnet', 'Trace the request paths', 'Remove SSH and use Session Manager'] },
-  { n: 7, title: 'Server Admin', theme: 'Volumes, patches, baselines', objective: 'Run the instance like production: right-size it, add a volume, patch it, and baseline it.',
-    milestone: 'An EBS volume is mounted at /data, patches are installed, the baseline and runbook are written, and the instance is stopped.',
-    labels: ['Decide the instance size', 'Attach and mount an EBS volume', 'Patch with Patch Manager', 'Baseline the instance and write the runbook'] },
-  { n: 8, title: 'Backup and Recovery', theme: 'Prove you can get it back', objective: 'Set recovery targets, restore a volume and a web file, and time a recovery drill.',
-    milestone: 'RPO and RTO per asset, a volume restored from a snapshot, a deleted file recovered, and a timed drill.',
-    labels: ['Set RPO and RTO per asset', 'Restore a volume from a snapshot', 'Recover a deleted web file', 'Run a timed recovery drill'] },
+  { n: 5, title: 'Secure by design', theme: 'Least privilege, every layer', objective: 'Give people and functions exactly the access they need, encrypt the secrets, fence the API, find what is exposed.',
+    milestone: 'The Lambda role reaches one table, a SecureString sits under the team key, a foreign origin is refused, a denial is proved and the analyzer’s findings are owned.',
+    labels: ['Write the access matrix and the layers', 'Parameter Store and a customer-managed key', 'Scope the Lambda role and lock CORS', 'Prove a denial and find exposed access'] },
+  { n: 6, title: 'Resilient compute', theme: 'Two zones, one address', objective: 'Design, build and fence a two-zone fleet behind a load balancer, with a private path and no internet.',
+    milestone: 'ADR-002 is costed, a launch template and a group run two instances in two zones behind an ALB, the fleet is parked, and a private instance was managed through endpoints alone.',
+    labels: ['Design the two-zone fleet and record the decision', 'Build the fleet across two zones', 'Put the fleet behind a load balancer', 'Give the private subnet a path without the internet'] },
+  { n: 7, title: 'Data and storage', theme: 'The right store, the right class', objective: 'Choose the data store, run an encrypted Multi-AZ database, decouple the counter with a queue, and age objects out.',
+    milestone: 'ADR-003 is costed, a Multi-AZ PostgreSQL ran encrypted and private and left a snapshot, a queue with a dead-letter queue feeds a ledger, and a lifecycle rule ages the audit bucket.',
+    labels: ['Choose the data store and the storage classes', 'Create a Multi-AZ PostgreSQL database', 'Queue the visits and write a ledger', 'Lock the data down and age it out'] },
+  { n: 8, title: 'Scale, monitor, recover', theme: 'Prove it survives', objective: 'Set recovery targets, scale on demand, lose an instance and a database and get both back, and read the bill.',
+    milestone: 'RPO and RTO per asset, a policy scaled the fleet and replaced a lost instance, a file and the database were restored, the drill was timed, and nothing bills by the hour.',
+    labels: ['Set RPO, RTO and the scaling policy', 'Scale on CPU and prove self-healing', 'Recover a web file and the database', 'Run a timed drill and tear down'] },
   { n: 9, title: 'Infrastructure as Code', theme: 'The environment, as a file', objective: 'Read the environment as CloudFormation, fill the starter, preview a change set, deploy to dev.',
     milestone: 'The starter template is complete, a change set previewed it, the dev stack deployed, and the parameters are recorded.',
     labels: ['Map the template to the diagram', 'Inventory everything with the CLI', 'Fill the starter and deploy to dev', 'Write parameter files and validate'] },
@@ -67,7 +64,7 @@ const PLANS: WeekPlan[] = [
 ];
 
 /** One role's task for one week. */
-function T(week: number, role: string, title: string, objective: string, minutes: number, learn: string[], done: string[], docs: Task['docs'], freeTier: string, steps: Step[], extra: { prerequisites?: string[]; tools?: string[] } = {}): Task {
+function T(week: number, role: string, title: string, objective: string, minutes: number, learn: string[], done: string[], docs: Task['docs'], freeTier: string, steps: Step[], extra: { prerequisites?: string[]; tools?: string[]; cost?: TaskCost } = {}): Task {
   return cloudTask({ id: `${P}-w${week}-${role}`, role, week, title, objective, minutes, file: CLOUD_FILES[week - 1], frameworks: FW, learn, done, docs, freeTier, steps, ...extra });
 }
 const s = (week: number, role: string, n: number) => `${P}-w${week}-${role}-s${n}`;
@@ -93,8 +90,6 @@ const STOP = (week: number, role: string): Step =>
   ], ['stopped'], 'Free-tier hours count while it runs: 750 a month covers one instance running all month, not one you forgot plus one you rebuilt.',
   out('Instance state reads “Stopped” for ec2-tools-team01.', doc('Stop and start your instance', 'AWSEC2/latest/UserGuide/Stop_Start.html', 'the “What happens when you stop an instance” list: the public IP is released, the disk is kept')));
 
-const START = `${IID}; aws ec2 start-instances --instance-ids $IID -o text > /dev/null; aws ec2 wait instance-status-ok --instance-ids $IID`;
-const START_CLICK = 'EC2 → Instances → ec2-tools-team01 → Instance state → Start instance; wait for “Running”.';
 
 const TASKS: Task[] = [
   // ── Week 1 — Cloud concepts and governance ─────────────────────────────
@@ -680,12 +675,12 @@ def lambda_handler(event, context):
     rec(4, 'secops', 'Incident record', ['Symptom, evidence, root cause, fix; who made the change.'], 'Week 12 runs this loop again under time pressure.'),
   ], { tools: ['AWS console', 'CloudShell'], prerequisites: ['The break-and-fix times from App & DevOps, this week.'] }),
 
-  // ── Week 5 — Identity ──────────────────────────────────────────────────
-  T(5, 'arch', 'Write the access matrix', 'List every principal, its policies and scope, with a justification for each.', 35,
-    ['Least privilege', 'Managed and inline policies'], ['Three or more justified grants'],
+  // ── Week 5 — Secure by design ──────────────────────────────────────────
+  T(5, 'arch', 'Write the access matrix and the security design', 'List every principal with its scope and justification, then decide the layers a request crosses and what each one refuses.', 40,
+    ['SAA-C03 · Design Secure Architectures', 'Least privilege', 'Defence in depth', 'Managed and inline policies'], ['Three or more justified grants', 'The layers are named with what each refuses'],
     [doc('Policies and permissions in IAM', 'IAM/latest/UserGuide/access_policies.html', 'the “Identity-based policies” section and the difference between managed and inline — your matrix has a column for each'),
-     doc('Getting credential reports', 'IAM/latest/UserGuide/id_credentials_getting-report.html', 'the “Download report” button and the columns mfa_active and access_key_1_active — the two that decide a risky row')],
-    'Free: IAM and its reports cost nothing.', [
+     doc('Security pillar — Well-Architected', 'wellarchitected/latest/security-pillar/welcome.html', 'the “Design principles” list: apply security at all layers, and keep people away from data')],
+    'Free: IAM, its reports and the Well-Architected guidance cost nothing.', [
     both(s(5, 'arch', 1), 'Export the grants', 'List users and groups with their policies.', CONSOLE, [
       'IAM → Users: open each user → Permissions tab; note attached policies and group memberships.',
       'IAM → User groups: each group’s Permissions tab.',
@@ -693,31 +688,42 @@ def lambda_handler(event, context):
     ], [
       { cmd: 'aws iam get-account-authorization-details --filter User Group --query "{users: UserDetailList[].[UserName, AttachedManagedPolicies[].PolicyName], groups: GroupDetailList[].[GroupName, AttachedManagedPolicies[].PolicyName]}" --output json', explain: 'Every user and group, with the managed policies attached to each.', sample: '{ "users": [ [ "team01-infra", [ "PowerUserAccess" ] ] ],\n  "groups": [] }' },
     ], ['users'], 'A policy attached to a user is the one people forget to review.'),
-    rec(5, 'arch', 'Access matrix', ['One row per grant: principal, policy, scope, why.', 'Mark any grant broader than it needs to be.'], 'Week 11’s posture review reads this matrix.'),
+    portal(s(5, 'arch', 2), 'Name the layers', 'Write one line per layer a request crosses.', 'Deliverables tab · Access matrix', [
+      'Edge (CloudFront, ALB group), network (subnets, security groups), identity (roles, policies), application (CORS), data (encryption, one-table policies).',
+      'For each layer write what it refuses and which role owns the rule.',
+    ], 'Five layers, each with a refusal and an owner.', 'The exam asks which layer stops a given request; the matrix is where the team agrees on it before anything is built.'),
+    rec(5, 'arch', 'Access matrix', ['One row per grant: principal, policy, scope, why.', 'Mark any grant broader than it needs to be.', 'The layers, each with what it refuses.'], 'Week 11’s posture review reads this matrix.'),
   ]),
-  T(5, 'infra', 'Put the table name in Parameter Store', 'Store the table name as a parameter, let the counter role read that one parameter, and read it back — configuration out of code.', 35,
-    ['Systems Manager Parameter Store', 'Configuration vs secrets', 'A policy scoped to one parameter'], ['The parameter exists', 'The role may read that parameter only'],
+  T(5, 'infra', 'Put the table name in Parameter Store and a secret under a customer key', 'Store the table name as a parameter, create a customer-managed KMS key, store one SecureString under it, and let the counter role read exactly those.', 45,
+    ['SAA-C03 · Design Secure Architectures', 'Systems Manager Parameter Store', 'AWS KMS customer-managed keys', 'A policy scoped to one parameter'], ['The parameter exists', 'A SecureString is encrypted with the team key', 'The role may read those parameters only'],
     [doc('Parameter Store', 'systems-manager/latest/userguide/systems-manager-parameter-store.html', 'the “What is Parameter Store” paragraph: String for configuration, SecureString for secrets, and that standard parameters are free'),
-     doc('Restricting access to parameters', 'systems-manager/latest/userguide/sysman-paramstore-access.html', 'the example policy that names one parameter ARN — copy its shape')],
-    'Free: standard parameters and their reads cost nothing.', [
+     doc('Customer managed keys', 'kms/latest/developerguide/concepts.html#customer-cmk', 'the difference between AWS managed and customer managed keys — who controls the key policy and the rotation')],
+    'KMS: one customer-managed key is $1 a month, prorated by the hour; schedule its deletion at the end of the course. Parameters and their reads cost nothing.', [
     both(s(5, 'infra', 1), 'Create the parameter', 'Store the table name at /capstone/team01/visitor/table.', CONSOLE, [
       'Systems Manager → Parameter Store → Create parameter. Name /capstone/team01/visitor/table, tier Standard, type String, value capstone-team01-visitors. Tags. Create.',
     ], [
       { cmd: 'aws ssm put-parameter --name /capstone/team01/visitor/table --type String --value capstone-team01-visitors --tags Key=project,Value=capstone Key=team,Value=team01 --query Version --output text', explain: 'A String parameter for configuration. A password would be a SecureString.', sample: '1' },
     ], ['1'], 'Configuration belongs in one place that code reads at start-up, not in code and not in a page. Parameter Store is that place on AWS; the Week 9 template creates this same parameter, so hand and code agree.'),
-    both(s(5, 'infra', 2), 'Let the role read it, and read it back', 'Grant ssm:GetParameter on that one parameter; read it.', CONSOLE, [
-      'IAM → Roles → the counter role → Add permissions → Create inline policy → JSON: Allow ssm:GetParameter on arn:aws:ssm:us-east-1:ACCOUNT:parameter/capstone/team01/visitor/table. Name read-table-param.',
+    both(s(5, 'infra', 2), 'Create the team key and a secret under it', 'Make a KMS key, then store one SecureString with it.', CONSOLE, [
+      'KMS → Customer managed keys → Create key: symmetric, encrypt and decrypt, alias alias/capstone-team01. Key administrators: your builders group. Finish.',
+      'Parameter Store → Create parameter /capstone/team01/db/password, type SecureString, KMS key alias/capstone-team01, any value. Create.',
+    ], [
+      { cmd: 'KEY=$(aws kms create-key --description "capstone team01" --tags TagKey=project,TagValue=capstone --query KeyMetadata.KeyId --output text); aws kms create-alias --alias-name alias/capstone-team01 --target-key-id $KEY; aws ssm put-parameter --name /capstone/team01/db/password --type SecureString --key-id alias/capstone-team01 --value "Rotate-Me-$(date +%s)" --query Version --output text', explain: 'A key the team controls, an alias to name it by, and a secret encrypted under it.', sample: '1' },
+    ], ['1'], 'An AWS managed key works, but the exam and an auditor both ask who controls the key: a customer-managed key has a policy you can read, rotate and revoke.'),
+    both(s(5, 'infra', 3), 'Let the role read them, and read them back', 'Grant GetParameter on the two names; read both.', CONSOLE, [
+      'IAM → Roles → the counter role → Add permissions → Create inline policy → JSON.',
+      'Allow ssm:GetParameter on the two parameter ARNs and kms:Decrypt on the team key; name it read-params.',
       'Parameter Store → the parameter → the value is shown. That is what the code would read.',
     ], [
-      { cmd: 'ROLE=$(aws lambda get-function-configuration --function-name capstone-team01-counter --query Role --output text | cut -d/ -f2); ACCT=$(aws sts get-caller-identity --query Account --output text); aws iam put-role-policy --role-name $ROLE --policy-name read-table-param --policy-document "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Effect\\":\\"Allow\\",\\"Action\\":\\"ssm:GetParameter\\",\\"Resource\\":\\"arn:aws:ssm:us-east-1:$ACCT:parameter/capstone/team01/visitor/table\\"}]}" && aws ssm get-parameter --name /capstone/team01/visitor/table --query Parameter.Value --output text', explain: 'One action on one parameter, then a read to prove the value.', sample: 'capstone-team01-visitors' },
-    ], ['capstone-team01-visitors'], 'The same least-privilege shape as the table policy: one action, one resource. A role that can read every parameter would also read the ones that hold secrets.'),
-    rec(5, 'infra', 'Secrets register', ['The parameter, its type, who may read it (the counter role).'], 'The register shows where every credential and setting lives.'),
-  ], { prerequisites: ['The counter function and its role from App & DevOps (Week 3).'] }),
-  T(5, 'dev', 'Scope the Lambda role to the table', 'Read the function’s role and make sure it can update one item table and nothing else.', 40,
-    ['Execution roles', 'Resource ARNs in policies'], ['The role names the table ARN only', 'The API still works'],
+      { cmd: 'ROLE=$(aws lambda get-function-configuration --function-name capstone-team01-counter --query Role --output text | cut -d/ -f2); ACCT=$(aws sts get-caller-identity --query Account --output text); aws iam put-role-policy --role-name $ROLE --policy-name read-params --policy-document "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Effect\\":\\"Allow\\",\\"Action\\":\\"ssm:GetParameter\\",\\"Resource\\":\\"arn:aws:ssm:us-east-1:$ACCT:parameter/capstone/team01/*\\"},{\\"Effect\\":\\"Allow\\",\\"Action\\":\\"kms:Decrypt\\",\\"Resource\\":\\"arn:aws:kms:us-east-1:$ACCT:key/$KEY\\"}]}" && aws ssm get-parameter --name /capstone/team01/visitor/table --query Parameter.Value --output text && aws ssm get-parameter --name /capstone/team01/db/password --with-decryption --query Parameter.Type --output text', explain: 'Read on one path, decrypt with one key, then a read of each to prove it.', sample: 'capstone-team01-visitors\nSecureString' },
+    ], ['capstone-team01-visitors', 'SecureString'], 'The same least-privilege shape as the table policy: one path, one key. A role that can read every parameter would also read the ones that hold secrets.'),
+    rec(5, 'infra', 'Secrets register', ['The parameter and the SecureString: type, key, who may read them (the counter role).'], 'The register shows where every credential and setting lives, and under which key.'),
+  ], { prerequisites: ['The counter function and its role from App & DevOps (Week 3).'], cost: { usd: 0.0014, per: 'hour', note: 'The KMS key: $1 a month, prorated; schedule deletion at the end of the course.' } }),
+  T(5, 'dev', 'Scope the Lambda role to the table and lock CORS', 'Make the function’s role update one table and nothing else, then allow only your site to call the API from a browser.', 50,
+    ['SAA-C03 · Design Secure Architectures', 'Execution roles', 'Resource ARNs in policies', 'CORS at the API'], ['The role names the table ARN only', 'A foreign origin is refused', 'The API still works'],
     [doc('Lambda execution role', 'lambda/latest/dg/lambda-intro-execution-role.html', 'the “View the execution role” steps under Configuration → Permissions — the role name is a link into IAM'),
-     doc('IAM JSON policy elements: Resource', 'IAM/latest/UserGuide/reference_policies_elements_resource.html', 'the ARN examples and the wildcard warning — your policy should name one table ARN and no *')],
-    'Free: reading and editing a role costs nothing.', [
+     doc('Configuring CORS for an HTTP API', 'apigateway/latest/developerguide/http-api-cors.html', 'the “Configuring CORS” table: allowOrigins takes exact origins, and a request from any other origin gets no CORS headers')],
+    'Free: reading and editing a role and the API costs nothing.', [
     both(s(5, 'dev', 1), 'Read the role’s policies', 'List what the function’s role may do.', CONSOLE, [
       'Lambda → capstone-team01-counter → Configuration → Permissions → the role name.',
       'IAM opens the role: Permissions policies lists AWSLambdaBasicExecutionRole-… and count-visitors.',
@@ -731,12 +737,22 @@ def lambda_handler(event, context):
     ], [
       { cmd: 'aws iam get-role-policy --role-name $ROLE --policy-name count-visitors --query "PolicyDocument.Statement[0].[Action, Resource]" --output text', explain: 'One action, one table ARN. No wildcard.', sample: 'dynamodb:UpdateItem\narn:aws:dynamodb:us-east-1:123456789012:table/capstone-team01-visitors' },
     ], ['table/capstone-team01-visitors'], 'This is AWS’s answer to a managed identity: the credentials rotate by themselves, and the policy is the fence.'),
-    rec(5, 'dev', 'Secrets register', ['The database access row: stored in — nothing; read by — the execution role.'], 'The register shows a secret that never existed.'),
+    both(s(5, 'dev', 3), 'Allow your origin only', 'Set the API’s CORS to your CloudFront host.', CONSOLE, [
+      'API Gateway → your HTTP API → CORS → Configure: Access-Control-Allow-Origin = https://your-distribution.cloudfront.net, methods GET. Save.',
+    ], [
+      { cmd: 'API=$(aws apigatewayv2 get-apis --query "Items[?Name==\'capstone-team01-api\'].ApiId" --output text); SITE=https://$(aws cloudfront list-distributions --query "DistributionList.Items[0].DomainName" --output text); aws apigatewayv2 update-api --api-id $API --cors-configuration AllowOrigins=$SITE,AllowMethods=GET --query CorsConfiguration.AllowOrigins --output text', explain: 'One allowed origin, one method. The browser enforces it; curl does not.', sample: 'https://d1234abcd.cloudfront.net' },
+    ], ['cloudfront.net'], 'CORS is the application layer’s fence: the API still answers anyone, but a browser on another site is refused the answer.'),
+    cli(s(5, 'dev', 4), 'Prove a foreign origin is refused', 'Send a forged Origin header; expect no allow header.', [
+      { cmd: 'URL=$(aws apigatewayv2 get-apis --query "Items[?Name==\'capstone-team01-api\'].ApiEndpoint" --output text); curl -s -D - -o /dev/null -H "Origin: https://evil.example" $URL/count | grep -ci "access-control-allow-origin" || echo "no allow header"', explain: 'A request claiming to come from another site. The count is still returned, but without the header a browser needs.', sample: 'no allow header' },
+      { cmd: 'curl -s -D - -o /dev/null -H "Origin: $SITE" $URL/count | grep -i "access-control-allow-origin"', explain: 'The same request from your own site: the header is present.', sample: 'access-control-allow-origin: https://d1234abcd.cloudfront.net' },
+    ], ['no allow header', 'access-control-allow-origin'], 'A negative test is the proof: the exam asks what happens to the other origin, and the answer is in this output.'),
+    rec(5, 'dev', 'Secrets register', ['The database access row: stored in — nothing; read by — the execution role.', 'The CORS origin and the negative test result.'], 'The register shows a secret that never existed, and a fence that was tested.'),
   ]),
-  T(5, 'secops', 'Prove an access is denied', 'Ask IAM whether the read-only group could stop the instance, and record the denial.', 35,
-    ['IAM policy simulator', 'Denied-access tests'], ['A denial is recorded'],
-    [doc('Testing IAM policies with the IAM policy simulator', 'IAM/latest/UserGuide/access_policies_testing-policies.html', 'the “Testing policies attached to a user, group or role” steps and the Results column — implicitDeny is a denial by absence of an allow')],
-    'Free: the simulator evaluates policies without calling any service.', [
+  T(5, 'secops', 'Prove an access is denied and find what is exposed', 'Ask IAM whether the read-only group could stop the instance, then turn on IAM Access Analyzer and read its external-access findings.', 40,
+    ['SAA-C03 · Design Secure Architectures', 'IAM policy simulator', 'IAM Access Analyzer', 'Denied-access tests'], ['A denial is recorded', 'An analyzer exists and its findings are read'],
+    [doc('Testing IAM policies with the IAM policy simulator', 'IAM/latest/UserGuide/access_policies_testing-policies.html', 'the “Testing policies attached to a user, group or role” steps and the Results column — implicitDeny is a denial by absence of an allow'),
+     doc('IAM Access Analyzer', 'IAM/latest/UserGuide/what-is-access-analyzer.html', 'the “External access analyzers” paragraph: a finding is a resource a principal outside your account can reach')],
+    'Free: the simulator and an external access analyzer cost nothing.', [
     both(s(5, 'secops', 1), 'Simulate the group', 'Simulate stopping an instance as the read-only group.', CONSOLE, [
       'IAM → User groups → capstone-team01-readonly → Simulate (or policysim.aws.amazon.com → Groups).',
       'Service EC2, actions StopInstances and DescribeInstances. Run simulation.',
@@ -744,240 +760,339 @@ def lambda_handler(event, context):
     ], [
       { cmd: 'ARN=$(aws iam get-group --group-name capstone-team01-readonly --query Group.Arn --output text); aws iam simulate-principal-policy --policy-source-arn $ARN --action-names ec2:StopInstances ec2:DescribeInstances --query "EvaluationResults[].[EvalActionName, EvalDecision]" --output text', explain: 'The simulator evaluates the real policies without calling anything.', sample: 'ec2:StopInstances\timplicitDeny\nec2:DescribeInstances\tallowed' },
     ], ['implicitDeny', 'allowed'], 'One allowed and one denied action prove the policy does what the matrix says.'),
-    rec(5, 'secops', 'Access tests', ['Who, what they tried, expected, result.'], 'Evidence that the matrix is enforced, not just written.'),
+    both(s(5, 'secops', 2), 'Turn on Access Analyzer', 'Create an account analyzer and list its findings.', CONSOLE, [
+      'IAM → Access Analyzer → Create analyzer: external access, account zone of trust, name capstone-team01. Create.',
+      'Findings: read each row — the resource, the external principal and the access.',
+    ], [
+      { cmd: 'aws accessanalyzer create-analyzer --analyzer-name capstone-team01 --type ACCOUNT --query arn --output text; sleep 20; aws accessanalyzer list-findings --analyzer-arn $(aws accessanalyzer list-analyzers --query "analyzers[?name==\'capstone-team01\'].arn" --output text) --query "findings[].[resourceType, status]" --output text', explain: 'The analyzer, then its findings: resources a principal outside the account can reach. The site bucket policy names CloudFront, which is expected.', sample: 'arn:aws:access-analyzer:us-east-1:123456789012:analyzer/capstone-team01\nAWS::S3::Bucket\tACTIVE' },
+    ], ['analyzer/capstone-team01'], 'A finding is not a fault until you have read it: the bucket is meant to be readable by CloudFront. Archive what is intended and own what is not.'),
+    rec(5, 'secops', 'Access tests', ['Who, what they tried, expected, result.', 'Each analyzer finding: intended (archived) or owned.'], 'Evidence that the matrix is enforced, not just written.'),
   ]),
 
-  // ── Week 6 — Networking ────────────────────────────────────────────────
-  T(6, 'arch', 'Write the network design document', 'Write the address plan, the rules and the admin path, and say what production would add.', 40,
-    ['RFC 1918', 'Public and private subnets', 'Design trade-offs'], ['Address plan and rules recorded', 'The production gap is stated'],
-    [doc('Subnets for your VPC', 'vpc/latest/userguide/configure-subnets.html', 'the “Subnet types” list — public, private, VPN-only, isolated — and the sentence that defines each by its route table'),
-     doc('NAT gateways', 'vpc/latest/userguide/vpc-nat-gateway.html', 'the “Pricing” link and the hourly charge: this is the $32 a month the course avoids by keeping the instance public for outbound only')],
-    'Free: reading the plan. The production alternative — a NAT gateway — is about $32 a month, which is why the course keeps a public IP instead.', [
-    both(s(6, 'arch', 1), 'Read the address plan', 'List every subnet in the VPC.', CONSOLE, [
-      'VPC → Subnets → filter by vpc-capstone-team01.',
-      'Read Name, IPv4 CIDR and Availability Zone for each row.',
+  // ── Week 6 — Resilient compute ─────────────────────────────────────────
+  T(6, 'arch', 'Design the two-zone fleet and record the decision', 'Decide how the site survives a zone: two zones, a load balancer, a fleet of two; cost it against the alternative.', 40,
+    ['SAA-C03 · Design Resilient Architectures', 'Availability Zones', 'Elastic Load Balancing', 'Architecture decision records'], ['Two zones are named with their roles', 'The design is costed against the single-instance alternative', 'ADR-002 is written'],
+    [doc('Regions and Availability Zones', 'AWSEC2/latest/UserGuide/using-regions-availability-zones.html', 'the “Availability Zones” paragraph: separate power and networking, so a design that spans two survives the loss of one'),
+     doc('Elastic Load Balancing pricing', 'https://aws.amazon.com/elasticloadbalancing/pricing/', 'the Application Load Balancer hourly rate and the LCU line — the cost the team accepts for a fleet that survives a zone')],
+    'Free: the design is on paper; the fleet it describes is costed on the next tasks.', [
+    both(s(6, 'arch', 1), 'Read the zones', 'List the Region’s zones and the subnets in each.', CONSOLE, [
+      'VPC → Subnets → filter by vpc-capstone-team01: read the Availability Zone column.',
+      'EC2 → Instances → the tools instance → Availability Zone.',
     ], [
-      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); aws ec2 describe-subnets --filters Name=vpc-id,Values=$VPC --query "Subnets[].[Tags[?Key==\'Name\']|[0].Value, CidrBlock, AvailabilityZone]" --output text', explain: 'One line per subnet: its name, range and zone.', sample: 'snet-public-team01\t10.10.1.0/24\tus-east-1a\nsnet-private-team01\t10.10.2.0/24\tus-east-1a' },
-    ], ['10.10.2.0/24'], 'The plan is read from AWS, not remembered.'),
-    rec(6, 'arch', 'Design summary', ['How admins reach the instance now.', 'What production would add: a NAT gateway, the instance private.'], 'Honest about the trade-off: a public IP for outbound only, to avoid $32 a month.'),
+      { cmd: 'aws ec2 describe-availability-zones --query "AvailabilityZones[?State==\'available\'].ZoneName" --output text; VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); aws ec2 describe-subnets --filters Name=vpc-id,Values=$VPC --query "Subnets[].[Tags[?Key==\'Name\']|[0].Value, CidrBlock, AvailabilityZone]" --output text', explain: 'The zones available, then every subnet with its zone. Today everything is in one.', sample: 'us-east-1a\tus-east-1b\tus-east-1c\tus-east-1d\tus-east-1e\tus-east-1f\nsnet-public-team01\t10.10.1.0/24\tus-east-1a\nsnet-private-team01\t10.10.2.0/24\tus-east-1a' },
+    ], ['us-east-1b'], 'A design that lives in one zone has one zone’s failure rate. The exam calls the fix “multi-AZ”; the picture calls it a second subnet in a second zone.'),
+    portal(s(6, 'arch', 2), 'Cost the fleet', 'Price the ALB and two instances for a month, against one instance.', 'AWS Pricing Calculator (calculator.aws)', [
+      'Add Application Load Balancer, us-east-1, 1 ALB, 730 hours, 1 LCU: read the monthly total.',
+      'Add EC2: two t3.micro, 730 hours each, on-demand. Note the free-tier 750 hours covers one.',
+      'Write both totals and the difference against the single instance the company runs today.',
+    ], 'A monthly figure for the fleet and for the single instance, and the difference.', 'Resilience is bought: the exam’s cost-optimisation domain asks you to say what a zone’s worth of protection costs and who decided to pay it.'),
+    rec(6, 'arch', 'Design summary', ['ADR-002: two zones, an ALB, a fleet of two; the alternative (one instance) and why it was rejected.', 'The monthly cost of each, from the calculator.'], 'Week 9’s template must build exactly this design.'),
   ]),
-  T(6, 'infra', 'Add the private subnet', 'Add a private subnet with its own route table that has no route to the internet.', 35,
-    ['Private subnets', 'Route tables'], ['snet-private-team01 is 10.10.2.0/24', 'Its route table has only local'],
-    [doc('Route tables', 'vpc/latest/userguide/VPC_Route_Tables.html', 'the “Custom route tables” section and the local route every table carries — a table with only that route is what makes a subnet private'),
-     doc('Subnets for your VPC', 'vpc/latest/userguide/configure-subnets.html', 'the “Create a subnet” steps — the CIDR must sit inside the VPC’s /16')],
-    'Free: subnets and route tables cost nothing.', [
-    both(s(6, 'infra', 1), 'Create the subnet and its route table', 'Create 10.10.2.0/24 with a local-only route table.', CONSOLE, [
-      'VPC → Subnets → Create subnet: vpc-capstone-team01, name snet-private-team01, us-east-1a, 10.10.2.0/24.',
-      'Route tables → Create: rt-private-team01 in the VPC. Subnet associations → Edit → tick snet-private-team01.',
-      'Routes tab: one row, 10.10.0.0/16 → local. Nothing else.',
+  T(6, 'infra', 'Build the fleet: a launch template and an Auto Scaling group across two zones', 'Add a second public subnet in another zone, write a launch template, run a group of two across both zones, then park it.', 55,
+    ['SAA-C03 · Design Resilient Architectures', 'Launch templates', 'Auto Scaling groups', 'Multi-AZ subnets'], ['A second public subnet exists in a second zone', 'The group runs two instances in different zones', 'The group is parked at zero at the end'],
+    [doc('Auto Scaling groups', 'autoscaling/ec2/userguide/auto-scaling-groups.html', 'the “Availability Zones and subnets” paragraph: list two subnets in two zones and the group balances across them'),
+     doc('Launch templates', 'autoscaling/ec2/userguide/launch-templates.html', 'the “Create a launch template” steps — the image, the type, the key, the security group and user data the group launches from')],
+    'The second t3.micro bills about $0.01 an hour while the fleet runs (the first is free tier); park the group at zero when you stop. Stop or delete anything you started.', [
+    both(s(6, 'infra', 1), 'Add the second public subnet', 'Create 10.10.3.0/24 in a second zone, routed to the IGW.', CONSOLE, [
+      'VPC → Subnets → Create subnet: vpc-capstone-team01, name snet-public-b-team01, zone us-east-1b, CIDR 10.10.3.0/24. Create.',
+      'Route tables → rt-public-team01 → Subnet associations → Edit → add the new subnet.',
     ], [
-      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); PSUB=$(aws ec2 create-subnet --vpc-id $VPC --cidr-block 10.10.2.0/24 --availability-zone us-east-1a --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=snet-private-team01}]" --query Subnet.SubnetId --output text)', explain: 'The next /24. It stays private because nothing routes it to the gateway.', sample: '(no output — $PSUB holds the subnet id)' },
-      { cmd: 'PRT=$(aws ec2 create-route-table --vpc-id $VPC --query RouteTable.RouteTableId --output text); aws ec2 associate-route-table --route-table-id $PRT --subnet-id $PSUB -o none; aws ec2 describe-route-tables --route-table-ids $PRT --query "RouteTables[0].Routes[].[DestinationCidrBlock, GatewayId]" --output text', explain: 'A new route table has only the local route — no way out.', sample: '10.10.0.0/16\tlocal' },
-    ], ['local'], 'Private means “no route to the internet gateway”, and this output proves it.'),
-    rec(6, 'infra', 'Address plan', ['One row per subnet: CIDR, purpose, route to internet.'], 'The template in Week 9 must match this plan.'),
+      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); SUBB=$(aws ec2 create-subnet --vpc-id $VPC --cidr-block 10.10.3.0/24 --availability-zone us-east-1b --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=snet-public-b-team01},{Key=owner,Value=team01}]" --query Subnet.SubnetId --output text); RT=$(aws ec2 describe-route-tables --filters Name=tag:Name,Values=rt-public-team01 --query "RouteTables[0].RouteTableId" --output text); aws ec2 associate-route-table --subnet-id $SUBB --route-table-id $RT --query AssociationState.State --output text', explain: 'A subnet in a different zone, associated with the public route table so it reaches the internet gateway.', sample: 'associated' },
+    ], ['associated'], 'Two subnets in two zones is what makes the next step a multi-AZ group instead of two instances in one basket.'),
+    both(s(6, 'infra', 2), 'Write the launch template', 'Amazon Linux, nginx, IMDSv2, the SSM role, no key pair.', CONSOLE, [
+      'EC2 → Launch templates → Create: name lt-web-team01, AMI Amazon Linux 2023, type t3.micro, no key pair.',
+      'Security group sg-tools-team01; IAM instance profile: the SSM profile.',
+      'Advanced: Metadata version V2 only (token required). User data: install nginx and write the zone name into index.html. Create.',
+    ], [
+      { cmd: 'SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); PROFILE=$(aws iam list-instance-profiles --query "InstanceProfiles[?contains(InstanceProfileName,\'capstone\')].Arn | [0]" --output text); UD=$(echo -e "#!/bin/bash\\ndnf install -y nginx\\nTOKEN=\\$(curl -sX PUT http://169.254.169.254/latest/api/token -H \\"X-aws-ec2-metadata-token-ttl-seconds: 60\\")\\nAZ=\\$(curl -s -H \\"X-aws-ec2-metadata-token: \\$TOKEN\\" http://169.254.169.254/latest/meta-data/placement/availability-zone)\\necho \\"web OK from \\$AZ\\" > /usr/share/nginx/html/index.html\\nsystemctl enable --now nginx" | base64 -w0); aws ec2 create-launch-template --launch-template-name lt-web-team01 --launch-template-data "{\\"ImageId\\":\\"resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\\",\\"InstanceType\\":\\"t3.micro\\",\\"SecurityGroupIds\\":[\\"$SG\\"],\\"IamInstanceProfile\\":{\\"Arn\\":\\"$PROFILE\\"},\\"MetadataOptions\\":{\\"HttpTokens\\":\\"required\\"},\\"UserData\\":\\"$UD\\",\\"TagSpecifications\\":[{\\"ResourceType\\":\\"instance\\",\\"Tags\\":[{\\"Key\\":\\"Name\\",\\"Value\\":\\"web-team01\\"},{\\"Key\\":\\"owner\\",\\"Value\\":\\"team01\\"}]}]}" --query LaunchTemplate.LaunchTemplateName --output text', explain: 'The image resolved from SSM, the type, the SSM profile, IMDSv2 required, and user data that serves the zone name — so the ALB shows which zone answered.', sample: 'lt-web-team01' },
+    ], ['lt-web-team01'], 'A launch template is the instance written down: the group can launch a hundred of them identically, and the Week 9 template will hold the same one.'),
+    both(s(6, 'infra', 3), 'Run the group across both zones', 'Two instances, one subnet in each zone.', CONSOLE, [
+      'EC2 → Auto Scaling groups → Create: name asg-web-team01, launch template lt-web-team01, VPC vpc-capstone-team01, subnets snet-public-team01 and snet-public-b-team01.',
+      'Desired 2, minimum 0, maximum 3. Tags: owner. Create.',
+      'Instances: wait for two InService rows and read their Availability Zone column.',
+    ], [
+      { cmd: 'SUBA=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-team01 --query "Subnets[0].SubnetId" --output text); aws autoscaling create-auto-scaling-group --auto-scaling-group-name asg-web-team01 --launch-template LaunchTemplateName=lt-web-team01 --min-size 0 --max-size 3 --desired-capacity 2 --vpc-zone-identifier "$SUBA,$SUBB" --tags Key=owner,Value=team01,PropagateAtLaunch=true; sleep 60; aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names asg-web-team01 --query "AutoScalingGroups[0].Instances[].[InstanceId, AvailabilityZone, LifecycleState]" --output text', explain: 'The group, then its instances: two, in two different zones.', sample: 'i-0a1b2c3d4e5f60001\tus-east-1a\tInService\ni-0a1b2c3d4e5f60002\tus-east-1b\tInService' },
+    ], ['us-east-1a', 'us-east-1b', 'InService'], 'The group keeps the count you ask for, in the zones you list. Terminate one and it launches another — Week 8 proves it.'),
+    both(s(6, 'infra', 4), 'Park the fleet', 'Set the desired count to zero until the next task.', CONSOLE, [
+      'EC2 → Auto Scaling groups → asg-web-team01 → Edit: desired capacity 0. Update.',
+      'Instances: both rows show Terminating, then disappear.',
+    ], [
+      { cmd: 'aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 0; sleep 30; aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names asg-web-team01 --query "AutoScalingGroups[0].[DesiredCapacity, length(Instances)]" --output text', explain: 'Desired zero: the group terminates its instances and costs nothing until it is asked for more.', sample: '0\t0' },
+    ], ['0'], 'A parked group is free; a forgotten one is the second instance’s hourly rate all week. Every task that scales it up ends by parking it.'),
+    rec(6, 'infra', 'Address plan and fleet', ['The second subnet: name, CIDR, zone, route.', 'The group: launch template, zones, minimum, desired, maximum.'], 'Week 9’s template must match this plan exactly.'),
+  ], { cost: { usd: 0.0104, per: 'hour', note: 'The second t3.micro while the fleet runs; parked at zero at the end of the task.' } }),
+  T(6, 'dev', 'Put the fleet behind an Application Load Balancer', 'Create a target group with a health check and an ALB across both public subnets, attach the group, and prove requests reach both zones.', 55,
+    ['SAA-C03 · Design Resilient Architectures', 'Application Load Balancer', 'Target groups and health checks', 'Security group chaining'], ['The ALB answers on port 80', 'Both zones serve requests', 'Only the ALB may reach the instances on 80'],
+    [doc('Application Load Balancers', 'elasticloadbalancing/latest/application/introduction.html', 'the “Application Load Balancer components” figure: listener → rule → target group → targets, each a thing you create below'),
+     doc('Health checks for target groups', 'elasticloadbalancing/latest/application/target-group-health-checks.html', 'the “Health check settings” table: path, interval, healthy threshold — what makes a target healthy or drains it')],
+    'The ALB bills about $0.0225 an hour plus a little per request while it exists; it stays for Weeks 6–8 and is deleted in the Week 8 drill. Stop or delete anything you started.', [
+    both(s(6, 'dev', 1), 'Create the target group', 'HTTP on 80, health check on /.', CONSOLE, [
+      'EC2 → Target groups → Create: instances, tg-web-team01, HTTP 80, the VPC; health check path /, threshold 2, interval 10 s.',
+    ], [
+      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); TG=$(aws elbv2 create-target-group --name tg-web-team01 --protocol HTTP --port 80 --vpc-id $VPC --health-check-path / --health-check-interval-seconds 10 --healthy-threshold-count 2 --query "TargetGroups[0].TargetGroupArn" --output text); echo $TG', explain: 'Where the ALB sends traffic and how it decides a target is healthy.', sample: 'arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/tg-web-team01/abc123' },
+    ], ['targetgroup/tg-web-team01'], 'The health check is the design’s nerve: a target that stops answering / is drained within twenty seconds, before a visitor notices.'),
+    both(s(6, 'dev', 2), 'Create the ALB and chain the security groups', 'An ALB open on 80; the instances open only to it.', CONSOLE, [
+      'EC2 → Security groups → Create sg-alb-team01 in the VPC: inbound HTTP 80 from 0.0.0.0/0.',
+      'Edit sg-tools-team01: inbound HTTP 80 with source sg-alb-team01 (the group, not an address).',
+      'EC2 → Load balancers → Create ALB: name alb-web-team01, internet-facing, both public subnets, sg-alb-team01, listener HTTP 80 → tg-web-team01. Create.',
+    ], [
+      { cmd: 'ALBSG=$(aws ec2 create-security-group --group-name sg-alb-team01 --description "ALB: 80 from the internet" --vpc-id $VPC --query GroupId --output text); aws ec2 authorize-security-group-ingress --group-id $ALBSG --protocol tcp --port 80 --cidr 0.0.0.0/0 --query "Return" --output text; SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); aws ec2 authorize-security-group-ingress --group-id $SG --protocol tcp --port 80 --source-group $ALBSG --query "Return" --output text', explain: 'Two groups chained: the world may reach the ALB on 80; only the ALB may reach the fleet on 80.', sample: 'True\nTrue' },
+      { cmd: 'SUBA=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-team01 --query "Subnets[0].SubnetId" --output text); SUBB=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-public-b-team01 --query "Subnets[0].SubnetId" --output text); ALB=$(aws elbv2 create-load-balancer --name alb-web-team01 --subnets $SUBA $SUBB --security-groups $ALBSG --tags Key=owner,Value=team01 --query "LoadBalancers[0].LoadBalancerArn" --output text); aws elbv2 create-listener --load-balancer-arn $ALB --protocol HTTP --port 80 --default-actions Type=forward,TargetGroupArn=$TG --query "Listeners[0].Port" --output text', explain: 'The balancer in both subnets, and a listener that forwards 80 to the target group.', sample: '80' },
+    ], ['True', '80'], 'Security-group chaining is the exam’s favourite answer: the fleet needs no CIDR rule at all, only “from the ALB’s group”.'),
+    both(s(6, 'dev', 3), 'Attach the fleet and prove both zones answer', 'Scale the group to two, attach it, curl the ALB ten times.', CONSOLE, [
+      'EC2 → Auto Scaling groups → asg-web-team01 → Edit: desired 2; Integrations → Load balancing → attach tg-web-team01. Update.',
+      'Target groups → tg-web-team01 → Targets: two healthy. Load balancers → alb-web-team01 → DNS name: open it, refresh; the zone in the page changes.',
+    ], [
+      { cmd: 'aws autoscaling attach-load-balancer-target-groups --auto-scaling-group-name asg-web-team01 --target-group-arns $TG; aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 2; sleep 150; aws elbv2 describe-target-health --target-group-arn $TG --query "TargetHealthDescriptions[].TargetHealth.State" --output text', explain: 'The group registers its instances with the target group; after the health checks pass, two healthy targets.', sample: 'healthy\thealthy' },
+      { cmd: 'DNS=$(aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].DNSName" --output text); for i in 1 2 3 4 5 6 7 8 9 10; do curl -s http://$DNS; done | sort | uniq -c', explain: 'Ten requests through the balancer: both zones answer, roughly half each.', sample: '      5 web OK from us-east-1a\n      5 web OK from us-east-1b' },
+    ], ['healthy', 'us-east-1a', 'us-east-1b'], 'That output is the whole domain in one line: two zones, one address, and a visitor who cannot tell which answered.'),
+    both(s(6, 'dev', 4), 'Park the fleet', 'Desired zero; the ALB stays for next week.', CONSOLE, [
+      'EC2 → Auto Scaling groups → asg-web-team01 → Edit: desired 0. Update.',
+    ], [
+      { cmd: 'aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 0; aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].State.Code" --output text', explain: 'Instances gone, the balancer kept: its hourly rate is the price of not rebuilding it twice.', sample: 'active' },
+    ], ['active'], 'The balancer costs about fifty cents a day; the instances cost more and come back in a minute, so they are what gets parked.'),
+    rec(6, 'dev', 'Request paths', ['Visitor → ALB → fleet (both zones): reachable.', 'Internet → an instance on 80 directly: blocked (only the ALB’s group).'], 'The network document shows the path and the fence around it.'),
+  ], { prerequisites: ['The launch template and the group from Infrastructure (this week).'], cost: { usd: 0.0329, per: 'hour', note: 'The ALB ($0.0225) and the second instance while attached; the fleet is parked at the end, the ALB stays until the Week 8 drill.' } }),
+  T(6, 'secops', 'Give the private subnet a path without the internet', 'Add a free S3 gateway endpoint and the Session Manager endpoints, manage an instance with no public address, then remove the paid endpoints.', 55,
+    ['SAA-C03 · Design Secure Architectures', 'VPC endpoints', 'Private subnets without NAT', 'Session Manager'], ['The gateway endpoint exists', 'A private instance with no public IP installed packages and answered Session Manager', 'The interface endpoints and the instance are gone'],
+    [doc('Gateway endpoints for Amazon S3', 'vpc/latest/privatelink/vpc-endpoints-s3.html', 'the “Create a gateway endpoint” steps and the sentence that there is no charge — the free way to reach S3, and the AL2023 repositories, from a private subnet'),
+     doc('Session Manager VPC endpoints', 'systems-manager/latest/userguide/setup-create-vpc.html', 'the three endpoint names — ssm, ssmmessages, ec2messages — a private instance needs to be managed with no internet route')],
+    'Interface endpoints bill about $0.01 an hour each (three here); delete them at the end of the task. The gateway endpoint is free. Stop or delete anything you started.', [
+    both(s(6, 'secops', 1), 'Create the S3 gateway endpoint', 'Attach it to the private route table.', CONSOLE, [
+      'VPC → Endpoints → Create: name vpce-s3-team01, type AWS services, com.amazonaws.us-east-1.s3 (Gateway), vpc-capstone-team01, route table rt-private-team01. Create.',
+    ], [
+      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); PRT=$(aws ec2 describe-route-tables --filters Name=tag:Name,Values=rt-private-team01 --query "RouteTables[0].RouteTableId" --output text); aws ec2 create-vpc-endpoint --vpc-id $VPC --service-name com.amazonaws.us-east-1.s3 --vpc-endpoint-type Gateway --route-table-ids $PRT --tag-specifications "ResourceType=vpc-endpoint,Tags=[{Key=Name,Value=vpce-s3-team01},{Key=owner,Value=team01}]" --query VpcEndpoint.State --output text', explain: 'A gateway endpoint adds a prefix-list route to the private table: S3 is reachable, the internet still is not.', sample: 'available' },
+    ], ['available'], 'Amazon Linux’s package repositories live in S3, so a private subnet with this one free route can patch itself with no NAT gateway at all.'),
+    both(s(6, 'secops', 2), 'Create the three Session Manager endpoints', 'ssm, ssmmessages, ec2messages in the private subnet.', CONSOLE, [
+      'VPC → Endpoints → Create ×3: type Interface, services com.amazonaws.us-east-1.ssm, …ssmmessages, …ec2messages; subnet snet-private-team01; security group sg-tools-team01; private DNS on.',
+    ], [
+      { cmd: 'PRIV=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-private-team01 --query "Subnets[0].SubnetId" --output text); SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); aws ec2 authorize-security-group-ingress --group-id $SG --protocol tcp --port 443 --source-group $SG --query Return --output text; for S in ssm ssmmessages ec2messages; do aws ec2 create-vpc-endpoint --vpc-id $VPC --service-name com.amazonaws.us-east-1.$S --vpc-endpoint-type Interface --subnet-ids $PRIV --security-group-ids $SG --private-dns-enabled --tag-specifications "ResourceType=vpc-endpoint,Tags=[{Key=Name,Value=vpce-$S-team01}]" --query VpcEndpoint.State --output text; done', explain: 'The group allows 443 from itself, then the three endpoints the agent talks to, resolved by private DNS inside the VPC.', sample: 'True\npending\npending\npending' },
+    ], ['pending'], 'An interface endpoint is a network card in your subnet that answers for an AWS service; it is how a private instance is managed with no internet route at all.'),
+    both(s(6, 'secops', 3), 'Launch a private instance and administer it', 'No public IP; nginx installs; a session opens.', CONSOLE, [
+      'EC2 → Launch instance from template lt-web-team01: subnet snet-private-team01, auto-assign public IP disabled. Launch.',
+      'After three minutes: Systems Manager → Fleet Manager → the instance → Connect → Session Manager. Run curl localhost.',
+    ], [
+      { cmd: 'PID=$(aws ec2 run-instances --launch-template LaunchTemplateName=lt-web-team01 --subnet-id $PRIV --no-associate-public-ip-address --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=web-private-team01}]" --query "Instances[0].InstanceId" --output text); sleep 180; aws ec2 describe-instances --instance-ids $PID --query "Reservations[0].Instances[0].[PublicIpAddress, State.Name]" --output text', explain: 'An instance with no public address at all.', sample: 'None\trunning' },
+      { cmd: 'CID=$(aws ssm send-command --instance-ids $PID --document-name AWS-RunShellScript --parameters \'commands=["curl -s localhost"]\' --query Command.CommandId --output text); sleep 6; aws ssm get-command-invocation --command-id $CID --instance-id $PID --query StandardOutputContent --output text', explain: 'A command through Session Manager, over the endpoints, to a machine the internet cannot reach — and nginx is installed, through the S3 gateway.', sample: 'web OK from us-east-1a' },
+    ], ['None', 'web OK'], 'This is the production design the Week 6 document used to describe as “what production would add”: no public address, no NAT, and still patched and managed.'),
+    both(s(6, 'secops', 4), 'Remove the paid endpoints and the instance', 'Keep the free gateway; delete the rest.', CONSOLE, [
+      'EC2 → Instances → web-private-team01 → Instance state → Stop, then Terminate.',
+      'VPC → Endpoints → select the three Interface endpoints → Actions → Delete. Keep vpce-s3-team01.',
+    ], [
+      { cmd: 'aws ec2 stop-instances --instance-ids $PID --query "StoppingInstances[0].CurrentState.Name" --output text; aws ec2 terminate-instances --instance-ids $PID --query "TerminatingInstances[0].CurrentState.Name" --output text; IDS=$(aws ec2 describe-vpc-endpoints --filters Name=vpc-id,Values=$VPC Name=vpc-endpoint-type,Values=Interface --query "VpcEndpoints[].VpcEndpointId" --output text); aws ec2 delete-vpc-endpoints --vpc-endpoint-ids $IDS --query "length(Unsuccessful)" --output text', explain: 'The instance stopped and terminated, the three interface endpoints deleted; zero unsuccessful.', sample: 'stopping\nshutting-down\n0' },
+    ], ['shutting-down', '0'], 'Three cents an hour is nothing for an afternoon and twenty dollars for a month left running. The record says what was kept and why.'),
+    rec(6, 'secops', 'Rules and private path', ['The gateway endpoint (kept, free) and the interface endpoints (used, deleted).', 'Rule: 443 from the group itself, why.', 'Path: admin → Session Manager → private instance: reachable with no public IP.'], 'The network document now shows the private path and proves it.'),
+  ], { prerequisites: ['The launch template from Infrastructure (this week).'], cost: { usd: 0.03, per: 'hour', note: 'Three interface endpoints at $0.01 each while they exist; deleted at the end of the task.' } }),
+
+  // ── Week 7 — Data and storage ──────────────────────────────────────────
+  T(7, 'arch', 'Choose the data store and the storage classes', 'Compare the serverless table with a relational database for the next workload, choose S3 storage classes, and record the decision with its cost.', 40,
+    ['SAA-C03 · Design Cost-Optimized Architectures', 'DynamoDB vs relational', 'S3 storage classes', 'Lifecycle rules'], ['A data-store decision with its monthly cost', 'A storage class per object kind, with a lifecycle rule'],
+    [doc('Amazon S3 storage classes', 'AmazonS3/latest/userguide/storage-class-intro.html', 'the comparison table: retrieval time and minimum storage duration per class — the two numbers that decide where logs and backups go'),
+     doc('Choosing between DynamoDB and relational', 'amazondynamodb/latest/developerguide/SQLtoNoSQL.html', 'the “Why choose DynamoDB” list against the cases a relational database fits — joins, transactions across tables, ad-hoc queries')],
+    'Free: the decision is on paper; the database it describes is costed on Infrastructure’s task.', [
+    both(s(7, 'arch', 1), 'Read today’s data costs', 'How much the table and the buckets cost this month.', CONSOLE, [
+      'Billing → Cost Explorer → filter Service: DynamoDB, S3; group by usage type. Read the month to date.',
+      'S3 → each bucket → Metrics: total size and object count.',
+    ], [
+      { cmd: 'aws ce get-cost-and-usage --time-period Start=$(date -d "-30 days" +%F),End=$(date +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query "ResultsByTime[0].Groups[?contains(Keys[0],\'DynamoDB\') || contains(Keys[0],\'S3\')].[Keys[0], Metrics.UnblendedCost.Amount]" --output text', explain: 'Thirty days of cost for the table and the buckets. On the free tier, cents.', sample: 'Amazon DynamoDB\t0.00\nAmazon Simple Storage Service\t0.03' },
+    ], ['DynamoDB'], 'A decision that starts from what the current design costs is one the finance side can follow.'),
+    portal(s(7, 'arch', 2), 'Price the relational alternative', 'Cost a small Multi-AZ PostgreSQL for a month.', 'AWS Pricing Calculator (calculator.aws)', [
+      'Add Amazon RDS for PostgreSQL: db.t3.micro, Multi-AZ, 20 GB gp3, us-east-1. Read the monthly total.',
+      'Write the workloads each store fits: the counter stays on the table; orders, customers and reports go relational.',
+      'Pick a class per kind: site files Standard; logs to Glacier Instant Retrieval after 30 days; backups to Deep Archive.',
+    ], 'A monthly figure for the database, the workload split, and a class per object kind.', 'The cost-optimisation domain is a set of these trade-offs: the right store for the access pattern, and the cheapest class that still meets the retrieval time.'),
+    rec(7, 'arch', 'Sizing and data decisions', ['ADR-003: which workloads use the table, which the database, and the monthly cost of each.', 'The storage class and lifecycle per object kind.'], 'Week 9’s template holds the database and the lifecycle rule this decides.'),
   ]),
-  T(6, 'dev', 'Lock CORS and trace the request paths', 'Allow only your site to call the API from a browser, prove a foreign origin is refused, and test each public path both ways.', 45,
-    ['CORS and origins', 'Negative tests', 'HTTP status codes'], ['Only your site is allowed', 'A foreign origin is refused', 'Reachable and refused paths recorded'],
-    [doc('Configuring CORS for an HTTP API', 'apigateway/latest/developerguide/http-api-cors.html', 'the Access-Control-Allow-Origin row of the table, and the warning that a wildcard cannot be combined with credentials'),
-     doc('Requiring HTTPS between viewers and CloudFront', 'AmazonCloudFront/latest/DeveloperGuide/using-https-viewers-to-cloudfront.html', 'the “Redirect HTTP to HTTPS” option: the 301 you will see is that setting at work'),
-     doc('Blocking public access to S3', 'AmazonS3/latest/userguide/access-control-block-public-access.html', 'the four settings and what each blocks — with all four on, the bucket URL answers 403 to everyone but CloudFront')],
-    'Free: CORS is a setting; the tests are five HTTP requests.', [
-    both(s(6, 'dev', 3), 'Allow only your site', 'Set the API’s CORS to your site only.', CONSOLE, [
-      'API Gateway → APIs → capstone-team01-counter-API → Develop → CORS → Configure.',
-      'Access-Control-Allow-Origin: only your CloudFront URL (no trailing slash); remove anything else. Allow-Methods: GET. Save.',
+  T(7, 'infra', 'Create a Multi-AZ PostgreSQL database and keep its snapshot', 'Add a second private subnet and a subnet group, run an encrypted Multi-AZ PostgreSQL reachable only from the fleet, snapshot it, delete it.', 60,
+    ['SAA-C03 · Design Resilient Architectures', 'Amazon RDS Multi-AZ', 'DB subnet groups', 'Encryption at rest'], ['The database ran Multi-AZ, encrypted, not public', 'Only the fleet’s group may reach port 5432', 'A manual snapshot exists and the instance is deleted'],
+    [doc('Multi-AZ DB instance deployments', 'AmazonRDS/latest/UserGuide/Concepts.MultiAZSingleStandby.html', 'the “Failover process” paragraph: a synchronous standby in another zone and a DNS switch in a minute or two — the RTO your plan can promise'),
+     doc('Working with DB subnet groups', 'AmazonRDS/latest/UserGuide/USER_VPC.WorkingWithRDSInstanceinaVPC.html#USER_VPC.Subnets', 'a subnet group needs subnets in at least two Availability Zones — why the second private subnet comes first')],
+    'db.t3.micro Multi-AZ bills about $0.036 an hour plus storage while it exists; it is created, snapshotted and deleted inside this task. A snapshot bills cents a month. Stop or delete anything you started.', [
+    both(s(7, 'infra', 1), 'Add the second private subnet and the subnet group', '10.10.4.0/24 in zone b; a group of both private subnets.', CONSOLE, [
+      'VPC → Subnets → Create: name snet-private-b-team01, zone us-east-1b, CIDR 10.10.4.0/24; associate it with rt-private-team01.',
+      'RDS → Subnet groups → Create: name dbsg-team01, VPC vpc-capstone-team01, both private subnets. Create.',
     ], [
-      { cmd: 'APIID=$(aws apigatewayv2 get-apis --query "Items[?contains(Name, \'capstone-team01\')].ApiId | [0]" --output text); SITE=https://d111111abcdef8.cloudfront.net; aws apigatewayv2 update-api --api-id $APIID --cors-configuration AllowOrigins=$SITE,AllowMethods=GET --query CorsConfiguration', explain: 'Set SITE to your own CloudFront URL. Browsers only let pages from listed origins read the API’s answers.', sample: '{ "AllowMethods": [ "GET" ],\n  "AllowOrigins": [ "https://d111111abcdef8.cloudfront.net" ] }' },
-    ], ['AllowOrigins'], 'An origin is scheme + host + port. CORS is a browser rule: the API answers everyone, but a browser only lets a page read the answer if its origin is listed. A wildcard admits every website.'),
-    cli(s(6, 'dev', 2), 'Prove a foreign origin is refused', 'Call the API as another website would.', [
-      { cmd: 'curl -s -D - -o /dev/null -H "Origin: https://evil.example" $API | grep -i access-control || echo "no CORS header — refused"', explain: 'A foreign origin gets no Access-Control-Allow-Origin header, so its browser discards the answer. Set $API to your endpoint first.', sample: 'no CORS header — refused' },
-    ], ['refused'], 'CORS protects browsers, not the API: curl still gets a count. That is why the API holds no secrets. The console cannot send a forged Origin header — this test is shell only.'),
-    both(s(6, 'dev', 1), 'Test the public paths', 'Test HTTPS, HTTP and the bucket directly.', CONSOLE, [
-      'Browser: https://YOUR.cloudfront.net loads; http://YOUR.cloudfront.net redirects to https.',
-      'Browser: https://YOUR-BUCKET.s3.amazonaws.com/index.html → AccessDenied.',
-      'DevTools → Network shows the codes: 200, 301, 403.',
+      { cmd: 'VPC=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=vpc-capstone-team01 --query "Vpcs[0].VpcId" --output text); PRIVB=$(aws ec2 create-subnet --vpc-id $VPC --cidr-block 10.10.4.0/24 --availability-zone us-east-1b --tag-specifications "ResourceType=subnet,Tags=[{Key=Name,Value=snet-private-b-team01},{Key=owner,Value=team01}]" --query Subnet.SubnetId --output text); PRT=$(aws ec2 describe-route-tables --filters Name=tag:Name,Values=rt-private-team01 --query "RouteTables[0].RouteTableId" --output text); aws ec2 associate-route-table --subnet-id $PRIVB --route-table-id $PRT --query AssociationState.State --output text; PRIVA=$(aws ec2 describe-subnets --filters Name=tag:Name,Values=snet-private-team01 --query "Subnets[0].SubnetId" --output text); aws rds create-db-subnet-group --db-subnet-group-name dbsg-team01 --db-subnet-group-description "capstone private subnets" --subnet-ids $PRIVA $PRIVB --query "DBSubnetGroup.Subnets[].SubnetAvailabilityZone.Name" --output text', explain: 'A private subnet in the second zone, on the private route table, then a subnet group that spans both.', sample: 'associated\nus-east-1a\tus-east-1b' },
+    ], ['us-east-1b'], 'RDS refuses a Multi-AZ instance without two zones to put it in; the subnet group is where that promise is written.'),
+    both(s(7, 'infra', 2), 'Fence the database', 'A security group that admits only the fleet on 5432.', CONSOLE, [
+      'EC2 → Security groups → Create sg-db-team01 in the VPC: inbound PostgreSQL 5432 from sg-tools-team01 (the group, not an address). Create.',
     ], [
-      { cmd: 'SITE=d111111abcdef8.cloudfront.net; curl -sI https://$SITE | head -1; curl -sI http://$SITE | head -1', explain: 'HTTPS answers 200; HTTP is redirected to HTTPS by the viewer policy.', sample: 'HTTP/2 200\nHTTP/1.1 301 Moved Permanently' },
-      { cmd: 'BUCKET=$(aws s3 ls | grep capstone-team01-site | awk \'{print $3}\'); curl -sI https://$BUCKET.s3.amazonaws.com/index.html | head -1', explain: 'Going around CloudFront to the bucket must be refused.', sample: 'HTTP/1.1 403 Forbidden' },
-    ], ['200', '403 Forbidden'], 'The refused path proves the bucket is private — only CloudFront gets in.'),
-    rec(6, 'dev', 'Request paths, CORS', ['HTTPS reachable, HTTP redirected, bucket refused, API reachable.', 'The allowed origin and the negative test.'], 'Paths tested both ways are the design proved.'),
+      { cmd: 'SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); DBSG=$(aws ec2 create-security-group --group-name sg-db-team01 --description "PostgreSQL from the fleet only" --vpc-id $VPC --query GroupId --output text); aws ec2 authorize-security-group-ingress --group-id $DBSG --protocol tcp --port 5432 --source-group $SG --query Return --output text', explain: 'One inbound rule, from the fleet’s group. No address, no 0.0.0.0/0.', sample: 'True' },
+    ], ['True'], 'A database with a CIDR rule is one subnet change from exposed; a rule from a group follows the fleet wherever it moves.'),
+    both(s(7, 'infra', 3), 'Launch it Multi-AZ, encrypted, private', 'db.t3.micro PostgreSQL with a standby in the other zone.', CONSOLE, [
+      'RDS → Create database: Standard create, PostgreSQL, Multi-AZ DB instance, db.t3.micro, 20 GB gp3, identifier capstone-team01-db.',
+      'Master password managed in Secrets Manager; subnet group dbsg-team01; public access No; security group sg-db-team01; encryption on. Create.',
+      'Wait for Available (about ten minutes). Connectivity & security: Multi-AZ Yes, Publicly accessible No, Encryption Enabled.',
+    ], [
+      { cmd: 'aws rds create-db-instance --db-instance-identifier capstone-team01-db --engine postgres --db-instance-class db.t3.micro --allocated-storage 20 --storage-type gp3 --multi-az --storage-encrypted --no-publicly-accessible --master-username capstone --manage-master-user-password --db-subnet-group-name dbsg-team01 --vpc-security-group-ids $DBSG --backup-retention-period 1 --tags Key=owner,Value=team01 --query DBInstance.DBInstanceStatus --output text; aws rds wait db-instance-available --db-instance-identifier capstone-team01-db; aws rds describe-db-instances --db-instance-identifier capstone-team01-db --query "DBInstances[0].[MultiAZ, PubliclyAccessible, StorageEncrypted, AvailabilityZone, SecondaryAvailabilityZone]" --output text', explain: 'The instance, then the five facts the exam asks about it: a standby in another zone, no public address, encrypted at rest.', sample: 'creating\nTrue\tFalse\tTrue\tus-east-1a\tus-east-1b' },
+    ], ['True\tFalse\tTrue', 'us-east-1b'], 'Multi-AZ is not a backup: it is a standby that takes over in a minute. The snapshot in the next step is the backup.'),
+    both(s(7, 'infra', 4), 'Snapshot it, then delete it', 'A manual snapshot kept; the instance gone.', CONSOLE, [
+      'RDS → capstone-team01-db → Actions → Take snapshot: capstone-team01-db-w7. Wait for Available.',
+      'Actions → Delete: untick the final snapshot (you have one), tick the acknowledgement. Delete.',
+    ], [
+      { cmd: 'aws rds create-db-snapshot --db-instance-identifier capstone-team01-db --db-snapshot-identifier capstone-team01-db-w7 --query DBSnapshot.Status --output text; aws rds wait db-snapshot-available --db-snapshot-identifier capstone-team01-db-w7; aws rds delete-db-instance --db-instance-identifier capstone-team01-db --skip-final-snapshot --delete-automated-backups --query DBInstance.DBInstanceStatus --output text', explain: 'The snapshot first, then the hourly instance gone. Week 8 restores from this snapshot.', sample: 'creating\ndeleting' },
+    ], ['deleting'], 'An hour of Multi-AZ PostgreSQL is a few cents; a week of it forgotten is the course budget. The snapshot keeps the data for a fraction of that.'),
+    rec(7, 'infra', 'Database', ['Engine, class, Multi-AZ, encrypted, public access, the zones, the subnet group and the security group rule.', 'The snapshot name.'], 'Week 8 restores this database and the plan names its RPO and RTO.'),
+  ], { cost: { usd: 0.04, per: 'hour', note: 'db.t3.micro Multi-AZ ($0.036) plus 20 GB gp3 while it exists; deleted inside the task, the snapshot kept for cents.' } }),
+  T(7, 'dev', 'Queue the visits and write a ledger', 'Put a queue and a dead-letter queue between the API and a ledger function that records each visit, and prove a poison message is redriven.', 55,
+    ['SAA-C03 · Design High-Performing Architectures', 'Amazon SQS', 'Dead-letter queues', 'Event source mappings'], ['A queue and a dead-letter queue exist', 'A visit sent to the queue becomes an item in the table', 'A poison message is redriven to the dead-letter queue'],
+    [doc('Amazon SQS dead-letter queues', 'AWSSimpleQueueService/latest/SQSDeveloperGuide/sqs-dead-letter-queues.html', 'the “Redrive policy” paragraph: maxReceiveCount, after which a message moves aside instead of looping forever'),
+     doc('Using Lambda with Amazon SQS', 'lambda/latest/dg/with-sqs.html', 'the “Event source mapping” steps and the batch size: Lambda polls the queue and deletes what it processed')],
+    'Free: a million SQS requests a month and the Lambda free tier cover this many times over.', [
+    both(s(7, 'dev', 1), 'Create the queues', 'A visits queue and its dead-letter queue, maxReceiveCount 3.', CONSOLE, [
+      'SQS → Create queue: Standard, capstone-team01-visits-dlq. Create. Then Create queue: Standard, capstone-team01-visits, Dead-letter queue enabled → the DLQ, maximum receives 3. Create.',
+    ], [
+      { cmd: 'DLQ=$(aws sqs create-queue --queue-name capstone-team01-visits-dlq --query QueueUrl --output text); DLQARN=$(aws sqs get-queue-attributes --queue-url $DLQ --attribute-names QueueArn --query Attributes.QueueArn --output text); Q=$(aws sqs create-queue --queue-name capstone-team01-visits --attributes "{\\"RedrivePolicy\\":\\"{\\\\\\"deadLetterTargetArn\\\\\\":\\\\\\"$DLQARN\\\\\\",\\\\\\"maxReceiveCount\\\\\\":\\\\\\"3\\\\\\"}\\"}" --query QueueUrl --output text); echo $Q', explain: 'The dead-letter queue first, then the working queue that points at it after three failed receives.', sample: 'https://sqs.us-east-1.amazonaws.com/123456789012/capstone-team01-visits' },
+    ], ['capstone-team01-visits'], 'A queue lets the API answer in milliseconds and the write happen when it can; the dead-letter queue is where a bad message goes instead of blocking the good ones.'),
+    both(s(7, 'dev', 2), 'Create the ledger function', 'One item per message, scoped to the table and the queue.', CONSOLE, [
+      'IAM → Roles → Create role-ledger-team01: Lambda, AWSLambdaBasicExecutionRole.',
+      'Inline policy: dynamodb:PutItem on the visitors table ARN; sqs Receive, Delete and GetQueueAttributes on the visits queue ARN.',
+      'Lambda → Create function capstone-team01-ledger, Node.js, that role. Paste the code: for each record, PutItem {id: "visit#"+messageId, at: now}. Deploy.',
+    ], [
+      { cmd: 'ACCT=$(aws sts get-caller-identity --query Account --output text); QARN=$(aws sqs get-queue-attributes --queue-url $Q --attribute-names QueueArn --query Attributes.QueueArn --output text); aws iam create-role --role-name role-ledger-team01 --assume-role-policy-document \'{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}\' --query Role.RoleName --output text; aws iam attach-role-policy --role-name role-ledger-team01 --policy-arn arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole; aws iam put-role-policy --role-name role-ledger-team01 --policy-name ledger --policy-document "{\\"Version\\":\\"2012-10-17\\",\\"Statement\\":[{\\"Effect\\":\\"Allow\\",\\"Action\\":\\"dynamodb:PutItem\\",\\"Resource\\":\\"arn:aws:dynamodb:us-east-1:$ACCT:table/capstone-team01-visitors\\"},{\\"Effect\\":\\"Allow\\",\\"Action\\":[\\"sqs:ReceiveMessage\\",\\"sqs:DeleteMessage\\",\\"sqs:GetQueueAttributes\\"],\\"Resource\\":\\"$QARN\\"}]}"', explain: 'A role the function assumes, basic logging, then one policy: put to one table, read from one queue.', sample: 'role-ledger-team01' },
+      { cmd: 'mkdir -p /tmp/ledger && cat > /tmp/ledger/index.mjs <<\'EOF\'\nimport { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";\nconst db = new DynamoDBClient({});\nexport const handler = async (event) => {\n  for (const r of event.Records) {\n    const body = JSON.parse(r.body);\n    if (!body.page) throw new Error("no page");\n    await db.send(new PutItemCommand({ TableName: process.env.TABLE, Item: { id: { S: `visit#${r.messageId}` }, page: { S: body.page }, at: { N: String(Date.now()) } } }));\n  }\n};\nEOF\ncd /tmp/ledger && zip -q f.zip index.mjs && sleep 10 && aws lambda create-function --function-name capstone-team01-ledger --runtime nodejs20.x --handler index.handler --role arn:aws:iam::$ACCT:role/role-ledger-team01 --zip-file fileb://f.zip --environment Variables={TABLE=capstone-team01-visitors} --query State --output text', explain: 'The function: one PutItem per message, and an error on a message with no page — the poison case.', sample: 'Pending' },
+    ], ['role-ledger-team01', 'Pending'], 'Two functions, each with one job and one policy, is the shape the exam calls “decoupled”: the counter never waits for the ledger.'),
+    both(s(7, 'dev', 3), 'Connect the queue and send a visit', 'An event source mapping; one message becomes one item.', CONSOLE, [
+      'Lambda → capstone-team01-ledger → Add trigger: SQS, capstone-team01-visits, batch size 10. Add.',
+      'SQS → capstone-team01-visits → Send and receive messages: body {"page":"/"}. Send. DynamoDB → Explore items: a visit# item appears.',
+    ], [
+      { cmd: 'aws lambda create-event-source-mapping --function-name capstone-team01-ledger --event-source-arn $QARN --batch-size 10 --query State --output text; sleep 20; aws sqs send-message --queue-url $Q --message-body \'{"page":"/"}\' --query MessageId --output text; sleep 15; aws dynamodb scan --table-name capstone-team01-visitors --filter-expression "begins_with(id, :v)" --expression-attribute-values \'{":v":{"S":"visit#"}}\' --query "Count" --output text', explain: 'The mapping, a message, and the count of visit items a few seconds later.', sample: 'Creating\n1a2b3c4d-…\n1' },
+    ], ['1'], 'The write happened without the API knowing; that gap is what lets the front door stay fast when the back room is slow.'),
+    both(s(7, 'dev', 4), 'Poison the queue and watch the dead-letter queue', 'A message with no page fails three times, then moves aside.', CONSOLE, [
+      'SQS → capstone-team01-visits → Send message with body {} . After a minute, capstone-team01-visits-dlq → Messages available: 1.',
+      'CloudWatch → Logs → /aws/lambda/capstone-team01-ledger: three “no page” errors.',
+    ], [
+      { cmd: 'aws sqs send-message --queue-url $Q --message-body \'{}\' --query MessageId --output text; sleep 90; aws sqs get-queue-attributes --queue-url $DLQ --attribute-names ApproximateNumberOfMessages --query Attributes.ApproximateNumberOfMessages --output text', explain: 'A message the function rejects; after three receives the queue redrives it to the dead-letter queue.', sample: '1a2b3c4d-…\n1' },
+    ], ['1'], 'Without the dead-letter queue that message would be retried forever and every good message behind it would wait. The exam asks for exactly this setting.'),
+    rec(7, 'dev', 'Queue and ledger', ['The queue, its dead-letter queue and the receive count.', 'The ledger function, its role and the event source mapping.', 'The poison test and where the message ended.'], 'The design document shows the decoupled path and its failure mode.'),
   ]),
-  T(6, 'secops', 'Remove SSH and use Session Manager', 'Give the instance a Session Manager role, delete the SSH rule, and administer it with no open port.', 50,
-    ['Session Manager', 'Instance profiles', 'Attack surface'], ['No inbound rule', 'A command ran through Session Manager'],
-    [doc('Setting up Session Manager', 'systems-manager/latest/userguide/session-manager-getting-started.html', 'the prerequisites list: the agent (already on Amazon Linux), an instance profile with AmazonSSMManagedInstanceCore, and outbound HTTPS — no inbound port'),
-     doc('IAM roles for Amazon EC2', 'AWSEC2/latest/UserGuide/iam-roles-for-amazon-ec2.html', 'the “Attach an IAM role to an instance” steps under Actions → Security → Modify IAM role')],
-    'Free: Session Manager, IAM roles and Run Command cost nothing. Instance hours count while it runs — stop it at the end.', [
-    both(s(6, 'secops', 1), 'Give the instance a role', 'Create an SSM role and attach it to the instance.', CONSOLE, [
-      'IAM → Roles → Create role → AWS service → EC2. Policy AmazonSSMManagedInstanceCore. Name capstone-team01-ssm.',
-      'EC2 → Instances → ec2-tools-team01 → Actions → Security → Modify IAM role → capstone-team01-ssm → Update.',
+  T(7, 'secops', 'Lock the data down and age it out', 'Prove the database was never public and is encrypted, block public access for the account, and age old audit objects to a colder class.', 40,
+    ['SAA-C03 · Design Secure Architectures', 'S3 Block Public Access', 'Encryption at rest', 'Lifecycle rules'], ['Account-level Block Public Access is on', 'The database snapshot is encrypted and not shared', 'A lifecycle rule ages the audit bucket'],
+    [doc('Blocking public access to your Amazon S3 storage', 'AmazonS3/latest/userguide/access-control-block-public-access.html', 'the “Block public access settings” table and the account-level option that overrides every bucket'),
+     doc('Managing your storage lifecycle', 'AmazonS3/latest/userguide/object-lifecycle-mgmt.html', 'the “Transition actions” list and the minimum days before an object may move to Glacier Instant Retrieval')],
+    'Free: Block Public Access, lifecycle rules and reading snapshot attributes cost nothing; colder classes cost less, not more.', [
+    both(s(7, 'secops', 1), 'Block public access for the account', 'All four settings on, account-wide.', CONSOLE, [
+      'S3 → Block Public Access settings for this account → Edit → tick all four → Save → confirm.',
     ], [
-      { cmd: 'aws iam create-role --role-name capstone-team01-ssm --assume-role-policy-document \'{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"ec2.amazonaws.com"},"Action":"sts:AssumeRole"}]}\' -o none && aws iam attach-role-policy --role-name capstone-team01-ssm --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore', explain: 'The role lets the instance’s SSM agent talk to Systems Manager — nothing else.', sample: '(no output — the role and its policy exist)' },
-      { cmd: `aws iam create-instance-profile --instance-profile-name capstone-team01-ssm -o none && aws iam add-role-to-instance-profile --instance-profile-name capstone-team01-ssm --role-name capstone-team01-ssm && sleep 10 && ${IID} && aws ec2 associate-iam-instance-profile --instance-id $IID --iam-instance-profile Name=capstone-team01-ssm --query IamInstanceProfileAssociation.State --output text`, explain: 'An instance profile is how a role is handed to an instance.', sample: 'associating' },
-    ], ['associating'], 'The agent is already installed on Amazon Linux; it only needed permission.'),
-    both(s(6, 'secops', 2), 'Remove SSH, run a command', 'Revoke the SSH rule and run a command through SSM.', CONSOLE, [
-      'EC2 → Security groups → sg-tools-team01 → Inbound rules → Edit → Delete the SSH row → Save. The table is empty.',
-      START_CLICK,
-      'Systems Manager → Run Command → Run command → AWS-RunShellScript; target ec2-tools-team01; commands: hostname; systemctl is-active amazon-ssm-agent. Run.',
-      'Open the command → the instance → Output: the hostname and “active”.',
+      { cmd: 'ACCT=$(aws sts get-caller-identity --query Account --output text); aws s3control put-public-access-block --account-id $ACCT --public-access-block-configuration BlockPublicAcls=true,IgnorePublicAcls=true,BlockPublicPolicy=true,RestrictPublicBuckets=true; aws s3control get-public-access-block --account-id $ACCT --query "PublicAccessBlockConfiguration.RestrictPublicBuckets" --output text', explain: 'The account-wide switch; a bucket policy that opens a bucket to the world is refused from now on.', sample: 'True' },
+    ], ['True'], 'The site stays reachable because CloudFront reads it as a named principal, not as “everyone”: the fence blocks only the mistake.'),
+    both(s(7, 'secops', 2), 'Check the snapshot', 'Encrypted, and shared with nobody.', CONSOLE, [
+      'RDS → Snapshots → capstone-team01-db-w7: Encrypted Yes. Actions → Share snapshot: no accounts listed.',
     ], [
-      { cmd: 'SG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-tools-team01 --query "SecurityGroups[0].GroupId" --output text); aws ec2 revoke-security-group-ingress --group-id $SG --ip-permissions "$(aws ec2 describe-security-groups --group-ids $SG --query SecurityGroups[0].IpPermissions)" -o none; aws ec2 describe-security-groups --group-ids $SG --query "SecurityGroups[0].IpPermissions"', explain: 'Revokes every inbound rule. The empty list is the proof.', sample: '[]' },
-      { cmd: `${START}; ${ssm('hostname; systemctl is-active amazon-ssm-agent')}`, explain: 'Session Manager goes out through the agent, so no inbound port is needed. Give it a minute after starting.', sample: 'ip-10-10-1-25.ec2.internal\nactive' },
-    ], ['[]', 'active'], 'The safest open port is none: admin goes through an authenticated, logged AWS API.'),
-    rec(6, 'secops', 'Security group rules', ['Every inbound and outbound rule with its reason.', 'The empty inbound list.'], 'The rules matrix of the network design.'),
-    STOP(6, 'secops'),
+      { cmd: 'aws rds describe-db-snapshots --db-snapshot-identifier capstone-team01-db-w7 --query "DBSnapshots[0].[Encrypted, Status]" --output text; aws rds describe-db-snapshot-attributes --db-snapshot-identifier capstone-team01-db-w7 --query "DBSnapshotAttributesResult.DBSnapshotAttributes[0].AttributeValues" --output text', explain: 'Encrypted and available, and the restore attribute lists no other account.', sample: 'True\tavailable\n' },
+    ], ['True'], 'A snapshot is the database’s data without its fence; the attribute that lists who may restore it is the fence.'),
+    both(s(7, 'secops', 3), 'Age the audit objects', 'Standard to Glacier Instant Retrieval after 30 days.', CONSOLE, [
+      'S3 → the audit bucket (or the site bucket if Week 11 has not run) → Management → Create lifecycle rule.',
+      'Name age-out, whole bucket: current versions to Glacier Instant Retrieval after 30 days; expire noncurrent after 90. Create.',
+    ], [
+      { cmd: 'BUCKET=$(aws s3api list-buckets --query "Buckets[?contains(Name,\'team01\')].Name | [0]" --output text); aws s3api put-bucket-lifecycle-configuration --bucket $BUCKET --lifecycle-configuration \'{"Rules":[{"ID":"age-out","Status":"Enabled","Filter":{},"Transitions":[{"Days":30,"StorageClass":"GLACIER_IR"}],"NoncurrentVersionExpiration":{"NoncurrentDays":90}}]}\' && aws s3api get-bucket-lifecycle-configuration --bucket $BUCKET --query "Rules[0].[ID, Status, Transitions[0].StorageClass]" --output text', explain: 'One rule: after thirty days an object moves to a class that costs a quarter as much and still answers in milliseconds.', sample: 'age-out\tEnabled\tGLACIER_IR' },
+    ], ['GLACIER_IR'], 'Cost optimisation on the exam is mostly this rule: say how soon an object will be read, and let the bucket move it to the class that matches.'),
+    rec(7, 'secops', 'Data controls', ['Block Public Access: on, account level.', 'The snapshot: encrypted, shared with nobody.', 'The lifecycle rule and the class it moves to.'], 'The runbook’s data section says what protects the data at rest and who may copy it.'),
   ]),
 
-  // ── Week 7 — Server Admin ──────────────────────────────────────────────
-  T(7, 'arch', 'Decide the instance size', 'Read the instance’s CPU use and decide whether t3.micro is still the right size.', 30,
-    ['Right-sizing', 'Burstable instances'], ['A size decision with its evidence'],
-    [doc('Burstable performance instances', 'AWSEC2/latest/UserGuide/burstable-performance-instances.html', 'the “Baseline utilization” table: t3.micro’s baseline is 10% — an average under that is normal, not idle waste'),
-     doc('Monitor your instances using CloudWatch', 'AWSEC2/latest/UserGuide/viewing_metrics_with_cloudwatch.html', 'the Monitoring tab on the instance page and the CPU utilization graph; change the period to one day')],
-    'Free: CloudWatch basic monitoring at five-minute intervals costs nothing. Detailed monitoring would; do not enable it.', [
-    both(s(7, 'arch', 1), 'Read the CPU history', 'Read the average CPU for the last week.', CONSOLE, [
-      'EC2 → Instances → ec2-tools-team01 → Monitoring tab.',
-      'CPU utilization → enlarge; time range 1 week, period 1 day, statistic Average.',
+  // ── Week 8 — Scale, monitor, recover ───────────────────────────────────
+  T(8, 'arch', 'Set RPO and RTO per asset and the scaling policy', 'Decide per asset how much data can be lost and how fast it must return, set the scaling target, and cost the final design.', 35,
+    ['SAA-C03 · Design Cost-Optimized Architectures', 'RPO and RTO', 'Target tracking', 'Right-sizing'], ['RPO and RTO for every asset', 'A scaling target with its reason', 'The final design is costed'],
+    [doc('Reliability pillar — Well-Architected', 'wellarchitected/latest/reliability-pillar/welcome.html', 'the “Plan for disaster recovery” section: RPO and RTO defined, and the four strategies from backup-and-restore to multi-site'),
+     doc('Target tracking scaling policies', 'autoscaling/ec2/userguide/as-scaling-target-tracking.html', 'the “Choose metrics” paragraph: a metric that rises with load and falls when instances are added — CPU is the textbook one')],
+    'Free: targets, a policy and the calculator cost nothing.', [
+    both(s(8, 'arch', 1), 'Read the fleet’s usage', 'CPU over the week for the fleet and the tools instance.', CONSOLE, [
+      'CloudWatch → Metrics → EC2 → By Auto Scaling Group → asg-web-team01 CPUUtilization, 1 week, Average.',
+      'EC2 → Instances → ec2-tools-team01 → Monitoring → CPU utilization, 1 week.',
     ], [
-      { cmd: `${IID}; aws cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --dimensions Name=InstanceId,Value=$IID --start-time $(date -d '-7 days' +%FT%T) --end-time $(date +%FT%T) --period 86400 --statistics Average --query "Datapoints[].[Timestamp, Average]" --output text`, explain: 'Daily averages. T3 instances earn CPU credits while idle, so a low average is normal and healthy.', sample: '2026-10-20T00:00:00+00:00\t2.4' },
-    ], ['2026-'], 'Right-sizing is cost control with evidence, not a guess.'),
-    rec(7, 'arch', 'Sizing decision', ['Size now; keep, grow or shrink, and why.'], 'The decision is reversible and cheap — record it anyway.'),
+      { cmd: 'aws cloudwatch get-metric-statistics --namespace AWS/EC2 --metric-name CPUUtilization --dimensions Name=AutoScalingGroupName,Value=asg-web-team01 --start-time $(date -u -d "-7 days" +%FT%TZ) --end-time $(date -u +%FT%TZ) --period 86400 --statistics Average Maximum --query "Datapoints[].[Average, Maximum]" --output text', explain: 'Average and peak CPU per day for the fleet while it ran. Low numbers argue for a small type and a high scaling target.', sample: '3.1\t12.4' },
+    ], ['12.4'], 'A scaling target is a number you defend: 50 % CPU on a t3.micro leaves headroom for a burst before the next instance is ready.'),
+    portal(s(8, 'arch', 2), 'Cost the final design', 'The fleet, the ALB, the database and the queue for a month.', 'AWS Pricing Calculator (calculator.aws)', [
+      'Add one ALB, two t3.micro (one free-tier), RDS db.t3.micro Multi-AZ 20 GB, DynamoDB on-demand, SQS, S3. Read the total.',
+      'Write it next to Week 6’s single-instance figure; the difference buys a zone, a standby and a queue.',
+    ], 'A monthly total for the final design with the difference explained.', 'The exam’s cost domain is not “cheapest”: it is the cheapest design that still meets the RPO, the RTO and the availability the company wrote down.'),
+    rec(8, 'arch', 'Business impact and scaling', ['Asset, criticality, RPO, RTO, protected by.', 'The scaling target and why.', 'The monthly cost of the final design.'], 'Week 12’s recovery scenario is judged against these targets.'),
   ]),
-  T(7, 'infra', 'Attach and mount an EBS volume', 'Add a 4 GB encrypted gp3 volume to the instance and mount it at /data so it survives a reboot.', 45,
-    ['EBS volumes', 'NVMe device names', 'fstab'], ['/data is mounted', 'The instance is stopped'],
-    [doc('Create an Amazon EBS volume', 'ebs/latest/userguide/ebs-creating-volume.html', 'the Availability Zone field — it must match the instance’s zone or Attach will not list the instance'),
-     doc('Make an EBS volume available for use', 'ebs/latest/userguide/ebs-using-volumes.html', 'the “Format and mount” steps and the fstab line with UUID= — copy that form, not /dev/nvme1n1')],
-    'Free tier: the 4 GB gp3 volume sits inside the 30 GB free. Instance hours count while it runs — stop it at the end.', [
-    both(s(7, 'infra', 1), 'Create and attach the volume', 'Create a 4 GB encrypted volume and attach it.', CONSOLE, [
-      START_CLICK,
-      'EC2 → Volumes → Create volume: gp3, 4 GiB, us-east-1a, Encrypt ticked, tag Name ebs-data-tools-team01.',
-      'Select it → Actions → Attach volume → ec2-tools-team01, device /dev/sdf → Attach.',
+  T(8, 'infra', 'Scale the fleet on CPU and prove a lost instance is replaced', 'Add a target-tracking policy, load one instance until the group adds a third, terminate one and watch it replaced, then park the fleet.', 55,
+    ['SAA-C03 · Design Resilient Architectures', 'Target tracking', 'Self-healing groups', 'Instance replacement'], ['A policy scales out on CPU', 'A terminated instance is replaced without a human', 'The fleet is parked at the end'],
+    [doc('Target tracking scaling policies', 'autoscaling/ec2/userguide/as-scaling-target-tracking.html', 'the “Create a target tracking scaling policy” steps and the predefined metric ASGAverageCPUUtilization'),
+     doc('Replacing unhealthy instances', 'autoscaling/ec2/userguide/ec2-auto-scaling-health-checks.html', 'the “Health check grace period” paragraph and what happens to an instance the group marks unhealthy — it is terminated and replaced')],
+    'The fleet runs two to three t3.micro for under an hour (about $0.01 to $0.02 an hour beyond the free one); park it at zero at the end. Stop or delete anything you started.', [
+    both(s(8, 'infra', 1), 'Wake the fleet and add the policy', 'Desired 2; target 50 % average CPU.', CONSOLE, [
+      'EC2 → Auto Scaling groups → asg-web-team01 → Edit: desired 2. Update.',
+      'Automatic scaling → Create dynamic scaling policy: target tracking, Average CPU utilization, 50, name cpu-50. Create.',
     ], [
-      { cmd: `${START}; VOL=$(aws ec2 create-volume --size 4 --volume-type gp3 --encrypted --availability-zone us-east-1a --tag-specifications "ResourceType=volume,Tags=[{Key=Name,Value=ebs-data-tools-team01}]" --query VolumeId --output text); aws ec2 wait volume-available --volume-ids $VOL; aws ec2 attach-volume --volume-id $VOL --instance-id $IID --device /dev/sdf --query State --output text`, explain: 'A volume must be in the same Availability Zone as the instance.', sample: 'attaching' },
-    ], ['attaching'], 'Data on its own volume can be snapshotted and restored without touching the OS.'),
-    both(s(7, 'infra', 2), 'Format and mount it', 'Format the volume and mount it at /data.', CONSOLE, [
-      'Systems Manager → Run Command → AWS-RunShellScript → target ec2-tools-team01.',
-      'Commands: paste the script inside the quotes of the shell line below — format, fstab entry, mount.',
-      'Then a second command: df -h /data. Read the output.',
+      { cmd: 'aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 2; aws autoscaling put-scaling-policy --auto-scaling-group-name asg-web-team01 --policy-name cpu-50 --policy-type TargetTrackingScaling --target-tracking-configuration \'{"PredefinedMetricSpecification":{"PredefinedMetricType":"ASGAverageCPUUtilization"},"TargetValue":50.0}\' --query "Alarms[].AlarmName" --output text', explain: 'The policy creates two alarms for you: one that adds instances above the target, one that removes them below it.', sample: 'TargetTracking-asg-web-team01-AlarmHigh-…\tTargetTracking-asg-web-team01-AlarmLow-…' },
+    ], ['AlarmHigh', 'AlarmLow'], 'Target tracking is the exam’s default answer for “scale on demand”: you give the target, the service writes the alarms.'),
+    both(s(8, 'infra', 2), 'Load an instance until the group adds one', 'Burn CPU on one instance; watch desired go to three.', CONSOLE, [
+      'Systems Manager → Run Command → AWS-RunShellScript on one fleet instance.',
+      'Command: for i in 1 2; do yes > /dev/null & done; sleep 420; pkill yes. Run.',
+      'EC2 → Auto Scaling groups → asg-web-team01 → Activity: after five to eight minutes a third instance launches.',
     ], [
-      { cmd: ssm('D=/dev/nvme1n1; mkfs -t xfs -q $D; mkdir -p /data; echo UUID=$(blkid -s UUID -o value $D) /data xfs defaults,nofail 0 2 >> /etc/fstab; mount -a; df -h /data'), explain: 'On t3, /dev/sdf appears as /dev/nvme1n1. fstab uses the UUID because NVMe names can change.', sample: 'Filesystem      Size  Used Avail Use% Mounted on\n/dev/nvme1n1    4.0G   61M  3.9G   2% /data' },
-    ], ['/data'], 'A mount that is not in fstab disappears at the next reboot.'),
-    rec(7, 'infra', 'Storage', ['The volume, its size, where it is mounted.'], 'The runbook’s storage section.'),
-    STOP(7, 'infra'),
-  ]),
-  T(7, 'dev', 'Patch with Patch Manager', 'Scan for missing updates and install them through Systems Manager Patch Manager.', 40,
-    ['Patch Manager', 'Patch baselines'], ['A patch run succeeded', 'The instance is stopped'],
-    [doc('Patch instances on demand', 'systems-manager/latest/userguide/patch-manager-patch-now.html', 'the “Patch now” button and the Operation choice: Scan only, or Scan and install'),
-     doc('Patch compliance', 'systems-manager/latest/userguide/patch-manager-compliance-states.html', 'the compliance states — Installed, Missing, Failed — the three numbers you record')],
-    'Free: Patch Manager and its compliance data cost nothing. Instance hours count while it runs — stop it at the end.', [
-    both(s(7, 'dev', 1), 'Install patches', 'Run the patch baseline in Install mode.', CONSOLE, [
-      START_CLICK,
-      'Systems Manager → Patch Manager → Patch now. Operation: Scan and install. Reboot if needed. Target: ec2-tools-team01. Patch now.',
-      'Patch Manager → Compliance reporting: read Installed, Missing, Failed for the instance.',
+      { cmd: 'ONE=$(aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names asg-web-team01 --query "AutoScalingGroups[0].Instances[0].InstanceId" --output text); aws ssm send-command --instance-ids $ONE --document-name AWS-RunShellScript --parameters \'commands=["for i in 1 2; do yes > /dev/null & done; sleep 420; pkill yes"]\' --query Command.Status --output text; sleep 480; aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names asg-web-team01 --query "AutoScalingGroups[0].[DesiredCapacity, length(Instances)]" --output text', explain: 'Two CPU burners for seven minutes on one instance; the average crosses 50 % and the policy raises desired to three.', sample: 'Pending\n3\t3' },
+    ], ['3'], 'The third instance is the policy acting on the alarm; nobody clicked. When the load ends the AlarmLow removes it again, a few minutes later.'),
+    both(s(8, 'infra', 3), 'Terminate one and watch it come back', 'Kill an instance; the group launches a replacement.', CONSOLE, [
+      'EC2 → Instances → one web-team01 instance → Instance state → Terminate.',
+      'Auto Scaling groups → asg-web-team01 → Activity: “Terminating EC2 instance” then “Launching a new EC2 instance”. Instances: back to the desired count.',
     ], [
-      { cmd: `${START}; CID=$(aws ssm send-command --instance-ids $IID --document-name AWS-RunPatchBaseline --parameters Operation=Install --query Command.CommandId --output text); aws ssm wait command-executed --command-id $CID --instance-id $IID; aws ssm get-command-invocation --command-id $CID --instance-id $IID --query Status --output text`, explain: 'AWS-RunPatchBaseline applies the default baseline and reports compliance.', sample: 'Success' },
-      { cmd: 'aws ssm describe-instance-patch-states --instance-ids $IID --query "InstancePatchStates[0].[InstalledCount, MissingCount, FailedCount]" --output text', explain: 'Installed, still missing, failed.', sample: '412\t0\t0' },
-    ], ['Success'], 'Patching through the platform leaves a compliance record an auditor can read.'),
-    rec(7, 'dev', 'Patching', ['The tool, and the result of the run.'], 'Patch evidence for the runbook and the governance report.'),
-    STOP(7, 'dev'),
-  ]),
-  T(7, 'secops', 'Baseline the instance and write the runbook', 'Record what normal looks like on the instance and write the steps to check it is healthy.', 45,
-    ['Performance baselines', 'Runbooks'], ['Three baseline metrics', 'A four-step runbook'],
-    [doc('AWS Systems Manager Run Command', 'systems-manager/latest/userguide/run-command.html', 'the “Run a command” walkthrough: document AWS-RunShellScript, targets by instance, and where the output appears'),
-     doc('Session Manager', 'systems-manager/latest/userguide/session-manager.html', 'the “Start session” button on the instance’s Connect page — a shell with no port, if you prefer it to Run Command')],
-    'Free: Run Command and Session Manager. Instance hours count while it runs — stop it at the end.', [
-    both(s(7, 'secops', 1), 'Take the baseline', 'Read load, memory and disk on the instance.', CONSOLE, [
-      START_CLICK,
-      'Systems Manager → Run Command → AWS-RunShellScript → ec2-tools-team01. Commands: uptime; free -m | head -2; df -h / | tail -1',
-      'Open the command → Output: load average, free memory, disk use.',
+      { cmd: 'aws ec2 terminate-instances --instance-ids $ONE --query "TerminatingInstances[0].CurrentState.Name" --output text; sleep 120; aws autoscaling describe-scaling-activities --auto-scaling-group-name asg-web-team01 --max-items 2 --query "Activities[].Description" --output text', explain: 'The termination, then the group’s own activities: it noticed and launched a replacement.', sample: 'shutting-down\nLaunching a new EC2 instance: i-0a1b2c3d4e5f60004\tTerminating EC2 instance: i-0a1b2c3d4e5f60001' },
+    ], ['Launching a new EC2 instance'], 'This is “self-healing” on the exam: the group holds the count, the balancer stops sending to the dead one within seconds, and the visitor never knew.'),
+    both(s(8, 'infra', 4), 'Park the fleet', 'Desired zero, policy left in place.', CONSOLE, [
+      'EC2 → Auto Scaling groups → asg-web-team01 → Edit: desired 0, minimum 0. Update.',
     ], [
-      { cmd: `${START}; ${ssm('uptime; free -m | head -2; df -h / | tail -1')}`, explain: 'Load average, free memory and disk use, taken while idle — that is what normal means.', sample: ' 14:02:11 up 2 min,  load average: 0.05, 0.08, 0.03\nMem:  949  298  402\n/dev/nvme0n1p1  8.0G  1.6G  6.4G  20% /' },
-    ], ['load average'], 'You cannot say “it is slow” without knowing what fast looked like.'),
-    both(s(7, 'secops', 2), 'Require IMDSv2', 'Make the instance refuse metadata requests without a token.', CONSOLE, [
-      'EC2 → Instances → ec2-tools-team01 → Actions → Instance settings → Modify instance metadata options → IMDSv2: Required. Save.',
-    ], [
-      { cmd: 'aws ec2 modify-instance-metadata-options --instance-id $IID --http-tokens required --http-endpoint enabled --query "InstanceMetadataOptions.HttpTokens" --output text', explain: 'Only token-based (v2) requests may read the instance’s metadata and credentials.', sample: 'required' },
-    ], ['required'], 'The metadata service hands an instance its role credentials. IMDSv1 answers any request, so a bug that makes the instance fetch a URL (SSRF) could leak them; v2 needs a token first. The Week 9 template requires it.'),
-    portal(s(7, 'secops', 3), 'Write the “when it is slow” step', 'Add the layer-by-layer check to the runbook.', 'The document', [
-      'Layers, in order: network (reachable?), identity (allowed?), application (answers?), data (table there?), configuration (setting changed?).',
-      'For each layer, one check and one expected result: security group rules, IAM simulator, curl the API, DynamoDB, environment variables.',
-      'Stop at the first layer that fails; that is where the fix goes.',
-    ], 'A runbook step that walks the five layers with one check each.', 'Working down the layers stops you fixing what is not broken: a 200 from the API rules out three layers in one look. Week 4’s incident was a configuration fault; this step finds the next one in minutes.'),
-    rec(7, 'secops', 'Performance baseline, Runbook', ['Three metrics: normal and alert level.', 'Four runbook steps: check, expect — and the five-layer step.'], 'The runbook is what a teammate on call follows.'),
-    STOP(7, 'secops'),
-  ]),
-
-  // ── Week 8 — Backup and Recovery ───────────────────────────────────────
-  T(8, 'arch', 'Set RPO and RTO per asset', 'For each asset, decide how much data the company can lose and how fast it must return.', 30,
-    ['Business impact analysis', 'RPO and RTO'], ['Three assets with RPO, RTO and method'],
-    [doc('Disaster recovery options in the cloud', 'whitepapers/latest/disaster-recovery-workloads-on-aws/disaster-recovery-options-in-the-cloud.html', 'the RPO/RTO definitions at the top and the four strategies — backup and restore is the one this course uses')],
-    'Free: a decision, written down. Nothing is deployed.', [
-    portal(s(8, 'arch', 1), 'Rank the assets', 'Rank the website, the counter data and the instance.', 'Team meeting', [
-      'Ask: what does an hour of this being down cost?',
-      'RPO: how much data can we lose? RTO: how fast must it return?',
-      'Name the protection: versioning, snapshot, or the template.',
-    ], 'Three assets ranked, each with an RPO, an RTO and a method.', 'Targets come first, backups second: the target decides how often you back up.'),
-    rec(8, 'arch', 'Business impact', ['One row per asset.'], 'Week 12’s recovery scenario is judged against these numbers.'),
-  ]),
-  T(8, 'infra', 'Restore a volume from a snapshot', 'Snapshot the data volume, create a new volume from it, and clean up.', 40,
-    ['EBS snapshots', 'Restore testing'], ['A volume restored from a snapshot', 'The test volume is deleted'],
-    [doc('Create Amazon EBS snapshots', 'ebs/latest/userguide/ebs-creating-snapshot.html', 'the “Create a snapshot of a volume” steps and the Status column — wait for Completed before restoring'),
-     doc('Create a volume from a snapshot', 'ebs/latest/userguide/ebs-restoring-volume.html', 'the “Create volume from snapshot” action — pick the same Availability Zone as the instance')],
-    'Free tier: 1 GB of EBS snapshot storage a month; a 4 GB volume with 61 MB used snapshots to well under that. Delete the test volume — it counts against the 30 GB.', [
-    both(s(8, 'infra', 1), 'Snapshot and restore', 'Snapshot the data volume and make a volume from it.', CONSOLE, [
-      'EC2 → Volumes → ebs-data-tools-team01 → Actions → Create snapshot; description “team01 data”. Wait for Completed.',
-      'Snapshots → the snapshot → Actions → Create volume from snapshot: gp3, us-east-1a. Create.',
-    ], [
-      { cmd: 'VOL=$(aws ec2 describe-volumes --filters Name=tag:Name,Values=ebs-data-tools-team01 --query "Volumes[0].VolumeId" --output text); SNAP=$(aws ec2 create-snapshot --volume-id $VOL --description "team01 data" --query SnapshotId --output text); aws ec2 wait snapshot-completed --snapshot-ids $SNAP && echo $SNAP', explain: 'Snapshots are incremental and stored in S3 — cents a month.', sample: 'snap-0a1b2c3d4e5f67890' },
-      { cmd: 'NEW=$(aws ec2 create-volume --snapshot-id $SNAP --availability-zone us-east-1a --volume-type gp3 --query VolumeId --output text); aws ec2 wait volume-available --volume-ids $NEW && echo available', explain: 'A new volume from the snapshot. Attach it to check the files, if you like.', sample: 'available' },
-    ], ['snap-', 'available'], 'Snapshots are cheap; AWS Backup is an optional stretch.'),
-    both(s(8, 'infra', 2), 'Clean up the test volume', 'Delete the restored test volume.', CONSOLE, [
-      'EC2 → Volumes → the new, unattached volume → Actions → Delete volume.',
-      'ebs-data-tools-team01 still reads In-use.',
-    ], [
-      { cmd: 'aws ec2 delete-volume --volume-id $NEW && aws ec2 describe-volumes --filters Name=tag:Name,Values=ebs-data-tools-team01 --query "Volumes[].State" --output text', explain: 'Keep the snapshot and the original; delete the test copy.', sample: 'in-use' },
-    ], ['in-use'], 'A restore test leaves nothing behind but the evidence.'),
-    rec(8, 'infra', 'VM restore', ['The snapshot id, and whether the data was present.'], 'The first proven restore in the DR plan.'),
-  ]),
-  T(8, 'dev', 'Recover a deleted web file', 'Turn on bucket versioning, delete index.html, and get it back by removing the delete marker.', 40,
-    ['S3 versioning', 'Delete markers'], ['index.html was recovered', 'The site loads again'],
-    [doc('Enabling versioning on buckets', 'AmazonS3/latest/userguide/manage-versioning-examples.html', 'the console steps under Properties → Bucket Versioning → Edit → Enable'),
-     doc('Working with delete markers', 'AmazonS3/latest/userguide/DeleteMarker.html', 'the diagram: a delete adds a marker on top; deleting the marker brings the object back')],
-    'Free: versioning is a setting; the extra copies of one small file are kilobytes inside the 5 GB.', [
-    both(s(8, 'dev', 1), 'Turn on versioning', 'Enable versioning on the site bucket.', CONSOLE, [
+      { cmd: 'aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 0; sleep 30; aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names asg-web-team01 --query "AutoScalingGroups[0].[DesiredCapacity, length(Instances)]" --output text', explain: 'Desired zero; the policy stays for Week 9’s template to copy.', sample: '0\t0' },
+    ], ['0'], 'Parked is free. The drill on Security & Ops’ task wakes it one more time and then deletes it all.'),
+    rec(8, 'infra', 'Scaling and replacement', ['The policy: metric, target, the alarms it created.', 'The scale-out time and the replacement time, from the activity log.'], 'The plan names the time a lost instance takes to come back.'),
+  ], { cost: { usd: 0.021, per: 'hour', note: 'Up to two billed t3.micro beyond the free one while the fleet runs; parked at the end.' } }),
+  T(8, 'dev', 'Recover a deleted web file and the database from its snapshot', 'Turn on versioning, delete index.html and get it back, restore the database from the Week 7 snapshot, check it, and delete the restored instance.', 55,
+    ['SAA-C03 · Design Resilient Architectures', 'S3 versioning', 'RDS snapshot restore', 'Recovery proof'], ['The deleted file is back', 'A database restored from the snapshot reached Available', 'The restored instance is deleted'],
+    [doc('Using versioning in S3 buckets', 'AmazonS3/latest/userguide/Versioning.html', 'the “Delete markers” paragraph: a delete on a versioned bucket hides the object behind a marker, and removing the marker brings it back'),
+     doc('Restoring from a DB snapshot', 'AmazonRDS/latest/UserGuide/USER_RestoreFromSnapshot.html', 'the note that a restore creates a new instance with a new endpoint — and that you choose its subnet group and security group again')],
+    'The restored db.t3.micro bills about $0.018 an hour (single-AZ) while it exists; delete it at the end of the task. Versioning stores the old copies for cents. Stop or delete anything you started.', [
+    both(s(8, 'dev', 1), 'Turn on versioning', 'Every overwrite and delete keeps the previous version.', CONSOLE, [
       'S3 → the site bucket → Properties → Bucket Versioning → Edit → Enable → Save.',
-      'Objects → Upload site/index.html once more, so a versioned copy exists.',
     ], [
-      { cmd: "BUCKET=$(aws s3 ls | grep capstone-team01-site | awk '{print $3}'); aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled && aws s3api get-bucket-versioning --bucket $BUCKET --output text", explain: 'Every overwrite and delete now keeps the previous version.', sample: 'Enabled' },
-      { cmd: 'aws s3 cp s3://$BUCKET/index.html s3://$BUCKET/index.html --metadata-directive REPLACE -o none 2>/dev/null; aws s3 sync ./site s3://$BUCKET', explain: 'Upload once more so a versioned copy exists.', sample: 'upload: site/index.html to s3://capstone-team01-site-18342/index.html' },
-    ], ['Enabled'], 'Protection has to be on BEFORE the accident.'),
-    both(s(8, 'dev', 2), 'Delete and recover', 'Delete index.html, then remove the delete marker.', CONSOLE, [
-      'Objects → tick index.html → Delete → confirm. The site now 404s.',
-      'Toggle “Show versions”: index.html has a Delete marker on top. Tick the marker only → Delete.',
-      'The file is back; reload the site.',
+      { cmd: 'BUCKET=$(aws s3api list-buckets --query "Buckets[?contains(Name,\'site\') && contains(Name,\'team01\')].Name | [0]" --output text); aws s3api put-bucket-versioning --bucket $BUCKET --versioning-configuration Status=Enabled && aws s3api get-bucket-versioning --bucket $BUCKET --query Status --output text', explain: 'Versioning on. From now on nothing in the bucket is lost by a delete.', sample: 'Enabled' },
+    ], ['Enabled'], 'Versioning is the cheapest backup there is, and the one the exam expects for a static site.'),
+    both(s(8, 'dev', 2), 'Delete the page and bring it back', 'Delete index.html; remove the delete marker.', CONSOLE, [
+      'S3 → the bucket → tick index.html → Delete.',
+      'Show versions → the Delete marker row → Delete (permanently). The page is back.',
     ], [
-      { cmd: "aws s3 rm s3://$BUCKET/index.html && MARK=$(aws s3api list-object-versions --bucket $BUCKET --prefix index.html --query 'DeleteMarkers[0].VersionId' --output text)", explain: 'With versioning on, a delete only adds a marker on top.', sample: 'delete: s3://capstone-team01-site-18342/index.html' },
-      { cmd: 'aws s3api delete-object --bucket $BUCKET --key index.html --version-id $MARK -o none && aws s3api head-object --bucket $BUCKET --key index.html --query ContentType --output text', explain: 'Removing the marker brings the file back.', sample: 'text/html' },
-    ], ['text/html'], 'A backup is only real once you have restored from it.'),
-    rec(8, 'dev', 'Website restore', ['What you deleted and how you restored it.'], 'The second proven restore.'),
-  ]),
-  T(8, 'secops', 'Run a timed recovery drill', 'Snapshot the instance’s root volume, rebuild a volume from it, time the whole thing, and compare with the RTO.', 45,
-    ['Recovery drills', 'RTO measurement'], ['The drill is timed', 'Test resources are deleted'],
-    [doc('Create Amazon EBS snapshots', 'ebs/latest/userguide/ebs-creating-snapshot.html', 'the note that a snapshot of a stopped instance’s root volume is consistent — you do not need to start it'),
-     doc('Amazon EBS pricing', 'https://aws.amazon.com/ebs/pricing/', 'the snapshot line: per GB-month of changed data — the reason a drill costs cents and clean-up matters')],
-    'Free tier: the drill snapshot is a few hundred MB inside the 1 GB free; delete the drill volume and snapshot at the end.', [
-    both(s(8, 'secops', 1), 'Run the drill', 'Start a timer, snapshot the root volume, restore it.', CONSOLE, [
-      'Note the time. EC2 → Instances → ec2-tools-team01 → Storage → the root volume → Create snapshot, description “drill”.',
-      'Snapshots → wait for Completed → Actions → Create volume from snapshot, us-east-1a. Wait for Available; note the time.',
+      { cmd: 'aws s3 rm s3://$BUCKET/index.html; curl -s -o /dev/null -w "%{http_code}\\n" https://$(aws cloudfront list-distributions --query "DistributionList.Items[0].DomainName" --output text)/index.html', explain: 'The delete, then the site: 403 or 404 — the page is gone from the visitor’s view.', sample: '403' },
+      { cmd: 'MARKER=$(aws s3api list-object-versions --bucket $BUCKET --prefix index.html --query "DeleteMarkers[?IsLatest].VersionId | [0]" --output text); aws s3api delete-object --bucket $BUCKET --key index.html --version-id $MARKER --query VersionId --output text', explain: 'Removing the delete marker makes the previous version current again. Nothing was uploaded.', sample: 'kX9…' },
+    ], ['403'], 'The restore took one call and uploaded nothing: the object was always there, behind the marker.'),
+    both(s(8, 'dev', 3), 'Restore the database from the snapshot', 'A new instance from capstone-team01-db-w7; wait; check.', CONSOLE, [
+      'RDS → Snapshots → capstone-team01-db-w7 → Actions → Restore snapshot: identifier capstone-team01-db-restore, db.t3.micro, single-AZ, subnet group dbsg-team01, no public access, sg-db-team01. Restore.',
+      'Wait for Available (about eight minutes): Connectivity & security shows a new endpoint.',
     ], [
-      { cmd: `date +%T; ${IID}; ROOT=$(aws ec2 describe-instances --instance-ids $IID --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" --output text); DS=$(aws ec2 create-snapshot --volume-id $ROOT --description drill --query SnapshotId --output text); aws ec2 wait snapshot-completed --snapshot-ids $DS`, explain: 'Note the start time. A snapshot works while the instance is stopped.', sample: '14:02:07' },
-      { cmd: 'DV=$(aws ec2 create-volume --snapshot-id $DS --availability-zone us-east-1a --query VolumeId --output text); aws ec2 wait volume-available --volume-ids $DV; date +%T', explain: 'The end time. The difference is your measured restore time.', sample: '14:09:41' },
-    ], ['14:0'], 'A measured time turns an RTO from a hope into a fact.'),
-    both(s(8, 'secops', 2), 'Clean up', 'Delete the drill volume and snapshot.', CONSOLE, [
-      'Volumes → the drill volume → Actions → Delete volume.',
-      'Snapshots → the “drill” snapshot → Actions → Delete snapshot.',
+      { cmd: 'DBSG=$(aws ec2 describe-security-groups --filters Name=group-name,Values=sg-db-team01 --query "SecurityGroups[0].GroupId" --output text); aws rds restore-db-instance-from-db-snapshot --db-instance-identifier capstone-team01-db-restore --db-snapshot-identifier capstone-team01-db-w7 --db-instance-class db.t3.micro --db-subnet-group-name dbsg-team01 --vpc-security-group-ids $DBSG --no-publicly-accessible --query DBInstance.DBInstanceStatus --output text; aws rds wait db-instance-available --db-instance-identifier capstone-team01-db-restore; aws rds describe-db-instances --db-instance-identifier capstone-team01-db-restore --query "DBInstances[0].[DBInstanceStatus, Endpoint.Address]" --output text', explain: 'A new instance built from the snapshot, with a new endpoint — the application would be pointed at it.', sample: 'creating\navailable\tcapstone-team01-db-restore.abc123.us-east-1.rds.amazonaws.com' },
+    ], ['available'], 'A restore is a new database, not the old one repaired: the endpoint changes, and the runbook has to say where the application reads the new one from.'),
+    both(s(8, 'dev', 4), 'Delete the restored instance', 'Gone, no final snapshot.', CONSOLE, [
+      'RDS → capstone-team01-db-restore → Actions → Delete: no final snapshot, acknowledge. Delete.',
     ], [
-      { cmd: 'aws ec2 delete-volume --volume-id $DV && aws ec2 delete-snapshot --snapshot-id $DS && echo cleaned', explain: 'Drills leave no cost behind.', sample: 'cleaned' },
-    ], ['cleaned'], 'Clean-up is part of the drill.'),
-    rec(8, 'secops', 'Drill', ['Start, end, RTO met, lessons.'], 'The drill record proves the plan.'),
-  ]),
+      { cmd: 'aws rds delete-db-instance --db-instance-identifier capstone-team01-db-restore --skip-final-snapshot --query DBInstance.DBInstanceStatus --output text', explain: 'The proof is recorded; the hourly instance is not needed any more.', sample: 'deleting' },
+    ], ['deleting'], 'The snapshot stays; the restore was the drill. Keeping the restored instance would double the database bill for no reason.'),
+    rec(8, 'dev', 'Website and database restore', ['What you deleted and restored, and how.', 'The snapshot restored, the time it took, the new endpoint.'], 'The plan proves both restores were done, not planned.'),
+  ], { cost: { usd: 0.018, per: 'hour', note: 'The restored single-AZ db.t3.micro while it exists; deleted at the end of the task.' } }),
+  T(8, 'secops', 'Run a timed recovery drill and tear the fleet down', 'Take the fleet to zero as if a zone failed, time its return against the RTO, delete the balancer, group and template, read the bill.', 55,
+    ['SAA-C03 · Design Resilient Architectures', 'Recovery drills', 'RTO measurement', 'Tear-down and cost review'], ['The drill is timed against the RTO', 'The ALB, the group, the target group and the template are deleted', 'This month’s cost is read'],
+    [doc('Elastic Load Balancing — target health', 'elasticloadbalancing/latest/application/target-group-health-checks.html', 'the healthy threshold and interval: how long a fresh instance takes to receive traffic — the floor of your RTO'),
+     doc('AWS Cost Explorer', 'cost-management/latest/userguide/ce-what-is.html', 'the “Filtering and grouping” paragraph: group by service to see what this week’s fleet, balancer and database cost')],
+    'The fleet runs for the minutes of the drill; the ALB is deleted at the end of this task, so Week 8 closes with nothing billing by the hour. Stop or delete anything you started.', [
+    both(s(8, 'secops', 1), 'Start the clock and wake the fleet', 'Note the time; desired 2; wait for two healthy targets.', CONSOLE, [
+      'Write the time. EC2 → Auto Scaling groups → asg-web-team01 → Edit: desired 2. Update.',
+      'Target groups → tg-web-team01 → Targets: refresh until two rows read healthy. Write the time again.',
+    ], [
+      { cmd: 'START=$(date +%s); aws autoscaling set-desired-capacity --auto-scaling-group-name asg-web-team01 --desired-capacity 2; TG=$(aws elbv2 describe-target-groups --names tg-web-team01 --query "TargetGroups[0].TargetGroupArn" --output text); until [ "$(aws elbv2 describe-target-health --target-group-arn $TG --query "length(TargetHealthDescriptions[?TargetHealth.State==\'healthy\'])" --output text)" = "2" ]; do sleep 10; done; echo "RTO $(( $(date +%s) - START )) s"', explain: 'From zero instances to two healthy targets, timed by the shell: that number is the measured RTO.', sample: 'RTO 187 s' },
+    ], ['RTO'], 'An RTO in the plan is a promise; this is the measurement. Three minutes from nothing to serving is what a two-zone group with a launch template buys.'),
+    both(s(8, 'secops', 2), 'Serve through it, then tear it all down', 'Curl the ALB once, then delete the ALB, group, target group, template.', CONSOLE, [
+      'Open the ALB DNS name once: the page answers.',
+      'EC2 → Load balancers → alb-web-team01 → Delete. Auto Scaling groups → asg-web-team01 → Delete (force). Target groups → tg-web-team01 → Delete. Launch templates → lt-web-team01 → Delete.',
+    ], [
+      { cmd: 'DNS=$(aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].DNSName" --output text); curl -s http://$DNS; ALB=$(aws elbv2 describe-load-balancers --names alb-web-team01 --query "LoadBalancers[0].LoadBalancerArn" --output text); aws elbv2 delete-load-balancer --load-balancer-arn $ALB; aws autoscaling delete-auto-scaling-group --auto-scaling-group-name asg-web-team01 --force-delete; sleep 60; aws elbv2 delete-target-group --target-group-arn $TG; aws ec2 delete-launch-template --launch-template-name lt-web-team01 --query LaunchTemplate.LaunchTemplateName --output text', explain: 'One request through the balancer, then everything that bills by the hour is deleted, template last.', sample: 'web OK from us-east-1b\nlt-web-team01' },
+    ], ['web OK', 'lt-web-team01'], 'Week 9 rebuilds all of this from the template in one command; keeping it by hand would be paying twice for the same design.'),
+    both(s(8, 'secops', 3), 'Read the month’s cost', 'What the fleet, the balancer and the database cost.', CONSOLE, [
+      'Billing → Cost Explorer → this month → group by Service: read EC2, Elastic Load Balancing, RDS. Compare with the $20 budget.',
+    ], [
+      { cmd: 'aws ce get-cost-and-usage --time-period Start=$(date +%Y-%m-01),End=$(date +%F) --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE --query "ResultsByTime[0].Groups[?contains(Keys[0],\'Compute\') || contains(Keys[0],\'Load\') || contains(Keys[0],\'Relational\')].[Keys[0], Metrics.UnblendedCost.Amount]" --output text', explain: 'Month-to-date by service for the three things this quarter paid for.', sample: 'Amazon Elastic Compute Cloud - Compute\t1.42\nAmazon Elastic Load Balancing\t9.80\nAmazon Relational Database Service\t0.21' },
+    ], ['Load Balancing'], 'A design is not finished until its bill has been read against the budget it was given.'),
+    rec(8, 'secops', 'Drill and cost', ['Drill start, service back, RTO met, lessons.', 'What was deleted; the month’s cost by service against the $20 budget.'], 'The plan shows the drill, and the course ends with nothing billing by the hour.'),
+  ], { cost: { usd: 0.0329, per: 'hour', note: 'The fleet and the ALB for the minutes of the drill; all of it deleted inside the task.' } }),
 
   // ── Week 9 — Infrastructure as Code ────────────────────────────────────
   T(9, 'arch', 'Map the template to the diagram', 'Match five template resources to their diagram nodes, and say what code does that the console cannot.', 35,

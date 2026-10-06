@@ -72,6 +72,11 @@ export const AWS_TILE: Record<CloudIconKey, keyof typeof AWS_CATEGORY> = {
   backup: 'storage',
   identity: 'security',
   audit: 'management',
+  lb: 'networking',
+  fleet: 'compute',
+  db: 'database',
+  queue: 'integration',
+  endpoint: 'networking',
 };
 
 /** The main colour an Azure glyph is drawn in. */
@@ -112,6 +117,11 @@ export const AZURE_GLYPH: Record<CloudIconKey, string> = {
   backup: AZURE.teal,
   identity: AZURE.gold,
   audit: AZURE.purple,
+  lb: AZURE.blue,
+  fleet: AZURE.blue,
+  db: AZURE.dark,
+  queue: AZURE.teal,
+  endpoint: AZURE.blue,
 };
 
 /** Container chrome per platform: the outline colours platform diagrams use. */

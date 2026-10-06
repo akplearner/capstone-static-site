@@ -28,7 +28,7 @@ You start with:
 
 ## Week 1 — Identity
 
-> New: the secret store and the roles. The function reads by identity; readers only read.
+> New: the team’s key and the secret under it, the fenced API. The function reads by identity; a denial is proved and the exposure read.
 
 This week adds:
 
@@ -38,11 +38,11 @@ This week adds:
 | Secrets User | Lets the function read secrets, nothing more | — |
 | Data Contributor | Lets the function read and write data by identity | — |
 
-**Process — Identity:** func → kv (read by identity, no key); admin → readerRole (least privilege for readers).
+**Process — Secure by design:** func → kv (read by identity, under the team key); user → func (CORS: your site only); admin → readerRole (prove a denial, find exposure).
 
 ## Week 2 — Networking
 
-> New: the management subnet and the admin path with no open port. SSH is gone.
+> New: a second zone, a load balancer, a fleet of two behind it, and a private path that needs no internet. One address, two zones.
 
 This week adds:
 
@@ -51,11 +51,11 @@ This week adds:
 | NSG · nsg-snet-mgmt | Rules for the management subnet: nothing from the internet | — |
 | Azure Bastion · Developer SKU · free | A browser SSH session to the VM with no open port | — |
 
-**Process — Networking:** admin → bastion (Bastion in the browser, no port); user → func (CORS: your site only).
+**Process — Resilient compute:** user → bastion (one address); bastion → vm (two zones, healthy targets); kv → vm (Bastion in the browser, no port).
 
 ## Week 3 — Server Admin
 
-> New: the data disk. The VM is patched, measured and right-sized.
+> New: the Multi-AZ database, encrypted and private, and the queue with its dead-letter queue. The right store per workload, the right class per object.
 
 This week adds:
 
@@ -63,11 +63,11 @@ This week adds:
 | --- | --- | --- |
 | Data disk | Data that must outlive the operating system | — |
 
-**Process — Server admin:** admin → dataDisk (attach and mount); admin → vm (patch and baseline).
+**Process — Data and storage:** vm → cosmos (Multi-AZ, encrypted, private); func → webStorage (queue the visit); webStorage → cosmos (the ledger writes it).
 
 ## Week 4 — Backup and Recovery
 
-> New: the backup protection — soft delete on Azure, a daily AWS Backup plan. Snapshot, restore, time it, and recover a deleted file.
+> New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed.
 
 This week adds:
 
@@ -75,14 +75,14 @@ This week adds:
 | --- | --- | --- |
 | Soft delete | Brings a deleted or overwritten page back | — |
 
-**Process — Backup and recovery:** admin → dataDisk (snapshot); dataDisk → vm (restore and time it); webBlobService → webStorage (recover the deleted file).
+**Process — Scale, monitor, recover:** vm → bastion (scale on CPU, replace the lost one); webBlobService → webStorage (recover the deleted file); admin → cosmos (restore from the snapshot, time it).
 
 ## The roles
 
 | Role | Mission | Drafts | Reviews | Approves | Hands to | Waits on |
 | --- | --- | --- | --- | --- | --- | --- |
-| Design & Standards (Cloud Architect) | Owns the design, the standards, the cost and each week’s document. | Access Control Matrix & Secrets Register, Network Design Document, Server Configuration & Maintenance Runbook, Backup & Disaster Recovery Plan | — | — | Platform Build (Infrastructure Admin), Application Delivery (DevOps Engineer), Security Operations (SecOps Engineer) | — |
-| Platform Build (Infrastructure Admin) | Builds the network, the VM, the data and the templates. | — | — | Network Design Document, Server Configuration & Maintenance Runbook, Backup & Disaster Recovery Plan | — | Design & Standards (Cloud Architect) |
+| Design & Standards (Cloud Architect) | Owns the design, the standards, the cost and each week’s document. | Access Control Matrix & Secrets Register, Network Design Document, Data Store & Runbook, Backup & Disaster Recovery Plan | — | — | Platform Build (Infrastructure Admin), Application Delivery (DevOps Engineer), Security Operations (SecOps Engineer) | — |
+| Platform Build (Infrastructure Admin) | Builds the network, the VM, the data and the templates. | — | — | Network Design Document, Data Store & Runbook, Backup & Disaster Recovery Plan | — | Design & Standards (Cloud Architect) |
 | Application Delivery (DevOps Engineer) | Ships the website, the API and the pipeline. | — | Access Control Matrix & Secrets Register | — | — | Design & Standards (Cloud Architect) |
-| Security Operations (SecOps Engineer) | Locks access down, watches it run, and works the incidents. | — | Network Design Document, Server Configuration & Maintenance Runbook, Backup & Disaster Recovery Plan | Access Control Matrix & Secrets Register | — | Design & Standards (Cloud Architect) |
+| Security Operations (SecOps Engineer) | Locks access down, watches it run, and works the incidents. | — | Network Design Document, Data Store & Runbook, Backup & Disaster Recovery Plan | Access Control Matrix & Secrets Register | — | Design & Standards (Cloud Architect) |
 

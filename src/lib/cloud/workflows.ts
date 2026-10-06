@@ -141,8 +141,9 @@ export const CLOUD_PHASES = [
 
 /** The ids the week processes name, per platform — the topology's own node and container ids. */
 const IDS = {
-  azure: { site: 'webStorage', edge: 'webStorage', vm: 'vm', disk: 'dataDisk', api: 'func', fn: 'func', db: 'cosmos', alert: 'http5xxAlert', notify: 'actionGroup', secret: 'kv', param: 'kv', reader: 'readerRole', mgmt: 'bastion', budget: 'budget', group: 'rg', deploy: 'rg', policy: 'tagPolicy', account: 'governance', backup: 'webBlobService', oidc: 'deployIdentity', audit: 'tagPolicy' },
-  aws: { site: 'SiteDistribution', edge: 'SiteDistribution', vm: 'ToolsInstance', disk: 'DataVolume', api: 'HttpApi', fn: 'CounterFunction', db: 'VisitorTable', alert: 'FunctionErrorsAlarm', notify: 'AlertTopic', secret: 'TableNameParameter', param: 'TableNameParameter', reader: 'ReadOnlyGroup', mgmt: 'ToolsInstance', budget: 'MonthlyBudget', group: 'Vpc', deploy: 'region', policy: 'Trail', account: 'account-level', backup: 'BackupVault', oidc: 'DeployRole', audit: 'Trail' },
+  // R106: `lb`, `fleet`, `rdb`, `queue` and `endpoint` are the associate quarter's parts (Azure's arrive with R106d).
+  azure: { site: 'webStorage', edge: 'webStorage', vm: 'vm', disk: 'dataDisk', api: 'func', fn: 'func', db: 'cosmos', alert: 'http5xxAlert', notify: 'actionGroup', secret: 'kv', param: 'kv', reader: 'readerRole', mgmt: 'bastion', budget: 'budget', group: 'rg', deploy: 'rg', policy: 'tagPolicy', account: 'governance', backup: 'webBlobService', oidc: 'deployIdentity', audit: 'tagPolicy', lb: 'bastion', fleet: 'vm', rdb: 'cosmos', queue: 'webStorage', endpoint: 'kv' },
+  aws: { site: 'SiteDistribution', edge: 'SiteDistribution', vm: 'ToolsInstance', disk: 'DataVolume', api: 'HttpApi', fn: 'CounterFunction', db: 'VisitorTable', alert: 'FunctionErrorsAlarm', notify: 'AlertTopic', secret: 'TableNameParameter', param: 'TableNameParameter', reader: 'ReadOnlyGroup', mgmt: 'ToolsInstance', budget: 'MonthlyBudget', group: 'Vpc', deploy: 'region', policy: 'Trail', account: 'account-level', backup: 'BackupVault', oidc: 'DeployRole', audit: 'Trail', lb: 'SiteAlb', fleet: 'WebFleet', rdb: 'Database', queue: 'VisitsQueue', endpoint: 'S3GatewayEndpoint' },
 } as const;
 
 const DEPLOY_PREVIEW: Record<CloudPlatform, string> = { azure: 'what-if → deploy to dev', aws: 'change set → deploy to dev' };
@@ -174,22 +175,25 @@ export function cloudWeekProcesses(platform: CloudPlatform): Record<number, Week
       { from: i.alert, to: i.notify, label: 'email the team' },
       { from: 'admin', to: i.fn, label: 'find it, fix it, retest' },
     ] },
-    5: { title: 'Identity', steps: [
-      { from: i.fn, to: i.secret, label: 'read by identity, no key' },
-      { from: 'admin', to: i.reader, label: 'least privilege for readers' },
-    ] },
-    6: { title: 'Networking', steps: [
-      { from: 'admin', to: i.mgmt, label: NO_PORT[platform] },
+    5: { title: 'Secure by design', steps: [
+      { from: i.fn, to: i.secret, label: 'read by identity, under the team key' },
       { from: 'user', to: i.api, label: 'CORS: your site only' },
+      { from: 'admin', to: i.reader, label: 'prove a denial, find exposure' },
     ] },
-    7: { title: 'Server admin', steps: [
-      { from: 'admin', to: i.disk, label: 'attach and mount' },
-      { from: 'admin', to: i.vm, label: 'patch and baseline' },
+    6: { title: 'Resilient compute', steps: [
+      { from: 'user', to: i.lb, label: 'one address' },
+      { from: i.lb, to: i.fleet, label: 'two zones, healthy targets' },
+      { from: i.endpoint, to: i.fleet, label: NO_PORT[platform] },
     ] },
-    8: { title: 'Backup and recovery', steps: [
-      { from: 'admin', to: i.disk, label: 'snapshot' },
-      { from: i.disk, to: i.vm, label: 'restore and time it' },
+    7: { title: 'Data and storage', steps: [
+      { from: i.fleet, to: i.rdb, label: 'Multi-AZ, encrypted, private' },
+      { from: i.fn, to: i.queue, label: 'queue the visit' },
+      { from: i.queue, to: i.db, label: 'the ledger writes it' },
+    ] },
+    8: { title: 'Scale, monitor, recover', steps: [
+      { from: i.fleet, to: i.lb, label: 'scale on CPU, replace the lost one' },
       { from: i.backup, to: i.site, label: 'recover the deleted file' },
+      { from: 'admin', to: i.rdb, label: 'restore from the snapshot, time it' },
     ] },
     9: { title: 'Infrastructure as Code', steps: [
       { from: 'github', to: i.deploy, label: DEPLOY_PREVIEW[platform] },
@@ -218,10 +222,10 @@ export const CLOUD_WEEK_CAPTIONS: Record<number, string> = {
   2: 'New: the VM, the storage site and the firewall. The company is on the internet, over HTTPS.',
   3: 'New: the function, the database and the identity pieces. A page view becomes a count.',
   4: 'New: the alert and who it emails. Break it on purpose and watch the alert win.',
-  5: 'New: the secret store and the roles. The function reads by identity; readers only read.',
-  6: 'New: the management subnet and the admin path with no open port. SSH is gone.',
-  7: 'New: the data disk. The VM is patched, measured and right-sized.',
-  8: 'New: the backup protection — soft delete on Azure, a daily AWS Backup plan. Snapshot, restore, time it, and recover a deleted file.',
+  5: 'New: the team’s key and the secret under it, the fenced API. The function reads by identity; a denial is proved and the exposure read.',
+  6: 'New: a second zone, a load balancer, a fleet of two behind it, and a private path that needs no internet. One address, two zones.',
+  7: 'New: the Multi-AZ database, encrypted and private, and the queue with its dead-letter queue. The right store per workload, the right class per object.',
+  8: 'New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed.',
   9: 'Nothing new is built. The whole environment comes from the template, previewed before it deploys.',
   10: 'New: the deploy identity. GitHub signs in by OIDC without a stored secret and deploys under a change request.',
   11: 'New: governance — the tag policy, the audit trail. Untagged resources are caught; the month’s cost is reviewed.',

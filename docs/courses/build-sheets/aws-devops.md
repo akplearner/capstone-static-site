@@ -30,11 +30,24 @@ You start with:
 | AWS Backup · capstone-team01-vault | Where AWS Backup keeps the recovery points | — |
 | Daily plan | A daily recovery point of the data volume, kept 35 days | — |
 | Internet gateway | The VPC’s door to the internet | — |
-| Route table → IGW | Sends the public subnet’s traffic to the internet gateway | — |
-| Security group | No inbound rule; outbound for patches and the agent | — |
+| Route table → IGW | Sends the public subnets’ traffic to the internet gateway | — |
+| Security group | Port 80 from the ALB’s group only; outbound for patches and the agent | — |
 | Amazon EC2 · ec2-tools-team01 | The internal IT tools server | — |
 | EBS volume | Data that must outlive the instance | — |
-| Route table (local) | Local routes only; no path to the internet | — |
+| Route table (local) | Local routes and the S3 gateway; no path to the internet | — |
+| Application LB · alb-web-team01 | One address for the fleet in both zones; drains a dead instance in seconds | — |
+| ALB group | Port 80 from the internet to the balancer, nothing else | — |
+| Target group | Where the balancer sends traffic; the health check on / | — |
+| Auto Scaling group · asg-web-team01 · 0–3 | The web fleet across both zones; replaces an instance that dies, parked at 0 | — |
+| Launch template | The web instance written down: AL2023, nginx, IMDSv2, the SSM role | — |
+| CPU 50% policy | Target tracking: adds an instance above 50% average CPU, removes it below | — |
+| S3 gateway endpoint | Private subnets reach S3 and the package repositories with no NAT, free | — |
+| DB group | PostgreSQL from the fleet’s group only | — |
+| Amazon RDS · PostgreSQL · Multi-AZ | The relational store, encrypted and private, with a standby in zone b (opt-in) | — |
+| Amazon SQS · visits | The queue between the API and the ledger; the front door answers fast | — |
+| Dead-letter queue | Where a message the ledger rejects goes after three tries | — |
+| Ledger function · capstone-team01-ledger | Writes one item per queued visit | — |
+| Role: ledger | Put to one table, read from one queue | — |
 
 ## Week 1 — Infrastructure as Code
 

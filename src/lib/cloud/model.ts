@@ -52,7 +52,13 @@ export type CloudIconKey =
   | 'bastion'
   | 'backup'
   | 'identity'
-  | 'audit';
+  | 'audit'
+  // R106: the associate-level resources (drawn glyphs)
+  | 'lb'
+  | 'fleet'
+  | 'db'
+  | 'queue'
+  | 'endpoint';
 
 /** A box that holds other things: subscription, resource group, VNet, subnet;
  *  or AWS Cloud, Region, VPC, subnet. */

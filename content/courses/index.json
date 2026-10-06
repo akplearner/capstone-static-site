@@ -228,7 +228,7 @@
       "file": "aws-solutions-architect.json",
       "weeks": 5,
       "tasks": 17,
-      "steps": 52,
+      "steps": 72,
       "deliverables": 4,
       "procedures": 0,
       "vendor": "AWS",
@@ -237,10 +237,10 @@
       "prerequisite": "aws-cloud-practitioner",
       "next": "aws-devops",
       "examFeeUsd": 150,
-      "coveredWeight": 0,
+      "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0
+      "costTasksUsd": 0.19
     },
     {
       "id": "aws-devops",

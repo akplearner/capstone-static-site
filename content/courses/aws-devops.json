@@ -3537,8 +3537,8 @@
         "platform": "aws",
         "title": "The company in AWS — what template.yaml builds",
         "howToRead": "Boxes are AWS Cloud, the Region, the VPC, its Availability Zone and subnets; global services sit outside the Region. Each icon is one resource in the CloudFormation template — click it to see its lines. Orange arrows are traffic; thin grey lines tie a supporting resource to what it belongs to; switch on \"Show template details\" to see the plumbing, !Ref and DependsOn. Icons are the official AWS Architecture Icons.",
-        "width": 1100,
-        "height": 640,
+        "width": 1120,
+        "height": 720,
         "containers": [
           {
             "id": "cloud",
@@ -3547,8 +3547,8 @@
             "sub": "account · team01",
             "x": 110,
             "y": 10,
-            "w": 890,
-            "h": 620,
+            "w": 1000,
+            "h": 700,
             "week": 1
           },
           {
@@ -3558,8 +3558,8 @@
             "sub": "us-east-1",
             "x": 272,
             "y": 30,
-            "w": 714,
-            "h": 600,
+            "w": 824,
+            "h": 680,
             "week": 1
           },
           {
@@ -3567,31 +3567,42 @@
             "kind": "network",
             "label": "VPC",
             "sub": "vpc-capstone-team01 · 10.10.0.0/16",
-            "x": 650,
+            "x": 600,
             "y": 70,
-            "w": 326,
-            "h": 450,
+            "w": 486,
+            "h": 560,
             "week": 1
           },
           {
             "id": "az",
             "kind": "zone",
-            "label": "Availability Zone",
+            "label": "Availability Zone a",
             "sub": "us-east-1a",
-            "x": 664,
-            "y": 150,
-            "w": 298,
-            "h": 360,
+            "x": 612,
+            "y": 190,
+            "w": 232,
+            "h": 420,
             "week": 1
+          },
+          {
+            "id": "azb",
+            "kind": "zone",
+            "label": "Availability Zone b",
+            "sub": "us-east-1b",
+            "x": 866,
+            "y": 190,
+            "w": 212,
+            "h": 420,
+            "week": 6
           },
           {
             "id": "PublicSubnet",
             "kind": "subnet",
             "label": "Public subnet",
             "sub": "10.10.1.0/24",
-            "x": 678,
-            "y": 184,
-            "w": 270,
+            "x": 622,
+            "y": 222,
+            "w": 212,
             "h": 200,
             "week": 1
           },
@@ -3600,11 +3611,33 @@
             "kind": "subnet-private",
             "label": "Private subnet",
             "sub": "10.10.2.0/24 · no internet route",
-            "x": 678,
-            "y": 392,
-            "w": 270,
-            "h": 100,
+            "x": 622,
+            "y": 430,
+            "w": 212,
+            "h": 150,
             "week": 6
+          },
+          {
+            "id": "PublicSubnetB",
+            "kind": "subnet",
+            "label": "Public subnet b",
+            "sub": "10.10.3.0/24",
+            "x": 876,
+            "y": 222,
+            "w": 194,
+            "h": 200,
+            "week": 6
+          },
+          {
+            "id": "PrivateSubnetB",
+            "kind": "subnet-private",
+            "label": "Private subnet b",
+            "sub": "10.10.4.0/24 · no internet route",
+            "x": 876,
+            "y": 430,
+            "w": 194,
+            "h": 150,
+            "week": 7
           },
           {
             "id": "account-level",
@@ -3644,8 +3677,8 @@
             "icon": "user",
             "label": "Team admin",
             "purpose": "The team member who administers the environment",
-            "x": 1055,
-            "y": 262,
+            "x": 1100,
+            "y": 140,
             "week": 2,
             "external": true
           },
@@ -3824,8 +3857,8 @@
             "icon": "role",
             "label": "Role: SSM",
             "purpose": "Lets the instance talk to Session Manager instead of SSH",
-            "x": 860,
-            "y": 585,
+            "x": 660,
+            "y": 595,
             "week": 6,
             "small": true
           },
@@ -3833,8 +3866,8 @@
             "id": "InstanceProfile",
             "icon": "role",
             "label": "Instance profile",
-            "x": 950,
-            "y": 585,
+            "x": 730,
+            "y": 595,
             "week": 6,
             "small": true,
             "detail": true
@@ -3865,8 +3898,8 @@
             "label": "Amazon SNS",
             "name": "email the team",
             "purpose": "Who gets told when an alarm fires",
-            "x": 745,
-            "y": 545,
+            "x": 560,
+            "y": 560,
             "week": 4
           },
           {
@@ -3905,8 +3938,8 @@
             "label": "AWS Backup",
             "name": "capstone-team01-vault",
             "purpose": "Where AWS Backup keeps the recovery points",
-            "x": 500,
-            "y": 575,
+            "x": 330,
+            "y": 100,
             "week": 8
           },
           {
@@ -3914,8 +3947,8 @@
             "icon": "param",
             "label": "Daily plan",
             "purpose": "A daily recovery point of the data volume, kept 35 days",
-            "x": 565,
-            "y": 598,
+            "x": 390,
+            "y": 112,
             "week": 8,
             "small": true
           },
@@ -3923,8 +3956,8 @@
             "id": "BackupSelection",
             "icon": "route",
             "label": "Selection",
-            "x": 620,
-            "y": 598,
+            "x": 440,
+            "y": 112,
             "week": 8,
             "small": true,
             "detail": true
@@ -3933,8 +3966,8 @@
             "id": "BackupRole",
             "icon": "role",
             "label": "Role: backup",
-            "x": 675,
-            "y": 598,
+            "x": 490,
+            "y": 112,
             "week": 8,
             "small": true,
             "detail": true
@@ -3943,7 +3976,7 @@
             "id": "GatewayAttachment",
             "icon": "route",
             "label": "Attachment",
-            "x": 865,
+            "x": 955,
             "y": 118,
             "week": 1,
             "small": true,
@@ -3954,7 +3987,7 @@
             "icon": "gateway",
             "label": "Internet gateway",
             "purpose": "The VPC’s door to the internet",
-            "x": 930,
+            "x": 1030,
             "y": 118,
             "week": 1,
             "small": true
@@ -3963,9 +3996,9 @@
             "id": "PublicRouteTable",
             "icon": "route",
             "label": "Route table → IGW",
-            "purpose": "Sends the public subnet’s traffic to the internet gateway",
-            "x": 720,
-            "y": 237,
+            "purpose": "Sends the public subnets’ traffic to the internet gateway",
+            "x": 660,
+            "y": 262,
             "week": 1,
             "small": true
           },
@@ -3973,8 +4006,8 @@
             "id": "PublicDefaultRoute",
             "icon": "route",
             "label": "0.0.0.0/0 → IGW",
-            "x": 720,
-            "y": 290,
+            "x": 660,
+            "y": 318,
             "week": 1,
             "small": true,
             "detail": true
@@ -3983,8 +4016,8 @@
             "id": "PublicSubnetRouteAssoc",
             "icon": "route",
             "label": "Association",
-            "x": 720,
-            "y": 340,
+            "x": 660,
+            "y": 372,
             "week": 1,
             "small": true,
             "detail": true
@@ -3993,9 +4026,9 @@
             "id": "ToolsSecurityGroup",
             "icon": "firewall",
             "label": "Security group",
-            "purpose": "No inbound rule; outbound for patches and the agent",
-            "x": 915,
-            "y": 217,
+            "purpose": "Port 80 from the ALB’s group only; outbound for patches and the agent",
+            "x": 790,
+            "y": 262,
             "week": 2,
             "small": true
           },
@@ -4005,16 +4038,16 @@
             "label": "Amazon EC2",
             "name": "ec2-tools-team01",
             "purpose": "The internal IT tools server",
-            "x": 820,
-            "y": 272,
+            "x": 740,
+            "y": 330,
             "week": 2
           },
           {
             "id": "DataVolumeAttachment",
             "icon": "route",
             "label": "Attachment",
-            "x": 915,
-            "y": 332,
+            "x": 790,
+            "y": 372,
             "week": 7,
             "small": true,
             "detail": true
@@ -4024,8 +4057,8 @@
             "icon": "disk",
             "label": "EBS volume",
             "purpose": "Data that must outlive the instance",
-            "x": 860,
-            "y": 347,
+            "x": 790,
+            "y": 320,
             "week": 7,
             "small": true
           },
@@ -4033,9 +4066,9 @@
             "id": "PrivateRouteTable",
             "icon": "route",
             "label": "Route table (local)",
-            "purpose": "Local routes only; no path to the internet",
-            "x": 745,
-            "y": 447,
+            "purpose": "Local routes and the S3 gateway; no path to the internet",
+            "x": 660,
+            "y": 470,
             "week": 6,
             "small": true
           },
@@ -4043,9 +4076,199 @@
             "id": "PrivateSubnetRouteAssoc",
             "icon": "route",
             "label": "Association",
-            "x": 870,
-            "y": 447,
+            "x": 660,
+            "y": 530,
             "week": 6,
+            "small": true,
+            "detail": true
+          },
+          {
+            "id": "SiteAlb",
+            "icon": "lb",
+            "label": "Application LB",
+            "name": "alb-web-team01",
+            "purpose": "One address for the fleet in both zones; drains a dead instance in seconds",
+            "x": 760,
+            "y": 120,
+            "week": 6
+          },
+          {
+            "id": "AlbSecurityGroup",
+            "icon": "firewall",
+            "label": "ALB group",
+            "purpose": "Port 80 from the internet to the balancer, nothing else",
+            "x": 850,
+            "y": 112,
+            "week": 6,
+            "small": true
+          },
+          {
+            "id": "AlbListener",
+            "icon": "route",
+            "label": "Listener :80",
+            "x": 850,
+            "y": 158,
+            "week": 6,
+            "small": true,
+            "detail": true
+          },
+          {
+            "id": "FleetTargetGroup",
+            "icon": "route",
+            "label": "Target group",
+            "purpose": "Where the balancer sends traffic; the health check on /",
+            "x": 900,
+            "y": 158,
+            "week": 6,
+            "small": true
+          },
+          {
+            "id": "FleetIngressFromAlb",
+            "icon": "firewall",
+            "label": "Chain: 80 from ALB",
+            "x": 660,
+            "y": 150,
+            "week": 6,
+            "small": true,
+            "detail": true
+          },
+          {
+            "id": "WebFleet",
+            "icon": "fleet",
+            "label": "Auto Scaling group",
+            "name": "asg-web-team01 · 0–3",
+            "purpose": "The web fleet across both zones; replaces an instance that dies, parked at 0",
+            "x": 970,
+            "y": 330,
+            "week": 6
+          },
+          {
+            "id": "FleetLaunchTemplate",
+            "icon": "param",
+            "label": "Launch template",
+            "purpose": "The web instance written down: AL2023, nginx, IMDSv2, the SSM role",
+            "x": 922,
+            "y": 262,
+            "week": 6,
+            "small": true
+          },
+          {
+            "id": "FleetCpuPolicy",
+            "icon": "alert",
+            "label": "CPU 50% policy",
+            "purpose": "Target tracking: adds an instance above 50% average CPU, removes it below",
+            "x": 1025,
+            "y": 262,
+            "week": 8,
+            "small": true
+          },
+          {
+            "id": "S3GatewayEndpoint",
+            "icon": "endpoint",
+            "label": "S3 gateway endpoint",
+            "purpose": "Private subnets reach S3 and the package repositories with no NAT, free",
+            "x": 760,
+            "y": 470,
+            "week": 6,
+            "small": true
+          },
+          {
+            "id": "DbSubnetGroup",
+            "icon": "route",
+            "label": "DB subnet group",
+            "x": 740,
+            "y": 530,
+            "week": 7,
+            "small": true,
+            "detail": true
+          },
+          {
+            "id": "DbSecurityGroup",
+            "icon": "firewall",
+            "label": "DB group",
+            "purpose": "PostgreSQL from the fleet’s group only",
+            "x": 790,
+            "y": 530,
+            "week": 7,
+            "small": true
+          },
+          {
+            "id": "Database",
+            "icon": "db",
+            "label": "Amazon RDS",
+            "name": "PostgreSQL · Multi-AZ",
+            "purpose": "The relational store, encrypted and private, with a standby in zone b (opt-in)",
+            "x": 950,
+            "y": 480,
+            "week": 7
+          },
+          {
+            "id": "PublicSubnetBRouteAssoc",
+            "icon": "route",
+            "label": "Association",
+            "x": 1025,
+            "y": 372,
+            "week": 6,
+            "small": true,
+            "detail": true
+          },
+          {
+            "id": "PrivateSubnetBRouteAssoc",
+            "icon": "route",
+            "label": "Association",
+            "x": 1025,
+            "y": 560,
+            "week": 7,
+            "small": true,
+            "detail": true
+          },
+          {
+            "id": "VisitsQueue",
+            "icon": "queue",
+            "label": "Amazon SQS",
+            "name": "visits",
+            "purpose": "The queue between the API and the ledger; the front door answers fast",
+            "x": 340,
+            "y": 462,
+            "week": 7
+          },
+          {
+            "id": "VisitsDeadLetterQueue",
+            "icon": "queue",
+            "label": "Dead-letter queue",
+            "purpose": "Where a message the ledger rejects goes after three tries",
+            "x": 420,
+            "y": 560,
+            "week": 7,
+            "small": true
+          },
+          {
+            "id": "LedgerFunction",
+            "icon": "function",
+            "label": "Ledger function",
+            "name": "capstone-team01-ledger",
+            "purpose": "Writes one item per queued visit",
+            "x": 540,
+            "y": 450,
+            "week": 7
+          },
+          {
+            "id": "LedgerFunctionRole",
+            "icon": "role",
+            "label": "Role: ledger",
+            "purpose": "Put to one table, read from one queue",
+            "x": 590,
+            "y": 450,
+            "week": 7,
+            "small": true
+          },
+          {
+            "id": "LedgerEventSourceMapping",
+            "icon": "route",
+            "label": "Queue trigger",
+            "x": 440,
+            "y": 470,
+            "week": 7,
             "small": true,
             "detail": true
           }
@@ -4155,6 +4378,66 @@
             }
           },
           {
+            "from": "user",
+            "to": "SiteAlb",
+            "kind": "traffic",
+            "label": "HTTP :80",
+            "week": 6,
+            "via": {
+              "x": 300,
+              "y": 120
+            }
+          },
+          {
+            "from": "SiteAlb",
+            "to": "WebFleet",
+            "kind": "traffic",
+            "label": "forward to a healthy target",
+            "week": 6
+          },
+          {
+            "from": "WebFleet",
+            "to": "Database",
+            "kind": "traffic",
+            "label": "PostgreSQL :5432",
+            "week": 7
+          },
+          {
+            "from": "CounterFunction",
+            "to": "VisitsQueue",
+            "kind": "traffic",
+            "label": "send a visit",
+            "week": 7
+          },
+          {
+            "from": "VisitsQueue",
+            "to": "LedgerFunction",
+            "kind": "traffic",
+            "label": "batches of 10",
+            "week": 7
+          },
+          {
+            "from": "LedgerFunction",
+            "to": "VisitorTable",
+            "kind": "traffic",
+            "label": "PutItem visit#",
+            "week": 7
+          },
+          {
+            "from": "VisitsQueue",
+            "to": "VisitsDeadLetterQueue",
+            "kind": "traffic",
+            "label": "after 3 tries",
+            "week": 7
+          },
+          {
+            "from": "WebFleet",
+            "to": "FleetCpuPolicy",
+            "kind": "traffic",
+            "label": "average CPU",
+            "week": 8
+          },
+          {
             "from": "GatewayAttachment",
             "to": "Vpc",
             "kind": "depends",
@@ -4237,6 +4520,234 @@
             "to": "PrivateRouteTable",
             "kind": "depends",
             "week": 6
+          },
+          {
+            "from": "PublicSubnetB",
+            "to": "Vpc",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "PublicSubnetBRouteAssoc",
+            "to": "PublicSubnetB",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "PublicSubnetBRouteAssoc",
+            "to": "PublicRouteTable",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "PrivateSubnetB",
+            "to": "Vpc",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "PrivateSubnetBRouteAssoc",
+            "to": "PrivateSubnetB",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "PrivateSubnetBRouteAssoc",
+            "to": "PrivateRouteTable",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "S3GatewayEndpoint",
+            "to": "Vpc",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "S3GatewayEndpoint",
+            "to": "PrivateRouteTable",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "AlbSecurityGroup",
+            "to": "Vpc",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "FleetIngressFromAlb",
+            "to": "ToolsSecurityGroup",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "FleetIngressFromAlb",
+            "to": "AlbSecurityGroup",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "FleetLaunchTemplate",
+            "to": "ToolsSecurityGroup",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "FleetLaunchTemplate",
+            "to": "InstanceProfile",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "FleetTargetGroup",
+            "to": "Vpc",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "SiteAlb",
+            "to": "PublicSubnet",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "SiteAlb",
+            "to": "PublicSubnetB",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "SiteAlb",
+            "to": "AlbSecurityGroup",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "AlbListener",
+            "to": "SiteAlb",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "AlbListener",
+            "to": "FleetTargetGroup",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "WebFleet",
+            "to": "FleetLaunchTemplate",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "WebFleet",
+            "to": "PublicSubnet",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "WebFleet",
+            "to": "PublicSubnetB",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "WebFleet",
+            "to": "FleetTargetGroup",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "WebFleet",
+            "to": "PublicSubnetBRouteAssoc",
+            "kind": "depends",
+            "week": 6
+          },
+          {
+            "from": "FleetCpuPolicy",
+            "to": "WebFleet",
+            "kind": "depends",
+            "week": 8
+          },
+          {
+            "from": "DbSubnetGroup",
+            "to": "PrivateSubnet",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "DbSubnetGroup",
+            "to": "PrivateSubnetB",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "DbSecurityGroup",
+            "to": "Vpc",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "DbSecurityGroup",
+            "to": "ToolsSecurityGroup",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "Database",
+            "to": "DbSubnetGroup",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "Database",
+            "to": "DbSecurityGroup",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "VisitsQueue",
+            "to": "VisitsDeadLetterQueue",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "LedgerFunctionRole",
+            "to": "VisitorTable",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "LedgerFunctionRole",
+            "to": "VisitsQueue",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "LedgerFunction",
+            "to": "VisitorTable",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "LedgerFunction",
+            "to": "LedgerFunctionRole",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "LedgerEventSourceMapping",
+            "to": "LedgerFunction",
+            "kind": "depends",
+            "week": 7
+          },
+          {
+            "from": "LedgerEventSourceMapping",
+            "to": "VisitsQueue",
+            "kind": "depends",
+            "week": 7
           },
           {
             "from": "InstanceProfile",
@@ -4468,24 +4979,24 @@
         "full": {
           "name": "template.yaml",
           "lang": "yaml",
-          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: t3.micro\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n  GithubRepository:\n    Type: String\n    Default: your-org/your-repo\n    Description: owner/name of the GitHub repository the Week 10 pipeline deploys from - the OIDC role trusts exactly this repository.\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n  # The DevOps course's resources (Weeks 9-12) exist only in the full deployment.\n  Week9Plus: !Equals [!Ref ThroughWeek, 12]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: 10.10.0.0/16\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.1.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.2.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: redirect-to-https\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: PAY_PER_REQUEST\n      AttributeDefinitions:\n        - AttributeName: id\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: python3.12\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [GET]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The team's IAM group - it can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\n  BackupVault:\n    Type: AWS::Backup::BackupVault\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Where AWS Backup keeps the recovery points - the vault itself costs nothing.\n    Properties:\n      BackupVaultName: !Sub 'capstone-${TeamId}-vault'\n      BackupVaultTags:\n        project: capstone\n        owner: !Ref OwnerTag\n\n  BackupRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Lets AWS Backup snapshot the data volume on the team's behalf.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: backup.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup'\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores'\n\n  BackupPlan:\n    Type: AWS::Backup::BackupPlan\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: A daily recovery point of the data volume, kept 35 days - the RPO the DR plan promises.\n    Properties:\n      BackupPlan:\n        BackupPlanName: !Sub 'capstone-${TeamId}-daily'\n        BackupPlanRule:\n          - RuleName: daily-0300-utc\n            TargetBackupVault: !Ref BackupVault\n            ScheduleExpression: cron(0 3 * * ? *)\n            StartWindowMinutes: 60\n            CompletionWindowMinutes: 180\n            Lifecycle:\n              DeleteAfterDays: 35\n\n  BackupSelection:\n    Type: AWS::Backup::BackupSelection\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Which resources the plan protects - the data volume, named by ARN.\n    Properties:\n      BackupPlanId: !Ref BackupPlan\n      BackupSelection:\n        SelectionName: data-volume\n        IamRoleArn: !GetAtt BackupRole.Arn\n        Resources:\n          - !Sub 'arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/${DataVolume}'\n\n  GithubOidcProvider:\n    Type: AWS::IAM::OIDCProvider\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: Trusts GitHub's OIDC tokens, so the pipeline signs in with no stored access key.\n    Properties:\n      Url: https://token.actions.githubusercontent.com\n      ClientIdList: [sts.amazonaws.com]\n      ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DeployRole:\n    Type: AWS::IAM::Role\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: The role GitHub Actions assumes - one repository, and only what a deploy needs.\n    Properties:\n      RoleName: !Sub 'capstone-${TeamId}-deploy'\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Federated: !GetAtt GithubOidcProvider.Arn }\n            Action: sts:AssumeRoleWithWebIdentity\n            Condition:\n              StringEquals:\n                token.actions.githubusercontent.com:aud: sts.amazonaws.com\n              StringLike:\n                token.actions.githubusercontent.com:sub: !Sub 'repo:${GithubRepository}:*'\n      Policies:\n        - PolicyName: deploy-site-and-code\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [s3:PutObject, s3:DeleteObject, s3:ListBucket]\n                Resource: [!GetAtt SiteBucket.Arn, !Sub '${SiteBucket.Arn}/*']\n              - Effect: Allow\n                Action: cloudfront:CreateInvalidation\n                Resource: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n              - Effect: Allow\n                Action: lambda:UpdateFunctionCode\n                Resource: !GetAtt CounterFunction.Arn\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucket:\n    Type: AWS::S3::Bucket\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Where CloudTrail writes the account's audit log - private, encrypted, versioned.\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Lets exactly one trail write to the bucket - nobody else.\n    Properties:\n      Bucket: !Ref TrailBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowTrailAclCheck\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:GetBucketAcl\n            Resource: !GetAtt TrailBucket.Arn\n          - Sid: AllowTrailWrite\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:PutObject\n            Resource: !Sub '${TrailBucket.Arn}/AWSLogs/${AWS::AccountId}/*'\n            Condition:\n              StringEquals:\n                s3:x-amz-acl: bucket-owner-full-control\n\n  Trail:\n    Type: AWS::CloudTrail::Trail\n    Condition: Week9Plus\n    DependsOn: TrailBucketPolicy\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Every management call in the account, written to the bucket - the audit trail governance reads.\n    Properties:\n      TrailName: !Sub 'capstone-${TeamId}-trail'\n      S3BucketName: !Ref TrailBucket\n      IsLogging: true\n      IsMultiRegionTrail: true\n      IncludeGlobalServiceEvents: true\n      EnableLogFileValidation: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n  DeployRoleArn:\n    Condition: Week9Plus\n    Description: The role the Week 10 workflow assumes - goes into the repository as AWS_ROLE_ARN.\n    Value: !GetAtt DeployRole.Arn\n"
+          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: t3.micro\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n  GithubRepository:\n    Type: String\n    Default: your-org/your-repo\n    Description: owner/name of the GitHub repository the Week 10 pipeline deploys from - the OIDC role trusts exactly this repository.\n  FleetSize:\n    Type: Number\n    Default: 0\n    MinValue: 0\n    MaxValue: 3\n    Description: Instances in the Week 6 web fleet. 0 parks the fleet (free); 2 runs it across both zones (about $0.01 an hour beyond the free-tier instance).\n  CreateDatabase:\n    Type: String\n    Default: 'false'\n    AllowedValues: ['true', 'false']\n    Description: Create the Week 7 Multi-AZ PostgreSQL database (about $0.04 an hour while it exists). Leave false unless a task needs it.\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n  # The DevOps course's resources (Weeks 9-12) exist only in the full deployment.\n  Week9Plus: !Equals [!Ref ThroughWeek, 12]\n  # The database bills by the hour, so it is opt-in even when the deployment reaches Week 7.\n  WithDatabase: !And [!Not [!Equals [!Ref ThroughWeek, 4]], !Equals [!Ref CreateDatabase, 'true']]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: 10.10.0.0/16\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.1.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.2.0/24\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  PublicSubnetB:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The second public subnet, in a second Availability Zone - what makes the fleet multi-AZ.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.3.0/24\n      AvailabilityZone: !Select [1, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-b-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicSubnetBRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The second public subnet uses the public route table too.\n    Properties:\n      SubnetId: !Ref PublicSubnetB\n      RouteTableId: !Ref PublicRouteTable\n\n  PrivateSubnetB:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The second private subnet - the database's subnet group needs two zones.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: 10.10.4.0/24\n      AvailabilityZone: !Select [1, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-b-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetBRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The second private subnet uses the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnetB\n      RouteTableId: !Ref PrivateRouteTable\n\n  S3GatewayEndpoint:\n    Type: AWS::EC2::VPCEndpoint\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The free S3 gateway endpoint - private subnets reach S3 and the AL2023 repositories with no NAT.\n    Properties:\n      VpcId: !Ref Vpc\n      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'\n      VpcEndpointType: Gateway\n      RouteTableIds: [!Ref PrivateRouteTable]\n\n  AlbSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The load balancer's firewall - HTTP from the internet, nothing else.\n    Properties:\n      GroupDescription: ALB - 80 from the internet\n      VpcId: !Ref Vpc\n      SecurityGroupIngress:\n        - IpProtocol: tcp\n          FromPort: 80\n          ToPort: 80\n          CidrIp: 0.0.0.0/0\n          Description: The site, over HTTP, from anywhere\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-alb-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  FleetIngressFromAlb:\n    Type: AWS::EC2::SecurityGroupIngress\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Security-group chaining - the fleet accepts 80 only from the load balancer's group.\n    Properties:\n      GroupId: !Ref ToolsSecurityGroup\n      IpProtocol: tcp\n      FromPort: 80\n      ToPort: 80\n      SourceSecurityGroupId: !Ref AlbSecurityGroup\n      Description: HTTP from the ALB only\n\n  FleetLaunchTemplate:\n    Type: AWS::EC2::LaunchTemplate\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The web instance written down - AL2023, nginx, IMDSv2, the SSM role, no key pair.\n    Properties:\n      LaunchTemplateName: !Sub 'lt-web-${TeamId}'\n      LaunchTemplateData:\n        ImageId: !Ref LatestAmiId\n        InstanceType: !Ref InstanceType\n        IamInstanceProfile: { Arn: !GetAtt InstanceProfile.Arn }\n        SecurityGroupIds: [!Ref ToolsSecurityGroup]\n        MetadataOptions: { HttpTokens: required }\n        BlockDeviceMappings:\n          - DeviceName: /dev/xvda\n            Ebs: { VolumeSize: 8, VolumeType: gp3, Encrypted: true }\n        UserData:\n          Fn::Base64: |\n            #!/bin/bash\n            dnf install -y nginx\n            TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token -H \"X-aws-ec2-metadata-token-ttl-seconds: 60\")\n            AZ=$(curl -s -H \"X-aws-ec2-metadata-token: $TOKEN\" http://169.254.169.254/latest/meta-data/placement/availability-zone)\n            echo \"web OK from $AZ\" > /usr/share/nginx/html/index.html\n            systemctl enable --now nginx\n        TagSpecifications:\n          - ResourceType: instance\n            Tags:\n              - { Key: Name, Value: !Sub 'web-${TeamId}' }\n              - { Key: owner, Value: !Ref OwnerTag }\n\n  FleetTargetGroup:\n    Type: AWS::ElasticLoadBalancingV2::TargetGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Where the load balancer sends traffic, and the health check that drains a dead instance.\n    Properties:\n      Name: !Sub 'tg-web-${TeamId}'\n      VpcId: !Ref Vpc\n      Protocol: HTTP\n      Port: 80\n      TargetType: instance\n      HealthCheckPath: /\n      HealthCheckIntervalSeconds: 10\n      HealthyThresholdCount: 2\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteAlb:\n    Type: AWS::ElasticLoadBalancingV2::LoadBalancer\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The Application Load Balancer across both public subnets - one address for two zones (about $0.0225 an hour).\n    Properties:\n      Name: !Sub 'alb-web-${TeamId}'\n      Scheme: internet-facing\n      Type: application\n      Subnets: [!Ref PublicSubnet, !Ref PublicSubnetB]\n      SecurityGroups: [!Ref AlbSecurityGroup]\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  AlbListener:\n    Type: AWS::ElasticLoadBalancingV2::Listener\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Port 80 on the balancer forwards to the fleet's target group.\n    Properties:\n      LoadBalancerArn: !Ref SiteAlb\n      Port: 80\n      Protocol: HTTP\n      DefaultActions:\n        - Type: forward\n          TargetGroupArn: !Ref FleetTargetGroup\n\n  WebFleet:\n    Type: AWS::AutoScaling::AutoScalingGroup\n    Condition: Week5Plus\n    DependsOn: PublicSubnetBRouteAssoc\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The Auto Scaling group across both zones - FleetSize instances, replaced when they die, parked at 0.\n    Properties:\n      AutoScalingGroupName: !Sub 'asg-web-${TeamId}'\n      LaunchTemplate:\n        LaunchTemplateId: !Ref FleetLaunchTemplate\n        Version: !GetAtt FleetLaunchTemplate.LatestVersionNumber\n      MinSize: '0'\n      MaxSize: '3'\n      DesiredCapacity: !Ref FleetSize\n      VPCZoneIdentifier: [!Ref PublicSubnet, !Ref PublicSubnetB]\n      TargetGroupARNs: [!Ref FleetTargetGroup]\n      HealthCheckType: ELB\n      HealthCheckGracePeriod: 120\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag, PropagateAtLaunch: true }\n\n  FleetCpuPolicy:\n    Type: AWS::AutoScaling::ScalingPolicy\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Target tracking - keep the fleet's average CPU at 50% by adding and removing instances.\n    Properties:\n      AutoScalingGroupName: !Ref WebFleet\n      PolicyType: TargetTrackingScaling\n      TargetTrackingConfiguration:\n        PredefinedMetricSpecification: { PredefinedMetricType: ASGAverageCPUUtilization }\n        TargetValue: 50\n\n  DbSubnetGroup:\n    Type: AWS::RDS::DBSubnetGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Both private subnets - the two zones a Multi-AZ database needs.\n    Properties:\n      DBSubnetGroupName: !Sub 'dbsg-${TeamId}'\n      DBSubnetGroupDescription: capstone private subnets\n      SubnetIds: [!Ref PrivateSubnet, !Ref PrivateSubnetB]\n\n  DbSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The database's firewall - PostgreSQL from the fleet's group only, never an address.\n    Properties:\n      GroupDescription: PostgreSQL from the fleet only\n      VpcId: !Ref Vpc\n      SecurityGroupIngress:\n        - IpProtocol: tcp\n          FromPort: 5432\n          ToPort: 5432\n          SourceSecurityGroupId: !Ref ToolsSecurityGroup\n          Description: PostgreSQL from the fleet\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-db-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  Database:\n    Type: AWS::RDS::DBInstance\n    Condition: WithDatabase\n    DeletionPolicy: Snapshot\n    UpdateReplacePolicy: Snapshot\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Multi-AZ PostgreSQL, encrypted, private - the relational store for the company's next workload (opt-in, about $0.04 an hour).\n    Properties:\n      DBInstanceIdentifier: !Sub 'capstone-${TeamId}-db'\n      Engine: postgres\n      DBInstanceClass: db.t3.micro\n      AllocatedStorage: '20'\n      StorageType: gp3\n      MultiAZ: true\n      StorageEncrypted: true\n      PubliclyAccessible: false\n      MasterUsername: capstone\n      ManageMasterUserPassword: true\n      DBSubnetGroupName: !Ref DbSubnetGroup\n      VPCSecurityGroups: [!Ref DbSecurityGroup]\n      BackupRetentionPeriod: 1\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  VisitsDeadLetterQueue:\n    Type: AWS::SQS::Queue\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Where a message the ledger cannot process goes after three tries, instead of blocking the rest.\n    Properties:\n      QueueName: !Sub 'capstone-${TeamId}-visits-dlq'\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  VisitsQueue:\n    Type: AWS::SQS::Queue\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The queue between the API and the ledger - the front door answers fast, the write happens when it can.\n    Properties:\n      QueueName: !Sub 'capstone-${TeamId}-visits'\n      RedrivePolicy:\n        deadLetterTargetArn: !GetAtt VisitsDeadLetterQueue.Arn\n        maxReceiveCount: 3\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  LedgerFunctionRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The ledger's role - put to one table, read from one queue, write its own logs.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: ledger\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: dynamodb:PutItem\n                Resource: !GetAtt VisitorTable.Arn\n              - Effect: Allow\n                Action: [sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes]\n                Resource: !GetAtt VisitsQueue.Arn\n\n  LedgerFunction:\n    Type: AWS::Lambda::Function\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Writes one item per queued visit; a message with no page is an error, and lands in the dead-letter queue.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-ledger'\n      Runtime: nodejs20.x\n      Handler: index.handler\n      Role: !GetAtt LedgerFunctionRole.Arn\n      Timeout: 10\n      Environment:\n        Variables:\n          TABLE: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import { DynamoDBClient, PutItemCommand } from \"@aws-sdk/client-dynamodb\";\n          const db = new DynamoDBClient({});\n          export const handler = async (event) => {\n            for (const r of event.Records) {\n              const body = JSON.parse(r.body);\n              if (!body.page) throw new Error(\"no page\");\n              await db.send(new PutItemCommand({ TableName: process.env.TABLE, Item: { id: { S: \"visit#\" + r.messageId }, page: { S: body.page }, at: { N: String(Date.now()) } } }));\n            }\n          };\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  LedgerEventSourceMapping:\n    Type: AWS::Lambda::EventSourceMapping\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Lambda polls the visits queue and hands the ledger batches of up to ten.\n    Properties:\n      EventSourceArn: !GetAtt VisitsQueue.Arn\n      FunctionName: !Ref LedgerFunction\n      BatchSize: 10\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: redirect-to-https\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: PAY_PER_REQUEST\n      AttributeDefinitions:\n        - AttributeName: id\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: python3.12\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [GET]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The team's IAM group - it can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\n  BackupVault:\n    Type: AWS::Backup::BackupVault\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Where AWS Backup keeps the recovery points - the vault itself costs nothing.\n    Properties:\n      BackupVaultName: !Sub 'capstone-${TeamId}-vault'\n      BackupVaultTags:\n        project: capstone\n        owner: !Ref OwnerTag\n\n  BackupRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Lets AWS Backup snapshot the data volume on the team's behalf.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: backup.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup'\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores'\n\n  BackupPlan:\n    Type: AWS::Backup::BackupPlan\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: A daily recovery point of the data volume, kept 35 days - the RPO the DR plan promises.\n    Properties:\n      BackupPlan:\n        BackupPlanName: !Sub 'capstone-${TeamId}-daily'\n        BackupPlanRule:\n          - RuleName: daily-0300-utc\n            TargetBackupVault: !Ref BackupVault\n            ScheduleExpression: cron(0 3 * * ? *)\n            StartWindowMinutes: 60\n            CompletionWindowMinutes: 180\n            Lifecycle:\n              DeleteAfterDays: 35\n\n  BackupSelection:\n    Type: AWS::Backup::BackupSelection\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Which resources the plan protects - the data volume, named by ARN.\n    Properties:\n      BackupPlanId: !Ref BackupPlan\n      BackupSelection:\n        SelectionName: data-volume\n        IamRoleArn: !GetAtt BackupRole.Arn\n        Resources:\n          - !Sub 'arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/${DataVolume}'\n\n  GithubOidcProvider:\n    Type: AWS::IAM::OIDCProvider\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: Trusts GitHub's OIDC tokens, so the pipeline signs in with no stored access key.\n    Properties:\n      Url: https://token.actions.githubusercontent.com\n      ClientIdList: [sts.amazonaws.com]\n      ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DeployRole:\n    Type: AWS::IAM::Role\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: The role GitHub Actions assumes - one repository, and only what a deploy needs.\n    Properties:\n      RoleName: !Sub 'capstone-${TeamId}-deploy'\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Federated: !GetAtt GithubOidcProvider.Arn }\n            Action: sts:AssumeRoleWithWebIdentity\n            Condition:\n              StringEquals:\n                token.actions.githubusercontent.com:aud: sts.amazonaws.com\n              StringLike:\n                token.actions.githubusercontent.com:sub: !Sub 'repo:${GithubRepository}:*'\n      Policies:\n        - PolicyName: deploy-site-and-code\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [s3:PutObject, s3:DeleteObject, s3:ListBucket]\n                Resource: [!GetAtt SiteBucket.Arn, !Sub '${SiteBucket.Arn}/*']\n              - Effect: Allow\n                Action: cloudfront:CreateInvalidation\n                Resource: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n              - Effect: Allow\n                Action: lambda:UpdateFunctionCode\n                Resource: !GetAtt CounterFunction.Arn\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucket:\n    Type: AWS::S3::Bucket\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Where CloudTrail writes the account's audit log - private, encrypted, versioned.\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Lets exactly one trail write to the bucket - nobody else.\n    Properties:\n      Bucket: !Ref TrailBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowTrailAclCheck\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:GetBucketAcl\n            Resource: !GetAtt TrailBucket.Arn\n          - Sid: AllowTrailWrite\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:PutObject\n            Resource: !Sub '${TrailBucket.Arn}/AWSLogs/${AWS::AccountId}/*'\n            Condition:\n              StringEquals:\n                s3:x-amz-acl: bucket-owner-full-control\n\n  Trail:\n    Type: AWS::CloudTrail::Trail\n    Condition: Week9Plus\n    DependsOn: TrailBucketPolicy\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Every management call in the account, written to the bucket - the audit trail governance reads.\n    Properties:\n      TrailName: !Sub 'capstone-${TeamId}-trail'\n      S3BucketName: !Ref TrailBucket\n      IsLogging: true\n      IsMultiRegionTrail: true\n      IncludeGlobalServiceEvents: true\n      EnableLogFileValidation: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n  SiteAlbDns:\n    Condition: Week5Plus\n    Description: The load balancer's address - the fleet answers here from either zone.\n    Value: !GetAtt SiteAlb.DNSName\n  DatabaseEndpoint:\n    Condition: WithDatabase\n    Description: The PostgreSQL endpoint - private; reachable from the fleet only.\n    Value: !GetAtt Database.Endpoint.Address\n  DeployRoleArn:\n    Condition: Week9Plus\n    Description: The role the Week 10 workflow assumes - goes into the repository as AWS_ROLE_ARN.\n    Value: !GetAtt DeployRole.Arn\n"
         },
         "starter": {
           "name": "template.starter.yaml",
           "lang": "yaml",
-          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: \"FILL-ME: the free-tier instance type\"\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n  GithubRepository:\n    Type: String\n    Default: your-org/your-repo\n    Description: owner/name of the GitHub repository the Week 10 pipeline deploys from - the OIDC role trusts exactly this repository.\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n  # The DevOps course's resources (Weeks 9-12) exist only in the full deployment.\n  Week9Plus: !Equals [!Ref ThroughWeek, 12]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: \"FILL-ME: the VPC address space\"\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the public subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the private subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: \"FILL-ME: what happens to plain HTTP\"\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: \"FILL-ME: pay per request, no idle cost\"\n      AttributeDefinitions:\n        - AttributeName: \"FILL-ME: the partition key attribute\"\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: \"FILL-ME: the Python runtime\"\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [\"FILL-ME: the one method the site uses\"]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The team's IAM group - it can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\n  BackupVault:\n    Type: AWS::Backup::BackupVault\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Where AWS Backup keeps the recovery points - the vault itself costs nothing.\n    Properties:\n      BackupVaultName: !Sub 'capstone-${TeamId}-vault'\n      BackupVaultTags:\n        project: capstone\n        owner: !Ref OwnerTag\n\n  BackupRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Lets AWS Backup snapshot the data volume on the team's behalf.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: backup.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup'\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores'\n\n  BackupPlan:\n    Type: AWS::Backup::BackupPlan\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: A daily recovery point of the data volume, kept 35 days - the RPO the DR plan promises.\n    Properties:\n      BackupPlan:\n        BackupPlanName: !Sub 'capstone-${TeamId}-daily'\n        BackupPlanRule:\n          - RuleName: daily-0300-utc\n            TargetBackupVault: !Ref BackupVault\n            ScheduleExpression: cron(0 3 * * ? *)\n            StartWindowMinutes: 60\n            CompletionWindowMinutes: 180\n            Lifecycle:\n              DeleteAfterDays: 35\n\n  BackupSelection:\n    Type: AWS::Backup::BackupSelection\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Which resources the plan protects - the data volume, named by ARN.\n    Properties:\n      BackupPlanId: !Ref BackupPlan\n      BackupSelection:\n        SelectionName: data-volume\n        IamRoleArn: !GetAtt BackupRole.Arn\n        Resources:\n          - !Sub 'arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/${DataVolume}'\n\n  GithubOidcProvider:\n    Type: AWS::IAM::OIDCProvider\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: Trusts GitHub's OIDC tokens, so the pipeline signs in with no stored access key.\n    Properties:\n      Url: https://token.actions.githubusercontent.com\n      ClientIdList: [sts.amazonaws.com]\n      ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DeployRole:\n    Type: AWS::IAM::Role\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: The role GitHub Actions assumes - one repository, and only what a deploy needs.\n    Properties:\n      RoleName: !Sub 'capstone-${TeamId}-deploy'\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Federated: !GetAtt GithubOidcProvider.Arn }\n            Action: sts:AssumeRoleWithWebIdentity\n            Condition:\n              StringEquals:\n                token.actions.githubusercontent.com:aud: sts.amazonaws.com\n              StringLike:\n                token.actions.githubusercontent.com:sub: !Sub 'repo:${GithubRepository}:*'\n      Policies:\n        - PolicyName: deploy-site-and-code\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [s3:PutObject, s3:DeleteObject, s3:ListBucket]\n                Resource: [!GetAtt SiteBucket.Arn, !Sub '${SiteBucket.Arn}/*']\n              - Effect: Allow\n                Action: cloudfront:CreateInvalidation\n                Resource: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n              - Effect: Allow\n                Action: lambda:UpdateFunctionCode\n                Resource: !GetAtt CounterFunction.Arn\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucket:\n    Type: AWS::S3::Bucket\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Where CloudTrail writes the account's audit log - private, encrypted, versioned.\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Lets exactly one trail write to the bucket - nobody else.\n    Properties:\n      Bucket: !Ref TrailBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowTrailAclCheck\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:GetBucketAcl\n            Resource: !GetAtt TrailBucket.Arn\n          - Sid: AllowTrailWrite\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:PutObject\n            Resource: !Sub '${TrailBucket.Arn}/AWSLogs/${AWS::AccountId}/*'\n            Condition:\n              StringEquals:\n                s3:x-amz-acl: bucket-owner-full-control\n\n  Trail:\n    Type: AWS::CloudTrail::Trail\n    Condition: Week9Plus\n    DependsOn: TrailBucketPolicy\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Every management call in the account, written to the bucket - the audit trail governance reads.\n    Properties:\n      TrailName: !Sub 'capstone-${TeamId}-trail'\n      S3BucketName: !Ref TrailBucket\n      IsLogging: true\n      IsMultiRegionTrail: true\n      IncludeGlobalServiceEvents: true\n      EnableLogFileValidation: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n  DeployRoleArn:\n    Condition: Week9Plus\n    Description: The role the Week 10 workflow assumes - goes into the repository as AWS_ROLE_ARN.\n    Value: !GetAtt DeployRole.Arn\n"
+          "text": "AWSTemplateFormatVersion: '2010-09-09'\nDescription: Capstone IT Services company - the whole environment, as code.\n\nParameters:\n  TeamId:\n    Type: String\n    AllowedPattern: '^[a-z0-9]{3,8}$'\n    Description: Your team, lowercase, e.g. team01. Goes into every name.\n  Environment:\n    Type: String\n    AllowedValues: [dev, prod]\n    Default: dev\n  OwnerTag:\n    Type: String\n    Description: Who answers for these resources. Checked by the Week 11 required-tags rule.\n  AlertEmail:\n    Type: String\n    Description: Where the budget and the error alarm send email.\n  InstanceType:\n    Type: String\n    Default: \"FILL-ME: the free-tier instance type\"\n    AllowedValues: [t3.micro, t2.micro]\n  LatestAmiId:\n    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'\n    Default: /aws/service/ami-amazon-linux-latest/al2023-ami-kernel-default-x86_64\n    Description: Always the current Amazon Linux 2023 image - no AMI id to look up.\n  BudgetAmount:\n    Type: Number\n    Default: 5\n    Description: Monthly budget in USD.\n  ThroughWeek:\n    Type: Number\n    Default: 12\n    AllowedValues: [4, 8, 12]\n    Description: Deploy the environment as it stands at the end of this week - 4 (Cloud Practitioner), 8 (Solutions Architect) or 12 (everything).\n  GithubRepository:\n    Type: String\n    Default: your-org/your-repo\n    Description: owner/name of the GitHub repository the Week 10 pipeline deploys from - the OIDC role trusts exactly this repository.\n  FleetSize:\n    Type: Number\n    Default: 0\n    MinValue: 0\n    MaxValue: 3\n    Description: Instances in the Week 6 web fleet. 0 parks the fleet (free); 2 runs it across both zones (about $0.01 an hour beyond the free-tier instance).\n  CreateDatabase:\n    Type: String\n    Default: 'false'\n    AllowedValues: ['true', 'false']\n    Description: Create the Week 7 Multi-AZ PostgreSQL database (about $0.04 an hour while it exists). Leave false unless a task needs it.\n\nConditions:\n  # Everything from Week 5 on exists only when the deployment reaches that far.\n  Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]\n  # The DevOps course's resources (Weeks 9-12) exist only in the full deployment.\n  Week9Plus: !Equals [!Ref ThroughWeek, 12]\n  # The database bills by the hour, so it is opt-in even when the deployment reaches Week 7.\n  WithDatabase: !And [!Not [!Equals [!Ref ThroughWeek, 4]], !Equals [!Ref CreateDatabase, 'true']]\n\nResources:\n  MonthlyBudget:\n    Type: AWS::Budgets::Budget\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The $5 guardrail, set before anything can cost money.\n    Properties:\n      Budget:\n        BudgetName: !Sub 'capstone-${TeamId}'\n        BudgetType: COST\n        TimeUnit: MONTHLY\n        BudgetLimit:\n          Amount: !Ref BudgetAmount\n          Unit: USD\n      NotificationsWithSubscribers:\n        - Notification:\n            NotificationType: ACTUAL\n            ComparisonOperator: GREATER_THAN\n            Threshold: 80\n            ThresholdType: PERCENTAGE\n          Subscribers:\n            - SubscriptionType: EMAIL\n              Address: !Ref AlertEmail\n\n  Vpc:\n    Type: AWS::EC2::VPC\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The company network.\n    Properties:\n      CidrBlock: \"FILL-ME: the VPC address space\"\n      EnableDnsSupport: true\n      EnableDnsHostnames: true\n      Tags:\n        - { Key: Name, Value: !Sub 'vpc-capstone-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  InternetGateway:\n    Type: AWS::EC2::InternetGateway\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The VPC's door to the internet.\n    Properties:\n      Tags:\n        - { Key: Name, Value: !Sub 'igw-capstone-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  GatewayAttachment:\n    Type: AWS::EC2::VPCGatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Hangs the internet gateway on the VPC.\n    Properties:\n      VpcId: !Ref Vpc\n      InternetGatewayId: !Ref InternetGateway\n\n  PublicSubnet:\n    Type: AWS::EC2::Subnet\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: The public subnet - its route table points at the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the public subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicRouteTable:\n    Type: AWS::EC2::RouteTable\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Routes for the public subnet.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-public-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicDefaultRoute:\n    Type: AWS::EC2::Route\n    DependsOn: GatewayAttachment\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Everything not local goes to the internet gateway.\n    Properties:\n      RouteTableId: !Ref PublicRouteTable\n      DestinationCidrBlock: 0.0.0.0/0\n      GatewayId: !Ref InternetGateway\n\n  PublicSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Metadata:\n      Capstone:\n        Week: 1\n        Summary: Makes the public subnet use the public route table.\n    Properties:\n      SubnetId: !Ref PublicSubnet\n      RouteTableId: !Ref PublicRouteTable\n\n  ToolsSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The instance's firewall - no inbound rule at all; admin is Session Manager.\n    Properties:\n      GroupDescription: IT tools server - no inbound, admin through Session Manager\n      VpcId: !Ref Vpc\n      SecurityGroupEgress:\n        - IpProtocol: '-1'\n          CidrIp: 0.0.0.0/0\n          Description: Outbound for patches and the SSM agent\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnet:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The private subnet - no route to the internet gateway.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the private subnet range\"\n      AvailabilityZone: !Select [0, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateRouteTable:\n    Type: AWS::EC2::RouteTable\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Routes for the private subnet - local only.\n    Properties:\n      VpcId: !Ref Vpc\n      Tags:\n        - { Key: Name, Value: !Sub 'rt-private-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Makes the private subnet use the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnet\n      RouteTableId: !Ref PrivateRouteTable\n\n  PublicSubnetB:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The second public subnet, in a second Availability Zone - what makes the fleet multi-AZ.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the second public subnet range\"\n      AvailabilityZone: !Select [1, !GetAZs '']\n      MapPublicIpOnLaunch: true\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-public-b-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PublicSubnetBRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The second public subnet uses the public route table too.\n    Properties:\n      SubnetId: !Ref PublicSubnetB\n      RouteTableId: !Ref PublicRouteTable\n\n  PrivateSubnetB:\n    Type: AWS::EC2::Subnet\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The second private subnet - the database's subnet group needs two zones.\n    Properties:\n      VpcId: !Ref Vpc\n      CidrBlock: \"FILL-ME: the second private subnet range\"\n      AvailabilityZone: !Select [1, !GetAZs '']\n      MapPublicIpOnLaunch: false\n      Tags:\n        - { Key: Name, Value: !Sub 'snet-private-b-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  PrivateSubnetBRouteAssoc:\n    Type: AWS::EC2::SubnetRouteTableAssociation\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The second private subnet uses the private route table.\n    Properties:\n      SubnetId: !Ref PrivateSubnetB\n      RouteTableId: !Ref PrivateRouteTable\n\n  S3GatewayEndpoint:\n    Type: AWS::EC2::VPCEndpoint\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The free S3 gateway endpoint - private subnets reach S3 and the AL2023 repositories with no NAT.\n    Properties:\n      VpcId: !Ref Vpc\n      ServiceName: !Sub 'com.amazonaws.${AWS::Region}.s3'\n      VpcEndpointType: Gateway\n      RouteTableIds: [!Ref PrivateRouteTable]\n\n  AlbSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The load balancer's firewall - HTTP from the internet, nothing else.\n    Properties:\n      GroupDescription: ALB - 80 from the internet\n      VpcId: !Ref Vpc\n      SecurityGroupIngress:\n        - IpProtocol: tcp\n          FromPort: 80\n          ToPort: 80\n          CidrIp: 0.0.0.0/0\n          Description: The site, over HTTP, from anywhere\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-alb-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  FleetIngressFromAlb:\n    Type: AWS::EC2::SecurityGroupIngress\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Security-group chaining - the fleet accepts 80 only from the load balancer's group.\n    Properties:\n      GroupId: !Ref ToolsSecurityGroup\n      IpProtocol: tcp\n      FromPort: 80\n      ToPort: 80\n      SourceSecurityGroupId: !Ref AlbSecurityGroup\n      Description: HTTP from the ALB only\n\n  FleetLaunchTemplate:\n    Type: AWS::EC2::LaunchTemplate\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The web instance written down - AL2023, nginx, IMDSv2, the SSM role, no key pair.\n    Properties:\n      LaunchTemplateName: !Sub 'lt-web-${TeamId}'\n      LaunchTemplateData:\n        ImageId: !Ref LatestAmiId\n        InstanceType: !Ref InstanceType\n        IamInstanceProfile: { Arn: !GetAtt InstanceProfile.Arn }\n        SecurityGroupIds: [!Ref ToolsSecurityGroup]\n        MetadataOptions: { HttpTokens: required }\n        BlockDeviceMappings:\n          - DeviceName: /dev/xvda\n            Ebs: { VolumeSize: 8, VolumeType: gp3, Encrypted: true }\n        UserData:\n          Fn::Base64: |\n            #!/bin/bash\n            dnf install -y nginx\n            TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token -H \"X-aws-ec2-metadata-token-ttl-seconds: 60\")\n            AZ=$(curl -s -H \"X-aws-ec2-metadata-token: $TOKEN\" http://169.254.169.254/latest/meta-data/placement/availability-zone)\n            echo \"web OK from $AZ\" > /usr/share/nginx/html/index.html\n            systemctl enable --now nginx\n        TagSpecifications:\n          - ResourceType: instance\n            Tags:\n              - { Key: Name, Value: !Sub 'web-${TeamId}' }\n              - { Key: owner, Value: !Ref OwnerTag }\n\n  FleetTargetGroup:\n    Type: AWS::ElasticLoadBalancingV2::TargetGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Where the load balancer sends traffic, and the health check that drains a dead instance.\n    Properties:\n      Name: !Sub 'tg-web-${TeamId}'\n      VpcId: !Ref Vpc\n      Protocol: HTTP\n      Port: 80\n      TargetType: instance\n      HealthCheckPath: /\n      HealthCheckIntervalSeconds: 10\n      HealthyThresholdCount: 2\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteAlb:\n    Type: AWS::ElasticLoadBalancingV2::LoadBalancer\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The Application Load Balancer across both public subnets - one address for two zones (about $0.0225 an hour).\n    Properties:\n      Name: !Sub 'alb-web-${TeamId}'\n      Scheme: internet-facing\n      Type: application\n      Subnets: [!Ref PublicSubnet, !Ref PublicSubnetB]\n      SecurityGroups: [!Ref AlbSecurityGroup]\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  AlbListener:\n    Type: AWS::ElasticLoadBalancingV2::Listener\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Port 80 on the balancer forwards to the fleet's target group.\n    Properties:\n      LoadBalancerArn: !Ref SiteAlb\n      Port: 80\n      Protocol: HTTP\n      DefaultActions:\n        - Type: forward\n          TargetGroupArn: !Ref FleetTargetGroup\n\n  WebFleet:\n    Type: AWS::AutoScaling::AutoScalingGroup\n    Condition: Week5Plus\n    DependsOn: PublicSubnetBRouteAssoc\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: The Auto Scaling group across both zones - FleetSize instances, replaced when they die, parked at 0.\n    Properties:\n      AutoScalingGroupName: !Sub 'asg-web-${TeamId}'\n      LaunchTemplate:\n        LaunchTemplateId: !Ref FleetLaunchTemplate\n        Version: !GetAtt FleetLaunchTemplate.LatestVersionNumber\n      MinSize: '0'\n      MaxSize: '3'\n      DesiredCapacity: !Ref FleetSize\n      VPCZoneIdentifier: [!Ref PublicSubnet, !Ref PublicSubnetB]\n      TargetGroupARNs: [!Ref FleetTargetGroup]\n      HealthCheckType: ELB\n      HealthCheckGracePeriod: 120\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag, PropagateAtLaunch: true }\n\n  FleetCpuPolicy:\n    Type: AWS::AutoScaling::ScalingPolicy\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Target tracking - keep the fleet's average CPU at 50% by adding and removing instances.\n    Properties:\n      AutoScalingGroupName: !Ref WebFleet\n      PolicyType: TargetTrackingScaling\n      TargetTrackingConfiguration:\n        PredefinedMetricSpecification: { PredefinedMetricType: ASGAverageCPUUtilization }\n        TargetValue: 50\n\n  DbSubnetGroup:\n    Type: AWS::RDS::DBSubnetGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Both private subnets - the two zones a Multi-AZ database needs.\n    Properties:\n      DBSubnetGroupName: !Sub 'dbsg-${TeamId}'\n      DBSubnetGroupDescription: capstone private subnets\n      SubnetIds: [!Ref PrivateSubnet, !Ref PrivateSubnetB]\n\n  DbSecurityGroup:\n    Type: AWS::EC2::SecurityGroup\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The database's firewall - PostgreSQL from the fleet's group only, never an address.\n    Properties:\n      GroupDescription: PostgreSQL from the fleet only\n      VpcId: !Ref Vpc\n      SecurityGroupIngress:\n        - IpProtocol: tcp\n          FromPort: 5432\n          ToPort: 5432\n          SourceSecurityGroupId: !Ref ToolsSecurityGroup\n          Description: PostgreSQL from the fleet\n      Tags:\n        - { Key: Name, Value: !Sub 'sg-db-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  Database:\n    Type: AWS::RDS::DBInstance\n    Condition: WithDatabase\n    DeletionPolicy: Snapshot\n    UpdateReplacePolicy: Snapshot\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Multi-AZ PostgreSQL, encrypted, private - the relational store for the company's next workload (opt-in, about $0.04 an hour).\n    Properties:\n      DBInstanceIdentifier: !Sub 'capstone-${TeamId}-db'\n      Engine: postgres\n      DBInstanceClass: db.t3.micro\n      AllocatedStorage: '20'\n      StorageType: gp3\n      MultiAZ: true\n      StorageEncrypted: true\n      PubliclyAccessible: false\n      MasterUsername: capstone\n      ManageMasterUserPassword: true\n      DBSubnetGroupName: !Ref DbSubnetGroup\n      VPCSecurityGroups: [!Ref DbSecurityGroup]\n      BackupRetentionPeriod: 1\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  VisitsDeadLetterQueue:\n    Type: AWS::SQS::Queue\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Where a message the ledger cannot process goes after three tries, instead of blocking the rest.\n    Properties:\n      QueueName: !Sub 'capstone-${TeamId}-visits-dlq'\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  VisitsQueue:\n    Type: AWS::SQS::Queue\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The queue between the API and the ledger - the front door answers fast, the write happens when it can.\n    Properties:\n      QueueName: !Sub 'capstone-${TeamId}-visits'\n      RedrivePolicy:\n        deadLetterTargetArn: !GetAtt VisitsDeadLetterQueue.Arn\n        maxReceiveCount: 3\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  LedgerFunctionRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The ledger's role - put to one table, read from one queue, write its own logs.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: ledger\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: dynamodb:PutItem\n                Resource: !GetAtt VisitorTable.Arn\n              - Effect: Allow\n                Action: [sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes]\n                Resource: !GetAtt VisitsQueue.Arn\n\n  LedgerFunction:\n    Type: AWS::Lambda::Function\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Writes one item per queued visit; a message with no page is an error, and lands in the dead-letter queue.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-ledger'\n      Runtime: nodejs20.x\n      Handler: index.handler\n      Role: !GetAtt LedgerFunctionRole.Arn\n      Timeout: 10\n      Environment:\n        Variables:\n          TABLE: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import { DynamoDBClient, PutItemCommand } from \"@aws-sdk/client-dynamodb\";\n          const db = new DynamoDBClient({});\n          export const handler = async (event) => {\n            for (const r of event.Records) {\n              const body = JSON.parse(r.body);\n              if (!body.page) throw new Error(\"no page\");\n              await db.send(new PutItemCommand({ TableName: process.env.TABLE, Item: { id: { S: \"visit#\" + r.messageId }, page: { S: body.page }, at: { N: String(Date.now()) } } }));\n            }\n          };\n      Tags:\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  LedgerEventSourceMapping:\n    Type: AWS::Lambda::EventSourceMapping\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Lambda polls the visits queue and hands the ledger batches of up to ten.\n    Properties:\n      EventSourceArn: !GetAtt VisitsQueue.Arn\n      FunctionName: !Ref LedgerFunction\n      BatchSize: 10\n\n  InstanceRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Lets the instance talk to Session Manager - replaces SSH.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: ec2.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore'\n\n  InstanceProfile:\n    Type: AWS::IAM::InstanceProfile\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 6\n        Summary: Carries the instance role onto the instance.\n    Properties:\n      Roles: [!Ref InstanceRole]\n\n  ToolsInstance:\n    Type: AWS::EC2::Instance\n    DependsOn: PublicDefaultRoute\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The internal IT tools server - Amazon Linux 2023, IMDSv2, encrypted disk.\n    Properties:\n      ImageId: !Ref LatestAmiId\n      InstanceType: !Ref InstanceType\n      SubnetId: !Ref PublicSubnet\n      SecurityGroupIds: [!Ref ToolsSecurityGroup]\n      IamInstanceProfile: !If [Week5Plus, !Ref InstanceProfile, !Ref AWS::NoValue]\n      MetadataOptions:\n        HttpTokens: required\n      BlockDeviceMappings:\n        - DeviceName: /dev/xvda\n          Ebs:\n            VolumeSize: 8\n            VolumeType: gp3\n            Encrypted: true\n      UserData:\n        Fn::Base64: |\n          #!/bin/bash\n          dnf install -y nginx\n          echo 'IT tools server OK' > /usr/share/nginx/html/index.html\n          systemctl enable --now nginx\n      Tags:\n        - { Key: Name, Value: !Sub 'ec2-tools-${TeamId}' }\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolume:\n    Type: AWS::EC2::Volume\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: The instance's second disk, for data that must outlive the OS.\n    Properties:\n      AvailabilityZone: !GetAtt ToolsInstance.AvailabilityZone\n      Size: 8\n      VolumeType: gp3\n      Encrypted: true\n      Tags:\n        - { Key: Name, Value: !Sub 'ebs-data-tools-${TeamId}' }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DataVolumeAttachment:\n    Type: AWS::EC2::VolumeAttachment\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 7\n        Summary: Plugs the data volume into the instance.\n    Properties:\n      InstanceId: !Ref ToolsInstance\n      VolumeId: !Ref DataVolume\n      Device: /dev/sdf\n\n  SiteBucket:\n    Type: AWS::S3::Bucket\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Holds the website files - private, encrypted, versioned (Week 8).\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      OwnershipControls:\n        Rules:\n          - ObjectOwnership: BucketOwnerEnforced\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteOac:\n    Type: AWS::CloudFront::OriginAccessControl\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: The identity CloudFront uses to read the private bucket.\n    Properties:\n      OriginAccessControlConfig:\n        Name: !Sub 'capstone-${TeamId}-site-oac'\n        OriginAccessControlOriginType: s3\n        SigningBehavior: always\n        SigningProtocol: sigv4\n\n  SiteDistribution:\n    Type: AWS::CloudFront::Distribution\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Serves the site over HTTPS worldwide - the S3 website endpoint alone is HTTP only.\n    Properties:\n      DistributionConfig:\n        Enabled: true\n        DefaultRootObject: index.html\n        HttpVersion: http2\n        PriceClass: PriceClass_100\n        Origins:\n          - Id: s3-site\n            DomainName: !GetAtt SiteBucket.RegionalDomainName\n            OriginAccessControlId: !GetAtt SiteOac.Id\n            S3OriginConfig:\n              OriginAccessIdentity: ''\n        DefaultCacheBehavior:\n          TargetOriginId: s3-site\n          ViewerProtocolPolicy: \"FILL-ME: what happens to plain HTTP\"\n          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6\n          Compress: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  SiteBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Metadata:\n      Capstone:\n        Week: 2\n        Summary: Lets exactly one CloudFront distribution read the bucket - nobody else.\n    Properties:\n      Bucket: !Ref SiteBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowThisDistributionOnly\n            Effect: Allow\n            Principal: { Service: cloudfront.amazonaws.com }\n            Action: s3:GetObject\n            Resource: !Sub '${SiteBucket.Arn}/*'\n            Condition:\n              StringEquals:\n                AWS:SourceArn: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n\n  VisitorTable:\n    Type: AWS::DynamoDB::Table\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Holds the visitor counter item (id site). Point-in-time recovery from Week 8.\n    Properties:\n      BillingMode: \"FILL-ME: pay per request, no idle cost\"\n      AttributeDefinitions:\n        - AttributeName: \"FILL-ME: the partition key attribute\"\n          AttributeType: S\n      KeySchema:\n        - AttributeName: id\n          KeyType: HASH\n      SSESpecification:\n        SSEEnabled: true\n      PointInTimeRecoverySpecification:\n        PointInTimeRecoveryEnabled: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TableNameParameter:\n    Type: AWS::SSM::Parameter\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 5\n        Summary: Publishes the table name in Parameter Store - configuration, not a secret.\n    Properties:\n      Name: !Sub '/capstone/${TeamId}/visitor/table'\n      Type: String\n      Value: !Ref VisitorTable\n\n  CounterFunctionRole:\n    Type: AWS::IAM::Role\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The Lambda's permissions - write its logs, update ONE table, nothing else.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: lambda.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'\n      Policies:\n        - PolicyName: count-visitors\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [dynamodb:UpdateItem, dynamodb:GetItem]\n                Resource: !GetAtt VisitorTable.Arn\n\n  CounterFunction:\n    Type: AWS::Lambda::Function\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The visitor-counter code - one atomic update per visit.\n    Properties:\n      FunctionName: !Sub 'capstone-${TeamId}-counter'\n      Runtime: \"FILL-ME: the Python runtime\"\n      Handler: index.handler\n      Role: !GetAtt CounterFunctionRole.Arn\n      Timeout: 5\n      MemorySize: 128\n      Environment:\n        Variables:\n          TABLE_NAME: !Ref VisitorTable\n      Code:\n        ZipFile: |\n          import json, os, boto3\n          table = boto3.resource(\"dynamodb\").Table(os.environ[\"TABLE_NAME\"])\n\n          def handler(event, context):\n              r = table.update_item(\n                  Key={\"id\": \"site\"},\n                  UpdateExpression=\"ADD #c :one\",\n                  ExpressionAttributeNames={\"#c\": \"count\"},\n                  ExpressionAttributeValues={\":one\": 1},\n                  ReturnValues=\"UPDATED_NEW\",\n              )\n              return {\n                  \"statusCode\": 200,\n                  \"headers\": {\"Content-Type\": \"application/json\"},\n                  \"body\": json.dumps({\"count\": int(r[\"Attributes\"][\"count\"])}),\n              }\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  HttpApi:\n    Type: AWS::ApiGatewayV2::Api\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The public HTTPS front door for the counter. CORS admits only the site.\n    Properties:\n      Name: !Sub 'capstone-${TeamId}-api'\n      ProtocolType: HTTP\n      CorsConfiguration:\n        AllowOrigins:\n          - !Sub 'https://${SiteDistribution.DomainName}'\n        AllowMethods: [\"FILL-ME: the one method the site uses\"]\n        AllowHeaders: [content-type]\n        MaxAge: 300\n\n  ApiIntegration:\n    Type: AWS::ApiGatewayV2::Integration\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Connects the API to the Lambda function.\n    Properties:\n      ApiId: !Ref HttpApi\n      IntegrationType: AWS_PROXY\n      IntegrationUri: !GetAtt CounterFunction.Arn\n      PayloadFormatVersion: '2.0'\n\n  ApiRoute:\n    Type: AWS::ApiGatewayV2::Route\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: GET /count goes to the integration.\n    Properties:\n      ApiId: !Ref HttpApi\n      RouteKey: GET /count\n      Target: !Sub 'integrations/${ApiIntegration}'\n\n  ApiStage:\n    Type: AWS::ApiGatewayV2::Stage\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The default stage - changes deploy automatically.\n    Properties:\n      ApiId: !Ref HttpApi\n      StageName: $default\n      AutoDeploy: true\n\n  ApiInvokePermission:\n    Type: AWS::Lambda::Permission\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: Lets this API - and only this route - invoke the function.\n    Properties:\n      Action: lambda:InvokeFunction\n      FunctionName: !Ref CounterFunction\n      Principal: apigateway.amazonaws.com\n      SourceArn: !Sub 'arn:${AWS::Partition}:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*/count'\n\n  CounterLogGroup:\n    Type: AWS::Logs::LogGroup\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Where the function's logs land - kept two weeks.\n    Properties:\n      LogGroupName: !Sub '/aws/lambda/capstone-${TeamId}-counter'\n      RetentionInDays: 14\n\n  AlertTopic:\n    Type: AWS::SNS::Topic\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Who gets told when an alarm fires.\n    Properties:\n      TopicName: !Sub 'capstone-${TeamId}-alerts'\n      Subscription:\n        - Protocol: email\n          Endpoint: !Ref AlertEmail\n\n  FunctionErrorsAlarm:\n    Type: AWS::CloudWatch::Alarm\n    Metadata:\n      Capstone:\n        Week: 4\n        Summary: Fires when the counter function throws an error.\n    Properties:\n      AlarmDescription: The visitor-counter function failed.\n      Namespace: AWS/Lambda\n      MetricName: Errors\n      Dimensions:\n        - Name: FunctionName\n          Value: !Ref CounterFunction\n      Statistic: Sum\n      Period: 300\n      EvaluationPeriods: 1\n      Threshold: 0\n      ComparisonOperator: GreaterThanThreshold\n      TreatMissingData: notBreaching\n      AlarmActions: [!Ref AlertTopic]\n\n  ReadOnlyGroup:\n    Type: AWS::IAM::Group\n    Metadata:\n      Capstone:\n        Week: 3\n        Summary: The team's IAM group - it can look at everything and change nothing.\n    Properties:\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/ReadOnlyAccess'\n\n  BackupVault:\n    Type: AWS::Backup::BackupVault\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Where AWS Backup keeps the recovery points - the vault itself costs nothing.\n    Properties:\n      BackupVaultName: !Sub 'capstone-${TeamId}-vault'\n      BackupVaultTags:\n        project: capstone\n        owner: !Ref OwnerTag\n\n  BackupRole:\n    Type: AWS::IAM::Role\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Lets AWS Backup snapshot the data volume on the team's behalf.\n    Properties:\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Service: backup.amazonaws.com }\n            Action: sts:AssumeRole\n      ManagedPolicyArns:\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForBackup'\n        - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSBackupServiceRolePolicyForRestores'\n\n  BackupPlan:\n    Type: AWS::Backup::BackupPlan\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: A daily recovery point of the data volume, kept 35 days - the RPO the DR plan promises.\n    Properties:\n      BackupPlan:\n        BackupPlanName: !Sub 'capstone-${TeamId}-daily'\n        BackupPlanRule:\n          - RuleName: daily-0300-utc\n            TargetBackupVault: !Ref BackupVault\n            ScheduleExpression: cron(0 3 * * ? *)\n            StartWindowMinutes: 60\n            CompletionWindowMinutes: 180\n            Lifecycle:\n              DeleteAfterDays: 35\n\n  BackupSelection:\n    Type: AWS::Backup::BackupSelection\n    Condition: Week5Plus\n    Metadata:\n      Capstone:\n        Week: 8\n        Summary: Which resources the plan protects - the data volume, named by ARN.\n    Properties:\n      BackupPlanId: !Ref BackupPlan\n      BackupSelection:\n        SelectionName: data-volume\n        IamRoleArn: !GetAtt BackupRole.Arn\n        Resources:\n          - !Sub 'arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:volume/${DataVolume}'\n\n  GithubOidcProvider:\n    Type: AWS::IAM::OIDCProvider\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: Trusts GitHub's OIDC tokens, so the pipeline signs in with no stored access key.\n    Properties:\n      Url: https://token.actions.githubusercontent.com\n      ClientIdList: [sts.amazonaws.com]\n      ThumbprintList: [6938fd4d98bab03faadb97b34396831e3780aea1]\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  DeployRole:\n    Type: AWS::IAM::Role\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 10\n        Summary: The role GitHub Actions assumes - one repository, and only what a deploy needs.\n    Properties:\n      RoleName: !Sub 'capstone-${TeamId}-deploy'\n      AssumeRolePolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Effect: Allow\n            Principal: { Federated: !GetAtt GithubOidcProvider.Arn }\n            Action: sts:AssumeRoleWithWebIdentity\n            Condition:\n              StringEquals:\n                token.actions.githubusercontent.com:aud: sts.amazonaws.com\n              StringLike:\n                token.actions.githubusercontent.com:sub: !Sub 'repo:${GithubRepository}:*'\n      Policies:\n        - PolicyName: deploy-site-and-code\n          PolicyDocument:\n            Version: '2012-10-17'\n            Statement:\n              - Effect: Allow\n                Action: [s3:PutObject, s3:DeleteObject, s3:ListBucket]\n                Resource: [!GetAtt SiteBucket.Arn, !Sub '${SiteBucket.Arn}/*']\n              - Effect: Allow\n                Action: cloudfront:CreateInvalidation\n                Resource: !Sub 'arn:${AWS::Partition}:cloudfront::${AWS::AccountId}:distribution/${SiteDistribution}'\n              - Effect: Allow\n                Action: lambda:UpdateFunctionCode\n                Resource: !GetAtt CounterFunction.Arn\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucket:\n    Type: AWS::S3::Bucket\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Where CloudTrail writes the account's audit log - private, encrypted, versioned.\n    Properties:\n      PublicAccessBlockConfiguration:\n        BlockPublicAcls: true\n        BlockPublicPolicy: true\n        IgnorePublicAcls: true\n        RestrictPublicBuckets: true\n      BucketEncryption:\n        ServerSideEncryptionConfiguration:\n          - ServerSideEncryptionByDefault:\n              SSEAlgorithm: AES256\n      VersioningConfiguration:\n        Status: Enabled\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\n  TrailBucketPolicy:\n    Type: AWS::S3::BucketPolicy\n    Condition: Week9Plus\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Lets exactly one trail write to the bucket - nobody else.\n    Properties:\n      Bucket: !Ref TrailBucket\n      PolicyDocument:\n        Version: '2012-10-17'\n        Statement:\n          - Sid: AllowTrailAclCheck\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:GetBucketAcl\n            Resource: !GetAtt TrailBucket.Arn\n          - Sid: AllowTrailWrite\n            Effect: Allow\n            Principal: { Service: cloudtrail.amazonaws.com }\n            Action: s3:PutObject\n            Resource: !Sub '${TrailBucket.Arn}/AWSLogs/${AWS::AccountId}/*'\n            Condition:\n              StringEquals:\n                s3:x-amz-acl: bucket-owner-full-control\n\n  Trail:\n    Type: AWS::CloudTrail::Trail\n    Condition: Week9Plus\n    DependsOn: TrailBucketPolicy\n    Metadata:\n      Capstone:\n        Week: 11\n        Summary: Every management call in the account, written to the bucket - the audit trail governance reads.\n    Properties:\n      TrailName: !Sub 'capstone-${TeamId}-trail'\n      S3BucketName: !Ref TrailBucket\n      IsLogging: true\n      IsMultiRegionTrail: true\n      IncludeGlobalServiceEvents: true\n      EnableLogFileValidation: true\n      Tags:\n        - { Key: project, Value: capstone }\n        - { Key: owner, Value: !Ref OwnerTag }\n\nOutputs:\n  SiteUrl:\n    Description: The website's HTTPS address.\n    Value: !Sub 'https://${SiteDistribution.DomainName}'\n  ApiUrl:\n    Description: The visitor-counter API - goes into config.json.\n    Value: !Sub 'https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/count'\n  InstanceId:\n    Description: The IT tools server - open it with Session Manager.\n    Value: !Ref ToolsInstance\n  SiteBucketName:\n    Description: Where the site files are uploaded.\n    Value: !Ref SiteBucket\n  DistributionId:\n    Description: Needed to invalidate the cache after an upload.\n    Value: !Ref SiteDistribution\n  VisitorTableName:\n    Description: The table that holds the count.\n    Value: !Ref VisitorTable\n  SiteAlbDns:\n    Condition: Week5Plus\n    Description: The load balancer's address - the fleet answers here from either zone.\n    Value: !GetAtt SiteAlb.DNSName\n  DatabaseEndpoint:\n    Condition: WithDatabase\n    Description: The PostgreSQL endpoint - private; reachable from the fleet only.\n    Value: !GetAtt Database.Endpoint.Address\n  DeployRoleArn:\n    Condition: Week9Plus\n    Description: The role the Week 10 workflow assumes - goes into the repository as AWS_ROLE_ARN.\n    Value: !GetAtt DeployRole.Arn\n"
         },
-        "fillCount": 9,
+        "fillCount": 11,
         "parameters": [
           {
             "name": "params-dev.json",
             "lang": "json",
-            "text": "[\n  { \"ParameterKey\": \"TeamId\", \"ParameterValue\": \"team01\" },\n  { \"ParameterKey\": \"Environment\", \"ParameterValue\": \"dev\" },\n  { \"ParameterKey\": \"OwnerTag\", \"ParameterValue\": \"team01-lead\" },\n  { \"ParameterKey\": \"AlertEmail\", \"ParameterValue\": \"team01@example.com\" },\n  { \"ParameterKey\": \"InstanceType\", \"ParameterValue\": \"t3.micro\" },\n  { \"ParameterKey\": \"BudgetAmount\", \"ParameterValue\": \"5\" }\n]\n"
+            "text": "[\n  { \"ParameterKey\": \"TeamId\", \"ParameterValue\": \"team01\" },\n  { \"ParameterKey\": \"Environment\", \"ParameterValue\": \"dev\" },\n  { \"ParameterKey\": \"OwnerTag\", \"ParameterValue\": \"team01-lead\" },\n  { \"ParameterKey\": \"AlertEmail\", \"ParameterValue\": \"team01@example.com\" },\n  { \"ParameterKey\": \"InstanceType\", \"ParameterValue\": \"t3.micro\" },\n  { \"ParameterKey\": \"BudgetAmount\", \"ParameterValue\": \"5\" },\n  { \"ParameterKey\": \"FleetSize\", \"ParameterValue\": \"0\" },\n  { \"ParameterKey\": \"CreateDatabase\", \"ParameterValue\": \"false\" }\n]\n"
           },
           {
             "name": "params-prod.json",
             "lang": "json",
-            "text": "[\n  { \"ParameterKey\": \"TeamId\", \"ParameterValue\": \"team01\" },\n  { \"ParameterKey\": \"Environment\", \"ParameterValue\": \"prod\" },\n  { \"ParameterKey\": \"OwnerTag\", \"ParameterValue\": \"team01-lead\" },\n  { \"ParameterKey\": \"AlertEmail\", \"ParameterValue\": \"team01@example.com\" },\n  { \"ParameterKey\": \"InstanceType\", \"ParameterValue\": \"t3.micro\" },\n  { \"ParameterKey\": \"BudgetAmount\", \"ParameterValue\": \"10\" }\n]\n"
+            "text": "[\n  { \"ParameterKey\": \"TeamId\", \"ParameterValue\": \"team01\" },\n  { \"ParameterKey\": \"Environment\", \"ParameterValue\": \"prod\" },\n  { \"ParameterKey\": \"OwnerTag\", \"ParameterValue\": \"team01-lead\" },\n  { \"ParameterKey\": \"AlertEmail\", \"ParameterValue\": \"team01@example.com\" },\n  { \"ParameterKey\": \"InstanceType\", \"ParameterValue\": \"t3.micro\" },\n  { \"ParameterKey\": \"BudgetAmount\", \"ParameterValue\": \"20\" },\n  { \"ParameterKey\": \"FleetSize\", \"ParameterValue\": \"2\" },\n  { \"ParameterKey\": \"CreateDatabase\", \"ParameterValue\": \"false\" }\n]\n"
           }
         ],
         "outputs": [
@@ -4516,6 +5027,14 @@
           {
             "name": "DeployRoleArn",
             "description": "The role the Week 10 workflow assumes — goes into the repository as AWS_ROLE_ARN (full deployment only)."
+          },
+          {
+            "name": "SiteAlbDns",
+            "description": "The Week 6 load balancer’s address (Week 5+ deployments)."
+          },
+          {
+            "name": "DatabaseEndpoint",
+            "description": "The Week 7 PostgreSQL endpoint (only when CreateDatabase is true)."
           }
         ],
         "resources": [
@@ -4523,302 +5042,449 @@
             "id": "MonthlyBudget",
             "type": "AWS::Budgets::Budget",
             "week": 1,
-            "start": 48,
-            "end": 70
+            "start": 61,
+            "end": 83
           },
           {
             "id": "Vpc",
             "type": "AWS::EC2::VPC",
             "week": 1,
-            "start": 72,
-            "end": 85
+            "start": 85,
+            "end": 98
           },
           {
             "id": "InternetGateway",
             "type": "AWS::EC2::InternetGateway",
             "week": 1,
-            "start": 87,
-            "end": 96
+            "start": 100,
+            "end": 109
           },
           {
             "id": "GatewayAttachment",
             "type": "AWS::EC2::VPCGatewayAttachment",
             "week": 1,
-            "start": 98,
-            "end": 106
+            "start": 111,
+            "end": 119
           },
           {
             "id": "PublicSubnet",
             "type": "AWS::EC2::Subnet",
             "week": 1,
-            "start": 108,
-            "end": 121
+            "start": 121,
+            "end": 134
           },
           {
             "id": "PublicRouteTable",
             "type": "AWS::EC2::RouteTable",
             "week": 1,
-            "start": 123,
-            "end": 133
+            "start": 136,
+            "end": 146
           },
           {
             "id": "PublicDefaultRoute",
             "type": "AWS::EC2::Route",
             "week": 1,
-            "start": 135,
-            "end": 145
+            "start": 148,
+            "end": 158
           },
           {
             "id": "PublicSubnetRouteAssoc",
             "type": "AWS::EC2::SubnetRouteTableAssociation",
             "week": 1,
-            "start": 147,
-            "end": 155
+            "start": 160,
+            "end": 168
           },
           {
             "id": "ToolsSecurityGroup",
             "type": "AWS::EC2::SecurityGroup",
             "week": 2,
-            "start": 157,
-            "end": 172
+            "start": 170,
+            "end": 185
           },
           {
             "id": "PrivateSubnet",
             "type": "AWS::EC2::Subnet",
             "week": 6,
-            "start": 174,
-            "end": 188
+            "start": 187,
+            "end": 201
           },
           {
             "id": "PrivateRouteTable",
             "type": "AWS::EC2::RouteTable",
             "week": 6,
-            "start": 190,
-            "end": 201
+            "start": 203,
+            "end": 214
           },
           {
             "id": "PrivateSubnetRouteAssoc",
             "type": "AWS::EC2::SubnetRouteTableAssociation",
             "week": 6,
-            "start": 203,
-            "end": 212
+            "start": 216,
+            "end": 225
+          },
+          {
+            "id": "PublicSubnetB",
+            "type": "AWS::EC2::Subnet",
+            "week": 6,
+            "start": 227,
+            "end": 241
+          },
+          {
+            "id": "PublicSubnetBRouteAssoc",
+            "type": "AWS::EC2::SubnetRouteTableAssociation",
+            "week": 6,
+            "start": 243,
+            "end": 252
+          },
+          {
+            "id": "PrivateSubnetB",
+            "type": "AWS::EC2::Subnet",
+            "week": 7,
+            "start": 254,
+            "end": 268
+          },
+          {
+            "id": "PrivateSubnetBRouteAssoc",
+            "type": "AWS::EC2::SubnetRouteTableAssociation",
+            "week": 7,
+            "start": 270,
+            "end": 279
+          },
+          {
+            "id": "S3GatewayEndpoint",
+            "type": "AWS::EC2::VPCEndpoint",
+            "week": 6,
+            "start": 281,
+            "end": 292
+          },
+          {
+            "id": "AlbSecurityGroup",
+            "type": "AWS::EC2::SecurityGroup",
+            "week": 6,
+            "start": 294,
+            "end": 312
+          },
+          {
+            "id": "FleetIngressFromAlb",
+            "type": "AWS::EC2::SecurityGroupIngress",
+            "week": 6,
+            "start": 314,
+            "end": 327
+          },
+          {
+            "id": "FleetLaunchTemplate",
+            "type": "AWS::EC2::LaunchTemplate",
+            "week": 6,
+            "start": 329,
+            "end": 359
+          },
+          {
+            "id": "FleetTargetGroup",
+            "type": "AWS::ElasticLoadBalancingV2::TargetGroup",
+            "week": 6,
+            "start": 361,
+            "end": 378
+          },
+          {
+            "id": "SiteAlb",
+            "type": "AWS::ElasticLoadBalancingV2::LoadBalancer",
+            "week": 6,
+            "start": 380,
+            "end": 394
+          },
+          {
+            "id": "AlbListener",
+            "type": "AWS::ElasticLoadBalancingV2::Listener",
+            "week": 6,
+            "start": 396,
+            "end": 409
+          },
+          {
+            "id": "WebFleet",
+            "type": "AWS::AutoScaling::AutoScalingGroup",
+            "week": 6,
+            "start": 411,
+            "end": 432
+          },
+          {
+            "id": "FleetCpuPolicy",
+            "type": "AWS::AutoScaling::ScalingPolicy",
+            "week": 8,
+            "start": 434,
+            "end": 446
+          },
+          {
+            "id": "DbSubnetGroup",
+            "type": "AWS::RDS::DBSubnetGroup",
+            "week": 7,
+            "start": 448,
+            "end": 458
+          },
+          {
+            "id": "DbSecurityGroup",
+            "type": "AWS::EC2::SecurityGroup",
+            "week": 7,
+            "start": 460,
+            "end": 478
+          },
+          {
+            "id": "Database",
+            "type": "AWS::RDS::DBInstance",
+            "week": 7,
+            "start": 480,
+            "end": 504
+          },
+          {
+            "id": "VisitsDeadLetterQueue",
+            "type": "AWS::SQS::Queue",
+            "week": 7,
+            "start": 506,
+            "end": 516
+          },
+          {
+            "id": "VisitsQueue",
+            "type": "AWS::SQS::Queue",
+            "week": 7,
+            "start": 518,
+            "end": 531
+          },
+          {
+            "id": "LedgerFunctionRole",
+            "type": "AWS::IAM::Role",
+            "week": 7,
+            "start": 533,
+            "end": 559
+          },
+          {
+            "id": "LedgerFunction",
+            "type": "AWS::Lambda::Function",
+            "week": 7,
+            "start": 561,
+            "end": 589
+          },
+          {
+            "id": "LedgerEventSourceMapping",
+            "type": "AWS::Lambda::EventSourceMapping",
+            "week": 7,
+            "start": 591,
+            "end": 601
           },
           {
             "id": "InstanceRole",
             "type": "AWS::IAM::Role",
             "week": 6,
-            "start": 214,
-            "end": 229
+            "start": 603,
+            "end": 618
           },
           {
             "id": "InstanceProfile",
             "type": "AWS::IAM::InstanceProfile",
             "week": 6,
-            "start": 231,
-            "end": 239
+            "start": 620,
+            "end": 628
           },
           {
             "id": "ToolsInstance",
             "type": "AWS::EC2::Instance",
             "week": 2,
-            "start": 241,
-            "end": 271
+            "start": 630,
+            "end": 660
           },
           {
             "id": "DataVolume",
             "type": "AWS::EC2::Volume",
             "week": 7,
-            "start": 273,
-            "end": 287
+            "start": 662,
+            "end": 676
           },
           {
             "id": "DataVolumeAttachment",
             "type": "AWS::EC2::VolumeAttachment",
             "week": 7,
-            "start": 289,
-            "end": 299
+            "start": 678,
+            "end": 688
           },
           {
             "id": "SiteBucket",
             "type": "AWS::S3::Bucket",
             "week": 2,
-            "start": 301,
-            "end": 324
+            "start": 690,
+            "end": 713
           },
           {
             "id": "SiteOac",
             "type": "AWS::CloudFront::OriginAccessControl",
             "week": 2,
-            "start": 326,
-            "end": 337
+            "start": 715,
+            "end": 726
           },
           {
             "id": "SiteDistribution",
             "type": "AWS::CloudFront::Distribution",
             "week": 2,
-            "start": 339,
-            "end": 364
+            "start": 728,
+            "end": 753
           },
           {
             "id": "SiteBucketPolicy",
             "type": "AWS::S3::BucketPolicy",
             "week": 2,
-            "start": 366,
-            "end": 384
+            "start": 755,
+            "end": 773
           },
           {
             "id": "VisitorTable",
             "type": "AWS::DynamoDB::Table",
             "week": 3,
-            "start": 386,
-            "end": 406
+            "start": 775,
+            "end": 795
           },
           {
             "id": "TableNameParameter",
             "type": "AWS::SSM::Parameter",
             "week": 5,
-            "start": 408,
-            "end": 418
+            "start": 797,
+            "end": 807
           },
           {
             "id": "CounterFunctionRole",
             "type": "AWS::IAM::Role",
             "week": 3,
-            "start": 420,
-            "end": 442
+            "start": 809,
+            "end": 831
           },
           {
             "id": "CounterFunction",
             "type": "AWS::Lambda::Function",
             "week": 3,
-            "start": 444,
-            "end": 480
+            "start": 833,
+            "end": 869
           },
           {
             "id": "HttpApi",
             "type": "AWS::ApiGatewayV2::Api",
             "week": 3,
-            "start": 482,
-            "end": 496
+            "start": 871,
+            "end": 885
           },
           {
             "id": "ApiIntegration",
             "type": "AWS::ApiGatewayV2::Integration",
             "week": 3,
-            "start": 498,
-            "end": 508
+            "start": 887,
+            "end": 897
           },
           {
             "id": "ApiRoute",
             "type": "AWS::ApiGatewayV2::Route",
             "week": 3,
-            "start": 510,
-            "end": 519
+            "start": 899,
+            "end": 908
           },
           {
             "id": "ApiStage",
             "type": "AWS::ApiGatewayV2::Stage",
             "week": 3,
-            "start": 521,
-            "end": 530
+            "start": 910,
+            "end": 919
           },
           {
             "id": "ApiInvokePermission",
             "type": "AWS::Lambda::Permission",
             "week": 3,
-            "start": 532,
-            "end": 542
+            "start": 921,
+            "end": 931
           },
           {
             "id": "CounterLogGroup",
             "type": "AWS::Logs::LogGroup",
             "week": 4,
-            "start": 544,
-            "end": 552
+            "start": 933,
+            "end": 941
           },
           {
             "id": "AlertTopic",
             "type": "AWS::SNS::Topic",
             "week": 4,
-            "start": 554,
-            "end": 564
+            "start": 943,
+            "end": 953
           },
           {
             "id": "FunctionErrorsAlarm",
             "type": "AWS::CloudWatch::Alarm",
             "week": 4,
-            "start": 566,
-            "end": 585
+            "start": 955,
+            "end": 974
           },
           {
             "id": "ReadOnlyGroup",
             "type": "AWS::IAM::Group",
             "week": 3,
-            "start": 587,
-            "end": 595
+            "start": 976,
+            "end": 984
           },
           {
             "id": "BackupVault",
             "type": "AWS::Backup::BackupVault",
             "week": 8,
-            "start": 597,
-            "end": 608
+            "start": 986,
+            "end": 997
           },
           {
             "id": "BackupRole",
             "type": "AWS::IAM::Role",
             "week": 8,
-            "start": 610,
-            "end": 626
+            "start": 999,
+            "end": 1015
           },
           {
             "id": "BackupPlan",
             "type": "AWS::Backup::BackupPlan",
             "week": 8,
-            "start": 628,
-            "end": 645
+            "start": 1017,
+            "end": 1034
           },
           {
             "id": "BackupSelection",
             "type": "AWS::Backup::BackupSelection",
             "week": 8,
-            "start": 647,
-            "end": 660
+            "start": 1036,
+            "end": 1049
           },
           {
             "id": "GithubOidcProvider",
             "type": "AWS::IAM::OIDCProvider",
             "week": 10,
-            "start": 662,
-            "end": 675
+            "start": 1051,
+            "end": 1064
           },
           {
             "id": "DeployRole",
             "type": "AWS::IAM::Role",
             "week": 10,
-            "start": 677,
-            "end": 713
+            "start": 1066,
+            "end": 1102
           },
           {
             "id": "TrailBucket",
             "type": "AWS::S3::Bucket",
             "week": 11,
-            "start": 715,
-            "end": 736
+            "start": 1104,
+            "end": 1125
           },
           {
             "id": "TrailBucketPolicy",
             "type": "AWS::S3::BucketPolicy",
             "week": 11,
-            "start": 738,
-            "end": 762
+            "start": 1127,
+            "end": 1151
           },
           {
             "id": "Trail",
             "type": "AWS::CloudTrail::Trail",
             "week": 11,
-            "start": 764,
-            "end": 781
+            "start": 1153,
+            "end": 1170
           }
         ],
         "commands": [
@@ -4851,7 +5517,9 @@
           "The instance keeps a public IP only so it can reach patches and Session Manager. Production would use a NAT gateway; this course avoids its monthly cost and opens no inbound port instead.",
           "AWS Config (the Week 11 required-tags rule) is set up in the console, not here: an account can have only one configuration recorder per region, and yours may already exist. CloudTrail, which has no such limit, is in the template.",
           "AWS Backup protects the data volume with a daily plan from Week 8. The vault and the plan are free; each recovery point is an EBS snapshot and bills like one (cents).",
-          "Deploy with ThroughWeek=12 for the DevOps course’s resources: the GitHub OIDC provider and deploy role (Week 10) and the audit trail (Week 11) carry the Week9Plus condition."
+          "Deploy with ThroughWeek=12 for the DevOps course’s resources: the GitHub OIDC provider and deploy role (Week 10) and the audit trail (Week 11) carry the Week9Plus condition.",
+          "R106: the Solutions Architect quarter builds a two-zone fleet behind an Application Load Balancer, a Multi-AZ PostgreSQL database and a visits queue with a dead-letter queue. The fleet deploys parked (FleetSize 0, free) and the database is opt-in (CreateDatabase), because both bill by the hour; the balancer bills about $0.0225 an hour whenever the Week 5+ deployment exists.",
+          "The Session Manager interface endpoints the Week 6 Security task uses are created and deleted inside that task, not here: three of them cost about $22 a month. The free S3 gateway endpoint is in the template."
         ]
       },
       "block": {

@@ -57,12 +57,25 @@ Parameters:
     Type: String
     Default: your-org/your-repo
     Description: owner/name of the GitHub repository the Week 10 pipeline deploys from - the OIDC role trusts exactly this repository.
+  FleetSize:
+    Type: Number
+    Default: 0
+    MinValue: 0
+    MaxValue: 3
+    Description: Instances in the Week 6 web fleet. 0 parks the fleet (free); 2 runs it across both zones (about $0.01 an hour beyond the free-tier instance).
+  CreateDatabase:
+    Type: String
+    Default: 'false'
+    AllowedValues: ['true', 'false']
+    Description: Create the Week 7 Multi-AZ PostgreSQL database (about $0.04 an hour while it exists). Leave false unless a task needs it.
 
 Conditions:
   # Everything from Week 5 on exists only when the deployment reaches that far.
   Week5Plus: !Not [!Equals [!Ref ThroughWeek, 4]]
   # The DevOps course's resources (Weeks 9-12) exist only in the full deployment.
   Week9Plus: !Equals [!Ref ThroughWeek, 12]
+  # The database bills by the hour, so it is opt-in even when the deployment reaches Week 7.
+  WithDatabase: !And [!Not [!Equals [!Ref ThroughWeek, 4]], !Equals [!Ref CreateDatabase, 'true']]
 
 Resources:
   MonthlyBudget:
@@ -230,6 +243,382 @@ Resources:
     Properties:
       SubnetId: !Ref PrivateSubnet
       RouteTableId: !Ref PrivateRouteTable
+
+  PublicSubnetB:
+    Type: AWS::EC2::Subnet
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The second public subnet, in a second Availability Zone - what makes the fleet multi-AZ.
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: ⟦FILL:the second public subnet range|10.10.3.0/24⟧
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: true
+      Tags:
+        - { Key: Name, Value: !Sub 'snet-public-b-\${TeamId}' }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  PublicSubnetBRouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The second public subnet uses the public route table too.
+    Properties:
+      SubnetId: !Ref PublicSubnetB
+      RouteTableId: !Ref PublicRouteTable
+
+  PrivateSubnetB:
+    Type: AWS::EC2::Subnet
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: The second private subnet - the database's subnet group needs two zones.
+    Properties:
+      VpcId: !Ref Vpc
+      CidrBlock: ⟦FILL:the second private subnet range|10.10.4.0/24⟧
+      AvailabilityZone: !Select [1, !GetAZs '']
+      MapPublicIpOnLaunch: false
+      Tags:
+        - { Key: Name, Value: !Sub 'snet-private-b-\${TeamId}' }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  PrivateSubnetBRouteAssoc:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: The second private subnet uses the private route table.
+    Properties:
+      SubnetId: !Ref PrivateSubnetB
+      RouteTableId: !Ref PrivateRouteTable
+
+  S3GatewayEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The free S3 gateway endpoint - private subnets reach S3 and the AL2023 repositories with no NAT.
+    Properties:
+      VpcId: !Ref Vpc
+      ServiceName: !Sub 'com.amazonaws.\${AWS::Region}.s3'
+      VpcEndpointType: Gateway
+      RouteTableIds: [!Ref PrivateRouteTable]
+
+  AlbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The load balancer's firewall - HTTP from the internet, nothing else.
+    Properties:
+      GroupDescription: ALB - 80 from the internet
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 0.0.0.0/0
+          Description: The site, over HTTP, from anywhere
+      Tags:
+        - { Key: Name, Value: !Sub 'sg-alb-\${TeamId}' }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  FleetIngressFromAlb:
+    Type: AWS::EC2::SecurityGroupIngress
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: Security-group chaining - the fleet accepts 80 only from the load balancer's group.
+    Properties:
+      GroupId: !Ref ToolsSecurityGroup
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+      SourceSecurityGroupId: !Ref AlbSecurityGroup
+      Description: HTTP from the ALB only
+
+  FleetLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The web instance written down - AL2023, nginx, IMDSv2, the SSM role, no key pair.
+    Properties:
+      LaunchTemplateName: !Sub 'lt-web-\${TeamId}'
+      LaunchTemplateData:
+        ImageId: !Ref LatestAmiId
+        InstanceType: !Ref InstanceType
+        IamInstanceProfile: { Arn: !GetAtt InstanceProfile.Arn }
+        SecurityGroupIds: [!Ref ToolsSecurityGroup]
+        MetadataOptions: { HttpTokens: required }
+        BlockDeviceMappings:
+          - DeviceName: /dev/xvda
+            Ebs: { VolumeSize: 8, VolumeType: gp3, Encrypted: true }
+        UserData:
+          Fn::Base64: |
+            #!/bin/bash
+            dnf install -y nginx
+            TOKEN=$(curl -sX PUT http://169.254.169.254/latest/api/token -H "X-aws-ec2-metadata-token-ttl-seconds: 60")
+            AZ=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone)
+            echo "web OK from $AZ" > /usr/share/nginx/html/index.html
+            systemctl enable --now nginx
+        TagSpecifications:
+          - ResourceType: instance
+            Tags:
+              - { Key: Name, Value: !Sub 'web-\${TeamId}' }
+              - { Key: owner, Value: !Ref OwnerTag }
+
+  FleetTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: Where the load balancer sends traffic, and the health check that drains a dead instance.
+    Properties:
+      Name: !Sub 'tg-web-\${TeamId}'
+      VpcId: !Ref Vpc
+      Protocol: HTTP
+      Port: 80
+      TargetType: instance
+      HealthCheckPath: /
+      HealthCheckIntervalSeconds: 10
+      HealthyThresholdCount: 2
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  SiteAlb:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The Application Load Balancer across both public subnets - one address for two zones (about $0.0225 an hour).
+    Properties:
+      Name: !Sub 'alb-web-\${TeamId}'
+      Scheme: internet-facing
+      Type: application
+      Subnets: [!Ref PublicSubnet, !Ref PublicSubnetB]
+      SecurityGroups: [!Ref AlbSecurityGroup]
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  AlbListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: Port 80 on the balancer forwards to the fleet's target group.
+    Properties:
+      LoadBalancerArn: !Ref SiteAlb
+      Port: 80
+      Protocol: HTTP
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref FleetTargetGroup
+
+  WebFleet:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Condition: Week5Plus
+    DependsOn: PublicSubnetBRouteAssoc
+    Metadata:
+      Capstone:
+        Week: 6
+        Summary: The Auto Scaling group across both zones - FleetSize instances, replaced when they die, parked at 0.
+    Properties:
+      AutoScalingGroupName: !Sub 'asg-web-\${TeamId}'
+      LaunchTemplate:
+        LaunchTemplateId: !Ref FleetLaunchTemplate
+        Version: !GetAtt FleetLaunchTemplate.LatestVersionNumber
+      MinSize: '0'
+      MaxSize: '3'
+      DesiredCapacity: !Ref FleetSize
+      VPCZoneIdentifier: [!Ref PublicSubnet, !Ref PublicSubnetB]
+      TargetGroupARNs: [!Ref FleetTargetGroup]
+      HealthCheckType: ELB
+      HealthCheckGracePeriod: 120
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag, PropagateAtLaunch: true }
+
+  FleetCpuPolicy:
+    Type: AWS::AutoScaling::ScalingPolicy
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 8
+        Summary: Target tracking - keep the fleet's average CPU at 50% by adding and removing instances.
+    Properties:
+      AutoScalingGroupName: !Ref WebFleet
+      PolicyType: TargetTrackingScaling
+      TargetTrackingConfiguration:
+        PredefinedMetricSpecification: { PredefinedMetricType: ASGAverageCPUUtilization }
+        TargetValue: 50
+
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: Both private subnets - the two zones a Multi-AZ database needs.
+    Properties:
+      DBSubnetGroupName: !Sub 'dbsg-\${TeamId}'
+      DBSubnetGroupDescription: capstone private subnets
+      SubnetIds: [!Ref PrivateSubnet, !Ref PrivateSubnetB]
+
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: The database's firewall - PostgreSQL from the fleet's group only, never an address.
+    Properties:
+      GroupDescription: PostgreSQL from the fleet only
+      VpcId: !Ref Vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          SourceSecurityGroupId: !Ref ToolsSecurityGroup
+          Description: PostgreSQL from the fleet
+      Tags:
+        - { Key: Name, Value: !Sub 'sg-db-\${TeamId}' }
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  Database:
+    Type: AWS::RDS::DBInstance
+    Condition: WithDatabase
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: Multi-AZ PostgreSQL, encrypted, private - the relational store for the company's next workload (opt-in, about $0.04 an hour).
+    Properties:
+      DBInstanceIdentifier: !Sub 'capstone-\${TeamId}-db'
+      Engine: postgres
+      DBInstanceClass: db.t3.micro
+      AllocatedStorage: '20'
+      StorageType: gp3
+      MultiAZ: true
+      StorageEncrypted: true
+      PubliclyAccessible: false
+      MasterUsername: capstone
+      ManageMasterUserPassword: true
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      VPCSecurityGroups: [!Ref DbSecurityGroup]
+      BackupRetentionPeriod: 1
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  VisitsDeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: Where a message the ledger cannot process goes after three tries, instead of blocking the rest.
+    Properties:
+      QueueName: !Sub 'capstone-\${TeamId}-visits-dlq'
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  VisitsQueue:
+    Type: AWS::SQS::Queue
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: The queue between the API and the ledger - the front door answers fast, the write happens when it can.
+    Properties:
+      QueueName: !Sub 'capstone-\${TeamId}-visits'
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt VisitsDeadLetterQueue.Arn
+        maxReceiveCount: 3
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  LedgerFunctionRole:
+    Type: AWS::IAM::Role
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: The ledger's role - put to one table, read from one queue, write its own logs.
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal: { Service: lambda.amazonaws.com }
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - !Sub 'arn:\${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+      Policies:
+        - PolicyName: ledger
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: dynamodb:PutItem
+                Resource: !GetAtt VisitorTable.Arn
+              - Effect: Allow
+                Action: [sqs:ReceiveMessage, sqs:DeleteMessage, sqs:GetQueueAttributes]
+                Resource: !GetAtt VisitsQueue.Arn
+
+  LedgerFunction:
+    Type: AWS::Lambda::Function
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: Writes one item per queued visit; a message with no page is an error, and lands in the dead-letter queue.
+    Properties:
+      FunctionName: !Sub 'capstone-\${TeamId}-ledger'
+      Runtime: nodejs20.x
+      Handler: index.handler
+      Role: !GetAtt LedgerFunctionRole.Arn
+      Timeout: 10
+      Environment:
+        Variables:
+          TABLE: !Ref VisitorTable
+      Code:
+        ZipFile: |
+          import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+          const db = new DynamoDBClient({});
+          export const handler = async (event) => {
+            for (const r of event.Records) {
+              const body = JSON.parse(r.body);
+              if (!body.page) throw new Error("no page");
+              await db.send(new PutItemCommand({ TableName: process.env.TABLE, Item: { id: { S: "visit#" + r.messageId }, page: { S: body.page }, at: { N: String(Date.now()) } } }));
+            }
+          };
+      Tags:
+        - { Key: owner, Value: !Ref OwnerTag }
+
+  LedgerEventSourceMapping:
+    Type: AWS::Lambda::EventSourceMapping
+    Condition: Week5Plus
+    Metadata:
+      Capstone:
+        Week: 7
+        Summary: Lambda polls the visits queue and hands the ledger batches of up to ten.
+    Properties:
+      EventSourceArn: !GetAtt VisitsQueue.Arn
+      FunctionName: !Ref LedgerFunction
+      BatchSize: 10
 
   InstanceRole:
     Type: AWS::IAM::Role
@@ -819,6 +1208,14 @@ Outputs:
   VisitorTableName:
     Description: The table that holds the count.
     Value: !Ref VisitorTable
+  SiteAlbDns:
+    Condition: Week5Plus
+    Description: The load balancer's address - the fleet answers here from either zone.
+    Value: !GetAtt SiteAlb.DNSName
+  DatabaseEndpoint:
+    Condition: WithDatabase
+    Description: The PostgreSQL endpoint - private; reachable from the fleet only.
+    Value: !GetAtt Database.Endpoint.Address
   DeployRoleArn:
     Condition: Week9Plus
     Description: The role the Week 10 workflow assumes - goes into the repository as AWS_ROLE_ARN.
@@ -831,7 +1228,9 @@ const PARAMS_DEV = `[
   { "ParameterKey": "OwnerTag", "ParameterValue": "team01-lead" },
   { "ParameterKey": "AlertEmail", "ParameterValue": "team01@example.com" },
   { "ParameterKey": "InstanceType", "ParameterValue": "t3.micro" },
-  { "ParameterKey": "BudgetAmount", "ParameterValue": "5" }
+  { "ParameterKey": "BudgetAmount", "ParameterValue": "5" },
+  { "ParameterKey": "FleetSize", "ParameterValue": "0" },
+  { "ParameterKey": "CreateDatabase", "ParameterValue": "false" }
 ]
 `;
 
@@ -841,7 +1240,9 @@ const PARAMS_PROD = `[
   { "ParameterKey": "OwnerTag", "ParameterValue": "team01-lead" },
   { "ParameterKey": "AlertEmail", "ParameterValue": "team01@example.com" },
   { "ParameterKey": "InstanceType", "ParameterValue": "t3.micro" },
-  { "ParameterKey": "BudgetAmount", "ParameterValue": "10" }
+  { "ParameterKey": "BudgetAmount", "ParameterValue": "20" },
+  { "ParameterKey": "FleetSize", "ParameterValue": "2" },
+  { "ParameterKey": "CreateDatabase", "ParameterValue": "false" }
 ]
 `;
 
@@ -865,6 +1266,8 @@ export const AWS_IAC: IacBundle = {
     { name: 'DistributionId', description: 'Needed to invalidate CloudFront’s cache after an upload.' },
     { name: 'VisitorTableName', description: 'The table that holds the count.' },
     { name: 'DeployRoleArn', description: 'The role the Week 10 workflow assumes — goes into the repository as AWS_ROLE_ARN (full deployment only).' },
+    { name: 'SiteAlbDns', description: 'The Week 6 load balancer’s address (Week 5+ deployments).' },
+    { name: 'DatabaseEndpoint', description: 'The Week 7 PostgreSQL endpoint (only when CreateDatabase is true).' },
   ],
   resources: cfnRanges(FULL),
   commands: [
@@ -883,5 +1286,7 @@ export const AWS_IAC: IacBundle = {
     'AWS Config (the Week 11 required-tags rule) is set up in the console, not here: an account can have only one configuration recorder per region, and yours may already exist. CloudTrail, which has no such limit, is in the template.',
     'AWS Backup protects the data volume with a daily plan from Week 8. The vault and the plan are free; each recovery point is an EBS snapshot and bills like one (cents).',
     'Deploy with ThroughWeek=12 for the DevOps course’s resources: the GitHub OIDC provider and deploy role (Week 10) and the audit trail (Week 11) carry the Week9Plus condition.',
+    'R106: the Solutions Architect quarter builds a two-zone fleet behind an Application Load Balancer, a Multi-AZ PostgreSQL database and a visits queue with a dead-letter queue. The fleet deploys parked (FleetSize 0, free) and the database is opt-in (CreateDatabase), because both bill by the hour; the balancer bills about $0.0225 an hour whenever the Week 5+ deployment exists.',
+    'The Session Manager interface endpoints the Week 6 Security task uses are created and deleted inside that task, not here: three of them cost about $22 a month. The free S3 gateway endpoint is in the template.',
   ],
 };

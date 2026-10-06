@@ -47,6 +47,13 @@ export interface CloudVocab {
   patching: string;
   snapshot: string;
   objectRecovery: string;
+  /** R106: the associate quarter's parts, in the platform's words. */
+  lb: string;
+  fleet: string;
+  rdb: string;
+  queue: string;
+  endpoint: string;
+  scaling: string;
   template: string;
   tool: string;
   preview: string;
@@ -404,7 +411,7 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
       {
         ...base(6, 'network', '06_Network_Design_Document.md', 'Network Design Document', 6, 'RFC 1918 addressing · segmentation'),
         feeds: [id('server')],
-        purpose: `The address plan, the ${v.firewall} rules and the tested paths — and proof that no management port faces the internet.`,
+        purpose: `The address plan across two zones, the ${v.firewall} rules, the fleet behind its ${v.lb}, the tested paths — and proof that no management port faces the internet.`,
         howTo: 'Infrastructure owns the address plan; Security & Ops the rules and tests; App traces the request paths.',
         meaning: 'Every subnet is a non-overlapping private range, every rule has a reason, and every rule is tested both ways.',
         useIt: 'Week 9’s template must match this plan exactly.',
@@ -433,9 +440,16 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
             { field: 'cors_origin', label: 'Allowed origin (only this)', type: 'text', required: true, placeholder: 'https://your-site-host' },
             { field: 'cors_negative', label: 'Negative test: a different origin', type: 'select', required: true, options: ['Blocked — as expected', 'Allowed — needs fixing'] },
           ]),
+          group('fleet', 'Fleet and load balancer · Infrastructure and App / DevOps', [
+            c('zone', 'Zone', 'text', { placeholder: v.key === 'az' ? 'Zone 1' : 'us-east-1a' }),
+            c('subnet', 'Subnet', 'text', { placeholder: v.key === 'az' ? 'snet-app' : 'PublicSubnet' }),
+            c('count', 'Instances', 'number'),
+            c('health', 'Health check', 'text', { placeholder: 'HTTP / every 10 s, 2 to healthy' }),
+          ], { help: `One row per zone the ${v.fleet} spans; the ${v.lb} is the one address in front of them.` }),
           fields('Design summary · Architect', [
             { field: 'admin_path', label: 'How admins reach the VM now', type: 'text', required: true, placeholder: `${v.remoteAdmin} — no inbound port` },
-            { field: 'prod_gap', label: 'What production would add', type: 'text', required: true, placeholder: 'NAT gateway; the VM in a private subnet.' },
+            { field: 'private_path', label: 'How a private instance was managed', type: 'text', required: true, placeholder: v.endpoint },
+            { field: 'prod_gap', label: 'What production would add', type: 'text', required: true, placeholder: 'TLS at the balancer; a NAT gateway if the fleet moves private.' },
           ]),
           evidence(v, 6, 'network'),
         ],
@@ -444,55 +458,65 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           done('At least two subnets, each a private CIDR', { group: 'plan', where: { column: 'cidr', matches: '^10\\.' }, atLeast: 2 }),
           done('At least three rules, each with a reason', { group: 'rules', where: { filled: ['dir', 'source', 'port', 'action', 'why'] }, atLeast: 3 }),
           done('A path shown blocked as well as one reachable', { group: 'paths', where: { filled: ['path', 'expected', 'result'] }, atLeast: 2, distinct: 'expected' }),
-          done('The admin path opens no port', { fields: ['admin_path', 'prod_gap'] }),
+          done('The fleet spans two zones behind the balancer', { group: 'fleet', where: { filled: ['zone', 'subnet', 'count', 'health'] }, atLeast: 2, distinct: 'zone' }),
+          done('The admin path opens no port, and the private path is recorded', { fields: ['admin_path', 'private_path', 'prod_gap'] }),
           evidenceDone,
         ],
       },
       [{ group: 'plan', column: 'cidr', rule: 'pattern', value: CIDR, hint: 'CIDR: an address and a /16–/28 prefix, e.g. 10.10.2.0/24' }]
     ),
 
-    // 7 ─ Server Configuration & Maintenance Runbook ───────────────────────
+    // 7 ─ Data Store & Runbook ─────────────────────────────────────────────
     {
-      ...base(7, 'server', '07_Server_Configuration_and_Runbook.md', 'Server Configuration & Maintenance Runbook', 7, 'CIS Ubuntu / Amazon Linux benchmark (reference)'),
+      ...base(7, 'server', '07_Data_Store_and_Runbook.md', 'Data Store & Runbook', 7, 'Well-Architected — reliability and cost pillars'),
       feeds: [id('dr')],
-      purpose: 'The VM as it is really configured, how it is patched, what normal looks like, and the steps to fix it when it is not.',
-      howTo: 'Each role fills its section from what they did on the VM this week.',
-      meaning: 'A runbook a teammate on call could follow at 2 a.m. without asking you.',
-      useIt: 'Week 8 restores this server from a snapshot and checks it against this page.',
-      pitfalls: ['A baseline taken while you were running something heavy.', 'Runbook steps that assume your laptop.'],
+      purpose: 'Which store each workload uses and what it costs, the database as it really runs, the queue that decouples the counter, the controls on the data at rest, and the runbook for the fleet.',
+      howTo: 'The Architect decides the stores; Infrastructure records the database; App the queue and the ledger; Security & Ops the data controls and the runbook.',
+      meaning: 'Every store is the right one for its access pattern, the database is private and encrypted with a standby, and a bad message cannot block a good one.',
+      useIt: 'Week 8 restores this database and the plan names its RPO and RTO; Week 9’s template holds the same resources.',
+      pitfalls: ['A database with a public address “for now”.', 'A queue with no dead-letter queue.', 'Runbook steps that assume your laptop.'],
       sections: [
-        control('CAP-RUN-001'),
-        fields('Sizing decision · Architect', [
-          { field: 'size_now', label: 'Size now', type: 'text', required: true, placeholder: v.key === 'az' ? 'Standard_B1s' : 't3.micro' },
+        control('CAP-DAT-001'),
+        fields('Sizing and data decisions · Architect', [
+          { field: 'size_now', label: 'Instance size now', type: 'text', required: true, placeholder: v.key === 'az' ? 'Standard_B1s' : 't3.micro' },
           { field: 'size_decision', label: 'Keep, grow or shrink — and why', type: 'text', required: true, placeholder: 'Keep: CPU under 10% at the baseline.' },
+          { field: 'data_decision', label: 'Which workloads use the table, which the database (ADR-003)', type: 'area', required: true, placeholder: `Counter stays on ${v.db}; orders and reports go to ${v.rdb}.` },
+          { field: 'data_cost', label: 'Monthly cost of each store', type: 'text', required: true, placeholder: `${v.db} $0.00 · ${v.rdb} $26` },
         ]),
-        group('disks', 'Storage · Infrastructure', [
-          c('disk', 'Disk', 'text', { placeholder: v.key === 'az' ? 'disk-data-tools-team01' : 'DataVolume (EBS)' }),
-          c('size', 'Size', 'number', { unit: 'GB' }),
-          c('mount', 'Mounted at', 'text', { placeholder: '/data' }),
+        fields('Database · Infrastructure', [
+          { field: 'db_engine', label: 'Engine and size', type: 'text', required: true, placeholder: v.rdb },
+          { field: 'db_ha', label: 'High availability', type: 'select', required: true, options: ['Standby in a second zone', 'Single zone'] },
+          { field: 'db_encrypted', label: 'Encrypted at rest', type: 'select', required: true, options: ['Yes', 'No'] },
+          { field: 'db_public', label: 'Public address', type: 'select', required: true, options: ['No', 'Yes'] },
+          { field: 'db_access', label: 'Who may reach it', type: 'text', required: true, placeholder: `The fleet’s ${v.firewall.toLowerCase()} on 5432` },
+          { field: 'db_snapshot', label: 'Snapshot kept', type: 'text', required: true, placeholder: 'capstone-team01-db-w7' },
         ]),
-        fields(`Patching · App / DevOps`, [
-          { field: 'patch_tool', label: 'Tool', type: 'text', required: true, placeholder: v.patching },
-          { field: 'patch_result', label: 'Result of the last run', type: 'text', required: true, placeholder: '12 updates installed, 0 failed' },
+        fields('Queue and ledger · App / DevOps', [
+          { field: 'queue_name', label: 'Queue', type: 'text', required: true, placeholder: v.queue },
+          { field: 'dlq_name', label: 'Dead-letter queue', type: 'text', required: true, placeholder: 'capstone-team01-visits-dlq' },
+          { field: 'receive_count', label: 'Tries before a message moves aside', type: 'number', required: true, placeholder: '3' },
+          { field: 'poison_result', label: 'Poison message test', type: 'select', required: true, options: ['Moved to the dead-letter queue', 'Looped — needs fixing'] },
         ]),
-        group('baseline', 'Performance baseline · Security & Ops', [
-          c('metric', 'Metric', 'text', { placeholder: 'CPU %' }),
-          c('normal', 'Normal', 'text', { placeholder: '2–6 %' }),
-          c('alert_at', 'Alert at', 'text', { placeholder: '> 80 % for 10 min' }),
+        fields('Data controls · Security & Ops', [
+          { field: 'block_public', label: 'Public access to storage', type: 'select', required: true, options: ['Blocked for the whole account', 'Per bucket only'] },
+          { field: 'snapshot_shared', label: 'Who may restore the snapshot', type: 'select', required: true, options: ['Nobody else', 'Another account'] },
+          { field: 'lifecycle_rule', label: 'Lifecycle rule', type: 'text', required: true, placeholder: 'age-out: to a colder class after 30 days' },
         ]),
         group('runbook', 'Runbook · Security & Ops', [
           c('n', 'Step', 'number'),
-          c('do', 'Do', 'text', { placeholder: 'Check the VM is running' }),
-          c('expect', 'Expect', 'text', { placeholder: 'Status: Running' }),
-        ], { help: 'Four steps to check health, then one for when it is slow: work down the layers — network, identity, application, data, configuration — and stop at the first that fails.' }),
-        evidence(v, 7, 'disk'),
+          c('do', 'Do', 'text', { placeholder: 'Check the fleet has two healthy targets' }),
+          c('expect', 'Expect', 'text', { placeholder: 'healthy · healthy' }),
+        ], { help: 'Four steps to check the fleet and the database are healthy, then one for when the site is slow: work down the layers — network, identity, application, data, configuration — and stop at the first that fails.' }),
+        evidence(v, 7, 'data'),
       ],
       dod: [
         controlDone,
-        done('A sizing decision with its reason', { fields: ['size_now', 'size_decision'] }),
-        done('The data disk is recorded, mounted', { group: 'disks', where: { filled: ['disk', 'size', 'mount'] }, atLeast: 1 }),
-        done('A patch run is recorded', { fields: ['patch_tool', 'patch_result'] }),
-        done('At least three baseline metrics', { group: 'baseline', where: { filled: ['metric', 'normal', 'alert_at'] }, atLeast: 3 }),
+        done('A sizing decision and the data-store decision, each costed', { fields: ['size_now', 'size_decision', 'data_decision', 'data_cost'] }),
+        done('The database ran with a standby, encrypted, with no public address', { fields: ['db_engine', 'db_ha', 'db_encrypted', 'db_public', 'db_access', 'db_snapshot'] }),
+        done('The database has a standby in a second zone', { field: 'db_ha', equals: 'Standby in a second zone' }),
+        done('The database has no public address', { field: 'db_public', equals: 'No' }),
+        done('The queue, its dead-letter queue and the poison test', { fields: ['queue_name', 'dlq_name', 'receive_count', 'poison_result'] }),
+        done('The data controls are recorded', { fields: ['block_public', 'snapshot_shared', 'lifecycle_rule'] }),
         done('A runbook of at least four steps', { group: 'runbook', where: { filled: ['do', 'expect'] }, atLeast: 4 }),
         evidenceDone,
       ],
@@ -502,11 +526,11 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
     {
       ...base(8, 'dr', '08_Backup_and_Disaster_Recovery_Plan.md', 'Backup & Disaster Recovery Plan', 8, 'NIST SP 800-34 (BIA, RPO/RTO)'),
       feeds: [id('iac')],
-      purpose: 'What matters most, how much of it the company can lose, how fast it must come back — and a timed restore that proves it.',
-      howTo: 'The Architect sets the targets; Infrastructure and App each restore one thing; Security & Ops times the drill.',
-      meaning: 'A plan is only real once a restore has been timed against its RTO.',
+      purpose: 'What matters most, how much of it the company can lose, how fast it must come back — the scaling that keeps it up, and the timed restores that prove it.',
+      howTo: 'The Architect sets the targets; Infrastructure scales and replaces; App restores a file and the database; Security & Ops times the drill and tears down.',
+      meaning: 'A plan is only real once a lost instance has come back by itself and a restore has been timed against its RTO.',
       useIt: 'Week 12’s recovery scenario is judged against these targets.',
-      pitfalls: ['An RPO of “zero” for everything.', 'A backup nobody has restored.'],
+      pitfalls: ['An RPO of “zero” for everything.', 'A backup nobody has restored.', 'A fleet left running after the drill.'],
       sections: [
         control('CAP-DRP-001'),
         group('bia', 'Business impact · Architect', [
@@ -516,28 +540,34 @@ export function cloudDeliverables(v: CloudVocab): DeliverableDef[] {
           c('rto', 'RTO', 'duration'),
           c('method', 'Protected by', 'text', { placeholder: v.objectRecovery }),
         ]),
-        fields(`VM restore · Infrastructure`, [
-          { field: 'snap_name', label: 'Snapshot', type: 'text', required: true, placeholder: v.snapshot },
-          { field: 'restore_ok', label: 'Restored disk mounted and data present', type: 'select', required: true, options: ['Yes', 'No'] },
+        fields('Scaling and replacement · Infrastructure', [
+          { field: 'scale_policy', label: 'Scaling policy', type: 'text', required: true, placeholder: v.scaling },
+          { field: 'scale_out_time', label: 'Time to add an instance under load', type: 'text', required: true, placeholder: '6 min' },
+          { field: 'replace_time', label: 'Time to replace a terminated instance', type: 'text', required: true, placeholder: '2 min' },
         ]),
-        fields('Website restore · App / DevOps', [
+        fields('Website and database restore · App / DevOps', [
           { field: 'object_restored', label: 'What you deleted and restored', type: 'text', required: true, placeholder: 'index.html — previous version' },
           { field: 'object_method', label: 'How', type: 'text', required: true, placeholder: v.objectRecovery },
+          { field: 'db_restored', label: 'Database restored from the snapshot', type: 'select', required: true, options: ['Yes', 'No'] },
+          { field: 'db_restore_time', label: 'Time to Available, and the new endpoint', type: 'text', required: true, placeholder: '8 min · capstone-team01-db-restore.…' },
         ]),
         fields('Drill · Security & Ops', [
           { field: 'drill_start', label: 'Drill started', type: 'text', required: true, placeholder: '14:02' },
-          { field: 'drill_end', label: 'Service back', type: 'text', required: true, placeholder: '14:19' },
+          { field: 'drill_end', label: 'Service back', type: 'text', required: true, placeholder: '14:05' },
           { field: 'drill_met', label: 'RTO met', type: 'select', required: true, options: ['Yes', 'No — see lessons'] },
-          { field: 'drill_lessons', label: 'Lessons', type: 'text', placeholder: 'Write the mount command into the runbook.' },
+          { field: 'drill_lessons', label: 'Lessons', type: 'text', placeholder: 'Write the health-check interval into the runbook.' },
+          { field: 'teardown', label: 'What was deleted at the end', type: 'text', required: true, placeholder: `${v.lb}, ${v.fleet}, the launch template` },
+          { field: 'month_cost', label: 'This month’s cost so far', type: 'number', unit: 'USD', required: true, placeholder: '11.43' },
         ]),
         evidence(v, 8, 'restore'),
       ],
       dod: [
         controlDone,
         done('At least three assets with RPO and RTO', { group: 'bia', where: { filled: ['asset', 'criticality', 'rpo', 'rto', 'method'] }, atLeast: 3 }),
-        done('The VM disk was restored from a snapshot', { field: 'restore_ok', equals: 'Yes' }),
+        done('The fleet scaled and replaced a lost instance, timed', { fields: ['scale_policy', 'scale_out_time', 'replace_time'] }),
         done('A website object was restored', { fields: ['object_restored', 'object_method'] }),
-        done('The drill is timed against the RTO', { fields: ['drill_start', 'drill_end', 'drill_met'] }),
+        done('The database was restored from its snapshot', { field: 'db_restored', equals: 'Yes' }),
+        done('The drill is timed against the RTO, torn down and costed', { fields: ['drill_start', 'drill_end', 'drill_met', 'teardown', 'month_cost'] }),
         evidenceDone,
       ],
     },

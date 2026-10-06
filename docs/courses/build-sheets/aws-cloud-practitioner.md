@@ -12,7 +12,7 @@ This week adds:
 | --- | --- | --- |
 | Budget $5 | The $5 guardrail, set before anything can cost money | — |
 | Internet gateway | The VPC’s door to the internet | — |
-| Route table → IGW | Sends the public subnet’s traffic to the internet gateway | — |
+| Route table → IGW | Sends the public subnets’ traffic to the internet gateway | — |
 
 **Process — Set the standard:** admin → MonthlyBudget (the $5 budget); admin → Vpc (the group and the network).
 
@@ -27,7 +27,7 @@ This week adds:
 | CloudFront · d…cloudfront.net | Serves the site over HTTPS worldwide | — |
 | OAC | The identity CloudFront reads the private bucket with | — |
 | Amazon S3 · site bucket (private) | Holds the site files, private | — |
-| Security group | No inbound rule; outbound for patches and the agent | — |
+| Security group | Port 80 from the ALB’s group only; outbound for patches and the agent | — |
 | Amazon EC2 · ec2-tools-team01 | The internal IT tools server | — |
 
 **Process — Core services:** user → SiteDistribution (the site, over HTTPS); admin → ToolsInstance (SSH from one address only).

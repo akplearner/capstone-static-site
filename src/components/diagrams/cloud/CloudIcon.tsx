@@ -269,6 +269,49 @@ const GLYPHS: Record<CloudIconKey, Glyph> = {
       <path d="M24.5 24.5 27 27" stroke={bg} strokeWidth="1.8" strokeLinecap="round" />
     </g>
   ),
+  // R106 — the associate-level resources: a load balancer, a fleet, a relational
+  // database, a queue and a private endpoint.
+  lb: (c, bg) => (
+    <g>
+      <circle cx="16" cy="16" r="12" fill={c} />
+      <path d="M16 8v5M16 13l-6 6M16 13l6 6M16 13v11" stroke={bg} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="10" cy="19" r="1.8" fill={bg} />
+      <circle cx="22" cy="19" r="1.8" fill={bg} />
+      <circle cx="16" cy="24" r="1.8" fill={bg} />
+    </g>
+  ),
+  fleet: (c, bg) => (
+    <g>
+      <rect x="4" y="10" width="11" height="9" rx="1.5" fill={c} />
+      <rect x="17" y="10" width="11" height="9" rx="1.5" fill={c} />
+      <rect x="10.5" y="20" width="11" height="8" rx="1.5" fill={c} />
+      <path d="M7 14.5h5M20 14.5h5M13.5 24h5" stroke={bg} strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M16 4v6" stroke={c} strokeWidth="2" strokeLinecap="round" />
+    </g>
+  ),
+  db: (c, bg) => (
+    <g>
+      <ellipse cx="16" cy="8" rx="10" ry="3.5" fill={c} />
+      <path d="M6 8v16c0 2 4.5 3.5 10 3.5S26 26 26 24V8" fill={c} />
+      <path d="M6 14c0 2 4.5 3.5 10 3.5S26 16 26 14M6 20c0 2 4.5 3.5 10 3.5S26 22 26 20" stroke={bg} strokeWidth="1.4" fill="none" />
+      <path d="M20 23l2 2 4-4" stroke={bg} strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  ),
+  queue: (c, bg) => (
+    <g>
+      <rect x="3" y="11" width="26" height="10" rx="2" fill={c} />
+      <path d="M8 13v6M13 13v6M18 13v6" stroke={bg} strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M23 16h3M25 14l2 2-2 2" stroke={bg} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </g>
+  ),
+  endpoint: (c, bg) => (
+    <g>
+      <rect x="5" y="9" width="22" height="14" rx="2" fill={c} />
+      <circle cx="12" cy="16" r="3" fill={bg} />
+      <path d="M15 16h8M20 13l3 3-3 3" stroke={bg} strokeWidth="1.8" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11 23v5M21 23v5" stroke={c} strokeWidth="2" strokeLinecap="round" />
+    </g>
+  ),
 };
 
 /** AWS glyphs that differ in kind, not just colour, from the shared drawing. */

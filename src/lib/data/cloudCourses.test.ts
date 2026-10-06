@@ -23,7 +23,7 @@ const minutes = (t: Task) => Number(/^(\d+) min$/.exec(t.estimatedTime ?? '')?.[
 const startsMachine = (t: Task) =>
   t.steps.some((s) => (s.commands ?? []).some((c) => /az vm (start|create)|start-instances|run-instances|az deployment group create|cloudformation deploy/.test(c.cmd)));
 const stopsMachine = (t: Task) =>
-  t.steps.some((s) => (s.commands ?? []).some((c) => /az vm deallocate|stop-instances|az group delete|cloudformation delete-stack/.test(c.cmd)));
+  t.steps.some((s) => (s.commands ?? []).some((c) => /az vm deallocate|stop-instances|terminate-instances|delete-auto-scaling-group|az group delete|az vmss delete|cloudformation delete-stack/.test(c.cmd)));
 
 // R92 — the instructor's three rules: free tier as far as the exam allows,
 // the portal first with the shell as the option on every step, and the
@@ -32,7 +32,7 @@ const DOC_HOSTS = ['learn.microsoft.com', 'docs.aws.amazon.com', 'aws.amazon.com
 /** The steps the portal genuinely cannot do, with the reason. Anything else with commands needs clicks too. */
 const SHELL_ONLY: Record<string, string> = {
   'az-w6-dev-s2': 'a forged Origin header: only curl can send one',
-  'aws-w6-dev-s2': 'a forged Origin header: only curl can send one',
+  'aws-w5-dev-s4': 'a forged Origin header: only curl can send one',
   'az-w5-dev-s2': 'Cosmos DB data-plane roles are assigned by CLI only; the portal has no page for them',
 };
 

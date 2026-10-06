@@ -1420,7 +1420,7 @@
           "WAF"
         ],
         "deliverables": [
-          "07_Server_Configuration_and_Runbook.md"
+          "07_Data_Store_and_Runbook.md"
         ],
         "estimatedTime": "30 min",
         "difficulty": 3,
@@ -1472,15 +1472,15 @@
           },
           {
             "id": "az-w7-arch-s9",
-            "title": "Record it in the Server Configuration & Maintenance Runbook",
+            "title": "Record it in the Data Store & Runbook",
             "description": "Your section: Sizing decision.",
             "where": "Deliverables tab",
-            "instruction": "Fill your section of the Server Configuration & Maintenance Runbook.",
+            "instruction": "Fill your section of the Data Store & Runbook.",
             "instructionList": [
               "Size now; keep, grow or shrink, and why."
             ],
-            "usesForm": "Server Configuration & Maintenance Runbook",
-            "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
+            "usesForm": "Data Store & Runbook",
+            "producesDeliverable": "07_Data_Store_and_Runbook.md",
             "whatItMeans": "The decision is reversible and cheap — record it anyway.",
             "frameworks": [
               "AZ_104",
@@ -1500,7 +1500,7 @@
           "WAF"
         ],
         "deliverables": [
-          "07_Server_Configuration_and_Runbook.md"
+          "07_Data_Store_and_Runbook.md"
         ],
         "estimatedTime": "45 min",
         "difficulty": 3,
@@ -1582,15 +1582,15 @@
           },
           {
             "id": "az-w7-infra-s9",
-            "title": "Record it in the Server Configuration & Maintenance Runbook",
+            "title": "Record it in the Data Store & Runbook",
             "description": "Your section: Storage.",
             "where": "Deliverables tab",
-            "instruction": "Fill your section of the Server Configuration & Maintenance Runbook.",
+            "instruction": "Fill your section of the Data Store & Runbook.",
             "instructionList": [
               "The disk, its size, where it is mounted."
             ],
-            "usesForm": "Server Configuration & Maintenance Runbook",
-            "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
+            "usesForm": "Data Store & Runbook",
+            "producesDeliverable": "07_Data_Store_and_Runbook.md",
             "whatItMeans": "The runbook’s storage section.",
             "frameworks": [
               "AZ_104",
@@ -1660,7 +1660,7 @@
           "WAF"
         ],
         "deliverables": [
-          "07_Server_Configuration_and_Runbook.md"
+          "07_Data_Store_and_Runbook.md"
         ],
         "estimatedTime": "40 min",
         "difficulty": 3,
@@ -1719,15 +1719,15 @@
           },
           {
             "id": "az-w7-dev-s9",
-            "title": "Record it in the Server Configuration & Maintenance Runbook",
+            "title": "Record it in the Data Store & Runbook",
             "description": "Your section: Patching.",
             "where": "Deliverables tab",
-            "instruction": "Fill your section of the Server Configuration & Maintenance Runbook.",
+            "instruction": "Fill your section of the Data Store & Runbook.",
             "instructionList": [
               "The tool, and the result of the run."
             ],
-            "usesForm": "Server Configuration & Maintenance Runbook",
-            "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
+            "usesForm": "Data Store & Runbook",
+            "producesDeliverable": "07_Data_Store_and_Runbook.md",
             "whatItMeans": "Patch evidence for the runbook and the governance report.",
             "frameworks": [
               "AZ_104",
@@ -1797,7 +1797,7 @@
           "WAF"
         ],
         "deliverables": [
-          "07_Server_Configuration_and_Runbook.md"
+          "07_Data_Store_and_Runbook.md"
         ],
         "estimatedTime": "45 min",
         "difficulty": 3,
@@ -1870,16 +1870,16 @@
           },
           {
             "id": "az-w7-secops-s9",
-            "title": "Record it in the Server Configuration & Maintenance Runbook",
+            "title": "Record it in the Data Store & Runbook",
             "description": "Your section: Performance baseline, Runbook.",
             "where": "Deliverables tab",
-            "instruction": "Fill your section of the Server Configuration & Maintenance Runbook.",
+            "instruction": "Fill your section of the Data Store & Runbook.",
             "instructionList": [
               "Three metrics: normal and alert level.",
               "Four runbook steps: check, expect — and the five-layer step."
             ],
-            "usesForm": "Server Configuration & Maintenance Runbook",
-            "producesDeliverable": "07_Server_Configuration_and_Runbook.md",
+            "usesForm": "Data Store & Runbook",
+            "producesDeliverable": "07_Data_Store_and_Runbook.md",
             "whatItMeans": "The runbook is what a teammate on call follows.",
             "frameworks": [
               "AZ_104",
@@ -2703,7 +2703,7 @@
       "feeds": [
         "aza_server"
       ],
-      "purpose": "The address plan, the NSG rules and the tested paths — and proof that no management port faces the internet.",
+      "purpose": "The address plan across two zones, the NSG rules, the fleet behind its Standard Load Balancer, the tested paths — and proof that no management port faces the internet.",
       "howTo": "Infrastructure owns the address plan; Security & Ops the rules and tests; App traces the request paths.",
       "meaning": "Every subnet is a non-overlapping private range, every rule has a reason, and every rule is tested both ways.",
       "useIt": "Week 9’s template must match this plan exactly.",
@@ -2906,6 +2906,39 @@
           ]
         },
         {
+          "kind": "group",
+          "group": {
+            "group": "fleet",
+            "label": "Fleet and load balancer · Infrastructure and App / DevOps",
+            "columns": [
+              {
+                "field": "zone",
+                "label": "Zone",
+                "type": "text",
+                "placeholder": "Zone 1"
+              },
+              {
+                "field": "subnet",
+                "label": "Subnet",
+                "type": "text",
+                "placeholder": "snet-app"
+              },
+              {
+                "field": "count",
+                "label": "Instances",
+                "type": "number"
+              },
+              {
+                "field": "health",
+                "label": "Health check",
+                "type": "text",
+                "placeholder": "HTTP / every 10 s, 2 to healthy"
+              }
+            ],
+            "help": "One row per zone the VM scale set (B1s × 0–3, two zones) spans; the Standard Load Balancer is the one address in front of them."
+          }
+        },
+        {
           "kind": "fields",
           "title": "Design summary · Architect",
           "fields": [
@@ -2917,11 +2950,18 @@
               "placeholder": "Run Command — no inbound port"
             },
             {
+              "field": "private_path",
+              "label": "How a private instance was managed",
+              "type": "text",
+              "required": true,
+              "placeholder": "Bastion and a private endpoint; no public IP"
+            },
+            {
               "field": "prod_gap",
               "label": "What production would add",
               "type": "text",
               "required": true,
-              "placeholder": "NAT gateway; the VM in a private subnet."
+              "placeholder": "TLS at the balancer; a NAT gateway if the fleet moves private."
             }
           ]
         },
@@ -3003,10 +3043,27 @@
           }
         },
         {
-          "label": "The admin path opens no port",
+          "label": "The fleet spans two zones behind the balancer",
+          "when": {
+            "group": "fleet",
+            "where": {
+              "filled": [
+                "zone",
+                "subnet",
+                "count",
+                "health"
+              ]
+            },
+            "atLeast": 2,
+            "distinct": "zone"
+          }
+        },
+        {
+          "label": "The admin path opens no port, and the private path is recorded",
           "when": {
             "fields": [
               "admin_path",
+              "private_path",
               "prod_gap"
             ]
           }
@@ -3117,12 +3174,12 @@
       "id": "aza_server",
       "courseId": "azure-administrator",
       "num": 3,
-      "file": "07_Server_Configuration_and_Runbook.md",
-      "title": "Server Configuration & Maintenance Runbook",
+      "file": "07_Data_Store_and_Runbook.md",
+      "title": "Data Store & Runbook",
       "owner": "arch",
       "shared": true,
       "folder": "Week_03",
-      "standard": "CIS Ubuntu / Amazon Linux benchmark (reference)",
+      "standard": "Well-Architected — reliability and cost pillars",
       "weeks": [
         3
       ],
@@ -3144,12 +3201,13 @@
       "feeds": [
         "aza_dr"
       ],
-      "purpose": "The VM as it is really configured, how it is patched, what normal looks like, and the steps to fix it when it is not.",
-      "howTo": "Each role fills its section from what they did on the VM this week.",
-      "meaning": "A runbook a teammate on call could follow at 2 a.m. without asking you.",
-      "useIt": "Week 8 restores this server from a snapshot and checks it against this page.",
+      "purpose": "Which store each workload uses and what it costs, the database as it really runs, the queue that decouples the counter, the controls on the data at rest, and the runbook for the fleet.",
+      "howTo": "The Architect decides the stores; Infrastructure records the database; App the queue and the ledger; Security & Ops the data controls and the runbook.",
+      "meaning": "Every store is the right one for its access pattern, the database is private and encrypted with a standby, and a bad message cannot block a good one.",
+      "useIt": "Week 8 restores this database and the plan names its RPO and RTO; Week 9’s template holds the same resources.",
       "pitfalls": [
-        "A baseline taken while you were running something heavy.",
+        "A database with a public address “for now”.",
+        "A queue with no dead-letter queue.",
         "Runbook steps that assume your laptop."
       ],
       "sections": [
@@ -3162,7 +3220,7 @@
               "label": "Document ID",
               "type": "text",
               "required": true,
-              "placeholder": "CAP-RUN-001"
+              "placeholder": "CAP-DAT-001"
             },
             {
               "field": "version",
@@ -3205,11 +3263,11 @@
         },
         {
           "kind": "fields",
-          "title": "Sizing decision · Architect",
+          "title": "Sizing and data decisions · Architect",
           "fields": [
             {
               "field": "size_now",
-              "label": "Size now",
+              "label": "Instance size now",
               "type": "text",
               "required": true,
               "placeholder": "Standard_B1s"
@@ -3220,82 +3278,149 @@
               "type": "text",
               "required": true,
               "placeholder": "Keep: CPU under 10% at the baseline."
+            },
+            {
+              "field": "data_decision",
+              "label": "Which workloads use the table, which the database (ADR-003)",
+              "type": "area",
+              "required": true,
+              "placeholder": "Counter stays on Cosmos DB; orders and reports go to Azure Database for PostgreSQL flexible server B1ms, zone-redundant."
+            },
+            {
+              "field": "data_cost",
+              "label": "Monthly cost of each store",
+              "type": "text",
+              "required": true,
+              "placeholder": "Cosmos DB $0.00 · Azure Database for PostgreSQL flexible server B1ms, zone-redundant $26"
             }
           ]
-        },
-        {
-          "kind": "group",
-          "group": {
-            "group": "disks",
-            "label": "Storage · Infrastructure",
-            "columns": [
-              {
-                "field": "disk",
-                "label": "Disk",
-                "type": "text",
-                "placeholder": "disk-data-tools-team01"
-              },
-              {
-                "field": "size",
-                "label": "Size",
-                "type": "number",
-                "unit": "GB"
-              },
-              {
-                "field": "mount",
-                "label": "Mounted at",
-                "type": "text",
-                "placeholder": "/data"
-              }
-            ]
-          }
         },
         {
           "kind": "fields",
-          "title": "Patching · App / DevOps",
+          "title": "Database · Infrastructure",
           "fields": [
             {
-              "field": "patch_tool",
-              "label": "Tool",
+              "field": "db_engine",
+              "label": "Engine and size",
               "type": "text",
               "required": true,
-              "placeholder": "Azure Update Manager"
+              "placeholder": "Azure Database for PostgreSQL flexible server B1ms, zone-redundant"
             },
             {
-              "field": "patch_result",
-              "label": "Result of the last run",
+              "field": "db_ha",
+              "label": "High availability",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Standby in a second zone",
+                "Single zone"
+              ]
+            },
+            {
+              "field": "db_encrypted",
+              "label": "Encrypted at rest",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Yes",
+                "No"
+              ]
+            },
+            {
+              "field": "db_public",
+              "label": "Public address",
+              "type": "select",
+              "required": true,
+              "options": [
+                "No",
+                "Yes"
+              ]
+            },
+            {
+              "field": "db_access",
+              "label": "Who may reach it",
               "type": "text",
               "required": true,
-              "placeholder": "12 updates installed, 0 failed"
+              "placeholder": "The fleet’s nsg on 5432"
+            },
+            {
+              "field": "db_snapshot",
+              "label": "Snapshot kept",
+              "type": "text",
+              "required": true,
+              "placeholder": "capstone-team01-db-w7"
             }
           ]
         },
         {
-          "kind": "group",
-          "group": {
-            "group": "baseline",
-            "label": "Performance baseline · Security & Ops",
-            "columns": [
-              {
-                "field": "metric",
-                "label": "Metric",
-                "type": "text",
-                "placeholder": "CPU %"
-              },
-              {
-                "field": "normal",
-                "label": "Normal",
-                "type": "text",
-                "placeholder": "2–6 %"
-              },
-              {
-                "field": "alert_at",
-                "label": "Alert at",
-                "type": "text",
-                "placeholder": "> 80 % for 10 min"
-              }
-            ]
-          }
+          "kind": "fields",
+          "title": "Queue and ledger · App / DevOps",
+          "fields": [
+            {
+              "field": "queue_name",
+              "label": "Queue",
+              "type": "text",
+              "required": true,
+              "placeholder": "Storage queue capstone-team01-visits"
+            },
+            {
+              "field": "dlq_name",
+              "label": "Dead-letter queue",
+              "type": "text",
+              "required": true,
+              "placeholder": "capstone-team01-visits-dlq"
+            },
+            {
+              "field": "receive_count",
+              "label": "Tries before a message moves aside",
+              "type": "number",
+              "required": true,
+              "placeholder": "3"
+            },
+            {
+              "field": "poison_result",
+              "label": "Poison message test",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Moved to the dead-letter queue",
+                "Looped — needs fixing"
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "fields",
+          "title": "Data controls · Security & Ops",
+          "fields": [
+            {
+              "field": "block_public",
+              "label": "Public access to storage",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Blocked for the whole account",
+                "Per bucket only"
+              ]
+            },
+            {
+              "field": "snapshot_shared",
+              "label": "Who may restore the snapshot",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Nobody else",
+                "Another account"
+              ]
+            },
+            {
+              "field": "lifecycle_rule",
+              "label": "Lifecycle rule",
+              "type": "text",
+              "required": true,
+              "placeholder": "age-out: to a colder class after 30 days"
+            }
+          ]
         },
         {
           "kind": "group",
@@ -3312,16 +3437,16 @@
                 "field": "do",
                 "label": "Do",
                 "type": "text",
-                "placeholder": "Check the VM is running"
+                "placeholder": "Check the fleet has two healthy targets"
               },
               {
                 "field": "expect",
                 "label": "Expect",
                 "type": "text",
-                "placeholder": "Status: Running"
+                "placeholder": "healthy · healthy"
               }
             ],
-            "help": "Four steps to check health, then one for when it is slow: work down the layers — network, identity, application, data, configuration — and stop at the first that fails."
+            "help": "Four steps to check the fleet and the database are healthy, then one for when the site is slow: work down the layers — network, identity, application, data, configuration — and stop at the first that fails."
           }
         },
         {
@@ -3333,7 +3458,7 @@
               "label": "Deployment screenshot",
               "type": "fileref",
               "required": true,
-              "placeholder": "20260915_Team01_az_w7-disk.png",
+              "placeholder": "20260915_Team01_az_w7-data.png",
               "help": "The screen that proves this week is real. Named by the evidence rule so it can be found later."
             },
             {
@@ -3360,49 +3485,62 @@
           }
         },
         {
-          "label": "A sizing decision with its reason",
+          "label": "A sizing decision and the data-store decision, each costed",
           "when": {
             "fields": [
               "size_now",
-              "size_decision"
+              "size_decision",
+              "data_decision",
+              "data_cost"
             ]
           }
         },
         {
-          "label": "The data disk is recorded, mounted",
-          "when": {
-            "group": "disks",
-            "where": {
-              "filled": [
-                "disk",
-                "size",
-                "mount"
-              ]
-            },
-            "atLeast": 1
-          }
-        },
-        {
-          "label": "A patch run is recorded",
+          "label": "The database ran with a standby, encrypted, with no public address",
           "when": {
             "fields": [
-              "patch_tool",
-              "patch_result"
+              "db_engine",
+              "db_ha",
+              "db_encrypted",
+              "db_public",
+              "db_access",
+              "db_snapshot"
             ]
           }
         },
         {
-          "label": "At least three baseline metrics",
+          "label": "The database has a standby in a second zone",
           "when": {
-            "group": "baseline",
-            "where": {
-              "filled": [
-                "metric",
-                "normal",
-                "alert_at"
-              ]
-            },
-            "atLeast": 3
+            "field": "db_ha",
+            "equals": "Standby in a second zone"
+          }
+        },
+        {
+          "label": "The database has no public address",
+          "when": {
+            "field": "db_public",
+            "equals": "No"
+          }
+        },
+        {
+          "label": "The queue, its dead-letter queue and the poison test",
+          "when": {
+            "fields": [
+              "queue_name",
+              "dlq_name",
+              "receive_count",
+              "poison_result"
+            ]
+          }
+        },
+        {
+          "label": "The data controls are recorded",
+          "when": {
+            "fields": [
+              "block_public",
+              "snapshot_shared",
+              "lifecycle_rule"
+            ]
           }
         },
         {
@@ -3458,13 +3596,14 @@
         "when": "approved"
       },
       "feeds": [],
-      "purpose": "What matters most, how much of it the company can lose, how fast it must come back — and a timed restore that proves it.",
-      "howTo": "The Architect sets the targets; Infrastructure and App each restore one thing; Security & Ops times the drill.",
-      "meaning": "A plan is only real once a restore has been timed against its RTO.",
+      "purpose": "What matters most, how much of it the company can lose, how fast it must come back — the scaling that keeps it up, and the timed restores that prove it.",
+      "howTo": "The Architect sets the targets; Infrastructure scales and replaces; App restores a file and the database; Security & Ops times the drill and tears down.",
+      "meaning": "A plan is only real once a lost instance has come back by itself and a restore has been timed against its RTO.",
       "useIt": "Week 12’s recovery scenario is judged against these targets.",
       "pitfalls": [
         "An RPO of “zero” for everything.",
-        "A backup nobody has restored."
+        "A backup nobody has restored.",
+        "A fleet left running after the drill."
       ],
       "sections": [
         {
@@ -3560,30 +3699,34 @@
         },
         {
           "kind": "fields",
-          "title": "VM restore · Infrastructure",
+          "title": "Scaling and replacement · Infrastructure",
           "fields": [
             {
-              "field": "snap_name",
-              "label": "Snapshot",
+              "field": "scale_policy",
+              "label": "Scaling policy",
               "type": "text",
               "required": true,
-              "placeholder": "snap-data-tools-team01 (incremental)"
+              "placeholder": "Autoscale, 50% average CPU"
             },
             {
-              "field": "restore_ok",
-              "label": "Restored disk mounted and data present",
-              "type": "select",
+              "field": "scale_out_time",
+              "label": "Time to add an instance under load",
+              "type": "text",
               "required": true,
-              "options": [
-                "Yes",
-                "No"
-              ]
+              "placeholder": "6 min"
+            },
+            {
+              "field": "replace_time",
+              "label": "Time to replace a terminated instance",
+              "type": "text",
+              "required": true,
+              "placeholder": "2 min"
             }
           ]
         },
         {
           "kind": "fields",
-          "title": "Website restore · App / DevOps",
+          "title": "Website and database restore · App / DevOps",
           "fields": [
             {
               "field": "object_restored",
@@ -3598,6 +3741,23 @@
               "type": "text",
               "required": true,
               "placeholder": "Blob soft delete + versioning"
+            },
+            {
+              "field": "db_restored",
+              "label": "Database restored from the snapshot",
+              "type": "select",
+              "required": true,
+              "options": [
+                "Yes",
+                "No"
+              ]
+            },
+            {
+              "field": "db_restore_time",
+              "label": "Time to Available, and the new endpoint",
+              "type": "text",
+              "required": true,
+              "placeholder": "8 min · capstone-team01-db-restore.…"
             }
           ]
         },
@@ -3617,7 +3777,7 @@
               "label": "Service back",
               "type": "text",
               "required": true,
-              "placeholder": "14:19"
+              "placeholder": "14:05"
             },
             {
               "field": "drill_met",
@@ -3633,7 +3793,22 @@
               "field": "drill_lessons",
               "label": "Lessons",
               "type": "text",
-              "placeholder": "Write the mount command into the runbook."
+              "placeholder": "Write the health-check interval into the runbook."
+            },
+            {
+              "field": "teardown",
+              "label": "What was deleted at the end",
+              "type": "text",
+              "required": true,
+              "placeholder": "Standard Load Balancer, VM scale set (B1s × 0–3, two zones), the launch template"
+            },
+            {
+              "field": "month_cost",
+              "label": "This month’s cost so far",
+              "type": "number",
+              "unit": "USD",
+              "required": true,
+              "placeholder": "11.43"
             }
           ]
         },
@@ -3689,10 +3864,13 @@
           }
         },
         {
-          "label": "The VM disk was restored from a snapshot",
+          "label": "The fleet scaled and replaced a lost instance, timed",
           "when": {
-            "field": "restore_ok",
-            "equals": "Yes"
+            "fields": [
+              "scale_policy",
+              "scale_out_time",
+              "replace_time"
+            ]
           }
         },
         {
@@ -3705,12 +3883,21 @@
           }
         },
         {
-          "label": "The drill is timed against the RTO",
+          "label": "The database was restored from its snapshot",
+          "when": {
+            "field": "db_restored",
+            "equals": "Yes"
+          }
+        },
+        {
+          "label": "The drill is timed against the RTO, torn down and costed",
           "when": {
             "fields": [
               "drill_start",
               "drill_end",
-              "drill_met"
+              "drill_met",
+              "teardown",
+              "month_cost"
             ]
           }
         },
@@ -5079,21 +5266,26 @@
           "cosmosRoleFunc"
         ],
         "process": {
-          "title": "Identity",
+          "title": "Secure by design",
           "steps": [
             {
               "from": "func",
               "to": "kv",
-              "label": "read by identity, no key"
+              "label": "read by identity, under the team key"
+            },
+            {
+              "from": "user",
+              "to": "func",
+              "label": "CORS: your site only"
             },
             {
               "from": "admin",
               "to": "readerRole",
-              "label": "least privilege for readers"
+              "label": "prove a denial, find exposure"
             }
           ]
         },
-        "caption": "New: the secret store and the roles. The function reads by identity; readers only read."
+        "caption": "New: the team’s key and the secret under it, the fenced API. The function reads by identity; a denial is proved and the exposure read."
       },
       {
         "week": 2,
@@ -5103,21 +5295,26 @@
           "bastion"
         ],
         "process": {
-          "title": "Networking",
+          "title": "Resilient compute",
           "steps": [
             {
-              "from": "admin",
+              "from": "user",
               "to": "bastion",
-              "label": "Bastion in the browser, no port"
+              "label": "one address"
             },
             {
-              "from": "user",
-              "to": "func",
-              "label": "CORS: your site only"
+              "from": "bastion",
+              "to": "vm",
+              "label": "two zones, healthy targets"
+            },
+            {
+              "from": "kv",
+              "to": "vm",
+              "label": "Bastion in the browser, no port"
             }
           ]
         },
-        "caption": "New: the management subnet and the admin path with no open port. SSH is gone."
+        "caption": "New: a second zone, a load balancer, a fleet of two behind it, and a private path that needs no internet. One address, two zones."
       },
       {
         "week": 3,
@@ -5126,21 +5323,26 @@
           "dataDisk"
         ],
         "process": {
-          "title": "Server admin",
+          "title": "Data and storage",
           "steps": [
             {
-              "from": "admin",
-              "to": "dataDisk",
-              "label": "attach and mount"
+              "from": "vm",
+              "to": "cosmos",
+              "label": "Multi-AZ, encrypted, private"
             },
             {
-              "from": "admin",
-              "to": "vm",
-              "label": "patch and baseline"
+              "from": "func",
+              "to": "webStorage",
+              "label": "queue the visit"
+            },
+            {
+              "from": "webStorage",
+              "to": "cosmos",
+              "label": "the ledger writes it"
             }
           ]
         },
-        "caption": "New: the data disk. The VM is patched, measured and right-sized."
+        "caption": "New: the Multi-AZ database, encrypted and private, and the queue with its dead-letter queue. The right store per workload, the right class per object."
       },
       {
         "week": 4,
@@ -5149,26 +5351,26 @@
           "webBlobService"
         ],
         "process": {
-          "title": "Backup and recovery",
+          "title": "Scale, monitor, recover",
           "steps": [
             {
-              "from": "admin",
-              "to": "dataDisk",
-              "label": "snapshot"
-            },
-            {
-              "from": "dataDisk",
-              "to": "vm",
-              "label": "restore and time it"
+              "from": "vm",
+              "to": "bastion",
+              "label": "scale on CPU, replace the lost one"
             },
             {
               "from": "webBlobService",
               "to": "webStorage",
               "label": "recover the deleted file"
+            },
+            {
+              "from": "admin",
+              "to": "cosmos",
+              "label": "restore from the snapshot, time it"
             }
           ]
         },
-        "caption": "New: the backup protection — soft delete on Azure, a daily AWS Backup plan. Snapshot, restore, time it, and recover a deleted file."
+        "caption": "New: the scaling policy. The fleet grows on CPU and replaces a lost instance; a file and the database come back; the drill is timed."
       }
     ],
     "roles": {

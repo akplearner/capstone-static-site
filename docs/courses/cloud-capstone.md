@@ -92,7 +92,7 @@ names the role that fills it. Each form draws Architecture vN for its week.
 | 4 | Monitoring & Incident Report | ITIL 4 incident management |
 | 5 | Access Control Matrix & Secrets Register | NIST SP 800-53 AC-6 |
 | 6 | Network Design Document | RFC 1918, segmentation |
-| 7 | Server Configuration & Maintenance Runbook | CIS benchmark (reference) |
+| 7 | Data Store & Runbook | Well-Architected — reliability and cost pillars |
 | 8 | Backup & Disaster Recovery Plan | NIST SP 800-34 |
 | 9 | IaC Design & Deployment Record | Well-Architected, operational excellence |
 | 10 | Change Request & Release Record | ITIL 4 change enablement |

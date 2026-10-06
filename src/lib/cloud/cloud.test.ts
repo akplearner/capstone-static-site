@@ -21,7 +21,7 @@ import { DARK_CONTAINER_VARIANTS, DARK_VARIANTS, OFFICIAL_CONTAINER_ICONS, OFFIC
  */
 
 // CloudFormation short-form tags, kept as {tag: value} so references survive.
-const CFN_TAGS = ['!Ref', '!GetAtt', '!Sub', '!Select', '!GetAZs', '!Base64', '!Join', '!If', '!Equals', '!Not'].flatMap((t) =>
+const CFN_TAGS = ['!Ref', '!GetAtt', '!Sub', '!Select', '!GetAZs', '!Base64', '!Join', '!If', '!Equals', '!Not', '!And'].flatMap((t) =>
   (['scalar', 'sequence', 'mapping'] as const).map(
     (kind) => new yaml.Type(t, { kind, construct: (d: unknown) => ({ [t]: d }) })
   )
@@ -40,7 +40,7 @@ type ArmDoc = {
   outputs: Record<string, unknown>;
 };
 
-const TEMPLATE_CONTAINERS: Record<string, string[]> = { azure: ['vnet'], aws: ['Vpc', 'PublicSubnet', 'PrivateSubnet'] };
+const TEMPLATE_CONTAINERS: Record<string, string[]> = { azure: ['vnet'], aws: ['Vpc', 'PublicSubnet', 'PrivateSubnet', 'PublicSubnetB', 'PrivateSubnetB'] };
 
 describe.each([
   ['azure', AZURE_IAC, AZURE_TOPOLOGY],
@@ -278,7 +278,8 @@ describe('R88 — official icons', () => {
   ] as const)('%s: every drawn resource has an official icon, except the keys the packs have none for (drawn glyphs)', (platform, topo) => {
     const missing = [...new Set(topo.nodes.map((n) => n.icon))].filter((k) => !OFFICIAL_ICONS[platform].includes(k)).sort();
     // R103: Bastion, the deploy identity (Azure) and AWS Backup, the OIDC provider and CloudTrail are drawn until their official files are added.
-    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'github', 'identity', 'notify'] : ['audit', 'backup', 'identity']);
+    // R106: the associate-level resources (a load balancer, a fleet, a database, a queue, an endpoint) are drawn too.
+    expect(missing).toEqual(platform === 'azure' ? ['bastion', 'github', 'identity', 'notify'] : ['audit', 'backup', 'db', 'endpoint', 'fleet', 'identity', 'lb', 'queue']);
   });
 
   it('no file was added without being listed (a stray file is a key nobody renders)', () => {
