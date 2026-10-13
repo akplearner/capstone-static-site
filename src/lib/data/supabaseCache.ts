@@ -622,7 +622,7 @@ export function stepEvidenceFromRow(r: Record<string, unknown>): StepEvidence {
   };
 }
 
-function artifactFromRow(r: Record<string, unknown>): EvidenceArtifact {
+export function artifactFromRow(r: Record<string, unknown>): EvidenceArtifact {
   return {
     courseId: String(r.course_id),
     sha256: String(r.sha256),
@@ -652,7 +652,7 @@ export async function hydrateUser(): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes] = await Promise.all([
+  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews] = await Promise.all([
     supabase.from('memberships').select('*').eq('user_id', currentUserId),
     supabase.from('step_completions').select('*').eq('user_id', currentUserId),
     supabase.from('step_evidence').select('*'),
@@ -667,6 +667,8 @@ export async function hydrateUser(): Promise<void> {
     supabase.from('deliverable_submissions').select('id, course_id, team_id, deliverable_id, week, version, submitted_by, content_sha256, created_at, categories:snapshot->categories'),
     supabase.from('task_reports').select('*'),
     supabase.from('step_notes').select('*'),
+    // R108: the instructor's verdicts, so the board's "instructor approved" tile reads on the dashboard too (0004 scopes it to the member's teams).
+    supabase.from('deliverable_reviews').select('*'),
   ]);
 
   if (memberships.data) {
@@ -728,6 +730,10 @@ export async function hydrateUser(): Promise<void> {
   if (submissions.data) {
     for (const cid of coursesIn(submissions.data)) [...submissionsByTeam.keys()].filter((k) => k.startsWith(`${cid}::`)).forEach((k) => submissionsByTeam.delete(k));
     submissions.data.forEach((r) => cache.setSubmission(submissionFromLightRow(r)));
+  }
+  if (reviews.data) {
+    for (const cid of coursesIn(reviews.data)) [...reviewsByTeam.keys()].filter((k) => k.startsWith(`${cid}::`)).forEach((k) => reviewsByTeam.delete(k));
+    reviews.data.forEach((r) => cache.setReview(reviewFromRow(r)));
   }
   if (reports.data) {
     const byCourse = new Map<string, TaskReport[]>();

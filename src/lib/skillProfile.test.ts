@@ -33,7 +33,7 @@ const COURSE: Course = {
   gates: [],
   tasks: [
     task({ id: 't0', week: 0, steps: [step('s', { verify: ['x'] })] }),
-    task({ id: 't1', frameworks: ['NIST_CSF'], deliverables: ['01_Form.md'], steps: [step('a', { verify: ['a'], frameworks: ['CIS'] }), step('b', { verify: ['b'] }), step('c'), step('d', { verify: ['d'], optional: true })], handoff: [{ to: 'red', note: '', deliverable: 'form' }] }),
+    task({ id: 't1', frameworks: ['NIST_CSF'], deliverables: ['01_Form.md'], steps: [step('a', { verify: ['a'], frameworks: ['CIS'], command: 'echo a' }), step('b', { verify: ['b'] }), step('c'), step('d', { verify: ['d'], optional: true })], handoff: [{ to: 'red', note: '', deliverable: 'form' }] }),
     task({ id: 't2', week: 2, steps: [step('a'), step('b')] }),
     task({ id: 'r1', role: 'red', steps: [step('a', { verify: ['a'] }), step('b')] }),
   ],
@@ -217,6 +217,36 @@ describe('skillProfile — rows and levels', () => {
     expect(row(p, 'skills', 'comp.a.one').artifacts).toBe(2);
   });
 
+  // R108: the board's own and team indicators, and the per-row task count behind "proved twice".
+  it('R108: steps in order and command steps are own facts; controls cited, document control and instructor approval are team facts', () => {
+    const ordered = skillProfile(input({ done: ['t1::a', 't1::b'], evidence: { 't1::a': verified('t1', 'a', 100), 't1::b': verified('t1', 'b', 200) } }));
+    expect(ordered.abilities.inOrder).toEqual({ value: 1, of: 1, loaded: true });
+    expect(ordered.abilities.commandSteps).toEqual({ value: 1, of: 1, loaded: true });
+    expect(row(ordered, 'skills', 'comp.a.one').verifiedTasks).toBe(1);
+    const reversed = skillProfile(input({ done: ['t1::a', 't1::b'], evidence: { 't1::a': verified('t1', 'a', 300), 't1::b': verified('t1', 'b', 200) } }));
+    expect(reversed.abilities.inOrder).toEqual({ value: 0, of: 1, loaded: true });
+    const none = skillProfile(input());
+    expect(none.abilities.inOrder).toEqual({ value: 0, of: 0, loaded: true });
+    expect(none.abilities.commandSteps).toEqual({ value: 0, of: 1, loaded: true });
+    expect(row(none, 'skills', 'comp.a.one').verifiedTasks).toBe(0);
+    for (const k of ['controlsCited', 'docControl', 'instructorApproved'] as const) expect(none.abilities[k].loaded, k).toBe(false);
+
+    const controlled = { fields: { doc_id: 'D-1', version: '1', doc_owner: 'me', doc_date: '2026-01-01', doc_status: 'draft', summary: 'done' }, groups: { rows: [{ what: 'a row' }] } };
+    const approved: DeliverableStatus = { courseId: 'c', teamId: 't', deliverableId: 'form', status: 'approved', changedBy: 'x', role: 'red', at: 1, version: 1 };
+    const drafted = skillProfile(input({ team: { docs: { form: controlled }, status: [], submissions: [], reviews: [], currentWeek: 1 } }));
+    expect(drafted.abilities.controlsCited).toEqual({ value: 0, of: 1, loaded: true });
+    expect(drafted.abilities.docControl).toEqual({ value: 1, of: 1, loaded: true });
+    expect(drafted.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true });
+    const uncontrolled = { fields: { summary: 'done' }, groups: {} };
+    const loose = skillProfile(input({ team: { docs: { form: uncontrolled }, status: [approved], submissions: [], reviews: [{ courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'revise', comment: '', reviewer: 'i', at: 1 }, { courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'approved', comment: '', reviewer: 'i', at: 2 }], currentWeek: 1 } }));
+    expect(loose.abilities.controlsCited).toEqual({ value: 1, of: 1, loaded: true });
+    expect(loose.abilities.docControl).toEqual({ value: 0, of: 1, loaded: true });
+    expect(loose.abilities.instructorApproved, 'the latest review counts').toEqual({ value: 1, of: 1, loaded: true });
+    const revised = skillProfile(input({ team: { docs: {}, status: [], submissions: [], reviews: [{ courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'approved', comment: '', reviewer: 'i', at: 1 }, { courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'revise', comment: '', reviewer: 'i', at: 2 }], currentWeek: 1 } }));
+    expect(revised.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true });
+    expect(revised.abilities.docControl, 'no data, no denominator').toEqual({ value: 0, of: 0, loaded: true });
+  });
+
   it('gaps list the rows not started, with the task that closes each', () => {
     const p = skillProfile(input({ done: ['t1::a'] }));
     expect(p.gaps.skills.map((r) => r.id)).toEqual(['comp.a.two']);
@@ -247,6 +277,8 @@ describe('skillProfile — invariants over random facts', () => {
       const status: DeliverableStatus[] = rand() < 0.5 ? [{ courseId: 'c', teamId: 't', deliverableId: 'form', status: pick(['draft', 'in_review', 'approved', 'issued'] as const), changedBy: 'x', role: 'red', at: 1, version: 1 }] : [];
       const team = rand() < 0.5 ? { docs: {}, status, submissions: [], reviews: [], currentWeek: 1 } : undefined;
       const p = skillProfile(input({ done, evidence, team }));
+      expect(p.abilities.inOrder.value).toBeLessThanOrEqual(p.abilities.inOrder.of ?? 0);
+      expect(p.abilities.commandSteps.value).toBeLessThanOrEqual(p.abilities.commandSteps.of ?? 0);
       for (const dim of ['skills', 'tools', 'procedures', 'tactics', 'practices', 'standards', 'domains'] as const) {
         for (const r of p.rows[dim]) {
           expect(r.tickedSteps).toBeLessThanOrEqual(r.requiredSteps);
@@ -254,6 +286,8 @@ describe('skillProfile — invariants over random facts', () => {
           expect(r.verifiedSteps).toBeLessThanOrEqual(r.verifiableSteps);
           expect(r.verifiedSteps + r.selfAttestedSteps).toBeLessThanOrEqual(r.verifiableSteps);
           expect(r.inOrderTasks ?? 0).toBeLessThanOrEqual(r.orderedTasks ?? 0);
+          expect(r.verifiedTasks).toBeLessThanOrEqual(r.tasks.length);
+          if (r.verifiedSteps > 0) expect(r.verifiedTasks).toBeGreaterThan(0);
           if (r.level === 'reviewed') expect(r.deliverablesApproved).toBeGreaterThan(0);
           if (levelRank(r.level) >= 1 && dim !== 'procedures') expect(r.tickedSteps).toBeGreaterThan(0);
           if (r.level === 'verified' && dim !== 'procedures') expect(r.verifiedSteps).toBeGreaterThan(0);

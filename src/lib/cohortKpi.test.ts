@@ -1,0 +1,99 @@
+import { describe, it, expect } from 'vitest';
+import { COHORT_KPI_CSV_HEADER, COHORT_KPI_SCHEMA, bandOf, cohortKpiCsv, cohortKpiReport } from './cohortKpi';
+import { SERVER_PLUS } from './data/seed/serverPlus';
+import { courseDto } from './content/dto';
+import { certOf, deliverablesOf, skillsOf } from './content/read';
+import { ONTOLOGY_VERSION } from './docs/ontology';
+import { KPIS } from './docs/kpis';
+import type { StepEvidence } from './data/types';
+import { verifiableSteps } from './evidenceLedger';
+
+/**
+ * R108 — the cohort report folds every member's sixteen into bands and
+ * sums per cohort and carries nobody: no member id, no name, no per-member
+ * value; the CSV has one line per KPI per group.
+ */
+const roster = [
+  { memberId: 'a', teamId: '2026-09-t3', role: 'net', displayName: 'Ana', cohort: '2026-09', joinedAt: 1 },
+  { memberId: 'b', teamId: '2026-09-t3', role: 'lnx', displayName: 'Ben', cohort: '2026-09', joinedAt: 2 },
+  { memberId: 'c', teamId: '2026-09-t4', role: 'mgmt', displayName: 'Cy', cohort: '2026-09', joinedAt: 3 },
+];
+const doc = courseDto('server-plus');
+// Ana's one verified step: the first verifiable required step of a week-1 task of her own role.
+const anaTask = SERVER_PLUS.tasks.find((t) => t.role === 'net' && verifiableSteps(t.steps.filter((s) => !s.optional)).length > 0)!;
+const anaStep = verifiableSteps(anaTask.steps.filter((s) => !s.optional))[0];
+
+const report = cohortKpiReport({
+  course: SERVER_PLUS,
+  week: 2,
+  roster,
+  ontologyVersion: ONTOLOGY_VERSION,
+  registry: skillsOf(doc),
+  cert: certOf(doc),
+  deliverables: deliverablesOf(doc),
+  facts: {
+    // Ana did every week-1 step and the first verifiable task of her role; nobody else did anything.
+    isStepDone: (m, taskId) => m === 'a' && (/-w1-/.test(taskId) || taskId === anaTask.id),
+    evidenceFor: (m): Record<string, StepEvidence> =>
+      m === 'a'
+        ? { [`${anaTask.id}::${anaStep.id}`]: { courseId: 'server-plus', taskId: anaTask.id, stepId: anaStep.id, verified: true, method: 'verified-output', matchedTokens: 1, totalTokens: 1, attempts: 1, firstAttemptAt: 1, verifiedAt: 2 } }
+        : {},
+    artifactsFor: () => [],
+    docsFor: () => ({}),
+    statusFor: () => [],
+    submissionsFor: () => [],
+    reviewsFor: () => [],
+  },
+});
+
+describe('cohortKpiReport', () => {
+  it('groups by cohort, keeps sixteen rows in registry order, and the bands sum to the members', () => {
+    expect(report.schema).toBe(COHORT_KPI_SCHEMA);
+    expect(report.courseId).toBe('server-plus');
+    expect(report.week).toBe(2);
+    expect(report.all.members).toBe(3);
+    expect(report.groups.map((g) => g.cohort)).toEqual(['2026-09']);
+    for (const g of [report.all, ...report.groups]) {
+      expect(g.kpis.map((k) => k.id)).toEqual(KPIS.map((k) => k.id));
+      for (const k of g.kpis) {
+        expect(k.members).toBe(g.members);
+        expect(k.bands.notStarted + k.bands.inProgress + k.bands.complete + k.bands.noDenominator, k.id).toBe(g.members);
+        expect(k.sumValue, k.id).toBeLessThanOrEqual(k.sumOf);
+        expect(k.loaded, k.id).toBe(g.members);
+      }
+    }
+    const a1 = report.all.kpis.find((k) => k.id === 'kpi.ability.skills-verified')!;
+    expect(a1.bands.inProgress + a1.bands.complete).toBeGreaterThanOrEqual(1);
+    expect(a1.bands.notStarted).toBeGreaterThanOrEqual(2);
+    expect(report.all.kpis.find((k) => k.id === 'kpi.outcome.capstone-filed')!.bands.notStarted).toBe(3);
+  });
+
+  it('carries no member', () => {
+    const json = JSON.stringify(report);
+    for (const word of ['Ana', 'Ben', 'Cy', 'memberId', 'displayName', '"a"', '"b"']) expect(json, word).not.toContain(word);
+  });
+
+  it('bands: no denominator, not started, in progress, complete', () => {
+    expect(bandOf({ value: 0, of: 0 })).toBe('noDenominator');
+    expect(bandOf({ value: 0, of: 3 })).toBe('notStarted');
+    expect(bandOf({ value: 1, of: 3 })).toBe('inProgress');
+    expect(bandOf({ value: 3, of: 3 })).toBe('complete');
+  });
+
+  it('the CSV has the fixed header and one line per KPI for the whole course and per cohort', () => {
+    const csv = cohortKpiCsv(report, SERVER_PLUS);
+    const lines = csv.trim().split('\r\n');
+    expect(lines[0]).toBe(COHORT_KPI_CSV_HEADER.join(','));
+    expect(lines[0]).toBe('course,cohort,week,kpi,family,metric,fact,members,loaded,not_started,in_progress,complete,no_denominator,sum_value,sum_of');
+    expect(lines).toHaveLength(1 + 16 * (report.groups.length + 1));
+    expect(lines[1].startsWith('server-plus,all,2,kpi.ability.skills-verified,ability,metric.skill-verified,own,3,3,')).toBe(true);
+    expect(csv).not.toContain('Ana');
+  });
+
+  it('an empty roster gives an empty report with the sixteen as empty rows', () => {
+    const empty = cohortKpiReport({ course: SERVER_PLUS, week: 1, roster: [], ontologyVersion: ONTOLOGY_VERSION, registry: skillsOf(doc), cert: certOf(doc), deliverables: deliverablesOf(doc), facts: { isStepDone: () => false, evidenceFor: () => ({}), artifactsFor: () => [], docsFor: () => ({}), statusFor: () => [], submissionsFor: () => [], reviewsFor: () => [] } });
+    expect(empty.groups).toEqual([]);
+    expect(empty.all.members).toBe(0);
+    expect(empty.all.kpis).toHaveLength(16);
+  });
+});

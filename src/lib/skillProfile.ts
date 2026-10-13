@@ -45,6 +45,8 @@ export interface ProfileRow {
   verifiableSteps: number;
   verifiedSteps: number;
   selfAttestedSteps: number;
+  /** R108: tasks with at least one verified step, so a skill proved on two tasks can be told from one. */
+  verifiedTasks: number;
   /** Tasks whose verifiable steps were verified in authored order, over tasks with two or more verification records. */
   inOrderTasks?: number;
   orderedTasks?: number;
@@ -91,6 +93,13 @@ export interface AbilityIndicators {
   teammateStepsTicked: Indicator;
   handoffsCompleted: Indicator;
   peerReviewsGiven: Indicator;
+  /** R108, the board's own facts: tasks verified in authored order over tasks with two or more records; verified command steps over verifiable command steps. */
+  inOrder: Indicator;
+  commandSteps: Indicator;
+  /** R108, team facts: distinct control codes on approved or issued forms the role drafts over the codes its forms cite; forms with data whose control block is complete; forms whose latest instructor review is approved. */
+  controlsCited: Indicator;
+  docControl: Indicator;
+  instructorApproved: Indicator;
 }
 
 export interface TeamFacts {
@@ -288,6 +297,7 @@ function buildRow(spec: RowSpec, facts: Map<string, TaskFacts>, forms: Map<strin
     verifiableSteps: sum((f) => f.verifiable),
     verifiedSteps: sum((f) => f.verified),
     selfAttestedSteps: sum((f) => f.selfAttested),
+    verifiedTasks: tasks.filter((f) => f.verified > 0).length,
     inOrderTasks: tasks.filter((f) => f.inOrder).length,
     orderedTasks: tasks.filter((f) => f.ordered).length,
     artifacts: artifactCount,
@@ -373,15 +383,20 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
   let persistence = 0;
   let verifiable = 0;
   let partial = 0;
+  let commandVerifiable = 0;
+  let commandVerified = 0;
   const days = new Set<string>();
   const weeks = new Set<number>();
   for (const t of own) {
     for (const s of verifiableSteps(t.steps.filter((x) => !x.optional))) {
       verifiable += 1;
+      const runsCommand = !!(s.command || s.commands?.length);
+      if (runsCommand) commandVerifiable += 1;
       const rec = evidence[key(t.id, s.id)];
       if (!rec) continue;
       if (rec.verified) {
         verified += 1;
+        if (runsCommand) commandVerified += 1;
         if (rec.attempts <= 1) firstTry += 1;
         else persistence += 1;
       } else if (rec.matchedTokens > 0) {
@@ -406,6 +421,11 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
   const byMe = (status: DeliverableStatus['status'][]) => (team?.status ?? []).filter((r) => r.changedBy === memberId && status.includes(r.status)).length;
   const roleForms = input.deliverables.filter((d) => d.owner === role || d.shared);
   const handoffs = own.flatMap((t) => (t.handoff ?? []).filter((h) => h.deliverable).map((h) => h.deliverable!));
+  // R108: the forms the role drafts, the control codes they cite, and the latest instructor review per form.
+  const draftForms = input.deliverables.filter((d) => d.owner === role || d.raci?.drafts === role);
+  const codesOf = (defs: DeliverableDef[]) => new Set(defs.flatMap((d) => input.registry.CONTROL_OF[d.id] ?? []));
+  const latestReview = (deliverableId: string) => (team?.reviews ?? []).filter((r) => r.deliverableId === deliverableId).sort((a, b) => b.at - a.at)[0];
+  const allFacts = [...facts.values()];
 
   return {
     firstTry: { value: firstTry, of: verified, loaded: true },
@@ -438,6 +458,14 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
     teammateStepsTicked: { value: teammateSteps, loaded: true },
     handoffsCompleted: teamOr(() => ({ value: handoffs.filter((id) => forms.get(id)?.approved).length, of: handoffs.length, loaded: true })),
     peerReviewsGiven: EMPTY_INDICATOR,
+    inOrder: { value: allFacts.filter((f) => f.inOrder).length, of: allFacts.filter((f) => f.ordered).length, loaded: true },
+    commandSteps: { value: commandVerified, of: commandVerifiable, loaded: true },
+    controlsCited: teamOr(() => ({ value: codesOf(draftForms.filter((d) => forms.get(d.id)?.approved)).size, of: codesOf(draftForms).size, loaded: true })),
+    docControl: teamOr(() => {
+      const withData = roleForms.filter((d) => forms.get(d.id)?.hasData);
+      return { value: withData.filter((d) => forms.get(d.id)?.controlled).length, of: withData.length, loaded: true };
+    }),
+    instructorApproved: teamOr(() => ({ value: roleForms.filter((d) => latestReview(d.id)?.status === 'approved').length, of: roleForms.length, loaded: true })),
   };
 }
 

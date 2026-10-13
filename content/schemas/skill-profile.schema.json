@@ -90,6 +90,10 @@
           "type": "integer",
           "minimum": 0
         },
+        "verifiedTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
         "inOrderTasks": {
           "type": "integer",
           "minimum": 0
@@ -196,7 +200,7 @@
       "type": "string"
     },
     "denominator": {
-      "const": "own ticks \u00b7 graded and advanced weeks \u00b7 required steps"
+      "const": "own ticks · graded and advanced weeks · required steps"
     },
     "rows": {
       "type": "object",
@@ -303,7 +307,12 @@
         "dodMet",
         "teammateStepsTicked",
         "handoffsCompleted",
-        "peerReviewsGiven"
+        "peerReviewsGiven",
+        "inOrder",
+        "commandSteps",
+        "controlsCited",
+        "docControl",
+        "instructorApproved"
       ],
       "additionalProperties": false,
       "properties": {
@@ -359,6 +368,21 @@
           "$ref": "#/$defs/indicator"
         },
         "peerReviewsGiven": {
+          "$ref": "#/$defs/indicator"
+        },
+        "inOrder": {
+          "$ref": "#/$defs/indicator"
+        },
+        "commandSteps": {
+          "$ref": "#/$defs/indicator"
+        },
+        "controlsCited": {
+          "$ref": "#/$defs/indicator"
+        },
+        "docControl": {
+          "$ref": "#/$defs/indicator"
+        },
+        "instructorApproved": {
           "$ref": "#/$defs/indicator"
         }
       }

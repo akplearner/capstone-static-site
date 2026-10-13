@@ -4,12 +4,13 @@ import { getBrowserClient } from '../supabase/client';
 import { isSupabaseConfigured } from '../supabase/config';
 import type { Course, RosterEntry } from '../types';
 import type { DeliverableData } from '../docs/types';
-import type { Cohort, DeliverableReview, DeliverableSubmission, PeerReviewRow, StepEvidence, StuckFlag, TaskReport } from './types';
-import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow, submissionFromRow, peerReviewFromRow } from './supabaseCache';
+import type { DeliverableStatus } from '../docs/lifecycle';
+import type { Cohort, DeliverableReview, DeliverableSubmission, EvidenceArtifact, PeerReviewRow, StepEvidence, StuckFlag, TaskReport } from './types';
+import { rosterFromRow, stepEvidenceFromRow, reviewFromRow, taskReportFromRow, submissionFromRow, peerReviewFromRow, docStatusFromRow, artifactFromRow } from './supabaseCache';
 import { localStorageProgressRepo } from './localStorageProgressRepo';
 import { localStorageEvidenceRepo } from './localStorageEvidenceRepo';
 import { localStorageDocsRepo } from './localStorageDocsRepo';
-import { localStorageStepNotesRepo, localStorageReviewRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo, localStorageCohortRepo } from './localStorageFeatureRepos';
+import { localStorageStepNotesRepo, localStorageReviewRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo, localStorageCohortRepo, localStorageStatusRepo } from './localStorageFeatureRepos';
 import { KEYS } from './keys';
 import { getTasksByRole } from '../course-helpers';
 
@@ -51,6 +52,9 @@ export interface CohortData {
    *  fresh /instructor load nothing has hydrated the shared cache it would
    *  otherwise read from. */
   cohortDates: Cohort[];
+  /** R108: the lifecycle rows per team and the hashed files per member, for the KPI bands (0012 and 0004 let the instructor read both). */
+  status: Record<string, DeliverableStatus[]>;
+  artifacts: Record<string, EvidenceArtifact[]>;
 }
 
 export function isStepDoneIn(data: CohortData, courseId: string, memberId: string, taskId: string, stepId: string): boolean {
@@ -70,11 +74,15 @@ export function loadCohortLocal(course: Course): CohortData {
   const docs: CohortData['docs'] = {};
   const stuck: StuckFlag[] = [];
   const reviews: DeliverableReview[] = [];
+  const status: CohortData['status'] = {};
+  const artifacts: CohortData['artifacts'] = {};
   for (const t of teams) {
     docs[t] = localStorageDocsRepo.get(course.id, t) ?? {};
     stuck.push(...localStorageStepNotesRepo.teamStuck(course.id, t));
     reviews.push(...localStorageReviewRepo.list(course.id, t));
+    status[t] = localStorageStatusRepo.list(course.id, t);
   }
+  for (const m of roster) artifacts[m.memberId] = localStorageEvidenceRepo.getArtifacts(course.id, m.memberId);
   // `getTasksByRole` is imported so a course with no tasks for a role still
   // resolves cleanly in the page's derived rows; nothing else to do here.
   void getTasksByRole;
@@ -87,13 +95,13 @@ export function loadCohortLocal(course: Course): CohortData {
     .map((c) => localStorageCohortRepo.get(course.id, c))
     .filter((c): c is Cohort => !!c);
   // Offline has no peers on one device, so there are no verdict rows to show.
-  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports, profiles, submissions, peerReviews: [], assignedCounts: {}, cohortDates };
+  return { mode: 'local', roster, completions, evidence, docs, stuck, reviews, reports, profiles, submissions, peerReviews: [], assignedCounts: {}, cohortDates, status, artifacts };
 }
 
 export async function loadCohortCloud(course: Course): Promise<CohortData> {
   const supabase = getBrowserClient();
   if (!supabase) return loadCohortLocal(course);
-  const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows] = await Promise.all([
+  const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows, statusRows, artifactRows] = await Promise.all([
     supabase.from('memberships').select('*').eq('course_id', course.id),
     supabase.from('step_completions').select('*').eq('course_id', course.id),
     supabase.from('step_evidence').select('*').eq('course_id', course.id),
@@ -109,6 +117,9 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     supabase.from('peer_reviews').select('*'),
     supabase.from('peer_review_assignments').select('id, submission_id'),
     supabase.from('cohorts').select('*').eq('course_id', course.id),
+    // R108: the lifecycle rows and the hashed files, for the KPI bands.
+    supabase.from('deliverable_status').select('*').eq('course_id', course.id),
+    supabase.from('evidence_artifacts').select('*').eq('course_id', course.id),
   ]);
   const profiles: CohortData['profiles'] = {};
   for (const p of profileRows.data ?? []) {
@@ -145,6 +156,13 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     if (submissionIds.has(sid)) assignedCounts[sid] = (assignedCounts[sid] ?? 0) + 1;
   }
   const cohortDates: Cohort[] = (cohortRows.data ?? []).map((r) => ({ courseId: course.id, cohort: String(r.cohort), startsOn: String(r.starts_on) }));
+  const status: CohortData['status'] = {};
+  for (const r of statusRows.data ?? []) {
+    const row = docStatusFromRow(r);
+    (status[row.teamId] ??= []).push(row);
+  }
+  const artifacts: CohortData['artifacts'] = {};
+  for (const r of artifactRows.data ?? []) (artifacts[String(r.user_id)] ??= []).push(artifactFromRow(r));
   return {
     mode: 'cloud',
     roster,
@@ -159,6 +177,8 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
     peerReviews,
     assignedCounts,
     cohortDates,
+    status,
+    artifacts,
   };
 }
 

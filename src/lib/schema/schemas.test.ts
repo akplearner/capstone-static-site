@@ -7,6 +7,7 @@ import { SKILLS } from '../docs/skills';
 import { TOOLS } from '../docs/tools';
 import { SOPS } from '../docs/sops';
 import { skillProfile, skillPortfolio } from '../skillProfile';
+import { kpiBoard, workRoleMeasure } from '../kpiBoard';
 import { portfolioSummary, courseMetrics } from '../metrics';
 import { SEED_COURSES, courseDto } from '../content/dto';
 import { certOf, deliverablesOf, skillsOf } from '../content/read';
@@ -77,7 +78,7 @@ describe('content/schemas — the published shapes validate', () => {
       claim: skillsOf(doc).COPY.exportClaim,
       path: null,
       summary: { ...portfolioSummary([metrics]), ...skillPortfolio([profile]) },
-      courses: [{ courseId: course.id, title: course.title, role: course.roles[0].name, stage: 0, capstoneFiled: false, metrics, skills: profile, artifacts: [{ courseId: course.id, sha256: 'a'.repeat(64), filename: 'x', sizeBytes: 1, nameOk: false, hashedAt: 1 }] }],
+      courses: [{ courseId: course.id, title: course.title, role: course.roles[0].name, stage: 0, capstoneFiled: false, metrics, skills: profile, artifacts: [{ courseId: course.id, sha256: 'a'.repeat(64), filename: 'x', sizeBytes: 1, nameOk: false, hashedAt: 1 }], workRoles: skillsOf(doc).WORK_ROLE_OF[role] ?? [], kpis: kpiBoard({ profile, registry: skillsOf(doc), cert: certOf(doc), measure: workRoleMeasure(skillsOf(doc).WORK_ROLES[0]), outcome: { capstoneFiled: false, weeksCleared: 0, weeksTotal: 4 }, ontologyVersion: ONTOLOGY_VERSION }).kpis }],
       signature: null,
     };
     expect(validate(exported, schema('member-profile'))).toEqual([]);

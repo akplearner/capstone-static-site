@@ -24,7 +24,7 @@
           "type": "string"
         },
         "denominator": {
-          "const": "own ticks \u00b7 graded and advanced weeks \u00b7 required steps"
+          "const": "own ticks · graded and advanced weeks · required steps"
         },
         "rows": {
           "type": "object",
@@ -131,7 +131,12 @@
             "dodMet",
             "teammateStepsTicked",
             "handoffsCompleted",
-            "peerReviewsGiven"
+            "peerReviewsGiven",
+            "inOrder",
+            "commandSteps",
+            "controlsCited",
+            "docControl",
+            "instructorApproved"
           ],
           "additionalProperties": false,
           "properties": {
@@ -187,6 +192,21 @@
               "$ref": "#/$defs/indicator"
             },
             "peerReviewsGiven": {
+              "$ref": "#/$defs/indicator"
+            },
+            "inOrder": {
+              "$ref": "#/$defs/indicator"
+            },
+            "commandSteps": {
+              "$ref": "#/$defs/indicator"
+            },
+            "controlsCited": {
+              "$ref": "#/$defs/indicator"
+            },
+            "docControl": {
+              "$ref": "#/$defs/indicator"
+            },
+            "instructorApproved": {
               "$ref": "#/$defs/indicator"
             }
           }
@@ -321,6 +341,10 @@
           "minimum": 0
         },
         "selfAttestedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedTasks": {
           "type": "integer",
           "minimum": 0
         },
@@ -761,6 +785,91 @@
             "type": "array",
             "items": {
               "$ref": "#/$defs/artifact"
+            }
+          },
+          "workRoles": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^role\\.[a-z0-9][a-z0-9-]*$"
+            }
+          },
+          "kpis": {
+            "type": "array",
+            "minItems": 16,
+            "maxItems": 16,
+            "items": {
+              "type": "object",
+              "required": [
+                "id",
+                "family",
+                "metricId",
+                "value",
+                "of",
+                "pct",
+                "loaded",
+                "fact"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^kpi\\.(ability|execution|procedure|outcome)\\.[a-z][a-z0-9-]*$"
+                },
+                "family": {
+                  "enum": [
+                    "ability",
+                    "execution",
+                    "procedure",
+                    "outcome"
+                  ]
+                },
+                "metricId": {
+                  "type": "string",
+                  "pattern": "^metric\\.[a-z][a-z0-9-]*$"
+                },
+                "value": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "of": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "pct": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 100
+                },
+                "loaded": {
+                  "type": "boolean"
+                },
+                "fact": {
+                  "enum": [
+                    "own",
+                    "team",
+                    "content"
+                  ]
+                },
+                "beside": {
+                  "type": "object",
+                  "required": [
+                    "value",
+                    "of"
+                  ],
+                  "additionalProperties": false,
+                  "properties": {
+                    "value": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "of": {
+                      "type": "integer",
+                      "minimum": 0
+                    }
+                  }
+                }
+              }
             }
           }
         }
