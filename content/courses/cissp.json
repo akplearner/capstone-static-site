@@ -7742,7 +7742,16 @@
         "arch": "Architecture and network design",
         "data": "Data security",
         "ops": "Security operations",
-        "ai-attack": "AI attack and evaluation"
+        "ai-attack": "AI attack and evaluation",
+        "hardware": "Server hardware",
+        "virt": "Virtualisation",
+        "sysadmin": "System administration",
+        "network": "Network engineering",
+        "observe": "Monitoring and observability",
+        "automation": "Automation and infrastructure as code",
+        "continuity": "Backup and recovery",
+        "docs": "Documentation and records",
+        "cloud": "Cloud services"
       },
       "CONTROLS": [
         {
@@ -10315,6 +10324,12 @@
           "definition": "A build cannot proceed past a scan, a test or an approval that failed; a gate that blocks is a control."
         },
         {
+          "id": "practice.dependency-scanning",
+          "label": "Dependency and image scanning",
+          "anchor": "NIST_800_218",
+          "definition": "Third-party packages and container images are scanned for known vulnerabilities before release."
+        },
+        {
           "id": "practice.component-inventory",
           "label": "Software bill of materials",
           "anchor": "NIST_800_218",
@@ -10444,7 +10459,7 @@
         "ci-w3-arch": [
           "practice.pipeline-gates",
           "practice.component-inventory",
-          "practice.encryption-in-transit"
+          "practice.dependency-scanning"
         ],
         "ci-w3-idops": [
           "practice.mfa-everywhere",
@@ -10584,20 +10599,24 @@
         {
           "id": "comp.respond.restore-test",
           "version": "1.0.0",
-          "label": "Restore from backup and compare hashes",
+          "label": "Restore from backup and prove it",
           "area": "respond",
           "objectiveRefs": [
             "CISSP.d7",
+            "SK0-005.d3",
             "NIST.800-53.CP-4"
           ]
         },
         {
           "id": "comp.respond.recovery-targets",
           "version": "1.0.0",
-          "label": "Set MTD, RTO, RPO and WRT",
+          "label": "Set recovery targets: RTO, RPO, MTTR",
           "area": "respond",
           "objectiveRefs": [
             "CISSP.d7",
+            "SK0-005.d3",
+            "AZ-104.d5",
+            "SAA-C03.d4",
             "NIST_800_34"
           ]
         },

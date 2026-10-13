@@ -6655,9 +6655,333 @@
         "arch": "Architecture and network design",
         "data": "Data security",
         "ops": "Security operations",
-        "ai-attack": "AI attack and evaluation"
+        "ai-attack": "AI attack and evaluation",
+        "hardware": "Server hardware",
+        "virt": "Virtualisation",
+        "sysadmin": "System administration",
+        "network": "Network engineering",
+        "observe": "Monitoring and observability",
+        "automation": "Automation and infrastructure as code",
+        "continuity": "Backup and recovery",
+        "docs": "Documentation and records",
+        "cloud": "Cloud services"
       },
       "CONTROLS": [
+        {
+          "code": "NIST.CSF",
+          "standard": "NIST_CSF",
+          "label": "Cybersecurity Framework 2.0",
+          "cites": [
+            "NIST CSF"
+          ]
+        },
+        {
+          "code": "NIST.CSF.GV",
+          "standard": "NIST_CSF",
+          "label": "Govern",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Govern",
+            "GV"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.ID",
+          "standard": "NIST_CSF",
+          "label": "Identify",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Identify"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.DE",
+          "standard": "NIST_CSF",
+          "label": "Detect",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Detect"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.RS",
+          "standard": "NIST_CSF",
+          "label": "Respond",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Respond"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.GV.PO",
+          "standard": "NIST_CSF",
+          "label": "Policy",
+          "parent": "NIST.CSF.GV",
+          "cites": [
+            "GV.PO"
+          ]
+        },
+        {
+          "code": "NIST.CSF.ID.AM",
+          "standard": "NIST_CSF",
+          "label": "Asset Management",
+          "parent": "NIST.CSF.ID",
+          "cites": [
+            "ID.AM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.DE.CM",
+          "standard": "NIST_CSF",
+          "label": "Continuous Monitoring",
+          "parent": "NIST.CSF.DE",
+          "cites": [
+            "DE.CM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.RS.AN",
+          "standard": "NIST_CSF",
+          "label": "Incident Analysis",
+          "parent": "NIST.CSF.RS",
+          "cites": [
+            "RS.AN"
+          ]
+        },
+        {
+          "code": "NIST.800-53",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Controls Rev. 5",
+          "cites": [
+            "NIST SP 800-53",
+            "SP 800-53",
+            "800-53"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AC",
+          "standard": "NIST_800_53",
+          "label": "Access Control",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.IA",
+          "standard": "NIST_800_53",
+          "label": "Identification and Authentication",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PM",
+          "standard": "NIST_800_53",
+          "label": "Program Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.SC",
+          "standard": "NIST_800_53",
+          "label": "System and Communications Protection",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.AC-2",
+          "standard": "NIST_800_53",
+          "label": "Account Management",
+          "parent": "NIST.800-53.AC",
+          "cites": [
+            "AC-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AC-6",
+          "standard": "NIST_800_53",
+          "label": "Least Privilege",
+          "parent": "NIST.800-53.AC",
+          "cites": [
+            "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IA-5",
+          "standard": "NIST_800_53",
+          "label": "Authenticator Management",
+          "parent": "NIST.800-53.IA",
+          "cites": [
+            "IA-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-8",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Architectures",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-8"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PM-1",
+          "standard": "NIST_800_53",
+          "label": "Information Security Program Plan",
+          "parent": "NIST.800-53.PM",
+          "cites": [
+            "PM-1"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-7",
+          "standard": "NIST_800_53",
+          "label": "Boundary Protection",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-7"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-8",
+          "standard": "NIST_800_53",
+          "label": "Transmission Confidentiality and Integrity",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-8"
+          ]
+        },
+        {
+          "code": "NIST.800-61",
+          "standard": "NIST_800_61",
+          "label": "Computer Security Incident Handling Guide",
+          "cites": [
+            "NIST SP 800-61",
+            "SP 800-61",
+            "NIST 800-61",
+            "800-61"
+          ]
+        },
+        {
+          "code": "NIST.800-61.DETECT",
+          "standard": "NIST_800_61",
+          "label": "Detection and Analysis",
+          "parent": "NIST.800-61",
+          "cites": [
+            "Detection & Analysis",
+            "Detection and Analysis"
+          ],
+          "scope": "800-61"
+        },
+        {
+          "code": "NIST.800-61.POST",
+          "standard": "NIST_800_61",
+          "label": "Post-Incident Activity",
+          "parent": "NIST.800-61",
+          "cites": [
+            "Post-Incident",
+            "Post-Incident Activity",
+            "Lessons Learned"
+          ],
+          "scope": "800-61"
+        },
+        {
+          "code": "ISO27001",
+          "standard": "ISO_27001",
+          "label": "Information security management system",
+          "cites": [
+            "ISO 27001",
+            "ISO/IEC 27001"
+          ]
+        },
+        {
+          "code": "ISO27001.5",
+          "standard": "ISO_27001",
+          "label": "Leadership",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 5",
+            "cl. 5"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.5.2",
+          "standard": "ISO_27001",
+          "label": "Policy",
+          "parent": "ISO27001.5",
+          "cites": [
+            "Clause 5.2",
+            "5.2",
+            "ISO 27001 policy"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.A.5.1",
+          "standard": "ISO_27001",
+          "label": "Policies for information security",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.1"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.26",
+          "standard": "ISO_27001",
+          "label": "Response to information security incidents",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.26"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.16",
+          "standard": "ISO_27001",
+          "label": "Monitoring activities",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.16"
+          ]
+        },
+        {
+          "code": "SOC2",
+          "standard": "SOC_2",
+          "label": "Trust Services Criteria",
+          "cites": [
+            "SOC 2",
+            "SOC2",
+            "SOC 2 TSC",
+            "Trust Services Criteria"
+          ]
+        },
+        {
+          "code": "SOC2.CC7",
+          "standard": "SOC_2",
+          "label": "System Operations",
+          "parent": "SOC2",
+          "cites": [
+            "CC7"
+          ]
+        },
+        {
+          "code": "SOC2.CC7.2",
+          "standard": "SOC_2",
+          "label": "Anomaly monitoring and analysis",
+          "parent": "SOC2.CC7",
+          "cites": [
+            "CC7.2"
+          ]
+        },
         {
           "code": "ITIL",
           "standard": "ITIL",
@@ -6674,6 +6998,33 @@
           "parent": "ITIL",
           "cites": [
             "incident management"
+          ]
+        },
+        {
+          "code": "ITIL.problem",
+          "standard": "ITIL",
+          "label": "Problem management",
+          "parent": "ITIL",
+          "cites": [
+            "problem management"
+          ]
+        },
+        {
+          "code": "ITIL.monitoring",
+          "standard": "ITIL",
+          "label": "Monitoring and event management",
+          "parent": "ITIL",
+          "cites": [
+            "monitoring and event management"
+          ]
+        },
+        {
+          "code": "ITIL.knowledge",
+          "standard": "ITIL",
+          "label": "Knowledge management",
+          "parent": "ITIL",
+          "cites": [
+            "knowledge management"
           ]
         },
         {
@@ -8120,6 +8471,36 @@
       ],
       "PRACTICES": [
         {
+          "id": "practice.least-privilege",
+          "label": "Least privilege",
+          "anchor": "NIST.800-53.AC-6",
+          "definition": "Every account, role and agent holds only the rights its task needs, and nothing it might need later."
+        },
+        {
+          "id": "practice.default-deny",
+          "label": "Default deny",
+          "anchor": "NIST.800-53.SC-7",
+          "definition": "Nothing passes a boundary unless a rule allows it; the allow list is the policy."
+        },
+        {
+          "id": "practice.mfa-everywhere",
+          "label": "Multi-factor authentication",
+          "anchor": "NIST_800_63",
+          "definition": "Every console and privileged login asks for a second factor; a password alone is refused."
+        },
+        {
+          "id": "practice.secrets-in-a-store",
+          "label": "Secrets in a store",
+          "anchor": "NIST.800-53.IA-5",
+          "definition": "Keys and passwords live in a secret store and never in a prompt, a repository or a config file."
+        },
+        {
+          "id": "practice.encryption-in-transit",
+          "label": "Encryption in transit",
+          "anchor": "NIST.800-53.SC-8",
+          "definition": "Traffic crosses a boundary only over approved TLS versions, and the weak ones are refused."
+        },
+        {
           "id": "practice.api-contract",
           "label": "Interface contract",
           "anchor": "WAF.operational-excellence",
@@ -8130,15 +8511,514 @@
           "label": "Naming and tagging",
           "anchor": "WAF.cost",
           "definition": "Every resource carries the agreed name and tags, so cost, ownership and environment can be read from it."
+        },
+        {
+          "id": "practice.budget-guardrails",
+          "label": "Budget guardrails",
+          "anchor": "WAF.cost",
+          "definition": "A budget with alerts is set before the first resource, and the alert is tested."
+        },
+        {
+          "id": "practice.tear-down-after-use",
+          "label": "Tear down after use",
+          "anchor": "WAF.cost",
+          "definition": "Billable resources are stopped or deleted in the same task that created them, and the record says so."
+        },
+        {
+          "id": "practice.right-sizing",
+          "label": "Right-sizing",
+          "anchor": "WAF.cost",
+          "definition": "Resources are sized from measured use, reviewed and shrunk when the measurement says so."
+        },
+        {
+          "id": "practice.centralised-logging",
+          "label": "Centralised logging",
+          "anchor": "NIST.CSF.DE.CM",
+          "definition": "Every host ships its logs to one place where they are kept, searched and alerted on."
+        },
+        {
+          "id": "practice.alert-to-ticket",
+          "label": "Alert to ticket",
+          "anchor": "ITIL.incident",
+          "definition": "A detection opens a ticket with an owner and a due time, so nothing fires into silence."
+        },
+        {
+          "id": "practice.timeline-reconstruction",
+          "label": "Evidence-backed timeline",
+          "anchor": "NIST.800-61.DETECT",
+          "definition": "Every row of an incident timeline points at the log line or capture it came from."
+        },
+        {
+          "id": "practice.lessons-learned",
+          "label": "Lessons learned",
+          "anchor": "NIST.800-61.POST",
+          "definition": "After an incident or a drill, what worked and what did not is written down with an owner for each change."
+        },
+        {
+          "id": "practice.architecture-decision-records",
+          "label": "Architecture decision records",
+          "anchor": "ISO_42010",
+          "definition": "Each significant design choice is recorded with its context, options and consequences."
+        },
+        {
+          "id": "practice.addressing-plan",
+          "label": "Addressing plan",
+          "anchor": "NIST.CSF.ID.AM",
+          "definition": "Subnets, addresses and names are planned on paper before any device is configured."
+        },
+        {
+          "id": "practice.troubleshooting-method",
+          "label": "Structured troubleshooting",
+          "anchor": "ITIL.problem",
+          "definition": "Identify the problem, establish a theory, test it, plan and act, verify, document: in that order."
+        },
+        {
+          "id": "practice.work-tracked",
+          "label": "Work tracked on a board",
+          "anchor": "ITIL.knowledge",
+          "definition": "Every task of the week is a card with an owner and a state on the team board."
         }
       ],
-      "PRACTICE_OF": {},
-      "SKILLS": [],
-      "SKILL_OF": {},
-      "SOPS": [],
-      "SOP_OF": {},
-      "SOP_OF_TASK": {},
+      "PRACTICE_OF": {
+        "az-w1-arch": [
+          "practice.budget-guardrails",
+          "practice.naming-and-tagging"
+        ],
+        "az-w1-infra": [
+          "practice.addressing-plan"
+        ],
+        "az-w1-dev": [
+          "practice.work-tracked"
+        ],
+        "az-w1-secops": [
+          "practice.least-privilege",
+          "practice.mfa-everywhere"
+        ],
+        "az-w2-arch": [
+          "practice.right-sizing"
+        ],
+        "az-w2-infra": [
+          "practice.tear-down-after-use"
+        ],
+        "az-w2-dev": [
+          "practice.encryption-in-transit"
+        ],
+        "az-w2-secops": [
+          "practice.default-deny",
+          "practice.least-privilege"
+        ],
+        "az-w3-arch": [
+          "practice.architecture-decision-records"
+        ],
+        "az-w3-infra": [
+          "practice.right-sizing"
+        ],
+        "az-w3-dev": [
+          "practice.api-contract",
+          "practice.secrets-in-a-store"
+        ],
+        "az-w3-secops": [
+          "practice.least-privilege",
+          "practice.mfa-everywhere"
+        ],
+        "az-w4-arch": [
+          "practice.budget-guardrails",
+          "practice.right-sizing"
+        ],
+        "az-w4-infra": [
+          "practice.alert-to-ticket",
+          "practice.centralised-logging"
+        ],
+        "az-w4-dev": [
+          "practice.centralised-logging",
+          "practice.troubleshooting-method"
+        ],
+        "az-w4-secops": [
+          "practice.timeline-reconstruction",
+          "practice.lessons-learned"
+        ]
+      },
+      "SKILLS": [
+        {
+          "id": "comp.respond.incident-report",
+          "version": "1.0.0",
+          "label": "Write an incident report",
+          "area": "respond",
+          "objectiveRefs": [
+            "CS0-003.d3",
+            "AZ-900.d3",
+            "CLF-C02.d2",
+            "NIST.800-61"
+          ]
+        },
+        {
+          "id": "comp.cloud.budget-and-tags",
+          "version": "1.0.0",
+          "label": "Set a budget alert and a tag standard",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d1",
+            "CLF-C02.d1",
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "comp.cloud.shared-responsibility",
+          "version": "1.0.0",
+          "label": "State the shared-responsibility split",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d1",
+            "CLF-C02.d1"
+          ]
+        },
+        {
+          "id": "comp.cloud.network-foundation",
+          "version": "1.0.0",
+          "label": "Create the network foundation: VNet or VPC",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d3"
+          ]
+        },
+        {
+          "id": "comp.cloud.team-repo-and-board",
+          "version": "1.0.0",
+          "label": "Open a team repository and board",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d3",
+            "CLF-C02.d3"
+          ]
+        },
+        {
+          "id": "comp.cloud.identity-and-groups",
+          "version": "1.0.0",
+          "label": "Grant team access through groups and roles",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d2",
+            "NIST.800-53.AC-2"
+          ]
+        },
+        {
+          "id": "comp.cloud.cost-estimate",
+          "version": "1.0.0",
+          "label": "Estimate monthly cost and choose storage classes",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d3",
+            "CLF-C02.d4",
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "comp.cloud.launch-vm",
+          "version": "1.0.0",
+          "label": "Launch a free-tier VM and stop it",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d3",
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "comp.cloud.static-site-https",
+          "version": "1.0.0",
+          "label": "Publish a static site over HTTPS",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d3"
+          ]
+        },
+        {
+          "id": "comp.cloud.ssh-from-one-ip",
+          "version": "1.0.0",
+          "label": "Allow SSH from one address only",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d2",
+            "NIST.800-53.SC-7"
+          ]
+        },
+        {
+          "id": "comp.cloud.request-flow",
+          "version": "1.0.0",
+          "label": "Draw a request flow and who manages hops",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d1",
+            "CLF-C02.d1"
+          ]
+        },
+        {
+          "id": "comp.cloud.managed-database",
+          "version": "1.0.0",
+          "label": "Create a managed NoSQL table and seed it",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d3"
+          ]
+        },
+        {
+          "id": "comp.cloud.serverless-api",
+          "version": "1.0.0",
+          "label": "Build a serverless function and API",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d3"
+          ]
+        },
+        {
+          "id": "comp.cloud.read-only-access",
+          "version": "1.0.0",
+          "label": "Grant read-only access to a group with MFA",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d2",
+            "CLF-C02.d2",
+            "NIST.800-53.AC-6"
+          ]
+        },
+        {
+          "id": "comp.cloud.cost-report",
+          "version": "1.0.0",
+          "label": "Report spend and read the advisor",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d3",
+            "CLF-C02.d4",
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "comp.cloud.error-alert",
+          "version": "1.0.0",
+          "label": "Alert on function errors to the team",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d3",
+            "CLF-C02.d3",
+            "NIST.CSF.DE.CM"
+          ]
+        },
+        {
+          "id": "comp.cloud.read-logs",
+          "version": "1.0.0",
+          "label": "Find a failure in logs and fix it",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d3",
+            "CLF-C02.d3"
+          ]
+        },
+        {
+          "id": "comp.cloud.audit-trail",
+          "version": "1.0.0",
+          "label": "Trace a change in the audit trail",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-900.d3",
+            "CLF-C02.d2",
+            "NIST.800-61.DETECT"
+          ]
+        }
+      ],
+      "SKILL_OF": {
+        "az-w1-arch": [
+          "comp.cloud.budget-and-tags",
+          "comp.cloud.shared-responsibility"
+        ],
+        "az-w1-infra": [
+          "comp.cloud.network-foundation"
+        ],
+        "az-w1-dev": [
+          "comp.cloud.team-repo-and-board"
+        ],
+        "az-w1-secops": [
+          "comp.cloud.identity-and-groups"
+        ],
+        "az-w2-arch": [
+          "comp.cloud.cost-estimate"
+        ],
+        "az-w2-infra": [
+          "comp.cloud.launch-vm"
+        ],
+        "az-w2-dev": [
+          "comp.cloud.static-site-https"
+        ],
+        "az-w2-secops": [
+          "comp.cloud.ssh-from-one-ip"
+        ],
+        "az-w3-arch": [
+          "comp.cloud.request-flow"
+        ],
+        "az-w3-infra": [
+          "comp.cloud.managed-database"
+        ],
+        "az-w3-dev": [
+          "comp.cloud.serverless-api"
+        ],
+        "az-w3-secops": [
+          "comp.cloud.read-only-access"
+        ],
+        "az-w4-arch": [
+          "comp.cloud.cost-report"
+        ],
+        "az-w4-infra": [
+          "comp.cloud.error-alert"
+        ],
+        "az-w4-dev": [
+          "comp.cloud.read-logs"
+        ],
+        "az-w4-secops": [
+          "comp.cloud.audit-trail",
+          "comp.respond.incident-report"
+        ]
+      },
+      "SOPS": [
+        {
+          "id": "sop.incident-record",
+          "label": "Incident record",
+          "kind": "incident",
+          "definition": "The record of one incident: first alert, attacker, timeline, containment time, evidence and the hand-offs.",
+          "standardRefs": [
+            "NIST.800-61.DETECT",
+            "ISO27001.A.5.26",
+            "NIST.CSF.RS.AN"
+          ]
+        },
+        {
+          "id": "sop.policy",
+          "label": "Security policy",
+          "kind": "policy",
+          "definition": "Shall statements with an owner, a review date and the standard each one implements.",
+          "standardRefs": [
+            "ISO27001.5.2",
+            "ISO27001.A.5.1",
+            "NIST.CSF.GV.PO",
+            "NIST.800-53.PM-1"
+          ]
+        },
+        {
+          "id": "sop.monitoring-plan",
+          "label": "Monitoring plan",
+          "kind": "monitoring",
+          "definition": "What is watched, from which sources, who is alerted, and what a page means.",
+          "standardRefs": [
+            "NIST.CSF.DE.CM",
+            "ISO27001.A.8.16",
+            "SOC2.CC7.2",
+            "ITIL.monitoring"
+          ]
+        },
+        {
+          "id": "sop.cost-review",
+          "label": "Cost review",
+          "kind": "governance",
+          "definition": "What the environment costs, what the budget is, and what was switched off.",
+          "standardRefs": [
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "sop.architecture-record",
+          "label": "Architecture record",
+          "kind": "design",
+          "definition": "The components, the trust boundaries, the flows and the decisions, with the reasons for each.",
+          "standardRefs": [
+            "ISO42010",
+            "WAF",
+            "NIST.800-53.PL-8"
+          ]
+        },
+        {
+          "id": "sop.requirements",
+          "label": "Requirements record",
+          "kind": "design",
+          "definition": "What the system must do and must not, with the constraints and the acceptance criteria.",
+          "standardRefs": [
+            "ISO42010",
+            "WAF"
+          ]
+        }
+      ],
+      "SOP_OF": {
+        "azf_foundation": [
+          "sop.policy",
+          "sop.cost-review"
+        ],
+        "azf_sad": [
+          "sop.architecture-record"
+        ],
+        "azf_api": [
+          "sop.requirements"
+        ],
+        "azf_incident": [
+          "sop.monitoring-plan",
+          "sop.incident-record"
+        ]
+      },
+      "SOP_OF_TASK": {
+        "az-w2-infra": [
+          "sop.cost-review"
+        ],
+        "az-w4-secops": [
+          "sop.incident-record"
+        ]
+      },
       "STANDARDS": [
+        {
+          "id": "NIST_CSF",
+          "label": "NIST CSF",
+          "description": "NIST Cybersecurity Framework 2.0: Govern, Identify, Protect, Detect, Respond, Recover",
+          "why": "Organises all security work into six functions. Tagging a step here shows which part of the lifecycle it strengthens and proves the work covered the whole picture, not just attack or defence.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://www.nist.gov/cyberframework",
+          "codePattern": "^NIST\\.CSF(\\.(GV|ID|PR|DE|RS|RC)(\\.[A-Z]{2}(-\\d{2})?)?|\\.PROFILE)?$"
+        },
+        {
+          "id": "NIST_800_61",
+          "label": "NIST 800-61",
+          "description": "NIST SP 800-61 Computer Security Incident Handling Guide",
+          "why": "The incident-handling playbook: prepare, detect and analyse, contain, eradicate, recover, learn. This tag means the step is part of a defensible, court-ready incident response process.",
+          "kind": "publication",
+          "tone": "warn",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+          "codePattern": "^NIST\\.800-61(\\.(PREPARE|DETECT|CONTAIN|POST))?$"
+        },
+        {
+          "id": "ISO_27001",
+          "label": "ISO 27001",
+          "description": "ISO/IEC 27001:2022 information security management system",
+          "why": "The certifiable information security management standard. This tag means the step produces the documented policy or evidence an ISO 27001 audit expects to see.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "ISO/IEC",
+          "url": "https://www.iso.org/standard/27001",
+          "codePattern": "^ISO27001(\\.(\\d+(\\.\\d+)*|A\\.\\d+\\.\\d+))?$"
+        },
+        {
+          "id": "SOC_2",
+          "label": "SOC 2",
+          "description": "AICPA Trust Services Criteria for a SOC 2 examination",
+          "why": "The AICPA attestation standard built on the Trust Services Criteria: Security is CC1 to CC9, plus Availability, Confidentiality and the rest. This tag means the step produces a control or the evidence a SOC 2 Type I or II examiner samples.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "AICPA",
+          "url": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+          "codePattern": "^SOC2(\\.(CC\\d(\\.\\d)?|A1|C1|PI1|P\\d))?$"
+        },
         {
           "id": "ITIL",
           "label": "ITIL 4",
@@ -8170,6 +9050,27 @@
           "publisher": "Microsoft and Amazon Web Services",
           "url": "https://learn.microsoft.com/azure/well-architected/",
           "codePattern": "^WAF(\\.[a-z-]+)?$"
+        },
+        {
+          "id": "NIST_800_53",
+          "label": "NIST SP 800-53",
+          "description": "NIST SP 800-53 Rev. 5 security and privacy controls",
+          "why": "The federal control catalogue the sixteen CISSP control statements are drawn from (PM-1, SC-7, AC-2). A tag here means the step writes or proves one of those controls.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+          "codePattern": "^NIST\\.800-53(\\.[A-Z]{2}(-\\d+)?)?$"
+        },
+        {
+          "id": "NIST_800_63",
+          "label": "NIST SP 800-63",
+          "description": "NIST SP 800-63-4 Digital Identity Guidelines",
+          "why": "The assurance levels for identity proofing, authenticators and federation. An identity standard that cites it says which level MFA and single sign-on reach.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://pages.nist.gov/800-63-4/"
         },
         {
           "id": "ISO_42010",

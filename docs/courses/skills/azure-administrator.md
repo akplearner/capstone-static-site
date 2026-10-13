@@ -1,6 +1,6 @@
 # Azure Administrator Capstone — skills sheet
 
-16 graded tasks · 0 skills · 8 tools · 0 procedures · 4 standards (4 controls cited) · 0 tactics · 0 practices
+16 graded tasks · 17 skills · 8 tools · 7 procedures · 4 standards (4 controls cited) · 0 tactics · 17 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -8,8 +8,23 @@ Generated from the registries and the course document by `npm run content:export
 
 | Skill | Area | Anchored to | Practised by |
 | --- | --- | --- | --- |
-
-Graded tasks not yet mapped to a skill: az-w5-arch, az-w5-infra, az-w5-dev, az-w5-secops, az-w6-arch, az-w6-infra, az-w6-dev, az-w6-secops, az-w7-arch, az-w7-infra, az-w7-dev, az-w7-secops, az-w8-arch, az-w8-infra, az-w8-dev, az-w8-secops.
+| Set recovery targets: RTO, RPO, MTTR `comp.respond.recovery-targets` | Incident response | CISSP.d7, SK0-005.d3, AZ-104.d5, SAA-C03.d4, NIST_800_34 | Set RPO and RTO per asset and the autoscale target |
+| Write an access matrix and security layers `comp.cloud.access-matrix` | Cloud services | AZ-104.d1, SAA-C03.d1, NIST.800-53.AC-6 | Write the access matrix and the security design |
+| Keep secrets in a vault under managed keys `comp.cloud.secrets-in-vault` | Cloud services | AZ-104.d1, SAA-C03.d1, NIST.800-53.IA-5 | Move the key into Key Vault, protected and audited |
+| Scope a workload identity to one resource `comp.cloud.managed-identity` | Cloud services | AZ-104.d1, SAA-C03.d1, NIST.800-53.AC-6 | Switch the Function to its identity and lock CORS |
+| Prove an access is denied and find exposure `comp.cloud.prove-denial` | Cloud services | AZ-104.d1, SAA-C03.d1 | Prove an access is denied and find what is exposed |
+| Design a two-zone fleet and cost it `comp.cloud.two-zone-design` | Cloud services | AZ-104.d3, SAA-C03.d2, WAF.reliability | Design the two-zone fleet and record the decision |
+| Build a scale set across two zones `comp.cloud.scale-set` | Cloud services | AZ-104.d3, SAA-C03.d2, WAF.reliability | Build the fleet: a web subnet and a scale set across two zones |
+| Put a fleet behind a load balancer `comp.cloud.load-balancer` | Cloud services | AZ-104.d4, SAA-C03.d2, WAF.reliability | Put the fleet behind a Standard Load Balancer |
+| Reach private resources without the internet `comp.cloud.private-access-path` | Cloud services | AZ-104.d4, SAA-C03.d1, NIST_800_207 | Close port 22, add Bastion, and reach the vault privately |
+| Choose a data store and storage tiers `comp.cloud.data-store-choice` | Cloud services | AZ-104.d2, SAA-C03.d4, WAF.cost | Choose the data store and the storage tiers |
+| Create a zone-redundant relational database `comp.cloud.ha-database` | Cloud services | AZ-104.d4, SAA-C03.d2, WAF.reliability | Create a zone-redundant PostgreSQL server in its own subnet, then stop it |
+| Decouple with a queue and a ledger `comp.cloud.queue-and-ledger` | Cloud services | AZ-104.d2, SAA-C03.d3, WAF.reliability | Queue the visits and write a ledger |
+| Lock data down: HTTPS, encryption, no public blobs `comp.cloud.data-lockdown` | Cloud services | AZ-104.d2, SAA-C03.d1, NIST.800-53.SC-8 | Lock the data down and age it out |
+| Set an autoscale target with a reason `comp.cloud.autoscale-target` | Cloud services | AZ-104.d5, SAA-C03.d4, WAF.cost | Set RPO and RTO per asset and the autoscale target |
+| Autoscale on CPU and prove self-healing `comp.cloud.autoscale-and-self-heal` | Cloud services | AZ-104.d3, SAA-C03.d2, WAF.reliability | Autoscale the fleet on CPU and prove a lost instance is replaced |
+| Recover a deleted file and restore a database `comp.cloud.restore-file-and-database` | Cloud services | AZ-104.d5, SAA-C03.d2, NIST.800-53.CP-4 | Recover a deleted web file and restore the database to a point in time |
+| Run a timed recovery drill and tear down `comp.cloud.recovery-drill-and-teardown` | Cloud services | AZ-104.d5, SAA-C03.d2, NIST_800_34 | Run a timed recovery drill and tear the fleet down |
 
 ## Tools
 
@@ -30,6 +45,13 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 
 | Procedure | Kind | Standards | Forms | Executed by |
 | --- | --- | --- | --- | --- |
+| Operational runbook | runbook | ISO27001.A.5.37, NIST.CSF.PR.PS | Data Store & Runbook | — |
+| Recovery drill | recovery | NIST.800-34, NIST.CSF.RC.RP, ISO27001.A.5.30, NIST.800-53.CP-4 | Backup & Disaster Recovery Plan | Run a timed recovery drill and tear the fleet down |
+| Backup plan | recovery | ISO27001.A.8.13, NIST.800-53.CP-9, CIS.11 | Backup & Disaster Recovery Plan | Recover a deleted web file and restore the database to a point in time |
+| Access review | access | ISO27001.A.5.18, NIST.800-53.AC-2, SOC2.CC6.3, NIST.CSF.PR.AA | Access Control Matrix & Secrets Register | Prove an access is denied and find what is exposed |
+| Identity and access standard | access | NIST.800-63, NIST.800-53.IA-2, ISO27001.A.5.15, NIST.CSF.PR.AA | Access Control Matrix & Secrets Register | — |
+| Architecture record | design | ISO42010, WAF, NIST.800-53.PL-8 | Data Store & Runbook | — |
+| Network design | design | NIST.800-53.SC-7, ISO27001.A.8.22, NIST.CSF.PR.IR | Network Design Document | — |
 
 ## Standards
 
@@ -57,6 +79,21 @@ Adversary tactics are not part of this course.
 
 | Practice | Anchor | Asked for by |
 | --- | --- | --- |
-
-Graded tasks not yet mapped to a practice: az-w5-arch, az-w5-infra, az-w5-dev, az-w5-secops, az-w6-arch, az-w6-infra, az-w6-dev, az-w6-secops, az-w7-arch, az-w7-infra, az-w7-dev, az-w7-secops, az-w8-arch, az-w8-infra, az-w8-dev, az-w8-secops.
+| Least privilege | NIST.800-53.AC-6 | Write the access matrix and the security design; Switch the Function to its identity and lock CORS; Prove an access is denied and find what is exposed |
+| Defence in depth | NIST.CSF.PR | Write the access matrix and the security design |
+| Default deny | NIST.800-53.SC-7 | Switch the Function to its identity and lock CORS; Close port 22, add Bastion, and reach the vault privately; Lock the data down and age it out |
+| Network segmentation | ISO27001.A.8.22 | Close port 22, add Bastion, and reach the vault privately |
+| Zero trust access | NIST_800_207 | Close port 22, add Bastion, and reach the vault privately |
+| Secrets in a store | NIST.800-53.IA-5 | Move the key into Key Vault, protected and audited |
+| Key rotation | NIST.800-53.SC-12 | Move the key into Key Vault, protected and audited |
+| Rebuild, do not repair | WAF.reliability | Autoscale the fleet on CPU and prove a lost instance is replaced |
+| Tear down after use | WAF.cost | Create a zone-redundant PostgreSQL server in its own subnet, then stop it; Run a timed recovery drill and tear the fleet down |
+| Right-sizing | WAF.cost | Design the two-zone fleet and record the decision; Choose the data store and the storage tiers; Set RPO and RTO per asset and the autoscale target |
+| Multi-zone redundancy | WAF.reliability | Design the two-zone fleet and record the decision; Build the fleet: a web subnet and a scale set across two zones; Put the fleet behind a Standard Load Balancer; Create a zone-redundant PostgreSQL server in its own subnet, then stop it |
+| Health checks | WAF.reliability | Build the fleet: a web subnet and a scale set across two zones; Put the fleet behind a Standard Load Balancer; Autoscale the fleet on CPU and prove a lost instance is replaced |
+| Backups tested by restore | NIST.800-53.CP-4 | Recover a deleted web file and restore the database to a point in time; Run a timed recovery drill and tear the fleet down |
+| Recovery objectives | NIST_800_34 | Set RPO and RTO per asset and the autoscale target; Run a timed recovery drill and tear the fleet down |
+| Architecture decision records | ISO_42010 | Design the two-zone fleet and record the decision; Choose the data store and the storage tiers |
+| Encryption at rest | ISO27001.A.8.24 | Create a zone-redundant PostgreSQL server in its own subnet, then stop it; Lock the data down and age it out |
+| Decouple with queues | WAF.reliability | Queue the visits and write a ledger |
 

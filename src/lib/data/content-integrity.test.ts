@@ -12,7 +12,7 @@ import { AWS_COURSES } from './seed/awsCloud';
 import { Course, Step, Task } from '../types';
 import { deliverableIdByTitle, deliverableIdByFile, seedDeliverablesForCourse as deliverablesForCourse } from '../docs/definitions';
 import { looksLikeConsoleOutput } from '../stepOutcome';
-import { isGradedWeek } from '../course-helpers';
+import { isGradedWeek, isSetupWeek } from '../course-helpers';
 import { LAB_FIELDS } from '../labAccess';
 import { profileOf, roleContentFor } from '../docs/roles';
 import { CERTS, TASK_DOMAINS, certFor, coverageOf, domainOf } from '../docs/certs';
@@ -33,7 +33,7 @@ const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SE
 /** R106: the associate and professional cloud courses are being rewritten against their exams; coverage is enforced as each lands. */
 const PENDING_REWRITE = new Set<string>([]);
 /** R107: the courses whose skills, SOP and practice mapping lands in R107a-2; tools are derived for every course already. */
-const SKILLS_PENDING = new Set<string>(['server-plus', 'ccna', 'azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops']);
+const SKILLS_PENDING = new Set<string>([]);
 const SECURITY_FAMILY = new Set<string>(['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp']);
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
@@ -808,7 +808,8 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — 
   // an explained practice; every map names things that exist; every framework
   // a task or a step carries is in the standards register.
   it('R107: every graded task maps to skills, tools and practices, every form cites a control or a practice, and every framework tag is registered', () => {
-    const graded = course.tasks.filter((t) => isGradedWeek(course, t.week));
+    // Graded and advanced weeks both teach; setup weeks do not.
+    const graded = course.tasks.filter((t) => !isSetupWeek(course, t.week));
     const skillMap = TASK_SKILLS[course.id] ?? {};
     const practiceMap = TASK_PRACTICES[course.id] ?? {};
     const tacticMap = TASK_TACTICS[course.id] ?? {};
@@ -835,7 +836,7 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — 
     for (const [taskId] of Object.entries({ ...skillMap, ...practiceMap, ...tacticMap, ...sopTaskMap })) {
       const t = course.tasks.find((x) => x.id === taskId);
       expect(t, `${taskId} in a map is a task`).toBeTruthy();
-      expect(isGradedWeek(course, t!.week), `${taskId} in a map is graded work`).toBe(true);
+      expect(isSetupWeek(course, t!.week), `${taskId} in a map is not setup work`).toBe(false);
     }
     if (SECURITY_FAMILY.has(course.id)) expect(Object.keys(tacticMap).length, 'a security course practises adversary tactics').toBeGreaterThanOrEqual(2);
     for (const f of forms) {

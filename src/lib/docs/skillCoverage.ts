@@ -1,6 +1,6 @@
 import type { Course, Task } from '../types';
 import type { DeliverableDef } from './types';
-import { isGradedWeek } from '../course-helpers';
+import { isSetupWeek } from '../course-helpers';
 import { parseStandard, CONTROL_EXCEPTIONS } from './standards';
 import type { SkillNode } from './skills';
 import type { ToolDef } from './tools';
@@ -39,7 +39,7 @@ export interface SkillRegistry {
 export interface CoverageRow {
   id: string;
   label: string;
-  /** Graded tasks that practise it, by id, in course order. */
+  /** Tasks of graded and advanced weeks that practise it, by id, in course order. */
   tasks: string[];
   /** Forms that are an instance of it (procedures) or cite it (standards, controls). */
   deliverables: string[];
@@ -53,11 +53,12 @@ export interface CourseCoverage {
   sops: CoverageRow[];
   tactics: CoverageRow[];
   practices: CoverageRow[];
-  /** Graded tasks the mapping leaves out, per dimension. */
+  /** Tasks the mapping leaves out, per dimension. */
   unmapped: { skills: string[]; tools: string[]; practices: string[] };
 }
 
-export const gradedTasks = (course: Pick<Course, 'tasks' | 'weeks'>): Task[] => course.tasks.filter((t) => isGradedWeek(course as Course, t.week));
+/** The tasks a course teaches with: every week but setup, so an advanced week's skills count too. */
+export const coveredTasks = (course: Pick<Course, 'tasks' | 'weeks'>): Task[] => course.tasks.filter((t) => !isSetupWeek(course as Course, t.week));
 
 function rows<T extends { id: string }>(defs: T[], label: (d: T) => string, map: Record<string, string[]>, tasks: Task[], deliverables: Record<string, string[]> = {}): CoverageRow[] {
   const byId = new Map(defs.map((d) => [d.id, d]));
@@ -103,7 +104,7 @@ function standardRows(reg: SkillRegistry, tasks: Task[], forms: Pick<Deliverable
 }
 
 export function courseCoverage(course: Pick<Course, 'tasks' | 'weeks'>, reg: SkillRegistry, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): CourseCoverage {
-  const tasks = gradedTasks(course);
+  const tasks = coveredTasks(course);
   const { standards, controls } = standardRows(reg, tasks, forms);
   const missing = (map: Record<string, string[]>) => tasks.filter((t) => !(map[t.id]?.length)).map((t) => t.id);
   return {
@@ -123,7 +124,7 @@ export function practicesOfForm(form: Pick<DeliverableDef, 'standard'>): string[
   return CONTROL_EXCEPTIONS[form.standard] ?? [];
 }
 
-/** The counts `index.json` carries: distinct ids the graded tasks (and the forms, for SOPs and controls) use. */
+/** The counts `index.json` carries: distinct ids the tasks (and the forms, for SOPs and controls) use. */
 export function coverageCounts(cov: CourseCoverage): { skills: number; tools: number; standards: number; controls: number; sops: number; tactics: number; practices: number } {
   return { skills: cov.skills.length, tools: cov.tools.length, standards: cov.standards.length, controls: cov.controls.length, sops: cov.sops.length, tactics: cov.tactics.length, practices: cov.practices.length };
 }

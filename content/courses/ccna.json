@@ -5729,7 +5729,16 @@
         "arch": "Architecture and network design",
         "data": "Data security",
         "ops": "Security operations",
-        "ai-attack": "AI attack and evaluation"
+        "ai-attack": "AI attack and evaluation",
+        "hardware": "Server hardware",
+        "virt": "Virtualisation",
+        "sysadmin": "System administration",
+        "network": "Network engineering",
+        "observe": "Monitoring and observability",
+        "automation": "Automation and infrastructure as code",
+        "continuity": "Backup and recovery",
+        "docs": "Documentation and records",
+        "cloud": "Cloud services"
       },
       "CONTROLS": [
         {
@@ -5762,6 +5771,36 @@
           "scope": "CSF"
         },
         {
+          "code": "NIST.CSF.PR",
+          "standard": "NIST_CSF",
+          "label": "Protect",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Protect"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.DE",
+          "standard": "NIST_CSF",
+          "label": "Detect",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Detect"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.RS",
+          "standard": "NIST_CSF",
+          "label": "Respond",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Respond"
+          ],
+          "scope": "CSF"
+        },
+        {
           "code": "NIST.CSF.GV.PO",
           "standard": "NIST_CSF",
           "label": "Policy",
@@ -5777,6 +5816,408 @@
           "parent": "NIST.CSF.ID",
           "cites": [
             "ID.AM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.PS",
+          "standard": "NIST_CSF",
+          "label": "Platform Security",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.PS"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.IR",
+          "standard": "NIST_CSF",
+          "label": "Technology Infrastructure Resilience",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.IR"
+          ]
+        },
+        {
+          "code": "NIST.CSF.DE.CM",
+          "standard": "NIST_CSF",
+          "label": "Continuous Monitoring",
+          "parent": "NIST.CSF.DE",
+          "cites": [
+            "DE.CM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.RS.AN",
+          "standard": "NIST_CSF",
+          "label": "Incident Analysis",
+          "parent": "NIST.CSF.RS",
+          "cites": [
+            "RS.AN"
+          ]
+        },
+        {
+          "code": "NIST.800-53",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Controls Rev. 5",
+          "cites": [
+            "NIST SP 800-53",
+            "SP 800-53",
+            "800-53"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CA",
+          "standard": "NIST_800_53",
+          "label": "Assessment, Authorization, and Monitoring",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.CM",
+          "standard": "NIST_800_53",
+          "label": "Configuration Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.CP",
+          "standard": "NIST_800_53",
+          "label": "Contingency Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PM",
+          "standard": "NIST_800_53",
+          "label": "Program Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.SC",
+          "standard": "NIST_800_53",
+          "label": "System and Communications Protection",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.CA-2",
+          "standard": "NIST_800_53",
+          "label": "Control Assessments",
+          "parent": "NIST.800-53.CA",
+          "cites": [
+            "CA-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CM-2",
+          "standard": "NIST_800_53",
+          "label": "Baseline Configuration",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CM-3",
+          "standard": "NIST_800_53",
+          "label": "Configuration Change Control",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-3"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CM-6",
+          "standard": "NIST_800_53",
+          "label": "Configuration Settings",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-4",
+          "standard": "NIST_800_53",
+          "label": "Contingency Plan Testing",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-4"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-9",
+          "standard": "NIST_800_53",
+          "label": "System Backup",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-9"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-8",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Architectures",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-8"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PM-1",
+          "standard": "NIST_800_53",
+          "label": "Information Security Program Plan",
+          "parent": "NIST.800-53.PM",
+          "cites": [
+            "PM-1"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-7",
+          "standard": "NIST_800_53",
+          "label": "Boundary Protection",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-7"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-8",
+          "standard": "NIST_800_53",
+          "label": "Transmission Confidentiality and Integrity",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-8"
+          ]
+        },
+        {
+          "code": "NIST.800-61",
+          "standard": "NIST_800_61",
+          "label": "Computer Security Incident Handling Guide",
+          "cites": [
+            "NIST SP 800-61",
+            "SP 800-61",
+            "NIST 800-61",
+            "800-61"
+          ]
+        },
+        {
+          "code": "NIST.800-61.DETECT",
+          "standard": "NIST_800_61",
+          "label": "Detection and Analysis",
+          "parent": "NIST.800-61",
+          "cites": [
+            "Detection & Analysis",
+            "Detection and Analysis"
+          ],
+          "scope": "800-61"
+        },
+        {
+          "code": "NIST.800-61.POST",
+          "standard": "NIST_800_61",
+          "label": "Post-Incident Activity",
+          "parent": "NIST.800-61",
+          "cites": [
+            "Post-Incident",
+            "Post-Incident Activity",
+            "Lessons Learned"
+          ],
+          "scope": "800-61"
+        },
+        {
+          "code": "ISO27001",
+          "standard": "ISO_27001",
+          "label": "Information security management system",
+          "cites": [
+            "ISO 27001",
+            "ISO/IEC 27001"
+          ]
+        },
+        {
+          "code": "ISO27001.5",
+          "standard": "ISO_27001",
+          "label": "Leadership",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 5",
+            "cl. 5"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.5.2",
+          "standard": "ISO_27001",
+          "label": "Policy",
+          "parent": "ISO27001.5",
+          "cites": [
+            "Clause 5.2",
+            "5.2",
+            "ISO 27001 policy"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.7",
+          "standard": "ISO_27001",
+          "label": "Support",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 7",
+            "cl. 7"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.7.5",
+          "standard": "ISO_27001",
+          "label": "Documented information",
+          "parent": "ISO27001.7",
+          "cites": [
+            "7.5"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.A.5.1",
+          "standard": "ISO_27001",
+          "label": "Policies for information security",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.1"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.9",
+          "standard": "ISO_27001",
+          "label": "Inventory of information and other associated assets",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.9"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.26",
+          "standard": "ISO_27001",
+          "label": "Response to information security incidents",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.26"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.37",
+          "standard": "ISO_27001",
+          "label": "Documented operating procedures",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.37"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.9",
+          "standard": "ISO_27001",
+          "label": "Configuration management",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.9"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.13",
+          "standard": "ISO_27001",
+          "label": "Information backup",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.13"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.16",
+          "standard": "ISO_27001",
+          "label": "Monitoring activities",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.16"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.22",
+          "standard": "ISO_27001",
+          "label": "Segregation of networks",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.22"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.29",
+          "standard": "ISO_27001",
+          "label": "Security testing in development and acceptance",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.29"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.32",
+          "standard": "ISO_27001",
+          "label": "Change management",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.32"
+          ]
+        },
+        {
+          "code": "SOC2",
+          "standard": "SOC_2",
+          "label": "Trust Services Criteria",
+          "cites": [
+            "SOC 2",
+            "SOC2",
+            "SOC 2 TSC",
+            "Trust Services Criteria"
+          ]
+        },
+        {
+          "code": "SOC2.CC7",
+          "standard": "SOC_2",
+          "label": "System Operations",
+          "parent": "SOC2",
+          "cites": [
+            "CC7"
+          ]
+        },
+        {
+          "code": "SOC2.CC7.2",
+          "standard": "SOC_2",
+          "label": "Anomaly monitoring and analysis",
+          "parent": "SOC2.CC7",
+          "cites": [
+            "CC7.2"
+          ]
+        },
+        {
+          "code": "SOC2.CC8",
+          "standard": "SOC_2",
+          "label": "Change Management",
+          "parent": "SOC2",
+          "cites": [
+            "CC8"
+          ]
+        },
+        {
+          "code": "SOC2.CC8.1",
+          "standard": "SOC_2",
+          "label": "Authorised, tested and approved changes",
+          "parent": "SOC2.CC8",
+          "cites": [
+            "CC8.1"
           ]
         },
         {
@@ -5800,6 +6241,15 @@
           ]
         },
         {
+          "code": "ITIL.incident",
+          "standard": "ITIL",
+          "label": "Incident management",
+          "parent": "ITIL",
+          "cites": [
+            "incident management"
+          ]
+        },
+        {
           "code": "ITIL.problem",
           "standard": "ITIL",
           "label": "Problem management",
@@ -5818,6 +6268,24 @@
           ]
         },
         {
+          "code": "ITIL.monitoring",
+          "standard": "ITIL",
+          "label": "Monitoring and event management",
+          "parent": "ITIL",
+          "cites": [
+            "monitoring and event management"
+          ]
+        },
+        {
+          "code": "ITIL.asset",
+          "standard": "ITIL",
+          "label": "IT asset management",
+          "parent": "ITIL",
+          "cites": [
+            "IT asset management"
+          ]
+        },
+        {
           "code": "ITIL.transition",
           "standard": "ITIL",
           "label": "Service transition",
@@ -5825,6 +6293,43 @@
           "cites": [
             "service transition"
           ]
+        },
+        {
+          "code": "ITIL.knowledge",
+          "standard": "ITIL",
+          "label": "Knowledge management",
+          "parent": "ITIL",
+          "cites": [
+            "knowledge management"
+          ]
+        },
+        {
+          "code": "WAF",
+          "standard": "WAF",
+          "label": "Well-Architected Framework",
+          "cites": [
+            "Well-Architected"
+          ]
+        },
+        {
+          "code": "WAF.reliability",
+          "standard": "WAF",
+          "label": "Reliability pillar",
+          "parent": "WAF",
+          "cites": [
+            "reliability"
+          ],
+          "scope": "Well-Architected"
+        },
+        {
+          "code": "WAF.operational-excellence",
+          "standard": "WAF",
+          "label": "Operational excellence pillar",
+          "parent": "WAF",
+          "cites": [
+            "operational excellence"
+          ],
+          "scope": "Well-Architected"
         },
         {
           "code": "CIS",
@@ -5842,6 +6347,45 @@
           "cites": [
             "CIS Benchmark",
             "CIS Benchmarks"
+          ]
+        },
+        {
+          "code": "CIS.CONTROLS",
+          "standard": "CIS",
+          "label": "CIS Critical Security Controls v8",
+          "parent": "CIS",
+          "cites": [
+            "CIS Controls",
+            "CIS Controls v8",
+            "CIS Critical Security Controls"
+          ]
+        },
+        {
+          "code": "CIS.1",
+          "standard": "CIS",
+          "label": "Inventory and Control of Enterprise Assets",
+          "parent": "CIS.CONTROLS",
+          "cites": [
+            "CIS Control 1"
+          ]
+        },
+        {
+          "code": "CIS.11",
+          "standard": "CIS",
+          "label": "Data Recovery",
+          "parent": "CIS.CONTROLS",
+          "cites": [
+            "CIS Control 11"
+          ]
+        },
+        {
+          "code": "ISO42010",
+          "standard": "ISO_42010",
+          "label": "Architecture description",
+          "cites": [
+            "ISO/IEC/IEEE 42010",
+            "ISO 42010",
+            "42010"
           ]
         }
       ],
@@ -7248,6 +7792,36 @@
       ],
       "PRACTICES": [
         {
+          "id": "practice.default-deny",
+          "label": "Default deny",
+          "anchor": "NIST.800-53.SC-7",
+          "definition": "Nothing passes a boundary unless a rule allows it; the allow list is the policy."
+        },
+        {
+          "id": "practice.segmentation",
+          "label": "Network segmentation",
+          "anchor": "ISO27001.A.8.22",
+          "definition": "Zones with distinct trust levels are separated, and the flows between them are named and limited."
+        },
+        {
+          "id": "practice.encryption-in-transit",
+          "label": "Encryption in transit",
+          "anchor": "NIST.800-53.SC-8",
+          "definition": "Traffic crosses a boundary only over approved TLS versions, and the weak ones are refused."
+        },
+        {
+          "id": "practice.backup-before-change",
+          "label": "Backup before change",
+          "anchor": "ITIL.change",
+          "definition": "A configuration is copied before it is edited, so the change can be reversed in one step."
+        },
+        {
+          "id": "practice.change-control",
+          "label": "Change control",
+          "anchor": "ITIL.change",
+          "definition": "Every change is requested, reviewed, reversible and recorded before it reaches a system."
+        },
+        {
           "id": "practice.hardening-baseline",
           "label": "Hardening baseline",
           "anchor": "CIS.BENCHMARK",
@@ -7260,10 +7834,52 @@
           "definition": "Every device configuration is saved, versioned and compared after a change."
         },
         {
+          "id": "practice.build-record",
+          "label": "Build record",
+          "anchor": "ITIL.configuration",
+          "definition": "A build is recorded step by step with firmware, versions and settings as it is made."
+        },
+        {
+          "id": "practice.infrastructure-as-code",
+          "label": "Infrastructure as code",
+          "anchor": "WAF.operational-excellence",
+          "definition": "Resources are declared in versioned templates and deployed from them, not clicked into being."
+        },
+        {
+          "id": "practice.backups-tested",
+          "label": "Backups tested by restore",
+          "anchor": "NIST.800-53.CP-4",
+          "definition": "A backup counts only after a restore from it has been performed and its hashes compared."
+        },
+        {
+          "id": "practice.centralised-logging",
+          "label": "Centralised logging",
+          "anchor": "NIST.CSF.DE.CM",
+          "definition": "Every host ships its logs to one place where they are kept, searched and alerted on."
+        },
+        {
+          "id": "practice.alert-to-ticket",
+          "label": "Alert to ticket",
+          "anchor": "ITIL.incident",
+          "definition": "A detection opens a ticket with an owner and a due time, so nothing fires into silence."
+        },
+        {
+          "id": "practice.lessons-learned",
+          "label": "Lessons learned",
+          "anchor": "NIST.800-61.POST",
+          "definition": "After an incident or a drill, what worked and what did not is written down with an owner for each change."
+        },
+        {
           "id": "practice.written-policy",
           "label": "Written policy",
           "anchor": "NIST.CSF.GV.PO",
           "definition": "Rules are written as shall statements with an owner, a review date and the standard they implement."
+        },
+        {
+          "id": "practice.sign-and-version",
+          "label": "Sign and version documents",
+          "anchor": "ISO27001.7.5",
+          "definition": "A document carries an id, a version, an owner, a date and a status, and a change makes a new version."
         },
         {
           "id": "practice.as-built-documentation",
@@ -7296,18 +7912,641 @@
           "definition": "A build is accepted against written tests with recorded results, not against a feeling that it works."
         },
         {
+          "id": "practice.troubleshooting-method",
+          "label": "Structured troubleshooting",
+          "anchor": "ITIL.problem",
+          "definition": "Identify the problem, establish a theory, test it, plan and act, verify, document: in that order."
+        },
+        {
           "id": "practice.asset-inventory",
           "label": "Asset inventory",
           "anchor": "NIST.CSF.ID.AM",
           "definition": "Every asset is listed with an owner, a location and a classification before it is protected."
+        },
+        {
+          "id": "practice.redundant-paths",
+          "label": "Redundant paths",
+          "anchor": "WAF.reliability",
+          "definition": "A second link or device exists for every single point of failure, and the failover is tested by pulling the cable."
+        },
+        {
+          "id": "practice.idempotent-automation",
+          "label": "Idempotent automation",
+          "anchor": "WAF.operational-excellence",
+          "definition": "Running the automation twice changes nothing the second time, which is how a run is known to be complete."
         }
       ],
-      "PRACTICE_OF": {},
-      "SKILLS": [],
-      "SKILL_OF": {},
-      "SOPS": [],
-      "SOP_OF": {},
-      "SOP_OF_TASK": {},
+      "PRACTICE_OF": {
+        "ccna-w1-discover": [
+          "practice.requirements-first"
+        ],
+        "ccna-w1-design": [
+          "practice.architecture-decision-records",
+          "practice.requirements-first"
+        ],
+        "ccna-w1-bringup": [
+          "practice.build-record",
+          "practice.addressing-plan"
+        ],
+        "ccna-w2-vlans": [
+          "practice.segmentation",
+          "practice.configuration-record"
+        ],
+        "ccna-w2-route": [
+          "practice.test-and-acceptance"
+        ],
+        "ccna-w2-resilience": [
+          "practice.redundant-paths"
+        ],
+        "ccna-w3-wan": [
+          "practice.addressing-plan",
+          "practice.test-and-acceptance"
+        ],
+        "ccna-w3-internet": [
+          "practice.test-and-acceptance",
+          "practice.configuration-record"
+        ],
+        "ccna-w4-policy": [
+          "practice.default-deny",
+          "practice.test-and-acceptance"
+        ],
+        "ccna-w4-harden": [
+          "practice.hardening-baseline",
+          "practice.encryption-in-transit"
+        ],
+        "ccna-w4-wireless": [
+          "practice.segmentation",
+          "practice.test-and-acceptance"
+        ],
+        "ccna-w5-sot": [
+          "practice.asset-inventory",
+          "practice.addressing-plan"
+        ],
+        "ccna-w5-change": [
+          "practice.backup-before-change",
+          "practice.change-control",
+          "practice.backups-tested"
+        ],
+        "ccna-w6-noc": [
+          "practice.centralised-logging",
+          "practice.alert-to-ticket"
+        ],
+        "ccna-w6-ticket": [
+          "practice.troubleshooting-method"
+        ],
+        "ccna-w7-data": [
+          "practice.infrastructure-as-code"
+        ],
+        "ccna-w7-ansible": [
+          "practice.infrastructure-as-code",
+          "practice.idempotent-automation"
+        ],
+        "ccna-w8-incident": [
+          "practice.troubleshooting-method",
+          "practice.change-control",
+          "practice.lessons-learned"
+        ],
+        "ccna-w8-handover": [
+          "practice.as-built-documentation",
+          "practice.sign-and-version"
+        ]
+      },
+      "SKILLS": [
+        {
+          "id": "comp.sysadmin.troubleshooting-method",
+          "version": "1.0.0",
+          "label": "Troubleshoot with the structured method",
+          "area": "sysadmin",
+          "objectiveRefs": [
+            "SK0-005.d4",
+            "200-301.d3",
+            "ITIL.problem"
+          ]
+        },
+        {
+          "id": "comp.network.hierarchical-design",
+          "version": "1.0.0",
+          "label": "Design a hierarchical network with boundaries",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d1"
+          ]
+        },
+        {
+          "id": "comp.network.switch-bringup",
+          "version": "1.0.0",
+          "label": "Bring switches up with management addressing",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d2"
+          ]
+        },
+        {
+          "id": "comp.network.vlans-and-trunks",
+          "version": "1.0.0",
+          "label": "Cut a network into VLANs with trunks",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d2"
+          ]
+        },
+        {
+          "id": "comp.network.inter-vlan-routing",
+          "version": "1.0.0",
+          "label": "Route between VLANs with SVIs or subinterfaces",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d3"
+          ]
+        },
+        {
+          "id": "comp.network.spanning-tree",
+          "version": "1.0.0",
+          "label": "Survive a pulled cable with spanning tree",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d2"
+          ]
+        },
+        {
+          "id": "comp.network.ospf",
+          "version": "1.0.0",
+          "label": "Join sites with OSPF adjacencies",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d3"
+          ]
+        },
+        {
+          "id": "comp.network.default-route-and-nat",
+          "version": "1.0.0",
+          "label": "Route out with a default route and PAT",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d4"
+          ]
+        },
+        {
+          "id": "comp.network.acls",
+          "version": "1.0.0",
+          "label": "Turn a policy into placed access lists",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d5",
+            "NIST.800-53.SC-7"
+          ]
+        },
+        {
+          "id": "comp.network.management-plane-hardening",
+          "version": "1.0.0",
+          "label": "Harden the management plane: SSH, secrets, port security",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d5",
+            "CIS.BENCHMARK"
+          ]
+        },
+        {
+          "id": "comp.network.wlan",
+          "version": "1.0.0",
+          "label": "Put WLANs on the air mapped to VLANs",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d2"
+          ]
+        },
+        {
+          "id": "comp.network.config-backup",
+          "version": "1.0.0",
+          "label": "Back up configurations and prove a restore",
+          "area": "network",
+          "objectiveRefs": [
+            "200-301.d4",
+            "NIST.800-53.CP-9"
+          ]
+        },
+        {
+          "id": "comp.observe.snmp-and-syslog",
+          "version": "1.0.0",
+          "label": "Poll with SNMP and centralise syslog",
+          "area": "observe",
+          "objectiveRefs": [
+            "200-301.d4",
+            "NIST.CSF.DE.CM"
+          ]
+        },
+        {
+          "id": "comp.automation.ansible-roles",
+          "version": "1.0.0",
+          "label": "Configure hosts with Ansible roles",
+          "area": "automation",
+          "objectiveRefs": [
+            "SK0-005.d2",
+            "200-301.d6"
+          ]
+        },
+        {
+          "id": "comp.automation.network-as-data",
+          "version": "1.0.0",
+          "label": "Read a network API and write YAML",
+          "area": "automation",
+          "objectiveRefs": [
+            "200-301.d6"
+          ]
+        },
+        {
+          "id": "comp.automation.idempotent-playbooks",
+          "version": "1.0.0",
+          "label": "Write playbooks that change nothing twice",
+          "area": "automation",
+          "objectiveRefs": [
+            "200-301.d6"
+          ]
+        },
+        {
+          "id": "comp.docs.change-control",
+          "version": "1.0.0",
+          "label": "Record changes with rollback and approver",
+          "area": "docs",
+          "objectiveRefs": [
+            "SK0-005.d2",
+            "200-301.d4",
+            "ITIL.change"
+          ]
+        },
+        {
+          "id": "comp.docs.as-built-handover",
+          "version": "1.0.0",
+          "label": "Assemble and hand over an as-built package",
+          "area": "docs",
+          "objectiveRefs": [
+            "SK0-005.d2",
+            "200-301.d1",
+            "ITIL.transition"
+          ]
+        },
+        {
+          "id": "comp.docs.netbox-ipam",
+          "version": "1.0.0",
+          "label": "Keep racks and addresses as a record",
+          "area": "docs",
+          "objectiveRefs": [
+            "SK0-005.d2",
+            "200-301.d6",
+            "NIST.CSF.ID.AM"
+          ]
+        },
+        {
+          "id": "comp.docs.requirements-gathering",
+          "version": "1.0.0",
+          "label": "Gather requirements from the business",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d1"
+          ]
+        },
+        {
+          "id": "comp.docs.site-survey",
+          "version": "1.0.0",
+          "label": "Survey a site before designing",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d1"
+          ]
+        },
+        {
+          "id": "comp.docs.design-decisions",
+          "version": "1.0.0",
+          "label": "Record design decisions traced to requirements",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d1",
+            "ISO42010"
+          ]
+        },
+        {
+          "id": "comp.docs.build-log",
+          "version": "1.0.0",
+          "label": "Keep a build log with proof per step",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d2",
+            "ITIL.configuration"
+          ]
+        },
+        {
+          "id": "comp.docs.work-a-ticket",
+          "version": "1.0.0",
+          "label": "Work a ticket with scope and layers",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d3",
+            "ITIL.incident"
+          ]
+        },
+        {
+          "id": "comp.docs.incident-management",
+          "version": "1.0.0",
+          "label": "Work an incident to root cause",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d3",
+            "ITIL.incident"
+          ]
+        },
+        {
+          "id": "comp.docs.known-issues",
+          "version": "1.0.0",
+          "label": "List known issues honestly",
+          "area": "docs",
+          "objectiveRefs": [
+            "200-301.d1",
+            "ITIL.transition"
+          ]
+        }
+      ],
+      "SKILL_OF": {
+        "ccna-w1-discover": [
+          "comp.docs.requirements-gathering",
+          "comp.docs.site-survey"
+        ],
+        "ccna-w1-design": [
+          "comp.network.hierarchical-design",
+          "comp.docs.design-decisions"
+        ],
+        "ccna-w1-bringup": [
+          "comp.network.switch-bringup",
+          "comp.docs.build-log"
+        ],
+        "ccna-w2-vlans": [
+          "comp.network.vlans-and-trunks"
+        ],
+        "ccna-w2-route": [
+          "comp.network.inter-vlan-routing"
+        ],
+        "ccna-w2-resilience": [
+          "comp.network.spanning-tree"
+        ],
+        "ccna-w3-wan": [
+          "comp.network.ospf"
+        ],
+        "ccna-w3-internet": [
+          "comp.network.default-route-and-nat"
+        ],
+        "ccna-w4-policy": [
+          "comp.network.acls"
+        ],
+        "ccna-w4-harden": [
+          "comp.network.management-plane-hardening"
+        ],
+        "ccna-w4-wireless": [
+          "comp.network.wlan"
+        ],
+        "ccna-w5-sot": [
+          "comp.docs.netbox-ipam"
+        ],
+        "ccna-w5-change": [
+          "comp.network.config-backup",
+          "comp.docs.change-control"
+        ],
+        "ccna-w6-noc": [
+          "comp.observe.snmp-and-syslog"
+        ],
+        "ccna-w6-ticket": [
+          "comp.sysadmin.troubleshooting-method",
+          "comp.docs.work-a-ticket"
+        ],
+        "ccna-w7-data": [
+          "comp.automation.network-as-data"
+        ],
+        "ccna-w7-ansible": [
+          "comp.automation.ansible-roles",
+          "comp.automation.idempotent-playbooks"
+        ],
+        "ccna-w8-incident": [
+          "comp.docs.incident-management",
+          "comp.docs.change-control"
+        ],
+        "ccna-w8-handover": [
+          "comp.docs.as-built-handover",
+          "comp.docs.known-issues"
+        ]
+      },
+      "SOPS": [
+        {
+          "id": "sop.incident-record",
+          "label": "Incident record",
+          "kind": "incident",
+          "definition": "The record of one incident: first alert, attacker, timeline, containment time, evidence and the hand-offs.",
+          "standardRefs": [
+            "NIST.800-61.DETECT",
+            "ISO27001.A.5.26",
+            "NIST.CSF.RS.AN"
+          ]
+        },
+        {
+          "id": "sop.change-record",
+          "label": "Change record",
+          "kind": "change",
+          "definition": "A change written before it is made: what, where, the backup, the approval, the rollback and the result.",
+          "standardRefs": [
+            "ITIL.change",
+            "ISO27001.A.8.32",
+            "NIST.800-53.CM-3",
+            "SOC2.CC8.1"
+          ]
+        },
+        {
+          "id": "sop.backup-plan",
+          "label": "Backup plan",
+          "kind": "recovery",
+          "definition": "What is backed up, how often, where it goes, how long it is kept and how a restore is tested.",
+          "standardRefs": [
+            "ISO27001.A.8.13",
+            "NIST.800-53.CP-9",
+            "CIS.11"
+          ]
+        },
+        {
+          "id": "sop.hardening-baseline",
+          "label": "Hardening baseline",
+          "kind": "baseline",
+          "definition": "The settings a host must have, the benchmark they come from, and the proof each host meets them.",
+          "standardRefs": [
+            "CIS.BENCHMARK",
+            "NIST.800-53.CM-6",
+            "ISO27001.A.8.9",
+            "NIST.CSF.PR.PS"
+          ]
+        },
+        {
+          "id": "sop.handover",
+          "label": "Operational handover",
+          "kind": "handover",
+          "definition": "What was built, how it is run, who owns it and what is still open, handed to the next team.",
+          "standardRefs": [
+            "ITIL.transition",
+            "ISO27001.A.5.37",
+            "ITIL.knowledge"
+          ]
+        },
+        {
+          "id": "sop.policy",
+          "label": "Security policy",
+          "kind": "policy",
+          "definition": "Shall statements with an owner, a review date and the standard each one implements.",
+          "standardRefs": [
+            "ISO27001.5.2",
+            "ISO27001.A.5.1",
+            "NIST.CSF.GV.PO",
+            "NIST.800-53.PM-1"
+          ]
+        },
+        {
+          "id": "sop.monitoring-plan",
+          "label": "Monitoring plan",
+          "kind": "monitoring",
+          "definition": "What is watched, from which sources, who is alerted, and what a page means.",
+          "standardRefs": [
+            "NIST.CSF.DE.CM",
+            "ISO27001.A.8.16",
+            "SOC2.CC7.2",
+            "ITIL.monitoring"
+          ]
+        },
+        {
+          "id": "sop.asset-inventory",
+          "label": "Asset inventory",
+          "kind": "inventory",
+          "definition": "Every asset with an owner, a location, a classification and its place in the picture.",
+          "standardRefs": [
+            "NIST.CSF.ID.AM",
+            "CIS.1",
+            "ISO27001.A.5.9",
+            "ITIL.asset"
+          ]
+        },
+        {
+          "id": "sop.architecture-record",
+          "label": "Architecture record",
+          "kind": "design",
+          "definition": "The components, the trust boundaries, the flows and the decisions, with the reasons for each.",
+          "standardRefs": [
+            "ISO42010",
+            "WAF",
+            "NIST.800-53.PL-8"
+          ]
+        },
+        {
+          "id": "sop.network-design",
+          "label": "Network design",
+          "kind": "design",
+          "definition": "Zones, allowed flows, the addressing plan and the default-deny statement.",
+          "standardRefs": [
+            "NIST.800-53.SC-7",
+            "ISO27001.A.8.22",
+            "NIST.CSF.PR.IR"
+          ]
+        },
+        {
+          "id": "sop.requirements",
+          "label": "Requirements record",
+          "kind": "design",
+          "definition": "What the system must do and must not, with the constraints and the acceptance criteria.",
+          "standardRefs": [
+            "ISO42010",
+            "WAF"
+          ]
+        },
+        {
+          "id": "sop.build-record",
+          "label": "Build record",
+          "kind": "build",
+          "definition": "The build as it was made: firmware, versions, settings and the problems met, in order.",
+          "standardRefs": [
+            "ITIL.configuration",
+            "NIST.800-53.CM-2",
+            "ISO27001.A.8.9"
+          ]
+        },
+        {
+          "id": "sop.test-and-acceptance",
+          "label": "Test and acceptance record",
+          "kind": "build",
+          "definition": "The tests a build must pass, who ran them, and the recorded results.",
+          "standardRefs": [
+            "ITIL.transition",
+            "NIST.800-53.CA-2",
+            "ISO27001.A.8.29"
+          ]
+        }
+      ],
+      "SOP_OF": {
+        "ccna_kit": [
+          "sop.asset-inventory"
+        ],
+        "ccna_requirements": [
+          "sop.requirements"
+        ],
+        "ccna_hld": [
+          "sop.architecture-record"
+        ],
+        "ccna_lld": [
+          "sop.network-design"
+        ],
+        "ccna_build_log": [
+          "sop.build-record"
+        ],
+        "ccna_validation": [
+          "sop.test-and-acceptance"
+        ],
+        "ccna_security": [
+          "sop.hardening-baseline",
+          "sop.policy"
+        ],
+        "ccna_ops": [
+          "sop.change-record",
+          "sop.backup-plan"
+        ],
+        "ccna_monitoring": [
+          "sop.monitoring-plan",
+          "sop.incident-record"
+        ],
+        "ccna_handover": [
+          "sop.handover"
+        ]
+      },
+      "SOP_OF_TASK": {
+        "ccna-w1-bringup": [
+          "sop.build-record"
+        ],
+        "ccna-w2-route": [
+          "sop.test-and-acceptance"
+        ],
+        "ccna-w3-wan": [
+          "sop.test-and-acceptance"
+        ],
+        "ccna-w4-policy": [
+          "sop.test-and-acceptance"
+        ],
+        "ccna-w4-harden": [
+          "sop.hardening-baseline"
+        ],
+        "ccna-w5-change": [
+          "sop.change-record",
+          "sop.backup-plan"
+        ],
+        "ccna-w6-ticket": [
+          "sop.incident-record"
+        ],
+        "ccna-w8-incident": [
+          "sop.incident-record",
+          "sop.change-record"
+        ],
+        "ccna-w8-handover": [
+          "sop.handover"
+        ]
+      },
       "STANDARDS": [
         {
           "id": "NIST_CSF",
@@ -7332,6 +8571,39 @@
           "codePattern": "^CIS(\\.(CONTROLS|BENCHMARK|\\d{1,2}))?$"
         },
         {
+          "id": "NIST_800_61",
+          "label": "NIST 800-61",
+          "description": "NIST SP 800-61 Computer Security Incident Handling Guide",
+          "why": "The incident-handling playbook: prepare, detect and analyse, contain, eradicate, recover, learn. This tag means the step is part of a defensible, court-ready incident response process.",
+          "kind": "publication",
+          "tone": "warn",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+          "codePattern": "^NIST\\.800-61(\\.(PREPARE|DETECT|CONTAIN|POST))?$"
+        },
+        {
+          "id": "ISO_27001",
+          "label": "ISO 27001",
+          "description": "ISO/IEC 27001:2022 information security management system",
+          "why": "The certifiable information security management standard. This tag means the step produces the documented policy or evidence an ISO 27001 audit expects to see.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "ISO/IEC",
+          "url": "https://www.iso.org/standard/27001",
+          "codePattern": "^ISO27001(\\.(\\d+(\\.\\d+)*|A\\.\\d+\\.\\d+))?$"
+        },
+        {
+          "id": "SOC_2",
+          "label": "SOC 2",
+          "description": "AICPA Trust Services Criteria for a SOC 2 examination",
+          "why": "The AICPA attestation standard built on the Trust Services Criteria: Security is CC1 to CC9, plus Availability, Confidentiality and the rest. This tag means the step produces a control or the evidence a SOC 2 Type I or II examiner samples.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "AICPA",
+          "url": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+          "codePattern": "^SOC2(\\.(CC\\d(\\.\\d)?|A1|C1|PI1|P\\d))?$"
+        },
+        {
           "id": "CCNA",
           "label": "CCNA 200-301",
           "description": "Cisco CCNA 200-301 v1.1: the exam blueprint and its six domains",
@@ -7351,6 +8623,28 @@
           "publisher": "PeopleCert",
           "url": "https://www.axelos.com/certifications/itil-service-management",
           "codePattern": "^ITIL(\\.[a-z-]+)?$"
+        },
+        {
+          "id": "WAF",
+          "label": "Well-Architected",
+          "description": "Well-Architected Framework pillars, Azure and AWS",
+          "why": "Both clouds judge a design on the same pillars: reliability, security, cost, operational excellence and performance. A tag here means the step is a design choice one of them would ask about.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "Microsoft and Amazon Web Services",
+          "url": "https://learn.microsoft.com/azure/well-architected/",
+          "codePattern": "^WAF(\\.[a-z-]+)?$"
+        },
+        {
+          "id": "NIST_800_53",
+          "label": "NIST SP 800-53",
+          "description": "NIST SP 800-53 Rev. 5 security and privacy controls",
+          "why": "The federal control catalogue the sixteen CISSP control statements are drawn from (PM-1, SC-7, AC-2). A tag here means the step writes or proves one of those controls.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+          "codePattern": "^NIST\\.800-53(\\.[A-Z]{2}(-\\d+)?)?$"
         },
         {
           "id": "ISO_42010",

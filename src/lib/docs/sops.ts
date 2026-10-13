@@ -82,7 +82,41 @@ export const SOPS: SopDef[] = [
   s('test-and-acceptance', 'Test and acceptance record', 'build', 'The tests a build must pass, who ran them, and the recorded results.', ['ITIL.transition', 'NIST.800-53.CA-2', 'ISO27001.A.8.29']),
 ];
 
-/** Every form → the SOP kinds it is an instance of (zero to three). */
+import { CLOUD_COURSES, cloudMap } from './skills';
+
+/** The cloud forms, one table for both platforms: `{ foundation: ids }` → `azf_foundation`, `awsf_foundation`, … */
+function cloudForms(table: Record<string, Record<string, string[]>>): Record<string, Record<string, string[]>> {
+  const out: Record<string, Record<string, string[]>> = {};
+  const tier = (weeks: [number, number]) => (weeks[0] === 1 ? 'f' : weeks[0] === 5 ? 'a' : 'd');
+  for (const [courseId, [prefix, weeks]] of Object.entries(CLOUD_COURSES)) {
+    out[courseId] = Object.fromEntries(Object.entries(table[tier(weeks)]).map(([form, ids]) => [`${prefix}${tier(weeks)}_${form}`, ids]));
+  }
+  return out;
+}
+
+const CLOUD_FORM_SOPS: Record<string, Record<string, string[]>> = {
+  f: { foundation: ['sop.policy', 'sop.cost-review'], sad: ['sop.architecture-record'], api: ['sop.requirements'], incident: ['sop.monitoring-plan', 'sop.incident-record'] },
+  a: { access: ['sop.identity-standard', 'sop.access-review'], network: ['sop.network-design'], server: ['sop.runbook', 'sop.architecture-record'], dr: ['sop.backup-plan', 'sop.recovery-drill'] },
+  d: { iac: ['sop.pipeline-record', 'sop.build-record'], change: ['sop.change-record', 'sop.release-record'], governance: ['sop.cost-review', 'sop.governance-report'], handover: ['sop.handover', 'sop.risk-register'] },
+};
+
+const CLOUD_TASK_SOPS: Record<string, string[]> = {
+  'w2-infra': ['sop.cost-review'],
+  'w4-secops': ['sop.incident-record'],
+  'w5-secops': ['sop.access-review'],
+  'w8-dev': ['sop.backup-plan'],
+  'w8-secops': ['sop.recovery-drill'],
+  'w9-dev': ['sop.pipeline-record'],
+  'w10-arch': ['sop.change-record'],
+  'w10-dev': ['sop.pipeline-record'],
+  'w11-infra': ['sop.release-record'],
+  'w11-dev': ['sop.release-record'],
+  'w12-arch': ['sop.handover'],
+  'w12-infra': ['sop.recovery-drill'],
+  'w12-secops': ['sop.incident-record'],
+};
+
+/** Every form → the SOP kinds it is an instance of (one to three). */
 export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
   'security-plus': {
     scope_roe: ['sop.scope-and-roe'],
@@ -149,6 +183,29 @@ export const DELIVERABLE_SOPS: Record<string, Record<string, string[]>> = {
     cissp_controls: ['sop.control-mapping'],
     cissp_ssp: ['sop.system-security-plan'],
   },
+  'server-plus': {
+    srv_business_reqs: ['sop.requirements', 'sop.architecture-record'],
+    srv_hardware: ['sop.asset-inventory', 'sop.build-record'],
+    srv_bringup: ['sop.build-record'],
+    srv_rack_assets: ['sop.asset-inventory'],
+    srv_ip_plan: ['sop.network-design', 'sop.test-and-acceptance'],
+    srv_standards: ['sop.hardening-baseline', 'sop.policy'],
+    srv_operations: ['sop.runbook', 'sop.change-record', 'sop.patch-management'],
+    srv_as_built: ['sop.recovery-drill', 'sop.backup-plan', 'sop.handover'],
+  },
+  ccna: {
+    ccna_kit: ['sop.asset-inventory'],
+    ccna_requirements: ['sop.requirements'],
+    ccna_hld: ['sop.architecture-record'],
+    ccna_lld: ['sop.network-design'],
+    ccna_build_log: ['sop.build-record'],
+    ccna_validation: ['sop.test-and-acceptance'],
+    ccna_security: ['sop.hardening-baseline', 'sop.policy'],
+    ccna_ops: ['sop.change-record', 'sop.backup-plan'],
+    ccna_monitoring: ['sop.monitoring-plan', 'sop.incident-record'],
+    ccna_handover: ['sop.handover'],
+  },
+  ...cloudForms(CLOUD_FORM_SOPS),
 };
 
 /** Tasks that execute a procedure → the SOP kinds they execute. */
@@ -197,6 +254,34 @@ export const TASK_SOPS: Record<string, Record<string, string[]>> = {
     'ci-w5-arch': ['sop.change-record', 'sop.retest-record'],
     'ci-w5-idops': ['sop.access-review', 'sop.incident-response-plan'],
   },
+  'server-plus': {
+    'sp-w1-raid': ['sop.build-record'],
+    'sp-w3-connect': ['sop.test-and-acceptance'],
+    'sp-w3-sops': ['sop.runbook', 'sop.change-record'],
+    'sp-w4-secure': ['sop.hardening-baseline', 'sop.patch-management'],
+    'sp-w4-dr': ['sop.recovery-drill', 'sop.backup-plan'],
+    'sp-w4-handover': ['sop.handover'],
+    'sp-w5-glpi': ['sop.change-record'],
+    'sp-w6-vault': ['sop.backup-plan'],
+    'sp-w6-rebuild': ['sop.recovery-drill'],
+    'sp-w3-mgmt': ['sop.change-record'],
+    'sp-w6-mgmt': ['sop.change-record'],
+    'sp-w4-win': ['sop.patch-management', 'sop.recovery-drill'],
+    'sp-w4-lnx': ['sop.recovery-drill'],
+    'sp-w8-mgmt': ['sop.runbook'],
+  },
+  ccna: {
+    'ccna-w1-bringup': ['sop.build-record'],
+    'ccna-w2-route': ['sop.test-and-acceptance'],
+    'ccna-w3-wan': ['sop.test-and-acceptance'],
+    'ccna-w4-policy': ['sop.test-and-acceptance'],
+    'ccna-w4-harden': ['sop.hardening-baseline'],
+    'ccna-w5-change': ['sop.change-record', 'sop.backup-plan'],
+    'ccna-w6-ticket': ['sop.incident-record'],
+    'ccna-w8-incident': ['sop.incident-record', 'sop.change-record'],
+    'ccna-w8-handover': ['sop.handover'],
+  },
+  ...cloudMap(CLOUD_TASK_SOPS),
 };
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */

@@ -1,6 +1,6 @@
 # CISSP Capstone: Six Releases — skills sheet
 
-18 graded tasks · 48 skills · 27 tools · 20 procedures · 16 standards (20 controls cited) · 4 tactics · 37 practices
+18 graded tasks · 48 skills · 27 tools · 20 procedures · 16 standards (20 controls cited) · 4 tactics · 38 practices
 
 Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.
 
@@ -16,8 +16,8 @@ Generated from the registries and the course document by `npm run content:export
 | Make an AI gateway the sole path `comp.harden.ai-gateway-zone` | Hardening and defence | CISSP.d4, NIST_800_207 | Prove AI controls and the config scan |
 | Specify the seven-step incident life cycle `comp.respond.seven-step-plan` | Incident response | CISSP.d7, NIST.800-61 | Specify access, recovery and incident response |
 | Run a tabletop with injects `comp.respond.tabletop` | Incident response | CISSP.d6, NIST.800-53.CP-4 | Re-test access and run the tabletop |
-| Restore from backup and compare hashes `comp.respond.restore-test` | Incident response | CISSP.d7, NIST.800-53.CP-4 | Prove detection, restore and contingency |
-| Set MTD, RTO, RPO and WRT `comp.respond.recovery-targets` | Incident response | CISSP.d7, NIST_800_34 | Specify access, recovery and incident response |
+| Restore from backup and prove it `comp.respond.restore-test` | Incident response | CISSP.d7, SK0-005.d3, NIST.800-53.CP-4 | Prove detection, restore and contingency |
+| Set recovery targets: RTO, RPO, MTTR `comp.respond.recovery-targets` | Incident response | CISSP.d7, SK0-005.d3, AZ-104.d5, SAA-C03.d4, NIST_800_34 | Specify access, recovery and incident response |
 | Write policy as shall statements with an owner `comp.grc.policy-shall` | Governance and compliance | CISSP.d1, CY0-001.d4, NIST.CSF.GV.PO | Write governance, assets and the first score |
 | Classify assets with one owner each `comp.grc.classification` | Governance and compliance | CISSP.d2, ISO27001.A.5.12 | Write governance, assets and the first score |
 | Score maturity on a 0 to 4 scale `comp.grc.maturity` | Governance and compliance | CISSP.d1 | Write governance, assets and the first score |
@@ -182,7 +182,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Separation of duties | NIST.800-53.AC-5 | Specify access, recovery and incident response |
 | Periodic access review | NIST.800-53.AC-2 | Prove MFA, accounts and federation; Re-test access and run the tabletop |
 | Joiner and leaver process | ISO27001.A.5.18 | Write identity and operations; Re-test access and run the tabletop |
-| Encryption in transit | NIST.800-53.SC-8 | Specify cryptography and the rule base; Prove the pipeline and list the components; Map architecture and network to federal rules |
+| Encryption in transit | NIST.800-53.SC-8 | Specify cryptography and the rule base; Map architecture and network to federal rules |
 | Key rotation | NIST.800-53.SC-12 | Specify cryptography and the rule base; Re-test architecture, network and change |
 | Retest to closure | NIST_800_115 | Re-test architecture, network and change |
 | Likelihood-times-impact scoring | NIST_800_30 | Specify risk, assets and the metrics |
@@ -192,6 +192,7 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Configuration scanning | CIS.BENCHMARK | Prove AI controls and the config scan |
 | Media sanitisation | NIST_800_88 | Prove suppliers and the server migration |
 | Pipeline gates | NIST_800_218 | Specify cryptography and the rule base; Prove the pipeline and list the components |
+| Dependency and image scanning | NIST_800_218 | Prove the pipeline and list the components |
 | Software bill of materials | NIST_800_218 | Prove the pipeline and list the components |
 | Backups tested by restore | NIST.800-53.CP-4 | Prove detection, restore and contingency |
 | Recovery objectives | NIST_800_34 | Specify access, recovery and incident response; Prove detection, restore and contingency |

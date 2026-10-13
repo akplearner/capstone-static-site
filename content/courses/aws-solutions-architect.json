@@ -7149,7 +7149,16 @@
         "arch": "Architecture and network design",
         "data": "Data security",
         "ops": "Security operations",
-        "ai-attack": "AI attack and evaluation"
+        "ai-attack": "AI attack and evaluation",
+        "hardware": "Server hardware",
+        "virt": "Virtualisation",
+        "sysadmin": "System administration",
+        "network": "Network engineering",
+        "observe": "Monitoring and observability",
+        "automation": "Automation and infrastructure as code",
+        "continuity": "Backup and recovery",
+        "docs": "Documentation and records",
+        "cloud": "Cloud services"
       },
       "CONTROLS": [
         {
@@ -7171,12 +7180,68 @@
           "scope": "CSF"
         },
         {
+          "code": "NIST.CSF.PR",
+          "standard": "NIST_CSF",
+          "label": "Protect",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Protect"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.RC",
+          "standard": "NIST_CSF",
+          "label": "Recover",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Recover"
+          ],
+          "scope": "CSF"
+        },
+        {
           "code": "NIST.CSF.ID.AM",
           "standard": "NIST_CSF",
           "label": "Asset Management",
           "parent": "NIST.CSF.ID",
           "cites": [
             "ID.AM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.AA",
+          "standard": "NIST_CSF",
+          "label": "Identity Management, Authentication, and Access Control",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.AA"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.PS",
+          "standard": "NIST_CSF",
+          "label": "Platform Security",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.PS"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.IR",
+          "standard": "NIST_CSF",
+          "label": "Technology Infrastructure Resilience",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.IR"
+          ]
+        },
+        {
+          "code": "NIST.CSF.RC.RP",
+          "standard": "NIST_CSF",
+          "label": "Incident Recovery Plan Execution",
+          "parent": "NIST.CSF.RC",
+          "cites": [
+            "RC.RP"
           ]
         },
         {
@@ -7197,12 +7262,121 @@
           "cites": []
         },
         {
+          "code": "NIST.800-53.CP",
+          "standard": "NIST_800_53",
+          "label": "Contingency Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.IA",
+          "standard": "NIST_800_53",
+          "label": "Identification and Authentication",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.SC",
+          "standard": "NIST_800_53",
+          "label": "System and Communications Protection",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.AC-2",
+          "standard": "NIST_800_53",
+          "label": "Account Management",
+          "parent": "NIST.800-53.AC",
+          "cites": [
+            "AC-2"
+          ]
+        },
+        {
           "code": "NIST.800-53.AC-6",
           "standard": "NIST_800_53",
           "label": "Least Privilege",
           "parent": "NIST.800-53.AC",
           "cites": [
             "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-4",
+          "standard": "NIST_800_53",
+          "label": "Contingency Plan Testing",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-4"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-9",
+          "standard": "NIST_800_53",
+          "label": "System Backup",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-9"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IA-2",
+          "standard": "NIST_800_53",
+          "label": "Identification and Authentication (Organizational Users)",
+          "parent": "NIST.800-53.IA",
+          "cites": [
+            "IA-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IA-5",
+          "standard": "NIST_800_53",
+          "label": "Authenticator Management",
+          "parent": "NIST.800-53.IA",
+          "cites": [
+            "IA-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-8",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Architectures",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-8"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-7",
+          "standard": "NIST_800_53",
+          "label": "Boundary Protection",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-7"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-8",
+          "standard": "NIST_800_53",
+          "label": "Transmission Confidentiality and Integrity",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-8"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-12",
+          "standard": "NIST_800_53",
+          "label": "Cryptographic Key Establishment and Management",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-12"
           ]
         },
         {
@@ -7216,6 +7390,16 @@
           ]
         },
         {
+          "code": "NIST.800-63",
+          "standard": "NIST_800_63",
+          "label": "Digital Identity Guidelines",
+          "cites": [
+            "NIST SP 800-63",
+            "SP 800-63",
+            "800-63"
+          ]
+        },
+        {
           "code": "ISO27001",
           "standard": "ISO_27001",
           "label": "Information security management system",
@@ -7225,12 +7409,95 @@
           ]
         },
         {
+          "code": "ISO27001.A.5.15",
+          "standard": "ISO_27001",
+          "label": "Access control",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.15"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.18",
+          "standard": "ISO_27001",
+          "label": "Access rights",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.18"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.30",
+          "standard": "ISO_27001",
+          "label": "ICT readiness for business continuity",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.30"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.37",
+          "standard": "ISO_27001",
+          "label": "Documented operating procedures",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.37"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.13",
+          "standard": "ISO_27001",
+          "label": "Information backup",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.13"
+          ]
+        },
+        {
           "code": "ISO27001.A.8.22",
           "standard": "ISO_27001",
           "label": "Segregation of networks",
           "parent": "ISO27001",
           "cites": [
             "A.8.22"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.24",
+          "standard": "ISO_27001",
+          "label": "Use of cryptography",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.24"
+          ]
+        },
+        {
+          "code": "SOC2",
+          "standard": "SOC_2",
+          "label": "Trust Services Criteria",
+          "cites": [
+            "SOC 2",
+            "SOC2",
+            "SOC 2 TSC",
+            "Trust Services Criteria"
+          ]
+        },
+        {
+          "code": "SOC2.CC6",
+          "standard": "SOC_2",
+          "label": "Logical and Physical Access Controls",
+          "parent": "SOC2",
+          "cites": [
+            "CC6"
+          ]
+        },
+        {
+          "code": "SOC2.CC6.3",
+          "standard": "SOC_2",
+          "label": "Role-based access and periodic review",
+          "parent": "SOC2.CC6",
+          "cites": [
+            "CC6.3"
           ]
         },
         {
@@ -7262,6 +7529,44 @@
             "cost optimization"
           ],
           "scope": "Well-Architected"
+        },
+        {
+          "code": "CIS",
+          "standard": "CIS",
+          "label": "Center for Internet Security",
+          "cites": [
+            "CIS"
+          ]
+        },
+        {
+          "code": "CIS.CONTROLS",
+          "standard": "CIS",
+          "label": "CIS Critical Security Controls v8",
+          "parent": "CIS",
+          "cites": [
+            "CIS Controls",
+            "CIS Controls v8",
+            "CIS Critical Security Controls"
+          ]
+        },
+        {
+          "code": "CIS.11",
+          "standard": "CIS",
+          "label": "Data Recovery",
+          "parent": "CIS.CONTROLS",
+          "cites": [
+            "CIS Control 11"
+          ]
+        },
+        {
+          "code": "ISO42010",
+          "standard": "ISO_42010",
+          "label": "Architecture description",
+          "cites": [
+            "ISO/IEC/IEEE 42010",
+            "ISO 42010",
+            "42010"
+          ]
         }
       ],
       "COPY": {
@@ -8667,24 +8972,531 @@
       ],
       "PRACTICES": [
         {
+          "id": "practice.least-privilege",
+          "label": "Least privilege",
+          "anchor": "NIST.800-53.AC-6",
+          "definition": "Every account, role and agent holds only the rights its task needs, and nothing it might need later."
+        },
+        {
+          "id": "practice.defence-in-depth",
+          "label": "Defence in depth",
+          "anchor": "NIST.CSF.PR",
+          "definition": "More than one control stands between an attacker and the asset, so one failure is not a breach."
+        },
+        {
+          "id": "practice.default-deny",
+          "label": "Default deny",
+          "anchor": "NIST.800-53.SC-7",
+          "definition": "Nothing passes a boundary unless a rule allows it; the allow list is the policy."
+        },
+        {
           "id": "practice.segmentation",
           "label": "Network segmentation",
           "anchor": "ISO27001.A.8.22",
           "definition": "Zones with distinct trust levels are separated, and the flows between them are named and limited."
         },
         {
+          "id": "practice.zero-trust",
+          "label": "Zero trust access",
+          "anchor": "NIST_800_207",
+          "definition": "No request is trusted for where it comes from; identity, device and context decide every access."
+        },
+        {
+          "id": "practice.secrets-in-a-store",
+          "label": "Secrets in a store",
+          "anchor": "NIST.800-53.IA-5",
+          "definition": "Keys and passwords live in a secret store and never in a prompt, a repository or a config file."
+        },
+        {
+          "id": "practice.key-rotation",
+          "label": "Key rotation",
+          "anchor": "NIST.800-53.SC-12",
+          "definition": "Keys and certificates have an owner and a rotation date, and a rotation is recorded when it happens."
+        },
+        {
+          "id": "practice.immutable-rebuild",
+          "label": "Rebuild, do not repair",
+          "anchor": "WAF.reliability",
+          "definition": "A compromised or drifted system is replaced from a known-good image rather than patched in place."
+        },
+        {
+          "id": "practice.tear-down-after-use",
+          "label": "Tear down after use",
+          "anchor": "WAF.cost",
+          "definition": "Billable resources are stopped or deleted in the same task that created them, and the record says so."
+        },
+        {
+          "id": "practice.right-sizing",
+          "label": "Right-sizing",
+          "anchor": "WAF.cost",
+          "definition": "Resources are sized from measured use, reviewed and shrunk when the measurement says so."
+        },
+        {
+          "id": "practice.multi-zone-redundancy",
+          "label": "Multi-zone redundancy",
+          "anchor": "WAF.reliability",
+          "definition": "Services run across availability zones so the loss of one zone does not stop them."
+        },
+        {
+          "id": "practice.health-checks",
+          "label": "Health checks",
+          "anchor": "WAF.reliability",
+          "definition": "A load balancer or scaler routes only to instances that answer a health probe, and replaces the ones that do not."
+        },
+        {
+          "id": "practice.backups-tested",
+          "label": "Backups tested by restore",
+          "anchor": "NIST.800-53.CP-4",
+          "definition": "A backup counts only after a restore from it has been performed and its hashes compared."
+        },
+        {
+          "id": "practice.recovery-objectives",
+          "label": "Recovery objectives",
+          "anchor": "NIST_800_34",
+          "definition": "Recovery time and recovery point targets are written per service, and a drill is timed against them."
+        },
+        {
+          "id": "practice.architecture-decision-records",
+          "label": "Architecture decision records",
+          "anchor": "ISO_42010",
+          "definition": "Each significant design choice is recorded with its context, options and consequences."
+        },
+        {
           "id": "practice.addressing-plan",
           "label": "Addressing plan",
           "anchor": "NIST.CSF.ID.AM",
           "definition": "Subnets, addresses and names are planned on paper before any device is configured."
+        },
+        {
+          "id": "practice.encryption-at-rest",
+          "label": "Encryption at rest",
+          "anchor": "ISO27001.A.8.24",
+          "definition": "Stored data, snapshots and backups are encrypted under a managed key, and nothing is shared or public."
+        },
+        {
+          "id": "practice.decouple-with-queues",
+          "label": "Decouple with queues",
+          "anchor": "WAF.reliability",
+          "definition": "Producers and consumers talk through a queue with a dead-letter queue, so a slow consumer loses nothing."
         }
       ],
-      "PRACTICE_OF": {},
-      "SKILLS": [],
-      "SKILL_OF": {},
-      "SOPS": [],
-      "SOP_OF": {},
-      "SOP_OF_TASK": {},
+      "PRACTICE_OF": {
+        "aws-w5-arch": [
+          "practice.least-privilege",
+          "practice.defence-in-depth"
+        ],
+        "aws-w5-infra": [
+          "practice.secrets-in-a-store",
+          "practice.key-rotation"
+        ],
+        "aws-w5-dev": [
+          "practice.least-privilege",
+          "practice.default-deny"
+        ],
+        "aws-w5-secops": [
+          "practice.least-privilege"
+        ],
+        "aws-w6-arch": [
+          "practice.multi-zone-redundancy",
+          "practice.architecture-decision-records",
+          "practice.right-sizing"
+        ],
+        "aws-w6-infra": [
+          "practice.multi-zone-redundancy",
+          "practice.health-checks"
+        ],
+        "aws-w6-dev": [
+          "practice.health-checks",
+          "practice.multi-zone-redundancy"
+        ],
+        "aws-w6-secops": [
+          "practice.zero-trust",
+          "practice.default-deny",
+          "practice.segmentation"
+        ],
+        "aws-w7-arch": [
+          "practice.right-sizing",
+          "practice.architecture-decision-records"
+        ],
+        "aws-w7-infra": [
+          "practice.multi-zone-redundancy",
+          "practice.encryption-at-rest",
+          "practice.tear-down-after-use"
+        ],
+        "aws-w7-dev": [
+          "practice.decouple-with-queues"
+        ],
+        "aws-w7-secops": [
+          "practice.encryption-at-rest",
+          "practice.default-deny"
+        ],
+        "aws-w8-arch": [
+          "practice.recovery-objectives",
+          "practice.right-sizing"
+        ],
+        "aws-w8-infra": [
+          "practice.health-checks",
+          "practice.immutable-rebuild"
+        ],
+        "aws-w8-dev": [
+          "practice.backups-tested"
+        ],
+        "aws-w8-secops": [
+          "practice.recovery-objectives",
+          "practice.backups-tested",
+          "practice.tear-down-after-use"
+        ]
+      },
+      "SKILLS": [
+        {
+          "id": "comp.respond.recovery-targets",
+          "version": "1.0.0",
+          "label": "Set recovery targets: RTO, RPO, MTTR",
+          "area": "respond",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "SK0-005.d3",
+            "AZ-104.d5",
+            "SAA-C03.d4",
+            "NIST_800_34"
+          ]
+        },
+        {
+          "id": "comp.cloud.access-matrix",
+          "version": "1.0.0",
+          "label": "Write an access matrix and security layers",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d1",
+            "SAA-C03.d1",
+            "NIST.800-53.AC-6"
+          ]
+        },
+        {
+          "id": "comp.cloud.secrets-in-vault",
+          "version": "1.0.0",
+          "label": "Keep secrets in a vault under managed keys",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d1",
+            "SAA-C03.d1",
+            "NIST.800-53.IA-5"
+          ]
+        },
+        {
+          "id": "comp.cloud.managed-identity",
+          "version": "1.0.0",
+          "label": "Scope a workload identity to one resource",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d1",
+            "SAA-C03.d1",
+            "NIST.800-53.AC-6"
+          ]
+        },
+        {
+          "id": "comp.cloud.prove-denial",
+          "version": "1.0.0",
+          "label": "Prove an access is denied and find exposure",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d1",
+            "SAA-C03.d1"
+          ]
+        },
+        {
+          "id": "comp.cloud.two-zone-design",
+          "version": "1.0.0",
+          "label": "Design a two-zone fleet and cost it",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d3",
+            "SAA-C03.d2",
+            "WAF.reliability"
+          ]
+        },
+        {
+          "id": "comp.cloud.scale-set",
+          "version": "1.0.0",
+          "label": "Build a scale set across two zones",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d3",
+            "SAA-C03.d2",
+            "WAF.reliability"
+          ]
+        },
+        {
+          "id": "comp.cloud.load-balancer",
+          "version": "1.0.0",
+          "label": "Put a fleet behind a load balancer",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d4",
+            "SAA-C03.d2",
+            "WAF.reliability"
+          ]
+        },
+        {
+          "id": "comp.cloud.private-access-path",
+          "version": "1.0.0",
+          "label": "Reach private resources without the internet",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d4",
+            "SAA-C03.d1",
+            "NIST_800_207"
+          ]
+        },
+        {
+          "id": "comp.cloud.data-store-choice",
+          "version": "1.0.0",
+          "label": "Choose a data store and storage tiers",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d2",
+            "SAA-C03.d4",
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "comp.cloud.ha-database",
+          "version": "1.0.0",
+          "label": "Create a zone-redundant relational database",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d4",
+            "SAA-C03.d2",
+            "WAF.reliability"
+          ]
+        },
+        {
+          "id": "comp.cloud.queue-and-ledger",
+          "version": "1.0.0",
+          "label": "Decouple with a queue and a ledger",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d2",
+            "SAA-C03.d3",
+            "WAF.reliability"
+          ]
+        },
+        {
+          "id": "comp.cloud.data-lockdown",
+          "version": "1.0.0",
+          "label": "Lock data down: HTTPS, encryption, no public blobs",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d2",
+            "SAA-C03.d1",
+            "NIST.800-53.SC-8"
+          ]
+        },
+        {
+          "id": "comp.cloud.autoscale-target",
+          "version": "1.0.0",
+          "label": "Set an autoscale target with a reason",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d5",
+            "SAA-C03.d4",
+            "WAF.cost"
+          ]
+        },
+        {
+          "id": "comp.cloud.autoscale-and-self-heal",
+          "version": "1.0.0",
+          "label": "Autoscale on CPU and prove self-healing",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d3",
+            "SAA-C03.d2",
+            "WAF.reliability"
+          ]
+        },
+        {
+          "id": "comp.cloud.restore-file-and-database",
+          "version": "1.0.0",
+          "label": "Recover a deleted file and restore a database",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d5",
+            "SAA-C03.d2",
+            "NIST.800-53.CP-4"
+          ]
+        },
+        {
+          "id": "comp.cloud.recovery-drill-and-teardown",
+          "version": "1.0.0",
+          "label": "Run a timed recovery drill and tear down",
+          "area": "cloud",
+          "objectiveRefs": [
+            "AZ-104.d5",
+            "SAA-C03.d2",
+            "NIST_800_34"
+          ]
+        }
+      ],
+      "SKILL_OF": {
+        "aws-w5-arch": [
+          "comp.cloud.access-matrix"
+        ],
+        "aws-w5-infra": [
+          "comp.cloud.secrets-in-vault"
+        ],
+        "aws-w5-dev": [
+          "comp.cloud.managed-identity"
+        ],
+        "aws-w5-secops": [
+          "comp.cloud.prove-denial"
+        ],
+        "aws-w6-arch": [
+          "comp.cloud.two-zone-design"
+        ],
+        "aws-w6-infra": [
+          "comp.cloud.scale-set"
+        ],
+        "aws-w6-dev": [
+          "comp.cloud.load-balancer"
+        ],
+        "aws-w6-secops": [
+          "comp.cloud.private-access-path"
+        ],
+        "aws-w7-arch": [
+          "comp.cloud.data-store-choice"
+        ],
+        "aws-w7-infra": [
+          "comp.cloud.ha-database"
+        ],
+        "aws-w7-dev": [
+          "comp.cloud.queue-and-ledger"
+        ],
+        "aws-w7-secops": [
+          "comp.cloud.data-lockdown"
+        ],
+        "aws-w8-arch": [
+          "comp.respond.recovery-targets",
+          "comp.cloud.autoscale-target"
+        ],
+        "aws-w8-infra": [
+          "comp.cloud.autoscale-and-self-heal"
+        ],
+        "aws-w8-dev": [
+          "comp.cloud.restore-file-and-database"
+        ],
+        "aws-w8-secops": [
+          "comp.cloud.recovery-drill-and-teardown"
+        ]
+      },
+      "SOPS": [
+        {
+          "id": "sop.runbook",
+          "label": "Operational runbook",
+          "kind": "runbook",
+          "definition": "Step-by-step instructions for a routine operation, written so a colleague can follow them and kept current.",
+          "standardRefs": [
+            "ISO27001.A.5.37",
+            "NIST.CSF.PR.PS"
+          ]
+        },
+        {
+          "id": "sop.recovery-drill",
+          "label": "Recovery drill",
+          "kind": "recovery",
+          "definition": "A timed restore or failover against the written targets, with the hashes compared and the gap recorded.",
+          "standardRefs": [
+            "NIST.800-34",
+            "NIST.CSF.RC.RP",
+            "ISO27001.A.5.30",
+            "NIST.800-53.CP-4"
+          ]
+        },
+        {
+          "id": "sop.backup-plan",
+          "label": "Backup plan",
+          "kind": "recovery",
+          "definition": "What is backed up, how often, where it goes, how long it is kept and how a restore is tested.",
+          "standardRefs": [
+            "ISO27001.A.8.13",
+            "NIST.800-53.CP-9",
+            "CIS.11"
+          ]
+        },
+        {
+          "id": "sop.access-review",
+          "label": "Access review",
+          "kind": "access",
+          "definition": "Accounts and rights checked against the access matrix, orphans disabled, the review recorded.",
+          "standardRefs": [
+            "ISO27001.A.5.18",
+            "NIST.800-53.AC-2",
+            "SOC2.CC6.3",
+            "NIST.CSF.PR.AA"
+          ]
+        },
+        {
+          "id": "sop.identity-standard",
+          "label": "Identity and access standard",
+          "kind": "access",
+          "definition": "Roles against systems, the MFA rule, joiner and leaver timing, separation of duties.",
+          "standardRefs": [
+            "NIST.800-63",
+            "NIST.800-53.IA-2",
+            "ISO27001.A.5.15",
+            "NIST.CSF.PR.AA"
+          ]
+        },
+        {
+          "id": "sop.architecture-record",
+          "label": "Architecture record",
+          "kind": "design",
+          "definition": "The components, the trust boundaries, the flows and the decisions, with the reasons for each.",
+          "standardRefs": [
+            "ISO42010",
+            "WAF",
+            "NIST.800-53.PL-8"
+          ]
+        },
+        {
+          "id": "sop.network-design",
+          "label": "Network design",
+          "kind": "design",
+          "definition": "Zones, allowed flows, the addressing plan and the default-deny statement.",
+          "standardRefs": [
+            "NIST.800-53.SC-7",
+            "ISO27001.A.8.22",
+            "NIST.CSF.PR.IR"
+          ]
+        }
+      ],
+      "SOP_OF": {
+        "awsa_access": [
+          "sop.identity-standard",
+          "sop.access-review"
+        ],
+        "awsa_network": [
+          "sop.network-design"
+        ],
+        "awsa_server": [
+          "sop.runbook",
+          "sop.architecture-record"
+        ],
+        "awsa_dr": [
+          "sop.backup-plan",
+          "sop.recovery-drill"
+        ]
+      },
+      "SOP_OF_TASK": {
+        "aws-w5-secops": [
+          "sop.access-review"
+        ],
+        "aws-w8-dev": [
+          "sop.backup-plan"
+        ],
+        "aws-w8-secops": [
+          "sop.recovery-drill"
+        ]
+      },
       "STANDARDS": [
         {
           "id": "NIST_CSF",
@@ -8698,6 +9510,17 @@
           "codePattern": "^NIST\\.CSF(\\.(GV|ID|PR|DE|RS|RC)(\\.[A-Z]{2}(-\\d{2})?)?|\\.PROFILE)?$"
         },
         {
+          "id": "CIS",
+          "label": "CIS",
+          "description": "CIS Critical Security Controls v8 and the CIS Benchmarks",
+          "why": "A prioritised \"do these first\" list of safeguards. A CIS tag means this step implements an industry-baseline control that auditors and blue teams recognise at once.",
+          "kind": "framework",
+          "tone": "accent",
+          "publisher": "Center for Internet Security",
+          "url": "https://www.cisecurity.org/controls",
+          "codePattern": "^CIS(\\.(CONTROLS|BENCHMARK|\\d{1,2}))?$"
+        },
+        {
           "id": "ISO_27001",
           "label": "ISO 27001",
           "description": "ISO/IEC 27001:2022 information security management system",
@@ -8707,6 +9530,17 @@
           "publisher": "ISO/IEC",
           "url": "https://www.iso.org/standard/27001",
           "codePattern": "^ISO27001(\\.(\\d+(\\.\\d+)*|A\\.\\d+\\.\\d+))?$"
+        },
+        {
+          "id": "SOC_2",
+          "label": "SOC 2",
+          "description": "AICPA Trust Services Criteria for a SOC 2 examination",
+          "why": "The AICPA attestation standard built on the Trust Services Criteria: Security is CC1 to CC9, plus Availability, Confidentiality and the rest. This tag means the step produces a control or the evidence a SOC 2 Type I or II examiner samples.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "AICPA",
+          "url": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+          "codePattern": "^SOC2(\\.(CC\\d(\\.\\d)?|A1|C1|PI1|P\\d))?$"
         },
         {
           "id": "AWS_SAA",
@@ -8749,6 +9583,36 @@
           "tone": "ok",
           "publisher": "NIST",
           "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+        },
+        {
+          "id": "NIST_800_207",
+          "label": "NIST SP 800-207",
+          "description": "NIST SP 800-207 Zero Trust Architecture",
+          "why": "The reference for zero trust: no implicit trust from network location, every access decided per request. A network design that cites it explains its default-deny rules.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+        },
+        {
+          "id": "NIST_800_63",
+          "label": "NIST SP 800-63",
+          "description": "NIST SP 800-63-4 Digital Identity Guidelines",
+          "why": "The assurance levels for identity proofing, authenticators and federation. An identity standard that cites it says which level MFA and single sign-on reach.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://pages.nist.gov/800-63-4/"
+        },
+        {
+          "id": "ISO_42010",
+          "label": "ISO/IEC/IEEE 42010",
+          "description": "ISO/IEC/IEEE 42010 architecture description",
+          "why": "What an architecture description must contain: stakeholders, concerns, viewpoints and the decisions behind them. A solution architecture document that cites it is complete rather than a diagram.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "ISO/IEC/IEEE",
+          "url": "https://www.iso.org/standard/74393.html"
         }
       ],
       "TACTICS": [],

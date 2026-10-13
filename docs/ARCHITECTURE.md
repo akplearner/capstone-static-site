@@ -285,8 +285,9 @@ speed is not measured.
 objective reference resolves to an exam domain or a control; every form's `standard` parses to a
 catalogue control or is an explained practice; every SOP and every practice is anchored to a
 standard; tactic ids are the published matrices' and nothing is invented from free text.
-Content-integrity holds all of it; `SKILLS_PENDING` names the courses whose mapping has not
-landed yet, and empties in R107a-2.
+Content-integrity holds all of it for every course; graded and advanced weeks both teach, setup
+weeks map to nothing. The cloud courses are mapped once (`cloudMap`): the Azure and the AWS form
+of a task reach the same node.
 
 **Procedures** are runbooks and SOPs followed to a standard, not pages of a guide. Adherence is
 read from facts that exist (Definition-of-Done checks, the document-control block, evidence

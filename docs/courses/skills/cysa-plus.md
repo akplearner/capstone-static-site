@@ -24,7 +24,7 @@ Generated from the registries and the course document by `npm run content:export
 | Scope an incident from the first alert `comp.respond.find-the-incident` | Incident response | CS0-003.d3, NIST.800-61.DETECT | Find the incident |
 | Contain an attacker with a timestamped block `comp.respond.contain` | Incident response | SY0-701.d4, CS0-003.d3, NIST.800-61.CONTAIN | Contain, preserve & report |
 | Rebuild an attack timeline from logs `comp.respond.timeline` | Incident response | SY0-701.d4, CS0-003.d3, NIST.800-61.DETECT | Rebuild the attack |
-| Write an incident report `comp.respond.incident-report` | Incident response | CS0-003.d3, NIST.800-61 | Contain, preserve & report |
+| Write an incident report `comp.respond.incident-report` | Incident response | CS0-003.d3, AZ-900.d3, CLF-C02.d2, NIST.800-61 | Contain, preserve & report |
 | Hash and log evidence `comp.forensics.hash-evidence` | Evidence and forensics | SY0-701.d4, CS0-003.d3, CY0-001.d2, ISO_27037 | Investigate & prove it; Contain, preserve & report |
 | Capture packets and quote the attacker request `comp.forensics.packet-capture` | Evidence and forensics | CS0-003.d1, NIST.800-61.DETECT | Investigate & prove it |
 | Pivot across logs to prove an attack `comp.forensics.log-pivoting` | Evidence and forensics | CS0-003.d1 | Investigate & prove it |

@@ -101,13 +101,13 @@
       "costOnceUsd": 370,
       "costMonthlyUsd": 0,
       "costTasksUsd": 0,
-      "skills": 0,
-      "tools": 27,
+      "skills": 63,
+      "tools": 45,
       "standards": 2,
       "controls": 0,
-      "sops": 0,
+      "sops": 14,
       "tactics": 0,
-      "practices": 0
+      "practices": 33
     },
     {
       "id": "ccna",
@@ -127,13 +127,13 @@
       "costOnceUsd": 210,
       "costMonthlyUsd": 0,
       "costTasksUsd": 0,
-      "skills": 0,
-      "tools": 4,
+      "skills": 26,
+      "tools": 7,
       "standards": 4,
       "controls": 2,
-      "sops": 0,
+      "sops": 13,
       "tactics": 0,
-      "practices": 0
+      "practices": 23
     },
     {
       "id": "secai-plus",
@@ -187,7 +187,7 @@
       "controls": 20,
       "sops": 20,
       "tactics": 4,
-      "practices": 37
+      "practices": 38
     },
     {
       "id": "azure-fundamentals",
@@ -208,13 +208,13 @@
       "costOnceUsd": 0,
       "costMonthlyUsd": 5,
       "costTasksUsd": 0,
-      "skills": 0,
+      "skills": 18,
       "tools": 12,
       "standards": 4,
       "controls": 2,
-      "sops": 0,
+      "sops": 6,
       "tactics": 0,
-      "practices": 0
+      "practices": 18
     },
     {
       "id": "azure-administrator",
@@ -236,13 +236,13 @@
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
       "costTasksUsd": 0.85,
-      "skills": 0,
+      "skills": 17,
       "tools": 8,
       "standards": 4,
       "controls": 4,
-      "sops": 0,
+      "sops": 7,
       "tactics": 0,
-      "practices": 0
+      "practices": 17
     },
     {
       "id": "azure-devops",
@@ -263,13 +263,13 @@
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
       "costTasksUsd": 0.18,
-      "skills": 0,
+      "skills": 16,
       "tools": 11,
       "standards": 3,
       "controls": 5,
-      "sops": 0,
+      "sops": 10,
       "tactics": 0,
-      "practices": 0
+      "practices": 26
     },
     {
       "id": "aws-cloud-practitioner",
@@ -290,13 +290,13 @@
       "costOnceUsd": 0,
       "costMonthlyUsd": 5,
       "costTasksUsd": 0,
-      "skills": 0,
+      "skills": 18,
       "tools": 12,
       "standards": 4,
       "controls": 2,
-      "sops": 0,
+      "sops": 6,
       "tactics": 0,
-      "practices": 0
+      "practices": 18
     },
     {
       "id": "aws-solutions-architect",
@@ -318,13 +318,13 @@
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
       "costTasksUsd": 0.19,
-      "skills": 0,
+      "skills": 17,
       "tools": 7,
       "standards": 4,
       "controls": 4,
-      "sops": 0,
+      "sops": 7,
       "tactics": 0,
-      "practices": 0
+      "practices": 17
     },
     {
       "id": "aws-devops",
@@ -345,13 +345,13 @@
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
       "costTasksUsd": 0.12,
-      "skills": 0,
+      "skills": 16,
       "tools": 12,
       "standards": 3,
       "controls": 5,
-      "sops": 0,
+      "sops": 10,
       "tactics": 0,
-      "practices": 0
+      "practices": 26
     }
   ]
 }

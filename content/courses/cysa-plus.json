@@ -8760,7 +8760,16 @@
         "arch": "Architecture and network design",
         "data": "Data security",
         "ops": "Security operations",
-        "ai-attack": "AI attack and evaluation"
+        "ai-attack": "AI attack and evaluation",
+        "hardware": "Server hardware",
+        "virt": "Virtualisation",
+        "sysadmin": "System administration",
+        "network": "Network engineering",
+        "observe": "Monitoring and observability",
+        "automation": "Automation and infrastructure as code",
+        "continuity": "Backup and recovery",
+        "docs": "Documentation and records",
+        "cloud": "Cloud services"
       },
       "CONTROLS": [
         {
@@ -10986,6 +10995,8 @@
           "area": "respond",
           "objectiveRefs": [
             "CS0-003.d3",
+            "AZ-900.d3",
+            "CLF-C02.d2",
             "NIST.800-61"
           ]
         },

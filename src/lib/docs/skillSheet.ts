@@ -8,7 +8,8 @@
  */
 import type { CourseDto } from '../content/dto';
 import { deliverablesOf, skillsOf } from '../content/read';
-import { courseCoverage, gradedTasks, practicesOfForm, type CoverageRow } from './skillCoverage';
+import { courseCoverage, coveredTasks, practicesOfForm, type CoverageRow } from './skillCoverage';
+import { isGradedWeek } from '../course-helpers';
 
 const cell = (s: string) => s.replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
 
@@ -21,11 +22,13 @@ export function skillSheet(doc: CourseDto): string {
   const formTitle = (id: string) => forms.find((f) => f.id === id)?.title ?? id;
   const byTasks = (r: CoverageRow) => (r.tasks.length ? r.tasks.map((id) => cell(title(id))).join('; ') : '—');
   const byForms = (r: CoverageRow) => (r.deliverables.length ? r.deliverables.map((id) => cell(formTitle(id))).join('; ') : '—');
-  const graded = gradedTasks(course);
+  const covered = coveredTasks(course);
+  const graded = covered.filter((t) => isGradedWeek(course, t.week)).length;
+  const advanced = covered.length - graded;
   const out: string[] = [
     `# ${course.title} — skills sheet`,
     '',
-    `${graded.length} graded tasks · ${cov.skills.length} skills · ${cov.tools.length} tools · ${cov.sops.length} procedures · ${cov.standards.length} standards (${cov.controls.length} controls cited) · ${cov.tactics.length} tactics · ${cov.practices.length} practices`,
+    `${graded} graded tasks${advanced ? ` and ${advanced} advanced` : ''} · ${cov.skills.length} skills · ${cov.tools.length} tools · ${cov.sops.length} procedures · ${cov.standards.length} standards (${cov.controls.length} controls cited) · ${cov.tactics.length} tactics · ${cov.practices.length} practices`,
     '',
     'Generated from the registries and the course document by `npm run content:export`; edit `src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`, `sops.ts`, `tactics.ts` or the seed, not this file.',
     '',
@@ -39,7 +42,7 @@ export function skillSheet(doc: CourseDto): string {
     const node = nodeById.get(r.id)!;
     out.push(`| ${cell(r.label)} \`${r.id}\` | ${reg.AREAS[node.area] ?? node.area} | ${node.objectiveRefs.join(', ')} | ${byTasks(r)} |`);
   }
-  if (cov.unmapped.skills.length) out.push('', `Graded tasks not yet mapped to a skill: ${cov.unmapped.skills.join(', ')}.`);
+  if (cov.unmapped.skills.length) out.push('', `Tasks not yet mapped to a skill: ${cov.unmapped.skills.join(', ')}.`);
   out.push('', '## Tools', '', '| Tool | Kind | Used by |', '| --- | --- | --- |');
   const toolById = new Map(reg.TOOLS.map((t) => [t.id, t]));
   for (const r of cov.tools) out.push(`| ${cell(r.label)} | ${toolById.get(r.id)?.kind ?? ''} | ${byTasks(r)} |`);
@@ -71,7 +74,7 @@ export function skillSheet(doc: CourseDto): string {
   out.push('', '| Practice | Anchor | Asked for by |', '| --- | --- | --- |');
   const practiceById = new Map(reg.PRACTICES.map((p) => [p.id, p]));
   for (const r of cov.practices) out.push(`| ${cell(r.label)} | ${practiceById.get(r.id)?.anchor ?? ''} | ${byTasks(r)} |`);
-  if (cov.unmapped.practices.length) out.push('', `Graded tasks not yet mapped to a practice: ${cov.unmapped.practices.join(', ')}.`);
+  if (cov.unmapped.practices.length) out.push('', `Tasks not yet mapped to a practice: ${cov.unmapped.practices.join(', ')}.`);
   out.push('');
   return out.join('\n');
 }
