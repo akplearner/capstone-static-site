@@ -885,6 +885,7 @@ describe('R75-B — the content is not in the components', () => {
     ['src/components/docs/RoleTable.tsx', 'rolesOf'],
     ['src/components/diagrams/RoleFlowDiagram.tsx', 'rolesOf'],
     ['src/components/docs/CertCoverage.tsx', 'certOf'],
+    ['src/components/skills/SkillsCard.tsx', 'skillsOf'],
   ];
 
   it('every emptied component reads its words from the course document', () => {
@@ -2339,6 +2340,42 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     // The self-attested count means one thing everywhere: a verifiable step ticked without matching output.
     expect(code('src/lib/metrics.ts')).toContain("} else if (rec?.method === 'self-attested') {");
     expect(code('src/components/catalog/VerificationBar.tsx')).toContain('ticked without matching output');
+  });
+
+  it('the skills card sits inside the role surface, the dashboard and the portfolio read the projection, and the export is the published shape', () => {
+    const home = code('src/components/course/HomeTab.tsx');
+    expect(home.match(/<SkillsCard /g)?.length).toBe(1);
+    const role = home.indexOf('<Surface accent="role"');
+    expect(role).toBeGreaterThan(0);
+    expect(home.indexOf('<SkillsCard ')).toBeGreaterThan(role);
+    expect(home.indexOf('<SkillsCard ')).toBeLessThan(home.indexOf('<TeamBlock '));
+    const card = code('src/components/skills/SkillsCard.tsx');
+    expect(card).not.toContain('<Surface');
+    expect(card).toContain('data-skills-card');
+    expect(card).toContain('data-domain={r.id}');
+    expect(card).toContain('skillProfile({');
+    for (const page of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx']) {
+      expect(code(page), page).toContain('courseDocument(course.id) ?? bareDocument(course)');
+      expect(code(page), page).toContain('skillProfile({');
+    }
+    expect(code('src/app/dashboard/page.tsx')).toContain('<DomainStrip ');
+    expect(code('src/app/dashboard/page.tsx')).toContain('data-skills-by-course');
+    const portfolio = code('src/app/portfolio/page.tsx');
+    expect(portfolio).toContain('<SkillsSections ');
+    expect(portfolio).toContain('schema: MEMBER_PROFILE_SCHEMA');
+    expect(portfolio).toContain('signature: null');
+    expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/1'");
+    expect(code('src/app/page.tsx')).not.toContain('the output they printed');
+    // The cross-course hydrate reads the four tables the profile needs and never the single-user ones.
+    const cache = code('src/lib/data/supabaseCache.ts');
+    const user = cache.slice(cache.indexOf('export async function hydrateUser'), cache.indexOf('export function submissionFromLightRow'));
+    for (const t of ['deliverable_status', 'deliverable_submissions', 'task_reports', 'step_notes']) expect(user, t).toContain(`from('${t}')`);
+    expect(user).not.toMatch(/lab_access|user_course_state/);
+    expect(user).toContain('categories:snapshot->categories');
+    // The cohort column reads the document, never the metrics loader.
+    const cohort = code('src/app/instructor/[courseId]/cohort/page.tsx');
+    expect(cohort).toContain('cert: certOf(courseDocument(course.id) ?? bareDocument(course))');
+    expect(cohort).not.toContain('metricsLoader');
   });
 
   it('the framework helpers read the standards register, which holds no class string', () => {

@@ -13,7 +13,11 @@ import { SignInPanel } from '@/components/auth/SignInPanel';
 import { DemoBanner } from '@/components/auth/DemoBanner';
 import { PathRail, PathPicker } from '@/components/catalog/PathRail';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
+import { courseDocument, bareDocument } from '@/lib/content/docs';
+import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
+import { skillProfile, skillPortfolio, type SkillProfile } from '@/lib/skillProfile';
+import { DomainStrip } from '@/components/skills/DomainStrip';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole, phaseTag } from '@/lib/course-helpers';
@@ -42,6 +46,8 @@ interface CourseCard {
   member: Member;
   crew: CrewProgress;
   metrics: CourseMetrics;
+  /** R107: the member's standing against the course's registries. */
+  profile: SkillProfile;
   activeWeek: number;
   level?: string;
   capstoneFiled: boolean;
@@ -80,12 +86,35 @@ function buildCard(course: Course): CourseCard | null {
     artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
   });
   const activeWeek = resolveActiveWeek(course, member.role, weekStats, null);
+  // R107: the registries come from the course document; the facts from the
+  // repositories hydrateUser fills (team and own facts arrive with it).
+  const doc = courseDocument(course.id) ?? bareDocument(course);
+  const profile = skillProfile({
+    course,
+    role: member.role,
+    memberId: member.memberId,
+    isStepDone: (t, s) => progressRepo.isStepComplete(course.id, member.memberId, t, s, keySet),
+    evidence: evidenceRepo.getSteps(course.id, member.memberId),
+    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+    registry: skillsOf(doc),
+    cert: certOf(doc),
+    deliverables: deliverablesOf(doc),
+    team: {
+      docs: savedDocs ?? {},
+      status: statusRepo.list(course.id, member.teamId),
+      submissions: submissionsRepo.list(course.id, member.teamId),
+      reviews: reviewRepo.list(course.id, member.teamId),
+      currentWeek: activeWeek,
+    },
+    own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+  });
   const entry = entryForCourse(course.id);
   return {
     course,
     member,
     crew,
     metrics,
+    profile,
     activeWeek,
     level: entry ? levelDef(entry.level).name : undefined,
     capstoneFiled,
@@ -111,6 +140,9 @@ export default function DashboardPage() {
 
   const needsSignIn = isSupabaseConfigured() && !loading && !user;
   const summary = portfolioSummary(cards.map((c) => c.metrics));
+  const skills = skillPortfolio(cards.map((c) => c.profile));
+  // The words of the skills surfaces, off the first course's document (they are the same in every document).
+  const words = cards[0] ? skillsOf(courseDocument(cards[0].course.id) ?? bareDocument(cards[0].course)) : undefined;
   const completedCourseIds = new Set(cards.filter((c) => c.capstoneFiled).map((c) => c.course.id));
   const path = chosen ? pathById(chosen.pathId) : undefined;
   const memberId = cards[0]?.member.memberId ?? 'local';
@@ -154,7 +186,7 @@ export default function DashboardPage() {
             <SectionLabel id="dash-record">Your record</SectionLabel>
             {/* One flat strip, not four boxes: a summary should be readable,
                 not the heaviest object on the page. */}
-            <Surface as="dl" variant="flat" padding="none" className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
+            <Surface as="dl" variant="flat" padding="none" className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-3">
             <Stat
               icon={ShieldCheck}
               label="Steps verified"
@@ -181,8 +213,46 @@ export default function DashboardPage() {
               value={`${summary.activeDays}`}
               sub="measured, never scored"
             />
+            {words && (
+              <Stat
+                icon={ShieldCheck}
+                label={words.COPY.tiles.skillsVerified}
+                value={`${skills.skillsVerified.length}`}
+                sub={`${words.COPY.recordSkills} ${skills.skillsPractised.length}`}
+                ring={skills.skillsPractised.length > 0 ? { value: skills.skillsVerified.length, max: skills.skillsPractised.length } : undefined}
+              />
+            )}
+            {words && (
+              <Stat icon={FileCheck2} label={words.COPY.tiles.toolsUsed} value={`${skills.toolsUsed.length}`} sub={words.COPY.recordTools} />
+            )}
             </Surface>
           </section>
+
+          {/* R107: the member's skills per course, off the registries. */}
+          {words && (
+            <section aria-labelledby="dash-skills" className="space-y-3" data-skills-by-course>
+              <SectionLabel id="dash-skills">{words.COPY.dashboardSection}</SectionLabel>
+              <Surface variant="flat" padding="none">
+              <ul className="divide-y divide-line">
+                {cards.map((card) => {
+                  const r = card.profile.rows;
+                  const reached = (rows: { level: string }[]) => rows.filter((x) => x.level === 'verified' || x.level === 'reviewed').length;
+                  return (
+                    <li key={card.course.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-3 text-sm" data-course={card.course.id}>
+                      <span className="font-semibold text-ink">{card.course.title}</span>
+                      <span className="tabular-nums text-muted">{reached(r.skills)}/{r.skills.length} {words.DIMENSION_LABEL.skills.toLowerCase()}</span>
+                      <span className="tabular-nums text-muted">{r.tools.filter((x) => x.level !== 'not-started').length}/{r.tools.length} {words.DIMENSION_LABEL.tools.toLowerCase()}</span>
+                      <span className="tabular-nums text-muted">{reached(r.procedures)}/{r.procedures.length} {words.DIMENSION_LABEL.procedures.toLowerCase()}</span>
+                      <span className="tabular-nums text-muted">{r.standards.filter((x) => x.level !== 'not-started').length}/{r.standards.length} {words.DIMENSION_LABEL.standards.toLowerCase()}</span>
+                      <span className="tabular-nums text-muted">{reached(r.domains)}/{r.domains.length} {words.DIMENSION_LABEL.domains.toLowerCase()}</span>
+                    </li>
+                  );
+                })}
+              </ul>
+              </Surface>
+              <p className="text-xs text-muted">{words.COPY.denominator} {words.COPY.loadedLater}</p>
+            </section>
+          )}
 
           <section aria-labelledby="dash-path" className="space-y-3">
             <SectionLabel id="dash-path">Your path</SectionLabel>
@@ -286,8 +356,10 @@ function Stat({
 }
 
 function DashboardCourseCard({ card, index }: { card: CourseCard; index: number }) {
-  const { course, crew, metrics, activeWeek, level } = card;
+  const { course, crew, metrics, activeWeek, level, profile } = card;
   const started = crew.stepsDone > 0;
+  const words = skillsOf(courseDocument(course.id) ?? bareDocument(course));
+  const skillsVerified = profile.rows.skills.filter((r) => r.level === 'verified' || r.level === 'reviewed').length;
   return (
     // The interaction standard (ui/Card.tsx): border tint + 2px lift on hover.
     // The card already carried data-region/data-seam for per-vendor theming but
@@ -340,6 +412,10 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
       {/* The honest headline: proof, not tick-count. */}
       <div className="mt-4">
         <VerificationBar m={metrics} />
+      </div>
+      {/* R107: exam domains by level, and the skills verified. */}
+      <div className="mt-3">
+        <DomainStrip rows={profile.rows.domains} levelLabel={words.LEVEL_LABEL.domains} heading={words.DIMENSION_LABEL.domains} trailing={`${skillsVerified}/${profile.rows.skills.length} ${words.COPY.skillsByCourse}`} />
       </div>
 
       <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3 text-center">

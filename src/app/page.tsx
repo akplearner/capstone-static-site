@@ -263,8 +263,8 @@ export default function HomePage() {
           <h2 className="text-3xl font-bold tracking-tight text-ink">What you walk away with</h2>
           <p className="max-w-xl text-body">
             Every verified step is hashed and timestamped into your evidence ledger as you work. You
-            finish with a portfolio an employer can inspect — the commands you ran, the output they
-            printed, the documents you filed.
+            finish with a portfolio an employer can inspect — the steps you verified, the hashes of
+            the output and files, the documents your team filed.
           </p>
           <Link
             href="/portfolio"

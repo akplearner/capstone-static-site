@@ -22,6 +22,8 @@ import { loadCohort, isStepDoneIn, type CohortData } from '@/lib/data/cohortLoad
 import { useClientStore, subscribeStore } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
 import { buildCohort, cohortCsv, stuckSummary, type CohortMember } from '@/lib/cohort';
+import { courseDocument, bareDocument } from '@/lib/content/docs';
+import { certOf } from '@/lib/content/read';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { isDoneBy } from '@/lib/docs/dod';
 import { getTaskById, isAdvancedWeek } from '@/lib/course-helpers';
@@ -72,6 +74,7 @@ export default function CohortPage() {
       evidenceFor: (m) => data.evidence[m] ?? {},
       docsFor: (t) => data.docs[t] ?? {},
       stuckFor: (m) => data.stuck.filter((f) => f.memberId === m),
+      cert: certOf(courseDocument(course.id) ?? bareDocument(course)),
     });
   }, [course, data]);
 
@@ -247,6 +250,8 @@ export default function CohortPage() {
             // R85: how the ticks were earned — the number the printed sheet
             // marks from, finally on the screen and not only in the CSV.
             evidence: { verified: m.verified, selfAttested: m.selfAttested },
+            // R107: exam domains verified, over the domains the role practises.
+            domains: m.domains,
           }));
           const docs = data.docs[t] ?? {};
           const dueForms = deliverablesForCourse(course.id).filter((d) => d.weeks.includes(rWeek));

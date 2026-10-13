@@ -9,7 +9,12 @@ import { DemoBanner } from '@/components/auth/DemoBanner';
 import { CapstoneStone } from '@/components/quarry/CapstoneStone';
 import { RelicTrophy, SealLedger } from '@/components/quarry/items';
 import { VerificationBar } from '@/components/catalog/VerificationBar';
-import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo } from '@/lib/data';
+import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
+import { courseDocument, bareDocument } from '@/lib/content/docs';
+import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
+import { skillProfile, skillPortfolio, type SkillProfile } from '@/lib/skillProfile';
+import { SkillsSections } from '@/components/skills/SkillsSections';
+import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole } from '@/lib/course-helpers';
@@ -55,6 +60,8 @@ interface Row {
    *  progress for the stage; these two were being computed and thrown away. */
   weeksCleared: number;
   weeksTotal: number;
+  /** R107: the member's standing against the course's registries. */
+  skills: SkillProfile;
 }
 
 function buildRow(courseId: string): Row | null {
@@ -75,10 +82,27 @@ function buildRow(courseId: string): Row | null {
       });
     });
 
-  const capstoneFiled = isCapstoneFiled(course.id, docsRepo.get(course.id, member.teamId));
+  const savedDocs = docsRepo.get(course.id, member.teamId);
+  const capstoneFiled = isCapstoneFiled(course.id, savedDocs);
   const crew = deriveCrewProgress(course, member.role, weekStats, taskStats, capstoneFiled);
   const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role;
+  const doc = courseDocument(course.id) ?? bareDocument(course);
+  const currentWeek = Math.max(0, ...course.weeks.filter((w) => (weekStats[w.number] ?? 0) > 0).map((w) => w.number));
+  const skills = skillProfile({
+    course,
+    role: member.role,
+    memberId: member.memberId,
+    isStepDone: (t, s) => progressRepo.isStepComplete(course.id, member.memberId, t, s, keySet),
+    evidence: evidenceRepo.getSteps(course.id, member.memberId),
+    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+    registry: skillsOf(doc),
+    cert: certOf(doc),
+    deliverables: deliverablesOf(doc),
+    team: { docs: savedDocs ?? {}, status: statusRepo.list(course.id, member.teamId), submissions: submissionsRepo.list(course.id, member.teamId), reviews: reviewRepo.list(course.id, member.teamId), currentWeek },
+    own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+  });
   return {
+    skills,
     courseTitle: course.title,
     courseId: course.id,
     role: roleName,
@@ -118,15 +142,28 @@ export default function PortfolioPage() {
   );
 
   const summary = portfolioSummary(rows.map((r) => r.metrics));
+  const skills = skillPortfolio(rows.map((r) => r.skills));
+  // The words of the skills sections, off a document (the same in every document).
+  const firstCourse = rows[0] ? courseRepo.get(rows[0].courseId) : undefined;
+  const words = firstCourse ? skillsOf(courseDocument(firstCourse.id) ?? bareDocument(firstCourse)) : undefined;
   const path = chosen ? pathById(chosen.pathId) : undefined;
   const allArtifacts = rows.flatMap((r) => r.artifacts).sort((a, b) => b.hashedAt - a.hashedAt);
   const name = user?.email ?? 'Capstone portfolio';
 
+  // R107: the member-profile export, published as content/schemas/member-profile.schema.json. Unsigned: attestation needs validators.
   function exportJson() {
-    const blob = new Blob(
-      [JSON.stringify({ generatedAt: new Date().toISOString(), path: path?.id ?? null, summary, courses: rows }, null, 2)],
-      { type: 'application/json' }
-    );
+    const profile = {
+      schema: MEMBER_PROFILE_SCHEMA,
+      ontologyVersion: ONTOLOGY_VERSION,
+      generatedAt: new Date().toISOString(),
+      subject: { display: name },
+      claim: words?.COPY.exportClaim ?? '',
+      path: path?.id ?? null,
+      summary: { ...summary, ...skills },
+      courses: rows.map((r) => ({ courseId: r.courseId, title: r.courseTitle, role: r.role, stage: r.stage, capstoneFiled: r.capstoneFiled, metrics: r.metrics, skills: r.skills, artifacts: r.artifacts })),
+      signature: null,
+    };
+    const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -209,6 +246,9 @@ export default function PortfolioPage() {
             </div>
           </section>
         )}
+
+        {/* R107: skills proved, tools used, procedures followed to standard, standards, exam domains, tactics and practices. */}
+        {words && <SkillsSections courses={rows.map((r) => ({ courseId: r.courseId, title: r.courseTitle, profile: r.skills }))} portfolio={skills} content={words} />}
 
         {/* Per-capstone detail. */}
         <section className="space-y-4">

@@ -11,6 +11,7 @@ import { verifiableSteps } from './evidenceLedger';
 import { markedWeeks, weeklyPoints, type WeeklyPoints } from './rubric';
 import { toCsv } from './csv';
 import { parseTeamId } from './team';
+import { domainOf, type CertDef } from './docs/certs';
 
 export interface CohortMember {
   memberId: string;
@@ -29,6 +30,8 @@ export interface CohortMember {
   selfAttested: number;
   stuck: StuckFlag[];
   points: WeeklyPoints[];
+  /** R107: exam domains with at least one verified step, over the domains the role's graded tasks practise. Absent when the page hands in no cert. */
+  domains?: { verified: number; total: number };
 }
 
 export interface BuildCohortInput {
@@ -38,9 +41,11 @@ export interface BuildCohortInput {
   evidenceFor: (memberId: string) => Record<string, StepEvidence>;
   docsFor: (teamId: string) => Record<string, DeliverableData>;
   stuckFor: (memberId: string) => StuckFlag[];
+  /** R107: the course's certification and task → domain map, off the document. */
+  cert?: { CERT: CertDef | null; DOMAIN_OF: Record<string, string> };
 }
 
-export function buildCohort({ course, roster, isStepDone, evidenceFor, docsFor, stuckFor }: BuildCohortInput): CohortMember[] {
+export function buildCohort({ course, roster, isStepDone, evidenceFor, docsFor, stuckFor, cert }: BuildCohortInput): CohortMember[] {
   const rows = roster.map((m): CohortMember => {
     const tasks = getTasksByRole(course, m.role);
     const evidence = evidenceFor(m.memberId);
@@ -74,6 +79,20 @@ export function buildCohort({ course, roster, isStepDone, evidenceFor, docsFor, 
         }
       }
     }
+    // R107: which exam domains this member verified something in.
+    let domains: CohortMember['domains'];
+    if (cert?.CERT) {
+      const practised = new Set<string>();
+      const verifiedIn = new Set<string>();
+      for (const t of tasks) {
+        if (!isGradedWeek(course, t.week)) continue;
+        const d = domainOf(cert.CERT, cert.DOMAIN_OF, t);
+        if (!d) continue;
+        practised.add(d.id);
+        if (verifiableSteps(t.steps).some((s) => evidence[`${t.id}::${s.id}`]?.verified)) verifiedIn.add(d.id);
+      }
+      domains = { verified: verifiedIn.size, total: practised.size };
+    }
     const docs = docsFor(m.teamId);
     const points = markedWeeks(course).map(({ week }) =>
       weeklyPoints({ course, role: m.role, week, teamDocs: docs, isStepDone: (t, s) => isStepDone(m.memberId, t, s) })
@@ -93,6 +112,7 @@ export function buildCohort({ course, roster, isStepDone, evidenceFor, docsFor, 
       selfAttested,
       stuck: stuckFor(m.memberId),
       points,
+      ...(domains ? { domains } : {}),
     };
   });
   return rows.sort((a, b) => a.teamId.localeCompare(b.teamId) || a.role.localeCompare(b.role) || a.displayName.localeCompare(b.displayName));

@@ -652,12 +652,21 @@ export async function hydrateUser(): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, evidence, artifacts, path] = await Promise.all([
+  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes] = await Promise.all([
     supabase.from('memberships').select('*').eq('user_id', currentUserId),
     supabase.from('step_completions').select('*').eq('user_id', currentUserId),
     supabase.from('step_evidence').select('*'),
     supabase.from('evidence_artifacts').select('*'),
     supabase.from('user_paths').select('*').maybeSingle(),
+    // R107: the member profile on the dashboard and the portfolio reads the
+    // team's lifecycle rows and frozen submissions (the rubric verdicts only,
+    // not the frozen form), the member's task reports and step notes. RLS
+    // scopes every one of them exactly as hydrateCourse's selects are scoped;
+    // lab_access and user_course_state stay course-page facts.
+    supabase.from('deliverable_status').select('*'),
+    supabase.from('deliverable_submissions').select('id, course_id, team_id, deliverable_id, week, version, submitted_by, content_sha256, created_at, categories:snapshot->categories'),
+    supabase.from('task_reports').select('*'),
+    supabase.from('step_notes').select('*'),
   ]);
 
   if (memberships.data) {
@@ -709,7 +718,38 @@ export async function hydrateUser(): Promise<void> {
       }
     : null;
 
+  // R107: the same drop-then-re-add discipline as hydrateCourse, per course,
+  // so a course page's fuller rows are replaced by the same rows, never doubled.
+  const coursesIn = (rows: Record<string, unknown>[] | null | undefined) => new Set((rows ?? []).map((r) => String(r.course_id)));
+  if (docStatus.data) {
+    for (const cid of coursesIn(docStatus.data)) [...docStatusByTeam.keys()].filter((k) => k.startsWith(`${cid}::`)).forEach((k) => docStatusByTeam.delete(k));
+    docStatus.data.forEach((r) => cache.setDocStatus(docStatusFromRow(r)));
+  }
+  if (submissions.data) {
+    for (const cid of coursesIn(submissions.data)) [...submissionsByTeam.keys()].filter((k) => k.startsWith(`${cid}::`)).forEach((k) => submissionsByTeam.delete(k));
+    submissions.data.forEach((r) => cache.setSubmission(submissionFromLightRow(r)));
+  }
+  if (reports.data) {
+    const byCourse = new Map<string, TaskReport[]>();
+    reports.data.forEach((r) => byCourse.set(String(r.course_id), [...(byCourse.get(String(r.course_id)) ?? []), taskReportFromRow(r)]));
+    byCourse.forEach((list, cid) => taskReportsByCourse.set(cid, list));
+  }
+  if (notes.data) {
+    notes.data.forEach((r) => {
+      const cid = String(r.course_id);
+      const k = `${cid}::${String(r.task_id)}::${String(r.step_id)}`;
+      const prev = stepNotesByKey.get(k);
+      stepNotesByKey.set(k, { courseId: cid, taskId: String(r.task_id), stepId: String(r.step_id), note: String(r.note ?? ''), stuck: prev?.stuck ?? false, at: r.updated_at ? Date.parse(String(r.updated_at)) : 0 });
+    });
+  }
+
   notifyStore();
+}
+
+/** A submission row selected without its frozen form: the verdicts travel, the data does not (R107). */
+export function submissionFromLightRow(r: Record<string, unknown>): DeliverableSubmission {
+  const categories = (r.categories ?? { completeness: false, correctness: false, authenticity: false, consistency: false }) as SubmissionSnapshot['categories'];
+  return submissionFromRow({ ...r, snapshot: { deliverableId: String(r.deliverable_id), week: Number(r.week ?? 0), data: { fields: {}, groups: {} }, categories, checks: [] } });
 }
 
 /** Live updates: any change to this course's tables re-hydrates the cache. */

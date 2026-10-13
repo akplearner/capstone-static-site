@@ -29,6 +29,8 @@ export interface MemberProgress {
    *  tick. Set by the cohort dashboard; the student-facing team page keeps
    *  gems as the friendlier face of the same ledger. */
   evidence?: { verified: number; selfAttested: number };
+  /** R107: exam domains with a verified step, over the domains the role practises. Instructor view only. */
+  domains?: { verified: number; total: number };
 }
 
 export interface DeliverableStatus {
@@ -64,6 +66,7 @@ export function TeamProgressTable({
   const showGems = rows.some((r) => r.gems);
   const showGates = !course.noGatekeeping && course.gates.length > 0 && rows.some((r) => (r.gates ?? []).length > 0);
   const showEvidence = rows.some((r) => r.evidence);
+  const showDomains = rows.some((r) => r.domains);
 
   return (
     <div className="space-y-6">
@@ -75,6 +78,7 @@ export function TeamProgressTable({
               <th scope="col" className="px-4 py-2.5">Overall</th>
               {showGems && <th scope="col" className="px-4 py-2.5">Badges</th>}
               {showEvidence && <th scope="col" className="px-4 py-2.5">Evidence</th>}
+              {showDomains && <th scope="col" className="px-4 py-2.5">Domains</th>}
               {showGates && <th scope="col" className="px-4 py-2.5">Gates</th>}
               {weeks.map((w) => (
                 <th key={w} scope="col" className="px-3 py-2.5 text-center">W{w}</th>
@@ -84,7 +88,7 @@ export function TeamProgressTable({
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={2 + (showGems ? 1 : 0) + (showEvidence ? 1 : 0) + (showGates ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
+                <td colSpan={2 + (showGems ? 1 : 0) + (showEvidence ? 1 : 0) + (showDomains ? 1 : 0) + (showGates ? 1 : 0) + weeks.length} className="px-4 py-6 text-center text-muted">
                   No teammates yet. As people join this team they&apos;ll appear here.
                 </td>
               </tr>
@@ -149,6 +153,11 @@ export function TeamProgressTable({
                       ) : (
                         <span className="text-xs text-muted">—</span>
                       )}
+                    </td>
+                  )}
+                  {showDomains && (
+                    <td className="px-4 py-3 text-xs tabular-nums text-muted" data-domains-verified={m.domains?.verified ?? ''}>
+                      {m.domains ? `${m.domains.verified}/${m.domains.total}` : '—'}
                     </td>
                   )}
                   {showGates && (

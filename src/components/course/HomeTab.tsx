@@ -24,6 +24,7 @@ import { useCourseDocument } from '@/lib/useCourse';
 import { rolesOf } from '@/lib/content/read';
 import { profileOf, splitRoleName } from '@/lib/docs/roles';
 import { TeamBlock } from '@/components/team/TeamBlock';
+import { SkillsCard } from '@/components/skills/SkillsCard';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { ReviewInboxCard } from '@/components/docs/ReviewInboxCard';
 import { TeamReviewQueueCard } from '@/components/docs/TeamReviewQueueCard';
@@ -304,6 +305,8 @@ export function HomeTab({
               </span>
             )}
           </div>
+          {/* R107: what this member has practised, verified and had reviewed, against the course's registries. */}
+          <SkillsCard course={course} member={member} activeWeek={activeWeek} />
           <TeamBlock course={course} member={member} />
         </Surface>
       )}
