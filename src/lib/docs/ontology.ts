@@ -44,7 +44,7 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
     competencies: { ...stamp(), areas: AREA_LABEL, nodes: SKILLS, taughtBy: taughtBy() },
     tools: { ...stamp(), tools: TOOLS, wherePrefixes: WHERE_TOOLS, courseDefaults: COURSE_TOOL_DEFAULTS, taskOverrides: TASK_TOOL_OVERRIDES, exceptions: TOOL_STRING_EXCEPTIONS },
     // Colour is a product concern: the register's `tone` stays out of the published file.
-    standards: { ...stamp(), standards: STANDARDS.map(({ tone: _tone, ...rest }) => rest), controls: CONTROLS, exceptions: CONTROL_EXCEPTIONS },
+    standards: { ...stamp(), standards: STANDARDS.map((s) => Object.fromEntries(Object.entries(s).filter(([k]) => k !== 'tone'))), controls: CONTROLS, exceptions: CONTROL_EXCEPTIONS },
     sops: { ...stamp(), sops: SOPS, formsByCourse: DELIVERABLE_SOPS, tasksByCourse: TASK_SOPS },
     tactics: { ...stamp(), tactics: TACTICS, tasksByCourse: TASK_TACTICS },
     practices: { ...stamp(), practices: PRACTICES, tasksByCourse: TASK_PRACTICES },

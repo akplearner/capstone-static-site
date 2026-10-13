@@ -294,6 +294,33 @@ read from facts that exist (Definition-of-Done checks, the document-control bloc
 hashes, the lifecycle, the order steps were verified in), never typed in; "standard
 effectiveness" is read off the same rows per standard.
 
+**The member profile** (`src/lib/skillProfile.ts`) is the projection: for one member and one
+course, a row per skill, tool, procedure, tactic, practice, standard and exam domain with the
+counts behind it and one honest level, `not-started → practised → verified → reviewed`.
+`practised` is a tick on a required step; `verified` is a verifiable step verified from pasted
+output (a procedure is "followed" when every Definition-of-Done check due is met and its
+document-control block is complete); `reviewed` is a team document on the mapped work approved
+or issued, and the labels say it is a team fact. Team facts can only raise a row that was earned.
+The denominator is the member's own ticks on required steps of the role's graded and advanced
+tasks; timestamps are read only to order verified steps, never for a duration; nothing is
+scored, ranked or badged. The Home card (`SkillsCard`, inside the role surface), the dashboard
+(`DomainStrip`, "Skills by course") and the portfolio (six sections) render it; the portfolio's
+export is `capstone-member-profile/1`, unsigned (`signature: null`) until validators exist.
+The cross-course hydrate reads the four team and own tables the profile needs
+(`deliverable_status`, `deliverable_submissions` without the frozen form, `task_reports`,
+`step_notes`), RLS-scoped exactly as the course hydrate is.
+
+**Published assets.** `content/ontology/` (the registries as versioned JSON; `index.json` states
+the id styles and the rules), `content/schemas/` (a JSON Schema per published shape, inside the
+subset `src/lib/schema/validate.ts` checks), `docs/courses/skills/` (a readable sheet per course)
+and `docs/VALUE_REGISTER.md` (what each asset is worth to companies, students and other
+platforms, with an honest status). The metric catalogue is the contract: every metric the
+platform keeps or could keep, with its definition, inputs, audience and status
+(`computed`, `deferred`, `needs-events`, `needs-validators`, `needs-consent`, `excluded`), and
+`scored: false` on every row. Known gap: the Home page's completion percent (`game.ts`) counts
+optional and setup steps where the profile counts required steps of graded and advanced weeks;
+the two read differently by design and the captions say which is which.
+
 **Agent-readiness without agent-coupling:** keep the API capability-scoped and resource-clean
 (REST/GraphQL). An MCP server becomes a *thin adapter* over that API later; A2A interop rides on the
 ontology + xAPI. **Do not build the MCP/agent gateway now** — design so it stays a small addition, not a

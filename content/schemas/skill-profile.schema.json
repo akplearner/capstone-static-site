@@ -1,0 +1,412 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/skill-profile.schema.json",
+  "title": "Skill profile",
+  "description": "One member against one course: rows per dimension, ability indicators, gaps. A projection over facts; nothing is scored, ranked or badged, and no duration is read.",
+  "$defs": {
+    "row": {
+      "type": "object",
+      "required": [
+        "dimension",
+        "id",
+        "label",
+        "tasks",
+        "exercisedTasks",
+        "doneTasks",
+        "requiredSteps",
+        "tickedSteps",
+        "verifiableSteps",
+        "verifiedSteps",
+        "selfAttestedSteps",
+        "artifacts",
+        "deliverables",
+        "deliverablesFilled",
+        "deliverablesControlled",
+        "deliverablesApproved",
+        "draftedByMember",
+        "level"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dimension": {
+          "enum": [
+            "skills",
+            "tools",
+            "procedures",
+            "tactics",
+            "practices",
+            "standards",
+            "domains",
+            "evidence",
+            "documentation",
+            "collaboration",
+            "ability"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "standardRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exercisedTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "doneTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requiredSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tickedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiableSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selfAttestedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inOrderTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "orderedTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artifacts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deliverablesFilled": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverablesControlled": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverablesApproved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "draftedByMember": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "level": {
+          "enum": [
+            "not-started",
+            "practised",
+            "verified",
+            "reviewed"
+          ]
+        },
+        "next": {
+          "type": "object",
+          "required": [
+            "taskId",
+            "title",
+            "week"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "taskId": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "week": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "indicator": {
+      "type": "object",
+      "required": [
+        "value",
+        "loaded"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "of": {
+          "type": "number",
+          "minimum": 0
+        },
+        "loaded": {
+          "type": "boolean"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "courseId",
+    "role",
+    "denominator",
+    "rows",
+    "abilities",
+    "gaps",
+    "loaded"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "courseId": {
+      "type": "string"
+    },
+    "role": {
+      "type": "string"
+    },
+    "denominator": {
+      "const": "own ticks \u00b7 graded and advanced weeks \u00b7 required steps"
+    },
+    "rows": {
+      "type": "object",
+      "required": [
+        "skills",
+        "tools",
+        "procedures",
+        "tactics",
+        "practices",
+        "standards",
+        "domains",
+        "evidence",
+        "documentation",
+        "collaboration",
+        "ability"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "procedures": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "tactics": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "practices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "domains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "documentation": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "collaboration": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "ability": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        }
+      }
+    },
+    "abilities": {
+      "type": "object",
+      "required": [
+        "firstTry",
+        "persistence",
+        "partialProgress",
+        "evidenceNaming",
+        "activeDays",
+        "activeWeeks",
+        "reportsFiled",
+        "reportsResolved",
+        "notesWritten",
+        "drafted",
+        "reviewed",
+        "issued",
+        "submissionsFrozen",
+        "rubricAllGreen",
+        "dodMet",
+        "teammateStepsTicked",
+        "handoffsCompleted",
+        "peerReviewsGiven"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "firstTry": {
+          "$ref": "#/$defs/indicator"
+        },
+        "persistence": {
+          "$ref": "#/$defs/indicator"
+        },
+        "partialProgress": {
+          "$ref": "#/$defs/indicator"
+        },
+        "evidenceNaming": {
+          "$ref": "#/$defs/indicator"
+        },
+        "activeDays": {
+          "$ref": "#/$defs/indicator"
+        },
+        "activeWeeks": {
+          "$ref": "#/$defs/indicator"
+        },
+        "reportsFiled": {
+          "$ref": "#/$defs/indicator"
+        },
+        "reportsResolved": {
+          "$ref": "#/$defs/indicator"
+        },
+        "notesWritten": {
+          "$ref": "#/$defs/indicator"
+        },
+        "drafted": {
+          "$ref": "#/$defs/indicator"
+        },
+        "reviewed": {
+          "$ref": "#/$defs/indicator"
+        },
+        "issued": {
+          "$ref": "#/$defs/indicator"
+        },
+        "submissionsFrozen": {
+          "$ref": "#/$defs/indicator"
+        },
+        "rubricAllGreen": {
+          "$ref": "#/$defs/indicator"
+        },
+        "dodMet": {
+          "$ref": "#/$defs/indicator"
+        },
+        "teammateStepsTicked": {
+          "$ref": "#/$defs/indicator"
+        },
+        "handoffsCompleted": {
+          "$ref": "#/$defs/indicator"
+        },
+        "peerReviewsGiven": {
+          "$ref": "#/$defs/indicator"
+        }
+      }
+    },
+    "gaps": {
+      "type": "object",
+      "required": [
+        "domains",
+        "skills",
+        "sops"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "domains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "skills": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        },
+        "sops": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/row"
+          }
+        }
+      }
+    },
+    "loaded": {
+      "type": "object",
+      "required": [
+        "team",
+        "own"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "team": {
+          "type": "boolean"
+        },
+        "own": {
+          "type": "boolean"
+        }
+      }
+    }
+  }
+}

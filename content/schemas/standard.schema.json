@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/standard.schema.json",
+  "title": "Standard",
+  "description": "One standard of the register, as published: the framework id tasks carry, its label, what it is, why a step is tagged with it, its kind and publisher. Colour stays in the product.",
+  "type": "object",
+  "required": [
+    "id",
+    "label",
+    "description",
+    "why",
+    "kind",
+    "publisher"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]+$"
+    },
+    "label": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "why": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "framework",
+        "exam",
+        "practice",
+        "publication"
+      ]
+    },
+    "publisher": {
+      "type": "string"
+    },
+    "url": {
+      "type": "string",
+      "pattern": "^https?://"
+    },
+    "codePattern": {
+      "type": "string"
+    }
+  }
+}

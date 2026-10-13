@@ -1,0 +1,4837 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "areas": {
+    "recon": "Reconnaissance",
+    "vuln": "Vulnerability management",
+    "exploit": "Exploitation and testing",
+    "report": "Reporting",
+    "harden": "Hardening and defence",
+    "detect": "Detection and monitoring",
+    "respond": "Incident response",
+    "forensics": "Evidence and forensics",
+    "grc": "Governance and compliance",
+    "risk": "Risk",
+    "audit": "Audit and assessment",
+    "identity": "Identity and access",
+    "crypto": "Cryptography",
+    "arch": "Architecture and network design",
+    "data": "Data security",
+    "ops": "Security operations",
+    "ai-attack": "AI attack and evaluation",
+    "hardware": "Server hardware",
+    "virt": "Virtualisation",
+    "sysadmin": "System administration",
+    "network": "Network engineering",
+    "observe": "Monitoring and observability",
+    "automation": "Automation and infrastructure as code",
+    "continuity": "Backup and recovery",
+    "docs": "Documentation and records",
+    "cloud": "Cloud services"
+  },
+  "nodes": [
+    {
+      "id": "comp.recon.osint",
+      "version": "1.0.0",
+      "label": "Gather open-source intelligence on a target",
+      "area": "recon",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.recon.dns-whois",
+      "version": "1.0.0",
+      "label": "Enumerate DNS and WHOIS records",
+      "area": "recon",
+      "objectiveRefs": [
+        "SY0-701.d2"
+      ]
+    },
+    {
+      "id": "comp.recon.fingerprint-web",
+      "version": "1.0.0",
+      "label": "Fingerprint web technologies",
+      "area": "recon",
+      "objectiveRefs": [
+        "SY0-701.d2"
+      ]
+    },
+    {
+      "id": "comp.recon.port-scan",
+      "version": "1.0.0",
+      "label": "Scan ports and services with nmap",
+      "area": "recon",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "CS0-003.d2",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.recon.web-scan",
+      "version": "1.0.0",
+      "label": "Scan a web server for known weaknesses",
+      "area": "recon",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "CS0-003.d2",
+        "OWASP"
+      ]
+    },
+    {
+      "id": "comp.recon.attack-surface",
+      "version": "1.0.0",
+      "label": "Enumerate an external attack surface",
+      "area": "recon",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c2",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.recon.tls-hygiene",
+      "version": "1.0.0",
+      "label": "Assess TLS configuration and exposure",
+      "area": "recon",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c2",
+        "NIST.800-53.SC-8"
+      ]
+    },
+    {
+      "id": "comp.vuln.summarise-findings",
+      "version": "1.0.0",
+      "label": "Summarise vulnerabilities for a non-attacker reader",
+      "area": "vuln",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "CS0-003.d4"
+      ]
+    },
+    {
+      "id": "comp.vuln.cvss-score",
+      "version": "1.0.0",
+      "label": "Score a vulnerability with CVSS",
+      "area": "vuln",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "CS0-003.d2",
+        "CVSS"
+      ]
+    },
+    {
+      "id": "comp.vuln.risk-rank",
+      "version": "1.0.0",
+      "label": "Rank findings on a risk matrix",
+      "area": "vuln",
+      "objectiveRefs": [
+        "CS0-003.d2",
+        "NIST_800_30"
+      ]
+    },
+    {
+      "id": "comp.vuln.remediation-plan",
+      "version": "1.0.0",
+      "label": "Write a fix plan with owners and dates",
+      "area": "vuln",
+      "objectiveRefs": [
+        "CS0-003.d2",
+        "NIST_800_40"
+      ]
+    },
+    {
+      "id": "comp.vuln.read-scanner-output",
+      "version": "1.0.0",
+      "label": "Read vulnerability and configuration assessment results",
+      "area": "vuln",
+      "objectiveRefs": [
+        "CS0-003.d2",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.vuln.validate-scan",
+      "version": "1.0.0",
+      "label": "Validate scanner findings from the attacker side",
+      "area": "vuln",
+      "objectiveRefs": [
+        "CS0-003.d2",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.vuln.config-scan",
+      "version": "1.0.0",
+      "label": "Scan configuration against a benchmark",
+      "area": "vuln",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.vuln.cis-gap-scan",
+      "version": "1.0.0",
+      "label": "Run a CIS baseline gap scan",
+      "area": "vuln",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c2",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.exploit.sql-injection",
+      "version": "1.0.0",
+      "label": "Exploit SQL injection with evidence",
+      "area": "exploit",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "OWASP"
+      ]
+    },
+    {
+      "id": "comp.exploit.brute-force",
+      "version": "1.0.0",
+      "label": "Brute-force authentication in scope",
+      "area": "exploit",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "MITRE_ATTACK"
+      ]
+    },
+    {
+      "id": "comp.exploit.exploit-chain",
+      "version": "1.0.0",
+      "label": "Prove a full exploit chain with evidence",
+      "area": "exploit",
+      "objectiveRefs": [
+        "SY0-701.d2",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.exploit.web-pentest",
+      "version": "1.0.0",
+      "label": "Test a web application to WSTG",
+      "area": "exploit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c4",
+        "OWASP",
+        "PTES"
+      ]
+    },
+    {
+      "id": "comp.exploit.retest",
+      "version": "1.0.0",
+      "label": "Retest findings to closure",
+      "area": "exploit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c5",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.exploit.tester-attestation",
+      "version": "1.0.0",
+      "label": "Attest a test methodology",
+      "area": "exploit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c5",
+        "PTES"
+      ]
+    },
+    {
+      "id": "comp.report.technical-briefing",
+      "version": "1.0.0",
+      "label": "Explain exploits to non-technical stakeholders",
+      "area": "report",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "CS0-003.d4"
+      ]
+    },
+    {
+      "id": "comp.report.incident-findings",
+      "version": "1.0.0",
+      "label": "Summarise detection work and build an incident timeline",
+      "area": "report",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "NIST.800-61.POST"
+      ]
+    },
+    {
+      "id": "comp.report.final-report",
+      "version": "1.0.0",
+      "label": "Compile a professional security report",
+      "area": "report",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "ISO27001.9.3"
+      ]
+    },
+    {
+      "id": "comp.report.executive-debrief",
+      "version": "1.0.0",
+      "label": "Write an executive debrief with metrics and lessons",
+      "area": "report",
+      "objectiveRefs": [
+        "CS0-003.d4",
+        "NIST.800-61.POST"
+      ]
+    },
+    {
+      "id": "comp.report.detection-metrics",
+      "version": "1.0.0",
+      "label": "Report MTTD, MTTR and ATT&CK coverage",
+      "area": "report",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c4",
+        "SOC2.CC7",
+        "ISO27001.9.1"
+      ]
+    },
+    {
+      "id": "comp.report.security-metrics",
+      "version": "1.0.0",
+      "label": "Define metrics with a formula and a target",
+      "area": "report",
+      "objectiveRefs": [
+        "CISSP.d1",
+        "CY0-001.d4",
+        "ISO27001.9.1"
+      ]
+    },
+    {
+      "id": "comp.report.federal-incident-reporting",
+      "version": "1.0.0",
+      "label": "Write federal incident reporting",
+      "area": "report",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "NIST.800-171.3.6"
+      ]
+    },
+    {
+      "id": "comp.harden.linux-baseline",
+      "version": "1.0.0",
+      "label": "Harden Linux with ufw, fail2ban and Lynis",
+      "area": "harden",
+      "objectiveRefs": [
+        "SY0-701.d3",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.harden.windows-baseline",
+      "version": "1.0.0",
+      "label": "Harden Windows with Firewall and Defender",
+      "area": "harden",
+      "objectiveRefs": [
+        "SY0-701.d3",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.harden.host-firewall",
+      "version": "1.0.0",
+      "label": "Implement host firewall and access controls",
+      "area": "harden",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c3",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.harden.change-discipline",
+      "version": "1.0.0",
+      "label": "Record each change for the evidence trail",
+      "area": "harden",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c3",
+        "ITIL.change"
+      ]
+    },
+    {
+      "id": "comp.harden.tls-and-rule-base",
+      "version": "1.0.0",
+      "label": "Re-test TLS and review the rule base",
+      "area": "harden",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "NIST.800-53.SC-8"
+      ]
+    },
+    {
+      "id": "comp.harden.secrets-and-gateway",
+      "version": "1.0.0",
+      "label": "Store secrets and limit through a gateway",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "NIST.800-53.IA-5"
+      ]
+    },
+    {
+      "id": "comp.harden.guardrails",
+      "version": "1.0.0",
+      "label": "Guard model inputs and outputs",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP_LLM"
+      ]
+    },
+    {
+      "id": "comp.harden.agent-scope",
+      "version": "1.0.0",
+      "label": "Scope an agent to least privilege",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP_LLM"
+      ]
+    },
+    {
+      "id": "comp.harden.redaction",
+      "version": "1.0.0",
+      "label": "Redact personal data before it is written",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "NIST_AI_RMF"
+      ]
+    },
+    {
+      "id": "comp.harden.pipeline-gates",
+      "version": "1.0.0",
+      "label": "Gate a pipeline on scans and tests",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "CISSP.d8",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.harden.guardrail-tests",
+      "version": "1.0.0",
+      "label": "Turn guardrails into regression tests",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.harden.clean-rebuild",
+      "version": "1.0.0",
+      "label": "Rebuild a system clean and prove it",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.harden.model-scanning",
+      "version": "1.0.0",
+      "label": "Scan model files for unsafe code",
+      "area": "harden",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP_LLM"
+      ]
+    },
+    {
+      "id": "comp.harden.ai-gateway-zone",
+      "version": "1.0.0",
+      "label": "Make an AI gateway the sole path",
+      "area": "harden",
+      "objectiveRefs": [
+        "CISSP.d4",
+        "NIST_800_207"
+      ]
+    },
+    {
+      "id": "comp.detect.deploy-endpoint-sensor",
+      "version": "1.0.0",
+      "label": "Deploy an endpoint sensor to the SOC",
+      "area": "detect",
+      "objectiveRefs": [
+        "CS0-003.d1",
+        "NIST.CSF.DE.CM-01"
+      ]
+    },
+    {
+      "id": "comp.detect.deploy-network-sensor",
+      "version": "1.0.0",
+      "label": "Deploy a network IDS and confirm its feed",
+      "area": "detect",
+      "objectiveRefs": [
+        "CS0-003.d1",
+        "NIST.CSF.DE.CM-01"
+      ]
+    },
+    {
+      "id": "comp.detect.coverage-validation",
+      "version": "1.0.0",
+      "label": "Validate data-source coverage",
+      "area": "detect",
+      "objectiveRefs": [
+        "CS0-003.d1",
+        "NIST.CSF.DE"
+      ]
+    },
+    {
+      "id": "comp.detect.capture-baseline",
+      "version": "1.0.0",
+      "label": "Capture and baseline traffic and logs",
+      "area": "detect",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "CS0-003.d1",
+        "NIST.CSF.DE.CM"
+      ]
+    },
+    {
+      "id": "comp.detect.write-detection",
+      "version": "1.0.0",
+      "label": "Write a detection filter or rule",
+      "area": "detect",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "NIST.CSF.DE.AE"
+      ]
+    },
+    {
+      "id": "comp.detect.windows-event-logs",
+      "version": "1.0.0",
+      "label": "Read Windows event logs for an attack",
+      "area": "detect",
+      "objectiveRefs": [
+        "SY0-701.d4"
+      ]
+    },
+    {
+      "id": "comp.detect.triage-alerts",
+      "version": "1.0.0",
+      "label": "Triage alerts with a verdict and a reason",
+      "area": "detect",
+      "objectiveRefs": [
+        "CS0-003.d1",
+        "NIST.800-61.DETECT"
+      ]
+    },
+    {
+      "id": "comp.detect.live-triage",
+      "version": "1.0.0",
+      "label": "Triage live from packets and logs",
+      "area": "detect",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "NIST.800-61.DETECT"
+      ]
+    },
+    {
+      "id": "comp.detect.sigma-rules",
+      "version": "1.0.0",
+      "label": "Write Sigma detections mapped to ATT&CK",
+      "area": "detect",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c3",
+        "MITRE_ATTACK"
+      ]
+    },
+    {
+      "id": "comp.detect.validate-detection",
+      "version": "1.0.0",
+      "label": "Validate a detection against a test attack",
+      "area": "detect",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c3",
+        "NIST.CSF.DE.AE"
+      ]
+    },
+    {
+      "id": "comp.detect.alert-to-ticket",
+      "version": "1.0.0",
+      "label": "Route an alert to a ticket",
+      "area": "detect",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "ITIL.incident"
+      ]
+    },
+    {
+      "id": "comp.detect.shadow-ai",
+      "version": "1.0.0",
+      "label": "Find unsanctioned AI tools on the network",
+      "area": "detect",
+      "objectiveRefs": [
+        "CY0-001.d4",
+        "NIST_AI_RMF"
+      ]
+    },
+    {
+      "id": "comp.respond.find-the-incident",
+      "version": "1.0.0",
+      "label": "Scope an incident from the first alert",
+      "area": "respond",
+      "objectiveRefs": [
+        "CS0-003.d3",
+        "NIST.800-61.DETECT"
+      ]
+    },
+    {
+      "id": "comp.respond.contain",
+      "version": "1.0.0",
+      "label": "Contain an attacker with a timestamped block",
+      "area": "respond",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "CS0-003.d3",
+        "NIST.800-61.CONTAIN"
+      ]
+    },
+    {
+      "id": "comp.respond.timeline",
+      "version": "1.0.0",
+      "label": "Rebuild an attack timeline from logs",
+      "area": "respond",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "CS0-003.d3",
+        "NIST.800-61.DETECT"
+      ]
+    },
+    {
+      "id": "comp.respond.incident-report",
+      "version": "1.0.0",
+      "label": "Write an incident report",
+      "area": "respond",
+      "objectiveRefs": [
+        "CS0-003.d3",
+        "AZ-900.d3",
+        "CLF-C02.d2",
+        "NIST.800-61"
+      ]
+    },
+    {
+      "id": "comp.respond.ir-runbook",
+      "version": "1.0.0",
+      "label": "Write an incident-response runbook",
+      "area": "respond",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "NIST.800-61",
+        "ISO27001.A.5.24"
+      ]
+    },
+    {
+      "id": "comp.respond.seven-step-plan",
+      "version": "1.0.0",
+      "label": "Specify the seven-step incident life cycle",
+      "area": "respond",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "NIST.800-61"
+      ]
+    },
+    {
+      "id": "comp.respond.tabletop",
+      "version": "1.0.0",
+      "label": "Run a tabletop with injects",
+      "area": "respond",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
+      "id": "comp.respond.restore-test",
+      "version": "1.0.0",
+      "label": "Restore from backup and prove it",
+      "area": "respond",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "SK0-005.d3",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
+      "id": "comp.respond.recovery-targets",
+      "version": "1.0.0",
+      "label": "Set recovery targets: RTO, RPO, MTTR",
+      "area": "respond",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "SK0-005.d3",
+        "AZ-104.d5",
+        "SAA-C03.d4",
+        "NIST_800_34"
+      ]
+    },
+    {
+      "id": "comp.forensics.hash-evidence",
+      "version": "1.0.0",
+      "label": "Hash and log evidence",
+      "area": "forensics",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "CS0-003.d3",
+        "CY0-001.d2",
+        "ISO_27037"
+      ]
+    },
+    {
+      "id": "comp.forensics.chain-of-custody",
+      "version": "1.0.0",
+      "label": "Keep a chain of custody",
+      "area": "forensics",
+      "objectiveRefs": [
+        "SY0-701.d4",
+        "ISO_27037"
+      ]
+    },
+    {
+      "id": "comp.forensics.packet-capture",
+      "version": "1.0.0",
+      "label": "Capture packets and quote the attacker request",
+      "area": "forensics",
+      "objectiveRefs": [
+        "CS0-003.d1",
+        "NIST.800-61.DETECT"
+      ]
+    },
+    {
+      "id": "comp.forensics.log-pivoting",
+      "version": "1.0.0",
+      "label": "Pivot across logs to prove an attack",
+      "area": "forensics",
+      "objectiveRefs": [
+        "CS0-003.d1"
+      ]
+    },
+    {
+      "id": "comp.forensics.iocs",
+      "version": "1.0.0",
+      "label": "Turn findings into indicators with ATT&CK ids",
+      "area": "forensics",
+      "objectiveRefs": [
+        "CS0-003.d3",
+        "MITRE_ATTACK"
+      ]
+    },
+    {
+      "id": "comp.grc.framework-mapping",
+      "version": "1.0.0",
+      "label": "Map findings to NIST CSF and CIS",
+      "area": "grc",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "NIST.CSF",
+        "CIS.CONTROLS"
+      ]
+    },
+    {
+      "id": "comp.grc.hardening-standard",
+      "version": "1.0.0",
+      "label": "Write a hardening standard as an SOP",
+      "area": "grc",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.grc.vm-sop",
+      "version": "1.0.0",
+      "label": "Write a vulnerability-management SOP",
+      "area": "grc",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "NIST_800_40"
+      ]
+    },
+    {
+      "id": "comp.grc.policy-shall",
+      "version": "1.0.0",
+      "label": "Write policy as shall statements with an owner",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d1",
+        "CY0-001.d4",
+        "NIST.CSF.GV.PO"
+      ]
+    },
+    {
+      "id": "comp.grc.classification",
+      "version": "1.0.0",
+      "label": "Classify assets with one owner each",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d2",
+        "ISO27001.A.5.12"
+      ]
+    },
+    {
+      "id": "comp.grc.maturity",
+      "version": "1.0.0",
+      "label": "Score maturity on a 0 to 4 scale",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d1"
+      ]
+    },
+    {
+      "id": "comp.grc.supplier-tiering",
+      "version": "1.0.0",
+      "label": "Tier suppliers with top-tier terms",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d1",
+        "NIST.CSF.GV.SC"
+      ]
+    },
+    {
+      "id": "comp.grc.ai-lifecycle",
+      "version": "1.0.0",
+      "label": "Map the AI life cycle with checkpoints",
+      "area": "grc",
+      "objectiveRefs": [
+        "CY0-001.d1",
+        "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.grc.data-lineage",
+      "version": "1.0.0",
+      "label": "Map data types and lineage",
+      "area": "grc",
+      "objectiveRefs": [
+        "CY0-001.d1",
+        "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.grc.applicability",
+      "version": "1.0.0",
+      "label": "Decide which rules apply, with a reason",
+      "area": "grc",
+      "objectiveRefs": [
+        "CY0-001.d4",
+        "ISO42001"
+      ]
+    },
+    {
+      "id": "comp.grc.model-cards",
+      "version": "1.0.0",
+      "label": "Write a model card per model",
+      "area": "grc",
+      "objectiveRefs": [
+        "CY0-001.d4",
+        "NIST_AI_RMF"
+      ]
+    },
+    {
+      "id": "comp.grc.responsible-ai",
+      "version": "1.0.0",
+      "label": "Assess responsible-AI principles with evidence",
+      "area": "grc",
+      "objectiveRefs": [
+        "CY0-001.d4",
+        "ISO42001"
+      ]
+    },
+    {
+      "id": "comp.grc.system-map",
+      "version": "1.0.0",
+      "label": "Map an AI system: models, prompts, writers",
+      "area": "grc",
+      "objectiveRefs": [
+        "CY0-001.d4",
+        "NIST.AI-RMF.MAP"
+      ]
+    },
+    {
+      "id": "comp.grc.ai-act-decision",
+      "version": "1.0.0",
+      "label": "Decide EU AI Act applicability",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d2",
+        "NIST_AI_RMF"
+      ]
+    },
+    {
+      "id": "comp.grc.categorise-system",
+      "version": "1.0.0",
+      "label": "Categorise a system by high-water mark",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d2",
+        "NIST.800-53.RA-3"
+      ]
+    },
+    {
+      "id": "comp.grc.ethics-canons",
+      "version": "1.0.0",
+      "label": "Apply the ISC2 canons in order",
+      "area": "grc",
+      "objectiveRefs": [
+        "CISSP.d1"
+      ]
+    },
+    {
+      "id": "comp.risk.likelihood-impact",
+      "version": "1.0.0",
+      "label": "Score risk as likelihood times impact",
+      "area": "risk",
+      "objectiveRefs": [
+        "SY0-701.d5",
+        "NIST_800_30"
+      ]
+    },
+    {
+      "id": "comp.risk.register",
+      "version": "1.0.0",
+      "label": "Keep a risk register with owners",
+      "area": "risk",
+      "objectiveRefs": [
+        "CISSP.d1",
+        "SOC-2-ISO-27001.c2",
+        "ISO27001.6.1.2"
+      ]
+    },
+    {
+      "id": "comp.risk.quantitative",
+      "version": "1.0.0",
+      "label": "Quantify a risk with SLE and ALE",
+      "area": "risk",
+      "objectiveRefs": [
+        "CISSP.d1"
+      ]
+    },
+    {
+      "id": "comp.risk.iso-27005",
+      "version": "1.0.0",
+      "label": "Assess risk to ISO 27005",
+      "area": "risk",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c2",
+        "ISO27005"
+      ]
+    },
+    {
+      "id": "comp.risk.soa",
+      "version": "1.0.0",
+      "label": "Write a Statement of Applicability",
+      "area": "risk",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c2",
+        "ISO27001.6.1.3"
+      ]
+    },
+    {
+      "id": "comp.risk.threat-model",
+      "version": "1.0.0",
+      "label": "Threat-model with STRIDE",
+      "area": "risk",
+      "objectiveRefs": [
+        "CISSP.d3",
+        "CY0-001.d2",
+        "STRIDE"
+      ]
+    },
+    {
+      "id": "comp.risk.threat-model-controls",
+      "version": "1.0.0",
+      "label": "Threat-model a proposed control set",
+      "area": "risk",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c2",
+        "NIST.800-115"
+      ]
+    },
+    {
+      "id": "comp.risk.accept",
+      "version": "1.0.0",
+      "label": "Accept a risk with a named owner",
+      "area": "risk",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c5",
+        "CY0-001.d4",
+        "ISO27001.6.1.3"
+      ]
+    },
+    {
+      "id": "comp.audit.control-matrix",
+      "version": "1.0.0",
+      "label": "Build a cross-framework control matrix",
+      "area": "audit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c3",
+        "SOC2",
+        "ISO27001"
+      ]
+    },
+    {
+      "id": "comp.audit.evidence-collection",
+      "version": "1.0.0",
+      "label": "Collect evidence per implemented control",
+      "area": "audit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c4",
+        "SOC2.CC4.1"
+      ]
+    },
+    {
+      "id": "comp.audit.remediation-tracking",
+      "version": "1.0.0",
+      "label": "Track findings to closure",
+      "area": "audit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c4",
+        "SOC2.CC4.1"
+      ]
+    },
+    {
+      "id": "comp.audit.internal-audit",
+      "version": "1.0.0",
+      "label": "Run an ISO 27001 internal audit",
+      "area": "audit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c4",
+        "ISO27001.9.2"
+      ]
+    },
+    {
+      "id": "comp.audit.corrective-action",
+      "version": "1.0.0",
+      "label": "Raise corrective actions for nonconformities",
+      "area": "audit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c5",
+        "ISO27001.10.2"
+      ]
+    },
+    {
+      "id": "comp.audit.evidence-packet",
+      "version": "1.0.0",
+      "label": "Assemble an audit evidence packet",
+      "area": "audit",
+      "objectiveRefs": [
+        "SOC-2-ISO-27001.c4",
+        "SOC2"
+      ]
+    },
+    {
+      "id": "comp.audit.assess-controls",
+      "version": "1.0.0",
+      "label": "Assess controls by examine, interview, test",
+      "area": "audit",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "NIST.800-53.CA-2"
+      ]
+    },
+    {
+      "id": "comp.audit.questionnaire",
+      "version": "1.0.0",
+      "label": "Answer a customer questionnaire with evidence",
+      "area": "audit",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "CY0-001.d4",
+        "SOC2"
+      ]
+    },
+    {
+      "id": "comp.audit.self-assess-171",
+      "version": "1.0.0",
+      "label": "Self-assess against SP 800-171",
+      "area": "audit",
+      "objectiveRefs": [
+        "CISSP.d1",
+        "NIST.800-171"
+      ]
+    },
+    {
+      "id": "comp.audit.ssp",
+      "version": "1.0.0",
+      "label": "Assemble a System Security Plan",
+      "area": "audit",
+      "objectiveRefs": [
+        "CISSP.d1",
+        "NIST.800-53.PL-2"
+      ]
+    },
+    {
+      "id": "comp.audit.map-to-federal",
+      "version": "1.0.0",
+      "label": "Map controls to federal requirements",
+      "area": "audit",
+      "objectiveRefs": [
+        "CISSP.d4",
+        "CISSP.d7",
+        "NIST.800-171"
+      ]
+    },
+    {
+      "id": "comp.identity.rbac",
+      "version": "1.0.0",
+      "label": "Design role-based access with MFA rules",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d5",
+        "NIST.800-53.AC-6"
+      ]
+    },
+    {
+      "id": "comp.identity.joiner-leaver",
+      "version": "1.0.0",
+      "label": "Specify joiner and leaver with timed disablement",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d5",
+        "ISO27001.A.5.18"
+      ]
+    },
+    {
+      "id": "comp.identity.access-matrix",
+      "version": "1.0.0",
+      "label": "Specify an access matrix with separation of duties",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d5",
+        "NIST.800-53.AC-5"
+      ]
+    },
+    {
+      "id": "comp.identity.mfa-console",
+      "version": "1.0.0",
+      "label": "Prove MFA on the console",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d5",
+        "NIST_800_63"
+      ]
+    },
+    {
+      "id": "comp.identity.orphan-accounts",
+      "version": "1.0.0",
+      "label": "Find and disable orphan accounts",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d5",
+        "NIST.800-53.AC-2"
+      ]
+    },
+    {
+      "id": "comp.identity.federation",
+      "version": "1.0.0",
+      "label": "Federate with SAML and OIDC",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d5",
+        "NIST_800_63"
+      ]
+    },
+    {
+      "id": "comp.identity.access-review",
+      "version": "1.0.0",
+      "label": "Repeat an access review on schedule",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "NIST.800-53.AC-2"
+      ]
+    },
+    {
+      "id": "comp.identity.machine-identities",
+      "version": "1.0.0",
+      "label": "Register machine identities with rotation",
+      "area": "identity",
+      "objectiveRefs": [
+        "CISSP.d4",
+        "NIST.800-53.IA-5"
+      ]
+    },
+    {
+      "id": "comp.crypto.standard",
+      "version": "1.0.0",
+      "label": "Write a cryptography standard: key sizes and rotation",
+      "area": "crypto",
+      "objectiveRefs": [
+        "CISSP.d3",
+        "NIST.800-53.SC-12"
+      ]
+    },
+    {
+      "id": "comp.crypto.tls-versions",
+      "version": "1.0.0",
+      "label": "Prove TLS versions and ciphers",
+      "area": "crypto",
+      "objectiveRefs": [
+        "CISSP.d8",
+        "NIST.800-53.SC-8"
+      ]
+    },
+    {
+      "id": "comp.crypto.key-rotation",
+      "version": "1.0.0",
+      "label": "Rotate a key and record it",
+      "area": "crypto",
+      "objectiveRefs": [
+        "CISSP.d6",
+        "NIST.800-53.SC-12"
+      ]
+    },
+    {
+      "id": "comp.arch.trust-boundaries",
+      "version": "1.0.0",
+      "label": "Draw architecture with trust boundaries",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d3",
+        "ISO42010"
+      ]
+    },
+    {
+      "id": "comp.arch.shared-responsibility",
+      "version": "1.0.0",
+      "label": "Write shared-responsibility rows",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d3"
+      ]
+    },
+    {
+      "id": "comp.arch.default-deny-zones",
+      "version": "1.0.0",
+      "label": "Design zones with default deny",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d4",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.arch.rule-base",
+      "version": "1.0.0",
+      "label": "Specify a rule base with approved protocols",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d4",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.arch.sdlc-gates",
+      "version": "1.0.0",
+      "label": "Place a security gate per development phase",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d8",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.arch.component-list",
+      "version": "1.0.0",
+      "label": "Produce a component list (CycloneDX)",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d8",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.arch.segmentation-proof",
+      "version": "1.0.0",
+      "label": "Prove default-deny segmentation",
+      "area": "arch",
+      "objectiveRefs": [
+        "CISSP.d4",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.data.discovery",
+      "version": "1.0.0",
+      "label": "Find personal data and prove it is gone",
+      "area": "data",
+      "objectiveRefs": [
+        "CISSP.d2",
+        "NIST.CSF.ID.AM"
+      ]
+    },
+    {
+      "id": "comp.data.sanitisation",
+      "version": "1.0.0",
+      "label": "Clear, purge or destroy media",
+      "area": "data",
+      "objectiveRefs": [
+        "CISSP.d2",
+        "NIST_800_88"
+      ]
+    },
+    {
+      "id": "comp.ops.logging-first-hour",
+      "version": "1.0.0",
+      "label": "Write logging, the incident first hour and backups",
+      "area": "ops",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "NIST.800-61.PREPARE"
+      ]
+    },
+    {
+      "id": "comp.ops.detection-fires",
+      "version": "1.0.0",
+      "label": "Prove a detection fires with timings",
+      "area": "ops",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "NIST.CSF.DE.AE"
+      ]
+    },
+    {
+      "id": "comp.ops.contingency-phases",
+      "version": "1.0.0",
+      "label": "Specify activation, recovery, reconstitution",
+      "area": "ops",
+      "objectiveRefs": [
+        "CISSP.d7",
+        "NIST_800_34"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.prompt-injection",
+      "version": "1.0.0",
+      "label": "Prove prompt injection with evidence",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP.LLM"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.sensitive-disclosure",
+      "version": "1.0.0",
+      "label": "Prove sensitive information disclosure",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP.LLM"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.indirect-injection",
+      "version": "1.0.0",
+      "label": "Prove indirect injection through documents",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP.LLM"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.excessive-agency",
+      "version": "1.0.0",
+      "label": "Prove excessive agency and insecure output",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "OWASP.LLM"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.map-to-atlas",
+      "version": "1.0.0",
+      "label": "Map AI threats to OWASP and ATLAS",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d2",
+        "MITRE.ATLAS"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.automate-suite",
+      "version": "1.0.0",
+      "label": "Automate an attack suite with a pass line",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "NIST_AI_RMF"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.ai-assisted-check",
+      "version": "1.0.0",
+      "label": "Check AI-assisted work with a human",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "NIST_AI_RMF"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.reproduce",
+      "version": "1.0.0",
+      "label": "Reproduce a suite on a rebuilt copy",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.ai-attack.paper-cases",
+      "version": "1.0.0",
+      "label": "Write paper cases: poisoning, theft, inference",
+      "area": "ai-attack",
+      "objectiveRefs": [
+        "CY0-001.d3",
+        "MITRE.ATLAS"
+      ]
+    },
+    {
+      "id": "comp.hardware.receive-and-inspect",
+      "version": "1.0.0",
+      "label": "Receive hardware and list what arrived",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.memory-population",
+      "version": "1.0.0",
+      "label": "Populate memory channels per the manual",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.capability-audit",
+      "version": "1.0.0",
+      "label": "Audit CPU, memory, storage, network, firmware",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.firmware-lookup",
+      "version": "1.0.0",
+      "label": "Look up firmware, support and compatibility",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.raid-build",
+      "version": "1.0.0",
+      "label": "Choose a RAID level and build the array",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.boot-media",
+      "version": "1.0.0",
+      "label": "Write boot media and set the boot order",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.rack-planning",
+      "version": "1.0.0",
+      "label": "Plan a rack: positions, airflow, power",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.hardware.rack-and-cable",
+      "version": "1.0.0",
+      "label": "Rack, cable and terminate to a plan",
+      "area": "hardware",
+      "objectiveRefs": [
+        "SK0-005.d1"
+      ]
+    },
+    {
+      "id": "comp.virt.install-hypervisor",
+      "version": "1.0.0",
+      "label": "Install a hypervisor on the array",
+      "area": "virt",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.virt.bridges-and-nat",
+      "version": "1.0.0",
+      "label": "Build Linux bridges with host routing and NAT",
+      "area": "virt",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.virt.provision-vms",
+      "version": "1.0.0",
+      "label": "Provision VMs on the planned bridges",
+      "area": "virt",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.troubleshooting-method",
+      "version": "1.0.0",
+      "label": "Troubleshoot with the structured method",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d4",
+        "200-301.d3",
+        "ITIL.problem"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.web-server",
+      "version": "1.0.0",
+      "label": "Serve a website from the DMZ host",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.windows-roles",
+      "version": "1.0.0",
+      "label": "Deploy AD DS, DNS and DHCP",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.database-server",
+      "version": "1.0.0",
+      "label": "Install a database with an application user",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "NIST.800-53.AC-6"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.record-addresses",
+      "version": "1.0.0",
+      "label": "Record the addresses hosts hold",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.persistent-addressing",
+      "version": "1.0.0",
+      "label": "Apply an IP plan that survives a reboot",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.ssh-hardening",
+      "version": "1.0.0",
+      "label": "Harden SSH: named admins, no root login",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.host-firewalls",
+      "version": "1.0.0",
+      "label": "Enable host firewalls with an allow-list",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.windows-hardening",
+      "version": "1.0.0",
+      "label": "Harden Windows: firewall profiles, named admins, policy",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.patching",
+      "version": "1.0.0",
+      "label": "Patch systems and record it",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST_800_40"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.api-tokens",
+      "version": "1.0.0",
+      "label": "Issue API tokens with least privilege",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.AC-6"
+      ]
+    },
+    {
+      "id": "comp.sysadmin.ssh-keys",
+      "version": "1.0.0",
+      "label": "Use SSH keys as the fleet credential",
+      "area": "sysadmin",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.IA-5"
+      ]
+    },
+    {
+      "id": "comp.network.zone-design",
+      "version": "1.0.0",
+      "label": "Design network zones and why they exist",
+      "area": "network",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ISO27001.A.8.22"
+      ]
+    },
+    {
+      "id": "comp.network.publish-with-dnat",
+      "version": "1.0.0",
+      "label": "Publish a service with DNAT",
+      "area": "network",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.network.closed-forward-policy",
+      "version": "1.0.0",
+      "label": "Segment zones with a closed forward policy",
+      "area": "network",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.network.out-of-band",
+      "version": "1.0.0",
+      "label": "Build an out-of-band ops network",
+      "area": "network",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "200-301.d2"
+      ]
+    },
+    {
+      "id": "comp.network.vlan-tagged-bridges",
+      "version": "1.0.0",
+      "label": "Trunk VLAN-tagged bridges to every host",
+      "area": "network",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "200-301.d2"
+      ]
+    },
+    {
+      "id": "comp.network.hierarchical-design",
+      "version": "1.0.0",
+      "label": "Design a hierarchical network with boundaries",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d1"
+      ]
+    },
+    {
+      "id": "comp.network.switch-bringup",
+      "version": "1.0.0",
+      "label": "Bring switches up with management addressing",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d2"
+      ]
+    },
+    {
+      "id": "comp.network.vlans-and-trunks",
+      "version": "1.0.0",
+      "label": "Cut a network into VLANs with trunks",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d2"
+      ]
+    },
+    {
+      "id": "comp.network.inter-vlan-routing",
+      "version": "1.0.0",
+      "label": "Route between VLANs with SVIs or subinterfaces",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d3"
+      ]
+    },
+    {
+      "id": "comp.network.spanning-tree",
+      "version": "1.0.0",
+      "label": "Survive a pulled cable with spanning tree",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d2"
+      ]
+    },
+    {
+      "id": "comp.network.ospf",
+      "version": "1.0.0",
+      "label": "Join sites with OSPF adjacencies",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d3"
+      ]
+    },
+    {
+      "id": "comp.network.default-route-and-nat",
+      "version": "1.0.0",
+      "label": "Route out with a default route and PAT",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d4"
+      ]
+    },
+    {
+      "id": "comp.network.acls",
+      "version": "1.0.0",
+      "label": "Turn a policy into placed access lists",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d5",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.network.management-plane-hardening",
+      "version": "1.0.0",
+      "label": "Harden the management plane: SSH, secrets, port security",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d5",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.network.wlan",
+      "version": "1.0.0",
+      "label": "Put WLANs on the air mapped to VLANs",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d2"
+      ]
+    },
+    {
+      "id": "comp.network.config-backup",
+      "version": "1.0.0",
+      "label": "Back up configurations and prove a restore",
+      "area": "network",
+      "objectiveRefs": [
+        "200-301.d4",
+        "NIST.800-53.CP-9"
+      ]
+    },
+    {
+      "id": "comp.observe.metrics-and-logs",
+      "version": "1.0.0",
+      "label": "Monitor hosts with metrics and logs",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "NIST.CSF.DE.CM"
+      ]
+    },
+    {
+      "id": "comp.observe.alerting",
+      "version": "1.0.0",
+      "label": "Route alerts somewhere that answers",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ITIL.monitoring"
+      ]
+    },
+    {
+      "id": "comp.observe.backup-monitoring",
+      "version": "1.0.0",
+      "label": "Watch backup jobs with a read-only token",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.CP-9"
+      ]
+    },
+    {
+      "id": "comp.observe.siem-deploy",
+      "version": "1.0.0",
+      "label": "Deploy a SIEM and enrol agents",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.CSF.DE.CM"
+      ]
+    },
+    {
+      "id": "comp.observe.file-integrity",
+      "version": "1.0.0",
+      "label": "Monitor file integrity on servers",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.SI-4"
+      ]
+    },
+    {
+      "id": "comp.observe.service-discovery",
+      "version": "1.0.0",
+      "label": "Onboard targets by file-based discovery",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.observe.fleet-onboarding",
+      "version": "1.0.0",
+      "label": "Onboard a site into a shared monitoring plane",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.observe.siem-tenancy",
+      "version": "1.0.0",
+      "label": "Place hosts in the right SIEM tenancy",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d3"
+      ]
+    },
+    {
+      "id": "comp.observe.sca-score",
+      "version": "1.0.0",
+      "label": "Read a configuration assessment score",
+      "area": "observe",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "CIS.BENCHMARK"
+      ]
+    },
+    {
+      "id": "comp.observe.snmp-and-syslog",
+      "version": "1.0.0",
+      "label": "Poll with SNMP and centralise syslog",
+      "area": "observe",
+      "objectiveRefs": [
+        "200-301.d4",
+        "NIST.CSF.DE.CM"
+      ]
+    },
+    {
+      "id": "comp.automation.terraform-vms",
+      "version": "1.0.0",
+      "label": "Create VMs from a Terraform plan",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "WAF.operational-excellence"
+      ]
+    },
+    {
+      "id": "comp.automation.docker-compose",
+      "version": "1.0.0",
+      "label": "Run a service with Docker Compose",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.automation.ops-workstation",
+      "version": "1.0.0",
+      "label": "Build a stateless ops workstation",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.automation.infra-in-git",
+      "version": "1.0.0",
+      "label": "Keep the infrastructure in Git",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ITIL.configuration"
+      ]
+    },
+    {
+      "id": "comp.automation.secrets-out-of-history",
+      "version": "1.0.0",
+      "label": "Keep secrets out of version history",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.automation.golden-images",
+      "version": "1.0.0",
+      "label": "Build hosts from a golden template",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.automation.drift-plan",
+      "version": "1.0.0",
+      "label": "Read a plan for drift",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "WAF.operational-excellence"
+      ]
+    },
+    {
+      "id": "comp.automation.ansible-roles",
+      "version": "1.0.0",
+      "label": "Configure hosts with Ansible roles",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "200-301.d6"
+      ]
+    },
+    {
+      "id": "comp.automation.dynamic-inventory",
+      "version": "1.0.0",
+      "label": "Drive automation from a dynamic inventory",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.automation.rebuild-from-git",
+      "version": "1.0.0",
+      "label": "Rebuild a host from the repository",
+      "area": "automation",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.automation.network-as-data",
+      "version": "1.0.0",
+      "label": "Read a network API and write YAML",
+      "area": "automation",
+      "objectiveRefs": [
+        "200-301.d6"
+      ]
+    },
+    {
+      "id": "comp.automation.idempotent-playbooks",
+      "version": "1.0.0",
+      "label": "Write playbooks that change nothing twice",
+      "area": "automation",
+      "objectiveRefs": [
+        "200-301.d6"
+      ]
+    },
+    {
+      "id": "comp.continuity.dedup-backup",
+      "version": "1.0.0",
+      "label": "Back up to a deduplicating vault",
+      "area": "continuity",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "ISO27001.A.8.13"
+      ]
+    },
+    {
+      "id": "comp.continuity.verify-backups",
+      "version": "1.0.0",
+      "label": "Verify backups before they are needed",
+      "area": "continuity",
+      "objectiveRefs": [
+        "SK0-005.d3",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
+      "id": "comp.docs.architecture-brief",
+      "version": "1.0.0",
+      "label": "Turn a business need into an architecture brief",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ISO42010"
+      ]
+    },
+    {
+      "id": "comp.docs.write-sops",
+      "version": "1.0.0",
+      "label": "Write usable SOPs with owner and trigger",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ISO27001.A.5.37"
+      ]
+    },
+    {
+      "id": "comp.docs.change-control",
+      "version": "1.0.0",
+      "label": "Record changes with rollback and approver",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "200-301.d4",
+        "ITIL.change"
+      ]
+    },
+    {
+      "id": "comp.docs.as-built-handover",
+      "version": "1.0.0",
+      "label": "Assemble and hand over an as-built package",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "200-301.d1",
+        "ITIL.transition"
+      ]
+    },
+    {
+      "id": "comp.docs.capacity-planning",
+      "version": "1.0.0",
+      "label": "Plan capacity for the hosts a brief needs",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.docs.netbox-ipam",
+      "version": "1.0.0",
+      "label": "Keep racks and addresses as a record",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "200-301.d6",
+        "NIST.CSF.ID.AM"
+      ]
+    },
+    {
+      "id": "comp.docs.asset-management-tool",
+      "version": "1.0.0",
+      "label": "Keep assets and changes in a management tool",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "NIST.CSF.ID.AM"
+      ]
+    },
+    {
+      "id": "comp.docs.change-tickets",
+      "version": "1.0.0",
+      "label": "Run changes as approved tickets",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ITIL.change"
+      ]
+    },
+    {
+      "id": "comp.docs.repository-handover",
+      "version": "1.0.0",
+      "label": "Tag and hand over a repository",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ITIL.transition"
+      ]
+    },
+    {
+      "id": "comp.docs.professional-documentation",
+      "version": "1.0.0",
+      "label": "Document to a professional standard",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2",
+        "ISO27001.7.5"
+      ]
+    },
+    {
+      "id": "comp.docs.sla-mapping",
+      "version": "1.0.0",
+      "label": "Map requirements to compliance and SLAs",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.docs.naming-standard",
+      "version": "1.0.0",
+      "label": "Apply a naming standard",
+      "area": "docs",
+      "objectiveRefs": [
+        "SK0-005.d2"
+      ]
+    },
+    {
+      "id": "comp.docs.requirements-gathering",
+      "version": "1.0.0",
+      "label": "Gather requirements from the business",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d1"
+      ]
+    },
+    {
+      "id": "comp.docs.site-survey",
+      "version": "1.0.0",
+      "label": "Survey a site before designing",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d1"
+      ]
+    },
+    {
+      "id": "comp.docs.design-decisions",
+      "version": "1.0.0",
+      "label": "Record design decisions traced to requirements",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d1",
+        "ISO42010"
+      ]
+    },
+    {
+      "id": "comp.docs.build-log",
+      "version": "1.0.0",
+      "label": "Keep a build log with proof per step",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d2",
+        "ITIL.configuration"
+      ]
+    },
+    {
+      "id": "comp.docs.work-a-ticket",
+      "version": "1.0.0",
+      "label": "Work a ticket with scope and layers",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d3",
+        "ITIL.incident"
+      ]
+    },
+    {
+      "id": "comp.docs.incident-management",
+      "version": "1.0.0",
+      "label": "Work an incident to root cause",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d3",
+        "ITIL.incident"
+      ]
+    },
+    {
+      "id": "comp.docs.known-issues",
+      "version": "1.0.0",
+      "label": "List known issues honestly",
+      "area": "docs",
+      "objectiveRefs": [
+        "200-301.d1",
+        "ITIL.transition"
+      ]
+    },
+    {
+      "id": "comp.cloud.budget-and-tags",
+      "version": "1.0.0",
+      "label": "Set a budget alert and a tag standard",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d1",
+        "CLF-C02.d1",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.shared-responsibility",
+      "version": "1.0.0",
+      "label": "State the shared-responsibility split",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d1",
+        "CLF-C02.d1"
+      ]
+    },
+    {
+      "id": "comp.cloud.network-foundation",
+      "version": "1.0.0",
+      "label": "Create the network foundation: VNet or VPC",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d3"
+      ]
+    },
+    {
+      "id": "comp.cloud.team-repo-and-board",
+      "version": "1.0.0",
+      "label": "Open a team repository and board",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d3",
+        "CLF-C02.d3"
+      ]
+    },
+    {
+      "id": "comp.cloud.identity-and-groups",
+      "version": "1.0.0",
+      "label": "Grant team access through groups and roles",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d2",
+        "NIST.800-53.AC-2"
+      ]
+    },
+    {
+      "id": "comp.cloud.cost-estimate",
+      "version": "1.0.0",
+      "label": "Estimate monthly cost and choose storage classes",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d3",
+        "CLF-C02.d4",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.launch-vm",
+      "version": "1.0.0",
+      "label": "Launch a free-tier VM and stop it",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d3",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.static-site-https",
+      "version": "1.0.0",
+      "label": "Publish a static site over HTTPS",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d3"
+      ]
+    },
+    {
+      "id": "comp.cloud.ssh-from-one-ip",
+      "version": "1.0.0",
+      "label": "Allow SSH from one address only",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d2",
+        "NIST.800-53.SC-7"
+      ]
+    },
+    {
+      "id": "comp.cloud.request-flow",
+      "version": "1.0.0",
+      "label": "Draw a request flow and who manages hops",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d1",
+        "CLF-C02.d1"
+      ]
+    },
+    {
+      "id": "comp.cloud.managed-database",
+      "version": "1.0.0",
+      "label": "Create a managed NoSQL table and seed it",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d3"
+      ]
+    },
+    {
+      "id": "comp.cloud.serverless-api",
+      "version": "1.0.0",
+      "label": "Build a serverless function and API",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d3"
+      ]
+    },
+    {
+      "id": "comp.cloud.read-only-access",
+      "version": "1.0.0",
+      "label": "Grant read-only access to a group with MFA",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d2",
+        "CLF-C02.d2",
+        "NIST.800-53.AC-6"
+      ]
+    },
+    {
+      "id": "comp.cloud.cost-report",
+      "version": "1.0.0",
+      "label": "Report spend and read the advisor",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d3",
+        "CLF-C02.d4",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.error-alert",
+      "version": "1.0.0",
+      "label": "Alert on function errors to the team",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d3",
+        "CLF-C02.d3",
+        "NIST.CSF.DE.CM"
+      ]
+    },
+    {
+      "id": "comp.cloud.read-logs",
+      "version": "1.0.0",
+      "label": "Find a failure in logs and fix it",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d3",
+        "CLF-C02.d3"
+      ]
+    },
+    {
+      "id": "comp.cloud.audit-trail",
+      "version": "1.0.0",
+      "label": "Trace a change in the audit trail",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-900.d3",
+        "CLF-C02.d2",
+        "NIST.800-61.DETECT"
+      ]
+    },
+    {
+      "id": "comp.cloud.access-matrix",
+      "version": "1.0.0",
+      "label": "Write an access matrix and security layers",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d1",
+        "SAA-C03.d1",
+        "NIST.800-53.AC-6"
+      ]
+    },
+    {
+      "id": "comp.cloud.secrets-in-vault",
+      "version": "1.0.0",
+      "label": "Keep secrets in a vault under managed keys",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d1",
+        "SAA-C03.d1",
+        "NIST.800-53.IA-5"
+      ]
+    },
+    {
+      "id": "comp.cloud.managed-identity",
+      "version": "1.0.0",
+      "label": "Scope a workload identity to one resource",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d1",
+        "SAA-C03.d1",
+        "NIST.800-53.AC-6"
+      ]
+    },
+    {
+      "id": "comp.cloud.prove-denial",
+      "version": "1.0.0",
+      "label": "Prove an access is denied and find exposure",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d1",
+        "SAA-C03.d1"
+      ]
+    },
+    {
+      "id": "comp.cloud.two-zone-design",
+      "version": "1.0.0",
+      "label": "Design a two-zone fleet and cost it",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d3",
+        "SAA-C03.d2",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.cloud.scale-set",
+      "version": "1.0.0",
+      "label": "Build a scale set across two zones",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d3",
+        "SAA-C03.d2",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.cloud.load-balancer",
+      "version": "1.0.0",
+      "label": "Put a fleet behind a load balancer",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d4",
+        "SAA-C03.d2",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.cloud.private-access-path",
+      "version": "1.0.0",
+      "label": "Reach private resources without the internet",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d4",
+        "SAA-C03.d1",
+        "NIST_800_207"
+      ]
+    },
+    {
+      "id": "comp.cloud.data-store-choice",
+      "version": "1.0.0",
+      "label": "Choose a data store and storage tiers",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d2",
+        "SAA-C03.d4",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.ha-database",
+      "version": "1.0.0",
+      "label": "Create a zone-redundant relational database",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d4",
+        "SAA-C03.d2",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.cloud.queue-and-ledger",
+      "version": "1.0.0",
+      "label": "Decouple with a queue and a ledger",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d2",
+        "SAA-C03.d3",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.cloud.data-lockdown",
+      "version": "1.0.0",
+      "label": "Lock data down: HTTPS, encryption, no public blobs",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d2",
+        "SAA-C03.d1",
+        "NIST.800-53.SC-8"
+      ]
+    },
+    {
+      "id": "comp.cloud.autoscale-target",
+      "version": "1.0.0",
+      "label": "Set an autoscale target with a reason",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d5",
+        "SAA-C03.d4",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.autoscale-and-self-heal",
+      "version": "1.0.0",
+      "label": "Autoscale on CPU and prove self-healing",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d3",
+        "SAA-C03.d2",
+        "WAF.reliability"
+      ]
+    },
+    {
+      "id": "comp.cloud.restore-file-and-database",
+      "version": "1.0.0",
+      "label": "Recover a deleted file and restore a database",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d5",
+        "SAA-C03.d2",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
+      "id": "comp.cloud.recovery-drill-and-teardown",
+      "version": "1.0.0",
+      "label": "Run a timed recovery drill and tear down",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-104.d5",
+        "SAA-C03.d2",
+        "NIST_800_34"
+      ]
+    },
+    {
+      "id": "comp.cloud.template-map",
+      "version": "1.0.0",
+      "label": "Map a template and write an ADR",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d1",
+        "DOP-C02.d2",
+        "ISO42010"
+      ]
+    },
+    {
+      "id": "comp.cloud.inventory-and-drift",
+      "version": "1.0.0",
+      "label": "Inventory with the CLI and detect drift",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d2",
+        "WAF.operational-excellence"
+      ]
+    },
+    {
+      "id": "comp.cloud.deploy-from-template",
+      "version": "1.0.0",
+      "label": "Preview and deploy from a template",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d2"
+      ]
+    },
+    {
+      "id": "comp.cloud.policy-as-code",
+      "version": "1.0.0",
+      "label": "Validate templates and enforce policy as code",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d4",
+        "DOP-C02.d6",
+        "WAF.security"
+      ]
+    },
+    {
+      "id": "comp.cloud.change-request-and-gates",
+      "version": "1.0.0",
+      "label": "Write a change request with gates",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d1",
+        "DOP-C02.d1",
+        "ITIL.change"
+      ]
+    },
+    {
+      "id": "comp.cloud.branch-protection",
+      "version": "1.0.0",
+      "label": "Protect main and require checks",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d2",
+        "DOP-C02.d1",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.cloud.staged-pipeline",
+      "version": "1.0.0",
+      "label": "Build a staged pipeline with approval",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d1",
+        "NIST_800_218"
+      ]
+    },
+    {
+      "id": "comp.cloud.oidc-deploy-identity",
+      "version": "1.0.0",
+      "label": "Deploy with a federated identity, no secret",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d4",
+        "DOP-C02.d6",
+        "NIST_800_63"
+      ]
+    },
+    {
+      "id": "comp.cloud.cost-by-service-and-slos",
+      "version": "1.0.0",
+      "label": "Review cost by service and set SLOs",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d5",
+        "DOP-C02.d4",
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "comp.cloud.blue-green",
+      "version": "1.0.0",
+      "label": "Cut over blue-green with no failed request",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d3",
+        "WAF.operational-excellence"
+      ]
+    },
+    {
+      "id": "comp.cloud.canary",
+      "version": "1.0.0",
+      "label": "Canary a release behind a metric",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d3",
+        "WAF.operational-excellence"
+      ]
+    },
+    {
+      "id": "comp.cloud.dashboard-and-compliance",
+      "version": "1.0.0",
+      "label": "Dashboard the SLIs and enforce a tag",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d5",
+        "DOP-C02.d4",
+        "WAF.security"
+      ]
+    },
+    {
+      "id": "comp.cloud.handover-package",
+      "version": "1.0.0",
+      "label": "Assemble a handover package with risks",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d1",
+        "DOP-C02.d5",
+        "ITIL.transition"
+      ]
+    },
+    {
+      "id": "comp.cloud.rebuild-and-automate",
+      "version": "1.0.0",
+      "label": "Rebuild from the template and automate a restart",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d3",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
+      "id": "comp.cloud.fix-through-ci",
+      "version": "1.0.0",
+      "label": "Recover an app failure through CI",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d3",
+        "DOP-C02.d5"
+      ]
+    },
+    {
+      "id": "comp.cloud.contain-and-post-mortem",
+      "version": "1.0.0",
+      "label": "Contain a cloud incident and write a post-mortem",
+      "area": "cloud",
+      "objectiveRefs": [
+        "AZ-400.d4",
+        "DOP-C02.d5",
+        "NIST.800-61.POST"
+      ]
+    }
+  ],
+  "taughtBy": {
+    "comp.recon.osint": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w1-osint"
+      }
+    ],
+    "comp.recon.dns-whois": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w1-osint"
+      }
+    ],
+    "comp.recon.fingerprint-web": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w1-osint"
+      }
+    ],
+    "comp.recon.port-scan": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w2-enumeration"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w3"
+      }
+    ],
+    "comp.recon.web-scan": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w2-enumeration"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w3"
+      }
+    ],
+    "comp.vuln.summarise-findings": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w2-enumeration"
+      }
+    ],
+    "comp.exploit.sql-injection": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w3-attacks"
+      }
+    ],
+    "comp.exploit.brute-force": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w3-attacks"
+      }
+    ],
+    "comp.exploit.exploit-chain": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w3-attacks"
+      }
+    ],
+    "comp.report.technical-briefing": [
+      {
+        "courseId": "security-plus",
+        "taskId": "red-w4-briefing"
+      }
+    ],
+    "comp.harden.linux-baseline": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w1-hardening"
+      }
+    ],
+    "comp.harden.windows-baseline": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w1-hardening"
+      }
+    ],
+    "comp.detect.capture-baseline": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w2-baseline"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cb-w1"
+      }
+    ],
+    "comp.detect.write-detection": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w2-baseline"
+      }
+    ],
+    "comp.detect.windows-event-logs": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w2-baseline"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w3-detection"
+      }
+    ],
+    "comp.detect.live-triage": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w3-detection"
+      }
+    ],
+    "comp.respond.contain": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w3-detection"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w4"
+      }
+    ],
+    "comp.report.incident-findings": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w4-response"
+      }
+    ],
+    "comp.respond.timeline": [
+      {
+        "courseId": "security-plus",
+        "taskId": "blue-w4-response"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w4"
+      }
+    ],
+    "comp.grc.framework-mapping": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w1-framework"
+      }
+    ],
+    "comp.grc.hardening-standard": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w1-framework"
+      }
+    ],
+    "comp.forensics.hash-evidence": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w1-framework"
+      },
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w3-custody"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w2"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w4"
+      },
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-red"
+      }
+    ],
+    "comp.risk.likelihood-impact": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w2-risk"
+      }
+    ],
+    "comp.vuln.cvss-score": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w2-risk"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w3"
+      }
+    ],
+    "comp.grc.vm-sop": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w2-risk"
+      }
+    ],
+    "comp.respond.ir-runbook": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w3-custody"
+      }
+    ],
+    "comp.forensics.chain-of-custody": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w3-custody"
+      }
+    ],
+    "comp.report.final-report": [
+      {
+        "courseId": "security-plus",
+        "taskId": "grc-w4-report"
+      }
+    ],
+    "comp.detect.deploy-endpoint-sensor": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w1"
+      },
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cb-w1"
+      }
+    ],
+    "comp.detect.deploy-network-sensor": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w1"
+      }
+    ],
+    "comp.detect.coverage-validation": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w1"
+      }
+    ],
+    "comp.detect.triage-alerts": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cb-w2"
+      }
+    ],
+    "comp.forensics.packet-capture": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w2"
+      }
+    ],
+    "comp.forensics.log-pivoting": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w2"
+      }
+    ],
+    "comp.forensics.iocs": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w2"
+      }
+    ],
+    "comp.vuln.read-scanner-output": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cb-w3"
+      }
+    ],
+    "comp.vuln.validate-scan": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w3"
+      }
+    ],
+    "comp.vuln.risk-rank": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w3"
+      }
+    ],
+    "comp.vuln.remediation-plan": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w3"
+      }
+    ],
+    "comp.respond.find-the-incident": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cb-w4"
+      }
+    ],
+    "comp.report.executive-debrief": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cg-w4b"
+      }
+    ],
+    "comp.respond.incident-report": [
+      {
+        "courseId": "cysa-plus",
+        "taskId": "cr-w4"
+      },
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-secops"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-secops"
+      }
+    ],
+    "comp.risk.iso-27005": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w1"
+      }
+    ],
+    "comp.risk.soa": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w1"
+      }
+    ],
+    "comp.recon.attack-surface": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w1"
+      }
+    ],
+    "comp.recon.tls-hygiene": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w1"
+      }
+    ],
+    "comp.vuln.cis-gap-scan": [
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w1"
+      }
+    ],
+    "comp.audit.control-matrix": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w2"
+      }
+    ],
+    "comp.harden.host-firewall": [
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w2"
+      }
+    ],
+    "comp.harden.change-discipline": [
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w2"
+      }
+    ],
+    "comp.risk.threat-model-controls": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w2"
+      }
+    ],
+    "comp.exploit.web-pentest": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w3"
+      }
+    ],
+    "comp.exploit.retest": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w3"
+      },
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w4"
+      }
+    ],
+    "comp.detect.sigma-rules": [
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w3"
+      }
+    ],
+    "comp.detect.validate-detection": [
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w3"
+      }
+    ],
+    "comp.audit.remediation-tracking": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w3"
+      }
+    ],
+    "comp.audit.evidence-collection": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w3"
+      }
+    ],
+    "comp.risk.accept": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w4"
+      }
+    ],
+    "comp.exploit.tester-attestation": [
+      {
+        "courseId": "mssp",
+        "taskId": "mr-w4"
+      }
+    ],
+    "comp.report.detection-metrics": [
+      {
+        "courseId": "mssp",
+        "taskId": "mb-w4"
+      }
+    ],
+    "comp.audit.internal-audit": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w4a"
+      }
+    ],
+    "comp.audit.corrective-action": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w4a"
+      }
+    ],
+    "comp.audit.evidence-packet": [
+      {
+        "courseId": "mssp",
+        "taskId": "mg-w4b"
+      }
+    ],
+    "comp.grc.system-map": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-gov"
+      }
+    ],
+    "comp.grc.policy-shall": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-gov"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-gov"
+      }
+    ],
+    "comp.ai-attack.prompt-injection": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-red"
+      }
+    ],
+    "comp.ai-attack.sensitive-disclosure": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-red"
+      }
+    ],
+    "comp.harden.secrets-and-gateway": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w1-def"
+      }
+    ],
+    "comp.ai-attack.indirect-injection": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-red"
+      }
+    ],
+    "comp.ai-attack.excessive-agency": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-red"
+      }
+    ],
+    "comp.ai-attack.map-to-atlas": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-red"
+      }
+    ],
+    "comp.harden.guardrails": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-def"
+      }
+    ],
+    "comp.harden.agent-scope": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-def"
+      }
+    ],
+    "comp.harden.redaction": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-def"
+      }
+    ],
+    "comp.grc.data-lineage": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-gov"
+      }
+    ],
+    "comp.grc.ai-lifecycle": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-gov"
+      }
+    ],
+    "comp.grc.applicability": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w2-gov"
+      }
+    ],
+    "comp.harden.pipeline-gates": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-def"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-arch"
+      }
+    ],
+    "comp.harden.guardrail-tests": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-def"
+      }
+    ],
+    "comp.detect.alert-to-ticket": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-def"
+      }
+    ],
+    "comp.ai-attack.automate-suite": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-red"
+      }
+    ],
+    "comp.ai-attack.ai-assisted-check": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-red"
+      }
+    ],
+    "comp.detect.shadow-ai": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-gov"
+      }
+    ],
+    "comp.report.security-metrics": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w3-gov"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-gov"
+      }
+    ],
+    "comp.harden.clean-rebuild": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-def"
+      }
+    ],
+    "comp.harden.model-scanning": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-def"
+      }
+    ],
+    "comp.ai-attack.reproduce": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-red"
+      }
+    ],
+    "comp.ai-attack.paper-cases": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-red"
+      }
+    ],
+    "comp.grc.model-cards": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-gov"
+      }
+    ],
+    "comp.grc.responsible-ai": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-gov"
+      }
+    ],
+    "comp.audit.questionnaire": [
+      {
+        "courseId": "secai-plus",
+        "taskId": "sa-w4-gov"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-gov"
+      }
+    ],
+    "comp.grc.classification": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-gov"
+      }
+    ],
+    "comp.grc.maturity": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-gov"
+      }
+    ],
+    "comp.arch.trust-boundaries": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-arch"
+      }
+    ],
+    "comp.arch.shared-responsibility": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-arch"
+      }
+    ],
+    "comp.arch.default-deny-zones": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-arch"
+      }
+    ],
+    "comp.identity.rbac": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-idops"
+      }
+    ],
+    "comp.identity.joiner-leaver": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-idops"
+      }
+    ],
+    "comp.ops.logging-first-hour": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w1-idops"
+      }
+    ],
+    "comp.risk.register": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-gov"
+      }
+    ],
+    "comp.risk.quantitative": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-gov"
+      }
+    ],
+    "comp.crypto.standard": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-arch"
+      }
+    ],
+    "comp.arch.rule-base": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-arch"
+      }
+    ],
+    "comp.arch.sdlc-gates": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-arch"
+      }
+    ],
+    "comp.identity.access-matrix": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-idops"
+      }
+    ],
+    "comp.respond.recovery-targets": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-idops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-dr"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-mgmt"
+      },
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-arch"
+      }
+    ],
+    "comp.respond.seven-step-plan": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w2-idops"
+      }
+    ],
+    "comp.crypto.tls-versions": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-arch"
+      }
+    ],
+    "comp.arch.component-list": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-arch"
+      }
+    ],
+    "comp.identity.mfa-console": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-idops"
+      }
+    ],
+    "comp.identity.orphan-accounts": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-idops"
+      }
+    ],
+    "comp.identity.federation": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-idops"
+      }
+    ],
+    "comp.grc.supplier-tiering": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-gov"
+      }
+    ],
+    "comp.risk.threat-model": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-gov"
+      }
+    ],
+    "comp.data.sanitisation": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w3-gov"
+      }
+    ],
+    "comp.ops.detection-fires": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-idops"
+      }
+    ],
+    "comp.respond.restore-test": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-idops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-dr"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-lnx"
+      }
+    ],
+    "comp.ops.contingency-phases": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-idops"
+      }
+    ],
+    "comp.data.discovery": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-gov"
+      }
+    ],
+    "comp.grc.categorise-system": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-gov"
+      }
+    ],
+    "comp.grc.ai-act-decision": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-gov"
+      }
+    ],
+    "comp.harden.ai-gateway-zone": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-arch"
+      }
+    ],
+    "comp.identity.machine-identities": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-arch"
+      }
+    ],
+    "comp.vuln.config-scan": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w4-arch"
+      }
+    ],
+    "comp.audit.assess-controls": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-gov"
+      }
+    ],
+    "comp.grc.ethics-canons": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-gov"
+      }
+    ],
+    "comp.harden.tls-and-rule-base": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-arch"
+      }
+    ],
+    "comp.crypto.key-rotation": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-arch"
+      }
+    ],
+    "comp.arch.segmentation-proof": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-arch"
+      }
+    ],
+    "comp.identity.access-review": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-idops"
+      }
+    ],
+    "comp.respond.tabletop": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w5-idops"
+      }
+    ],
+    "comp.audit.self-assess-171": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w6-gov"
+      }
+    ],
+    "comp.audit.ssp": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w6-gov"
+      }
+    ],
+    "comp.audit.map-to-federal": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w6-arch"
+      },
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w6-idops"
+      }
+    ],
+    "comp.report.federal-incident-reporting": [
+      {
+        "courseId": "cissp",
+        "taskId": "ci-w6-idops"
+      }
+    ],
+    "comp.hardware.receive-and-inspect": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-bringup"
+      }
+    ],
+    "comp.hardware.memory-population": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-bringup"
+      }
+    ],
+    "comp.sysadmin.troubleshooting-method": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-bringup"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-ticket"
+      }
+    ],
+    "comp.hardware.capability-audit": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-document"
+      }
+    ],
+    "comp.hardware.firmware-lookup": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-document"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-lnx"
+      }
+    ],
+    "comp.hardware.raid-build": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-raid"
+      }
+    ],
+    "comp.hardware.boot-media": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-install"
+      }
+    ],
+    "comp.virt.install-hypervisor": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-install"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-lnx"
+      }
+    ],
+    "comp.docs.architecture-brief": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-business"
+      }
+    ],
+    "comp.network.zone-design": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-business"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-plan"
+      }
+    ],
+    "comp.hardware.rack-planning": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-rackplan"
+      }
+    ],
+    "comp.hardware.rack-and-cable": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-rack"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-net"
+      }
+    ],
+    "comp.virt.bridges-and-nat": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-install"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-net"
+      }
+    ],
+    "comp.virt.provision-vms": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-install"
+      }
+    ],
+    "comp.sysadmin.web-server": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-deploy"
+      }
+    ],
+    "comp.sysadmin.windows-roles": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-deploy"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-win"
+      }
+    ],
+    "comp.sysadmin.database-server": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-deploy"
+      }
+    ],
+    "comp.sysadmin.record-addresses": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-topology"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-lnx"
+      }
+    ],
+    "comp.sysadmin.persistent-addressing": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-connect"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-lnx"
+      }
+    ],
+    "comp.network.publish-with-dnat": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-connect"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-net"
+      }
+    ],
+    "comp.network.closed-forward-policy": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-connect"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w7-net"
+      }
+    ],
+    "comp.docs.write-sops": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-sops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-mgmt"
+      }
+    ],
+    "comp.docs.change-control": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-sops"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-mgmt"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w5-change"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-incident"
+      }
+    ],
+    "comp.sysadmin.ssh-hardening": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-secure"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-lnx"
+      }
+    ],
+    "comp.sysadmin.host-firewalls": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-secure"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-lnx"
+      }
+    ],
+    "comp.sysadmin.windows-hardening": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-secure"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-win"
+      }
+    ],
+    "comp.docs.as-built-handover": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-handover"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-record"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-mgmt"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-handover"
+      }
+    ],
+    "comp.docs.capacity-planning": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-plan"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-win"
+      }
+    ],
+    "comp.observe.metrics-and-logs": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-secmon"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-lnx"
+      }
+    ],
+    "comp.observe.alerting": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-secmon"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-mgmt"
+      }
+    ],
+    "comp.observe.backup-monitoring": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-pulse"
+      }
+    ],
+    "comp.sysadmin.api-tokens": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-pulse"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-terraform"
+      }
+    ],
+    "comp.observe.siem-deploy": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-wazuh"
+      }
+    ],
+    "comp.observe.file-integrity": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-wazuh"
+      }
+    ],
+    "comp.automation.terraform-vms": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-terraform"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-terraform"
+      }
+    ],
+    "comp.docs.netbox-ipam": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-netbox"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-net"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w5-sot"
+      }
+    ],
+    "comp.automation.docker-compose": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-netbox"
+      }
+    ],
+    "comp.docs.asset-management-tool": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-glpi"
+      }
+    ],
+    "comp.docs.change-tickets": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-glpi"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-mgmt"
+      }
+    ],
+    "comp.network.out-of-band": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-spine"
+      }
+    ],
+    "comp.network.vlan-tagged-bridges": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-spine"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w7-net"
+      }
+    ],
+    "comp.automation.ops-workstation": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-ops"
+      }
+    ],
+    "comp.sysadmin.ssh-keys": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-ops"
+      }
+    ],
+    "comp.automation.infra-in-git": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-git"
+      }
+    ],
+    "comp.automation.secrets-out-of-history": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-git"
+      }
+    ],
+    "comp.automation.golden-images": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-terraform"
+      }
+    ],
+    "comp.automation.drift-plan": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-terraform"
+      }
+    ],
+    "comp.automation.ansible-roles": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-ansible"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-lnx"
+      },
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w7-ansible"
+      }
+    ],
+    "comp.automation.dynamic-inventory": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-ansible"
+      }
+    ],
+    "comp.observe.service-discovery": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-observe"
+      }
+    ],
+    "comp.observe.fleet-onboarding": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-observe"
+      }
+    ],
+    "comp.continuity.dedup-backup": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-vault"
+      }
+    ],
+    "comp.continuity.verify-backups": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-vault"
+      }
+    ],
+    "comp.observe.siem-tenancy": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-xdr"
+      }
+    ],
+    "comp.observe.sca-score": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-xdr"
+      }
+    ],
+    "comp.automation.rebuild-from-git": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-rebuild"
+      }
+    ],
+    "comp.docs.repository-handover": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-rebuild"
+      }
+    ],
+    "comp.docs.professional-documentation": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-lnx"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-lnx"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-lnx"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-lnx"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-mgmt"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-mgmt"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w3-mgmt"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-net"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w5-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w6-mgmt"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-win"
+      },
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w8-mgmt"
+      }
+    ],
+    "comp.sysadmin.patching": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w4-win"
+      }
+    ],
+    "comp.docs.sla-mapping": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w1-mgmt"
+      }
+    ],
+    "comp.docs.naming-standard": [
+      {
+        "courseId": "server-plus",
+        "taskId": "sp-w2-mgmt"
+      }
+    ],
+    "comp.docs.requirements-gathering": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-discover"
+      }
+    ],
+    "comp.docs.site-survey": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-discover"
+      }
+    ],
+    "comp.network.hierarchical-design": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-design"
+      }
+    ],
+    "comp.docs.design-decisions": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-design"
+      }
+    ],
+    "comp.network.switch-bringup": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-bringup"
+      }
+    ],
+    "comp.docs.build-log": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w1-bringup"
+      }
+    ],
+    "comp.network.vlans-and-trunks": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-vlans"
+      }
+    ],
+    "comp.network.inter-vlan-routing": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-route"
+      }
+    ],
+    "comp.network.spanning-tree": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w2-resilience"
+      }
+    ],
+    "comp.network.ospf": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w3-wan"
+      }
+    ],
+    "comp.network.default-route-and-nat": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w3-internet"
+      }
+    ],
+    "comp.network.acls": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-policy"
+      }
+    ],
+    "comp.network.management-plane-hardening": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-harden"
+      }
+    ],
+    "comp.network.wlan": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w4-wireless"
+      }
+    ],
+    "comp.network.config-backup": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w5-change"
+      }
+    ],
+    "comp.observe.snmp-and-syslog": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-noc"
+      }
+    ],
+    "comp.docs.work-a-ticket": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w6-ticket"
+      }
+    ],
+    "comp.automation.network-as-data": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w7-data"
+      }
+    ],
+    "comp.automation.idempotent-playbooks": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w7-ansible"
+      }
+    ],
+    "comp.docs.incident-management": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-incident"
+      }
+    ],
+    "comp.docs.known-issues": [
+      {
+        "courseId": "ccna",
+        "taskId": "ccna-w8-handover"
+      }
+    ],
+    "comp.cloud.budget-and-tags": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-arch"
+      }
+    ],
+    "comp.cloud.shared-responsibility": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-arch"
+      }
+    ],
+    "comp.cloud.network-foundation": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-infra"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-infra"
+      }
+    ],
+    "comp.cloud.team-repo-and-board": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-dev"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-dev"
+      }
+    ],
+    "comp.cloud.identity-and-groups": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w1-secops"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w1-secops"
+      }
+    ],
+    "comp.cloud.cost-estimate": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w2-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w2-arch"
+      }
+    ],
+    "comp.cloud.launch-vm": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w2-infra"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w2-infra"
+      }
+    ],
+    "comp.cloud.static-site-https": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w2-dev"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w2-dev"
+      }
+    ],
+    "comp.cloud.ssh-from-one-ip": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w2-secops"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w2-secops"
+      }
+    ],
+    "comp.cloud.request-flow": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w3-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w3-arch"
+      }
+    ],
+    "comp.cloud.managed-database": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w3-infra"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w3-infra"
+      }
+    ],
+    "comp.cloud.serverless-api": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w3-dev"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w3-dev"
+      }
+    ],
+    "comp.cloud.read-only-access": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w3-secops"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w3-secops"
+      }
+    ],
+    "comp.cloud.cost-report": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-arch"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-arch"
+      }
+    ],
+    "comp.cloud.error-alert": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-infra"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-infra"
+      }
+    ],
+    "comp.cloud.read-logs": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-dev"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-dev"
+      }
+    ],
+    "comp.cloud.audit-trail": [
+      {
+        "courseId": "azure-fundamentals",
+        "taskId": "az-w4-secops"
+      },
+      {
+        "courseId": "aws-cloud-practitioner",
+        "taskId": "aws-w4-secops"
+      }
+    ],
+    "comp.cloud.access-matrix": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w5-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w5-arch"
+      }
+    ],
+    "comp.cloud.secrets-in-vault": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w5-infra"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w5-infra"
+      }
+    ],
+    "comp.cloud.managed-identity": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w5-dev"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w5-dev"
+      }
+    ],
+    "comp.cloud.prove-denial": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w5-secops"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w5-secops"
+      }
+    ],
+    "comp.cloud.two-zone-design": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w6-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w6-arch"
+      }
+    ],
+    "comp.cloud.scale-set": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w6-infra"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w6-infra"
+      }
+    ],
+    "comp.cloud.load-balancer": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w6-dev"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w6-dev"
+      }
+    ],
+    "comp.cloud.private-access-path": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w6-secops"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w6-secops"
+      }
+    ],
+    "comp.cloud.data-store-choice": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w7-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w7-arch"
+      }
+    ],
+    "comp.cloud.ha-database": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w7-infra"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w7-infra"
+      }
+    ],
+    "comp.cloud.queue-and-ledger": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w7-dev"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w7-dev"
+      }
+    ],
+    "comp.cloud.data-lockdown": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w7-secops"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w7-secops"
+      }
+    ],
+    "comp.cloud.autoscale-target": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-arch"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-arch"
+      }
+    ],
+    "comp.cloud.autoscale-and-self-heal": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-infra"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-infra"
+      }
+    ],
+    "comp.cloud.restore-file-and-database": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-dev"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-dev"
+      }
+    ],
+    "comp.cloud.recovery-drill-and-teardown": [
+      {
+        "courseId": "azure-administrator",
+        "taskId": "az-w8-secops"
+      },
+      {
+        "courseId": "aws-solutions-architect",
+        "taskId": "aws-w8-secops"
+      }
+    ],
+    "comp.cloud.template-map": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w9-arch"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w9-arch"
+      }
+    ],
+    "comp.cloud.inventory-and-drift": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w9-infra"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w9-infra"
+      }
+    ],
+    "comp.cloud.deploy-from-template": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w9-dev"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w9-dev"
+      }
+    ],
+    "comp.cloud.policy-as-code": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w9-secops"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w9-secops"
+      }
+    ],
+    "comp.cloud.change-request-and-gates": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w10-arch"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w10-arch"
+      }
+    ],
+    "comp.cloud.branch-protection": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w10-infra"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w10-infra"
+      }
+    ],
+    "comp.cloud.staged-pipeline": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w10-dev"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w10-dev"
+      }
+    ],
+    "comp.cloud.oidc-deploy-identity": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w10-secops"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w10-secops"
+      }
+    ],
+    "comp.cloud.cost-by-service-and-slos": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w11-arch"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w11-arch"
+      }
+    ],
+    "comp.cloud.blue-green": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w11-infra"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w11-infra"
+      }
+    ],
+    "comp.cloud.canary": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w11-dev"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w11-dev"
+      }
+    ],
+    "comp.cloud.dashboard-and-compliance": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w11-secops"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w11-secops"
+      }
+    ],
+    "comp.cloud.handover-package": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w12-arch"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w12-arch"
+      }
+    ],
+    "comp.cloud.rebuild-and-automate": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w12-infra"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w12-infra"
+      }
+    ],
+    "comp.cloud.fix-through-ci": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w12-dev"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w12-dev"
+      }
+    ],
+    "comp.cloud.contain-and-post-mortem": [
+      {
+        "courseId": "azure-devops",
+        "taskId": "az-w12-secops"
+      },
+      {
+        "courseId": "aws-devops",
+        "taskId": "aws-w12-secops"
+      }
+    ]
+  }
+}

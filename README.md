@@ -15,6 +15,8 @@ Where this is headed and how we get there incrementally:
 - [`docs/OPERATIONS.md`](docs/OPERATIONS.md) — **what's needed from you** to run a fully functional app.
 - [`docs/INTEGRATION_CERTHATCH.md`](docs/INTEGRATION_CERTHATCH.md) — interop with CertHatch & other platforms
   via a shared competency-ontology kernel (no shared database).
+- [`docs/VALUE_REGISTER.md`](docs/VALUE_REGISTER.md) — what the platform's assets (the ontology, the schemas, the
+  course DTOs, the member profile) are worth to companies, students and other platforms, with an honest status.
 - [`docs/MSSP_MODEL.md`](docs/MSSP_MODEL.md) — the capstone reframed as a real MSSP: the three roles
   professionalized, the engagement lifecycle, and the SOC 2 + ISO 27001 crosswalk.
 - [`docs/adr/`](docs/adr/) — decision records for the load-bearing, build-now-or-regret-it choices.

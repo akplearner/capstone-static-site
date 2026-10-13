@@ -1,0 +1,49 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "generatedFrom": [
+    "src/lib/docs/skills.ts",
+    "src/lib/docs/tools.ts",
+    "src/lib/docs/standards.ts",
+    "src/lib/docs/sops.ts",
+    "src/lib/docs/tactics.ts",
+    "src/lib/docs/metricCatalogue.ts",
+    "src/lib/docs/certs.ts"
+  ],
+  "files": {
+    "competencies": "competencies.json",
+    "tools": "tools.json",
+    "standards": "standards.json",
+    "sops": "sops.json",
+    "tactics": "tactics.json",
+    "practices": "practices.json",
+    "metrics": "metrics.json",
+    "domains": "domains.json"
+  },
+  "counts": {
+    "competencies": 266,
+    "tools": 129,
+    "standards": 38,
+    "controls": 230,
+    "sops": 43,
+    "tactics": 28,
+    "practices": 96,
+    "metrics": 81,
+    "domains": 63
+  },
+  "idStyle": {
+    "competency": "comp.<area>.<slug>",
+    "tool": "tool.<slug>",
+    "control": "<standard code>.<control>",
+    "sop": "sop.<slug>",
+    "tactic": "TA<nnnn> (ATT&CK Enterprise) | AML.TA<nnnn> (ATLAS)",
+    "practice": "practice.<slug>",
+    "metric": "metric.<slug>",
+    "domain": "<examCode slugged>.<domainId>"
+  },
+  "rules": [
+    "additive",
+    "deprecate never remove",
+    "semver: minor on add, major on a shape change"
+  ]
+}

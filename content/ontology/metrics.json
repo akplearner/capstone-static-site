@@ -1,0 +1,1302 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "inputs": [
+    "course",
+    "registry",
+    "cert",
+    "controls",
+    "step_completions",
+    "step_evidence",
+    "evidence_artifacts",
+    "deliverables",
+    "deliverable_status",
+    "deliverable_submissions",
+    "deliverable_reviews",
+    "peer_review_assignments",
+    "task_reports",
+    "step_notes",
+    "step_flags",
+    "cohorts"
+  ],
+  "metrics": [
+    {
+      "id": "metric.skill-exercised",
+      "label": "Skills exercised",
+      "dimension": "skills",
+      "definition": "Mapped graded tasks with at least one required step ticked, over mapped tasks.",
+      "inputs": [
+        "step_completions",
+        "registry",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-practised",
+      "label": "Skills practised",
+      "dimension": "skills",
+      "definition": "Skills with at least one ticked required step, over the skills the course maps.",
+      "inputs": [
+        "step_completions",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-verified",
+      "label": "Skills verified",
+      "dimension": "skills",
+      "definition": "Skills with at least one verifiable step verified from pasted output, over skills with a verifiable step.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-fully-verified",
+      "label": "Skills fully verified",
+      "dimension": "skills",
+      "definition": "Skills whose every verifiable step is verified, over skills with a verifiable step.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-reviewed",
+      "label": "Skills reviewed",
+      "dimension": "skills",
+      "definition": "Verified skills whose mapped deliverable the team had approved or issued, over verified skills.",
+      "inputs": [
+        "step_evidence",
+        "deliverable_status",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "A team fact: the document was approved, not the member alone. Loads on the course page."
+    },
+    {
+      "id": "metric.skill-next-gap",
+      "label": "Next task per gap",
+      "dimension": "skills",
+      "definition": "For each skill not started, the first mapped task not done, in course order.",
+      "inputs": [
+        "step_completions",
+        "registry",
+        "course"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-state-proven",
+      "label": "Skills state-proven",
+      "dimension": "skills",
+      "definition": "Skills confirmed by a validator that read the real system state, over skills.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "needs-validators",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-attested",
+      "label": "Skills attested",
+      "dimension": "skills",
+      "definition": "Skills carried by a signed attestation with an environment hash, over skills.",
+      "inputs": [],
+      "valueTo": [
+        "company",
+        "platform"
+      ],
+      "status": "needs-validators",
+      "scored": false
+    },
+    {
+      "id": "metric.tool-used",
+      "label": "Tools used",
+      "dimension": "tools",
+      "definition": "Tools of tasks with at least one ticked required step, over the tools the course derives.",
+      "inputs": [
+        "step_completions",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.tool-verified",
+      "label": "Tools verified",
+      "dimension": "tools",
+      "definition": "Tools of tasks with at least one verified step, over tools used.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.tool-commands-verified",
+      "label": "Commands verified per tool",
+      "dimension": "tools",
+      "definition": "Verified steps whose command belongs to the tool, over verifiable steps with such a command.",
+      "inputs": [
+        "step_evidence",
+        "course",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.tool-evidenced",
+      "label": "Tools evidenced by file",
+      "dimension": "tools",
+      "definition": "Hashed artifacts whose filename tool segment resolves to the tool, over hashed artifacts.",
+      "inputs": [
+        "evidence_artifacts",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.tool-command-copied",
+      "label": "Commands copied per tool",
+      "dimension": "tools",
+      "definition": "Copy or paste events per tool.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "platform"
+      ],
+      "status": "needs-events",
+      "scored": false
+    },
+    {
+      "id": "metric.procedure-started",
+      "label": "Procedures started",
+      "dimension": "procedures",
+      "definition": "SOP kinds with a mapped form holding data or a mapped task ticked, over the SOP kinds the course maps.",
+      "inputs": [
+        "deliverables",
+        "step_completions",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Form data is a team fact; loads on the course page."
+    },
+    {
+      "id": "metric.procedure-followed",
+      "label": "Procedures followed",
+      "dimension": "procedures",
+      "definition": "SOP kinds whose mapped forms meet every Definition-of-Done check due and have document control complete, over started.",
+      "inputs": [
+        "deliverables",
+        "course",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.procedure-evidenced",
+      "label": "Procedures evidenced",
+      "dimension": "procedures",
+      "definition": "Followed SOP kinds whose evidence fields point at a hashed artifact, over followed.",
+      "inputs": [
+        "deliverables",
+        "evidence_artifacts",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.procedure-to-standard",
+      "label": "Procedures to standard",
+      "dimension": "procedures",
+      "definition": "Followed SOP kinds whose form cites a parsed control code and was approved or issued, over followed.",
+      "inputs": [
+        "deliverables",
+        "deliverable_status",
+        "controls",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.procedure-in-order",
+      "label": "Steps verified in order",
+      "dimension": "procedures",
+      "definition": "Tasks whose verifiable steps were verified in authored order, over tasks with two or more verification records. A sequence fact only.",
+      "inputs": [
+        "step_evidence",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.procedure-change-recorded",
+      "label": "Change rows complete",
+      "dimension": "procedures",
+      "definition": "Change-record rows with what, where, backup, approval and rollback filled, over change rows on the role’s forms.",
+      "inputs": [
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.procedure-custody-kept",
+      "label": "Custody rows hashed",
+      "dimension": "procedures",
+      "definition": "Custody-log rows whose digest matches a hashed artifact, over custody rows.",
+      "inputs": [
+        "deliverables",
+        "evidence_artifacts"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.procedure-drilled",
+      "label": "Drills completed",
+      "dimension": "procedures",
+      "definition": "Recovery and incident SOP kinds with the drill task verified and the record approved, over such SOP kinds.",
+      "inputs": [
+        "step_evidence",
+        "deliverable_status",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.procedure-guide-followed",
+      "label": "Guide procedures followed",
+      "dimension": "procedures",
+      "definition": "Server+ guide procedures referenced by a ticked step, over guide procedures the role’s tasks reference.",
+      "inputs": [
+        "step_completions",
+        "course"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Server+ only."
+    },
+    {
+      "id": "metric.procedure-backup-before-write",
+      "label": "Backup before write",
+      "dimension": "procedures",
+      "definition": "Config writes preceded by their backup command, over config writes.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false,
+      "note": "Steps are ticked as a whole; commands are not."
+    },
+    {
+      "id": "metric.procedure-state-proven",
+      "label": "Procedures state-proven",
+      "dimension": "procedures",
+      "definition": "SOP outcomes read from system state by a validator, over followed.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "needs-validators",
+      "scored": false
+    },
+    {
+      "id": "metric.tactic-practised",
+      "label": "Tactics practised",
+      "dimension": "tactics",
+      "definition": "ATT&CK or ATLAS tactics of tasks with at least one ticked step, over the tactics the course maps.",
+      "inputs": [
+        "step_completions",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.tactic-verified",
+      "label": "Tactics verified",
+      "dimension": "tactics",
+      "definition": "Tactics of tasks with at least one verified step, over tactics practised.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.tactic-cited",
+      "label": "Technique ids cited",
+      "dimension": "tactics",
+      "definition": "Technique ids typed into forms that resolve to the matrices, over technique fields.",
+      "inputs": [
+        "deliverables"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "deferred",
+      "scored": false,
+      "note": "Team rows carry no author."
+    },
+    {
+      "id": "metric.practice-practised",
+      "label": "Practices practised",
+      "dimension": "practices",
+      "definition": "Engineering practices of tasks with at least one ticked step, over the practices the course maps.",
+      "inputs": [
+        "step_completions",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.practice-verified",
+      "label": "Practices verified",
+      "dimension": "practices",
+      "definition": "Practices of tasks with at least one verified step, over practices practised.",
+      "inputs": [
+        "step_evidence",
+        "registry"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.standard-practised",
+      "label": "Standards practised",
+      "dimension": "standards",
+      "definition": "Standards tagged on tasks or steps the member ticked, over standards the course tags.",
+      "inputs": [
+        "step_completions",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.standard-verified",
+      "label": "Standards verified",
+      "dimension": "standards",
+      "definition": "Standards tagged on a verified step, over standards practised.",
+      "inputs": [
+        "step_evidence",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.standard-effectiveness-steps",
+      "label": "Effectiveness: steps",
+      "dimension": "standards",
+      "definition": "Per standard: verified steps over verifiable steps tagged with it.",
+      "inputs": [
+        "step_evidence",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.standard-effectiveness-forms",
+      "label": "Effectiveness: forms",
+      "dimension": "standards",
+      "definition": "Per standard: forms citing it approved with all four rubric categories true, over forms citing it.",
+      "inputs": [
+        "controls",
+        "deliverable_submissions",
+        "deliverable_status"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.standard-effectiveness-sops",
+      "label": "Effectiveness: procedures",
+      "dimension": "standards",
+      "definition": "Per standard: SOP kinds anchored to it followed, over SOP kinds anchored to it.",
+      "inputs": [
+        "registry",
+        "deliverables"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.standard-controls-cited",
+      "label": "Controls cited",
+      "dimension": "standards",
+      "definition": "Distinct control codes on approved forms the member’s role drafted.",
+      "inputs": [
+        "controls",
+        "deliverable_status",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.standard-control-mapped-by-member",
+      "label": "Controls typed by member",
+      "dimension": "standards",
+      "definition": "Control codes the member typed into form fields that parse, over such fields.",
+      "inputs": [
+        "deliverables",
+        "controls"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "deferred",
+      "scored": false,
+      "note": "Team rows carry no author."
+    },
+    {
+      "id": "metric.domain-practised",
+      "label": "Domains practised",
+      "dimension": "domains",
+      "definition": "Exam domains with at least one ticked task of the role, over domains the course practises.",
+      "inputs": [
+        "step_completions",
+        "cert",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.domain-verified",
+      "label": "Domains verified",
+      "dimension": "domains",
+      "definition": "Exam domains with at least one verified step, over domains the course practises.",
+      "inputs": [
+        "step_evidence",
+        "cert",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.domain-weight-verified",
+      "label": "Exam weight verified",
+      "dimension": "domains",
+      "definition": "Sum of the weights of verified domains over the weights the course practises.",
+      "inputs": [
+        "step_evidence",
+        "cert"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.domain-gap-next",
+      "label": "Next task per domain gap",
+      "dimension": "domains",
+      "definition": "The next task of the role that practises a domain not yet practised.",
+      "inputs": [
+        "step_completions",
+        "cert",
+        "course"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.domain-recall",
+      "label": "Domain recall",
+      "dimension": "domains",
+      "definition": "A domain re-verified after a gap, over domains verified.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false
+    },
+    {
+      "id": "metric.evidence-steps-verified",
+      "label": "Steps verified",
+      "dimension": "evidence",
+      "definition": "Verified steps over verifiable required steps in graded weeks.",
+      "inputs": [
+        "step_evidence",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.evidence-self-attested",
+      "label": "Steps self-attested",
+      "dimension": "evidence",
+      "definition": "Verifiable required steps ticked without matching output, over verifiable required steps.",
+      "inputs": [
+        "step_evidence",
+        "step_completions",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.evidence-artifacts",
+      "label": "Files hashed",
+      "dimension": "evidence",
+      "definition": "Distinct hashed files the member saved.",
+      "inputs": [
+        "evidence_artifacts"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.evidence-naming",
+      "label": "Files named to convention",
+      "dimension": "evidence",
+      "definition": "Hashed files named to the evidence convention, over hashed files.",
+      "inputs": [
+        "evidence_artifacts"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.evidence-rehash-confirmed",
+      "label": "Files re-hashed",
+      "dimension": "evidence",
+      "definition": "Files re-hashed later with the same digest, over hashed files.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false
+    },
+    {
+      "id": "metric.evidence-hardware-proven",
+      "label": "Output proven on the lab",
+      "dimension": "evidence",
+      "definition": "Steps whose output was verified on the lab, not in the browser, over verified steps.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "needs-validators",
+      "scored": false
+    },
+    {
+      "id": "metric.doc-drafted",
+      "label": "Forms drafted",
+      "dimension": "documentation",
+      "definition": "Lifecycle rows by the member moving a form to in review.",
+      "inputs": [
+        "deliverable_status"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.doc-reviewed",
+      "label": "Forms reviewed",
+      "dimension": "documentation",
+      "definition": "Lifecycle rows by the member approving or returning a form.",
+      "inputs": [
+        "deliverable_status"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.doc-issued",
+      "label": "Forms issued",
+      "dimension": "documentation",
+      "definition": "Lifecycle rows by the member issuing a form.",
+      "inputs": [
+        "deliverable_status"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.doc-submissions",
+      "label": "Submissions frozen",
+      "dimension": "documentation",
+      "definition": "Frozen submissions by the member.",
+      "inputs": [
+        "deliverable_submissions"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.doc-rubric-green",
+      "label": "Submissions rubric-green",
+      "dimension": "documentation",
+      "definition": "The member’s frozen submissions with all four rubric categories true, over the member’s submissions.",
+      "inputs": [
+        "deliverable_submissions"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.doc-dod-met",
+      "label": "Definition-of-Done met",
+      "dimension": "documentation",
+      "definition": "Definition-of-Done checks met over checks due on the role’s forms through the current week.",
+      "inputs": [
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "A team fact; loads on the course page."
+    },
+    {
+      "id": "metric.doc-control-complete",
+      "label": "Document control complete",
+      "dimension": "documentation",
+      "definition": "Forms with the document-control block complete, over the role’s forms.",
+      "inputs": [
+        "deliverables"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "A team fact; loads on the course page."
+    },
+    {
+      "id": "metric.doc-instructor-approved",
+      "label": "Instructor approved",
+      "dimension": "documentation",
+      "definition": "The role’s forms with an instructor verdict of approved, over the role’s forms.",
+      "inputs": [
+        "deliverable_reviews"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.collab-teammate-steps",
+      "label": "Teammate steps ticked",
+      "dimension": "collaboration",
+      "definition": "Required steps the member ticked on another role’s tasks.",
+      "inputs": [
+        "step_completions",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.collab-handoffs",
+      "label": "Hand-offs completed",
+      "dimension": "collaboration",
+      "definition": "Hand-offs whose named deliverable reached approved or issued, over hand-offs of the role’s tasks.",
+      "inputs": [
+        "course",
+        "deliverable_status"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.collab-raci-respected",
+      "label": "RACI respected",
+      "dimension": "collaboration",
+      "definition": "Lifecycle transitions the member made in the role the RACI names, over the member’s transitions.",
+      "inputs": [
+        "deliverable_status",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.collab-peer-reviews-given",
+      "label": "Peer reviews given",
+      "dimension": "collaboration",
+      "definition": "Blind peer reviews the member completed.",
+      "inputs": [
+        "peer_review_assignments"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "deferred",
+      "scored": false,
+      "note": "Read asynchronously by the review bench today."
+    },
+    {
+      "id": "metric.collab-stuck-helped",
+      "label": "Stuck flags helped",
+      "dimension": "collaboration",
+      "definition": "Teammate stuck flags on steps the member had verified.",
+      "inputs": [
+        "step_flags",
+        "step_evidence"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Current flags only; loads on the course page."
+    },
+    {
+      "id": "metric.ability-first-try",
+      "label": "First-try verifications",
+      "dimension": "ability",
+      "definition": "Verified steps with exactly one paste, over verified steps. Shown beside persistence, never alone.",
+      "inputs": [
+        "step_evidence"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-persistence",
+      "label": "Persistence",
+      "dimension": "ability",
+      "definition": "Verified steps that took more than one paste, over verified steps.",
+      "inputs": [
+        "step_evidence"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-partial-progress",
+      "label": "Partial progress",
+      "dimension": "ability",
+      "definition": "Verifiable steps with some tokens matched and not verified, over verifiable steps.",
+      "inputs": [
+        "step_evidence"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-investigation-reports",
+      "label": "Reports filed",
+      "dimension": "ability",
+      "definition": "Task reports the member filed, and how many were resolved.",
+      "inputs": [
+        "task_reports"
+      ],
+      "valueTo": [
+        "member",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.ability-investigation-notes",
+      "label": "Notes written",
+      "dimension": "ability",
+      "definition": "Steps the member wrote a note on.",
+      "inputs": [
+        "step_notes"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Loads on the course page."
+    },
+    {
+      "id": "metric.ability-independence",
+      "label": "Independence",
+      "dimension": "ability",
+      "definition": "Steps verified with no stuck flag ever raised, over verified steps.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false,
+      "note": "A cleared flag leaves no trace."
+    },
+    {
+      "id": "metric.ability-consistency-days",
+      "label": "Active days",
+      "dimension": "ability",
+      "definition": "Distinct local days with recorded activity.",
+      "inputs": [
+        "step_evidence",
+        "evidence_artifacts"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-consistency-weeks",
+      "label": "Active weeks",
+      "dimension": "ability",
+      "definition": "Course weeks with any recorded activity, over graded weeks.",
+      "inputs": [
+        "step_completions",
+        "course"
+      ],
+      "valueTo": [
+        "member"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-recall",
+      "label": "Recall",
+      "dimension": "ability",
+      "definition": "A verified step re-verified after seven or more days, over verified steps.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-calibration",
+      "label": "Calibration",
+      "dimension": "ability",
+      "definition": "Stated confidence that matched the outcome, over stated confidences.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-validators",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-fixes-consulted",
+      "label": "Fixes consulted",
+      "dimension": "ability",
+      "definition": "\"If it does not work\" rows opened before a verification, over verifications.",
+      "inputs": [],
+      "valueTo": [
+        "member"
+      ],
+      "status": "needs-events",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-docs-read",
+      "label": "Documentation opened",
+      "dimension": "ability",
+      "definition": "Documentation links opened per task.",
+      "inputs": [],
+      "valueTo": [
+        "member"
+      ],
+      "status": "needs-events",
+      "scored": false
+    },
+    {
+      "id": "metric.ability-deadline-adherence",
+      "label": "Deadline adherence",
+      "dimension": "ability",
+      "definition": "Weeks cleared on or before the cohort due date, over graded weeks.",
+      "inputs": [
+        "cohorts",
+        "step_completions"
+      ],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "deferred",
+      "scored": false,
+      "note": "No clock is read this round."
+    },
+    {
+      "id": "metric.time-on-task",
+      "label": "Time on task",
+      "dimension": "ability",
+      "definition": "Minutes spent per task.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Speed is not measured."
+    },
+    {
+      "id": "metric.time-to-verify",
+      "label": "Time to verify",
+      "dimension": "ability",
+      "definition": "Minutes from first attempt to verification.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Speed is not measured."
+    },
+    {
+      "id": "metric.time-vs-estimate",
+      "label": "Time against estimate",
+      "dimension": "ability",
+      "definition": "Minutes spent against the authored estimate.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Speed is not measured."
+    },
+    {
+      "id": "metric.rank-any",
+      "label": "Ranking",
+      "dimension": "ability",
+      "definition": "Any ordering of members against each other.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Nothing is ranked."
+    },
+    {
+      "id": "metric.platform-cohort-domain-coverage",
+      "label": "Cohort domain coverage",
+      "dimension": "domains",
+      "definition": "Per cohort, members with at least one verified step per domain, over members. Instructor aggregate.",
+      "inputs": [
+        "step_evidence",
+        "cert",
+        "cohorts"
+      ],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.platform-course-verifiability",
+      "label": "Course verifiability",
+      "dimension": "evidence",
+      "definition": "Verifiable required steps over required steps per course. Content only.",
+      "inputs": [
+        "course"
+      ],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.platform-skill-coverage",
+      "label": "Course skill coverage",
+      "dimension": "skills",
+      "definition": "Skills, tools, procedures, standards, tactics and practices per course. Content only.",
+      "inputs": [
+        "registry",
+        "course"
+      ],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.platform-cross-platform-signal",
+      "label": "Cross-platform signal",
+      "dimension": "skills",
+      "definition": "A competency-level statement shared with another platform.",
+      "inputs": [],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "needs-consent",
+      "scored": false
+    }
+  ]
+}

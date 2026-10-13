@@ -47,7 +47,8 @@ additive, none requiring a rewrite.
 ### 3. Ontology — frameworks → controls/competencies
 - **Today:** frameworks are **coarse string labels** (`NIST_CSF`, `CIS`, `OWASP`, `ISO_27001`,
   `NIST_800_61`, `NIST_800_115`, `CVSS`, `STRIDE`) attached to `Task.frameworks` / `Step.frameworks` /
-  `DeliverableDef.framework`, with helpers in `src/lib/utils.ts` (`getFrameworkLabel/Description/Why/Color`).
+  `DeliverableDef.framework`, with helpers in `src/lib/utils.ts` (`getFrameworkLabel/Description/Why/Color`)
+  that read the standards register (`src/lib/docs/standards.ts`, R107).
   Published control codes appear only as **free text** in deliverable `standard`/`reference` fields. **No
   competency or cert-objective concept** exists.
 - **Target:** Control + Competency + CertObjective entities; everything anchored to published codes
@@ -110,14 +111,18 @@ additive, none requiring a rewrite.
 | Course / Week / Gate / Task / Step | `src/lib/types.ts` | **Present** |
 | Deliverable (form + data) | `src/lib/docs/*` | **Present** |
 | Member / Roster / Completion | `src/lib/types.ts`, repos | **Present** |
-| Framework | `Framework = string` + helpers | **Partial** (labels, not control codes) |
-| Tool | `Task.tools: string[]` (legend) | **Partial** (no version/role/env link) |
+| Framework → Standard / Control | `src/lib/docs/standards.ts` (`STANDARDS`, a controls catalogue, `parseStandard()`); `utils.ts` helpers delegate | **Present** (R107; `Framework` stays an open string) |
+| Tool | `src/lib/docs/tools.ts` (`TOOLS` with aliases and command heads); a task's tools are derived at export | **Present** (R107; no version/env link) |
 | Validator | `DodCheck` (form-data only); the ledger's output-token check is the first pass/fail evidence that survives a reload | **Partial** (still not state-reading) |
-| Control / Objective | free-text in deliverable fields | **Absent** as an entity |
-| Competency / CertObjective | `Task.objective`, `Step.learn` prose | **Absent** as an entity |
+| Control / Objective | `CONTROLS` in `standards.ts`; a form's `standard` parses to catalogue codes, `CONTROL_OF` in the document | **Present** (R107; content-side, not a database entity) |
+| Competency / CertObjective | `src/lib/docs/skills.ts` (`comp.<area>.<slug>`, anchored to `CERTS` domains or controls); published as `content/ontology/competencies.json` | **Present** (R107; content-side) |
 | Environment | implicit in prose + Lab Setup guide | **Absent** as an entity |
 | Scenario | implicit (week theme + gate) | **Minimal** |
-| Benchmark / SOP / Policy | exist as deliverable files | **Implicit** (not entities) |
+| Benchmark / SOP / Policy | `src/lib/docs/sops.ts` (SOP kinds anchored to NIST CSF / ISO 27001 / SOC 2 / SP 800-61 / ITIL; form → SOPs, task → SOPs) | **Present** (R107; adherence read from DoD, document control, hashes, lifecycle) |
+| Tactic / Practice | `src/lib/docs/tactics.ts` (ATT&CK + ATLAS tactic ids; engineering practices anchored to a standard) | **Present** (R107) |
+| Metric catalogue | `src/lib/docs/metricCatalogue.ts`, `content/ontology/metrics.json` | **Present** (R107; definitions and statuses, `scored: false`) |
+| Member profile (skills, tools, procedures, standards, domains per member) | `src/lib/skillProfile.ts`; `/portfolio` export `capstone-member-profile/1` | **Present** (R107; a projection; unsigned) |
+| Published schemas | `content/schemas/*.schema.json`, `src/lib/schema/validate.ts` | **Present** (R107) |
 | Evidence ledger (step verification + artifact hashes) | `step_evidence`, `evidence_artifacts`, `src/lib/evidenceLedger.ts`; browsable at `/courses/<id>/ledger` (`src/lib/ledgerView.ts`) | **Partial** (records proof; not an event log) |
 | Review (instructor verdict on a form, per week) | `deliverable_reviews`, `reviewRepo`, `ReviewBanner` / `ReviewCell` | **Present** (R68) |
 | Cohort (start date → week due dates, .ics) | `cohorts`, `cohortRepo`, `src/lib/calendar.ts` | **Present** (R68; one date per cohort, seeds carry none) |

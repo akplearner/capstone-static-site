@@ -2388,6 +2388,23 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(code('src/lib/docs/manual.ts')).toContain("'server-plus':");
   });
 
+  it('the ontology and the schemas are published with the content, and the value register is honest about status', () => {
+    expect(read('package.json')).toContain('tsx scripts/export-ontology.ts');
+    expect(code('scripts/export-ontology.ts')).toContain("from '../src/lib/docs/ontology'");
+    expect(existsSync('content/ontology/index.json')).toBe(true);
+    expect(existsSync('content/schemas/member-profile.schema.json')).toBe(true);
+    expect(existsSync('content/schemas/README.md')).toBe(true);
+    expect(read('.github/workflows/ci.yml'), 'content/ covers ontology and schemas').toContain('git diff --exit-code -- content/');
+    expect(read('package.json'), 'no schema library: the subset validator is the contract').not.toMatch(/"(ajv|zod)"/);
+    const register = read('docs/VALUE_REGISTER.md');
+    for (const status of ['available now', 'needs validators', 'needs events', 'needs consent', 'needs legal change', 'Phase 4']) expect(register, status).toContain(status);
+    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten').toBe(30);
+    expect(read('docs/OPERATIONS.md')).toContain('(R107)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('Member profile');
+    expect(read('content/README.md')).toContain('ontology/');
+    expect(read('README.md')).toContain('VALUE_REGISTER.md');
+  });
+
   it('the sheets are generated with the content and CI diffs them', () => {
     expect(read('package.json')).toContain('tsx scripts/export-skill-sheets.ts');
     expect(read('.github/workflows/ci.yml')).toContain('docs/courses/skills/');

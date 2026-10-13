@@ -1,0 +1,447 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "domains": [
+    {
+      "id": "SY0-701.d1",
+      "code": "SY0-701",
+      "name": "General Security Concepts",
+      "weight": 12,
+      "courseId": "security-plus"
+    },
+    {
+      "id": "SY0-701.d2",
+      "code": "SY0-701",
+      "name": "Threats, Vulnerabilities, and Mitigations",
+      "weight": 22,
+      "courseId": "security-plus"
+    },
+    {
+      "id": "SY0-701.d3",
+      "code": "SY0-701",
+      "name": "Security Architecture",
+      "weight": 18,
+      "courseId": "security-plus"
+    },
+    {
+      "id": "SY0-701.d4",
+      "code": "SY0-701",
+      "name": "Security Operations",
+      "weight": 28,
+      "courseId": "security-plus"
+    },
+    {
+      "id": "SY0-701.d5",
+      "code": "SY0-701",
+      "name": "Security Program Management and Oversight",
+      "weight": 20,
+      "courseId": "security-plus"
+    },
+    {
+      "id": "CS0-003.d1",
+      "code": "CS0-003",
+      "name": "Security Operations",
+      "weight": 33,
+      "courseId": "cysa-plus"
+    },
+    {
+      "id": "CS0-003.d2",
+      "code": "CS0-003",
+      "name": "Vulnerability Management",
+      "weight": 30,
+      "courseId": "cysa-plus"
+    },
+    {
+      "id": "CS0-003.d3",
+      "code": "CS0-003",
+      "name": "Incident Response and Management",
+      "weight": 20,
+      "courseId": "cysa-plus"
+    },
+    {
+      "id": "CS0-003.d4",
+      "code": "CS0-003",
+      "name": "Reporting and Communication",
+      "weight": 17,
+      "courseId": "cysa-plus"
+    },
+    {
+      "id": "SK0-005.d1",
+      "code": "SK0-005",
+      "name": "Server Hardware Installation and Management",
+      "weight": 18,
+      "courseId": "server-plus"
+    },
+    {
+      "id": "SK0-005.d2",
+      "code": "SK0-005",
+      "name": "Server Administration",
+      "weight": 30,
+      "courseId": "server-plus"
+    },
+    {
+      "id": "SK0-005.d3",
+      "code": "SK0-005",
+      "name": "Security and Disaster Recovery",
+      "weight": 24,
+      "courseId": "server-plus"
+    },
+    {
+      "id": "SK0-005.d4",
+      "code": "SK0-005",
+      "name": "Troubleshooting",
+      "weight": 28,
+      "courseId": "server-plus"
+    },
+    {
+      "id": "CY0-001.d1",
+      "code": "CY0-001",
+      "name": "AI Concepts and Data",
+      "weight": 25,
+      "courseId": "secai-plus"
+    },
+    {
+      "id": "CY0-001.d2",
+      "code": "CY0-001",
+      "name": "Securing AI Systems",
+      "weight": 25,
+      "courseId": "secai-plus"
+    },
+    {
+      "id": "CY0-001.d3",
+      "code": "CY0-001",
+      "name": "AI-Assisted Security",
+      "weight": 25,
+      "courseId": "secai-plus"
+    },
+    {
+      "id": "CY0-001.d4",
+      "code": "CY0-001",
+      "name": "AI Governance and Compliance",
+      "weight": 25,
+      "courseId": "secai-plus"
+    },
+    {
+      "id": "SOC-2-ISO-27001.c1",
+      "code": "SOC 2 · ISO 27001",
+      "name": "Context and scope (ISO 27001 cl. 4)",
+      "weight": 20,
+      "courseId": "mssp"
+    },
+    {
+      "id": "SOC-2-ISO-27001.c2",
+      "code": "SOC 2 · ISO 27001",
+      "name": "Leadership, planning and risk (cl. 5–6)",
+      "weight": 20,
+      "courseId": "mssp"
+    },
+    {
+      "id": "SOC-2-ISO-27001.c3",
+      "code": "SOC 2 · ISO 27001",
+      "name": "Support, operation and controls (cl. 7–8, Annex A)",
+      "weight": 20,
+      "courseId": "mssp"
+    },
+    {
+      "id": "SOC-2-ISO-27001.c4",
+      "code": "SOC 2 · ISO 27001",
+      "name": "Performance evaluation (cl. 9)",
+      "weight": 20,
+      "courseId": "mssp"
+    },
+    {
+      "id": "SOC-2-ISO-27001.c5",
+      "code": "SOC 2 · ISO 27001",
+      "name": "Improvement (cl. 10)",
+      "weight": 20,
+      "courseId": "mssp"
+    },
+    {
+      "id": "200-301.d1",
+      "code": "200-301",
+      "name": "Network Fundamentals",
+      "weight": 20,
+      "courseId": "ccna"
+    },
+    {
+      "id": "200-301.d2",
+      "code": "200-301",
+      "name": "Network Access",
+      "weight": 20,
+      "courseId": "ccna"
+    },
+    {
+      "id": "200-301.d3",
+      "code": "200-301",
+      "name": "IP Connectivity",
+      "weight": 25,
+      "courseId": "ccna"
+    },
+    {
+      "id": "200-301.d4",
+      "code": "200-301",
+      "name": "IP Services",
+      "weight": 10,
+      "courseId": "ccna"
+    },
+    {
+      "id": "200-301.d5",
+      "code": "200-301",
+      "name": "Security Fundamentals",
+      "weight": 15,
+      "courseId": "ccna"
+    },
+    {
+      "id": "200-301.d6",
+      "code": "200-301",
+      "name": "Automation and Programmability",
+      "weight": 10,
+      "courseId": "ccna"
+    },
+    {
+      "id": "CISSP.d1",
+      "code": "CISSP",
+      "name": "Security and Risk Management",
+      "weight": 16,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d2",
+      "code": "CISSP",
+      "name": "Asset Security",
+      "weight": 10,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d3",
+      "code": "CISSP",
+      "name": "Security Architecture and Engineering",
+      "weight": 13,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d4",
+      "code": "CISSP",
+      "name": "Communication and Network Security",
+      "weight": 13,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d5",
+      "code": "CISSP",
+      "name": "Identity and Access Management",
+      "weight": 13,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d6",
+      "code": "CISSP",
+      "name": "Security Assessment and Testing",
+      "weight": 12,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d7",
+      "code": "CISSP",
+      "name": "Security Operations",
+      "weight": 13,
+      "courseId": "cissp"
+    },
+    {
+      "id": "CISSP.d8",
+      "code": "CISSP",
+      "name": "Software Development Security",
+      "weight": 10,
+      "courseId": "cissp"
+    },
+    {
+      "id": "AZ-900.d1",
+      "code": "AZ-900",
+      "name": "Cloud concepts",
+      "weight": 27,
+      "courseId": "azure-fundamentals"
+    },
+    {
+      "id": "AZ-900.d2",
+      "code": "AZ-900",
+      "name": "Azure architecture and services",
+      "weight": 37,
+      "courseId": "azure-fundamentals"
+    },
+    {
+      "id": "AZ-900.d3",
+      "code": "AZ-900",
+      "name": "Azure management and governance",
+      "weight": 32,
+      "courseId": "azure-fundamentals"
+    },
+    {
+      "id": "AZ-104.d1",
+      "code": "AZ-104",
+      "name": "Manage Azure identities and governance",
+      "weight": 23,
+      "courseId": "azure-administrator"
+    },
+    {
+      "id": "AZ-104.d2",
+      "code": "AZ-104",
+      "name": "Implement and manage storage",
+      "weight": 18,
+      "courseId": "azure-administrator"
+    },
+    {
+      "id": "AZ-104.d3",
+      "code": "AZ-104",
+      "name": "Deploy and manage Azure compute resources",
+      "weight": 23,
+      "courseId": "azure-administrator"
+    },
+    {
+      "id": "AZ-104.d4",
+      "code": "AZ-104",
+      "name": "Implement and manage virtual networking",
+      "weight": 18,
+      "courseId": "azure-administrator"
+    },
+    {
+      "id": "AZ-104.d5",
+      "code": "AZ-104",
+      "name": "Monitor and maintain Azure resources",
+      "weight": 13,
+      "courseId": "azure-administrator"
+    },
+    {
+      "id": "AZ-400.d1",
+      "code": "AZ-400",
+      "name": "Design and implement processes and communications",
+      "weight": 13,
+      "courseId": "azure-devops"
+    },
+    {
+      "id": "AZ-400.d2",
+      "code": "AZ-400",
+      "name": "Design and implement a source control strategy",
+      "weight": 12,
+      "courseId": "azure-devops"
+    },
+    {
+      "id": "AZ-400.d3",
+      "code": "AZ-400",
+      "name": "Design and implement build and release pipelines",
+      "weight": 52,
+      "courseId": "azure-devops"
+    },
+    {
+      "id": "AZ-400.d4",
+      "code": "AZ-400",
+      "name": "Develop a security and compliance plan",
+      "weight": 12,
+      "courseId": "azure-devops"
+    },
+    {
+      "id": "AZ-400.d5",
+      "code": "AZ-400",
+      "name": "Implement an instrumentation strategy",
+      "weight": 7,
+      "courseId": "azure-devops"
+    },
+    {
+      "id": "CLF-C02.d1",
+      "code": "CLF-C02",
+      "name": "Cloud Concepts",
+      "weight": 24,
+      "courseId": "aws-cloud-practitioner"
+    },
+    {
+      "id": "CLF-C02.d2",
+      "code": "CLF-C02",
+      "name": "Security and Compliance",
+      "weight": 30,
+      "courseId": "aws-cloud-practitioner"
+    },
+    {
+      "id": "CLF-C02.d3",
+      "code": "CLF-C02",
+      "name": "Cloud Technology and Services",
+      "weight": 34,
+      "courseId": "aws-cloud-practitioner"
+    },
+    {
+      "id": "CLF-C02.d4",
+      "code": "CLF-C02",
+      "name": "Billing, Pricing and Support",
+      "weight": 12,
+      "courseId": "aws-cloud-practitioner"
+    },
+    {
+      "id": "SAA-C03.d1",
+      "code": "SAA-C03",
+      "name": "Design Secure Architectures",
+      "weight": 30,
+      "courseId": "aws-solutions-architect"
+    },
+    {
+      "id": "SAA-C03.d2",
+      "code": "SAA-C03",
+      "name": "Design Resilient Architectures",
+      "weight": 26,
+      "courseId": "aws-solutions-architect"
+    },
+    {
+      "id": "SAA-C03.d3",
+      "code": "SAA-C03",
+      "name": "Design High-Performing Architectures",
+      "weight": 24,
+      "courseId": "aws-solutions-architect"
+    },
+    {
+      "id": "SAA-C03.d4",
+      "code": "SAA-C03",
+      "name": "Design Cost-Optimized Architectures",
+      "weight": 20,
+      "courseId": "aws-solutions-architect"
+    },
+    {
+      "id": "DOP-C02.d1",
+      "code": "DOP-C02",
+      "name": "SDLC Automation",
+      "weight": 22,
+      "courseId": "aws-devops"
+    },
+    {
+      "id": "DOP-C02.d2",
+      "code": "DOP-C02",
+      "name": "Configuration Management and IaC",
+      "weight": 17,
+      "courseId": "aws-devops"
+    },
+    {
+      "id": "DOP-C02.d3",
+      "code": "DOP-C02",
+      "name": "Resilient Cloud Solutions",
+      "weight": 15,
+      "courseId": "aws-devops"
+    },
+    {
+      "id": "DOP-C02.d4",
+      "code": "DOP-C02",
+      "name": "Monitoring and Logging",
+      "weight": 15,
+      "courseId": "aws-devops"
+    },
+    {
+      "id": "DOP-C02.d5",
+      "code": "DOP-C02",
+      "name": "Incident and Event Response",
+      "weight": 14,
+      "courseId": "aws-devops"
+    },
+    {
+      "id": "DOP-C02.d6",
+      "code": "DOP-C02",
+      "name": "Security and Compliance",
+      "weight": 17,
+      "courseId": "aws-devops"
+    }
+  ]
+}

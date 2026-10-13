@@ -1,0 +1,1149 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "sops": [
+    {
+      "id": "sop.runbook",
+      "label": "Operational runbook",
+      "kind": "runbook",
+      "definition": "Step-by-step instructions for a routine operation, written so a colleague can follow them and kept current.",
+      "standardRefs": [
+        "ISO27001.A.5.37",
+        "NIST.CSF.PR.PS"
+      ]
+    },
+    {
+      "id": "sop.incident-response-plan",
+      "label": "Incident response plan",
+      "kind": "incident",
+      "definition": "The written plan for handling an incident: roles, the first hour, containment, communication and the notice deadline.",
+      "standardRefs": [
+        "NIST.800-61",
+        "ISO27001.A.5.24",
+        "NIST.CSF.RS.MA",
+        "SOC2.CC7.4"
+      ]
+    },
+    {
+      "id": "sop.incident-record",
+      "label": "Incident record",
+      "kind": "incident",
+      "definition": "The record of one incident: first alert, attacker, timeline, containment time, evidence and the hand-offs.",
+      "standardRefs": [
+        "NIST.800-61.DETECT",
+        "ISO27001.A.5.26",
+        "NIST.CSF.RS.AN"
+      ]
+    },
+    {
+      "id": "sop.post-mortem",
+      "label": "Post-incident review",
+      "kind": "incident",
+      "definition": "What happened, what worked, what did not, and the improvements with an owner each.",
+      "standardRefs": [
+        "NIST.800-61.POST",
+        "ISO27001.A.5.27",
+        "NIST.CSF.ID.IM"
+      ]
+    },
+    {
+      "id": "sop.change-record",
+      "label": "Change record",
+      "kind": "change",
+      "definition": "A change written before it is made: what, where, the backup, the approval, the rollback and the result.",
+      "standardRefs": [
+        "ITIL.change",
+        "ISO27001.A.8.32",
+        "NIST.800-53.CM-3",
+        "SOC2.CC8.1"
+      ]
+    },
+    {
+      "id": "sop.release-record",
+      "label": "Release record",
+      "kind": "release",
+      "definition": "What a release contains, what blocked, what was tested and who approved it going out.",
+      "standardRefs": [
+        "ITIL.release",
+        "NIST.800-218",
+        "SOC2.CC8.1"
+      ]
+    },
+    {
+      "id": "sop.recovery-drill",
+      "label": "Recovery drill",
+      "kind": "recovery",
+      "definition": "A timed restore or failover against the written targets, with the hashes compared and the gap recorded.",
+      "standardRefs": [
+        "NIST.800-34",
+        "NIST.CSF.RC.RP",
+        "ISO27001.A.5.30",
+        "NIST.800-53.CP-4"
+      ]
+    },
+    {
+      "id": "sop.backup-plan",
+      "label": "Backup plan",
+      "kind": "recovery",
+      "definition": "What is backed up, how often, where it goes, how long it is kept and how a restore is tested.",
+      "standardRefs": [
+        "ISO27001.A.8.13",
+        "NIST.800-53.CP-9",
+        "CIS.11"
+      ]
+    },
+    {
+      "id": "sop.chain-of-custody",
+      "label": "Chain of custody",
+      "kind": "custody",
+      "definition": "Every evidence item logged with its hash, who held it, when, and where it is stored.",
+      "standardRefs": [
+        "ISO27037",
+        "ISO27001.A.5.28",
+        "NIST.800-61"
+      ]
+    },
+    {
+      "id": "sop.scope-and-roe",
+      "label": "Scope and rules of engagement",
+      "kind": "scope",
+      "definition": "What may be tested, when, how, by whom, and the signatures that authorise it.",
+      "standardRefs": [
+        "NIST.800-115",
+        "PTES"
+      ]
+    },
+    {
+      "id": "sop.lab-rule",
+      "label": "Lab rule and evidence ledger",
+      "kind": "scope",
+      "definition": "The authorisation a team works under and the ledger every piece of evidence is hashed into.",
+      "standardRefs": [
+        "NIST.800-115",
+        "ISO27037"
+      ]
+    },
+    {
+      "id": "sop.hardening-baseline",
+      "label": "Hardening baseline",
+      "kind": "baseline",
+      "definition": "The settings a host must have, the benchmark they come from, and the proof each host meets them.",
+      "standardRefs": [
+        "CIS.BENCHMARK",
+        "NIST.800-53.CM-6",
+        "ISO27001.A.8.9",
+        "NIST.CSF.PR.PS"
+      ]
+    },
+    {
+      "id": "sop.patch-management",
+      "label": "Patch management",
+      "kind": "patching",
+      "definition": "How updates are found, prioritised, tested, applied and verified, on what cadence, by whom.",
+      "standardRefs": [
+        "NIST.800-40",
+        "NIST.800-53.SI-2",
+        "ISO27001.A.8.8",
+        "CIS.7"
+      ]
+    },
+    {
+      "id": "sop.vulnerability-management",
+      "label": "Vulnerability management",
+      "kind": "patching",
+      "definition": "How findings are scored, ranked, assigned an owner and a date, fixed and retested.",
+      "standardRefs": [
+        "NIST.800-53.RA-5",
+        "CIS.7",
+        "ISO27001.A.8.8",
+        "NIST.CSF.ID.RA"
+      ]
+    },
+    {
+      "id": "sop.handover",
+      "label": "Operational handover",
+      "kind": "handover",
+      "definition": "What was built, how it is run, who owns it and what is still open, handed to the next team.",
+      "standardRefs": [
+        "ITIL.transition",
+        "ISO27001.A.5.37",
+        "ITIL.knowledge"
+      ]
+    },
+    {
+      "id": "sop.risk-register",
+      "label": "Risk register",
+      "kind": "risk",
+      "definition": "Each risk with its likelihood, impact, score, owner and treatment, reviewed on a schedule.",
+      "standardRefs": [
+        "NIST.800-30",
+        "ISO27005",
+        "ISO27001.6.1.2",
+        "NIST.CSF.GV.RM"
+      ]
+    },
+    {
+      "id": "sop.supplier-review",
+      "label": "Supplier review",
+      "kind": "risk",
+      "definition": "Suppliers tiered by access and data, with terms for the top tier and a review date.",
+      "standardRefs": [
+        "ISO27001.A.5.19",
+        "NIST.CSF.GV.SC",
+        "NIST.800-53.SR-6"
+      ]
+    },
+    {
+      "id": "sop.policy",
+      "label": "Security policy",
+      "kind": "policy",
+      "definition": "Shall statements with an owner, a review date and the standard each one implements.",
+      "standardRefs": [
+        "ISO27001.5.2",
+        "ISO27001.A.5.1",
+        "NIST.CSF.GV.PO",
+        "NIST.800-53.PM-1"
+      ]
+    },
+    {
+      "id": "sop.data-handling",
+      "label": "Data handling standard",
+      "kind": "policy",
+      "definition": "How data is classified, where it may live, how it is redacted and how media is sanitised.",
+      "standardRefs": [
+        "NIST.CSF.PR.DS",
+        "ISO27001.A.5.12",
+        "NIST.800-88"
+      ]
+    },
+    {
+      "id": "sop.access-review",
+      "label": "Access review",
+      "kind": "access",
+      "definition": "Accounts and rights checked against the access matrix, orphans disabled, the review recorded.",
+      "standardRefs": [
+        "ISO27001.A.5.18",
+        "NIST.800-53.AC-2",
+        "SOC2.CC6.3",
+        "NIST.CSF.PR.AA"
+      ]
+    },
+    {
+      "id": "sop.identity-standard",
+      "label": "Identity and access standard",
+      "kind": "access",
+      "definition": "Roles against systems, the MFA rule, joiner and leaver timing, separation of duties.",
+      "standardRefs": [
+        "NIST.800-63",
+        "NIST.800-53.IA-2",
+        "ISO27001.A.5.15",
+        "NIST.CSF.PR.AA"
+      ]
+    },
+    {
+      "id": "sop.monitoring-plan",
+      "label": "Monitoring plan",
+      "kind": "monitoring",
+      "definition": "What is watched, from which sources, who is alerted, and what a page means.",
+      "standardRefs": [
+        "NIST.CSF.DE.CM",
+        "ISO27001.A.8.16",
+        "SOC2.CC7.2",
+        "ITIL.monitoring"
+      ]
+    },
+    {
+      "id": "sop.detection-rules",
+      "label": "Detection rules",
+      "kind": "monitoring",
+      "definition": "Detections as versioned rules with the technique id and the test that proved each fires.",
+      "standardRefs": [
+        "NIST.CSF.DE.AE",
+        "MITRE.ATTACK",
+        "SOC2.CC7.2"
+      ]
+    },
+    {
+      "id": "sop.sensor-deployment",
+      "label": "Sensor deployment record",
+      "kind": "monitoring",
+      "definition": "Which sensor runs on which host, pointing at which collector, and the proof it reports.",
+      "standardRefs": [
+        "NIST.CSF.DE.CM-01",
+        "ISO27001.A.8.15"
+      ]
+    },
+    {
+      "id": "sop.ioc-database",
+      "label": "Indicator database",
+      "kind": "monitoring",
+      "definition": "Indicators with their source alert or packet, the technique id and the confidence.",
+      "standardRefs": [
+        "MITRE.ATTACK",
+        "NIST.CSF.DE.AE"
+      ]
+    },
+    {
+      "id": "sop.asset-inventory",
+      "label": "Asset inventory",
+      "kind": "inventory",
+      "definition": "Every asset with an owner, a location, a classification and its place in the picture.",
+      "standardRefs": [
+        "NIST.CSF.ID.AM",
+        "CIS.1",
+        "ISO27001.A.5.9",
+        "ITIL.asset"
+      ]
+    },
+    {
+      "id": "sop.ai-system-map",
+      "label": "AI system map",
+      "kind": "inventory",
+      "definition": "Every model, prompt structure, data writer and data flow of the AI system, with owners.",
+      "standardRefs": [
+        "NIST.AI-RMF.MAP",
+        "ISO42001"
+      ]
+    },
+    {
+      "id": "sop.control-mapping",
+      "label": "Control mapping",
+      "kind": "governance",
+      "definition": "Each control mapped to the criteria it meets, with an owner and the evidence that proves it.",
+      "standardRefs": [
+        "ISO27001.6.1.3",
+        "SOC2",
+        "NIST.CSF"
+      ]
+    },
+    {
+      "id": "sop.cost-review",
+      "label": "Cost review",
+      "kind": "governance",
+      "definition": "What the environment costs, what the budget is, and what was switched off.",
+      "standardRefs": [
+        "WAF.cost"
+      ]
+    },
+    {
+      "id": "sop.governance-report",
+      "label": "Governance report",
+      "kind": "governance",
+      "definition": "What leadership must decide, the risks accepted, the metrics and the open items.",
+      "standardRefs": [
+        "NIST.CSF.GV",
+        "ISO27001.9.3"
+      ]
+    },
+    {
+      "id": "sop.customer-assurance",
+      "label": "Customer assurance response",
+      "kind": "governance",
+      "definition": "A customer questionnaire answered with evidence or an honest gap per question.",
+      "standardRefs": [
+        "SOC2",
+        "ISO27001",
+        "ISO42001"
+      ]
+    },
+    {
+      "id": "sop.system-security-plan",
+      "label": "System security plan",
+      "kind": "governance",
+      "definition": "Every requirement with its implementation, its evidence or its dated plan, and the boundary.",
+      "standardRefs": [
+        "NIST.800-171",
+        "NIST.800-53.PL-2",
+        "FAR.52.204-21"
+      ]
+    },
+    {
+      "id": "sop.internal-audit",
+      "label": "Internal audit",
+      "kind": "audit",
+      "definition": "A planned audit against the standard with findings, nonconformities and corrective actions.",
+      "standardRefs": [
+        "ISO27001.9.2",
+        "ISO27001.9.3",
+        "SOC2.CC4.1"
+      ]
+    },
+    {
+      "id": "sop.evidence-packet",
+      "label": "Audit evidence packet",
+      "kind": "audit",
+      "definition": "The evidence an examiner samples, tied to controls, each item with an owner and a location.",
+      "standardRefs": [
+        "SOC2",
+        "ISO27001.7.5",
+        "ISO27001.9.2"
+      ]
+    },
+    {
+      "id": "sop.assessment-report",
+      "label": "Assessment report",
+      "kind": "assessment",
+      "definition": "Findings with severity, evidence and a fix, from a test that was scoped and authorised.",
+      "standardRefs": [
+        "NIST.800-115",
+        "PTES",
+        "CVSS"
+      ]
+    },
+    {
+      "id": "sop.retest-record",
+      "label": "Retest and validation record",
+      "kind": "assessment",
+      "definition": "Every finding retested and closed, left open or risk-accepted with a named owner.",
+      "standardRefs": [
+        "NIST.800-115",
+        "SOC2.CC4.1"
+      ]
+    },
+    {
+      "id": "sop.threat-model",
+      "label": "Threat model",
+      "kind": "assessment",
+      "definition": "Threats per component with a method, each tied to a control or an accepted risk.",
+      "standardRefs": [
+        "STRIDE",
+        "OWASP",
+        "NIST.CSF.ID.RA"
+      ]
+    },
+    {
+      "id": "sop.architecture-record",
+      "label": "Architecture record",
+      "kind": "design",
+      "definition": "The components, the trust boundaries, the flows and the decisions, with the reasons for each.",
+      "standardRefs": [
+        "ISO42010",
+        "WAF",
+        "NIST.800-53.PL-8"
+      ]
+    },
+    {
+      "id": "sop.network-design",
+      "label": "Network design",
+      "kind": "design",
+      "definition": "Zones, allowed flows, the addressing plan and the default-deny statement.",
+      "standardRefs": [
+        "NIST.800-53.SC-7",
+        "ISO27001.A.8.22",
+        "NIST.CSF.PR.IR"
+      ]
+    },
+    {
+      "id": "sop.requirements",
+      "label": "Requirements record",
+      "kind": "design",
+      "definition": "What the system must do and must not, with the constraints and the acceptance criteria.",
+      "standardRefs": [
+        "ISO42010",
+        "WAF"
+      ]
+    },
+    {
+      "id": "sop.build-record",
+      "label": "Build record",
+      "kind": "build",
+      "definition": "The build as it was made: firmware, versions, settings and the problems met, in order.",
+      "standardRefs": [
+        "ITIL.configuration",
+        "NIST.800-53.CM-2",
+        "ISO27001.A.8.9"
+      ]
+    },
+    {
+      "id": "sop.pipeline-record",
+      "label": "Pipeline record",
+      "kind": "build",
+      "definition": "The stages, the gates, what each blocks on, and the deployment that went through.",
+      "standardRefs": [
+        "NIST.800-218",
+        "WAF.operational-excellence",
+        "ITIL.deployment"
+      ]
+    },
+    {
+      "id": "sop.test-and-acceptance",
+      "label": "Test and acceptance record",
+      "kind": "build",
+      "definition": "The tests a build must pass, who ran them, and the recorded results.",
+      "standardRefs": [
+        "ITIL.transition",
+        "NIST.800-53.CA-2",
+        "ISO27001.A.8.29"
+      ]
+    }
+  ],
+  "formsByCourse": {
+    "security-plus": {
+      "scope_roe": [
+        "sop.scope-and-roe"
+      ],
+      "asset_inventory": [
+        "sop.asset-inventory"
+      ],
+      "risk_register": [
+        "sop.risk-register"
+      ],
+      "hardening_baseline": [
+        "sop.hardening-baseline"
+      ],
+      "change_log": [
+        "sop.change-record"
+      ],
+      "pentest_report": [
+        "sop.assessment-report"
+      ],
+      "incident_report": [
+        "sop.incident-record",
+        "sop.post-mortem"
+      ],
+      "final_report": [
+        "sop.governance-report"
+      ],
+      "framework_mapping": [
+        "sop.control-mapping"
+      ],
+      "security_policy": [
+        "sop.policy"
+      ],
+      "hardening_standard": [
+        "sop.hardening-baseline",
+        "sop.runbook"
+      ],
+      "vm_sop": [
+        "sop.vulnerability-management",
+        "sop.runbook"
+      ],
+      "ir_runbook": [
+        "sop.incident-response-plan",
+        "sop.runbook"
+      ],
+      "evidence_log": [
+        "sop.chain-of-custody"
+      ]
+    },
+    "cysa-plus": {
+      "cysa_soc_monitoring": [
+        "sop.monitoring-plan"
+      ],
+      "cysa_threat_investigation": [
+        "sop.incident-record"
+      ],
+      "cysa_vulnerability_assessment": [
+        "sop.assessment-report",
+        "sop.vulnerability-management"
+      ],
+      "cysa_incident_response": [
+        "sop.incident-record",
+        "sop.post-mortem"
+      ],
+      "cysa_ioc_database": [
+        "sop.ioc-database"
+      ],
+      "cysa_coverage_validation": [
+        "sop.monitoring-plan",
+        "sop.sensor-deployment"
+      ],
+      "cysa_alert_triage": [
+        "sop.monitoring-plan",
+        "sop.runbook"
+      ],
+      "cysa_detection_record": [
+        "sop.incident-record"
+      ],
+      "cysa_exec_debrief": [
+        "sop.post-mortem",
+        "sop.governance-report"
+      ],
+      "cysa_sensor_deployment": [
+        "sop.sensor-deployment"
+      ],
+      "cysa_soc_findings": [
+        "sop.vulnerability-management"
+      ],
+      "cysa_scan_validation": [
+        "sop.assessment-report"
+      ]
+    },
+    "mssp": {
+      "mssp_engagement": [
+        "sop.scope-and-roe"
+      ],
+      "mssp_soa": [
+        "sop.control-mapping",
+        "sop.risk-register"
+      ],
+      "mssp_control_matrix": [
+        "sop.control-mapping"
+      ],
+      "mssp_retest": [
+        "sop.retest-record"
+      ],
+      "mssp_gap_assessment": [
+        "sop.assessment-report",
+        "sop.hardening-baseline"
+      ],
+      "mssp_detection_rules": [
+        "sop.detection-rules"
+      ],
+      "mssp_metrics": [
+        "sop.monitoring-plan",
+        "sop.governance-report"
+      ],
+      "mssp_internal_audit": [
+        "sop.internal-audit"
+      ],
+      "mssp_evidence_packet": [
+        "sop.evidence-packet"
+      ]
+    },
+    "secai-plus": {
+      "secai_lab_rule": [
+        "sop.lab-rule",
+        "sop.chain-of-custody"
+      ],
+      "secai_system_map": [
+        "sop.ai-system-map",
+        "sop.asset-inventory"
+      ],
+      "secai_attack_casebook": [
+        "sop.assessment-report",
+        "sop.threat-model"
+      ],
+      "secai_control_set": [
+        "sop.hardening-baseline",
+        "sop.control-mapping"
+      ],
+      "secai_watch_plan": [
+        "sop.monitoring-plan",
+        "sop.incident-response-plan"
+      ],
+      "secai_governance_pack": [
+        "sop.risk-register",
+        "sop.policy",
+        "sop.governance-report"
+      ],
+      "secai_release_note": [
+        "sop.release-record"
+      ],
+      "secai_release_package": [
+        "sop.customer-assurance",
+        "sop.release-record"
+      ]
+    },
+    "cissp": {
+      "cissp_d1": [
+        "sop.policy",
+        "sop.risk-register",
+        "sop.supplier-review"
+      ],
+      "cissp_d2": [
+        "sop.asset-inventory",
+        "sop.data-handling"
+      ],
+      "cissp_d3": [
+        "sop.architecture-record"
+      ],
+      "cissp_d4": [
+        "sop.network-design"
+      ],
+      "cissp_d5": [
+        "sop.identity-standard",
+        "sop.access-review"
+      ],
+      "cissp_d6": [
+        "sop.internal-audit",
+        "sop.retest-record"
+      ],
+      "cissp_d7": [
+        "sop.incident-response-plan",
+        "sop.backup-plan",
+        "sop.recovery-drill"
+      ],
+      "cissp_d8": [
+        "sop.pipeline-record",
+        "sop.change-record"
+      ],
+      "cissp_release_note": [
+        "sop.release-record"
+      ],
+      "cissp_questionnaire": [
+        "sop.customer-assurance"
+      ],
+      "cissp_controls": [
+        "sop.control-mapping"
+      ],
+      "cissp_ssp": [
+        "sop.system-security-plan"
+      ]
+    },
+    "server-plus": {
+      "srv_business_reqs": [
+        "sop.requirements",
+        "sop.architecture-record"
+      ],
+      "srv_hardware": [
+        "sop.asset-inventory",
+        "sop.build-record"
+      ],
+      "srv_bringup": [
+        "sop.build-record"
+      ],
+      "srv_rack_assets": [
+        "sop.asset-inventory"
+      ],
+      "srv_ip_plan": [
+        "sop.network-design",
+        "sop.test-and-acceptance"
+      ],
+      "srv_standards": [
+        "sop.hardening-baseline",
+        "sop.policy"
+      ],
+      "srv_operations": [
+        "sop.runbook",
+        "sop.change-record",
+        "sop.patch-management"
+      ],
+      "srv_as_built": [
+        "sop.recovery-drill",
+        "sop.backup-plan",
+        "sop.handover"
+      ]
+    },
+    "ccna": {
+      "ccna_kit": [
+        "sop.asset-inventory"
+      ],
+      "ccna_requirements": [
+        "sop.requirements"
+      ],
+      "ccna_hld": [
+        "sop.architecture-record"
+      ],
+      "ccna_lld": [
+        "sop.network-design"
+      ],
+      "ccna_build_log": [
+        "sop.build-record"
+      ],
+      "ccna_validation": [
+        "sop.test-and-acceptance"
+      ],
+      "ccna_security": [
+        "sop.hardening-baseline",
+        "sop.policy"
+      ],
+      "ccna_ops": [
+        "sop.change-record",
+        "sop.backup-plan"
+      ],
+      "ccna_monitoring": [
+        "sop.monitoring-plan",
+        "sop.incident-record"
+      ],
+      "ccna_handover": [
+        "sop.handover"
+      ]
+    },
+    "azure-fundamentals": {
+      "azf_foundation": [
+        "sop.policy",
+        "sop.cost-review"
+      ],
+      "azf_sad": [
+        "sop.architecture-record"
+      ],
+      "azf_api": [
+        "sop.requirements"
+      ],
+      "azf_incident": [
+        "sop.monitoring-plan",
+        "sop.incident-record"
+      ]
+    },
+    "azure-administrator": {
+      "aza_access": [
+        "sop.identity-standard",
+        "sop.access-review"
+      ],
+      "aza_network": [
+        "sop.network-design"
+      ],
+      "aza_server": [
+        "sop.runbook",
+        "sop.architecture-record"
+      ],
+      "aza_dr": [
+        "sop.backup-plan",
+        "sop.recovery-drill"
+      ]
+    },
+    "azure-devops": {
+      "azd_iac": [
+        "sop.pipeline-record",
+        "sop.build-record"
+      ],
+      "azd_change": [
+        "sop.change-record",
+        "sop.release-record"
+      ],
+      "azd_governance": [
+        "sop.cost-review",
+        "sop.governance-report"
+      ],
+      "azd_handover": [
+        "sop.handover",
+        "sop.risk-register"
+      ]
+    },
+    "aws-cloud-practitioner": {
+      "awsf_foundation": [
+        "sop.policy",
+        "sop.cost-review"
+      ],
+      "awsf_sad": [
+        "sop.architecture-record"
+      ],
+      "awsf_api": [
+        "sop.requirements"
+      ],
+      "awsf_incident": [
+        "sop.monitoring-plan",
+        "sop.incident-record"
+      ]
+    },
+    "aws-solutions-architect": {
+      "awsa_access": [
+        "sop.identity-standard",
+        "sop.access-review"
+      ],
+      "awsa_network": [
+        "sop.network-design"
+      ],
+      "awsa_server": [
+        "sop.runbook",
+        "sop.architecture-record"
+      ],
+      "awsa_dr": [
+        "sop.backup-plan",
+        "sop.recovery-drill"
+      ]
+    },
+    "aws-devops": {
+      "awsd_iac": [
+        "sop.pipeline-record",
+        "sop.build-record"
+      ],
+      "awsd_change": [
+        "sop.change-record",
+        "sop.release-record"
+      ],
+      "awsd_governance": [
+        "sop.cost-review",
+        "sop.governance-report"
+      ],
+      "awsd_handover": [
+        "sop.handover",
+        "sop.risk-register"
+      ]
+    }
+  },
+  "tasksByCourse": {
+    "security-plus": {
+      "red-w1-osint": [
+        "sop.scope-and-roe"
+      ],
+      "red-w2-enumeration": [
+        "sop.scope-and-roe"
+      ],
+      "red-w3-attacks": [
+        "sop.scope-and-roe"
+      ],
+      "blue-w1-hardening": [
+        "sop.hardening-baseline",
+        "sop.change-record"
+      ],
+      "blue-w3-detection": [
+        "sop.incident-response-plan"
+      ],
+      "grc-w3-custody": [
+        "sop.chain-of-custody"
+      ]
+    },
+    "cysa-plus": {
+      "cr-w1": [
+        "sop.sensor-deployment"
+      ],
+      "cb-w1": [
+        "sop.sensor-deployment"
+      ],
+      "cg-w1": [
+        "sop.sensor-deployment"
+      ],
+      "cb-w2": [
+        "sop.runbook"
+      ],
+      "cg-w2": [
+        "sop.scope-and-roe",
+        "sop.chain-of-custody"
+      ],
+      "cg-w3": [
+        "sop.scope-and-roe"
+      ],
+      "cr-w4": [
+        "sop.incident-response-plan",
+        "sop.chain-of-custody"
+      ]
+    },
+    "mssp": {
+      "mr-w1": [
+        "sop.scope-and-roe"
+      ],
+      "mb-w1": [
+        "sop.hardening-baseline"
+      ],
+      "mb-w2": [
+        "sop.change-record",
+        "sop.hardening-baseline"
+      ],
+      "mr-w3": [
+        "sop.scope-and-roe",
+        "sop.retest-record"
+      ],
+      "mr-w4": [
+        "sop.retest-record"
+      ],
+      "mg-w4a": [
+        "sop.internal-audit"
+      ]
+    },
+    "secai-plus": {
+      "sa-w1-red": [
+        "sop.lab-rule"
+      ],
+      "sa-w1-def": [
+        "sop.hardening-baseline"
+      ],
+      "sa-w2-red": [
+        "sop.lab-rule"
+      ],
+      "sa-w3-def": [
+        "sop.pipeline-record"
+      ],
+      "sa-w3-red": [
+        "sop.lab-rule"
+      ],
+      "sa-w4-def": [
+        "sop.recovery-drill",
+        "sop.release-record"
+      ],
+      "sa-w4-red": [
+        "sop.lab-rule",
+        "sop.recovery-drill"
+      ]
+    },
+    "cissp": {
+      "ci-w3-arch": [
+        "sop.pipeline-record"
+      ],
+      "ci-w3-idops": [
+        "sop.identity-standard"
+      ],
+      "ci-w3-gov": [
+        "sop.data-handling"
+      ],
+      "ci-w4-idops": [
+        "sop.recovery-drill",
+        "sop.backup-plan"
+      ],
+      "ci-w4-gov": [
+        "sop.data-handling"
+      ],
+      "ci-w5-gov": [
+        "sop.internal-audit"
+      ],
+      "ci-w5-arch": [
+        "sop.change-record",
+        "sop.retest-record"
+      ],
+      "ci-w5-idops": [
+        "sop.access-review",
+        "sop.incident-response-plan"
+      ]
+    },
+    "server-plus": {
+      "sp-w1-raid": [
+        "sop.build-record"
+      ],
+      "sp-w3-connect": [
+        "sop.test-and-acceptance"
+      ],
+      "sp-w3-sops": [
+        "sop.runbook",
+        "sop.change-record"
+      ],
+      "sp-w4-secure": [
+        "sop.hardening-baseline",
+        "sop.patch-management"
+      ],
+      "sp-w4-dr": [
+        "sop.recovery-drill",
+        "sop.backup-plan"
+      ],
+      "sp-w4-handover": [
+        "sop.handover"
+      ],
+      "sp-w5-glpi": [
+        "sop.change-record"
+      ],
+      "sp-w6-vault": [
+        "sop.backup-plan"
+      ],
+      "sp-w6-rebuild": [
+        "sop.recovery-drill"
+      ],
+      "sp-w3-mgmt": [
+        "sop.change-record"
+      ],
+      "sp-w6-mgmt": [
+        "sop.change-record"
+      ],
+      "sp-w4-win": [
+        "sop.patch-management",
+        "sop.recovery-drill"
+      ],
+      "sp-w4-lnx": [
+        "sop.recovery-drill"
+      ],
+      "sp-w8-mgmt": [
+        "sop.runbook"
+      ]
+    },
+    "ccna": {
+      "ccna-w1-bringup": [
+        "sop.build-record"
+      ],
+      "ccna-w2-route": [
+        "sop.test-and-acceptance"
+      ],
+      "ccna-w3-wan": [
+        "sop.test-and-acceptance"
+      ],
+      "ccna-w4-policy": [
+        "sop.test-and-acceptance"
+      ],
+      "ccna-w4-harden": [
+        "sop.hardening-baseline"
+      ],
+      "ccna-w5-change": [
+        "sop.change-record",
+        "sop.backup-plan"
+      ],
+      "ccna-w6-ticket": [
+        "sop.incident-record"
+      ],
+      "ccna-w8-incident": [
+        "sop.incident-record",
+        "sop.change-record"
+      ],
+      "ccna-w8-handover": [
+        "sop.handover"
+      ]
+    },
+    "azure-fundamentals": {
+      "az-w2-infra": [
+        "sop.cost-review"
+      ],
+      "az-w4-secops": [
+        "sop.incident-record"
+      ]
+    },
+    "azure-administrator": {
+      "az-w5-secops": [
+        "sop.access-review"
+      ],
+      "az-w8-dev": [
+        "sop.backup-plan"
+      ],
+      "az-w8-secops": [
+        "sop.recovery-drill"
+      ]
+    },
+    "azure-devops": {
+      "az-w9-dev": [
+        "sop.pipeline-record"
+      ],
+      "az-w10-arch": [
+        "sop.change-record"
+      ],
+      "az-w10-dev": [
+        "sop.pipeline-record"
+      ],
+      "az-w11-infra": [
+        "sop.release-record"
+      ],
+      "az-w11-dev": [
+        "sop.release-record"
+      ],
+      "az-w12-arch": [
+        "sop.handover"
+      ],
+      "az-w12-infra": [
+        "sop.recovery-drill"
+      ],
+      "az-w12-secops": [
+        "sop.incident-record"
+      ]
+    },
+    "aws-cloud-practitioner": {
+      "aws-w2-infra": [
+        "sop.cost-review"
+      ],
+      "aws-w4-secops": [
+        "sop.incident-record"
+      ]
+    },
+    "aws-solutions-architect": {
+      "aws-w5-secops": [
+        "sop.access-review"
+      ],
+      "aws-w8-dev": [
+        "sop.backup-plan"
+      ],
+      "aws-w8-secops": [
+        "sop.recovery-drill"
+      ]
+    },
+    "aws-devops": {
+      "aws-w9-dev": [
+        "sop.pipeline-record"
+      ],
+      "aws-w10-arch": [
+        "sop.change-record"
+      ],
+      "aws-w10-dev": [
+        "sop.pipeline-record"
+      ],
+      "aws-w11-infra": [
+        "sop.release-record"
+      ],
+      "aws-w11-dev": [
+        "sop.release-record"
+      ],
+      "aws-w12-arch": [
+        "sop.handover"
+      ],
+      "aws-w12-infra": [
+        "sop.recovery-drill"
+      ],
+      "aws-w12-secops": [
+        "sop.incident-record"
+      ]
+    }
+  }
+}

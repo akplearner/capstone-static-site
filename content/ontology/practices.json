@@ -1,0 +1,1564 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "practices": [
+    {
+      "id": "practice.least-privilege",
+      "label": "Least privilege",
+      "anchor": "NIST.800-53.AC-6",
+      "definition": "Every account, role and agent holds only the rights its task needs, and nothing it might need later."
+    },
+    {
+      "id": "practice.defence-in-depth",
+      "label": "Defence in depth",
+      "anchor": "NIST.CSF.PR",
+      "definition": "More than one control stands between an attacker and the asset, so one failure is not a breach."
+    },
+    {
+      "id": "practice.default-deny",
+      "label": "Default deny",
+      "anchor": "NIST.800-53.SC-7",
+      "definition": "Nothing passes a boundary unless a rule allows it; the allow list is the policy."
+    },
+    {
+      "id": "practice.segmentation",
+      "label": "Network segmentation",
+      "anchor": "ISO27001.A.8.22",
+      "definition": "Zones with distinct trust levels are separated, and the flows between them are named and limited."
+    },
+    {
+      "id": "practice.zero-trust",
+      "label": "Zero trust access",
+      "anchor": "NIST_800_207",
+      "definition": "No request is trusted for where it comes from; identity, device and context decide every access."
+    },
+    {
+      "id": "practice.mfa-everywhere",
+      "label": "Multi-factor authentication",
+      "anchor": "NIST_800_63",
+      "definition": "Every console and privileged login asks for a second factor; a password alone is refused."
+    },
+    {
+      "id": "practice.federation",
+      "label": "Federated identity",
+      "anchor": "NIST_800_63",
+      "definition": "Applications trust one identity provider over SAML or OIDC instead of keeping their own passwords."
+    },
+    {
+      "id": "practice.secrets-in-a-store",
+      "label": "Secrets in a store",
+      "anchor": "NIST.800-53.IA-5",
+      "definition": "Keys and passwords live in a secret store and never in a prompt, a repository or a config file."
+    },
+    {
+      "id": "practice.machine-identities",
+      "label": "Machine identity register",
+      "anchor": "NIST.800-53.IA-5",
+      "definition": "Every service account, key and certificate has an owner and a rotation date in one register."
+    },
+    {
+      "id": "practice.separation-of-duties",
+      "label": "Separation of duties",
+      "anchor": "NIST.800-53.AC-5",
+      "definition": "The person who requests, the person who approves and the person who applies a change are not the same."
+    },
+    {
+      "id": "practice.access-reviews",
+      "label": "Periodic access review",
+      "anchor": "NIST.800-53.AC-2",
+      "definition": "Accounts and rights are reviewed on a schedule; orphans are disabled and the review is recorded."
+    },
+    {
+      "id": "practice.joiner-leaver",
+      "label": "Joiner and leaver process",
+      "anchor": "ISO27001.A.5.18",
+      "definition": "Access is granted on a documented request and removed within a stated time of leaving."
+    },
+    {
+      "id": "practice.encryption-in-transit",
+      "label": "Encryption in transit",
+      "anchor": "NIST.800-53.SC-8",
+      "definition": "Traffic crosses a boundary only over approved TLS versions, and the weak ones are refused."
+    },
+    {
+      "id": "practice.key-rotation",
+      "label": "Key rotation",
+      "anchor": "NIST.800-53.SC-12",
+      "definition": "Keys and certificates have an owner and a rotation date, and a rotation is recorded when it happens."
+    },
+    {
+      "id": "practice.evidence-hashing",
+      "label": "Hash evidence at capture",
+      "anchor": "ISO_27037",
+      "definition": "Every artifact is hashed when it is saved and the digest is recorded, so later copies can be checked."
+    },
+    {
+      "id": "practice.authorised-testing",
+      "label": "Authorised testing only",
+      "anchor": "NIST_800_115",
+      "definition": "Scanning and attacks happen inside a signed scope and rules of engagement, against the pod the team owns."
+    },
+    {
+      "id": "practice.engagement-agreement",
+      "label": "Agreed scope and terms",
+      "anchor": "PTES",
+      "definition": "The work starts from a written agreement: what is in scope, what is out, and who signs."
+    },
+    {
+      "id": "practice.passive-before-active",
+      "label": "Passive before active",
+      "anchor": "PTES",
+      "definition": "Open sources and passive lookups come before any packet reaches the target."
+    },
+    {
+      "id": "practice.retest-to-closure",
+      "label": "Retest to closure",
+      "anchor": "NIST_800_115",
+      "definition": "A finding is closed only by a retest that shows the fix, and every finding ends Closed, Open or Risk accepted."
+    },
+    {
+      "id": "practice.cvss-severity",
+      "label": "CVSS severity",
+      "anchor": "CVSS",
+      "definition": "Each finding carries a CVSS score, so severity is a number that can be ranked and defended."
+    },
+    {
+      "id": "practice.risk-scoring",
+      "label": "Likelihood-times-impact scoring",
+      "anchor": "NIST_800_30",
+      "definition": "Each risk is scored on a stated scale for likelihood and impact, and the score decides the order."
+    },
+    {
+      "id": "practice.threat-modelling",
+      "label": "Threat modelling",
+      "anchor": "STRIDE",
+      "definition": "Threats are enumerated per component with a method, and each is tied to a control or an accepted risk."
+    },
+    {
+      "id": "practice.compensating-controls",
+      "label": "Compensating controls",
+      "anchor": "ISO27001.6.1.3",
+      "definition": "Where a control cannot be applied, another control covering the same risk is named and justified."
+    },
+    {
+      "id": "practice.tabletop-exercise",
+      "label": "Tabletop exercise",
+      "anchor": "NIST.800-53.CP-4",
+      "definition": "The team walks through an incident on paper with injects, and the after-action report names improvements."
+    },
+    {
+      "id": "practice.backup-before-change",
+      "label": "Backup before change",
+      "anchor": "ITIL.change",
+      "definition": "A configuration is copied before it is edited, so the change can be reversed in one step."
+    },
+    {
+      "id": "practice.change-control",
+      "label": "Change control",
+      "anchor": "ITIL.change",
+      "definition": "Every change is requested, reviewed, reversible and recorded before it reaches a system."
+    },
+    {
+      "id": "practice.rollback-plan",
+      "label": "Rollback plan",
+      "anchor": "ITIL.change",
+      "definition": "A change carries the steps that undo it, written before it is made."
+    },
+    {
+      "id": "practice.patch-management",
+      "label": "Managed patching",
+      "anchor": "NIST_800_40",
+      "definition": "Updates are inventoried, prioritised, tested, applied and verified on a cadence, not when something breaks."
+    },
+    {
+      "id": "practice.hardening-baseline",
+      "label": "Hardening baseline",
+      "anchor": "CIS.BENCHMARK",
+      "definition": "Hosts are configured to a written benchmark and checked against it, so drift from the baseline is visible."
+    },
+    {
+      "id": "practice.config-scanning",
+      "label": "Configuration scanning",
+      "anchor": "CIS.BENCHMARK",
+      "definition": "Hosts are scanned against a benchmark on a schedule, and the failed checks become findings."
+    },
+    {
+      "id": "practice.configuration-record",
+      "label": "Configuration record",
+      "anchor": "ITIL.configuration",
+      "definition": "Every device configuration is saved, versioned and compared after a change."
+    },
+    {
+      "id": "practice.build-record",
+      "label": "Build record",
+      "anchor": "ITIL.configuration",
+      "definition": "A build is recorded step by step with firmware, versions and settings as it is made."
+    },
+    {
+      "id": "practice.media-sanitisation",
+      "label": "Media sanitisation",
+      "anchor": "NIST_800_88",
+      "definition": "Storage is cleared, purged or destroyed to the written level before it leaves, and the action is recorded."
+    },
+    {
+      "id": "practice.infrastructure-as-code",
+      "label": "Infrastructure as code",
+      "anchor": "WAF.operational-excellence",
+      "definition": "Resources are declared in versioned templates and deployed from them, not clicked into being."
+    },
+    {
+      "id": "practice.drift-detection",
+      "label": "Drift detection",
+      "anchor": "WAF.operational-excellence",
+      "definition": "The running environment is compared with its template and any difference is treated as a finding."
+    },
+    {
+      "id": "practice.immutable-rebuild",
+      "label": "Rebuild, do not repair",
+      "anchor": "WAF.reliability",
+      "definition": "A compromised or drifted system is replaced from a known-good image rather than patched in place."
+    },
+    {
+      "id": "practice.reproducible-builds",
+      "label": "Reproducible builds",
+      "anchor": "NIST_800_218",
+      "definition": "A system or a test suite can be rebuilt from its record and produce the same result."
+    },
+    {
+      "id": "practice.blue-green",
+      "label": "Blue-green deployment",
+      "anchor": "WAF.operational-excellence",
+      "definition": "Two identical environments take turns serving traffic, so a release switches over and can switch back."
+    },
+    {
+      "id": "practice.canary-release",
+      "label": "Canary release",
+      "anchor": "WAF.operational-excellence",
+      "definition": "A change reaches a small share of traffic first and is watched before it reaches everyone."
+    },
+    {
+      "id": "practice.automated-rollback",
+      "label": "Automated rollback",
+      "anchor": "WAF.reliability",
+      "definition": "A release that fails its health check is reverted by the pipeline without a person deciding."
+    },
+    {
+      "id": "practice.pipeline-gates",
+      "label": "Pipeline gates",
+      "anchor": "NIST_800_218",
+      "definition": "A build cannot proceed past a scan, a test or an approval that failed; a gate that blocks is a control."
+    },
+    {
+      "id": "practice.dependency-scanning",
+      "label": "Dependency and image scanning",
+      "anchor": "NIST_800_218",
+      "definition": "Third-party packages and container images are scanned for known vulnerabilities before release."
+    },
+    {
+      "id": "practice.secret-scanning",
+      "label": "Secret scanning",
+      "anchor": "NIST_800_218",
+      "definition": "Repositories and prompts are scanned for credentials, and a finding blocks the build."
+    },
+    {
+      "id": "practice.component-inventory",
+      "label": "Software bill of materials",
+      "anchor": "NIST_800_218",
+      "definition": "A release lists its components (CycloneDX or SPDX), so a vulnerable dependency can be found."
+    },
+    {
+      "id": "practice.regression-tests-for-guardrails",
+      "label": "Guardrail regression tests",
+      "anchor": "NIST_800_218",
+      "definition": "Every blocked attack case becomes a test the pipeline runs, so a removed guardrail fails the build."
+    },
+    {
+      "id": "practice.policy-as-code",
+      "label": "Policy as code",
+      "anchor": "WAF.security",
+      "definition": "Guardrails are written as rules the platform enforces, so a non-compliant resource is denied or flagged."
+    },
+    {
+      "id": "practice.api-contract",
+      "label": "Interface contract",
+      "anchor": "WAF.operational-excellence",
+      "definition": "Endpoints, requests and responses are specified before they are built, and the build is checked against the spec."
+    },
+    {
+      "id": "practice.naming-and-tagging",
+      "label": "Naming and tagging",
+      "anchor": "WAF.cost",
+      "definition": "Every resource carries the agreed name and tags, so cost, ownership and environment can be read from it."
+    },
+    {
+      "id": "practice.budget-guardrails",
+      "label": "Budget guardrails",
+      "anchor": "WAF.cost",
+      "definition": "A budget with alerts is set before the first resource, and the alert is tested."
+    },
+    {
+      "id": "practice.tear-down-after-use",
+      "label": "Tear down after use",
+      "anchor": "WAF.cost",
+      "definition": "Billable resources are stopped or deleted in the same task that created them, and the record says so."
+    },
+    {
+      "id": "practice.right-sizing",
+      "label": "Right-sizing",
+      "anchor": "WAF.cost",
+      "definition": "Resources are sized from measured use, reviewed and shrunk when the measurement says so."
+    },
+    {
+      "id": "practice.multi-zone-redundancy",
+      "label": "Multi-zone redundancy",
+      "anchor": "WAF.reliability",
+      "definition": "Services run across availability zones so the loss of one zone does not stop them."
+    },
+    {
+      "id": "practice.health-checks",
+      "label": "Health checks",
+      "anchor": "WAF.reliability",
+      "definition": "A load balancer or scaler routes only to instances that answer a health probe, and replaces the ones that do not."
+    },
+    {
+      "id": "practice.backups-tested",
+      "label": "Backups tested by restore",
+      "anchor": "NIST.800-53.CP-4",
+      "definition": "A backup counts only after a restore from it has been performed and its hashes compared."
+    },
+    {
+      "id": "practice.recovery-objectives",
+      "label": "Recovery objectives",
+      "anchor": "NIST_800_34",
+      "definition": "Recovery time and recovery point targets are written per service, and a drill is timed against them."
+    },
+    {
+      "id": "practice.centralised-logging",
+      "label": "Centralised logging",
+      "anchor": "NIST.CSF.DE.CM",
+      "definition": "Every host ships its logs to one place where they are kept, searched and alerted on."
+    },
+    {
+      "id": "practice.capture-and-baseline",
+      "label": "Capture a baseline",
+      "anchor": "NIST.CSF.DE.CM",
+      "definition": "Normal traffic and logs are captured before an attack, so the attack can be told from normal."
+    },
+    {
+      "id": "practice.alert-to-ticket",
+      "label": "Alert to ticket",
+      "anchor": "ITIL.incident",
+      "definition": "A detection opens a ticket with an owner and a due time, so nothing fires into silence."
+    },
+    {
+      "id": "practice.detection-as-code",
+      "label": "Detection as code",
+      "anchor": "MITRE_ATTACK",
+      "definition": "Detections are written as versioned rules, mapped to a technique id and validated against a test attack."
+    },
+    {
+      "id": "practice.attack-mapped-reporting",
+      "label": "ATT&CK-mapped reporting",
+      "anchor": "MITRE_ATTACK",
+      "definition": "Findings, indicators and detections carry the technique id, so they can be compared across teams."
+    },
+    {
+      "id": "practice.ioc-extraction",
+      "label": "Indicators from evidence",
+      "anchor": "MITRE_ATTACK",
+      "definition": "Indicators are extracted from alerts and packets, each traceable to its source and technique."
+    },
+    {
+      "id": "practice.containment-first",
+      "label": "Contain before analysing",
+      "anchor": "NIST.800-61.CONTAIN",
+      "definition": "An active attacker is blocked and the block is timestamped before the deeper analysis begins."
+    },
+    {
+      "id": "practice.timeline-reconstruction",
+      "label": "Evidence-backed timeline",
+      "anchor": "NIST.800-61.DETECT",
+      "definition": "Every row of an incident timeline points at the log line or capture it came from."
+    },
+    {
+      "id": "practice.lessons-learned",
+      "label": "Lessons learned",
+      "anchor": "NIST.800-61.POST",
+      "definition": "After an incident or a drill, what worked and what did not is written down with an owner for each change."
+    },
+    {
+      "id": "practice.written-policy",
+      "label": "Written policy",
+      "anchor": "NIST.CSF.GV.PO",
+      "definition": "Rules are written as shall statements with an owner, a review date and the standard they implement."
+    },
+    {
+      "id": "practice.runbooks-written",
+      "label": "Written runbooks",
+      "anchor": "ISO27001.A.5.37",
+      "definition": "Routine operations are written as steps a colleague could follow, and the steps are kept current."
+    },
+    {
+      "id": "practice.sign-and-version",
+      "label": "Sign and version documents",
+      "anchor": "ISO27001.7.5",
+      "definition": "A document carries an id, a version, an owner, a date and a status, and a change makes a new version."
+    },
+    {
+      "id": "practice.as-built-documentation",
+      "label": "As-built documentation",
+      "anchor": "ITIL.transition",
+      "definition": "What was actually built is recorded, with addresses, versions and owners, and handed over with the system."
+    },
+    {
+      "id": "practice.architecture-decision-records",
+      "label": "Architecture decision records",
+      "anchor": "ISO_42010",
+      "definition": "Each significant design choice is recorded with its context, options and consequences."
+    },
+    {
+      "id": "practice.requirements-first",
+      "label": "Requirements before design",
+      "anchor": "ISO_42010",
+      "definition": "The design starts from written requirements and constraints, and each design element traces to one."
+    },
+    {
+      "id": "practice.addressing-plan",
+      "label": "Addressing plan",
+      "anchor": "NIST.CSF.ID.AM",
+      "definition": "Subnets, addresses and names are planned on paper before any device is configured."
+    },
+    {
+      "id": "practice.test-and-acceptance",
+      "label": "Test and acceptance",
+      "anchor": "ITIL.transition",
+      "definition": "A build is accepted against written tests with recorded results, not against a feeling that it works."
+    },
+    {
+      "id": "practice.troubleshooting-method",
+      "label": "Structured troubleshooting",
+      "anchor": "ITIL.problem",
+      "definition": "Identify the problem, establish a theory, test it, plan and act, verify, document: in that order."
+    },
+    {
+      "id": "practice.asset-inventory",
+      "label": "Asset inventory",
+      "anchor": "NIST.CSF.ID.AM",
+      "definition": "Every asset is listed with an owner, a location and a classification before it is protected."
+    },
+    {
+      "id": "practice.data-classification",
+      "label": "Data classification",
+      "anchor": "ISO27001.A.5.12",
+      "definition": "Information is classified on a written scale, and handling rules follow the class."
+    },
+    {
+      "id": "practice.data-discovery",
+      "label": "Personal data discovery",
+      "anchor": "NIST.CSF.ID.AM",
+      "definition": "Stores are scanned for personal data before and after a clean-up, and the counts are recorded."
+    },
+    {
+      "id": "practice.control-mapping",
+      "label": "Control mapping",
+      "anchor": "ISO27001.6.1.3",
+      "definition": "Each control is mapped to the criteria it satisfies across frameworks, with an owner and an evidence source."
+    },
+    {
+      "id": "practice.evidence-by-design",
+      "label": "Evidence by design",
+      "anchor": "SOC2",
+      "definition": "Every control names the evidence that proves it operates, and the evidence is collected as the work happens."
+    },
+    {
+      "id": "practice.corrective-action",
+      "label": "Corrective action",
+      "anchor": "ISO27001.10.2",
+      "definition": "Every nonconformity gets a cause, a corrective action, an owner and a date, and the action is checked."
+    },
+    {
+      "id": "practice.supplier-tiering",
+      "label": "Supplier tiering",
+      "anchor": "NIST.CSF.GV.SC",
+      "definition": "Suppliers are tiered by the access and data they hold, and the top tier carries written terms."
+    },
+    {
+      "id": "practice.write-for-leadership",
+      "label": "Write for leadership",
+      "anchor": "NIST.CSF.RS.CO",
+      "definition": "A report opens with what a non-technical reader must decide, and the technical detail follows."
+    },
+    {
+      "id": "practice.metrics-with-targets",
+      "label": "Metrics with targets",
+      "anchor": "ISO27001.9.1",
+      "definition": "Each metric has a formula, a source and a target, so a number can be read as good or bad."
+    },
+    {
+      "id": "practice.customer-assurance",
+      "label": "Customer assurance",
+      "anchor": "SOC2",
+      "definition": "A customer question is answered with evidence or an honest gap, never with a promise."
+    },
+    {
+      "id": "practice.input-guardrails",
+      "label": "Input and output guardrails",
+      "anchor": "OWASP_LLM",
+      "definition": "Prompts and model outputs pass through filters that block or contain the listed attack cases."
+    },
+    {
+      "id": "practice.agent-least-privilege",
+      "label": "Least privilege for agents",
+      "anchor": "OWASP_LLM",
+      "definition": "An agent or tool call holds a scoped credential and no admin right, and its actions are logged."
+    },
+    {
+      "id": "practice.redaction-before-write",
+      "label": "Redact before write",
+      "anchor": "NIST_AI_RMF",
+      "definition": "Personal data is detected and removed before a prompt, a log or a dataset is stored."
+    },
+    {
+      "id": "practice.model-scanning",
+      "label": "Model file scanning",
+      "anchor": "OWASP_LLM",
+      "definition": "Serialised models are scanned for unsafe code before they are loaded, and the result is recorded."
+    },
+    {
+      "id": "practice.human-in-the-loop",
+      "label": "Human checkpoint",
+      "anchor": "NIST_AI_RMF",
+      "definition": "AI-assisted work passes a named human check before it is acted on, and the check is recorded."
+    },
+    {
+      "id": "practice.model-cards",
+      "label": "Model cards",
+      "anchor": "NIST_AI_RMF",
+      "definition": "Every model in use has a card: purpose, data, limits, owner and evaluation results."
+    },
+    {
+      "id": "practice.shadow-ai-discovery",
+      "label": "Shadow AI discovery",
+      "anchor": "NIST_AI_RMF",
+      "definition": "Unsanctioned AI tools are found from network and usage data, and each gets a decision."
+    },
+    {
+      "id": "practice.pass-line-suites",
+      "label": "Suites with a pass line",
+      "anchor": "NIST_AI_RMF",
+      "definition": "An attack or evaluation suite states what passing means before it runs."
+    },
+    {
+      "id": "practice.work-tracked",
+      "label": "Work tracked on a board",
+      "anchor": "ITIL.knowledge",
+      "definition": "Every task of the week is a card with an owner and a state on the team board."
+    },
+    {
+      "id": "practice.encryption-at-rest",
+      "label": "Encryption at rest",
+      "anchor": "ISO27001.A.8.24",
+      "definition": "Stored data, snapshots and backups are encrypted under a managed key, and nothing is shared or public."
+    },
+    {
+      "id": "practice.decouple-with-queues",
+      "label": "Decouple with queues",
+      "anchor": "WAF.reliability",
+      "definition": "Producers and consumers talk through a queue with a dead-letter queue, so a slow consumer loses nothing."
+    },
+    {
+      "id": "practice.redundant-paths",
+      "label": "Redundant paths",
+      "anchor": "WAF.reliability",
+      "definition": "A second link or device exists for every single point of failure, and the failover is tested by pulling the cable."
+    },
+    {
+      "id": "practice.idempotent-automation",
+      "label": "Idempotent automation",
+      "anchor": "WAF.operational-excellence",
+      "definition": "Running the automation twice changes nothing the second time, which is how a run is known to be complete."
+    }
+  ],
+  "tasksByCourse": {
+    "security-plus": {
+      "red-w1-osint": [
+        "practice.passive-before-active",
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "red-w2-enumeration": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "red-w3-attacks": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "red-w4-briefing": [
+        "practice.write-for-leadership"
+      ],
+      "blue-w1-hardening": [
+        "practice.hardening-baseline",
+        "practice.default-deny",
+        "practice.backup-before-change"
+      ],
+      "blue-w2-baseline": [
+        "practice.capture-and-baseline",
+        "practice.detection-as-code"
+      ],
+      "blue-w3-detection": [
+        "practice.containment-first",
+        "practice.capture-and-baseline"
+      ],
+      "blue-w4-response": [
+        "practice.timeline-reconstruction",
+        "practice.lessons-learned"
+      ],
+      "grc-w1-framework": [
+        "practice.control-mapping",
+        "practice.written-policy",
+        "practice.evidence-hashing"
+      ],
+      "grc-w2-risk": [
+        "practice.risk-scoring",
+        "practice.cvss-severity",
+        "practice.runbooks-written"
+      ],
+      "grc-w3-custody": [
+        "practice.runbooks-written",
+        "practice.evidence-hashing"
+      ],
+      "grc-w4-report": [
+        "practice.write-for-leadership",
+        "practice.evidence-by-design"
+      ]
+    },
+    "cysa-plus": {
+      "cr-w1": [
+        "practice.centralised-logging"
+      ],
+      "cb-w1": [
+        "practice.centralised-logging",
+        "practice.capture-and-baseline"
+      ],
+      "cg-w1": [
+        "practice.centralised-logging",
+        "practice.evidence-by-design"
+      ],
+      "cb-w2": [
+        "practice.alert-to-ticket"
+      ],
+      "cg-w2": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "cr-w2": [
+        "practice.ioc-extraction",
+        "practice.attack-mapped-reporting"
+      ],
+      "cb-w3": [
+        "practice.config-scanning"
+      ],
+      "cg-w3": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "cr-w3": [
+        "practice.cvss-severity",
+        "practice.risk-scoring",
+        "practice.patch-management"
+      ],
+      "cb-w4": [
+        "practice.alert-to-ticket",
+        "practice.timeline-reconstruction"
+      ],
+      "cg-w4": [
+        "practice.timeline-reconstruction"
+      ],
+      "cg-w4b": [
+        "practice.write-for-leadership",
+        "practice.metrics-with-targets",
+        "practice.lessons-learned"
+      ],
+      "cr-w4": [
+        "practice.containment-first",
+        "practice.evidence-hashing"
+      ]
+    },
+    "mssp": {
+      "mg-w1": [
+        "practice.risk-scoring",
+        "practice.control-mapping"
+      ],
+      "mr-w1": [
+        "practice.authorised-testing",
+        "practice.encryption-in-transit"
+      ],
+      "mb-w1": [
+        "practice.hardening-baseline",
+        "practice.config-scanning"
+      ],
+      "mg-w2": [
+        "practice.control-mapping",
+        "practice.evidence-by-design"
+      ],
+      "mb-w2": [
+        "practice.default-deny",
+        "practice.change-control",
+        "practice.hardening-baseline"
+      ],
+      "mr-w2": [
+        "practice.threat-modelling",
+        "practice.compensating-controls"
+      ],
+      "mr-w3": [
+        "practice.authorised-testing",
+        "practice.retest-to-closure"
+      ],
+      "mb-w3": [
+        "practice.detection-as-code",
+        "practice.attack-mapped-reporting"
+      ],
+      "mg-w3": [
+        "practice.evidence-by-design"
+      ],
+      "mr-w4": [
+        "practice.retest-to-closure"
+      ],
+      "mb-w4": [
+        "practice.metrics-with-targets",
+        "practice.attack-mapped-reporting"
+      ],
+      "mg-w4a": [
+        "practice.corrective-action"
+      ],
+      "mg-w4b": [
+        "practice.evidence-by-design",
+        "practice.sign-and-version"
+      ]
+    },
+    "secai-plus": {
+      "sa-w1-gov": [
+        "practice.written-policy",
+        "practice.asset-inventory",
+        "practice.sign-and-version"
+      ],
+      "sa-w1-red": [
+        "practice.authorised-testing",
+        "practice.evidence-hashing"
+      ],
+      "sa-w1-def": [
+        "practice.secrets-in-a-store",
+        "practice.secret-scanning"
+      ],
+      "sa-w2-red": [
+        "practice.threat-modelling",
+        "practice.attack-mapped-reporting"
+      ],
+      "sa-w2-def": [
+        "practice.input-guardrails",
+        "practice.agent-least-privilege",
+        "practice.redaction-before-write"
+      ],
+      "sa-w2-gov": [
+        "practice.data-classification",
+        "practice.risk-scoring"
+      ],
+      "sa-w3-def": [
+        "practice.pipeline-gates",
+        "practice.regression-tests-for-guardrails",
+        "practice.alert-to-ticket"
+      ],
+      "sa-w3-red": [
+        "practice.pass-line-suites",
+        "practice.human-in-the-loop"
+      ],
+      "sa-w3-gov": [
+        "practice.shadow-ai-discovery",
+        "practice.metrics-with-targets"
+      ],
+      "sa-w4-def": [
+        "practice.immutable-rebuild",
+        "practice.model-scanning",
+        "practice.reproducible-builds"
+      ],
+      "sa-w4-red": [
+        "practice.reproducible-builds",
+        "practice.compensating-controls"
+      ],
+      "sa-w4-gov": [
+        "practice.model-cards",
+        "practice.customer-assurance"
+      ]
+    },
+    "cissp": {
+      "ci-w1-gov": [
+        "practice.written-policy",
+        "practice.data-classification",
+        "practice.asset-inventory"
+      ],
+      "ci-w1-arch": [
+        "practice.defence-in-depth",
+        "practice.default-deny",
+        "practice.segmentation"
+      ],
+      "ci-w1-idops": [
+        "practice.least-privilege",
+        "practice.joiner-leaver",
+        "practice.centralised-logging"
+      ],
+      "ci-w2-gov": [
+        "practice.risk-scoring",
+        "practice.metrics-with-targets"
+      ],
+      "ci-w2-arch": [
+        "practice.encryption-in-transit",
+        "practice.key-rotation",
+        "practice.pipeline-gates"
+      ],
+      "ci-w2-idops": [
+        "practice.separation-of-duties",
+        "practice.recovery-objectives",
+        "practice.runbooks-written"
+      ],
+      "ci-w3-arch": [
+        "practice.pipeline-gates",
+        "practice.component-inventory",
+        "practice.dependency-scanning"
+      ],
+      "ci-w3-idops": [
+        "practice.mfa-everywhere",
+        "practice.access-reviews",
+        "practice.federation"
+      ],
+      "ci-w3-gov": [
+        "practice.supplier-tiering",
+        "practice.threat-modelling",
+        "practice.media-sanitisation"
+      ],
+      "ci-w4-idops": [
+        "practice.centralised-logging",
+        "practice.backups-tested",
+        "practice.recovery-objectives"
+      ],
+      "ci-w4-gov": [
+        "practice.data-discovery",
+        "practice.data-classification"
+      ],
+      "ci-w4-arch": [
+        "practice.zero-trust",
+        "practice.machine-identities",
+        "practice.config-scanning"
+      ],
+      "ci-w5-gov": [
+        "practice.evidence-by-design",
+        "practice.control-mapping",
+        "practice.corrective-action"
+      ],
+      "ci-w5-arch": [
+        "practice.retest-to-closure",
+        "practice.key-rotation",
+        "practice.change-control"
+      ],
+      "ci-w5-idops": [
+        "practice.access-reviews",
+        "practice.joiner-leaver",
+        "practice.tabletop-exercise"
+      ],
+      "ci-w6-gov": [
+        "practice.control-mapping",
+        "practice.sign-and-version"
+      ],
+      "ci-w6-arch": [
+        "practice.control-mapping",
+        "practice.encryption-in-transit"
+      ],
+      "ci-w6-idops": [
+        "practice.control-mapping",
+        "practice.write-for-leadership"
+      ]
+    },
+    "server-plus": {
+      "sp-w1-bringup": [
+        "practice.troubleshooting-method",
+        "practice.build-record"
+      ],
+      "sp-w1-document": [
+        "practice.asset-inventory",
+        "practice.build-record"
+      ],
+      "sp-w1-raid": [
+        "practice.build-record",
+        "practice.architecture-decision-records"
+      ],
+      "sp-w1-install": [
+        "practice.build-record"
+      ],
+      "sp-w2-business": [
+        "practice.requirements-first",
+        "practice.segmentation"
+      ],
+      "sp-w2-rackplan": [
+        "practice.asset-inventory"
+      ],
+      "sp-w2-rack": [
+        "practice.asset-inventory",
+        "practice.test-and-acceptance"
+      ],
+      "sp-w2-install": [
+        "practice.segmentation",
+        "practice.configuration-record"
+      ],
+      "sp-w2-deploy": [
+        "practice.configuration-record",
+        "practice.least-privilege"
+      ],
+      "sp-w3-topology": [
+        "practice.configuration-record",
+        "practice.as-built-documentation"
+      ],
+      "sp-w3-connect": [
+        "practice.default-deny",
+        "practice.segmentation",
+        "practice.test-and-acceptance"
+      ],
+      "sp-w3-sops": [
+        "practice.runbooks-written",
+        "practice.change-control",
+        "practice.patch-management"
+      ],
+      "sp-w4-secure": [
+        "practice.hardening-baseline",
+        "practice.least-privilege",
+        "practice.encryption-in-transit"
+      ],
+      "sp-w4-dr": [
+        "practice.recovery-objectives",
+        "practice.backups-tested"
+      ],
+      "sp-w4-handover": [
+        "practice.as-built-documentation",
+        "practice.sign-and-version"
+      ],
+      "sp-w5-plan": [
+        "practice.requirements-first",
+        "practice.segmentation"
+      ],
+      "sp-w5-secmon": [
+        "practice.centralised-logging",
+        "practice.alert-to-ticket"
+      ],
+      "sp-w5-pulse": [
+        "practice.least-privilege",
+        "practice.alert-to-ticket"
+      ],
+      "sp-w5-wazuh": [
+        "practice.centralised-logging",
+        "practice.config-scanning"
+      ],
+      "sp-w5-terraform": [
+        "practice.infrastructure-as-code",
+        "practice.least-privilege",
+        "practice.secrets-in-a-store"
+      ],
+      "sp-w5-netbox": [
+        "practice.asset-inventory",
+        "practice.addressing-plan"
+      ],
+      "sp-w5-glpi": [
+        "practice.asset-inventory",
+        "practice.change-control"
+      ],
+      "sp-w5-record": [
+        "practice.as-built-documentation"
+      ],
+      "sp-w6-spine": [
+        "practice.segmentation",
+        "practice.addressing-plan"
+      ],
+      "sp-w6-ops": [
+        "practice.least-privilege"
+      ],
+      "sp-w6-git": [
+        "practice.infrastructure-as-code",
+        "practice.secret-scanning",
+        "practice.runbooks-written"
+      ],
+      "sp-w6-terraform": [
+        "practice.infrastructure-as-code",
+        "practice.drift-detection"
+      ],
+      "sp-w6-ansible": [
+        "practice.infrastructure-as-code",
+        "practice.hardening-baseline",
+        "practice.idempotent-automation"
+      ],
+      "sp-w6-observe": [
+        "practice.centralised-logging",
+        "practice.change-control"
+      ],
+      "sp-w6-vault": [
+        "practice.backups-tested",
+        "practice.recovery-objectives"
+      ],
+      "sp-w6-xdr": [
+        "practice.centralised-logging",
+        "practice.config-scanning"
+      ],
+      "sp-w6-rebuild": [
+        "practice.immutable-rebuild",
+        "practice.reproducible-builds",
+        "practice.as-built-documentation"
+      ],
+      "sp-w1-net": [
+        "practice.as-built-documentation"
+      ],
+      "sp-w2-net": [
+        "practice.as-built-documentation"
+      ],
+      "sp-w3-net": [
+        "practice.as-built-documentation",
+        "practice.default-deny"
+      ],
+      "sp-w4-net": [
+        "practice.as-built-documentation",
+        "practice.backups-tested"
+      ],
+      "sp-w1-win": [
+        "practice.as-built-documentation",
+        "practice.requirements-first"
+      ],
+      "sp-w2-win": [
+        "practice.as-built-documentation",
+        "practice.configuration-record"
+      ],
+      "sp-w3-win": [
+        "practice.written-policy"
+      ],
+      "sp-w4-win": [
+        "practice.patch-management",
+        "practice.backups-tested"
+      ],
+      "sp-w1-lnx": [
+        "practice.as-built-documentation",
+        "practice.asset-inventory"
+      ],
+      "sp-w2-lnx": [
+        "practice.as-built-documentation",
+        "practice.configuration-record"
+      ],
+      "sp-w3-lnx": [
+        "practice.as-built-documentation",
+        "practice.configuration-record"
+      ],
+      "sp-w4-lnx": [
+        "practice.default-deny",
+        "practice.backups-tested"
+      ],
+      "sp-w1-mgmt": [
+        "practice.requirements-first"
+      ],
+      "sp-w2-mgmt": [
+        "practice.naming-and-tagging"
+      ],
+      "sp-w3-mgmt": [
+        "practice.change-control"
+      ],
+      "sp-w4-mgmt": [
+        "practice.recovery-objectives",
+        "practice.as-built-documentation"
+      ],
+      "sp-w6-net": [
+        "practice.addressing-plan"
+      ],
+      "sp-w5-win": [
+        "practice.centralised-logging"
+      ],
+      "sp-w5-lnx": [
+        "practice.centralised-logging",
+        "practice.configuration-record"
+      ],
+      "sp-w6-mgmt": [
+        "practice.change-control"
+      ],
+      "sp-w7-net": [
+        "practice.segmentation"
+      ],
+      "sp-w8-win": [
+        "practice.infrastructure-as-code"
+      ],
+      "sp-w8-lnx": [
+        "practice.hardening-baseline"
+      ],
+      "sp-w8-mgmt": [
+        "practice.runbooks-written",
+        "practice.metrics-with-targets"
+      ]
+    },
+    "ccna": {
+      "ccna-w1-discover": [
+        "practice.requirements-first"
+      ],
+      "ccna-w1-design": [
+        "practice.architecture-decision-records",
+        "practice.requirements-first"
+      ],
+      "ccna-w1-bringup": [
+        "practice.build-record",
+        "practice.addressing-plan"
+      ],
+      "ccna-w2-vlans": [
+        "practice.segmentation",
+        "practice.configuration-record"
+      ],
+      "ccna-w2-route": [
+        "practice.test-and-acceptance"
+      ],
+      "ccna-w2-resilience": [
+        "practice.redundant-paths"
+      ],
+      "ccna-w3-wan": [
+        "practice.addressing-plan",
+        "practice.test-and-acceptance"
+      ],
+      "ccna-w3-internet": [
+        "practice.test-and-acceptance",
+        "practice.configuration-record"
+      ],
+      "ccna-w4-policy": [
+        "practice.default-deny",
+        "practice.test-and-acceptance"
+      ],
+      "ccna-w4-harden": [
+        "practice.hardening-baseline",
+        "practice.encryption-in-transit"
+      ],
+      "ccna-w4-wireless": [
+        "practice.segmentation",
+        "practice.test-and-acceptance"
+      ],
+      "ccna-w5-sot": [
+        "practice.asset-inventory",
+        "practice.addressing-plan"
+      ],
+      "ccna-w5-change": [
+        "practice.backup-before-change",
+        "practice.change-control",
+        "practice.backups-tested"
+      ],
+      "ccna-w6-noc": [
+        "practice.centralised-logging",
+        "practice.alert-to-ticket"
+      ],
+      "ccna-w6-ticket": [
+        "practice.troubleshooting-method"
+      ],
+      "ccna-w7-data": [
+        "practice.infrastructure-as-code"
+      ],
+      "ccna-w7-ansible": [
+        "practice.infrastructure-as-code",
+        "practice.idempotent-automation"
+      ],
+      "ccna-w8-incident": [
+        "practice.troubleshooting-method",
+        "practice.change-control",
+        "practice.lessons-learned"
+      ],
+      "ccna-w8-handover": [
+        "practice.as-built-documentation",
+        "practice.sign-and-version"
+      ]
+    },
+    "azure-fundamentals": {
+      "az-w1-arch": [
+        "practice.budget-guardrails",
+        "practice.naming-and-tagging"
+      ],
+      "az-w1-infra": [
+        "practice.addressing-plan"
+      ],
+      "az-w1-dev": [
+        "practice.work-tracked"
+      ],
+      "az-w1-secops": [
+        "practice.least-privilege",
+        "practice.mfa-everywhere"
+      ],
+      "az-w2-arch": [
+        "practice.right-sizing"
+      ],
+      "az-w2-infra": [
+        "practice.tear-down-after-use"
+      ],
+      "az-w2-dev": [
+        "practice.encryption-in-transit"
+      ],
+      "az-w2-secops": [
+        "practice.default-deny",
+        "practice.least-privilege"
+      ],
+      "az-w3-arch": [
+        "practice.architecture-decision-records"
+      ],
+      "az-w3-infra": [
+        "practice.right-sizing"
+      ],
+      "az-w3-dev": [
+        "practice.api-contract",
+        "practice.secrets-in-a-store"
+      ],
+      "az-w3-secops": [
+        "practice.least-privilege",
+        "practice.mfa-everywhere"
+      ],
+      "az-w4-arch": [
+        "practice.budget-guardrails",
+        "practice.right-sizing"
+      ],
+      "az-w4-infra": [
+        "practice.alert-to-ticket",
+        "practice.centralised-logging"
+      ],
+      "az-w4-dev": [
+        "practice.centralised-logging",
+        "practice.troubleshooting-method"
+      ],
+      "az-w4-secops": [
+        "practice.timeline-reconstruction",
+        "practice.lessons-learned"
+      ]
+    },
+    "azure-administrator": {
+      "az-w5-arch": [
+        "practice.least-privilege",
+        "practice.defence-in-depth"
+      ],
+      "az-w5-infra": [
+        "practice.secrets-in-a-store",
+        "practice.key-rotation"
+      ],
+      "az-w5-dev": [
+        "practice.least-privilege",
+        "practice.default-deny"
+      ],
+      "az-w5-secops": [
+        "practice.least-privilege"
+      ],
+      "az-w6-arch": [
+        "practice.multi-zone-redundancy",
+        "practice.architecture-decision-records",
+        "practice.right-sizing"
+      ],
+      "az-w6-infra": [
+        "practice.multi-zone-redundancy",
+        "practice.health-checks"
+      ],
+      "az-w6-dev": [
+        "practice.health-checks",
+        "practice.multi-zone-redundancy"
+      ],
+      "az-w6-secops": [
+        "practice.zero-trust",
+        "practice.default-deny",
+        "practice.segmentation"
+      ],
+      "az-w7-arch": [
+        "practice.right-sizing",
+        "practice.architecture-decision-records"
+      ],
+      "az-w7-infra": [
+        "practice.multi-zone-redundancy",
+        "practice.encryption-at-rest",
+        "practice.tear-down-after-use"
+      ],
+      "az-w7-dev": [
+        "practice.decouple-with-queues"
+      ],
+      "az-w7-secops": [
+        "practice.encryption-at-rest",
+        "practice.default-deny"
+      ],
+      "az-w8-arch": [
+        "practice.recovery-objectives",
+        "practice.right-sizing"
+      ],
+      "az-w8-infra": [
+        "practice.health-checks",
+        "practice.immutable-rebuild"
+      ],
+      "az-w8-dev": [
+        "practice.backups-tested"
+      ],
+      "az-w8-secops": [
+        "practice.recovery-objectives",
+        "practice.backups-tested",
+        "practice.tear-down-after-use"
+      ]
+    },
+    "azure-devops": {
+      "az-w9-arch": [
+        "practice.architecture-decision-records",
+        "practice.infrastructure-as-code"
+      ],
+      "az-w9-infra": [
+        "practice.drift-detection",
+        "practice.naming-and-tagging"
+      ],
+      "az-w9-dev": [
+        "practice.infrastructure-as-code",
+        "practice.change-control"
+      ],
+      "az-w9-secops": [
+        "practice.policy-as-code",
+        "practice.secrets-in-a-store"
+      ],
+      "az-w10-arch": [
+        "practice.change-control",
+        "practice.rollback-plan"
+      ],
+      "az-w10-infra": [
+        "practice.pipeline-gates",
+        "practice.separation-of-duties"
+      ],
+      "az-w10-dev": [
+        "practice.pipeline-gates",
+        "practice.infrastructure-as-code"
+      ],
+      "az-w10-secops": [
+        "practice.federation",
+        "practice.least-privilege",
+        "practice.rollback-plan"
+      ],
+      "az-w11-arch": [
+        "practice.right-sizing",
+        "practice.metrics-with-targets"
+      ],
+      "az-w11-infra": [
+        "practice.blue-green",
+        "practice.health-checks"
+      ],
+      "az-w11-dev": [
+        "practice.canary-release",
+        "practice.health-checks"
+      ],
+      "az-w11-secops": [
+        "practice.policy-as-code",
+        "practice.metrics-with-targets"
+      ],
+      "az-w12-arch": [
+        "practice.as-built-documentation",
+        "practice.risk-scoring"
+      ],
+      "az-w12-infra": [
+        "practice.immutable-rebuild",
+        "practice.reproducible-builds",
+        "practice.runbooks-written"
+      ],
+      "az-w12-dev": [
+        "practice.drift-detection",
+        "practice.automated-rollback"
+      ],
+      "az-w12-secops": [
+        "practice.containment-first",
+        "practice.lessons-learned",
+        "practice.timeline-reconstruction"
+      ]
+    },
+    "aws-cloud-practitioner": {
+      "aws-w1-arch": [
+        "practice.budget-guardrails",
+        "practice.naming-and-tagging"
+      ],
+      "aws-w1-infra": [
+        "practice.addressing-plan"
+      ],
+      "aws-w1-dev": [
+        "practice.work-tracked"
+      ],
+      "aws-w1-secops": [
+        "practice.least-privilege",
+        "practice.mfa-everywhere"
+      ],
+      "aws-w2-arch": [
+        "practice.right-sizing"
+      ],
+      "aws-w2-infra": [
+        "practice.tear-down-after-use"
+      ],
+      "aws-w2-dev": [
+        "practice.encryption-in-transit"
+      ],
+      "aws-w2-secops": [
+        "practice.default-deny",
+        "practice.least-privilege"
+      ],
+      "aws-w3-arch": [
+        "practice.architecture-decision-records"
+      ],
+      "aws-w3-infra": [
+        "practice.right-sizing"
+      ],
+      "aws-w3-dev": [
+        "practice.api-contract",
+        "practice.secrets-in-a-store"
+      ],
+      "aws-w3-secops": [
+        "practice.least-privilege",
+        "practice.mfa-everywhere"
+      ],
+      "aws-w4-arch": [
+        "practice.budget-guardrails",
+        "practice.right-sizing"
+      ],
+      "aws-w4-infra": [
+        "practice.alert-to-ticket",
+        "practice.centralised-logging"
+      ],
+      "aws-w4-dev": [
+        "practice.centralised-logging",
+        "practice.troubleshooting-method"
+      ],
+      "aws-w4-secops": [
+        "practice.timeline-reconstruction",
+        "practice.lessons-learned"
+      ]
+    },
+    "aws-solutions-architect": {
+      "aws-w5-arch": [
+        "practice.least-privilege",
+        "practice.defence-in-depth"
+      ],
+      "aws-w5-infra": [
+        "practice.secrets-in-a-store",
+        "practice.key-rotation"
+      ],
+      "aws-w5-dev": [
+        "practice.least-privilege",
+        "practice.default-deny"
+      ],
+      "aws-w5-secops": [
+        "practice.least-privilege"
+      ],
+      "aws-w6-arch": [
+        "practice.multi-zone-redundancy",
+        "practice.architecture-decision-records",
+        "practice.right-sizing"
+      ],
+      "aws-w6-infra": [
+        "practice.multi-zone-redundancy",
+        "practice.health-checks"
+      ],
+      "aws-w6-dev": [
+        "practice.health-checks",
+        "practice.multi-zone-redundancy"
+      ],
+      "aws-w6-secops": [
+        "practice.zero-trust",
+        "practice.default-deny",
+        "practice.segmentation"
+      ],
+      "aws-w7-arch": [
+        "practice.right-sizing",
+        "practice.architecture-decision-records"
+      ],
+      "aws-w7-infra": [
+        "practice.multi-zone-redundancy",
+        "practice.encryption-at-rest",
+        "practice.tear-down-after-use"
+      ],
+      "aws-w7-dev": [
+        "practice.decouple-with-queues"
+      ],
+      "aws-w7-secops": [
+        "practice.encryption-at-rest",
+        "practice.default-deny"
+      ],
+      "aws-w8-arch": [
+        "practice.recovery-objectives",
+        "practice.right-sizing"
+      ],
+      "aws-w8-infra": [
+        "practice.health-checks",
+        "practice.immutable-rebuild"
+      ],
+      "aws-w8-dev": [
+        "practice.backups-tested"
+      ],
+      "aws-w8-secops": [
+        "practice.recovery-objectives",
+        "practice.backups-tested",
+        "practice.tear-down-after-use"
+      ]
+    },
+    "aws-devops": {
+      "aws-w9-arch": [
+        "practice.architecture-decision-records",
+        "practice.infrastructure-as-code"
+      ],
+      "aws-w9-infra": [
+        "practice.drift-detection",
+        "practice.naming-and-tagging"
+      ],
+      "aws-w9-dev": [
+        "practice.infrastructure-as-code",
+        "practice.change-control"
+      ],
+      "aws-w9-secops": [
+        "practice.policy-as-code",
+        "practice.secrets-in-a-store"
+      ],
+      "aws-w10-arch": [
+        "practice.change-control",
+        "practice.rollback-plan"
+      ],
+      "aws-w10-infra": [
+        "practice.pipeline-gates",
+        "practice.separation-of-duties"
+      ],
+      "aws-w10-dev": [
+        "practice.pipeline-gates",
+        "practice.infrastructure-as-code"
+      ],
+      "aws-w10-secops": [
+        "practice.federation",
+        "practice.least-privilege",
+        "practice.rollback-plan"
+      ],
+      "aws-w11-arch": [
+        "practice.right-sizing",
+        "practice.metrics-with-targets"
+      ],
+      "aws-w11-infra": [
+        "practice.blue-green",
+        "practice.health-checks"
+      ],
+      "aws-w11-dev": [
+        "practice.canary-release",
+        "practice.health-checks"
+      ],
+      "aws-w11-secops": [
+        "practice.policy-as-code",
+        "practice.metrics-with-targets"
+      ],
+      "aws-w12-arch": [
+        "practice.as-built-documentation",
+        "practice.risk-scoring"
+      ],
+      "aws-w12-infra": [
+        "practice.immutable-rebuild",
+        "practice.reproducible-builds",
+        "practice.runbooks-written"
+      ],
+      "aws-w12-dev": [
+        "practice.drift-detection",
+        "practice.automated-rollback"
+      ],
+      "aws-w12-secops": [
+        "practice.containment-first",
+        "practice.lessons-learned",
+        "practice.timeline-reconstruction"
+      ]
+    }
+  }
+}

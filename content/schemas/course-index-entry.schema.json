@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/course-index-entry.schema.json",
+  "title": "Course index entry",
+  "description": "One row of content/courses/index.json: the counts of a course document and, since R106 and R107, the ladder, the cost and the registry coverage.",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "file",
+    "weeks",
+    "tasks",
+    "steps",
+    "deliverables",
+    "procedures"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "version": {
+      "type": "integer"
+    },
+    "file": {
+      "type": "string",
+      "pattern": "\\.json$"
+    },
+    "weeks": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tasks": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "steps": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "deliverables": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "procedures": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "skills": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tools": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "standards": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "controls": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sops": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "tactics": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "practices": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "vendor": {
+      "type": "string"
+    },
+    "certification": {
+      "type": "string"
+    },
+    "level": {
+      "enum": [
+        "entry",
+        "associate",
+        "professional",
+        "expert"
+      ]
+    },
+    "prerequisite": {
+      "type": "string"
+    },
+    "next": {
+      "type": "string"
+    },
+    "examFeeUsd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "coveredWeight": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "costOnceUsd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "costMonthlyUsd": {
+      "type": "number",
+      "minimum": 0
+    },
+    "costTasksUsd": {
+      "type": "number",
+      "minimum": 0
+    }
+  }
+}

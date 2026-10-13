@@ -1,0 +1,773 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/member-profile.schema.json",
+  "title": "Member profile",
+  "description": "The portfolio export a member sends themselves: what they ticked and verified, the hashes of output and files, the documents the team filed, per course against the published ontology. Unsigned: signature is null until validators exist.",
+  "$defs": {
+    "skillProfile": {
+      "type": "object",
+      "required": [
+        "courseId",
+        "role",
+        "denominator",
+        "rows",
+        "abilities",
+        "gaps",
+        "loaded"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "courseId": {
+          "type": "string"
+        },
+        "role": {
+          "type": "string"
+        },
+        "denominator": {
+          "const": "own ticks \u00b7 graded and advanced weeks \u00b7 required steps"
+        },
+        "rows": {
+          "type": "object",
+          "required": [
+            "skills",
+            "tools",
+            "procedures",
+            "tactics",
+            "practices",
+            "standards",
+            "domains",
+            "evidence",
+            "documentation",
+            "collaboration",
+            "ability"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "skills": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "tools": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "procedures": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "tactics": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "practices": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "standards": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "domains": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "evidence": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "documentation": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "collaboration": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "ability": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            }
+          }
+        },
+        "abilities": {
+          "type": "object",
+          "required": [
+            "firstTry",
+            "persistence",
+            "partialProgress",
+            "evidenceNaming",
+            "activeDays",
+            "activeWeeks",
+            "reportsFiled",
+            "reportsResolved",
+            "notesWritten",
+            "drafted",
+            "reviewed",
+            "issued",
+            "submissionsFrozen",
+            "rubricAllGreen",
+            "dodMet",
+            "teammateStepsTicked",
+            "handoffsCompleted",
+            "peerReviewsGiven"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "firstTry": {
+              "$ref": "#/$defs/indicator"
+            },
+            "persistence": {
+              "$ref": "#/$defs/indicator"
+            },
+            "partialProgress": {
+              "$ref": "#/$defs/indicator"
+            },
+            "evidenceNaming": {
+              "$ref": "#/$defs/indicator"
+            },
+            "activeDays": {
+              "$ref": "#/$defs/indicator"
+            },
+            "activeWeeks": {
+              "$ref": "#/$defs/indicator"
+            },
+            "reportsFiled": {
+              "$ref": "#/$defs/indicator"
+            },
+            "reportsResolved": {
+              "$ref": "#/$defs/indicator"
+            },
+            "notesWritten": {
+              "$ref": "#/$defs/indicator"
+            },
+            "drafted": {
+              "$ref": "#/$defs/indicator"
+            },
+            "reviewed": {
+              "$ref": "#/$defs/indicator"
+            },
+            "issued": {
+              "$ref": "#/$defs/indicator"
+            },
+            "submissionsFrozen": {
+              "$ref": "#/$defs/indicator"
+            },
+            "rubricAllGreen": {
+              "$ref": "#/$defs/indicator"
+            },
+            "dodMet": {
+              "$ref": "#/$defs/indicator"
+            },
+            "teammateStepsTicked": {
+              "$ref": "#/$defs/indicator"
+            },
+            "handoffsCompleted": {
+              "$ref": "#/$defs/indicator"
+            },
+            "peerReviewsGiven": {
+              "$ref": "#/$defs/indicator"
+            }
+          }
+        },
+        "gaps": {
+          "type": "object",
+          "required": [
+            "domains",
+            "skills",
+            "sops"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "domains": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "skills": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            },
+            "sops": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/row"
+              }
+            }
+          }
+        },
+        "loaded": {
+          "type": "object",
+          "required": [
+            "team",
+            "own"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "team": {
+              "type": "boolean"
+            },
+            "own": {
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    },
+    "row": {
+      "type": "object",
+      "required": [
+        "dimension",
+        "id",
+        "label",
+        "tasks",
+        "exercisedTasks",
+        "doneTasks",
+        "requiredSteps",
+        "tickedSteps",
+        "verifiableSteps",
+        "verifiedSteps",
+        "selfAttestedSteps",
+        "artifacts",
+        "deliverables",
+        "deliverablesFilled",
+        "deliverablesControlled",
+        "deliverablesApproved",
+        "draftedByMember",
+        "level"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "dimension": {
+          "enum": [
+            "skills",
+            "tools",
+            "procedures",
+            "tactics",
+            "practices",
+            "standards",
+            "domains",
+            "evidence",
+            "documentation",
+            "collaboration",
+            "ability"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "label": {
+          "type": "string"
+        },
+        "standardRefs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exercisedTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "doneTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "requiredSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "tickedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiableSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selfAttestedSteps": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inOrderTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "orderedTasks": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artifacts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverables": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "deliverablesFilled": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverablesControlled": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverablesApproved": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "draftedByMember": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "level": {
+          "enum": [
+            "not-started",
+            "practised",
+            "verified",
+            "reviewed"
+          ]
+        },
+        "next": {
+          "type": "object",
+          "required": [
+            "taskId",
+            "title",
+            "week"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "taskId": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "week": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      }
+    },
+    "indicator": {
+      "type": "object",
+      "required": [
+        "value",
+        "loaded"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0
+        },
+        "of": {
+          "type": "number",
+          "minimum": 0
+        },
+        "loaded": {
+          "type": "boolean"
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": [
+        "courseId",
+        "courseTitle",
+        "stepsDone",
+        "stepsTotal",
+        "verifiable",
+        "verified",
+        "selfAttested",
+        "verificationRate",
+        "artifacts",
+        "artifactsNamedWell",
+        "attempts",
+        "firstActivity",
+        "lastActivity",
+        "activeDays",
+        "frameworksVerified",
+        "frameworksTotal"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "courseId": {
+          "type": "string"
+        },
+        "courseTitle": {
+          "type": "string"
+        },
+        "stepsDone": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stepsTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiable": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verified": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "selfAttested": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verificationRate": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artifacts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artifactsNamedWell": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activeDays": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstActivity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lastActivity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "frameworksVerified": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "frameworksTotal": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "required": [
+        "courseId",
+        "sha256",
+        "filename",
+        "sizeBytes",
+        "nameOk",
+        "hashedAt"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "courseId": {
+          "type": "string"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "filename": {
+          "type": "string"
+        },
+        "sizeBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "week": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deliverableId": {
+          "type": "string"
+        },
+        "nameOk": {
+          "type": "boolean"
+        },
+        "hashedAt": {
+          "type": "number",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "type": "object",
+  "required": [
+    "schema",
+    "ontologyVersion",
+    "generatedAt",
+    "subject",
+    "claim",
+    "path",
+    "summary",
+    "courses",
+    "signature"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "capstone-member-profile/1"
+    },
+    "ontologyVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$"
+    },
+    "generatedAt": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T"
+    },
+    "subject": {
+      "type": "object",
+      "required": [
+        "display"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "display": {
+          "type": "string"
+        }
+      }
+    },
+    "claim": {
+      "type": "string"
+    },
+    "path": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "summary": {
+      "type": "object",
+      "required": [
+        "courses",
+        "stepsDone",
+        "stepsTotal",
+        "verified",
+        "verifiable",
+        "verificationRate",
+        "artifacts",
+        "attempts",
+        "activeDays",
+        "firstActivity",
+        "lastActivity",
+        "frameworksVerified",
+        "skillsVerified",
+        "skillsPractised",
+        "toolsUsed",
+        "sopsFollowed",
+        "standardsPractised",
+        "tacticsPractised",
+        "practicesPractised",
+        "domainsVerified",
+        "domainsTotal"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "courses": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stepsDone": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "stepsTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verified": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verifiable": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "verificationRate": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "artifacts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "attempts": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "activeDays": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "domainsVerified": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "domainsTotal": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "firstActivity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "lastActivity": {
+          "type": "number",
+          "minimum": 0
+        },
+        "frameworksVerified": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skillsVerified": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "skillsPractised": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "toolsUsed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sopsFollowed": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "standardsPractised": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tacticsPractised": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "practicesPractised": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "courses": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "courseId",
+          "title",
+          "role",
+          "stage",
+          "capstoneFiled",
+          "metrics",
+          "skills",
+          "artifacts"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "courseId": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "stage": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 5
+          },
+          "capstoneFiled": {
+            "type": "boolean"
+          },
+          "metrics": {
+            "$ref": "#/$defs/metrics"
+          },
+          "skills": {
+            "$ref": "#/$defs/skillProfile"
+          },
+          "artifacts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/artifact"
+            }
+          }
+        }
+      }
+    },
+    "signature": {
+      "type": "null"
+    }
+  }
+}

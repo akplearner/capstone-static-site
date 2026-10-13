@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/sop.schema.json",
+  "title": "Standard operating procedure kind",
+  "description": "One kind of runbook or SOP a course asks a team to write and follow, anchored to the standards that name it.",
+  "type": "object",
+  "required": [
+    "id",
+    "label",
+    "kind",
+    "definition",
+    "standardRefs"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^sop\\.[a-z0-9][a-z0-9-]*$"
+    },
+    "label": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "runbook",
+        "change",
+        "release",
+        "incident",
+        "recovery",
+        "custody",
+        "scope",
+        "baseline",
+        "patching",
+        "handover",
+        "risk",
+        "policy",
+        "access",
+        "monitoring",
+        "inventory",
+        "governance",
+        "audit",
+        "assessment",
+        "design",
+        "build"
+      ]
+    },
+    "definition": {
+      "type": "string"
+    },
+    "standardRefs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/xapi-statement.schema.json",
+  "title": "xAPI statement",
+  "description": "The statement shape of docs/INTEGRATION_CERTHATCH.md \u00a75, which both platforms would emit: a shape only, nothing is emitted without an event log and the share-cross-platform consent.",
+  "type": "object",
+  "required": [
+    "actor",
+    "verb",
+    "object",
+    "context",
+    "consentScope",
+    "timestamp"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "actor": {
+      "type": "object",
+      "required": [
+        "id",
+        "oidcSub"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "oidcSub": {
+          "type": "string"
+        }
+      }
+    },
+    "verb": {
+      "enum": [
+        "answered",
+        "validated"
+      ]
+    },
+    "object": {
+      "type": "object",
+      "required": [
+        "platform",
+        "refType",
+        "refId"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "platform": {
+          "enum": [
+            "certhatch",
+            "capstone-labs"
+          ]
+        },
+        "refType": {
+          "enum": [
+            "item",
+            "validator"
+          ]
+        },
+        "refId": {
+          "type": "string"
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "context": {
+      "type": "object",
+      "required": [
+        "competencyIds"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "competencyIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "pattern": "^comp\\."
+          }
+        },
+        "ontologyVersion": {
+          "type": "string"
+        }
+      }
+    },
+    "consentScope": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

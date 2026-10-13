@@ -96,6 +96,12 @@ has failed silently in some deployment of some product; none takes more than a m
       banner's "save to an account" carries the progress *and* the evidence ledger across.
 - [ ] **Account:** export produces valid JSON; delete removes the account (needs setup step 8).
 - [ ] **Health:** `GET /api/health` returns `{"status":"ok","mode":"cloud"}`.
+- [ ] **Skills (R107):** joined on a course, the Home's role surface shows "Skills": the exam
+  domains with a level each and the next task that closes a gap, one line per dimension, the
+  indicators and the denominator caption; ticking a step moves a row to Practised, a matching
+  paste to Verified from output; `/dashboard` shows a domain strip per card and "Skills by
+  course"; `/portfolio` shows the six skills sections and its Export JSON parses with
+  `schema: "capstone-member-profile/1"` and `signature: null`.
 
 ## 3. Point monitoring at it
 

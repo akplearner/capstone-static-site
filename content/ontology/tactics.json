@@ -1,0 +1,300 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.0.0",
+  "tactics": [
+    {
+      "id": "TA0043",
+      "matrix": "attack-enterprise",
+      "label": "Reconnaissance",
+      "url": "https://attack.mitre.org/tactics/TA0043/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0042",
+      "matrix": "attack-enterprise",
+      "label": "Resource Development",
+      "url": "https://attack.mitre.org/tactics/TA0042/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0001",
+      "matrix": "attack-enterprise",
+      "label": "Initial Access",
+      "url": "https://attack.mitre.org/tactics/TA0001/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0002",
+      "matrix": "attack-enterprise",
+      "label": "Execution",
+      "url": "https://attack.mitre.org/tactics/TA0002/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0003",
+      "matrix": "attack-enterprise",
+      "label": "Persistence",
+      "url": "https://attack.mitre.org/tactics/TA0003/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0004",
+      "matrix": "attack-enterprise",
+      "label": "Privilege Escalation",
+      "url": "https://attack.mitre.org/tactics/TA0004/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0005",
+      "matrix": "attack-enterprise",
+      "label": "Defense Evasion",
+      "url": "https://attack.mitre.org/tactics/TA0005/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0006",
+      "matrix": "attack-enterprise",
+      "label": "Credential Access",
+      "url": "https://attack.mitre.org/tactics/TA0006/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0007",
+      "matrix": "attack-enterprise",
+      "label": "Discovery",
+      "url": "https://attack.mitre.org/tactics/TA0007/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0008",
+      "matrix": "attack-enterprise",
+      "label": "Lateral Movement",
+      "url": "https://attack.mitre.org/tactics/TA0008/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0009",
+      "matrix": "attack-enterprise",
+      "label": "Collection",
+      "url": "https://attack.mitre.org/tactics/TA0009/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0011",
+      "matrix": "attack-enterprise",
+      "label": "Command and Control",
+      "url": "https://attack.mitre.org/tactics/TA0011/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0010",
+      "matrix": "attack-enterprise",
+      "label": "Exfiltration",
+      "url": "https://attack.mitre.org/tactics/TA0010/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "TA0040",
+      "matrix": "attack-enterprise",
+      "label": "Impact",
+      "url": "https://attack.mitre.org/tactics/TA0040/",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0002",
+      "matrix": "atlas",
+      "label": "Reconnaissance",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0002",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0003",
+      "matrix": "atlas",
+      "label": "Resource Development",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0003",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0004",
+      "matrix": "atlas",
+      "label": "Initial Access",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0004",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0000",
+      "matrix": "atlas",
+      "label": "AI Model Access",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0000",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0005",
+      "matrix": "atlas",
+      "label": "Execution",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0005",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0006",
+      "matrix": "atlas",
+      "label": "Persistence",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0006",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0012",
+      "matrix": "atlas",
+      "label": "Privilege Escalation",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0012",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0007",
+      "matrix": "atlas",
+      "label": "Defense Evasion",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0007",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0013",
+      "matrix": "atlas",
+      "label": "Credential Access",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0013",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0008",
+      "matrix": "atlas",
+      "label": "Discovery",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0008",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0009",
+      "matrix": "atlas",
+      "label": "Collection",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0009",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0001",
+      "matrix": "atlas",
+      "label": "AI Attack Staging",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0001",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0010",
+      "matrix": "atlas",
+      "label": "Exfiltration",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0010",
+      "checkedYear": 2025
+    },
+    {
+      "id": "AML.TA0011",
+      "matrix": "atlas",
+      "label": "Impact",
+      "url": "https://atlas.mitre.org/tactics/AML.TA0011",
+      "checkedYear": 2025
+    }
+  ],
+  "tasksByCourse": {
+    "security-plus": {
+      "red-w1-osint": [
+        "TA0043"
+      ],
+      "red-w2-enumeration": [
+        "TA0043",
+        "TA0007"
+      ],
+      "red-w3-attacks": [
+        "TA0001",
+        "TA0006",
+        "TA0002"
+      ],
+      "blue-w3-detection": [
+        "TA0006",
+        "TA0001"
+      ]
+    },
+    "cysa-plus": {
+      "cg-w2": [
+        "TA0043",
+        "TA0006"
+      ],
+      "cr-w2": [
+        "TA0006",
+        "TA0001"
+      ],
+      "cg-w3": [
+        "TA0043",
+        "TA0007"
+      ],
+      "cb-w4": [
+        "TA0001"
+      ],
+      "cg-w4": [
+        "TA0001",
+        "TA0002"
+      ],
+      "cr-w4": [
+        "TA0001"
+      ]
+    },
+    "mssp": {
+      "mr-w1": [
+        "TA0043"
+      ],
+      "mr-w2": [
+        "TA0001"
+      ],
+      "mr-w3": [
+        "TA0001",
+        "TA0002"
+      ],
+      "mb-w3": [
+        "TA0006",
+        "TA0001"
+      ],
+      "mr-w4": [
+        "TA0001"
+      ]
+    },
+    "secai-plus": {
+      "sa-w1-red": [
+        "AML.TA0004",
+        "AML.TA0009"
+      ],
+      "sa-w2-red": [
+        "AML.TA0004",
+        "AML.TA0005",
+        "AML.TA0007"
+      ],
+      "sa-w2-def": [
+        "AML.TA0004",
+        "AML.TA0007"
+      ],
+      "sa-w3-red": [
+        "AML.TA0004"
+      ],
+      "sa-w4-red": [
+        "AML.TA0003",
+        "AML.TA0006",
+        "AML.TA0010"
+      ]
+    },
+    "cissp": {
+      "ci-w3-gov": [
+        "TA0001"
+      ],
+      "ci-w4-idops": [
+        "TA0006"
+      ],
+      "ci-w5-arch": [
+        "TA0043",
+        "TA0007"
+      ]
+    }
+  }
+}

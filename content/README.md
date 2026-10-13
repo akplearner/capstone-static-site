@@ -28,6 +28,12 @@ courses carry `content.arch` — the architecture picture and its build model
 (`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same export
 writes the weekly build sheets to `docs/courses/build-sheets/`.
 
+`ontology/` is the published ontology (R107): the competency nodes, tools, standards and
+controls, SOP kinds, tactics, practices, the metric catalogue and the exam domains as versioned
+JSON any platform can join on (`src/lib/docs/ontology.ts`; semver, additive, deprecate never
+remove). `schemas/` holds a JSON Schema for every shape the platform publishes or exports
+(`content/schemas/README.md`).
+
 **The TypeScript is the source of truth.** Edit the seed, then regenerate:
 
 ```
