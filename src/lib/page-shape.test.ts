@@ -933,6 +933,7 @@ describe('R75-B — the content is not in the components', () => {
       'src/lib/docs/sops.ts',
       'src/lib/docs/metricCatalogue.ts',
       'src/lib/docs/skillsCopy.ts',
+      'src/lib/docs/kpis.ts',
     ];
     for (const m of modules) {
       const src = code(m).replace(/\/\*[\s\S]*?\*\//g, '');
@@ -1196,7 +1197,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection|kpis|workRoles|environmentProfile|kpiSheet)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {

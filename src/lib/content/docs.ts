@@ -105,7 +105,7 @@ function sharedContent(): Pick<CourseDto, 'schema' | 'content' | 'glossary' | 'm
       troubleshooting: content.troubleshooting,
       roles: { ...((content.roles as object | undefined) ?? {}), PROFILES: [] },
       // R107: the registries are shared; the maps into them are the course's own, so a bare document carries none.
-      skills: { ...((content.skills as object | undefined) ?? {}), SKILL_OF: {}, TOOL_OF: {}, CONTROL_OF: {}, SOP_OF: {}, SOP_OF_TASK: {}, TACTIC_OF: {}, PRACTICE_OF: {} },
+      skills: { ...((content.skills as object | undefined) ?? {}), SKILL_OF: {}, TOOL_OF: {}, CONTROL_OF: {}, SOP_OF: {}, SOP_OF_TASK: {}, TACTIC_OF: {}, PRACTICE_OF: {}, WORK_ROLE_OF: {} },
     },
     glossary: first?.glossary,
     marking: first?.marking,

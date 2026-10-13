@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/work-role.schema.json",
+  "title": "Work role",
+  "description": "One NICE Framework work role (NIST SP 800-181) of content/ontology/work-roles.json: its title, the competency areas it expects, and the competency nodes those areas hold. The area mapping is the platform's own crosswalk.",
+  "type": "object",
+  "required": ["id", "label", "framework", "checkedYear", "url", "areas", "requiredCompetencies"],
+  "additionalProperties": false,
+  "properties": {
+    "id": { "type": "string", "pattern": "^role\\.[a-z0-9][a-z0-9-]*$" },
+    "label": { "type": "string", "minLength": 1 },
+    "framework": { "const": "NICE" },
+    "niceId": { "type": "string", "pattern": "^[A-Z]{2}-[A-Z]{3}-\\d{3}$" },
+    "checkedYear": { "type": "integer", "minimum": 2017 },
+    "url": { "type": "string", "pattern": "^https://" },
+    "areas": { "type": "array", "minItems": 1, "items": { "type": "string", "pattern": "^[a-z][a-z-]*$" } },
+    "requiredCompetencies": { "type": "array", "items": { "type": "string", "pattern": "^comp\\.[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$" } }
+  }
+}

@@ -16,6 +16,8 @@
     "src/lib/docs/tactics.ts",
     "src/lib/docs/metricCatalogue.ts",
     "src/lib/docs/skillsCopy.ts",
+    "src/lib/docs/kpis.ts",
+    "src/lib/docs/workRoles.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -8887,7 +8889,12 @@
           "dodMet": "Checks met",
           "teammateStepsTicked": "Teammate steps ticked",
           "handoffsCompleted": "Hand-offs completed",
-          "peerReviewsGiven": "Peer reviews given"
+          "peerReviewsGiven": "Peer reviews given",
+          "inOrder": "Steps verified in order",
+          "commandSteps": "Command steps verified",
+          "controlsCited": "Controls cited",
+          "docControl": "Document control complete",
+          "instructorApproved": "Instructor approved"
         },
         "skillsByCourse": "skills verified",
         "recordSkills": "of practised",
@@ -8905,7 +8912,58 @@
         "dashboardSection": "Skills by course",
         "tiles": {
           "skillsVerified": "Skills verified",
-          "toolsUsed": "Tools used"
+          "toolsUsed": "Tools used",
+          "kpiBoard": "Skill board"
+        },
+        "board": {
+          "title": "Skill board",
+          "lede": "Sixteen numbers this course keeps for this member, each counted over facts that exist, and the competencies lit by level.",
+          "familiesHeading": "Four families of four",
+          "audience": {
+            "student": "Student",
+            "hiring": "Hiring",
+            "agent": "Agent"
+          },
+          "factOwn": "Own fact: ticks, pastes and hashes by this member.",
+          "factTeam": "Team fact: a document the team filled, approved or issued.",
+          "factContent": "Content fact: read from the course and the registries.",
+          "notLoaded": "Team facts load on the course page.",
+          "replay": "Replay",
+          "measuredAgainst": "Measured against",
+          "importProfile": "Import a profile file",
+          "importFailed": "The file is not an environment profile",
+          "untaught": "not taught by this course",
+          "workRole": "Roles this course prepares for",
+          "heroUnit": "skills verified",
+          "perTool": "Command steps verified per tool",
+          "jsonCaption": "The same sixteen as the capstone-kpi-board/1 document an agent reads.",
+          "schemaNote": "The shape is published as content/schemas/kpi-board.schema.json.",
+          "copyJson": "Copy JSON",
+          "mapTitle": "Competency map",
+          "mapHowToRead": "One star per competency this role practises, grouped by area; brighter means verified, a ring means the team approved the document.",
+          "tableTitle": "The sixteen, as a table",
+          "nextTask": "Next task",
+          "exportCredential": "Export credential",
+          "credentialClaim": "An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.",
+          "cohortTitle": "KPI bands per cohort",
+          "cohortLede": "Counts per band for the members shown; nobody is ranked; team facts are judged through the review week.",
+          "cohortColumns": [
+            "KPI",
+            "Family",
+            "Fact",
+            "Members",
+            "Not started",
+            "In progress",
+            "Complete",
+            "No denominator",
+            "Sum"
+          ],
+          "bands": {
+            "notStarted": "Not started",
+            "inProgress": "In progress",
+            "complete": "Complete",
+            "noDenominator": "No denominator"
+          }
         }
       },
       "DIMENSION_LABEL": {
@@ -8921,6 +8979,310 @@
         "collaboration": "Collaboration",
         "ability": "Ability"
       },
+      "KPIS": [
+        {
+          "id": "kpi.ability.skills-verified",
+          "family": "ability",
+          "label": "Skills verified",
+          "metricId": "metric.skill-verified",
+          "numerator": "Skills with at least one step verified from pasted output.",
+          "denominator": "Skills the role practises that carry a verifiable step.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Each verified skill names a task where the pasted output held every expected token.",
+          "whyCompany": "Skills backed by matched output rather than a tick, with the task behind each one named.",
+          "agentField": "/kpis/0",
+          "scored": false
+        },
+        {
+          "id": "kpi.ability.exam-weight-verified",
+          "family": "ability",
+          "label": "Exam weight verified",
+          "metricId": "metric.domain-weight-verified",
+          "numerator": "The published exam weight of every domain with a verified step, summed.",
+          "denominator": "The published exam weight of every domain the role practises, summed.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Shows which share of the exam blueprint the verified work already touches.",
+          "whyCompany": "Reads the verified work against the published exam domains and their weights.",
+          "agentField": "/kpis/1",
+          "scored": false
+        },
+        {
+          "id": "kpi.ability.profile-coverage",
+          "family": "ability",
+          "label": "Profile coverage",
+          "metricId": "metric.profile-coverage",
+          "numerator": "Required competencies of the selected work role or environment profile at verified or better.",
+          "denominator": "Required competencies the selected work role or environment profile names.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Measures the verified skills against a job role or a published company profile, with the untaught gap named.",
+          "whyCompany": "Coverage of the competencies a work role or an environment profile requires, read from verified steps.",
+          "agentField": "/kpis/2",
+          "scored": false
+        },
+        {
+          "id": "kpi.ability.skills-transferred",
+          "family": "ability",
+          "label": "Skills proved twice",
+          "metricId": "metric.skill-transfer",
+          "numerator": "Skills with verified steps on two or more distinct tasks.",
+          "denominator": "Skills with at least one verified step.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "A skill verified on two different tasks was carried from one context to another.",
+          "whyCompany": "Verification repeated on a second task is harder to reach by luck or by copying.",
+          "agentField": "/kpis/3",
+          "scored": false
+        },
+        {
+          "id": "kpi.execution.steps-in-order",
+          "family": "execution",
+          "label": "Steps verified in order",
+          "metricId": "metric.procedure-in-order",
+          "numerator": "Tasks whose verifiable steps were verified in the authored order.",
+          "denominator": "Tasks with two or more verification records, so an order exists.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "The procedure was run as written, step after step: a sequence fact, never a duration.",
+          "whyCompany": "Runbooks followed in order, read from the sequence of verification records alone.",
+          "agentField": "/kpis/4",
+          "scored": false
+        },
+        {
+          "id": "kpi.execution.first-try",
+          "family": "execution",
+          "label": "First-try verifications",
+          "metricId": "metric.ability-first-try",
+          "numerator": "Verified steps whose first paste held every expected token.",
+          "denominator": "Verified steps.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Shown beside persistence: a step verified after several pastes counts for as much.",
+          "whyCompany": "How often the first paste matched, printed beside how often it took more than one.",
+          "agentField": "/kpis/5",
+          "beside": "persistence",
+          "scored": false
+        },
+        {
+          "id": "kpi.execution.commands-verified",
+          "family": "execution",
+          "label": "Commands verified",
+          "metricId": "metric.tool-commands-verified",
+          "numerator": "Verified required steps that run a command.",
+          "denominator": "Verifiable required steps that run a command.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Command steps proven by their output; the table below splits them by tool.",
+          "whyCompany": "Tool use proven by output, per command step, split by tool in the table.",
+          "agentField": "/kpis/6",
+          "scored": false
+        },
+        {
+          "id": "kpi.execution.evidence-named",
+          "family": "execution",
+          "label": "Files named to convention",
+          "metricId": "metric.evidence-naming",
+          "numerator": "Hashed files named to the evidence convention.",
+          "denominator": "Hashed files.",
+          "fact": "own",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Evidence an auditor can find: date, team, tool and subject in every file name.",
+          "whyCompany": "Chain-of-custody hygiene: hashed files that follow the naming convention.",
+          "agentField": "/kpis/7",
+          "scored": false
+        },
+        {
+          "id": "kpi.procedure.followed-to-standard",
+          "family": "procedure",
+          "label": "Procedures to standard",
+          "metricId": "metric.procedure-to-standard",
+          "numerator": "Followed procedures whose form cites a control code and was approved or issued.",
+          "denominator": "Procedures followed: every check due met and document control complete.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "A runbook followed to a named control and approved by the team; a team fact.",
+          "whyCompany": "Procedures run to a cited NIST, ISO or SOC 2 control and approved by the team.",
+          "agentField": "/kpis/8",
+          "scored": false
+        },
+        {
+          "id": "kpi.procedure.dod-met",
+          "family": "procedure",
+          "label": "Definition-of-Done met",
+          "metricId": "metric.doc-dod-met",
+          "numerator": "Definition-of-Done checks met on the forms of the role.",
+          "denominator": "Checks due on those forms through the current week.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "Every check a form must pass this week, met or not, counted for the team.",
+          "whyCompany": "Work products measured against their own acceptance checks, week by week.",
+          "agentField": "/kpis/9",
+          "scored": false
+        },
+        {
+          "id": "kpi.procedure.controls-cited",
+          "family": "procedure",
+          "label": "Controls cited",
+          "metricId": "metric.standard-controls-cited",
+          "numerator": "Distinct control codes on approved or issued forms the role drafts.",
+          "denominator": "Distinct control codes the forms of the role cite.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "The published controls the approved documents cite, by code.",
+          "whyCompany": "Control codes practised through approved documents, by standard.",
+          "agentField": "/kpis/10",
+          "scored": false
+        },
+        {
+          "id": "kpi.procedure.document-control",
+          "family": "procedure",
+          "label": "Document control complete",
+          "metricId": "metric.doc-control-complete",
+          "numerator": "Forms with data whose document-control block is complete.",
+          "denominator": "Forms of the role with data.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Id, version, owner, date and status on every document the team filled.",
+          "whyCompany": "Document control kept on every filled form: id, version, owner, date, status.",
+          "agentField": "/kpis/11",
+          "scored": false
+        },
+        {
+          "id": "kpi.outcome.rubric-green",
+          "family": "outcome",
+          "label": "Submissions rubric-green",
+          "metricId": "metric.doc-rubric-green",
+          "numerator": "Frozen submissions by the member with all four rubric categories true.",
+          "denominator": "Frozen submissions by the member.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "A frozen submission that met all four rubric categories at once.",
+          "whyCompany": "Submissions that met every rubric category when frozen.",
+          "agentField": "/kpis/12",
+          "scored": false
+        },
+        {
+          "id": "kpi.outcome.handoffs",
+          "family": "outcome",
+          "label": "Hand-offs completed",
+          "metricId": "metric.collab-handoffs",
+          "numerator": "Hand-offs whose named deliverable reached approved or issued.",
+          "denominator": "Hand-offs of the tasks of the role.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Work handed to another role that the team then approved or issued.",
+          "whyCompany": "Cross-role hand-offs closed by an approved document.",
+          "agentField": "/kpis/13",
+          "scored": false
+        },
+        {
+          "id": "kpi.outcome.instructor-approved",
+          "family": "outcome",
+          "label": "Instructor approved",
+          "metricId": "metric.doc-instructor-approved",
+          "numerator": "Forms of the role whose latest instructor review is approved.",
+          "denominator": "Forms of the role.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "whyMember": "Forms an instructor reviewed and approved; the latest review per form counts.",
+          "whyCompany": "Forms with an instructor verdict of approved, the latest review per form.",
+          "agentField": "/kpis/14",
+          "scored": false
+        },
+        {
+          "id": "kpi.outcome.capstone-filed",
+          "family": "outcome",
+          "label": "Capstone filed",
+          "metricId": "metric.outcome-capstone-filed",
+          "numerator": "The capstone document, issued.",
+          "denominator": "One capstone per course.",
+          "fact": "team",
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "whyMember": "The final document issued; the weeks cleared are printed beside it.",
+          "whyCompany": "The course capstone filed by the team, with the weeks cleared beside it.",
+          "agentField": "/kpis/15",
+          "scored": false
+        }
+      ],
+      "KPI_FAMILIES": [
+        {
+          "id": "ability",
+          "label": "Ability",
+          "definition": "What the member can do, read from verified steps against the exam, a work role or a published profile."
+        },
+        {
+          "id": "execution",
+          "label": "Execution",
+          "definition": "How the work was done: steps in order, first pastes, commands proven by output, evidence hygiene."
+        },
+        {
+          "id": "procedure",
+          "label": "Procedure and standards",
+          "definition": "Runbooks followed to a cited standard, checks met, controls cited, documents controlled; team facts, labelled as such."
+        },
+        {
+          "id": "outcome",
+          "label": "Outcome",
+          "definition": "What the team delivered: rubric categories met, hand-offs closed, instructor approval and the capstone filed."
+        }
+      ],
       "LEVEL_LABEL": {
         "skills": {
           "not-started": "Not started",
@@ -10267,6 +10629,205 @@
           ],
           "status": "needs-consent",
           "scored": false
+        },
+        {
+          "id": "metric.profile-coverage",
+          "label": "Profile coverage",
+          "dimension": "skills",
+          "definition": "Required competencies of a work role or an environment profile at verified or better, over required; the untaught remainder is named.",
+          "inputs": [
+            "registry",
+            "step_evidence",
+            "environment_profile",
+            "work_roles"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-transfer",
+          "label": "Skills proved twice",
+          "dimension": "skills",
+          "definition": "Skills with verified steps on two or more distinct tasks, over skills with a verified step.",
+          "inputs": [
+            "step_evidence",
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.outcome-capstone-filed",
+          "label": "Capstone filed",
+          "dimension": "documentation",
+          "definition": "The course capstone document issued by the team, one per course, with the weeks cleared beside it.",
+          "inputs": [
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.ability-estimate",
+          "label": "Ability estimate",
+          "dimension": "ability",
+          "definition": "A latent ability per objective estimated from item responses on a practice platform.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-consent",
+          "scored": false,
+          "note": "The practice platform’s side; only a competency-level conclusion may cross, with consent."
+        },
+        {
+          "id": "metric.readiness-band",
+          "label": "Readiness band",
+          "dimension": "ability",
+          "definition": "A pass-likelihood band per exam, validated against reported outcomes.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-consent",
+          "scored": false,
+          "note": "The practice platform’s side; needs reported outcomes and consent."
+        },
+        {
+          "id": "metric.transfer-unseen",
+          "label": "Transfer to unseen scenarios",
+          "dimension": "skills",
+          "definition": "Verified work on a scenario never practised before, over such scenarios.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "Needs scenario provenance per event."
+        },
+        {
+          "id": "metric.ability-unassisted",
+          "label": "Unassisted verifications",
+          "dimension": "ability",
+          "definition": "Steps verified with no hint, tutor or agent assistance, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "Needs the assist level recorded per event."
+        },
+        {
+          "id": "metric.doc-rubric-events",
+          "label": "Rubric verdicts as events",
+          "dimension": "documentation",
+          "definition": "The four category verdicts of each frozen submission, appended as events.",
+          "inputs": [],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "The verdicts exist as rows today."
+        },
+        {
+          "id": "metric.outcome-placement",
+          "label": "Placement reported",
+          "dimension": "ability",
+          "definition": "Members placed in a role after a course, over members who consented to report it.",
+          "inputs": [],
+          "valueTo": [
+            "company",
+            "platform"
+          ],
+          "status": "needs-consent",
+          "scored": false,
+          "note": "Needs a consented report from the member or the employer."
+        },
+        {
+          "id": "metric.outcome-on-the-job",
+          "label": "On-the-job performance",
+          "dimension": "ability",
+          "definition": "Service levels attained in the first ninety days, as the employer reports them.",
+          "inputs": [],
+          "valueTo": [
+            "company",
+            "platform"
+          ],
+          "status": "needs-consent",
+          "scored": false,
+          "note": "Needs an employer data agreement and the member’s consent."
+        },
+        {
+          "id": "metric.platform-roi",
+          "label": "Platform return",
+          "dimension": "ability",
+          "definition": "Cost per verified competency, and employer ramp saved, as the parties report them.",
+          "inputs": [],
+          "valueTo": [
+            "company",
+            "platform"
+          ],
+          "status": "needs-consent",
+          "scored": false,
+          "note": "Needs cost and employer data nobody has handed in."
+        },
+        {
+          "id": "metric.time-to-competency",
+          "label": "Time to competency",
+          "dimension": "ability",
+          "definition": "Hours to proficiency per objective.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.time-task-vs-benchmark",
+          "label": "Task time against benchmark",
+          "dimension": "ability",
+          "definition": "Minutes to resolve a task against an expert or service-level baseline.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.time-learning-velocity",
+          "label": "Learning velocity",
+          "dimension": "ability",
+          "definition": "Ability gained per study hour.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
         }
       ],
       "PRACTICES": [
@@ -12310,6 +12871,320 @@
         "ci-w6-idops": [
           "tool.capstone-forms",
           "tool.notes"
+        ]
+      },
+      "WORK_ROLES": [
+        {
+          "id": "role.incident-responder",
+          "label": "Cyber Defense Incident Responder",
+          "framework": "NICE",
+          "niceId": "PR-CIR-001",
+          "checkedYear": 2025,
+          "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+          "areas": [
+            "respond",
+            "forensics",
+            "detect"
+          ],
+          "requiredCompetencies": [
+            "comp.detect.deploy-endpoint-sensor",
+            "comp.detect.deploy-network-sensor",
+            "comp.detect.coverage-validation",
+            "comp.detect.capture-baseline",
+            "comp.detect.write-detection",
+            "comp.detect.windows-event-logs",
+            "comp.detect.triage-alerts",
+            "comp.detect.live-triage",
+            "comp.detect.sigma-rules",
+            "comp.detect.validate-detection",
+            "comp.detect.alert-to-ticket",
+            "comp.detect.shadow-ai",
+            "comp.respond.find-the-incident",
+            "comp.respond.contain",
+            "comp.respond.timeline",
+            "comp.respond.incident-report",
+            "comp.respond.ir-runbook",
+            "comp.respond.seven-step-plan",
+            "comp.respond.tabletop",
+            "comp.respond.restore-test",
+            "comp.respond.recovery-targets",
+            "comp.forensics.hash-evidence",
+            "comp.forensics.chain-of-custody",
+            "comp.forensics.packet-capture",
+            "comp.forensics.log-pivoting",
+            "comp.forensics.iocs"
+          ]
+        },
+        {
+          "id": "role.systems-security-analyst",
+          "label": "Systems Security Analyst",
+          "framework": "NICE",
+          "niceId": "OM-ANA-001",
+          "checkedYear": 2025,
+          "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+          "areas": [
+            "harden",
+            "identity",
+            "crypto",
+            "data",
+            "arch"
+          ],
+          "requiredCompetencies": [
+            "comp.harden.linux-baseline",
+            "comp.harden.windows-baseline",
+            "comp.harden.host-firewall",
+            "comp.harden.change-discipline",
+            "comp.harden.tls-and-rule-base",
+            "comp.harden.secrets-and-gateway",
+            "comp.harden.guardrails",
+            "comp.harden.agent-scope",
+            "comp.harden.redaction",
+            "comp.harden.pipeline-gates",
+            "comp.harden.guardrail-tests",
+            "comp.harden.clean-rebuild",
+            "comp.harden.model-scanning",
+            "comp.harden.ai-gateway-zone",
+            "comp.identity.rbac",
+            "comp.identity.joiner-leaver",
+            "comp.identity.access-matrix",
+            "comp.identity.mfa-console",
+            "comp.identity.orphan-accounts",
+            "comp.identity.federation",
+            "comp.identity.access-review",
+            "comp.identity.machine-identities",
+            "comp.crypto.standard",
+            "comp.crypto.tls-versions",
+            "comp.crypto.key-rotation",
+            "comp.arch.trust-boundaries",
+            "comp.arch.shared-responsibility",
+            "comp.arch.default-deny-zones",
+            "comp.arch.rule-base",
+            "comp.arch.sdlc-gates",
+            "comp.arch.component-list",
+            "comp.arch.segmentation-proof",
+            "comp.data.discovery",
+            "comp.data.sanitisation"
+          ]
+        },
+        {
+          "id": "role.cyber-policy-planner",
+          "label": "Cyber Policy and Strategy Planner",
+          "framework": "NICE",
+          "niceId": "OV-SPP-002",
+          "checkedYear": 2025,
+          "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+          "areas": [
+            "grc",
+            "risk",
+            "docs"
+          ],
+          "requiredCompetencies": [
+            "comp.grc.framework-mapping",
+            "comp.grc.hardening-standard",
+            "comp.grc.vm-sop",
+            "comp.grc.policy-shall",
+            "comp.grc.classification",
+            "comp.grc.maturity",
+            "comp.grc.supplier-tiering",
+            "comp.grc.ai-lifecycle",
+            "comp.grc.data-lineage",
+            "comp.grc.applicability",
+            "comp.grc.model-cards",
+            "comp.grc.responsible-ai",
+            "comp.grc.system-map",
+            "comp.grc.ai-act-decision",
+            "comp.grc.categorise-system",
+            "comp.grc.ethics-canons",
+            "comp.risk.likelihood-impact",
+            "comp.risk.register",
+            "comp.risk.quantitative",
+            "comp.risk.iso-27005",
+            "comp.risk.soa",
+            "comp.risk.threat-model",
+            "comp.risk.threat-model-controls",
+            "comp.risk.accept",
+            "comp.docs.architecture-brief",
+            "comp.docs.write-sops",
+            "comp.docs.change-control",
+            "comp.docs.as-built-handover",
+            "comp.docs.capacity-planning",
+            "comp.docs.netbox-ipam",
+            "comp.docs.asset-management-tool",
+            "comp.docs.change-tickets",
+            "comp.docs.repository-handover",
+            "comp.docs.professional-documentation",
+            "comp.docs.sla-mapping",
+            "comp.docs.naming-standard",
+            "comp.docs.requirements-gathering",
+            "comp.docs.site-survey",
+            "comp.docs.design-decisions",
+            "comp.docs.build-log",
+            "comp.docs.work-a-ticket",
+            "comp.docs.incident-management",
+            "comp.docs.known-issues"
+          ]
+        },
+        {
+          "id": "role.issm",
+          "label": "Information Systems Security Manager",
+          "framework": "NICE",
+          "niceId": "OV-MGT-001",
+          "checkedYear": 2025,
+          "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+          "areas": [
+            "grc",
+            "risk",
+            "audit",
+            "ops",
+            "report"
+          ],
+          "requiredCompetencies": [
+            "comp.report.technical-briefing",
+            "comp.report.incident-findings",
+            "comp.report.final-report",
+            "comp.report.executive-debrief",
+            "comp.report.detection-metrics",
+            "comp.report.security-metrics",
+            "comp.report.federal-incident-reporting",
+            "comp.grc.framework-mapping",
+            "comp.grc.hardening-standard",
+            "comp.grc.vm-sop",
+            "comp.grc.policy-shall",
+            "comp.grc.classification",
+            "comp.grc.maturity",
+            "comp.grc.supplier-tiering",
+            "comp.grc.ai-lifecycle",
+            "comp.grc.data-lineage",
+            "comp.grc.applicability",
+            "comp.grc.model-cards",
+            "comp.grc.responsible-ai",
+            "comp.grc.system-map",
+            "comp.grc.ai-act-decision",
+            "comp.grc.categorise-system",
+            "comp.grc.ethics-canons",
+            "comp.risk.likelihood-impact",
+            "comp.risk.register",
+            "comp.risk.quantitative",
+            "comp.risk.iso-27005",
+            "comp.risk.soa",
+            "comp.risk.threat-model",
+            "comp.risk.threat-model-controls",
+            "comp.risk.accept",
+            "comp.audit.control-matrix",
+            "comp.audit.evidence-collection",
+            "comp.audit.remediation-tracking",
+            "comp.audit.internal-audit",
+            "comp.audit.corrective-action",
+            "comp.audit.evidence-packet",
+            "comp.audit.assess-controls",
+            "comp.audit.questionnaire",
+            "comp.audit.self-assess-171",
+            "comp.audit.ssp",
+            "comp.audit.map-to-federal",
+            "comp.ops.logging-first-hour",
+            "comp.ops.detection-fires",
+            "comp.ops.contingency-phases"
+          ]
+        },
+        {
+          "id": "role.security-architect",
+          "label": "Security Architect",
+          "framework": "NICE",
+          "niceId": "SP-ARC-002",
+          "checkedYear": 2025,
+          "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+          "areas": [
+            "arch",
+            "crypto",
+            "identity",
+            "cloud",
+            "data"
+          ],
+          "requiredCompetencies": [
+            "comp.identity.rbac",
+            "comp.identity.joiner-leaver",
+            "comp.identity.access-matrix",
+            "comp.identity.mfa-console",
+            "comp.identity.orphan-accounts",
+            "comp.identity.federation",
+            "comp.identity.access-review",
+            "comp.identity.machine-identities",
+            "comp.crypto.standard",
+            "comp.crypto.tls-versions",
+            "comp.crypto.key-rotation",
+            "comp.arch.trust-boundaries",
+            "comp.arch.shared-responsibility",
+            "comp.arch.default-deny-zones",
+            "comp.arch.rule-base",
+            "comp.arch.sdlc-gates",
+            "comp.arch.component-list",
+            "comp.arch.segmentation-proof",
+            "comp.data.discovery",
+            "comp.data.sanitisation",
+            "comp.cloud.budget-and-tags",
+            "comp.cloud.shared-responsibility",
+            "comp.cloud.network-foundation",
+            "comp.cloud.team-repo-and-board",
+            "comp.cloud.identity-and-groups",
+            "comp.cloud.cost-estimate",
+            "comp.cloud.launch-vm",
+            "comp.cloud.static-site-https",
+            "comp.cloud.ssh-from-one-ip",
+            "comp.cloud.request-flow",
+            "comp.cloud.managed-database",
+            "comp.cloud.serverless-api",
+            "comp.cloud.read-only-access",
+            "comp.cloud.cost-report",
+            "comp.cloud.error-alert",
+            "comp.cloud.read-logs",
+            "comp.cloud.audit-trail",
+            "comp.cloud.access-matrix",
+            "comp.cloud.secrets-in-vault",
+            "comp.cloud.managed-identity",
+            "comp.cloud.prove-denial",
+            "comp.cloud.two-zone-design",
+            "comp.cloud.scale-set",
+            "comp.cloud.load-balancer",
+            "comp.cloud.private-access-path",
+            "comp.cloud.data-store-choice",
+            "comp.cloud.ha-database",
+            "comp.cloud.queue-and-ledger",
+            "comp.cloud.data-lockdown",
+            "comp.cloud.autoscale-target",
+            "comp.cloud.autoscale-and-self-heal",
+            "comp.cloud.restore-file-and-database",
+            "comp.cloud.recovery-drill-and-teardown",
+            "comp.cloud.template-map",
+            "comp.cloud.inventory-and-drift",
+            "comp.cloud.deploy-from-template",
+            "comp.cloud.policy-as-code",
+            "comp.cloud.change-request-and-gates",
+            "comp.cloud.branch-protection",
+            "comp.cloud.staged-pipeline",
+            "comp.cloud.oidc-deploy-identity",
+            "comp.cloud.cost-by-service-and-slos",
+            "comp.cloud.blue-green",
+            "comp.cloud.canary",
+            "comp.cloud.dashboard-and-compliance",
+            "comp.cloud.handover-package",
+            "comp.cloud.rebuild-and-automate",
+            "comp.cloud.fix-through-ci",
+            "comp.cloud.contain-and-post-mortem"
+          ]
+        }
+      ],
+      "WORK_ROLE_OF": {
+        "govrisk": [
+          "role.issm",
+          "role.cyber-policy-planner"
+        ],
+        "archnet": [
+          "role.security-architect",
+          "role.systems-security-analyst"
+        ],
+        "idops": [
+          "role.systems-security-analyst",
+          "role.incident-responder"
         ]
       }
     },

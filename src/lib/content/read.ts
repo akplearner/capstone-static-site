@@ -25,6 +25,8 @@ import { SOPS, type SopDef } from '@/lib/docs/sops';
 import { PRACTICES, TACTICS, type PracticeDef, type TacticDef } from '@/lib/docs/tactics';
 import { METRICS, type MetricDef, type Dimension } from '@/lib/docs/metricCatalogue';
 import { DIMENSION_LABEL, LEVEL_LABEL, SKILLS_COPY, type SkillLevel } from '@/lib/docs/skillsCopy';
+import { KPIS, KPI_FAMILIES, type KpiDef, type KpiFamilyDef } from '@/lib/docs/kpis';
+import { WORK_ROLES, type WorkRoleDef } from '@/lib/docs/workRoles';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
 import type { BuildModel, WeekVisual } from '@/lib/weekVisual';
@@ -192,6 +194,11 @@ export interface SkillsContent {
   COPY: typeof SKILLS_COPY;
   LEVEL_LABEL: Record<Dimension, Record<SkillLevel, string>>;
   DIMENSION_LABEL: Record<Dimension, string>;
+  /** R108: the KPI board rows and families (whole), the work roles this course's roles prepare for, and the course's map into them (role id → work role ids). */
+  KPI_FAMILIES: KpiFamilyDef[];
+  KPIS: KpiDef[];
+  WORK_ROLES: WorkRoleDef[];
+  WORK_ROLE_OF: Record<string, string[]>;
 }
 
 /**
@@ -204,6 +211,7 @@ export function skillsOf(doc: CourseDto): SkillsContent {
   return {
     SKILLS, SKILL_OF: {}, AREAS: AREA_LABEL, TOOLS, TOOL_OF: {}, STANDARDS, CONTROLS, CONTROL_OF: {}, SOPS, SOP_OF: {}, SOP_OF_TASK: {},
     TACTICS, TACTIC_OF: {}, PRACTICES, PRACTICE_OF: {}, METRICS, COPY: SKILLS_COPY, LEVEL_LABEL, DIMENSION_LABEL,
+    KPI_FAMILIES, KPIS, WORK_ROLES, WORK_ROLE_OF: {},
     ...section<Partial<SkillsContent>>(doc, 'skills'),
   };
 }

@@ -29,5 +29,11 @@ describe('docs/courses/skills — one per course, current', () => {
     expect(ccna).toContain(SKILLS_COPY.noTactics);
     const mssp = skillSheet(courseDto('mssp'));
     expect(mssp).toContain('ISO27001.9.2');
+    // R108: the KPI board section names the sixteen and their denominators per role.
+    expect(sec).toContain('## KPI board');
+    expect(sec).toContain('`kpi.ability.skills-verified`');
+    expect(sec).toContain('metric.domain-weight-verified (own)');
+    expect(sec).toMatch(/Exploitation Analyst: \d+ required, \d+ not taught here/);
+    expect(ccna).toContain('## KPI board');
   });
 });

@@ -122,3 +122,26 @@ Adversary tactics are not part of this course.
 | Redundant paths | WAF.reliability | Survive a cable being pulled |
 | Idempotent automation | WAF.operational-excellence | Configure from the source of truth |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | arch: 0 skills with a verifiable step; impl: 0 skills with a verifiable step; ops: 0 skills with a verifiable step; auto: 0 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | arch: 100 percent of the exam over 6 domains; impl: 100 percent of the exam over 6 domains; ops: 100 percent of the exam over 6 domains; auto: 100 percent of the exam over 6 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | arch: Network Operations Specialist: 52 required, 30 not taught here; impl: Network Operations Specialist: 52 required, 30 not taught here; ops: Network Operations Specialist: 52 required, 30 not taught here; auto: Software Developer: 80 required, 67 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | arch: 1 skill on two or more tasks; impl: 1 skill on two or more tasks; ops: 1 skill on two or more tasks; auto: 1 skill on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 0 tasks with two or more verifiable steps; impl: 0 tasks with two or more verifiable steps; ops: 0 tasks with two or more verifiable steps; auto: 0 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 0 verifiable steps; impl: 0 verifiable steps; ops: 0 verifiable steps; auto: 0 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | arch: 0 verifiable steps that run a command; impl: 0 verifiable steps that run a command; ops: 0 verifiable steps that run a command; auto: 0 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | arch: 13 procedures; impl: 13 procedures; ops: 13 procedures; auto: 13 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | arch: 37 checks on 10 forms; impl: 37 checks on 10 forms; ops: 37 checks on 10 forms; auto: 37 checks on 10 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | arch: 0 control codes on 5 forms; impl: 0 control codes on 1 form; ops: 2 control codes on 3 forms; auto: 0 control codes on 1 form |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | arch: 10 forms; impl: 10 forms; ops: 10 forms; auto: 10 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | arch: 0 hand-offs; impl: 0 hand-offs; ops: 0 hand-offs; auto: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | arch: 10 forms; impl: 10 forms; ops: 10 forms; auto: 10 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

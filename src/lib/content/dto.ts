@@ -340,7 +340,7 @@ export function courseDto(courseId: string): CourseDto {
   // metric catalogue and the words the skills surfaces print. One section,
   // every course. Tools are derived (`toolsByTask`), never stored in a seed;
   // the whole catalogue is published once, in `content/ontology/`.
-  generatedFrom.push('src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/skillsCopy.ts');
+  generatedFrom.push('src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/skillsCopy.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts');
   content.skills = contentData(skillsSectionFor(course, seedDeliverablesForCourse(courseId)) as unknown as Record<string, unknown>);
   // The chain-of-custody columns and rules: every course's evidence guide
   // renders them, and until R78-D no document carried them.

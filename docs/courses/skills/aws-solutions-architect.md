@@ -96,3 +96,26 @@ Adversary tactics are not part of this course.
 | Encryption at rest | ISO27001.A.8.24 | Create a Multi-AZ PostgreSQL database and keep its snapshot; Lock the data down and age it out |
 | Decouple with queues | WAF.reliability | Queue the visits and write a ledger |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | arch: 5 skills with a verifiable step; infra: 4 skills with a verifiable step; dev: 4 skills with a verifiable step; secops: 4 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | arch: 76 percent of the exam over 3 domains; infra: 56 percent of the exam over 2 domains; dev: 80 percent of the exam over 3 domains; secops: 56 percent of the exam over 2 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | arch: Security Architect: 69 required, 65 not taught here; infra: System Administrator: 54 required, 54 not taught here; dev: Software Developer: 80 required, 76 not taught here; secops: Cyber Defense Analyst: 29 required, 29 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | arch: 0 skills on two or more tasks; infra: 0 skills on two or more tasks; dev: 0 skills on two or more tasks; secops: 0 skills on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 0 tasks with two or more verifiable steps; infra: 4 tasks with two or more verifiable steps; dev: 4 tasks with two or more verifiable steps; secops: 4 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 4 verifiable steps; infra: 15 verifiable steps; dev: 16 verifiable steps; secops: 12 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | arch: 4 verifiable steps that run a command; infra: 15 verifiable steps that run a command; dev: 16 verifiable steps that run a command; secops: 12 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | arch: 7 procedures; infra: 7 procedures; dev: 7 procedures; secops: 7 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | arch: 28 checks on 4 forms; infra: 28 checks on 4 forms; dev: 28 checks on 4 forms; secops: 28 checks on 4 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | arch: 4 control codes on 4 forms; infra: 0 control codes on 0 forms; dev: 0 control codes on 0 forms; secops: 0 control codes on 0 forms |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | arch: 4 forms; infra: 4 forms; dev: 4 forms; secops: 4 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | arch: 0 hand-offs; infra: 0 hand-offs; dev: 0 hand-offs; secops: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | arch: 4 forms; infra: 4 forms; dev: 4 forms; secops: 4 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

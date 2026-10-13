@@ -165,3 +165,26 @@ Forms whose standard names a practice rather than a control:
 | Shadow AI discovery | NIST_AI_RMF | Find shadow AI and measure accuracy |
 | Suites with a pass line | NIST_AI_RMF | Automate the suite and check AI-assisted work |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | redteam: 10 skills with a verifiable step; defender: 9 skills with a verifiable step; governance: 10 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | redteam: 50 percent of the exam over 2 domains; defender: 50 percent of the exam over 2 domains; governance: 50 percent of the exam over 2 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | redteam: Exploitation Analyst: 29 required, 20 not taught here; defender: Systems Security Analyst: 34 required, 26 not taught here; governance: Cyber Policy and Strategy Planner: 43 required, 36 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | redteam: 0 skills on two or more tasks; defender: 0 skills on two or more tasks; governance: 0 skills on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | redteam: 2 tasks with two or more verifiable steps; defender: 4 tasks with two or more verifiable steps; governance: 1 task with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | redteam: 6 verifiable steps; defender: 10 verifiable steps; governance: 5 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | redteam: 6 verifiable steps that run a command; defender: 10 verifiable steps that run a command; governance: 5 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | redteam: 10 procedures; defender: 16 procedures; governance: 15 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | redteam: 5 checks on 1 form; defender: 8 checks on 2 forms; governance: 15 checks on 5 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | redteam: 2 control codes on 1 form; defender: 3 control codes on 2 forms; governance: 4 control codes on 5 forms |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | redteam: 1 form; defender: 2 forms; governance: 5 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | redteam: 0 hand-offs; defender: 0 hand-offs; governance: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | redteam: 1 form; defender: 2 forms; governance: 5 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

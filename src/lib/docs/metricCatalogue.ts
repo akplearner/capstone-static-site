@@ -45,12 +45,14 @@ export const METRIC_INPUTS = [
   'step_completions', 'step_evidence', 'evidence_artifacts',
   'deliverables', 'deliverable_status', 'deliverable_submissions', 'deliverable_reviews', 'peer_review_assignments',
   'task_reports', 'step_notes', 'step_flags', 'cohorts',
+  'environment_profile', 'work_roles',
 ] as const;
 
 const ALL: MetricAudience[] = ['member', 'company', 'platform'];
 const MC: MetricAudience[] = ['member', 'company'];
 const MP: MetricAudience[] = ['member', 'platform'];
 const PL: MetricAudience[] = ['platform'];
+const CP: MetricAudience[] = ['company', 'platform'];
 
 const m = (slug: string, label: string, dimension: Dimension, definition: string, inputs: string[], valueTo: MetricAudience[], status: MetricStatus, note?: string): MetricDef => ({
   id: `metric.${slug}`, label, dimension, definition, inputs, valueTo, status, scored: false, ...(note ? { note } : {}),
@@ -149,6 +151,21 @@ export const METRICS: MetricDef[] = [
   m('platform-course-verifiability', 'Course verifiability', 'evidence', 'Verifiable required steps over required steps per course. Content only.', ['course'], PL, 'computed'),
   m('platform-skill-coverage', 'Course skill coverage', 'skills', 'Skills, tools, procedures, standards, tactics and practices per course. Content only.', ['registry', 'course'], PL, 'computed'),
   m('platform-cross-platform-signal', 'Cross-platform signal', 'skills', 'A competency-level statement shared with another platform.', [], PL, 'needs-consent'),
+  // ── R108: the board, the profiles and the signals the pasted plan named ──
+  m('profile-coverage', 'Profile coverage', 'skills', 'Required competencies of a work role or an environment profile at verified or better, over required; the untaught remainder is named.', ['registry', 'step_evidence', 'environment_profile', 'work_roles'], ALL, 'computed'),
+  m('skill-transfer', 'Skills proved twice', 'skills', 'Skills with verified steps on two or more distinct tasks, over skills with a verified step.', ['step_evidence', 'registry', 'course'], ALL, 'computed'),
+  m('outcome-capstone-filed', 'Capstone filed', 'documentation', 'The course capstone document issued by the team, one per course, with the weeks cleared beside it.', ['deliverables', 'course'], ALL, 'computed', 'A team fact; loads on the course page.'),
+  m('ability-estimate', 'Ability estimate', 'ability', 'A latent ability per objective estimated from item responses on a practice platform.', [], MC, 'needs-consent', 'The practice platform’s side; only a competency-level conclusion may cross, with consent.'),
+  m('readiness-band', 'Readiness band', 'ability', 'A pass-likelihood band per exam, validated against reported outcomes.', [], MC, 'needs-consent', 'The practice platform’s side; needs reported outcomes and consent.'),
+  m('transfer-unseen', 'Transfer to unseen scenarios', 'skills', 'Verified work on a scenario never practised before, over such scenarios.', [], MC, 'needs-events', 'Needs scenario provenance per event.'),
+  m('ability-unassisted', 'Unassisted verifications', 'ability', 'Steps verified with no hint, tutor or agent assistance, over verified steps.', [], MC, 'needs-events', 'Needs the assist level recorded per event.'),
+  m('doc-rubric-events', 'Rubric verdicts as events', 'documentation', 'The four category verdicts of each frozen submission, appended as events.', [], PL, 'needs-events', 'The verdicts exist as rows today.'),
+  m('outcome-placement', 'Placement reported', 'ability', 'Members placed in a role after a course, over members who consented to report it.', [], CP, 'needs-consent', 'Needs a consented report from the member or the employer.'),
+  m('outcome-on-the-job', 'On-the-job performance', 'ability', 'Service levels attained in the first ninety days, as the employer reports them.', [], CP, 'needs-consent', 'Needs an employer data agreement and the member’s consent.'),
+  m('platform-roi', 'Platform return', 'ability', 'Cost per verified competency, and employer ramp saved, as the parties report them.', [], CP, 'needs-consent', 'Needs cost and employer data nobody has handed in.'),
+  m('time-to-competency', 'Time to competency', 'ability', 'Hours to proficiency per objective.', [], [], 'excluded', 'Speed is not measured.'),
+  m('time-task-vs-benchmark', 'Task time against benchmark', 'ability', 'Minutes to resolve a task against an expert or service-level baseline.', [], [], 'excluded', 'Speed is not measured.'),
+  m('time-learning-velocity', 'Learning velocity', 'ability', 'Ability gained per study hour.', [], [], 'excluded', 'Speed is not measured.'),
 ];
 
 /* ── helpers (lowercase: never written to a document) ───────────────────── */

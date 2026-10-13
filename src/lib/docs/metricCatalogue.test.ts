@@ -33,7 +33,7 @@ describe('R107 — the metric catalogue', () => {
       if (m.status === 'excluded') continue;
       expect(`${m.label} ${m.definition} ${m.note ?? ''}`, m.id).not.toMatch(/\b(time|speed|minutes|faster|slower|rank|ranking|leaderboard|badge|badges|points|score|scored)\b/i);
     }
-    expect(METRICS.filter((m) => m.status === 'excluded').map((m) => m.id)).toEqual(['metric.time-on-task', 'metric.time-to-verify', 'metric.time-vs-estimate', 'metric.rank-any']);
+    expect(METRICS.filter((m) => m.status === 'excluded').map((m) => m.id)).toEqual(['metric.time-on-task', 'metric.time-to-verify', 'metric.time-vs-estimate', 'metric.rank-any', 'metric.time-to-competency', 'metric.time-task-vs-benchmark', 'metric.time-learning-velocity']);
   });
 
   it('the catalogue is extensive and honest about what is computed today', () => {

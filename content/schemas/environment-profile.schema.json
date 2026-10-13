@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://capstone.example/schemas/environment-profile.schema.json",
+  "title": "Environment profile",
+  "description": "What a company publishes so a learner can be measured against its own stack (capstone-environment-profile/1): infrastructure, architecture, tools, methodology, policies, a ticket taxonomy and the competencies it requires per work role. Every id is an id of content/ontology/. The service levels are declared by the publisher and never measured by the platform. A profile is published as a file; no server receives one.",
+  "type": "object",
+  "required": ["schema", "id", "version", "name", "publisher", "architecture", "infrastructure", "tools", "methodology", "policies", "ticketTaxonomy", "workRoles", "requiredSops"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": { "const": "capstone-environment-profile/1" },
+    "id": { "type": "string", "pattern": "^profile\\.[a-z0-9][a-z0-9-]*$" },
+    "version": { "type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$" },
+    "name": { "type": "string", "minLength": 1 },
+    "publisher": { "type": "string", "minLength": 1 },
+    "architecture": { "type": "string", "minLength": 1 },
+    "infrastructure": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "label", "purpose"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "label": { "type": "string", "minLength": 1 },
+          "purpose": { "type": "string" }
+        }
+      }
+    },
+    "tools": { "type": "array", "items": { "type": "string", "pattern": "^tool\\.[a-z0-9][a-z0-9-]*$" } },
+    "methodology": { "type": "array", "items": { "type": "string", "pattern": "^sop\\.[a-z0-9][a-z0-9-]*$" } },
+    "policies": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "ticketTaxonomy": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "priority", "sla"],
+        "additionalProperties": false,
+        "properties": {
+          "kind": { "type": "string", "minLength": 1 },
+          "priority": { "type": "string", "minLength": 1 },
+          "sla": {
+            "type": "object",
+            "required": ["acknowledge", "resolve"],
+            "additionalProperties": false,
+            "properties": {
+              "acknowledge": { "type": "string", "minLength": 1 },
+              "resolve": { "type": "string", "minLength": 1 }
+            }
+          }
+        }
+      }
+    },
+    "workRoles": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["workRole", "requiredCompetencies"],
+        "additionalProperties": false,
+        "properties": {
+          "workRole": { "type": "string", "pattern": "^role\\.[a-z0-9][a-z0-9-]*$" },
+          "requiredCompetencies": { "type": "array", "items": { "type": "string", "pattern": "^comp\\.[a-z][a-z0-9-]*(\\.[a-z][a-z0-9-]*)+$" } }
+        }
+      }
+    },
+    "requiredSops": { "type": "array", "items": { "type": "string", "pattern": "^[a-z][a-z-]*$" } }
+  }
+}

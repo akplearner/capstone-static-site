@@ -108,3 +108,26 @@ Adversary tactics are not part of this course.
 | Architecture decision records | ISO_42010 | Map the template and set the environment strategy |
 | Metrics with targets | ISO27001.9.1 | Review cost by service and set the service levels; Build the dashboard, require the tag with Config and read the audit trail |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | arch: 1 skill with a verifiable step; infra: 3 skills with a verifiable step; dev: 4 skills with a verifiable step; secops: 4 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | arch: 68 percent of the exam over 4 domains; infra: 54 percent of the exam over 3 domains; dev: 68 percent of the exam over 4 domains; secops: 46 percent of the exam over 3 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | arch: Security Architect: 69 required, 65 not taught here; infra: System Administrator: 54 required, 54 not taught here; dev: Software Developer: 80 required, 76 not taught here; secops: Cyber Defense Analyst: 29 required, 29 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | arch: 0 skills on two or more tasks; infra: 0 skills on two or more tasks; dev: 0 skills on two or more tasks; secops: 0 skills on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | arch: 0 tasks with two or more verifiable steps; infra: 3 tasks with two or more verifiable steps; dev: 2 tasks with two or more verifiable steps; secops: 4 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | arch: 1 verifiable step; infra: 10 verifiable steps; dev: 8 verifiable steps; secops: 9 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | arch: 1 verifiable step that runs a command; infra: 10 verifiable steps that run a command; dev: 8 verifiable steps that run a command; secops: 9 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | arch: 8 procedures; infra: 9 procedures; dev: 8 procedures; secops: 9 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | arch: 31 checks on 4 forms; infra: 31 checks on 4 forms; dev: 31 checks on 4 forms; secops: 31 checks on 4 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | arch: 5 control codes on 4 forms; infra: 0 control codes on 0 forms; dev: 0 control codes on 0 forms; secops: 0 control codes on 0 forms |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | arch: 4 forms; infra: 4 forms; dev: 4 forms; secops: 4 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | arch: 0 hand-offs; infra: 0 hand-offs; dev: 0 hand-offs; secops: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | arch: 4 forms; infra: 4 forms; dev: 4 forms; secops: 4 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

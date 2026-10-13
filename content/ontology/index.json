@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "generatedFrom": [
     "src/lib/docs/skills.ts",
     "src/lib/docs/tools.ts",
@@ -8,7 +8,9 @@
     "src/lib/docs/sops.ts",
     "src/lib/docs/tactics.ts",
     "src/lib/docs/metricCatalogue.ts",
-    "src/lib/docs/certs.ts"
+    "src/lib/docs/certs.ts",
+    "src/lib/docs/kpis.ts",
+    "src/lib/docs/workRoles.ts"
   ],
   "files": {
     "competencies": "competencies.json",
@@ -18,7 +20,9 @@
     "tactics": "tactics.json",
     "practices": "practices.json",
     "metrics": "metrics.json",
-    "domains": "domains.json"
+    "domains": "domains.json",
+    "kpis": "kpis.json",
+    "work-roles": "work-roles.json"
   },
   "counts": {
     "competencies": 266,
@@ -28,8 +32,10 @@
     "sops": 43,
     "tactics": 28,
     "practices": 96,
-    "metrics": 81,
-    "domains": 63
+    "metrics": 95,
+    "domains": 63,
+    "kpis": 16,
+    "workRoles": 13
   },
   "idStyle": {
     "competency": "comp.<area>.<slug>",
@@ -39,7 +45,9 @@
     "tactic": "TA<nnnn> (ATT&CK Enterprise) | AML.TA<nnnn> (ATLAS)",
     "practice": "practice.<slug>",
     "metric": "metric.<slug>",
-    "domain": "<examCode slugged>.<domainId>"
+    "domain": "<examCode slugged>.<domainId>",
+    "kpi": "kpi.<family>.<slug>",
+    "workRole": "role.<slug>"
   },
   "rules": [
     "additive",

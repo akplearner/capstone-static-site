@@ -7,7 +7,8 @@
  * or a mapping changes without regenerating.
  */
 import type { CourseDto } from '../content/dto';
-import { deliverablesOf, skillsOf } from '../content/read';
+import { certOf, deliverablesOf, skillsOf } from '../content/read';
+import { kpiDenominators } from './kpiSheet';
 import { courseCoverage, coveredTasks, practicesOfForm, type CoverageRow } from './skillCoverage';
 import { isGradedWeek } from '../course-helpers';
 
@@ -75,6 +76,9 @@ export function skillSheet(doc: CourseDto): string {
   const practiceById = new Map(reg.PRACTICES.map((p) => [p.id, p]));
   for (const r of cov.practices) out.push(`| ${cell(r.label)} | ${practiceById.get(r.id)?.anchor ?? ''} | ${byTasks(r)} |`);
   if (cov.unmapped.practices.length) out.push('', `Tasks not yet mapped to a practice: ${cov.unmapped.practices.join(', ')}.`);
+  // R108: the sixteen KPIs the board keeps per member, and what each one is counted over in this course.
+  out.push('', '## KPI board', '', 'The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.', '', '| KPI | Family | Reads | Denominator in this course |', '| --- | --- | --- | --- |');
+  for (const r of kpiDenominators(course, reg, forms, certOf(doc))) out.push(`| ${cell(r.label)} \`${r.id}\` | ${r.family} | ${r.reads} | ${cell(r.denominators)} |`);
   out.push('');
   return out.join('\n');
 }

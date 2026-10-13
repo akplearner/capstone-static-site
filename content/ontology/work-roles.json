@@ -1,0 +1,955 @@
+{
+  "schema": "capstone-ontology/1",
+  "version": "1.1.0",
+  "workRoles": [
+    {
+      "id": "role.cyber-defense-analyst",
+      "label": "Cyber Defense Analyst",
+      "framework": "NICE",
+      "niceId": "PR-CDA-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "detect",
+        "harden",
+        "ops"
+      ],
+      "requiredCompetencies": [
+        "comp.harden.linux-baseline",
+        "comp.harden.windows-baseline",
+        "comp.harden.host-firewall",
+        "comp.harden.change-discipline",
+        "comp.harden.tls-and-rule-base",
+        "comp.harden.secrets-and-gateway",
+        "comp.harden.guardrails",
+        "comp.harden.agent-scope",
+        "comp.harden.redaction",
+        "comp.harden.pipeline-gates",
+        "comp.harden.guardrail-tests",
+        "comp.harden.clean-rebuild",
+        "comp.harden.model-scanning",
+        "comp.harden.ai-gateway-zone",
+        "comp.detect.deploy-endpoint-sensor",
+        "comp.detect.deploy-network-sensor",
+        "comp.detect.coverage-validation",
+        "comp.detect.capture-baseline",
+        "comp.detect.write-detection",
+        "comp.detect.windows-event-logs",
+        "comp.detect.triage-alerts",
+        "comp.detect.live-triage",
+        "comp.detect.sigma-rules",
+        "comp.detect.validate-detection",
+        "comp.detect.alert-to-ticket",
+        "comp.detect.shadow-ai",
+        "comp.ops.logging-first-hour",
+        "comp.ops.detection-fires",
+        "comp.ops.contingency-phases"
+      ]
+    },
+    {
+      "id": "role.incident-responder",
+      "label": "Cyber Defense Incident Responder",
+      "framework": "NICE",
+      "niceId": "PR-CIR-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "respond",
+        "forensics",
+        "detect"
+      ],
+      "requiredCompetencies": [
+        "comp.detect.deploy-endpoint-sensor",
+        "comp.detect.deploy-network-sensor",
+        "comp.detect.coverage-validation",
+        "comp.detect.capture-baseline",
+        "comp.detect.write-detection",
+        "comp.detect.windows-event-logs",
+        "comp.detect.triage-alerts",
+        "comp.detect.live-triage",
+        "comp.detect.sigma-rules",
+        "comp.detect.validate-detection",
+        "comp.detect.alert-to-ticket",
+        "comp.detect.shadow-ai",
+        "comp.respond.find-the-incident",
+        "comp.respond.contain",
+        "comp.respond.timeline",
+        "comp.respond.incident-report",
+        "comp.respond.ir-runbook",
+        "comp.respond.seven-step-plan",
+        "comp.respond.tabletop",
+        "comp.respond.restore-test",
+        "comp.respond.recovery-targets",
+        "comp.forensics.hash-evidence",
+        "comp.forensics.chain-of-custody",
+        "comp.forensics.packet-capture",
+        "comp.forensics.log-pivoting",
+        "comp.forensics.iocs"
+      ]
+    },
+    {
+      "id": "role.vulnerability-assessment-analyst",
+      "label": "Vulnerability Assessment Analyst",
+      "framework": "NICE",
+      "niceId": "PR-VAM-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "vuln",
+        "recon",
+        "report"
+      ],
+      "requiredCompetencies": [
+        "comp.recon.osint",
+        "comp.recon.dns-whois",
+        "comp.recon.fingerprint-web",
+        "comp.recon.port-scan",
+        "comp.recon.web-scan",
+        "comp.recon.attack-surface",
+        "comp.recon.tls-hygiene",
+        "comp.vuln.summarise-findings",
+        "comp.vuln.cvss-score",
+        "comp.vuln.risk-rank",
+        "comp.vuln.remediation-plan",
+        "comp.vuln.read-scanner-output",
+        "comp.vuln.validate-scan",
+        "comp.vuln.config-scan",
+        "comp.vuln.cis-gap-scan",
+        "comp.report.technical-briefing",
+        "comp.report.incident-findings",
+        "comp.report.final-report",
+        "comp.report.executive-debrief",
+        "comp.report.detection-metrics",
+        "comp.report.security-metrics",
+        "comp.report.federal-incident-reporting"
+      ]
+    },
+    {
+      "id": "role.exploitation-analyst",
+      "label": "Exploitation Analyst",
+      "framework": "NICE",
+      "niceId": "AN-EXP-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "recon",
+        "exploit",
+        "report",
+        "ai-attack"
+      ],
+      "requiredCompetencies": [
+        "comp.recon.osint",
+        "comp.recon.dns-whois",
+        "comp.recon.fingerprint-web",
+        "comp.recon.port-scan",
+        "comp.recon.web-scan",
+        "comp.recon.attack-surface",
+        "comp.recon.tls-hygiene",
+        "comp.exploit.sql-injection",
+        "comp.exploit.brute-force",
+        "comp.exploit.exploit-chain",
+        "comp.exploit.web-pentest",
+        "comp.exploit.retest",
+        "comp.exploit.tester-attestation",
+        "comp.report.technical-briefing",
+        "comp.report.incident-findings",
+        "comp.report.final-report",
+        "comp.report.executive-debrief",
+        "comp.report.detection-metrics",
+        "comp.report.security-metrics",
+        "comp.report.federal-incident-reporting",
+        "comp.ai-attack.prompt-injection",
+        "comp.ai-attack.sensitive-disclosure",
+        "comp.ai-attack.indirect-injection",
+        "comp.ai-attack.excessive-agency",
+        "comp.ai-attack.map-to-atlas",
+        "comp.ai-attack.automate-suite",
+        "comp.ai-attack.ai-assisted-check",
+        "comp.ai-attack.reproduce",
+        "comp.ai-attack.paper-cases"
+      ]
+    },
+    {
+      "id": "role.threat-analyst",
+      "label": "Threat and Warning Analyst",
+      "framework": "NICE",
+      "niceId": "AN-TWA-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "detect",
+        "recon",
+        "forensics"
+      ],
+      "requiredCompetencies": [
+        "comp.recon.osint",
+        "comp.recon.dns-whois",
+        "comp.recon.fingerprint-web",
+        "comp.recon.port-scan",
+        "comp.recon.web-scan",
+        "comp.recon.attack-surface",
+        "comp.recon.tls-hygiene",
+        "comp.detect.deploy-endpoint-sensor",
+        "comp.detect.deploy-network-sensor",
+        "comp.detect.coverage-validation",
+        "comp.detect.capture-baseline",
+        "comp.detect.write-detection",
+        "comp.detect.windows-event-logs",
+        "comp.detect.triage-alerts",
+        "comp.detect.live-triage",
+        "comp.detect.sigma-rules",
+        "comp.detect.validate-detection",
+        "comp.detect.alert-to-ticket",
+        "comp.detect.shadow-ai",
+        "comp.forensics.hash-evidence",
+        "comp.forensics.chain-of-custody",
+        "comp.forensics.packet-capture",
+        "comp.forensics.log-pivoting",
+        "comp.forensics.iocs"
+      ]
+    },
+    {
+      "id": "role.systems-security-analyst",
+      "label": "Systems Security Analyst",
+      "framework": "NICE",
+      "niceId": "OM-ANA-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "harden",
+        "identity",
+        "crypto",
+        "data",
+        "arch"
+      ],
+      "requiredCompetencies": [
+        "comp.harden.linux-baseline",
+        "comp.harden.windows-baseline",
+        "comp.harden.host-firewall",
+        "comp.harden.change-discipline",
+        "comp.harden.tls-and-rule-base",
+        "comp.harden.secrets-and-gateway",
+        "comp.harden.guardrails",
+        "comp.harden.agent-scope",
+        "comp.harden.redaction",
+        "comp.harden.pipeline-gates",
+        "comp.harden.guardrail-tests",
+        "comp.harden.clean-rebuild",
+        "comp.harden.model-scanning",
+        "comp.harden.ai-gateway-zone",
+        "comp.identity.rbac",
+        "comp.identity.joiner-leaver",
+        "comp.identity.access-matrix",
+        "comp.identity.mfa-console",
+        "comp.identity.orphan-accounts",
+        "comp.identity.federation",
+        "comp.identity.access-review",
+        "comp.identity.machine-identities",
+        "comp.crypto.standard",
+        "comp.crypto.tls-versions",
+        "comp.crypto.key-rotation",
+        "comp.arch.trust-boundaries",
+        "comp.arch.shared-responsibility",
+        "comp.arch.default-deny-zones",
+        "comp.arch.rule-base",
+        "comp.arch.sdlc-gates",
+        "comp.arch.component-list",
+        "comp.arch.segmentation-proof",
+        "comp.data.discovery",
+        "comp.data.sanitisation"
+      ]
+    },
+    {
+      "id": "role.security-control-assessor",
+      "label": "Security Control Assessor",
+      "framework": "NICE",
+      "niceId": "SP-RSK-002",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "audit",
+        "grc",
+        "risk",
+        "report"
+      ],
+      "requiredCompetencies": [
+        "comp.report.technical-briefing",
+        "comp.report.incident-findings",
+        "comp.report.final-report",
+        "comp.report.executive-debrief",
+        "comp.report.detection-metrics",
+        "comp.report.security-metrics",
+        "comp.report.federal-incident-reporting",
+        "comp.grc.framework-mapping",
+        "comp.grc.hardening-standard",
+        "comp.grc.vm-sop",
+        "comp.grc.policy-shall",
+        "comp.grc.classification",
+        "comp.grc.maturity",
+        "comp.grc.supplier-tiering",
+        "comp.grc.ai-lifecycle",
+        "comp.grc.data-lineage",
+        "comp.grc.applicability",
+        "comp.grc.model-cards",
+        "comp.grc.responsible-ai",
+        "comp.grc.system-map",
+        "comp.grc.ai-act-decision",
+        "comp.grc.categorise-system",
+        "comp.grc.ethics-canons",
+        "comp.risk.likelihood-impact",
+        "comp.risk.register",
+        "comp.risk.quantitative",
+        "comp.risk.iso-27005",
+        "comp.risk.soa",
+        "comp.risk.threat-model",
+        "comp.risk.threat-model-controls",
+        "comp.risk.accept",
+        "comp.audit.control-matrix",
+        "comp.audit.evidence-collection",
+        "comp.audit.remediation-tracking",
+        "comp.audit.internal-audit",
+        "comp.audit.corrective-action",
+        "comp.audit.evidence-packet",
+        "comp.audit.assess-controls",
+        "comp.audit.questionnaire",
+        "comp.audit.self-assess-171",
+        "comp.audit.ssp",
+        "comp.audit.map-to-federal"
+      ]
+    },
+    {
+      "id": "role.cyber-policy-planner",
+      "label": "Cyber Policy and Strategy Planner",
+      "framework": "NICE",
+      "niceId": "OV-SPP-002",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "grc",
+        "risk",
+        "docs"
+      ],
+      "requiredCompetencies": [
+        "comp.grc.framework-mapping",
+        "comp.grc.hardening-standard",
+        "comp.grc.vm-sop",
+        "comp.grc.policy-shall",
+        "comp.grc.classification",
+        "comp.grc.maturity",
+        "comp.grc.supplier-tiering",
+        "comp.grc.ai-lifecycle",
+        "comp.grc.data-lineage",
+        "comp.grc.applicability",
+        "comp.grc.model-cards",
+        "comp.grc.responsible-ai",
+        "comp.grc.system-map",
+        "comp.grc.ai-act-decision",
+        "comp.grc.categorise-system",
+        "comp.grc.ethics-canons",
+        "comp.risk.likelihood-impact",
+        "comp.risk.register",
+        "comp.risk.quantitative",
+        "comp.risk.iso-27005",
+        "comp.risk.soa",
+        "comp.risk.threat-model",
+        "comp.risk.threat-model-controls",
+        "comp.risk.accept",
+        "comp.docs.architecture-brief",
+        "comp.docs.write-sops",
+        "comp.docs.change-control",
+        "comp.docs.as-built-handover",
+        "comp.docs.capacity-planning",
+        "comp.docs.netbox-ipam",
+        "comp.docs.asset-management-tool",
+        "comp.docs.change-tickets",
+        "comp.docs.repository-handover",
+        "comp.docs.professional-documentation",
+        "comp.docs.sla-mapping",
+        "comp.docs.naming-standard",
+        "comp.docs.requirements-gathering",
+        "comp.docs.site-survey",
+        "comp.docs.design-decisions",
+        "comp.docs.build-log",
+        "comp.docs.work-a-ticket",
+        "comp.docs.incident-management",
+        "comp.docs.known-issues"
+      ]
+    },
+    {
+      "id": "role.issm",
+      "label": "Information Systems Security Manager",
+      "framework": "NICE",
+      "niceId": "OV-MGT-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "grc",
+        "risk",
+        "audit",
+        "ops",
+        "report"
+      ],
+      "requiredCompetencies": [
+        "comp.report.technical-briefing",
+        "comp.report.incident-findings",
+        "comp.report.final-report",
+        "comp.report.executive-debrief",
+        "comp.report.detection-metrics",
+        "comp.report.security-metrics",
+        "comp.report.federal-incident-reporting",
+        "comp.grc.framework-mapping",
+        "comp.grc.hardening-standard",
+        "comp.grc.vm-sop",
+        "comp.grc.policy-shall",
+        "comp.grc.classification",
+        "comp.grc.maturity",
+        "comp.grc.supplier-tiering",
+        "comp.grc.ai-lifecycle",
+        "comp.grc.data-lineage",
+        "comp.grc.applicability",
+        "comp.grc.model-cards",
+        "comp.grc.responsible-ai",
+        "comp.grc.system-map",
+        "comp.grc.ai-act-decision",
+        "comp.grc.categorise-system",
+        "comp.grc.ethics-canons",
+        "comp.risk.likelihood-impact",
+        "comp.risk.register",
+        "comp.risk.quantitative",
+        "comp.risk.iso-27005",
+        "comp.risk.soa",
+        "comp.risk.threat-model",
+        "comp.risk.threat-model-controls",
+        "comp.risk.accept",
+        "comp.audit.control-matrix",
+        "comp.audit.evidence-collection",
+        "comp.audit.remediation-tracking",
+        "comp.audit.internal-audit",
+        "comp.audit.corrective-action",
+        "comp.audit.evidence-packet",
+        "comp.audit.assess-controls",
+        "comp.audit.questionnaire",
+        "comp.audit.self-assess-171",
+        "comp.audit.ssp",
+        "comp.audit.map-to-federal",
+        "comp.ops.logging-first-hour",
+        "comp.ops.detection-fires",
+        "comp.ops.contingency-phases"
+      ]
+    },
+    {
+      "id": "role.system-administrator",
+      "label": "System Administrator",
+      "framework": "NICE",
+      "niceId": "OM-ADM-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "sysadmin",
+        "hardware",
+        "virt",
+        "continuity",
+        "observe",
+        "docs"
+      ],
+      "requiredCompetencies": [
+        "comp.hardware.receive-and-inspect",
+        "comp.hardware.memory-population",
+        "comp.hardware.capability-audit",
+        "comp.hardware.firmware-lookup",
+        "comp.hardware.raid-build",
+        "comp.hardware.boot-media",
+        "comp.hardware.rack-planning",
+        "comp.hardware.rack-and-cable",
+        "comp.virt.install-hypervisor",
+        "comp.virt.bridges-and-nat",
+        "comp.virt.provision-vms",
+        "comp.sysadmin.troubleshooting-method",
+        "comp.sysadmin.web-server",
+        "comp.sysadmin.windows-roles",
+        "comp.sysadmin.database-server",
+        "comp.sysadmin.record-addresses",
+        "comp.sysadmin.persistent-addressing",
+        "comp.sysadmin.ssh-hardening",
+        "comp.sysadmin.host-firewalls",
+        "comp.sysadmin.windows-hardening",
+        "comp.sysadmin.patching",
+        "comp.sysadmin.api-tokens",
+        "comp.sysadmin.ssh-keys",
+        "comp.observe.metrics-and-logs",
+        "comp.observe.alerting",
+        "comp.observe.backup-monitoring",
+        "comp.observe.siem-deploy",
+        "comp.observe.file-integrity",
+        "comp.observe.service-discovery",
+        "comp.observe.fleet-onboarding",
+        "comp.observe.siem-tenancy",
+        "comp.observe.sca-score",
+        "comp.observe.snmp-and-syslog",
+        "comp.continuity.dedup-backup",
+        "comp.continuity.verify-backups",
+        "comp.docs.architecture-brief",
+        "comp.docs.write-sops",
+        "comp.docs.change-control",
+        "comp.docs.as-built-handover",
+        "comp.docs.capacity-planning",
+        "comp.docs.netbox-ipam",
+        "comp.docs.asset-management-tool",
+        "comp.docs.change-tickets",
+        "comp.docs.repository-handover",
+        "comp.docs.professional-documentation",
+        "comp.docs.sla-mapping",
+        "comp.docs.naming-standard",
+        "comp.docs.requirements-gathering",
+        "comp.docs.site-survey",
+        "comp.docs.design-decisions",
+        "comp.docs.build-log",
+        "comp.docs.work-a-ticket",
+        "comp.docs.incident-management",
+        "comp.docs.known-issues"
+      ]
+    },
+    {
+      "id": "role.network-operations-specialist",
+      "label": "Network Operations Specialist",
+      "framework": "NICE",
+      "niceId": "OM-NET-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "network",
+        "arch",
+        "observe",
+        "docs"
+      ],
+      "requiredCompetencies": [
+        "comp.arch.trust-boundaries",
+        "comp.arch.shared-responsibility",
+        "comp.arch.default-deny-zones",
+        "comp.arch.rule-base",
+        "comp.arch.sdlc-gates",
+        "comp.arch.component-list",
+        "comp.arch.segmentation-proof",
+        "comp.network.zone-design",
+        "comp.network.publish-with-dnat",
+        "comp.network.closed-forward-policy",
+        "comp.network.out-of-band",
+        "comp.network.vlan-tagged-bridges",
+        "comp.network.hierarchical-design",
+        "comp.network.switch-bringup",
+        "comp.network.vlans-and-trunks",
+        "comp.network.inter-vlan-routing",
+        "comp.network.spanning-tree",
+        "comp.network.ospf",
+        "comp.network.default-route-and-nat",
+        "comp.network.acls",
+        "comp.network.management-plane-hardening",
+        "comp.network.wlan",
+        "comp.network.config-backup",
+        "comp.observe.metrics-and-logs",
+        "comp.observe.alerting",
+        "comp.observe.backup-monitoring",
+        "comp.observe.siem-deploy",
+        "comp.observe.file-integrity",
+        "comp.observe.service-discovery",
+        "comp.observe.fleet-onboarding",
+        "comp.observe.siem-tenancy",
+        "comp.observe.sca-score",
+        "comp.observe.snmp-and-syslog",
+        "comp.docs.architecture-brief",
+        "comp.docs.write-sops",
+        "comp.docs.change-control",
+        "comp.docs.as-built-handover",
+        "comp.docs.capacity-planning",
+        "comp.docs.netbox-ipam",
+        "comp.docs.asset-management-tool",
+        "comp.docs.change-tickets",
+        "comp.docs.repository-handover",
+        "comp.docs.professional-documentation",
+        "comp.docs.sla-mapping",
+        "comp.docs.naming-standard",
+        "comp.docs.requirements-gathering",
+        "comp.docs.site-survey",
+        "comp.docs.design-decisions",
+        "comp.docs.build-log",
+        "comp.docs.work-a-ticket",
+        "comp.docs.incident-management",
+        "comp.docs.known-issues"
+      ]
+    },
+    {
+      "id": "role.security-architect",
+      "label": "Security Architect",
+      "framework": "NICE",
+      "niceId": "SP-ARC-002",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "arch",
+        "crypto",
+        "identity",
+        "cloud",
+        "data"
+      ],
+      "requiredCompetencies": [
+        "comp.identity.rbac",
+        "comp.identity.joiner-leaver",
+        "comp.identity.access-matrix",
+        "comp.identity.mfa-console",
+        "comp.identity.orphan-accounts",
+        "comp.identity.federation",
+        "comp.identity.access-review",
+        "comp.identity.machine-identities",
+        "comp.crypto.standard",
+        "comp.crypto.tls-versions",
+        "comp.crypto.key-rotation",
+        "comp.arch.trust-boundaries",
+        "comp.arch.shared-responsibility",
+        "comp.arch.default-deny-zones",
+        "comp.arch.rule-base",
+        "comp.arch.sdlc-gates",
+        "comp.arch.component-list",
+        "comp.arch.segmentation-proof",
+        "comp.data.discovery",
+        "comp.data.sanitisation",
+        "comp.cloud.budget-and-tags",
+        "comp.cloud.shared-responsibility",
+        "comp.cloud.network-foundation",
+        "comp.cloud.team-repo-and-board",
+        "comp.cloud.identity-and-groups",
+        "comp.cloud.cost-estimate",
+        "comp.cloud.launch-vm",
+        "comp.cloud.static-site-https",
+        "comp.cloud.ssh-from-one-ip",
+        "comp.cloud.request-flow",
+        "comp.cloud.managed-database",
+        "comp.cloud.serverless-api",
+        "comp.cloud.read-only-access",
+        "comp.cloud.cost-report",
+        "comp.cloud.error-alert",
+        "comp.cloud.read-logs",
+        "comp.cloud.audit-trail",
+        "comp.cloud.access-matrix",
+        "comp.cloud.secrets-in-vault",
+        "comp.cloud.managed-identity",
+        "comp.cloud.prove-denial",
+        "comp.cloud.two-zone-design",
+        "comp.cloud.scale-set",
+        "comp.cloud.load-balancer",
+        "comp.cloud.private-access-path",
+        "comp.cloud.data-store-choice",
+        "comp.cloud.ha-database",
+        "comp.cloud.queue-and-ledger",
+        "comp.cloud.data-lockdown",
+        "comp.cloud.autoscale-target",
+        "comp.cloud.autoscale-and-self-heal",
+        "comp.cloud.restore-file-and-database",
+        "comp.cloud.recovery-drill-and-teardown",
+        "comp.cloud.template-map",
+        "comp.cloud.inventory-and-drift",
+        "comp.cloud.deploy-from-template",
+        "comp.cloud.policy-as-code",
+        "comp.cloud.change-request-and-gates",
+        "comp.cloud.branch-protection",
+        "comp.cloud.staged-pipeline",
+        "comp.cloud.oidc-deploy-identity",
+        "comp.cloud.cost-by-service-and-slos",
+        "comp.cloud.blue-green",
+        "comp.cloud.canary",
+        "comp.cloud.dashboard-and-compliance",
+        "comp.cloud.handover-package",
+        "comp.cloud.rebuild-and-automate",
+        "comp.cloud.fix-through-ci",
+        "comp.cloud.contain-and-post-mortem"
+      ]
+    },
+    {
+      "id": "role.software-developer",
+      "label": "Software Developer",
+      "framework": "NICE",
+      "niceId": "SP-DEV-001",
+      "checkedYear": 2025,
+      "url": "https://niccs.cisa.gov/workforce-development/nice-framework",
+      "areas": [
+        "automation",
+        "cloud",
+        "docs"
+      ],
+      "requiredCompetencies": [
+        "comp.automation.terraform-vms",
+        "comp.automation.docker-compose",
+        "comp.automation.ops-workstation",
+        "comp.automation.infra-in-git",
+        "comp.automation.secrets-out-of-history",
+        "comp.automation.golden-images",
+        "comp.automation.drift-plan",
+        "comp.automation.ansible-roles",
+        "comp.automation.dynamic-inventory",
+        "comp.automation.rebuild-from-git",
+        "comp.automation.network-as-data",
+        "comp.automation.idempotent-playbooks",
+        "comp.docs.architecture-brief",
+        "comp.docs.write-sops",
+        "comp.docs.change-control",
+        "comp.docs.as-built-handover",
+        "comp.docs.capacity-planning",
+        "comp.docs.netbox-ipam",
+        "comp.docs.asset-management-tool",
+        "comp.docs.change-tickets",
+        "comp.docs.repository-handover",
+        "comp.docs.professional-documentation",
+        "comp.docs.sla-mapping",
+        "comp.docs.naming-standard",
+        "comp.docs.requirements-gathering",
+        "comp.docs.site-survey",
+        "comp.docs.design-decisions",
+        "comp.docs.build-log",
+        "comp.docs.work-a-ticket",
+        "comp.docs.incident-management",
+        "comp.docs.known-issues",
+        "comp.cloud.budget-and-tags",
+        "comp.cloud.shared-responsibility",
+        "comp.cloud.network-foundation",
+        "comp.cloud.team-repo-and-board",
+        "comp.cloud.identity-and-groups",
+        "comp.cloud.cost-estimate",
+        "comp.cloud.launch-vm",
+        "comp.cloud.static-site-https",
+        "comp.cloud.ssh-from-one-ip",
+        "comp.cloud.request-flow",
+        "comp.cloud.managed-database",
+        "comp.cloud.serverless-api",
+        "comp.cloud.read-only-access",
+        "comp.cloud.cost-report",
+        "comp.cloud.error-alert",
+        "comp.cloud.read-logs",
+        "comp.cloud.audit-trail",
+        "comp.cloud.access-matrix",
+        "comp.cloud.secrets-in-vault",
+        "comp.cloud.managed-identity",
+        "comp.cloud.prove-denial",
+        "comp.cloud.two-zone-design",
+        "comp.cloud.scale-set",
+        "comp.cloud.load-balancer",
+        "comp.cloud.private-access-path",
+        "comp.cloud.data-store-choice",
+        "comp.cloud.ha-database",
+        "comp.cloud.queue-and-ledger",
+        "comp.cloud.data-lockdown",
+        "comp.cloud.autoscale-target",
+        "comp.cloud.autoscale-and-self-heal",
+        "comp.cloud.restore-file-and-database",
+        "comp.cloud.recovery-drill-and-teardown",
+        "comp.cloud.template-map",
+        "comp.cloud.inventory-and-drift",
+        "comp.cloud.deploy-from-template",
+        "comp.cloud.policy-as-code",
+        "comp.cloud.change-request-and-gates",
+        "comp.cloud.branch-protection",
+        "comp.cloud.staged-pipeline",
+        "comp.cloud.oidc-deploy-identity",
+        "comp.cloud.cost-by-service-and-slos",
+        "comp.cloud.blue-green",
+        "comp.cloud.canary",
+        "comp.cloud.dashboard-and-compliance",
+        "comp.cloud.handover-package",
+        "comp.cloud.rebuild-and-automate",
+        "comp.cloud.fix-through-ci",
+        "comp.cloud.contain-and-post-mortem"
+      ]
+    }
+  ],
+  "byCourse": {
+    "security-plus": {
+      "red": [
+        "role.exploitation-analyst",
+        "role.vulnerability-assessment-analyst"
+      ],
+      "blue": [
+        "role.cyber-defense-analyst",
+        "role.incident-responder"
+      ],
+      "grc": [
+        "role.security-control-assessor",
+        "role.cyber-policy-planner"
+      ]
+    },
+    "mssp": {
+      "red": [
+        "role.exploitation-analyst",
+        "role.vulnerability-assessment-analyst"
+      ],
+      "blue": [
+        "role.cyber-defense-analyst",
+        "role.incident-responder"
+      ],
+      "grc": [
+        "role.issm",
+        "role.security-control-assessor"
+      ]
+    },
+    "cysa-plus": {
+      "blue": [
+        "role.cyber-defense-analyst",
+        "role.incident-responder"
+      ],
+      "grc": [
+        "role.threat-analyst",
+        "role.security-control-assessor"
+      ],
+      "red": [
+        "role.vulnerability-assessment-analyst",
+        "role.incident-responder"
+      ]
+    },
+    "server-plus": {
+      "net": [
+        "role.network-operations-specialist"
+      ],
+      "win": [
+        "role.system-administrator"
+      ],
+      "lnx": [
+        "role.system-administrator"
+      ],
+      "mgmt": [
+        "role.system-administrator",
+        "role.issm"
+      ]
+    },
+    "ccna": {
+      "arch": [
+        "role.network-operations-specialist",
+        "role.security-architect"
+      ],
+      "impl": [
+        "role.network-operations-specialist"
+      ],
+      "ops": [
+        "role.network-operations-specialist"
+      ],
+      "auto": [
+        "role.software-developer",
+        "role.network-operations-specialist"
+      ]
+    },
+    "secai-plus": {
+      "redteam": [
+        "role.exploitation-analyst",
+        "role.threat-analyst"
+      ],
+      "defender": [
+        "role.systems-security-analyst",
+        "role.cyber-defense-analyst"
+      ],
+      "governance": [
+        "role.cyber-policy-planner",
+        "role.security-control-assessor"
+      ]
+    },
+    "cissp": {
+      "govrisk": [
+        "role.issm",
+        "role.cyber-policy-planner"
+      ],
+      "archnet": [
+        "role.security-architect",
+        "role.systems-security-analyst"
+      ],
+      "idops": [
+        "role.systems-security-analyst",
+        "role.incident-responder"
+      ]
+    },
+    "azure-fundamentals": {
+      "arch": [
+        "role.security-architect"
+      ],
+      "infra": [
+        "role.system-administrator"
+      ],
+      "dev": [
+        "role.software-developer"
+      ],
+      "secops": [
+        "role.cyber-defense-analyst",
+        "role.systems-security-analyst"
+      ]
+    },
+    "azure-administrator": {
+      "arch": [
+        "role.security-architect"
+      ],
+      "infra": [
+        "role.system-administrator"
+      ],
+      "dev": [
+        "role.software-developer"
+      ],
+      "secops": [
+        "role.cyber-defense-analyst",
+        "role.systems-security-analyst"
+      ]
+    },
+    "azure-devops": {
+      "arch": [
+        "role.security-architect"
+      ],
+      "infra": [
+        "role.system-administrator"
+      ],
+      "dev": [
+        "role.software-developer"
+      ],
+      "secops": [
+        "role.cyber-defense-analyst",
+        "role.systems-security-analyst"
+      ]
+    },
+    "aws-cloud-practitioner": {
+      "arch": [
+        "role.security-architect"
+      ],
+      "infra": [
+        "role.system-administrator"
+      ],
+      "dev": [
+        "role.software-developer"
+      ],
+      "secops": [
+        "role.cyber-defense-analyst",
+        "role.systems-security-analyst"
+      ]
+    },
+    "aws-solutions-architect": {
+      "arch": [
+        "role.security-architect"
+      ],
+      "infra": [
+        "role.system-administrator"
+      ],
+      "dev": [
+        "role.software-developer"
+      ],
+      "secops": [
+        "role.cyber-defense-analyst",
+        "role.systems-security-analyst"
+      ]
+    },
+    "aws-devops": {
+      "arch": [
+        "role.security-architect"
+      ],
+      "infra": [
+        "role.system-administrator"
+      ],
+      "dev": [
+        "role.software-developer"
+      ],
+      "secops": [
+        "role.cyber-defense-analyst",
+        "role.systems-security-analyst"
+      ]
+    }
+  }
+}

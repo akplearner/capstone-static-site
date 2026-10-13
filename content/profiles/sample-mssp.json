@@ -1,0 +1,202 @@
+{
+  "schema": "capstone-environment-profile/1",
+  "id": "profile.sample-mssp",
+  "version": "1.0.0",
+  "name": "Sample managed security service provider",
+  "publisher": "Capstone Labs, as a sample",
+  "architecture": "One client estate under contract feeding one managed SOC; nine records govern the engagement from scoping to the evidence packet.",
+  "infrastructure": [
+    {
+      "id": "endpoints",
+      "label": "Endpoints",
+      "purpose": "What staff work on; where phishing and malware land"
+    },
+    {
+      "id": "servers",
+      "label": "Servers",
+      "purpose": "The systems the contract protects and the pentest targets"
+    },
+    {
+      "id": "idp",
+      "label": "Client identity",
+      "purpose": "One account per person; MFA is the first control implemented"
+    },
+    {
+      "id": "edr",
+      "label": "EDR agents",
+      "purpose": "Sees process activity on every host and feeds the SIEM"
+    },
+    {
+      "id": "client-edge",
+      "label": "Client edge",
+      "purpose": "The boundary, and the one path the client’s logs take out"
+    },
+    {
+      "id": "backup",
+      "label": "Backup target",
+      "purpose": "The copy the recovery promise in the contract rests on"
+    },
+    {
+      "id": "scanner",
+      "label": "Vulnerability scanner",
+      "purpose": "Measures the estate against the baseline, scored"
+    },
+    {
+      "id": "siem",
+      "label": "SIEM / log platform",
+      "purpose": "Collects the client’s logs and keeps them for the contract term"
+    },
+    {
+      "id": "detections",
+      "label": "Detection rules",
+      "purpose": "Turns the client’s logs into alerts worth a ticket"
+    },
+    {
+      "id": "tickets",
+      "label": "Ticket queue",
+      "purpose": "Every alert timed from raise to close: MTTD and MTTR"
+    },
+    {
+      "id": "evidence",
+      "label": "Evidence vault",
+      "purpose": "Hashed copies of every artefact the packet cites"
+    },
+    {
+      "id": "ti",
+      "label": "Threat-intel feeds",
+      "purpose": "Indicators the rules match against"
+    }
+  ],
+  "tools": [
+    "tool.auditd",
+    "tool.burp",
+    "tool.capstone-forms",
+    "tool.grc-platform",
+    "tool.linux-shell",
+    "tool.lynis",
+    "tool.nmap",
+    "tool.sigma",
+    "tool.sqlmap",
+    "tool.testssl",
+    "tool.ticketing",
+    "tool.ufw",
+    "tool.wazuh"
+  ],
+  "methodology": [
+    "sop.assessment-report",
+    "sop.change-record",
+    "sop.control-mapping",
+    "sop.detection-rules",
+    "sop.evidence-packet",
+    "sop.governance-report",
+    "sop.hardening-baseline",
+    "sop.internal-audit",
+    "sop.monitoring-plan",
+    "sop.retest-record",
+    "sop.risk-register",
+    "sop.scope-and-roe"
+  ],
+  "policies": [
+    "CIS.CONTROLS",
+    "ISO27001",
+    "ISO27001.6.1.3",
+    "ISO27001.9.1",
+    "ISO27001.9.2",
+    "ISO27001.9.3",
+    "MITRE.ATTACK",
+    "NIST.800-115",
+    "PTES",
+    "SOC2",
+    "SOC2.CC7"
+  ],
+  "ticketTaxonomy": [
+    {
+      "kind": "Security alert",
+      "priority": "P1",
+      "sla": {
+        "acknowledge": "15 minutes",
+        "resolve": "4 hours"
+      }
+    },
+    {
+      "kind": "Security alert",
+      "priority": "P2",
+      "sla": {
+        "acknowledge": "1 hour",
+        "resolve": "1 business day"
+      }
+    },
+    {
+      "kind": "Vulnerability finding",
+      "priority": "critical",
+      "sla": {
+        "acknowledge": "1 business day",
+        "resolve": "14 days"
+      }
+    },
+    {
+      "kind": "Change request",
+      "priority": "standard",
+      "sla": {
+        "acknowledge": "1 business day",
+        "resolve": "the next change window"
+      }
+    },
+    {
+      "kind": "Audit evidence request",
+      "priority": "standard",
+      "sla": {
+        "acknowledge": "2 business days",
+        "resolve": "10 business days"
+      }
+    }
+  ],
+  "workRoles": [
+    {
+      "workRole": "role.exploitation-analyst",
+      "requiredCompetencies": [
+        "comp.exploit.retest",
+        "comp.exploit.tester-attestation",
+        "comp.exploit.web-pentest",
+        "comp.recon.attack-surface",
+        "comp.recon.tls-hygiene",
+        "comp.risk.accept",
+        "comp.risk.threat-model-controls"
+      ]
+    },
+    {
+      "workRole": "role.cyber-defense-analyst",
+      "requiredCompetencies": [
+        "comp.detect.sigma-rules",
+        "comp.detect.validate-detection",
+        "comp.harden.change-discipline",
+        "comp.harden.host-firewall",
+        "comp.report.detection-metrics",
+        "comp.vuln.cis-gap-scan"
+      ]
+    },
+    {
+      "workRole": "role.issm",
+      "requiredCompetencies": [
+        "comp.audit.control-matrix",
+        "comp.audit.corrective-action",
+        "comp.audit.evidence-collection",
+        "comp.audit.evidence-packet",
+        "comp.audit.internal-audit",
+        "comp.audit.remediation-tracking",
+        "comp.risk.iso-27005",
+        "comp.risk.soa"
+      ]
+    }
+  ],
+  "requiredSops": [
+    "assessment",
+    "audit",
+    "baseline",
+    "change",
+    "governance",
+    "monitoring",
+    "risk",
+    "scope"
+  ]
+}

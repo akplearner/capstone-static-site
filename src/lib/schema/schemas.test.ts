@@ -11,6 +11,8 @@ import { portfolioSummary, courseMetrics } from '../metrics';
 import { SEED_COURSES, courseDto } from '../content/dto';
 import { certOf, deliverablesOf, skillsOf } from '../content/read';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '../docs/ontology';
+import { WORK_ROLES } from '../docs/workRoles';
+import { sampleProfiles } from '../content/profiles';
 
 const DIR = resolve(process.cwd(), 'content', 'schemas');
 const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.schema.json`), 'utf8')) as JsonSchema;
@@ -24,7 +26,7 @@ const schema = (name: string) => JSON.parse(readFileSync(resolve(DIR, `${name}.s
 describe('content/schemas — the published shapes validate', () => {
   it('every schema file is draft 2020-12 and inside the subset', () => {
     const files = readdirSync(DIR).filter((f) => f.endsWith('.schema.json'));
-    expect(files.sort()).toEqual(['competency-node', 'course-index-entry', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'xapi-statement'].map((n) => `${n}.schema.json`));
+    expect(files.sort()).toEqual(['competency-node', 'course-index-entry', 'credential', 'environment-profile', 'event', 'kpi-board', 'member-profile', 'skill-profile', 'sop', 'standard', 'tool', 'work-role', 'xapi-statement'].map((n) => `${n}.schema.json`));
     for (const f of files) {
       const s = schema(f.replace('.schema.json', ''));
       expect(s.$schema, f).toBe('https://json-schema.org/draft/2020-12/schema');
@@ -96,5 +98,52 @@ describe('content/schemas — the published shapes validate', () => {
     expect(validate(statement, schema('xapi-statement'))).toEqual([]);
     expect(validate({ ...statement, context: { competencyIds: ['tool.nmap'] } }, schema('xapi-statement'))).not.toEqual([]);
     expect(validate({ ...statement, verb: 'completed' }, schema('xapi-statement'))).not.toEqual([]);
+  });
+
+  // R108: the work roles, the sample profile, the credential envelope and the event contract.
+  it('every work role validates, and the sample environment profile validates while a bad tool id fails', () => {
+    for (const w of WORK_ROLES) expect(validate(w, schema('work-role')), w.id).toEqual([]);
+    const [profile] = sampleProfiles();
+    expect(validate(profile, schema('environment-profile'))).toEqual([]);
+    expect(validate({ ...profile, tools: ['x'] }, schema('environment-profile'))).not.toEqual([]);
+    expect(validate({ ...profile, workRoles: [] }, schema('environment-profile'))).not.toEqual([]);
+  });
+
+  it('the credential envelope admits no proof, and the event contract admits only the named assist levels', () => {
+    const credential = {
+      '@context': ['https://www.w3.org/ns/credentials/v2', 'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json'],
+      type: ['VerifiableCredential', 'OpenBadgeCredential'],
+      issuer: { id: 'https://capstone.example', type: 'Profile', name: 'Capstone Labs' },
+      validFrom: '2026-10-13T00:00:00Z',
+      credentialSubject: {
+        type: ['AchievementSubject'],
+        achievement: {
+          id: 'https://capstone.example/achievements/member-profile',
+          type: ['Achievement'],
+          name: 'Capstone member profile',
+          description: 'unsigned',
+          criteria: { narrative: 'The steps verified and the documents filed, as the member profile lists them.' },
+          alignment: [{ type: ['Alignment'], targetName: 'Scan ports and services with nmap', targetCode: 'comp.recon.port-scan', targetFramework: 'capstone-ontology' }],
+        },
+        result: [{ type: ['Result'], resultDescription: 'kpi.ability.skills-verified', value: '1 of 2' }],
+      },
+      evidence: [{ type: ['Evidence'], id: `sha256:${'a'.repeat(64)}`, name: 'capstone-portfolio.json' }],
+      claim: 'unsigned',
+    };
+    expect(validate(credential, schema('credential'))).toEqual([]);
+    expect(validate({ ...credential, proof: {} }, schema('credential'))).not.toEqual([]);
+    expect(validate({ ...credential, type: ['VerifiableCredential'] }, schema('credential'))).not.toEqual([]);
+    const event = {
+      actor: { id: 'uuid', type: 'human' },
+      verb: 'verified',
+      object: { courseId: 'security-plus', taskId: 'red-w1-osint', stepId: 's1', refType: 'step', refId: 'red-w1-osint::s1' },
+      result: { success: true, matched: 3, total: 3, attempts: 1 },
+      context: { competencyIds: ['comp.recon.osint'], ontologyVersion: ONTOLOGY_VERSION, week: 1, assist: 'none' },
+      consentScope: ['own'],
+      timestamp: '2026-10-13T00:00:00Z',
+    };
+    expect(validate(event, schema('event'))).toEqual([]);
+    expect(validate({ ...event, context: { ...event.context, assist: 'copilot' } }, schema('event'))).not.toEqual([]);
+    expect(validate({ ...event, verb: 'scored' }, schema('event'))).not.toEqual([]);
   });
 });

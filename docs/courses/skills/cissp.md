@@ -210,3 +210,26 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Write for leadership | NIST.CSF.RS.CO | Map identity and federal incident reporting |
 | Metrics with targets | ISO27001.9.1 | Specify risk, assets and the metrics |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | govrisk: 11 skills with a verifiable step; archnet: 9 skills with a verifiable step; idops: 8 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | govrisk: 38 percent of the exam over 3 domains; archnet: 48 percent of the exam over 4 domains; idops: 38 percent of the exam over 3 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | govrisk: Information Systems Security Manager: 45 required, 30 not taught here; archnet: Security Architect: 69 required, 58 not taught here; idops: Systems Security Analyst: 34 required, 27 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | govrisk: 0 skills on two or more tasks; archnet: 0 skills on two or more tasks; idops: 0 skills on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | govrisk: 0 tasks with two or more verifiable steps; archnet: 1 task with two or more verifiable steps; idops: 2 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | govrisk: 4 verifiable steps; archnet: 5 verifiable steps; idops: 5 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | govrisk: 4 verifiable steps that run a command; archnet: 5 verifiable steps that run a command; idops: 5 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | govrisk: 20 procedures; archnet: 20 procedures; idops: 9 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | govrisk: 24 checks on 7 forms; archnet: 11 checks on 3 forms; idops: 8 checks on 2 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | govrisk: 11 control codes on 7 forms; archnet: 5 control codes on 3 forms; idops: 6 control codes on 2 forms |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | govrisk: 7 forms; archnet: 3 forms; idops: 2 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | govrisk: 0 hand-offs; archnet: 0 hand-offs; idops: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | govrisk: 7 forms; archnet: 3 forms; idops: 2 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

@@ -130,3 +130,26 @@ Runbooks and standard operating procedures the forms are instances of, and the t
 | Write for leadership | NIST.CSF.RS.CO | Debrief the team (capstone) |
 | Metrics with targets | ISO27001.9.1 | Debrief the team (capstone) |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | blue: 4 skills with a verifiable step; grc: 9 skills with a verifiable step; red: 4 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | blue: 83 percent of the exam over 3 domains; grc: 100 percent of the exam over 4 domains; red: 100 percent of the exam over 4 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | blue: Cyber Defense Analyst: 29 required, 26 not taught here; grc: Threat and Warning Analyst: 24 required, 17 not taught here; red: Vulnerability Assessment Analyst: 22 required, 19 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | blue: 0 skills on two or more tasks; grc: 0 skills on two or more tasks; red: 0 skills on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | blue: 1 task with two or more verifiable steps; grc: 3 tasks with two or more verifiable steps; red: 2 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | blue: 6 verifiable steps; grc: 8 verifiable steps; red: 4 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | blue: 4 verifiable steps that run a command; grc: 7 verifiable steps that run a command; red: 4 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | blue: 9 procedures; grc: 11 procedures; red: 11 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | blue: 10 checks on 4 forms; grc: 12 checks on 4 forms; red: 10 checks on 4 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | blue: 4 control codes on 4 forms; grc: 5 control codes on 4 forms; red: 5 control codes on 4 forms |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | blue: 4 forms; grc: 4 forms; red: 4 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | blue: 0 hand-offs; grc: 0 hand-offs; red: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | blue: 4 forms; grc: 4 forms; red: 4 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

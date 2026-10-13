@@ -201,3 +201,26 @@ Adversary tactics are not part of this course.
 | Metrics with targets | ISO27001.9.1 | Deep-dive: the runbook, the SLO and the demo |
 | Idempotent automation | WAF.operational-excellence | Configuration as code |
 
+## KPI board
+
+The sixteen numbers the Skill board keeps per member of this course, the catalogue row and kind of fact each one reads, and what it is counted over here, role by role.
+
+| KPI | Family | Reads | Denominator in this course |
+| --- | --- | --- | --- |
+| Skills verified `kpi.ability.skills-verified` | ability | metric.skill-verified (own) | net: 48 skills with a verifiable step; win: 49 skills with a verifiable step; lnx: 48 skills with a verifiable step; mgmt: 47 skills with a verifiable step |
+| Exam weight verified `kpi.ability.exam-weight-verified` | ability | metric.domain-weight-verified (own) | net: 100 percent of the exam over 4 domains; win: 100 percent of the exam over 4 domains; lnx: 100 percent of the exam over 4 domains; mgmt: 100 percent of the exam over 4 domains |
+| Profile coverage `kpi.ability.profile-coverage` | ability | metric.profile-coverage (own) | net: Network Operations Specialist: 52 required, 28 not taught here; win: System Administrator: 54 required, 10 not taught here; lnx: System Administrator: 54 required, 11 not taught here; mgmt: System Administrator: 54 required, 9 not taught here |
+| Skills proved twice `kpi.ability.skills-transferred` | ability | metric.skill-transfer (own) | net: 12 skills on two or more tasks; win: 11 skills on two or more tasks; lnx: 14 skills on two or more tasks; mgmt: 10 skills on two or more tasks |
+| Steps verified in order `kpi.execution.steps-in-order` | execution | metric.procedure-in-order (own) | net: 15 tasks with two or more verifiable steps; win: 15 tasks with two or more verifiable steps; lnx: 15 tasks with two or more verifiable steps; mgmt: 15 tasks with two or more verifiable steps |
+| First-try verifications `kpi.execution.first-try` | execution | metric.ability-first-try (own) | net: 56 verifiable steps; win: 58 verifiable steps; lnx: 58 verifiable steps; mgmt: 53 verifiable steps |
+| Commands verified `kpi.execution.commands-verified` | execution | metric.tool-commands-verified (own) | net: 56 verifiable steps that run a command; win: 58 verifiable steps that run a command; lnx: 58 verifiable steps that run a command; mgmt: 53 verifiable steps that run a command |
+| Files named to convention `kpi.execution.evidence-named` | execution | metric.evidence-naming (own) | the files the member hashes; no content denominator |
+| Procedures to standard `kpi.procedure.followed-to-standard` | procedure | metric.procedure-to-standard (team) | net: 14 procedures; win: 14 procedures; lnx: 14 procedures; mgmt: 14 procedures |
+| Definition-of-Done met `kpi.procedure.dod-met` | procedure | metric.doc-dod-met (team) | net: 58 checks on 8 forms; win: 58 checks on 8 forms; lnx: 58 checks on 8 forms; mgmt: 58 checks on 8 forms |
+| Controls cited `kpi.procedure.controls-cited` | procedure | metric.standard-controls-cited (team) | net: 0 control codes on 3 forms; win: 0 control codes on 2 forms; lnx: 0 control codes on 2 forms; mgmt: 0 control codes on 1 form |
+| Document control complete `kpi.procedure.document-control` | procedure | metric.doc-control-complete (team) | net: 8 forms; win: 8 forms; lnx: 8 forms; mgmt: 8 forms |
+| Submissions rubric-green `kpi.outcome.rubric-green` | outcome | metric.doc-rubric-green (team) | the submissions the member freezes; no content denominator |
+| Hand-offs completed `kpi.outcome.handoffs` | outcome | metric.collab-handoffs (team) | net: 0 hand-offs; win: 0 hand-offs; lnx: 0 hand-offs; mgmt: 0 hand-offs |
+| Instructor approved `kpi.outcome.instructor-approved` | outcome | metric.doc-instructor-approved (team) | net: 8 forms; win: 8 forms; lnx: 8 forms; mgmt: 8 forms |
+| Capstone filed `kpi.outcome.capstone-filed` | outcome | metric.outcome-capstone-filed (team) | one capstone per course |
+

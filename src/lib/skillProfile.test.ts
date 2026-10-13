@@ -61,6 +61,11 @@ const FORM: DeliverableDef = {
 };
 
 const REGISTRY: SkillsContent = {
+  // R108: the board rows and the work roles travel with the registry; the fixture carries none.
+  KPI_FAMILIES: [],
+  KPIS: [],
+  WORK_ROLES: [],
+  WORK_ROLE_OF: {},
   SKILLS: [
     { id: 'comp.a.one', version: '1.0.0', label: 'Do one', area: 'a', objectiveRefs: ['X.d1'] },
     { id: 'comp.a.two', version: '1.0.0', label: 'Do two', area: 'a', objectiveRefs: ['X.d2'] },

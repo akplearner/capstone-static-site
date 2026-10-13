@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "areas": {
     "recon": "Reconnaissance",
     "vuln": "Vulnerability management",

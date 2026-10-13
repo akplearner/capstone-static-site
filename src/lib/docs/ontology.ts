@@ -5,6 +5,8 @@ import { CONTROLS, CONTROL_EXCEPTIONS, STANDARDS } from './standards';
 import { DELIVERABLE_SOPS, SOPS, TASK_SOPS } from './sops';
 import { PRACTICES, TACTICS, TASK_PRACTICES, TASK_TACTICS } from './tactics';
 import { METRICS, METRIC_INPUTS } from './metricCatalogue';
+import { KPIS, KPI_FAMILIES } from './kpis';
+import { WORK_ROLES, WORK_ROLE_OF } from './workRoles';
 
 /**
  * R107 — the published ontology: the registries under `src/lib/docs/` as
@@ -20,12 +22,12 @@ import { METRICS, METRIC_INPUTS } from './metricCatalogue';
  * version they were read against.
  */
 export const ONTOLOGY_SCHEMA = 'capstone-ontology/1';
-export const ONTOLOGY_VERSION = '1.0.0';
+export const ONTOLOGY_VERSION = '1.1.0';
 export const MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/1';
 
-const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts'];
+const GENERATED_FROM = ['src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/certs.ts', 'src/lib/docs/kpis.ts', 'src/lib/docs/workRoles.ts'];
 
-export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains'] as const;
+export const ONTOLOGY_FILES = ['index', 'competencies', 'tools', 'standards', 'sops', 'tactics', 'practices', 'metrics', 'domains', 'kpis', 'work-roles'] as const;
 export type OntologyFile = (typeof ONTOLOGY_FILES)[number];
 
 const stamp = () => ({ schema: ONTOLOGY_SCHEMA, version: ONTOLOGY_VERSION });
@@ -50,6 +52,9 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
     practices: { ...stamp(), practices: PRACTICES, tasksByCourse: TASK_PRACTICES },
     metrics: { ...stamp(), inputs: METRIC_INPUTS, metrics: METRICS },
     domains: { ...stamp(), domains },
+    // R108: the sixteen KPIs with their families, and the NICE work roles with the course roles that prepare for them.
+    kpis: { ...stamp(), families: KPI_FAMILIES, kpis: KPIS },
+    'work-roles': { ...stamp(), workRoles: WORK_ROLES, byCourse: WORK_ROLE_OF },
   };
   const index = {
     ...stamp(),
@@ -65,6 +70,8 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       practices: PRACTICES.length,
       metrics: METRICS.length,
       domains: domains.length,
+      kpis: KPIS.length,
+      workRoles: WORK_ROLES.length,
     },
     idStyle: {
       competency: 'comp.<area>.<slug>',
@@ -75,6 +82,8 @@ export function ontologyFiles(): Record<OntologyFile, Record<string, unknown>> {
       practice: 'practice.<slug>',
       metric: 'metric.<slug>',
       domain: '<examCode slugged>.<domainId>',
+      kpi: 'kpi.<family>.<slug>',
+      workRole: 'role.<slug>',
     },
     rules: ['additive', 'deprecate never remove', 'semver: minor on add, major on a shape change'],
   };
@@ -94,6 +103,8 @@ export function ontologyIds(files: Record<OntologyFile, Record<string, unknown>>
     practices: ids(files.practices.practices, 'id'),
     metrics: ids(files.metrics.metrics, 'id'),
     domains: ids(files.domains.domains, 'id'),
+    kpis: ids(files.kpis.kpis, 'id'),
+    workRoles: ids(files['work-roles'].workRoles, 'id'),
   };
 }
 

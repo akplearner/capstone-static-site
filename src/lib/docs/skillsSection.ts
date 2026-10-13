@@ -7,6 +7,8 @@ import { DELIVERABLE_SOPS, SOPS, TASK_SOPS } from './sops';
 import { PRACTICES, TACTICS, TASK_PRACTICES, TASK_TACTICS } from './tactics';
 import { METRICS } from './metricCatalogue';
 import { DIMENSION_LABEL, LEVEL_LABEL, SKILLS_COPY } from './skillsCopy';
+import { KPIS, KPI_FAMILIES } from './kpis';
+import { WORK_ROLES, WORK_ROLE_OF, type WorkRoleDef } from './workRoles';
 import type { SkillRegistry } from './skillCoverage';
 
 /**
@@ -19,7 +21,7 @@ import type { SkillRegistry } from './skillCoverage';
  *
  * Lowercase only: this is the writer's helper, never a table.
  */
-export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): SkillRegistry & { AREAS: Record<string, string>; CONTROL_OF: Record<string, string[]>; METRICS: typeof METRICS; COPY: typeof SKILLS_COPY; LEVEL_LABEL: typeof LEVEL_LABEL; DIMENSION_LABEL: typeof DIMENSION_LABEL } {
+export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): SkillRegistry & { AREAS: Record<string, string>; CONTROL_OF: Record<string, string[]>; METRICS: typeof METRICS; COPY: typeof SKILLS_COPY; LEVEL_LABEL: typeof LEVEL_LABEL; DIMENSION_LABEL: typeof DIMENSION_LABEL; KPI_FAMILIES: typeof KPI_FAMILIES; KPIS: typeof KPIS; WORK_ROLES: WorkRoleDef[]; WORK_ROLE_OF: Record<string, string[]> } {
   const id = course.id;
   const SKILL_OF = TASK_SKILLS[id] ?? {};
   const TOOL_OF = toolsByTask(course);
@@ -35,6 +37,9 @@ export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pi
   const sopIds = new Set([...values(SOP_OF), ...values(SOP_OF_TASK)]);
   const tacticIds = values(TACTIC_OF);
   const practiceIds = values(PRACTICE_OF);
+  // R108: the work roles this course's roles prepare for, and the course's own map into them.
+  const WORK_ROLE_OF_COURSE = WORK_ROLE_OF[id] ?? {};
+  const workRoleIds = values(WORK_ROLE_OF_COURSE);
   for (const f of forms) for (const p of CONTROL_EXCEPTIONS[f.standard] ?? []) practiceIds.add(p);
 
   // What each form cites, parsed once here so no reader needs the parser.
@@ -80,5 +85,9 @@ export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pi
     COPY: SKILLS_COPY,
     LEVEL_LABEL,
     DIMENSION_LABEL,
+    KPI_FAMILIES,
+    KPIS,
+    WORK_ROLES: WORK_ROLES.filter((w) => workRoleIds.has(w.id)),
+    WORK_ROLE_OF: WORK_ROLE_OF_COURSE,
   };
 }

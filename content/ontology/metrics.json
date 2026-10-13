@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "inputs": [
     "course",
     "registry",
@@ -17,7 +17,9 @@
     "task_reports",
     "step_notes",
     "step_flags",
-    "cohorts"
+    "cohorts",
+    "environment_profile",
+    "work_roles"
   ],
   "metrics": [
     {
@@ -1297,6 +1299,205 @@
       ],
       "status": "needs-consent",
       "scored": false
+    },
+    {
+      "id": "metric.profile-coverage",
+      "label": "Profile coverage",
+      "dimension": "skills",
+      "definition": "Required competencies of a work role or an environment profile at verified or better, over required; the untaught remainder is named.",
+      "inputs": [
+        "registry",
+        "step_evidence",
+        "environment_profile",
+        "work_roles"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.skill-transfer",
+      "label": "Skills proved twice",
+      "dimension": "skills",
+      "definition": "Skills with verified steps on two or more distinct tasks, over skills with a verified step.",
+      "inputs": [
+        "step_evidence",
+        "registry",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.outcome-capstone-filed",
+      "label": "Capstone filed",
+      "dimension": "documentation",
+      "definition": "The course capstone document issued by the team, one per course, with the weeks cleared beside it.",
+      "inputs": [
+        "deliverables",
+        "course"
+      ],
+      "valueTo": [
+        "member",
+        "company",
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "A team fact; loads on the course page."
+    },
+    {
+      "id": "metric.ability-estimate",
+      "label": "Ability estimate",
+      "dimension": "ability",
+      "definition": "A latent ability per objective estimated from item responses on a practice platform.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-consent",
+      "scored": false,
+      "note": "The practice platform’s side; only a competency-level conclusion may cross, with consent."
+    },
+    {
+      "id": "metric.readiness-band",
+      "label": "Readiness band",
+      "dimension": "ability",
+      "definition": "A pass-likelihood band per exam, validated against reported outcomes.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-consent",
+      "scored": false,
+      "note": "The practice platform’s side; needs reported outcomes and consent."
+    },
+    {
+      "id": "metric.transfer-unseen",
+      "label": "Transfer to unseen scenarios",
+      "dimension": "skills",
+      "definition": "Verified work on a scenario never practised before, over such scenarios.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false,
+      "note": "Needs scenario provenance per event."
+    },
+    {
+      "id": "metric.ability-unassisted",
+      "label": "Unassisted verifications",
+      "dimension": "ability",
+      "definition": "Steps verified with no hint, tutor or agent assistance, over verified steps.",
+      "inputs": [],
+      "valueTo": [
+        "member",
+        "company"
+      ],
+      "status": "needs-events",
+      "scored": false,
+      "note": "Needs the assist level recorded per event."
+    },
+    {
+      "id": "metric.doc-rubric-events",
+      "label": "Rubric verdicts as events",
+      "dimension": "documentation",
+      "definition": "The four category verdicts of each frozen submission, appended as events.",
+      "inputs": [],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "needs-events",
+      "scored": false,
+      "note": "The verdicts exist as rows today."
+    },
+    {
+      "id": "metric.outcome-placement",
+      "label": "Placement reported",
+      "dimension": "ability",
+      "definition": "Members placed in a role after a course, over members who consented to report it.",
+      "inputs": [],
+      "valueTo": [
+        "company",
+        "platform"
+      ],
+      "status": "needs-consent",
+      "scored": false,
+      "note": "Needs a consented report from the member or the employer."
+    },
+    {
+      "id": "metric.outcome-on-the-job",
+      "label": "On-the-job performance",
+      "dimension": "ability",
+      "definition": "Service levels attained in the first ninety days, as the employer reports them.",
+      "inputs": [],
+      "valueTo": [
+        "company",
+        "platform"
+      ],
+      "status": "needs-consent",
+      "scored": false,
+      "note": "Needs an employer data agreement and the member’s consent."
+    },
+    {
+      "id": "metric.platform-roi",
+      "label": "Platform return",
+      "dimension": "ability",
+      "definition": "Cost per verified competency, and employer ramp saved, as the parties report them.",
+      "inputs": [],
+      "valueTo": [
+        "company",
+        "platform"
+      ],
+      "status": "needs-consent",
+      "scored": false,
+      "note": "Needs cost and employer data nobody has handed in."
+    },
+    {
+      "id": "metric.time-to-competency",
+      "label": "Time to competency",
+      "dimension": "ability",
+      "definition": "Hours to proficiency per objective.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Speed is not measured."
+    },
+    {
+      "id": "metric.time-task-vs-benchmark",
+      "label": "Task time against benchmark",
+      "dimension": "ability",
+      "definition": "Minutes to resolve a task against an expert or service-level baseline.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Speed is not measured."
+    },
+    {
+      "id": "metric.time-learning-velocity",
+      "label": "Learning velocity",
+      "dimension": "ability",
+      "definition": "Ability gained per study hour.",
+      "inputs": [],
+      "valueTo": [],
+      "status": "excluded",
+      "scored": false,
+      "note": "Speed is not measured."
     }
   ]
 }
