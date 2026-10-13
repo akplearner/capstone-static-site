@@ -928,6 +928,10 @@ describe('R75-B — the content is not in the components', () => {
       'src/lib/docs/manual.ts',
       'src/lib/docs/roles.ts',
       'src/lib/docs/costs.ts',
+      'src/lib/docs/standards.ts',
+      'src/lib/docs/sops.ts',
+      'src/lib/docs/metricCatalogue.ts',
+      'src/lib/docs/skillsCopy.ts',
     ];
     for (const m of modules) {
       const src = code(m).replace(/\/\*[\s\S]*?\*\//g, '');
@@ -1191,7 +1195,7 @@ describe('R78-C2 — fold the duplicates', () => {
  */
 describe('R78-D3 — components read the document', () => {
   const CONTENT_MODULES =
-    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles|certs|costs)'/;
+    /from '@\/lib\/docs\/(securityContent|cysaContent|manual|serverDiagrams|ccnaDiagrams|ccnaKit|troubleshooting|serverProcedures|custodyTemplate|msspContent|secaiContent|cisspContent|weekVisuals|roles|certs|costs|skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|skillCoverage|skillSheet|skillsSection)'/;
   const renderers = [...collectSourceFiles('src/components'), ...collectSourceFiles('src/app')];
 
   it('no component or page imports a table from a content module', () => {
@@ -2286,5 +2290,57 @@ describe('R106 — the certification ladder and the cost', () => {
     expect(code('src/lib/data/seed/cloudKit.ts'), 'every cloud task carries a cost').toContain("cost: t.cost ?? { usd: 0, per: 'run'");
     expect(read('docs/ARCHITECTURE.md')).toContain('### Certification ladder and cost (R106)');
     expect(read('content/README.md')).toContain('content.cert');
+  });
+});
+
+/**
+ * R107 — skills, tools, standards, procedures, tactics and practices live in
+ * one registry each, reach every document as `content.skills`, and are read
+ * off it; the framework helpers read the standards register; the sheets are
+ * generated with the content and diffed by CI.
+ */
+describe('R107 — skills, tools, standards and the member profile', () => {
+  it('the registries are one module per concern, written into every document and read off it', () => {
+    expect(code('src/lib/docs/skills.ts')).toContain('export const SKILLS');
+    expect(code('src/lib/docs/skills.ts')).toContain('export const TASK_SKILLS');
+    expect(code('src/lib/docs/tools.ts')).toContain('export const TOOLS');
+    expect(code('src/lib/docs/tools.ts')).toContain('export const WHERE_TOOLS');
+    expect(code('src/lib/docs/tools.ts')).toContain('export const COURSE_TOOL_DEFAULTS');
+    expect(code('src/lib/docs/standards.ts')).toContain('export const STANDARDS');
+    expect(code('src/lib/docs/standards.ts')).toContain('export const CONTROLS');
+    expect(code('src/lib/docs/standards.ts')).toContain('export const CONTROL_EXCEPTIONS');
+    expect(code('src/lib/docs/sops.ts')).toContain('export const SOPS');
+    expect(code('src/lib/docs/sops.ts')).toContain('export const DELIVERABLE_SOPS');
+    expect(code('src/lib/docs/tactics.ts')).toContain('export const TACTICS');
+    expect(code('src/lib/docs/tactics.ts')).toContain('export const PRACTICES');
+    expect(code('src/lib/docs/metricCatalogue.ts')).toContain('export const METRICS');
+    expect(code('src/lib/docs/skillsCopy.ts')).toContain('export const SKILLS_COPY');
+    const dto = code('src/lib/content/dto.ts');
+    expect(dto).toContain('content.skills = contentData(skillsSectionFor(');
+    expect(dto).toContain('...skillsIndex(c, dto)');
+    expect(code('src/lib/docs/skillsSection.ts')).toContain('TOOL_OF = toolsByTask(');
+    expect(code('src/lib/content/read.ts')).toContain('export function skillsOf');
+    expect(code('src/lib/content/docs.ts')).toContain('SKILL_OF: {}');
+    // The projection modules are lowercase: nothing in them is a table.
+    for (const f of ['src/lib/docs/skillCoverage.ts', 'src/lib/docs/skillsSection.ts', 'src/lib/docs/skillSheet.ts']) expect(code(f), f).not.toMatch(/^export const [A-Z]/m);
+  });
+
+  it('the framework helpers read the standards register, which holds no class string', () => {
+    const utils = code('src/lib/utils.ts');
+    expect(utils).toContain("from './docs/standards'");
+    expect(utils).not.toMatch(/FRAMEWORK_(COLORS|LABELS|DESCRIPTIONS|WHY)/);
+    expect(utils).toContain('TONE_CLASS');
+    const standards = code('src/lib/docs/standards.ts');
+    expect(standards).not.toMatch(/\b(bg|text)-[a-z]/);
+    expect(code('src/lib/docs/manual.ts')).toContain("'server-plus':");
+  });
+
+  it('the sheets are generated with the content and CI diffs them', () => {
+    expect(read('package.json')).toContain('tsx scripts/export-skill-sheets.ts');
+    expect(read('.github/workflows/ci.yml')).toContain('docs/courses/skills/');
+    expect(code('scripts/export-skill-sheets.ts')).toContain("from '../src/lib/docs/skillSheet'");
+    expect(existsSync('docs/courses/skills')).toBe(true);
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Skills, tools, standards and the member profile (R107)');
+    expect(read('content/README.md')).toContain('content.skills');
   });
 });

@@ -19,7 +19,14 @@
       "coveredWeight": 88,
       "costOnceUsd": 0,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 28,
+      "tools": 29,
+      "standards": 14,
+      "controls": 14,
+      "sops": 15,
+      "tactics": 5,
+      "practices": 18
     },
     {
       "id": "mssp",
@@ -39,7 +46,14 @@
       "coveredWeight": 80,
       "costOnceUsd": 0,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 21,
+      "tools": 12,
+      "standards": 8,
+      "controls": 11,
+      "sops": 12,
+      "tactics": 4,
+      "practices": 17
     },
     {
       "id": "cysa-plus",
@@ -60,7 +74,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 21,
+      "tools": 21,
+      "standards": 6,
+      "controls": 11,
+      "sops": 12,
+      "tactics": 5,
+      "practices": 17
     },
     {
       "id": "server-plus",
@@ -79,7 +100,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 370,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 0,
+      "tools": 27,
+      "standards": 2,
+      "controls": 0,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "ccna",
@@ -98,7 +126,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 210,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 0,
+      "tools": 4,
+      "standards": 4,
+      "controls": 2,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "secai-plus",
@@ -118,7 +153,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 29,
+      "tools": 26,
+      "standards": 8,
+      "controls": 9,
+      "sops": 17,
+      "tactics": 7,
+      "practices": 27
     },
     {
       "id": "cissp",
@@ -138,7 +180,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 0,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 48,
+      "tools": 27,
+      "standards": 16,
+      "controls": 20,
+      "sops": 20,
+      "tactics": 4,
+      "practices": 37
     },
     {
       "id": "azure-fundamentals",
@@ -158,7 +207,14 @@
       "coveredWeight": 96,
       "costOnceUsd": 0,
       "costMonthlyUsd": 5,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 0,
+      "tools": 12,
+      "standards": 4,
+      "controls": 2,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "azure-administrator",
@@ -179,7 +235,14 @@
       "coveredWeight": 95,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0.85
+      "costTasksUsd": 0.85,
+      "skills": 0,
+      "tools": 8,
+      "standards": 4,
+      "controls": 4,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "azure-devops",
@@ -199,7 +262,14 @@
       "coveredWeight": 96,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0.18
+      "costTasksUsd": 0.18,
+      "skills": 0,
+      "tools": 11,
+      "standards": 3,
+      "controls": 5,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "aws-cloud-practitioner",
@@ -219,7 +289,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 5,
-      "costTasksUsd": 0
+      "costTasksUsd": 0,
+      "skills": 0,
+      "tools": 12,
+      "standards": 4,
+      "controls": 2,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "aws-solutions-architect",
@@ -240,7 +317,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0.19
+      "costTasksUsd": 0.19,
+      "skills": 0,
+      "tools": 7,
+      "standards": 4,
+      "controls": 4,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     },
     {
       "id": "aws-devops",
@@ -260,7 +344,14 @@
       "coveredWeight": 100,
       "costOnceUsd": 0,
       "costMonthlyUsd": 20,
-      "costTasksUsd": 0.12
+      "costTasksUsd": 0.12,
+      "skills": 0,
+      "tools": 12,
+      "standards": 3,
+      "controls": 5,
+      "sops": 0,
+      "tactics": 0,
+      "practices": 0
     }
   ]
 }

@@ -17,6 +17,12 @@ import { LAB_FIELDS } from '../labAccess';
 import { profileOf, roleContentFor } from '../docs/roles';
 import { CERTS, TASK_DOMAINS, certFor, coverageOf, domainOf } from '../docs/certs';
 import { costsFor } from '../docs/costs';
+import { SKILLS, TASK_SKILLS, skillOf } from '../docs/skills';
+import { TOOL_STRING_EXCEPTIONS, toolsOfString, toolsOfTask } from '../docs/tools';
+import { CONTROL_EXCEPTIONS, STANDARDS, parseStandard, standardOf } from '../docs/standards';
+import { DELIVERABLE_SOPS, SOPS, TASK_SOPS, sopOf } from '../docs/sops';
+import { PRACTICES, TASK_PRACTICES, TASK_TACTICS, practiceOf, tacticOf } from '../docs/tactics';
+import { SKILLS_COPY } from '../docs/skillsCopy';
 
 // Guards the "sometimes a step just doesn't work" class of bug: a step that names
 // a form (`usesForm`) or an evidence file (`producesDeliverable`) that no
@@ -26,6 +32,9 @@ import { costsFor } from '../docs/costs';
 const COURSES: Course[] = [SECURITY_PLUS, CYSA_PLUS, MSSP, SERVER_PLUS, CCNA, SECAI_PLUS, CISSP, ...AZURE_COURSES, ...AWS_COURSES];
 /** R106: the associate and professional cloud courses are being rewritten against their exams; coverage is enforced as each lands. */
 const PENDING_REWRITE = new Set<string>([]);
+/** R107: the courses whose skills, SOP and practice mapping lands in R107a-2; tools are derived for every course already. */
+const SKILLS_PENDING = new Set<string>(['server-plus', 'ccna', 'azure-fundamentals', 'azure-administrator', 'azure-devops', 'aws-cloud-practitioner', 'aws-solutions-architect', 'aws-devops']);
+const SECURITY_FAMILY = new Set<string>(['security-plus', 'cysa-plus', 'mssp', 'secai-plus', 'cissp']);
 
 function allSteps(course: Course): { task: Task; step: Step }[] {
   return course.tasks.flatMap((task) => task.steps.map((step) => ({ task, step })));
@@ -792,11 +801,117 @@ describe.each(COURSES.map((c) => [c.id, c] as const))('R84 — the standard — 
     for (const t of course.tasks) if (t.cost) expect(t.cost.usd, `${t.id} cost`).toBeGreaterThanOrEqual(0);
   });
 
+  // ── R107: skills, tools, procedures, standards, tactics and practices ─────
+  // Every graded task teaches one to three competency nodes, uses at least one
+  // tool (derived from its strings, commands and where lines) and asks for at
+  // least one practice; every form's standard cites a catalogue control or is
+  // an explained practice; every map names things that exist; every framework
+  // a task or a step carries is in the standards register.
+  it('R107: every graded task maps to skills, tools and practices, every form cites a control or a practice, and every framework tag is registered', () => {
+    const graded = course.tasks.filter((t) => isGradedWeek(course, t.week));
+    const skillMap = TASK_SKILLS[course.id] ?? {};
+    const practiceMap = TASK_PRACTICES[course.id] ?? {};
+    const tacticMap = TASK_TACTICS[course.id] ?? {};
+    const sopTaskMap = TASK_SOPS[course.id] ?? {};
+    const sopFormMap = DELIVERABLE_SOPS[course.id] ?? {};
+    const forms = deliverablesForCourse(course.id);
+    for (const t of course.tasks) {
+      for (const s of t.tools ?? []) expect(toolsOfString(s).length > 0 || !!TOOL_STRING_EXCEPTIONS[s], `${t.id}: tool "${s}" resolves or is an explained exception`).toBe(true);
+      for (const fw of [...t.frameworks, ...t.steps.flatMap((st) => st.frameworks ?? [])]) expect(standardOf(fw), `${t.id}: framework ${fw} is registered`).toBeTruthy();
+    }
+    for (const t of graded) {
+      expect(toolsOfTask(course, t).length, `${t.id} uses at least one tool`).toBeGreaterThan(0);
+      if (SKILLS_PENDING.has(course.id)) continue;
+      const skills = skillMap[t.id] ?? [];
+      expect(skills.length, `${t.id} teaches one to three skills`).toBeGreaterThanOrEqual(1);
+      expect(skills.length, `${t.id} teaches one to three skills`).toBeLessThanOrEqual(3);
+      for (const id of skills) expect(skillOf(id), `${t.id} → ${id}`).toBeTruthy();
+      const practices = practiceMap[t.id] ?? [];
+      expect(practices.length, `${t.id} asks for a practice`).toBeGreaterThanOrEqual(1);
+      for (const id of practices) expect(practiceOf(id), `${t.id} → ${id}`).toBeTruthy();
+      for (const id of tacticMap[t.id] ?? []) expect(tacticOf(id), `${t.id} → ${id}`).toBeTruthy();
+      for (const id of sopTaskMap[t.id] ?? []) expect(sopOf(id), `${t.id} → ${id}`).toBeTruthy();
+    }
+    for (const [taskId] of Object.entries({ ...skillMap, ...practiceMap, ...tacticMap, ...sopTaskMap })) {
+      const t = course.tasks.find((x) => x.id === taskId);
+      expect(t, `${taskId} in a map is a task`).toBeTruthy();
+      expect(isGradedWeek(course, t!.week), `${taskId} in a map is graded work`).toBe(true);
+    }
+    if (SECURITY_FAMILY.has(course.id)) expect(Object.keys(tacticMap).length, 'a security course practises adversary tactics').toBeGreaterThanOrEqual(2);
+    for (const f of forms) {
+      expect(parseStandard(f.standard).length > 0 || !!CONTROL_EXCEPTIONS[f.standard], `${f.id}: standard "${f.standard}" cites a control or is an explained practice`).toBe(true);
+      const sops = sopFormMap[f.id] ?? [];
+      expect(sops.length, `${f.id} maps to at most three SOP kinds`).toBeLessThanOrEqual(3);
+      for (const id of sops) expect(sopOf(id), `${f.id} → ${id}`).toBeTruthy();
+      if (!SKILLS_PENDING.has(course.id)) expect(sops.length, `${f.id} is an instance of a procedure`).toBeGreaterThanOrEqual(1);
+    }
+    for (const formId of Object.keys(sopFormMap)) expect(forms.some((f) => f.id === formId), `${formId} in the SOP map is a form`).toBe(true);
+  });
+
   it('the only locks are the deliberate ones', () => {
     // `locked` hides a whole course; since R84 every shipped course is open.
     // The deliberate locks that remain are sign-in (accounts), enrolment
     // (join before material), gate sequencing (bypassable, off under
     // noGatekeeping) and the Scope & RoE ethics lock — all elsewhere.
     expect(course.locked ?? false, 'course.locked').toBe(false);
+  });
+});
+
+// ── R107: the registries, across every course ───────────────────────────────
+// A node, a SOP kind or a practice nobody maps to does not exist; a standard
+// nothing tags, cites, anchors to or references is dead weight; every sentence
+// the skills surfaces print keeps the register and the budget.
+describe('R107 — the registries are used and in the register', () => {
+  const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
+  const usedIn = (maps: Record<string, Record<string, string[]>>) => new Set(Object.values(maps).flatMap((m) => Object.values(m).flat()));
+
+  it('every competency node is taught by some course', () => {
+    const used = usedIn(TASK_SKILLS);
+    expect(SKILLS.filter((n) => !used.has(n.id) && !n.deprecated).map((n) => n.id)).toEqual([]);
+  });
+
+  it('every SOP kind and every practice is used once the mapping is complete', () => {
+    const sops = new Set([...usedIn(DELIVERABLE_SOPS), ...usedIn(TASK_SOPS)]);
+    const practices = new Set([...usedIn(TASK_PRACTICES), ...Object.values(CONTROL_EXCEPTIONS).flat()]);
+    const unusedSops = SOPS.filter((s) => !sops.has(s.id)).map((s) => s.id);
+    const unusedPractices = PRACTICES.filter((p) => !practices.has(p.id)).map((p) => p.id);
+    if (SKILLS_PENDING.size === 0) {
+      expect(unusedSops).toEqual([]);
+      expect(unusedPractices).toEqual([]);
+    } else {
+      // Until a-2 lands, the infrastructure and cloud kinds wait for their courses.
+      expect(unusedSops.length, `unused SOP kinds: ${unusedSops.join(', ')}`).toBeLessThanOrEqual(8);
+      expect(unusedPractices.length, `unused practices: ${unusedPractices.join(', ')}`).toBeLessThanOrEqual(30);
+    }
+  });
+
+  it('every standard is tagged on a task, cited by a form, anchored to or referenced by something', () => {
+    const used = new Set<string>();
+    for (const c of COURSES) for (const t of c.tasks) [...t.frameworks, ...t.steps.flatMap((st) => st.frameworks ?? [])].forEach((fw) => used.add(fw));
+    for (const c of COURSES) for (const f of deliverablesForCourse(c.id)) for (const r of parseStandard(f.standard)) used.add(r.standard);
+    const refs = [...SOPS.flatMap((s) => s.standardRefs), ...PRACTICES.map((p) => p.anchor), ...SKILLS.flatMap((n) => n.objectiveRefs)];
+    for (const r of refs) {
+      if (standardOf(r)) used.add(r);
+      const c = parseStandard(r)[0];
+      if (c) used.add(c.standard);
+    }
+    expect(STANDARDS.filter((s) => !used.has(s.id)).map((s) => s.id), 'a standard nothing uses').toEqual([]);
+  });
+
+  it('every sentence the skills surfaces print is short and in the register', () => {
+    const texts: [string, string][] = [];
+    const walk = (v: unknown, path: string) => {
+      if (typeof v === 'string') texts.push([path, v]);
+      else if (Array.isArray(v)) v.forEach((x, i) => walk(x, `${path}[${i}]`));
+      else if (v && typeof v === 'object') Object.entries(v).forEach(([k, x]) => walk(x, `${path}.${k}`));
+    };
+    walk(SKILLS_COPY, 'SKILLS_COPY');
+    expect(texts.length).toBeGreaterThan(20);
+    for (const [path, text] of texts) {
+      expect(words(text), `${path} ≤ 25 words`).toBeLessThanOrEqual(25);
+      expect(text, `${path}: second person`).not.toMatch(/\b(you|your|yours|we|our)\b/i);
+      expect(text, `${path}: em dash or emoji`).not.toMatch(/—|\p{Extended_Pictographic}/u);
+      expect(text, `${path}: contraction`).not.toMatch(/\b\w+n[’']t\b|\b\w+[’'](re|ll|ve|m)\b|\b(it|that|what|there|here)[’']s\b/i);
+    }
   });
 });

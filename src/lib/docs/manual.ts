@@ -206,7 +206,9 @@ export const COURSE_TOOLS: Record<string, string> = {
   'cysa-plus':
     'Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum',
   mssp:
-    'nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)',
+    'nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · the framework mappings (SOC 2, ISO 27001)',
+  'server-plus':
+    'Proxmox VE · ssh · netplan · cloud-init · Terraform · Ansible · git · Tailscale · Wazuh · Prometheus · Grafana · NetBox · GLPI · sha256sum',
   ccna:
     'show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible',
   'secai-plus':

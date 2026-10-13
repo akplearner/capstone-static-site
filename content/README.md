@@ -13,12 +13,16 @@ One JSON document per course, generated from the TypeScript seeds:
 | `courses/ccna.json` | CCNA | `src/lib/data/seed/ccna.ts` · `src/lib/docs/ccnaDeliverables.ts` · `src/lib/docs/ccnaDiagrams.ts` · `src/lib/ccnaTopology.ts` |
 | `courses/azure-{fundamentals,administrator,devops}.json` | Azure (three quarters) | `src/lib/data/seed/azureCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/azureTopology.ts` · `azureIac.ts` |
 | `courses/aws-{cloud-practitioner,solutions-architect,devops}.json` | AWS (three quarters) | `src/lib/data/seed/awsCloud.ts` · `src/lib/docs/cloudDeliverables.ts` · `src/lib/cloud/awsTopology.ts` · `awsIac.ts` |
-| `courses/index.json` | catalogue | counts per course, plus vendor, certification, level, prerequisite, next, exam fee, coverage and cost (R106) |
+| `courses/index.json` | catalogue | counts per course, plus vendor, certification, level, prerequisite, next, exam fee, coverage and cost (R106), and the skills, tools, standards, controls, procedures, tactics and practices the graded tasks use (R107) |
 
 Every course's `deliverables[]` carries its RACI (`src/lib/docs/raci.ts`), every course
 carries `content.cert` — the certification it prepares for, its exam domains, which domain
 each task practises, the ladder and the cost (`src/lib/docs/certs.ts`, `costs.ts`; the
-readable copy is `docs/courses/cert-coverage/`) — every course carries `content.roles` — the role profiles, the motion spec and the labels of the role
+readable copy is `docs/courses/cert-coverage/`) — every course carries `content.skills` — the
+competency ontology, the tool, standards, SOP, tactics and practices registers, the metric
+catalogue and this course's maps into them (`src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`,
+`sops.ts`, `tactics.ts`, `metricCatalogue.ts`, `skillsCopy.ts`; the readable copy is
+`docs/courses/skills/`) — every course carries `content.roles` — the role profiles, the motion spec and the labels of the role
 pictures (`src/lib/docs/roles.ts`; see `docs/ARCHITECTURE.md` §6) — and the self-drawn
 courses carry `content.arch` — the architecture picture and its build model
 (`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same export
@@ -50,6 +54,13 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
                         WORKS_LABEL, WORKS_SHORT, FLOW_KIND_LABEL, FLOW_HOW_TO_READ },   // every course (R105)
     "cert":           { CERT {vendor, code, name, level, examFeeUsd, domains[ {id, name, weight, gapNote?} ], prerequisite?, next?},
                         DOMAIN_OF {taskId: domainId}, COSTS[ {item, kind, usd, per, note} ], LADDER[] },   // every course (R106)
+    "skills":         { SKILLS[ {id, version, label, area, objectiveRefs} ], SKILL_OF {taskId: ids}, AREAS,
+                        TOOLS[ {id, label, kind, aliases, commands?} ], TOOL_OF {taskId: ids},       // TOOL_OF is derived at export
+                        STANDARDS[ {id, label, description, why, kind, tone, publisher} ], CONTROLS[ {code, standard, label, cites} ],
+                        SOPS[ {id, label, kind, definition, standardRefs} ], SOP_OF {formId: ids}, SOP_OF_TASK {taskId: ids},
+                        TACTICS[ {id, matrix, label, url} ], TACTIC_OF, PRACTICES[ {id, label, anchor, definition} ], PRACTICE_OF,
+                        METRICS[ {id, label, dimension, definition, inputs, valueTo, status, scored: false} ],
+                        COPY, LEVEL_LABEL, DIMENSION_LABEL },   // every course (R107); the registry rows this course's maps reach
     "weekVisuals":    [ { week, builtThrough, highlight, process, caption } ],   // every course (R99)
     "custody":        { CUSTODY_COLUMNS, CUSTODY_RULES },            // every course
     "troubleshooting": { … },                                        // courses that run commands
@@ -71,13 +82,18 @@ Components never import these tables: they call `useCourseDocument()` and an acc
    lowercase helpers are allowed and never reach the JSON).
 2. In `src/lib/content/dto.ts`: `generatedFrom.push('<module path>')` and
    `content.<key> = contentData(module)` (or a hand-built object for a per-course lookup).
+   A registry shared by every course (R107 `content.skills`) is written into each document
+   as the rows the course's own `*_OF` maps reach, so the document holds what it renders and
+   the whole catalogue is published once (`content/ontology/`); anything derived from the
+   seed (the tools of a task) is computed in the writer, never stored in a seed.
 3. In `src/lib/content/read.ts`: a typed accessor `<key>Of(doc)` over `section<T>(doc, '<key>')`,
    with defaults for an authored course that lacks the section; if a bare document needs the
    shared part of it, add it in `src/lib/content/docs.ts` `sharedContent()`.
 4. The renderer reads `<key>Of(useCourseDocument())` literally and joins `RENDERERS` in
    `src/lib/page-shape.test.ts`; add the module to the content-module regex there too.
 5. Give every string a word budget in `src/lib/data/content-integrity.test.ts`.
-6. `npm run content:export`; commit `content/` and `docs/courses/build-sheets/`.
+6. `npm run content:export`; commit `content/`, `docs/courses/build-sheets/`,
+   `docs/courses/cert-coverage/` and `docs/courses/skills/`.
 7. Document the section here and the standard it serves in `docs/ARCHITECTURE.md`.
 
 ## What is deliberately absent

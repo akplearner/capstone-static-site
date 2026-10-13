@@ -65,6 +65,8 @@ import type { ArchPicture } from '@/lib/docs/archPicture';
 import { FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_SHORT, roleContentFor } from '@/lib/docs/roles';
 import { TASK_DOMAINS, certFor, coverageOf, ladderRows } from '@/lib/docs/certs';
 import { costSummary, costsFor } from '@/lib/docs/costs';
+import { skillsSectionFor } from '@/lib/docs/skillsSection';
+import { courseCoverage, coverageCounts } from '@/lib/docs/skillCoverage';
 
 export { DTO_SCHEMA } from './schema';
 import { DTO_SCHEMA } from './schema';
@@ -332,6 +334,14 @@ export function courseDto(courseId: string): CourseDto {
   // coverage sheet read one source. Coverage itself is derived at read time.
   generatedFrom.push('src/lib/docs/certs.ts', 'src/lib/docs/costs.ts');
   content.cert = contentData({ CERT: certFor(courseId) ?? null, DOMAIN_OF: TASK_DOMAINS[courseId] ?? {}, COSTS: costsFor(courseId), LADDER: ladderRows(courseId) });
+  // R107: this course's maps into the skills registries — what each task
+  // teaches a person to do, with which tools, to which procedures, standards,
+  // tactics and practices — with the registry rows those maps reach, plus the
+  // metric catalogue and the words the skills surfaces print. One section,
+  // every course. Tools are derived (`toolsByTask`), never stored in a seed;
+  // the whole catalogue is published once, in `content/ontology/`.
+  generatedFrom.push('src/lib/docs/skills.ts', 'src/lib/docs/tools.ts', 'src/lib/docs/standards.ts', 'src/lib/docs/sops.ts', 'src/lib/docs/tactics.ts', 'src/lib/docs/metricCatalogue.ts', 'src/lib/docs/skillsCopy.ts');
+  content.skills = contentData(skillsSectionFor(course, seedDeliverablesForCourse(courseId)) as unknown as Record<string, unknown>);
   // The chain-of-custody columns and rules: every course's evidence guide
   // renders them, and until R78-D no document carried them.
   generatedFrom.push('src/lib/docs/custodyTemplate.ts');
@@ -386,6 +396,14 @@ export interface CourseIndexEntry {
   costOnceUsd?: number;
   costMonthlyUsd?: number;
   costTasksUsd?: number;
+  /** R107: distinct ids the graded tasks (and the forms, for procedures and controls) use. */
+  skills?: number;
+  tools?: number;
+  standards?: number;
+  controls?: number;
+  sops?: number;
+  tactics?: number;
+  practices?: number;
 }
 
 export function courseIndex(): { schema: typeof DTO_SCHEMA; courses: CourseIndexEntry[] } {
@@ -404,6 +422,7 @@ export function courseIndex(): { schema: typeof DTO_SCHEMA; courses: CourseIndex
         deliverables: dto.deliverables.length,
         procedures: dto.procedures?.length ?? 0,
         ...certIndex(c),
+        ...skillsIndex(c, dto),
       };
     }),
   };
@@ -425,6 +444,12 @@ function certIndex(c: Course): Partial<CourseIndexEntry> {
     costMonthlyUsd: sum.monthlyUsd,
     costTasksUsd: sum.tasksUsd,
   };
+}
+
+function skillsIndex(c: Course, dto: CourseDto): Partial<CourseIndexEntry> {
+  const reg = dto.content?.skills as Parameters<typeof courseCoverage>[1] | undefined;
+  if (!reg) return {};
+  return coverageCounts(courseCoverage(c, reg, seedDeliverablesForCourse(c.id)));
 }
 
 /** The exact bytes the exporter writes, so the test can compare text too. */

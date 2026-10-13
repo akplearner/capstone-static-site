@@ -9,6 +9,13 @@
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
     "src/lib/docs/costs.ts",
+    "src/lib/docs/skills.ts",
+    "src/lib/docs/tools.ts",
+    "src/lib/docs/standards.ts",
+    "src/lib/docs/sops.ts",
+    "src/lib/docs/tactics.ts",
+    "src/lib/docs/metricCatalogue.ts",
+    "src/lib/docs/skillsCopy.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -6488,7 +6495,8 @@
       "COURSE_TOOLS": {
         "security-plus": "whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum",
         "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
-        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)",
+        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · the framework mappings (SOC 2, ISO 27001)",
+        "server-plus": "Proxmox VE · ssh · netplan · cloud-init · Terraform · Ansible · git · Tailscale · Wazuh · Prometheus · Grafana · NetBox · GLPI · sha256sum",
         "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
         "secai-plus": "Ollama · LiteLLM · OpenBao · Chroma · garak · LLM Guard · Microsoft Presidio · Semgrep · Trivy · Gitleaks · ModelScan · Prowler · Wazuh · Git · sha256sum",
         "cissp": "eramba · draw.io · OPNsense · nmap · OpenSSL · Keycloak · Trivy · Gitleaks · OpenVAS · Lynis · Wazuh · restic · OSCAL Compass · Git · sha256sum",
@@ -7715,6 +7723,4503 @@
           "level": "professional"
         }
       ]
+    },
+    "skills": {
+      "AREAS": {
+        "recon": "Reconnaissance",
+        "vuln": "Vulnerability management",
+        "exploit": "Exploitation and testing",
+        "report": "Reporting",
+        "harden": "Hardening and defence",
+        "detect": "Detection and monitoring",
+        "respond": "Incident response",
+        "forensics": "Evidence and forensics",
+        "grc": "Governance and compliance",
+        "risk": "Risk",
+        "audit": "Audit and assessment",
+        "identity": "Identity and access",
+        "crypto": "Cryptography",
+        "arch": "Architecture and network design",
+        "data": "Data security",
+        "ops": "Security operations",
+        "ai-attack": "AI attack and evaluation"
+      },
+      "CONTROLS": [
+        {
+          "code": "NIST.CSF",
+          "standard": "NIST_CSF",
+          "label": "Cybersecurity Framework 2.0",
+          "cites": [
+            "NIST CSF"
+          ]
+        },
+        {
+          "code": "NIST.CSF.GV",
+          "standard": "NIST_CSF",
+          "label": "Govern",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Govern",
+            "GV"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.ID",
+          "standard": "NIST_CSF",
+          "label": "Identify",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Identify"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.PR",
+          "standard": "NIST_CSF",
+          "label": "Protect",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Protect"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.DE",
+          "standard": "NIST_CSF",
+          "label": "Detect",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Detect"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.RS",
+          "standard": "NIST_CSF",
+          "label": "Respond",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Respond"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.RC",
+          "standard": "NIST_CSF",
+          "label": "Recover",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Recover"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.PROFILE",
+          "standard": "NIST_CSF",
+          "label": "Organizational Profiles",
+          "parent": "NIST.CSF",
+          "cites": [
+            "CSF Profiles",
+            "Profiles"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.GV.RM",
+          "standard": "NIST_CSF",
+          "label": "Risk Management Strategy",
+          "parent": "NIST.CSF.GV",
+          "cites": [
+            "GV.RM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.GV.PO",
+          "standard": "NIST_CSF",
+          "label": "Policy",
+          "parent": "NIST.CSF.GV",
+          "cites": [
+            "GV.PO"
+          ]
+        },
+        {
+          "code": "NIST.CSF.GV.SC",
+          "standard": "NIST_CSF",
+          "label": "Cybersecurity Supply Chain Risk Management",
+          "parent": "NIST.CSF.GV",
+          "cites": [
+            "GV.SC"
+          ]
+        },
+        {
+          "code": "NIST.CSF.ID.AM",
+          "standard": "NIST_CSF",
+          "label": "Asset Management",
+          "parent": "NIST.CSF.ID",
+          "cites": [
+            "ID.AM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.AA",
+          "standard": "NIST_CSF",
+          "label": "Identity Management, Authentication, and Access Control",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.AA"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.DS",
+          "standard": "NIST_CSF",
+          "label": "Data Security",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.DS"
+          ]
+        },
+        {
+          "code": "NIST.CSF.PR.IR",
+          "standard": "NIST_CSF",
+          "label": "Technology Infrastructure Resilience",
+          "parent": "NIST.CSF.PR",
+          "cites": [
+            "PR.IR"
+          ]
+        },
+        {
+          "code": "NIST.CSF.DE.CM",
+          "standard": "NIST_CSF",
+          "label": "Continuous Monitoring",
+          "parent": "NIST.CSF.DE",
+          "cites": [
+            "DE.CM"
+          ]
+        },
+        {
+          "code": "NIST.CSF.DE.AE",
+          "standard": "NIST_CSF",
+          "label": "Adverse Event Analysis",
+          "parent": "NIST.CSF.DE",
+          "cites": [
+            "DE.AE"
+          ]
+        },
+        {
+          "code": "NIST.CSF.RS.MA",
+          "standard": "NIST_CSF",
+          "label": "Incident Management",
+          "parent": "NIST.CSF.RS",
+          "cites": [
+            "RS.MA"
+          ]
+        },
+        {
+          "code": "NIST.CSF.RS.CO",
+          "standard": "NIST_CSF",
+          "label": "Incident Response Reporting and Communication",
+          "parent": "NIST.CSF.RS",
+          "cites": [
+            "RS.CO"
+          ]
+        },
+        {
+          "code": "NIST.CSF.RC.RP",
+          "standard": "NIST_CSF",
+          "label": "Incident Recovery Plan Execution",
+          "parent": "NIST.CSF.RC",
+          "cites": [
+            "RC.RP"
+          ]
+        },
+        {
+          "code": "NIST.800-53",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Controls Rev. 5",
+          "cites": [
+            "NIST SP 800-53",
+            "SP 800-53",
+            "800-53"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AC",
+          "standard": "NIST_800_53",
+          "label": "Access Control",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.CA",
+          "standard": "NIST_800_53",
+          "label": "Assessment, Authorization, and Monitoring",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.CM",
+          "standard": "NIST_800_53",
+          "label": "Configuration Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.CP",
+          "standard": "NIST_800_53",
+          "label": "Contingency Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.IA",
+          "standard": "NIST_800_53",
+          "label": "Identification and Authentication",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PL",
+          "standard": "NIST_800_53",
+          "label": "Planning",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.PM",
+          "standard": "NIST_800_53",
+          "label": "Program Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.RA",
+          "standard": "NIST_800_53",
+          "label": "Risk Assessment",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.SC",
+          "standard": "NIST_800_53",
+          "label": "System and Communications Protection",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.SR",
+          "standard": "NIST_800_53",
+          "label": "Supply Chain Risk Management",
+          "parent": "NIST.800-53",
+          "cites": []
+        },
+        {
+          "code": "NIST.800-53.AC-2",
+          "standard": "NIST_800_53",
+          "label": "Account Management",
+          "parent": "NIST.800-53.AC",
+          "cites": [
+            "AC-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AC-5",
+          "standard": "NIST_800_53",
+          "label": "Separation of Duties",
+          "parent": "NIST.800-53.AC",
+          "cites": [
+            "AC-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.AC-6",
+          "standard": "NIST_800_53",
+          "label": "Least Privilege",
+          "parent": "NIST.800-53.AC",
+          "cites": [
+            "AC-6"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CA-2",
+          "standard": "NIST_800_53",
+          "label": "Control Assessments",
+          "parent": "NIST.800-53.CA",
+          "cites": [
+            "CA-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CM-3",
+          "standard": "NIST_800_53",
+          "label": "Configuration Change Control",
+          "parent": "NIST.800-53.CM",
+          "cites": [
+            "CM-3"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-4",
+          "standard": "NIST_800_53",
+          "label": "Contingency Plan Testing",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-4"
+          ]
+        },
+        {
+          "code": "NIST.800-53.CP-9",
+          "standard": "NIST_800_53",
+          "label": "System Backup",
+          "parent": "NIST.800-53.CP",
+          "cites": [
+            "CP-9"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IA-2",
+          "standard": "NIST_800_53",
+          "label": "Identification and Authentication (Organizational Users)",
+          "parent": "NIST.800-53.IA",
+          "cites": [
+            "IA-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.IA-5",
+          "standard": "NIST_800_53",
+          "label": "Authenticator Management",
+          "parent": "NIST.800-53.IA",
+          "cites": [
+            "IA-5"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-2",
+          "standard": "NIST_800_53",
+          "label": "System Security and Privacy Plans",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-2"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PL-8",
+          "standard": "NIST_800_53",
+          "label": "Security and Privacy Architectures",
+          "parent": "NIST.800-53.PL",
+          "cites": [
+            "PL-8"
+          ]
+        },
+        {
+          "code": "NIST.800-53.PM-1",
+          "standard": "NIST_800_53",
+          "label": "Information Security Program Plan",
+          "parent": "NIST.800-53.PM",
+          "cites": [
+            "PM-1"
+          ]
+        },
+        {
+          "code": "NIST.800-53.RA-3",
+          "standard": "NIST_800_53",
+          "label": "Risk Assessment",
+          "parent": "NIST.800-53.RA",
+          "cites": [
+            "RA-3"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-7",
+          "standard": "NIST_800_53",
+          "label": "Boundary Protection",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-7"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-8",
+          "standard": "NIST_800_53",
+          "label": "Transmission Confidentiality and Integrity",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-8"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SC-12",
+          "standard": "NIST_800_53",
+          "label": "Cryptographic Key Establishment and Management",
+          "parent": "NIST.800-53.SC",
+          "cites": [
+            "SC-12"
+          ]
+        },
+        {
+          "code": "NIST.800-53.SR-6",
+          "standard": "NIST_800_53",
+          "label": "Supplier Assessments and Reviews",
+          "parent": "NIST.800-53.SR",
+          "cites": [
+            "SR-6"
+          ]
+        },
+        {
+          "code": "NIST.800-171",
+          "standard": "NIST_800_171",
+          "label": "Protecting Controlled Unclassified Information",
+          "cites": [
+            "NIST SP 800-171",
+            "SP 800-171",
+            "800-171"
+          ]
+        },
+        {
+          "code": "NIST.800-171.3.6",
+          "standard": "NIST_800_171",
+          "label": "Incident Response",
+          "parent": "NIST.800-171",
+          "cites": [
+            "3.6"
+          ],
+          "scope": "800-171"
+        },
+        {
+          "code": "FAR.52.204-21",
+          "standard": "NIST_800_171",
+          "label": "FAR 52.204-21 basic safeguarding",
+          "cites": [
+            "FAR 52.204-21",
+            "52.204-21"
+          ]
+        },
+        {
+          "code": "NIST.800-61",
+          "standard": "NIST_800_61",
+          "label": "Computer Security Incident Handling Guide",
+          "cites": [
+            "NIST SP 800-61",
+            "SP 800-61",
+            "NIST 800-61",
+            "800-61"
+          ]
+        },
+        {
+          "code": "NIST.800-61.PREPARE",
+          "standard": "NIST_800_61",
+          "label": "Preparation",
+          "parent": "NIST.800-61",
+          "cites": [
+            "Preparation"
+          ],
+          "scope": "800-61"
+        },
+        {
+          "code": "NIST.800-115",
+          "standard": "NIST_800_115",
+          "label": "Technical Guide to Information Security Testing",
+          "cites": [
+            "NIST SP 800-115",
+            "SP 800-115",
+            "800-115"
+          ]
+        },
+        {
+          "code": "NIST.800-30",
+          "standard": "NIST_800_30",
+          "label": "Guide for Conducting Risk Assessments",
+          "cites": [
+            "NIST SP 800-30",
+            "SP 800-30",
+            "800-30"
+          ]
+        },
+        {
+          "code": "NIST.800-34",
+          "standard": "NIST_800_34",
+          "label": "Contingency Planning Guide",
+          "cites": [
+            "NIST SP 800-34",
+            "SP 800-34",
+            "800-34"
+          ]
+        },
+        {
+          "code": "NIST.800-88",
+          "standard": "NIST_800_88",
+          "label": "Guidelines for Media Sanitization",
+          "cites": [
+            "NIST SP 800-88",
+            "SP 800-88",
+            "800-88"
+          ]
+        },
+        {
+          "code": "NIST.800-207",
+          "standard": "NIST_800_207",
+          "label": "Zero Trust Architecture",
+          "cites": [
+            "NIST SP 800-207",
+            "SP 800-207",
+            "800-207"
+          ]
+        },
+        {
+          "code": "NIST.800-63",
+          "standard": "NIST_800_63",
+          "label": "Digital Identity Guidelines",
+          "cites": [
+            "NIST SP 800-63",
+            "SP 800-63",
+            "800-63"
+          ]
+        },
+        {
+          "code": "NIST.800-218",
+          "standard": "NIST_800_218",
+          "label": "Secure Software Development Framework",
+          "cites": [
+            "NIST SP 800-218",
+            "SP 800-218",
+            "800-218",
+            "SSDF"
+          ]
+        },
+        {
+          "code": "ISO27001",
+          "standard": "ISO_27001",
+          "label": "Information security management system",
+          "cites": [
+            "ISO 27001",
+            "ISO/IEC 27001"
+          ]
+        },
+        {
+          "code": "ISO27001.5",
+          "standard": "ISO_27001",
+          "label": "Leadership",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 5",
+            "cl. 5"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.5.2",
+          "standard": "ISO_27001",
+          "label": "Policy",
+          "parent": "ISO27001.5",
+          "cites": [
+            "Clause 5.2",
+            "5.2",
+            "ISO 27001 policy"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.6",
+          "standard": "ISO_27001",
+          "label": "Planning",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 6",
+            "cl. 6"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.6.1.2",
+          "standard": "ISO_27001",
+          "label": "Information security risk assessment",
+          "parent": "ISO27001.6",
+          "cites": [
+            "6.1.2"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.6.1.3",
+          "standard": "ISO_27001",
+          "label": "Information security risk treatment",
+          "parent": "ISO27001.6",
+          "cites": [
+            "6.1.3"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.7",
+          "standard": "ISO_27001",
+          "label": "Support",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 7",
+            "cl. 7"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.7.5",
+          "standard": "ISO_27001",
+          "label": "Documented information",
+          "parent": "ISO27001.7",
+          "cites": [
+            "7.5"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.9",
+          "standard": "ISO_27001",
+          "label": "Performance evaluation",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 9",
+            "cl. 9"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.9.1",
+          "standard": "ISO_27001",
+          "label": "Monitoring, measurement, analysis and evaluation",
+          "parent": "ISO27001.9",
+          "cites": [
+            "9.1"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.9.2",
+          "standard": "ISO_27001",
+          "label": "Internal audit",
+          "parent": "ISO27001.9",
+          "cites": [
+            "9.2"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.9.3",
+          "standard": "ISO_27001",
+          "label": "Management review",
+          "parent": "ISO27001.9",
+          "cites": [
+            "9.3",
+            "ISO 27001 reporting"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.10",
+          "standard": "ISO_27001",
+          "label": "Improvement",
+          "parent": "ISO27001",
+          "cites": [
+            "Clause 10",
+            "cl. 10"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.10.2",
+          "standard": "ISO_27001",
+          "label": "Nonconformity and corrective action",
+          "parent": "ISO27001.10",
+          "cites": [
+            "10.2"
+          ],
+          "scope": "ISO"
+        },
+        {
+          "code": "ISO27001.A.5.1",
+          "standard": "ISO_27001",
+          "label": "Policies for information security",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.1"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.9",
+          "standard": "ISO_27001",
+          "label": "Inventory of information and other associated assets",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.9"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.12",
+          "standard": "ISO_27001",
+          "label": "Classification of information",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.12"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.15",
+          "standard": "ISO_27001",
+          "label": "Access control",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.15"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.18",
+          "standard": "ISO_27001",
+          "label": "Access rights",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.18"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.19",
+          "standard": "ISO_27001",
+          "label": "Information security in supplier relationships",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.19"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.24",
+          "standard": "ISO_27001",
+          "label": "Incident management planning and preparation",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.24"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.30",
+          "standard": "ISO_27001",
+          "label": "ICT readiness for business continuity",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.30"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.37",
+          "standard": "ISO_27001",
+          "label": "Documented operating procedures",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.37"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.13",
+          "standard": "ISO_27001",
+          "label": "Information backup",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.13"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.22",
+          "standard": "ISO_27001",
+          "label": "Segregation of networks",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.22"
+          ]
+        },
+        {
+          "code": "ISO27001.A.8.32",
+          "standard": "ISO_27001",
+          "label": "Change management",
+          "parent": "ISO27001",
+          "cites": [
+            "A.8.32"
+          ]
+        },
+        {
+          "code": "SOC2",
+          "standard": "SOC_2",
+          "label": "Trust Services Criteria",
+          "cites": [
+            "SOC 2",
+            "SOC2",
+            "SOC 2 TSC",
+            "Trust Services Criteria"
+          ]
+        },
+        {
+          "code": "SOC2.CC4",
+          "standard": "SOC_2",
+          "label": "Monitoring Activities",
+          "parent": "SOC2",
+          "cites": [
+            "CC4"
+          ]
+        },
+        {
+          "code": "SOC2.CC4.1",
+          "standard": "SOC_2",
+          "label": "Ongoing and separate evaluations",
+          "parent": "SOC2.CC4",
+          "cites": [
+            "CC4.1"
+          ]
+        },
+        {
+          "code": "SOC2.CC6",
+          "standard": "SOC_2",
+          "label": "Logical and Physical Access Controls",
+          "parent": "SOC2",
+          "cites": [
+            "CC6"
+          ]
+        },
+        {
+          "code": "SOC2.CC6.3",
+          "standard": "SOC_2",
+          "label": "Role-based access and periodic review",
+          "parent": "SOC2.CC6",
+          "cites": [
+            "CC6.3"
+          ]
+        },
+        {
+          "code": "SOC2.CC7",
+          "standard": "SOC_2",
+          "label": "System Operations",
+          "parent": "SOC2",
+          "cites": [
+            "CC7"
+          ]
+        },
+        {
+          "code": "SOC2.CC7.4",
+          "standard": "SOC_2",
+          "label": "Incident response program",
+          "parent": "SOC2.CC7",
+          "cites": [
+            "CC7.4"
+          ]
+        },
+        {
+          "code": "SOC2.CC8",
+          "standard": "SOC_2",
+          "label": "Change Management",
+          "parent": "SOC2",
+          "cites": [
+            "CC8"
+          ]
+        },
+        {
+          "code": "SOC2.CC8.1",
+          "standard": "SOC_2",
+          "label": "Authorised, tested and approved changes",
+          "parent": "SOC2.CC8",
+          "cites": [
+            "CC8.1"
+          ]
+        },
+        {
+          "code": "ITIL",
+          "standard": "ITIL",
+          "label": "ITIL 4 service management practices",
+          "cites": [
+            "ITIL",
+            "ITIL 4"
+          ]
+        },
+        {
+          "code": "ITIL.change",
+          "standard": "ITIL",
+          "label": "Change enablement",
+          "parent": "ITIL",
+          "cites": [
+            "change enablement",
+            "change record",
+            "change management"
+          ]
+        },
+        {
+          "code": "ITIL.release",
+          "standard": "ITIL",
+          "label": "Release management",
+          "parent": "ITIL",
+          "cites": [
+            "release management",
+            "release record"
+          ]
+        },
+        {
+          "code": "ITIL.deployment",
+          "standard": "ITIL",
+          "label": "Deployment management",
+          "parent": "ITIL",
+          "cites": [
+            "deployment management"
+          ]
+        },
+        {
+          "code": "ITIL.asset",
+          "standard": "ITIL",
+          "label": "IT asset management",
+          "parent": "ITIL",
+          "cites": [
+            "IT asset management"
+          ]
+        },
+        {
+          "code": "WAF",
+          "standard": "WAF",
+          "label": "Well-Architected Framework",
+          "cites": [
+            "Well-Architected"
+          ]
+        },
+        {
+          "code": "WAF.operational-excellence",
+          "standard": "WAF",
+          "label": "Operational excellence pillar",
+          "parent": "WAF",
+          "cites": [
+            "operational excellence"
+          ],
+          "scope": "Well-Architected"
+        },
+        {
+          "code": "CIS",
+          "standard": "CIS",
+          "label": "Center for Internet Security",
+          "cites": [
+            "CIS"
+          ]
+        },
+        {
+          "code": "CIS.BENCHMARK",
+          "standard": "CIS",
+          "label": "CIS Benchmarks",
+          "parent": "CIS",
+          "cites": [
+            "CIS Benchmark",
+            "CIS Benchmarks"
+          ]
+        },
+        {
+          "code": "CIS.CONTROLS",
+          "standard": "CIS",
+          "label": "CIS Critical Security Controls v8",
+          "parent": "CIS",
+          "cites": [
+            "CIS Controls",
+            "CIS Controls v8",
+            "CIS Critical Security Controls"
+          ]
+        },
+        {
+          "code": "CIS.1",
+          "standard": "CIS",
+          "label": "Inventory and Control of Enterprise Assets",
+          "parent": "CIS.CONTROLS",
+          "cites": [
+            "CIS Control 1"
+          ]
+        },
+        {
+          "code": "CIS.11",
+          "standard": "CIS",
+          "label": "Data Recovery",
+          "parent": "CIS.CONTROLS",
+          "cites": [
+            "CIS Control 11"
+          ]
+        },
+        {
+          "code": "OWASP",
+          "standard": "OWASP",
+          "label": "OWASP Top 10 and Web Security Testing Guide",
+          "cites": [
+            "OWASP",
+            "OWASP Top 10",
+            "WSTG"
+          ]
+        },
+        {
+          "code": "STRIDE",
+          "standard": "STRIDE",
+          "label": "STRIDE threat model",
+          "cites": [
+            "STRIDE"
+          ]
+        },
+        {
+          "code": "ISO42001",
+          "standard": "ISO_42001",
+          "label": "AI management system",
+          "cites": [
+            "ISO/IEC 42001",
+            "ISO 42001",
+            "42001"
+          ]
+        },
+        {
+          "code": "ISO42010",
+          "standard": "ISO_42010",
+          "label": "Architecture description",
+          "cites": [
+            "ISO/IEC/IEEE 42010",
+            "ISO 42010",
+            "42010"
+          ]
+        },
+        {
+          "code": "ISO27005",
+          "standard": "ISO_27005",
+          "label": "Information security risk management",
+          "cites": [
+            "ISO/IEC 27005",
+            "ISO 27005"
+          ]
+        }
+      ],
+      "COPY": {
+        "cardTitle": "Skills",
+        "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",
+        "denominator": "Counted over required steps of graded weeks the member ticked.",
+        "domainsHeading": "Exam domains",
+        "domainColumns": [
+          "Domain",
+          "Practised",
+          "Verified",
+          "Next task"
+        ],
+        "noTactics": "Adversary tactics are not part of this course.",
+        "teamFact": "A team document approved counts for every member of the team.",
+        "verifiedMeans": "Verified means the pasted output held every expected token; it does not prove the lab state.",
+        "selfAttested": "Ticked without matching output.",
+        "nextGap": "Next task that closes a gap",
+        "noSpeed": "Nothing here measures how fast the work was done.",
+        "loadedLater": "Team facts load on the course page.",
+        "emptyDimension": "Nothing recorded yet.",
+        "artifactsApprox": "Files are counted per form and week, not per task.",
+        "procedureFollowed": "Followed means every check due was met and the document-control block is complete.",
+        "procedureApproved": "Approved means the team approved or issued the document.",
+        "standardsEffectiveness": "Per standard: verified steps, approved forms and followed procedures that cite it.",
+        "abilityIntro": "Indicators, not scores: first-try beside persistence, partial progress, investigation, consistency.",
+        "exportClaim": "This export lists steps the member ticked and verified, hashes of outputs and files, and documents the team filed. It is unsigned.",
+        "exportSchemaNote": "The shape is published as content/schemas/member-profile.schema.json.",
+        "portfolioSections": {
+          "skills": "Skills proved",
+          "tools": "Tools used",
+          "procedures": "Procedures followed to standard",
+          "standards": "Standards practised",
+          "domains": "Exam domains",
+          "tactics": "Tactics and practices"
+        },
+        "dashboardSection": "Skills by course",
+        "tiles": {
+          "skillsVerified": "Skills verified",
+          "toolsUsed": "Tools used"
+        }
+      },
+      "DIMENSION_LABEL": {
+        "skills": "Skills",
+        "tools": "Tools",
+        "procedures": "Procedures",
+        "tactics": "Tactics",
+        "practices": "Practices",
+        "standards": "Standards",
+        "domains": "Exam domains",
+        "evidence": "Evidence",
+        "documentation": "Documentation",
+        "collaboration": "Collaboration",
+        "ability": "Ability"
+      },
+      "LEVEL_LABEL": {
+        "skills": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "tools": {
+          "not-started": "Not started",
+          "practised": "Used",
+          "verified": "Used on a verified step",
+          "reviewed": "Team document approved"
+        },
+        "procedures": {
+          "not-started": "Not started",
+          "practised": "Started",
+          "verified": "Followed, checks met",
+          "reviewed": "Approved by the team"
+        },
+        "tactics": {
+          "not-started": "Not started",
+          "practised": "Practised or defended",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "practices": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "standards": {
+          "not-started": "Not started",
+          "practised": "Tagged on ticked work",
+          "verified": "Tagged on verified output",
+          "reviewed": "Cited by an approved form"
+        },
+        "domains": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "evidence": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "documentation": {
+          "not-started": "Not started",
+          "practised": "Drafted",
+          "verified": "Checks met",
+          "reviewed": "Approved"
+        },
+        "collaboration": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "ability": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        }
+      },
+      "METRICS": [
+        {
+          "id": "metric.skill-exercised",
+          "label": "Skills exercised",
+          "dimension": "skills",
+          "definition": "Mapped graded tasks with at least one required step ticked, over mapped tasks.",
+          "inputs": [
+            "step_completions",
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-practised",
+          "label": "Skills practised",
+          "dimension": "skills",
+          "definition": "Skills with at least one ticked required step, over the skills the course maps.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-verified",
+          "label": "Skills verified",
+          "dimension": "skills",
+          "definition": "Skills with at least one verifiable step verified from pasted output, over skills with a verifiable step.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-fully-verified",
+          "label": "Skills fully verified",
+          "dimension": "skills",
+          "definition": "Skills whose every verifiable step is verified, over skills with a verifiable step.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-reviewed",
+          "label": "Skills reviewed",
+          "dimension": "skills",
+          "definition": "Verified skills whose mapped deliverable the team had approved or issued, over verified skills.",
+          "inputs": [
+            "step_evidence",
+            "deliverable_status",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact: the document was approved, not the member alone. Loads on the course page."
+        },
+        {
+          "id": "metric.skill-next-gap",
+          "label": "Next task per gap",
+          "dimension": "skills",
+          "definition": "For each skill not started, the first mapped task not done, in course order.",
+          "inputs": [
+            "step_completions",
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-state-proven",
+          "label": "Skills state-proven",
+          "dimension": "skills",
+          "definition": "Skills confirmed by a validator that read the real system state, over skills.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-attested",
+          "label": "Skills attested",
+          "dimension": "skills",
+          "definition": "Skills carried by a signed attestation with an environment hash, over skills.",
+          "inputs": [],
+          "valueTo": [
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-used",
+          "label": "Tools used",
+          "dimension": "tools",
+          "definition": "Tools of tasks with at least one ticked required step, over the tools the course derives.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-verified",
+          "label": "Tools verified",
+          "dimension": "tools",
+          "definition": "Tools of tasks with at least one verified step, over tools used.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-commands-verified",
+          "label": "Commands verified per tool",
+          "dimension": "tools",
+          "definition": "Verified steps whose command belongs to the tool, over verifiable steps with such a command.",
+          "inputs": [
+            "step_evidence",
+            "course",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-evidenced",
+          "label": "Tools evidenced by file",
+          "dimension": "tools",
+          "definition": "Hashed artifacts whose filename tool segment resolves to the tool, over hashed artifacts.",
+          "inputs": [
+            "evidence_artifacts",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-command-copied",
+          "label": "Commands copied per tool",
+          "dimension": "tools",
+          "definition": "Copy or paste events per tool.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "platform"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.procedure-started",
+          "label": "Procedures started",
+          "dimension": "procedures",
+          "definition": "SOP kinds with a mapped form holding data or a mapped task ticked, over the SOP kinds the course maps.",
+          "inputs": [
+            "deliverables",
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Form data is a team fact; loads on the course page."
+        },
+        {
+          "id": "metric.procedure-followed",
+          "label": "Procedures followed",
+          "dimension": "procedures",
+          "definition": "SOP kinds whose mapped forms meet every Definition-of-Done check due and have document control complete, over started.",
+          "inputs": [
+            "deliverables",
+            "course",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-evidenced",
+          "label": "Procedures evidenced",
+          "dimension": "procedures",
+          "definition": "Followed SOP kinds whose evidence fields point at a hashed artifact, over followed.",
+          "inputs": [
+            "deliverables",
+            "evidence_artifacts",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-to-standard",
+          "label": "Procedures to standard",
+          "dimension": "procedures",
+          "definition": "Followed SOP kinds whose form cites a parsed control code and was approved or issued, over followed.",
+          "inputs": [
+            "deliverables",
+            "deliverable_status",
+            "controls",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-in-order",
+          "label": "Steps verified in order",
+          "dimension": "procedures",
+          "definition": "Tasks whose verifiable steps were verified in authored order, over tasks with two or more verification records. A sequence fact only.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.procedure-change-recorded",
+          "label": "Change rows complete",
+          "dimension": "procedures",
+          "definition": "Change-record rows with what, where, backup, approval and rollback filled, over change rows on the role’s forms.",
+          "inputs": [
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-custody-kept",
+          "label": "Custody rows hashed",
+          "dimension": "procedures",
+          "definition": "Custody-log rows whose digest matches a hashed artifact, over custody rows.",
+          "inputs": [
+            "deliverables",
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-drilled",
+          "label": "Drills completed",
+          "dimension": "procedures",
+          "definition": "Recovery and incident SOP kinds with the drill task verified and the record approved, over such SOP kinds.",
+          "inputs": [
+            "step_evidence",
+            "deliverable_status",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-guide-followed",
+          "label": "Guide procedures followed",
+          "dimension": "procedures",
+          "definition": "Server+ guide procedures referenced by a ticked step, over guide procedures the role’s tasks reference.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Server+ only."
+        },
+        {
+          "id": "metric.procedure-backup-before-write",
+          "label": "Backup before write",
+          "dimension": "procedures",
+          "definition": "Config writes preceded by their backup command, over config writes.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "Steps are ticked as a whole; commands are not."
+        },
+        {
+          "id": "metric.procedure-state-proven",
+          "label": "Procedures state-proven",
+          "dimension": "procedures",
+          "definition": "SOP outcomes read from system state by a validator, over followed.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.tactic-practised",
+          "label": "Tactics practised",
+          "dimension": "tactics",
+          "definition": "ATT&CK or ATLAS tactics of tasks with at least one ticked step, over the tactics the course maps.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tactic-verified",
+          "label": "Tactics verified",
+          "dimension": "tactics",
+          "definition": "Tactics of tasks with at least one verified step, over tactics practised.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tactic-cited",
+          "label": "Technique ids cited",
+          "dimension": "tactics",
+          "definition": "Technique ids typed into forms that resolve to the matrices, over technique fields.",
+          "inputs": [
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "Team rows carry no author."
+        },
+        {
+          "id": "metric.practice-practised",
+          "label": "Practices practised",
+          "dimension": "practices",
+          "definition": "Engineering practices of tasks with at least one ticked step, over the practices the course maps.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.practice-verified",
+          "label": "Practices verified",
+          "dimension": "practices",
+          "definition": "Practices of tasks with at least one verified step, over practices practised.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-practised",
+          "label": "Standards practised",
+          "dimension": "standards",
+          "definition": "Standards tagged on tasks or steps the member ticked, over standards the course tags.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-verified",
+          "label": "Standards verified",
+          "dimension": "standards",
+          "definition": "Standards tagged on a verified step, over standards practised.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-effectiveness-steps",
+          "label": "Effectiveness: steps",
+          "dimension": "standards",
+          "definition": "Per standard: verified steps over verifiable steps tagged with it.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-effectiveness-forms",
+          "label": "Effectiveness: forms",
+          "dimension": "standards",
+          "definition": "Per standard: forms citing it approved with all four rubric categories true, over forms citing it.",
+          "inputs": [
+            "controls",
+            "deliverable_submissions",
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.standard-effectiveness-sops",
+          "label": "Effectiveness: procedures",
+          "dimension": "standards",
+          "definition": "Per standard: SOP kinds anchored to it followed, over SOP kinds anchored to it.",
+          "inputs": [
+            "registry",
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.standard-controls-cited",
+          "label": "Controls cited",
+          "dimension": "standards",
+          "definition": "Distinct control codes on approved forms the member’s role drafted.",
+          "inputs": [
+            "controls",
+            "deliverable_status",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.standard-control-mapped-by-member",
+          "label": "Controls typed by member",
+          "dimension": "standards",
+          "definition": "Control codes the member typed into form fields that parse, over such fields.",
+          "inputs": [
+            "deliverables",
+            "controls"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "Team rows carry no author."
+        },
+        {
+          "id": "metric.domain-practised",
+          "label": "Domains practised",
+          "dimension": "domains",
+          "definition": "Exam domains with at least one ticked task of the role, over domains the course practises.",
+          "inputs": [
+            "step_completions",
+            "cert",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-verified",
+          "label": "Domains verified",
+          "dimension": "domains",
+          "definition": "Exam domains with at least one verified step, over domains the course practises.",
+          "inputs": [
+            "step_evidence",
+            "cert",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-weight-verified",
+          "label": "Exam weight verified",
+          "dimension": "domains",
+          "definition": "Sum of the weights of verified domains over the weights the course practises.",
+          "inputs": [
+            "step_evidence",
+            "cert"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-gap-next",
+          "label": "Next task per domain gap",
+          "dimension": "domains",
+          "definition": "The next task of the role that practises a domain not yet practised.",
+          "inputs": [
+            "step_completions",
+            "cert",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-recall",
+          "label": "Domain recall",
+          "dimension": "domains",
+          "definition": "A domain re-verified after a gap, over domains verified.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-steps-verified",
+          "label": "Steps verified",
+          "dimension": "evidence",
+          "definition": "Verified steps over verifiable required steps in graded weeks.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-self-attested",
+          "label": "Steps self-attested",
+          "dimension": "evidence",
+          "definition": "Verifiable required steps ticked without matching output, over verifiable required steps.",
+          "inputs": [
+            "step_evidence",
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-artifacts",
+          "label": "Files hashed",
+          "dimension": "evidence",
+          "definition": "Distinct hashed files the member saved.",
+          "inputs": [
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-naming",
+          "label": "Files named to convention",
+          "dimension": "evidence",
+          "definition": "Hashed files named to the evidence convention, over hashed files.",
+          "inputs": [
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-rehash-confirmed",
+          "label": "Files re-hashed",
+          "dimension": "evidence",
+          "definition": "Files re-hashed later with the same digest, over hashed files.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-hardware-proven",
+          "label": "Output proven on the lab",
+          "dimension": "evidence",
+          "definition": "Steps whose output was verified on the lab, not in the browser, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.doc-drafted",
+          "label": "Forms drafted",
+          "dimension": "documentation",
+          "definition": "Lifecycle rows by the member moving a form to in review.",
+          "inputs": [
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-reviewed",
+          "label": "Forms reviewed",
+          "dimension": "documentation",
+          "definition": "Lifecycle rows by the member approving or returning a form.",
+          "inputs": [
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-issued",
+          "label": "Forms issued",
+          "dimension": "documentation",
+          "definition": "Lifecycle rows by the member issuing a form.",
+          "inputs": [
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-submissions",
+          "label": "Submissions frozen",
+          "dimension": "documentation",
+          "definition": "Frozen submissions by the member.",
+          "inputs": [
+            "deliverable_submissions"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-rubric-green",
+          "label": "Submissions rubric-green",
+          "dimension": "documentation",
+          "definition": "The member’s frozen submissions with all four rubric categories true, over the member’s submissions.",
+          "inputs": [
+            "deliverable_submissions"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-dod-met",
+          "label": "Definition-of-Done met",
+          "dimension": "documentation",
+          "definition": "Definition-of-Done checks met over checks due on the role’s forms through the current week.",
+          "inputs": [
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.doc-control-complete",
+          "label": "Document control complete",
+          "dimension": "documentation",
+          "definition": "Forms with the document-control block complete, over the role’s forms.",
+          "inputs": [
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.doc-instructor-approved",
+          "label": "Instructor approved",
+          "dimension": "documentation",
+          "definition": "The role’s forms with an instructor verdict of approved, over the role’s forms.",
+          "inputs": [
+            "deliverable_reviews"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.collab-teammate-steps",
+          "label": "Teammate steps ticked",
+          "dimension": "collaboration",
+          "definition": "Required steps the member ticked on another role’s tasks.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.collab-handoffs",
+          "label": "Hand-offs completed",
+          "dimension": "collaboration",
+          "definition": "Hand-offs whose named deliverable reached approved or issued, over hand-offs of the role’s tasks.",
+          "inputs": [
+            "course",
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.collab-raci-respected",
+          "label": "RACI respected",
+          "dimension": "collaboration",
+          "definition": "Lifecycle transitions the member made in the role the RACI names, over the member’s transitions.",
+          "inputs": [
+            "deliverable_status",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.collab-peer-reviews-given",
+          "label": "Peer reviews given",
+          "dimension": "collaboration",
+          "definition": "Blind peer reviews the member completed.",
+          "inputs": [
+            "peer_review_assignments"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "Read asynchronously by the review bench today."
+        },
+        {
+          "id": "metric.collab-stuck-helped",
+          "label": "Stuck flags helped",
+          "dimension": "collaboration",
+          "definition": "Teammate stuck flags on steps the member had verified.",
+          "inputs": [
+            "step_flags",
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Current flags only; loads on the course page."
+        },
+        {
+          "id": "metric.ability-first-try",
+          "label": "First-try verifications",
+          "dimension": "ability",
+          "definition": "Verified steps with exactly one paste, over verified steps. Shown beside persistence, never alone.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-persistence",
+          "label": "Persistence",
+          "dimension": "ability",
+          "definition": "Verified steps that took more than one paste, over verified steps.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-partial-progress",
+          "label": "Partial progress",
+          "dimension": "ability",
+          "definition": "Verifiable steps with some tokens matched and not verified, over verifiable steps.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-investigation-reports",
+          "label": "Reports filed",
+          "dimension": "ability",
+          "definition": "Task reports the member filed, and how many were resolved.",
+          "inputs": [
+            "task_reports"
+          ],
+          "valueTo": [
+            "member",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.ability-investigation-notes",
+          "label": "Notes written",
+          "dimension": "ability",
+          "definition": "Steps the member wrote a note on.",
+          "inputs": [
+            "step_notes"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.ability-independence",
+          "label": "Independence",
+          "dimension": "ability",
+          "definition": "Steps verified with no stuck flag ever raised, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "A cleared flag leaves no trace."
+        },
+        {
+          "id": "metric.ability-consistency-days",
+          "label": "Active days",
+          "dimension": "ability",
+          "definition": "Distinct local days with recorded activity.",
+          "inputs": [
+            "step_evidence",
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-consistency-weeks",
+          "label": "Active weeks",
+          "dimension": "ability",
+          "definition": "Course weeks with any recorded activity, over graded weeks.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-recall",
+          "label": "Recall",
+          "dimension": "ability",
+          "definition": "A verified step re-verified after seven or more days, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-calibration",
+          "label": "Calibration",
+          "dimension": "ability",
+          "definition": "Stated confidence that matched the outcome, over stated confidences.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-fixes-consulted",
+          "label": "Fixes consulted",
+          "dimension": "ability",
+          "definition": "\"If it does not work\" rows opened before a verification, over verifications.",
+          "inputs": [],
+          "valueTo": [
+            "member"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-docs-read",
+          "label": "Documentation opened",
+          "dimension": "ability",
+          "definition": "Documentation links opened per task.",
+          "inputs": [],
+          "valueTo": [
+            "member"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-deadline-adherence",
+          "label": "Deadline adherence",
+          "dimension": "ability",
+          "definition": "Weeks cleared on or before the cohort due date, over graded weeks.",
+          "inputs": [
+            "cohorts",
+            "step_completions"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "No clock is read this round."
+        },
+        {
+          "id": "metric.time-on-task",
+          "label": "Time on task",
+          "dimension": "ability",
+          "definition": "Minutes spent per task.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.time-to-verify",
+          "label": "Time to verify",
+          "dimension": "ability",
+          "definition": "Minutes from first attempt to verification.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.time-vs-estimate",
+          "label": "Time against estimate",
+          "dimension": "ability",
+          "definition": "Minutes spent against the authored estimate.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.rank-any",
+          "label": "Ranking",
+          "dimension": "ability",
+          "definition": "Any ordering of members against each other.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Nothing is ranked."
+        },
+        {
+          "id": "metric.platform-cohort-domain-coverage",
+          "label": "Cohort domain coverage",
+          "dimension": "domains",
+          "definition": "Per cohort, members with at least one verified step per domain, over members. Instructor aggregate.",
+          "inputs": [
+            "step_evidence",
+            "cert",
+            "cohorts"
+          ],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.platform-course-verifiability",
+          "label": "Course verifiability",
+          "dimension": "evidence",
+          "definition": "Verifiable required steps over required steps per course. Content only.",
+          "inputs": [
+            "course"
+          ],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.platform-skill-coverage",
+          "label": "Course skill coverage",
+          "dimension": "skills",
+          "definition": "Skills, tools, procedures, standards, tactics and practices per course. Content only.",
+          "inputs": [
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.platform-cross-platform-signal",
+          "label": "Cross-platform signal",
+          "dimension": "skills",
+          "definition": "A competency-level statement shared with another platform.",
+          "inputs": [],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "needs-consent",
+          "scored": false
+        }
+      ],
+      "PRACTICES": [
+        {
+          "id": "practice.least-privilege",
+          "label": "Least privilege",
+          "anchor": "NIST.800-53.AC-6",
+          "definition": "Every account, role and agent holds only the rights its task needs, and nothing it might need later."
+        },
+        {
+          "id": "practice.defence-in-depth",
+          "label": "Defence in depth",
+          "anchor": "NIST.CSF.PR",
+          "definition": "More than one control stands between an attacker and the asset, so one failure is not a breach."
+        },
+        {
+          "id": "practice.default-deny",
+          "label": "Default deny",
+          "anchor": "NIST.800-53.SC-7",
+          "definition": "Nothing passes a boundary unless a rule allows it; the allow list is the policy."
+        },
+        {
+          "id": "practice.segmentation",
+          "label": "Network segmentation",
+          "anchor": "ISO27001.A.8.22",
+          "definition": "Zones with distinct trust levels are separated, and the flows between them are named and limited."
+        },
+        {
+          "id": "practice.zero-trust",
+          "label": "Zero trust access",
+          "anchor": "NIST_800_207",
+          "definition": "No request is trusted for where it comes from; identity, device and context decide every access."
+        },
+        {
+          "id": "practice.mfa-everywhere",
+          "label": "Multi-factor authentication",
+          "anchor": "NIST_800_63",
+          "definition": "Every console and privileged login asks for a second factor; a password alone is refused."
+        },
+        {
+          "id": "practice.federation",
+          "label": "Federated identity",
+          "anchor": "NIST_800_63",
+          "definition": "Applications trust one identity provider over SAML or OIDC instead of keeping their own passwords."
+        },
+        {
+          "id": "practice.machine-identities",
+          "label": "Machine identity register",
+          "anchor": "NIST.800-53.IA-5",
+          "definition": "Every service account, key and certificate has an owner and a rotation date in one register."
+        },
+        {
+          "id": "practice.separation-of-duties",
+          "label": "Separation of duties",
+          "anchor": "NIST.800-53.AC-5",
+          "definition": "The person who requests, the person who approves and the person who applies a change are not the same."
+        },
+        {
+          "id": "practice.access-reviews",
+          "label": "Periodic access review",
+          "anchor": "NIST.800-53.AC-2",
+          "definition": "Accounts and rights are reviewed on a schedule; orphans are disabled and the review is recorded."
+        },
+        {
+          "id": "practice.joiner-leaver",
+          "label": "Joiner and leaver process",
+          "anchor": "ISO27001.A.5.18",
+          "definition": "Access is granted on a documented request and removed within a stated time of leaving."
+        },
+        {
+          "id": "practice.encryption-in-transit",
+          "label": "Encryption in transit",
+          "anchor": "NIST.800-53.SC-8",
+          "definition": "Traffic crosses a boundary only over approved TLS versions, and the weak ones are refused."
+        },
+        {
+          "id": "practice.key-rotation",
+          "label": "Key rotation",
+          "anchor": "NIST.800-53.SC-12",
+          "definition": "Keys and certificates have an owner and a rotation date, and a rotation is recorded when it happens."
+        },
+        {
+          "id": "practice.retest-to-closure",
+          "label": "Retest to closure",
+          "anchor": "NIST_800_115",
+          "definition": "A finding is closed only by a retest that shows the fix, and every finding ends Closed, Open or Risk accepted."
+        },
+        {
+          "id": "practice.risk-scoring",
+          "label": "Likelihood-times-impact scoring",
+          "anchor": "NIST_800_30",
+          "definition": "Each risk is scored on a stated scale for likelihood and impact, and the score decides the order."
+        },
+        {
+          "id": "practice.threat-modelling",
+          "label": "Threat modelling",
+          "anchor": "STRIDE",
+          "definition": "Threats are enumerated per component with a method, and each is tied to a control or an accepted risk."
+        },
+        {
+          "id": "practice.tabletop-exercise",
+          "label": "Tabletop exercise",
+          "anchor": "NIST.800-53.CP-4",
+          "definition": "The team walks through an incident on paper with injects, and the after-action report names improvements."
+        },
+        {
+          "id": "practice.change-control",
+          "label": "Change control",
+          "anchor": "ITIL.change",
+          "definition": "Every change is requested, reviewed, reversible and recorded before it reaches a system."
+        },
+        {
+          "id": "practice.config-scanning",
+          "label": "Configuration scanning",
+          "anchor": "CIS.BENCHMARK",
+          "definition": "Hosts are scanned against a benchmark on a schedule, and the failed checks become findings."
+        },
+        {
+          "id": "practice.media-sanitisation",
+          "label": "Media sanitisation",
+          "anchor": "NIST_800_88",
+          "definition": "Storage is cleared, purged or destroyed to the written level before it leaves, and the action is recorded."
+        },
+        {
+          "id": "practice.pipeline-gates",
+          "label": "Pipeline gates",
+          "anchor": "NIST_800_218",
+          "definition": "A build cannot proceed past a scan, a test or an approval that failed; a gate that blocks is a control."
+        },
+        {
+          "id": "practice.component-inventory",
+          "label": "Software bill of materials",
+          "anchor": "NIST_800_218",
+          "definition": "A release lists its components (CycloneDX or SPDX), so a vulnerable dependency can be found."
+        },
+        {
+          "id": "practice.backups-tested",
+          "label": "Backups tested by restore",
+          "anchor": "NIST.800-53.CP-4",
+          "definition": "A backup counts only after a restore from it has been performed and its hashes compared."
+        },
+        {
+          "id": "practice.recovery-objectives",
+          "label": "Recovery objectives",
+          "anchor": "NIST_800_34",
+          "definition": "Recovery time and recovery point targets are written per service, and a drill is timed against them."
+        },
+        {
+          "id": "practice.centralised-logging",
+          "label": "Centralised logging",
+          "anchor": "NIST.CSF.DE.CM",
+          "definition": "Every host ships its logs to one place where they are kept, searched and alerted on."
+        },
+        {
+          "id": "practice.written-policy",
+          "label": "Written policy",
+          "anchor": "NIST.CSF.GV.PO",
+          "definition": "Rules are written as shall statements with an owner, a review date and the standard they implement."
+        },
+        {
+          "id": "practice.runbooks-written",
+          "label": "Written runbooks",
+          "anchor": "ISO27001.A.5.37",
+          "definition": "Routine operations are written as steps a colleague could follow, and the steps are kept current."
+        },
+        {
+          "id": "practice.sign-and-version",
+          "label": "Sign and version documents",
+          "anchor": "ISO27001.7.5",
+          "definition": "A document carries an id, a version, an owner, a date and a status, and a change makes a new version."
+        },
+        {
+          "id": "practice.asset-inventory",
+          "label": "Asset inventory",
+          "anchor": "NIST.CSF.ID.AM",
+          "definition": "Every asset is listed with an owner, a location and a classification before it is protected."
+        },
+        {
+          "id": "practice.data-classification",
+          "label": "Data classification",
+          "anchor": "ISO27001.A.5.12",
+          "definition": "Information is classified on a written scale, and handling rules follow the class."
+        },
+        {
+          "id": "practice.data-discovery",
+          "label": "Personal data discovery",
+          "anchor": "NIST.CSF.ID.AM",
+          "definition": "Stores are scanned for personal data before and after a clean-up, and the counts are recorded."
+        },
+        {
+          "id": "practice.control-mapping",
+          "label": "Control mapping",
+          "anchor": "ISO27001.6.1.3",
+          "definition": "Each control is mapped to the criteria it satisfies across frameworks, with an owner and an evidence source."
+        },
+        {
+          "id": "practice.evidence-by-design",
+          "label": "Evidence by design",
+          "anchor": "SOC2",
+          "definition": "Every control names the evidence that proves it operates, and the evidence is collected as the work happens."
+        },
+        {
+          "id": "practice.corrective-action",
+          "label": "Corrective action",
+          "anchor": "ISO27001.10.2",
+          "definition": "Every nonconformity gets a cause, a corrective action, an owner and a date, and the action is checked."
+        },
+        {
+          "id": "practice.supplier-tiering",
+          "label": "Supplier tiering",
+          "anchor": "NIST.CSF.GV.SC",
+          "definition": "Suppliers are tiered by the access and data they hold, and the top tier carries written terms."
+        },
+        {
+          "id": "practice.write-for-leadership",
+          "label": "Write for leadership",
+          "anchor": "NIST.CSF.RS.CO",
+          "definition": "A report opens with what a non-technical reader must decide, and the technical detail follows."
+        },
+        {
+          "id": "practice.metrics-with-targets",
+          "label": "Metrics with targets",
+          "anchor": "ISO27001.9.1",
+          "definition": "Each metric has a formula, a source and a target, so a number can be read as good or bad."
+        }
+      ],
+      "PRACTICE_OF": {
+        "ci-w1-gov": [
+          "practice.written-policy",
+          "practice.data-classification",
+          "practice.asset-inventory"
+        ],
+        "ci-w1-arch": [
+          "practice.defence-in-depth",
+          "practice.default-deny",
+          "practice.segmentation"
+        ],
+        "ci-w1-idops": [
+          "practice.least-privilege",
+          "practice.joiner-leaver",
+          "practice.centralised-logging"
+        ],
+        "ci-w2-gov": [
+          "practice.risk-scoring",
+          "practice.metrics-with-targets"
+        ],
+        "ci-w2-arch": [
+          "practice.encryption-in-transit",
+          "practice.key-rotation",
+          "practice.pipeline-gates"
+        ],
+        "ci-w2-idops": [
+          "practice.separation-of-duties",
+          "practice.recovery-objectives",
+          "practice.runbooks-written"
+        ],
+        "ci-w3-arch": [
+          "practice.pipeline-gates",
+          "practice.component-inventory",
+          "practice.encryption-in-transit"
+        ],
+        "ci-w3-idops": [
+          "practice.mfa-everywhere",
+          "practice.access-reviews",
+          "practice.federation"
+        ],
+        "ci-w3-gov": [
+          "practice.supplier-tiering",
+          "practice.threat-modelling",
+          "practice.media-sanitisation"
+        ],
+        "ci-w4-idops": [
+          "practice.centralised-logging",
+          "practice.backups-tested",
+          "practice.recovery-objectives"
+        ],
+        "ci-w4-gov": [
+          "practice.data-discovery",
+          "practice.data-classification"
+        ],
+        "ci-w4-arch": [
+          "practice.zero-trust",
+          "practice.machine-identities",
+          "practice.config-scanning"
+        ],
+        "ci-w5-gov": [
+          "practice.evidence-by-design",
+          "practice.control-mapping",
+          "practice.corrective-action"
+        ],
+        "ci-w5-arch": [
+          "practice.retest-to-closure",
+          "practice.key-rotation",
+          "practice.change-control"
+        ],
+        "ci-w5-idops": [
+          "practice.access-reviews",
+          "practice.joiner-leaver",
+          "practice.tabletop-exercise"
+        ],
+        "ci-w6-gov": [
+          "practice.control-mapping",
+          "practice.sign-and-version"
+        ],
+        "ci-w6-arch": [
+          "practice.control-mapping",
+          "practice.encryption-in-transit"
+        ],
+        "ci-w6-idops": [
+          "practice.control-mapping",
+          "practice.write-for-leadership"
+        ]
+      },
+      "SKILLS": [
+        {
+          "id": "comp.vuln.config-scan",
+          "version": "1.0.0",
+          "label": "Scan configuration against a benchmark",
+          "area": "vuln",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "CIS.BENCHMARK"
+          ]
+        },
+        {
+          "id": "comp.report.security-metrics",
+          "version": "1.0.0",
+          "label": "Define metrics with a formula and a target",
+          "area": "report",
+          "objectiveRefs": [
+            "CISSP.d1",
+            "CY0-001.d4",
+            "ISO27001.9.1"
+          ]
+        },
+        {
+          "id": "comp.report.federal-incident-reporting",
+          "version": "1.0.0",
+          "label": "Write federal incident reporting",
+          "area": "report",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST.800-171.3.6"
+          ]
+        },
+        {
+          "id": "comp.harden.tls-and-rule-base",
+          "version": "1.0.0",
+          "label": "Re-test TLS and review the rule base",
+          "area": "harden",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "NIST.800-53.SC-8"
+          ]
+        },
+        {
+          "id": "comp.harden.pipeline-gates",
+          "version": "1.0.0",
+          "label": "Gate a pipeline on scans and tests",
+          "area": "harden",
+          "objectiveRefs": [
+            "CY0-001.d3",
+            "CISSP.d8",
+            "NIST_800_218"
+          ]
+        },
+        {
+          "id": "comp.harden.ai-gateway-zone",
+          "version": "1.0.0",
+          "label": "Make an AI gateway the sole path",
+          "area": "harden",
+          "objectiveRefs": [
+            "CISSP.d4",
+            "NIST_800_207"
+          ]
+        },
+        {
+          "id": "comp.respond.seven-step-plan",
+          "version": "1.0.0",
+          "label": "Specify the seven-step incident life cycle",
+          "area": "respond",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST.800-61"
+          ]
+        },
+        {
+          "id": "comp.respond.tabletop",
+          "version": "1.0.0",
+          "label": "Run a tabletop with injects",
+          "area": "respond",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "NIST.800-53.CP-4"
+          ]
+        },
+        {
+          "id": "comp.respond.restore-test",
+          "version": "1.0.0",
+          "label": "Restore from backup and compare hashes",
+          "area": "respond",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST.800-53.CP-4"
+          ]
+        },
+        {
+          "id": "comp.respond.recovery-targets",
+          "version": "1.0.0",
+          "label": "Set MTD, RTO, RPO and WRT",
+          "area": "respond",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST_800_34"
+          ]
+        },
+        {
+          "id": "comp.grc.policy-shall",
+          "version": "1.0.0",
+          "label": "Write policy as shall statements with an owner",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d1",
+            "CY0-001.d4",
+            "NIST.CSF.GV.PO"
+          ]
+        },
+        {
+          "id": "comp.grc.classification",
+          "version": "1.0.0",
+          "label": "Classify assets with one owner each",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d2",
+            "ISO27001.A.5.12"
+          ]
+        },
+        {
+          "id": "comp.grc.maturity",
+          "version": "1.0.0",
+          "label": "Score maturity on a 0 to 4 scale",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d1"
+          ]
+        },
+        {
+          "id": "comp.grc.supplier-tiering",
+          "version": "1.0.0",
+          "label": "Tier suppliers with top-tier terms",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d1",
+            "NIST.CSF.GV.SC"
+          ]
+        },
+        {
+          "id": "comp.grc.ai-act-decision",
+          "version": "1.0.0",
+          "label": "Decide EU AI Act applicability",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d2",
+            "NIST_AI_RMF"
+          ]
+        },
+        {
+          "id": "comp.grc.categorise-system",
+          "version": "1.0.0",
+          "label": "Categorise a system by high-water mark",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d2",
+            "NIST.800-53.RA-3"
+          ]
+        },
+        {
+          "id": "comp.grc.ethics-canons",
+          "version": "1.0.0",
+          "label": "Apply the ISC2 canons in order",
+          "area": "grc",
+          "objectiveRefs": [
+            "CISSP.d1"
+          ]
+        },
+        {
+          "id": "comp.risk.register",
+          "version": "1.0.0",
+          "label": "Keep a risk register with owners",
+          "area": "risk",
+          "objectiveRefs": [
+            "CISSP.d1",
+            "SOC-2-ISO-27001.c2",
+            "ISO27001.6.1.2"
+          ]
+        },
+        {
+          "id": "comp.risk.quantitative",
+          "version": "1.0.0",
+          "label": "Quantify a risk with SLE and ALE",
+          "area": "risk",
+          "objectiveRefs": [
+            "CISSP.d1"
+          ]
+        },
+        {
+          "id": "comp.risk.threat-model",
+          "version": "1.0.0",
+          "label": "Threat-model with STRIDE",
+          "area": "risk",
+          "objectiveRefs": [
+            "CISSP.d3",
+            "CY0-001.d2",
+            "STRIDE"
+          ]
+        },
+        {
+          "id": "comp.audit.assess-controls",
+          "version": "1.0.0",
+          "label": "Assess controls by examine, interview, test",
+          "area": "audit",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "NIST.800-53.CA-2"
+          ]
+        },
+        {
+          "id": "comp.audit.questionnaire",
+          "version": "1.0.0",
+          "label": "Answer a customer questionnaire with evidence",
+          "area": "audit",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "CY0-001.d4",
+            "SOC2"
+          ]
+        },
+        {
+          "id": "comp.audit.self-assess-171",
+          "version": "1.0.0",
+          "label": "Self-assess against SP 800-171",
+          "area": "audit",
+          "objectiveRefs": [
+            "CISSP.d1",
+            "NIST.800-171"
+          ]
+        },
+        {
+          "id": "comp.audit.ssp",
+          "version": "1.0.0",
+          "label": "Assemble a System Security Plan",
+          "area": "audit",
+          "objectiveRefs": [
+            "CISSP.d1",
+            "NIST.800-53.PL-2"
+          ]
+        },
+        {
+          "id": "comp.audit.map-to-federal",
+          "version": "1.0.0",
+          "label": "Map controls to federal requirements",
+          "area": "audit",
+          "objectiveRefs": [
+            "CISSP.d4",
+            "CISSP.d7",
+            "NIST.800-171"
+          ]
+        },
+        {
+          "id": "comp.identity.rbac",
+          "version": "1.0.0",
+          "label": "Design role-based access with MFA rules",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d5",
+            "NIST.800-53.AC-6"
+          ]
+        },
+        {
+          "id": "comp.identity.joiner-leaver",
+          "version": "1.0.0",
+          "label": "Specify joiner and leaver with timed disablement",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d5",
+            "ISO27001.A.5.18"
+          ]
+        },
+        {
+          "id": "comp.identity.access-matrix",
+          "version": "1.0.0",
+          "label": "Specify an access matrix with separation of duties",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d5",
+            "NIST.800-53.AC-5"
+          ]
+        },
+        {
+          "id": "comp.identity.mfa-console",
+          "version": "1.0.0",
+          "label": "Prove MFA on the console",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d5",
+            "NIST_800_63"
+          ]
+        },
+        {
+          "id": "comp.identity.orphan-accounts",
+          "version": "1.0.0",
+          "label": "Find and disable orphan accounts",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d5",
+            "NIST.800-53.AC-2"
+          ]
+        },
+        {
+          "id": "comp.identity.federation",
+          "version": "1.0.0",
+          "label": "Federate with SAML and OIDC",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d5",
+            "NIST_800_63"
+          ]
+        },
+        {
+          "id": "comp.identity.access-review",
+          "version": "1.0.0",
+          "label": "Repeat an access review on schedule",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "NIST.800-53.AC-2"
+          ]
+        },
+        {
+          "id": "comp.identity.machine-identities",
+          "version": "1.0.0",
+          "label": "Register machine identities with rotation",
+          "area": "identity",
+          "objectiveRefs": [
+            "CISSP.d4",
+            "NIST.800-53.IA-5"
+          ]
+        },
+        {
+          "id": "comp.crypto.standard",
+          "version": "1.0.0",
+          "label": "Write a cryptography standard: key sizes and rotation",
+          "area": "crypto",
+          "objectiveRefs": [
+            "CISSP.d3",
+            "NIST.800-53.SC-12"
+          ]
+        },
+        {
+          "id": "comp.crypto.tls-versions",
+          "version": "1.0.0",
+          "label": "Prove TLS versions and ciphers",
+          "area": "crypto",
+          "objectiveRefs": [
+            "CISSP.d8",
+            "NIST.800-53.SC-8"
+          ]
+        },
+        {
+          "id": "comp.crypto.key-rotation",
+          "version": "1.0.0",
+          "label": "Rotate a key and record it",
+          "area": "crypto",
+          "objectiveRefs": [
+            "CISSP.d6",
+            "NIST.800-53.SC-12"
+          ]
+        },
+        {
+          "id": "comp.arch.trust-boundaries",
+          "version": "1.0.0",
+          "label": "Draw architecture with trust boundaries",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d3",
+            "ISO42010"
+          ]
+        },
+        {
+          "id": "comp.arch.shared-responsibility",
+          "version": "1.0.0",
+          "label": "Write shared-responsibility rows",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d3"
+          ]
+        },
+        {
+          "id": "comp.arch.default-deny-zones",
+          "version": "1.0.0",
+          "label": "Design zones with default deny",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d4",
+            "NIST.800-53.SC-7"
+          ]
+        },
+        {
+          "id": "comp.arch.rule-base",
+          "version": "1.0.0",
+          "label": "Specify a rule base with approved protocols",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d4",
+            "NIST.800-53.SC-7"
+          ]
+        },
+        {
+          "id": "comp.arch.sdlc-gates",
+          "version": "1.0.0",
+          "label": "Place a security gate per development phase",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d8",
+            "NIST_800_218"
+          ]
+        },
+        {
+          "id": "comp.arch.component-list",
+          "version": "1.0.0",
+          "label": "Produce a component list (CycloneDX)",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d8",
+            "NIST_800_218"
+          ]
+        },
+        {
+          "id": "comp.arch.segmentation-proof",
+          "version": "1.0.0",
+          "label": "Prove default-deny segmentation",
+          "area": "arch",
+          "objectiveRefs": [
+            "CISSP.d4",
+            "NIST.800-53.SC-7"
+          ]
+        },
+        {
+          "id": "comp.data.discovery",
+          "version": "1.0.0",
+          "label": "Find personal data and prove it is gone",
+          "area": "data",
+          "objectiveRefs": [
+            "CISSP.d2",
+            "NIST.CSF.ID.AM"
+          ]
+        },
+        {
+          "id": "comp.data.sanitisation",
+          "version": "1.0.0",
+          "label": "Clear, purge or destroy media",
+          "area": "data",
+          "objectiveRefs": [
+            "CISSP.d2",
+            "NIST_800_88"
+          ]
+        },
+        {
+          "id": "comp.ops.logging-first-hour",
+          "version": "1.0.0",
+          "label": "Write logging, the incident first hour and backups",
+          "area": "ops",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST.800-61.PREPARE"
+          ]
+        },
+        {
+          "id": "comp.ops.detection-fires",
+          "version": "1.0.0",
+          "label": "Prove a detection fires with timings",
+          "area": "ops",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST.CSF.DE.AE"
+          ]
+        },
+        {
+          "id": "comp.ops.contingency-phases",
+          "version": "1.0.0",
+          "label": "Specify activation, recovery, reconstitution",
+          "area": "ops",
+          "objectiveRefs": [
+            "CISSP.d7",
+            "NIST_800_34"
+          ]
+        }
+      ],
+      "SKILL_OF": {
+        "ci-w1-gov": [
+          "comp.grc.policy-shall",
+          "comp.grc.classification",
+          "comp.grc.maturity"
+        ],
+        "ci-w1-arch": [
+          "comp.arch.trust-boundaries",
+          "comp.arch.shared-responsibility",
+          "comp.arch.default-deny-zones"
+        ],
+        "ci-w1-idops": [
+          "comp.identity.rbac",
+          "comp.identity.joiner-leaver",
+          "comp.ops.logging-first-hour"
+        ],
+        "ci-w2-gov": [
+          "comp.risk.register",
+          "comp.risk.quantitative",
+          "comp.report.security-metrics"
+        ],
+        "ci-w2-arch": [
+          "comp.crypto.standard",
+          "comp.arch.rule-base",
+          "comp.arch.sdlc-gates"
+        ],
+        "ci-w2-idops": [
+          "comp.identity.access-matrix",
+          "comp.respond.recovery-targets",
+          "comp.respond.seven-step-plan"
+        ],
+        "ci-w3-arch": [
+          "comp.harden.pipeline-gates",
+          "comp.crypto.tls-versions",
+          "comp.arch.component-list"
+        ],
+        "ci-w3-idops": [
+          "comp.identity.mfa-console",
+          "comp.identity.orphan-accounts",
+          "comp.identity.federation"
+        ],
+        "ci-w3-gov": [
+          "comp.grc.supplier-tiering",
+          "comp.risk.threat-model",
+          "comp.data.sanitisation"
+        ],
+        "ci-w4-idops": [
+          "comp.ops.detection-fires",
+          "comp.respond.restore-test",
+          "comp.ops.contingency-phases"
+        ],
+        "ci-w4-gov": [
+          "comp.data.discovery",
+          "comp.grc.categorise-system",
+          "comp.grc.ai-act-decision"
+        ],
+        "ci-w4-arch": [
+          "comp.harden.ai-gateway-zone",
+          "comp.identity.machine-identities",
+          "comp.vuln.config-scan"
+        ],
+        "ci-w5-gov": [
+          "comp.audit.assess-controls",
+          "comp.audit.questionnaire",
+          "comp.grc.ethics-canons"
+        ],
+        "ci-w5-arch": [
+          "comp.harden.tls-and-rule-base",
+          "comp.crypto.key-rotation",
+          "comp.arch.segmentation-proof"
+        ],
+        "ci-w5-idops": [
+          "comp.identity.access-review",
+          "comp.respond.tabletop"
+        ],
+        "ci-w6-gov": [
+          "comp.audit.self-assess-171",
+          "comp.audit.ssp"
+        ],
+        "ci-w6-arch": [
+          "comp.audit.map-to-federal"
+        ],
+        "ci-w6-idops": [
+          "comp.audit.map-to-federal",
+          "comp.report.federal-incident-reporting"
+        ]
+      },
+      "SOPS": [
+        {
+          "id": "sop.incident-response-plan",
+          "label": "Incident response plan",
+          "kind": "incident",
+          "definition": "The written plan for handling an incident: roles, the first hour, containment, communication and the notice deadline.",
+          "standardRefs": [
+            "NIST.800-61",
+            "ISO27001.A.5.24",
+            "NIST.CSF.RS.MA",
+            "SOC2.CC7.4"
+          ]
+        },
+        {
+          "id": "sop.change-record",
+          "label": "Change record",
+          "kind": "change",
+          "definition": "A change written before it is made: what, where, the backup, the approval, the rollback and the result.",
+          "standardRefs": [
+            "ITIL.change",
+            "ISO27001.A.8.32",
+            "NIST.800-53.CM-3",
+            "SOC2.CC8.1"
+          ]
+        },
+        {
+          "id": "sop.release-record",
+          "label": "Release record",
+          "kind": "release",
+          "definition": "What a release contains, what blocked, what was tested and who approved it going out.",
+          "standardRefs": [
+            "ITIL.release",
+            "NIST.800-218",
+            "SOC2.CC8.1"
+          ]
+        },
+        {
+          "id": "sop.recovery-drill",
+          "label": "Recovery drill",
+          "kind": "recovery",
+          "definition": "A timed restore or failover against the written targets, with the hashes compared and the gap recorded.",
+          "standardRefs": [
+            "NIST.800-34",
+            "NIST.CSF.RC.RP",
+            "ISO27001.A.5.30",
+            "NIST.800-53.CP-4"
+          ]
+        },
+        {
+          "id": "sop.backup-plan",
+          "label": "Backup plan",
+          "kind": "recovery",
+          "definition": "What is backed up, how often, where it goes, how long it is kept and how a restore is tested.",
+          "standardRefs": [
+            "ISO27001.A.8.13",
+            "NIST.800-53.CP-9",
+            "CIS.11"
+          ]
+        },
+        {
+          "id": "sop.risk-register",
+          "label": "Risk register",
+          "kind": "risk",
+          "definition": "Each risk with its likelihood, impact, score, owner and treatment, reviewed on a schedule.",
+          "standardRefs": [
+            "NIST.800-30",
+            "ISO27005",
+            "ISO27001.6.1.2",
+            "NIST.CSF.GV.RM"
+          ]
+        },
+        {
+          "id": "sop.supplier-review",
+          "label": "Supplier review",
+          "kind": "risk",
+          "definition": "Suppliers tiered by access and data, with terms for the top tier and a review date.",
+          "standardRefs": [
+            "ISO27001.A.5.19",
+            "NIST.CSF.GV.SC",
+            "NIST.800-53.SR-6"
+          ]
+        },
+        {
+          "id": "sop.policy",
+          "label": "Security policy",
+          "kind": "policy",
+          "definition": "Shall statements with an owner, a review date and the standard each one implements.",
+          "standardRefs": [
+            "ISO27001.5.2",
+            "ISO27001.A.5.1",
+            "NIST.CSF.GV.PO",
+            "NIST.800-53.PM-1"
+          ]
+        },
+        {
+          "id": "sop.data-handling",
+          "label": "Data handling standard",
+          "kind": "policy",
+          "definition": "How data is classified, where it may live, how it is redacted and how media is sanitised.",
+          "standardRefs": [
+            "NIST.CSF.PR.DS",
+            "ISO27001.A.5.12",
+            "NIST.800-88"
+          ]
+        },
+        {
+          "id": "sop.access-review",
+          "label": "Access review",
+          "kind": "access",
+          "definition": "Accounts and rights checked against the access matrix, orphans disabled, the review recorded.",
+          "standardRefs": [
+            "ISO27001.A.5.18",
+            "NIST.800-53.AC-2",
+            "SOC2.CC6.3",
+            "NIST.CSF.PR.AA"
+          ]
+        },
+        {
+          "id": "sop.identity-standard",
+          "label": "Identity and access standard",
+          "kind": "access",
+          "definition": "Roles against systems, the MFA rule, joiner and leaver timing, separation of duties.",
+          "standardRefs": [
+            "NIST.800-63",
+            "NIST.800-53.IA-2",
+            "ISO27001.A.5.15",
+            "NIST.CSF.PR.AA"
+          ]
+        },
+        {
+          "id": "sop.asset-inventory",
+          "label": "Asset inventory",
+          "kind": "inventory",
+          "definition": "Every asset with an owner, a location, a classification and its place in the picture.",
+          "standardRefs": [
+            "NIST.CSF.ID.AM",
+            "CIS.1",
+            "ISO27001.A.5.9",
+            "ITIL.asset"
+          ]
+        },
+        {
+          "id": "sop.control-mapping",
+          "label": "Control mapping",
+          "kind": "governance",
+          "definition": "Each control mapped to the criteria it meets, with an owner and the evidence that proves it.",
+          "standardRefs": [
+            "ISO27001.6.1.3",
+            "SOC2",
+            "NIST.CSF"
+          ]
+        },
+        {
+          "id": "sop.customer-assurance",
+          "label": "Customer assurance response",
+          "kind": "governance",
+          "definition": "A customer questionnaire answered with evidence or an honest gap per question.",
+          "standardRefs": [
+            "SOC2",
+            "ISO27001",
+            "ISO42001"
+          ]
+        },
+        {
+          "id": "sop.system-security-plan",
+          "label": "System security plan",
+          "kind": "governance",
+          "definition": "Every requirement with its implementation, its evidence or its dated plan, and the boundary.",
+          "standardRefs": [
+            "NIST.800-171",
+            "NIST.800-53.PL-2",
+            "FAR.52.204-21"
+          ]
+        },
+        {
+          "id": "sop.internal-audit",
+          "label": "Internal audit",
+          "kind": "audit",
+          "definition": "A planned audit against the standard with findings, nonconformities and corrective actions.",
+          "standardRefs": [
+            "ISO27001.9.2",
+            "ISO27001.9.3",
+            "SOC2.CC4.1"
+          ]
+        },
+        {
+          "id": "sop.retest-record",
+          "label": "Retest and validation record",
+          "kind": "assessment",
+          "definition": "Every finding retested and closed, left open or risk-accepted with a named owner.",
+          "standardRefs": [
+            "NIST.800-115",
+            "SOC2.CC4.1"
+          ]
+        },
+        {
+          "id": "sop.architecture-record",
+          "label": "Architecture record",
+          "kind": "design",
+          "definition": "The components, the trust boundaries, the flows and the decisions, with the reasons for each.",
+          "standardRefs": [
+            "ISO42010",
+            "WAF",
+            "NIST.800-53.PL-8"
+          ]
+        },
+        {
+          "id": "sop.network-design",
+          "label": "Network design",
+          "kind": "design",
+          "definition": "Zones, allowed flows, the addressing plan and the default-deny statement.",
+          "standardRefs": [
+            "NIST.800-53.SC-7",
+            "ISO27001.A.8.22",
+            "NIST.CSF.PR.IR"
+          ]
+        },
+        {
+          "id": "sop.pipeline-record",
+          "label": "Pipeline record",
+          "kind": "build",
+          "definition": "The stages, the gates, what each blocks on, and the deployment that went through.",
+          "standardRefs": [
+            "NIST.800-218",
+            "WAF.operational-excellence",
+            "ITIL.deployment"
+          ]
+        }
+      ],
+      "SOP_OF": {
+        "cissp_d1": [
+          "sop.policy",
+          "sop.risk-register",
+          "sop.supplier-review"
+        ],
+        "cissp_d2": [
+          "sop.asset-inventory",
+          "sop.data-handling"
+        ],
+        "cissp_d3": [
+          "sop.architecture-record"
+        ],
+        "cissp_d4": [
+          "sop.network-design"
+        ],
+        "cissp_d5": [
+          "sop.identity-standard",
+          "sop.access-review"
+        ],
+        "cissp_d6": [
+          "sop.internal-audit",
+          "sop.retest-record"
+        ],
+        "cissp_d7": [
+          "sop.incident-response-plan",
+          "sop.backup-plan",
+          "sop.recovery-drill"
+        ],
+        "cissp_d8": [
+          "sop.pipeline-record",
+          "sop.change-record"
+        ],
+        "cissp_release_note": [
+          "sop.release-record"
+        ],
+        "cissp_questionnaire": [
+          "sop.customer-assurance"
+        ],
+        "cissp_controls": [
+          "sop.control-mapping"
+        ],
+        "cissp_ssp": [
+          "sop.system-security-plan"
+        ]
+      },
+      "SOP_OF_TASK": {
+        "ci-w3-arch": [
+          "sop.pipeline-record"
+        ],
+        "ci-w3-idops": [
+          "sop.identity-standard"
+        ],
+        "ci-w3-gov": [
+          "sop.data-handling"
+        ],
+        "ci-w4-idops": [
+          "sop.recovery-drill",
+          "sop.backup-plan"
+        ],
+        "ci-w4-gov": [
+          "sop.data-handling"
+        ],
+        "ci-w5-gov": [
+          "sop.internal-audit"
+        ],
+        "ci-w5-arch": [
+          "sop.change-record",
+          "sop.retest-record"
+        ],
+        "ci-w5-idops": [
+          "sop.access-review",
+          "sop.incident-response-plan"
+        ]
+      },
+      "STANDARDS": [
+        {
+          "id": "NIST_CSF",
+          "label": "NIST CSF",
+          "description": "NIST Cybersecurity Framework 2.0: Govern, Identify, Protect, Detect, Respond, Recover",
+          "why": "Organises all security work into six functions. Tagging a step here shows which part of the lifecycle it strengthens and proves the work covered the whole picture, not just attack or defence.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://www.nist.gov/cyberframework",
+          "codePattern": "^NIST\\.CSF(\\.(GV|ID|PR|DE|RS|RC)(\\.[A-Z]{2}(-\\d{2})?)?|\\.PROFILE)?$"
+        },
+        {
+          "id": "CIS",
+          "label": "CIS",
+          "description": "CIS Critical Security Controls v8 and the CIS Benchmarks",
+          "why": "A prioritised \"do these first\" list of safeguards. A CIS tag means this step implements an industry-baseline control that auditors and blue teams recognise at once.",
+          "kind": "framework",
+          "tone": "accent",
+          "publisher": "Center for Internet Security",
+          "url": "https://www.cisecurity.org/controls",
+          "codePattern": "^CIS(\\.(CONTROLS|BENCHMARK|\\d{1,2}))?$"
+        },
+        {
+          "id": "OWASP",
+          "label": "OWASP",
+          "description": "OWASP Top 10 and the Web Security Testing Guide",
+          "why": "Catalogues the most common web application weaknesses. This tag means the step attacks or defends one of those top risks, the shared language developers use to talk about web security.",
+          "kind": "framework",
+          "tone": "warn",
+          "publisher": "OWASP Foundation",
+          "url": "https://owasp.org/www-project-top-ten/"
+        },
+        {
+          "id": "NIST_800_61",
+          "label": "NIST 800-61",
+          "description": "NIST SP 800-61 Computer Security Incident Handling Guide",
+          "why": "The incident-handling playbook: prepare, detect and analyse, contain, eradicate, recover, learn. This tag means the step is part of a defensible, court-ready incident response process.",
+          "kind": "publication",
+          "tone": "warn",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/61/r3/final",
+          "codePattern": "^NIST\\.800-61(\\.(PREPARE|DETECT|CONTAIN|POST))?$"
+        },
+        {
+          "id": "NIST_800_115",
+          "label": "NIST 800-115",
+          "description": "NIST SP 800-115 Technical Guide to Information Security Testing and Assessment",
+          "why": "The standard method for security testing and assessment. Following it makes scanning and exploitation repeatable, authorised and credible in a report.",
+          "kind": "publication",
+          "tone": "ok",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/115/final"
+        },
+        {
+          "id": "ISO_27001",
+          "label": "ISO 27001",
+          "description": "ISO/IEC 27001:2022 information security management system",
+          "why": "The certifiable information security management standard. This tag means the step produces the documented policy or evidence an ISO 27001 audit expects to see.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "ISO/IEC",
+          "url": "https://www.iso.org/standard/27001",
+          "codePattern": "^ISO27001(\\.(\\d+(\\.\\d+)*|A\\.\\d+\\.\\d+))?$"
+        },
+        {
+          "id": "SOC_2",
+          "label": "SOC 2",
+          "description": "AICPA Trust Services Criteria for a SOC 2 examination",
+          "why": "The AICPA attestation standard built on the Trust Services Criteria: Security is CC1 to CC9, plus Availability, Confidentiality and the rest. This tag means the step produces a control or the evidence a SOC 2 Type I or II examiner samples.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "AICPA",
+          "url": "https://www.aicpa-cima.com/topic/audit-assurance/audit-and-assurance-greater-than-soc-2",
+          "codePattern": "^SOC2(\\.(CC\\d(\\.\\d)?|A1|C1|PI1|P\\d))?$"
+        },
+        {
+          "id": "STRIDE",
+          "label": "STRIDE",
+          "description": "STRIDE threat modelling",
+          "why": "A threat modelling lens: Spoofing, Tampering, Repudiation, Information disclosure, Denial of service, Elevation of privilege. It names the category of threat this step addresses.",
+          "kind": "practice",
+          "tone": "danger",
+          "publisher": "Microsoft"
+        },
+        {
+          "id": "ITIL",
+          "label": "ITIL 4",
+          "description": "ITIL 4 service management practices: change, incident, problem, release",
+          "why": "The operating disciplines a network team is judged on: change, incident and problem management. A tag here means the step is not just technically right but done the way an organisation can audit: requested, reviewed, reversible and recorded.",
+          "kind": "framework",
+          "tone": "accent",
+          "publisher": "PeopleCert",
+          "url": "https://www.axelos.com/certifications/itil-service-management",
+          "codePattern": "^ITIL(\\.[a-z-]+)?$"
+        },
+        {
+          "id": "WAF",
+          "label": "Well-Architected",
+          "description": "Well-Architected Framework pillars, Azure and AWS",
+          "why": "Both clouds judge a design on the same pillars: reliability, security, cost, operational excellence and performance. A tag here means the step is a design choice one of them would ask about.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "Microsoft and Amazon Web Services",
+          "url": "https://learn.microsoft.com/azure/well-architected/",
+          "codePattern": "^WAF(\\.[a-z-]+)?$"
+        },
+        {
+          "id": "CISSP",
+          "label": "CISSP",
+          "description": "ISC2 CISSP: the eight domains of the Common Body of Knowledge",
+          "why": "The CISSP exam outline has eight domains, from security and risk management to software development security. The tag says which domain a sheet or control belongs to.",
+          "kind": "exam",
+          "tone": "accent",
+          "publisher": "ISC2",
+          "url": "https://www.isc2.org/certifications/cissp"
+        },
+        {
+          "id": "NIST_AI_RMF",
+          "label": "NIST AI RMF",
+          "description": "NIST AI Risk Management Framework 1.0 and its Generative AI Profile",
+          "why": "The AI framework Ridgeline adopts: Govern, Map, Measure, Manage. A tag here means the step produces something an AI risk register or the AI questions a buyer asks will ask for.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "NIST",
+          "url": "https://www.nist.gov/itl/ai-risk-management-framework",
+          "codePattern": "^NIST\\.AI-RMF(\\.(GOVERN|MAP|MEASURE|MANAGE))?$"
+        },
+        {
+          "id": "ISO_42001",
+          "label": "ISO/IEC 42001",
+          "description": "ISO/IEC 42001 AI management system",
+          "why": "The certifiable management system standard for AI. Customers ask about it; a tag here means the step produces the kind of record an AI management system keeps.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "ISO/IEC",
+          "url": "https://www.iso.org/standard/42001"
+        },
+        {
+          "id": "NIST_800_53",
+          "label": "NIST SP 800-53",
+          "description": "NIST SP 800-53 Rev. 5 security and privacy controls",
+          "why": "The federal control catalogue the sixteen CISSP control statements are drawn from (PM-1, SC-7, AC-2). A tag here means the step writes or proves one of those controls.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/53/r5/upd1/final",
+          "codePattern": "^NIST\\.800-53(\\.[A-Z]{2}(-\\d+)?)?$"
+        },
+        {
+          "id": "NIST_800_171",
+          "label": "NIST SP 800-171",
+          "description": "NIST SP 800-171: protecting controlled unclassified information",
+          "why": "What a federal contract requires once controlled unclassified information arrives. A tag here means the step feeds the gap analysis or the System Security Plan.",
+          "kind": "publication",
+          "tone": "warn",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/171/r3/final",
+          "codePattern": "^(NIST\\.800-171(\\.3\\.\\d{1,2})?|FAR\\.52\\.204-21)$"
+        },
+        {
+          "id": "NIST_800_30",
+          "label": "NIST SP 800-30",
+          "description": "NIST SP 800-30 Guide for Conducting Risk Assessments",
+          "why": "The federal method for a risk assessment: threat sources, events, likelihood and impact. A risk register that follows it can be defended line by line.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/30/r1/final"
+        },
+        {
+          "id": "NIST_800_34",
+          "label": "NIST SP 800-34",
+          "description": "NIST SP 800-34 Contingency Planning Guide for Federal Information Systems",
+          "why": "Where the business impact analysis and the recovery objectives (RTO, RPO) come from. A recovery plan that cites it states what must come back, and how fast.",
+          "kind": "publication",
+          "tone": "ok",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+        },
+        {
+          "id": "NIST_800_88",
+          "label": "NIST SP 800-88",
+          "description": "NIST SP 800-88 Guidelines for Media Sanitization",
+          "why": "Clear, purge, destroy: the three sanitisation levels and when each applies. A disposal record that cites it proves the data left with the hardware.",
+          "kind": "publication",
+          "tone": "warn",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/88/r2/final"
+        },
+        {
+          "id": "NIST_800_207",
+          "label": "NIST SP 800-207",
+          "description": "NIST SP 800-207 Zero Trust Architecture",
+          "why": "The reference for zero trust: no implicit trust from network location, every access decided per request. A network design that cites it explains its default-deny rules.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/207/final"
+        },
+        {
+          "id": "NIST_800_63",
+          "label": "NIST SP 800-63",
+          "description": "NIST SP 800-63-4 Digital Identity Guidelines",
+          "why": "The assurance levels for identity proofing, authenticators and federation. An identity standard that cites it says which level MFA and single sign-on reach.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://pages.nist.gov/800-63-4/"
+        },
+        {
+          "id": "NIST_800_218",
+          "label": "NIST SP 800-218",
+          "description": "NIST SP 800-218 Secure Software Development Framework (SSDF)",
+          "why": "The practices a secure software pipeline follows: protect the code, produce well-secured software, respond to vulnerabilities. A pipeline record that cites it names the gate each practice became.",
+          "kind": "publication",
+          "tone": "accent",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/218/final"
+        },
+        {
+          "id": "ISO_27005",
+          "label": "ISO/IEC 27005",
+          "description": "ISO/IEC 27005 information security risk management",
+          "why": "The risk method behind ISO 27001 clause 6: identify, analyse, evaluate, treat. A risk register that cites it reads the same way to an auditor.",
+          "kind": "publication",
+          "tone": "ok",
+          "publisher": "ISO/IEC",
+          "url": "https://www.iso.org/standard/80585.html"
+        },
+        {
+          "id": "ISO_42010",
+          "label": "ISO/IEC/IEEE 42010",
+          "description": "ISO/IEC/IEEE 42010 architecture description",
+          "why": "What an architecture description must contain: stakeholders, concerns, viewpoints and the decisions behind them. A solution architecture document that cites it is complete rather than a diagram.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "ISO/IEC/IEEE",
+          "url": "https://www.iso.org/standard/74393.html"
+        }
+      ],
+      "TACTICS": [
+        {
+          "id": "TA0043",
+          "matrix": "attack-enterprise",
+          "label": "Reconnaissance",
+          "url": "https://attack.mitre.org/tactics/TA0043/",
+          "checkedYear": 2025
+        },
+        {
+          "id": "TA0001",
+          "matrix": "attack-enterprise",
+          "label": "Initial Access",
+          "url": "https://attack.mitre.org/tactics/TA0001/",
+          "checkedYear": 2025
+        },
+        {
+          "id": "TA0006",
+          "matrix": "attack-enterprise",
+          "label": "Credential Access",
+          "url": "https://attack.mitre.org/tactics/TA0006/",
+          "checkedYear": 2025
+        },
+        {
+          "id": "TA0007",
+          "matrix": "attack-enterprise",
+          "label": "Discovery",
+          "url": "https://attack.mitre.org/tactics/TA0007/",
+          "checkedYear": 2025
+        }
+      ],
+      "TACTIC_OF": {
+        "ci-w3-gov": [
+          "TA0001"
+        ],
+        "ci-w4-idops": [
+          "TA0006"
+        ],
+        "ci-w5-arch": [
+          "TA0043",
+          "TA0007"
+        ]
+      },
+      "TOOLS": [
+        {
+          "id": "tool.linux-shell",
+          "label": "Linux shell",
+          "kind": "cli",
+          "aliases": [
+            "Terminal",
+            "grep",
+            "tail/grep",
+            "tail",
+            "A text editor",
+            "text editor"
+          ],
+          "commands": [
+            "bash",
+            "sh",
+            "cat",
+            "grep",
+            "tail",
+            "head",
+            "less",
+            "mkdir",
+            "cp",
+            "mv",
+            "rm",
+            "echo",
+            "printf",
+            "cd",
+            "ls",
+            "date",
+            "sed",
+            "awk",
+            "nano",
+            "vi",
+            "vim",
+            "chown",
+            "chmod",
+            "tee",
+            "ss",
+            "ip",
+            "bridge",
+            "route",
+            "lsblk",
+            "lscpu",
+            "lspci",
+            "dmidecode",
+            "diff",
+            "gunzip",
+            "tar",
+            "sleep",
+            "time",
+            "export",
+            "for",
+            "if",
+            "while",
+            "do",
+            "done",
+            "exit",
+            "timedatectl",
+            "lsb_release",
+            "usermod",
+            "adduser",
+            "useradd",
+            "sysctl",
+            "systemctl",
+            "journalctl",
+            "apt",
+            "apt-get",
+            "dpkg",
+            "resolvectl",
+            "hostnamectl",
+            "id",
+            "whoami",
+            "source",
+            "test",
+            "true",
+            "wc",
+            "sort",
+            "uniq",
+            "xargs",
+            "find",
+            "which",
+            "env",
+            "set",
+            "unset",
+            "touch",
+            "ln",
+            "df",
+            "du",
+            "free",
+            "uptime",
+            "uname",
+            "ps",
+            "kill",
+            "crontab",
+            "base64",
+            "md5sum",
+            "cut",
+            "jq",
+            "pkill",
+            "reboot",
+            "gpg",
+            "zip",
+            "unzip",
+            "mkfifo",
+            "until",
+            "then",
+            "else",
+            "elif",
+            "fi",
+            "case",
+            "esac",
+            "pipx",
+            "tr",
+            "sha1sum",
+            "history",
+            "clear"
+          ]
+        },
+        {
+          "id": "tool.curl",
+          "label": "curl",
+          "kind": "cli",
+          "aliases": [
+            "curl",
+            "wget"
+          ],
+          "commands": [
+            "curl",
+            "wget"
+          ]
+        },
+        {
+          "id": "tool.sha256sum",
+          "label": "sha256sum",
+          "kind": "cli",
+          "aliases": [
+            "sha256sum",
+            "Get-FileHash"
+          ],
+          "commands": [
+            "sha256sum",
+            "shasum",
+            "Get-FileHash",
+            "certutil"
+          ]
+        },
+        {
+          "id": "tool.capstone-forms",
+          "label": "Capstone forms",
+          "kind": "document",
+          "aliases": [
+            "Deliverables forms",
+            "Deliverables tab",
+            "Deliverables page",
+            "The document",
+            "Team package export",
+            "Generate PDF",
+            "your weekly reports",
+            "Control Matrix",
+            "Control Matrix form",
+            "Risk register",
+            "Statement of Applicability form",
+            "Retest & Validation form",
+            "Detection Rules form",
+            "Detection & Response Metrics form",
+            "Internal Audit Report form",
+            "Audit Evidence Packet form",
+            "Server Bring-Up Log",
+            "Server Bring-Up Log form",
+            "DR Plan & As-Built Handover",
+            "DR Plan & As-Built Handover form",
+            "IP Plan & Connectivity Proof",
+            "IP Plan & Connectivity Proof form",
+            "Operations Log & SOPs",
+            "Operations Log & SOPs form",
+            "Rack, Power & Asset Register",
+            "Rack, Power & Asset Register form",
+            "Architecture Brief",
+            "Architecture Brief form",
+            "Baselines, Policies & Standards",
+            "Hardware Discovery form",
+            "Hardware Discovery, HCL & Upgrade Plan",
+            "Engagement Agreement form",
+            "Engagement scope"
+          ]
+        },
+        {
+          "id": "tool.notes",
+          "label": "Notes",
+          "kind": "document",
+          "aliases": [
+            "Notes",
+            "Your notes",
+            "On paper first",
+            "paper"
+          ]
+        },
+        {
+          "id": "tool.spreadsheet",
+          "label": "Spreadsheet",
+          "kind": "app",
+          "aliases": [
+            "a spreadsheet",
+            "spreadsheet"
+          ]
+        },
+        {
+          "id": "tool.draw-io",
+          "label": "draw.io",
+          "kind": "app",
+          "aliases": [
+            "draw.io",
+            "diagrams.net"
+          ],
+          "url": "https://www.drawio.com/"
+        },
+        {
+          "id": "tool.nmap",
+          "label": "nmap",
+          "kind": "cli",
+          "aliases": [
+            "nmap"
+          ],
+          "url": "https://nmap.org/",
+          "commands": [
+            "nmap",
+            "Nmap"
+          ]
+        },
+        {
+          "id": "tool.owasp-zap",
+          "label": "OWASP ZAP",
+          "kind": "app",
+          "aliases": [
+            "OWASP ZAP",
+            "ZAP"
+          ],
+          "commands": [
+            "zap.sh",
+            "zap-baseline.py"
+          ]
+        },
+        {
+          "id": "tool.openvas",
+          "label": "OpenVAS",
+          "kind": "service",
+          "aliases": [
+            "OpenVAS",
+            "Greenbone"
+          ],
+          "vendor": "Greenbone"
+        },
+        {
+          "id": "tool.nftables",
+          "label": "nftables",
+          "kind": "cli",
+          "aliases": [
+            "nftables",
+            "nft"
+          ],
+          "commands": [
+            "nft"
+          ]
+        },
+        {
+          "id": "tool.lynis",
+          "label": "Lynis",
+          "kind": "cli",
+          "aliases": [
+            "lynis"
+          ],
+          "commands": [
+            "lynis"
+          ]
+        },
+        {
+          "id": "tool.openssl",
+          "label": "OpenSSL",
+          "kind": "cli",
+          "aliases": [
+            "OpenSSL"
+          ],
+          "commands": [
+            "openssl"
+          ]
+        },
+        {
+          "id": "tool.shred",
+          "label": "shred",
+          "kind": "cli",
+          "aliases": [
+            "shred"
+          ],
+          "commands": [
+            "shred",
+            "wipe"
+          ]
+        },
+        {
+          "id": "tool.wazuh",
+          "label": "Wazuh",
+          "kind": "service",
+          "aliases": [
+            "Wazuh",
+            "Wazuh agent",
+            "Wazuh dashboard",
+            "Wazuh dashboard search bar",
+            "Wazuh on the Core",
+            "Wazuh SCA",
+            "Wazuh Vulnerabilities",
+            "Wazuh MITRE ATT&CK",
+            "Wazuh manager",
+            "SIEM",
+            "SIEM dashboards"
+          ],
+          "url": "https://wazuh.com/",
+          "commands": [
+            "wazuh-agent",
+            "agent-auth",
+            "wazuh-control"
+          ]
+        },
+        {
+          "id": "tool.keycloak",
+          "label": "Keycloak",
+          "kind": "service",
+          "aliases": [
+            "Keycloak",
+            "Keycloak admin console"
+          ],
+          "commands": [
+            "kcadm.sh",
+            "kcadm"
+          ]
+        },
+        {
+          "id": "tool.trivy",
+          "label": "Trivy",
+          "kind": "cli",
+          "aliases": [
+            "Trivy"
+          ],
+          "vendor": "Aqua Security",
+          "commands": [
+            "trivy"
+          ]
+        },
+        {
+          "id": "tool.presidio",
+          "label": "Microsoft Presidio",
+          "kind": "service",
+          "aliases": [
+            "Microsoft Presidio",
+            "Presidio"
+          ],
+          "vendor": "Microsoft"
+        },
+        {
+          "id": "tool.eramba",
+          "label": "eramba",
+          "kind": "service",
+          "aliases": [
+            "eramba"
+          ]
+        },
+        {
+          "id": "tool.snipe-it",
+          "label": "Snipe-IT",
+          "kind": "service",
+          "aliases": [
+            "Snipe-IT"
+          ]
+        },
+        {
+          "id": "tool.threat-dragon",
+          "label": "OWASP Threat Dragon",
+          "kind": "app",
+          "aliases": [
+            "OWASP Threat Dragon",
+            "Threat Dragon"
+          ]
+        },
+        {
+          "id": "tool.opencre",
+          "label": "OpenCRE",
+          "kind": "service",
+          "aliases": [
+            "OpenCRE"
+          ]
+        },
+        {
+          "id": "tool.oscal-compass",
+          "label": "OSCAL Compass",
+          "kind": "cli",
+          "aliases": [
+            "OSCAL Compass"
+          ],
+          "commands": [
+            "trestle"
+          ]
+        },
+        {
+          "id": "tool.git",
+          "label": "Git",
+          "kind": "cli",
+          "aliases": [
+            "Git"
+          ],
+          "commands": [
+            "git"
+          ]
+        },
+        {
+          "id": "tool.jenkins",
+          "label": "Jenkins",
+          "kind": "service",
+          "aliases": [
+            "Jenkins",
+            "Jenkins pipeline"
+          ]
+        },
+        {
+          "id": "tool.python",
+          "label": "Python",
+          "kind": "language",
+          "aliases": [
+            "Python"
+          ],
+          "commands": [
+            "python",
+            "python3",
+            "pip",
+            "pip3"
+          ]
+        },
+        {
+          "id": "tool.restic",
+          "label": "restic",
+          "kind": "cli",
+          "aliases": [
+            "restic"
+          ],
+          "commands": [
+            "restic"
+          ]
+        }
+      ],
+      "TOOL_OF": {
+        "ci-w0-gov": [
+          "tool.linux-shell",
+          "tool.sha256sum",
+          "tool.capstone-forms",
+          "tool.git"
+        ],
+        "ci-w0-arch": [
+          "tool.capstone-forms",
+          "tool.draw-io"
+        ],
+        "ci-w0-idops": [
+          "tool.capstone-forms",
+          "tool.notes"
+        ],
+        "ci-w1-gov": [
+          "tool.linux-shell",
+          "tool.sha256sum",
+          "tool.capstone-forms",
+          "tool.spreadsheet",
+          "tool.eramba",
+          "tool.git"
+        ],
+        "ci-w1-arch": [
+          "tool.capstone-forms",
+          "tool.draw-io"
+        ],
+        "ci-w1-idops": [
+          "tool.capstone-forms",
+          "tool.notes"
+        ],
+        "ci-w2-gov": [
+          "tool.capstone-forms",
+          "tool.spreadsheet",
+          "tool.eramba",
+          "tool.snipe-it"
+        ],
+        "ci-w2-arch": [
+          "tool.capstone-forms",
+          "tool.draw-io"
+        ],
+        "ci-w2-idops": [
+          "tool.capstone-forms",
+          "tool.notes"
+        ],
+        "ci-w3-arch": [
+          "tool.linux-shell",
+          "tool.nmap",
+          "tool.nftables",
+          "tool.openssl",
+          "tool.trivy",
+          "tool.git",
+          "tool.jenkins"
+        ],
+        "ci-w3-idops": [
+          "tool.linux-shell",
+          "tool.curl",
+          "tool.keycloak"
+        ],
+        "ci-w3-gov": [
+          "tool.linux-shell",
+          "tool.sha256sum",
+          "tool.shred",
+          "tool.threat-dragon"
+        ],
+        "ci-w4-idops": [
+          "tool.linux-shell",
+          "tool.sha256sum",
+          "tool.capstone-forms",
+          "tool.wazuh",
+          "tool.restic"
+        ],
+        "ci-w4-gov": [
+          "tool.capstone-forms",
+          "tool.presidio",
+          "tool.python"
+        ],
+        "ci-w4-arch": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.openvas",
+          "tool.lynis"
+        ],
+        "ci-w5-gov": [
+          "tool.capstone-forms",
+          "tool.eramba",
+          "tool.opencre"
+        ],
+        "ci-w5-arch": [
+          "tool.linux-shell",
+          "tool.nmap",
+          "tool.owasp-zap",
+          "tool.openssl"
+        ],
+        "ci-w5-idops": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.notes",
+          "tool.keycloak"
+        ],
+        "ci-w6-gov": [
+          "tool.linux-shell",
+          "tool.sha256sum",
+          "tool.capstone-forms",
+          "tool.oscal-compass",
+          "tool.git"
+        ],
+        "ci-w6-arch": [
+          "tool.draw-io"
+        ],
+        "ci-w6-idops": [
+          "tool.capstone-forms",
+          "tool.notes"
+        ]
+      }
     },
     "custody": {
       "CUSTODY_COLUMNS": [

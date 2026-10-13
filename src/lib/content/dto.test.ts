@@ -142,6 +142,13 @@ describe('the DTO exports the whole model, not a remembered subset', () => {
       expect(Object.keys(roles), `${c.id} roles keys`).toEqual(['FLOW_HOW_TO_READ', 'FLOW_KIND_LABEL', 'MOTION', 'PROFILES', 'WORKS_LABEL', 'WORKS_SHORT']);
       expect(roles.PROFILES.map((x) => x.id), `${c.id} role profiles`).toEqual(c.roles.map((r) => r.id));
       expect(dto.generatedFrom).toContain('src/lib/docs/roles.ts');
+      // R107: the skills section — the course's maps and the registry rows they reach, the catalogue and the words.
+      const skills = dto.content?.skills as { TOOL_OF: Record<string, string[]>; TOOLS: { id: string }[]; METRICS: unknown[] };
+      expect(Object.keys(skills), `${c.id} skills keys`).toEqual(['AREAS', 'CONTROLS', 'COPY', 'DIMENSION_LABEL', 'LEVEL_LABEL', 'METRICS', 'PRACTICES', 'PRACTICE_OF', 'SKILLS', 'SKILL_OF', 'SOPS', 'SOP_OF', 'SOP_OF_TASK', 'STANDARDS', 'TACTICS', 'TACTIC_OF', 'TOOLS', 'TOOL_OF']);
+      expect(Object.keys(skills.TOOL_OF), `${c.id} TOOL_OF covers every task`).toEqual(c.tasks.map((t) => t.id));
+      expect(skills.TOOLS.length, `${c.id} carries the tools it uses`).toBeGreaterThan(0);
+      expect(skills.METRICS.length, `${c.id} carries the metric catalogue`).toBeGreaterThan(70);
+      for (const m of ['skills', 'tools', 'standards', 'sops', 'tactics', 'metricCatalogue', 'skillsCopy']) expect(dto.generatedFrom).toContain(`src/lib/docs/${m}.ts`);
     }
   });
 

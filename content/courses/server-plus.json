@@ -11,6 +11,13 @@
     "src/lib/docs/roles.ts",
     "src/lib/docs/certs.ts",
     "src/lib/docs/costs.ts",
+    "src/lib/docs/skills.ts",
+    "src/lib/docs/tools.ts",
+    "src/lib/docs/standards.ts",
+    "src/lib/docs/sops.ts",
+    "src/lib/docs/tactics.ts",
+    "src/lib/docs/metricCatalogue.ts",
+    "src/lib/docs/skillsCopy.ts",
     "src/lib/docs/custodyTemplate.ts",
     "src/lib/docs/troubleshooting.ts",
     "src/lib/glossary.ts",
@@ -13756,7 +13763,8 @@
       "COURSE_TOOLS": {
         "security-plus": "whois · dig · whatweb · nmap · nikto · tcpdump · Wireshark · sqlmap · hydra · nc · grep · fail2ban · Event Viewer · sha256sum",
         "cysa-plus": "Wazuh · Suricata · Sysmon · tcpdump · Wireshark · nmap · nikto · sqlmap · ssh · sha256sum",
-        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · your framework mappings (SOC 2 · ISO 27001)",
+        "mssp": "nmap · lynis · ufw · auditd · Sigma/grep · CIS Benchmarks · sha256sum · the framework mappings (SOC 2, ISO 27001)",
+        "server-plus": "Proxmox VE · ssh · netplan · cloud-init · Terraform · Ansible · git · Tailscale · Wazuh · Prometheus · Grafana · NetBox · GLPI · sha256sum",
         "ccna": "show version · show vlan brief · show interfaces trunk · show spanning-tree · show etherchannel summary · show ip route · show ip ospf neighbor · show ip nat translations · show access-lists · ping · traceroute · Wireshark · NetBox · LibreNMS · Oxidized · Ansible",
         "secai-plus": "Ollama · LiteLLM · OpenBao · Chroma · garak · LLM Guard · Microsoft Presidio · Semgrep · Trivy · Gitleaks · ModelScan · Prowler · Wazuh · Git · sha256sum",
         "cissp": "eramba · draw.io · OPNsense · nmap · OpenSSL · Keycloak · Trivy · Gitleaks · OpenVAS · Lynis · Wazuh · restic · OSCAL Compass · Git · sha256sum",
@@ -14792,6 +14800,2796 @@
           "level": "associate"
         }
       ]
+    },
+    "skills": {
+      "AREAS": {
+        "recon": "Reconnaissance",
+        "vuln": "Vulnerability management",
+        "exploit": "Exploitation and testing",
+        "report": "Reporting",
+        "harden": "Hardening and defence",
+        "detect": "Detection and monitoring",
+        "respond": "Incident response",
+        "forensics": "Evidence and forensics",
+        "grc": "Governance and compliance",
+        "risk": "Risk",
+        "audit": "Audit and assessment",
+        "identity": "Identity and access",
+        "crypto": "Cryptography",
+        "arch": "Architecture and network design",
+        "data": "Data security",
+        "ops": "Security operations",
+        "ai-attack": "AI attack and evaluation"
+      },
+      "CONTROLS": [
+        {
+          "code": "NIST.CSF",
+          "standard": "NIST_CSF",
+          "label": "Cybersecurity Framework 2.0",
+          "cites": [
+            "NIST CSF"
+          ]
+        },
+        {
+          "code": "NIST.CSF.GV",
+          "standard": "NIST_CSF",
+          "label": "Govern",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Govern",
+            "GV"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.ID",
+          "standard": "NIST_CSF",
+          "label": "Identify",
+          "parent": "NIST.CSF",
+          "cites": [
+            "Identify"
+          ],
+          "scope": "CSF"
+        },
+        {
+          "code": "NIST.CSF.GV.PO",
+          "standard": "NIST_CSF",
+          "label": "Policy",
+          "parent": "NIST.CSF.GV",
+          "cites": [
+            "GV.PO"
+          ]
+        },
+        {
+          "code": "NIST.CSF.ID.AM",
+          "standard": "NIST_CSF",
+          "label": "Asset Management",
+          "parent": "NIST.CSF.ID",
+          "cites": [
+            "ID.AM"
+          ]
+        },
+        {
+          "code": "ISO27001",
+          "standard": "ISO_27001",
+          "label": "Information security management system",
+          "cites": [
+            "ISO 27001",
+            "ISO/IEC 27001"
+          ]
+        },
+        {
+          "code": "ISO27001.A.5.37",
+          "standard": "ISO_27001",
+          "label": "Documented operating procedures",
+          "parent": "ISO27001",
+          "cites": [
+            "A.5.37"
+          ]
+        },
+        {
+          "code": "ITIL",
+          "standard": "ITIL",
+          "label": "ITIL 4 service management practices",
+          "cites": [
+            "ITIL",
+            "ITIL 4"
+          ]
+        },
+        {
+          "code": "ITIL.change",
+          "standard": "ITIL",
+          "label": "Change enablement",
+          "parent": "ITIL",
+          "cites": [
+            "change enablement",
+            "change record",
+            "change management"
+          ]
+        },
+        {
+          "code": "ITIL.problem",
+          "standard": "ITIL",
+          "label": "Problem management",
+          "parent": "ITIL",
+          "cites": [
+            "problem management"
+          ]
+        },
+        {
+          "code": "ITIL.configuration",
+          "standard": "ITIL",
+          "label": "Service configuration management",
+          "parent": "ITIL",
+          "cites": [
+            "service configuration management"
+          ]
+        },
+        {
+          "code": "ITIL.transition",
+          "standard": "ITIL",
+          "label": "Service transition",
+          "parent": "ITIL",
+          "cites": [
+            "service transition"
+          ]
+        },
+        {
+          "code": "CIS",
+          "standard": "CIS",
+          "label": "Center for Internet Security",
+          "cites": [
+            "CIS"
+          ]
+        },
+        {
+          "code": "CIS.BENCHMARK",
+          "standard": "CIS",
+          "label": "CIS Benchmarks",
+          "parent": "CIS",
+          "cites": [
+            "CIS Benchmark",
+            "CIS Benchmarks"
+          ]
+        }
+      ],
+      "COPY": {
+        "cardTitle": "Skills",
+        "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",
+        "denominator": "Counted over required steps of graded weeks the member ticked.",
+        "domainsHeading": "Exam domains",
+        "domainColumns": [
+          "Domain",
+          "Practised",
+          "Verified",
+          "Next task"
+        ],
+        "noTactics": "Adversary tactics are not part of this course.",
+        "teamFact": "A team document approved counts for every member of the team.",
+        "verifiedMeans": "Verified means the pasted output held every expected token; it does not prove the lab state.",
+        "selfAttested": "Ticked without matching output.",
+        "nextGap": "Next task that closes a gap",
+        "noSpeed": "Nothing here measures how fast the work was done.",
+        "loadedLater": "Team facts load on the course page.",
+        "emptyDimension": "Nothing recorded yet.",
+        "artifactsApprox": "Files are counted per form and week, not per task.",
+        "procedureFollowed": "Followed means every check due was met and the document-control block is complete.",
+        "procedureApproved": "Approved means the team approved or issued the document.",
+        "standardsEffectiveness": "Per standard: verified steps, approved forms and followed procedures that cite it.",
+        "abilityIntro": "Indicators, not scores: first-try beside persistence, partial progress, investigation, consistency.",
+        "exportClaim": "This export lists steps the member ticked and verified, hashes of outputs and files, and documents the team filed. It is unsigned.",
+        "exportSchemaNote": "The shape is published as content/schemas/member-profile.schema.json.",
+        "portfolioSections": {
+          "skills": "Skills proved",
+          "tools": "Tools used",
+          "procedures": "Procedures followed to standard",
+          "standards": "Standards practised",
+          "domains": "Exam domains",
+          "tactics": "Tactics and practices"
+        },
+        "dashboardSection": "Skills by course",
+        "tiles": {
+          "skillsVerified": "Skills verified",
+          "toolsUsed": "Tools used"
+        }
+      },
+      "DIMENSION_LABEL": {
+        "skills": "Skills",
+        "tools": "Tools",
+        "procedures": "Procedures",
+        "tactics": "Tactics",
+        "practices": "Practices",
+        "standards": "Standards",
+        "domains": "Exam domains",
+        "evidence": "Evidence",
+        "documentation": "Documentation",
+        "collaboration": "Collaboration",
+        "ability": "Ability"
+      },
+      "LEVEL_LABEL": {
+        "skills": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "tools": {
+          "not-started": "Not started",
+          "practised": "Used",
+          "verified": "Used on a verified step",
+          "reviewed": "Team document approved"
+        },
+        "procedures": {
+          "not-started": "Not started",
+          "practised": "Started",
+          "verified": "Followed, checks met",
+          "reviewed": "Approved by the team"
+        },
+        "tactics": {
+          "not-started": "Not started",
+          "practised": "Practised or defended",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "practices": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "standards": {
+          "not-started": "Not started",
+          "practised": "Tagged on ticked work",
+          "verified": "Tagged on verified output",
+          "reviewed": "Cited by an approved form"
+        },
+        "domains": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "evidence": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "documentation": {
+          "not-started": "Not started",
+          "practised": "Drafted",
+          "verified": "Checks met",
+          "reviewed": "Approved"
+        },
+        "collaboration": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        },
+        "ability": {
+          "not-started": "Not started",
+          "practised": "Practised",
+          "verified": "Verified from output",
+          "reviewed": "Team document approved"
+        }
+      },
+      "METRICS": [
+        {
+          "id": "metric.skill-exercised",
+          "label": "Skills exercised",
+          "dimension": "skills",
+          "definition": "Mapped graded tasks with at least one required step ticked, over mapped tasks.",
+          "inputs": [
+            "step_completions",
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-practised",
+          "label": "Skills practised",
+          "dimension": "skills",
+          "definition": "Skills with at least one ticked required step, over the skills the course maps.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-verified",
+          "label": "Skills verified",
+          "dimension": "skills",
+          "definition": "Skills with at least one verifiable step verified from pasted output, over skills with a verifiable step.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-fully-verified",
+          "label": "Skills fully verified",
+          "dimension": "skills",
+          "definition": "Skills whose every verifiable step is verified, over skills with a verifiable step.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-reviewed",
+          "label": "Skills reviewed",
+          "dimension": "skills",
+          "definition": "Verified skills whose mapped deliverable the team had approved or issued, over verified skills.",
+          "inputs": [
+            "step_evidence",
+            "deliverable_status",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact: the document was approved, not the member alone. Loads on the course page."
+        },
+        {
+          "id": "metric.skill-next-gap",
+          "label": "Next task per gap",
+          "dimension": "skills",
+          "definition": "For each skill not started, the first mapped task not done, in course order.",
+          "inputs": [
+            "step_completions",
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-state-proven",
+          "label": "Skills state-proven",
+          "dimension": "skills",
+          "definition": "Skills confirmed by a validator that read the real system state, over skills.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.skill-attested",
+          "label": "Skills attested",
+          "dimension": "skills",
+          "definition": "Skills carried by a signed attestation with an environment hash, over skills.",
+          "inputs": [],
+          "valueTo": [
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-used",
+          "label": "Tools used",
+          "dimension": "tools",
+          "definition": "Tools of tasks with at least one ticked required step, over the tools the course derives.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-verified",
+          "label": "Tools verified",
+          "dimension": "tools",
+          "definition": "Tools of tasks with at least one verified step, over tools used.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-commands-verified",
+          "label": "Commands verified per tool",
+          "dimension": "tools",
+          "definition": "Verified steps whose command belongs to the tool, over verifiable steps with such a command.",
+          "inputs": [
+            "step_evidence",
+            "course",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-evidenced",
+          "label": "Tools evidenced by file",
+          "dimension": "tools",
+          "definition": "Hashed artifacts whose filename tool segment resolves to the tool, over hashed artifacts.",
+          "inputs": [
+            "evidence_artifacts",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tool-command-copied",
+          "label": "Commands copied per tool",
+          "dimension": "tools",
+          "definition": "Copy or paste events per tool.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "platform"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.procedure-started",
+          "label": "Procedures started",
+          "dimension": "procedures",
+          "definition": "SOP kinds with a mapped form holding data or a mapped task ticked, over the SOP kinds the course maps.",
+          "inputs": [
+            "deliverables",
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Form data is a team fact; loads on the course page."
+        },
+        {
+          "id": "metric.procedure-followed",
+          "label": "Procedures followed",
+          "dimension": "procedures",
+          "definition": "SOP kinds whose mapped forms meet every Definition-of-Done check due and have document control complete, over started.",
+          "inputs": [
+            "deliverables",
+            "course",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-evidenced",
+          "label": "Procedures evidenced",
+          "dimension": "procedures",
+          "definition": "Followed SOP kinds whose evidence fields point at a hashed artifact, over followed.",
+          "inputs": [
+            "deliverables",
+            "evidence_artifacts",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-to-standard",
+          "label": "Procedures to standard",
+          "dimension": "procedures",
+          "definition": "Followed SOP kinds whose form cites a parsed control code and was approved or issued, over followed.",
+          "inputs": [
+            "deliverables",
+            "deliverable_status",
+            "controls",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-in-order",
+          "label": "Steps verified in order",
+          "dimension": "procedures",
+          "definition": "Tasks whose verifiable steps were verified in authored order, over tasks with two or more verification records. A sequence fact only.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.procedure-change-recorded",
+          "label": "Change rows complete",
+          "dimension": "procedures",
+          "definition": "Change-record rows with what, where, backup, approval and rollback filled, over change rows on the role’s forms.",
+          "inputs": [
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-custody-kept",
+          "label": "Custody rows hashed",
+          "dimension": "procedures",
+          "definition": "Custody-log rows whose digest matches a hashed artifact, over custody rows.",
+          "inputs": [
+            "deliverables",
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-drilled",
+          "label": "Drills completed",
+          "dimension": "procedures",
+          "definition": "Recovery and incident SOP kinds with the drill task verified and the record approved, over such SOP kinds.",
+          "inputs": [
+            "step_evidence",
+            "deliverable_status",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.procedure-guide-followed",
+          "label": "Guide procedures followed",
+          "dimension": "procedures",
+          "definition": "Server+ guide procedures referenced by a ticked step, over guide procedures the role’s tasks reference.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Server+ only."
+        },
+        {
+          "id": "metric.procedure-backup-before-write",
+          "label": "Backup before write",
+          "dimension": "procedures",
+          "definition": "Config writes preceded by their backup command, over config writes.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "Steps are ticked as a whole; commands are not."
+        },
+        {
+          "id": "metric.procedure-state-proven",
+          "label": "Procedures state-proven",
+          "dimension": "procedures",
+          "definition": "SOP outcomes read from system state by a validator, over followed.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.tactic-practised",
+          "label": "Tactics practised",
+          "dimension": "tactics",
+          "definition": "ATT&CK or ATLAS tactics of tasks with at least one ticked step, over the tactics the course maps.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tactic-verified",
+          "label": "Tactics verified",
+          "dimension": "tactics",
+          "definition": "Tactics of tasks with at least one verified step, over tactics practised.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.tactic-cited",
+          "label": "Technique ids cited",
+          "dimension": "tactics",
+          "definition": "Technique ids typed into forms that resolve to the matrices, over technique fields.",
+          "inputs": [
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "Team rows carry no author."
+        },
+        {
+          "id": "metric.practice-practised",
+          "label": "Practices practised",
+          "dimension": "practices",
+          "definition": "Engineering practices of tasks with at least one ticked step, over the practices the course maps.",
+          "inputs": [
+            "step_completions",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.practice-verified",
+          "label": "Practices verified",
+          "dimension": "practices",
+          "definition": "Practices of tasks with at least one verified step, over practices practised.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-practised",
+          "label": "Standards practised",
+          "dimension": "standards",
+          "definition": "Standards tagged on tasks or steps the member ticked, over standards the course tags.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-verified",
+          "label": "Standards verified",
+          "dimension": "standards",
+          "definition": "Standards tagged on a verified step, over standards practised.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-effectiveness-steps",
+          "label": "Effectiveness: steps",
+          "dimension": "standards",
+          "definition": "Per standard: verified steps over verifiable steps tagged with it.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.standard-effectiveness-forms",
+          "label": "Effectiveness: forms",
+          "dimension": "standards",
+          "definition": "Per standard: forms citing it approved with all four rubric categories true, over forms citing it.",
+          "inputs": [
+            "controls",
+            "deliverable_submissions",
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.standard-effectiveness-sops",
+          "label": "Effectiveness: procedures",
+          "dimension": "standards",
+          "definition": "Per standard: SOP kinds anchored to it followed, over SOP kinds anchored to it.",
+          "inputs": [
+            "registry",
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.standard-controls-cited",
+          "label": "Controls cited",
+          "dimension": "standards",
+          "definition": "Distinct control codes on approved forms the member’s role drafted.",
+          "inputs": [
+            "controls",
+            "deliverable_status",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.standard-control-mapped-by-member",
+          "label": "Controls typed by member",
+          "dimension": "standards",
+          "definition": "Control codes the member typed into form fields that parse, over such fields.",
+          "inputs": [
+            "deliverables",
+            "controls"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "Team rows carry no author."
+        },
+        {
+          "id": "metric.domain-practised",
+          "label": "Domains practised",
+          "dimension": "domains",
+          "definition": "Exam domains with at least one ticked task of the role, over domains the course practises.",
+          "inputs": [
+            "step_completions",
+            "cert",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-verified",
+          "label": "Domains verified",
+          "dimension": "domains",
+          "definition": "Exam domains with at least one verified step, over domains the course practises.",
+          "inputs": [
+            "step_evidence",
+            "cert",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-weight-verified",
+          "label": "Exam weight verified",
+          "dimension": "domains",
+          "definition": "Sum of the weights of verified domains over the weights the course practises.",
+          "inputs": [
+            "step_evidence",
+            "cert"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-gap-next",
+          "label": "Next task per domain gap",
+          "dimension": "domains",
+          "definition": "The next task of the role that practises a domain not yet practised.",
+          "inputs": [
+            "step_completions",
+            "cert",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.domain-recall",
+          "label": "Domain recall",
+          "dimension": "domains",
+          "definition": "A domain re-verified after a gap, over domains verified.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-steps-verified",
+          "label": "Steps verified",
+          "dimension": "evidence",
+          "definition": "Verified steps over verifiable required steps in graded weeks.",
+          "inputs": [
+            "step_evidence",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-self-attested",
+          "label": "Steps self-attested",
+          "dimension": "evidence",
+          "definition": "Verifiable required steps ticked without matching output, over verifiable required steps.",
+          "inputs": [
+            "step_evidence",
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-artifacts",
+          "label": "Files hashed",
+          "dimension": "evidence",
+          "definition": "Distinct hashed files the member saved.",
+          "inputs": [
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-naming",
+          "label": "Files named to convention",
+          "dimension": "evidence",
+          "definition": "Hashed files named to the evidence convention, over hashed files.",
+          "inputs": [
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-rehash-confirmed",
+          "label": "Files re-hashed",
+          "dimension": "evidence",
+          "definition": "Files re-hashed later with the same digest, over hashed files.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.evidence-hardware-proven",
+          "label": "Output proven on the lab",
+          "dimension": "evidence",
+          "definition": "Steps whose output was verified on the lab, not in the browser, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.doc-drafted",
+          "label": "Forms drafted",
+          "dimension": "documentation",
+          "definition": "Lifecycle rows by the member moving a form to in review.",
+          "inputs": [
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-reviewed",
+          "label": "Forms reviewed",
+          "dimension": "documentation",
+          "definition": "Lifecycle rows by the member approving or returning a form.",
+          "inputs": [
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-issued",
+          "label": "Forms issued",
+          "dimension": "documentation",
+          "definition": "Lifecycle rows by the member issuing a form.",
+          "inputs": [
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-submissions",
+          "label": "Submissions frozen",
+          "dimension": "documentation",
+          "definition": "Frozen submissions by the member.",
+          "inputs": [
+            "deliverable_submissions"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-rubric-green",
+          "label": "Submissions rubric-green",
+          "dimension": "documentation",
+          "definition": "The member’s frozen submissions with all four rubric categories true, over the member’s submissions.",
+          "inputs": [
+            "deliverable_submissions"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.doc-dod-met",
+          "label": "Definition-of-Done met",
+          "dimension": "documentation",
+          "definition": "Definition-of-Done checks met over checks due on the role’s forms through the current week.",
+          "inputs": [
+            "deliverables",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.doc-control-complete",
+          "label": "Document control complete",
+          "dimension": "documentation",
+          "definition": "Forms with the document-control block complete, over the role’s forms.",
+          "inputs": [
+            "deliverables"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A team fact; loads on the course page."
+        },
+        {
+          "id": "metric.doc-instructor-approved",
+          "label": "Instructor approved",
+          "dimension": "documentation",
+          "definition": "The role’s forms with an instructor verdict of approved, over the role’s forms.",
+          "inputs": [
+            "deliverable_reviews"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.collab-teammate-steps",
+          "label": "Teammate steps ticked",
+          "dimension": "collaboration",
+          "definition": "Required steps the member ticked on another role’s tasks.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.collab-handoffs",
+          "label": "Hand-offs completed",
+          "dimension": "collaboration",
+          "definition": "Hand-offs whose named deliverable reached approved or issued, over hand-offs of the role’s tasks.",
+          "inputs": [
+            "course",
+            "deliverable_status"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.collab-raci-respected",
+          "label": "RACI respected",
+          "dimension": "collaboration",
+          "definition": "Lifecycle transitions the member made in the role the RACI names, over the member’s transitions.",
+          "inputs": [
+            "deliverable_status",
+            "course"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.collab-peer-reviews-given",
+          "label": "Peer reviews given",
+          "dimension": "collaboration",
+          "definition": "Blind peer reviews the member completed.",
+          "inputs": [
+            "peer_review_assignments"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "Read asynchronously by the review bench today."
+        },
+        {
+          "id": "metric.collab-stuck-helped",
+          "label": "Stuck flags helped",
+          "dimension": "collaboration",
+          "definition": "Teammate stuck flags on steps the member had verified.",
+          "inputs": [
+            "step_flags",
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Current flags only; loads on the course page."
+        },
+        {
+          "id": "metric.ability-first-try",
+          "label": "First-try verifications",
+          "dimension": "ability",
+          "definition": "Verified steps with exactly one paste, over verified steps. Shown beside persistence, never alone.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-persistence",
+          "label": "Persistence",
+          "dimension": "ability",
+          "definition": "Verified steps that took more than one paste, over verified steps.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-partial-progress",
+          "label": "Partial progress",
+          "dimension": "ability",
+          "definition": "Verifiable steps with some tokens matched and not verified, over verifiable steps.",
+          "inputs": [
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-investigation-reports",
+          "label": "Reports filed",
+          "dimension": "ability",
+          "definition": "Task reports the member filed, and how many were resolved.",
+          "inputs": [
+            "task_reports"
+          ],
+          "valueTo": [
+            "member",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.ability-investigation-notes",
+          "label": "Notes written",
+          "dimension": "ability",
+          "definition": "Steps the member wrote a note on.",
+          "inputs": [
+            "step_notes"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Loads on the course page."
+        },
+        {
+          "id": "metric.ability-independence",
+          "label": "Independence",
+          "dimension": "ability",
+          "definition": "Steps verified with no stuck flag ever raised, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false,
+          "note": "A cleared flag leaves no trace."
+        },
+        {
+          "id": "metric.ability-consistency-days",
+          "label": "Active days",
+          "dimension": "ability",
+          "definition": "Distinct local days with recorded activity.",
+          "inputs": [
+            "step_evidence",
+            "evidence_artifacts"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-consistency-weeks",
+          "label": "Active weeks",
+          "dimension": "ability",
+          "definition": "Course weeks with any recorded activity, over graded weeks.",
+          "inputs": [
+            "step_completions",
+            "course"
+          ],
+          "valueTo": [
+            "member"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-recall",
+          "label": "Recall",
+          "dimension": "ability",
+          "definition": "A verified step re-verified after seven or more days, over verified steps.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-calibration",
+          "label": "Calibration",
+          "dimension": "ability",
+          "definition": "Stated confidence that matched the outcome, over stated confidences.",
+          "inputs": [],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "needs-validators",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-fixes-consulted",
+          "label": "Fixes consulted",
+          "dimension": "ability",
+          "definition": "\"If it does not work\" rows opened before a verification, over verifications.",
+          "inputs": [],
+          "valueTo": [
+            "member"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-docs-read",
+          "label": "Documentation opened",
+          "dimension": "ability",
+          "definition": "Documentation links opened per task.",
+          "inputs": [],
+          "valueTo": [
+            "member"
+          ],
+          "status": "needs-events",
+          "scored": false
+        },
+        {
+          "id": "metric.ability-deadline-adherence",
+          "label": "Deadline adherence",
+          "dimension": "ability",
+          "definition": "Weeks cleared on or before the cohort due date, over graded weeks.",
+          "inputs": [
+            "cohorts",
+            "step_completions"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "deferred",
+          "scored": false,
+          "note": "No clock is read this round."
+        },
+        {
+          "id": "metric.time-on-task",
+          "label": "Time on task",
+          "dimension": "ability",
+          "definition": "Minutes spent per task.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.time-to-verify",
+          "label": "Time to verify",
+          "dimension": "ability",
+          "definition": "Minutes from first attempt to verification.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.time-vs-estimate",
+          "label": "Time against estimate",
+          "dimension": "ability",
+          "definition": "Minutes spent against the authored estimate.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Speed is not measured."
+        },
+        {
+          "id": "metric.rank-any",
+          "label": "Ranking",
+          "dimension": "ability",
+          "definition": "Any ordering of members against each other.",
+          "inputs": [],
+          "valueTo": [],
+          "status": "excluded",
+          "scored": false,
+          "note": "Nothing is ranked."
+        },
+        {
+          "id": "metric.platform-cohort-domain-coverage",
+          "label": "Cohort domain coverage",
+          "dimension": "domains",
+          "definition": "Per cohort, members with at least one verified step per domain, over members. Instructor aggregate.",
+          "inputs": [
+            "step_evidence",
+            "cert",
+            "cohorts"
+          ],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.platform-course-verifiability",
+          "label": "Course verifiability",
+          "dimension": "evidence",
+          "definition": "Verifiable required steps over required steps per course. Content only.",
+          "inputs": [
+            "course"
+          ],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.platform-skill-coverage",
+          "label": "Course skill coverage",
+          "dimension": "skills",
+          "definition": "Skills, tools, procedures, standards, tactics and practices per course. Content only.",
+          "inputs": [
+            "registry",
+            "course"
+          ],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false
+        },
+        {
+          "id": "metric.platform-cross-platform-signal",
+          "label": "Cross-platform signal",
+          "dimension": "skills",
+          "definition": "A competency-level statement shared with another platform.",
+          "inputs": [],
+          "valueTo": [
+            "platform"
+          ],
+          "status": "needs-consent",
+          "scored": false
+        }
+      ],
+      "PRACTICES": [
+        {
+          "id": "practice.change-control",
+          "label": "Change control",
+          "anchor": "ITIL.change",
+          "definition": "Every change is requested, reviewed, reversible and recorded before it reaches a system."
+        },
+        {
+          "id": "practice.patch-management",
+          "label": "Managed patching",
+          "anchor": "NIST_800_40",
+          "definition": "Updates are inventoried, prioritised, tested, applied and verified on a cadence, not when something breaks."
+        },
+        {
+          "id": "practice.hardening-baseline",
+          "label": "Hardening baseline",
+          "anchor": "CIS.BENCHMARK",
+          "definition": "Hosts are configured to a written benchmark and checked against it, so drift from the baseline is visible."
+        },
+        {
+          "id": "practice.build-record",
+          "label": "Build record",
+          "anchor": "ITIL.configuration",
+          "definition": "A build is recorded step by step with firmware, versions and settings as it is made."
+        },
+        {
+          "id": "practice.recovery-objectives",
+          "label": "Recovery objectives",
+          "anchor": "NIST_800_34",
+          "definition": "Recovery time and recovery point targets are written per service, and a drill is timed against them."
+        },
+        {
+          "id": "practice.written-policy",
+          "label": "Written policy",
+          "anchor": "NIST.CSF.GV.PO",
+          "definition": "Rules are written as shall statements with an owner, a review date and the standard they implement."
+        },
+        {
+          "id": "practice.runbooks-written",
+          "label": "Written runbooks",
+          "anchor": "ISO27001.A.5.37",
+          "definition": "Routine operations are written as steps a colleague could follow, and the steps are kept current."
+        },
+        {
+          "id": "practice.as-built-documentation",
+          "label": "As-built documentation",
+          "anchor": "ITIL.transition",
+          "definition": "What was actually built is recorded, with addresses, versions and owners, and handed over with the system."
+        },
+        {
+          "id": "practice.architecture-decision-records",
+          "label": "Architecture decision records",
+          "anchor": "ISO_42010",
+          "definition": "Each significant design choice is recorded with its context, options and consequences."
+        },
+        {
+          "id": "practice.addressing-plan",
+          "label": "Addressing plan",
+          "anchor": "NIST.CSF.ID.AM",
+          "definition": "Subnets, addresses and names are planned on paper before any device is configured."
+        },
+        {
+          "id": "practice.test-and-acceptance",
+          "label": "Test and acceptance",
+          "anchor": "ITIL.transition",
+          "definition": "A build is accepted against written tests with recorded results, not against a feeling that it works."
+        },
+        {
+          "id": "practice.troubleshooting-method",
+          "label": "Structured troubleshooting",
+          "anchor": "ITIL.problem",
+          "definition": "Identify the problem, establish a theory, test it, plan and act, verify, document: in that order."
+        },
+        {
+          "id": "practice.asset-inventory",
+          "label": "Asset inventory",
+          "anchor": "NIST.CSF.ID.AM",
+          "definition": "Every asset is listed with an owner, a location and a classification before it is protected."
+        }
+      ],
+      "PRACTICE_OF": {},
+      "SKILLS": [],
+      "SKILL_OF": {},
+      "SOPS": [],
+      "SOP_OF": {},
+      "SOP_OF_TASK": {},
+      "STANDARDS": [
+        {
+          "id": "NIST_CSF",
+          "label": "NIST CSF",
+          "description": "NIST Cybersecurity Framework 2.0: Govern, Identify, Protect, Detect, Respond, Recover",
+          "why": "Organises all security work into six functions. Tagging a step here shows which part of the lifecycle it strengthens and proves the work covered the whole picture, not just attack or defence.",
+          "kind": "framework",
+          "tone": "info",
+          "publisher": "NIST",
+          "url": "https://www.nist.gov/cyberframework",
+          "codePattern": "^NIST\\.CSF(\\.(GV|ID|PR|DE|RS|RC)(\\.[A-Z]{2}(-\\d{2})?)?|\\.PROFILE)?$"
+        },
+        {
+          "id": "CIS",
+          "label": "CIS",
+          "description": "CIS Critical Security Controls v8 and the CIS Benchmarks",
+          "why": "A prioritised \"do these first\" list of safeguards. A CIS tag means this step implements an industry-baseline control that auditors and blue teams recognise at once.",
+          "kind": "framework",
+          "tone": "accent",
+          "publisher": "Center for Internet Security",
+          "url": "https://www.cisecurity.org/controls",
+          "codePattern": "^CIS(\\.(CONTROLS|BENCHMARK|\\d{1,2}))?$"
+        },
+        {
+          "id": "ISO_27001",
+          "label": "ISO 27001",
+          "description": "ISO/IEC 27001:2022 information security management system",
+          "why": "The certifiable information security management standard. This tag means the step produces the documented policy or evidence an ISO 27001 audit expects to see.",
+          "kind": "framework",
+          "tone": "ok",
+          "publisher": "ISO/IEC",
+          "url": "https://www.iso.org/standard/27001",
+          "codePattern": "^ISO27001(\\.(\\d+(\\.\\d+)*|A\\.\\d+\\.\\d+))?$"
+        },
+        {
+          "id": "ITIL",
+          "label": "ITIL 4",
+          "description": "ITIL 4 service management practices: change, incident, problem, release",
+          "why": "The operating disciplines a network team is judged on: change, incident and problem management. A tag here means the step is not just technically right but done the way an organisation can audit: requested, reviewed, reversible and recorded.",
+          "kind": "framework",
+          "tone": "accent",
+          "publisher": "PeopleCert",
+          "url": "https://www.axelos.com/certifications/itil-service-management",
+          "codePattern": "^ITIL(\\.[a-z-]+)?$"
+        },
+        {
+          "id": "NIST_800_34",
+          "label": "NIST SP 800-34",
+          "description": "NIST SP 800-34 Contingency Planning Guide for Federal Information Systems",
+          "why": "Where the business impact analysis and the recovery objectives (RTO, RPO) come from. A recovery plan that cites it states what must come back, and how fast.",
+          "kind": "publication",
+          "tone": "ok",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/34/r1/upd1/final"
+        },
+        {
+          "id": "NIST_800_40",
+          "label": "NIST SP 800-40",
+          "description": "NIST SP 800-40 Guide to Enterprise Patch Management Planning",
+          "why": "Patching as a managed routine rather than a scramble: inventory, prioritise, test, deploy, verify. A vulnerability management SOP that cites it has a defensible cadence.",
+          "kind": "publication",
+          "tone": "accent",
+          "publisher": "NIST",
+          "url": "https://csrc.nist.gov/pubs/sp/800/40/r4/final"
+        },
+        {
+          "id": "ISO_42010",
+          "label": "ISO/IEC/IEEE 42010",
+          "description": "ISO/IEC/IEEE 42010 architecture description",
+          "why": "What an architecture description must contain: stakeholders, concerns, viewpoints and the decisions behind them. A solution architecture document that cites it is complete rather than a diagram.",
+          "kind": "publication",
+          "tone": "info",
+          "publisher": "ISO/IEC/IEEE",
+          "url": "https://www.iso.org/standard/74393.html"
+        }
+      ],
+      "TACTICS": [],
+      "TACTIC_OF": {},
+      "TOOLS": [
+        {
+          "id": "tool.linux-shell",
+          "label": "Linux shell",
+          "kind": "cli",
+          "aliases": [
+            "Terminal",
+            "grep",
+            "tail/grep",
+            "tail",
+            "A text editor",
+            "text editor"
+          ],
+          "commands": [
+            "bash",
+            "sh",
+            "cat",
+            "grep",
+            "tail",
+            "head",
+            "less",
+            "mkdir",
+            "cp",
+            "mv",
+            "rm",
+            "echo",
+            "printf",
+            "cd",
+            "ls",
+            "date",
+            "sed",
+            "awk",
+            "nano",
+            "vi",
+            "vim",
+            "chown",
+            "chmod",
+            "tee",
+            "ss",
+            "ip",
+            "bridge",
+            "route",
+            "lsblk",
+            "lscpu",
+            "lspci",
+            "dmidecode",
+            "diff",
+            "gunzip",
+            "tar",
+            "sleep",
+            "time",
+            "export",
+            "for",
+            "if",
+            "while",
+            "do",
+            "done",
+            "exit",
+            "timedatectl",
+            "lsb_release",
+            "usermod",
+            "adduser",
+            "useradd",
+            "sysctl",
+            "systemctl",
+            "journalctl",
+            "apt",
+            "apt-get",
+            "dpkg",
+            "resolvectl",
+            "hostnamectl",
+            "id",
+            "whoami",
+            "source",
+            "test",
+            "true",
+            "wc",
+            "sort",
+            "uniq",
+            "xargs",
+            "find",
+            "which",
+            "env",
+            "set",
+            "unset",
+            "touch",
+            "ln",
+            "df",
+            "du",
+            "free",
+            "uptime",
+            "uname",
+            "ps",
+            "kill",
+            "crontab",
+            "base64",
+            "md5sum",
+            "cut",
+            "jq",
+            "pkill",
+            "reboot",
+            "gpg",
+            "zip",
+            "unzip",
+            "mkfifo",
+            "until",
+            "then",
+            "else",
+            "elif",
+            "fi",
+            "case",
+            "esac",
+            "pipx",
+            "tr",
+            "sha1sum",
+            "history",
+            "clear"
+          ]
+        },
+        {
+          "id": "tool.powershell",
+          "label": "PowerShell",
+          "kind": "cli",
+          "aliases": [
+            "PowerShell",
+            "PowerShell (Get-WinEvent)",
+            "elevated PowerShell"
+          ],
+          "vendor": "Microsoft",
+          "commands": [
+            "powershell",
+            "pwsh",
+            "msiexec",
+            "msiexec.exe",
+            "ipconfig",
+            "mstsc",
+            "notepad",
+            "explorer",
+            "auditpol",
+            "sc",
+            "net",
+            "netsh",
+            "hostname",
+            "systeminfo",
+            "findstr"
+          ]
+        },
+        {
+          "id": "tool.ssh",
+          "label": "SSH",
+          "kind": "cli",
+          "aliases": [
+            "ssh"
+          ],
+          "commands": [
+            "ssh",
+            "scp",
+            "sftp",
+            "ssh-keygen",
+            "ssh-copy-id",
+            "sshd"
+          ]
+        },
+        {
+          "id": "tool.curl",
+          "label": "curl",
+          "kind": "cli",
+          "aliases": [
+            "curl",
+            "wget"
+          ],
+          "commands": [
+            "curl",
+            "wget"
+          ]
+        },
+        {
+          "id": "tool.ping",
+          "label": "ping / traceroute",
+          "kind": "cli",
+          "aliases": [
+            "ping",
+            "traceroute",
+            "tracert"
+          ],
+          "commands": [
+            "ping",
+            "traceroute",
+            "tracert",
+            "mtr"
+          ]
+        },
+        {
+          "id": "tool.nslookup",
+          "label": "nslookup",
+          "kind": "cli",
+          "aliases": [
+            "nslookup"
+          ],
+          "commands": [
+            "nslookup",
+            "host"
+          ]
+        },
+        {
+          "id": "tool.sha256sum",
+          "label": "sha256sum",
+          "kind": "cli",
+          "aliases": [
+            "sha256sum",
+            "Get-FileHash"
+          ],
+          "commands": [
+            "sha256sum",
+            "shasum",
+            "Get-FileHash",
+            "certutil"
+          ]
+        },
+        {
+          "id": "tool.capstone-forms",
+          "label": "Capstone forms",
+          "kind": "document",
+          "aliases": [
+            "Deliverables forms",
+            "Deliverables tab",
+            "Deliverables page",
+            "The document",
+            "Team package export",
+            "Generate PDF",
+            "your weekly reports",
+            "Control Matrix",
+            "Control Matrix form",
+            "Risk register",
+            "Statement of Applicability form",
+            "Retest & Validation form",
+            "Detection Rules form",
+            "Detection & Response Metrics form",
+            "Internal Audit Report form",
+            "Audit Evidence Packet form",
+            "Server Bring-Up Log",
+            "Server Bring-Up Log form",
+            "DR Plan & As-Built Handover",
+            "DR Plan & As-Built Handover form",
+            "IP Plan & Connectivity Proof",
+            "IP Plan & Connectivity Proof form",
+            "Operations Log & SOPs",
+            "Operations Log & SOPs form",
+            "Rack, Power & Asset Register",
+            "Rack, Power & Asset Register form",
+            "Architecture Brief",
+            "Architecture Brief form",
+            "Baselines, Policies & Standards",
+            "Hardware Discovery form",
+            "Hardware Discovery, HCL & Upgrade Plan",
+            "Engagement Agreement form",
+            "Engagement scope"
+          ]
+        },
+        {
+          "id": "tool.capstone-guide",
+          "label": "Capstone guide",
+          "kind": "document",
+          "aliases": [
+            "The Guide",
+            "Configuration guide (in platform)",
+            "Configuration guide",
+            "PXE Imaging Student Guide (PDF)",
+            "Starter pack (ZIP)"
+          ]
+        },
+        {
+          "id": "tool.vendor-docs",
+          "label": "Vendor documentation",
+          "kind": "document",
+          "aliases": [
+            "The vendor service manual",
+            "The vendor support site",
+            "vendor service manual",
+            "vendor support site"
+          ]
+        },
+        {
+          "id": "tool.netcat",
+          "label": "netcat",
+          "kind": "cli",
+          "aliases": [
+            "netcat",
+            "nc"
+          ],
+          "commands": [
+            "nc",
+            "ncat",
+            "netcat"
+          ]
+        },
+        {
+          "id": "tool.ufw",
+          "label": "ufw",
+          "kind": "cli",
+          "aliases": [
+            "ufw"
+          ],
+          "commands": [
+            "ufw"
+          ]
+        },
+        {
+          "id": "tool.iptables",
+          "label": "iptables",
+          "kind": "cli",
+          "aliases": [
+            "iptables"
+          ],
+          "commands": [
+            "iptables",
+            "ip6tables",
+            "iptables-restore",
+            "iptables-save"
+          ]
+        },
+        {
+          "id": "tool.openssl",
+          "label": "OpenSSL",
+          "kind": "cli",
+          "aliases": [
+            "OpenSSL"
+          ],
+          "commands": [
+            "openssl"
+          ]
+        },
+        {
+          "id": "tool.windows-firewall",
+          "label": "Windows Firewall",
+          "kind": "app",
+          "aliases": [
+            "Windows Firewall",
+            "Windows Defender Firewall"
+          ],
+          "vendor": "Microsoft",
+          "commands": [
+            "New-NetFirewallRule",
+            "Set-NetFirewallRule",
+            "Get-NetFirewallRule",
+            "Set-NetFirewallProfile",
+            "Get-NetFirewallProfile"
+          ]
+        },
+        {
+          "id": "tool.event-viewer",
+          "label": "Windows Event Viewer",
+          "kind": "app",
+          "aliases": [
+            "Windows Event Viewer",
+            "Event Viewer"
+          ],
+          "vendor": "Microsoft",
+          "commands": [
+            "Get-WinEvent",
+            "Get-EventLog",
+            "wevtutil"
+          ]
+        },
+        {
+          "id": "tool.windows",
+          "label": "Windows",
+          "kind": "platform",
+          "aliases": [
+            "Windows",
+            "Windows 11",
+            "Your Windows 11 PC"
+          ],
+          "vendor": "Microsoft"
+        },
+        {
+          "id": "tool.windows-server",
+          "label": "Windows Server",
+          "kind": "platform",
+          "aliases": [
+            "Windows Server",
+            "Server Manager",
+            "winserver"
+          ],
+          "vendor": "Microsoft"
+        },
+        {
+          "id": "tool.wazuh",
+          "label": "Wazuh",
+          "kind": "service",
+          "aliases": [
+            "Wazuh",
+            "Wazuh agent",
+            "Wazuh dashboard",
+            "Wazuh dashboard search bar",
+            "Wazuh on the Core",
+            "Wazuh SCA",
+            "Wazuh Vulnerabilities",
+            "Wazuh MITRE ATT&CK",
+            "Wazuh manager",
+            "SIEM",
+            "SIEM dashboards"
+          ],
+          "url": "https://wazuh.com/",
+          "commands": [
+            "wazuh-agent",
+            "agent-auth",
+            "wazuh-control"
+          ]
+        },
+        {
+          "id": "tool.nginx",
+          "label": "nginx",
+          "kind": "service",
+          "aliases": [
+            "nginx"
+          ],
+          "commands": [
+            "nginx"
+          ]
+        },
+        {
+          "id": "tool.prometheus",
+          "label": "Prometheus",
+          "kind": "service",
+          "aliases": [
+            "Prometheus",
+            "prometheus-pve-exporter",
+            "Alertmanager"
+          ],
+          "commands": [
+            "promtool",
+            "amtool"
+          ]
+        },
+        {
+          "id": "tool.grafana",
+          "label": "Grafana",
+          "kind": "service",
+          "aliases": [
+            "Grafana",
+            "Grafana Alloy"
+          ],
+          "commands": [
+            "alloy"
+          ]
+        },
+        {
+          "id": "tool.loki",
+          "label": "Loki",
+          "kind": "service",
+          "aliases": [
+            "Loki"
+          ]
+        },
+        {
+          "id": "tool.pulse",
+          "label": "Pulse",
+          "kind": "service",
+          "aliases": [
+            "Pulse"
+          ]
+        },
+        {
+          "id": "tool.git",
+          "label": "Git",
+          "kind": "cli",
+          "aliases": [
+            "Git"
+          ],
+          "commands": [
+            "git"
+          ]
+        },
+        {
+          "id": "tool.gitea",
+          "label": "Gitea",
+          "kind": "service",
+          "aliases": [
+            "Gitea",
+            "Gitea on the Core"
+          ]
+        },
+        {
+          "id": "tool.docker",
+          "label": "Docker",
+          "kind": "cli",
+          "aliases": [
+            "Docker"
+          ],
+          "commands": [
+            "docker",
+            "docker-compose"
+          ]
+        },
+        {
+          "id": "tool.mysql",
+          "label": "MySQL / MariaDB",
+          "kind": "service",
+          "aliases": [
+            "MySQL",
+            "MariaDB"
+          ],
+          "commands": [
+            "mysql",
+            "mysql_secure_installation",
+            "mariadb",
+            "GRANT",
+            "CREATE"
+          ]
+        },
+        {
+          "id": "tool.terraform",
+          "label": "Terraform",
+          "kind": "cli",
+          "aliases": [
+            "Terraform",
+            "bpg/proxmox provider"
+          ],
+          "vendor": "HashiCorp",
+          "commands": [
+            "terraform"
+          ]
+        },
+        {
+          "id": "tool.opentofu",
+          "label": "OpenTofu",
+          "kind": "cli",
+          "aliases": [
+            "OpenTofu"
+          ],
+          "commands": [
+            "tofu"
+          ]
+        },
+        {
+          "id": "tool.ansible",
+          "label": "Ansible",
+          "kind": "cli",
+          "aliases": [
+            "Ansible",
+            "community.general.proxmox inventory"
+          ],
+          "commands": [
+            "ansible",
+            "ansible-playbook",
+            "ansible-inventory",
+            "ansible-galaxy"
+          ]
+        },
+        {
+          "id": "tool.cloud-init",
+          "label": "cloud-init",
+          "kind": "cli",
+          "aliases": [
+            "cloud-init"
+          ],
+          "commands": [
+            "cloud-init"
+          ]
+        },
+        {
+          "id": "tool.proxmox",
+          "label": "Proxmox VE",
+          "kind": "platform",
+          "aliases": [
+            "Proxmox",
+            "Proxmox VE",
+            "Proxmox API",
+            "Proxmox backup jobs",
+            "Proxmox networking",
+            "Proxmox host shell",
+            "Proxmox web console"
+          ],
+          "commands": [
+            "qm",
+            "pct",
+            "pveum",
+            "pvesm",
+            "pveversion",
+            "pvesh",
+            "vzdump",
+            "ifreload",
+            "pvecm"
+          ]
+        },
+        {
+          "id": "tool.proxmox-backup-server",
+          "label": "Proxmox Backup Server",
+          "kind": "service",
+          "aliases": [
+            "Proxmox Backup Server"
+          ],
+          "commands": [
+            "proxmox-backup-client",
+            "proxmox-backup-manager"
+          ]
+        },
+        {
+          "id": "tool.netplan",
+          "label": "netplan",
+          "kind": "cli",
+          "aliases": [
+            "netplan"
+          ],
+          "commands": [
+            "netplan"
+          ]
+        },
+        {
+          "id": "tool.tailscale",
+          "label": "Tailscale",
+          "kind": "service",
+          "aliases": [
+            "Tailscale"
+          ],
+          "commands": [
+            "tailscale"
+          ]
+        },
+        {
+          "id": "tool.netbox",
+          "label": "NetBox",
+          "kind": "service",
+          "aliases": [
+            "NetBox"
+          ]
+        },
+        {
+          "id": "tool.glpi",
+          "label": "GLPI",
+          "kind": "service",
+          "aliases": [
+            "GLPI",
+            "GLPI Agent"
+          ],
+          "commands": [
+            "glpi-agent"
+          ]
+        },
+        {
+          "id": "tool.cisco-ios",
+          "label": "Cisco IOS",
+          "kind": "appliance",
+          "aliases": [
+            "Cisco IOS",
+            "IOS"
+          ],
+          "vendor": "Cisco",
+          "commands": [
+            "show",
+            "configure",
+            "enable",
+            "interface",
+            "vlan",
+            "router",
+            "copy",
+            "write",
+            "reload",
+            "debug",
+            "access-list",
+            "spanning-tree",
+            "username",
+            "line",
+            "crypto",
+            "ntp",
+            "logging",
+            "snmp-server"
+          ]
+        },
+        {
+          "id": "tool.lab-core",
+          "label": "The Core (lab server)",
+          "kind": "platform",
+          "aliases": [
+            "The Core node (read the instructor procedure first)",
+            "The Core node",
+            "The Core package cache",
+            "The Core"
+          ]
+        },
+        {
+          "id": "tool.server-hardware",
+          "label": "The server",
+          "kind": "hardware",
+          "aliases": [
+            "The server",
+            "The server console"
+          ]
+        },
+        {
+          "id": "tool.raid-utility",
+          "label": "RAID controller utility",
+          "kind": "hardware",
+          "aliases": [
+            "The server console — the RAID utility your card offers (Ctrl+C LSI SAS, or Ctrl+R PERC)",
+            "RAID utility"
+          ]
+        },
+        {
+          "id": "tool.hand-tools",
+          "label": "Hand tools",
+          "kind": "hardware",
+          "aliases": [
+            "A #2 Phillips screwdriver",
+            "An anti-static strap",
+            "Rails, cage nuts and a punch-down tool"
+          ]
+        },
+        {
+          "id": "tool.patch-panel",
+          "label": "Patch panel",
+          "kind": "hardware",
+          "aliases": [
+            "Patch panel"
+          ]
+        },
+        {
+          "id": "tool.usb-media",
+          "label": "USB install media",
+          "kind": "hardware",
+          "aliases": [
+            "A USB drive of at least 4 GB",
+            "A Linux live USB",
+            "Rufus"
+          ]
+        }
+      ],
+      "TOOL_OF": {
+        "sp-w0-pxe": [
+          "tool.powershell",
+          "tool.ping",
+          "tool.capstone-guide"
+        ],
+        "sp-w0-starter": [
+          "tool.capstone-guide"
+        ],
+        "sp-w0-orient": [
+          "tool.capstone-guide"
+        ],
+        "sp-w1-bringup": [
+          "tool.vendor-docs",
+          "tool.server-hardware",
+          "tool.hand-tools"
+        ],
+        "sp-w1-document": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.capstone-guide",
+          "tool.vendor-docs",
+          "tool.server-hardware",
+          "tool.usb-media"
+        ],
+        "sp-w1-raid": [
+          "tool.capstone-forms",
+          "tool.server-hardware",
+          "tool.raid-utility"
+        ],
+        "sp-w1-install": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.ssh",
+          "tool.curl",
+          "tool.ping",
+          "tool.capstone-forms",
+          "tool.capstone-guide",
+          "tool.windows",
+          "tool.proxmox",
+          "tool.tailscale",
+          "tool.server-hardware",
+          "tool.usb-media"
+        ],
+        "sp-w2-business": [
+          "tool.capstone-forms"
+        ],
+        "sp-w2-rackplan": [
+          "tool.capstone-forms"
+        ],
+        "sp-w2-rack": [
+          "tool.capstone-forms",
+          "tool.server-hardware",
+          "tool.hand-tools",
+          "tool.patch-panel"
+        ],
+        "sp-w2-install": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.ssh",
+          "tool.ping",
+          "tool.capstone-forms",
+          "tool.capstone-guide",
+          "tool.iptables",
+          "tool.proxmox"
+        ],
+        "sp-w2-deploy": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.curl",
+          "tool.nslookup",
+          "tool.capstone-forms",
+          "tool.capstone-guide",
+          "tool.windows-server",
+          "tool.mysql"
+        ],
+        "sp-w3-topology": [
+          "tool.linux-shell",
+          "tool.capstone-forms"
+        ],
+        "sp-w3-connect": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.ssh",
+          "tool.curl",
+          "tool.ping",
+          "tool.nslookup",
+          "tool.capstone-forms",
+          "tool.capstone-guide",
+          "tool.netcat",
+          "tool.iptables",
+          "tool.windows-server",
+          "tool.proxmox",
+          "tool.netplan",
+          "tool.tailscale"
+        ],
+        "sp-w3-sops": [
+          "tool.capstone-forms"
+        ],
+        "sp-w4-secure": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.ssh",
+          "tool.curl",
+          "tool.sha256sum",
+          "tool.capstone-forms",
+          "tool.capstone-guide",
+          "tool.ufw",
+          "tool.openssl",
+          "tool.windows-firewall",
+          "tool.windows-server",
+          "tool.nginx",
+          "tool.proxmox"
+        ],
+        "sp-w4-dr": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.mysql",
+          "tool.proxmox"
+        ],
+        "sp-w4-handover": [
+          "tool.capstone-forms"
+        ],
+        "sp-w5-plan": [
+          "tool.capstone-forms"
+        ],
+        "sp-w5-secmon": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.curl",
+          "tool.prometheus",
+          "tool.grafana",
+          "tool.loki",
+          "tool.proxmox"
+        ],
+        "sp-w5-pulse": [
+          "tool.linux-shell",
+          "tool.curl",
+          "tool.pulse",
+          "tool.proxmox"
+        ],
+        "sp-w5-wazuh": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.ssh",
+          "tool.curl",
+          "tool.wazuh",
+          "tool.proxmox"
+        ],
+        "sp-w5-terraform": [
+          "tool.terraform",
+          "tool.opentofu",
+          "tool.cloud-init",
+          "tool.proxmox"
+        ],
+        "sp-w5-netbox": [
+          "tool.linux-shell",
+          "tool.git",
+          "tool.docker",
+          "tool.netbox"
+        ],
+        "sp-w5-glpi": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.docker",
+          "tool.glpi"
+        ],
+        "sp-w5-record": [
+          "tool.capstone-forms"
+        ],
+        "sp-w6-spine": [
+          "tool.linux-shell",
+          "tool.powershell",
+          "tool.ping",
+          "tool.proxmox",
+          "tool.netplan",
+          "tool.lab-core"
+        ],
+        "sp-w6-ops": [
+          "tool.linux-shell",
+          "tool.ssh",
+          "tool.curl",
+          "tool.ping",
+          "tool.git",
+          "tool.terraform",
+          "tool.opentofu",
+          "tool.ansible",
+          "tool.proxmox",
+          "tool.lab-core"
+        ],
+        "sp-w6-git": [
+          "tool.linux-shell",
+          "tool.git",
+          "tool.gitea"
+        ],
+        "sp-w6-terraform": [
+          "tool.linux-shell",
+          "tool.ssh",
+          "tool.terraform",
+          "tool.opentofu",
+          "tool.cloud-init",
+          "tool.proxmox"
+        ],
+        "sp-w6-ansible": [
+          "tool.linux-shell",
+          "tool.wazuh",
+          "tool.grafana",
+          "tool.git",
+          "tool.ansible",
+          "tool.proxmox"
+        ],
+        "sp-w6-observe": [
+          "tool.linux-shell",
+          "tool.prometheus",
+          "tool.grafana",
+          "tool.loki",
+          "tool.git",
+          "tool.gitea",
+          "tool.lab-core"
+        ],
+        "sp-w6-vault": [
+          "tool.linux-shell",
+          "tool.ssh",
+          "tool.proxmox",
+          "tool.proxmox-backup-server"
+        ],
+        "sp-w6-xdr": [
+          "tool.linux-shell",
+          "tool.wazuh",
+          "tool.ansible",
+          "tool.proxmox"
+        ],
+        "sp-w6-rebuild": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.git",
+          "tool.terraform",
+          "tool.opentofu",
+          "tool.ansible",
+          "tool.proxmox"
+        ],
+        "sp-w1-net": [
+          "tool.capstone-forms"
+        ],
+        "sp-w2-net": [
+          "tool.linux-shell",
+          "tool.capstone-forms"
+        ],
+        "sp-w3-net": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.iptables"
+        ],
+        "sp-w4-net": [
+          "tool.linux-shell",
+          "tool.capstone-forms"
+        ],
+        "sp-w1-win": [
+          "tool.capstone-forms"
+        ],
+        "sp-w2-win": [
+          "tool.powershell",
+          "tool.sha256sum",
+          "tool.capstone-forms"
+        ],
+        "sp-w3-win": [
+          "tool.powershell",
+          "tool.capstone-forms"
+        ],
+        "sp-w4-win": [
+          "tool.powershell",
+          "tool.capstone-forms"
+        ],
+        "sp-w1-lnx": [
+          "tool.linux-shell",
+          "tool.capstone-forms"
+        ],
+        "sp-w2-lnx": [
+          "tool.linux-shell",
+          "tool.sha256sum",
+          "tool.capstone-forms",
+          "tool.proxmox"
+        ],
+        "sp-w3-lnx": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.netplan"
+        ],
+        "sp-w4-lnx": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.ufw"
+        ],
+        "sp-w1-mgmt": [
+          "tool.capstone-forms"
+        ],
+        "sp-w2-mgmt": [
+          "tool.capstone-forms"
+        ],
+        "sp-w3-mgmt": [
+          "tool.capstone-forms"
+        ],
+        "sp-w4-mgmt": [
+          "tool.capstone-forms"
+        ],
+        "sp-w6-net": [
+          "tool.capstone-forms"
+        ],
+        "sp-w5-win": [
+          "tool.powershell",
+          "tool.capstone-forms",
+          "tool.event-viewer"
+        ],
+        "sp-w5-lnx": [
+          "tool.linux-shell",
+          "tool.capstone-forms",
+          "tool.terraform"
+        ],
+        "sp-w6-mgmt": [
+          "tool.capstone-forms"
+        ],
+        "sp-w7-net": [
+          "tool.linux-shell",
+          "tool.ping",
+          "tool.capstone-forms",
+          "tool.cisco-ios"
+        ],
+        "sp-w8-win": [
+          "tool.powershell",
+          "tool.capstone-forms",
+          "tool.windows-firewall",
+          "tool.ansible"
+        ],
+        "sp-w8-lnx": [
+          "tool.linux-shell",
+          "tool.ssh",
+          "tool.capstone-forms",
+          "tool.ansible",
+          "tool.proxmox-backup-server"
+        ],
+        "sp-w8-mgmt": [
+          "tool.capstone-forms"
+        ]
+      }
     },
     "custody": {
       "CUSTODY_COLUMNS": [

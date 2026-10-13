@@ -261,6 +261,38 @@ the tasks that spend. `docs/courses/cert-coverage/<course>.md` is the same, gene
 content and diffed by CI. Second-hand kit keeps the CCNA guide's rule: an order of magnitude,
 marked approximate, never a price.
 
+### Skills, tools, standards and the member profile (R107)
+
+What a course teaches a person to DO is written once, as registries under `src/lib/docs/`, and
+reaches every document as `content.skills` (the course's maps and the registry rows they reach;
+`skillsSection.ts` cuts them); the member's own standing against them is a pure projection over
+facts the platform already records. Nothing is scored, ranked or badged, and
+speed is not measured.
+
+| Fact | Home | Reaches |
+|---|---|---|
+| competency nodes (`comp.<area>.<slug>`, semver, anchored to an exam domain or a control), task → skills | `skills.ts` `SKILLS`, `TASK_SKILLS` | `content.skills.SKILLS/SKILL_OF`, `index.json` counts, `docs/courses/skills/` |
+| tools, their aliases and command heads, the `where` prefixes, per-course defaults | `tools.ts` `TOOLS`, `WHERE_TOOLS`, `COURSE_TOOL_DEFAULTS`, `TASK_TOOL_OVERRIDES` | `content.skills.TOOLS/TOOL_OF` (`TOOL_OF` is **derived** by `toolsByTask()` at export) |
+| the standards (the 26 framework ids plus the publications forms cite), the controls catalogue, what a form's `standard` string cites | `standards.ts` `STANDARDS`, `CONTROLS`, `CONTROL_EXCEPTIONS`, `parseStandard()`; `utils.ts` helpers delegate to `standardOf()` | `content.skills.STANDARDS/CONTROLS`, the framework badge and the Guide's framework section |
+| SOP kinds anchored to NIST CSF / ISO 27001 / SOC 2 / SP 800-61 / ITIL, form → SOPs, task → SOPs | `sops.ts` `SOPS`, `DELIVERABLE_SOPS`, `TASK_SOPS` | `content.skills.SOPS/SOP_OF/SOP_OF_TASK` |
+| ATT&CK and ATLAS tactics (ids only, never techniques), engineering practices, task maps | `tactics.ts` `TACTICS`, `PRACTICES`, `TASK_TACTICS`, `TASK_PRACTICES` | `content.skills.TACTICS/TACTIC_OF/PRACTICES/PRACTICE_OF` |
+| every metric the platform keeps or could keep, with its definition, inputs, audience and status | `metricCatalogue.ts` `METRICS` | `content.skills.METRICS` |
+| every sentence the skills surfaces print, the level wording per dimension | `skillsCopy.ts` `SKILLS_COPY`, `LEVEL_LABEL`, `DIMENSION_LABEL` | `content.skills.COPY…` |
+| what a course practises, per dimension | `skillCoverage.ts` (lowercase: a projection) | `index.json` counts, the skills sheet |
+
+**The rules.** Every graded task maps to one to three competency nodes, at least one tool
+(derived, never typed) and at least one practice; a node nobody maps to does not exist; every
+objective reference resolves to an exam domain or a control; every form's `standard` parses to a
+catalogue control or is an explained practice; every SOP and every practice is anchored to a
+standard; tactic ids are the published matrices' and nothing is invented from free text.
+Content-integrity holds all of it; `SKILLS_PENDING` names the courses whose mapping has not
+landed yet, and empties in R107a-2.
+
+**Procedures** are runbooks and SOPs followed to a standard, not pages of a guide. Adherence is
+read from facts that exist (Definition-of-Done checks, the document-control block, evidence
+hashes, the lifecycle, the order steps were verified in), never typed in; "standard
+effectiveness" is read off the same rows per standard.
+
 **Agent-readiness without agent-coupling:** keep the API capability-scoped and resource-clean
 (REST/GraphQL). An MCP server becomes a *thin adapter* over that API later; A2A interop rides on the
 ontology + xAPI. **Do not build the MCP/agent gateway now** — design so it stays a small addition, not a

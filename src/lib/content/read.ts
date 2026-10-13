@@ -18,6 +18,13 @@ import { DEFAULT_MOTION, FLOW_HOW_TO_READ, FLOW_KIND_LABEL, WORKS_LABEL, WORKS_S
 import type { RoleFlowKind } from '@/lib/docs/roleFlow';
 import type { CertDef, LadderRung } from '@/lib/docs/certs';
 import type { CostLine } from '@/lib/docs/costs';
+import { AREA_LABEL, SKILLS, type SkillNode } from '@/lib/docs/skills';
+import { TOOLS, type ToolDef } from '@/lib/docs/tools';
+import { CONTROLS, STANDARDS, type ControlRef, type StandardDef } from '@/lib/docs/standards';
+import { SOPS, type SopDef } from '@/lib/docs/sops';
+import { PRACTICES, TACTICS, type PracticeDef, type TacticDef } from '@/lib/docs/tactics';
+import { METRICS, type MetricDef, type Dimension } from '@/lib/docs/metricCatalogue';
+import { DIMENSION_LABEL, LEVEL_LABEL, SKILLS_COPY, type SkillLevel } from '@/lib/docs/skillsCopy';
 import type { CloudTopology, IacBundle } from '@/lib/cloud/model';
 import type { KitSpec } from '@/lib/diagrams/kitSpec';
 import type { BuildModel, WeekVisual } from '@/lib/weekVisual';
@@ -157,4 +164,44 @@ export interface CertContent {
 
 export function certOf(doc: CourseDto): CertContent {
   return { CERT: null, DOMAIN_OF: {}, COSTS: [], LADDER: [], ...section<Partial<CertContent>>(doc, 'cert') };
+}
+
+/**
+ * R107: `content.skills` — the registries (the same in every document) and
+ * this course's maps into them. The `*_OF` maps are keyed by task id (or form
+ * id for `SOP_OF`); a task absent from a map practises nothing of that kind.
+ */
+export interface SkillsContent {
+  SKILLS: SkillNode[];
+  SKILL_OF: Record<string, string[]>;
+  AREAS: Record<string, string>;
+  TOOLS: ToolDef[];
+  TOOL_OF: Record<string, string[]>;
+  STANDARDS: StandardDef[];
+  CONTROLS: ControlRef[];
+  SOPS: SopDef[];
+  SOP_OF: Record<string, string[]>;
+  SOP_OF_TASK: Record<string, string[]>;
+  TACTICS: TacticDef[];
+  TACTIC_OF: Record<string, string[]>;
+  PRACTICES: PracticeDef[];
+  PRACTICE_OF: Record<string, string[]>;
+  METRICS: MetricDef[];
+  COPY: typeof SKILLS_COPY;
+  LEVEL_LABEL: Record<Dimension, Record<SkillLevel, string>>;
+  DIMENSION_LABEL: Record<Dimension, string>;
+}
+
+/**
+ * The skills content. The registries are leaf modules (they import nothing
+ * of the writer's graph), so an authored course without the section gets the
+ * registries and the words with empty maps, and every renderer prints
+ * "nothing recorded" rather than throwing.
+ */
+export function skillsOf(doc: CourseDto): SkillsContent {
+  return {
+    SKILLS, SKILL_OF: {}, AREAS: AREA_LABEL, TOOLS, TOOL_OF: {}, STANDARDS, CONTROLS, SOPS, SOP_OF: {}, SOP_OF_TASK: {},
+    TACTICS, TACTIC_OF: {}, PRACTICES, PRACTICE_OF: {}, METRICS, COPY: SKILLS_COPY, LEVEL_LABEL, DIMENSION_LABEL,
+    ...section<Partial<SkillsContent>>(doc, 'skills'),
+  };
 }
