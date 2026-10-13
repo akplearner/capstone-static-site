@@ -9264,6 +9264,47 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "cysa_soc_monitoring": [
+          "NIST.CSF.DE.CM"
+        ],
+        "cysa_threat_investigation": [
+          "NIST.800-61.DETECT"
+        ],
+        "cysa_vulnerability_assessment": [
+          "NIST.800-115",
+          "CVSS"
+        ],
+        "cysa_incident_response": [
+          "NIST.800-61"
+        ],
+        "cysa_ioc_database": [
+          "MITRE.ATTACK"
+        ],
+        "cysa_coverage_validation": [
+          "NIST.CSF.DE"
+        ],
+        "cysa_alert_triage": [
+          "NIST.800-61.DETECT"
+        ],
+        "cysa_detection_record": [
+          "NIST.800-61.DETECT"
+        ],
+        "cysa_exec_debrief": [
+          "NIST.CSF.RC",
+          "NIST.800-61.POST"
+        ],
+        "cysa_sensor_deployment": [
+          "NIST.CSF.DE.CM-01"
+        ],
+        "cysa_soc_findings": [
+          "CIS.CONTROLS",
+          "CVSS"
+        ],
+        "cysa_scan_validation": [
+          "NIST.800-115"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

@@ -7057,6 +7057,29 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "secai_system_map": [
+          "NIST.AI-RMF.MAP"
+        ],
+        "secai_attack_casebook": [
+          "OWASP.LLM",
+          "MITRE.ATLAS"
+        ],
+        "secai_control_set": [
+          "NIST.CSF.PR"
+        ],
+        "secai_watch_plan": [
+          "NIST.CSF.DE",
+          "NIST.CSF.RS"
+        ],
+        "secai_governance_pack": [
+          "NIST.AI-RMF",
+          "ISO42001"
+        ],
+        "secai_release_note": [
+          "ITIL.release"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

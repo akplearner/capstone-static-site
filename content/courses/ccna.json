@@ -6389,6 +6389,14 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "ccna_ops": [
+          "ITIL.change"
+        ],
+        "ccna_monitoring": [
+          "ITIL.problem"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

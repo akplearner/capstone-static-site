@@ -2325,6 +2325,22 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     for (const f of ['src/lib/docs/skillCoverage.ts', 'src/lib/docs/skillsSection.ts', 'src/lib/docs/skillSheet.ts']) expect(code(f), f).not.toMatch(/^export const [A-Z]/m);
   });
 
+  it('the member projection is pure: no repository, no clock, no duration, no ranking', () => {
+    const src = code('src/lib/skillProfile.ts');
+    expect(src).not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
+    expect(src).not.toMatch(/localStorage|supabase|Repo\b|fetch\(/);
+    expect(src).not.toMatch(/estimatedTime|parseEstimatedMinutes|Date\.now\(\)|new Date\(/);
+    expect(src).not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|badge|\bXP\b/i);
+    expect(src).toContain('export function skillProfile(');
+    expect(src).toContain('export function skillPortfolio(');
+    expect(src).toContain('export function levelOf(');
+    // The registries arrive as the document's section, never as an import.
+    expect(src).not.toMatch(/^import (?!type )[^\n]*from '\.\/docs\/(skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy)'/m);
+    // The self-attested count means one thing everywhere: a verifiable step ticked without matching output.
+    expect(code('src/lib/metrics.ts')).toContain("} else if (rec?.method === 'self-attested') {");
+    expect(code('src/components/catalog/VerificationBar.tsx')).toContain('ticked without matching output');
+  });
+
   it('the framework helpers read the standards register, which holds no class string', () => {
     const utils = code('src/lib/utils.ts');
     expect(utils).toContain("from './docs/standards'");

@@ -96,6 +96,8 @@ describe('courseMetrics', () => {
     const evidence = {
       't1::s1': rec({ taskId: 't1', stepId: 's1' }),
       't1::s2': rec({ taskId: 't1', stepId: 's2' }),
+      // R107: a record on a step nothing could verify is not a self-attested claim.
+      't1::s3': rec({ taskId: 't1', stepId: 's3', totalTokens: 0 }),
     };
     const m = courseMetrics({ course: COURSE, role: 'blue', taskPercent: {}, evidence, artifacts: [] });
     expect(m.verified).toBe(0);

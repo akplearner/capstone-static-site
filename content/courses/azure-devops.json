@@ -6784,6 +6784,21 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "azd_iac": [
+          "WAF.operational-excellence"
+        ],
+        "azd_change": [
+          "ITIL.change"
+        ],
+        "azd_governance": [
+          "WAF.security",
+          "WAF.cost"
+        ],
+        "azd_handover": [
+          "ITIL.transition"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

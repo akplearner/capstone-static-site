@@ -7991,6 +7991,51 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "asset_inventory": [
+          "NIST.CSF.ID.AM"
+        ],
+        "risk_register": [
+          "NIST.800-30",
+          "ISO27005"
+        ],
+        "hardening_baseline": [
+          "CIS.BENCHMARK"
+        ],
+        "change_log": [
+          "ITIL.change"
+        ],
+        "pentest_report": [
+          "NIST.800-115",
+          "PTES"
+        ],
+        "incident_report": [
+          "NIST.800-61"
+        ],
+        "final_report": [
+          "ISO27001.9.3"
+        ],
+        "framework_mapping": [
+          "NIST.CSF",
+          "CIS.CONTROLS"
+        ],
+        "security_policy": [
+          "ISO27001.5.2"
+        ],
+        "hardening_standard": [
+          "CIS.BENCHMARK"
+        ],
+        "vm_sop": [
+          "NIST.800-40"
+        ],
+        "ir_runbook": [
+          "NIST.800-61"
+        ],
+        "evidence_log": [
+          "NIST.800-61",
+          "ISO27037"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

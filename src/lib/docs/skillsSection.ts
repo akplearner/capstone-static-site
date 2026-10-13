@@ -19,7 +19,7 @@ import type { SkillRegistry } from './skillCoverage';
  *
  * Lowercase only: this is the writer's helper, never a table.
  */
-export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): SkillRegistry & { AREAS: Record<string, string>; METRICS: typeof METRICS; COPY: typeof SKILLS_COPY; LEVEL_LABEL: typeof LEVEL_LABEL; DIMENSION_LABEL: typeof DIMENSION_LABEL } {
+export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pick<DeliverableDef, 'id' | 'standard'>[]): SkillRegistry & { AREAS: Record<string, string>; CONTROL_OF: Record<string, string[]>; METRICS: typeof METRICS; COPY: typeof SKILLS_COPY; LEVEL_LABEL: typeof LEVEL_LABEL; DIMENSION_LABEL: typeof DIMENSION_LABEL } {
   const id = course.id;
   const SKILL_OF = TASK_SKILLS[id] ?? {};
   const TOOL_OF = toolsByTask(course);
@@ -37,9 +37,15 @@ export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pi
   const practiceIds = values(PRACTICE_OF);
   for (const f of forms) for (const p of CONTROL_EXCEPTIONS[f.standard] ?? []) practiceIds.add(p);
 
+  // What each form cites, parsed once here so no reader needs the parser.
+  const CONTROL_OF: Record<string, string[]> = {};
+  for (const f of forms) {
+    const codes = parseStandard(f.standard).map((r) => r.code);
+    if (codes.length) CONTROL_OF[f.id] = codes;
+  }
   // Every reference the included rows make: a control (with its chain) or a standard.
   const refs = new Set<string>();
-  for (const f of forms) for (const r of parseStandard(f.standard)) refs.add(r.code);
+  for (const codes of Object.values(CONTROL_OF)) codes.forEach((c) => refs.add(c));
   for (const s of SOPS) if (sopIds.has(s.id)) s.standardRefs.forEach((r) => refs.add(r));
   for (const p of PRACTICES) if (practiceIds.has(p.id)) refs.add(p.anchor);
   for (const n of SKILLS) if (skillIds.has(n.id)) n.objectiveRefs.forEach((r) => refs.add(r));
@@ -62,6 +68,7 @@ export function skillsSectionFor(course: Pick<Course, 'id' | 'tasks'>, forms: Pi
     TOOL_OF,
     STANDARDS: STANDARDS.filter((s) => standardIds.has(s.id)),
     CONTROLS: CONTROLS.filter((c) => controlCodes.has(c.code)),
+    CONTROL_OF,
     SOPS: SOPS.filter((s) => sopIds.has(s.id)),
     SOP_OF,
     SOP_OF_TASK,

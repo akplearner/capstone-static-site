@@ -31,7 +31,9 @@ export interface CourseMetrics {
   verifiable: number;
   /** Verifiable steps actually verified from pasted output. */
   verified: number;
-  /** Completed steps recorded without matching output. */
+  /** Verifiable steps ticked without matching output: a self-attested record
+   *  on a step that carries `verify` tokens (the cohort meaning; R107). A
+   *  record on a step nothing could verify is not a claim and is not counted. */
   selfAttested: number;
   /**
    * Verified ÷ verifiable, 0–100. The headline number.
@@ -114,6 +116,8 @@ export function courseMetrics({
         verified += 1;
         step.frameworks?.forEach((f) => frameworksVerified.add(f));
         task.frameworks?.forEach((f) => frameworksVerified.add(f));
+      } else if (rec?.method === 'self-attested') {
+        selfAttestedCount += 1;
       }
     }
 
@@ -122,7 +126,6 @@ export function courseMetrics({
       const rec = evidence[`${task.id}::${step.id}`];
       if (!rec) continue;
       attempts += rec.attempts;
-      if (rec.method === 'self-attested') selfAttestedCount += 1;
       for (const t of [rec.firstAttemptAt, rec.verifiedAt]) {
         if (!t) continue;
         if (!firstActivity || t < firstActivity) firstActivity = t;

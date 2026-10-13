@@ -179,6 +179,8 @@ export interface SkillsContent {
   TOOL_OF: Record<string, string[]>;
   STANDARDS: StandardDef[];
   CONTROLS: ControlRef[];
+  /** Form id → the control codes its `standard` cites (parsed at export). */
+  CONTROL_OF: Record<string, string[]>;
   SOPS: SopDef[];
   SOP_OF: Record<string, string[]>;
   SOP_OF_TASK: Record<string, string[]>;
@@ -200,7 +202,7 @@ export interface SkillsContent {
  */
 export function skillsOf(doc: CourseDto): SkillsContent {
   return {
-    SKILLS, SKILL_OF: {}, AREAS: AREA_LABEL, TOOLS, TOOL_OF: {}, STANDARDS, CONTROLS, SOPS, SOP_OF: {}, SOP_OF_TASK: {},
+    SKILLS, SKILL_OF: {}, AREAS: AREA_LABEL, TOOLS, TOOL_OF: {}, STANDARDS, CONTROLS, CONTROL_OF: {}, SOPS, SOP_OF: {}, SOP_OF_TASK: {},
     TACTICS, TACTIC_OF: {}, PRACTICES, PRACTICE_OF: {}, METRICS, COPY: SKILLS_COPY, LEVEL_LABEL, DIMENSION_LABEL,
     ...section<Partial<SkillsContent>>(doc, 'skills'),
   };

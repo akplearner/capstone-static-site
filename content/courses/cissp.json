@@ -8795,6 +8795,55 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "cissp_d1": [
+          "NIST.CSF.GV",
+          "ISO27001"
+        ],
+        "cissp_d2": [
+          "NIST.CSF.ID",
+          "NIST.800-88"
+        ],
+        "cissp_d3": [
+          "NIST.CSF.PR",
+          "NIST.800-53"
+        ],
+        "cissp_d4": [
+          "NIST.CSF.PR",
+          "NIST.800-207"
+        ],
+        "cissp_d5": [
+          "NIST.CSF.PR",
+          "NIST.800-63"
+        ],
+        "cissp_d6": [
+          "NIST.CSF.PROFILE",
+          "NIST.800-115"
+        ],
+        "cissp_d7": [
+          "NIST.CSF.DE",
+          "NIST.CSF.RS",
+          "NIST.CSF.RC",
+          "NIST.800-61"
+        ],
+        "cissp_d8": [
+          "NIST.800-218",
+          "OWASP"
+        ],
+        "cissp_release_note": [
+          "ITIL.release"
+        ],
+        "cissp_questionnaire": [
+          "SOC2"
+        ],
+        "cissp_controls": [
+          "NIST.800-53"
+        ],
+        "cissp_ssp": [
+          "NIST.800-171",
+          "FAR.52.204-21"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

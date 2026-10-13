@@ -60,7 +60,7 @@ export function VerificationBar({ m, compact }: { m: CourseMetrics; compact?: bo
       {!compact && (
         <p className="text-xs text-muted">
           {quality.label}
-          {m.selfAttested > 0 && ` · ${m.selfAttested} self-attested`}
+          {m.selfAttested > 0 && ` · ${m.selfAttested} ticked without matching output`}
         </p>
       )}
     </div>

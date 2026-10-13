@@ -7569,6 +7569,18 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "awsa_access": [
+          "NIST.800-53.AC-6"
+        ],
+        "awsa_server": [
+          "WAF.reliability",
+          "WAF.cost"
+        ],
+        "awsa_dr": [
+          "NIST.800-34"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

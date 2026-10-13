@@ -7724,6 +7724,14 @@
           ]
         }
       ],
+      "CONTROL_OF": {
+        "awsf_sad": [
+          "ISO42010"
+        ],
+        "awsf_incident": [
+          "ITIL.incident"
+        ]
+      },
       "COPY": {
         "cardTitle": "Skills",
         "cardIntro": "What this course has recorded for this member: exam domains, skills, tools, procedures and standards.",

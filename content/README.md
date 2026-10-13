@@ -57,6 +57,7 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
     "skills":         { SKILLS[ {id, version, label, area, objectiveRefs} ], SKILL_OF {taskId: ids}, AREAS,
                         TOOLS[ {id, label, kind, aliases, commands?} ], TOOL_OF {taskId: ids},       // TOOL_OF is derived at export
                         STANDARDS[ {id, label, description, why, kind, tone, publisher} ], CONTROLS[ {code, standard, label, cites} ],
+                        CONTROL_OF {formId: codes},                                                   // what each form's standard cites, parsed at export
                         SOPS[ {id, label, kind, definition, standardRefs} ], SOP_OF {formId: ids}, SOP_OF_TASK {taskId: ids},
                         TACTICS[ {id, matrix, label, url} ], TACTIC_OF, PRACTICES[ {id, label, anchor, definition} ], PRACTICE_OF,
                         METRICS[ {id, label, dimension, definition, inputs, valueTo, status, scored: false} ],
