@@ -333,6 +333,50 @@ data.
 
 ---
 
+### The KPI board, profiles and work roles (R108)
+
+Sixteen numbers a course keeps per member, four families of four, each a ratio of counts the
+metric catalogue already defines; a competency map lit by level; and three things a hiring reader
+or an agent can join on: a work role, an environment profile and a credential envelope.
+
+| Fact | Home | Reaches |
+|---|---|---|
+| the sixteen KPIs and four families (ids, numerator and denominator in words, fact kind, why lines) | `src/lib/docs/kpis.ts` `KPIS`, `KPI_FAMILIES` | `content.skills.KPIS`, `content/ontology/kpis.json`, the skills sheet's KPI section, every tile |
+| NICE work roles (SP 800-181; 2017 ids, transcribed) with their competency areas and nodes; course role → work roles | `src/lib/docs/workRoles.ts` `WORK_ROLES`, `WORK_ROLE_OF` | `content.skills.WORK_ROLES/WORK_ROLE_OF`, `work-roles.json`, the board, the export, the credential |
+| the environment profile a company publishes (infrastructure, tools, methodology, policies, ticket taxonomy, competencies per work role) | `src/lib/docs/environmentProfile.ts` (the shape and the one sample, built from the MSSP course); `content/profiles/`, `src/lib/content/profiles.ts` | the board's "measured against" picker; a file a reader imports is kept on the device only |
+| the board projection | `src/lib/kpiBoard.ts` (pure; `capstone-kpi-board/1`) | `/courses/<id>/skills`, the dashboard and portfolio, the export's `courses[].kpis`, the cohort report |
+| the competency map's layout | `src/lib/skymap.ts` (pure, deterministic) | `src/components/quarry/skymap/SkyMap.tsx` |
+| the cohort report | `src/lib/cohortKpi.ts` (bands per cohort; no member in it) | the instructor cohort page and its KPI CSV |
+
+**The four families.** Ability (skills verified, exam weight verified, profile coverage, skills
+proved twice), Execution (steps verified in order, first-try beside persistence, commands verified,
+files named to convention), Procedure and standards (procedures to standard, Definition-of-Done met,
+controls cited, document control complete) and Outcome (submissions rubric-green, hand-offs
+completed, instructor approved, capstone filed). Every tile prints "n of m", the fact kind it reads
+(own, team or content) and, when the fact was not handed in, says so rather than printing zero.
+Team facts are labelled as team facts. Nothing reads a clock: the pasted plan's Time family is
+catalogued `excluded` under the no-speed rule, and retention is the gap-based recall rows.
+
+**Measured against.** The default is the first NICE work role the course role prepares for: its
+required competencies are the nodes of its areas, so a first open never reads "0 of 40 required";
+the tile prints how many of them this course does not teach, so a low fraction reads as a gap in
+the syllabus, never as failure. A company publishes a profile as a file (no server receives one,
+ADR-0007); the sample is the platform's own managed-security entity.
+
+**The credential** is an Open Badges 3.0 `AchievementCredential` envelope around the member
+profile, with alignment to competency, exam-domain and work-role ids and the profile's digest as
+evidence; its schema admits no `proof`, so it is unsigned by construction and the claim says so. A
+signed attestation needs validators that read real state.
+
+**The event contract** (`docs/EVENTS.md`, `content/schemas/event.schema.json`) names what every
+write site would append to the log of ADR-0001, with `actor.type`, an assist level and a consent
+scope; no table and no dual-write exist yet, and the catalogue keeps the rows that need one as
+`needs-events`.
+
+**Motion.** The map is a quarry scene: its draw-ins run under the quarry exemption and it reads
+`useReducedMotionSafe`; the tiles are a data surface and keep to `DUR.meter`; the sweep is
+positional, so `MotionConfig` stills it; the count-up reads the preference itself.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

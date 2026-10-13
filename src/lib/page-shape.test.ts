@@ -2399,7 +2399,7 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(read('package.json'), 'no schema library: the subset validator is the contract').not.toMatch(/"(ajv|zod)"/);
     const register = read('docs/VALUE_REGISTER.md');
     for (const status of ['available now', 'needs validators', 'needs events', 'needs consent', 'needs legal change', 'Phase 4']) expect(register, status).toContain(status);
-    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten').toBe(30);
+    expect(register.match(/^\| \d+ \|/gm)?.length, 'three lists of ten, plus the R108 rows (14 + 12 + 13)').toBe(39);
     expect(read('docs/OPERATIONS.md')).toContain('(R107)');
     expect(read('docs/CURRENT_STATE.md')).toContain('Member profile');
     expect(read('content/README.md')).toContain('ontology/');
@@ -2413,5 +2413,109 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(existsSync('docs/courses/skills')).toBe(true);
     expect(read('docs/ARCHITECTURE.md')).toContain('### Skills, tools, standards and the member profile (R107)');
     expect(read('content/README.md')).toContain('content.skills');
+  });
+});
+
+/**
+ * R108 — the Skill board, the KPI board, the profiles, the work roles, the
+ * credential and the cohort report: the page reads the document and hands
+ * props down; the pure projections read no repository, no clock and no
+ * registry; the tiles keep the meter budget and the map keeps the quarry's
+ * rules; the surfaces link to the board; the docs and the register say what
+ * shipped and what did not (no events table, no proof on the credential).
+ */
+describe('R108 — the skill board, the KPI board, the profiles and the cohort report', () => {
+  const PURE = ['src/lib/kpiBoard.ts', 'src/lib/skymap.ts', 'src/lib/cohortKpi.ts'];
+
+  it('the board page reads the document once and hands props to components that never do', () => {
+    const page = code('src/app/courses/[courseId]/skills/page.tsx');
+    for (const needle of ['skillsOf(useCourseDocument())', 'certOf(useCourseDocument())', 'deliverablesOf(useCourseDocument())', 'kpiBoard({', 'skymapLayout(', '<CourseEnrolGate', 'active="home"', 'tintVars(course.id)', '<SkyMap ', '<KpiBoard ', '<KpiTable ']) expect(page, needle).toContain(needle);
+    expect(page, 'no local components on the page').not.toMatch(/^function [A-Z]\w+\(/m);
+    for (const f of ['src/components/skills/KpiBoard.tsx', 'src/components/skills/KpiTable.tsx', 'src/components/quarry/skymap/SkyMap.tsx', 'src/components/instructor/CohortKpiPanel.tsx']) {
+      expect(code(f), `${f} is props-only`).not.toContain('useCourseDocument');
+      expect(code(f), `${f} reads no repository`).not.toMatch(/from '@\/lib\/data'/);
+    }
+    expect(existsSync('src/app/courses/[courseId]/skills/loading.tsx')).toBe(true);
+    expect(code('src/components/ui/Skeletons.tsx')).toContain('export function SkillBoardSkeleton');
+  });
+
+  it('the tiles keep the meter budget and read the motion preference; the map keeps the quarry rules and no literal colour', () => {
+    const board = code('src/components/skills/KpiBoard.tsx');
+    expect(board).toContain('useReducedMotionSafe');
+    expect(board).toMatch(/DUR\.meter|\bmeter\b/);
+    expect(board, 'no bespoke duration').not.toMatch(/duration:\s*0?\.\d/);
+    expect(board).not.toContain('repeat:');
+    expect(board).not.toContain('whileHover');
+    expect(board, 'the figures count up').toContain('useCountUp(');
+    const count = code('src/lib/useCountUp.ts');
+    expect(count).toContain('useReducedMotionSafe()');
+    expect(count).toContain('DUR.meter');
+    expect(count, 'no decimal literal').not.toMatch(/\b0?\.\d+\b/);
+    const sky = code('src/components/quarry/skymap/SkyMap.tsx');
+    for (const n of ['useArt()', 'useReducedMotionSafe()', 'role="button"', 'data-skymap-detail', 'var(--color-term-bg)', 'SkyMapLayout']) expect(sky, n).toContain(n);
+    expect(sky).not.toMatch(/Math\.random/);
+    expect(sky, 'ambient motion is a CSS class the reduced-motion block stills').not.toContain('repeat: Infinity');
+    for (const f of readdirSync(root('src/components/quarry/skymap'))) {
+      expect(read(`src/components/quarry/skymap/${f}`), `${f} takes colours from the tint and the tokens only`).not.toMatch(/#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/);
+    }
+    expect(read('src/app/globals.css')).toContain('.skymap-halo');
+  });
+
+  it('the projections are pure: no repository, no clock, no ranking, no runtime registry import; the cohort report names nobody', () => {
+    for (const f of PURE) {
+      const src = code(f);
+      expect(src, `${f}: no runtime data import`).not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
+      expect(src, `${f}: no storage`).not.toMatch(/localStorage|supabase|Repo\b|fetch\(/);
+      expect(src, `${f}: no clock`).not.toMatch(/estimatedTime|parseEstimatedMinutes|Date\.now\(\)|new Date\(/);
+      expect(src, `${f}: no ranking`).not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|badge|\bXP\b/i);
+      expect(src, `${f}: registries arrive as values`).not.toMatch(/^import (?!type )[^\n]*from '\.\/docs\/(skills|tools|standards|sops|tactics|metricCatalogue|skillsCopy|kpis|workRoles|environmentProfile)'/m);
+    }
+    const cohort = code('src/lib/cohortKpi.ts');
+    const shapes = cohort.slice(cohort.indexOf('export interface CohortKpiRow'), cohort.indexOf('export interface CohortKpiInput'));
+    expect(shapes, 'the report carries no member').not.toMatch(/memberId|displayName/);
+    expect(cohort, 'nobody is ordered by a value').not.toMatch(/\.sort\([^)]*(value|pct|sum)/);
+    expect(code('src/lib/cohort.ts'), 'the marking CSV is untouched').not.toContain('kpi');
+    expect(code('src/lib/kpiBoard.ts')).toContain("KPI_BOARD_SCHEMA = 'capstone-kpi-board/1'");
+    expect(code('src/lib/docs/kpis.ts')).toContain('scored: false');
+  });
+
+  it('the surfaces link to the board, the exports carry the sixteen, and the credential admits no proof', () => {
+    for (const f of ['src/components/skills/SkillsCard.tsx', 'src/components/team/EngagementStatus.tsx', 'src/app/dashboard/page.tsx']) expect(code(f), f).toContain('/skills`');
+    expect(code('src/lib/search.ts')).toContain('skills:${course.id}');
+    const portfolio = code('src/app/portfolio/page.tsx');
+    for (const n of ['<KpiTable ', 'exportCredential', 'signature: null', 'kpis: r.board.kpis', 'workRoles: r.workRoles', 'OpenBadgeCredential', 'sha256Text(']) expect(portfolio, n).toContain(n);
+    expect(portfolio, 'unsigned by construction').not.toMatch(/\bproof\s*:/);
+    expect(read('content/schemas/credential.schema.json')).not.toContain('"proof"');
+    expect(code('src/components/ui/PageHeader.tsx'), 'a third button wraps at phone width').toContain('max-w-full');
+    const cache = code('src/lib/data/supabaseCache.ts');
+    const user = cache.slice(cache.indexOf('export async function hydrateUser'), cache.indexOf('export function submissionFromLightRow'));
+    expect(user).toContain("from('deliverable_reviews')");
+  });
+
+  it('the cohort page folds the sixteen per cohort through the loader, never the caller’s cache', () => {
+    const page = code('src/app/instructor/[courseId]/cohort/page.tsx');
+    for (const n of ['<CohortKpiPanel ', 'cohortKpiCsv(', 'cohortKpiReport({', 'statusFor: (t) => data.status[t]', 'artifactsFor: (m) => data.artifacts[m]']) expect(page, n).toContain(n);
+    expect(page).not.toContain('AdminGate');
+    const loader = code('src/lib/data/cohortLoader.ts');
+    expect(loader).toContain("supabase.from('deliverable_status').select('*').eq('course_id', course.id)");
+    expect(loader).toContain("supabase.from('evidence_artifacts').select('*').eq('course_id', course.id)");
+    expect(loader).not.toMatch(/\bcache\b|hydrateCourse/);
+  });
+
+  it('the docs and the register say what shipped: no events table, the contract and the schemas published with the content', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The KPI board, profiles and work roles (R108)');
+    expect(read('docs/OPERATIONS.md')).toContain('(R108)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('KPI board');
+    expect(read('docs/VALUE_REGISTER.md')).toContain('capstone-kpi-board/1');
+    expect(read('content/README.md')).toContain('profiles/');
+    expect(read('content/schemas/README.md')).toContain('kpi-board.schema.json');
+    expect(existsSync('docs/EVENTS.md')).toBe(true);
+    expect(read('docs/EVENTS.md')).toContain('no dual-write');
+    expect(existsSync('supabase/migrations/0013_events.sql'), 'the log is a contract this round, not a table').toBe(false);
+    expect(read('package.json')).toContain('tsx scripts/export-profiles.ts');
+    for (const f of ['kpi-board', 'work-role', 'environment-profile', 'credential', 'event']) expect(existsSync(`content/schemas/${f}.schema.json`), f).toBe(true);
+    expect(existsSync('content/profiles/sample-mssp.json')).toBe(true);
+    expect(existsSync('content/ontology/kpis.json')).toBe(true);
+    expect(existsSync('content/ontology/work-roles.json')).toBe(true);
   });
 });

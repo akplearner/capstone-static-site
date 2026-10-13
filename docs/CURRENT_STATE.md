@@ -122,7 +122,13 @@ additive, none requiring a rewrite.
 | Tactic / Practice | `src/lib/docs/tactics.ts` (ATT&CK + ATLAS tactic ids; engineering practices anchored to a standard) | **Present** (R107) |
 | Metric catalogue | `src/lib/docs/metricCatalogue.ts`, `content/ontology/metrics.json` | **Present** (R107; definitions and statuses, `scored: false`) |
 | Member profile (skills, tools, procedures, standards, domains per member) | `src/lib/skillProfile.ts`; `/portfolio` export `capstone-member-profile/1` | **Present** (R107; a projection; unsigned) |
-| Published schemas | `content/schemas/*.schema.json`, `src/lib/schema/validate.ts` | **Present** (R107) |
+| Published schemas | `content/schemas/*.schema.json`, `src/lib/schema/validate.ts` | **Present** (R107; R108 adds kpi-board, work-role, environment-profile, credential, event) |
+| KPI board (sixteen per member per course) | `src/lib/docs/kpis.ts`, `src/lib/kpiBoard.ts` (`capstone-kpi-board/1`); `/courses/<id>/skills`, the export's `courses[].kpis` | **Present** (R108; a projection; every tile a ratio of counts with its fact kind) |
+| Work role (NICE) | `src/lib/docs/workRoles.ts`; `content/ontology/work-roles.json` | **Present** (R108; 2017 ids transcribed, `checkedYear`; the area crosswalk is the platform's own) |
+| Environment profile | `src/lib/docs/environmentProfile.ts`; `content/profiles/sample-mssp.json`; the board's "measured against" picker and a device-local import | **Present** (R108; content-side; a company publishes by file) |
+| Cohort KPI report | `src/lib/cohortKpi.ts`; the instructor cohort page and its KPI CSV | **Present** (R108; bands per cohort, no member named) |
+| Credential shape | `content/schemas/credential.schema.json`; `/portfolio` → Export credential | **Present** (R108; Open Badges 3.0 envelope, unsigned: no `proof`) |
+| Event schema | `content/schemas/event.schema.json`, `docs/EVENTS.md` | **Present** as a contract (R108); the table and dual-write: **Absent** |
 | Evidence ledger (step verification + artifact hashes) | `step_evidence`, `evidence_artifacts`, `src/lib/evidenceLedger.ts`; browsable at `/courses/<id>/ledger` (`src/lib/ledgerView.ts`) | **Partial** (records proof; not an event log) |
 | Review (instructor verdict on a form, per week) | `deliverable_reviews`, `reviewRepo`, `ReviewBanner` / `ReviewCell` | **Present** (R68) |
 | Cohort (start date → week due dates, .ics) | `cohorts`, `cohortRepo`, `src/lib/calendar.ts` | **Present** (R68; one date per cohort, seeds carry none) |

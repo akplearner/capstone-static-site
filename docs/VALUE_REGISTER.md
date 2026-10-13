@@ -14,7 +14,9 @@ asset it rides on, the metrics that carry it (`src/lib/docs/metricCatalogue.ts`,
 - **Phase 4** — deliberately not built (ADR-0007: no MCP gateway now).
 
 Nothing here is scored, ranked or badged; speed is not measured. The member profile is sent by the
-member, unsigned, and says so in its `claim`.
+member, unsigned, and says so in its `claim`. R108 added rows 11 onward in each list: the Skill
+board's sixteen KPIs, the environment profile, the work roles, the credential envelope, the cohort
+report and the event contract.
 
 ## For companies (the hiring pipeline)
 
@@ -30,6 +32,10 @@ member, unsigned, and says so in its `claim`.
 | 8 | A reusable work-sample rubric: deliverable templates with a RACI, Definition-of-Done predicates and four rubric categories | course DTO `deliverables[]`, `src/lib/docs/predicate.ts` | `metric.doc-rubric-green`, `metric.doc-dod-met` | available now |
 | 9 | The honest reading guide: what "verified" proves, every metric's definition and status | `content/ontology/metrics.json`, `SKILLS_COPY.exportClaim`, the legal pages | — | available now |
 | 10 | Named candidate shortlists or cohort data for an employer programme | the cohort CSV (`src/lib/cohort.ts`) | `metric.platform-cohort-domain-coverage` | needs consent + legal change |
+| 11 | An Environment Profile: the stack, methodology, policies, ticket taxonomy and the competencies a company requires per work role, published as a file and measured against | `content/schemas/environment-profile.schema.json`, `content/profiles/sample-mssp.json`, the Skill board's "Measured against" picker | `metric.profile-coverage` | available now (published by file; over MCP: Phase 4) |
+| 12 | The sixteen-KPI board per candidate: ability, execution, procedure and standards, outcome, each a ratio of counts with its fact kind, sent by the candidate | `/courses/<id>/skills`, the export's `courses[].kpis` (`capstone-kpi-board/1`), `content/ontology/kpis.json` | the sixteen `kpi.*` rows of `src/lib/docs/kpis.ts` | available now (member-sent, unsigned) |
+| 13 | A credential envelope a hiring system can parse: Open Badges 3.0 with alignment to competency, exam-domain and NICE work-role ids | `/portfolio` → Export credential, `content/schemas/credential.schema.json` | — | available now (unsigned, no `proof`); a signed attestation: needs validators |
+| 14 | The cohort KPI report: counts per band per cohort, nobody named | the instructor cohort page, its KPI CSV (`src/lib/cohortKpi.ts`) | the sixteen `kpi.*` rows | available now for a programme's own instructors; handing it to an employer: needs consent + legal change |
 
 ## For students
 
@@ -45,6 +51,8 @@ member, unsigned, and says so in its `claim`.
 | 8 | A printable record with the skills sections | `/portfolio` → Save as PDF | — | available now |
 | 9 | The documentation and collaboration record: drafted, reviewed, issued, rubric-green, hand-offs, RACI respected | the Home card's indicators | `metric.doc-drafted`, `-reviewed`, `-issued`, `metric.collab-handoffs`, `metric.collab-raci-respected` | available now (course facts) |
 | 10 | Ability indicators without speed: first-try beside persistence, partial progress, investigation, consistency | the Home card's indicators | `metric.ability-first-try`, `-persistence`, `-partial-progress`, `-investigation-reports`, `-consistency-days` | available now; recall, calibration, independence: needs events / validators; remediation from another platform: Phase 4 |
+| 11 | The Skill board: the competency map lit by level and the sixteen KPIs, replayable, measured against a job role or a company profile with the untaught gap named | `/courses/<id>/skills` (`SkyMap`, `KpiBoard`, `KpiTable`) | the sixteen `kpi.*` rows, `metric.profile-coverage` | available now |
+| 12 | A credential export beside the profile export | `/portfolio` → Export credential | — | available now (unsigned) |
 
 ## For other AI platforms and agents (A2A and MCP consumers)
 
@@ -60,6 +68,9 @@ member, unsigned, and says so in its `claim`.
 | 8 | Agent-readable Markdown: build, cert-coverage and skills sheets | `docs/courses/` | — | available now |
 | 9 | Verify tokens and Definition-of-Done predicates per step and form as a validator interface; environment templates (`azuredeploy.json`, `template.yaml`) as agent sandboxes | course DTOs, `src/lib/cloud/*Iac.ts` | `metric.platform-course-verifiability` | available now as content; state-reading validators: needs validators |
 | 10 | An MCP server or A2A federation over all of the above | ADR-0007 | — | Phase 4, deliberately not built |
+| 11 | The KPI board as a document: sixteen ratios with catalogue ids, fact kinds and loaded flags, the Agent view of the Skill board | `content/ontology/kpis.json`, `content/schemas/kpi-board.schema.json` | the sixteen `kpi.*` rows | available now |
+| 12 | The event contract: the xAPI-shaped event every write site would append, with actor type, assist level and consent scope | `content/schemas/event.schema.json`, `docs/EVENTS.md` | `metric.ability-unassisted`, `metric.doc-rubric-events` | contract now; the log: ROADMAP Phase 1 item 1 |
+| 13 | The work-role crosswalk and the environment-profile schema, so a job posting or a company stack joins the ontology | `content/ontology/work-roles.json`, `content/schemas/work-role.schema.json`, `content/schemas/environment-profile.schema.json` | `metric.profile-coverage` | available now (NICE ids transcribed from the 2017 edition; confirm) |
 
 ## What crosses a boundary
 

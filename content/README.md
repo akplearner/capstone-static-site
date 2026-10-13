@@ -21,8 +21,8 @@ each task practises, the ladder and the cost (`src/lib/docs/certs.ts`, `costs.ts
 readable copy is `docs/courses/cert-coverage/`) — every course carries `content.skills` — the
 competency ontology, the tool, standards, SOP, tactics and practices registers, the metric
 catalogue and this course's maps into them (`src/lib/docs/skills.ts`, `tools.ts`, `standards.ts`,
-`sops.ts`, `tactics.ts`, `metricCatalogue.ts`, `skillsCopy.ts`; the readable copy is
-`docs/courses/skills/`) — every course carries `content.roles` — the role profiles, the motion spec and the labels of the role
+`sops.ts`, `tactics.ts`, `metricCatalogue.ts`, `skillsCopy.ts`, and since R108 `kpis.ts` and
+`workRoles.ts`; the readable copy is `docs/courses/skills/`) — every course carries `content.roles` — the role profiles, the motion spec and the labels of the role
 pictures (`src/lib/docs/roles.ts`; see `docs/ARCHITECTURE.md` §6) — and the self-drawn
 courses carry `content.arch` — the architecture picture and its build model
 (`src/lib/docs/archPicture.ts`; see `docs/courses/arch-pictures.md`). The same export
@@ -31,8 +31,12 @@ writes the weekly build sheets to `docs/courses/build-sheets/`.
 `ontology/` is the published ontology (R107): the competency nodes, tools, standards and
 controls, SOP kinds, tactics, practices, the metric catalogue and the exam domains as versioned
 JSON any platform can join on (`src/lib/docs/ontology.ts`; semver, additive, deprecate never
-remove). `schemas/` holds a JSON Schema for every shape the platform publishes or exports
-(`content/schemas/README.md`).
+remove); R108 adds `kpis.json` (the sixteen KPIs and their families) and `work-roles.json` (the
+NICE work roles and the course roles that prepare for them). `schemas/` holds a JSON Schema for
+every shape the platform publishes or exports (`content/schemas/README.md`). `profiles/` holds
+the published environment profiles (R108): what a company publishes to be measured against,
+built by `scripts/export-profiles.ts` from `src/lib/docs/environmentProfile.ts`; the one sample
+is the platform's own managed-security entity, and a company's own file follows the same schema.
 
 **The TypeScript is the source of truth.** Edit the seed, then regenerate:
 
@@ -67,7 +71,9 @@ a seed changed without regenerating; CI runs the export and diffs this folder.
                         SOPS[ {id, label, kind, definition, standardRefs} ], SOP_OF {formId: ids}, SOP_OF_TASK {taskId: ids},
                         TACTICS[ {id, matrix, label, url} ], TACTIC_OF, PRACTICES[ {id, label, anchor, definition} ], PRACTICE_OF,
                         METRICS[ {id, label, dimension, definition, inputs, valueTo, status, scored: false} ],
-                        COPY, LEVEL_LABEL, DIMENSION_LABEL },   // every course (R107); the registry rows this course's maps reach
+                        COPY, LEVEL_LABEL, DIMENSION_LABEL,
+                        KPI_FAMILIES[ {id, label, definition} ], KPIS[ {id, family, label, metricId, numerator, denominator, fact, valueTo, whyMember, whyCompany, agentField} ],
+                        WORK_ROLES[ {id, label, framework, niceId?, areas, requiredCompetencies} ], WORK_ROLE_OF {roleId: ids} },   // every course (R107, R108); the registry rows this course's maps reach
     "weekVisuals":    [ { week, builtThrough, highlight, process, caption } ],   // every course (R99)
     "custody":        { CUSTODY_COLUMNS, CUSTODY_RULES },            // every course
     "troubleshooting": { … },                                        // courses that run commands

@@ -41,6 +41,7 @@ describe('isProtected', () => {
     expect(isProtected('/courses/cysa-plus/team/alpha')).toBe(true);
     // R68: the evidence ledger is course material too.
     expect(isProtected('/courses/server-plus/ledger')).toBe(true);
+    expect(isProtected('/courses/security-plus/skills')).toBe(true);
   });
 
   it('protects a course sub-route that does not exist yet', () => {

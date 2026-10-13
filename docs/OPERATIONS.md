@@ -102,6 +102,18 @@ has failed silently in some deployment of some product; none takes more than a m
   paste to Verified from output; `/dashboard` shows a domain strip per card and "Skills by
   course"; `/portfolio` shows the six skills sections and its Export JSON parses with
   `schema: "capstone-member-profile/1"` and `signature: null`.
+- [ ] **Skill board (R108):** joined on a course, the Home skills card, the status surface and the
+  dashboard card link to `/courses/<id>/skills`; the competency map draws its edges in and lights
+  the stars in course order, the sixteen tiles count up once and a sweep crosses them; Replay
+  repeats both; with reduced motion nothing moves and Replay is hidden; Student, Hiring and Agent
+  switch the captions, and Agent prints JSON with `"schema": "capstone-kpi-board/1"` and sixteen
+  `kpis`; Measured against switches the coverage tile between the work roles and the sample
+  profile, a bad imported file shows an error and a good one survives a reload; `/portfolio`
+  shows a KPI table per capstone, Export JSON carries `courses[].kpis`, and Export credential
+  downloads JSON with no `proof` field.
+- [ ] **Cohort KPIs (R108):** `/instructor/<course>/cohort` shows a KPI bands table per cohort
+  under the submissions summary, the Team, Focus and Review week selects change the counts, and
+  KPI CSV downloads sixteen rows per cohort plus the whole course, naming nobody.
 
 ## 3. Point monitoring at it
 
