@@ -41,7 +41,8 @@ export function PageHeader({
         </Heading>
         {lede && <p className="max-w-2xl text-base text-body">{lede}</p>}
       </div>
-      {trailing && <div className="flex shrink-0 flex-wrap items-center gap-2">{trailing}</div>}
+      {/* R108: never wider than the header, so a third button or a picker wraps at phone width instead of scrolling the page. */}
+      {trailing && <div className="flex max-w-full shrink-0 flex-wrap items-center gap-2">{trailing}</div>}
     </header>
   );
 }

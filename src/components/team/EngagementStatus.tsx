@@ -121,6 +121,9 @@ export function EngagementStatus({
         <Link href={`/courses/${course.id}/ledger`} className="font-medium text-accent hover:underline">
           Evidence ledger →
         </Link>
+        <Link href={`/courses/${course.id}/skills`} className="font-medium text-accent hover:underline">
+          Skill board →
+        </Link>
         <Link href={`/courses/${course.id}/guide`} className="font-medium text-muted hover:text-ink hover:underline">
           Guide
         </Link>

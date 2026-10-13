@@ -54,6 +54,9 @@ export function SkillsCard({ course, member, activeWeek }: { course: Course; mem
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 id="skills-card-title" className="text-sm font-semibold text-ink">{COPY.cardTitle}</h3>
         <p className="text-xs text-muted">{COPY.denominator}</p>
+        <Link href={`/courses/${course.id}/skills`} className="text-xs font-medium text-accent hover:underline" data-skill-board-link>
+          {COPY.board.title} →
+        </Link>
       </div>
       {profile.rows.domains.length > 0 && (
         <div className="overflow-x-auto rounded-lg depth-edge bg-panel">

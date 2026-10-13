@@ -23,7 +23,10 @@ import { useClientStore, subscribeStore } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
 import { buildCohort, cohortCsv, stuckSummary, type CohortMember } from '@/lib/cohort';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
-import { certOf } from '@/lib/content/read';
+import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
+import { cohortKpiCsv, cohortKpiReport } from '@/lib/cohortKpi';
+import { CohortKpiPanel } from '@/components/instructor/CohortKpiPanel';
+import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { isDoneBy } from '@/lib/docs/dod';
 import { getTaskById, isAdvancedWeek } from '@/lib/course-helpers';
@@ -78,6 +81,32 @@ export default function CohortPage() {
     });
   }, [course, data]);
 
+  // R108: the sixteen KPIs of every member shown, folded into bands per cohort
+  // and carrying nobody; team facts are judged through the review week.
+  const kpiReport = useMemo(() => {
+    if (!course || !data) return null;
+    const doc = courseDocument(course.id) ?? bareDocument(course);
+    const shownIds = new Set(rows.filter((r) => (team === 'all' || r.teamId === team) && (role === 'all' || r.role === role)).map((r) => r.memberId));
+    return cohortKpiReport({
+      course,
+      week: reviewWeek ?? markedWeeks(course)[0]?.week ?? 1,
+      roster: data.roster.filter((m) => shownIds.has(m.memberId)),
+      ontologyVersion: ONTOLOGY_VERSION,
+      registry: skillsOf(doc),
+      cert: certOf(doc),
+      deliverables: deliverablesOf(doc),
+      facts: {
+        isStepDone: (m, t, s) => isStepDoneIn(data, course.id, m, t, s),
+        evidenceFor: (m) => data.evidence[m] ?? {},
+        artifactsFor: (m) => data.artifacts[m] ?? [],
+        docsFor: (t) => data.docs[t] ?? {},
+        statusFor: (t) => data.status[t] ?? [],
+        submissionsFor: (t) => data.submissions.filter((s) => s.teamId === t),
+        reviewsFor: (t) => data.reviews.filter((r) => r.teamId === t),
+      },
+    });
+  }, [course, data, rows, team, role, reviewWeek]);
+
   if (!course) return <CohortSkeleton />;
   if (!data) return <CohortSkeleton />;
 
@@ -89,6 +118,8 @@ export default function CohortPage() {
   const reviewer = user?.email ?? 'instructor';
 
   const exportCsv = () => downloadText(`${course.id}_cohort_${localDay()}.csv`, cohortCsv(shown, course, data.reviews), 'text/csv;charset=utf-8');
+  const words = skillsOf(courseDocument(course.id) ?? bareDocument(course));
+  const exportKpiCsv = () => kpiReport && downloadText(`${course.id}_cohort_kpis_${localDay()}.csv`, cohortKpiCsv(kpiReport, course), 'text/csv;charset=utf-8');
 
   return (
     <div className="space-y-8">
@@ -107,6 +138,9 @@ export default function CohortPage() {
             </Button>
             <Button size="sm" onClick={exportCsv} className="flex items-center gap-1.5" disabled={shown.length === 0}>
               <Download className="h-4 w-4" /> Export CSV
+            </Button>
+            <Button variant="secondary" size="sm" onClick={exportKpiCsv} className="flex items-center gap-1.5" disabled={!kpiReport || shown.length === 0}>
+              <Download className="h-4 w-4" /> KPI CSV
             </Button>
           </>
         }
@@ -155,6 +189,8 @@ export default function CohortPage() {
 
       {/* R84's grading machine at a glance: frozen submissions by verdict. */}
       <SubmissionSummary data={data} />
+
+      {kpiReport && shown.length > 0 && <CohortKpiPanel report={kpiReport} defs={words.KPIS} families={words.KPI_FAMILIES} copy={words.COPY.board} />}
 
       {stuck.length > 0 && (
         <Surface as="section" variant="inset" className="space-y-2" aria-labelledby="cohort-stuck">

@@ -46,6 +46,8 @@ export const LEVEL_LABEL: Record<Dimension, Record<SkillLevel, string>> = {
   ability: LEVELS,
 };
 
+export type BoardCopy = (typeof SKILLS_COPY)['board'];
+
 export const SKILLS_COPY = {
   cardTitle: 'Skills',
   cardIntro: 'What this course has recorded for this member: exam domains, skills, tools, procedures and standards.',
@@ -123,12 +125,16 @@ export const SKILLS_COPY = {
     untaught: 'not taught by this course',
     workRole: 'Roles this course prepares for',
     heroUnit: 'skills verified',
-    perTool: 'Command steps verified per tool',
+    perTool: 'Verified steps on the tasks that use each tool',
+    credentialName: 'Capstone member profile',
+    issuer: 'Capstone Labs',
     jsonCaption: 'The same sixteen as the capstone-kpi-board/1 document an agent reads.',
     schemaNote: 'The shape is published as content/schemas/kpi-board.schema.json.',
     copyJson: 'Copy JSON',
     mapTitle: 'Competency map',
     mapHowToRead: 'One star per competency this role practises, grouped by area; brighter means verified, a ring means the team approved the document.',
+    mapIdle: 'Hover or focus a star to read it.',
+    weeksLabel: 'Weeks cleared',
     tableTitle: 'The sixteen, as a table',
     nextTask: 'Next task',
     exportCredential: 'Export credential',

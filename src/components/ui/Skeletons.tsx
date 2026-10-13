@@ -145,6 +145,29 @@ export function LedgerSkeleton() {
 }
 
 /** The cohort dashboard — header, filters, one table per team. */
+/** R108: sub-nav · header · the sky · four rows of four tiles — the Skill board outline. */
+export function SkillBoardSkeleton() {
+  return (
+    <div className="space-y-8" aria-busy="true" aria-label="Loading skill board">
+      <SubNavSkeleton />
+      <HeaderSkeleton />
+      <Skeleton className="aspect-video w-full rounded-[var(--radius-card)]" />
+      <div className="space-y-5">
+        {[0, 1, 2, 3].map((i) => (
+          <div key={i} className="space-y-2">
+            <Skeleton className="h-4 w-48" />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {[0, 1, 2, 3].map((j) => (
+                <Skeleton key={j} className="h-28 rounded-[var(--radius-control)]" />
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function CohortSkeleton() {
   return (
     <div className="space-y-8" aria-busy="true" aria-label="Loading cohort">

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Download, Printer, ShieldCheck } from 'lucide-react';
+import { Award, Download, Printer, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
@@ -14,6 +14,9 @@ import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio, type SkillProfile } from '@/lib/skillProfile';
 import { SkillsSections } from '@/components/skills/SkillsSections';
+import { KpiTable } from '@/components/skills/KpiTable';
+import { kpiBoard, workRoleMeasure, type KpiBoard } from '@/lib/kpiBoard';
+import { sha256Text } from '@/lib/evidenceLedger';
 import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
@@ -62,6 +65,10 @@ interface Row {
   weeksTotal: number;
   /** R107: the member's standing against the course's registries. */
   skills: SkillProfile;
+  /** R108: the sixteen KPIs, measured against the role's first work role; the work roles; the exam the course prepares for. */
+  board: KpiBoard;
+  workRoles: string[];
+  examCode: string | null;
 }
 
 function buildRow(courseId: string): Row | null {
@@ -101,8 +108,22 @@ function buildRow(courseId: string): Row | null {
     team: { docs: savedDocs ?? {}, status: statusRepo.list(course.id, member.teamId), submissions: submissionsRepo.list(course.id, member.teamId), reviews: reviewRepo.list(course.id, member.teamId), currentWeek },
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
   });
+  const registry = skillsOf(doc);
+  const workRoles = registry.WORK_ROLE_OF[member.role] ?? [];
+  const firstRole = registry.WORK_ROLES.find((w) => w.id === workRoles[0]);
+  const board = kpiBoard({
+    profile: skills,
+    registry,
+    cert: certOf(doc),
+    measure: firstRole ? workRoleMeasure(firstRole) : { kind: 'work-role', id: 'role.none', label: '—', requiredCompetencies: [] },
+    outcome: { capstoneFiled, weeksCleared: crew.weeksCleared, weeksTotal: crew.weeksTotal },
+    ontologyVersion: ONTOLOGY_VERSION,
+  });
   return {
     skills,
+    board,
+    workRoles,
+    examCode: certOf(doc).CERT?.code ?? null,
     courseTitle: course.title,
     courseId: course.id,
     role: roleName,
@@ -151,25 +172,68 @@ export default function PortfolioPage() {
   const name = user?.email ?? 'Capstone portfolio';
 
   // R107: the member-profile export, published as content/schemas/member-profile.schema.json. Unsigned: attestation needs validators.
-  function exportJson() {
-    const profile = {
-      schema: MEMBER_PROFILE_SCHEMA,
-      ontologyVersion: ONTOLOGY_VERSION,
-      generatedAt: new Date().toISOString(),
-      subject: { display: name },
-      claim: words?.COPY.exportClaim ?? '',
-      path: path?.id ?? null,
-      summary: { ...summary, ...skills },
-      courses: rows.map((r) => ({ courseId: r.courseId, title: r.courseTitle, role: r.role, stage: r.stage, capstoneFiled: r.capstoneFiled, metrics: r.metrics, skills: r.skills, artifacts: r.artifacts })),
-      signature: null,
-    };
-    const blob = new Blob([JSON.stringify(profile, null, 2)], { type: 'application/json' });
+  // R108: the courses carry the sixteen KPIs and the work roles they prepare for.
+  const buildProfile = () => ({
+    schema: MEMBER_PROFILE_SCHEMA,
+    ontologyVersion: ONTOLOGY_VERSION,
+    generatedAt: new Date().toISOString(),
+    subject: { display: name },
+    claim: words?.COPY.exportClaim ?? '',
+    path: path?.id ?? null,
+    summary: { ...summary, ...skills },
+    courses: rows.map((r) => ({ courseId: r.courseId, title: r.courseTitle, role: r.role, stage: r.stage, capstoneFiled: r.capstoneFiled, metrics: r.metrics, skills: r.skills, artifacts: r.artifacts, workRoles: r.workRoles, kpis: r.board.kpis })),
+    signature: null,
+  });
+  const download = (filename: string, body: unknown) => {
+    const blob = new Blob([JSON.stringify(body, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'capstone-portfolio.json';
+    a.download = filename;
     a.click();
     URL.revokeObjectURL(url);
+  };
+  function exportJson() {
+    download('capstone-portfolio.json', buildProfile());
+  }
+
+  // R108: an Open Badges 3.0 envelope around the same profile, published as
+  // content/schemas/credential.schema.json. It carries no proof and the schema
+  // admits none: unsigned by construction, and the claim says so.
+  async function exportCredential() {
+    if (!words) return;
+    const profile = buildProfile();
+    const digest = await sha256Text(JSON.stringify(profile));
+    const origin = window.location.origin;
+    const alignment = [
+      ...rows.flatMap((r) => r.skills.rows.skills.filter((s) => s.level === 'verified' || s.level === 'reviewed').map((s) => ({ type: ['Alignment'], targetName: s.label, targetCode: s.id, targetFramework: 'capstone-ontology' }))),
+      ...rows.flatMap((r) => (r.examCode ? r.skills.rows.domains.filter((d) => d.level === 'verified' || d.level === 'reviewed').map((d) => ({ type: ['Alignment'], targetName: d.label, targetCode: `${r.examCode}.${d.id}`, targetFramework: r.examCode as string })) : [])),
+      ...rows.flatMap((r) => {
+        const reg = skillsOf(courseDocument(r.courseId) ?? bareDocument(courseRepo.get(r.courseId)!));
+        return r.workRoles.map((id) => reg.WORK_ROLES.find((w) => w.id === id)).filter((w): w is NonNullable<typeof w> => !!w).map((w) => ({ type: ['Alignment'], targetName: w.label, targetCode: w.niceId ?? w.id, targetFramework: 'NICE', targetUrl: w.url }));
+      }),
+    ];
+    const seen = new Set<string>();
+    download('capstone-credential.json', {
+      '@context': ['https://www.w3.org/ns/credentials/v2', 'https://purl.imsglobal.org/spec/ob/v3p0/context-3.0.3.json'],
+      type: ['VerifiableCredential', 'OpenBadgeCredential'],
+      issuer: { id: origin, type: 'Profile', name: words.COPY.board.issuer },
+      validFrom: profile.generatedAt,
+      credentialSubject: {
+        type: ['AchievementSubject'],
+        achievement: {
+          id: `${origin}/achievements/member-profile`,
+          type: ['Achievement'],
+          name: words.COPY.board.credentialName,
+          description: words.COPY.board.credentialClaim,
+          criteria: { narrative: words.COPY.exportClaim },
+          alignment: alignment.filter((a) => (seen.has(a.targetCode) ? false : (seen.add(a.targetCode), true))),
+        },
+        result: rows.flatMap((r) => r.board.kpis.map((k) => ({ type: ['Result'], resultDescription: `${r.courseId} ${k.id}`, value: k.loaded ? `${k.value} of ${k.of}` : '—' }))),
+      },
+      evidence: [{ type: ['Evidence'], id: `sha256:${digest}`, name: 'capstone-portfolio.json', description: words.COPY.exportSchemaNote }],
+      claim: words.COPY.board.credentialClaim,
+    });
   }
 
   if (!hydrated) return <Skeleton className="h-96 w-full" />;
@@ -200,6 +264,9 @@ export default function PortfolioPage() {
             </Button>
             <Button variant="secondary" className="flex items-center gap-2" onClick={exportJson}>
               <Download className="h-4 w-4" /> Export JSON
+            </Button>
+            <Button variant="secondary" className="flex items-center gap-2" onClick={() => void exportCredential()} data-export-credential>
+              <Award className="h-4 w-4" /> {words?.COPY.board.exportCredential}
             </Button>
           </>
         }
@@ -289,6 +356,15 @@ export default function PortfolioPage() {
                   </p>
                 </div>
               </div>
+              {/* R108: the sixteen as a table, per capstone; the Skill board is where they move. */}
+              {words && (
+                <div className="mt-4 break-inside-avoid" data-kpi-portfolio={r.courseId}>
+                  <KpiTable board={r.board} defs={words.KPIS} families={words.KPI_FAMILIES} copy={words.COPY.board} title={`${words.COPY.board.tableTitle} · ${r.courseTitle}`} />
+                  <Link href={`/courses/${r.courseId}/skills`} className="mt-2 inline-block text-sm font-medium text-accent hover:underline print:hidden">
+                    {words.COPY.board.title} →
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
         </section>

@@ -129,6 +129,7 @@ export function buildIndex({ courses, signedIn, isInstructor, hasTeam }: IndexIn
     if (hasTeam(course.id)) {
       items.push({ id: `docs:${course.id}`, kind: 'page', title: `${course.title} · Deliverables`, href: `${base}/docs`, courseId: course.id });
       items.push({ id: `ledger:${course.id}`, kind: 'page', title: `${course.title} · Evidence ledger`, href: `${base}/ledger`, courseId: course.id });
+      items.push({ id: `skills:${course.id}`, kind: 'page', title: `${course.title} · Skill board`, href: `${base}/skills`, courseId: course.id });
     }
     if (isInstructor) {
       items.push({ id: `cohort:${course.id}`, kind: 'page', title: `${course.title} · Cohort`, subtitle: 'Instructor view', href: `/instructor/${course.id}/cohort`, courseId: course.id });

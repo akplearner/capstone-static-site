@@ -431,12 +431,16 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
           only used to label the stone — the card never said where you'd pick
           up, and Continue dropped you at the course root to find your own way
           back. Now it says the week and lands you on it. */}
-      <div className="mt-5">
+      <div className="mt-5 flex flex-col gap-2">
         <Link href={started ? `/courses/${course.id}?tab=tasks&week=${activeWeek}` : `/courses/${course.id}`}>
           <Button className="flex w-full items-center justify-center gap-2">
             {started ? `Continue · ${phaseTag(course, activeWeek)}` : 'Start'}
             <ArrowRight className="h-4 w-4" />
           </Button>
+        </Link>
+        {/* R108: the Skill board, where the sixteen KPIs and the competency map live. */}
+        <Link href={`/courses/${course.id}/skills`} className="text-center text-sm font-medium text-accent hover:underline" data-skill-board-link>
+          {words.COPY.board.title} →
         </Link>
       </div>
     </motion.div>

@@ -759,6 +759,8 @@
    is stilled by the global prefers-reduced-motion block; the one-shots
    (burst, pop) are skipped in code under reduced motion as well. */
 @keyframes qa-twinkle { 0%, 100% { opacity: 0.15; } 50% { opacity: 1; } }
+/* R108: the verified stars of the competency map breathe; the global reduced-motion block stills it. */
+.skymap-halo { animation: qa-twinkle 4s ease-in-out infinite; }
 @keyframes qa-flicker { 0%, 100% { opacity: 1; } 40% { opacity: 0.72; } 70% { opacity: 0.9; } }
 @keyframes qa-breathe { 0%, 100% { opacity: 0.55; transform: scale(0.94); } 50% { opacity: 1; transform: scale(1.06); } }
 @keyframes qa-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }

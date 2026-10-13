@@ -70,4 +70,7 @@ export const KEYS = {
   // R71. The student's step view — simple (commands and checks) or full.
   // R100. Focus mode on the Tasks tab — a per-device preference, like the theme.
   focusMode: `${STORAGE_PREFIX}focus_mode`,
+  // R108: an environment profile imported on this device for the Skill board's
+  // "measured against" picker; a UI preference, never synced.
+  importedProfile: `${STORAGE_PREFIX}imported_profile`,
 };
