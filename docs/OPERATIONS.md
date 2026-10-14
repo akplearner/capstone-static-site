@@ -119,6 +119,10 @@ has failed silently in some deployment of some product; none takes more than a m
   across them, a complete ratio is lit; the chip beside the pack copies and downloads the
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
   chip downloads the profile and the credential (no `proof`); under reduced motion nothing breathes.
+- [ ] **Attribution and currency (R111):** on the Skill board the KPI table has a "Drafted by this
+  role" column (n of m on the seven team KPIs, "—" elsewhere); a tile whose role share differs prints
+  it; `/portfolio` lists "Last verified <day> · current" beside a verified skill; the dashboard's
+  Skills verified tile counts current skills; the credential's results carry the share.
 - [ ] **Acceptance gate, consent and outcomes (R110):** sign in → the gate lists the agreements
   that changed (terms, acceptable use, lab, data notice at v2) and "Full text" opens `/legal/aup`
   readable → accept → `/account` shows the Consent switches (off by default) and, once the outcome

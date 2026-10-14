@@ -147,6 +147,9 @@ function KpiTile({ k, def, copy, audience, persistenceLabel, weeks, replayKey }:
         {capstone && k.loaded && (
           <p className="text-2xs text-muted" data-weeks>{copy.weeksLabel}: {weeks.value} of {weeks.of}</p>
         )}
+        {k.loaded && k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) && (
+          <p className="text-2xs text-muted" data-contribution>{copy.contributionColumn}: {k.contribution.value} of {k.contribution.of}</p>
+        )}
         <p className="flex items-center gap-1 text-2xs text-muted">
           <Icon className="h-3 w-3 shrink-0" aria-hidden /> {text}
         </p>

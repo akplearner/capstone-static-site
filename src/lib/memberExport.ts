@@ -38,7 +38,7 @@ export interface MemberCourseRow {
   examCode: string | null;
 }
 
-export type ExportCopy = Pick<SkillsCopy, 'exportClaim' | 'exportSchemaNote'> & { board: Pick<SkillsCopy['board'], 'issuer' | 'credentialName' | 'credentialClaim'> };
+export type ExportCopy = Pick<SkillsCopy, 'exportClaim' | 'exportSchemaNote'> & { board: Pick<SkillsCopy['board'], 'issuer' | 'credentialName' | 'credentialClaim' | 'contribution'> };
 
 export interface MemberExportInput {
   subject: string;
@@ -177,7 +177,8 @@ export function buildCredential(input: CredentialInput): CredentialExport {
         criteria: { narrative: copy.exportClaim },
         alignment: alignment.filter((a) => (seen.has(a.targetCode) ? false : (seen.add(a.targetCode), true))),
       },
-      result: rows.flatMap((r) => r.board.kpis.map((k) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${k.id}`, value: k.loaded ? `${k.value} of ${k.of}` : '—' }))),
+      // R111: a team KPI says how much of it sits on the forms the member's role drafts, where that differs.
+      result: rows.flatMap((r) => r.board.kpis.map((k) => ({ type: ['Result'] as ['Result'], resultDescription: `${r.courseId} ${k.id}`, value: !k.loaded ? '—' : `${k.value} of ${k.of}${k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` (${copy.board.contribution} ${k.contribution.value} of ${k.contribution.of})` : ''}` }))),
     },
     evidence: [{ type: ['Evidence'], id: `sha256:${digest}`, name: PROFILE_FILENAME, description: copy.exportSchemaNote }],
     claim: copy.board.credentialClaim,

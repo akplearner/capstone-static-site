@@ -1,6 +1,7 @@
 import type { ProfileRow, SkillPortfolio, SkillProfile } from '@/lib/skillProfile';
 import type { SkillsContent } from '@/lib/content/read';
 import { LevelPill } from './LevelPill';
+import { localDay } from '@/lib/localDate';
 
 /**
  * R107: the portfolio's skills sections, props only. Six sections, each a
@@ -23,8 +24,15 @@ function best(courses: CourseProfile[], dim: Dim): (ProfileRow & { courses: stri
       const prev = by.get(r.id);
       const rank = ['not-started', 'practised', 'verified', 'reviewed'].indexOf(r.level);
       const prevRank = prev ? ['not-started', 'practised', 'verified', 'reviewed'].indexOf(prev.level) : -1;
-      if (!prev || rank > prevRank) by.set(r.id, { ...r, courses: [...(prev?.courses ?? []), c.title] });
-      else prev.courses.push(c.title);
+      // R111: across courses the latest verification and any current flag win, whatever row holds the best level.
+      const lastVerifiedAt = Math.max(prev?.lastVerifiedAt ?? 0, r.lastVerifiedAt ?? 0) || undefined;
+      const current = prev?.current || r.current ? true : prev?.current === false || r.current === false ? false : undefined;
+      if (!prev || rank > prevRank) by.set(r.id, { ...r, courses: [...(prev?.courses ?? []), c.title], ...(lastVerifiedAt ? { lastVerifiedAt } : {}), ...(current !== undefined ? { current } : {}) });
+      else {
+        prev.courses.push(c.title);
+        if (lastVerifiedAt) prev.lastVerifiedAt = lastVerifiedAt;
+        if (current !== undefined) prev.current = current;
+      }
     }
   }
   return [...by.values()].filter((r) => r.level !== 'not-started');
@@ -43,6 +51,11 @@ export function SkillsSections({ courses, portfolio, content }: { courses: Cours
             <LevelPill level={r.level} label={LEVEL_LABEL[dim][r.level]} />
             {r.standardRefs && r.standardRefs.length > 0 && <span className="font-mono text-2xs text-muted">{r.standardRefs.join(' · ')}</span>}
             <span className="text-2xs text-muted">{r.courses.join(' · ')}</span>
+            {r.lastVerifiedAt && (
+              <span className="text-2xs text-muted" data-last-verified={r.current === true ? 'current' : r.current === false ? 'stale' : ''}>
+                {COPY.board.lastVerified} {localDay(r.lastVerifiedAt)}{r.current === true ? ` · ${COPY.board.current}` : r.current === false ? ` · ${COPY.board.stale}` : ''}
+              </span>
+            )}
           </li>
         ))}
       </ul>

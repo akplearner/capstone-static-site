@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import type { Course, Member } from '@/lib/types';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
@@ -23,13 +24,15 @@ import { DtoChip } from './DtoChip';
  * R109: the sixteen KPIs as the socket pack with the DTO chip beside it; the
  * ten indicators the sixteen do not carry stay as the plain list.
  */
-const ABILITY_KEYS = ['partialProgress', 'activeDays', 'activeWeeks', 'drafted', 'reviewed', 'issued', 'submissionsFrozen', 'teammateStepsTicked', 'reportsFiled', 'notesWritten'] as const;
+const ABILITY_KEYS = ['partialProgress', 'activeDays', 'activeWeeks', 'drafted', 'reviewed', 'issued', 'submissionsFrozen', 'raciRespected', 'teammateStepsTicked', 'reportsFiled', 'notesWritten'] as const;
 const LINES = ['skills', 'tools', 'procedures', 'standards', 'tactics', 'practices'] as const;
 
 export function SkillsCard({ course, member, activeWeek, crew }: { course: Course; member: Member; activeWeek: number; crew: Pick<CrewProgress, 'weeksCleared' | 'weeksTotal'> }) {
   const registry = skillsOf(useCourseDocument());
   const cert = certOf(useCourseDocument());
   const deliverables = deliverablesOf(useCourseDocument());
+  // R111: the page's clock for the currency flag; the projection reads none.
+  const [asOf] = useState(() => Date.now());
   const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
   const docs = docsRepo.get(course.id, member.teamId) ?? {};
   const profile = skillProfile({
@@ -50,6 +53,7 @@ export function SkillsCard({ course, member, activeWeek, crew }: { course: Cours
       currentWeek: activeWeek,
     },
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+    asOf,
   });
   const { COPY, LEVEL_LABEL, DIMENSION_LABEL } = registry;
   const board = kpiBoard({

@@ -97,6 +97,8 @@ function buildRow(courseId: string): Row | null {
     deliverables: deliverablesOf(doc),
     team: { docs: savedDocs ?? {}, status: statusRepo.list(course.id, member.teamId), submissions: submissionsRepo.list(course.id, member.teamId), reviews: reviewRepo.list(course.id, member.teamId), currentWeek },
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+    // R111: the currency flag needs the page's clock; buildRow is a plain function, not a component body.
+    asOf: Date.now(),
   });
   const registry = skillsOf(doc);
   // R109: the work roles as rows of this course's own document (`WORK_ROLES` is filtered per course); the export writes their ids.

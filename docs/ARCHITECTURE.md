@@ -426,6 +426,26 @@ member alone, start month, courses used at work); instructors read only `outcome
 counts per status, and nothing at all below five members (the k floor in SQL and in `outcomeBands`).
 The catalogue rows `outcome-placement` and `outcome-on-the-job` are computed from it.
 
+### Attribution and currency (R111)
+
+Two questions a hiring reader asks of any team-built record are answered from facts the platform
+already keeps. **Who did it:** every form carries a RACI, and the drafting role owns the document, so
+the three team folds that also count shared forms (DoD met, document control, instructor approved)
+carry an `own` share restricted to the forms the member's role drafts, and the profile lists those
+forms (`draftedForms`). The KPI board turns that into a `contribution` on the seven attributable team
+KPIs: P1 to P4 and O1 to O3, equal to the value where the count is already the role's own (controls
+cited, rubric green, handoffs) and absent on capstone filed, which is the whole team's. A new team
+indicator, RACI respected, counts the member's own lifecycle moves made in the role the RACI names
+for that move. **Is it current:** each profile row carries `lastVerifiedAt`, and, when the page hands
+in its clock as `asOf`, a `current` flag for a last verification inside a 180-day window
+(`CURRENT_WINDOW_DAYS`). The projection still reads no clock and reports no duration; the window is
+a recency predicate, never a figure shown. The pack's read-out, the Skill board tile and the KPI
+table print the role's share where it differs; the portfolio prints "Last verified <day>" with
+current or verified earlier; the dashboard's skills tile counts current skills; the credential's
+results carry the share. Both profile schemas and the KPI board schema carry the new fields; the
+catalogue gains `metric.skill-currency`; the ontology is 1.2.0.
+
+## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:
 

@@ -65,7 +65,9 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
   const nameOf = (k: KpiValue) => defOf.get(k.id)?.label ?? k.id;
   const factWord = (k: KpiValue) => (k.fact === 'own' ? copy.factOwn : k.fact === 'team' ? copy.factTeam : copy.factContent).split(':')[0];
   const besideOf = (k: KpiValue) => (k.beside ? ` · ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : '');
-  const labelOf = (k: KpiValue) => (k.loaded ? `${nameOf(k)}: ${k.value} of ${k.of}${k.beside ? `; ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : ''}` : `${nameOf(k)}: ${copy.notLoaded}`);
+  // R111: the role's own share, printed only where it differs from the team count.
+  const ownOf = (k: KpiValue) => (k.contribution && (k.contribution.value !== k.value || k.contribution.of !== k.of) ? ` · ${copy.contribution} ${k.contribution.value} of ${k.contribution.of}` : '');
+  const labelOf = (k: KpiValue) => (k.loaded ? `${nameOf(k)}: ${k.value} of ${k.of}${k.beside ? `; ${persistenceLabel} ${k.beside.value} of ${k.beside.of}` : ''}${ownOf(k).replace(' · ', '; ')}` : `${nameOf(k)}: ${copy.notLoaded}`);
 
   const move = (e: KeyboardEvent<HTMLButtonElement>, i: number) => {
     const delta = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowDown' ? 4 : e.key === 'ArrowUp' ? -4 : e.key === 'Home' ? -i : e.key === 'End' ? ordered.length - 1 - i : 0;
@@ -169,7 +171,7 @@ export function KpiPack({ board, defs, families, copy, href, persistenceLabel }:
         {shown ? (
           shown.loaded ? (
             <>
-              <span className="font-semibold text-ink">{nameOf(shown)}</span> · {shown.value} of {shown.of} · {shown.pct}% · {factWord(shown)}{besideOf(shown)}
+              <span className="font-semibold text-ink">{nameOf(shown)}</span> · {shown.value} of {shown.of} · {shown.pct}% · {factWord(shown)}{besideOf(shown)}{ownOf(shown)}
             </>
           ) : (
             <>

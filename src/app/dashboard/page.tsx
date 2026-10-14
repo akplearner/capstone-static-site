@@ -115,6 +115,8 @@ function buildCard(course: Course): CourseCard | null {
       currentWeek: activeWeek,
     },
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
+    // R111: the currency flag needs the page's clock; buildCard is a plain function, not a component body.
+    asOf: Date.now(),
   });
   // R109: the sixteen KPIs against the role's default measure, and the work
   // roles as rows of this course's own document (the export writes their ids).
@@ -172,6 +174,8 @@ export default function DashboardPage() {
   const boards = cards.map((c) => c.board);
   const commands = sumKpi(boards, 'kpi.execution.commands-verified');
   const procedures = sumKpi(boards, 'kpi.procedure.followed-to-standard');
+  // R111: distinct skills whose last verification is inside the currency window, across courses.
+  const currentSkills = new Set(cards.flatMap((c) => c.skills.rows.skills.filter((r) => r.current).map((r) => r.id))).size;
   // The words of the skills surfaces, off the first course's document (they are the same in every document).
   const words = cards[0] ? skillsOf(courseDocument(cards[0].course.id) ?? bareDocument(cards[0].course)) : undefined;
   const completedCourseIds = new Set(cards.filter((c) => c.capstoneFiled).map((c) => c.course.id));
@@ -258,7 +262,7 @@ export default function DashboardPage() {
                 icon={ShieldCheck}
                 label={words.COPY.tiles.skillsVerified}
                 value={`${skills.skillsVerified.length}`}
-                sub={`${words.COPY.recordSkills} ${skills.skillsPractised.length}`}
+                sub={`${words.COPY.recordSkills} ${skills.skillsPractised.length} · ${currentSkills} ${words.COPY.board.current}`}
                 ring={skills.skillsPractised.length > 0 ? { value: skills.skillsVerified.length, max: skills.skillsPractised.length } : undefined}
               />
             )}

@@ -28,6 +28,7 @@ export function KpiTable({ board, defs, families, copy, perTool, title }: { boar
               <th scope="col" className="px-3 py-2 font-semibold">{copy.cohortColumns[1]}</th>
               <th scope="col" className="px-3 py-2 text-right font-semibold">n / m</th>
               <th scope="col" className="px-3 py-2 text-right font-semibold">%</th>
+              <th scope="col" className="px-3 py-2 text-right font-semibold">{copy.contributionColumn}</th>
               <th scope="col" className="px-3 py-2 font-semibold">{copy.cohortColumns[2]}</th>
             </tr>
           </thead>
@@ -41,6 +42,7 @@ export function KpiTable({ board, defs, families, copy, perTool, title }: { boar
                 <td className="whitespace-nowrap px-3 py-2 text-body">{familyOf.get(k.family) ?? k.family}</td>
                 <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-ink">{k.loaded ? `${k.value} / ${k.of}` : '—'}</td>
                 <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body">{k.loaded && k.of > 0 ? `${k.pct}%` : '—'}</td>
+                <td className="whitespace-nowrap px-3 py-2 text-right tabular-nums text-body" data-contribution={k.contribution ? `${k.contribution.value}/${k.contribution.of}` : ''}>{k.contribution ? `${k.contribution.value} / ${k.contribution.of}` : '—'}</td>
                 <td className="px-3 py-2 text-muted">{fact(k)}</td>
               </tr>
             ))}

@@ -2676,3 +2676,47 @@ describe('R110 — the acceptance gate, consent and outcomes', () => {
     expect(read('SUPABASE_SETUP.md')).toContain('outcome_counts');
   });
 });
+
+/**
+ * R111 — attribution and currency: the projection reads the page's clock and
+ * no other, the role's share rides on the indicators and the board, and the
+ * surfaces print it where it differs; rows know when they were last proved.
+ */
+describe('R111 — attribution and currency', () => {
+  it('the projection takes the page clock, never its own, and carries the role share and the RACI moves', () => {
+    const src = code('src/lib/skillProfile.ts');
+    expect(src).toContain('asOf?: number');
+    expect(src).toContain('export const CURRENT_WINDOW_DAYS = 180');
+    expect(src, 'never defaults the clock inside the module').not.toMatch(/asOf\s*\?\?\s*Date|Date\.now\(\)/);
+    for (const n of ['lastVerifiedAt', 'current:', 'own: dodOver(draftForms)', 'own: controlOver(draftForms)', 'own: approvedOver(draftForms)', 'raciRespected: teamOr(', 'draftedForms:']) expect(src, n).toContain(n);
+    expect(read('src/lib/skillProfile.ts'), 'the docblock says what timestamps are for').toContain('no duration is ever reported');
+    const board = code('src/lib/kpiBoard.ts');
+    expect(board).toContain('contribution?: { value: number; of: number }');
+    expect(board, 'an unloaded team fact attributes nothing').toContain('v.contribution && v.loaded');
+  });
+
+  it('every surface passes the page clock and prints the share and the currency', () => {
+    expect(code('src/components/skills/SkillsCard.tsx')).toContain('useState(() => Date.now())');
+    expect(code('src/app/courses/[courseId]/skills/page.tsx')).toContain('useState(() => Date.now())');
+    for (const f of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx']) expect(code(f), f).toContain('asOf: Date.now()');
+    expect(code('src/components/skills/KpiPack.tsx')).toContain('copy.contribution');
+    expect(code('src/components/skills/KpiBoard.tsx')).toContain('data-contribution');
+    expect(code('src/components/skills/KpiTable.tsx')).toContain('copy.contributionColumn');
+    expect(code('src/components/skills/SkillsSections.tsx')).toContain('data-last-verified');
+    expect(code('src/app/dashboard/page.tsx')).toContain('currentSkills');
+    expect(code('src/lib/memberExport.ts')).toContain('copy.board.contribution');
+    expect(code('src/components/skills/SkillsCard.tsx')).toContain("'raciRespected'");
+  });
+
+  it('the schemas carry the new fields and the docs keep their sections', () => {
+    const sp = read('content/schemas/skill-profile.schema.json');
+    for (const n of ['"own"', '"lastVerifiedAt"', '"current"', '"draftedForms"', '"raciRespected"']) expect(sp, n).toContain(n);
+    expect(read('content/schemas/kpi-board.schema.json')).toContain('"contribution"');
+    expect(read('content/schemas/member-profile.schema.json')).toContain('"contribution"');
+    const arch = read('docs/ARCHITECTURE.md');
+    expect(arch).toContain('### Attribution and currency (R111)');
+    expect(arch, 'the MSP bridge keeps its own heading').toMatch(/^## 7\. The MSP \/ business bridge/m);
+    expect(read('docs/OPERATIONS.md')).toContain('(R111)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('Attribution and currency');
+  });
+});

@@ -94,6 +94,7 @@ export const SKILLS_COPY = {
     controlsCited: 'Controls cited',
     docControl: 'Document control complete',
     instructorApproved: 'Instructor approved',
+    raciRespected: 'Moves made in the RACI role',
   } as Record<string, string>,
   skillsByCourse: 'skills verified',
   recordSkills: 'of practised',
@@ -153,6 +154,12 @@ export const SKILLS_COPY = {
     packIdle: 'Hover or focus a socket to read it.',
     packKeys: 'Arrow keys move between sockets. Enter pins the read-out.',
     download: 'Download JSON',
+    /** R111: the role's own share of a team fact, and a row's currency. */
+    contribution: 'drafted by this role',
+    contributionColumn: 'Drafted by this role',
+    lastVerified: 'Last verified',
+    current: 'current',
+    stale: 'verified earlier',
     familyShort: { ability: 'Ability', execution: 'Execution', procedure: 'Procedure', outcome: 'Outcome' } as Record<KpiFamily, string>,
   },
 };

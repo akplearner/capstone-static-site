@@ -77,6 +77,8 @@ export default function SkillBoardPage() {
   const imported = useClientStore<EnvironmentProfile | null>(() => getImportedProfile(), null);
   const [measureId, setMeasureId] = useState<string>('');
   const [importError, setImportError] = useState<string | null>(null);
+  // R111: the page's clock for the currency flag; the projection reads none.
+  const [asOf] = useState(() => Date.now());
 
   if (loading) return <SkillBoardSkeleton />;
   if (!member || facts === EMPTY_FACTS) return <CourseEnrolGate courseId={course.id} what="the skill board" />;
@@ -105,6 +107,7 @@ export default function SkillBoardPage() {
     deliverables,
     team: { docs: facts.docs, status: facts.status, submissions: facts.submissions, reviews: facts.reviews, currentWeek: activeWeek },
     own: { notes: facts.notes, reports: facts.reports },
+    asOf,
   });
 
   const workRoleIds = registry.WORK_ROLE_OF[member.role] ?? [];
