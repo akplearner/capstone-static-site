@@ -33,6 +33,9 @@ import { safeNextPath } from '@/lib/safeRedirect';
 
 export async function proxy(request: NextRequest) {
   if (!isSupabaseConfigured()) return NextResponse.next();
+  // R114: a candidate link's page is public and needs no session; touching
+  // one there would set cookies on a page a stranger opens.
+  if (request.nextUrl.pathname === '/share') return NextResponse.next();
 
   let response = NextResponse.next({ request });
 

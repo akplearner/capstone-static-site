@@ -2777,7 +2777,8 @@ describe('R112 — the funnel and the step friction map', () => {
  */
 describe('R113 — stamps, receipts and re-hash checks', () => {
   const MIGRATIONS = readdirSync(root('supabase/migrations')).filter((f) => f.endsWith('.sql'));
-  const FUNCTIONS = ['delete-account', 'report-notify', 'stamp', 'receipt'];
+  // R114 adds the two link functions: they answer the preflight the same way.
+  const FUNCTIONS = ['delete-account', 'report-notify', 'stamp', 'receipt', 'share', 'shared-profile'];
 
   it('stamps are the platform’s alone, receipts are written by nobody but the function, and both stay frozen', () => {
     const sql = read('supabase/migrations/0014_verification_receipts.sql');
@@ -2876,5 +2877,57 @@ describe('R113 — stamps, receipts and re-hash checks', () => {
     expect(read('docs/OPERATIONS.md')).toContain('(R113)');
     const setup = read('SUPABASE_SETUP.md');
     for (const n of ['supabase functions deploy stamp', 'supabase functions deploy receipt', 'A receipt records the stamp, not the machine']) expect(setup, n).toContain(n);
+  });
+});
+
+/**
+ * R114 — candidate links: a frozen, unsigned copy for whoever holds an
+ * unguessable, expiring, revocable link; identity stays out of the copy and
+ * the token stays out of every log.
+ */
+describe('R114 — candidate links and employer profiles', () => {
+  it('only the platform creates a link, the owner never reads the copy back, and a revocation is final', () => {
+    const sql = read('supabase/migrations/0015_profile_shares.sql');
+    const lower = sql.toLowerCase();
+    for (const n of ['revoke all on public.profile_shares from anon, authenticated', 'grant update (revoked_at) on public.profile_shares to authenticated', "interval '90 days'", 'a revoked link stays revoked', 'new.revoked_at := now()', 'environment_profiles']) expect(sql, n).toContain(n);
+    expect(lower, 'no client insert policy').not.toMatch(/create policy [^;]*on public\.profile_shares for (insert|all)/);
+    expect(sql, 'the owner may not read the copy or the token hash').not.toMatch(/grant select \([^)]*(snapshot|token_hash)/);
+    expect(existsSync('supabase/migrations/0013_events.sql'), 'the events table is still a later round').toBe(false);
+    const rls = read('supabase/tests/rls.sql');
+    for (const a of ['ada read the frozen copy back', 'ada created a link without the function', 'the revocation carries the database clock', "ivy: no instructor reads a member''s links", 'a member published an employer profile']) expect(rls, a).toContain(a);
+  });
+
+  it('the functions keep identity out of the copy and the token out of storage and logs', () => {
+    const share = code('supabase/functions/share/index.ts');
+    for (const n of ["'share-employer'", 'shareProblem(body)', 'withSubject(', 'newToken()', 'token_hash: await sha256HexText(token)']) expect(share, n).toContain(n);
+    const insert = share.slice(share.indexOf(".from('profile_shares')"), share.indexOf('.select('));
+    expect(insert, 'the token itself is never stored').not.toMatch(/\btoken:/);
+    const reader = code('supabase/functions/shared-profile/index.ts');
+    for (const n of [".eq('token_hash'", ".is('revoked_at', null)", ".gt('expires_at'", "'Cache-Control': 'no-store'"]) expect(reader, n).toContain(n);
+    for (const f of ['share', 'shared-profile']) expect(code(`supabase/functions/${f}/index.ts`), `${f} logs nothing`).not.toMatch(/console\./);
+    const guard = code('supabase/functions/_shared/shareGuard.ts');
+    expect(guard).toContain("['memberId', 'userId', 'user_id', 'email', 'teamId', 'submittedBy']");
+    expect(guard, 'pure').not.toContain('Deno.');
+    expect(read('SUPABASE_SETUP.md')).toContain('supabase functions deploy shared-profile --no-verify-jwt');
+  });
+
+  it('the token rides in the fragment, the page reads no data layer and is never indexed, and links degrade softly', () => {
+    const shares = code('src/lib/shares.ts');
+    expect(shares).toContain('/share#${token}');
+    expect(shares, 'only the granted columns are listed').toContain(".select('id, kind, label, measured_against, created_at, expires_at, revoked_at')");
+    expect(shares).toContain("from '../../supabase/functions/_shared/shareGuard'");
+    for (const f of ['src/app/share/page.tsx', 'src/components/share/SharedProfile.tsx']) expect(code(f), `${f} never reads the data layer`).not.toMatch(/from '@\/lib\/data'/);
+    expect(code('src/app/share/page.tsx')).toContain('robots: { index: false, follow: false }');
+    expect(code('src/app/robots.ts')).toContain("'/share'");
+    expect(code('src/proxy.ts')).toContain("request.nextUrl.pathname === '/share'");
+    const account = code('src/app/account/page.tsx');
+    expect(account).toContain('<LinksSection />');
+    expect(account, 'deleting the account removes the copies too').toContain("'profile_shares'");
+    expect(account, 'a project without 0015 still deletes').toContain('missingTable(error)');
+    expect(code('src/components/account/LinksSection.tsx'), 'hidden where links cannot exist').toContain('if (!rows) return null;');
+    for (const f of ['src/app/dashboard/page.tsx', 'src/app/portfolio/page.tsx']) {
+      expect(code(f), `${f} shares under the display name`).toContain("subject: profile?.displayName?.trim() || 'Capstone Quarry member'");
+      expect(code(f), `${f}: cloud only`).toMatch(/isSupabaseConfigured\(\)/);
+    }
   });
 });

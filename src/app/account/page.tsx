@@ -17,6 +17,7 @@ import { PageHeader } from '@/components/ui/PageHeader';
 import { Surface } from '@/components/ui/Surface';
 import { ConsentSection } from '@/components/account/ConsentSection';
 import { OutcomesSection } from '@/components/account/OutcomesSection';
+import { LinksSection } from '@/components/account/LinksSection';
 import { fetchCloudAcceptanceLog, type AcceptanceRow } from '@/lib/legal/acceptances';
 
 /**
@@ -136,9 +137,16 @@ export default function AccountPage() {
       'user_course_state',
       'lab_access',
       'memberships',
+      // R114: a link's frozen copy is reachable by anyone holding it, so it
+      // goes now, not only when the login does.
+      'profile_shares',
     ];
+    // A project that has not run 0015 has no such table: nothing to clear.
+    const optional = new Set(['profile_shares']);
+    const missingTable = (e: { code?: string; message?: string }) => e.code === 'PGRST205' || e.code === '42P01' || /schema cache|does not exist/i.test(e.message ?? '');
     for (const table of tables) {
       const { error } = await supabase.from(table).delete().eq('user_id', user.id);
+      if (error && optional.has(table) && missingTable(error)) continue;
       if (error) {
         setBusy(null);
         setDeleteError(`Couldn’t clear ${table}: ${error.message}. Nothing else was deleted.`);
@@ -191,6 +199,7 @@ export default function AccountPage() {
 
       <ConsentSection />
       <OutcomesSection />
+      <LinksSection />
 
       <Surface as="section" className="border-danger-line bg-danger-soft">
         <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--color-danger)' }}>

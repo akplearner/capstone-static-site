@@ -1,7 +1,8 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
-import { Award, Download, Printer, ShieldCheck } from 'lucide-react';
+import { Award, Download, Link2, Printer, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
@@ -14,6 +15,8 @@ import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
 import { SkillsSections } from '@/components/skills/SkillsSections';
+import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { KpiTable } from '@/components/skills/KpiTable';
 import { kpiBoard, defaultMeasure } from '@/lib/kpiBoard';
 import { buildMemberProfile, buildCredential, profileJson, PROFILE_FILENAME, CREDENTIAL_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
@@ -145,7 +148,9 @@ function buildRow(courseId: string): Row | null {
 
 export default function PortfolioPage() {
   const hydrated = useHydrated();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  // R114: the candidate-link dialog (cloud mode only).
+  const [sharing, setSharing] = useState(false);
   useUserSync();
 
   const rows = useClientStore<Row[]>(
@@ -184,6 +189,15 @@ export default function PortfolioPage() {
     const digest = await sha256Text(profileJson(profile));
     downloadText(CREDENTIAL_FILENAME, JSON.stringify(buildCredential({ profile, rows, copy: words.COPY, origin: window.location.origin, digest }), null, 2), 'application/json');
   }
+  // R114: a link's copy carries the display name, never the email (the share function sets it again).
+  const shareInput = (copy: NonNullable<typeof words>['COPY']) => ({ ...exportInput(copy), subject: profile?.displayName?.trim() || 'Capstone Quarry member' });
+  const shareProfile = () => buildMemberProfile(shareInput(words!.COPY)) as unknown as Record<string, unknown>;
+  const shareCredential = async () => {
+    const shared = buildMemberProfile(shareInput(words!.COPY));
+    const digest = await sha256Text(profileJson(shared));
+    return buildCredential({ profile: shared, rows, copy: words!.COPY, origin: window.location.origin, digest }) as unknown as Record<string, unknown>;
+  };
+  const canShare = !!words && isSupabaseConfigured() && !!user;
 
   if (!hydrated) return <Skeleton className="h-96 w-full" />;
   if (rows.length === 0) {
@@ -217,9 +231,15 @@ export default function PortfolioPage() {
             <Button variant="secondary" className="flex items-center gap-2" onClick={() => void exportCredential()} data-export-credential>
               <Award className="h-4 w-4" /> {words?.COPY.board.exportCredential}
             </Button>
+            {canShare && (
+              <Button variant="secondary" className="flex items-center gap-2" onClick={() => setSharing(true)} data-share-link>
+                <Link2 className="h-4 w-4" /> {words?.COPY.board.createLink}
+              </Button>
+            )}
           </>
         }
       />
+      {canShare && <ShareLinkDialog open={sharing} onClose={() => setSharing(false)} buildProfile={shareProfile} buildCredential={shareCredential} />}
 
       <Surface as="article" padding="none" className="space-y-8 p-8 print:border-0 print:p-0">
         <header className="border-b border-line pb-5">

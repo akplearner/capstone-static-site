@@ -1,6 +1,6 @@
 'use client';
 
-import { Award, Download } from 'lucide-react';
+import { Award, Download, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { CopyButton } from '@/components/ui/CopyButton';
 import { downloadText } from '@/lib/download';
@@ -20,11 +20,13 @@ interface DtoChipProps {
   filename: string;
   /** The published-shape note: the chip's title and its text for readers. */
   caption: string;
-  copy: Pick<BoardCopy, 'copyJson' | 'download' | 'exportCredential'>;
+  copy: Pick<BoardCopy, 'copyJson' | 'download' | 'exportCredential'> & Partial<Pick<BoardCopy, 'createLink'>>;
   onCredential?: () => void | Promise<void>;
+  /** R114: opens the candidate-link dialog; passed only in cloud mode. */
+  onShare?: () => void;
 }
 
-export function DtoChip({ schema, version, json, filename, caption, copy, onCredential }: DtoChipProps) {
+export function DtoChip({ schema, version, json, filename, caption, copy, onCredential, onShare }: DtoChipProps) {
   return (
     <div data-dto-chip={schema} className="flex flex-wrap items-center gap-2">
       <code data-dto-schema title={caption} className="rounded-[var(--radius-pill)] bg-panel-2 px-2 py-0.5 font-mono text-3xs text-muted">
@@ -38,6 +40,11 @@ export function DtoChip({ schema, version, json, filename, caption, copy, onCred
       {onCredential && (
         <Button variant="ghost" size="sm" className="flex items-center gap-1" data-export-credential onClick={() => void onCredential()}>
           <Award className="h-3.5 w-3.5" aria-hidden /> {copy.exportCredential}
+        </Button>
+      )}
+      {onShare && (
+        <Button variant="ghost" size="sm" className="flex items-center gap-1" data-share-link onClick={onShare}>
+          <Link2 className="h-3.5 w-3.5" aria-hidden /> {copy.createLink ?? 'Create link'}
         </Button>
       )}
     </div>

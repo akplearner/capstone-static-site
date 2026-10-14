@@ -10,7 +10,8 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: ['/', '/explore', '/legal'],
-        disallow: ['/dashboard', '/portfolio', '/account', '/courses', '/instructor', '/auth', '/api', '/offline'],
+        // R114: a candidate link's page is never crawled (it is noindex too).
+        disallow: ['/dashboard', '/portfolio', '/account', '/courses', '/instructor', '/auth', '/api', '/offline', '/share'],
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,

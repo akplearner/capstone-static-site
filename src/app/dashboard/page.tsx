@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Compass, FileCheck2, FolderGit2, ListChecks, ShieldCheck, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
@@ -25,6 +26,7 @@ import { downloadText } from '@/lib/download';
 import { DomainStrip } from '@/components/skills/DomainStrip';
 import { KpiPack } from '@/components/skills/KpiPack';
 import { DtoChip } from '@/components/skills/DtoChip';
+import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole, phaseTag } from '@/lib/course-helpers';
@@ -159,7 +161,9 @@ function buildCard(course: Course): CourseCard | null {
 
 export default function DashboardPage() {
   const hydrated = useHydrated();
-  const { user, loading } = useAuth();
+  const { user, loading, profile } = useAuth();
+  // R114: the candidate-link dialog (cloud mode only).
+  const [sharing, setSharing] = useState(false);
   // Cross-course hydration. Without this the cloud cache is only ever filled by
   // a course page, so a signed-in student landing here first saw an empty
   // dashboard — see src/lib/useUserSync.ts.
@@ -197,6 +201,14 @@ export default function DashboardPage() {
     const digest = await sha256Text(profileJson(profile));
     downloadText(CREDENTIAL_FILENAME, JSON.stringify(buildCredential({ profile, rows: cards, copy: words.COPY, origin: window.location.origin, digest }), null, 2), 'application/json');
   }
+  // R114: a link's copy carries the display name, never the email (the share function sets it again).
+  const shareInput = (copy: NonNullable<typeof words>['COPY']) => ({ ...exportInput(copy), subject: profile?.displayName?.trim() || 'Capstone Quarry member' });
+  const shareProfile = () => buildMemberProfile(shareInput(words!.COPY)) as unknown as Record<string, unknown>;
+  const shareCredential = async () => {
+    const shared = buildMemberProfile(shareInput(words!.COPY));
+    const digest = await sha256Text(profileJson(shared));
+    return buildCredential({ profile: shared, rows: cards, copy: words!.COPY, origin: window.location.origin, digest }) as unknown as Record<string, unknown>;
+  };
 
   return (
     <div className="space-y-8">
@@ -307,8 +319,10 @@ export default function DashboardPage() {
                 caption={words.COPY.exportSchemaNote}
                 copy={words.COPY.board}
                 onCredential={exportCredential}
+                onShare={isSupabaseConfigured() && user ? () => setSharing(true) : undefined}
               />
             )}
+            {words && isSupabaseConfigured() && user && <ShareLinkDialog open={sharing} onClose={() => setSharing(false)} buildProfile={shareProfile} buildCredential={shareCredential} />}
           </section>
 
           {/* R107: the member's skills per course, off the registries. */}

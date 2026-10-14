@@ -25,10 +25,10 @@ export function preflight(req: Request, allowedOrigin?: string): Response | null
   return new Response(null, { status: 204, headers: corsHeaders(req.headers.get('Origin'), allowedOrigin) });
 }
 
-/** A JSON response that carries the CORS headers. */
-export function json(body: unknown, status: number, req: Request, allowedOrigin?: string): Response {
+/** A JSON response that carries the CORS headers (and any extra headers, such as Cache-Control). */
+export function json(body: unknown, status: number, req: Request, allowedOrigin?: string, extra: Record<string, string> = {}): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { 'Content-Type': 'application/json', ...corsHeaders(req.headers.get('Origin'), allowedOrigin) },
+    headers: { 'Content-Type': 'application/json', ...corsHeaders(req.headers.get('Origin'), allowedOrigin), ...extra },
   });
 }

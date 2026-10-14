@@ -738,6 +738,167 @@ do $$ begin
   end;
 end $$;
 
+-- ── R114: candidate links and published employer profiles ──────────────────
+-- The platform (as the `share` function runs) stores Ada's link. Ada lists
+-- it, never reads the copy or the token hash back, cannot create, extend or
+-- un-revoke one, and can revoke and delete it. Nobody else sees it, not even
+-- the instructor. Instructors publish employer profiles every member reads.
+set local role service_role;
+insert into public.profile_shares (id, user_id, token_hash, kind, label, snapshot, measured_against, expires_at)
+  values ('00000000-0000-4000-8000-0000000000bb', '00000000-0000-4000-8000-00000000000a', repeat('e', 64),
+          'profile', 'For Example Ltd', '{"schema":"capstone-member-profile/1","signature":null}', 'Sample MSSP', now() + interval '30 days');
+do $$ begin
+  begin
+    insert into public.profile_shares (user_id, token_hash, kind, snapshot, expires_at)
+      values ('00000000-0000-4000-8000-00000000000a', repeat('f', 64), 'profile', '{}', now() + interval '91 days');
+    raise exception 'a link that lives past ninety days was stored';
+  exception when check_violation then null;
+  end;
+end $$;
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$
+declare n int;
+begin
+  assert (select count(id) from public.profile_shares) = 1, 'ada: lists her link';
+  assert (select label from public.profile_shares) = 'For Example Ltd', 'ada: reads the link''s facts';
+  begin
+    perform snapshot from public.profile_shares;
+    raise exception 'ada read the frozen copy back';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    perform token_hash from public.profile_shares;
+    raise exception 'ada read the token hash';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.profile_shares (user_id, token_hash, kind, snapshot, expires_at)
+      values ('00000000-0000-4000-8000-00000000000a', repeat('1', 64), 'profile', '{}', now() + interval '7 days');
+    raise exception 'ada created a link without the function';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    update public.profile_shares set expires_at = now() + interval '60 days';
+    raise exception 'ada extended a link';
+  exception when insufficient_privilege then null;
+  end;
+  -- A revocation is dated by the database clock, whatever the client sends.
+  update public.profile_shares set revoked_at = now() - interval '1 day';
+  get diagnostics n = row_count;
+  assert n = 1, 'ada revokes her link';
+  assert (select revoked_at from public.profile_shares) = now(), 'the revocation carries the database clock';
+  begin
+    update public.profile_shares set revoked_at = null;
+    raise exception 'ada un-revoked a link';
+  exception when others then
+    if sqlerrm not like '%stays revoked%' then raise; end if;
+  end;
+end $$;
+reset role;
+
+-- Nobody else sees or touches it: a teammate, another team, the instructor.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$
+declare n int;
+begin
+  assert (select count(id) from public.profile_shares) = 0, 'bob: never ada''s links';
+  update public.profile_shares set revoked_at = now();
+  get diagnostics n = row_count;
+  assert n = 0, 'bob revoked ada''s link';
+  delete from public.profile_shares;
+  get diagnostics n = row_count;
+  assert n = 0, 'bob deleted ada''s link';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(id) from public.profile_shares) = 0, 'ivy: no instructor reads a member''s links';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  begin
+    perform id from public.profile_shares;
+    raise exception 'anon read the links table';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+
+-- Ada deletes her link outright: the copy is gone, not just hidden.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$
+declare n int;
+begin
+  delete from public.profile_shares;
+  get diagnostics n = row_count;
+  assert n = 1, 'ada deletes her link';
+end $$;
+reset role;
+do $$ begin
+  assert (select count(*) from public.profile_shares) = 0, 'the deleted copy is gone for the owner of the table too';
+end $$;
+
+-- Employer profiles: an instructor publishes, every signed-in member reads,
+-- a member cannot publish, nobody edits in place, only the publisher removes.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+insert into public.environment_profiles (id, publisher_user_id, profile)
+  values ('acme-soc', '00000000-0000-4000-8000-00000000000d', '{"id":"acme-soc","title":"Acme SOC"}');
+do $$
+declare n int;
+begin
+  update public.environment_profiles set profile = '{"id":"acme-soc","title":"Edited"}';
+  get diagnostics n = row_count;
+  assert n = 0, 'ivy edited a published profile in place';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+do $$ begin
+  assert (select count(*) from public.environment_profiles) = 1, 'ada: reads the published profile';
+  begin
+    insert into public.environment_profiles (id, publisher_user_id, profile)
+      values ('ada-co', '00000000-0000-4000-8000-00000000000a', '{"id":"ada-co"}');
+    raise exception 'a member published an employer profile';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
+do $$
+declare n int;
+begin
+  delete from public.environment_profiles where id = 'acme-soc';
+  get diagnostics n = row_count;
+  assert n = 0, 'ana removed a profile she did not publish';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  assert (select count(*) from public.environment_profiles) = 0, 'anon: no published profiles';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$
+declare n int;
+begin
+  delete from public.environment_profiles where id = 'acme-soc';
+  get diagnostics n = row_count;
+  assert n = 1, 'ivy removes her own profile';
+end $$;
+reset role;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null

@@ -28,6 +28,8 @@ describe('isProtected', () => {
     expect(isProtected('/legal/aup')).toBe(false);
     // R68: the service worker's fallback page must be reachable without a session.
     expect(isProtected('/offline')).toBe(false);
+    // R114: a candidate link opens for whoever holds it, signed in or not.
+    expect(isProtected('/share')).toBe(false);
   });
 
   it('leaves the course DASHBOARD public — it is how someone decides to enrol', () => {

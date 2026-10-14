@@ -146,6 +146,8 @@ export const SKILLS_COPY = {
     tableTitle: 'The sixteen, as a table',
     nextTask: 'Next task',
     exportCredential: 'Export credential',
+    /** R114: a candidate link to a frozen copy of the export. */
+    createLink: 'Create link',
     credentialClaim: 'An Open Badges 3.0 envelope around the member profile, unsigned: it carries no proof and claims none.',
     cohortTitle: 'KPI bands per cohort',
     cohortLede: 'Counts per band for the members shown; nobody is ranked; team facts are judged through the review week.',

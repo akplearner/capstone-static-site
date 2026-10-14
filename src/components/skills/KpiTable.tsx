@@ -13,7 +13,7 @@ export interface ToolLine {
   of: number;
 }
 
-export function KpiTable({ board, defs, families, copy, perTool, title }: { board: KpiBoard; defs: KpiDef[]; families: KpiFamilyDef[]; copy: BoardCopy; perTool?: ToolLine[]; title?: string }) {
+export function KpiTable({ board, defs, families, copy, perTool, title }: { board: Pick<KpiBoard, 'kpis'>; defs: KpiDef[]; families: KpiFamilyDef[]; copy: BoardCopy; perTool?: ToolLine[]; title?: string }) {
   const defOf = new Map(defs.map((d) => [d.id, d]));
   const familyOf = new Map(families.map((f) => [f.id, f.label]));
   const fact = (k: KpiBoard['kpis'][number]) => (!k.loaded ? copy.notLoaded : k.fact === 'own' ? copy.factOwn : k.fact === 'team' ? copy.factTeam : copy.factContent).split(':')[0];

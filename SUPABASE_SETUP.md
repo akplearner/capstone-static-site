@@ -357,6 +357,22 @@ Until they are deployed the app uses the stamp the browser derives, exactly as b
 on the site mentions receipts. A receipt records the stamp, not the machine: it does not prove which
 computer ran a command.
 
+## Candidate links (share a portfolio with an employer)
+
+A student who has turned on the **share with employers** consent can create a link to a frozen copy
+of their portfolio export or credential, for 7, 30 or 90 days, and revoke or delete it from
+`/account`. The copy never carries an email address or account ids; the link's token is 256 random
+bits, shown once and stored only as a hash. Needs migration `0015` (in `supabase/setup.sql`) and two
+functions; the second is public, because whoever holds a link may read it:
+
+```bash
+supabase functions deploy share
+supabase functions deploy shared-profile --no-verify-jwt
+```
+
+Until they are deployed the Create link buttons answer that links are not set up, the account page
+shows no links section, and every link page says the link is not available.
+
 ## Live teammate updates
 
 Teammates seeing each other's progress update without refreshing is already
@@ -452,6 +468,8 @@ Still worth ten minutes on the live site before real students:
 | Verification stamps (`verification_stamps`) | **nobody but the platform**: the `stamp` and `receipt` functions read and write them as the service role; you see your own live stamp in the app |
 | Verification receipts (`verification_receipts`) | you, your teammates and the instructor; written only by the `receipt` function (the stamp, the step, the output's hash and the counts, never pasted output); nobody edits one |
 | Re-hash checks (`rehash_checks`) | you and the instructor; you record your own; append-only |
+| Candidate links (`profile_shares`) | **you only**, and only the link's facts (what it shares, label, expiry, revoked): never its frozen copy or token hash, which the `shared-profile` function serves to whoever holds the link until it expires or you revoke it; only the `share` function creates one; you revoke or delete your own |
+| Employer profiles (`environment_profiles`) | anyone signed in (read); an instructor publishes and removes their own |
 | Instructor reviews of a form | your team (read); the instructor writes |
 | Cohort calendar (start date) | anyone signed in (read); the instructor writes |
 | The course document | anyone signed in (read); **the admin** writes |
