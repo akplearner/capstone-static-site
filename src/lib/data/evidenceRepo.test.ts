@@ -132,3 +132,28 @@ describe('career path', () => {
     expect(localStoragePathRepo.get(MEMBER)).toBeNull();
   });
 });
+
+describe('R113 — re-hash checks and receipts offline', () => {
+  const check = (over: Partial<{ ok: boolean; checkedAt: number; courseId: string }> = {}) => ({ courseId: 'cysa-plus', sha256: 'b'.repeat(64), filename: 'capture.pcap', ok: true, checkedAt: 1_700_000_000_000, ...over });
+
+  it('appends re-hash checks, never rewrites one, and scopes them per course and member', () => {
+    localStorageEvidenceRepo.saveRehash(MEMBER, check());
+    localStorageEvidenceRepo.saveRehash(MEMBER, check({ ok: false, checkedAt: 1_700_000_100_000 }));
+    localStorageEvidenceRepo.saveRehash(MEMBER, check({ courseId: 'security-plus' }));
+    localStorageEvidenceRepo.saveRehash('member-2', check());
+    expect(localStorageEvidenceRepo.getRehashes('cysa-plus', MEMBER).map((c) => c.ok)).toEqual([true, false]);
+    expect(localStorageEvidenceRepo.getRehashes('security-plus', MEMBER)).toHaveLength(1);
+  });
+
+  it('a re-hash check leaves the artifact and its hash time alone, and a reset clears the checks with the files', () => {
+    localStorageEvidenceRepo.saveArtifact(MEMBER, artifact());
+    localStorageEvidenceRepo.saveRehash(MEMBER, check({ checkedAt: 1_800_000_000_000 }));
+    expect(localStorageEvidenceRepo.getArtifacts('cysa-plus', MEMBER)[0].hashedAt).toBe(1_700_000_000_000);
+    localStorageEvidenceRepo.resetCourse('cysa-plus', MEMBER);
+    expect(localStorageEvidenceRepo.getRehashes('cysa-plus', MEMBER)).toEqual([]);
+  });
+
+  it('has no receipts: there is no platform to issue a stamp offline', () => {
+    expect(localStorageEvidenceRepo.getReceipts('cysa-plus', MEMBER)).toBeNull();
+  });
+});

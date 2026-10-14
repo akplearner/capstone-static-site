@@ -84,12 +84,17 @@ function buildCard(course: Course): CourseCard | null {
   const capstoneFiled = isCapstoneFiled(course.id, savedDocs);
   const crew = deriveCrewProgress(course, member.role, weekStats, taskStats, capstoneFiled);
   const artifacts = evidenceRepo.getArtifacts(course.id, member.memberId);
+  // R113: the platform's receipts (null offline) and the member's re-hash checks.
+  const receipts = evidenceRepo.getReceipts(course.id, member.memberId);
+  const rehashes = evidenceRepo.getRehashes(course.id, member.memberId);
   const metrics = courseMetrics({
     course,
     role: member.role,
     taskPercent: taskStats,
     evidence: evidenceRepo.getSteps(course.id, member.memberId),
     artifacts,
+    receipts,
+    rehashes,
   });
   const activeWeek = resolveActiveWeek(course, member.role, weekStats, null);
   // R107: the registries come from the course document; the facts from the
@@ -117,6 +122,8 @@ function buildCard(course: Course): CourseCard | null {
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
     // R111: the currency flag needs the page's clock; buildCard is a plain function, not a component body.
     asOf: Date.now(),
+    receipts,
+    rehashes,
   });
   // R109: the sixteen KPIs against the role's default measure, and the work
   // roles as rows of this course's own document (the export writes their ids).
@@ -235,7 +242,7 @@ export default function DashboardPage() {
               icon={ShieldCheck}
               label="Steps verified"
               value={`${summary.verified}`}
-              sub={summary.verifiable > 0 ? `of ${summary.verifiable} checkable` : 'none checkable yet'}
+              sub={summary.verifiable > 0 ? `of ${summary.verifiable} checkable${summary.receipted ? ` · ${summary.receipted} receipted` : ''}` : 'none checkable yet'}
               ring={summary.verifiable > 0 ? { value: summary.verified, max: summary.verifiable } : undefined}
             />
             <Stat

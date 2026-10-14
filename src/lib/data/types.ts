@@ -101,6 +101,29 @@ export interface EvidenceArtifact {
   hashedAt: number;
 }
 
+/** R113: the platform's receipt for a server-issued stamp that came back
+ *  matched for one step (cloud mode only). The pasted text never reaches the
+ *  server: a receipt holds the step, the output's hash and when. It records
+ *  the stamp, not the machine. */
+export interface VerificationReceipt {
+  courseId: string;
+  taskId: string;
+  stepId: string;
+  outputSha256: string;
+  receiptedAt: number;
+}
+
+/** R113: the member hashed a file they hashed before, in the browser, and
+ *  recorded whether the digest still matched. Append-only; the latest check
+ *  per digest is the current answer. The file never leaves the browser. */
+export interface RehashCheck {
+  courseId: string;
+  sha256: string;
+  filename: string;
+  ok: boolean;
+  checkedAt: number;
+}
+
 /** The evidence ledger: per-step verification records and hashed artifacts.
  *  Reads are synchronous and whole-course because they're consumed inside render
  *  by the metrics projections, exactly like the other repos here. */
@@ -121,6 +144,17 @@ export interface EvidenceRepository {
    * `progressRepo.resetCourse`.
    */
   resetCourse(courseId: string, memberId: string): void;
+  /**
+   * R113: the platform's receipts for this member's steps, keyed
+   * `${taskId}::${stepId}` (the latest per step). Null where no receipt can
+   * exist (offline, or before the receipts table answered), so a surface
+   * prints nothing rather than a zero that reads as a failure.
+   */
+  getReceipts(courseId: string, memberId: string): Record<string, VerificationReceipt> | null;
+  /** R113: re-hash checks on this course's files, oldest first. */
+  getRehashes(courseId: string, memberId: string): RehashCheck[];
+  /** R113: append a re-hash check. Never touches the artifact (its `hashedAt` stays). */
+  saveRehash(memberId: string, check: RehashCheck): void;
 }
 
 /** The career track a student is working toward — the one per-user row that is

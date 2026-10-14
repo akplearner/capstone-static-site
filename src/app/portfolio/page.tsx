@@ -85,6 +85,9 @@ function buildRow(courseId: string): Row | null {
   const roleName = course.roles.find((r) => r.id === member.role)?.name ?? member.role;
   const doc = courseDocument(course.id) ?? bareDocument(course);
   const currentWeek = Math.max(0, ...course.weeks.filter((w) => (weekStats[w.number] ?? 0) > 0).map((w) => w.number));
+  // R113: the platform's receipts (null offline) and the member's re-hash checks.
+  const receipts = evidenceRepo.getReceipts(course.id, member.memberId);
+  const rehashes = evidenceRepo.getRehashes(course.id, member.memberId);
   const skills = skillProfile({
     course,
     role: member.role,
@@ -99,6 +102,8 @@ function buildRow(courseId: string): Row | null {
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
     // R111: the currency flag needs the page's clock; buildRow is a plain function, not a component body.
     asOf: Date.now(),
+    receipts,
+    rehashes,
   });
   const registry = skillsOf(doc);
   // R109: the work roles as rows of this course's own document (`WORK_ROLES` is filtered per course); the export writes their ids.
@@ -131,6 +136,8 @@ function buildRow(courseId: string): Row | null {
       taskPercent: taskStats,
       evidence: evidenceRepo.getSteps(course.id, member.memberId),
       artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+      receipts,
+      rehashes,
     }),
     artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
   };
@@ -228,12 +235,13 @@ export default function PortfolioPage() {
             and timestamped at the time the work was done. Hashes are of the student’s own output
             and files; the files themselves stay on their machine and can be re-hashed to confirm
             they are unchanged.
+            {summary.receipted ? ' A receipted step adds that the server issued the stamp in the paste and logged the match; it does not prove which machine ran the command.' : ''}
           </p>
         </header>
 
         {/* Headline numbers. */}
         <section className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <Fig label="Steps verified" value={`${summary.verified}`} sub={`of ${summary.verifiable} checkable`} />
+          <Fig label="Steps verified" value={`${summary.verified}`} sub={`of ${summary.verifiable} checkable${summary.receipted ? ` · ${summary.receipted} receipted` : ''}`} />
           <Fig label="Overall rate" value={`${summary.verificationRate}%`} sub="verified from output" />
           <Fig label="Evidence files" value={`${summary.artifacts}`} sub="hashed into custody" />
           <Fig label="Capstones" value={`${rows.filter((r) => r.capstoneFiled).length}`} sub={`of ${rows.length} started`} />

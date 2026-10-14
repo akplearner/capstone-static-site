@@ -4598,7 +4598,9 @@
           "controlsCited": "Controls cited",
           "docControl": "Document control complete",
           "instructorApproved": "Instructor approved",
-          "raciRespected": "Moves made in the RACI role"
+          "raciRespected": "Moves made in the RACI role",
+          "receipted": "Verified steps receipted",
+          "rehashConfirmed": "Files re-hashed unchanged"
         },
         "skillsByCourse": "skills verified",
         "recordSkills": "of practised",
@@ -5836,13 +5838,35 @@
           "label": "Files re-hashed",
           "dimension": "evidence",
           "definition": "Files re-hashed later with the same digest, over hashed files.",
-          "inputs": [],
+          "inputs": [
+            "rehash_checks",
+            "evidence_artifacts"
+          ],
           "valueTo": [
             "member",
             "company"
           ],
-          "status": "needs-events",
-          "scored": false
+          "status": "computed",
+          "scored": false,
+          "note": "The latest check per file counts. The file never leaves the browser."
+        },
+        {
+          "id": "metric.verified-receipted",
+          "label": "Verified steps receipted",
+          "dimension": "evidence",
+          "definition": "Verified steps with a server receipt for a server-issued stamp, over verified steps.",
+          "inputs": [
+            "verification_receipts",
+            "step_evidence"
+          ],
+          "valueTo": [
+            "member",
+            "company",
+            "platform"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "Cloud mode only. A receipt records the stamp, not the machine."
         },
         {
           "id": "metric.evidence-hardware-proven",

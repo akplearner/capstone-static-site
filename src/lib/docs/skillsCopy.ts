@@ -95,6 +95,8 @@ export const SKILLS_COPY = {
     docControl: 'Document control complete',
     instructorApproved: 'Instructor approved',
     raciRespected: 'Moves made in the RACI role',
+    receipted: 'Verified steps receipted',
+    rehashConfirmed: 'Files re-hashed unchanged',
   } as Record<string, string>,
   skillsByCourse: 'skills verified',
   recordSkills: 'of practised',

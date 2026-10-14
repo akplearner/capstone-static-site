@@ -1,12 +1,12 @@
 import type { Course, Step, Task } from './types';
-import type { DeliverableReview, DeliverableSubmission, EvidenceArtifact, StepEvidence, StepNote, TaskReport } from './data/types';
+import type { DeliverableReview, DeliverableSubmission, EvidenceArtifact, RehashCheck, StepEvidence, StepNote, TaskReport, VerificationReceipt } from './data/types';
 import type { DeliverableData, DeliverableDef } from './docs/types';
 import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
 import type { Dimension } from './docs/metricCatalogue';
 import type { SkillLevel } from './docs/skillsCopy';
 import { getTasksByRole, isGradedWeek, isSetupWeek } from './course-helpers';
-import { verifiableSteps } from './evidenceLedger';
+import { latestRehashes, verifiableSteps } from './evidenceLedger';
 import { latestStatus } from './docs/lifecycle';
 import { dodProgress } from './docs/dod';
 import { domainOf } from './docs/certs';
@@ -110,6 +110,10 @@ export interface AbilityIndicators {
   instructorApproved: Indicator;
   /** R111, a team fact: the member's lifecycle transitions made in the role the RACI names for that move, over the member's transitions on forms with a RACI. */
   raciRespected: Indicator;
+  /** R113: verified steps the platform receipted over verified steps; loaded only where receipts can exist (cloud mode). A receipt records the stamp, not the machine. */
+  receipted: Indicator;
+  /** R113: hashed files whose latest re-hash check matched, over hashed files; loaded when the checks were handed in. */
+  rehashConfirmed: Indicator;
 }
 
 export interface TeamFacts {
@@ -141,6 +145,10 @@ export interface SkillProfileInput {
   own?: OwnFacts;
   /** R111: the page's clock for the currency flag; the projection reads none. */
   asOf?: number;
+  /** R113: the platform's receipts, `${taskId}::${stepId}` → receipt; null or absent where none can exist (offline). */
+  receipts?: Record<string, VerificationReceipt> | null;
+  /** R113: re-hash checks on this course's files; absent when not handed in. */
+  rehashes?: RehashCheck[];
 }
 
 export interface SkillProfile {
@@ -417,6 +425,7 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
   let partial = 0;
   let commandVerifiable = 0;
   let commandVerified = 0;
+  let receipted = 0;
   const days = new Set<string>();
   const weeks = new Set<number>();
   for (const t of own) {
@@ -429,6 +438,7 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
       if (rec.verified) {
         verified += 1;
         if (runsCommand) commandVerified += 1;
+        if (input.receipts?.[key(t.id, s.id)]) receipted += 1;
         if (rec.attempts <= 1) firstTry += 1;
         else persistence += 1;
       } else if (rec.matchedTokens > 0) {
@@ -504,6 +514,13 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
       const moves = team!.status.filter((r) => r.changedBy === memberId && raciOf.has(r.deliverableId));
       return { value: moves.filter((r) => expectedRoles(r.status, raciOf.get(r.deliverableId)!).includes(r.role)).length, of: moves.length, loaded: true };
     }),
+    receipted: input.receipts ? { value: receipted, of: verified, loaded: true } : EMPTY_INDICATOR,
+    rehashConfirmed: input.rehashes
+      ? (() => {
+          const latest = latestRehashes(input.rehashes!);
+          return { value: artifacts.filter((a) => latest.get(a.sha256)?.ok).length, of: artifacts.length, loaded: true };
+        })()
+      : EMPTY_INDICATOR,
   };
 }
 

@@ -4,18 +4,12 @@ import { useState } from 'react';
 import { Package, Trash2, AlertTriangle, CheckCircle2, FileCheck2 } from 'lucide-react';
 import { validateEvidenceFileName } from '@/lib/utils';
 import { evidenceRepo } from '@/lib/data';
+import { sha256Hex } from '@/lib/hashFile';
 import { toast } from '@/lib/toastBus';
 import { buildWeekPackage, weekPackageFileName, WeekAttachment } from '@/lib/docs/package';
 import { DeliverableData } from '@/lib/docs/types';
 import { DocMeta } from '@/lib/docs/report';
 import { RoleDef } from '@/lib/types';
-
-async function sha256Hex(buf: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
-}
 
 function humanSize(n: number): string {
   if (n < 1024) return `${n} B`;

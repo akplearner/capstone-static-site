@@ -7,9 +7,9 @@
  * deep links, so "Re-verify" opens the exact step.
  */
 import type { Course } from './types';
-import type { EvidenceArtifact, StepEvidence } from './data/types';
+import type { EvidenceArtifact, RehashCheck, StepEvidence, VerificationReceipt } from './data/types';
 import { getTaskById } from './course-helpers';
-import { methodLabel } from './evidenceLedger';
+import { latestRehashes, methodLabel } from './evidenceLedger';
 import { toCsv } from './csv';
 import { localStamp } from './localDate';
 
@@ -26,6 +26,8 @@ export interface LedgerStepRow {
   attempts: number;
   verifiedAt?: number;
   href: string;
+  /** R113: the platform receipted this step; undefined where no receipt can exist (offline). */
+  receipted?: boolean;
 }
 
 export interface LedgerArtifactRow {
@@ -36,9 +38,11 @@ export interface LedgerArtifactRow {
   deliverableId?: string;
   nameOk: boolean;
   hashedAt: number;
+  /** R113: the latest re-hash check of this file, if any. */
+  rehash?: { ok: boolean; checkedAt: number };
 }
 
-export function ledgerRows(course: Course, evidence: Record<string, StepEvidence>): LedgerStepRow[] {
+export function ledgerRows(course: Course, evidence: Record<string, StepEvidence>, receipts?: Record<string, VerificationReceipt> | null): LedgerStepRow[] {
   const rows: LedgerStepRow[] = [];
   for (const rec of Object.values(evidence)) {
     const task = getTaskById(course, rec.taskId);
@@ -56,14 +60,19 @@ export function ledgerRows(course: Course, evidence: Record<string, StepEvidence
       attempts: rec.attempts,
       verifiedAt: rec.verifiedAt ?? rec.firstAttemptAt,
       href: `/courses/${course.id}?tab=tasks&week=${task?.week ?? 1}&task=${rec.taskId}&step=${rec.stepId}`,
+      ...(receipts ? { receipted: rec.verified && !!receipts[`${rec.taskId}::${rec.stepId}`] } : {}),
     });
   }
   return rows.sort((a, b) => a.week - b.week || a.taskId.localeCompare(b.taskId) || a.stepId.localeCompare(b.stepId));
 }
 
-export function artifactRows(artifacts: EvidenceArtifact[]): LedgerArtifactRow[] {
+export function artifactRows(artifacts: EvidenceArtifact[], rehashes: RehashCheck[] = []): LedgerArtifactRow[] {
+  const latest = latestRehashes(rehashes);
   return artifacts
-    .map((a) => ({ sha256: a.sha256, filename: a.filename, sizeBytes: a.sizeBytes, week: a.week, deliverableId: a.deliverableId, nameOk: a.nameOk, hashedAt: a.hashedAt }))
+    .map((a) => {
+      const check = latest.get(a.sha256);
+      return { sha256: a.sha256, filename: a.filename, sizeBytes: a.sizeBytes, week: a.week, deliverableId: a.deliverableId, nameOk: a.nameOk, hashedAt: a.hashedAt, ...(check ? { rehash: { ok: check.ok, checkedAt: check.checkedAt } } : {}) };
+    })
     .sort((a, b) => (a.week ?? 99) - (b.week ?? 99) || a.filename.localeCompare(b.filename));
 }
 
@@ -74,10 +83,11 @@ export function filterWeek<T extends { week?: number }>(rows: T[], week: WeekFil
 }
 
 export function ledgerCsv(course: Course, steps: LedgerStepRow[], artifacts: LedgerArtifactRow[]): string {
-  const header = ['course', 'kind', 'week', 'task', 'step', 'method', 'verified', 'matched', 'total', 'attempts', 'at', 'filename', 'sha256', 'size_bytes', 'name_ok'];
+  // R113 appends two columns, so every earlier column keeps its place.
+  const header = ['course', 'kind', 'week', 'task', 'step', 'method', 'verified', 'matched', 'total', 'attempts', 'at', 'filename', 'sha256', 'size_bytes', 'name_ok', 'receipted', 'rehash_ok'];
   const body: (string | number | boolean)[][] = [
-    ...steps.map((s) => [course.id, 'step', s.week, s.taskTitle, s.stepTitle, s.method, s.verified, s.matched, s.total, s.attempts, s.verifiedAt ? localStamp(s.verifiedAt) : '', '', '', '', '']),
-    ...artifacts.map((a) => [course.id, 'artifact', a.week ?? '', '', '', 'file-hash', true, '', '', '', a.hashedAt ? localStamp(a.hashedAt) : '', a.filename, a.sha256, a.sizeBytes, a.nameOk]),
+    ...steps.map((s) => [course.id, 'step', s.week, s.taskTitle, s.stepTitle, s.method, s.verified, s.matched, s.total, s.attempts, s.verifiedAt ? localStamp(s.verifiedAt) : '', '', '', '', '', s.receipted ?? '', '']),
+    ...artifacts.map((a) => [course.id, 'artifact', a.week ?? '', '', '', 'file-hash', true, '', '', '', a.hashedAt ? localStamp(a.hashedAt) : '', a.filename, a.sha256, a.sizeBytes, a.nameOk, '', a.rehash ? a.rehash.ok : '']),
   ];
   return toCsv(header, body);
 }

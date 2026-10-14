@@ -2816,4 +2816,49 @@ describe('R113 — stamps, receipts and re-hash checks', () => {
     const setup = read('SUPABASE_SETUP.md');
     for (const n of ['verification_receipts', 'rehash_checks', 'APP_ORIGIN']) expect(setup, n).toContain(n);
   });
+
+  it('the client asks for the server stamp, falls back to the client stamp, and never sends the paste', () => {
+    const how = code('src/components/step/StepHow.tsx');
+    expect(how).toContain('useServerStamp(');
+    expect(how, 'the R84 fallback survives').toContain('taskToken(ledger.memberId, courseId, ledger.taskId)');
+    const runner = code('src/components/task/GuidedTaskRunner.tsx');
+    for (const n of ['useServerStamp(', 'refreshStamp(', 'taskToken(memberId, courseId, task.id)', 'Your stamp:', 'data-stamp={stamp}', 'Not proof of the machine.']) expect(runner, n).toContain(n);
+    const verify = code('src/components/step/OutputVerify.tsx');
+    expect(verify).toContain('Not receipted');
+    const call = verify.slice(verify.indexOf('requestReceipt({'), verify.indexOf('})', verify.indexOf('requestReceipt({')));
+    expect(call.length).toBeGreaterThan(20);
+    expect(call, 'the receipt request carries no paste').not.toMatch(/\b(snapshot|text)\b/);
+    const stamps = code('src/lib/stamps.ts');
+    const body = stamps.slice(stamps.indexOf("invoke('receipt'"), stamps.indexOf('});', stamps.indexOf("invoke('receipt'")));
+    for (const k of ['courseId', 'taskId', 'stepId', 'stamp', 'outputSha256', 'matchedTokens', 'totalTokens']) expect(body, k).toContain(`${k}: r.${k}`);
+    expect(body.match(/:\s*r\./g)?.length, 'exactly the seven fields the function accepts').toBe(7);
+    expect(stamps, 'only the signed-in member is ever asked for').toContain('getCurrentUserId() === userId');
+  });
+
+  it('receipts are read, stamps never are, and a re-hash check never rewrites the artifact', () => {
+    const cache = code('src/lib/data/supabaseCache.ts');
+    expect(cache).toContain("from('verification_receipts')");
+    expect(cache).toContain("from('rehash_checks')");
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const f of readdirSync(root(dir))) {
+        const p = `${dir}/${f}`;
+        if (statSync(root(p)).isDirectory()) walk(p);
+        else if (/\.tsx?$/.test(f) && !/\.test\.tsx?$/.test(f) && read(p).includes("from('verification_stamps')")) offenders.push(p);
+      }
+    };
+    walk('src');
+    expect(offenders, 'no client reads a stamp row').toEqual([]);
+    const ledger = code('src/app/courses/[courseId]/ledger/page.tsx');
+    expect(ledger).toContain('evidenceRepo.saveRehash(');
+    expect(ledger, 'the hash time of the artifact stays').not.toContain('saveArtifact(');
+    for (const f of ['src/components/docs/EvidenceHasher.tsx', 'src/components/docs/WeekEvidencePackager.tsx']) {
+      expect(code(f), f).toContain("from '@/lib/hashFile'");
+      expect(code(f), `${f}: one digest helper`).not.toContain('crypto.subtle.digest');
+    }
+    const catalogue = code('src/lib/docs/metricCatalogue.ts');
+    expect(catalogue).toMatch(/m\('verified-receipted'[^\n]*'computed'/);
+    expect(catalogue).toMatch(/m\('evidence-rehash-confirmed'[^\n]*'computed'/);
+    expect(code('src/lib/skillProfile.ts'), 'offline prints a dash, never a zero').toContain('receipted: input.receipts ?');
+  });
 });

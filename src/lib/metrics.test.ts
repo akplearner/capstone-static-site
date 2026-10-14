@@ -168,12 +168,49 @@ describe('courseMetrics', () => {
   });
 });
 
+describe('R113 — receipts and re-hash checks', () => {
+  const evidence = {
+    't1::s1': rec({ taskId: 't1', stepId: 's1', verified: true, method: 'verified-output' }),
+    't1::s2': rec({ taskId: 't1', stepId: 's2' }),
+  };
+  const receipt = (stepId: string) => ({ courseId: 'test-course', taskId: 't1', stepId, outputSha256: 'f'.repeat(64), receiptedAt: 5 });
+
+  it('counts a receipt only on a verified step, and prints nothing offline rather than zero', () => {
+    const offline = courseMetrics({ course: COURSE, role: 'blue', taskPercent: {}, evidence, artifacts: [] });
+    expect(offline.receipted, 'no receipts handed in: not a zero').toBeNull();
+    const cloud = courseMetrics({ course: COURSE, role: 'blue', taskPercent: {}, evidence, artifacts: [], receipts: { 't1::s1': receipt('s1'), 't1::s2': receipt('s2') } });
+    expect(cloud.receipted, 's2 is not verified, so its receipt counts for nothing').toBe(1);
+    expect(courseMetrics({ course: COURSE, role: 'blue', taskPercent: {}, evidence, artifacts: [], receipts: {} }).receipted).toBe(0);
+  });
+
+  it('confirms a file by its latest re-hash check, and ignores checks on digests no longer hashed', () => {
+    const artifacts = [
+      { courseId: 'test-course', sha256: 'a', filename: 'a.pcap', sizeBytes: 1, nameOk: true, hashedAt: 1 },
+      { courseId: 'test-course', sha256: 'b', filename: 'b.pcap', sizeBytes: 1, nameOk: true, hashedAt: 1 },
+    ];
+    const check = (sha256: string, ok: boolean, checkedAt: number) => ({ courseId: 'test-course', sha256, filename: `${sha256}.pcap`, ok, checkedAt });
+    const m = courseMetrics({
+      course: COURSE, role: 'blue', taskPercent: {}, evidence: {}, artifacts,
+      // a: matched, then differed (the later check wins); b: differed, then matched; z: no such file.
+      rehashes: [check('a', true, 1), check('b', false, 1), check('z', true, 1), check('b', true, 2), check('a', false, 2)],
+    });
+    expect(m.rehashConfirmed).toBe(1);
+    expect(courseMetrics({ course: COURSE, role: 'blue', taskPercent: {}, evidence: {}, artifacts }).rehashConfirmed).toBeNull();
+  });
+
+  it('sums receipts across the courses that could have any', () => {
+    const base = courseMetrics({ course: COURSE, role: 'blue', taskPercent: {}, evidence, artifacts: [] });
+    expect(portfolioSummary([base]).receipted).toBeNull();
+    expect(portfolioSummary([base, { ...base, receipted: 2 }, { ...base, receipted: 3 }]).receipted).toBe(5);
+  });
+});
+
 describe('portfolioSummary', () => {
   const a: CourseMetrics = {
     courseId: 'a', courseTitle: 'A', stepsDone: 10, stepsTotal: 20, verifiable: 10, verified: 9,
     selfAttested: 1, verificationRate: 90, artifacts: 3, artifactsNamedWell: 3, attempts: 12,
     firstActivity: 100, lastActivity: 500, activeDays: 3,
-    frameworksVerified: ['CIS'], frameworksTotal: ['CIS'],
+    frameworksVerified: ['CIS'], frameworksTotal: ['CIS'], receipted: null, rehashConfirmed: null,
   };
   const b: CourseMetrics = {
     ...a, courseId: 'b', courseTitle: 'B', verifiable: 90, verified: 9, verificationRate: 10,

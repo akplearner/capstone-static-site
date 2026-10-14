@@ -15,6 +15,7 @@ import { WazuhWalkthrough } from '@/components/diagrams/WazuhWalkthrough';
 import { AnnotatedTerminal, OutcomeCard, StepImages } from '@/components/StepOutcome';
 import { buildTargets, looksLikeConsoleOutput } from '@/lib/stepOutcome';
 import { taskToken } from '@/lib/evidenceLedger';
+import { useServerStamp } from '@/lib/stamps';
 import { StepNotes } from '@/components/StepNotes';
 import { Collapsible } from '@/components/ui/Collapsible';
 import { CommandBlock, type CommandEntry } from './CommandBlock';
@@ -92,6 +93,11 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
   // Under OpenTofu the expected output and the verify tokens read `tofu plan`
   // and `OpenTofu v`, so what the student pastes is what the step expects.
   const tool = useIacTool(courseId);
+  // R113: in cloud mode the platform issues the stamp (random, the member's,
+  // twenty minutes); offline, or before the functions are deployed, the
+  // client stamp stands in exactly as before.
+  const server = useServerStamp(ledger?.memberId, courseId, ledger?.taskId);
+  const stamp = ledger ? server?.stamp ?? taskToken(ledger.memberId, courseId, ledger.taskId) : undefined;
   const expectedOutput = expectedOutputRaw && applyIacTool(expectedOutputRaw, tool);
   const verify = React.useMemo(() => verifyRaw?.map((v) => applyIacTool(v, tool)), [verifyRaw, tool]);
   const outputHighlights = React.useMemo(
@@ -124,8 +130,8 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
       // paste carried this member's stamp for this task. Read-only
       // views (no ledger) verify against the plain tokens and record
       // nothing, as before.
-      verify={ledger ? [...verify, taskToken(ledger.memberId, courseId, ledger.taskId)] : verify}
-      stamp={ledger ? taskToken(ledger.memberId, courseId, ledger.taskId) : undefined}
+      verify={stamp ? [...verify, stamp] : verify}
+      stamp={stamp}
       ledger={ledger}
     />
   );

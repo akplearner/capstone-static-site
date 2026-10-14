@@ -16,7 +16,7 @@ import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { sampleProfiles } from '@/lib/content/profiles';
 import { docsRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
-import type { DeliverableSubmission, DeliverableReview, EvidenceArtifact, StepEvidence, StepNote, TaskReport } from '@/lib/data/types';
+import type { DeliverableSubmission, DeliverableReview, EvidenceArtifact, StepEvidence, StepNote, TaskReport, VerificationReceipt, RehashCheck } from '@/lib/data/types';
 import type { DeliverableData } from '@/lib/docs/types';
 import type { DeliverableStatus } from '@/lib/docs/lifecycle';
 import type { EnvironmentProfile } from '@/lib/docs/environmentProfile';
@@ -51,6 +51,9 @@ interface Facts {
   reviews: DeliverableReview[];
   notes: StepNote[];
   reports: TaskReport[];
+  /** R113: the platform's receipts (null offline) and the re-hash checks. */
+  receipts: Record<string, VerificationReceipt> | null;
+  rehashes: RehashCheck[];
 }
 
 const EMPTY_FACTS = EMPTY_OBJECT as unknown as Facts;
@@ -65,6 +68,8 @@ const gather = (course: Course, member: Member): Facts => ({
   reviews: reviewRepo.list(course.id, member.teamId),
   notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)),
   reports: taskReportsRepo.list(course.id),
+  receipts: evidenceRepo.getReceipts(course.id, member.memberId),
+  rehashes: evidenceRepo.getRehashes(course.id, member.memberId),
 });
 
 export default function SkillBoardPage() {
@@ -108,6 +113,8 @@ export default function SkillBoardPage() {
     team: { docs: facts.docs, status: facts.status, submissions: facts.submissions, reviews: facts.reviews, currentWeek: activeWeek },
     own: { notes: facts.notes, reports: facts.reports },
     asOf,
+    receipts: facts.receipts,
+    rehashes: facts.rehashes,
   });
 
   const workRoleIds = registry.WORK_ROLE_OF[member.role] ?? [];

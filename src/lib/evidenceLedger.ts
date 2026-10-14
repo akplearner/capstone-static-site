@@ -1,5 +1,5 @@
 import { buildTargets, locateTargets } from './stepOutcome';
-import type { EvidenceMethod, StepEvidence } from './data/types';
+import type { EvidenceMethod, RehashCheck, StepEvidence } from './data/types';
 import type { Step } from './types';
 
 /**
@@ -21,6 +21,16 @@ import type { Step } from './types';
 export async function sha256Text(text: string): Promise<string> {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
   return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+/** R113: the latest re-hash check per digest. Order of arrival is not trusted; the later check wins. */
+export function latestRehashes(checks: RehashCheck[]): Map<string, RehashCheck> {
+  const out = new Map<string, RehashCheck>();
+  for (const c of checks) {
+    const prev = out.get(c.sha256);
+    if (!prev || prev.checkedAt <= c.checkedAt) out.set(c.sha256, c);
+  }
+  return out;
 }
 
 /**

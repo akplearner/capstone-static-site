@@ -10,7 +10,7 @@ import type { StepEvidence } from './types';
  */
 vi.mock('../supabase/client', () => ({ getBrowserClient: () => null }));
 
-const { cache, setCurrentUserId, stepEvidenceFromRow } = await import('./supabaseCache');
+const { cache, setCurrentUserId, stepEvidenceFromRow, receiptFromRow } = await import('./supabaseCache');
 
 const ev = (userless: Partial<StepEvidence> = {}): StepEvidence => ({
   courseId: 'security-plus',
@@ -66,5 +66,36 @@ describe('supabaseCache — evidence is keyed per user', () => {
     expect(rec).not.toHaveProperty('userId');
     cache.setStepEvidence(rec, 'bob');
     expect(cache.stepEvidence('security-plus', 'bob')['t1::s1'].matchedTokens).toBe(3);
+  });
+});
+
+describe('supabaseCache — R113 receipts and re-hash checks', () => {
+  const receipt = (stepId: string, receiptedAt: number) => ({ courseId: 'security-plus', taskId: 't1', stepId, outputSha256: 'f'.repeat(64), receiptedAt });
+
+  it('reads no receipts (null, not empty) until the table has answered, then per member, the latest per step', () => {
+    expect(cache.receipts('security-plus', 'ada'), 'a project without 0014 says nothing').toBeNull();
+    cache.setReceipt(receipt('s1', 5), 'ada');
+    cache.setReceipt(receipt('s1', 3), 'ada');
+    cache.setReceipt(receipt('s2', 4), 'bob');
+    expect(cache.receipts('security-plus', 'ada')?.['t1::s1'].receiptedAt).toBe(5);
+    expect(Object.keys(cache.receipts('security-plus', 'ada') ?? {})).toEqual(['t1::s1']);
+    expect(Object.keys(cache.receipts('security-plus', 'bob') ?? {})).toEqual(['t1::s2']);
+    expect(cache.receipts('security-plus', 'cy')).toEqual({});
+  });
+
+  it('keeps re-hash checks per member and clears both on sign-out', () => {
+    cache.addRehash({ courseId: 'security-plus', sha256: 'a'.repeat(64), filename: 'x', ok: true, checkedAt: 2 }, 'ada');
+    cache.addRehash({ courseId: 'security-plus', sha256: 'a'.repeat(64), filename: 'x', ok: false, checkedAt: 1 }, 'ada');
+    expect(cache.rehashes('security-plus', 'ada').map((c) => c.checkedAt)).toEqual([1, 2]);
+    expect(cache.rehashes('security-plus', 'bob')).toEqual([]);
+    cache.setReceipt(receipt('s1', 5), 'ada');
+    setCurrentUserId(null);
+    expect(cache.receipts('security-plus', 'ada')).toBeNull();
+    expect(cache.rehashes('security-plus', 'ada')).toEqual([]);
+  });
+
+  it('a receipt row maps without its user and without any output text', () => {
+    const r = receiptFromRow({ user_id: 'ada', course_id: 'security-plus', task_id: 't1', step_id: 's1', output_sha256: 'f'.repeat(64), receipted_at: '2026-10-14T10:00:00Z' });
+    expect(r).toEqual({ courseId: 'security-plus', taskId: 't1', stepId: 's1', outputSha256: 'f'.repeat(64), receiptedAt: Date.parse('2026-10-14T10:00:00Z') });
   });
 });

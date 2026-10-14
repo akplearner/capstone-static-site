@@ -6,6 +6,7 @@ import { validateEvidenceFileName } from '@/lib/utils';
 import { localStamp } from '@/lib/localDate';
 import { toast } from '@/lib/toastBus';
 import { evidenceRepo } from '@/lib/data';
+import { sha256Hex } from '@/lib/hashFile';
 
 interface Hashed {
   name: string;
@@ -13,14 +14,6 @@ interface Hashed {
   sha256: string;
   nameOk: boolean;
   nameMsg: string;
-}
-
-async function sha256Hex(file: File): Promise<string> {
-  const buf = await file.arrayBuffer();
-  const digest = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(digest))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
 }
 
 function humanSize(n: number): string {

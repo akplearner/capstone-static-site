@@ -6,7 +6,7 @@ import { Upload, X, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Course, Member, TaskCompletion } from '@/lib/types';
 import type { DeliverableData } from '@/lib/docs/types';
 import { progressRepo, docsRepo, userStateRepo, labAccessRepo, evidenceRepo, pathRepo } from '@/lib/data';
-import type { EvidenceArtifact, LabAccessData, StepEvidence, UserCourseState } from '@/lib/data';
+import type { EvidenceArtifact, LabAccessData, RehashCheck, StepEvidence, UserCourseState } from '@/lib/data';
 import { getBrowserClient } from '@/lib/supabase/client';
 import { useAuth } from '@/lib/useAuth';
 import { useMember } from '@/lib/useMember';
@@ -158,6 +158,9 @@ export function ImportPrompt({ course }: { course: Course }) {
       KEYS.evidenceArtifacts(course.id, oldId)
     );
     (localArtifacts ?? []).forEach((artifact) => evidenceRepo.saveArtifact(user.id, artifact));
+    // R113: re-hash checks made on this device travel with the files they check.
+    const localRehashes = readLocal<RehashCheck[]>(KEYS.rehashChecks(course.id, oldId));
+    (localRehashes ?? []).forEach((check) => evidenceRepo.saveRehash(user.id, check));
 
     // The chosen career path is global rather than course-scoped, so it migrates
     // once regardless of which course triggered this prompt.

@@ -217,6 +217,29 @@ describe('skillProfile — rows and levels', () => {
     expect(row(p, 'skills', 'comp.a.one').artifacts).toBe(2);
   });
 
+  it('R113: receipts count only on verified steps and load only where receipts can exist; a file is confirmed by its latest re-hash', () => {
+    const evidence = { 't1::a': verified('t1', 'a', 100), 't1::b': rec('t1', 'b', { matchedTokens: 1, totalTokens: 2 }) };
+    const receipt = (stepId: string) => ({ courseId: 'c', taskId: 't1', stepId, outputSha256: 'f'.repeat(64), receiptedAt: 5 });
+    const offline = skillProfile(input({ done: ['t1::a', 't1::b'], evidence }));
+    expect(offline.abilities.receipted, 'offline: a dash, never a zero').toEqual({ value: 0, loaded: false });
+    expect(offline.abilities.rehashConfirmed.loaded).toBe(false);
+    const artifacts: EvidenceArtifact[] = [
+      { courseId: 'c', sha256: '1', filename: 'one', sizeBytes: 1, nameOk: true, hashedAt: 1 },
+      { courseId: 'c', sha256: '2', filename: 'two', sizeBytes: 1, nameOk: true, hashedAt: 1 },
+    ];
+    const cloud = skillProfile({
+      ...input({ done: ['t1::a', 't1::b'], evidence, artifacts }),
+      receipts: { 't1::a': receipt('a'), 't1::b': receipt('b') },
+      rehashes: [
+        { courseId: 'c', sha256: '1', filename: 'one', ok: true, checkedAt: 1 },
+        { courseId: 'c', sha256: '2', filename: 'two', ok: true, checkedAt: 1 },
+        { courseId: 'c', sha256: '2', filename: 'two-edited', ok: false, checkedAt: 2 },
+      ],
+    });
+    expect(cloud.abilities.receipted, 'b is not verified, so its receipt counts for nothing').toEqual({ value: 1, of: 1, loaded: true });
+    expect(cloud.abilities.rehashConfirmed, 'the later check on two differs').toEqual({ value: 1, of: 2, loaded: true });
+  });
+
   // R108: the board's own and team indicators, and the per-row task count behind "proved twice".
   it('R108: steps in order and command steps are own facts; controls cited, document control and instructor approval are team facts', () => {
     const ordered = skillProfile(input({ done: ['t1::a', 't1::b'], evidence: { 't1::a': verified('t1', 'a', 100), 't1::b': verified('t1', 'b', 200) } }));

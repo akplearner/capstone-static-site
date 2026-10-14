@@ -47,6 +47,7 @@ export const METRIC_INPUTS = [
   'task_reports', 'step_notes', 'step_flags', 'cohorts',
   'environment_profile', 'work_roles',
   'learner_outcomes', 'memberships',
+  'verification_receipts', 'rehash_checks',
 ] as const;
 
 const ALL: MetricAudience[] = ['member', 'company', 'platform'];
@@ -112,7 +113,8 @@ export const METRICS: MetricDef[] = [
   m('evidence-self-attested', 'Steps self-attested', 'evidence', 'Verifiable required steps ticked without matching output, over verifiable required steps.', ['step_evidence', 'step_completions', 'course'], ALL, 'computed'),
   m('evidence-artifacts', 'Files hashed', 'evidence', 'Distinct hashed files the member saved.', ['evidence_artifacts'], ALL, 'computed'),
   m('evidence-naming', 'Files named to convention', 'evidence', 'Hashed files named to the evidence convention, over hashed files.', ['evidence_artifacts'], MC, 'computed'),
-  m('evidence-rehash-confirmed', 'Files re-hashed', 'evidence', 'Files re-hashed later with the same digest, over hashed files.', [], MC, 'needs-events'),
+  m('evidence-rehash-confirmed', 'Files re-hashed', 'evidence', 'Files re-hashed later with the same digest, over hashed files.', ['rehash_checks', 'evidence_artifacts'], MC, 'computed', 'The latest check per file counts. The file never leaves the browser.'),
+  m('verified-receipted', 'Verified steps receipted', 'evidence', 'Verified steps with a server receipt for a server-issued stamp, over verified steps.', ['verification_receipts', 'step_evidence'], ALL, 'computed', 'Cloud mode only. A receipt records the stamp, not the machine.'),
   m('evidence-hardware-proven', 'Output proven on the lab', 'evidence', 'Steps whose output was verified on the lab, not in the browser, over verified steps.', [], ALL, 'needs-validators'),
   // ── Documentation ────────────────────────────────────────────────────────
   m('doc-drafted', 'Forms drafted', 'documentation', 'Lifecycle rows by the member moving a form to in review.', ['deliverable_status'], MC, 'computed', 'Loads on the course page.'),

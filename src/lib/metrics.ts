@@ -1,7 +1,7 @@
 import type { Course, Step, Task } from './types';
-import type { EvidenceArtifact, StepEvidence } from './data/types';
+import type { EvidenceArtifact, RehashCheck, StepEvidence, VerificationReceipt } from './data/types';
 import { getTasksByRole, isGradedWeek } from './course-helpers';
-import { verifiableSteps } from './evidenceLedger';
+import { latestRehashes, verifiableSteps } from './evidenceLedger';
 import { localDay } from './localDate';
 
 /**
@@ -57,6 +57,12 @@ export interface CourseMetrics {
   frameworksVerified: string[];
   /** Frameworks appearing anywhere in this role's tasks. */
   frameworksTotal: string[];
+  /** R113: verified verifiable steps the platform receipted (a server-issued
+   *  stamp came back matched). Null where no receipt can exist (offline). */
+  receipted: number | null;
+  /** R113: hashed files whose latest re-hash check matched the digest. Null
+   *  when no checks were handed in. */
+  rehashConfirmed: number | null;
 }
 
 export interface MetricsInput {
@@ -67,6 +73,10 @@ export interface MetricsInput {
   /** `${taskId}::${stepId}` -> record. */
   evidence: Record<string, StepEvidence>;
   artifacts: EvidenceArtifact[];
+  /** R113: `${taskId}::${stepId}` -> the platform's receipt; null or absent offline. */
+  receipts?: Record<string, VerificationReceipt> | null;
+  /** R113: re-hash checks on this course's files. */
+  rehashes?: RehashCheck[];
 }
 
 // Local, not UTC: an 8pm session on the US east coast falls on the next UTC
@@ -86,6 +96,8 @@ export function courseMetrics({
   taskPercent,
   evidence,
   artifacts,
+  receipts,
+  rehashes,
 }: MetricsInput): CourseMetrics {
   // Setup weeks are opt-in and don't count, exactly as deriveCrewProgress treats
   // them — otherwise a student who skipped the home build looks incomplete.
@@ -96,6 +108,7 @@ export function courseMetrics({
   let verifiable = 0;
   let verified = 0;
   let selfAttestedCount = 0;
+  let receipted = 0;
   let attempts = 0;
   let firstActivity = 0;
   let lastActivity = 0;
@@ -114,6 +127,7 @@ export function courseMetrics({
       const rec = evidence[`${task.id}::${step.id}`];
       if (rec?.verified) {
         verified += 1;
+        if (receipts?.[`${task.id}::${step.id}`]) receipted += 1;
         step.frameworks?.forEach((f) => frameworksVerified.add(f));
         task.frameworks?.forEach((f) => frameworksVerified.add(f));
       } else if (rec?.method === 'self-attested') {
@@ -160,7 +174,15 @@ export function courseMetrics({
     activeDays: days.size,
     frameworksVerified: [...frameworksVerified].sort(),
     frameworksTotal: [...frameworksTotal].sort(),
+    receipted: receipts ? receipted : null,
+    rehashConfirmed: rehashes ? confirmedFiles(courseArtifacts, rehashes) : null,
   };
+}
+
+/** R113: files whose latest re-hash check matched. A check on a digest no longer hashed counts for nothing. */
+function confirmedFiles(artifacts: EvidenceArtifact[], rehashes: RehashCheck[]): number {
+  const latest = latestRehashes(rehashes);
+  return artifacts.filter((a) => latest.get(a.sha256)?.ok).length;
 }
 
 export interface PortfolioSummary {
@@ -177,6 +199,8 @@ export interface PortfolioSummary {
   lastActivity: number;
   /** Every framework proved by at least one verified step, across all courses. */
   frameworksVerified: string[];
+  /** R113: receipted verified steps across the courses that could have any; null when none could. */
+  receipted: number | null;
 }
 
 /** Roll per-course metrics into one profile. Sums, not averages: averaging
@@ -206,6 +230,7 @@ export function portfolioSummary(all: CourseMetrics[]): PortfolioSummary {
     firstActivity: firsts.length ? Math.min(...firsts) : 0,
     lastActivity: Math.max(0, ...all.map((m) => m.lastActivity)),
     frameworksVerified: [...frameworks].sort(),
+    receipted: all.some((m) => m.receipted !== null) ? sum((m) => m.receipted ?? 0) : null,
   };
 }
 

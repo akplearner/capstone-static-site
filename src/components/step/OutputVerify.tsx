@@ -1,11 +1,12 @@
 'use client';
 
 import React from 'react';
-import { AlertTriangle, Check } from 'lucide-react';
+import { AlertTriangle, Check, RefreshCw } from 'lucide-react';
 import { evidenceRepo } from '@/lib/data';
-import type { StepEvidence } from '@/lib/data';
+import type { StepEvidence, VerificationReceipt } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { foldAttempt, scoreOutput, sha256Text } from '@/lib/evidenceLedger';
+import { refreshStamp, requestReceipt, useServerStamp, type ReceiptOutcome } from '@/lib/stamps';
 
 /** Identifies the step whose verification record should be written. Omitted in
  *  read-only views (another role's task), where pasting must not record anything. */
@@ -26,6 +27,11 @@ export interface LedgerRef {
  * without the platform holding anything sensitive. The claim this supports is
  * exactly "output matching the expected tokens was pasted, hashed and
  * timestamped" — not that the command truly ran. The wording says that and no more.
+ *
+ * R113: when the stamp was issued by the server (cloud mode), a full match
+ * also asks for a receipt: the request carries the stamp, the step, the hash
+ * and the counts — never the paste. "Receipted" means the server issued the
+ * stamp and logged the match; it still says nothing about the machine.
  */
 export function OutputVerify({
   verify,
@@ -44,6 +50,18 @@ export function OutputVerify({
   const score = scoreOutput(text, verify);
   const missing = new Set(score.missing.map((m) => m.toLowerCase()));
 
+  // R113: only a stamp the server issued for this member's task is receipted.
+  const server = useServerStamp(ledger?.memberId, ledger?.courseId ?? '', ledger?.taskId);
+  const serverStamp = server && stamp === server.stamp ? server : null;
+  // Read inside the debounce timer, which must not restart when the stamp changes.
+  const serverRef = React.useRef(serverStamp);
+  React.useEffect(() => {
+    serverRef.current = serverStamp;
+  });
+  // The receipt's outcome, tied to the paste it was asked for.
+  const [receipt, setReceipt] = React.useState<{ text: string; outcome: ReceiptOutcome | 'pending' } | null>(null);
+  const [refreshing, setRefreshing] = React.useState(false);
+
   // The stored record, so a verified step still reads as verified after a reload
   // or after the guided view unmounts and remounts this step.
   const prior = useClientStore<StepEvidence | null>(
@@ -56,8 +74,27 @@ export function OutputVerify({
     null
   );
 
+  // R113: the platform's receipt for this step, if it logged one (none offline).
+  const priorReceipt = useClientStore<VerificationReceipt | null>(
+    () =>
+      ledger
+        ? evidenceRepo.getReceipts(ledger.courseId, ledger.memberId)?.[`${ledger.taskId}::${ledger.stepId}`] ?? null
+        : null,
+    null
+  );
+
   const allOk = touched && score.allMatched;
   const previouslyVerified = !!prior?.verified;
+  const outcome = touched && receipt?.text === text ? receipt.outcome : null;
+  const notReceipted = allOk && (outcome === 'stamp-expired' || outcome === 'stamp-unknown');
+  // The stamp is the token people forget: say so plainly when it is the only one missing.
+  const onlyStampMissing = touched && !allOk && !!stamp && score.missing.length === 1 && score.missing[0].toLowerCase() === stamp.toLowerCase();
+  const getFreshStamp = async () => {
+    if (!ledger) return;
+    setRefreshing(true);
+    await refreshStamp(ledger.memberId, ledger.courseId, ledger.taskId);
+    setRefreshing(false);
+  };
 
   // Record on a debounce rather than per keystroke: hashing is async and a paste
   // arrives as one change, so this writes one attempt per real attempt instead of
@@ -71,17 +108,34 @@ export function OutputVerify({
       const snapshot = text;
       void sha256Text(snapshot).then((outputSha256) => {
         lastRecorded.current = snapshot;
+        const scored = scoreOutput(snapshot, verify);
         evidenceRepo.saveStep(
           ledger.memberId,
           foldAttempt(prior ?? undefined, {
             courseId: ledger.courseId,
             taskId: ledger.taskId,
             stepId: ledger.stepId,
-            score: scoreOutput(snapshot, verify),
+            score: scored,
             outputSha256,
             at: Date.now(),
           })
         );
+        // R113: a full match under a server stamp asks for a receipt. The
+        // request names the stamp, the step, the hash and the counts; the
+        // paste itself stays here.
+        const held = serverRef.current;
+        if (!held || !scored.allMatched) return;
+        setReceipt({ text: snapshot, outcome: 'pending' });
+        void requestReceipt({
+          userId: ledger.memberId,
+          courseId: ledger.courseId,
+          taskId: ledger.taskId,
+          stepId: ledger.stepId,
+          stamp: held.stamp,
+          outputSha256,
+          matchedTokens: scored.matched,
+          totalTokens: scored.total,
+        }).then((result) => setReceipt({ text: snapshot, outcome: result }));
       });
     }, 800);
     return () => clearTimeout(timer);
@@ -107,8 +161,32 @@ export function OutputVerify({
         <div className={`mt-1.5 flex items-center gap-1.5 text-sm font-medium ${allOk ? 'text-ok' : 'text-warn'}`}>
           {allOk ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
           {allOk
-            ? 'Verified — your output matches. Recorded and hashed.'
-            : `Not matching yet (${score.matched}/${score.total}) — check the command ran on the right target.`}
+            ? outcome === 'receipted'
+              ? 'Verified — recorded, hashed and receipted (the server issued this stamp and logged the match).'
+              : notReceipted
+                ? 'Verified — recorded and hashed.'
+                : 'Verified — your output matches. Recorded and hashed.'
+            : onlyStampMissing
+              ? `Only your stamp is missing (${score.matched}/${score.total}) — echo it after your command and paste again.`
+              : `Not matching yet (${score.matched}/${score.total}) — check the command ran on the right target.`}
+        </div>
+      )}
+      {/* R113: a match the server did not receipt still counts as verified;
+          the line says why, and the button gets a stamp it will accept. */}
+      {notReceipted && (
+        <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-warn" data-receipt="not-receipted">
+          <AlertTriangle className="h-3.5 w-3.5" />
+          <span>Not receipted: the stamp had expired or was not recognised. Get a fresh stamp and paste again.</span>
+          {ledger && (
+            <button
+              type="button"
+              onClick={getFreshStamp}
+              disabled={refreshing}
+              className="inline-flex items-center gap-1 rounded px-1.5 py-0.5 font-semibold text-accent-ink hover:bg-accent-soft disabled:opacity-60"
+            >
+              <RefreshCw className="h-3.5 w-3.5" /> Get a fresh stamp
+            </button>
+          )}
         </div>
       )}
       {/* Already proved it earlier: say so rather than showing an empty box that
@@ -116,7 +194,7 @@ export function OutputVerify({
       {!touched && previouslyVerified && (
         <div className="mt-1.5 flex items-center gap-1.5 text-sm font-medium text-ok">
           <Check className="h-4 w-4" />
-          Verified earlier{prior?.verifiedAt ? ` on ${new Date(prior.verifiedAt).toLocaleDateString()}` : ''} — recorded.
+          Verified earlier{prior?.verifiedAt ? ` on ${new Date(prior.verifiedAt).toLocaleDateString()}` : ''} — {priorReceipt ? 'recorded and receipted.' : 'recorded.'}
         </div>
       )}
       {/* The tokens are shown up front, not only after a failed paste: they are
@@ -133,7 +211,13 @@ export function OutputVerify({
             return (
               <span
                 key={tok}
-                title={isStamp ? 'Your stamp — it ties this paste to you and this task.' : undefined}
+                title={
+                  isStamp
+                    ? serverStamp
+                      ? 'Your stamp, issued by the server for this task: a match is receipted (the stamp, the step and the hash, never the output).'
+                      : 'Your stamp — it ties this paste to you and this task.'
+                    : undefined
+                }
                 className={`rounded px-1.5 py-0.5 font-mono text-2xs ${
                   ok
                     ? 'bg-ok-soft text-ok'

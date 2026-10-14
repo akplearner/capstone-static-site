@@ -54,6 +54,8 @@ export type {
   StepEvidence,
   EvidenceArtifact,
   EvidenceMethod,
+  VerificationReceipt,
+  RehashCheck,
   ImportResult,
   DeliverableReview,
   ReviewStatus,

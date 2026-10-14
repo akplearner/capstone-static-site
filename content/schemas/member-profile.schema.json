@@ -138,7 +138,9 @@
             "controlsCited",
             "docControl",
             "instructorApproved",
-            "raciRespected"
+            "raciRespected",
+            "receipted",
+            "rehashConfirmed"
           ],
           "additionalProperties": false,
           "properties": {
@@ -212,6 +214,12 @@
               "$ref": "#/$defs/indicator"
             },
             "raciRespected": {
+              "$ref": "#/$defs/indicator"
+            },
+            "receipted": {
+              "$ref": "#/$defs/indicator"
+            },
+            "rehashConfirmed": {
               "$ref": "#/$defs/indicator"
             }
           }
@@ -488,7 +496,9 @@
         "lastActivity",
         "activeDays",
         "frameworksVerified",
-        "frameworksTotal"
+        "frameworksTotal",
+        "receipted",
+        "rehashConfirmed"
       ],
       "additionalProperties": false,
       "properties": {
@@ -557,6 +567,20 @@
           "items": {
             "type": "string"
           }
+        },
+        "receipted": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "rehashConfirmed": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
         }
       }
     },
@@ -672,7 +696,8 @@
         "tacticsPractised",
         "practicesPractised",
         "domainsVerified",
-        "domainsTotal"
+        "domainsTotal",
+        "receipted"
       ],
       "additionalProperties": false,
       "properties": {
@@ -775,6 +800,13 @@
           "items": {
             "type": "string"
           }
+        },
+        "receipted": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
         }
       }
     },

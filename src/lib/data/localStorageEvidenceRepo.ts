@@ -1,9 +1,11 @@
 import { KEYS } from './keys';
 import { safeSetItem } from './safeStorage';
+import { notifyStore } from '../useClientStore';
 import {
   EvidenceArtifact,
   EvidenceRepository,
   PathRepository,
+  RehashCheck,
   StepEvidence,
 } from './types';
 
@@ -46,6 +48,9 @@ export const localStorageEvidenceRepo: EvidenceRepository = {
     const all = readJson<Record<string, StepEvidence>>(key, {});
     all[stepEvidenceKey(evidence.taskId, evidence.stepId)] = evidence;
     safeSetItem(key, JSON.stringify(all));
+    // Like the cloud repo: every reader of the ledger (the ledger page, the
+    // dashboard, the portfolio) re-reads now, not at the next unrelated write.
+    notifyStore();
   },
 
   getArtifacts(courseId: string, memberId: string): EvidenceArtifact[] {
@@ -61,12 +66,33 @@ export const localStorageEvidenceRepo: EvidenceRepository = {
     const next = all.filter((a) => a.sha256 !== artifact.sha256);
     next.push(artifact);
     safeSetItem(key, JSON.stringify(next));
+    notifyStore();
   },
 
   resetCourse(courseId: string, memberId: string): void {
     if (!hasWindow()) return;
     localStorage.removeItem(KEYS.stepEvidence(courseId, memberId));
     localStorage.removeItem(KEYS.evidenceArtifacts(courseId, memberId));
+    localStorage.removeItem(KEYS.rehashChecks(courseId, memberId));
+    notifyStore();
+  },
+
+  // R113: receipts are the platform's record of a stamp it issued; offline
+  // there is no platform, so there are none, and `null` says so.
+  getReceipts(): null {
+    return null;
+  },
+
+  getRehashes(courseId: string, memberId: string): RehashCheck[] {
+    return readJson<RehashCheck[]>(KEYS.rehashChecks(courseId, memberId), []);
+  },
+
+  saveRehash(memberId: string, check: RehashCheck): void {
+    if (!hasWindow()) return;
+    const key = KEYS.rehashChecks(check.courseId, memberId);
+    // Append-only, like the cloud table: a later check is a new row.
+    safeSetItem(key, JSON.stringify([...readJson<RehashCheck[]>(key, []), check]));
+    notifyStore();
   },
 };
 

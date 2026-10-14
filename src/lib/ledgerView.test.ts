@@ -45,3 +45,28 @@ describe('ledgerRows', () => {
     expect(lines[4]).toContain('20260915_Team03_netbox_ipam.png,abc,10,true');
   });
 });
+
+describe('R113 — receipts and re-hash checks in the ledger', () => {
+  const receipts = {
+    'sp-w6-spine::sp-w6-spine-s1': { courseId: 'server-plus', taskId: 'sp-w6-spine', stepId: 'sp-w6-spine-s1', outputSha256: 'f'.repeat(64), receiptedAt: 5 },
+    'sp-w1-bringup::sp-w1-bringup-s1': { courseId: 'server-plus', taskId: 'sp-w1-bringup', stepId: 'sp-w1-bringup-s1', outputSha256: 'f'.repeat(64), receiptedAt: 5 },
+  };
+
+  it('marks a receipt only on a verified step, and says nothing offline', () => {
+    const cloud = ledgerRows(SERVER_PLUS, ev, receipts);
+    expect(cloud.find((r) => r.stepId === 'sp-w6-spine-s1')?.receipted).toBe(true);
+    expect(cloud.find((r) => r.stepId === 'sp-w1-bringup-s1')?.receipted, 'not verified: the receipt counts for nothing').toBe(false);
+    expect(ledgerRows(SERVER_PLUS, ev, null).every((r) => r.receipted === undefined)).toBe(true);
+  });
+
+  it('carries the latest re-hash per file and appends both columns to the CSV, leaving every earlier column in place', () => {
+    const arts = artifactRows(
+      [{ courseId: 'server-plus', sha256: 'abc', filename: 'f.png', sizeBytes: 10, week: 5, nameOk: true, hashedAt: 1 }],
+      [{ courseId: 'server-plus', sha256: 'abc', filename: 'f.png', ok: true, checkedAt: 1 }, { courseId: 'server-plus', sha256: 'abc', filename: 'g.png', ok: false, checkedAt: 2 }]
+    );
+    expect(arts[0].rehash).toEqual({ ok: false, checkedAt: 2 });
+    const lines = ledgerCsv(SERVER_PLUS, ledgerRows(SERVER_PLUS, ev, receipts), arts).trim().split('\r\n');
+    expect(lines[0].endsWith('size_bytes,name_ok,receipted,rehash_ok')).toBe(true);
+    expect(lines[lines.length - 1]).toContain('f.png,abc,10,true,,false');
+  });
+});

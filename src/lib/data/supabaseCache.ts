@@ -18,6 +18,8 @@ import type {
   DeliverableSubmission,
   PeerReviewRow,
   SubmissionSnapshot,
+  VerificationReceipt,
+  RehashCheck,
 } from './types';
 import { getBrowserClient } from '../supabase/client';
 import { notifyStore } from '../useClientStore';
@@ -68,6 +70,17 @@ const submissionsByTeam = new Map<string, DeliverableSubmission[]>(); // `${cour
 const peerReviewsByCourse = new Map<string, PeerReviewRow[]>();
 // R103: the team's document lifecycle transitions, append-only.
 const docStatusByTeam = new Map<string, DeliverableStatus[]>(); // `${courseId}::${teamId}`
+// R113: the platform's verification receipts (the member's own and, per 0014,
+// teammates') and the member's re-hash checks. Keyed with the user, like the
+// ledger, so an instructor's hydrate never merges two members. Receipts are
+// append-only on the server, so hydrates merge them and never drop one.
+// `receiptCourses` (and `receiptsEverywhere`, after the cross-course hydrate)
+// record that the receipts table answered at all: a project that has not run
+// 0014 yet reads "no receipt possible" (null), never zero.
+const receiptsByKey = new Map<string, VerificationReceipt>(); // `${userId}::${courseId}::${taskId}::${stepId}`
+const receiptCourses = new Set<string>();
+let receiptsEverywhere = false;
+const rehashesByKey = new Map<string, RehashCheck[]>(); // `${userId}::${courseId}`
 
 // R78-D: the course documents an instructor authored in the cloud — course
 // CONTENT, not student state, so it is not the current user's and is not
@@ -145,6 +158,10 @@ export function setCurrentUserId(id: string | null) {
     submissionsByTeam.clear();
     peerReviewsByCourse.clear();
     docStatusByTeam.clear();
+    receiptsByKey.clear();
+    receiptCourses.clear();
+    receiptsEverywhere = false;
+    rehashesByKey.clear();
     notifyStore();
   }
 }
@@ -213,6 +230,30 @@ export const cache = {
   },
   setArtifact(artifact: EvidenceArtifact) {
     artifactsByHash.set(`${artifact.courseId}::${artifact.sha256}`, artifact);
+  },
+  /** R113: one member's receipts for a course, keyed `${taskId}::${stepId}`; null until the table has answered. */
+  receipts(courseId: string, userId: string): Record<string, VerificationReceipt> | null {
+    if (!receiptsEverywhere && !receiptCourses.has(courseId)) return null;
+    const out: Record<string, VerificationReceipt> = {};
+    const prefix = `${userId}::${courseId}::`;
+    receiptsByKey.forEach((v, k) => {
+      if (k.startsWith(prefix)) out[`${v.taskId}::${v.stepId}`] = v;
+    });
+    return out;
+  },
+  /** Keeps the latest receipt per step; a receipt proves the table exists. */
+  setReceipt(receipt: VerificationReceipt, userId: string) {
+    const k = `${userId}::${receipt.courseId}::${receipt.taskId}::${receipt.stepId}`;
+    const prev = receiptsByKey.get(k);
+    if (!prev || prev.receiptedAt <= receipt.receiptedAt) receiptsByKey.set(k, receipt);
+    receiptCourses.add(receipt.courseId);
+  },
+  rehashes(courseId: string, userId: string): RehashCheck[] {
+    return rehashesByKey.get(`${userId}::${courseId}`) ?? [];
+  },
+  addRehash(check: RehashCheck, userId: string) {
+    const k = `${userId}::${check.courseId}`;
+    rehashesByKey.set(k, [...(rehashesByKey.get(k) ?? []), check].sort((a, b) => a.checkedAt - b.checkedAt));
   },
   /** Drop the current user's evidence for one course — the optimistic half of
    *  `resetCourse`. Teammates' records stay: they are theirs. */
@@ -384,7 +425,7 @@ export async function hydrateCourse(courseId: string): Promise<void> {
   const gen = (hydrateGen.get(courseId) ?? 0) + 1;
   hydrateGen.set(courseId, gen);
 
-  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus] =
+  const [memberships, completions, deliverables, gates, labAccess, userState, evidence, artifacts, reviews, cohorts, notes, flags, profiles, reports, submissions, peerReviews, docStatus, receipts, rehashes] =
     await Promise.all([
       supabase.from('memberships').select('*').eq('course_id', courseId),
       supabase.from('step_completions').select('*').eq('course_id', courseId),
@@ -417,6 +458,11 @@ export async function hydrateCourse(courseId: string): Promise<void> {
       supabase.from('peer_reviews').select('*, deliverable_submissions!inner(course_id)').eq('deliverable_submissions.course_id', courseId),
       // R103: the team's lifecycle transitions (instructor: the course's).
       supabase.from('deliverable_status').select('*').eq('course_id', courseId),
+      // R113: receipts (own and teammates'; instructor: the course's) and
+      // re-hash checks (own; instructor: the course's). Never the stamps:
+      // nobody but the platform reads those.
+      supabase.from('verification_receipts').select('course_id, user_id, task_id, step_id, output_sha256, receipted_at').eq('course_id', courseId),
+      supabase.from('rehash_checks').select('*').eq('course_id', courseId),
     ]);
 
   // A newer hydrate started while this one was on the wire: its data is
@@ -529,6 +575,14 @@ export async function hydrateCourse(courseId: string): Promise<void> {
     [...docStatusByTeam.keys()].filter((k) => k.startsWith(`${courseId}::`)).forEach((k) => docStatusByTeam.delete(k));
     docStatus.data.forEach((r) => cache.setDocStatus(docStatusFromRow(r)));
   }
+  if (receipts.data) {
+    receipts.data.forEach((r) => cache.setReceipt(receiptFromRow(r), String(r.user_id)));
+    receiptCourses.add(courseId);
+  }
+  if (rehashes.data) {
+    [...rehashesByKey.keys()].filter((k) => k.endsWith(`::${courseId}`)).forEach((k) => rehashesByKey.delete(k));
+    rehashes.data.forEach((r) => cache.addRehash(rehashFromRow(r), String(r.user_id)));
+  }
 
   hydratedCourses.add(courseId);
   notifyStore();
@@ -635,6 +689,26 @@ export function artifactFromRow(r: Record<string, unknown>): EvidenceArtifact {
   };
 }
 
+export function receiptFromRow(r: Record<string, unknown>): VerificationReceipt {
+  return {
+    courseId: String(r.course_id),
+    taskId: String(r.task_id),
+    stepId: String(r.step_id),
+    outputSha256: String(r.output_sha256 ?? ''),
+    receiptedAt: r.receipted_at ? Date.parse(String(r.receipted_at)) : 0,
+  };
+}
+
+export function rehashFromRow(r: Record<string, unknown>): RehashCheck {
+  return {
+    courseId: String(r.course_id),
+    sha256: String(r.sha256),
+    filename: String(r.filename ?? ''),
+    ok: !!r.ok,
+    checkedAt: r.checked_at ? Date.parse(String(r.checked_at)) : 0,
+  };
+}
+
 /**
  * Load the user's CROSS-COURSE data: every course they're enrolled in, all their
  * completions, the whole evidence ledger, and their chosen career path.
@@ -652,7 +726,7 @@ export async function hydrateUser(): Promise<void> {
   const supabase = getBrowserClient();
   if (!supabase || !currentUserId) return;
 
-  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews] = await Promise.all([
+  const [memberships, completions, evidence, artifacts, path, docStatus, submissions, reports, notes, reviews, receipts, rehashes] = await Promise.all([
     supabase.from('memberships').select('*').eq('user_id', currentUserId),
     supabase.from('step_completions').select('*').eq('user_id', currentUserId),
     supabase.from('step_evidence').select('*'),
@@ -669,6 +743,10 @@ export async function hydrateUser(): Promise<void> {
     supabase.from('step_notes').select('*'),
     // R108: the instructor's verdicts, so the board's "instructor approved" tile reads on the dashboard too (0004 scopes it to the member's teams).
     supabase.from('deliverable_reviews').select('*'),
+    // R113: the member's own receipts and re-hash checks, every course (an
+    // instructor's RLS would return everyone's, so both filter by the user).
+    supabase.from('verification_receipts').select('course_id, user_id, task_id, step_id, output_sha256, receipted_at').eq('user_id', currentUserId),
+    supabase.from('rehash_checks').select('*').eq('user_id', currentUserId),
   ]);
 
   if (memberships.data) {
@@ -747,6 +825,15 @@ export async function hydrateUser(): Promise<void> {
       const prev = stepNotesByKey.get(k);
       stepNotesByKey.set(k, { courseId: cid, taskId: String(r.task_id), stepId: String(r.step_id), note: String(r.note ?? ''), stuck: prev?.stuck ?? false, at: r.updated_at ? Date.parse(String(r.updated_at)) : 0 });
     });
+  }
+  if (receipts.data) {
+    receipts.data.forEach((r) => cache.setReceipt(receiptFromRow(r), String(r.user_id)));
+    receiptsEverywhere = true;
+  }
+  if (rehashes.data) {
+    const me = currentUserId as string;
+    for (const cid of coursesIn(rehashes.data)) rehashesByKey.delete(`${me}::${cid}`);
+    rehashes.data.forEach((r) => cache.addRehash(rehashFromRow(r), me));
   }
 
   notifyStore();

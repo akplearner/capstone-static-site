@@ -339,7 +339,9 @@
         "controlsCited",
         "docControl",
         "instructorApproved",
-        "raciRespected"
+        "raciRespected",
+        "receipted",
+        "rehashConfirmed"
       ],
       "additionalProperties": false,
       "properties": {
@@ -413,6 +415,12 @@
           "$ref": "#/$defs/indicator"
         },
         "raciRespected": {
+          "$ref": "#/$defs/indicator"
+        },
+        "receipted": {
+          "$ref": "#/$defs/indicator"
+        },
+        "rehashConfirmed": {
           "$ref": "#/$defs/indicator"
         }
       }

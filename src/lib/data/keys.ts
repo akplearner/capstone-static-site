@@ -50,6 +50,9 @@ export const KEYS = {
     `${STORAGE_PREFIX}${courseId}_evidence_${memberId}`,
   evidenceArtifacts: (courseId: string, memberId: string) =>
     `${STORAGE_PREFIX}${courseId}_artifacts_${memberId}`,
+  // R113: re-hash checks on hashed files, one append-only blob per (course, member).
+  rehashChecks: (courseId: string, memberId: string) =>
+    `${STORAGE_PREFIX}${courseId}_rehash_${memberId}`,
   // Global (not course-scoped): the career track spans courses.
   path: (memberId: string) => `${STORAGE_PREFIX}path_${memberId}`,
   // R68. Instructor reviews are team-scoped like the forms they judge; the

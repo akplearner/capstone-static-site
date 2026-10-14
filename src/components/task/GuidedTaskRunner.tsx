@@ -15,6 +15,7 @@ import { useRequireAuth } from '@/lib/useRequireAuth';
 import { progressRepo, evidenceRepo } from '@/lib/data';
 import { toast } from '@/lib/toastBus';
 import { selfAttested, taskToken } from '@/lib/evidenceLedger';
+import { refreshStamp, useServerStamp } from '@/lib/stamps';
 import { focusById } from '@/lib/focus';
 import { useStepKeys } from './useStepKeys';
 
@@ -209,14 +210,24 @@ export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgre
   // expects it alongside the tool's own tokens. The wording keeps the honest
   // claim: it ties the paste to this member and task — it does not prove
   // which machine ran the command.
-  const stamp = task.steps.some((s) => s.verify?.length) ? taskToken(memberId, courseId, task.id) : null;
-  const copyStamp = () => {
+  // R113: in cloud mode the platform issues it (random, twenty minutes) and
+  // a match is receipted; offline the client stamp stands in, as before.
+  const hasVerify = task.steps.some((s) => s.verify?.length);
+  const server = useServerStamp(hasVerify ? memberId : undefined, courseId, task.id);
+  const stamp = hasVerify ? server?.stamp ?? taskToken(memberId, courseId, task.id) : null;
+  const copyStamp = async () => {
     if (!stamp) return;
-    navigator.clipboard?.writeText(stamp).then(
-      () => toast({ message: 'Stamp copied — paste it after your command output.' }),
-      () => toast({ message: `Your stamp: ${stamp}` })
+    // An expired server stamp is replaced on click, and the fresh one copied.
+    const fresh = server?.expired ? await refreshStamp(memberId, courseId, task.id) : null;
+    const value = fresh?.stamp ?? stamp;
+    navigator.clipboard?.writeText(value).then(
+      () => toast({ message: fresh ? 'Fresh stamp copied — paste it after your command output.' : 'Stamp copied — paste it after your command output.' }),
+      () => toast({ message: `Your stamp: ${value}` })
     );
   };
+  const stampTitle = server
+    ? `Your stamp: ${stamp} — issued by the server for 20 minutes; include it in every output you paste to Verify (easiest: run "echo ${stamp}" right after your command). A match is receipted: the server logs the stamp, the step and the output's hash, never the output. Not proof of the machine. ${server.expired ? 'It has expired: click for a fresh one.' : 'Click to copy; click again after it expires for a fresh one.'}`
+    : `Your stamp: ${stamp} — include it in every output you paste to Verify (easiest: run "echo ${stamp}" right after your command). It marks the paste as yours, for this task. Click to copy.`;
 
   // Under the open rung in guided mode: where to go from here.
   const guidedNav = (
@@ -270,14 +281,16 @@ export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgre
           {stamp && (
             <Chip
               as="button"
-              tone="accent"
+              tone={server?.expired ? 'warn' : 'accent'}
               icon={<Stamp />}
               onClick={copyStamp}
-              title={`Your stamp: ${stamp} — include it in every output you paste to Verify (easiest: run "echo ${stamp}" right after your command). It marks the paste as yours, for this task. Click to copy.`}
-              aria-label={`Your stamp: ${stamp}. Click to copy.`}
+              title={stampTitle}
+              aria-label={server?.expired ? `Your stamp: ${stamp} has expired. Click for a fresh one.` : `Your stamp: ${stamp}. Click to copy.`}
               data-stamp={stamp}
+              data-stamp-source={server ? 'server' : 'device'}
             >
-              Your stamp: <span className="font-mono">{taskToken(memberId, courseId, task.id)}</span>
+              Your stamp: <span className="font-mono">{stamp}</span>
+              {server?.expired && <span> · expired</span>}
             </Chip>
           )}
           {/* The reward beat — a cut lands on the stone each time a step does. */}

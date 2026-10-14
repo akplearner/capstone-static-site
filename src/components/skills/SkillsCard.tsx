@@ -54,6 +54,9 @@ export function SkillsCard({ course, member, activeWeek, crew }: { course: Cours
     },
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
     asOf,
+    // R113: the platform's receipts (null offline) and the re-hash checks.
+    receipts: evidenceRepo.getReceipts(course.id, member.memberId),
+    rehashes: evidenceRepo.getRehashes(course.id, member.memberId),
   });
   const { COPY, LEVEL_LABEL, DIMENSION_LABEL } = registry;
   const board = kpiBoard({

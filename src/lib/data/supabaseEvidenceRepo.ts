@@ -6,7 +6,9 @@ import {
   EvidenceArtifact,
   EvidenceRepository,
   PathRepository,
+  RehashCheck,
   StepEvidence,
+  VerificationReceipt,
 } from './types';
 import { cache, getCurrentUserId } from './supabaseCache';
 import { toast } from '@/lib/toastBus';
@@ -131,6 +133,44 @@ export const supabaseEvidenceRepo: EvidenceRepository = {
           if (error) console.error(`${table} reset failed`, error.message);
         });
     }
+    // R113: receipts and re-hash checks are append-only (no delete policy).
+    // They only ever count joined to a verified step or a hashed file, so
+    // once those are gone they count for nothing.
+  },
+
+  // R113: written by the `receipt` function alone; read here off the cache.
+  getReceipts(courseId: string, memberId: string): Record<string, VerificationReceipt> | null {
+    return cache.receipts(courseId, memberId);
+  },
+
+  getRehashes(courseId: string, memberId: string): RehashCheck[] {
+    return cache.rehashes(courseId, memberId);
+  },
+
+  saveRehash(memberId: string, check: RehashCheck): void {
+    cache.addRehash(check, memberId);
+    notifyStore();
+
+    const supabase = getBrowserClient();
+    if (!supabase) return;
+    const user_id = getCurrentUserId();
+    if (!user_id) return;
+
+    // `checked_at` is left to the database clock: the log says when the
+    // platform recorded the check, which no client can backdate.
+    void supabase
+      .from('rehash_checks')
+      .insert({ user_id, course_id: check.courseId, sha256: check.sha256, filename: check.filename, ok: check.ok })
+      .then(({ error }) => {
+        if (error) {
+          console.error('rehash_checks save failed', error.message);
+          toast({
+            message: 'Couldn’t record that re-hash in the cloud — check the file again later.',
+            variant: 'warning',
+            duration: 6000,
+          });
+        }
+      });
   },
 };
 
