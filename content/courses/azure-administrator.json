@@ -8860,6 +8860,23 @@
           "scored": false
         },
         {
+          "id": "metric.skill-currency",
+          "label": "Skills current",
+          "dimension": "skills",
+          "definition": "Skills whose last verification falls inside the currency window, over skills verified.",
+          "inputs": [
+            "step_evidence",
+            "registry"
+          ],
+          "valueTo": [
+            "member",
+            "company"
+          ],
+          "status": "computed",
+          "scored": false,
+          "note": "A window of days the page supplies; never a duration shown."
+        },
+        {
           "id": "metric.outcome-capstone-filed",
           "label": "Capstone filed",
           "dimension": "documentation",

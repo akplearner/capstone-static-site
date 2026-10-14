@@ -156,6 +156,13 @@
               "minimum": 0
             }
           }
+        },
+        "lastVerifiedAt": {
+          "type": "number",
+          "minimum": 0
+        },
+        "current": {
+          "type": "boolean"
         }
       }
     },
@@ -177,6 +184,24 @@
         },
         "loaded": {
           "type": "boolean"
+        },
+        "own": {
+          "type": "object",
+          "required": [
+            "value",
+            "of"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "value": {
+              "type": "number",
+              "minimum": 0
+            },
+            "of": {
+              "type": "number",
+              "minimum": 0
+            }
+          }
         }
       }
     }
@@ -189,7 +214,8 @@
     "rows",
     "abilities",
     "gaps",
-    "loaded"
+    "loaded",
+    "draftedForms"
   ],
   "additionalProperties": false,
   "properties": {
@@ -312,7 +338,8 @@
         "commandSteps",
         "controlsCited",
         "docControl",
-        "instructorApproved"
+        "instructorApproved",
+        "raciRespected"
       ],
       "additionalProperties": false,
       "properties": {
@@ -384,6 +411,9 @@
         },
         "instructorApproved": {
           "$ref": "#/$defs/indicator"
+        },
+        "raciRespected": {
+          "$ref": "#/$defs/indicator"
         }
       }
     },
@@ -430,6 +460,12 @@
         "own": {
           "type": "boolean"
         }
+      }
+    },
+    "draftedForms": {
+      "type": "array",
+      "items": {
+        "type": "string"
       }
     }
   }

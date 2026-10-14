@@ -62,6 +62,16 @@
             "value": { "type": "integer", "minimum": 0 },
             "of": { "type": "integer", "minimum": 0 }
           }
+        },
+        "contribution": {
+          "description": "R111: the same count on the forms the member's role drafts (the RACI drafter); on the seven attributable team KPIs only.",
+          "type": "object",
+          "required": ["value", "of"],
+          "additionalProperties": false,
+          "properties": {
+            "value": { "type": "integer", "minimum": 0 },
+            "of": { "type": "integer", "minimum": 0 }
+          }
         }
       }
     }

@@ -43,6 +43,14 @@ export interface KpiValue {
   fact: KpiFact;
   /** First-try is never shown alone: persistence rides beside it. */
   beside?: { value: number; of: number };
+  /**
+   * R111, on the seven attributable team KPIs (P1 to P4, O1 to O3): the same
+   * count on the forms the member's role drafts. Controls cited, rubric green
+   * and handoffs already count only the role's forms, the member's own
+   * submissions and the member's own tasks, so there it equals the value.
+   * Capstone filed is the whole team's and carries none.
+   */
+  contribution?: { value: number; of: number };
 }
 
 export interface KpiBoard {
@@ -108,7 +116,12 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
   const indicator = (i: { value: number; of?: number; loaded: boolean }) => ({ value: i.value, of: i.of ?? 0, loaded: i.loaded });
   const citing = (r: ProfileRow) => r.deliverables.some((id) => (registry.CONTROL_OF[id] ?? []).length > 0);
 
-  const values: Record<string, { value: number; of: number; loaded: boolean; beside?: { value: number; of: number } }> = {
+  // R111: the role's own share of each attributable team fact.
+  const drafted = new Set(profile.draftedForms ?? []);
+  const ownRow = (r: ProfileRow) => r.deliverables.some((id) => drafted.has(id));
+  const same = (i: { value: number; of?: number }) => ({ value: i.value, of: i.of ?? 0 });
+  const ownOf = (i: { value: number; of?: number; own?: { value: number; of: number } }) => i.own ?? same(i);
+  const values: Record<string, { value: number; of: number; loaded: boolean; beside?: { value: number; of: number }; contribution?: { value: number; of: number } }> = {
     'kpi.ability.skills-verified': { value: skills.filter(atLeastVerified).length, of: skills.filter((r) => r.verifiableSteps > 0).length, loaded: true },
     'kpi.ability.exam-weight-verified': {
       value: practisedDomains.filter(atLeastVerified).reduce((n, r) => n + (weightOf.get(r.id) ?? 0), 0),
@@ -125,13 +138,17 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
       value: rows.procedures.filter((r) => r.level === 'reviewed' && citing(r)).length,
       of: rows.procedures.filter(atLeastVerified).length,
       loaded: team,
+      contribution: {
+        value: rows.procedures.filter((r) => r.level === 'reviewed' && citing(r) && ownRow(r)).length,
+        of: rows.procedures.filter((r) => atLeastVerified(r) && ownRow(r)).length,
+      },
     },
-    'kpi.procedure.dod-met': indicator(abilities.dodMet),
-    'kpi.procedure.controls-cited': indicator(abilities.controlsCited),
-    'kpi.procedure.document-control': indicator(abilities.docControl),
-    'kpi.outcome.rubric-green': indicator(abilities.rubricAllGreen),
-    'kpi.outcome.handoffs': indicator(abilities.handoffsCompleted),
-    'kpi.outcome.instructor-approved': indicator(abilities.instructorApproved),
+    'kpi.procedure.dod-met': { ...indicator(abilities.dodMet), contribution: ownOf(abilities.dodMet) },
+    'kpi.procedure.controls-cited': { ...indicator(abilities.controlsCited), contribution: same(abilities.controlsCited) },
+    'kpi.procedure.document-control': { ...indicator(abilities.docControl), contribution: ownOf(abilities.docControl) },
+    'kpi.outcome.rubric-green': { ...indicator(abilities.rubricAllGreen), contribution: same(abilities.rubricAllGreen) },
+    'kpi.outcome.handoffs': { ...indicator(abilities.handoffsCompleted), contribution: same(abilities.handoffsCompleted) },
+    'kpi.outcome.instructor-approved': { ...indicator(abilities.instructorApproved), contribution: ownOf(abilities.instructorApproved) },
     'kpi.outcome.capstone-filed': { value: outcome.capstoneFiled ? 1 : 0, of: 1, loaded: team },
   };
 
@@ -147,6 +164,8 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
       loaded: v.loaded,
       fact: def.fact,
       ...(v.beside ? { beside: v.beside } : {}),
+      // Only where the fact was handed in: an unloaded team fact attributes nothing.
+      ...(v.contribution && v.loaded ? { contribution: v.contribution } : {}),
     };
   });
 

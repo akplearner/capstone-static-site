@@ -166,4 +166,23 @@ describe('kpiBoard', () => {
     expect(sumKpi([alone, withTeam], filed)).toEqual({ value: 1, of: 1, loaded: false });
     expect(sumKpi([withTeam], 'kpi.nobody')).toEqual({ value: 0, of: 0, loaded: false });
   });
+
+  // R111: the role's own share of each attributable team fact.
+  it('contribution sits on exactly the seven attributable team KPIs once the team is handed in, bounded by the value, and equals it where the count is already the role’s own', () => {
+    const SEVEN = ['kpi.procedure.followed-to-standard', 'kpi.procedure.dod-met', 'kpi.procedure.controls-cited', 'kpi.procedure.document-control', 'kpi.outcome.rubric-green', 'kpi.outcome.handoffs', 'kpi.outcome.instructor-approved'];
+    const alone = boardOf(profileOf());
+    expect(alone.kpis.filter((k) => k.contribution), 'nothing attributed without the team').toEqual([]);
+    const withTeam = boardOf(profileOf({ done: checkable.slice(0, 2), evidence: Object.fromEntries(checkable.slice(0, 2).map((k, i) => [k, verified(k, 1_000 + i)])), team: { docs: {}, status: [], submissions: [], reviews: [], currentWeek: 1 } }));
+    expect(withTeam.kpis.filter((k) => k.contribution).map((k) => k.id)).toEqual(SEVEN);
+    for (const k of withTeam.kpis.filter((x) => x.contribution)) {
+      expect(k.contribution!.value, k.id).toBeLessThanOrEqual(k.value);
+      expect(k.contribution!.of, k.id).toBeLessThanOrEqual(k.of);
+    }
+    for (const id of ['kpi.procedure.controls-cited', 'kpi.outcome.rubric-green', 'kpi.outcome.handoffs']) {
+      const k = withTeam.kpis.find((x) => x.id === id)!;
+      expect(k.contribution, id).toEqual({ value: k.value, of: k.of });
+    }
+    expect(withTeam.kpis.find((k) => k.id === 'kpi.outcome.capstone-filed')?.contribution, 'the capstone is the whole team’s').toBeUndefined();
+    expect(validate(withTeam, schema)).toEqual([]);
+  });
 });

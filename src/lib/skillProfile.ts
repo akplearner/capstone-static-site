@@ -19,8 +19,10 @@ import { localDay } from './localDate';
  *
  * It follows `metrics.ts` to the letter: nothing here is a source of truth,
  * nothing is scored, ranked or badged, and speed is not measured. Timestamps
- * are read for one purpose only, the ORDER steps were verified in; no
- * duration is ever computed. The denominator is the member's own ticks on
+ * are read for two purposes only: the ORDER steps were verified in, and (R111)
+ * whether a row's last verification falls inside a window of days measured
+ * from the `asOf` the page passes; no duration is ever reported, and the
+ * module reads no clock. The denominator is the member's own ticks on
  * required steps of the role's tasks in graded and advanced weeks; the team's
  * documents feed only the procedure, standard, documentation and
  * collaboration rows and the `reviewed` level, and the labels say so.
@@ -62,6 +64,10 @@ export interface ProfileRow {
   deliverablesApproved: number;
   /** Forms this member sent into review. */
   draftedByMember: number;
+  /** R111: the latest verification on any of the row's tasks, if one exists. */
+  lastVerifiedAt?: number;
+  /** R111: that verification falls inside the currency window from the page's `asOf`; absent without `asOf` or a verification. */
+  current?: boolean;
   level: SkillLevel;
   /** The first mapped task not yet done. */
   next?: { taskId: string; title: string; week: number };
@@ -72,6 +78,8 @@ export interface Indicator {
   of?: number;
   /** False when the facts behind it were not handed in (team and own facts load on the course page). */
   loaded: boolean;
+  /** R111: the same count restricted to the forms the member's role drafts (the RACI drafter), where the indicator also folds shared forms. */
+  own?: { value: number; of: number };
 }
 
 export interface AbilityIndicators {
@@ -100,6 +108,8 @@ export interface AbilityIndicators {
   controlsCited: Indicator;
   docControl: Indicator;
   instructorApproved: Indicator;
+  /** R111, a team fact: the member's lifecycle transitions made in the role the RACI names for that move, over the member's transitions on forms with a RACI. */
+  raciRespected: Indicator;
 }
 
 export interface TeamFacts {
@@ -129,6 +139,8 @@ export interface SkillProfileInput {
   deliverables: DeliverableDef[];
   team?: TeamFacts;
   own?: OwnFacts;
+  /** R111: the page's clock for the currency flag; the projection reads none. */
+  asOf?: number;
 }
 
 export interface SkillProfile {
@@ -139,6 +151,8 @@ export interface SkillProfile {
   abilities: AbilityIndicators;
   gaps: { domains: ProfileRow[]; skills: ProfileRow[]; sops: ProfileRow[] };
   loaded: { team: boolean; own: boolean };
+  /** R111: the forms the member's role drafts, by id, so the KPI board can attribute without a registry. */
+  draftedForms: string[];
 }
 
 export interface SkillPortfolio {
@@ -159,6 +173,10 @@ const CONTROL_FIELDS = ['doc_id', 'version', 'doc_owner', 'doc_date', 'doc_statu
 
 export const levelRank = (level: SkillLevel): number => LEVELS.indexOf(level);
 
+/** R111: a verification counts as current inside this many days of the page's `asOf`. A recency predicate, never a duration shown. */
+export const CURRENT_WINDOW_DAYS = 180;
+const DAY_MS = 24 * 60 * 60 * 1000;
+
 const key = (taskId: string, stepId: string) => `${taskId}::${stepId}`;
 
 interface TaskFacts {
@@ -171,6 +189,8 @@ interface TaskFacts {
   /** Two or more verification records, so an order exists. */
   ordered: boolean;
   inOrder: boolean;
+  /** R111: the latest `verifiedAt` among the task's verified records. */
+  lastVerifiedAt?: number;
 }
 
 function taskFacts(task: Task, input: SkillProfileInput): TaskFacts {
@@ -179,6 +199,7 @@ function taskFacts(task: Task, input: SkillProfileInput): TaskFacts {
   const checkable = verifiableSteps(required);
   let verified = 0;
   let selfAttested = 0;
+  let lastVerifiedAt: number | undefined;
   const stamps: number[] = [];
   for (const s of checkable) {
     const rec = input.evidence[key(task.id, s.id)];
@@ -186,13 +207,14 @@ function taskFacts(task: Task, input: SkillProfileInput): TaskFacts {
       verified += 1;
       const at = rec.verifiedAt ?? rec.firstAttemptAt;
       if (typeof at === 'number') stamps.push(at);
+      if (typeof rec.verifiedAt === 'number') lastVerifiedAt = Math.max(lastVerifiedAt ?? 0, rec.verifiedAt);
     } else if (input.isStepDone(task.id, s.id)) {
       selfAttested += 1;
     }
   }
   const ordered = stamps.length >= 2;
   const inOrder = ordered && stamps.every((t, i) => i === 0 || t >= stamps[i - 1]);
-  return { task, required, ticked, verifiable: checkable.length, verified, selfAttested, ordered, inOrder };
+  return { task, required, ticked, verifiable: checkable.length, verified, selfAttested, ordered, inOrder, ...(lastVerifiedAt !== undefined ? { lastVerifiedAt } : {}) };
 }
 
 interface FormFacts {
@@ -264,7 +286,7 @@ interface RowSpec {
   standardRefs?: string[];
 }
 
-function buildRow(spec: RowSpec, facts: Map<string, TaskFacts>, forms: Map<string, FormFacts>, byFile: Map<string, string>, artifacts: EvidenceArtifact[]): ProfileRow {
+function buildRow(spec: RowSpec, facts: Map<string, TaskFacts>, forms: Map<string, FormFacts>, byFile: Map<string, string>, artifacts: EvidenceArtifact[], asOf?: number): ProfileRow {
   const tasks = spec.taskIds.map((id) => facts.get(id)).filter((f): f is TaskFacts => !!f);
   const formIds = new Set(spec.formIds ?? []);
   for (const f of tasks) for (const file of f.task.deliverables ?? []) {
@@ -284,6 +306,8 @@ function buildRow(spec: RowSpec, facts: Map<string, TaskFacts>, forms: Map<strin
   }
   const sum = (pick: (f: TaskFacts) => number) => tasks.reduce((n, f) => n + pick(f), 0);
   const nextTask = tasks.find((f) => f.ticked < f.required.length)?.task;
+  const verifiedStamps = tasks.map((f) => f.lastVerifiedAt).filter((t): t is number => typeof t === 'number');
+  const lastVerifiedAt = verifiedStamps.length ? Math.max(...verifiedStamps) : undefined;
   const partial: Omit<ProfileRow, 'level'> = {
     dimension: spec.dimension,
     id: spec.id,
@@ -306,6 +330,8 @@ function buildRow(spec: RowSpec, facts: Map<string, TaskFacts>, forms: Map<strin
     deliverablesControlled: mappedForms.filter((f) => f.controlled).length,
     deliverablesApproved: mappedForms.filter((f) => f.approved).length,
     draftedByMember: mappedForms.filter((f) => f.draftedByMember).length,
+    ...(lastVerifiedAt !== undefined ? { lastVerifiedAt } : {}),
+    ...(lastVerifiedAt !== undefined && asOf !== undefined ? { current: asOf - lastVerifiedAt <= CURRENT_WINDOW_DAYS * DAY_MS } : {}),
     ...(nextTask ? { next: { taskId: nextTask.id, title: nextTask.title, week: nextTask.week } } : {}),
   };
   return { ...partial, level: levelOf({ ...partial, formsWithData: mappedForms.filter((f) => f.hasData).length }) };
@@ -320,7 +346,7 @@ export function skillProfile(input: SkillProfileInput): SkillProfile {
   const forms = new Map(input.deliverables.map((d) => [d.id, formFacts(d, input)]));
   const byFile = new Map(input.deliverables.map((d) => [d.file, d.id]));
   const artifacts = input.artifacts.filter((a) => a.courseId === course.id);
-  const row = (spec: RowSpec) => buildRow(spec, facts, forms, byFile, artifacts);
+  const row = (spec: RowSpec) => buildRow(spec, facts, forms, byFile, artifacts, input.asOf);
   const tasksMapped = (map: Record<string, string[]>, id: string) => own.filter((t) => (map[t.id] ?? []).includes(id)).map((t) => t.id);
   const idsOf = (map: Record<string, string[]>) => new Set(own.flatMap((t) => map[t.id] ?? []));
 
@@ -372,7 +398,13 @@ export function skillProfile(input: SkillProfileInput): SkillProfile {
     abilities: abilityIndicators(input, own, facts, forms),
     gaps: { domains: notStarted(domains), skills: notStarted(skills), sops: notStarted(procedures) },
     loaded: { team: !!input.team, own: !!input.own },
+    draftedForms: draftedFormsOf(input).map((d) => d.id),
   };
+}
+
+/** The forms the member's role drafts: its own lane (the owner is the RACI drafter by content invariant). */
+function draftedFormsOf(input: SkillProfileInput): DeliverableDef[] {
+  return input.deliverables.filter((d) => d.owner === input.role || d.raci?.drafts === input.role);
 }
 
 function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<string, TaskFacts>, forms: Map<string, FormFacts>): AbilityIndicators {
@@ -422,7 +454,21 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
   const roleForms = input.deliverables.filter((d) => d.owner === role || d.shared);
   const handoffs = own.flatMap((t) => (t.handoff ?? []).filter((h) => h.deliverable).map((h) => h.deliverable!));
   // R108: the forms the role drafts, the control codes they cite, and the latest instructor review per form.
-  const draftForms = input.deliverables.filter((d) => d.owner === role || d.raci?.drafts === role);
+  const draftForms = draftedFormsOf(input);
+  // R111: the share of a team fold that sits on the forms the role drafts.
+  const dodOver = (defs: DeliverableDef[]) => defs.reduce((acc, d) => {
+    const p = dodProgress(d, team!.docs[d.id], team!.currentWeek);
+    return { value: acc.value + p.met, of: acc.of + p.total };
+  }, { value: 0, of: 0 });
+  const controlOver = (defs: DeliverableDef[]) => {
+    const withData = defs.filter((d) => forms.get(d.id)?.hasData);
+    return { value: withData.filter((d) => forms.get(d.id)?.controlled).length, of: withData.length };
+  };
+  const approvedOver = (defs: DeliverableDef[]) => ({ value: defs.filter((d) => latestReview(d.id)?.status === 'approved').length, of: defs.length });
+  // R111: the RACI role each move belongs to; a move back to draft is a reviewer's return or a drafter's reopen.
+  const raciOf = new Map(input.deliverables.filter((d) => d.raci).map((d) => [d.id, d.raci!]));
+  const expectedRoles = (status: DeliverableStatus['status'], r: NonNullable<DeliverableDef['raci']>): string[] =>
+    status === 'in_review' ? [r.drafts] : status === 'approved' || status === 'issued' ? [r.approves] : [r.reviews, r.drafts];
   const codesOf = (defs: DeliverableDef[]) => new Set(defs.flatMap((d) => input.registry.CONTROL_OF[d.id] ?? []));
   const latestReview = (deliverableId: string) => (team?.reviews ?? []).filter((r) => r.deliverableId === deliverableId).sort((a, b) => b.at - a.at)[0];
   const allFacts = [...facts.values()];
@@ -445,27 +491,19 @@ function abilityIndicators(input: SkillProfileInput, own: Task[], facts: Map<str
       const minePacks = team!.submissions.filter((s) => s.submittedBy === memberId);
       return { value: minePacks.filter((s) => Object.values(s.snapshot?.categories ?? {}).length > 0 && Object.values(s.snapshot.categories).every(Boolean)).length, of: minePacks.length, loaded: true };
     }),
-    dodMet: teamOr(() => {
-      let met = 0;
-      let total = 0;
-      for (const d of roleForms) {
-        const p = dodProgress(d, team!.docs[d.id], team!.currentWeek);
-        met += p.met;
-        total += p.total;
-      }
-      return { value: met, of: total, loaded: true };
-    }),
+    dodMet: teamOr(() => ({ ...dodOver(roleForms), loaded: true, own: dodOver(draftForms) })),
     teammateStepsTicked: { value: teammateSteps, loaded: true },
     handoffsCompleted: teamOr(() => ({ value: handoffs.filter((id) => forms.get(id)?.approved).length, of: handoffs.length, loaded: true })),
     peerReviewsGiven: EMPTY_INDICATOR,
     inOrder: { value: allFacts.filter((f) => f.inOrder).length, of: allFacts.filter((f) => f.ordered).length, loaded: true },
     commandSteps: { value: commandVerified, of: commandVerifiable, loaded: true },
     controlsCited: teamOr(() => ({ value: codesOf(draftForms.filter((d) => forms.get(d.id)?.approved)).size, of: codesOf(draftForms).size, loaded: true })),
-    docControl: teamOr(() => {
-      const withData = roleForms.filter((d) => forms.get(d.id)?.hasData);
-      return { value: withData.filter((d) => forms.get(d.id)?.controlled).length, of: withData.length, loaded: true };
+    docControl: teamOr(() => ({ ...controlOver(roleForms), loaded: true, own: controlOver(draftForms) })),
+    instructorApproved: teamOr(() => ({ ...approvedOver(roleForms), loaded: true, own: approvedOver(draftForms) })),
+    raciRespected: teamOr(() => {
+      const moves = team!.status.filter((r) => r.changedBy === memberId && raciOf.has(r.deliverableId));
+      return { value: moves.filter((r) => expectedRoles(r.status, raciOf.get(r.deliverableId)!).includes(r.role)).length, of: moves.length, loaded: true };
     }),
-    instructorApproved: teamOr(() => ({ value: roleForms.filter((d) => latestReview(d.id)?.status === 'approved').length, of: roleForms.length, loaded: true })),
   };
 }
 

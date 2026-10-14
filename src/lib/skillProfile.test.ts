@@ -183,7 +183,7 @@ describe('skillProfile — rows and levels', () => {
     expect(row(approved, 'procedures', 'sop.runbook').draftedByMember).toBe(1);
     expect(approved.abilities.drafted).toEqual({ value: 1, loaded: true });
     expect(approved.abilities.handoffsCompleted).toEqual({ value: 1, of: 1, loaded: true });
-    expect(approved.abilities.dodMet).toEqual({ value: 2, of: 2, loaded: true });
+    expect(approved.abilities.dodMet).toEqual({ value: 2, of: 2, loaded: true, own: { value: 2, of: 2 } });
   });
 
   it('step order is a sequence fact: only tasks with two or more verification records count, and no duration is read', () => {
@@ -235,16 +235,57 @@ describe('skillProfile — rows and levels', () => {
     const approved: DeliverableStatus = { courseId: 'c', teamId: 't', deliverableId: 'form', status: 'approved', changedBy: 'x', role: 'red', at: 1, version: 1 };
     const drafted = skillProfile(input({ team: { docs: { form: controlled }, status: [], submissions: [], reviews: [], currentWeek: 1 } }));
     expect(drafted.abilities.controlsCited).toEqual({ value: 0, of: 1, loaded: true });
-    expect(drafted.abilities.docControl).toEqual({ value: 1, of: 1, loaded: true });
-    expect(drafted.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true });
+    expect(drafted.abilities.docControl).toEqual({ value: 1, of: 1, loaded: true, own: { value: 1, of: 1 } });
+    expect(drafted.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
     const uncontrolled = { fields: { summary: 'done' }, groups: {} };
     const loose = skillProfile(input({ team: { docs: { form: uncontrolled }, status: [approved], submissions: [], reviews: [{ courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'revise', comment: '', reviewer: 'i', at: 1 }, { courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'approved', comment: '', reviewer: 'i', at: 2 }], currentWeek: 1 } }));
     expect(loose.abilities.controlsCited).toEqual({ value: 1, of: 1, loaded: true });
-    expect(loose.abilities.docControl).toEqual({ value: 0, of: 1, loaded: true });
-    expect(loose.abilities.instructorApproved, 'the latest review counts').toEqual({ value: 1, of: 1, loaded: true });
+    expect(loose.abilities.docControl).toEqual({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
+    expect(loose.abilities.instructorApproved, 'the latest review counts').toEqual({ value: 1, of: 1, loaded: true, own: { value: 1, of: 1 } });
     const revised = skillProfile(input({ team: { docs: {}, status: [], submissions: [], reviews: [{ courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'approved', comment: '', reviewer: 'i', at: 1 }, { courseId: 'c', teamId: 't', deliverableId: 'form', week: 1, status: 'revise', comment: '', reviewer: 'i', at: 2 }], currentWeek: 1 } }));
-    expect(revised.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true });
-    expect(revised.abilities.docControl, 'no data, no denominator').toEqual({ value: 0, of: 0, loaded: true });
+    expect(revised.abilities.instructorApproved).toEqual({ value: 0, of: 1, loaded: true, own: { value: 0, of: 1 } });
+    expect(revised.abilities.docControl, 'no data, no denominator').toEqual({ value: 0, of: 0, loaded: true, own: { value: 0, of: 0 } });
+  });
+
+  it('R111: a row knows its last verification and, given the page clock, whether it is current; no clock is read without one', () => {
+    const DAY = 24 * 60 * 60 * 1000;
+    const at = 1_700_000_000_000;
+    const evidence = { 't1::a': verified('t1', 'a', at), 't1::b': verified('t1', 'b', at + DAY) };
+    const fresh = skillProfile(input({ done: ['t1::a', 't1::b'], evidence, asOf: at + 10 * DAY }));
+    expect(row(fresh, 'skills', 'comp.a.one').lastVerifiedAt, 'the latest verification on the row').toBe(at + DAY);
+    expect(row(fresh, 'skills', 'comp.a.one').current).toBe(true);
+    const stale = skillProfile(input({ done: ['t1::a', 't1::b'], evidence, asOf: at + 200 * DAY }));
+    expect(row(stale, 'skills', 'comp.a.one').current).toBe(false);
+    const noClock = skillProfile(input({ done: ['t1::a', 't1::b'], evidence }));
+    expect(row(noClock, 'skills', 'comp.a.one').lastVerifiedAt).toBe(at + DAY);
+    expect('current' in row(noClock, 'skills', 'comp.a.one'), 'no asOf, no flag').toBe(false);
+    const unverified = skillProfile(input({ done: ['t2::a'], asOf: at }));
+    expect('lastVerifiedAt' in row(unverified, 'skills', 'comp.a.two')).toBe(false);
+    expect('current' in row(unverified, 'skills', 'comp.a.two')).toBe(false);
+  });
+
+  it('R111: the role’s own share of a team fold, the drafted forms, and RACI respected over the member’s own moves', () => {
+    const RACI_FORM: DeliverableDef = { ...FORM, raci: { drafts: 'blue', reviews: 'red', approves: 'red' } };
+    const SHARED: DeliverableDef = { ...FORM, id: 'shared', file: '02_Shared.md', owner: 'red', shared: true, raci: { drafts: 'red', reviews: 'blue', approves: 'blue' } };
+    const filled = { fields: { doc_id: 'D-1', version: '1', doc_owner: 'me', doc_date: '2026-01-01', doc_status: 'draft', summary: 'done' }, groups: { rows: [{ what: 'a row' }] } };
+    const move = (deliverableId: string, status: DeliverableStatus['status'], role: string, changedBy = 'me'): DeliverableStatus => ({ courseId: 'c', teamId: 't', deliverableId, status, changedBy, role, at: 1, version: 1 });
+    const status = [
+      move('form', 'in_review', 'blue'), // the drafter submits: respected
+      move('form', 'approved', 'blue'), // the drafter approves: not the approver's move
+      move('form', 'draft', 'blue'), // the drafter reopens: respected
+      move('shared', 'approved', 'blue'), // blue approves the shared form: respected
+      move('form', 'approved', 'red', 'other'), // someone else's move: not counted
+    ];
+    const p = skillProfile(input({ deliverables: [RACI_FORM, SHARED], team: { docs: { form: filled, shared: filled }, status, submissions: [], reviews: [], currentWeek: 1 } }));
+    expect(p.draftedForms).toEqual(['form']);
+    expect(p.abilities.dodMet).toEqual({ value: 4, of: 4, loaded: true, own: { value: 2, of: 2 } });
+    expect(p.abilities.docControl.own).toEqual({ value: 1, of: 1 });
+    expect(p.abilities.docControl.of).toBe(2);
+    expect(p.abilities.raciRespected).toEqual({ value: 3, of: 4, loaded: true });
+    const alone = skillProfile(input({ deliverables: [RACI_FORM, SHARED] }));
+    expect(alone.abilities.raciRespected.loaded, 'a team fact').toBe(false);
+    expect(alone.abilities.dodMet.own, 'nothing attributed when the team was not handed in').toBeUndefined();
+    expect(alone.draftedForms).toEqual(['form']);
   });
 
   it('gaps list the rows not started, with the task that closes each', () => {
