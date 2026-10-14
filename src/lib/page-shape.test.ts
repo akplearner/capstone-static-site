@@ -2720,3 +2720,53 @@ describe('R111 — attribution and currency', () => {
     expect(read('docs/CURRENT_STATE.md')).toContain('Attribution and currency');
   });
 });
+
+/**
+ * R112 — the funnel and the step friction map: pure aggregates that name
+ * nobody, an instructor page on the cohort loader, props-only panels, and a
+ * loader that reads past the row cap.
+ */
+describe('R112 — the funnel and the step friction map', () => {
+  it('the two reports are pure and carry nobody', () => {
+    for (const f of ['src/lib/funnel.ts', 'src/lib/friction.ts']) {
+      const src = code(f);
+      expect(src, `${f}: no runtime data import`).not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
+      expect(src, `${f}: no storage`).not.toMatch(/localStorage|supabase|Repo\b|fetch\(/);
+      expect(src, `${f}: no clock`).not.toMatch(/Date\.now\(\)|new Date\(|estimatedTime/);
+      expect(src, `${f}: no ranking`).not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|badge|\bXP\b/i);
+    }
+    const funnel = code('src/lib/funnel.ts');
+    const fShapes = funnel.slice(funnel.indexOf('export interface FunnelGroup'), funnel.indexOf('export interface FunnelInput'));
+    expect(fShapes, 'the funnel carries no member').not.toMatch(/memberId|displayName/);
+    const friction = code('src/lib/friction.ts');
+    const xShapes = friction.slice(friction.indexOf('export interface FrictionRow'), friction.indexOf('export interface FrictionInput'));
+    expect(xShapes, 'the friction map carries no member').not.toMatch(/memberId|displayName/);
+    expect(code('src/lib/course-helpers.ts')).toContain('export function gradedWeeksCleared(');
+    expect(code('src/lib/cohortKpi.ts')).toContain('gradedWeeksCleared(');
+  });
+
+  it('the page reads the whole course through the loader and hands props to panels that never read data', () => {
+    const page = code('src/app/instructor/[courseId]/effectiveness/page.tsx');
+    for (const n of ['loadCohort(', 'funnelReport({', 'frictionReport({', 'funnelCsv(', 'frictionCsv(', '<FunnelPanel ', '<FrictionPanel ']) expect(page, n).toContain(n);
+    expect(page).not.toContain('AdminGate');
+    expect(page).not.toContain('metricsLoader');
+    for (const f of ['src/components/instructor/FunnelPanel.tsx', 'src/components/instructor/FrictionPanel.tsx']) {
+      expect(code(f), `${f} is props-only`).not.toMatch(/from '@\/lib\/data'/);
+      expect(code(f), f).not.toContain('useCourseDocument');
+    }
+    expect(code('src/components/instructor/FrictionPanel.tsx'), 'a candidate is an icon and a word').toContain('Rewrite candidate');
+    expect(existsSync('src/app/instructor/[courseId]/effectiveness/loading.tsx')).toBe(true);
+    expect(code('src/app/instructor/page.tsx')).toContain('/effectiveness`}');
+  });
+
+  it('the loader pages past the row cap and keeps its pinned selects', () => {
+    const loader = code('src/lib/data/cohortLoader.ts');
+    expect(loader).toContain('selectAll(');
+    expect(loader).toContain("supabase.from('step_completions').select('*').eq('course_id', course.id)");
+    expect(loader).toContain("supabase.from('step_evidence').select('*').eq('course_id', course.id)");
+    expect(code('src/lib/data/selectAll.ts')).toContain('PAGE_ROWS = 1000');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The funnel and the step friction map (R112)');
+    expect(read('docs/OPERATIONS.md')).toContain('(R112)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('Funnel and step friction');
+  });
+});

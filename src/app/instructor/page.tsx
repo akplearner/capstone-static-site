@@ -230,6 +230,12 @@ export default function InstructorHomePage() {
                   <Users className="h-3.5 w-3.5" /> Cohort
                 </Button>
               </Link>
+              {/* R112: the funnel and the step friction map for the course. */}
+              <Link href={`/instructor/${course.id}/effectiveness`}>
+                <Button size="sm" variant="secondary" className="flex items-center gap-1">
+                  <BarChart3 className="h-3.5 w-3.5" /> Effectiveness
+                </Button>
+              </Link>
               {isAdmin && !course.isSeed && (
                 <>
                   <Button size="sm" variant="secondary" onClick={() => startDuplicate(course)} className="flex items-center gap-1">

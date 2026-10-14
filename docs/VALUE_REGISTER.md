@@ -15,7 +15,9 @@ asset it rides on, the metrics that carry it (`src/lib/docs/metricCatalogue.ts`,
 
 Nothing here is scored, ranked or badged; speed is not measured. R110 added the consent grants
 (`share-employer`, `benchmark`, `outcome`) and the consented outcome form: an item marked "needs
-consent" below now means "needs the member's grant", which the member can give from the account page. The member profile is sent by the
+consent" below now means "needs the member's grant", which the member can give from the account page.
+R112 added the platform's own effectiveness view for instructors: the funnel from enrolment to a filed
+capstone, active-weeks bands and the step friction map, counts only. The member profile is sent by the
 member, unsigned, and says so in its `claim`. R108 added rows 11 onward in each list: the Skill
 board's sixteen KPIs, the environment profile, the work roles, the credential envelope, the cohort
 report and the event contract.

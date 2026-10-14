@@ -445,6 +445,23 @@ current or verified earlier; the dashboard's skills tile counts current skills; 
 results carry the share. Both profile schemas and the KPI board schema carry the new fields; the
 catalogue gains `metric.skill-currency`; the ontology is 1.2.0.
 
+### The funnel and the step friction map (R112)
+
+Two instructor aggregates measure the platform itself, from the facts the cohort loader already reads
+for the whole course. `src/lib/funnel.ts` counts, per cohort and for the course, the members who
+reached each stage in turn: enrolled, first tick, first verified step, first graded week cleared,
+capstone filed. A stage needs every stage before it, so the counts never rise along the funnel. It
+also counts members per band of active graded weeks (none, one, two or three, four or more).
+`src/lib/friction.ts` counts, per verifiable step, among members whose role has the task: ticked
+without matching output, verified, more than one paste, stuck now, and ticked an earlier step but not
+this one; a step where a quarter or more of at least two members show a signal is a rewrite candidate.
+Both are pure (no clock, no repository, no member in the output), order steps and never people, and
+ship fixed-header CSVs. The page is `/instructor/<course>/effectiveness`, linked beside Cohort on the
+instructor home. The loader now reads `step_completions` and `step_evidence` a page at a time
+(`src/lib/data/selectAll.ts`), so a course past PostgREST's 1000-row cap no longer undercounts any
+cohort aggregate. The catalogue rows are `platform-funnel-stage`, `platform-retention-weeks` and
+`content-step-friction`; the ontology is 1.3.0.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:
