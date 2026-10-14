@@ -338,6 +338,25 @@ address (`supabase secrets set APP_ORIGIN=https://<your-site>`); without it a
 function echoes the caller's origin, which is safe because each one still
 requires the caller's own sign-in token.
 
+## Server stamps and verification receipts
+
+With two more functions deployed, the stamp a student echoes into their output is issued by the
+server (random, theirs, for one task, live for twenty minutes) and every full match is receipted: the
+server logs the stamp, the step, the output's SHA-256 and the token counts. The pasted output itself
+never leaves the browser; the receipt function refuses any request that carries more. Needs migration
+`0014` (in `supabase/setup.sql`; re-run it once if your project predates it).
+
+```bash
+supabase functions deploy stamp
+supabase functions deploy receipt
+supabase secrets set SERVICE_ROLE_KEY=<service_role key>     # already set if delete-account is deployed
+supabase secrets set APP_ORIGIN=https://<your-site>          # optional, see above
+```
+
+Until they are deployed the app uses the stamp the browser derives, exactly as before, and nothing
+on the site mentions receipts. A receipt records the stamp, not the machine: it does not prove which
+computer ran a command.
+
 ## Live teammate updates
 
 Teammates seeing each other's progress update without refreshing is already

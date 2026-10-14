@@ -462,6 +462,40 @@ instructor home. The loader now reads `step_completions` and `step_evidence` a p
 cohort aggregate. The catalogue rows are `platform-funnel-stage`, `platform-retention-weeks` and
 `content-step-friction`; the ontology is 1.3.0.
 
+### Verification receipts, re-hash checks and the first validator (R113)
+
+Verification used to be client-side end to end: the browser derived the stamp (`taskToken`), scored
+the paste and wrote `verified`. In cloud mode the platform now issues the stamp and logs a receipt.
+The `stamp` edge function hands the signed-in member a random `CQ-` stamp for one task, live for
+twenty minutes (a live one with five minutes or more left is handed out again, so two tabs agree);
+`verification_stamps` (0014) has RLS on and no policies, so only the platform reads it. When pasted
+output carrying that stamp matches every expected token, the verify box calls the `receipt` function
+with exactly seven fields: course, task, step, stamp, the output's SHA-256 and the two counts. The
+function refuses any other field, so the paste cannot reach the server even by mistake, checks the
+stamp is the caller's, for that course and task, and live, and writes one row per stamp and step to
+`verification_receipts`: readable by the member, their team and the instructor, writable by no client,
+frozen by a trigger. The client half is `src/lib/stamps.ts`; any failure, or a project without the
+functions, leaves the client stamp in place for the rest of the page, so offline and demo mode read
+exactly as before. A receipt records the stamp, not the machine, and every surface says so.
+
+Receipts join the ledger as their own facts, never as a flag on `step_evidence` (which the client
+owns): `courseMetrics.receipted`, `portfolioSummary.receipted` and the abilities `receipted` (over
+verified steps) and `rehashConfirmed` (over hashed files) are null or unloaded where no receipt can
+exist, so offline prints nothing rather than a zero. The ledger page marks receipted steps and gains a
+Re-check per hashed file: the browser hashes the chosen file again and appends a `rehash_checks` row
+(locally, a per-device blob); the artifact and its hash time are never rewritten. One `sha256Hex`
+(`src/lib/hashFile.ts`) serves the hasher, the packager and the re-check.
+
+`src/lib/docs/validators.ts` holds the `Validator` interface (`run(output, params)` returns pass,
+observed, expected and the problems in words) and the first validator, `ufw-least-privilege`, which
+parses `ufw status` output as a ruleset: status active, a deny default where shown, the step's public
+ports open to everyone, each restricted port open to exactly its listed sources, nothing else allowed
+in. A step opts in with `validator: { id, params }`; Server+ `sp-w4-secure-s2` is the first. The verify
+box shows the result beside the token verdict, with observed against expected. It reads text the
+member pasted, in the browser, and is not recorded this round; a lab agent that reads real state is
+Phase 2. The catalogue gains `metric.verified-receipted`, `metric.evidence-rehash-confirmed` is
+computed, and the ontology is 1.4.0.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

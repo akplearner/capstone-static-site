@@ -139,6 +139,9 @@ additive, none requiring a rewrite.
 | Rubric points (70 TEAM / 30 FOCUS per week) | `src/lib/rubric.ts`, `src/lib/cohort.ts` (CSV) | **Partial** (the platform's share; quality is still marked by hand) |
 | Course snapshot (JSON DTO) | `content/courses/<id>.json`, `src/lib/content/dto.ts`, `npm run content:export` | **Present** (generated; the TS seeds stay the source of truth) |
 | Consent grants and outcomes | `src/lib/legal/consents.ts`, `outcomes.ts`; `consent_grants`, `learner_outcomes`, `outcome_counts()` (0013); the account page sections; the cohort Outcomes line | **Present** (R110; append-only; counts only from five members; no `train` grant) |
+| Server stamps and verification receipts | `supabase/functions/stamp`, `receipt`, `_shared/`; `verification_stamps`, `verification_receipts` (0014); `src/lib/stamps.ts`; the verify box and the ledger | **Present, cloud mode, once deployed** (R113; the paste never leaves the browser; a receipt records the stamp, not the machine; without the functions the client stamp stands in) |
+| Re-hash checks | `rehash_checks` (0014), the ledger's Re-check, `src/lib/hashFile.ts` | **Present** (R113; append-only; works offline; the artifact is never rewritten) |
+| State validators | `src/lib/docs/validators.ts` (`ufw-least-privilege`), `Step.validator` | **Minimal** (R113; one validator on one Server+ step, shown live in the verify box, not recorded; reads pasted text, not the machine) |
 | Acceptance gate (agreements v2, AUP page) | `src/lib/legal/agreements.ts`, `/legal/aup`, `LegalGateOverlay`, `agreement_acceptances.text_sha256` | **Present** (R110; sandbox-only and liability wording drafted, counsel review pending; re-asked at the next sign-in on a version bump) |
 | Event / Attestation | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |

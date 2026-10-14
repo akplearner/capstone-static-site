@@ -68,7 +68,7 @@ export const METRICS: MetricDef[] = [
   m('skill-fully-verified', 'Skills fully verified', 'skills', 'Skills whose every verifiable step is verified, over skills with a verifiable step.', ['step_evidence', 'registry'], MC, 'computed'),
   m('skill-reviewed', 'Skills reviewed', 'skills', 'Verified skills whose mapped deliverable the team had approved or issued, over verified skills.', ['step_evidence', 'deliverable_status', 'registry'], MC, 'computed', 'A team fact: the document was approved, not the member alone. Loads on the course page.'),
   m('skill-next-gap', 'Next task per gap', 'skills', 'For each skill not started, the first mapped task not done, in course order.', ['step_completions', 'registry', 'course'], ['member'], 'computed'),
-  m('skill-state-proven', 'Skills state-proven', 'skills', 'Skills confirmed by a validator that read the real system state, over skills.', [], ALL, 'needs-validators'),
+  m('skill-state-proven', 'Skills state-proven', 'skills', 'Skills confirmed by a validator that read the real system state, over skills.', [], ALL, 'needs-validators', 'A first validator parses pasted ufw output as state in the browser; results are not yet recorded, and a lab agent is Phase 2.'),
   m('skill-attested', 'Skills attested', 'skills', 'Skills carried by a signed attestation with an environment hash, over skills.', [], ['company', 'platform'], 'needs-validators'),
   // ── Tools ────────────────────────────────────────────────────────────────
   m('tool-used', 'Tools used', 'tools', 'Tools of tasks with at least one ticked required step, over the tools the course derives.', ['step_completions', 'registry'], ALL, 'computed'),

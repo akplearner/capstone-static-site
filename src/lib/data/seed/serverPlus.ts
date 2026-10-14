@@ -1607,6 +1607,15 @@ const sharedTasks: Task[] = [
         frameworks: ['NIST_CSF', 'CIS'],
         expectedOutput: '     To                         Action      From\n     --                         ------      ----\n[ 1] 22/tcp                     ALLOW IN    10.10.0.0/16\n[ 5] 80/tcp                     ALLOW IN    Anywhere\n[ 6] 443/tcp                    ALLOW IN    Anywhere',
         verify: ['10.10.0.0/16', '80/tcp', '443/tcp'],
+        // R113: the whole ruleset read as state: the web ports open to all,
+        // SSH from exactly the four sources above, nothing else allowed in.
+        validator: {
+          id: 'ufw-least-privilege',
+          params: {
+            public: ['80/tcp', '443/tcp'],
+            restricted: { '22/tcp': ['10.10.0.0/16', '192.168.0.0/24', '172.16.0.0/24', '172.16.0.1'] },
+          },
+        },
       },
       {
         id: 'sp-w4-secure-s2b',

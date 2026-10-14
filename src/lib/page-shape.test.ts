@@ -2861,4 +2861,20 @@ describe('R113 — stamps, receipts and re-hash checks', () => {
     expect(catalogue).toMatch(/m\('evidence-rehash-confirmed'[^\n]*'computed'/);
     expect(code('src/lib/skillProfile.ts'), 'offline prints a dash, never a zero').toContain('receipted: input.receipts ?');
   });
+
+  it('the first validator reads the paste as state, stays pure, and the docs say what it is and is not', () => {
+    const v = code('src/lib/docs/validators.ts');
+    expect(v).toContain('export interface Validator');
+    expect(v).toContain("id: 'ufw-least-privilege'");
+    expect(v, 'pure').not.toMatch(/Date\.now\(\)|localStorage|supabase|fetch\(/);
+    expect(read('src/lib/types.ts')).toContain('validator?: { id: string; params?: Record<string, unknown> }');
+    expect(code('src/components/step/OutputVerify.tsx')).toContain('runValidator(validator, text)');
+    expect(code('src/components/step/StepHow.tsx')).toContain('validator={step.validator}');
+    expect(read('src/components/step/OutputVerify.tsx'), 'the honest limit ships with the panel').toContain('not proof of the machine');
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Verification receipts, re-hash checks and the first validator (R113)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('Server stamps and verification receipts');
+    expect(read('docs/OPERATIONS.md')).toContain('(R113)');
+    const setup = read('SUPABASE_SETUP.md');
+    for (const n of ['supabase functions deploy stamp', 'supabase functions deploy receipt', 'A receipt records the stamp, not the machine']) expect(setup, n).toContain(n);
+  });
 });

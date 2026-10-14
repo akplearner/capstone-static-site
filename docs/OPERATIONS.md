@@ -119,6 +119,15 @@ has failed silently in some deployment of some product; none takes more than a m
   across them, a complete ratio is lit; the chip beside the pack copies and downloads the
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
   chip downloads the profile and the credential (no `proof`); under reduced motion nothing breathes.
+- [ ] **Stamps, receipts, re-hash and the first validator (R113):** cloud, with `stamp` and `receipt`
+  deployed: a task's stamp chip says it was issued by the server; paste output with every token and
+  the stamp, and the box says "receipted"; leave the task open past twenty minutes and the chip says
+  expired, a click copies a fresh stamp; the ledger marks the step receipted and the dashboard prints
+  "n receipted" under Steps verified. Without the functions (or offline) the chip is the device stamp
+  and no wording mentions receipts. On the ledger, Re-check a hashed file with the same file (badge
+  "Re-hashed") and with another (badge "Digest differs"); the hash time does not change. On Server+
+  week 4, "Restrict the DMZ host with ufw", paste `sudo ufw status numbered`: the state check lists
+  observed against expected, and an extra rule open to everyone is named.
 - [ ] **Funnel and step friction (R112):** `/instructor/<course>/effectiveness` (from Effectiveness
   on the instructor home) shows five stage tiles whose counts never rise, the active-weeks bands, and
   a friction table led by the steps with the most signals, a rewrite candidate marked with an icon

@@ -8684,7 +8684,8 @@
             "platform"
           ],
           "status": "needs-validators",
-          "scored": false
+          "scored": false,
+          "note": "A first validator parses pasted ufw output as state in the browser; results are not yet recorded, and a lab agent is Phase 2."
         },
         {
           "id": "metric.skill-attested",

@@ -197,6 +197,11 @@ export interface Step {
    *  that turns the step green only when every token is present — real-tool
    *  self-verification instead of a static expected-output block. */
   verify?: string[];
+  /** R113: a validator that reads the pasted output as state, not tokens (see
+   *  src/lib/docs/validators.ts): which one, and what the step expects. Shown
+   *  beside the token result in the verify box; it reads text the member
+   *  pasted, so it proves nothing about the machine. */
+  validator?: { id: string; params?: Record<string, unknown> };
   /** Optional steps are shown and tracked but excluded from completion %, week
    *  progress, and gates (e.g. the Windows track alongside the required Linux one). */
   optional?: boolean;

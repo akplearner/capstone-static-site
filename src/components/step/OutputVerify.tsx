@@ -7,6 +7,7 @@ import type { StepEvidence, VerificationReceipt } from '@/lib/data';
 import { useClientStore } from '@/lib/useClientStore';
 import { foldAttempt, scoreOutput, sha256Text } from '@/lib/evidenceLedger';
 import { refreshStamp, requestReceipt, useServerStamp, type ReceiptOutcome } from '@/lib/stamps';
+import { runValidator, type StepValidator } from '@/lib/docs/validators';
 
 /** Identifies the step whose verification record should be written. Omitted in
  *  read-only views (another role's task), where pasting must not record anything. */
@@ -37,9 +38,12 @@ export function OutputVerify({
   verify,
   ledger,
   stamp,
+  validator,
 }: {
   verify: string[];
   ledger?: LedgerRef;
+  /** R113: the step's state validator, run over the paste beside the token check. */
+  validator?: StepValidator;
   /** The member's task stamp (R84), when it is one of the expected tokens. It
    *  gets its own chip styling and a hint, because unlike the other tokens it
    *  is not something the tool prints — the student adds it. */
@@ -87,6 +91,8 @@ export function OutputVerify({
   const previouslyVerified = !!prior?.verified;
   const outcome = touched && receipt?.text === text ? receipt.outcome : null;
   const notReceipted = allOk && (outcome === 'stamp-expired' || outcome === 'stamp-unknown');
+  // R113: the paste read as state (a ruleset, not words); additive to the token verdict.
+  const check = touched ? runValidator(validator, text) : null;
   // The stamp is the token people forget: say so plainly when it is the only one missing.
   const onlyStampMissing = touched && !allOk && !!stamp && score.missing.length === 1 && score.missing[0].toLowerCase() === stamp.toLowerCase();
   const getFreshStamp = async () => {
@@ -169,6 +175,39 @@ export function OutputVerify({
             : onlyStampMissing
               ? `Only your stamp is missing (${score.matched}/${score.total}) — echo it after your command and paste again.`
               : `Not matching yet (${score.matched}/${score.total}) — check the command ran on the right target.`}
+        </div>
+      )}
+      {check && (
+        <div className={`mt-1.5 rounded border border-line bg-panel-2 p-2 text-xs ${check.pass ? 'text-ok' : 'text-warn'}`} data-state-check={check.pass ? 'pass' : 'differs'}>
+          <div className="flex items-center gap-1.5 font-semibold">
+            {check.pass ? <Check className="h-3.5 w-3.5" /> : <AlertTriangle className="h-3.5 w-3.5" />}
+            {check.pass
+              ? `State check, ${check.label.toLowerCase()}: the output matches what the step expects.`
+              : `State check, ${check.label.toLowerCase()}: ${check.problems.length} difference${check.problems.length === 1 ? '' : 's'} from what the step expects.`}
+          </div>
+          {!check.pass && (
+            <ul className="mt-1 list-disc space-y-0.5 pl-5 text-body">
+              {check.problems.slice(0, 4).map((p) => (
+                <li key={p}>{p}</li>
+              ))}
+            </ul>
+          )}
+          <details className="mt-1 text-muted">
+            <summary className="cursor-pointer">Observed against expected</summary>
+            <div className="mt-1 grid gap-2 @md:grid-cols-2">
+              {([['Observed', check.observed], ['Expected', check.expected]] as const).map(([heading, lines]) => (
+                <div key={heading}>
+                  <div className="text-2xs font-semibold uppercase tracking-wide">{heading}</div>
+                  <ul aria-label={heading} className="font-mono text-2xs">
+                    {lines.map((l) => (
+                      <li key={l}>{l}</li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </details>
+          <p className="mt-1 text-2xs text-muted">Reads the pasted output as state, in this browser. Not recorded yet, and not proof of the machine.</p>
         </div>
       )}
       {/* R113: a match the server did not receipt still counts as verified;

@@ -133,6 +133,7 @@ export function StepHow({ step, ledger, courseId }: { step: Step; ledger?: Ledge
       verify={stamp ? [...verify, stamp] : verify}
       stamp={stamp}
       ledger={ledger}
+      validator={step.validator}
     />
   );
 

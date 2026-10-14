@@ -3076,7 +3076,24 @@
               "10.10.0.0/16",
               "80/tcp",
               "443/tcp"
-            ]
+            ],
+            "validator": {
+              "id": "ufw-least-privilege",
+              "params": {
+                "public": [
+                  "80/tcp",
+                  "443/tcp"
+                ],
+                "restricted": {
+                  "22/tcp": [
+                    "10.10.0.0/16",
+                    "192.168.0.0/24",
+                    "172.16.0.0/24",
+                    "172.16.0.1"
+                  ]
+                }
+              }
+            }
           },
           {
             "id": "sp-w4-secure-s2b",
@@ -16195,7 +16212,8 @@
             "platform"
           ],
           "status": "needs-validators",
-          "scored": false
+          "scored": false,
+          "note": "A first validator parses pasted ufw output as state in the browser; results are not yet recorded, and a lab agent is Phase 2."
         },
         {
           "id": "metric.skill-attested",

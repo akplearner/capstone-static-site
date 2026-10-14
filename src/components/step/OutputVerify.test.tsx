@@ -80,3 +80,28 @@ describe('OutputVerify — receipts (R113)', () => {
     expect(screen.getByText(/Not matching yet \(0\/2\)/)).toBeInTheDocument();
   });
 });
+
+describe('OutputVerify — the state check (R113)', () => {
+  const validator = { id: 'ufw-least-privilege', params: { public: ['80/tcp'], restricted: { '22/tcp': ['10.10.0.0/16'] } } };
+  const GOOD = `Status: active\n\n     To                         Action      From\n     --                         ------      ----\n[ 1] 22/tcp                     ALLOW IN    10.10.0.0/16\n[ 2] 80/tcp                     ALLOW IN    Anywhere\n${STAMP}`;
+
+  it('reads the paste as a ruleset beside the token check, and names what differs', () => {
+    stamps.server = null;
+    const { container } = render(<OutputVerify verify={['80/tcp', STAMP]} stamp={STAMP} ledger={ledger} validator={validator} />);
+    paste(GOOD);
+    expect(container.querySelector('[data-state-check="pass"]')).not.toBeNull();
+    expect(container.textContent).toContain('not proof of the machine');
+    paste(`${GOOD}\n[ 3] 22/tcp                     ALLOW IN    Anywhere`);
+    // The tokens still match; the state does not.
+    expect(screen.getByText('Verified — your output matches. Recorded and hashed.')).toBeInTheDocument();
+    expect(container.querySelector('[data-state-check="differs"]')).not.toBeNull();
+    expect(container.textContent).toContain('22/tcp is open to everyone; only 80/tcp should be.');
+  });
+
+  it('a step without a validator shows no state check', () => {
+    stamps.server = null;
+    const { container } = render(<OutputVerify verify={['80/tcp', STAMP]} stamp={STAMP} ledger={ledger} />);
+    paste(GOOD);
+    expect(container.querySelector('[data-state-check]')).toBeNull();
+  });
+});
