@@ -102,6 +102,17 @@ export function weekTasksOrdered(course: Course, role: string, week: number): Ta
   return [...tasks].sort((a, b) => rank(a) - rank(b) || tasks.indexOf(a) - tasks.indexOf(b));
 }
 
+/**
+ * R112: the graded weeks that have tasks for a role, and how many of them a
+ * member has cleared (every required step of every role task ticked). Shared
+ * by the cohort KPI report and the platform funnel.
+ */
+export function gradedWeeksCleared(course: Course, role: string, isStepDone: (taskId: string, stepId: string) => boolean): { cleared: number; total: number } {
+  const graded = course.weeks.filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, role, w.number).length > 0);
+  const cleared = graded.filter((w) => getTasksByRole(course, role, w.number).every((t) => t.steps.filter((s) => !s.optional).every((s) => isStepDone(t.id, s.id))));
+  return { cleared: cleared.length, total: graded.length };
+}
+
 export function getTaskById(course: Course, id: string): Task | undefined {
   return course.tasks.find((t) => t.id === id);
 }

@@ -7,7 +7,7 @@ import type { KpiFact, KpiFamily } from './docs/kpis';
 import { skillProfile } from './skillProfile';
 import { defaultMeasure, kpiBoard, type KpiValue } from './kpiBoard';
 import { isDeliverableFiled } from './deliverableChain';
-import { getTasksByRole, isGradedWeek } from './course-helpers';
+import { gradedWeeksCleared } from './course-helpers';
 import { toCsv } from './csv';
 
 /**
@@ -125,14 +125,13 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
       team: { docs, status: facts.statusFor(m.teamId), submissions: facts.submissionsFor(m.teamId), reviews: facts.reviewsFor(m.teamId), currentWeek: week },
     });
     // The graded weeks with tasks for the role, and those whose required steps the member has all ticked.
-    const gradedWeeks = course.weeks.filter((w) => isGradedWeek(course, w.number) && getTasksByRole(course, m.role, w.number).length > 0);
-    const cleared = gradedWeeks.filter((w) => getTasksByRole(course, m.role, w.number).every((t) => t.steps.filter((s) => !s.optional).every((s) => facts.isStepDone(m.memberId, t.id, s.id))));
+    const weeks = gradedWeeksCleared(course, m.role, (t, s) => facts.isStepDone(m.memberId, t, s));
     const board = kpiBoard({
       profile,
       registry,
       cert,
       measure: defaultMeasure(registry, m.role),
-      outcome: { capstoneFiled: !!capstone && isDeliverableFiled(docs[capstone.id]), weeksCleared: cleared.length, weeksTotal: gradedWeeks.length },
+      outcome: { capstoneFiled: !!capstone && isDeliverableFiled(docs[capstone.id]), weeksCleared: weeks.cleared, weeksTotal: weeks.total },
       ontologyVersion: input.ontologyVersion,
     });
     all ??= emptyGroup('all', board.kpis);

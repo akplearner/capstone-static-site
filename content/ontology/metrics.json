@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "inputs": [
     "course",
     "registry",
@@ -20,7 +20,8 @@
     "cohorts",
     "environment_profile",
     "work_roles",
-    "learner_outcomes"
+    "learner_outcomes",
+    "memberships"
   ],
   "metrics": [
     {
@@ -1259,6 +1260,58 @@
       ],
       "status": "computed",
       "scored": false
+    },
+    {
+      "id": "metric.platform-funnel-stage",
+      "label": "Funnel stages",
+      "dimension": "evidence",
+      "definition": "Members who reached each stage in turn, from enrolled to capstone filed, over members enrolled. Instructor aggregate.",
+      "inputs": [
+        "memberships",
+        "step_completions",
+        "step_evidence",
+        "deliverables"
+      ],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Counts per cohort; nobody named."
+    },
+    {
+      "id": "metric.platform-retention-weeks",
+      "label": "Active weeks bands",
+      "dimension": "ability",
+      "definition": "Members per band of graded weeks with any tick: none, one, two or three, four or more. Instructor aggregate.",
+      "inputs": [
+        "memberships",
+        "step_completions",
+        "course"
+      ],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false
+    },
+    {
+      "id": "metric.content-step-friction",
+      "label": "Step friction",
+      "dimension": "evidence",
+      "definition": "Per verifiable step, members ticked without verification, stuck, or stopped before it, over members with the task.",
+      "inputs": [
+        "step_completions",
+        "step_evidence",
+        "step_flags",
+        "memberships"
+      ],
+      "valueTo": [
+        "platform"
+      ],
+      "status": "computed",
+      "scored": false,
+      "note": "Steps are ordered, never people."
     },
     {
       "id": "metric.platform-course-verifiability",

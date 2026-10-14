@@ -46,7 +46,7 @@ export const METRIC_INPUTS = [
   'deliverables', 'deliverable_status', 'deliverable_submissions', 'deliverable_reviews', 'peer_review_assignments',
   'task_reports', 'step_notes', 'step_flags', 'cohorts',
   'environment_profile', 'work_roles',
-  'learner_outcomes',
+  'learner_outcomes', 'memberships',
 ] as const;
 
 const ALL: MetricAudience[] = ['member', 'company', 'platform'];
@@ -149,6 +149,9 @@ export const METRICS: MetricDef[] = [
   m('rank-any', 'Ranking', 'ability', 'Any ordering of members against each other.', [], [], 'excluded', 'Nothing is ranked.'),
   // ── Platform ─────────────────────────────────────────────────────────────
   m('platform-cohort-domain-coverage', 'Cohort domain coverage', 'domains', 'Per cohort, members with at least one verified step per domain, over members. Instructor aggregate.', ['step_evidence', 'cert', 'cohorts'], PL, 'computed'),
+  m('platform-funnel-stage', 'Funnel stages', 'evidence', 'Members who reached each stage in turn, from enrolled to capstone filed, over members enrolled. Instructor aggregate.', ['memberships', 'step_completions', 'step_evidence', 'deliverables'], PL, 'computed', 'Counts per cohort; nobody named.'),
+  m('platform-retention-weeks', 'Active weeks bands', 'ability', 'Members per band of graded weeks with any tick: none, one, two or three, four or more. Instructor aggregate.', ['memberships', 'step_completions', 'course'], PL, 'computed'),
+  m('content-step-friction', 'Step friction', 'evidence', 'Per verifiable step, members ticked without verification, stuck, or stopped before it, over members with the task.', ['step_completions', 'step_evidence', 'step_flags', 'memberships'], PL, 'computed', 'Steps are ordered, never people.'),
   m('platform-course-verifiability', 'Course verifiability', 'evidence', 'Verifiable required steps over required steps per course. Content only.', ['course'], PL, 'computed'),
   m('platform-skill-coverage', 'Course skill coverage', 'skills', 'Skills, tools, procedures, standards, tactics and practices per course. Content only.', ['registry', 'course'], PL, 'computed'),
   m('platform-cross-platform-signal', 'Cross-platform signal', 'skills', 'A competency-level statement shared with another platform.', [], PL, 'needs-consent'),

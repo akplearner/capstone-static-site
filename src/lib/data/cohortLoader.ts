@@ -13,6 +13,7 @@ import { localStorageDocsRepo } from './localStorageDocsRepo';
 import { localStorageStepNotesRepo, localStorageReviewRepo, localStorageTaskReportsRepo, localStorageSubmissionsRepo, localStorageCohortRepo, localStorageStatusRepo } from './localStorageFeatureRepos';
 import { KEYS } from './keys';
 import { getTasksByRole } from '../course-helpers';
+import { selectAll } from './selectAll';
 
 /**
  * Everything the cohort dashboard needs for one course, whichever storage
@@ -103,8 +104,9 @@ export async function loadCohortCloud(course: Course): Promise<CohortData> {
   if (!supabase) return loadCohortLocal(course);
   const [memberships, completions, evidence, deliverables, flags, reviews, reports, profileRows, submissionRows, peerReviewRows, assignmentRows, cohortRows, statusRows, artifactRows] = await Promise.all([
     supabase.from('memberships').select('*').eq('course_id', course.id),
-    supabase.from('step_completions').select('*').eq('course_id', course.id),
-    supabase.from('step_evidence').select('*').eq('course_id', course.id),
+    // R112: the two tables that grow with every step are read a page at a time, past the PostgREST row cap.
+    selectAll((from, to) => supabase.from('step_completions').select('*').eq('course_id', course.id).order('user_id').order('task_id').order('step_id').range(from, to)),
+    selectAll((from, to) => supabase.from('step_evidence').select('*').eq('course_id', course.id).order('user_id').order('task_id').order('step_id').range(from, to)),
     supabase.from('deliverables').select('*').eq('course_id', course.id),
     supabase.from('step_flags').select('*').eq('course_id', course.id).eq('stuck', true),
     supabase.from('deliverable_reviews').select('*').eq('course_id', course.id),

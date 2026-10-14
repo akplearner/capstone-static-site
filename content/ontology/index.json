@@ -1,6 +1,6 @@
 {
   "schema": "capstone-ontology/1",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "generatedFrom": [
     "src/lib/docs/skills.ts",
     "src/lib/docs/tools.ts",
@@ -32,7 +32,7 @@
     "sops": 43,
     "tactics": 28,
     "practices": 96,
-    "metrics": 96,
+    "metrics": 99,
     "domains": 63,
     "kpis": 16,
     "workRoles": 13
