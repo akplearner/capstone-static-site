@@ -496,6 +496,30 @@ member pasted, in the browser, and is not recorded this round; a lab agent that 
 Phase 2. The catalogue gains `metric.verified-receipted`, `metric.evidence-rehash-confirmed` is
 computed, and the ontology is 1.4.0.
 
+### Candidate links and employer profiles (R114)
+
+A member who holds the share-employer consent creates a link to a frozen, unsigned copy of their
+portfolio export or credential, for 7, 30 or 90 days. The `share` edge function checks the consent
+(`has_consent`), accepts only the two published shapes within 256 KB, refuses any copy that carries a
+member, user or team id, the submitter or an email address in any key or value
+(`supabase/functions/_shared/shareGuard.ts`, the same module the app runs before it asks), sets a
+profile's subject to the member's display name, and stores the copy with the SHA-256 of a 256-bit token
+it returns once (`profile_shares`, 0015). Only the function inserts; the owner lists a link's facts
+through column grants that refuse the copy and the token hash, revokes it (a trigger dates the
+revocation with the database clock and refuses to undo it) or deletes it with its copy; account
+deletion clears links too. The token rides in the URL fragment (`/share#<token>`), which no server sees;
+`shared-profile`, deployed without JWT verification, serves one live link by its token's hash and
+answers unknown, revoked and expired with the same 404. The public page reads words from the built-in
+documents, never the data layer, is noindex and disallowed in robots.txt, and says the copy is unsigned
+and not proof of the machine.
+
+Instructors publish employer environment profiles (`environment_profiles`, validated against
+`environment-profile.schema.json` on publish and again on every read) from `/instructor/profiles`;
+every signed-in member's Skill board picker lists them after the work roles and the samples. A link
+created from the Skill board shares that course alone, its board measured against the chosen profile,
+and records the profile's name. Without 0015 or the functions every piece degrades to "not available":
+the buttons say links are not set up, the account section and the published profiles do not appear.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

@@ -29,6 +29,15 @@ import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole, isSetupWeek } from '@/lib/course-helpers';
 import { resolveActiveWeek } from '@/lib/resume';
+import { usePublishedProfiles } from '@/lib/employerProfiles';
+import { useAuth } from '@/lib/useAuth';
+import { isSupabaseConfigured } from '@/lib/supabase/config';
+import { courseMetrics, portfolioSummary } from '@/lib/metrics';
+import { skillPortfolio } from '@/lib/skillProfile';
+import { buildCredential, buildMemberProfile, profileJson, type MemberCourseRow } from '@/lib/memberExport';
+import { sha256Text } from '@/lib/evidenceLedger';
+import { ShareLinkDialog } from '@/components/share/ShareLinkDialog';
+import { Button } from '@/components/ui/Button';
 import type { Course, Member } from '@/lib/types';
 
 /**
@@ -84,6 +93,10 @@ export default function SkillBoardPage() {
   const [importError, setImportError] = useState<string | null>(null);
   // R111: the page's clock for the currency flag; the projection reads none.
   const [asOf] = useState(() => Date.now());
+  // R114: profiles instructors published join the picker; a link records the measure.
+  const published = usePublishedProfiles();
+  const { user, profile: account } = useAuth();
+  const [sharing, setSharing] = useState(false);
 
   if (loading) return <SkillBoardSkeleton />;
   if (!member || facts === EMPTY_FACTS) return <CourseEnrolGate courseId={course.id} what="the skill board" />;
@@ -120,10 +133,14 @@ export default function SkillBoardPage() {
   const workRoleIds = registry.WORK_ROLE_OF[member.role] ?? [];
   const workRoles = workRoleIds.map((id) => registry.WORK_ROLES.find((w) => w.id === id)).filter((w): w is NonNullable<typeof w> => !!w);
   // The imported profile wins over a published one with the same id, so a company's newer file replaces the sample.
+  const samples = sampleProfiles().filter((p) => p.id !== imported?.id);
+  const listed = new Set([imported?.id, ...samples.map((p) => p.id)]);
   const options: MeasureAgainst[] = [
     ...workRoles.map(workRoleMeasure),
     ...(imported ? [profileMeasure(imported, workRoleIds)] : []),
-    ...sampleProfiles().filter((p) => p.id !== imported?.id).map((p) => profileMeasure(p, workRoleIds)),
+    ...samples.map((p) => profileMeasure(p, workRoleIds)),
+    // R114: published employer profiles, after the samples; an imported or sample id is not listed twice.
+    ...published.profiles.filter((p) => !listed.has(p.profile.id)).map((p) => profileMeasure(p.profile, workRoleIds)),
   ];
   const measure = options.find((o) => o.id === measureId) ?? options[0] ?? defaultMeasure(registry, member.role);
   const board = kpiBoard({ profile, registry, cert, measure, outcome: { capstoneFiled, weeksCleared: crew.weeksCleared, weeksTotal: crew.weeksTotal }, ontologyVersion: ONTOLOGY_VERSION });
@@ -131,6 +148,36 @@ export default function SkillBoardPage() {
   const hero = { value: board.kpis[0].value, of: board.kpis[0].of };
   const perTool = profile.rows.tools.filter((r) => r.verifiableSteps > 0).map((r) => ({ label: r.label, value: r.verifiedSteps, of: r.verifiableSteps }));
   const href = (next: { taskId: string; week: number }) => `/courses/${course.id}?tab=tasks&week=${next.week}&task=${next.taskId}`;
+  // R114: a link from here shares this course alone, its board measured against the chosen profile.
+  const shareRow: MemberCourseRow = {
+    courseId: course.id,
+    title: course.title,
+    role: course.roles.find((r) => r.id === member.role)?.name ?? member.role,
+    stage: crew.stage,
+    capstoneFiled,
+    metrics: courseMetrics({ course, role: member.role, taskPercent: taskStats, evidence: facts.evidence, artifacts: facts.artifacts, receipts: facts.receipts, rehashes: facts.rehashes }),
+    skills: profile,
+    artifacts: facts.artifacts,
+    workRoles,
+    board,
+    examCode: cert.CERT?.code ?? null,
+  };
+  const shareProfile = () =>
+    buildMemberProfile({
+      subject: account?.displayName?.trim() || 'Capstone Quarry member',
+      copy: COPY,
+      pathId: null,
+      summary: portfolioSummary([shareRow.metrics]),
+      skills: skillPortfolio([profile]),
+      rows: [shareRow],
+      generatedAt: new Date().toISOString(),
+    });
+  const shareCredential = async () => {
+    const shared = shareProfile();
+    const digest = await sha256Text(profileJson(shared));
+    return buildCredential({ profile: shared, rows: [shareRow], copy: COPY, origin: window.location.origin, digest }) as unknown as Record<string, unknown>;
+  };
+  const canShare = isSupabaseConfigured() && !!user;
 
   const onImport = async (file: File | undefined) => {
     if (!file) return;
@@ -168,6 +215,11 @@ export default function SkillBoardPage() {
               {copy.importProfile}
               <input type="file" accept="application/json,.json" className="sr-only" onChange={(e) => void onImport(e.target.files?.[0])} />
             </label>
+            {canShare && (
+              <Button variant="secondary" size="sm" onClick={() => setSharing(true)} data-share-link>
+                {COPY.board.createLink}
+              </Button>
+            )}
             {importError && (
               <p role="alert" className="basis-full text-xs text-danger" data-import-error>
                 {importError}
@@ -176,6 +228,15 @@ export default function SkillBoardPage() {
           </div>
         }
       />
+      {canShare && (
+        <ShareLinkDialog
+          open={sharing}
+          onClose={() => setSharing(false)}
+          buildProfile={() => shareProfile() as unknown as Record<string, unknown>}
+          buildCredential={shareCredential}
+          measuredAgainst={measure.label}
+        />
+      )}
 
       <div style={tintVars(course.id)}>
         <SkyMap layout={layout} levelLabel={LEVEL_LABEL.skills} copy={copy} hero={hero} href={href} />

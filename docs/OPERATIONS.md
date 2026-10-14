@@ -119,6 +119,14 @@ has failed silently in some deployment of some product; none takes more than a m
   across them, a complete ratio is lit; the chip beside the pack copies and downloads the
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
   chip downloads the profile and the credential (no `proof`); under reduced motion nothing breathes.
+- [ ] **Candidate links and employer profiles (R114):** cloud, with 0015, `share` and
+  `shared-profile --no-verify-jwt` deployed: turn on "share with employers" on `/account`; Create link
+  on `/portfolio` shows the URL once (`/share#…`); open it in a private window, signed out: the copy
+  under the "unsigned, not proof of the machine" banner, no email anywhere; revoke it on `/account`
+  and the page says the link is not available, the same as a made-up token. As an instructor, publish
+  `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
+  lists it; Create link there records "measured against" it. Without the consent the dialog points to
+  the account page; without the functions it says links are not set up.
 - [ ] **Stamps, receipts, re-hash and the first validator (R113):** cloud, with `stamp` and `receipt`
   deployed: a task's stamp chip says it was issued by the server; paste output with every token and
   the stamp, and the box says "receipted"; leave the task open past twenty minutes and the chip says

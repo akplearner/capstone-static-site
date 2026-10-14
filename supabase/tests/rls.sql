@@ -851,13 +851,19 @@ end $$;
 set local role authenticated;
 set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
 insert into public.environment_profiles (id, publisher_user_id, profile)
-  values ('acme-soc', '00000000-0000-4000-8000-00000000000d', '{"id":"acme-soc","title":"Acme SOC"}');
+  values ('profile.acme-soc', '00000000-0000-4000-8000-00000000000d', '{"id":"profile.acme-soc","name":"Acme SOC"}');
 do $$
 declare n int;
 begin
-  update public.environment_profiles set profile = '{"id":"acme-soc","title":"Edited"}';
+  update public.environment_profiles set profile = '{"id":"profile.acme-soc","name":"Edited"}';
   get diagnostics n = row_count;
   assert n = 0, 'ivy edited a published profile in place';
+  begin
+    insert into public.environment_profiles (id, publisher_user_id, profile)
+      values ('acme', '00000000-0000-4000-8000-00000000000d', '{"id":"acme"}');
+    raise exception 'a profile id outside profile.<slug> was stored';
+  exception when check_violation then null;
+  end;
 end $$;
 reset role;
 set local role authenticated;
@@ -866,7 +872,7 @@ do $$ begin
   assert (select count(*) from public.environment_profiles) = 1, 'ada: reads the published profile';
   begin
     insert into public.environment_profiles (id, publisher_user_id, profile)
-      values ('ada-co', '00000000-0000-4000-8000-00000000000a', '{"id":"ada-co"}');
+      values ('profile.ada-co', '00000000-0000-4000-8000-00000000000a', '{"id":"profile.ada-co"}');
     raise exception 'a member published an employer profile';
   exception when insufficient_privilege then null;
   end;
@@ -877,7 +883,7 @@ set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000f';
 do $$
 declare n int;
 begin
-  delete from public.environment_profiles where id = 'acme-soc';
+  delete from public.environment_profiles where id = 'profile.acme-soc';
   get diagnostics n = row_count;
   assert n = 0, 'ana removed a profile she did not publish';
 end $$;
@@ -893,7 +899,7 @@ set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
 do $$
 declare n int;
 begin
-  delete from public.environment_profiles where id = 'acme-soc';
+  delete from public.environment_profiles where id = 'profile.acme-soc';
   get diagnostics n = row_count;
   assert n = 1, 'ivy removes her own profile';
 end $$;

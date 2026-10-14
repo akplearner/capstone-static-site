@@ -1738,11 +1738,17 @@ create index if not exists profile_shares_owner on public.profile_shares (user_i
 
 -- ── 2. published employer profiles ────────────────────────────────────────
 create table if not exists public.environment_profiles (
-  id                text primary key check (id ~ '^[a-z0-9][a-z0-9-]{0,79}$'),
+  id                text primary key,
   publisher_user_id uuid not null references auth.users(id) on delete cascade,
   profile           jsonb not null check (pg_column_size(profile) <= 131072),
   published_at      timestamptz not null default now()
 );
+-- The id is the profile's own (`environment-profile.schema.json`: profile.<slug>).
+-- Named and re-added, so a project that ran an earlier draft of this file
+-- ends with the same check.
+alter table public.environment_profiles drop constraint if exists environment_profiles_id_check;
+alter table public.environment_profiles add constraint environment_profiles_id_check
+  check (id ~ '^profile\.[a-z0-9][a-z0-9-]{0,79}$');
 alter table public.environment_profiles enable row level security;
 
 drop policy if exists "environment profiles signed-in read" on public.environment_profiles;

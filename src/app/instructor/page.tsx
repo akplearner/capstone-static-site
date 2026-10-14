@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useInstructorAuth } from '@/lib/useInstructorAuth';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users, BarChart3 } from 'lucide-react';
+import { Plus, Upload, Copy, Download, Trash2, Pencil, Layers, Users, BarChart3, Building2 } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { ConfirmDialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
@@ -123,7 +123,14 @@ export default function InstructorHomePage() {
         title="Instructor Studio"
         lede="Create and maintain courses and lab content."
         trailing={
-          isAdmin ? (
+          <>
+            {/* R114: every instructor publishes employer profiles; the authoring verbs stay the admin's. */}
+            <Link href="/instructor/profiles">
+              <Button variant="secondary" className="flex items-center gap-1">
+                <Building2 className="h-4 w-4" /> Employer profiles
+              </Button>
+            </Link>
+            {isAdmin && (
             <>
               <Link href="/instructor/metrics">
                 <Button variant="secondary" className="flex items-center gap-1">
@@ -138,7 +145,8 @@ export default function InstructorHomePage() {
               </Button>
               <input ref={fileRef} type="file" accept="application/json,.json" onChange={handleImport} className="hidden" />
             </>
-          ) : undefined
+            )}
+          </>
         }
       />
 

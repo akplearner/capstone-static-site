@@ -515,6 +515,8 @@ describe('design tokens — palette classes do not come back', () => {
       'src/app/dashboard/page.tsx',
       // R110: the device's acknowledgement log, as rows for the account export (the cloud rows are already ISO strings).
       'src/lib/legal/acceptances.ts',
+      // R114: the shared copy's generatedAt, machine metadata like the exports above.
+      'src/app/courses/[courseId]/skills/page.tsx',
     ]);
     const offenders = collectSourceFiles('src').filter(
       (f) => !WIRE.test(f) && !ALLOWED.has(f) && /toISOString\(\)/.test(code(f))
@@ -2929,5 +2931,24 @@ describe('R114 — candidate links and employer profiles', () => {
       expect(code(f), `${f} shares under the display name`).toContain("subject: profile?.displayName?.trim() || 'Capstone Quarry member'");
       expect(code(f), `${f}: cloud only`).toMatch(/isSupabaseConfigured\(\)/);
     }
+  });
+
+  it('instructors publish employer profiles, validated on publish and read, and the board is measured against them', () => {
+    const page = code('src/app/instructor/profiles/page.tsx');
+    for (const n of ['publishProfile(', 'removeProfile(', 'usePublishedProfiles()']) expect(page, n).toContain(n);
+    expect(code('src/app/instructor/page.tsx')).toContain('href="/instructor/profiles"');
+    const lib = code('src/lib/employerProfiles.ts');
+    expect(lib, 'validated again on read').toContain('readProfileFile(JSON.stringify(r.profile');
+    expect(lib).toContain("from('environment_profiles')");
+    const board = code('src/app/courses/[courseId]/skills/page.tsx');
+    for (const n of ['usePublishedProfiles()', 'profileMeasure(p.profile, workRoleIds)', 'measuredAgainst={measure.label}']) expect(board, n).toContain(n);
+    expect(read('supabase/migrations/0015_profile_shares.sql')).toContain("check (id ~ '^profile\\.[a-z0-9][a-z0-9-]{0,79}$')");
+    expect(code('src/app/portfolio/page.tsx')).toContain("'Private to you until you create a link.'");
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Candidate links and employer profiles (R114)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Candidate links |');
+    expect(read('docs/OPERATIONS.md')).toContain('(R114)');
+    const register = read('docs/VALUE_REGISTER.md');
+    expect(register.match(/^\| \d+ \|/gm)?.length).toBe(39);
+    expect(register).toContain('member-created link');
   });
 });

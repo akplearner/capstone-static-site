@@ -219,7 +219,7 @@ export default function PortfolioPage() {
       <PageHeader
         className="print:hidden"
         title="Portfolio"
-        lede="Private to you. Export it when you want to show someone."
+        lede={canShare ? 'Private to you until you create a link.' : 'Private to you. Export it when you want to show someone.'}
         trailing={
           <>
             <Button variant="secondary" className="flex items-center gap-2" onClick={() => window.print()}>
