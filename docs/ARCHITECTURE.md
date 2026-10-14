@@ -377,6 +377,32 @@ scope; no table and no dual-write exist yet, and the catalogue keeps the rows th
 `useReducedMotionSafe`; the tiles are a data surface and keep to `DUR.meter`; the sweep is
 positional, so `MotionConfig` stills it; the count-up reads the preference itself.
 
+### The KPI pack and the DTO chips (R109)
+
+The sixteen KPIs reach the two surfaces a member lives on without a second projection:
+`SkillsCard` (the course Home's role surface) and every `/dashboard` course card call `kpiBoard()`
+against the role's default measure (`defaultMeasure`, the first NICE work role the course maps, else
+one sentinel) and render the result with `src/components/skills/KpiPack.tsx`: sixteen 32 px socket
+buttons in four family groups of four, each a ring whose arc sweeps to its ratio in the course tint
+(`ACC`, which the region and seam tokens already set on both surfaces, so the pack matches the seal
+ledger beside it) inside the meter budget, a lit disc with a `qa-breathe` halo when a ratio is
+complete, a dashed dim socket when a team fact was not handed in. Hover, focus or a tap prints the
+socket in a read-out line; the hero (skills verified) counts up on mount; the pack is one tab stop
+and the arrow keys move across it; under reduced motion it declares `data-motion="off"`, breathes
+nothing and renders the final arc at once (a stroke is not a transform, so `MotionConfig` alone would
+not still it). Family labels use the longhand mono treatment, never the `eyebrow` class.
+
+Beside each pack a `DtoChip` names the document the numbers come from (`capstone-kpi-board/1` and the
+ontology version as one case-sensitive code chip) and offers Copy JSON and Download JSON, built at the
+click and never printed inline. The dashboard's record grid gains two cross-course totals (commands
+verified, procedures to standard) through `sumKpi`, which leaves an unloaded row out and says so, and
+a page-level chip for the member profile (`capstone-member-profile/1`) with Export credential. The
+profile and the credential are built by one pure module, `src/lib/memberExport.ts`
+(`buildMemberProfile`, `profileJson`, `buildCredential`): the portfolio and the dashboard both call
+it, the page stamps `generatedAt` and hashes the pretty JSON it downloads, and the module reads no
+clock, no window and no repository. `CopyButton` moved to `src/components/ui/` so the chip could use
+it without the lab-access graph.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

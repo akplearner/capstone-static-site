@@ -2527,3 +2527,77 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     expect(existsSync('content/ontology/work-roles.json')).toBe(true);
   });
 });
+
+/**
+ * R109 — the KPI pack and the DTO chips: the sixteen KPIs and their DTOs in a
+ * compact form on the course Home and on every dashboard card, off the same
+ * board; the member profile and the credential built in one pure module both
+ * pages share; the pack keeps the meter budget, reads the motion preference,
+ * draws with the tint tokens and adds no eyebrow.
+ */
+describe('R109 — the KPI pack and the DTO chips', () => {
+  it('the pack and the chip are props-only, keep the meter budget, read the motion preference, and add no eyebrow or hex', () => {
+    for (const f of ['src/components/skills/KpiPack.tsx', 'src/components/skills/DtoChip.tsx', 'src/components/ui/CopyButton.tsx']) {
+      expect(code(f), `${f} is props-only`).not.toContain('useCourseDocument');
+      expect(code(f), `${f} reads no repository`).not.toMatch(/from '@\/lib\/data'/);
+      expect(code(f), `${f} adds no eyebrow (the cap is full)`).not.toMatch(/\beyebrow(-muted)?\b/);
+      expect(read(f), `${f} takes colours from the tokens only`).not.toMatch(/#[0-9a-fA-F]{3}\b|#[0-9a-fA-F]{6}\b/);
+    }
+    const pack = code('src/components/skills/KpiPack.tsx');
+    for (const n of ['useReducedMotionSafe()', 'useCountUp(', 'transition={meter}', 'initial={reduce ? false', '@container', 'data-kpi-pack', 'data-kpi-readout', 'data-kpi-family', 'data-skill-board-link', 'aria-pressed', 'qa-breathe', 'ArrowRight']) expect(pack, n).toContain(n);
+    expect(pack, 'no bespoke duration').not.toMatch(/duration:\s*0?\.\d/);
+    expect(pack).not.toContain('repeat:');
+    expect(pack).not.toContain('whileHover');
+    expect(pack, 'the tint comes from the surface, as the seal ledger beside it').not.toContain('tintVars');
+    expect(pack, 'Enter pins; the header link navigates').not.toContain('useRouter');
+    expect(pack).not.toContain('<Surface');
+    expect(pack).not.toMatch(/animate=\{\{[^}]*\bwidth:/);
+    const chip = code('src/components/skills/DtoChip.tsx');
+    for (const n of ['<CopyButton ', 'downloadText(', "'application/json'", 'data-dto-chip', 'data-export-credential']) expect(chip, n).toContain(n);
+    expect(chip, 'no JSON printed inline').not.toContain('<pre');
+    expect(chip, 'schema ids are case-sensitive; PixelBadge uppercases').not.toContain('PixelBadge');
+    const block = code('src/components/step/CommandBlock.tsx');
+    expect(block).toContain("from '@/components/ui/CopyButton'");
+    expect(block).not.toContain('export function CopyButton');
+  });
+
+  it('both surfaces mount the pack and the chip off one board, and Home hands the crew down', () => {
+    const card = code('src/components/skills/SkillsCard.tsx');
+    for (const n of ['<KpiPack ', '<DtoChip ', 'kpiBoard({', 'defaultMeasure(', 'isCapstoneFiled(', 'data-abilities']) expect(card, n).toContain(n);
+    expect(card).not.toContain('<Surface');
+    expect(card.match(/data-skill-board-link/g), 'the link lives in the pack').toBeNull();
+    expect(code('src/components/course/HomeTab.tsx')).toMatch(/<SkillsCard [^>]*crew=\{crew\}/);
+    const dash = code('src/app/dashboard/page.tsx');
+    for (const n of ['<KpiPack ', '<DtoChip ', 'kpiBoard({', 'defaultMeasure(', 'sumKpi(', 'buildMemberProfile(', 'buildCredential(', 'profileJson(', 'sha256Text(', 'downloadText(', 'lg:grid-cols-4', 'tiles.commandsVerified', 'tiles.proceduresToStandard']) expect(dash, n).toContain(n);
+    expect(dash.match(/<Stat\b/g)?.length, 'eight record tiles').toBe(8);
+    expect(dash).not.toContain('function Mini(');
+    expect(dash.match(/data-skill-board-link/g), 'the link lives in the pack').toBeNull();
+    expect(dash).not.toMatch(/\bproof\s*:/);
+    expect(dash).not.toContain('URL.createObjectURL');
+  });
+
+  it('the export builder is pure and the pages share it', () => {
+    const src = code('src/lib/memberExport.ts');
+    expect(src, 'no runtime data import').not.toMatch(/^import (?!type )[^\n]*from '\.\/data\//m);
+    expect(src, 'no storage, no window').not.toMatch(/localStorage|supabase|Repo\b|fetch\(|window\.|document\./);
+    expect(src, 'no clock: the page stamps the export').not.toMatch(/Date\.now\(\)|new Date\(|toISOString/);
+    expect(src, 'no ranking').not.toMatch(/\brank(ing|ed)?\b|leaderboard|\bscore[sd]?\b|\bbadge[sd]?\b|\bXP\b/i);
+    for (const n of ['export function buildMemberProfile(', 'export function buildCredential(', 'export function profileJson(', 'generatedAt: input.generatedAt']) expect(src, n).toContain(n);
+    const board = code('src/lib/kpiBoard.ts');
+    expect(board).toContain('export function sumKpi(');
+    expect(board).toContain('export function defaultMeasure(');
+    for (const f of ['src/app/portfolio/page.tsx', 'src/app/courses/[courseId]/skills/page.tsx', 'src/components/skills/SkillsCard.tsx', 'src/app/dashboard/page.tsx', 'src/lib/cohortKpi.ts']) {
+      expect(code(f), `${f}: one sentinel, in kpiBoard.ts`).not.toContain("id: 'role.none'");
+    }
+    expect(code('src/lib/schema/schemas.test.ts'), 'the schema test validates the real builder').toContain('buildMemberProfile(');
+  });
+
+  it('the copy carries the pack words and the docs say what shipped', () => {
+    const copy = code('src/lib/docs/skillsCopy.ts');
+    for (const n of ['packTitle:', 'packIdle:', 'packKeys:', 'familyShort:', 'commandsVerified:', 'proceduresToStandard:', 'recordCommands:', 'recordProcedures:']) expect(copy, n).toContain(n);
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The KPI pack and the DTO chips (R109)');
+    expect(read('docs/OPERATIONS.md')).toContain('(R109)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('KPI pack');
+    expect(read('docs/VALUE_REGISTER.md')).toContain('KpiPack');
+  });
+});

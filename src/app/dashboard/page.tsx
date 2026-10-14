@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowRight, Compass, FileCheck2, FolderGit2, ShieldCheck } from 'lucide-react';
+import { ArrowRight, Compass, FileCheck2, FolderGit2, ListChecks, ShieldCheck, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
@@ -16,8 +16,15 @@ import { VerificationBar } from '@/components/catalog/VerificationBar';
 import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, statusRepo, submissionsRepo, reviewRepo, taskReportsRepo, stepNotesRepo } from '@/lib/data';
 import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
-import { skillProfile, skillPortfolio, type SkillProfile } from '@/lib/skillProfile';
+import { skillProfile, skillPortfolio } from '@/lib/skillProfile';
+import { defaultMeasure, kpiBoard, sumKpi } from '@/lib/kpiBoard';
+import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '@/lib/docs/ontology';
+import { buildCredential, buildMemberProfile, profileJson, CREDENTIAL_FILENAME, PROFILE_FILENAME, type MemberCourseRow } from '@/lib/memberExport';
+import { sha256Text } from '@/lib/evidenceLedger';
+import { downloadText } from '@/lib/download';
 import { DomainStrip } from '@/components/skills/DomainStrip';
+import { KpiPack } from '@/components/skills/KpiPack';
+import { DtoChip } from '@/components/skills/DtoChip';
 import { deriveCrewProgress } from '@/lib/game';
 import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { getTasksByRole, phaseTag } from '@/lib/course-helpers';
@@ -26,7 +33,7 @@ import { resolveActiveWeek } from '@/lib/resume';
 import { entryForCourse } from '@/lib/catalog';
 import { levelDef } from '@/lib/catalog/levels';
 import { pathById } from '@/lib/catalog/paths';
-import { courseMetrics, portfolioSummary, type CourseMetrics } from '@/lib/metrics';
+import { courseMetrics, portfolioSummary } from '@/lib/metrics';
 import { useClientStore, useHydrated, EMPTY_ARRAY } from '@/lib/useClientStore';
 import { useAuth } from '@/lib/useAuth';
 import { useUserSync } from '@/lib/useUserSync';
@@ -41,16 +48,14 @@ import { Surface, surfaceVariants } from '@/components/ui/Surface';
 // The signed-in home: every capstone you've started, how far each stone is cut,
 // and — the number that actually matters — how much of it you proved against
 // real output rather than ticking a box.
-interface CourseCard {
+// R109: a card is an export row (metrics, skills, artifacts, the KPI board, the
+// work roles) plus what only this page shows.
+interface CourseCard extends MemberCourseRow {
   course: Course;
   member: Member;
   crew: CrewProgress;
-  metrics: CourseMetrics;
-  /** R107: the member's standing against the course's registries. */
-  profile: SkillProfile;
   activeWeek: number;
   level?: string;
-  capstoneFiled: boolean;
 }
 
 function buildCard(course: Course): CourseCard | null {
@@ -78,26 +83,29 @@ function buildCard(course: Course): CourseCard | null {
   const savedDocs = docsRepo.get(course.id, member.teamId);
   const capstoneFiled = isCapstoneFiled(course.id, savedDocs);
   const crew = deriveCrewProgress(course, member.role, weekStats, taskStats, capstoneFiled);
+  const artifacts = evidenceRepo.getArtifacts(course.id, member.memberId);
   const metrics = courseMetrics({
     course,
     role: member.role,
     taskPercent: taskStats,
     evidence: evidenceRepo.getSteps(course.id, member.memberId),
-    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
+    artifacts,
   });
   const activeWeek = resolveActiveWeek(course, member.role, weekStats, null);
   // R107: the registries come from the course document; the facts from the
   // repositories hydrateUser fills (team and own facts arrive with it).
   const doc = courseDocument(course.id) ?? bareDocument(course);
+  const registry = skillsOf(doc);
+  const cert = certOf(doc);
   const profile = skillProfile({
     course,
     role: member.role,
     memberId: member.memberId,
     isStepDone: (t, s) => progressRepo.isStepComplete(course.id, member.memberId, t, s, keySet),
     evidence: evidenceRepo.getSteps(course.id, member.memberId),
-    artifacts: evidenceRepo.getArtifacts(course.id, member.memberId),
-    registry: skillsOf(doc),
-    cert: certOf(doc),
+    artifacts,
+    registry,
+    cert,
     deliverables: deliverablesOf(doc),
     team: {
       docs: savedDocs ?? {},
@@ -108,13 +116,32 @@ function buildCard(course: Course): CourseCard | null {
     },
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
   });
+  // R109: the sixteen KPIs against the role's default measure, and the work
+  // roles as rows of this course's own document (the export writes their ids).
+  const board = kpiBoard({
+    profile,
+    registry,
+    cert,
+    measure: defaultMeasure(registry, member.role),
+    outcome: { capstoneFiled, weeksCleared: crew.weeksCleared, weeksTotal: crew.weeksTotal },
+    ontologyVersion: ONTOLOGY_VERSION,
+  });
+  const workRoles = (registry.WORK_ROLE_OF[member.role] ?? []).flatMap((id) => registry.WORK_ROLES.filter((w) => w.id === id));
   const entry = entryForCourse(course.id);
   return {
     course,
     member,
     crew,
     metrics,
-    profile,
+    skills: profile,
+    artifacts,
+    board,
+    workRoles,
+    courseId: course.id,
+    title: course.title,
+    role: course.roles.find((r) => r.id === member.role)?.name ?? member.role,
+    stage: crew.stage,
+    examCode: cert.CERT?.code ?? null,
     activeWeek,
     level: entry ? levelDef(entry.level).name : undefined,
     capstoneFiled,
@@ -140,12 +167,25 @@ export default function DashboardPage() {
 
   const needsSignIn = isSupabaseConfigured() && !loading && !user;
   const summary = portfolioSummary(cards.map((c) => c.metrics));
-  const skills = skillPortfolio(cards.map((c) => c.profile));
+  const skills = skillPortfolio(cards.map((c) => c.skills));
+  // R109: two of the sixteen, summed across every capstone started.
+  const boards = cards.map((c) => c.board);
+  const commands = sumKpi(boards, 'kpi.execution.commands-verified');
+  const procedures = sumKpi(boards, 'kpi.procedure.followed-to-standard');
   // The words of the skills surfaces, off the first course's document (they are the same in every document).
   const words = cards[0] ? skillsOf(courseDocument(cards[0].course.id) ?? bareDocument(cards[0].course)) : undefined;
   const completedCourseIds = new Set(cards.filter((c) => c.capstoneFiled).map((c) => c.course.id));
   const path = chosen ? pathById(chosen.pathId) : undefined;
   const memberId = cards[0]?.member.memberId ?? 'local';
+  // R109: the member-profile export and the credential, built by the same
+  // module as the portfolio's (src/lib/memberExport.ts), at the click.
+  const exportInput = (copy: NonNullable<typeof words>['COPY']) => ({ subject: user?.email ?? 'Capstone portfolio', copy, pathId: path?.id ?? null, summary, skills, rows: cards, generatedAt: new Date().toISOString() });
+  async function exportCredential() {
+    if (!words) return;
+    const profile = buildMemberProfile(exportInput(words.COPY));
+    const digest = await sha256Text(profileJson(profile));
+    downloadText(CREDENTIAL_FILENAME, JSON.stringify(buildCredential({ profile, rows: cards, copy: words.COPY, origin: window.location.origin, digest }), null, 2), 'application/json');
+  }
 
   return (
     <div className="space-y-8">
@@ -186,7 +226,7 @@ export default function DashboardPage() {
             <SectionLabel id="dash-record">Your record</SectionLabel>
             {/* One flat strip, not four boxes: a summary should be readable,
                 not the heaviest object on the page. */}
-            <Surface as="dl" variant="flat" padding="none" className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-3">
+            <Surface as="dl" variant="flat" padding="none" className="grid divide-y divide-line sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
             <Stat
               icon={ShieldCheck}
               label="Steps verified"
@@ -225,7 +265,39 @@ export default function DashboardPage() {
             {words && (
               <Stat icon={FileCheck2} label={words.COPY.tiles.toolsUsed} value={`${skills.toolsUsed.length}`} sub={words.COPY.recordTools} />
             )}
+            {/* R109: two of the sixteen KPIs across every capstone. A team fact
+                not handed in says so rather than printing a zero. */}
+            {words && (
+              <Stat
+                icon={Terminal}
+                label={words.COPY.tiles.commandsVerified}
+                value={`${commands.value}`}
+                sub={commands.of > 0 ? `of ${commands.of} ${words.COPY.recordCommands}` : words.COPY.emptyDimension}
+                ring={commands.of > 0 ? { value: commands.value, max: commands.of } : undefined}
+              />
+            )}
+            {words && (
+              <Stat
+                icon={ListChecks}
+                label={words.COPY.tiles.proceduresToStandard}
+                value={procedures.loaded ? `${procedures.value}` : '—'}
+                sub={!procedures.loaded ? words.COPY.loadedLater : procedures.of > 0 ? `of ${procedures.of} ${words.COPY.recordProcedures}` : words.COPY.emptyDimension}
+                ring={procedures.loaded && procedures.of > 0 ? { value: procedures.value, max: procedures.of } : undefined}
+              />
+            )}
             </Surface>
+            {/* R109: the member profile as the document an agent reads, and the credential around it. */}
+            {words && (
+              <DtoChip
+                schema={MEMBER_PROFILE_SCHEMA}
+                version={ONTOLOGY_VERSION}
+                json={() => profileJson(buildMemberProfile(exportInput(words.COPY)))}
+                filename={PROFILE_FILENAME}
+                caption={words.COPY.exportSchemaNote}
+                copy={words.COPY.board}
+                onCredential={exportCredential}
+              />
+            )}
           </section>
 
           {/* R107: the member's skills per course, off the registries. */}
@@ -235,7 +307,7 @@ export default function DashboardPage() {
               <Surface variant="flat" padding="none">
               <ul className="divide-y divide-line">
                 {cards.map((card) => {
-                  const r = card.profile.rows;
+                  const r = card.skills.rows;
                   const reached = (rows: { level: string }[]) => rows.filter((x) => x.level === 'verified' || x.level === 'reviewed').length;
                   return (
                     <li key={card.course.id} className="flex flex-wrap items-baseline gap-x-4 gap-y-1 px-4 py-3 text-sm" data-course={card.course.id}>
@@ -356,10 +428,11 @@ function Stat({
 }
 
 function DashboardCourseCard({ card, index }: { card: CourseCard; index: number }) {
-  const { course, crew, metrics, activeWeek, level, profile } = card;
+  const { course, crew, metrics, activeWeek, level, skills, board } = card;
   const started = crew.stepsDone > 0;
   const words = skillsOf(courseDocument(course.id) ?? bareDocument(course));
-  const skillsVerified = profile.rows.skills.filter((r) => r.level === 'verified' || r.level === 'reviewed').length;
+  const skillsVerified = skills.rows.skills.filter((r) => r.level === 'verified' || r.level === 'reviewed').length;
+  const lastWorked = metrics.lastActivity ? new Date(metrics.lastActivity).toLocaleDateString() : '—';
   return (
     // The interaction standard (ui/Card.tsx): border tint + 2px lift on hover.
     // The card already carried data-region/data-seam for per-vendor theming but
@@ -415,17 +488,18 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
       </div>
       {/* R107: exam domains by level, and the skills verified. */}
       <div className="mt-3">
-        <DomainStrip rows={profile.rows.domains} levelLabel={words.LEVEL_LABEL.domains} heading={words.DIMENSION_LABEL.domains} trailing={`${skillsVerified}/${profile.rows.skills.length} ${words.COPY.skillsByCourse}`} />
+        <DomainStrip rows={skills.rows.domains} levelLabel={words.LEVEL_LABEL.domains} heading={words.DIMENSION_LABEL.domains} trailing={`${skillsVerified}/${skills.rows.skills.length} ${words.COPY.skillsByCourse}`} />
+      </div>
+      {/* R109: the sixteen KPIs as sockets, and the document they come from. */}
+      <div className="mt-4 space-y-2 border-t border-line pt-3">
+        <KpiPack board={board} defs={words.KPIS} families={words.KPI_FAMILIES} copy={words.COPY.board} href={`/courses/${course.id}/skills`} persistenceLabel={words.COPY.abilityLabels.persistence} />
+        <DtoChip schema={board.schema} version={board.ontologyVersion} json={() => JSON.stringify(board, null, 2)} filename={`${course.id}-kpi-board.json`} caption={words.COPY.board.schemaNote} copy={words.COPY.board} />
       </div>
 
-      <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line pt-3 text-center">
-        <Mini label="Steps" value={`${metrics.stepsDone}/${metrics.stepsTotal}`} />
-        <Mini label="Evidence" value={`${metrics.artifacts}`} />
-        <Mini
-          label="Last worked"
-          value={metrics.lastActivity ? new Date(metrics.lastActivity).toLocaleDateString() : '—'}
-        />
-      </dl>
+      {/* The three small figures, one line: the pack above is the card's second reading now. */}
+      <p className="mt-3 font-mono text-2xs text-muted">
+        {metrics.stepsDone}/{metrics.stepsTotal} steps · {metrics.artifacts} evidence · {lastWorked}
+      </p>
 
       {/* The resume pointer. `activeWeek` was always computed here and then
           only used to label the stone — the card never said where you'd pick
@@ -438,20 +512,7 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
             <ArrowRight className="h-4 w-4" />
           </Button>
         </Link>
-        {/* R108: the Skill board, where the sixteen KPIs and the competency map live. */}
-        <Link href={`/courses/${course.id}/skills`} className="text-center text-sm font-medium text-accent hover:underline" data-skill-board-link>
-          {words.COPY.board.title} →
-        </Link>
       </div>
     </motion.div>
-  );
-}
-
-function Mini({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <dt className="text-xs text-muted">{label}</dt>
-      <dd className="text-sm font-semibold text-ink">{value}</dd>
-    </div>
   );
 }
