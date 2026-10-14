@@ -591,6 +591,153 @@ do $$ begin
   end;
 end $$;
 
+-- ── R113: stamps, receipts and re-hash checks ─────────────────────────────
+-- The platform (the service role, as the edge functions run) issues Ada a
+-- stamp and logs a receipt for one step. Nobody reads a stamp; Ada, her
+-- teammate and the instructor read the receipt; no client writes one; a
+-- re-hash check is Ada's own. Nothing is ever rewritten.
+set local role service_role;
+insert into public.verification_stamps (id, user_id, course_id, task_id, stamp, expires_at)
+  values ('00000000-0000-4000-8000-0000000000aa', '00000000-0000-4000-8000-00000000000a',
+          'security-plus', 't1', 'CQ-ABC234', now() + interval '20 minutes');
+insert into public.verification_receipts (user_id, course_id, task_id, step_id, stamp_id, output_sha256, matched_tokens, total_tokens)
+  values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 's1',
+          '00000000-0000-4000-8000-0000000000aa', repeat('b', 64), 3, 3);
+do $$ begin
+  -- The table itself refuses a look-alike symbol, an endless stamp, a partial
+  -- match and a second receipt for one step, whoever writes.
+  begin
+    insert into public.verification_stamps (user_id, course_id, task_id, stamp, expires_at)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 'CQ-ABCDEL', now() + interval '20 minutes');
+    raise exception 'a stamp with a look-alike letter was stored';
+  exception when check_violation then null;
+  end;
+  begin
+    insert into public.verification_stamps (user_id, course_id, task_id, stamp, expires_at)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 'CQ-ABC235', now() + interval '2 days');
+    raise exception 'a stamp that lives for days was stored';
+  exception when check_violation then null;
+  end;
+  begin
+    insert into public.verification_receipts (user_id, course_id, task_id, step_id, stamp_id, output_sha256, matched_tokens, total_tokens)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 's2',
+              '00000000-0000-4000-8000-0000000000aa', repeat('b', 64), 2, 3);
+    raise exception 'a partial match was receipted';
+  exception when check_violation then null;
+  end;
+  begin
+    insert into public.verification_receipts (user_id, course_id, task_id, step_id, stamp_id, output_sha256, matched_tokens, total_tokens)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 's1',
+              '00000000-0000-4000-8000-0000000000aa', repeat('c', 64), 3, 3);
+    raise exception 'one stamp receipted one step twice';
+  exception when unique_violation then null;
+  end;
+end $$;
+reset role;
+
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.rehash_checks (user_id, course_id, sha256, filename, ok)
+  values ('00000000-0000-4000-8000-00000000000a', 'security-plus', repeat('d', 64), '20260112_Team01_Nmap_Scan.xml', true);
+do $$
+declare n int;
+begin
+  assert (select count(*) from public.verification_stamps) = 0, 'ada: no stamp rows, not even her own';
+  assert (select count(*) from public.verification_receipts) = 1, 'ada: reads her receipt';
+  assert (select count(*) from public.rehash_checks) = 1, 'ada: reads her re-hash check';
+  -- No client writes a receipt or a stamp, not even its own…
+  begin
+    insert into public.verification_receipts (user_id, course_id, task_id, step_id, stamp_id, output_sha256, matched_tokens, total_tokens)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 's2',
+              '00000000-0000-4000-8000-0000000000aa', repeat('b', 64), 3, 3);
+    raise exception 'ada wrote her own receipt';
+  exception when insufficient_privilege then null;
+  end;
+  begin
+    insert into public.verification_stamps (user_id, course_id, task_id, stamp, expires_at)
+      values ('00000000-0000-4000-8000-00000000000a', 'security-plus', 't1', 'CQ-ZZZ999', now() + interval '20 minutes');
+    raise exception 'ada issued herself a stamp';
+  exception when insufficient_privilege then null;
+  end;
+  -- …and nothing is rewritten or removed: with no policy the statement
+  -- reaches no row (layer 1; the owner meets the triggers below, layer 2).
+  update public.verification_receipts set receipted_at = now() - interval '1 day';
+  get diagnostics n = row_count;
+  assert n = 0, 'ada rewrote her receipt';
+  delete from public.verification_receipts;
+  get diagnostics n = row_count;
+  assert n = 0, 'ada deleted her receipt';
+  update public.verification_stamps set expires_at = now() + interval '30 minutes';
+  get diagnostics n = row_count;
+  assert n = 0, 'ada extended a stamp';
+  update public.rehash_checks set ok = false;
+  get diagnostics n = row_count;
+  assert n = 0, 'ada rewrote her re-hash check';
+  -- A re-hash check is recorded by its owner, never for someone else.
+  begin
+    insert into public.rehash_checks (user_id, course_id, sha256, filename, ok)
+      values ('00000000-0000-4000-8000-00000000000b', 'security-plus', repeat('d', 64), 'x', true);
+    raise exception 'ada recorded a re-hash check as bob';
+  exception when insufficient_privilege then null;
+  end;
+end $$;
+reset role;
+
+-- Bob (same team) reads the receipt; Cy (other team) and Zed read nothing;
+-- Ivy reads receipts and re-hash checks; nobody but the platform reads stamps.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.verification_receipts) = 1, 'bob: reads his teammate''s receipt';
+  assert (select count(*) from public.verification_stamps) = 0, 'bob: no stamps';
+  assert (select count(*) from public.rehash_checks) = 0, 'bob: never ada''s re-hash checks';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000c';
+do $$ begin
+  assert (select count(*) from public.verification_receipts) = 0, 'cy: never another team''s receipts';
+  assert (select count(*) from public.rehash_checks) = 0, 'cy: never ada''s re-hash checks';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000e';
+do $$ begin
+  assert (select count(*) from public.verification_receipts) = 0, 'zed: no receipts';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(*) from public.verification_receipts) = 1, 'ivy: reads every receipt';
+  assert (select count(*) from public.rehash_checks) = 1, 'ivy: reads every re-hash check';
+  assert (select count(*) from public.verification_stamps) = 0, 'ivy: no stamps either';
+end $$;
+reset role;
+set local role anon;
+set local request.jwt.claim.sub = '';
+do $$ begin
+  assert (select count(*) from public.verification_receipts) = 0, 'anon: no receipts';
+  assert (select count(*) from public.verification_stamps) = 0, 'anon: no stamps';
+end $$;
+reset role;
+
+-- Layer 2: even the table owner hits the append-only triggers.
+do $$ begin
+  begin
+    update public.verification_receipts set receipted_at = now() - interval '1 day';
+    raise exception 'the owner rewrote a receipt';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+  begin
+    update public.rehash_checks set ok = false;
+    raise exception 'the owner rewrote a re-hash check';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+end $$;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null

@@ -17,21 +17,20 @@
 // which is the truth — it does not claim success it didn't achieve.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+// R113: answer the browser preflight, and carry the CORS headers on every reply.
+import { json, preflight } from '../_shared/cors.ts';
 
 Deno.serve(async (req: Request) => {
+  const origin = Deno.env.get('APP_ORIGIN');
+  const pre = preflight(req, origin);
+  if (pre) return pre;
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Method not allowed' }, 405, req, origin);
   }
 
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Missing bearer token' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Missing bearer token' }, 401, req, origin);
   }
 
   const url = Deno.env.get('SUPABASE_URL')!;
@@ -50,23 +49,14 @@ Deno.serve(async (req: Request) => {
   } = await asCaller.auth.getUser();
 
   if (whoami || !user) {
-    return new Response(JSON.stringify({ error: 'Invalid session' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Invalid session' }, 401, req, origin);
   }
 
   const admin = createClient(url, serviceRole);
   const { error } = await admin.auth.admin.deleteUser(user.id);
   if (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: error.message }, 500, req, origin);
   }
 
-  return new Response(JSON.stringify({ deleted: user.id }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return json({ deleted: user.id }, 200, req, origin);
 });

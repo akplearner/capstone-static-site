@@ -15,20 +15,19 @@
 // send arbitrary content.
 
 import { createClient } from 'jsr:@supabase/supabase-js@2';
+// R113: answer the browser preflight, and carry the CORS headers on every reply.
+import { json, preflight } from '../_shared/cors.ts';
 
 Deno.serve(async (req: Request) => {
+  const origin = Deno.env.get('APP_ORIGIN');
+  const pre = preflight(req, origin);
+  if (pre) return pre;
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Method not allowed' }, 405, req, origin);
   }
   const authHeader = req.headers.get('Authorization');
   if (!authHeader?.startsWith('Bearer ')) {
-    return new Response(JSON.stringify({ error: 'Missing bearer token' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Missing bearer token' }, 401, req, origin);
   }
 
   const url = Deno.env.get('SUPABASE_URL')!;
@@ -37,10 +36,7 @@ Deno.serve(async (req: Request) => {
   const to = Deno.env.get('REPORT_EMAIL');
   if (!resendKey || !to) {
     // Deployed but not configured: succeed quietly — the dashboard has the report.
-    return new Response(JSON.stringify({ sent: false }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ sent: false }, 200, req, origin);
   }
 
   const asCaller = createClient(url, anonKey, { global: { headers: { Authorization: authHeader } } });
@@ -48,10 +44,7 @@ Deno.serve(async (req: Request) => {
     data: { user },
   } = await asCaller.auth.getUser();
   if (!user) {
-    return new Response(JSON.stringify({ error: 'Not signed in' }), {
-      status: 401,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return json({ error: 'Not signed in' }, 401, req, origin);
   }
 
   const body = await req.json().catch(() => ({}));
@@ -72,8 +65,5 @@ Deno.serve(async (req: Request) => {
       text: `${who} reported a ${kind} issue on task ${task} (${course}).\n\n${note || '(no note)'}\n\nOpen the cohort dashboard to resolve it.`,
     }),
   });
-  return new Response(JSON.stringify({ sent: res.ok }), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
+  return json({ sent: res.ok }, 200, req, origin);
 });

@@ -42,3 +42,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: PGURL=postgres://postgres:postgres@localhost:5432/postgres bash scripts/db-check.sh
+
+  # The edge functions, on Deno (R113). The shared helpers — the CORS
+  # preflight, the stamp codec and the receipt rules — are pure and unit-tested
+  # here; every function type-checks against the supabase-js the hosted
+  # runtime imports. The vitest suite pins the codec to the client stamp.
+  functions:
+    runs-on: ubuntu-latest
+    env:
+      # The repository's package.json belongs to the Next app; Deno must not resolve it.
+      DENO_NO_PACKAGE_JSON: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno test --no-config supabase/functions/_shared
+      - run: deno check --no-config supabase/functions/*/index.ts

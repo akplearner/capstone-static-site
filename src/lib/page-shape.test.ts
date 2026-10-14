@@ -2770,3 +2770,50 @@ describe('R112 — the funnel and the step friction map', () => {
     expect(read('docs/CURRENT_STATE.md')).toContain('Funnel and step friction');
   });
 });
+
+/**
+ * R113 — verification receipts: the platform issues the stamp and logs the
+ * receipt, the paste never leaves the browser, and nothing claims the machine.
+ */
+describe('R113 — stamps, receipts and re-hash checks', () => {
+  const MIGRATIONS = readdirSync(root('supabase/migrations')).filter((f) => f.endsWith('.sql'));
+  const FUNCTIONS = ['delete-account', 'report-notify', 'stamp', 'receipt'];
+
+  it('stamps are the platform’s alone, receipts are written by nobody but the function, and both stay frozen', () => {
+    const sql = read('supabase/migrations/0014_verification_receipts.sql');
+    for (const n of ['verification_stamps', 'verification_receipts', 'rehash_checks', 'unique (stamp_id, step_id)', "stamp ~ '^CQ-[A-HJKMNP-TV-Z2-9]{6}$'", 'before update on public.verification_receipts', 'before update on public.rehash_checks']) expect(sql, n).toContain(n);
+    expect(sql, 'the 0003 honesty note ships with the tables').toContain('does not prove a command ran on a real machine');
+    for (const f of MIGRATIONS) {
+      const lower = read(`supabase/migrations/${f}`).toLowerCase();
+      expect(lower, `${f}: no policy at all on stamps`).not.toMatch(/create policy [^;]*on public\.verification_stamps/);
+      expect(lower, `${f}: no client writes a receipt`).not.toMatch(/create policy [^;]*on public\.verification_receipts for (insert|update|delete|all)/);
+      expect(lower, `${f}: a re-hash check is never rewritten`).not.toMatch(/create policy [^;]*on public\.rehash_checks for (update|delete|all)/);
+    }
+    expect(existsSync('supabase/migrations/0013_events.sql'), 'the events table is still a later round').toBe(false);
+    const rls = read('supabase/tests/rls.sql');
+    for (const a of ['ada: no stamp rows, not even her own', 'ada wrote her own receipt', "bob: reads his teammate''s receipt", "cy: never another team''s receipts", 'the owner rewrote a receipt', 'one stamp receipted one step twice']) expect(rls, a).toContain(a);
+  });
+
+  it('every function answers the preflight, and the receipt function cannot accept pasted text', () => {
+    for (const f of FUNCTIONS) {
+      const src = code(`supabase/functions/${f}/index.ts`);
+      expect(src, `${f} uses the shared CORS helper`).toContain("from '../_shared/cors.ts'");
+      expect(src, `${f} answers OPTIONS before auth`).toContain('preflight(req, origin)');
+      expect(src, `${f}: every reply carries the headers`).not.toContain('new Response(');
+    }
+    const receipt = code('supabase/functions/receipt/index.ts');
+    expect(receipt).toContain('receiptProblem(body)');
+    expect(receipt, 'no text field is ever read').not.toMatch(/\.(output|snapshot|paste|text)\b|\[['"](output|snapshot|paste|text)['"]\]/);
+    const codec = code('supabase/functions/_shared/stampCodec.ts');
+    expect(codec, 'unknown fields are refused, not ignored').toContain('RECEIPT_KEYS');
+    expect(codec, 'pure: no Deno API').not.toContain('Deno.');
+    const stamp = code('supabase/functions/stamp/index.ts');
+    expect(stamp, 'the caller comes from the token').toContain('asCaller.auth.getUser()');
+    expect(stamp, 'only a member of the course gets a stamp').toContain("'not-enrolled'");
+    const ci = read('.github/workflows/ci.yml');
+    expect(ci).toContain('deno test --no-config supabase/functions/_shared');
+    expect(ci).toContain('deno check --no-config supabase/functions/*/index.ts');
+    const setup = read('SUPABASE_SETUP.md');
+    for (const n of ['verification_receipts', 'rehash_checks', 'APP_ORIGIN']) expect(setup, n).toContain(n);
+  });
+});

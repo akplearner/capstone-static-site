@@ -53,8 +53,8 @@ halfway down, under Table Editor). Click it.
 
 1. Click **New query** (top left of that panel).
 2. Open the file **`supabase/setup.sql`** from this repository, select all of it,
-   and paste it into the query box. It is long — around 400 lines. That is
-   expected; paste the whole thing.
+   and paste it into the query box. It is long — well over a thousand lines.
+   That is expected; paste the whole thing.
 3. Click **Run** (bottom right, or Ctrl/Cmd + Enter).
 
 You should see **"Success. No rows returned."** in the results panel. That *is*
@@ -331,6 +331,12 @@ supabase secrets set SERVICE_ROLE_KEY=<service_role key>
 Until this is deployed, `/account` still deletes all of a student's work and then
 honestly reports that the login itself could not be removed.
 
+Every function answers the browser's preflight request itself. To limit which
+site may call them, also set the optional `APP_ORIGIN` secret to your site's
+address (`supabase secrets set APP_ORIGIN=https://<your-site>`); without it a
+function echoes the caller's origin, which is safe because each one still
+requires the caller's own sign-in token.
+
 ## Live teammate updates
 
 Teammates seeing each other's progress update without refreshing is already
@@ -423,6 +429,9 @@ Still worth ten minutes on the live site before real students:
 | Agreement acknowledgements | your own log (with the hash of the text accepted); staff read everyone's — nobody edits or deletes a row |
 | Consent grants (`consent_grants`) | **you only**; append-only (a change of mind is a new row); the platform's own functions read the current answer through `has_consent()` |
 | Learner outcomes (`learner_outcomes`) | **you only**; append-only; instructors get `outcome_counts(course)` — counts per status, and no rows at all below five members |
+| Verification stamps (`verification_stamps`) | **nobody but the platform**: the `stamp` and `receipt` functions read and write them as the service role; you see your own live stamp in the app |
+| Verification receipts (`verification_receipts`) | you, your teammates and the instructor; written only by the `receipt` function (the stamp, the step, the output's hash and the counts, never pasted output); nobody edits one |
+| Re-hash checks (`rehash_checks`) | you and the instructor; you record your own; append-only |
 | Instructor reviews of a form | your team (read); the instructor writes |
 | Cohort calendar (start date) | anyone signed in (read); the instructor writes |
 | The course document | anyone signed in (read); **the admin** writes |
