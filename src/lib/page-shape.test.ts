@@ -511,6 +511,8 @@ describe('design tokens — palette classes do not come back', () => {
       // Machine metadata inside a downloaded JSON export.
       'src/app/account/page.tsx',
       'src/app/portfolio/page.tsx',
+      // R109: the dashboard stamps the same export (built by src/lib/memberExport.ts, which reads no clock).
+      'src/app/dashboard/page.tsx',
     ]);
     const offenders = collectSourceFiles('src').filter(
       (f) => !WIRE.test(f) && !ALLOWED.has(f) && /toISOString\(\)/.test(code(f))
@@ -2363,8 +2365,9 @@ describe('R107 — skills, tools, standards and the member profile', () => {
     expect(code('src/app/dashboard/page.tsx')).toContain('data-skills-by-course');
     const portfolio = code('src/app/portfolio/page.tsx');
     expect(portfolio).toContain('<SkillsSections ');
-    expect(portfolio).toContain('schema: MEMBER_PROFILE_SCHEMA');
-    expect(portfolio).toContain('signature: null');
+    // R109: the export is built in one place; the page only downloads it.
+    expect(code('src/lib/memberExport.ts')).toContain('schema: MEMBER_PROFILE_SCHEMA');
+    expect(code('src/lib/memberExport.ts')).toContain('signature: null');
     expect(code('src/lib/docs/ontology.ts')).toContain("MEMBER_PROFILE_SCHEMA = 'capstone-member-profile/1'");
     expect(code('src/app/page.tsx')).not.toContain('the output they printed');
     // The cross-course hydrate reads the four tables the profile needs and never the single-user ones.
@@ -2483,8 +2486,13 @@ describe('R108 — the skill board, the KPI board, the profiles and the cohort r
     for (const f of ['src/components/skills/SkillsCard.tsx', 'src/components/team/EngagementStatus.tsx', 'src/app/dashboard/page.tsx']) expect(code(f), f).toContain('/skills`');
     expect(code('src/lib/search.ts')).toContain('skills:${course.id}');
     const portfolio = code('src/app/portfolio/page.tsx');
-    for (const n of ['<KpiTable ', 'exportCredential', 'signature: null', 'kpis: r.board.kpis', 'workRoles: r.workRoles', 'OpenBadgeCredential', 'sha256Text(']) expect(portfolio, n).toContain(n);
+    for (const n of ['<KpiTable ', 'exportCredential', 'sha256Text(', 'buildMemberProfile(', 'buildCredential(', 'downloadText(']) expect(portfolio, n).toContain(n);
     expect(portfolio, 'unsigned by construction').not.toMatch(/\bproof\s*:/);
+    expect(portfolio, 'the one download helper').not.toContain('URL.createObjectURL');
+    // R109: the shapes live in the shared builder.
+    const exp = code('src/lib/memberExport.ts');
+    for (const n of ['signature: null', 'kpis: r.board.kpis', 'workRoles: r.workRoles', 'OpenBadgeCredential']) expect(exp, n).toContain(n);
+    expect(exp, 'unsigned by construction').not.toMatch(/\bproof\s*:/);
     expect(read('content/schemas/credential.schema.json')).not.toContain('"proof"');
     expect(code('src/components/ui/PageHeader.tsx'), 'a third button wraps at phone width').toContain('max-w-full');
     const cache = code('src/lib/data/supabaseCache.ts');

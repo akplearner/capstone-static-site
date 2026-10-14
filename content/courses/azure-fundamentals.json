@@ -7131,6 +7131,8 @@
         "skillsByCourse": "skills verified",
         "recordSkills": "of practised",
         "recordTools": "tools used",
+        "recordCommands": "checkable command steps",
+        "recordProcedures": "procedures followed",
         "exportClaim": "This export lists steps the member ticked and verified, hashes of outputs and files, and documents the team filed. It is unsigned.",
         "exportSchemaNote": "The shape is published as content/schemas/member-profile.schema.json.",
         "portfolioSections": {
@@ -7145,7 +7147,9 @@
         "tiles": {
           "skillsVerified": "Skills verified",
           "toolsUsed": "Tools used",
-          "kpiBoard": "Skill board"
+          "kpiBoard": "Skill board",
+          "commandsVerified": "Commands verified",
+          "proceduresToStandard": "Procedures to standard"
         },
         "board": {
           "title": "Skill board",
@@ -7199,6 +7203,16 @@
             "inProgress": "In progress",
             "complete": "Complete",
             "noDenominator": "No denominator"
+          },
+          "packTitle": "Sixteen KPIs",
+          "packIdle": "Hover or focus a socket to read it.",
+          "packKeys": "Arrow keys move between sockets. Enter pins the read-out.",
+          "download": "Download JSON",
+          "familyShort": {
+            "ability": "Ability",
+            "execution": "Execution",
+            "procedure": "Procedure",
+            "outcome": "Outcome"
           }
         }
       },

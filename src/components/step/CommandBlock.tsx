@@ -3,11 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { AlertTriangle, Check, ChevronDown, ChevronUp, Copy, CornerDownRight, Eye } from 'lucide-react';
+import { AlertTriangle, ChevronDown, ChevronUp, CornerDownRight, Eye } from 'lucide-react';
 import { useLabAccess, useIacTool, fillPlaceholders, hasLabAccess, hasUnfilled, labProfile } from '@/lib/labAccess';
 import { commandFor } from '@/lib/iacTool';
 import { splitCommand } from '@/lib/commands';
-import { toast } from '@/components/ui/Toast';
+import { CopyButton } from '@/components/ui/CopyButton';
+// R109: the button moved to ui/ so a chip can import it without this file's lab-access graph; re-exported for its importers.
+export { CopyButton };
 import { MachineChip } from '@/components/MachineChip';
 import { MACHINES, shellPrompt, type MachineId } from '@/lib/serverTopology';
 
@@ -246,31 +248,3 @@ function CommandRow({ c, index, multi }: { c: CommandEntry; index: number; multi
   );
 }
 
-export function CopyButton({ text, label = 'Copy' }: { text: string; label?: string }) {
-  const [copied, setCopied] = React.useState(false);
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard?.writeText(text);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    } catch {
-      toast({ message: 'Could not copy — select the text and copy manually.', variant: 'error' });
-    }
-  };
-
-  return (
-    <button
-      type="button"
-      onClick={handleCopy}
-      aria-label={copied ? 'Copied to clipboard' : label}
-      className="inline-flex items-center gap-1 rounded bg-accent px-2 py-1 text-xs text-accent-contrast hover:bg-accent-strong"
-    >
-      {copied ? <Check className="h-3 w-3" aria-hidden /> : <Copy className="h-3 w-3" aria-hidden />}
-      <span aria-hidden>{copied ? 'Copied' : label}</span>
-      <span role="status" className="sr-only">
-        {copied ? 'Copied to clipboard' : ''}
-      </span>
-    </button>
-  );
-}

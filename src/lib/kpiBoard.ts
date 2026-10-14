@@ -166,3 +166,36 @@ export function kpiBoard(input: KpiBoardInput): KpiBoard {
 export function weeksLine(outcome: KpiBoardInput['outcome']): { value: number; of: number } {
   return { value: outcome.weeksCleared, of: outcome.weeksTotal };
 }
+
+/**
+ * R109 — the measure a surface uses when nobody picked one: the first work
+ * role the course role prepares for, or a `role.none` sentinel with no
+ * requirements when the course maps none. The board page, the portfolio, the
+ * Home card and the dashboard all start here.
+ */
+export function defaultMeasure(registry: Pick<SkillsContent, 'WORK_ROLES' | 'WORK_ROLE_OF'>, role: string): MeasureAgainst {
+  const firstId = (registry.WORK_ROLE_OF[role] ?? [])[0];
+  const first = registry.WORK_ROLES.find((w) => w.id === firstId);
+  return first ? workRoleMeasure(first) : { kind: 'work-role', id: 'role.none', label: '—', requiredCompetencies: [] };
+}
+
+/**
+ * R109 — one KPI summed across boards (the dashboard's cross-course totals).
+ * A board whose row was not loaded is left out and makes `loaded` false, so a
+ * total never prints a zero that was not measured.
+ */
+export function sumKpi(boards: KpiBoard[], id: string): { value: number; of: number; loaded: boolean } {
+  let value = 0;
+  let of = 0;
+  let loaded = true;
+  for (const b of boards) {
+    const k = b.kpis.find((x) => x.id === id);
+    if (!k || !k.loaded) {
+      loaded = false;
+      continue;
+    }
+    value += k.value;
+    of += k.of;
+  }
+  return { value, of, loaded };
+}

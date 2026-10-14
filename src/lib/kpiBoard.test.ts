@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { KPI_BOARD_SCHEMA, kpiBoard, profileCoverage, profileMeasure, workRoleMeasure, type KpiBoardInput } from './kpiBoard';
+import { KPI_BOARD_SCHEMA, defaultMeasure, kpiBoard, profileCoverage, profileMeasure, sumKpi, workRoleMeasure, type KpiBoardInput } from './kpiBoard';
 import { skillProfile, type SkillProfileInput } from './skillProfile';
 import { courseDto } from './content/dto';
 import { certOf, deliverablesOf, skillsOf } from './content/read';
@@ -141,5 +141,29 @@ describe('kpiBoard', () => {
         expect(k.value, id).toBeLessThanOrEqual(k.of);
       }
     }
+  });
+
+  // R109: the default measure every surface starts from, and the cross-course sum the dashboard prints.
+  it('defaultMeasure is the role’s first work role, and a sentinel with no requirements when none is mapped', () => {
+    expect(defaultMeasure(registry, role)).toEqual(measure);
+    const none = defaultMeasure(registry, 'nobody');
+    expect(none).toEqual({ kind: 'work-role', id: 'role.none', label: '—', requiredCompetencies: [] });
+    expect(boardOf(profileOf(), { measure: none }).measuredAgainst).toEqual({ kind: 'work-role', id: 'role.none', label: '—', required: 0, untaught: 0 });
+  });
+
+  it('sumKpi adds value and denominator across boards, leaves a board whose row was not loaded out, and says so', () => {
+    const a = boardOf(profileOf({ done: [checkable[0]], evidence: { [checkable[0]]: verified(checkable[0], 1_000) } }));
+    const b = boardOf(profileOf({ done: checkable.slice(0, 3), evidence: Object.fromEntries(checkable.slice(0, 3).map((k, i) => [k, verified(k, 1_000 + i)])) }));
+    const id = 'kpi.execution.commands-verified';
+    const ka = a.kpis.find((k) => k.id === id)!;
+    const kb = b.kpis.find((k) => k.id === id)!;
+    expect(sumKpi([a, b], id)).toEqual({ value: ka.value + kb.value, of: ka.of + kb.of, loaded: true });
+    expect(sumKpi([], id)).toEqual({ value: 0, of: 0, loaded: true });
+    const alone = boardOf(profileOf());
+    const withTeam = boardOf(profileOf({ team: { docs: {}, status: [], submissions: [], reviews: [], currentWeek: 1 } }), { outcome: { capstoneFiled: true, weeksCleared: 1, weeksTotal: 4 } });
+    const filed = 'kpi.outcome.capstone-filed';
+    expect(alone.kpis.find((k) => k.id === filed)!.loaded).toBe(false);
+    expect(sumKpi([alone, withTeam], filed)).toEqual({ value: 1, of: 1, loaded: false });
+    expect(sumKpi([withTeam], 'kpi.nobody')).toEqual({ value: 0, of: 0, loaded: false });
   });
 });

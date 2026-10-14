@@ -1,4 +1,5 @@
 import type { Dimension } from './metricCatalogue';
+import type { KpiFamily } from './kpis';
 
 /**
  * R107 — every sentence the skills surfaces print: the Home card, the
@@ -47,6 +48,7 @@ export const LEVEL_LABEL: Record<Dimension, Record<SkillLevel, string>> = {
 };
 
 export type BoardCopy = (typeof SKILLS_COPY)['board'];
+export type SkillsCopy = typeof SKILLS_COPY;
 
 export const SKILLS_COPY = {
   cardTitle: 'Skills',
@@ -96,6 +98,9 @@ export const SKILLS_COPY = {
   skillsByCourse: 'skills verified',
   recordSkills: 'of practised',
   recordTools: 'tools used',
+  /** R109: the dashboard's two cross-course KPI totals. */
+  recordCommands: 'checkable command steps',
+  recordProcedures: 'procedures followed',
   exportClaim: 'This export lists steps the member ticked and verified, hashes of outputs and files, and documents the team filed. It is unsigned.',
   exportSchemaNote: 'The shape is published as content/schemas/member-profile.schema.json.',
   portfolioSections: {
@@ -107,7 +112,7 @@ export const SKILLS_COPY = {
     tactics: 'Tactics and practices',
   },
   dashboardSection: 'Skills by course',
-  tiles: { skillsVerified: 'Skills verified', toolsUsed: 'Tools used', kpiBoard: 'Skill board' },
+  tiles: { skillsVerified: 'Skills verified', toolsUsed: 'Tools used', kpiBoard: 'Skill board', commandsVerified: 'Commands verified', proceduresToStandard: 'Procedures to standard' },
   /** R108: the Skill board page, its tiles, the constellation, the cohort report. */
   board: {
     title: 'Skill board',
@@ -143,5 +148,11 @@ export const SKILLS_COPY = {
     cohortLede: 'Counts per band for the members shown; nobody is ranked; team facts are judged through the review week.',
     cohortColumns: ['KPI', 'Family', 'Fact', 'Members', 'Not started', 'In progress', 'Complete', 'No denominator', 'Sum'] as string[],
     bands: { notStarted: 'Not started', inProgress: 'In progress', complete: 'Complete', noDenominator: 'No denominator' },
+    /** R109: the KPI pack on the Home card and the dashboard card, and the DTO chip beside it. */
+    packTitle: 'Sixteen KPIs',
+    packIdle: 'Hover or focus a socket to read it.',
+    packKeys: 'Arrow keys move between sockets. Enter pins the read-out.',
+    download: 'Download JSON',
+    familyShort: { ability: 'Ability', execution: 'Execution', procedure: 'Procedure', outcome: 'Outcome' } as Record<KpiFamily, string>,
   },
 };

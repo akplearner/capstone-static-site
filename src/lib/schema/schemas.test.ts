@@ -11,7 +11,8 @@ import { kpiBoard, workRoleMeasure } from '../kpiBoard';
 import { portfolioSummary, courseMetrics } from '../metrics';
 import { SEED_COURSES, courseDto } from '../content/dto';
 import { certOf, deliverablesOf, skillsOf } from '../content/read';
-import { MEMBER_PROFILE_SCHEMA, ONTOLOGY_VERSION } from '../docs/ontology';
+import { ONTOLOGY_VERSION } from '../docs/ontology';
+import { buildMemberProfile } from '../memberExport';
 import { WORK_ROLES } from '../docs/workRoles';
 import { sampleProfiles } from '../content/profiles';
 
@@ -70,17 +71,18 @@ describe('content/schemas — the published shapes validate', () => {
     });
     expect(validate(profile, schema('skill-profile'))).toEqual([]);
     const metrics = courseMetrics({ course, role, taskPercent: {}, evidence: {}, artifacts: [] });
-    const exported = {
-      schema: MEMBER_PROFILE_SCHEMA,
-      ontologyVersion: ONTOLOGY_VERSION,
+    const registry = skillsOf(doc);
+    const board = kpiBoard({ profile, registry, cert: certOf(doc), measure: workRoleMeasure(registry.WORK_ROLES[0]), outcome: { capstoneFiled: false, weeksCleared: 0, weeksTotal: 4 }, ontologyVersion: ONTOLOGY_VERSION });
+    // R109: the export is built by the one builder both pages share.
+    const exported = buildMemberProfile({
+      subject: 'me',
+      copy: registry.COPY,
+      pathId: null,
+      summary: portfolioSummary([metrics]),
+      skills: skillPortfolio([profile]),
+      rows: [{ courseId: course.id, title: course.title, role: course.roles[0].name, stage: 0, capstoneFiled: false, metrics, skills: profile, artifacts: [{ courseId: course.id, sha256: 'a'.repeat(64), filename: 'x', sizeBytes: 1, nameOk: false, hashedAt: 1 }], workRoles: (registry.WORK_ROLE_OF[role] ?? []).flatMap((id) => registry.WORK_ROLES.filter((w) => w.id === id)), board, examCode: certOf(doc).CERT?.code ?? null }],
       generatedAt: '2026-10-13T00:00:00.000Z',
-      subject: { display: 'me' },
-      claim: skillsOf(doc).COPY.exportClaim,
-      path: null,
-      summary: { ...portfolioSummary([metrics]), ...skillPortfolio([profile]) },
-      courses: [{ courseId: course.id, title: course.title, role: course.roles[0].name, stage: 0, capstoneFiled: false, metrics, skills: profile, artifacts: [{ courseId: course.id, sha256: 'a'.repeat(64), filename: 'x', sizeBytes: 1, nameOk: false, hashedAt: 1 }], workRoles: skillsOf(doc).WORK_ROLE_OF[role] ?? [], kpis: kpiBoard({ profile, registry: skillsOf(doc), cert: certOf(doc), measure: workRoleMeasure(skillsOf(doc).WORK_ROLES[0]), outcome: { capstoneFiled: false, weeksCleared: 0, weeksTotal: 4 }, ontologyVersion: ONTOLOGY_VERSION }).kpis }],
-      signature: null,
-    };
+    });
     expect(validate(exported, schema('member-profile'))).toEqual([]);
     expect(validate({ ...exported, signature: 'signed' }, schema('member-profile'))).not.toEqual([]);
     expect(validate({ ...exported, schema: 'other/1' }, schema('member-profile'))).not.toEqual([]);

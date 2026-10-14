@@ -22,7 +22,7 @@ import type { DeliverableStatus } from '@/lib/docs/lifecycle';
 import type { EnvironmentProfile } from '@/lib/docs/environmentProfile';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { skillProfile } from '@/lib/skillProfile';
-import { kpiBoard, profileMeasure, workRoleMeasure, type MeasureAgainst } from '@/lib/kpiBoard';
+import { defaultMeasure, kpiBoard, profileMeasure, workRoleMeasure, type MeasureAgainst } from '@/lib/kpiBoard';
 import { skymapLayout } from '@/lib/skymap';
 import { getImportedProfile, readProfileFile, setImportedProfile } from '@/lib/importedProfile';
 import { deriveCrewProgress } from '@/lib/game';
@@ -115,7 +115,7 @@ export default function SkillBoardPage() {
     ...(imported ? [profileMeasure(imported, workRoleIds)] : []),
     ...sampleProfiles().filter((p) => p.id !== imported?.id).map((p) => profileMeasure(p, workRoleIds)),
   ];
-  const measure = options.find((o) => o.id === measureId) ?? options[0] ?? { kind: 'work-role' as const, id: 'role.none', label: '—', requiredCompetencies: [] };
+  const measure = options.find((o) => o.id === measureId) ?? options[0] ?? defaultMeasure(registry, member.role);
   const board = kpiBoard({ profile, registry, cert, measure, outcome: { capstoneFiled, weeksCleared: crew.weeksCleared, weeksTotal: crew.weeksTotal }, ontologyVersion: ONTOLOGY_VERSION });
   const layout = skymapLayout(profile.rows.skills, registry.AREAS, getTasksByRole(course, member.role).filter((t) => !isSetupWeek(course, t.week)).map((t) => t.id));
   const hero = { value: board.kpis[0].value, of: board.kpis[0].of };

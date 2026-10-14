@@ -5,7 +5,7 @@ import type { DeliverableStatus } from './docs/lifecycle';
 import type { CertContent, SkillsContent } from './content/read';
 import type { KpiFact, KpiFamily } from './docs/kpis';
 import { skillProfile } from './skillProfile';
-import { kpiBoard, workRoleMeasure, type KpiValue, type MeasureAgainst } from './kpiBoard';
+import { defaultMeasure, kpiBoard, type KpiValue } from './kpiBoard';
 import { isDeliverableFiled } from './deliverableChain';
 import { getTasksByRole, isGradedWeek } from './course-helpers';
 import { toCsv } from './csv';
@@ -103,12 +103,6 @@ function fold(group: CohortKpiGroup, kpis: KpiValue[]) {
   });
 }
 
-/** The default measure for a course role: its first work role; a profile-free measure when none is mapped. */
-function measureFor(registry: SkillsContent, role: string): MeasureAgainst {
-  const first = (registry.WORK_ROLE_OF[role] ?? [])[0];
-  const wr = registry.WORK_ROLES.find((w) => w.id === first);
-  return wr ? workRoleMeasure(wr) : { kind: 'work-role', id: 'role.none', label: 'No work role mapped', requiredCompetencies: [] };
-}
 
 export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
   const { course, week, roster, registry, cert, deliverables, facts } = input;
@@ -137,7 +131,7 @@ export function cohortKpiReport(input: CohortKpiInput): CohortKpiReport {
       profile,
       registry,
       cert,
-      measure: measureFor(registry, m.role),
+      measure: defaultMeasure(registry, m.role),
       outcome: { capstoneFiled: !!capstone && isDeliverableFiled(docs[capstone.id]), weeksCleared: cleared.length, weeksTotal: gradedWeeks.length },
       ontologyVersion: input.ontologyVersion,
     });
