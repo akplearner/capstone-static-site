@@ -56,8 +56,10 @@ function RegisterInner() {
       </ul>
 
       <p className="mt-4 text-center text-xs text-muted">
-        By continuing you agree to our{' '}
-        <Link href="/legal/terms" className="underline hover:text-ink">Terms</Link> and{' '}
+        Every account accepts the platform agreements right after its first sign-in, before the
+        platform can be used:{' '}
+        <Link href="/legal/terms" className="underline hover:text-ink">Terms</Link>,{' '}
+        <Link href="/legal/aup" className="underline hover:text-ink">Acceptable Use</Link> and{' '}
         <Link href="/legal/privacy" className="underline hover:text-ink">Privacy Policy</Link>.
       </p>
     </div>

@@ -504,6 +504,93 @@ do $$ begin
   end;
 end $$;
 
+-- ── R110: the text hash, consent grants and outcomes ───────────────────────
+-- Ada records which text she accepted, turns the outcome grant on, then off
+-- again, and answers the outcome questions. Everything is hers alone, nothing
+-- is ever rewritten, and the aggregate stays silent below five members.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000a';
+insert into public.agreement_acceptances (user_id, agreement_id, version, text_sha256)
+  values ('00000000-0000-4000-8000-00000000000a', 'aup', 2, repeat('a', 64));
+do $$ begin
+  begin
+    insert into public.agreement_acceptances (user_id, agreement_id, version, text_sha256)
+      values ('00000000-0000-4000-8000-00000000000a', 'lab', 2, 'not-a-hash');
+    raise exception 'ada logged a malformed text hash';
+  exception when check_violation then null;
+  end;
+end $$;
+insert into public.consent_grants (user_id, grant_id, granted)
+  values ('00000000-0000-4000-8000-00000000000a', 'outcome', true);
+insert into public.consent_grants (user_id, grant_id, granted)
+  values ('00000000-0000-4000-8000-00000000000a', 'outcome', false);
+insert into public.learner_outcomes (user_id, status, role_title, employer, started_on, used_at_work)
+  values ('00000000-0000-4000-8000-00000000000a', 'searching', 'SOC analyst', 'Example Ltd', '2026-10', '{"security-plus": true}');
+do $$
+declare n int;
+begin
+  assert (select count(*) from public.consent_grants) = 2, 'ada: a grant and a revocation are two rows';
+  assert (select count(*) from public.learner_outcomes) = 1, 'ada: reads her own outcome row';
+  -- Nobody consents for someone else…
+  begin
+    insert into public.consent_grants (user_id, grant_id, granted)
+      values ('00000000-0000-4000-8000-00000000000b', 'outcome', true);
+    raise exception 'ada consented as bob';
+  exception when insufficient_privilege or check_violation then null;
+  end;
+  -- …and nobody rewrites a grant or an answer: with no update policy the
+  -- statement reaches no row at all (layer 1), and the trigger below RLS is
+  -- proved as the owner further down (layer 2).
+  update public.consent_grants set granted = true where grant_id = 'outcome';
+  get diagnostics n = row_count;
+  assert n = 0, 'ada rewrote her consent log';
+  update public.learner_outcomes set status = 'placed';
+  get diagnostics n = row_count;
+  assert n = 0, 'ada rewrote her outcome row';
+  -- The consent helper is the platform's, not a member's.
+  begin
+    perform public.has_consent('00000000-0000-4000-8000-00000000000b', 'outcome');
+    raise exception 'ada read bob''s consent through the helper';
+  exception when insufficient_privilege then null;
+  end;
+  -- A member gets no counts at all.
+  assert (select count(*) from public.outcome_counts('security-plus')) = 0, 'ada: no outcome counts for a member';
+end $$;
+reset role;
+
+-- Bob sees none of it; Ivy sees no rows and, below five answers, no counts.
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000b';
+do $$ begin
+  assert (select count(*) from public.consent_grants) = 0, 'bob: never ada''s consents';
+  assert (select count(*) from public.learner_outcomes) = 0, 'bob: never ada''s outcomes';
+end $$;
+reset role;
+set local role authenticated;
+set local request.jwt.claim.sub = '00000000-0000-4000-8000-00000000000d';
+do $$ begin
+  assert (select count(*) from public.consent_grants) = 0, 'ivy: no consent rows, ever';
+  assert (select count(*) from public.learner_outcomes) = 0, 'ivy: no outcome rows, only counts';
+  assert (select count(*) from public.outcome_counts('security-plus')) = 0, 'ivy: the k floor holds below five answers';
+end $$;
+reset role;
+
+-- Layer 2: even the table owner hits the append-only triggers.
+do $$ begin
+  begin
+    update public.consent_grants set granted = true where grant_id = 'outcome';
+    raise exception 'the owner rewrote a consent row';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+  begin
+    update public.learner_outcomes set status = 'placed';
+    raise exception 'the owner rewrote an outcome row';
+  exception when others then
+    if sqlerrm not like '%append-only%' then raise; end if;
+  end;
+end $$;
+
 -- ── Signed out (anon key, no session) ───────────────────────────────────────
 set local role anon;
 set local request.jwt.claim.sub = '';  -- no session: auth.uid() is null

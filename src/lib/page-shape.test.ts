@@ -513,6 +513,8 @@ describe('design tokens — palette classes do not come back', () => {
       'src/app/portfolio/page.tsx',
       // R109: the dashboard stamps the same export (built by src/lib/memberExport.ts, which reads no clock).
       'src/app/dashboard/page.tsx',
+      // R110: the device's acknowledgement log, as rows for the account export (the cloud rows are already ISO strings).
+      'src/lib/legal/acceptances.ts',
     ]);
     const offenders = collectSourceFiles('src').filter(
       (f) => !WIRE.test(f) && !ALLOWED.has(f) && /toISOString\(\)/.test(code(f))
@@ -2599,5 +2601,78 @@ describe('R109 — the KPI pack and the DTO chips', () => {
     expect(read('docs/OPERATIONS.md')).toContain('(R109)');
     expect(read('docs/CURRENT_STATE.md')).toContain('KPI pack');
     expect(read('docs/VALUE_REGISTER.md')).toContain('KpiPack');
+  });
+});
+
+/**
+ * R110 — the acceptance gate, consent and outcomes: the agreements carry the
+ * sandbox and liability clause at version 2 and the AUP has a page; the gate
+ * lets the legal pages be read and names what changed; the log records which
+ * text was accepted; consent and outcomes are append-only, personal, and the
+ * only aggregate is a floored count; the legal pages say so.
+ */
+describe('R110 — the acceptance gate, consent and outcomes', () => {
+  it('the agreements say sandbox and liability at version 2, and the AUP has its own public page', () => {
+    const reg = code('src/lib/legal/agreements.ts');
+    for (const id of ['terms', 'aup', 'lab', 'privacy']) expect(reg, `${id} is at version 2`).toMatch(new RegExp(`id: '${id}',\\s*version: 2`));
+    expect(reg).toContain("link: '/legal/aup'");
+    expect(reg).toContain('sandbox you control');
+    expect(reg).toContain('not liable for any cause, implementation, overcharge, misuse or consequence');
+    expect(code('src/app/legal/aup/page.tsx')).toContain('<LegalPage');
+    expect(code('src/app/legal/aup/page.tsx')).toContain('Costs, misuse and consequences');
+    expect(code('src/app/sitemap.ts')).toContain("'/legal/aup'");
+    expect(code('src/components/SiteFooter.tsx')).toContain('/legal/aup');
+    for (const f of ['src/app/login/page.tsx', 'src/app/register/page.tsx']) expect(code(f), f).toContain('/legal/aup');
+    const terms = code('src/app/legal/terms/page.tsx');
+    expect(terms).toContain('Sandbox and liability');
+    expect(terms, 'explicit re-acceptance, not use-as-acceptance').not.toContain('Continuing to use the service after a change');
+    expect(terms).toContain('presented again at your next sign-in');
+    const privacy = code('src/app/legal/privacy/page.tsx');
+    for (const n of ['Consent grants', 'Links you create', 'Google or GitHub', 'never the pasted']) expect(privacy, n).toContain(n);
+  });
+
+  it('the gate lets the legal pages be read, names what changed, and the log records the text', () => {
+    const gate = code('src/components/legal/AgreementGate.tsx');
+    expect(gate).toContain('usePathname()');
+    expect(gate).toContain("startsWith('/legal')");
+    expect(gate).toContain('AGREEMENTS.length');
+    expect(gate).not.toContain('Five short agreements');
+    expect(gate).toContain('missing.map((a) => a.title)');
+    const acc = code('src/lib/legal/acceptances.ts');
+    expect(acc).toContain('text_sha256');
+    expect(acc).toContain('export function agreementTextHash(');
+    expect(acc).toContain('export async function fetchCloudAcceptanceLog(');
+    expect(code('src/components/auth/ImportPrompt.tsx'), 'offline acceptances carry over at first sign-in').toContain('acceptInCloud(');
+    expect(code('src/app/account/page.tsx')).toContain('agreements,');
+  });
+
+  it('consent and outcomes are append-only and personal, and the only aggregate is floored', () => {
+    const sql = read('supabase/migrations/0013_consent_outcomes.sql');
+    const lower = sql.toLowerCase();
+    for (const n of ['text_sha256', 'consent_grants', 'learner_outcomes', 'outcome_counts', 'has_consent', 'n.total >= 5', 'clock_timestamp()']) expect(sql, n).toContain(n);
+    expect(lower).not.toMatch(/create policy [^;]*(consent_grants|learner_outcomes) for (update|delete)/);
+    expect(lower, 'no instructor read on either table').not.toMatch(/create policy [^;]*(consent_grants|learner_outcomes) for select[^;]*is_instructor/);
+    expect(sql).toContain("grant_id in ('share-employer', 'benchmark', 'outcome')");
+    expect(sql, 'the consent helper is the platform’s').toContain('revoke execute on function public.has_consent(uuid, text) from public, anon, authenticated');
+    expect(existsSync('supabase/migrations/0013_events.sql'), 'the events table is still a later round').toBe(false);
+    const consents = code('src/lib/legal/consents.ts');
+    expect(consents).toContain("'share-employer' | 'benchmark' | 'outcome'");
+    expect(consents, 'no training grant').not.toMatch(/'train'/);
+    expect(code('src/lib/legal/outcomes.ts')).toContain('OUTCOME_K = 5');
+    expect(code('src/components/account/ConsentSection.tsx')).toContain('data-consent-grant');
+    expect(code('src/components/account/OutcomesSection.tsx')).toContain('data-outcome-form');
+    expect(code('src/app/instructor/[courseId]/cohort/page.tsx')).toContain('<OutcomesLine ');
+    expect(code('src/components/instructor/OutcomesLine.tsx'), 'props only').not.toMatch(/from '@\/lib\/data'/);
+    const rls = read('supabase/tests/rls.sql');
+    for (const a of ['ada consented as bob', 'ada rewrote her consent log', 'ivy: the k floor holds below five answers', 'the owner rewrote a consent row']) expect(rls, a).toContain(a);
+    expect(code('src/lib/docs/metricCatalogue.ts')).toMatch(/m\('outcome-placement'[^\n]*'computed'/);
+  });
+
+  it('the docs say what shipped and that the wording awaits counsel', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### Consent, outcomes and the acceptance gate (R110)');
+    expect(read('docs/OPERATIONS.md')).toContain('(R110)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('counsel review');
+    expect(read('SUPABASE_SETUP.md')).toContain('consent_grants');
+    expect(read('SUPABASE_SETUP.md')).toContain('outcome_counts');
   });
 });

@@ -46,6 +46,7 @@ export const METRIC_INPUTS = [
   'deliverables', 'deliverable_status', 'deliverable_submissions', 'deliverable_reviews', 'peer_review_assignments',
   'task_reports', 'step_notes', 'step_flags', 'cohorts',
   'environment_profile', 'work_roles',
+  'learner_outcomes',
 ] as const;
 
 const ALL: MetricAudience[] = ['member', 'company', 'platform'];
@@ -160,8 +161,8 @@ export const METRICS: MetricDef[] = [
   m('transfer-unseen', 'Transfer to unseen scenarios', 'skills', 'Verified work on a scenario never practised before, over such scenarios.', [], MC, 'needs-events', 'Needs scenario provenance per event.'),
   m('ability-unassisted', 'Unassisted verifications', 'ability', 'Steps verified with no hint, tutor or agent assistance, over verified steps.', [], MC, 'needs-events', 'Needs the assist level recorded per event.'),
   m('doc-rubric-events', 'Rubric verdicts as events', 'documentation', 'The four category verdicts of each frozen submission, appended as events.', [], PL, 'needs-events', 'The verdicts exist as rows today.'),
-  m('outcome-placement', 'Placement reported', 'ability', 'Members placed in a role after a course, over members who consented to report it.', [], CP, 'needs-consent', 'Needs a consented report from the member or the employer.'),
-  m('outcome-on-the-job', 'On-the-job performance', 'ability', 'Service levels attained in the first ninety days, as the employer reports them.', [], CP, 'needs-consent', 'Needs an employer data agreement and the member’s consent.'),
+  m('outcome-placement', 'Placement reported', 'ability', 'Members who reported a role after a course, over members who answered with the outcome grant on.', ['learner_outcomes'], CP, 'computed', 'Counts only, shown from five answers; the employer name stays with the member.'),
+  m('outcome-on-the-job', 'Used at work', 'ability', 'Members who reported using a course at work, over members who answered with the outcome grant on.', ['learner_outcomes'], CP, 'computed', 'Self-reported by the member; an employer report needs a data agreement.'),
   m('platform-roi', 'Platform return', 'ability', 'Cost per verified competency, and employer ramp saved, as the parties report them.', [], CP, 'needs-consent', 'Needs cost and employer data nobody has handed in.'),
   m('time-to-competency', 'Time to competency', 'ability', 'Hours to proficiency per objective.', [], [], 'excluded', 'Speed is not measured.'),
   m('time-task-vs-benchmark', 'Task time against benchmark', 'ability', 'Minutes to resolve a task against an expert or service-level baseline.', [], [], 'excluded', 'Speed is not measured.'),

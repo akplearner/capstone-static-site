@@ -24,6 +24,8 @@ describe('isProtected', () => {
     expect(isProtected('/register')).toBe(false);
     expect(isProtected('/legal/terms')).toBe(false);
     expect(isProtected('/legal/privacy')).toBe(false);
+    // R110: the Acceptable Use Policy has its own public page.
+    expect(isProtected('/legal/aup')).toBe(false);
     // R68: the service worker's fallback page must be reachable without a session.
     expect(isProtected('/offline')).toBe(false);
   });

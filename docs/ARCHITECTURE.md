@@ -403,7 +403,29 @@ it, the page stamps `generatedAt` and hashes the pretty JSON it downloads, and t
 clock, no window and no repository. `CopyButton` moved to `src/components/ui/` so the chip could use
 it without the lab-access graph.
 
-## 7. The MSP / business bridge (dual-use is the unlock)
+### Consent, outcomes and the acceptance gate (R110)
+
+Every account accepts the platform agreements (`src/lib/legal/agreements.ts`) before using the
+platform, and again at the next sign-in whenever one changes: the R86 gate (`LegalGateOverlay` in the
+root layout, `LocalLegalDialog` before the first join offline) asks by version, and the append-only
+`agreement_acceptances` log keeps every version a person accepted, now with the SHA-256 of the text
+(`text_sha256`, migration 0013). R110 bumped `terms`, `aup`, `lab` and `privacy` to version 2 with the
+sandbox-only rule and the liability clause (the platform is not liable for any cause, implementation,
+overcharge, misuse or consequence of the capstone work), gave the AUP its own page (`/legal/aup`), let
+the gate pass under `/legal/*` so the full text can be read while it is up, carried offline
+acceptances into the account's log at first sign-in, and put the log in the account export. The
+wording is plain-language drafting pending counsel review.
+
+Consent is three grants (`share-employer`, `benchmark`, `outcome`; `src/lib/legal/consents.ts`), each
+off until the member turns it on from the account page, each change an append-only row in
+`consent_grants` (one blob per device offline); there is no `train` grant because the Terms forbid
+training. `has_consent(uuid, text)` is a definer function for the platform's own functions, never
+callable by a member about someone else. The consented outcome form (`learner_outcomes`,
+`src/lib/legal/outcomes.ts`) appends the member's answer (status, role title, employer visible to the
+member alone, start month, courses used at work); instructors read only `outcome_counts(course)`,
+counts per status, and nothing at all below five members (the k floor in SQL and in `outcomeBands`).
+The catalogue rows `outcome-placement` and `outcome-on-the-job` are computed from it.
+
 
 The same primitives serve training *and* commercial implementation:
 

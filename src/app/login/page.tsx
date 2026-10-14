@@ -39,8 +39,10 @@ function LoginInner() {
       </Surface>
 
       <p className="mt-4 text-center text-xs text-muted">
-        By continuing you agree to our{' '}
-        <Link href="/legal/terms" className="underline hover:text-ink">Terms</Link> and{' '}
+        The platform agreements are presented right after sign-in and must be accepted before the
+        platform can be used:{' '}
+        <Link href="/legal/terms" className="underline hover:text-ink">Terms</Link>,{' '}
+        <Link href="/legal/aup" className="underline hover:text-ink">Acceptable Use</Link> and{' '}
         <Link href="/legal/privacy" className="underline hover:text-ink">Privacy Policy</Link>.
       </p>
     </div>

@@ -10,6 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/login', priority: 0.4, changeFrequency: 'monthly' },
     { path: '/legal/privacy', priority: 0.2, changeFrequency: 'yearly' },
     { path: '/legal/terms', priority: 0.2, changeFrequency: 'yearly' },
+    { path: '/legal/aup', priority: 0.2, changeFrequency: 'yearly' },
   ];
   const lastModified = new Date();
   return pages.map((p) => ({

@@ -13,7 +13,9 @@ asset it rides on, the metrics that carry it (`src/lib/docs/metricCatalogue.ts`,
   (`src/app/legal/privacy/page.tsx`, `src/app/legal/terms/page.tsx`);
 - **Phase 4** — deliberately not built (ADR-0007: no MCP gateway now).
 
-Nothing here is scored, ranked or badged; speed is not measured. The member profile is sent by the
+Nothing here is scored, ranked or badged; speed is not measured. R110 added the consent grants
+(`share-employer`, `benchmark`, `outcome`) and the consented outcome form: an item marked "needs
+consent" below now means "needs the member's grant", which the member can give from the account page. The member profile is sent by the
 member, unsigned, and says so in its `claim`. R108 added rows 11 onward in each list: the Skill
 board's sixteen KPIs, the environment profile, the work roles, the credential envelope, the cohort
 report and the event contract.

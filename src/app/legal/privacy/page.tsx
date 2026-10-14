@@ -13,15 +13,15 @@ export default function PrivacyPage() {
   return (
     <LegalPage
       title="Privacy Policy"
-      updated="14 August 2026"
+      updated="14 October 2026"
       intro="This describes exactly what the platform stores about you and what you can do about it. It is written to be specific rather than reassuring — if something is stored, it is named here."
     >
       <LegalSection title="What we collect">
         <ul>
           <li>
             <strong>Account details.</strong> Your email address, and a display name if you set one.
-            Provided by you, or by the sign-in provider you use — currently Google, which tells us
-            your email address and name and nothing else.
+            Provided by you, or by the sign-in provider you use — Google or GitHub, which tell us your
+            email address, name and avatar and nothing else.
           </li>
           <li>
             <strong>Course progress.</strong> Which steps you have completed and when, which team and
@@ -33,6 +33,23 @@ export default function PrivacyPage() {
             pasted. <strong>We do not store the output itself</strong> — terminal output routinely
             contains internal IP addresses, hostnames and sometimes credentials, so only the hash
             leaves your browser.
+          </li>
+          <li>
+            <strong>Verification stamps and receipts</strong> (cloud mode). The platform may issue the
+            short-lived stamp you echo into your output and, when the stamp comes back matched, keep
+            a receipt of the course, task, step, the hash and the token counts — never the pasted
+            text. A receipt records the stamp, not your machine.
+          </li>
+          <li>
+            <strong>Consent grants and outcomes.</strong> Which consents you have turned on or off, and
+            when. If you turn on the outcome grant, the answers you give on the account page about
+            where the work took you. Employer names you type are visible only to you; instructors
+            see counts per status, and only when at least five members of a course have answered.
+          </li>
+          <li>
+            <strong>Links you create.</strong> A frozen copy of the export you chose to share, the
+            link’s expiry, and whether you revoked it. The link itself is shown to you once and is
+            stored only as a hash.
           </li>
           <li>
             <strong>Evidence file records.</strong> Filenames, sizes and SHA-256 hashes of files you
@@ -66,7 +83,40 @@ export default function PrivacyPage() {
           Solely to run the product: to show you your progress across devices, to build the evidence
           record and portfolio that are the point of the platform, and to let teammates see shared
           team deliverables. We do not sell your data, we do not use it for advertising, and we do not
-          share it with third parties beyond the infrastructure providers below.
+          share it with third parties beyond the infrastructure providers below, except as a consent
+          grant you give or a link you create allows. Nothing is used to train models.
+        </p>
+      </LegalSection>
+
+      <LegalSection title="Consent grants">
+        <p>
+          Every grant is off until you turn it on from your account page, and each can be turned off
+          there again; revoking stops any future use. The grants are:
+        </p>
+        <ul>
+          <li>
+            <strong>Share with an employer.</strong> Lets you create expiring links to a frozen copy of
+            your own export. Without it no link can be created; with it nothing is shared until you
+            create one.
+          </li>
+          <li>
+            <strong>Benchmark.</strong> Lets your numbers be counted, without your name, in cohort bands
+            that other members and instructors see as counts only. Never a rank.
+          </li>
+          <li>
+            <strong>Outcomes.</strong> Lets you answer the outcome questions on your account page and
+            lets instructors see counts per status for a course, only when at least five members have
+            answered.
+          </li>
+        </ul>
+      </LegalSection>
+
+      <LegalSection title="Links you create">
+        <p>
+          A link you create shows a frozen copy of the export you chose, exactly as it was when you
+          created the link, to whoever holds the link, until it expires (at most ninety days) or you
+          revoke it from your account page. The copy is unsigned and says so; it never carries your
+          email address or account id. You are the only one who can create or revoke a link.
         </p>
       </LegalSection>
 
@@ -74,8 +124,10 @@ export default function PrivacyPage() {
         <ul>
           <li>
             <strong>Supabase</strong> (database and authentication). Every table is protected by
-            row-level security, so your rows are readable only by you — except team deliverables and
-            team progress, which are visible to members of your own team by design.
+            row-level security. Your rows are readable only by you, except: team deliverables, team
+            progress, step evidence records and stuck flags are visible to members of your own team;
+            instructors see the class-wide view of evidence, completions, flags and the acceptance
+            log; blind peer reviewers see submitted documents with your identity removed.
           </li>
           <li>
             <strong>Your browser.</strong> If you use the platform without an account, everything
@@ -97,6 +149,10 @@ export default function PrivacyPage() {
           <li>
             <strong>Access and correction.</strong> The app shows you your data directly; you can edit
             or remove most of it in place.
+          </li>
+          <li>
+            <strong>Consent.</strong> Every grant is yours to turn on or off from your account page, and
+            every link you created is listed there with a Revoke control.
           </li>
         </ul>
       </LegalSection>

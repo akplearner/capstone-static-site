@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Download, LogOut, Trash2, User as UserIcon } from 'lucide-react';
 import { ProfileCard } from '@/components/auth/ProfileCard';
@@ -15,6 +15,9 @@ import { courseRepo, progressRepo, docsRepo, evidenceRepo, pathRepo, userStateRe
 import { toast } from '@/lib/toastBus';
 import { PageHeader } from '@/components/ui/PageHeader';
 import { Surface } from '@/components/ui/Surface';
+import { ConsentSection } from '@/components/account/ConsentSection';
+import { OutcomesSection } from '@/components/account/OutcomesSection';
+import { fetchCloudAcceptanceLog, type AcceptanceRow } from '@/lib/legal/acceptances';
 
 /**
  * Account settings — and the two rights that are not optional once signups are
@@ -35,16 +38,32 @@ export default function AccountPage() {
   const [confirm, setConfirm] = useState('');
   const [busy, setBusy] = useState<null | 'export' | 'delete'>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  // R110: the acknowledgement log rides in the export.
+  const [agreements, setAgreements] = useState<AcceptanceRow[]>([]);
+  useEffect(() => {
+    if (!user) return;
+    let on = true;
+    void fetchCloudAcceptanceLog().then((rows) => {
+      if (on && rows) setAgreements(rows);
+    });
+    return () => {
+      on = false;
+    };
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps -- the account id is the dependency
 
   if (!hydrated || loading) return <Skeleton className="mx-auto h-80 w-full max-w-2xl" />;
 
   if (!isSupabaseConfigured()) {
+    // R110: no account to manage, but the consent grants and the outcome
+    // answers are the device's own and live here all the same.
     return (
       <Shell>
         <p className="text-muted">
           Accounts aren’t configured on this deployment, so there’s no account to manage. Your work is
           stored in this browser only.
         </p>
+        <ConsentSection />
+        <OutcomesSection />
       </Shell>
     );
   }
@@ -82,6 +101,7 @@ export default function AccountPage() {
       account: { id: user.id, email: user.email },
       path: pathRepo.get(user.id),
       courses: courses.filter(Boolean),
+      agreements,
     };
   };
 
@@ -168,6 +188,9 @@ export default function AccountPage() {
           </Button>
         </div>
       </Surface>
+
+      <ConsentSection />
+      <OutcomesSection />
 
       <Surface as="section" className="border-danger-line bg-danger-soft">
         <h2 className="flex items-center gap-2 text-lg font-bold" style={{ color: 'var(--color-danger)' }}>

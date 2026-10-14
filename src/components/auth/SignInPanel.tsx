@@ -41,8 +41,9 @@ export function SignInPanel({
           the gate blocks everything until it is done — but nobody should meet
           the agreements as a surprise. */}
       <p className="mt-3 text-xs text-muted">
-        After signing in you’ll be asked once to accept the platform agreements — terms
-        (no exam guarantee), acceptable use, lab responsibility, data notice and conduct.
+        After signing in you’ll be asked to accept the platform agreements — terms (no exam
+        guarantee), acceptable use (sandbox only, no liability), lab responsibility, data notice and
+        conduct — and again at a later sign-in whenever one of them changes.
       </p>
     </motion.div>
   );

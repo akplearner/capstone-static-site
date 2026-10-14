@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { AGREEMENTS, missingAcceptances } from './agreements';
+import { agreementTextHash } from './acceptances';
 
 describe('R86 — the agreements registry and the re-ask rule', () => {
   it('carries the five acknowledgements the platform stands on', () => {
@@ -20,6 +21,12 @@ describe('R86 — the agreements registry and the re-ask rule', () => {
     expect(all).toContain('Scope & Rules of Engagement');
     expect(all).toContain('not responsible for damage');
     expect(all).toContain('never the pasted text');
+    // R110: the sandbox-only rule, the liability clause and explicit re-acceptance.
+    for (const phrase of ['sandbox you control', 'not liable for any cause, implementation, overcharge, misuse or consequence', 'next sign-in', 'consent grant', 'train models']) {
+      expect(all, phrase).toContain(phrase);
+    }
+    expect(AGREEMENTS.find((a) => a.id === 'aup')?.link).toBe('/legal/aup');
+    for (const id of ['terms', 'aup', 'lab', 'privacy']) expect(AGREEMENTS.find((a) => a.id === id)?.version, id).toBeGreaterThanOrEqual(2);
   });
 
   it('missingAcceptances: everything for a new account, nothing when current, the bumped one after a bump', () => {
@@ -31,5 +38,14 @@ describe('R86 — the agreements registry and the re-ask rule', () => {
     expect(missing.map((a) => a.id)).toEqual(['aup']);
     // A future version someone somehow holds never goes negative on the gate.
     expect(missingAcceptances({ ...current, terms: 99 })).toHaveLength(0);
+  });
+
+  it('the text hash is stable for the same sections and changes when a word changes', async () => {
+    const aup = AGREEMENTS.find((a) => a.id === 'aup')!;
+    const a = await agreementTextHash(aup);
+    expect(a).toMatch(/^[0-9a-f]{64}$/);
+    expect(await agreementTextHash(aup)).toBe(a);
+    const edited = { ...aup, sections: [{ ...aup.sections[0], body: aup.sections[0].body + ' ' }, ...aup.sections.slice(1)] };
+    expect(await agreementTextHash(edited)).not.toBe(a);
   });
 });

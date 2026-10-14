@@ -12,6 +12,8 @@ import { useAuth } from '@/lib/useAuth';
 import { useMember } from '@/lib/useMember';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
 import { KEYS } from '@/lib/data/keys';
+import { AGREEMENTS } from '@/lib/legal/agreements';
+import { acceptInCloud, localAcceptances } from '@/lib/legal/acceptances';
 import { teamLabel } from '@/lib/team';
 import { useClientStore } from '@/lib/useClientStore';
 
@@ -161,6 +163,13 @@ export function ImportPrompt({ course }: { course: Course }) {
     // once regardless of which course triggered this prompt.
     const localPath = readLocal<{ pathId: string; chosenAt: number }>(KEYS.path(oldId));
     if (localPath?.pathId) pathRepo.save(user.id, localPath.pathId);
+
+    // R110: an agreement accepted on this device at its CURRENT version is
+    // carried into the account's log, so nobody is asked twice for the same
+    // text; a version that moved on still asks.
+    const accepted = localAcceptances();
+    const current = AGREEMENTS.filter((a) => accepted[a.id] === a.version);
+    if (current.length) await acceptInCloud(user.id, current);
 
     // The repo writes are optimistic and fire-and-forget, so "no exception" does
     // NOT mean the server accepted them. Confirm against the database before

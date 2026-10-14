@@ -37,7 +37,8 @@ export function LegalPage({
       <footer className="border-t border-line pt-5 text-sm text-muted">
         <p>
           See also{' '}
-          <Link href="/legal/terms" className="text-accent hover:underline">Terms of Service</Link>{' '}
+          <Link href="/legal/terms" className="text-accent hover:underline">Terms of Service</Link>,{' '}
+          <Link href="/legal/aup" className="text-accent hover:underline">Acceptable Use Policy</Link>{' '}
           and{' '}
           <Link href="/legal/privacy" className="text-accent hover:underline">Privacy Policy</Link>.
         </p>

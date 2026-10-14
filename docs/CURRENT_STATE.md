@@ -93,7 +93,7 @@ additive, none requiring a rewrite.
 - **Seed:** the chain-of-custody / SHA-256 model is exactly the platform-scale pattern, one level up.
 
 ### 8. Consent / provenance
-- **Today:** **absent.** Only an "authorization" text field on the Scope deliverable.
+- **Today:** **partial (R110).** Three consent grants (`share-employer`, `benchmark`, `outcome`) as an append-only per-account log (`consent_grants`), off by default, revocable from the account page; the consented outcome form (`learner_outcomes`) with a five-member floor on the only aggregate. Provenance/CLA fields on contributed content: still absent.
 - **Target:** consent grants + provenance/CLA fields as first-class data on every relevant row.
 - **Seed:** none — this is net-new, hence "build the fields now, brutal to retrofit later."
 
@@ -136,7 +136,9 @@ additive, none requiring a rewrite.
 | Step note / stuck flag | `step_notes` (owner-only) + `step_flags` (team + instructor), `stepNotesRepo` | **Present** (R68) |
 | Rubric points (70 TEAM / 30 FOCUS per week) | `src/lib/rubric.ts`, `src/lib/cohort.ts` (CSV) | **Partial** (the platform's share; quality is still marked by hand) |
 | Course snapshot (JSON DTO) | `content/courses/<id>.json`, `src/lib/content/dto.ts`, `npm run content:export` | **Present** (generated; the TS seeds stay the source of truth) |
-| Event / Attestation / Consent | — | **Absent** |
+| Consent grants and outcomes | `src/lib/legal/consents.ts`, `outcomes.ts`; `consent_grants`, `learner_outcomes`, `outcome_counts()` (0013); the account page sections; the cohort Outcomes line | **Present** (R110; append-only; counts only from five members; no `train` grant) |
+| Acceptance gate (agreements v2, AUP page) | `src/lib/legal/agreements.ts`, `/legal/aup`, `LegalGateOverlay`, `agreement_acceptances.text_sha256` | **Present** (R110; sandbox-only and liability wording drafted, counsel review pending; re-asked at the next sign-in on a version bump) |
+| Event / Attestation | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |
 
 ---

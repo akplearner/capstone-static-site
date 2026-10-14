@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ExternalLink, FileCheck2, ScrollText } from 'lucide-react';
 import { Button, Collapsible } from '@/components/ui/Button';
 import { Dialog } from '@/components/ui/Dialog';
 import { toast } from '@/components/ui/Toast';
 import { useAuth } from '@/lib/useAuth';
 import { useClientStore } from '@/lib/useClientStore';
-import { missingAcceptances, type Agreement } from '@/lib/legal/agreements';
+import { AGREEMENTS, missingAcceptances, type Agreement } from '@/lib/legal/agreements';
 import {
   acceptInCloud,
   acceptLocally,
@@ -110,6 +111,10 @@ export function AgreementChecklist({
  */
 export function LegalGateOverlay() {
   const { user, loading, signOut } = useAuth();
+  // R110: the legal pages stay readable while the gate is up, so "Full text"
+  // opens a page a person can actually read; the gate returns on the next
+  // navigation anywhere else.
+  const pathname = usePathname();
   const [accepted, setAccepted] = useState<Record<string, number> | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -133,6 +138,7 @@ export function LegalGateOverlay() {
   }
 
   if (!isCloudMode() || loading || !user || accepted === null) return null;
+  if (pathname?.startsWith('/legal')) return null;
   const missing = missingAcceptances(accepted);
   if (missing.length === 0) return null;
 
@@ -158,8 +164,8 @@ export function LegalGateOverlay() {
           <h1 className="mt-3 text-2xl font-bold text-ink">Before you continue</h1>
           <p className="mt-1 text-sm text-muted">
             {Object.keys(accepted).length === 0
-              ? 'Welcome. Five short agreements set what this platform is — and is not. Read each one; access opens when all are accepted.'
-              : 'An agreement changed since you last accepted it. Read the updated text; access reopens when it is accepted.'}
+              ? `Welcome. ${AGREEMENTS.length} short agreements set what this platform is — and is not. Read each one; access opens when all are accepted.`
+              : `Changed since you last accepted: ${missing.map((a) => a.title).join('; ')}. Read the updated text; access reopens when it is accepted.`}
           </p>
         </div>
         <AgreementChecklist missing={missing} onAccept={accept} busy={busy} />

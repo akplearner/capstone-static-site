@@ -19,7 +19,8 @@
     "step_flags",
     "cohorts",
     "environment_profile",
-    "work_roles"
+    "work_roles",
+    "learner_outcomes"
   ],
   "metrics": [
     {
@@ -1428,29 +1429,33 @@
       "id": "metric.outcome-placement",
       "label": "Placement reported",
       "dimension": "ability",
-      "definition": "Members placed in a role after a course, over members who consented to report it.",
-      "inputs": [],
+      "definition": "Members who reported a role after a course, over members who answered with the outcome grant on.",
+      "inputs": [
+        "learner_outcomes"
+      ],
       "valueTo": [
         "company",
         "platform"
       ],
-      "status": "needs-consent",
+      "status": "computed",
       "scored": false,
-      "note": "Needs a consented report from the member or the employer."
+      "note": "Counts only, shown from five answers; the employer name stays with the member."
     },
     {
       "id": "metric.outcome-on-the-job",
-      "label": "On-the-job performance",
+      "label": "Used at work",
       "dimension": "ability",
-      "definition": "Service levels attained in the first ninety days, as the employer reports them.",
-      "inputs": [],
+      "definition": "Members who reported using a course at work, over members who answered with the outcome grant on.",
+      "inputs": [
+        "learner_outcomes"
+      ],
       "valueTo": [
         "company",
         "platform"
       ],
-      "status": "needs-consent",
+      "status": "computed",
       "scored": false,
-      "note": "Needs an employer data agreement and the member’s consent."
+      "note": "Self-reported by the member; an employer report needs a data agreement."
     },
     {
       "id": "metric.platform-roi",

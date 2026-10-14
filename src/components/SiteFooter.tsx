@@ -18,6 +18,7 @@ export function SiteFooter() {
           <Link href="/explore" className="hover:text-ink hover:underline">Explore certs</Link>
           <Link href="/legal/privacy" className="hover:text-ink hover:underline">Privacy</Link>
           <Link href="/legal/terms" className="hover:text-ink hover:underline">Terms</Link>
+          <Link href="/legal/aup" className="hover:text-ink hover:underline">Acceptable use</Link>
         </nav>
       </div>
     </footer>

@@ -26,6 +26,8 @@ import { courseDocument, bareDocument } from '@/lib/content/docs';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { cohortKpiCsv, cohortKpiReport } from '@/lib/cohortKpi';
 import { CohortKpiPanel } from '@/components/instructor/CohortKpiPanel';
+import { OutcomesLine } from '@/components/instructor/OutcomesLine';
+import { fetchOutcomeCounts, type OutcomeCount } from '@/lib/legal/outcomes';
 import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
 import { deliverablesForCourse } from '@/lib/docs/definitions';
 import { isDoneBy } from '@/lib/docs/dod';
@@ -56,6 +58,17 @@ export default function CohortPage() {
   const [team, setTeam] = useState<string>('all');
   const [role, setRole] = useState<string>('all');
   const [reviewWeek, setReviewWeek] = useState<number | null>(null);
+  // R110: counts per outcome status for the course; nothing below five members.
+  const [outcomeCounts, setOutcomeCounts] = useState<OutcomeCount[] | null>(null);
+  useEffect(() => {
+    let on = true;
+    void fetchOutcomeCounts(courseId).then((c) => {
+      if (on) setOutcomeCounts(c);
+    });
+    return () => {
+      on = false;
+    };
+  }, [courseId]);
 
   const reload = useCallback(() => {
     if (!course) return;
@@ -191,6 +204,7 @@ export default function CohortPage() {
       <SubmissionSummary data={data} />
 
       {kpiReport && shown.length > 0 && <CohortKpiPanel report={kpiReport} defs={words.KPIS} families={words.KPI_FAMILIES} copy={words.COPY.board} />}
+      <OutcomesLine counts={outcomeCounts} />
 
       {stuck.length > 0 && (
         <Surface as="section" variant="inset" className="space-y-2" aria-labelledby="cohort-stuck">

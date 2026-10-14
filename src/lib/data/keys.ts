@@ -9,6 +9,9 @@ export const KEYS = {
   // Offline acknowledgement log (R86): {agreementId: {version, at}} per device —
   // with no accounts, the device is the identity the acceptance belongs to.
   legalAcceptances: `${STORAGE_PREFIX}legal_acceptances`,
+  // R110: consent grants {grantId: {granted, at}} and the learner outcome answers, per device offline.
+  consents: `${STORAGE_PREFIX}consents`,
+  outcomes: `${STORAGE_PREFIX}outcomes`,
   instructorUnlocked: `${STORAGE_PREFIX}instructor_unlocked`,
   migratedV2: `${STORAGE_PREFIX}migrated_v2`,
 

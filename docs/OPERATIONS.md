@@ -119,6 +119,11 @@ has failed silently in some deployment of some product; none takes more than a m
   across them, a complete ratio is lit; the chip beside the pack copies and downloads the
   `capstone-kpi-board/1` JSON; the dashboard's record grid has eight tiles and its member-profile
   chip downloads the profile and the credential (no `proof`); under reduced motion nothing breathes.
+- [ ] **Acceptance gate, consent and outcomes (R110):** sign in → the gate lists the agreements
+  that changed (terms, acceptable use, lab, data notice at v2) and "Full text" opens `/legal/aup`
+  readable → accept → `/account` shows the Consent switches (off by default) and, once the outcome
+  grant is on, the Outcomes form; save an answer → `/instructor/<course>/cohort` prints the Outcomes
+  line ("fewer than 5 members" until five have answered); the account export carries `agreements`.
 
 ## 3. Point monitoring at it
 
