@@ -65,8 +65,17 @@ describe('server stamps', () => {
     expect(env.invoke).toHaveBeenCalledTimes(1);
   });
 
-  it('stops asking once the platform says the function does not exist, and refuses a malformed answer', async () => {
-    env.invoke.mockResolvedValue(refused(404));
+  it('stops asking after any failure (not deployed, no answer, a server error), and refuses a malformed answer', async () => {
+    for (const failure of [refused(404), refused(500, 'stamp-failed'), { data: null, error: { name: 'FunctionsFetchError', context: new TypeError('Failed to fetch') } }]) {
+      env.invoke.mockReset();
+      env.invoke.mockResolvedValue(failure);
+      const m = await load();
+      expect(await m.fetchStamp('u1', 'security-plus', 't1')).toBeNull();
+      expect(await m.fetchStamp('u1', 'security-plus', 't2')).toBeNull();
+      expect(env.invoke, 'one request, then the client stamp for the rest of the page').toHaveBeenCalledTimes(1);
+    }
+    env.invoke.mockReset();
+    env.invoke.mockRejectedValue(new Error('offline'));
     let m = await load();
     expect(await m.fetchStamp('u1', 'security-plus', 't1')).toBeNull();
     expect(await m.fetchStamp('u1', 'security-plus', 't2')).toBeNull();

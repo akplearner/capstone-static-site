@@ -43,16 +43,19 @@ export interface ReceiptRequest {
 }
 
 const REUSE_MS = STAMP_REUSE_MINUTES * 60_000;
-/** After a failure that is not "not deployed", wait this long before asking again. */
-const BACKOFF_MS = 60_000;
 
 const stamps = new Map<string, ServerStamp>();
 const inflight = new Map<string, Promise<ServerStamp | null>>();
 const timers = new Map<string, ReturnType<typeof setTimeout>>();
 const listeners = new Set<() => void>();
-/** False once the platform answered "no such function": fall back for the rest of the page's life. */
+/**
+ * False after any failed stamp request: the client stamp stands in for the
+ * rest of the page's life. A project without the function (or without 0014)
+ * fails every request, sometimes as a bare network error when the gateway
+ * answers the preflight without CORS headers, so retrying would only fill
+ * the console. A reload asks again.
+ */
 let deployed: boolean | null = null;
-let backoffUntil = 0;
 
 const keyOf = (userId: string, courseId: string, taskId: string) => `${userId}|${courseId}|${taskId}`;
 const emit = () => listeners.forEach((l) => l());
@@ -101,7 +104,7 @@ async function failure(error: unknown): Promise<{ status: number; code: string }
 
 /** Could a server stamp exist for this member right now? Never for anyone but the signed-in member. */
 function canAsk(userId: string): boolean {
-  return deployed !== false && Date.now() >= backoffUntil && !!getBrowserClient() && getCurrentUserId() === userId;
+  return deployed !== false && !!getBrowserClient() && getCurrentUserId() === userId;
 }
 
 /**
@@ -117,11 +120,9 @@ export function fetchStamp(userId: string, courseId: string, taskId: string): Pr
   if (!supabase || !canAsk(userId)) return Promise.resolve(null);
   const request = supabase.functions
     .invoke('stamp', { body: { courseId, taskId } })
-    .then(async ({ data, error }) => {
+    .then(({ data, error }) => {
       if (error) {
-        const { status } = await failure(error);
-        if (status === 404) deployed = false;
-        else backoffUntil = Date.now() + BACKOFF_MS;
+        deployed = false;
         return null;
       }
       const stamp = String((data as { stamp?: unknown } | null)?.stamp ?? '');
@@ -131,7 +132,7 @@ export function fetchStamp(userId: string, courseId: string, taskId: string): Pr
       return put(k, { stamp, expiresAt });
     })
     .catch(() => {
-      backoffUntil = Date.now() + BACKOFF_MS;
+      deployed = false;
       return null;
     })
     .finally(() => {
@@ -204,7 +205,8 @@ export async function requestReceipt(r: ReceiptRequest): Promise<ReceiptOutcome>
     // This stamp already receipted this step: the receipt exists.
     if (code === 'stamp-used') return 'receipted';
     if (code === 'stamp-unknown' || code === 'stamp-mismatch') return 'stamp-unknown';
-    if (status === 404) deployed = false;
+    // Not deployed, or no answer at all: stop asking, as fetchStamp does.
+    if (status === 404 || status === 0) deployed = false;
     return 'offline';
   }
   const at = Date.parse(String((data as { receiptedAt?: unknown } | null)?.receiptedAt ?? ''));
