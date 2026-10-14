@@ -5,8 +5,14 @@ import type { Course, Member } from '@/lib/types';
 import { certOf, deliverablesOf, skillsOf } from '@/lib/content/read';
 import { useCourseDocument } from '@/lib/useCourse';
 import { skillProfile, type AbilityIndicators, type ProfileRow } from '@/lib/skillProfile';
+import { defaultMeasure, kpiBoard } from '@/lib/kpiBoard';
+import { ONTOLOGY_VERSION } from '@/lib/docs/ontology';
+import { isCapstoneFiled } from '@/lib/deliverableChain';
 import { docsRepo, evidenceRepo, progressRepo, reviewRepo, statusRepo, stepNotesRepo, submissionsRepo, taskReportsRepo } from '@/lib/data';
+import type { CrewProgress } from '@/lib/game';
 import { LevelPill } from './LevelPill';
+import { KpiPack } from './KpiPack';
+import { DtoChip } from './DtoChip';
 
 /**
  * R107: the member's skills on the course Home, inside the role surface.
@@ -14,15 +20,18 @@ import { LevelPill } from './LevelPill';
  * gap), one line per dimension, the ability indicators, and the caption that
  * names the denominator. Every word comes from the document; every number is
  * the pure projection over the repositories the page already reads in render.
+ * R109: the sixteen KPIs as the socket pack with the DTO chip beside it; the
+ * ten indicators the sixteen do not carry stay as the plain list.
  */
-const ABILITY_KEYS = ['firstTry', 'persistence', 'partialProgress', 'evidenceNaming', 'activeDays', 'activeWeeks', 'dodMet', 'drafted', 'reviewed', 'issued', 'submissionsFrozen', 'rubricAllGreen', 'handoffsCompleted', 'teammateStepsTicked', 'reportsFiled', 'notesWritten'] as const;
+const ABILITY_KEYS = ['partialProgress', 'activeDays', 'activeWeeks', 'drafted', 'reviewed', 'issued', 'submissionsFrozen', 'teammateStepsTicked', 'reportsFiled', 'notesWritten'] as const;
 const LINES = ['skills', 'tools', 'procedures', 'standards', 'tactics', 'practices'] as const;
 
-export function SkillsCard({ course, member, activeWeek }: { course: Course; member: Member; activeWeek: number }) {
+export function SkillsCard({ course, member, activeWeek, crew }: { course: Course; member: Member; activeWeek: number; crew: Pick<CrewProgress, 'weeksCleared' | 'weeksTotal'> }) {
   const registry = skillsOf(useCourseDocument());
   const cert = certOf(useCourseDocument());
   const deliverables = deliverablesOf(useCourseDocument());
   const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
+  const docs = docsRepo.get(course.id, member.teamId) ?? {};
   const profile = skillProfile({
     course,
     role: member.role,
@@ -34,7 +43,7 @@ export function SkillsCard({ course, member, activeWeek }: { course: Course; mem
     cert,
     deliverables,
     team: {
-      docs: docsRepo.get(course.id, member.teamId) ?? {},
+      docs,
       status: statusRepo.list(course.id, member.teamId),
       submissions: submissionsRepo.list(course.id, member.teamId),
       reviews: reviewRepo.list(course.id, member.teamId),
@@ -43,6 +52,14 @@ export function SkillsCard({ course, member, activeWeek }: { course: Course; mem
     own: { notes: Object.values(stepNotesRepo.getAll(course.id, member.memberId)), reports: taskReportsRepo.list(course.id) },
   });
   const { COPY, LEVEL_LABEL, DIMENSION_LABEL } = registry;
+  const board = kpiBoard({
+    profile,
+    registry,
+    cert,
+    measure: defaultMeasure(registry, member.role),
+    outcome: { capstoneFiled: isCapstoneFiled(course.id, docs), weeksCleared: crew.weeksCleared, weeksTotal: crew.weeksTotal },
+    ontologyVersion: ONTOLOGY_VERSION,
+  });
   const reached = (rows: ProfileRow[], level: 'practised' | 'verified') => rows.filter((r) => (level === 'practised' ? r.level !== 'not-started' : r.level === 'verified' || r.level === 'reviewed')).length;
   const href = (t: { taskId: string; week: number }) => `/courses/${course.id}?tab=tasks&week=${t.week}&task=${t.taskId}`;
   const gap = profile.gaps.skills[0]?.next ?? profile.gaps.domains[0]?.next;
@@ -54,9 +71,6 @@ export function SkillsCard({ course, member, activeWeek }: { course: Course; mem
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 id="skills-card-title" className="text-sm font-semibold text-ink">{COPY.cardTitle}</h3>
         <p className="text-xs text-muted">{COPY.denominator}</p>
-        <Link href={`/courses/${course.id}/skills`} className="text-xs font-medium text-accent hover:underline" data-skill-board-link>
-          {COPY.board.title} →
-        </Link>
       </div>
       {profile.rows.domains.length > 0 && (
         <div className="overflow-x-auto rounded-lg depth-edge bg-panel">
@@ -98,6 +112,8 @@ export function SkillsCard({ course, member, activeWeek }: { course: Course; mem
           );
         })}
       </dl>
+      <KpiPack board={board} defs={registry.KPIS} families={registry.KPI_FAMILIES} copy={COPY.board} href={`/courses/${course.id}/skills`} persistenceLabel={COPY.abilityLabels.persistence} />
+      <DtoChip schema={board.schema} version={board.ontologyVersion} json={() => JSON.stringify(board, null, 2)} filename={`${course.id}-kpi-board.json`} caption={COPY.board.schemaNote} copy={COPY.board} />
       {shown.length > 0 && (
         <div className="space-y-1">
           <p className="text-2xs text-muted">{COPY.abilityIntro}</p>

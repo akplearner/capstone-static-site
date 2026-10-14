@@ -306,7 +306,7 @@ export function HomeTab({
             )}
           </div>
           {/* R107: what this member has practised, verified and had reviewed, against the course's registries. */}
-          <SkillsCard course={course} member={member} activeWeek={activeWeek} />
+          <SkillsCard course={course} member={member} activeWeek={activeWeek} crew={crew} />
           <TeamBlock course={course} member={member} />
         </Surface>
       )}
