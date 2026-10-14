@@ -253,6 +253,7 @@ Find what you are actually seeing:
 | `redirect_uri_mismatch` from Google | The redirect URI is your domain, not Supabase's | **Step 4b** |
 | "Sign-in started in a different browser" banner | The link was opened inside another app's built-in browser | Open the site in Chrome/Safari itself and sign in there |
 | Signed in with GitHub and progress is gone | GitHub's **primary** email isn't the Gmail used before, so a second empty account was created | Sign out, use Google; delete the stray user under **Authentication → Users** |
+| The browser console says "Could not find the '…' column of '…' in the schema cache", or a feature added in an update never saves | The app was updated but the database was not: a newer migration has not run | Re-run **`supabase/setup.sql`** (**Step 2**); every statement is safe to repeat. Agreement acceptance keeps working meanwhile, without the text hash |
 
 Still stuck? `/api/health` tells you which half of the setup to look at: if it says
 `local`, the problem is Vercel (step 6). If it says `cloud`, the problem is in

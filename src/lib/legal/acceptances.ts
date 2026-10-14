@@ -90,30 +90,64 @@ export async function fetchCloudAcceptances(): Promise<AcceptedVersions | null> 
   return out;
 }
 
+/**
+ * Does the project's `agreement_acceptances` table have the R110 hash column?
+ * Unknown until a request says otherwise. A project that has not run
+ * migration 0013 answers PostgREST's "column not found" (PGRST204) for any
+ * request naming `text_sha256`; acceptance must never be blocked by that lag,
+ * so the log is written without the hash and the column is not asked for
+ * again in this page's life. Re-running supabase/setup.sql adds it.
+ */
+let hashColumn: boolean | null = null;
+
+/** PostgREST could not find the hash column: the project predates 0013. */
+function missingHashColumn(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return error.code === 'PGRST204' || error.code === '42703' || /text_sha256/.test(error.message ?? '');
+}
+
 /** The signed-in user's whole log, one row per (agreement, version), for the account export. */
 export async function fetchCloudAcceptanceLog(): Promise<AcceptanceRow[] | null> {
   const supabase = getBrowserClient();
   if (!supabase) return null;
-  const { data, error } = await supabase.from('agreement_acceptances').select('agreement_id, version, accepted_at, text_sha256').order('accepted_at');
+  const read = (withHash: boolean) =>
+    supabase
+      .from('agreement_acceptances')
+      .select(withHash ? 'agreement_id, version, accepted_at, text_sha256' : 'agreement_id, version, accepted_at')
+      .order('accepted_at');
+  let { data, error } = await read(hashColumn !== false);
+  if (error && hashColumn !== false && missingHashColumn(error)) {
+    hashColumn = false;
+    ({ data, error } = await read(false));
+  }
   if (error) {
     console.error('acceptance log read failed', error.message);
     return null;
   }
-  return (data ?? []).map((r) => ({ agreementId: String(r.agreement_id), version: Number(r.version ?? 0), acceptedAt: String(r.accepted_at ?? ''), textSha256: r.text_sha256 ? String(r.text_sha256) : null }));
+  return ((data ?? []) as unknown as Record<string, unknown>[]).map((r) => ({ agreementId: String(r.agreement_id), version: Number(r.version ?? 0), acceptedAt: String(r.accepted_at ?? ''), textSha256: r.text_sha256 ? String(r.text_sha256) : null }));
 }
 
 export async function acceptInCloud(userId: string, agreements: Agreement[]): Promise<boolean> {
   const supabase = getBrowserClient();
   if (!supabase) return false;
   const hashes = await Promise.all(agreements.map(agreementTextHash));
-  const { error } = await supabase.from('agreement_acceptances').upsert(
-    agreements.map((a, i) => ({ user_id: userId, agreement_id: a.id, version: a.version, text_sha256: hashes[i] })),
-    { onConflict: 'user_id,agreement_id,version', ignoreDuplicates: true }
-  );
+  const write = (withHash: boolean) =>
+    supabase.from('agreement_acceptances').upsert(
+      agreements.map((a, i) => ({ user_id: userId, agreement_id: a.id, version: a.version, ...(withHash ? { text_sha256: hashes[i] } : {}) })),
+      { onConflict: 'user_id,agreement_id,version', ignoreDuplicates: true }
+    );
+  let { error } = await write(hashColumn !== false);
+  if (error && hashColumn !== false && missingHashColumn(error)) {
+    // The version and the time are what the gate needs; the hash waits for 0013.
+    console.warn('agreement_acceptances has no text_sha256 column yet (run supabase/setup.sql); logging the acceptance without the text hash');
+    hashColumn = false;
+    ({ error } = await write(false));
+  }
   if (error) {
     console.error('acceptance log write failed', error.message);
     return false;
   }
+  if (hashColumn === null) hashColumn = true;
   return true;
 }
 
