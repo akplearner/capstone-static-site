@@ -26,8 +26,10 @@ export function dashboardHeader(name: string): string {
     '// imports copied in, by `npm run functions:dashboard`. To deploy it without',
     '// the CLI: Supabase → Edge Functions → Deploy a new function → Via Editor;',
     '// replace everything in the editor with this whole file; name the function',
-    `// exactly \`${name}\`; click Deploy function. No secrets to set, and JWT`,
-    '// verification stays on. SUPABASE_SETUP.md has the steps.',
+    `// exactly \`${name}\` BEFORE clicking Deploy function: the name becomes its`,
+    `// address (…/functions/v1/${name}), and renaming it later changes only the`,
+    '// label. No secrets to set, and JWT verification stays on. SUPABASE_SETUP.md',
+    '// has the steps.',
     '',
     '',
   ].join('\n');

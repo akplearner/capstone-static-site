@@ -2986,6 +2986,10 @@ describe('R115 — the functions deploy from the browser', () => {
     for (const n of ['## Deploy the server functions from your browser', 'Deploy a new function', 'Via Editor', 'supabase/dashboard/', 'Copy raw file', 'Deploy updates', 'invalid-session', 'not-available']) {
       expect(setup, n).toContain(n);
     }
+    // The name typed before the first deploy is the address the app calls; a rename changes only the
+    // label, and the Test button answers at any address, so the check reads the URL column.
+    for (const n of ['**Before deploying**', '/functions/v1/<name>', 'changes only its label', 'read the **URL** column']) expect(setup, n).toContain(n);
+    expect(setup, 'the name column proves nothing about the address').not.toContain('lists each name exactly as in the table');
     expect(setup, 'no secret to set by hand').not.toMatch(/secrets set SERVICE_ROLE_KEY/);
     expect(setup).not.toContain('--no-verify-jwt');
     expect(read('docs/OPERATIONS.md')).not.toContain('--no-verify-jwt');

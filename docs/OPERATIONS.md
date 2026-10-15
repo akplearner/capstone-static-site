@@ -129,9 +129,11 @@ has failed silently in some deployment of some product; none takes more than a m
   the account page; without the functions it says links are not set up.
 - [ ] **Functions from the browser (R115):** for each of `stamp`, `receipt`, `share` and
   `shared-profile`: Supabase → Edge Functions → Deploy a new function → Via Editor, paste
-  `supabase/dashboard/<name>.ts` over the example, name it exactly `<name>`, Deploy function; no
-  secret set, JWT verification left on. Test → POST: the first three answer 401 `invalid-session`,
-  `shared-profile` 404 `not-available`. Then the R113 and R114 rows below pass, including a link
+  `supabase/dashboard/<name>.ts` over the example, name it exactly `<name>` before Deploy function;
+  no secret set, JWT verification left on. The Edge Functions page's URL column ends with
+  `/functions/v1/<name>` for each (a made-up name there means it was renamed after deploying: delete
+  and deploy again). Test → POST: the first three answer 401 `invalid-session`, `shared-profile` 404
+  `not-available`. Then the R113 and R114 rows below pass, including a link
   opened signed out in a private window.
 - [ ] **Stamps, receipts, re-hash and the first validator (R113):** cloud, with `stamp` and `receipt`
   deployed: a task's stamp chip says it was issued by the server; paste output with every token and

@@ -255,6 +255,7 @@ Find what you are actually seeing:
 | Signed in with GitHub and progress is gone | GitHub's **primary** email isn't the Gmail used before, so a second empty account was created | Sign out, use Google; delete the stray user under **Authentication → Users** |
 | The browser console says "Could not find the '…' column of '…' in the schema cache", or a feature added in an update never saves | The app was updated but the database was not: a newer migration has not run | Re-run **`supabase/setup.sql`** (**Step 2**); every statement is safe to repeat. Agreement acceptance keeps working meanwhile, without the text hash |
 | Create link says links are not set up, or the stamp chip never says the server issued it | A server function is not deployed, or its name differs from the table | [Deploy the server functions from your browser](#deploy-the-server-functions-from-your-browser) |
+| A function shows the right name in the list, but its URL ends in a made-up name such as `dynamic-task` | It was renamed after it was deployed; the name typed before the first deploy is its address, and renaming changes only the label | Delete it (its page → **Details** → **Delete function**) and deploy it again, typing the name first |
 
 Still stuck? `/api/health` tells you which half of the setup to look at: if it says
 `local`, the problem is Vercel (step 6). If it says `cloud`, the problem is in
@@ -329,18 +330,26 @@ For each function (about a minute each):
    selecting all and copying works too.
 4. Back in Supabase, select everything in the editor (Ctrl/Cmd + A) and paste,
    replacing the example code.
-5. Change the function name (at the bottom of the editor) to exactly the name in
-   the first column, for example `stamp`. The app calls each function by its
-   name, so a different name leaves the feature off.
+5. **Before deploying**, change the function name (at the bottom of the editor)
+   to exactly the name in the first column, for example `stamp`. The name you
+   type here becomes the function's address (`…/functions/v1/stamp`), which the
+   app calls and which cannot be changed afterwards: renaming the function
+   later changes only its label in the list.
 6. Click **Deploy function** and wait for the success message (10 to 30 seconds).
 
 There is nothing else to set. Leave **JWT verification** on (the default) for
 every function, `shared-profile` included: a signed-out visitor opening a link
 still sends your project's public key, and that check accepts it.
 
-**Check it worked.** The **Edge Functions** page lists each name exactly as in
-the table. On a function's page, click **Test**, keep the method POST and click
-**Send Request**. `stamp`, `receipt` and `share` answer **401**
+**Check it worked.** On the **Edge Functions** page, read the **URL** column, not
+the name: each row's address must end with `/functions/v1/<name>`, for example
+`/functions/v1/stamp`. An address ending in a made-up name such as
+`dynamic-task` means the function was renamed after it was deployed, and the app
+cannot find it: open it, use **Delete function** on its **Details** tab, and
+deploy it again with the name typed first. Then, on a function's page, click
+**Test**, keep the method POST and click **Send Request**. The Test button calls
+the function at whatever address it has, so it answers the same either way; the
+URL column is the check that proves the app can reach it. `stamp`, `receipt` and `share` answer **401**
 `{"error":"invalid-session"}`: the function ran, and it wants a signed-in
 student, so that is the right answer here. `shared-profile` answers **404**
 `{"error":"not-available"}`. Never test `delete-account` with a real student's

@@ -4,8 +4,10 @@
 // imports copied in, by `npm run functions:dashboard`. To deploy it without
 // the CLI: Supabase → Edge Functions → Deploy a new function → Via Editor;
 // replace everything in the editor with this whole file; name the function
-// exactly `report-notify`; click Deploy function. No secrets to set, and JWT
-// verification stays on. SUPABASE_SETUP.md has the steps.
+// exactly `report-notify` BEFORE clicking Deploy function: the name becomes its
+// address (…/functions/v1/report-notify), and renaming it later changes only the
+// label. No secrets to set, and JWT verification stays on. SUPABASE_SETUP.md
+// has the steps.
 
 // report-notify — emails the instructor when a student files a task report.
 //
