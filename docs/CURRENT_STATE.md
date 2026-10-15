@@ -10,7 +10,7 @@
 
 Today the app is a **fully working, mostly client-side course platform**: authored Security+ content
 (Weeks 0–4 × Red/Blue/GRC, ~90 steps, 3 gates), 8 deliverable forms that render PDF/CSV and a team ZIP,
-guided task runner with progress, gate sequencing + completion, a lab-access panel, and
+guided task runner with progress, advisory gate notes + completion, a lab-access panel, and
 evidence/chain-of-custody *guidance*. Persistence is **localStorage by default**, with an **optional
 Supabase backend** (auth + cloud progress + team sync) behind a clean repo seam.
 
@@ -144,6 +144,9 @@ additive, none requiring a rewrite.
 | State validators | `src/lib/docs/validators.ts` (`ufw-least-privilege`), `Step.validator` | **Minimal** (R113; one validator on one Server+ step, shown live in the verify box, not recorded; reads pasted text, not the machine) |
 | Candidate links | `supabase/functions/share`, `shared-profile`, `_shared/shareGuard.ts`; `profile_shares` (0015); `src/lib/shares.ts`; the Create link dialog, the account's "Links you created", `/share` | **Present, cloud mode, once deployed** (R114; deploys from the dashboard by pasting `supabase/dashboard/share.ts` and `shared-profile.ts`, no secrets, R115; member-created, unsigned, 7/30/90 days, revocable; no identity in the copy; token in the fragment, stored as a hash) |
 | Employer profiles | `environment_profiles` (0015), `src/lib/employerProfiles.ts`, `/instructor/profiles`, the Skill board picker | **Present, cloud mode** (R114; instructor-published, validated on publish and read; links record the measure) |
+| The role on top | `src/components/course/RoleStrip.tsx` inside the sticky `CourseSubNav` (every course page renders it), the dashboard card's role chip, the role's `arc` line on Home | **Present** (R116; Your role, icon, name and team; "No role yet. Join" for a visitor; page-shape pins that every course page renders the bar) |
+| Whose task is whose | `src/lib/taskOwnership.ts`, `OwnerChip`, `YourTasksStrip`, the opened task's sentence in `TasksTab` | **Present** (R116; every row says Your task, Everyone, or {Role} · open to anyone; no padlock on any task surface) |
+| Gates | `openGateSteps` (`teamProgress.ts`), `WeekGateNote`, the week rail's gate flag, the scope note on the pentest report | **Advisory** (R116; no week or form is locked; the note lists the exact open tasks, setup tasks included, as links) |
 | Acceptance gate (agreements v2, AUP page) | `src/lib/legal/agreements.ts`, `/legal/aup`, `LegalGateOverlay`, `agreement_acceptances.text_sha256` | **Present** (R110; sandbox-only and liability wording drafted, counsel review pending; re-asked at the next sign-in on a version bump) |
 | Event / Attestation | — | **Absent** |
 | `tenant_id` | `course_id`+`team_id` soft scope | **Absent** (column) |

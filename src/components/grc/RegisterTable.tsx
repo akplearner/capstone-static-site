@@ -289,7 +289,10 @@ export function RegisterTable({
       </div>
 
       {/* ── Everything wider: the table ── */}
-      <div className="hidden overflow-x-auto sm:block">
+      {/* `relative`: the header's sr-only label is absolutely positioned, and a
+          scroller that is not its containing block does not clip it, so a wide
+          register (the pentest findings) made the whole page scroll sideways at 1280. */}
+      <div className="relative hidden overflow-x-auto sm:block">
         {/* 480px, down from 640: the column help under every heading was the
             width driver, and it moved into an InfoTip on the heading. */}
         <table className="w-full min-w-[480px] text-sm">

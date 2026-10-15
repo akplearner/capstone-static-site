@@ -6,7 +6,8 @@ import { AZURE_FUNDAMENTALS } from '@/lib/data/seed/azureCloud';
 /** R100 — a closed row is one line plus its objective; in select mode it is a selector. */
 const C = AZURE_FUNDAMENTALS;
 const task = C.tasks.find((t) => t.week === 1)!;
-const owner = { name: 'Infrastructure Admin', icon: 'server', color: '#000', isYou: false };
+const role = { name: 'Platform Build (Infrastructure Admin)', icon: 'server', color: '#000' };
+const owner = { kind: 'other' as const, role };
 
 function mount(over: Partial<Parameters<typeof TaskRow>[0]> = {}) {
   const onToggle = vi.fn();
@@ -20,17 +21,17 @@ describe('TaskRow', () => {
     const { container, renderBody } = mount({ owner, isNext: true, stuckCount: 2, reportCount: 1 });
     expect(screen.getByText(task.title).className).toContain('truncate');
     expect(screen.getByText(task.objective).className).toContain('truncate');
-    for (const chip of ['Next', '2 stuck', '1 issue', 'Infrastructure Admin']) expect(screen.getByText(chip)).toBeInTheDocument();
+    for (const chip of ['Next', '2 stuck', '1 issue', 'Platform Build · open to anyone']) expect(screen.getByText(chip)).toBeInTheDocument();
     expect(container.firstElementChild).toHaveAttribute('data-open', 'false');
     expect(renderBody).not.toHaveBeenCalled();
     expect(screen.getByRole('button', { name: /1\./ })).toHaveAttribute('aria-expanded', 'false');
   });
 
   it('accordion: open builds the body under the row and lifts the row', () => {
-    const { container, renderBody } = mount({ open: true, owner: { ...owner, isYou: true } });
+    const { container, renderBody } = mount({ open: true, owner: { kind: 'yours', role } });
     expect(renderBody).toHaveBeenCalled();
     expect(screen.getByText('the runner')).toBeInTheDocument();
-    expect(screen.getByText('Yours')).toBeInTheDocument();
+    expect(screen.getByText('Your task')).toBeInTheDocument();
     expect(screen.queryByText(task.objective)).toBeNull();
     expect(container.firstElementChild).toHaveAttribute('data-open', 'true');
   });
@@ -47,5 +48,24 @@ describe('TaskRow', () => {
     expect(container.querySelector(`#task-${task.id}-body`)).toBeNull();
     fireEvent.click(btn);
     expect(onToggle).toHaveBeenCalledTimes(1);
+  });
+
+  it('R116: every row says whose it is, in words: yours, everyone’s, or another role’s and open to anyone', () => {
+    const { container, rerender } = mount({ owner: { kind: 'yours', role } });
+    expect(container.querySelector('[data-owner="yours"]')?.textContent).toBe('Your task');
+    const props = { course: C, task, joined: true, open: false, percent: 0, onToggle: vi.fn(), number: 1, renderBody: () => null };
+    rerender(<TaskRow {...props} owner={{ kind: 'shared' }} />);
+    expect(container.querySelector('[data-owner="shared"]')?.textContent).toBe('Everyone');
+    rerender(<TaskRow {...props} owner={owner} />);
+    const other = container.querySelector('[data-owner="other"]')!;
+    expect(other.textContent).toBe('Platform Build · open to anyone');
+    expect(other.getAttribute('title')).toContain('anyone on the team can do it');
+  });
+
+  it('R116: no padlock is ever drawn on a row, joined or not', () => {
+    const { container, rerender } = mount({ owner });
+    expect(container.querySelector('.lucide-lock')).toBeNull();
+    rerender(<TaskRow course={C} task={task} joined={false} open={false} percent={0} onToggle={vi.fn()} renderBody={() => null} owner={owner} />);
+    expect(container.querySelector('.lucide-lock')).toBeNull();
   });
 });

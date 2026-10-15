@@ -161,11 +161,13 @@ export default function CoursePage() {
   }, [tab]);
   const focusMode = useClientStore<boolean>(getFocusMode, false);
 
-  // `/team/<id>` forwards to `#team` here; the block renders only once the
-  // member has loaded, so the browser's own hash jump has nothing to land on.
+  // `/team/<id>` forwards to `#team` (and the role strip links to `#role`)
+  // here; those blocks render only once the member has loaded, so the
+  // browser's own hash jump has nothing to land on.
   useEffect(() => {
-    if (!member || window.location.hash !== '#team') return;
-    setTimeout(() => document.getElementById('team')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
+    const id = window.location.hash.slice(1);
+    if (!member || (id !== 'team' && id !== 'role')) return;
+    setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
   }, [member]);
 
   if (loading) return <CoursePageSkeleton />;
@@ -174,13 +176,13 @@ export default function CoursePage() {
   const ownRole = member ? getRoleDef(course, member.role) : undefined;
   const effectiveWeek = selectedWeek ?? activeWeek;
 
-  // Gate sequencing: a week stays locked until the previous week's gate is
-  // passed. Instructors (or the local dev passcode) bypass it.
-  const priorGateForWeek = (weekNum: number) => course.gates.find((g) => g.week === weekNum - 1);
-  const weekLocked = (weekNum: number): boolean => {
-    if (!joined || instructorOverride || course.noGatekeeping) return false;
-    const pg = priorGateForWeek(weekNum);
-    return !!pg && (gateStats[pg.id] || 'locked') !== 'passed';
+  // Gates are advisory (R116): no week is ever locked. When the gate before a
+  // week is not cleared, the week shows a note naming what the gate still
+  // waits on. Instructors (or the local dev passcode) see no note.
+  const gateNote = (weekNum: number) => {
+    const gate = course.gates.find((g) => g.week === weekNum - 1);
+    if (!joined || instructorOverride || course.noGatekeeping || !gate || (gateStats[gate.id] || 'locked') === 'passed') return null;
+    return { gate, steps: progress.gateOpen[gate.id] ?? [] };
   };
 
   // Crew progress: the Capstone Stone's stage plus professional milestones,
@@ -366,8 +368,7 @@ export default function CoursePage() {
               moreOpen={moreOpen}
               setMoreOpen={setMoreOpen}
               deepStep={deepStep}
-              weekLocked={weekLocked}
-              priorGateForWeek={priorGateForWeek}
+              gateNote={gateNote}
               pickWeek={pickWeek}
               openAndScrollWeek={openAndScrollWeek}
               goToTask={goToTask}

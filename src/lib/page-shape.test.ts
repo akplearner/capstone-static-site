@@ -2996,3 +2996,89 @@ describe('R115 — the functions deploy from the browser', () => {
     expect(read('docs/ARCHITECTURE.md')).toContain('### Deploying the functions from the browser (R115)');
   });
 });
+
+/**
+ * R116 — the role on top, whose task is whose, no week locked.
+ *
+ * Three promises, each easy to lose quietly: the member's role is in the one
+ * sticky bar EVERY course page renders (so a new page cannot ship without it);
+ * every task, wherever it is drawn, says whether it is yours, everyone's, or
+ * another role's and open to anyone; and no week, task or form is behind a
+ * padlock (a gate and the scope sign-off are notes).
+ */
+describe('R116 — the role on top, whose task is whose, no week locked', () => {
+  const coursePages = (dir = 'src/app/courses/[courseId]'): string[] =>
+    readdirSync(root(dir)).flatMap((name) => {
+      const rel = `${dir}/${name}`;
+      if (statSync(root(rel)).isDirectory()) return coursePages(rel);
+      return name === 'page.tsx' ? [rel] : [];
+    });
+  // Redirect stubs: they forward to a page that does render the bar.
+  const STUBS = ['src/app/courses/[courseId]/guide/reference/page.tsx', 'src/app/courses/[courseId]/team/[teamId]/page.tsx'];
+
+  it('the role strip is the first item of the sticky course bar', () => {
+    const nav = code('src/components/CourseSubNav.tsx');
+    expect(nav).toContain('<RoleStrip courseId={courseId}');
+    expect(nav.indexOf('<RoleStrip'), 'before the tabs').toBeLessThan(nav.indexOf("aria-current={cur('home')}"));
+    expect(nav, 'sticky, so it never scrolls away').toContain('sticky');
+    const strip = code('src/components/course/RoleStrip.tsx');
+    for (const n of ['Your role', 'No role yet.', 'data-role-strip', 'useMember(courseId)', 'useContext(CourseContext)']) expect(strip, n).toContain(n);
+    expect(strip, 'the longhand label, not the capped eyebrow class').not.toMatch(/['"` ]eyebrow['"` ]/);
+    expect(code('src/components/ui/Skeletons.tsx'), 'the skeleton holds its place').toMatch(/function SubNavSkeleton\(\)[\s\S]*?h-8 w-full sm:w-52/);
+  });
+
+  it('every course page renders that bar, so the role is on top of all of them', () => {
+    const pages = coursePages();
+    expect(pages.length).toBeGreaterThanOrEqual(8);
+    for (const f of pages) {
+      if (STUBS.includes(f)) expect(code(f), `${f} only forwards`).toMatch(/router\.replace\(/);
+      else expect(code(f), `${f} renders the course bar`).toContain('<CourseSubNav');
+    }
+  });
+
+  it('Home has a role section the strip can land on, and the dashboard card names the role', () => {
+    expect(code('src/components/course/HomeTab.tsx')).toContain('<Surface accent="role" seamColor={ownRole.color} id="role"');
+    expect(code('src/components/course/HomeTab.tsx')).toContain('.arc &&');
+    expect(code('src/app/courses/[courseId]/page.tsx')).toContain("id !== 'team' && id !== 'role'");
+    expect(code('src/app/dashboard/page.tsx')).toContain('{card.role}');
+  });
+
+  it('every task says whose it is: one pure helper, one chip, used on the row, the opened task and the list', () => {
+    const pure = code('src/lib/taskOwnership.ts');
+    for (const bad of ['Date.', 'Math.random', 'localStorage', "from './data", 'useClientStore']) expect(pure, `pure: ${bad}`).not.toContain(bad);
+    expect(code('src/components/course/TaskRow.tsx')).toContain('<OwnerChip kind={owner.kind} role={owner.role} />');
+    const tab = code('src/components/course/TasksTab.tsx');
+    for (const n of ['taskOwnership(task, member.role)', 'OWNER_COPY.explain[kind]', 'data-owner-explain={kind}', '<YourTasksStrip', 'hasOthers']) expect(tab, n).toContain(n);
+    expect(tab, 'the opened task states it in full, not in a tooltip alone').not.toMatch(/InfoTip[^\n]*anyone can do any/);
+  });
+
+  it('no padlock on any task surface: a gate and the scope sign-off are notes, and the week stays open', () => {
+    for (const f of ['src/components/course/TaskRow.tsx', 'src/components/course/TasksTab.tsx', 'src/components/course/WeekGateNote.tsx', 'src/components/course/OwnerChip.tsx', 'src/components/course/YourTasksStrip.tsx', 'src/components/week/WeekRail.tsx', 'src/components/task/GuidedTaskRunner.tsx', 'src/components/diagrams/FlowDiagram.tsx', 'src/app/courses/[courseId]/docs/page.tsx']) {
+      expect(code(f), `${f} draws no padlock`).not.toMatch(/\bLock(Open)?\b/);
+    }
+    expect(existsSync('src/components/course/WeekLockedNotice.tsx'), 'the locked notice is gone').toBe(false);
+    const gate = code('src/components/course/WeekGateNote.tsx');
+    for (const n of ['role="note"', 'data-gate-note', 'is not cleared yet. This {unit} is open.', 'onGoTask']) expect(gate, n).toContain(n);
+    const page = code('src/app/courses/[courseId]/page.tsx');
+    expect(page).toContain('const gateNote =');
+    for (const gone of ['weekLocked', 'priorGateForWeek']) expect(page, gone).not.toContain(gone);
+    expect(code('src/components/course/TasksTab.tsx')).not.toMatch(/viewLocked|WeekLockedNotice/);
+    const docs = code('src/app/courses/[courseId]/docs/page.tsx');
+    expect(docs).toContain('Scope is not authorized yet');
+    expect(docs).not.toContain('Locked until scope');
+    expect(docs, 'the form is never hidden by the sign-off').not.toMatch(/!locked|\blocked\b/);
+    expect(code('src/lib/teamProgress.ts')).toContain('export function openGateSteps(');
+    expect(code('src/components/course/useCourseProgress.ts')).toContain('gateOpen');
+  });
+
+  it('a wide register scrolls inside its own box: its sr-only header label is clipped by a positioned scroller', () => {
+    expect(code('src/components/grc/RegisterTable.tsx')).toContain('relative hidden overflow-x-auto sm:block');
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### The role on top, whose task is whose, and gates as notes (R116)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| The role on top |');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| Whose task is whose |');
+    expect(read('docs/OPERATIONS.md')).toContain('(R116)');
+  });
+});

@@ -368,9 +368,11 @@ export interface Course {
    *  Week.runs) + an engagement banner and drops class/cohort language — used by
    *  the MSSP course. Defaults to 'course' (Week N / cohort). */
   framing?: 'course' | 'engagement';
-  /** When true, weeks never lock and the gate chips/checklists are hidden — every
-   *  week is open from the start and hand-offs between roles are shown as guidance,
-   *  not requirements. Used by CySA+ to keep the flow simple for beginners. */
+  /** When true, the gate chips, notes and checklists are hidden — every week is
+   *  open from the start and hand-offs between roles are shown as guidance, not
+   *  requirements. No course locks a week (R116: a gate is a note naming what it
+   *  still waits on); this flag only takes the gate notes away. Used by CySA+ to
+   *  keep the flow simple for beginners. */
   noGatekeeping?: boolean;
   /** One shared build, four focus roles. Every member works the tasks flagged
    *  `Task.shared` plus their own role's smaller deep-dive task, and every

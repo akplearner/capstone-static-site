@@ -54,8 +54,7 @@ function mount(over: Partial<Parameters<typeof TasksTab>[0]> = {}) {
     moreOpen: null,
     setMoreOpen: () => {},
     deepStep: null,
-    weekLocked: () => false,
-    priorGateForWeek: () => undefined,
+    gateNote: () => null,
     pickWeek: () => {},
     openAndScrollWeek: () => {},
     goToTask: () => {},
@@ -81,8 +80,8 @@ describe('TasksTab — every task open to every member', () => {
     expect(cards.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
     expect(container.textContent).toContain('Yours · Security Operations (SecOps Engineer)');
     expect(container.textContent).toContain('Platform Build (Infrastructure Admin) · 1 task');
-    expect(screen.getAllByText('Yours').length).toBeGreaterThanOrEqual(1); // the row's badge (R100: the rule moved into the objectives' how-to-read)
-    expect(screen.getAllByText('Platform Build (Infrastructure Admin)').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('Your task').length).toBeGreaterThanOrEqual(1); // the row's badge (R100: the rule moved into the objectives' how-to-read)
+    expect(screen.getAllByText('Platform Build · open to anyone').length).toBeGreaterThan(0); // R116: another role's row says it is open
     expect(container.textContent).toContain('Everyone can open and do any of them');
   });
 
@@ -179,5 +178,84 @@ describe('TasksTab — R100 split view and focus mode', () => {
     expect(container.querySelector('[data-focus-hint]')).not.toBeNull();
     expect(container.querySelectorAll('.stratum-task').length).toBe(4);
     expect(document.getElementById('tasks-head')).not.toBeNull();
+  });
+});
+
+describe('TasksTab — R116: whose task is whose, and a gate is a note, never a lock', () => {
+  const gate = { id: 1, week: 1, title: 'Foundation', description: '', requiredArtifactTypes: [], requiredTasks: [week1[0].id] };
+  const note = { gate, steps: [{ taskId: week1[0].id, title: week1[0].title, role: week1[0].role, week: 1, open: 2 }] };
+
+  it('lists the member’s own tasks above the list, with how many are done and that the others’ tasks are open too', () => {
+    const own = week1.filter((t) => t.shared || t.role === 'secops');
+    const { container } = mount({ teamTaskStats: stats((id) => (id === own[0].id ? 100 : 0)) });
+    const strip = container.querySelector('[data-your-tasks]')!;
+    expect(strip).not.toBeNull();
+    expect(strip.textContent).toContain(`1 of ${own.length} done`);
+    expect(strip.textContent).toContain('open to you too');
+    expect(strip.querySelectorAll('[data-your-task]')).toHaveLength(own.length);
+    // It sits above the list of every task.
+    const list = container.querySelector('.stratum-task')!;
+    expect(strip.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it('a click on one of the member’s tasks opens it', () => {
+    const goToTask = vi.fn();
+    const own = week1.find((t) => t.role === 'secops')!;
+    const { container } = mount({ goToTask });
+    fireEvent.click(container.querySelector(`[data-your-task="${own.id}"]`)!);
+    expect(goToTask).toHaveBeenCalledWith(expect.objectContaining({ id: own.id }));
+  });
+
+  it('every row says whose it is, in words', () => {
+    const { container } = mount();
+    const chips = [...container.querySelectorAll('.stratum-task [data-owner]')].map((c) => c.getAttribute('data-owner'));
+    expect(chips).toHaveLength(week1.length);
+    expect(chips).toContain('yours');
+    expect(chips).toContain('other');
+  });
+
+  it('an opened task of another role says, in full and not behind a tooltip, that it is open to the whole team', () => {
+    const infra = week1.find((t) => t.role === 'infra')!;
+    const { container } = mount({ expanded: new Set([infra.id]), teamTaskProgress: { [infra.id]: [{ memberId: 'ada', displayName: 'Ada', role: 'infra', pct: 0 }] } });
+    const line = container.querySelector('[data-owner-explain="other"]')!;
+    expect(line.textContent).toContain('Platform Build (Infrastructure Admin), held by Ada.');
+    expect(line.textContent).toContain('Open to you: anyone on the team can do it, and it counts for the team');
+  });
+
+  it('an opened task of the member’s own says so', () => {
+    const own = week1.find((t) => t.role === 'secops')!;
+    const { container } = mount({ expanded: new Set([own.id]) });
+    expect(container.querySelector('[data-owner-explain="yours"]')?.textContent).toContain('(that’s you)');
+  });
+
+  it('a week behind an uncleared gate is OPEN: its rows and objectives render beside a note that names what is left, as links', () => {
+    const goToTask = vi.fn();
+    const { container } = mount({ gateNote: (w) => (w === 1 ? note : null), goToTask });
+    expect(container.querySelector('[data-gate-note="1"]')).not.toBeNull();
+    expect(screen.getByText('Gate 1 is not cleared yet. This week is open.')).toBeInTheDocument();
+    expect(container.querySelectorAll('.stratum-task')).toHaveLength(4);
+    expect(screen.getAllByRole('button', { name: /task · ~/ }).filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
+    const open = screen.getByRole('list', { name: 'Still open for Gate 1' });
+    expect(open.textContent).toContain('2 steps left');
+    fireEvent.click(screen.getByRole('button', { name: week1[0].title, hidden: false }));
+    expect(goToTask).toHaveBeenCalledWith(expect.objectContaining({ id: week1[0].id }));
+  });
+
+  it('no note when the gate is cleared, and no padlock anywhere on the tab', () => {
+    const { container } = mount();
+    expect(container.querySelector('[data-gate-note]')).toBeNull();
+    expect(container.querySelector('.lucide-lock')).toBeNull();
+  });
+
+  it('the week rail flags a week whose gate is not cleared with a word for assistive tech, never a lock', () => {
+    const { container } = mount({ gateNote: (w) => (w === 2 ? note : null), teamWeekStats: { 1: 100, 2: 0 } });
+    expect(screen.getByLabelText('gate not cleared yet')).toBeInTheDocument();
+    expect(container.querySelector('[aria-label="locked"]')).toBeNull();
+  });
+
+  it('Focus mode keeps only the rows and the open task: the strip steps aside', () => {
+    const { container } = mount({ focusMode: true });
+    expect(container.querySelector('[data-your-tasks]')).toBeNull();
+    expect(container.querySelectorAll('.stratum-task')).toHaveLength(4);
   });
 });

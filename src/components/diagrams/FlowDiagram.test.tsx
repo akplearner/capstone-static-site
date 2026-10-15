@@ -6,7 +6,7 @@ const NODES: FlowNode[] = [
   { id: 'a', label: 'Task 1', sublabel: 'Discover the kit', status: 'done' },
   { id: 'b', label: 'Task 2', sublabel: 'Design the shape', status: 'current', meta: '6 steps' },
   { id: 'c', label: 'Task 3', sublabel: 'Bring it up', status: 'upcoming' },
-  { id: 'd', label: 'Task 4', sublabel: 'Prove reachability', status: 'locked' },
+  { id: 'd', label: 'Task 4', sublabel: 'Prove reachability', status: 'upcoming' },
 ];
 
 describe('FlowDiagram — the clickable workflow', () => {
@@ -17,16 +17,15 @@ describe('FlowDiagram — the clickable workflow', () => {
     expect(screen.getByText('6 steps')).toBeTruthy();
   });
 
-  it('marks where you are, and locks what you cannot reach', () => {
+  it('marks where you are, and opens everything: no node is ever disabled or padlocked (R116)', () => {
     render(<FlowDiagram nodes={NODES} onSelect={() => {}} />);
     const buttons = screen.getAllByRole('button');
     expect(buttons[1].getAttribute('aria-current')).toBe('step');
     expect(buttons[0].getAttribute('aria-current')).toBeNull();
-    expect((buttons[3] as HTMLButtonElement).disabled).toBe(true);
-    expect((buttons[2] as HTMLButtonElement).disabled).toBe(false);
-    // R98: a gate lock is the only thing that disables a node — there is no
-    // "a teammate's" status; every objective of the week is open to every member.
-    expect(buttons.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(1);
+    // R98: there is no "a teammate's" status; every objective of the week is open to
+    // every member. R116: a gate is a note, so there is no locked status either.
+    expect(buttons.filter((b) => (b as HTMLButtonElement).disabled)).toHaveLength(0);
+    expect(document.querySelector('.lucide-lock')).toBeNull();
   });
 
   it('answers a click with the node id', () => {

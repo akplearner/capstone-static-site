@@ -3,7 +3,8 @@ import { CYSA_PLUS } from './data/seed/cysa';
 import { localStorageProgressRepo } from './data/localStorageProgressRepo';
 import { KEYS } from './data/keys';
 import { getRequiredSteps, getProgressSteps } from './course-helpers';
-import { stepKey, teamCompletionKeySet, teamGateStatus, teamStepCompletions, teamTaskPercent, teamWeekCompletion } from './teamProgress';
+import { openGateSteps, stepKey, teamCompletionKeySet, teamGateStatus, teamStepCompletions, teamTaskPercent, teamWeekCompletion } from './teamProgress';
+import { MSSP } from './data/seed/mssp';
 
 /**
  * R98 — a task is done for the team once anyone on the team has done it. The
@@ -99,5 +100,45 @@ describe('teamProgress — the union of a team’s ticks', () => {
     join('ada', 't1', 'red');
     getProgressSteps(t).forEach((s) => tick('ada', t.id, s.id));
     expect(teamTaskPercent(t, teamCompletionKeySet(localStorageProgressRepo, C, 't1'))).toBe(100);
+  });
+});
+
+describe('teamProgress — R116: an advisory gate names what it still waits on', () => {
+  it('lists the gate’s open tasks in the gate’s order, whoever owns them, and drops a task once it is done', () => {
+    const gate = C.gates[0];
+    join('ada', 't1', 'red');
+    const open = () => openGateSteps(C, gate, teamCompletionKeySet(localStorageProgressRepo, C, 't1'));
+    expect(open().map((o) => o.taskId)).toEqual(['cr-w1', 'cb-w1', 'cg-w1']);
+    expect(open()[0]).toMatchObject({ title: task('cr-w1').title, role: 'red', week: 1, open: getRequiredSteps(task('cr-w1')).length });
+    finish('ada', 'cr-w1');
+    expect(open().map((o) => o.taskId)).toEqual(['cb-w1', 'cg-w1']);
+    finish('ada', 'cb-w1');
+    finish('ada', 'cg-w1');
+    expect(open()).toEqual([]);
+  });
+
+  it('counts the steps still open on a half-done task', () => {
+    const gate = C.gates[0];
+    join('ada', 't1', 'red');
+    const steps = getRequiredSteps(task('cr-w1'));
+    tick('ada', 'cr-w1', steps[0].id);
+    const o = openGateSteps(C, gate, teamCompletionKeySet(localStorageProgressRepo, C, 't1')).find((x) => x.taskId === 'cr-w1')!;
+    expect(o.open).toBe(steps.length - 1);
+  });
+
+  it('names a setup-week task too: MSSP Gate 1 waits on mg-w0, which Continue skips', () => {
+    const gate = MSSP.gates[0];
+    expect(gate.requiredTasks).toContain('mg-w0');
+    const named = openGateSteps(MSSP, gate, new Set());
+    const setup = named.find((o) => o.taskId === 'mg-w0')!;
+    expect(setup.week).toBe(0);
+    expect(setup.open).toBeGreaterThan(0);
+  });
+
+  it('a gate over tasks with no required step asks for nothing: it reads passed, never shut forever', () => {
+    const t = task('cr-w0');
+    expect(getRequiredSteps(t)).toHaveLength(0);
+    expect(teamGateStatus(C, { ...C.gates[0], requiredTasks: [t.id] }, new Set())).toBe('passed');
+    expect(openGateSteps(C, { ...C.gates[0], requiredTasks: [t.id] }, new Set())).toEqual([]);
   });
 });

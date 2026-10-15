@@ -286,7 +286,7 @@ export function HomeTab({
 
       {/* Your role and your team, on one surface with the role's seam. */}
       {joined && member && ownRole && (
-        <Surface accent="role" seamColor={ownRole.color} className="space-y-6">
+        <Surface accent="role" seamColor={ownRole.color} id="role" className="scroll-under-chrome space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <RoleIcon iconName={ownRole.icon} className="h-9 w-9 shrink-0" color={ownRole.color} />
@@ -297,6 +297,7 @@ export function HomeTab({
                   {phaseTag(course, activeWeek)} of {contentWeeks.length}
                 </div>
                 {profileOf(roleContent.PROFILES, ownRole.id) && <p className="mt-1 max-w-xl text-sm text-body">{profileOf(roleContent.PROFILES, ownRole.id)!.summary}</p>}
+                {profileOf(roleContent.PROFILES, ownRole.id)?.arc && <p className="mt-1 max-w-xl text-sm text-muted">{profileOf(roleContent.PROFILES, ownRole.id)!.arc}</p>}
               </div>
             </div>
             {!nextTask && (

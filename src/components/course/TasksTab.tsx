@@ -22,9 +22,12 @@ import { TaskAboutPanel } from './TaskAboutPanel';
 import { WeekVisualPanel } from './WeekVisualPanel';
 import { TasksLayout, useSplitView } from './TasksLayout';
 import { TaskPane } from './TaskPane';
-import { WeekLockedNotice } from './WeekLockedNotice';
+import { WeekGateNote } from './WeekGateNote';
+import { YourTasksStrip } from './YourTasksStrip';
 import { WeekMoreBody } from './WeekMoreBody';
 import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
+import { OWNER_COPY, ownerSentence, taskOwnership } from '@/lib/taskOwnership';
+import type { GateNote } from '@/lib/teamProgress';
 import { hasLabAccess, labProfile, useLabAccess } from '@/lib/labAccess';
 import { dueLabel, weekDue } from '@/lib/calendar';
 import { DUR, EASE } from '@/lib/motion';
@@ -86,8 +89,7 @@ export function TasksTab({
   moreOpen,
   setMoreOpen,
   deepStep,
-  weekLocked,
-  priorGateForWeek,
+  gateNote,
   pickWeek,
   openAndScrollWeek,
   goToTask,
@@ -127,8 +129,8 @@ export function TasksTab({
   moreOpen: boolean | null;
   setMoreOpen: Dispatch<SetStateAction<boolean | null>>;
   deepStep: { taskId: string; stepId?: string } | null;
-  weekLocked: (weekNum: number) => boolean;
-  priorGateForWeek: (weekNum: number) => Course['gates'][number] | undefined;
+  /** R116: the gate before a week, when it is not cleared, with what it waits on. Advisory: the week is open. */
+  gateNote: (weekNum: number) => GateNote | null;
   pickWeek: (n: number) => void;
   openAndScrollWeek: (n: number) => void;
   goToTask: (task: Task) => void;
@@ -166,8 +168,7 @@ export function TasksTab({
   // task that is yours, then your teammates' — open to you too.
   const ordered = weekTasksOrdered(course, member.role, viewWeek);
   const viewPct = teamWeekStats[viewWeek] ?? 0;
-  const viewLocked = weekLocked(viewWeek);
-  const lockGate = priorGateForWeek(viewWeek);
+  const viewNote = gateNote(viewWeek);
   const summary = weekSummary(course, member.role, viewWeek);
   const roleOf = (id: string) => course.roles.find((r) => r.id === id);
   const roleName = (id: string) => roleOf(id)?.name ?? id;
@@ -221,17 +222,25 @@ export function TasksTab({
   // a deep link or a teammate's "task 3" means the same row for everyone,
   // whichever role is looking.
   const numberOf = new Map(groups.flatMap((o) => o.tasks).map((t, i) => [t.id, i + 1]));
+  // R116: the member's own tasks this week, so "which is mine" is one glance;
+  // shown only when another role's tasks sit beside them.
+  const yours = ordered.filter((t) => taskOwnership(t, member.role) !== 'other');
+  const hasOthers = ordered.some((t) => taskOwnership(t, member.role) === 'other');
+  const goToTaskId = (id: string) => {
+    const t = course.tasks.find((x) => x.id === id);
+    if (t) goToTask(t);
+  };
   // R98: the rule, said once — in the objectives' "how to read" (R100).
   const roleRule =
     course.roles.length > 1 && ordered.some((t) => !t.shared)
-      ? ' One task per role. Everyone can open and do any of them — if a teammate is away, take theirs and say so in the document. Yours is marked "Yours".'
+      ? ' One task per role. Everyone can open and do any of them — if a teammate is away, take theirs and say so in the document. Yours is marked "Your task".'
       : '';
 
-  // Whose task a row is, and who finished it when that was not the viewer.
+  // Whose task a row is to the viewer (R116): theirs, the whole team's, or
+  // another role's and open to anyone. Every row says so; none is locked.
   const ownerOf = (task: Task) => {
-    if (task.shared) return undefined;
     const r = roleOf(task.role);
-    return r ? { name: r.name, icon: r.icon, color: r.color, isYou: task.role === member.role } : undefined;
+    return { kind: taskOwnership(task, member.role), role: r ? { name: r.name, icon: r.icon, color: r.color } : undefined };
   };
   const doneByOf = (task: Task) =>
     (taskStats[task.id] ?? 0) >= 100
@@ -242,22 +251,18 @@ export function TasksTab({
   // above it says whose the task is, so a teammate's is taken knowingly.
   const renderTaskBody = (task: Task) => {
     const following = nextIncompleteAfter(task.id);
-    const owner = ownerOf(task);
-    const holder = owner && !owner.isYou ? (teamTaskProgress[task.id] ?? []).find((p) => p.role === task.role)?.displayName : undefined;
+    const kind = taskOwnership(task, member.role);
+    const holder = kind === 'other' ? (teamTaskProgress[task.id] ?? []).find((p) => p.role === task.role)?.displayName : undefined;
+    const sentence = ownerSentence(OWNER_COPY.explain[kind], roleName(task.role), holder);
     return (
       <>
         <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-          {owner ? (
-            <p className="flex items-center gap-1.5 text-xs text-muted">
-              <Users className="h-3.5 w-3.5 shrink-0" aria-hidden />
-              <span>
-                This task is for: <span className="font-semibold text-ink">{owner.name}</span>
-                {owner.isYou ? ' (that’s you).' : `${holder ? ` (${holder})` : ''} — anyone on the team can do it; say who did in the document.`}
-              </span>
-            </p>
-          ) : (
-            <span />
-          )}
+          {/* R116: said in full on every opened task, never behind a tooltip:
+              whose it is, and that another role's is open to the whole team. */}
+          <p className={`flex items-start gap-1.5 text-xs ${kind === 'other' ? 'text-body' : 'text-muted'}`} data-owner-explain={kind}>
+            <Users className="mt-0.5 h-3.5 w-3.5 shrink-0" aria-hidden />
+            <span>{sentence}</span>
+          </p>
           <ReportIssueDialog courseId={course.id} task={task} member={member} />
         </div>
         <GuidedTaskRunner
@@ -370,61 +375,68 @@ export function TasksTab({
 
       {/* R99: the build as it stands at the end of this week, this week's
           additions glowing, the week's process drawn over it — shown even
-          behind a gate, because it is what the locked week is about. In the
+          behind a gate note, because it is what the week is about. In the
           split view it is a thumbnail here only while the pane holds a task;
           otherwise the pane draws it at full size. */}
       {!focusMode && (!split || paneTask) && <WeekVisualPanel course={course} week={viewWeek} />}
 
-      {viewLocked ? (
-        <WeekLockedNotice course={course} unit={unit} week={viewWeek} gate={lockGate} onGo={openAndScrollWeek} />
-      ) : (
-        <>
-          {/* 3. The workflow: the objectives, left to right, with the
-                milestone under them. A click opens the objective's first
-                task that is not done. */}
-          {!focusMode && ordered.length > 0 && (
-            <FlowDiagram
-              title={`This ${unit}'s objectives`}
-              nodes={weekNodes}
-              onSelect={(id) => {
-                const o = groups.find((g) => g.id === id);
-                const t = o?.tasks.find((x) => (teamTaskStats[x.id] ?? 0) < 100) ?? o?.tasks[0];
-                if (t) goToTask(t);
-              }}
-              caption={summary.milestone ? `Done when: ${summary.milestone}` : undefined}
-              layout={split ? 'grid' : 'row'}
-              ariaLabel={`Objectives this ${unit}`}
-              howToRead={`Left to right is the order to do them. Click an objective to open its next task; a tick means every task in it is done — by anyone on the team.${roleRule}`}
-            />
-          )}
+      {/* R116: a gate is a note, never a lock. The week below is open. */}
+      {viewNote && <WeekGateNote course={course} unit={unit} note={viewNote} onGo={openAndScrollWeek} onGoTask={goToTaskId} />}
 
-          {ordered.length === 0 && <p className="text-sm text-muted">No tasks for this {unit} yet.</p>}
+      {/* 3. The workflow: the objectives, left to right, with the
+            milestone under them. A click opens the objective's first
+            task that is not done. */}
+      {!focusMode && ordered.length > 0 && (
+        <FlowDiagram
+          title={`This ${unit}'s objectives`}
+          nodes={weekNodes}
+          onSelect={(id) => {
+            const o = groups.find((g) => g.id === id);
+            const t = o?.tasks.find((x) => (teamTaskStats[x.id] ?? 0) < 100) ?? o?.tasks[0];
+            if (t) goToTask(t);
+          }}
+          caption={summary.milestone ? `Done when: ${summary.milestone}` : undefined}
+          layout={split ? 'grid' : 'row'}
+          ariaLabel={`Objectives this ${unit}`}
+          howToRead={`Left to right is the order to do them. Click an objective to open its next task; a tick means every task in it is done — by anyone on the team.${roleRule}`}
+        />
+      )}
 
-          {focusMode && expanded.size === 0 && (
-            <p className="text-xs text-muted" data-focus-hint>
-              Focus mode — pick a task. The week’s picture and objectives are hidden; switch Focus off in the bar to see them.
-            </p>
-          )}
+      {ordered.length === 0 && <p className="text-sm text-muted">No tasks for this {unit} yet.</p>}
 
-          {list}
+      {focusMode && expanded.size === 0 && (
+        <p className="text-xs text-muted" data-focus-hint>
+          Focus mode — pick a task. The week’s picture and objectives are hidden; switch Focus off in the bar to see them.
+        </p>
+      )}
 
-          {!focusMode && split && tray}
+      {/* R116: which tasks are the member's own, above the list that holds all of them. */}
+      {!focusMode && hasOthers && (
+        <YourTasksStrip
+          unit={unit}
+          color={ownRole.color}
+          tasks={yours.map((t) => ({ id: t.id, title: t.title, number: numberOf.get(t.id), done: (teamTaskStats[t.id] ?? 0) >= 100 }))}
+          onGo={goToTaskId}
+        />
+      )}
 
-          {/* 5. Everything else this week, behind one bar that says what it holds. */}
-          {!focusMode && hasMore && (
-            <div className="rounded-lg depth-edge bg-panel px-3">
-              <Collapsible
-                title={`More for this ${unit}`}
-                hint={hintParts.join(' · ')}
-                tone={labUnset ? 'warn' : 'neutral'}
-                open={moreIsOpen}
-                onToggle={(o) => setMoreOpen(o)}
-              >
-                <WeekMoreBody course={course} setupWeeks={setupWeeks} setupTasks={setupTasks} setupPct={setupPct} labAccess={labFields.length > 0} row={row} />
-              </Collapsible>
-            </div>
-          )}
-        </>
+      {list}
+
+      {!focusMode && split && tray}
+
+      {/* 5. Everything else this week, behind one bar that says what it holds. */}
+      {!focusMode && hasMore && (
+        <div className="rounded-lg depth-edge bg-panel px-3">
+          <Collapsible
+            title={`More for this ${unit}`}
+            hint={hintParts.join(' · ')}
+            tone={labUnset ? 'warn' : 'neutral'}
+            open={moreIsOpen}
+            onToggle={(o) => setMoreOpen(o)}
+          >
+            <WeekMoreBody course={course} setupWeeks={setupWeeks} setupTasks={setupTasks} setupPct={setupPct} labAccess={labFields.length > 0} row={row} />
+          </Collapsible>
+        </div>
       )}
     </div>
   );
@@ -445,8 +457,8 @@ export function TasksTab({
   return (
     <>
       {/* 1. Which week. The same component the Deliverables page uses: a tick
-            when the week is done (for the team), a lock while its gate is shut,
-            a slow pulse on the week you are actually on. */}
+            when the week is done (for the team), a flag while the gate before it is
+            not cleared (the week stays open), a slow pulse on the week you are actually on. */}
       {!focusMode && (
         <WeekRail
           id="week-rail"
@@ -457,7 +469,7 @@ export function TasksTab({
             week: w.number,
             label: phaseTag(course, w.number),
             done: (teamWeekStats[w.number] ?? 0) >= 100,
-            locked: weekLocked(w.number),
+            gatePending: !!gateNote(w.number),
             pulse: w.number === activeWeek && (teamWeekStats[w.number] ?? 0) < 100,
             advanced: isAdvancedWeek(course, w.number),
             hint: cohortCal ? dueLabel(weekDue(cohortCal.startsOn, w.number), undefined, (teamWeekStats[w.number] ?? 0) >= 100).text : undefined,

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { progressRepo, stepNotesRepo, cohortRepo, taskReportsRepo } from '@/lib/data';
 import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import { isGradedWeek, weekTasksOrdered } from '@/lib/course-helpers';
-import { stepKey, teamGateStatus, teamStepCompletions, teamTaskPercent, teamWeekCompletion } from '@/lib/teamProgress';
+import { openGateSteps, stepKey, teamGateStatus, teamStepCompletions, teamTaskPercent, teamWeekCompletion, type OpenGateStep } from '@/lib/teamProgress';
 import { readResume, resolveActiveWeek, type ResumePoint } from '@/lib/resume';
 import { parseTeamId } from '@/lib/team';
 import type { Course, GateStatus, Member, Task } from '@/lib/types';
@@ -12,11 +12,13 @@ type CourseStats = {
   weekStats: Record<number, number>;
   taskStats: Record<string, number>;
   /** R98: the team's ticks, whoever made them — what the Tasks tab, the rail,
-   *  the gate lock and the Home banner read. A task is done once anyone did it. */
+   *  the gate note and the Home banner read. A task is done once anyone did it. */
   teamWeekStats: Record<number, number>;
   teamTaskStats: Record<string, number>;
   /** Gates are team checkpoints: passed by the team's work, not one role's. */
   gateStats: Record<number, GateStatus>;
+  /** R116: the tasks each gate still waits on, by gate id. Gates are advisory; the note names these. */
+  gateOpen: Record<number, OpenGateStep[]>;
   /** The week to open on load — where the student stopped, else the first
    *  incomplete non-setup week. See src/lib/resume.ts. */
   activeWeek: number;
@@ -29,6 +31,7 @@ const EMPTY_STATS: CourseStats = {
   teamWeekStats: {},
   teamTaskStats: {},
   gateStats: {},
+  gateOpen: {},
   activeWeek: 1,
   resume: null,
 };
@@ -52,6 +55,7 @@ export function useCourseProgress(course: Course, member: Member | null) {
     const teamWeeks: Record<number, number> = {};
     const teamTasks: Record<string, number> = {};
     const gates: Record<number, GateStatus> = {};
+    const gateOpen: Record<number, OpenGateStep[]> = {};
     let resumePoint: ResumePoint | null = null;
     if (member) {
       const keySet = progressRepo.getCompletionKeySet(course.id, member.memberId);
@@ -72,6 +76,7 @@ export function useCourseProgress(course: Course, member: Member | null) {
       });
       course.gates.forEach((g) => {
         gates[g.id] = teamGateStatus(course, g, done);
+        gateOpen[g.id] = openGateSteps(course, g, done);
       });
       resumePoint = readResume(course, member.memberId);
     }
@@ -81,6 +86,7 @@ export function useCourseProgress(course: Course, member: Member | null) {
       teamWeekStats: teamWeeks,
       teamTaskStats: teamTasks,
       gateStats: gates,
+      gateOpen,
       activeWeek: resolveActiveWeek(course, member?.role ?? '', teamWeeks, resumePoint),
       resume: resumePoint,
     };

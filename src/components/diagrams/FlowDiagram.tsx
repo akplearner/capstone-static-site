@@ -2,14 +2,14 @@
 
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, ChevronRight, Flag, Lock } from 'lucide-react';
+import { CheckCircle2, ChevronRight, Flag } from 'lucide-react';
 import { meter } from '@/lib/motion';
 import { DiagramFrame } from './DiagramFrame';
 
-/** `locked` is a week behind a gate the team has not passed. There is no
- *  "a teammate's" status any more (R98): every objective of the week is open
- *  to every member, and the card says whose it is. */
-export type FlowStatus = 'done' | 'current' | 'upcoming' | 'locked';
+/** There is no "a teammate's" status any more (R98) and no locked one (R116):
+ *  every objective of the week is open to every member, a gate is a note, and
+ *  the card says whose it is. */
+export type FlowStatus = 'done' | 'current' | 'upcoming';
 
 export interface FlowNode {
   id: string;
@@ -33,8 +33,8 @@ export interface FlowNode {
  * at both levels, so a student learns it once.
  *
  * Every node is a real `<button>`: click opens the task or jumps to the step,
- * the current node carries `aria-current="step"`, a locked one is `disabled`
- * with a lock, and the arrow keys walk the row (roving tabindex). Depth comes
+ * the current node carries `aria-current="step"`, and the arrow keys walk the
+ * row (roving tabindex).  Every node is open: nothing here is ever disabled. Depth comes
  * from the recipe classes, never a spelled token, so the "one tier per
  * element" law holds here as everywhere.
  *
@@ -100,7 +100,6 @@ export function FlowDiagram({
     done: 'depth-edge bg-ok-soft text-ink',
     current: 'depth-edge depth-current bg-accent-soft text-ink',
     upcoming: 'depth-edge depth-hover bg-panel text-body',
-    locked: 'depth-edge bg-panel-2 text-muted',
   };
 
   return (
@@ -112,7 +111,6 @@ export function FlowDiagram({
       legend={[
         { label: 'done', color: 'var(--color-ok)' },
         { label: 'you are here', color: 'var(--color-accent)' },
-        ...(nodes.some((n) => n.status === 'locked') ? [{ label: 'locked', dashed: true }] : []),
       ]}
       footer={
         caption && (
@@ -129,7 +127,6 @@ export function FlowDiagram({
         className={layout === 'grid' ? 'grid grid-cols-2 gap-1.5 pb-1' : 'grid grid-cols-2 gap-1.5 pb-1 sm:flex sm:snap-x sm:snap-mandatory sm:items-stretch sm:overflow-x-auto'}
       >
         {nodes.map((n, i) => {
-          const locked = n.status === 'locked';
           const current = n.status === 'current';
           return (
             <li key={n.id} className={layout === 'grid' ? 'flex min-w-0 items-center gap-1.5' : 'flex min-w-0 items-center gap-1.5 sm:shrink-0 sm:snap-start'}>
@@ -138,18 +135,14 @@ export function FlowDiagram({
                   refs.current[i] = el;
                 }}
                 type="button"
-                disabled={locked}
                 tabIndex={i === focusIdx ? 0 : -1}
                 aria-current={current ? 'step' : undefined}
                 onClick={() => onSelect(n.id)}
                 onFocus={() => setFocusIdx(i)}
-                className={`flex w-full min-w-0 flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${layout === 'grid' ? '' : 'sm:w-auto sm:min-w-[9.5rem] sm:max-w-[13rem]'} ${tone[n.status]} ${
-                  locked ? 'cursor-not-allowed' : ''
-                }`}
+                className={`flex w-full min-w-0 flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${layout === 'grid' ? '' : 'sm:w-auto sm:min-w-[9.5rem] sm:max-w-[13rem]'} ${tone[n.status]}`}
               >
                 <span className="flex items-center gap-1.5 font-mono text-2xs font-semibold uppercase tracking-wider">
                   {n.status === 'done' && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-ok" aria-hidden />}
-                  {locked && <Lock className="h-3.5 w-3.5 shrink-0" aria-hidden />}
                   <span className={current ? 'text-accent' : 'text-muted'}>{n.label}</span>
                 </span>
                 {n.sublabel && <span className="mt-0.5 line-clamp-2 text-sm font-medium">{n.sublabel}</span>}

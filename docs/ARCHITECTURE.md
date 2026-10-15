@@ -534,6 +534,24 @@ differs from a fresh build, CI type-checks the copies with Deno, and `SUPABASE_S
 paste: Edge Functions, Deploy a new function, Via Editor, name, Deploy function. No function needs
 `--no-verify-jwt`: the platform's JWT check accepts the public key a signed-out reader sends.
 
+### The role on top, whose task is whose, and gates as notes (R116)
+
+A member's role is the first item in `CourseSubNav`, the one sticky bar every course page renders, so
+it stays at the top edge however far the page scrolls, rides up with the site header's auto-hide and
+survives Focus mode (`RoleStrip`: "Your role", the icon, the name, the team; a visitor sees "No role
+yet. Join"; it links to the `#role` section on Home). A page-shape guard enumerates
+`src/app/courses/[courseId]/**/page.tsx` and fails when one (other than the two forwarding stubs)
+does not render the bar. Whose a task is comes from one pure helper, `taskOwnership(task, role)`
+(`yours`, `shared`, `other`), drawn by one chip, `OwnerChip`, on every row ("Your task", "Everyone",
+"{Role} · open to anyone") and in a sentence on every opened task: another role's task is open to the
+whole team and counts for the team. `YourTasksStrip` lists the member's own tasks for the week above
+the objective-grouped list. A gate is a note: `weekLocked` is gone, `gateNote(week)` returns the gate
+and `openGateSteps` (the exact required tasks still open, setup-week tasks included), `WeekGateNote`
+shows them as links beside an open week, the week rail carries a flag with a word, and the Security+
+scope sign-off is an amber note above a form that is always open. `FlowDiagram` has no locked status.
+No padlock is drawn on a task, a week or a form; the instructor's explicit course lock and sign-in are
+the only doors left.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

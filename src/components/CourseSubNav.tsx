@@ -5,6 +5,7 @@ import { useEffect, useId, useRef, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
 import { SPRING } from '@/lib/motion';
 import { BookOpen, ClipboardList, Home, ListChecks } from 'lucide-react';
+import { RoleStrip } from '@/components/course/RoleStrip';
 
 export type CourseTab = 'home' | 'tasks' | 'deliverables' | 'guide';
 
@@ -64,6 +65,10 @@ interface CourseSubNavProps {
  * disappear. On the dashboard Home/Tasks are client-state buttons (onSelectTab);
  * on sub-pages they link back to the dashboard (`?tab=tasks` deep-links Tasks).
  *
+ * R116: the member's role is the FIRST item in this bar (`RoleStrip`), so it
+ * is on top of every course page, however far the page scrolls: the bar is
+ * sticky, follows the header's auto-hide and survives Focus mode.
+ *
  * Four, down from six surfaces. Team folded into Home (your own team is the
  * only one you can see, so it never needed a URL of its own), and the Reference
  * manual folded into the Guide — it showed as "Guide" in this bar anyway, so a
@@ -108,6 +113,8 @@ export function CourseSubNav({ courseId, active, teamId, onSelectTab, trailing }
       style={{ top: 'var(--nav-top, var(--nav-h, 0px))' }}
       className="glass sticky z-30 -mx-4 flex flex-wrap items-center gap-x-1 gap-y-2 border-b px-4 py-2 transition-[top] duration-200 ease-out"
     >
+      <RoleStrip courseId={courseId} onSelectHome={onSelectTab ? () => onSelectTab('home') : undefined} />
+
       {onSelectTab ? (
         <button type="button" aria-current={cur('home')} onClick={() => onSelectTab('home')} className={cls(active === 'home')}>
           {body('home', <Home className="h-4 w-4" />, 'Home')}

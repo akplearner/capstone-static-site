@@ -5,7 +5,7 @@ import { evaluate } from '@/lib/docs/predicate';
 import { isDoneBy } from '@/lib/docs/dod';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Lock, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
+import { BookOpen, CheckCircle2, Circle, Download, FileDown, FileSpreadsheet, FileText, Flag, Package, Printer, ShieldCheck, Sparkles, Upload, Users } from 'lucide-react';
 import { CourseEnrolGate } from '@/components/CourseEnrolGate';
 import { CourseSubNav } from '@/components/CourseSubNav';
 import { Crumbs } from '@/components/SiteNav';
@@ -559,7 +559,7 @@ export default function DeliverablesPage() {
               label: (
                 <span className="flex items-center gap-1.5">
                   {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-ok" />}
-                  {!course.noGatekeeping && d.requiresAuth && !authorized && <Lock className="h-3.5 w-3.5 text-warn" />}
+                  {!course.noGatekeeping && d.requiresAuth && !authorized && <Flag className="h-3.5 w-3.5 text-warn" aria-label="scope not authorized yet" />}
                   <span className="text-sm">{d.num}. {d.title}</span>
                   {!isMine(d) && <span className="rounded-full bg-panel-2 px-1.5 py-0.5 text-2xs font-medium text-muted">{ownerName(d)}’s</span>}
                 </span>
@@ -694,7 +694,8 @@ function FormSection({
     ctx,
     { replaceSeed: isExample }
   );
-  const locked = !noGatekeeping && !!def.requiresAuth && !authorized;
+  // R116: scope authorization is advisory, like a week gate. The form is open; a note says the scope is not signed off yet.
+  const scopePending = !noGatekeeping && !!def.requiresAuth && !authorized;
   const hasGuidance = !!(def.buildSteps || def.meaning || def.useIt || def.pitfalls);
   // R84: every form gets its picture — the four bespoke drawings where they
   // exist, the course's kit preset everywhere else (resolved from `def.visual`).
@@ -735,20 +736,20 @@ function FormSection({
     >
       {review && <ReviewBanner review={review} />}
       {/* R103: draft → in review → approved → issued, and whose move it is. */}
-      {!locked && <StatusStrip def={def} courseId={meta.courseId} teamId={teamId} member={{ memberId, role }} dodOk={dodOk} />}
+      <StatusStrip def={def} courseId={meta.courseId} teamId={teamId} member={{ memberId, role }} dodOk={dodOk} />
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="flex flex-wrap items-center gap-2 text-lg font-bold text-ink">
             {def.num}. {def.title}
             {def.framework && <FrameworkBadge framework={def.framework} />}
-            {isExample && !locked && (
+            {isExample && (
               <span className="rounded-full bg-panel-2 px-2 py-0.5 text-2xs font-medium text-muted">
                 Example
               </span>
             )}
-            {locked && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-panel-2 px-2 py-0.5 text-2xs font-medium text-muted">
-                <Lock className="h-3 w-3" /> Locked
+            {scopePending && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-warn-soft px-2 py-0.5 text-2xs font-medium text-warn">
+                <Flag className="h-3 w-3" aria-hidden /> Scope not authorized yet
               </span>
             )}
             {def.id === 'scope_roe' && data.fields.authorization && (
@@ -767,58 +768,56 @@ function FormSection({
             {def.source ? ` · ${def.source}` : ''}
           </p>
         </div>
-        {!locked && (
-          <div className="flex shrink-0 flex-wrap items-center gap-2">
-            {/* A text link, not a fourth bordered button: switching the
-                worked example on and off is a preference, not an export. */}
-            {hasExample && (isExample ? (
-              <button
-                type="button"
-                onClick={() => onChange(def.id, emptyData())}
-                className="text-xs font-medium text-muted underline-offset-2 hover:text-accent hover:underline"
-              >
-                Start blank
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => onChange(def.id, seedDeliverable(def))}
-                className="inline-flex items-center gap-1 text-xs font-medium text-muted underline-offset-2 hover:text-accent hover:underline"
-              >
-                <Sparkles className="h-3.5 w-3.5" /> Restore example
-              </button>
-            ))}
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
+          {/* A text link, not a fourth bordered button: switching the
+              worked example on and off is a preference, not an export. */}
+          {hasExample && (isExample ? (
             <button
               type="button"
-              onClick={() => printHTML(toDeliverableHTML(def, data, exportMeta))}
-              className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-contrast hover:bg-accent-strong"
+              onClick={() => onChange(def.id, emptyData())}
+              className="text-xs font-medium text-muted underline-offset-2 hover:text-accent hover:underline"
             >
-              <Printer className="h-3.5 w-3.5" /> Generate PDF
+              Start blank
             </button>
+          ) : (
             <button
               type="button"
-              onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, exportMeta))}
+              onClick={() => onChange(def.id, seedDeliverable(def))}
+              className="inline-flex items-center gap-1 text-xs font-medium text-muted underline-offset-2 hover:text-accent hover:underline"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Restore example
+            </button>
+          ))}
+          <button
+            type="button"
+            onClick={() => printHTML(toDeliverableHTML(def, data, exportMeta))}
+            className="inline-flex items-center gap-1 rounded-md bg-accent px-2.5 py-1.5 text-xs font-medium text-accent-contrast hover:bg-accent-strong"
+          >
+            <Printer className="h-3.5 w-3.5" /> Generate PDF
+          </button>
+          <button
+            type="button"
+            onClick={() => download(def.file.replace(/\.\w+$/, '.md'), toDeliverableMarkdown(def, data, exportMeta))}
+            className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-muted hover:bg-panel-2 hover:text-body"
+          >
+            <FileText className="h-3.5 w-3.5" /> .md
+          </button>
+          {def.exportFormat === 'csv' && (
+            <button
+              type="button"
+              onClick={() => download(def.file, toDeliverableCSV(def, data))}
               className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-muted hover:bg-panel-2 hover:text-body"
             >
-              <FileText className="h-3.5 w-3.5" /> .md
+              <FileSpreadsheet className="h-3.5 w-3.5" /> .csv
             </button>
-            {def.exportFormat === 'csv' && (
-              <button
-                type="button"
-                onClick={() => download(def.file, toDeliverableCSV(def, data))}
-                className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-xs font-medium text-muted hover:bg-panel-2 hover:text-body"
-              >
-                <FileSpreadsheet className="h-3.5 w-3.5" /> .csv
-              </button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </div>
 
       {/* The shape of the answer, beside the form it describes. */}
-      {!locked && diagram}
+      {diagram}
 
-      {!locked && hasGuidance && (
+      {hasGuidance && (
         <div className="rounded-lg depth-edge bg-panel-2 px-4">
           <Collapsible title="How to build this — and what it means" defaultOpen={false}>
             <div className="space-y-3 pb-2 text-sm text-body">
@@ -856,30 +855,28 @@ function FormSection({
         </div>
       )}
 
-      {locked ? (
-        <div className="flex items-start gap-3 rounded-lg border border-dashed border-warn-line bg-warn-soft p-4">
-          <Lock className="mt-0.5 h-5 w-5 shrink-0 text-warn" />
+      {scopePending && (
+        <div className="flex items-start gap-3 rounded-lg border border-dashed border-warn-line bg-warn-soft p-4" role="note" data-scope-note>
+          <Flag className="mt-0.5 h-5 w-5 shrink-0 text-warn" aria-hidden />
           <div className="text-sm text-ink">
-            <p className="font-semibold">Locked until scope is authorized</p>
+            <p className="font-semibold">Scope is not authorized yet</p>
             <p className="mt-1">
               No scanning or testing begins until your team&apos;s <strong>Scope &amp; Rules of
               Engagement</strong> is signed off. Ask your team&apos;s {roleName(scopeOwner)} to complete deliverable{' '}
               <strong>1. Scope &amp; Rules of Engagement</strong> and fill in the{' '}
-              <em>Authorization / sign-off</em> field. This form unlocks automatically once that is saved
-              {isSupabaseConfigured() ? ' — for the whole team, live' : ' on this device'} — staying in
-              scope is the rule that keeps the work ethical and legal.
+              <em>Authorization / sign-off</em> field. This note clears once that is saved
+              {isSupabaseConfigured() ? ' — for the whole team, live' : ' on this device'}. You can start this form now;
+              staying in scope is the rule that keeps the work ethical and legal.
             </p>
           </div>
         </div>
-      ) : (
-        <>
-          {/* The grading, previewed live (R84): the same four categories the
-              submission freezes and reviewers see, judged by the same function. */}
-          <WaitingOnNotice def={def} courseId={meta.courseId} teamId={teamId} />
-          <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} role={role} instructorReview={review?.status} />
-          <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
-        </>
       )}
+
+      {/* The grading, previewed live (R84): the same four categories the
+          submission freezes and reviewers see, judged by the same function. */}
+      <WaitingOnNotice def={def} courseId={meta.courseId} teamId={teamId} />
+      <ExpectationsPanel def={def} data={data} week={week} memberId={memberId} teamId={teamId} role={role} instructorReview={review?.status} />
+      <DeliverableForm def={def} data={data} ctx={ctx} carried={carried} onChange={(next) => onChange(def.id, next)} />
     </section>
   );
 }

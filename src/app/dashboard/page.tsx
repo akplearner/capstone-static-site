@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Compass, FileCheck2, FolderGit2, ListChecks, ShieldCheck, Terminal } from 'lucide-react';
 import { Button } from '@/components/ui/Button';
+import { Chip } from '@/components/ui/Chip';
+import { RoleIcon } from '@/components/team/RoleIcon';
 import { EmptyState } from '@/components/EmptyState';
 import { Skeleton } from '@/components/ui/Spinner';
 import { ProgressRing } from '@/components/ui/ProgressRing';
@@ -454,6 +456,7 @@ function Stat({
 
 function DashboardCourseCard({ card, index }: { card: CourseCard; index: number }) {
   const { course, crew, metrics, activeWeek, level, skills, board } = card;
+  const roleDef = course.roles.find((r) => r.id === card.member.role);
   const started = crew.stepsDone > 0;
   const words = skillsOf(courseDocument(course.id) ?? bareDocument(course));
   const skillsVerified = skills.rows.skills.filter((r) => r.level === 'verified' || r.level === 'reviewed').length;
@@ -484,6 +487,9 @@ function DashboardCourseCard({ card, index }: { card: CourseCard; index: number 
           <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted">
             {course.vendor && <span className="font-medium text-accent">{course.vendor}</span>}
             {level && <span className="rounded-full bg-panel-2 px-2 py-0.5 font-mono">{level}</span>}
+            <Chip tone="accent" icon={<RoleIcon iconName={roleDef?.icon} className="h-3 w-3" color={roleDef?.color} />} title="Your role in this course">
+              {card.role}
+            </Chip>
           </div>
         </div>
       </div>

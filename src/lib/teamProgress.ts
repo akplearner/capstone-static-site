@@ -12,7 +12,7 @@ import type { ProgressRepository } from './data/types';
  * evidence stamp, a grade. But a task on a role-split course belongs to the
  * TEAM: if the Infrastructure Admin is away, the Security Admin does the
  * resource group, and the week is done when the work is done, whoever did it.
- * So the Tasks tab, the week rail, the gate lock and the Home banner read the
+ * So the Tasks tab, the week rail, the gate note and the Home banner read the
  * UNION of every teammate's ticks, derived here.
  *
  * Pure functions over the public repository API, so one implementation serves
@@ -89,7 +89,44 @@ export function teamGateStatus(course: Course, gate: Gate, done: Set<string>): G
     total += steps.length;
     completed += steps.filter((s) => done.has(stepKey(t.id, s.id))).length;
   }
-  if (total > 0 && completed === total) return 'passed';
+  // A gate whose tasks have no required step asks for nothing: it must not read as shut forever.
+  if (total === 0 || completed === total) return 'passed';
   if (completed > 0) return 'ready';
   return 'locked';
+}
+
+/** One task a gate still waits on: what it is, whose it is, where it sits and how many required steps are open. */
+export interface OpenGateStep {
+  taskId: string;
+  title: string;
+  role: string;
+  week: number;
+  open: number;
+}
+
+/** What an advisory gate note says: the gate, and the tasks still open under it. */
+export interface GateNote {
+  gate: Gate;
+  steps: OpenGateStep[];
+}
+
+/**
+ * R116 — the exact tasks a gate still waits on, in the gate's own order,
+ * whoever owns them and whichever week they sit in (a setup-week task counts).
+ * Gates are advisory: nothing is locked, but a team that wants to clear one
+ * needs to know precisely what is left, so the note names it.
+ */
+export function openGateSteps(course: Course, gate: Gate, done: Set<string>): OpenGateStep[] {
+  const byId = new Map(course.tasks.map((t) => [t.id, t]));
+  return gate.requiredTasks
+    .map((id) => byId.get(id))
+    .filter((t): t is Task => !!t)
+    .map((t) => ({
+      taskId: t.id,
+      title: t.title,
+      role: t.role,
+      week: t.week,
+      open: getRequiredSteps(t).filter((s) => !done.has(stepKey(t.id, s.id))).length,
+    }))
+    .filter((s) => s.open > 0);
 }

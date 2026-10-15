@@ -15,7 +15,7 @@ What exists today:
 - Authored **Security+** course: Weeks 0–4 × Red/Blue/GRC, ~90 steps, 3 gates.
 - **Guided task runner** + per-step progress; compact two-column steps; split & explained commands.
 - **8 deliverable forms** → PDF/CSV + downloadable **team ZIP** in submission folder structure.
-- **Gate sequencing** (a week locks until the prior gate passes; instructor override) + **completion summary**.
+- **Gate sequencing** (a gate is a note naming what it still waits on, never a lock, since R116; the week stays open) + **completion summary**.
 - **Lab-access panel** (target IPs/creds → substituted into commands) + reachability checklist.
 - **Evidence handling & chain-of-custody** guidance + downloadable CoC log; DVWA lifecycle docs.
 - **Optional Supabase backend**: OIDC sign-in (Google/GitHub/magic-link), cloud progress, team visibility,

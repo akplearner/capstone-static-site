@@ -127,6 +127,16 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **The role on top and whose task is whose (R116):** on a role-split course, join as one role;
+  the first thing in the sticky bar on Home, Tasks, Guide, Deliverables, Ledger, Review and Skills is
+  "Your role", the icon, the name and the team, and it is still there after a long scroll, with Focus
+  on, and on the Tasks tab where the site header hides; at 390px it is its own short row with no
+  sideways scroll. Signed out, the bar says "No role yet. Join". On Tasks every row says Your task,
+  Everyone or "{Role} · open to anyone"; "Your tasks this week" lists the member's own with how many
+  are done; opening another role's task shows that it is open to the whole team, and it can be ticked.
+  On Security+ or MSSP, a week behind an uncleared gate opens normally under a note listing the open
+  tasks as links (MSSP Gate 1 lists `mg-w0`); the week rail shows a flag, never a padlock; the pentest
+  report opens under the amber scope note. Nothing on a task, a week or a form is a padlock.
 - [ ] **Functions from the browser (R115):** for each of `stamp`, `receipt`, `share` and
   `shared-profile`: Supabase → Edge Functions → Deploy a new function → Via Editor, paste
   `supabase/dashboard/<name>.ts` over the example, name it exactly `<name>` before Deploy function;

@@ -4,7 +4,7 @@ import { formatMinutes } from '@/lib/course-helpers';
 
 import { useId, type ReactNode } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle2, Lock, Sparkles } from 'lucide-react';
+import { CheckCircle2, Flag, Sparkles } from 'lucide-react';
 import { SPRING } from '@/lib/motion';
 
 /**
@@ -12,7 +12,7 @@ import { SPRING } from '@/lib/motion';
  *
  * There were two of these and they had drifted, which is the ordinary way a
  * duplicated control goes wrong: the Tasks rail gained a sliding pill, per-week
- * phase dots, a lock and a pulse in R63, and the Deliverables rail — the same
+ * phase dots, a gate flag and a pulse in R63, and the Deliverables rail — the same
  * geometry, character for character — got none of it. `WeekRailSkeleton` was a
  * third copy of the same button widths. A student moving between the two tabs
  * saw the same control behave differently for no reason they could name.
@@ -20,7 +20,7 @@ import { SPRING } from '@/lib/motion';
  * What genuinely differs between the two is data, not layout, so it is props:
  *
  *   Tasks         weeks exclude Setup · labels from `phaseTag` · done from
- *                 step progress · lock from the gate · pulse on the week you
+ *                 step progress · gate flag from the gate · pulse on the week you
  *                 are actually on · not sticky
  *   Deliverables  weeks include Setup · labels built inline · done when every
  *                 deliverable you own that week is filed · sticky under the
@@ -42,8 +42,8 @@ export interface WeekRailItem {
   label: ReactNode;
   /** Renders a tick. What "done" means is the caller's business. */
   done?: boolean;
-  /** Renders a lock. */
-  locked?: boolean;
+  /** Renders a flag: the gate before this week is not cleared yet (R116). Gates are advisory, so the week stays open. */
+  gatePending?: boolean;
   /** Renders a slow pulse on the dot — "this is where you actually are". */
   pulse?: boolean;
   /** An advanced week: on the rail like any other, marked so nobody reads it
@@ -143,7 +143,7 @@ export function WeekRail({
             )}
             {it.advanced && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
             {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
-            {it.locked && <Lock className="h-3.5 w-3.5" aria-label="locked" />}
+            {it.gatePending && <Flag className="h-3.5 w-3.5" aria-label="gate not cleared yet" />}
           </button>
         );
       })}

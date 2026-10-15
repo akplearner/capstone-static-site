@@ -1,11 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, ChevronDown, ChevronRight, Lock } from 'lucide-react';
+import { CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
 import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 import type { Course, Task } from '@/lib/types';
-import { RoleIcon } from '@/components/team/RoleIcon';
 import { Chip } from '@/components/ui/Chip';
+import type { Ownership } from '@/lib/taskOwnership';
+import { OwnerChip, type OwnerRole } from './OwnerChip';
 import type { TeammateTaskProgress } from './useCourseProgress';
 
 /**
@@ -20,9 +21,11 @@ import type { TeammateTaskProgress } from './useCourseProgress';
  * counts for the glance.
  *
  * R98: every task of the week is a row for every member, so the row says
- * whose it is — a role chip, or "Yours" — and who finished it when that was a
- * teammate. The role is a label, never a lock: the only closed row is one the
- * student has not joined the course for.
+ * whose it is and who finished it when that was a teammate. R116: it says so
+ * on EVERY row, in words and an icon (`OwnerChip`): "Your task", "Everyone"
+ * for a shared task, or "{Role} · open to anyone". The role is a label, never a
+ * lock, and no padlock is drawn here: the only row that does not open is one
+ * the student has not joined the course for.
  *
  * R100: one line. The stone, the number, the title and its chips sit on one
  * row with the objective as a short second line, so a week of five tasks is
@@ -55,8 +58,8 @@ export function TaskRow({
   percent: number;
   onToggle: () => void;
   isNext?: boolean;
-  /** Whose task this is: the role, and whether that is the viewer. A shared task has none. */
-  owner?: { name: string; icon: string; color: string; isYou: boolean };
+  /** Whose task this is to the viewer (R116): theirs, the team's, or another role's (with that role). */
+  owner?: { kind: Ownership; role?: OwnerRole };
   /** Teammates who finished it, when the viewer did not — "Done by Ada". */
   doneBy?: string[];
   /** 1-based position in the week's checklist. Reference tasks: unnumbered. */
@@ -116,14 +119,7 @@ export function TaskRow({
                 {reportCount} {reportCount === 1 ? 'issue' : 'issues'}
               </Chip>
             )}
-            {owner &&
-              (owner.isYou ? (
-                <Chip tone="accent">Yours</Chip>
-              ) : (
-                <Chip tone="muted" icon={<RoleIcon iconName={owner.icon} className="h-3 w-3" color={owner.color} />} title={`${owner.name}'s task — anyone on the team can do it`}>
-                  {owner.name}
-                </Chip>
-              ))}
+            {owner && <OwnerChip kind={owner.kind} role={owner.role} />}
             {showProgress && percent === 100 && (
               <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" aria-label={by.length ? `Done by ${by.join(', ')}` : 'Done'} />
             )}
@@ -137,9 +133,7 @@ export function TaskRow({
 
         <span className="flex shrink-0 items-center gap-2 sm:gap-3">
           {teammates && teammates.length > 1 && <TeamMarks teammates={teammates} />}
-          {!canOpen ? (
-            <Lock className="h-4 w-4 text-muted" />
-          ) : select ? (
+          {select ? (
             <ChevronRight className={`h-4 w-4 ${open ? 'text-accent' : 'text-muted'}`} />
           ) : open ? (
             <ChevronDown className="h-4 w-4 text-muted" />
