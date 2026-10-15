@@ -12,6 +12,7 @@ import { FlowDiagram, type FlowNode } from '@/components/diagrams/FlowDiagram';
 import { WeekRail } from '@/components/week/WeekRail';
 import { WeekHeader } from '@/components/week/WeekHeader';
 import { TaskRow } from './TaskRow';
+import { TaskStateChip } from './TaskStateChip';
 import { useRarity } from './useRarity';
 import { TaskStone, WeekGemTray } from '@/components/quarry/art/TaskStone';
 import type { TeammateTaskProgress, TeamStepsByTask } from './useCourseProgress';
@@ -27,6 +28,11 @@ import { YourTasksStrip } from './YourTasksStrip';
 import { WeekMoreBody } from './WeekMoreBody';
 import { formatMinutes, getTasksByRole, isAdvancedWeek, isSetupWeek, phaseTag, weekSummary, weekTasksOrdered } from '@/lib/course-helpers';
 import { OWNER_COPY, ownerSentence, taskOwnership } from '@/lib/taskOwnership';
+import { taskState } from '@/lib/taskState';
+import { verifiableSteps } from '@/lib/evidenceLedger';
+import { evidenceRepo } from '@/lib/data';
+import type { StepEvidence } from '@/lib/data/types';
+import { useClientStore, EMPTY_OBJECT } from '@/lib/useClientStore';
 import type { GateNote } from '@/lib/teamProgress';
 import { hasLabAccess, labProfile, useLabAccess } from '@/lib/labAccess';
 import { dueLabel, weekDue } from '@/lib/calendar';
@@ -69,6 +75,7 @@ export function TasksTab({
   member,
   ownRole,
   unit,
+  weekStats,
   taskStats,
   teamWeekStats,
   teamTaskStats,
@@ -143,6 +150,8 @@ export function TasksTab({
   const lab = useLabAccess(course.id);
   const rarityOf = useRarity(course, member, taskStats, cohortCal);
   const split = useSplitView();
+  // R118: the member's own verified checks, for the opened task's header.
+  const evidence = useClientStore<Record<string, StepEvidence>>(() => (member ? evidenceRepo.getSteps(course.id, member.memberId) : EMPTY_OBJECT), EMPTY_OBJECT);
   const cut = tintFor(course.id).cut;
   const joined = !!member;
   if (!joined || !member || !ownRole) {
@@ -247,6 +256,13 @@ export function TasksTab({
       ? []
       : (teamTaskProgress[task.id] ?? []).filter((p) => p.pct >= 100 && p.memberId !== member.memberId).map((p) => p.displayName || 'a teammate');
 
+  // R118: one state, in one vocabulary: the team's (done once anyone did it) and the member's own count.
+  const stateOf = (task: Task) => {
+    const checks = verifiableSteps(task.steps);
+    const verified = { done: checks.filter((s) => evidence[`${task.id}::${s.id}`]?.verified).length, of: checks.length };
+    return taskState(task, teamTaskStats[task.id] ?? 0, taskStats[task.id] ?? 0, doneByOf(task), verified);
+  };
+
   // Expanded content for a task row: the runner, for every task — the line
   // above it says whose the task is, so a teammate's is taken knowingly.
   const renderTaskBody = (task: Task) => {
@@ -264,6 +280,9 @@ export function TasksTab({
             <span>{sentence}</span>
           </p>
           <ReportIssueDialog courseId={course.id} task={task} member={member} />
+        </div>
+        <div className="mb-2 flex flex-wrap items-center gap-1.5" data-task-header-state>
+          <TaskStateChip state={stateOf(task)} withVerified />
         </div>
         <GuidedTaskRunner
           task={task}
@@ -308,8 +327,7 @@ export function TasksTab({
       teammates={teamTaskProgress[task.id]}
       reportCount={openReportsByTask[task.id]}
       owner={ownerOf(task)}
-      doneBy={doneByOf(task)}
-      percent={teamTaskStats[task.id] ?? 0}
+      state={stateOf(task)}
       onToggle={() => (split ? selectTask(task) : toggleTask(task))}
       lead={<TaskStone percent={taskStats[task.id] ?? 0} rarity={rarityOf(task)} cut={cut} size={36} />}
       renderBody={() => renderTaskBody(task)}
@@ -364,7 +382,7 @@ export function TasksTab({
           {phaseTag(course, viewWeek)}
         </h2>
       ) : (
-        <WeekHeader id="tasks-head" course={course} role={member.role} week={viewWeek} percent={viewPct} unit={unit} />
+        <WeekHeader id="tasks-head" course={course} role={member.role} week={viewWeek} percent={viewPct} youPercent={weekStats?.[viewWeek]} unit={unit} />
       )}
 
       {/* The gems earned so far: one slot per week, filled in the rarity of
@@ -469,6 +487,7 @@ export function TasksTab({
             week: w.number,
             label: phaseTag(course, w.number),
             done: (teamWeekStats[w.number] ?? 0) >= 100,
+            doneLabel: 'every task done for the team',
             gatePending: !!gateNote(w.number),
             pulse: w.number === activeWeek && (teamWeekStats[w.number] ?? 0) < 100,
             advanced: isAdvancedWeek(course, w.number),

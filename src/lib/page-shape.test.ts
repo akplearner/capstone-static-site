@@ -3130,3 +3130,66 @@ describe('R117 — empty roles and failures never strand a team', () => {
     expect(read('docs/OPERATIONS.md')).toContain('(R117)');
   });
 });
+
+/**
+ * R118 — one word for "done".
+ *
+ * A task is done for the team once anyone did it, and the member's own record
+ * is theirs: two figures that every surface used to draw in its own words, so a
+ * row could say "Done by Ada" beside a stone reading "0% of this task done".
+ * These pins keep one pure state, one chip, words on every tick, and the
+ * instructor's verdict apart from the team's own lifecycle.
+ */
+describe('R118 — one word for done', () => {
+  it('the state is one pure module and one chip, used on the row and the opened task', () => {
+    const pure = code('src/lib/taskState.ts');
+    for (const bad of ['Date.', 'Math.random', 'localStorage', "from './data", 'useClientStore']) expect(pure, `pure: ${bad}`).not.toContain(bad);
+    for (const n of ['export function taskState(', 'export function stateLabel(', 'export function yourLabel(', 'export function weekState(', 'TASK_STATE_COPY']) expect(pure, n).toContain(n);
+    expect(code('src/components/course/TaskRow.tsx')).toContain('<TaskStateChip state={state} />');
+    expect(code('src/components/course/TaskRow.tsx'), 'the old tick and by-chip are gone').not.toMatch(/Done by \$\{|CheckCircle2/);
+    const tab = code('src/components/course/TasksTab.tsx');
+    for (const n of ['const stateOf = (task: Task)', '<TaskStateChip state={stateOf(task)} withVerified />', 'state={stateOf(task)}', 'youPercent={weekStats?.[viewWeek]}']) expect(tab, n).toContain(n);
+    const chip = code('src/components/course/TaskStateChip.tsx');
+    for (const n of ['CheckCircle2', 'CircleDot', 'CircleDashed', 'data-task-state', 'data-task-you']) expect(chip, n).toContain(n);
+  });
+
+  it('the figures say whose they are: the stone is the member’s, the week bar is the team’s, each rail tick says what it means', () => {
+    expect(code('src/components/quarry/art/TaskStone.tsx')).toContain('Your progress on this task: ${percent}%');
+    expect(code('src/components/quarry/art/TaskStone.tsx')).not.toContain('of this task done');
+    const header = code('src/components/week/WeekHeader.tsx');
+    for (const n of ['by the team', 'data-week-you', 'youPercent']) expect(header, n).toContain(n);
+    expect(code('src/components/week/WeekRail.tsx')).toContain("aria-label={it.doneLabel ?? 'done'}");
+    expect(code('src/components/course/TasksTab.tsx')).toContain("doneLabel: 'every task done for the team'");
+    expect(code('src/app/courses/[courseId]/docs/page.tsx')).toContain("doneLabel: 'every document meets the definition of done'");
+  });
+
+  it('no done tick, gate dot or filed icon is colour or shape alone', () => {
+    expect(code('src/components/diagrams/FlowDiagram.tsx')).toContain('<span className="sr-only">Done:</span>');
+    expect(code('src/components/team/TeamProgressTable.tsx')).toContain('aria-label="Filed"');
+    expect(code('src/components/team/TeamProgressTable.tsx')).toContain("g === 'passed' ? 'passed'");
+    expect(code('src/components/task/GuidedTaskRunner.tsx')).toContain('(met: every required step is ticked)');
+    expect(code('src/app/courses/[courseId]/docs/page.tsx')).toContain('aria-label="meets the definition of done"');
+  });
+
+  it('the instructor’s verdict is always named and never shares a word with the team’s lifecycle', () => {
+    const life = code('src/lib/docs/lifecycle.ts');
+    expect(life).toContain('export const REVIEW_VERDICT_LABEL');
+    expect(code('src/components/docs/ReviewBanner.tsx')).toContain('REVIEW_VERDICT_LABEL[review.status].head');
+    expect(code('src/components/docs/ReviewBanner.tsx')).not.toMatch(/Under review|Revise and resubmit/);
+    expect(code('src/components/team/TeamProgressTable.tsx')).toContain('REVIEW_VERDICT_LABEL');
+  });
+
+  it('Home says what the member waits on, and a late joiner on a finished team is never at a dead end', () => {
+    const home = code('src/components/course/HomeTab.tsx');
+    for (const n of ['<MyWaitingCard ', 'data-own-record', 'Done for the team.', 'Your own record: {crew.stepsDone} of {crew.stepsTotal} steps', 'onContinue(ownNext)', 'onContinue={() => onContinue()}']) expect(home, n).toContain(n);
+    expect(code('src/app/courses/[courseId]/page.tsx'), 'Continue takes an optional task').toContain('onContinue={(t) => {');
+    const waiting = code('src/components/docs/MyWaitingCard.tsx');
+    for (const n of ['data-my-waiting', 'allowedActions(', 'isVacant(', 'submitterOf(']) expect(waiting, n).toContain(n);
+  });
+
+  it('the docs say it', () => {
+    expect(read('docs/ARCHITECTURE.md')).toContain('### One word for "done" (R118)');
+    expect(read('docs/CURRENT_STATE.md')).toContain('| One word for done |');
+    expect(read('docs/OPERATIONS.md')).toContain('(R118)');
+  });
+});

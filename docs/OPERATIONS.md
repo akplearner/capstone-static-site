@@ -127,6 +127,13 @@ has failed silently in some deployment of some product; none takes more than a m
   `content/profiles/sample-mssp.json` with a new id on `/instructor/profiles`; the Skill board picker
   lists it; Create link there records "measured against" it. Without the consent the dialog points to
   the account page; without the functions it says links are not set up.
+- [ ] **One word for done (R118):** on Tasks every row says Not started, In progress · n of m steps,
+  Done, or Done by {name}; a task a teammate finished also shows "You: 0 of n steps" until the member
+  does it; the opened task repeats the state with "Checks verified n of m"; the week header's bar says
+  "team" and shows "You n%" when that differs; hovering the rail's tick says what it means. On a team
+  where every task is done and the member joined late, Home says "Done for the team" with the member's
+  own record and a button to their first open step. A form sent for review shows on Home as waiting on
+  the reviewing role. The instructor's verdict reads "Instructor: …" on the form and the cohort table.
 - [ ] **Empty roles and failed loads (R117):** on a team where nobody holds a document's reviewing role,
   submit the form as its drafter: another member sees "Approve (covering for {Role})", the submitter does
   not, the status strip says "any member may cover", approving writes "Covering for {Role}." into the

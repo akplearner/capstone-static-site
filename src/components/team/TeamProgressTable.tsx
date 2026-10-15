@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle2, Circle } from 'lucide-react';
 import { Course } from '@/lib/types';
 import { getRoleDef } from '@/lib/course-helpers';
+import { REVIEW_VERDICT_LABEL } from '@/lib/docs/lifecycle';
 import { RoleIcon } from '@/components/team/RoleIcon';
 import { meter } from '@/lib/motion';
 import { ArtSvg } from '@/components/quarry/art/widgets';
@@ -170,7 +171,9 @@ export function TeamProgressTable({
                             className={`inline-block h-2.5 w-2.5 rounded-full ${
                               g === 'passed' ? 'bg-ok' : g === 'ready' ? 'bg-accent' : 'bg-line'
                             }`}
-                          />
+                          >
+                            <span className="sr-only">{`Gate ${course.gates[i]?.id ?? i + 1}: ${g === 'passed' ? 'passed' : g === 'ready' ? 'under way' : 'not started'}`}</span>
+                          </span>
                         ))}
                       </span>
                     </td>
@@ -214,9 +217,9 @@ export function TeamProgressTable({
                 className="flex items-center gap-2 rounded-lg depth-edge bg-panel px-3 py-2"
               >
                 {d.complete ? (
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" />
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" aria-label="Filed" />
                 ) : (
-                  <Circle className="h-4 w-4 shrink-0 text-line" />
+                  <Circle className="h-4 w-4 shrink-0 text-line" aria-label="Not filled in yet" />
                 )}
                 <span className={`flex-1 text-sm ${d.complete ? 'text-muted' : 'text-ink'}`}>
                   {d.title}
@@ -227,7 +230,7 @@ export function TeamProgressTable({
                       d.review === 'approved' ? 'bg-ok-soft text-ok' : d.review === 'revise' ? 'bg-warn-soft text-warn' : 'bg-info-soft text-info'
                     }`}
                   >
-                    {d.review === 'approved' ? 'Approved' : d.review === 'revise' ? 'Revise' : 'In review'}
+                    {REVIEW_VERDICT_LABEL[d.review as keyof typeof REVIEW_VERDICT_LABEL]?.short ?? d.review}
                   </span>
                 )}
                 <span className="flex items-center gap-1 text-2xs text-muted">

@@ -124,7 +124,7 @@ export function FlowDiagram({
       <ol
         aria-label={ariaLabel}
         onKeyDown={onKeyDown}
-        className={layout === 'grid' ? 'grid grid-cols-2 gap-1.5 pb-1' : 'grid grid-cols-2 gap-1.5 pb-1 sm:flex sm:snap-x sm:snap-mandatory sm:items-stretch sm:overflow-x-auto'}
+        className={layout === 'grid' ? 'relative grid grid-cols-2 gap-1.5 pb-1' : 'relative grid grid-cols-2 gap-1.5 pb-1 sm:flex sm:snap-x sm:snap-mandatory sm:items-stretch sm:overflow-x-auto'}
       >
         {nodes.map((n, i) => {
           const current = n.status === 'current';
@@ -142,7 +142,12 @@ export function FlowDiagram({
                 className={`flex w-full min-w-0 flex-col rounded-[var(--radius-control)] px-3 py-2 text-left transition-colors ${layout === 'grid' ? '' : 'sm:w-auto sm:min-w-[9.5rem] sm:max-w-[13rem]'} ${tone[n.status]}`}
               >
                 <span className="flex items-center gap-1.5 font-mono text-2xs font-semibold uppercase tracking-wider">
-                  {n.status === 'done' && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-ok" aria-hidden />}
+                  {n.status === 'done' && (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-ok" aria-hidden />
+                      <span className="sr-only">Done:</span>
+                    </>
+                  )}
                   <span className={current ? 'text-accent' : 'text-muted'}>{n.label}</span>
                 </span>
                 {n.sublabel && <span className="mt-0.5 line-clamp-2 text-sm font-medium">{n.sublabel}</span>}

@@ -1,12 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { CheckCircle2, ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useReducedMotionSafe } from '@/lib/useReducedMotionSafe';
 import type { Course, Task } from '@/lib/types';
 import { Chip } from '@/components/ui/Chip';
 import type { Ownership } from '@/lib/taskOwnership';
+import type { TaskState } from '@/lib/taskState';
 import { OwnerChip, type OwnerRole } from './OwnerChip';
+import { TaskStateChip } from './TaskStateChip';
 import type { TeammateTaskProgress } from './useCourseProgress';
 
 /**
@@ -27,6 +29,11 @@ import type { TeammateTaskProgress } from './useCourseProgress';
  * lock, and no padlock is drawn here: the only row that does not open is one
  * the student has not joined the course for.
  *
+ * R118: and what state it is in, in the one vocabulary (`TaskStateChip`): the
+ * team's state ("Not started", "In progress · 2 of 5 steps", "Done", "Done by
+ * Ada") and, beside it, the member's own count when that differs ("You: 0 of
+ * 5 steps"), so a task a teammate finished is never read as the member's own.
+ *
  * R100: one line. The stone, the number, the title and its chips sit on one
  * row with the objective as a short second line, so a week of five tasks is
  * five lines rather than a screen. In the split view the row is a SELECTOR
@@ -37,13 +44,12 @@ export function TaskRow({
   task,
   joined,
   open,
-  percent,
+  state,
   onToggle,
   isNext,
   number,
   stuckCount,
   owner,
-  doneBy,
   lead,
   teammates,
   reportCount,
@@ -54,14 +60,12 @@ export function TaskRow({
   task: Task;
   joined: boolean;
   open: boolean;
-  /** The TEAM's percent on this task (R98) — done once anyone has done it. */
-  percent: number;
+  /** The task's state for this member (R118): the TEAM's, done once anyone did it, and the member's own count. */
+  state: TaskState;
   onToggle: () => void;
   isNext?: boolean;
   /** Whose task this is to the viewer (R116): theirs, the team's, or another role's (with that role). */
   owner?: { kind: Ownership; role?: OwnerRole };
-  /** Teammates who finished it, when the viewer did not — "Done by Ada". */
-  doneBy?: string[];
   /** 1-based position in the week's checklist. Reference tasks: unnumbered. */
   number?: number;
   /** Teammates who have flagged a step of this task as stuck (R68). */
@@ -81,7 +85,6 @@ export function TaskRow({
 }) {
   const canOpen = joined;
   const showProgress = joined;
-  const by = doneBy?.filter(Boolean) ?? [];
   const select = mode === 'select';
   const bodyShown = !select && open && canOpen;
 
@@ -120,11 +123,8 @@ export function TaskRow({
               </Chip>
             )}
             {owner && <OwnerChip kind={owner.kind} role={owner.role} />}
-            {showProgress && percent === 100 && (
-              <CheckCircle2 className="h-4 w-4 shrink-0 text-ok" aria-label={by.length ? `Done by ${by.join(', ')}` : 'Done'} />
-            )}
-            {showProgress && percent === 100 && by.length > 0 && <Chip tone="ok">Done by {by.join(', ')}</Chip>}
-            {isNext && percent < 100 && <Chip tone="accent">Next</Chip>}
+            {showProgress && <TaskStateChip state={state} />}
+            {isNext && state.kind !== 'done' && <Chip tone="accent">Next</Chip>}
           </span>
           {/* The open task states its objective in full in its header, so the
               row's one-liner steps aside rather than saying it twice. */}

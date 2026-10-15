@@ -111,7 +111,8 @@ describe('TasksTab — every task open to every member', () => {
       teamTaskProgress: { [infra.id]: [{ memberId: 'ada', displayName: 'Ada', role: 'infra', pct: 100 }, { memberId: 'm1', displayName: 'Grace', role: 'secops', pct: 0 }] },
     });
     expect(container.textContent).toContain('Done by Ada');
-    expect(screen.getByLabelText('Done by Ada')).toBeInTheDocument();
+    expect(screen.getByText('Done by Ada')).toBeInTheDocument();
+    expect(container.querySelector('[data-task-you]')?.textContent).toMatch(/^You: 0 of \d+ steps$/); // R118: the member's own count sits beside the team's
     const card = screen.getAllByRole('button', { name: /task · ~/ }).find((b) => b.textContent?.includes(infra.title))!;
     expect(card.textContent).toContain('Platform Build (Infrastructure Admin) · 1 task');
     expect(card.className).toContain('bg-ok-soft');
@@ -257,5 +258,39 @@ describe('TasksTab — R116: whose task is whose, and a gate is a note, never a 
     const { container } = mount({ focusMode: true });
     expect(container.querySelector('[data-your-tasks]')).toBeNull();
     expect(container.querySelectorAll('.stratum-task')).toHaveLength(4);
+  });
+});
+
+describe('TasksTab — R118: one word for done', () => {
+  it('every row carries the team’s state, and an opened task repeats it with the member’s own count and checks', () => {
+    const infra = week1.find((t) => t.role === 'infra')!;
+    const { container } = mount({ expanded: new Set([infra.id]), teamTaskStats: stats((id) => (id === infra.id ? 100 : 0)), teamTaskProgress: { [infra.id]: [{ memberId: 'ada', displayName: 'Ada', role: 'infra', pct: 100 }] } });
+    const states = [...container.querySelectorAll('.stratum-task > button [data-task-state]')].map((e) => e.getAttribute('data-task-state'));
+    expect(states).toHaveLength(week1.length);
+    expect(states.filter((s) => s === 'done')).toHaveLength(1);
+    const header = container.querySelector('[data-task-header-state]')!;
+    expect(header.textContent).toContain('Done by Ada');
+    expect(header.textContent).toMatch(/You: 0 of \d+ steps/);
+  });
+
+  it('the week header says its bar is the team’s, and shows the member’s own beside it only when it differs', () => {
+    const { container, rerender } = mount({ teamWeekStats: { 1: 50 }, weekStats: { 1: 20 } });
+    expect(container.querySelector('#tasks-head')?.textContent).toContain('50%');
+    expect(container.querySelector('#tasks-head')?.textContent).toContain('team');
+    expect(container.querySelector('[data-week-you]')?.textContent).toBe('You 20%');
+    rerender(<div />);
+    const same = mount({ teamWeekStats: { 1: 40 }, weekStats: { 1: 40 } });
+    expect(same.container.querySelector('[data-week-you]')).toBeNull();
+  });
+
+  it('the week rail says what its tick means: every task done for the team', () => {
+    const { container } = mount({ teamWeekStats: { 1: 100 } });
+    expect(container.querySelector('#week-rail [aria-label="every task done for the team"]')).not.toBeNull();
+  });
+
+  it('a finished objective says Done in words for assistive tech, not just a tick', () => {
+    const own = week1.find((t) => t.role === 'secops')!;
+    const { container } = mount({ teamTaskStats: stats((id) => (id === own.id ? 100 : 0)) });
+    expect(container.textContent).toContain('Done:');
   });
 });

@@ -348,6 +348,7 @@ export default function DeliverablesPage() {
             week: w,
             label: w === 0 ? 'Setup' : `${unitWord(course)} ${w}`,
             done: owned.length > 0 && owned.every((d) => isDoneBy(d, own(d.id, d), w)),
+            doneLabel: 'every document meets the definition of done',
           };
         })}
       />
@@ -558,7 +559,7 @@ export default function DeliverablesPage() {
               value: d.id,
               label: (
                 <span className="flex items-center gap-1.5">
-                  {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-ok" />}
+                  {isDone(d) && <CheckCircle2 className="h-3.5 w-3.5 text-ok" aria-label="meets the definition of done" />}
                   {!course.noGatekeeping && d.requiresAuth && !authorized && <Flag className="h-3.5 w-3.5 text-warn" aria-label="scope not authorized yet" />}
                   <span className="text-sm">{d.num}. {d.title}</span>
                   {!isMine(d) && <span className="rounded-full bg-panel-2 px-1.5 py-0.5 text-2xs font-medium text-muted">{ownerName(d)}’s</span>}

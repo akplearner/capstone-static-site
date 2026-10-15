@@ -23,6 +23,7 @@ export function WeekHeader({
   role,
   week,
   percent,
+  youPercent,
   unit,
   id,
   className = '',
@@ -30,8 +31,10 @@ export function WeekHeader({
   course: Course;
   role: string;
   week: number;
-  /** This student's completion for the week, 0-100. */
+  /** The TEAM's completion for the week, 0-100 (R98: a task is done once anyone did it). */
   percent: number;
+  /** R118: the member's own completion, shown beside the team's when it differs. */
+  youPercent?: number;
   unit: string;
   id?: string;
   className?: string;
@@ -55,7 +58,7 @@ export function WeekHeader({
               <Clock className="h-3.5 w-3.5" aria-hidden /> ~{formatMinutes(s.minutes)}
             </span>
           )}
-          <span className="flex items-center gap-1.5" title={`${percent}% of this ${unit}'s steps done`}>
+          <span className="flex items-center gap-1.5" title={`${percent}% of this ${unit}'s steps done by the team`}>
             <span className="relative block h-2 w-20 overflow-hidden rounded-full bg-panel-2">
               <motion.span
                 className="absolute inset-0 origin-left rounded-full bg-accent"
@@ -65,7 +68,13 @@ export function WeekHeader({
               />
             </span>
             <span className="font-medium">{percent}%</span>
+            <span>team</span>
           </span>
+          {youPercent != null && youPercent !== percent && (
+            <span className="font-medium" title={`${youPercent}% of this ${unit}'s steps done by you`} data-week-you>
+              You {youPercent}%
+            </span>
+          )}
         </div>
       </div>
     </header>

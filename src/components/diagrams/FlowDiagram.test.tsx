@@ -71,4 +71,12 @@ describe('FlowDiagram — the clickable workflow', () => {
     expect(list.className).not.toContain('overflow-x-auto');
     for (const chevron of container.querySelectorAll('li > span[aria-hidden]')) expect(chevron.className).toBe('hidden');
   });
+
+  it('R118: a done node says Done in words (screen readers), and the scroller contains its sr-only text', () => {
+    const { container } = render(<FlowDiagram nodes={NODES} onSelect={() => {}} />);
+    const done = screen.getAllByRole('button')[0];
+    expect(done.textContent).toContain('Done:');
+    expect(screen.getAllByRole('button')[1].textContent).not.toContain('Done:');
+    expect(container.querySelector('ol')!.className).toContain('relative');
+  });
 });

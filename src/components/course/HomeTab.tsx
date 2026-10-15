@@ -28,11 +28,12 @@ import { SkillsCard } from '@/components/skills/SkillsCard';
 import { ImportPrompt } from '@/components/auth/ImportPrompt';
 import { ReviewInboxCard } from '@/components/docs/ReviewInboxCard';
 import { TeamReviewQueueCard } from '@/components/docs/TeamReviewQueueCard';
+import { MyWaitingCard } from '@/components/docs/MyWaitingCard';
 import { JoinPanel } from './JoinPanel';
 import { progressRepo, evidenceRepo, stepNotesRepo, docsRepo, userStateRepo } from '@/lib/data';
 import { notifyStore } from '@/lib/useClientStore';
 import { isSupabaseConfigured } from '@/lib/supabase/config';
-import { getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, objectivesFor, phaseTag } from '@/lib/course-helpers';
+import { getTasksByRole, getWeekTasks, isEngagement, isGradedWeek, objectivesFor, phaseTag, weekTasksOrdered } from '@/lib/course-helpers';
 import { clearResume } from '@/lib/resume';
 import { phaseForWeek } from '@/lib/quarry';
 import { isDeliverableFiled } from '@/lib/deliverableChain';
@@ -89,7 +90,8 @@ export function HomeTab({
   cohortKey: string | null;
   cohortCal: Cohort | null;
   unit: string;
-  onContinue: () => void;
+  /** Opens the next task; given a task (R118), that one: a late joiner's own first open step. */
+  onContinue: (task?: Task) => void;
   /** Home's "Open them in Tasks →": opens the week's list. */
   onReadOtherSteps: () => void;
   /** After a reset the page forgets which tasks were open. */
@@ -160,6 +162,14 @@ export function HomeTab({
     const i = objectives.findIndex((o) => o.tasks.some((t) => t.id === nextTask.id));
     return i >= 0 ? { index: i + 1, count: objectives.length, label: objectives[i].label } : undefined;
   })();
+  // R118: when the team has finished everything but the member has not (a late joiner), their first open step.
+  const ownNext =
+    member && !nextTask
+      ? sortedWeeks
+          .filter((w) => isGradedWeek(course, w.number))
+          .flatMap((w) => weekTasksOrdered(course, member.role, w.number))
+          .find((t) => !t.homeLabOnly && (taskStats[t.id] ?? 0) < 100)
+      : undefined;
   const otherRoles = member ? course.roles.filter((r) => r.id !== member.role) : course.roles;
   const savedDocs = member ? docsRepo.get(course.id, member.teamId) : null;
   // The rest of the team's tasks this week, by role. Titles only — the glance;
@@ -206,7 +216,7 @@ export function HomeTab({
           docsTotal={deliverablesForCourse(course.id).length}
           nextTask={nextTask}
           objective={objectiveOfNext}
-          onContinue={onContinue}
+          onContinue={() => onContinue()}
           due={dueLine}
           onCalendar={
             cohortCal && cohortKey
@@ -247,6 +257,8 @@ export function HomeTab({
       {joined && member && <ReviewInboxCard courseId={course.id} />}
       {/* R103: the team's own documents waiting on this member's review or issue. */}
       {joined && member && <TeamReviewQueueCard courseId={course.id} teamId={member.teamId} role={member.role} memberId={member.memberId} />}
+      {/* R118: and what this member is waiting on in return. */}
+      {joined && member && <MyWaitingCard courseId={course.id} teamId={member.teamId} role={member.role} memberId={member.memberId} />}
 
       {/* The stone — the one glow on the page: the artefact being cut is the
           point of the whole thing. */}
@@ -300,10 +312,24 @@ export function HomeTab({
                 {profileOf(roleContent.PROFILES, ownRole.id)?.arc && <p className="mt-1 max-w-xl text-sm text-muted">{profileOf(roleContent.PROFILES, ownRole.id)!.arc}</p>}
               </div>
             </div>
-            {!nextTask && (
+            {!nextTask && !ownNext && (
               <span className="inline-flex items-center gap-2 rounded-lg bg-ok-soft px-4 py-2 text-sm font-medium text-ok">
                 <Sparkles className="h-4 w-4" /> Every task is done for the team!
               </span>
+            )}
+            {/* R118: the team is done, but this member's own record is not (a late joiner): say both, and offer the way in. */}
+            {!nextTask && ownNext && (
+              <div className="flex min-w-0 max-w-full flex-col items-start gap-1.5 sm:max-w-sm" data-own-record>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-ok-soft px-3 py-1.5 text-sm font-medium text-ok">
+                  <Sparkles className="h-4 w-4" /> Done for the team.
+                </span>
+                <span className="text-sm text-muted">
+                  Your own record: {crew.stepsDone} of {crew.stepsTotal} steps. Every task is open to you, and your steps build your own record.
+                </span>
+                <button type="button" onClick={() => onContinue(ownNext)} className="inline-flex max-w-full items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-sm font-semibold text-accent-contrast hover:bg-accent-strong">
+                  <span className="truncate">Do your own steps: {ownNext.title}</span>
+                </button>
+              </div>
             )}
           </div>
           {/* R107: what this member has practised, verified and had reviewed, against the course's registries. */}

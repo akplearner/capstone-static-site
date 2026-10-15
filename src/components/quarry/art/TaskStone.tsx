@@ -43,7 +43,7 @@ export function TaskStone({ percent, rarity, cut, size = 52 }: { percent: number
   }
 
   const done = state === 3 && rarity !== null;
-  const label = done ? `Task done — ${RARITY[rarity].name} gem` : `${percent}% of this task done`;
+  const label = done ? `Task done — ${RARITY[rarity].name} gem` : `Your progress on this task: ${percent}%`;
   const art = (
     <ArtSvg viewBox="-40 -80 80 86" width={size} height={size * (86 / 80)} overflow="visible" className={size <= 40 ? 'h-auto w-8 sm:w-9' : 'h-auto w-10 sm:w-[52px]'} label={label}>
       {(u) => (

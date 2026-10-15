@@ -9,7 +9,7 @@ describe('TaskStone — the task, as the stone it is cutting', () => {
 
   it('names the progress while unfinished, and the gem once done', () => {
     const { rerender } = render(<TaskStone percent={40} rarity={null} cut="shield" />);
-    expect(screen.getByRole('img', { name: '40% of this task done' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Your progress on this task: 40%' })).toBeInTheDocument();
     rerender(<TaskStone percent={100} rarity={2} cut="shield" />);
     expect(screen.getByRole('img', { name: 'Task done — Epic gem' })).toBeInTheDocument();
     expect(screen.getByTitle(/Epic/)).toBeInTheDocument();

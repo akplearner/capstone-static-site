@@ -332,7 +332,7 @@ export default function CoursePage() {
               cohortKey={progress.cohortKey}
               cohortCal={progress.cohortCal}
               unit={unit}
-              onContinue={() => nextTask && goToTask(nextTask)}
+              onContinue={(t) => { const x = t ?? nextTask; if (x) goToTask(x); }}
               onReadOtherSteps={() => {
                 pickWeek(activeWeek);
                 scrollTo('tasks-head');

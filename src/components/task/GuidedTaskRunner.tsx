@@ -342,7 +342,10 @@ export function GuidedTaskRunner({ task, courseId, memberId, teamSteps, onProgre
             <div className="flex items-start gap-3">
               <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${allRequiredDone ? 'text-ok' : 'text-muted'}`} aria-hidden />
               <div className="min-w-0 flex-1">
-                <div className={`font-medium ${allRequiredDone ? 'text-ok' : 'text-ink'}`}>Done when</div>
+                <div className={`font-medium ${allRequiredDone ? 'text-ok' : 'text-ink'}`}>
+                  Done when
+                  <span className="sr-only">{allRequiredDone ? ' (met: every required step is ticked)' : ' (not yet: required steps are still open)'}</span>
+                </div>
                 <ul className="mt-1 space-y-0.5 text-sm text-body">
                   {doneWhen.map((d) => (
                     <li key={d}>{d}</li>

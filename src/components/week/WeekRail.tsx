@@ -40,8 +40,10 @@ export interface WeekRailItem {
   /** The week number. 0 is Setup, which deliberately has no phase colour. */
   week: number;
   label: ReactNode;
-  /** Renders a tick. What "done" means is the caller's business. */
+  /** Renders a tick. What "done" means is the caller's business, and `doneLabel` says it in words. */
   done?: boolean;
+  /** What the tick means here (R118): "every task done for the team", "every document meets the definition of done". Default "done". */
+  doneLabel?: string;
   /** Renders a flag: the gate before this week is not cleared yet (R116). Gates are advisory, so the week stays open. */
   gatePending?: boolean;
   /** Renders a slow pulse on the dot — "this is where you actually are". */
@@ -142,7 +144,7 @@ export function WeekRail({
               <span className={`hidden text-2xs sm:inline ${on ? 'opacity-80' : 'text-muted'}`}>~{formatMinutes(it.minutes)}</span>
             )}
             {it.advanced && <Sparkles className="h-3.5 w-3.5" aria-label="advanced, optional" />}
-            {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label="done" />}
+            {it.done && <CheckCircle2 className="h-3.5 w-3.5" aria-label={it.doneLabel ?? 'done'} />}
             {it.gatePending && <Flag className="h-3.5 w-3.5" aria-label="gate not cleared yet" />}
           </button>
         );

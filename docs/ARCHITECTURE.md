@@ -571,6 +571,25 @@ removed from the course is asked for a new role with the picker open and their p
 house says so and points at an online lobby. Content tests pin that every gate waits on a required step
 and every task is shared or belongs to a role of its course.
 
+### One word for "done" (R118)
+
+A task on a role-split course is done once anyone on the team did it (R98), while the member's own
+record (the stone, the gems, the ledger) stays theirs, so a task has two figures. `taskState`
+(`src/lib/taskState.ts`, pure) is the one place that says which is which: the state is the TEAM's
+(`not-started`, `in-progress`, `done`) and the member's own count is shown beside it only when it
+differs. `TaskStateChip` draws it as an icon and the words ("Not started", "In progress · 2 of 5
+steps", "Done", "Done by Ada", "Done for the team", "You: 0 of 5 steps"), on every task row and in
+the opened task's header with the member's verified checks. The contradictions went with it: the
+stone is labelled as the member's own, the week header says its bar is the team's and shows "You n%"
+beside it when that differs, each rail tick says in words what it means (every task done for the
+team; every document meets the definition of done), the done tick on an objective, a gate dot and a
+filed document are words for assistive tech, and the instructor's verdict is always named
+(`REVIEW_VERDICT_LABEL`: "Instructor: approved", "Instructor: reviewing") so it never collides with
+the team's own lifecycle (Draft, In review, Approved, Issued). Home shows `MyWaitingCard` (the
+documents the member is waiting on others for, and that any member may cover an empty role), and a
+late joiner on a finished team sees "Done for the team. Your own record: n of m steps." with their
+first open step as the way in, instead of a dead end.
+
 ## 7. The MSP / business bridge (dual-use is the unlock)
 
 The same primitives serve training *and* commercial implementation:

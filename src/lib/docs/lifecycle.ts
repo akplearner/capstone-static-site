@@ -40,6 +40,17 @@ export const STATUS_LABEL: Record<DocStatus, string> = {
   approved: 'Approved',
   issued: 'Issued',
 };
+/**
+ * R118 — the instructor's verdict on a form, in words that cannot be mistaken
+ * for the team's own lifecycle above (Draft, In review, Approved, Issued). The
+ * form's banner said "Under review" and the cohort table "In review" for the
+ * same verdict, and "Approved" named both; the instructor is named every time.
+ */
+export const REVIEW_VERDICT_LABEL = {
+  approved: { head: 'Instructor approved this', short: 'Instructor: approved' },
+  revise: { head: 'Instructor asks for changes', short: 'Instructor: revise' },
+  pending: { head: 'Instructor is reviewing', short: 'Instructor: reviewing' },
+} as const;
 export const ACTION_LABEL: Record<LifecycleAction, string> = {
   submit: 'Submit for review',
   approve: 'Approve',

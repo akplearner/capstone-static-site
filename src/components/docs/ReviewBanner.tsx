@@ -3,9 +3,9 @@
 import { Alert } from '@/components/ui/Alert';
 import type { DeliverableReview } from '@/lib/data/types';
 import { localStamp } from '@/lib/localDate';
+import { REVIEW_VERDICT_LABEL } from '@/lib/docs/lifecycle';
 
 const VARIANT = { approved: 'success', revise: 'warning', pending: 'info' } as const;
-const HEAD = { approved: 'Approved', revise: 'Revise and resubmit', pending: 'Under review' } as const;
 
 /**
  * An instructor's verdict on this form for this week, where the student
@@ -17,7 +17,7 @@ export function ReviewBanner({ review }: { review: DeliverableReview }) {
     <Alert variant={VARIANT[review.status]}>
       <div className="space-y-1">
         <div className="font-semibold">
-          {HEAD[review.status]} · Week {review.week}
+          {REVIEW_VERDICT_LABEL[review.status].head} · Week {review.week}
         </div>
         {review.comment && <p className="whitespace-pre-wrap text-sm text-body">{review.comment}</p>}
         <p className="text-xs text-muted">
